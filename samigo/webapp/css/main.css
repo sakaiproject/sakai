@@ -1,0 +1,250 @@
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 85%;
+}
+table {
+	width: 100%;
+}
+table, tr, th, td {
+	border: 0px none;
+}
+td {
+	font-size: 85%;
+}
+.alignRight, .tdDisplay {
+	text-align: right;
+}
+th {
+	font-size: 85%;
+	font-weight: bold;
+	background: #666699;
+	color: #FFFFFF;
+	text-align: left;
+}
+th a:link {
+  color:#FFFFFF;
+}
+input{
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 100%;
+}
+textarea { 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 100%;
+}
+.detail {
+	font-size: 75%;
+}
+
+/* unit#heading's are being deprecated, don't use 
+   use <h#> tags to structure the content of pages
+   use a <div class="h#unit"> for the block underneath the <h#>  
+   use the .h#text classes when you want <h#>-like text but it's in a table 
+	 (e.g. when you need button on the same line, aligned to the right	*/
+	 
+h1, .unit1heading, h2, .unit2heading, h3, .unit3heading {
+	font-weight: bold;
+	padding: 2px 2px 2px 5px;
+	margin-top:5px;
+	margin-bottom:0px;
+	margin-right:0px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+h1, .unit1heading {
+	color:#000000;
+	background:#FFFFFF;
+	font-size: 120%;
+	margin-left: 0px;
+	height: 25px;
+}
+.h1text {
+	color:#000000;
+	background:#FFFFFF;
+	font-size: 120%;
+	font-weight: bold;
+}
+h2, .unit2heading {
+	color:#FFFFFF;
+	background:#666699;
+	font-size: 90%;
+	margin-left:0px;
+	height: 20px;
+}
+.h2text {
+	color:#FFFFFF;
+	background:#666699;
+	font-size: 90%;
+	font-weight: bold;
+}
+h3, .unit3heading {
+	color:#FFFFFF;
+	background:#666699;
+	font-size: 80%;
+	margin-left:25px;
+	height: 18px;
+}
+.h3text {
+	color:#FFFFFF;
+	background:#666699;
+	font-size: 80%;
+	font-weight: bold;
+}
+
+/* use this class in conjunction with a <h#> or <th> tag to alternate the heading's appearance */
+.altBackground, .altHeading {
+	background: #CCCCFF;
+	color: #000000;
+}
+/* (TEMPORARY UNTIL TABLE HEADERS ARE RECONCILED)
+  use this class in conjunction with a <h#> or <th> tag to alternate the heading's appearance */
+.altHeading2 {
+	background: #FFFFFF;
+	color: #000000;
+}
+/* use these classes for alternating row backgrounds in table lists */
+.trOdd {
+	background-color: #FFFFFF;
+}
+.trEven {
+	background-color: #E1E1E1;
+}
+/* unit#'s are being deprecated, don't use 
+   use a <div class="h#unit" id="div#"> for the block underneath the <h#>  
+	 when using the javascript tree; show/hide the div block
+	 FUTURE: turn on border for these classes to frame logical groupings 
+*/
+
+.h1unit, .unit1 {
+	margin-left:0px;
+	margin-right:0px;
+	margin-bottom: 10px;
+	margin-top: 0px;
+	padding: 5px;
+	border: 1px none #666699;
+}
+.h2unit, .unit2 {
+	margin-left:0px;
+	margin-right:0px;
+	margin-bottom: 10px;
+	margin-top: 0px;
+	padding: 5px;
+	border: 1px none #666699;
+}
+.h3unit, .unit3 {
+	margin-left:25px;
+	margin-right:0px;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	padding: 5px;
+	border: 1px none #666699;
+}
+/* tdIndent# are deprecated, don't use
+   use these indent# classes with a div to indent a block
+   these classes should not be used in place, but rather within a h#unit block */
+.indent1, .tdIndent1 {
+	padding-left: 25px;
+}
+.indent2, .tdIndent2 {
+	padding-left: 50px;
+}
+.indent3, .tdIndent3 {
+	padding-left: 50px;
+}
+/* these classes are various types of instructions */
+.instructionsSteps {
+	font-size: 100%;
+	font-weight: bold;
+}
+/* these classes are to be used to display various messages */
+.messageConfirm {
+	color: #009900;
+	padding: 2px;
+	margin-top: 5px;
+	margin-right: 50px;
+	margin-bottom: 5px;
+	margin-left: 50px;
+	border: 1px solid #009900;
+	font-weight: bold;
+}
+.messageError {
+	color: #CC0000;
+	padding: 2px;
+	margin-top: 5px;
+	margin-right: 50px;
+	margin-bottom: 5px;
+	margin-left: 50px;
+	border: 1px solid #CC0000;
+	font-weight: bold;
+}
+.messageGlobal {
+	color: #CC0000;
+	padding: 2px;
+	margin-top: 5px;
+	margin-right: 50px;
+	margin-bottom: 5px;
+	margin-left: 50px;
+	border: 1px solid #CC0000;
+	font-weight: bold;
+}
+.messageValidate {
+	color: #CC0000;
+	padding: 2px;
+	margin-top: 5px;
+	margin-right: 50px;
+	margin-bottom: 5px;
+	margin-left: 50px;
+	border: 1px solid #CC0000;
+	font-weight: bold;
+}
+.messageWarning {
+	color: #CC0000;
+	padding: 2px;
+	margin-top: 5px;
+	margin-right: 50px;
+	margin-bottom: 5px;
+	margin-left: 50px;
+	border: 1px solid #CC0000;
+	font-weight: bold;
+}
+
+
+.number {
+  width=23px;
+  height=23px;
+	FONT-WEIGHT: bold;
+	COLOR:#FFFFFF;
+	background-image: url(../images/circle.gif);
+	vertical-align: middle;
+	background-repeat: no-repeat;
+	padding-left: 5px;
+	height: 32px;
+	width: 32px;
+	float: left;
+}
+.circleNumber
+{
+FONT-WEIGHT: bold;
+COLOR:#FFFFFF;
+}
+
+/* this style is the temporary red header bar on most pages */
+.heading {
+	font-size: 18px;
+	font-weight: bold;
+	color: #FFFFFF;
+	background: #990000;
+	height: 50px;
+	vertical-align: middle;
+	padding: 10px;
+}
+/* DO NOT USE - these classes should not be defined, they whould be declarations within other classes */
+.bold {
+  FONT-WEIGHT: bold
+}
+.white { color:#FFFFFF
+ }
+.red
+{
+COLOR:#ff0033;
+}

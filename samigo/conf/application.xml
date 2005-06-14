@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE application PUBLIC
+  "-//Sun Microsystems, Inc.//DTD J2EE Application 1.2//EN"
+  "http://java.sun.com/j2ee/dtds/application_1_2.dtd">
+
+<!-- $Id: application.xml,v 1.1.1.1 2004/07/28 21:31:46 rgollub.stanford.edu Exp $ -->
+
+<application>
+  <display-name>SAM</display-name>
+  <description>Sakai Assessment Manager</description>
+  
+  <module>
+    <ejb>sam-stg.jar</ejb>
+  </module>
+  
+  <module>
+    <java>lib/more.jar</java>
+  </module>
+
+  <module>
+    <web>
+      <web-uri>sam-stg.war</web-uri>
+      <context-root>/sam-stg</context-root>
+    </web>
+  </module>
+
+</application>

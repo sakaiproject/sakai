@@ -1,0 +1,1003 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+  Description: Faces Config for Samigo Assessment Tool
+  Copyright: Copyright (c) 2004
+  Organization: Sakai Project
+  Author: Ed Smiley
+  @version $Id: faces-config.xml,v 1.95 2005/06/12 23:47:46 daisyf.stanford.edu Exp $
+-->
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+
+<faces-config>
+  <!-- Managed Beans -->
+  <!-- *** TEST *** -->
+  <!-- main test bean -->
+  <managed-bean>
+    <description>The main test backing bean</description>
+    <managed-bean-name>bean</managed-bean-name>
+    <managed-bean-class>test.org.sakaiproject.tool.assessment.jsf.TestBackingBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>The main test WS bean</description>
+    <managed-bean-name>testwsbean</managed-bean-name>
+    <managed-bean-class>test.org.sakaiproject.tool.assessment.jsf.TestWSBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <description>Another test backing bean</description>
+    <managed-bean-name>subbean</managed-bean-name>
+    <managed-bean-class>test.org.sakaiproject.tool.assessment.jsf.SubBackingBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>Test dataline tag</description>
+    <managed-bean-name>testlinks</managed-bean-name>
+    <managed-bean-class>test.org.sakaiproject.tool.assessment.jsf.TestLinksBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>Test dataline tag in a datatable</description>
+    <managed-bean-name>multilinks</managed-bean-name>
+    <managed-bean-class>test.org.sakaiproject.tool.assessment.jsf.LinksModelBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <!-- *** END TEST *** -->
+
+  <managed-bean>
+    <description>backing bean</description>
+    <managed-bean-name>backingbean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>sub backing bean</description>
+    <managed-bean-name>subbackingbean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.shared.SubBackingBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Template editor backing bean</description>
+    <managed-bean-name>template</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Assessment Settings backing bean.</description>
+    <managed-bean-name>assessmentSettings</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Assessment Settings backing bean.</description>
+    <managed-bean-name>publishedSettings</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Assessment backing bean.</description>
+    <managed-bean-name>assessmentBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Assessment Authoring backing bean.</description>
+    <managed-bean-name>author</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Delete Confirm backing bean.</description>
+    <managed-bean-name>deleteconfirm</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.DeleteConfirmBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: File Upload backing bean.</description>
+    <managed-bean-name>fileupload</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.FileUploadBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Template Index backing bean.</description>
+    <managed-bean-name>templateIndex</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.IndexBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For delivery: ItemContents backing bean.</description>
+    <managed-bean-name>itemContents</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Item Author backing bean.</description>
+    <managed-bean-name>itemauthor</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Published Assessment backing bean.</description>
+    <managed-bean-name>publishedassessment</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Published Assessment backing bean.</description>
+    <managed-bean-name>publishedAssessmentBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBeanie</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For author: Section backing bean.</description>
+    <managed-bean-name>sectionBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.SectionBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For delivery: Delivery backing bean.</description>
+    <managed-bean-name>delivery</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For evaluation: Evaluation Result backing bean.</description>
+    <managed-bean-name>evaluationresult</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.EvaluationResultBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For evaluation: Histogram Question Scores backing bean.</description>
+    <managed-bean-name>histogramquestionscores</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramQuestionScoresBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For evaluation: Histogram Scores backing bean.</description>
+    <managed-bean-name>histogramScores</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For evaluation: Question Scores backing bean.</description>
+    <managed-bean-name>questionScores</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For evaluation: Total Scores backing bean.</description>
+    <managed-bean-name>totalScores</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For evaluation: Student Scores backing bean.</description>
+    <managed-bean-name>studentScores</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For misc: Default Login backing bean.</description>
+    <managed-bean-name>defaultlogin</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.misc.DefaultLoginBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For misc: Display Message backing bean.</description>
+    <managed-bean-name>displaymessage</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.misc.DisplayMessageBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For misc: Navigation backing bean.</description>
+    <managed-bean-name>navigation</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.misc.NavigationBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For misc: Simple Form Login backing bean.</description>
+    <managed-bean-name>simpleformlogin</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.misc.SimpleFormLoginBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description> Question Pool backing bean.</description>
+    <managed-bean-name>questionpool</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For questionpool: Question Pool Data backing bean.</description>
+    <managed-bean-name>questionpooldata</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolData</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>For select: Select Assessment backing bean.</description>
+    <managed-bean-name>select</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>Course Management Info.  Dummy data for now.</description>
+    <managed-bean-name>course</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.cms.CourseManagementBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>Build Information.</description>
+    <managed-bean-name>buildinfo</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.misc.BuildInfoBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <!-- XML -->
+  <managed-bean>
+    <description>XML Display.</description>
+    <managed-bean-name>xml</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.qti.XMLDisplay</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>XML Import.</description>
+    <managed-bean-name>xmlImport</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.qti.XMLImportBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>authorBean</property-name>
+      <value>#{author}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>assessmentBean</property-name>
+      <value>#{assessmentBean}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>itemAuthorBean</property-name>
+      <value>#{itemauthor}</value>
+    </managed-property>
+  </managed-bean>
+  <managed-bean>
+    <description>XML Controller.</description>
+    <managed-bean-name>xmlController</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.qti.XMLController</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>xmlBean</property-name>
+      <value>#{xml}</value>
+    </managed-property>
+  </managed-bean>
+  <managed-bean>
+    <description>For media: Media bean.</description>
+    <managed-bean-name>mediaBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.shared.MediaBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <!-- Navigation Rules -->
+  <!-- INDEX -->
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>select</from-outcome>
+      <to-view-id>/jsf/select/selectIndex.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>view</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>author</from-outcome>
+      <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>sortCore</from-outcome>
+      <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>test</from-outcome>
+      <to-view-id>/jsf/questionpool/test.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <!-- DELIVERY -->
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>beginAssessment</from-outcome>
+      <to-view-id>/jsf/delivery/beginTakingAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>takeAssessment</from-outcome>
+      <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>tableOfContents</from-outcome>
+      <to-view-id>/jsf/delivery/tableOfContents.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>accessError</from-outcome>
+      <to-view-id>/jsf/delivery/accessError.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>ipAccessError</from-outcome>
+      <to-view-id>/jsf/delivery/ipAccessError.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>passwordAccessError</from-outcome>
+      <to-view-id>/jsf/delivery/passwordAccessError.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>timeout</from-outcome>
+      <to-view-id>/jsf/delivery/timeout.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>submitAssessment</from-outcome>
+      <to-view-id>/jsf/delivery/submitted.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>reviewAssessment</from-outcome>
+      <to-view-id>/jsf/delivery/reviewAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>anonymousThankYou</from-outcome>
+      <to-view-id>/jsf/delivery/submitted.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>anonymousQuit</from-outcome>
+      <to-view-id>/jsf/delivery/anonymousQuitMessage.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+
+	<!-- AUTHOR -->
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>createAssessment</from-outcome>
+      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>importAssessment</from-outcome>
+      <to-view-id>/jsf/qti/importAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>editAssessmentSettings</from-outcome>
+      <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>editPublishedAssessmentSettings</from-outcome>
+      <to-view-id>/jsf/author/publishedSettings.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+<navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>editAssessment</from-outcome>
+      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+
+  <navigation-rule>
+    <from-view-id>/jsf/author/item/multipleChoice.jsp</from-view-id>
+    <navigation-case>
+      <from-outcome>MCAddSuccess</from-outcome>
+      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>MCAddFailure</from-outcome>
+      <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+    </navigation-case>
+     <navigation-case>
+      <from-outcome>MCPoolAddSuccess</from-outcome>
+      <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>MCPoolAddFailure</from-outcome>
+      <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>previewAssessment</from-outcome>
+      <to-view-id>/jsf/author/previewAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>addPart</from-outcome>
+      <to-view-id>/jsf/author/addPart.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>editPart</from-outcome>
+      <to-view-id>/jsf/author/editPart.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>authorQuestions</from-outcome>
+      <to-view-id>/jsf/author/authorQuestions.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>authorSettings</from-outcome>
+      <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>previewItem</from-outcome>
+      <to-view-id>/jsf/author/item/preview/previewItem.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>exportAssessment</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>confirmRemoveAssessment</from-outcome>
+      <to-view-id>/jsf/author/removeAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>confirmRemovePart</from-outcome>
+      <to-view-id>/jsf/author/removePart.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>removePart</from-outcome>
+      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>removeQuestion</from-outcome>
+      <to-view-id>/jsf/author/removeQuestion.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>confirmRemoveMedia</from-outcome>
+      <to-view-id>/jsf/shared/removeMedia.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>addMatchItem</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>addMatchItemMatch</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>moveQuestionRemovePart</from-outcome>
+      <to-view-id>/jsf/assessment/editAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>myQuestions</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>removeAnswer</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>removeAssessment</from-outcome>
+      <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>removeMatchItem</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>removeMatchItemMatch</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>removeQuestionConfirm</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>saveSettings</from-outcome>
+      <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>saveSettingsAndConfirmPublish</from-outcome>
+      <to-view-id>/jsf/author/publishAssessment.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>publishAssessment</from-outcome>
+      <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+	<!-- ITEM AUTHORING -->
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>trueFalseItem</from-outcome>
+      <to-view-id>/jsf/author/item/trueFalse.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>fillInBlackItem</from-outcome>
+      <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>shortAnswerItem</from-outcome>
+      <to-view-id>/jsf/author/item/shortAnswer.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>surveyItem</from-outcome>
+      <to-view-id>/jsf/author/item/multipleChoiceSurvey.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>multipleChoiceItem</from-outcome>
+      <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>fileUploadItem</from-outcome>
+      <to-view-id>/jsf/author/item/fileUpload.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>audioRecItem</from-outcome>
+      <to-view-id>/jsf/author/item/audioRecording.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>matchingItem</from-outcome>
+      <to-view-id>/jsf/author/item/matching.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+
+	<!-- QUESTION POOL	 -->
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>poolList</from-outcome>
+      <to-view-id>/jsf/questionpool/poolList.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>addPool</from-outcome>
+      <to-view-id>/jsf/questionpool/addPool.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>editPool</from-outcome>
+      <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>copyPool</from-outcome>
+      <to-view-id>/jsf/questionpool/copyPool.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>movePool</from-outcome>
+      <to-view-id>/jsf/questionpool/movePool.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>removePool</from-outcome>
+      <to-view-id>/jsf/questionpool/removePool.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>importPool</from-outcome>
+      <to-view-id>/jsf/questionpool/importPool.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>exportPool</from-outcome>
+      <to-view-id>/jsf/questionpool/exportPool.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+ <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>previewQuestion</from-outcome>
+      <to-view-id>/jsf/author/previewQuestion.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>previewQuestionInPool</from-outcome>
+      <to-view-id>/jsf/questionpool/preview/previewItem.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>importQuestion</from-outcome>
+      <to-view-id>/jsf/questionpool/importQuestion.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>exportQuestion</from-outcome>
+      <to-view-id>/jsf/questionpool/exportQuestion.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>selectQuestionType</from-outcome>
+      <to-view-id>/jsf/questionpool/selectQuestionType.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>removeQuestionFromPool</from-outcome>
+      <to-view-id>/jsf/questionpool/removeQuestion.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>debug</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>exit</from-outcome>
+      <to-view-id>/jsf/index/exit.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>index</from-outcome>
+      <to-view-id>/jsf/index/index.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <!-- TEMPLATE -->
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>template</from-outcome>
+      <to-view-id>/jsf/template/templateIndex.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>editTemplate</from-outcome>
+      <to-view-id>/jsf/template/templateEditor.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>newTemplate</from-outcome>
+      <to-view-id>/jsf/template/templateEditor.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>confirmDeleteTemplate</from-outcome>
+      <to-view-id>/jsf/template/confirmTempRemove.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>deleteTemplate</from-outcome>
+      <to-view-id>/jsf/template/templateIndex.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <!-- EVALUATION -->
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>studentScores</from-outcome>
+      <to-view-id>/jsf/evaluation/gradeStudentResult.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>totalScores</from-outcome>
+      <to-view-id>/jsf/evaluation/totalScores.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>questionScores</from-outcome>
+      <to-view-id>/jsf/evaluation/questionScore.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>submissionStatus</from-outcome>
+      <to-view-id>/jsf/evaluation/submissionStatus.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>histogramScores</from-outcome>
+      <to-view-id>/jsf/evaluation/histogramScores.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>exportZip</from-outcome>
+      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <!-- XML -->
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>xmlDisplay</from-outcome>
+      <to-view-id>/jsf/qti/xmlDisplay.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>xmlPublished</from-outcome>
+      <to-view-id>/jsf/qti/xmlPublished.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>xmlTemplates</from-outcome>
+      <to-view-id>/jsf/qti/xmlTemplates.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <!-- Components -->
+  <component>
+    <component-type>SakaiRichTextEditArea</component-type>
+    <component-class>org.sakaiproject.jsf.component.RichTextEditArea</component-class>
+  </component>
+
+  <!-- Custom Renderers -->
+  <render-kit>
+    <!-- stylesheet -->
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>Stylesheet</renderer-type>
+      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.StylesheetRenderer</renderer-class>
+    </renderer>
+    <!-- script -->
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>Script</renderer-type>
+      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.ScriptRenderer</renderer-class>
+    </renderer>
+    <!-- color picker -->
+    <renderer>
+      <component-family>javax.faces.Input</component-family>
+      <renderer-type>ColorPicker</renderer-type>
+      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.ColorPickerRenderer</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>ColorPickerPopup</renderer-type>
+      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.ColorPickerPopupRenderer</renderer-class>
+    </renderer>
+    <!-- date picker -->
+    <renderer>
+      <component-family>javax.faces.Input</component-family>
+      <renderer-type>DatePicker</renderer-type>
+      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.DatePickerRenderer</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>DatePickerPopup</renderer-type>
+      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.DatePickerPopupRenderer</renderer-class>
+    </renderer>
+    <!-- hide division -->
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>HideDivision</renderer-type>
+      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.HideDivisionRenderer</renderer-class>
+    </renderer>
+    <!-- alpha index -->
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>AlphaIndex</renderer-type>
+      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.AlphaIndexRenderer</renderer-class>
+    </renderer>
+    <!-- 'sideways' dataTable, renders all on one line -->
+    <renderer>
+       <component-family>javax.faces.Data</component-family>
+       <renderer-type>DataLine</renderer-type>
+    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.DataLineRenderer</renderer-class>
+    </renderer>
+    <!-- modified version of Sakai rich text editor control  -->
+    <renderer>
+      <component-family>SakaiRichTextEditArea</component-family>
+      <renderer-type>SakaiRichTextEditArea</renderer-type>
+      <renderer-class>org.sakaiproject.jsf.renderer.RichTextEditArea</renderer-class>
+    </renderer>
+    <!-- links, obsolete  -->
+    <renderer>
+       <component-family>javax.faces.Output</component-family>
+       <renderer-type>NavigationMap</renderer-type>
+    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.NavigationMapRenderer</renderer-class>
+    </renderer>
+    <!-- pager control -->
+    <renderer>
+       <component-family>javax.faces.Output</component-family>
+       <renderer-type>PagerButton</renderer-type>
+    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.PagerButtonRenderer</renderer-class>
+    </renderer>
+    <!-- timer bar -->
+    <renderer>
+       <component-family>javax.faces.Output</component-family>
+       <renderer-type>TimerBar</renderer-type>
+    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.TimerBarRenderer</renderer-class>
+    </renderer>
+    <!-- pager control, obsolete -->
+    <renderer>
+       <component-family>javax.faces.Output</component-family>
+       <renderer-type>Pager</renderer-type>
+    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.PagerRenderer</renderer-class>
+    </renderer>
+
+    <!-- pager buttons for pager control, obsolete -->
+    <renderer>
+       <component-family>javax.faces.Output</component-family>
+       <renderer-type>PagerButtonControl</renderer-type>
+    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.PagerButtonControlRenderer</renderer-class>
+    </renderer>
+   </render-kit>
+
+
+   <navigation-rule>
+      <from-view-id>/jsf/upload/uploadFile.jsp</from-view-id>
+      <navigation-case>
+         <from-outcome>submit</from-outcome>
+         <to-view-id>/jsf/upload/closeWindow.jsp</to-view-id>
+      </navigation-case>
+   </navigation-rule>
+
+   <component>
+      <component-type>com.corejsf.Upload</component-type>
+      <component-class>javax.faces.component.UIInput</component-class>
+   </component>
+
+   <render-kit>
+      <renderer>
+         <component-family>javax.faces.Input</component-family>
+         <renderer-type>com.corejsf.Upload</renderer-type>
+         <renderer-class>com.corejsf.UploadRenderer</renderer-class>
+      </renderer>
+   </render-kit>
+
+
+
+</faces-config>

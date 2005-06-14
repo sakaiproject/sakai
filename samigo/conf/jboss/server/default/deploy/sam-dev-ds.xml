@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE datasources
+[
+<!ENTITY samOncDbFile SYSTEM "file:/opt/sa_forms/java/dev/org/sakaiproject/security/sam/samigo.xml" >
+]
+>
+
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>jdbc/sam/dev/samigo</jndi-name>
+    <connection-url>your connection url here</connection-url>
+    <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
+&samOncDbFile;
+
+    <transaction-isolation>TRANSACTION_READ_COMMITTED</transaction-isolation>
+
+    <valid-connection-checker-class-name>org.jboss.resource.adapter.jdbc.vendor.OracleValidConnectionChecker</valid-connection-checker-class-name>
+    <exception-sorter-class-name>org.jboss.resource.adapter.jdbc.vendor.OracleExceptionSorter</exception-sorter-class-name>
+    <new-connection-sql>select 1 from dual</new-connection-sql>
+
+    <min-pool-size>0</min-pool-size>
+    <max-pool-size>400</max-pool-size>
+    <blocking-timeout-millis>5000</blocking-timeout-millis>
+    <idle-timeout-minutes>15</idle-timeout-minutes>
+
+    <track-statements>true</track-statements>
+    <prepared-statement-cache-size>400</prepared-statement-cache-size>
+
+  </local-tx-datasource>  
+
+</datasources>
+

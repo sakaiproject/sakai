@@ -1,0 +1,6 @@
+# JavaMail IMAP provider Sun Microsystems, Inc
+protocol=imap; type=store; class=com.sun.mail.imap.IMAPStore; vendor=Sun Microsystems, Inc;
+# JavaMail SMTP provider Sun Microsystems, Inc
+protocol=smtp; type=transport; class=com.sun.mail.smtp.SMTPTransport; vendor=Sun Microsystems, Inc;
+# JavaMail POP3 provider Sun Microsystems, Inc
+protocol=pop3; type=store; class=com.sun.mail.pop3.POP3Store; vendor=Sun Microsystems, Inc;

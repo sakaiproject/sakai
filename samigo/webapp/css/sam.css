@@ -1,0 +1,77 @@
+h2 {
+	color: #FFFFFF;
+}
+h4 {
+	background-color: #DDE3EB;
+}
+h5 {
+	background-color: #CCCCCC;
+}
+.navIntraTool {
+	background-color: #dde3eb;
+}
+.navModeAction
+{background-color:#CCC;text-align:center;padding:.3em;vertical-align:middle}
+.navModeQuestion
+{background-color:#CCC;text-align:left;padding:.3em;vertical-align:middle font-size:1.2ems}
+.plain {
+        background-color: #FFFFFF; }
+.regHeading {
+	background-color: #dde3eb;text-align:left
+}
+.textTable
+{vertical-align:top;margin-left:2em}
+.number {
+  width=23px;
+  height=23px;
+	FONT-WEIGHT: bold;
+	COLOR:#FFFFFF;
+	background-image: url(../images/circle.gif);
+	vertical-align: middle;
+	background-repeat: no-repeat;
+	padding-left: 5px;
+	height: 32px;
+	width: 32px;
+	float: left;
+}
+
+
+/* moved h#text,alignRight from main.css  */
+.h3text {
+        font-size: 1.2ems;
+        font-weight: bold;
+}
+.h4text {
+        font-size: 1.0ems;
+        font-weight: bold;
+}
+.h5text {
+        font-size: 0.8ems;
+        font-weight: bold;
+}
+/* these two classes will be in the new Sakai default tool css, when it comes out between 1.5 and 2.0*/
+/*remove border from images that might be linked. Need this because JSF doesn't allow border="0"
+in <h:graphicImage> */
+img{
+    border:0px;
+}
+/*make the currently sorted column header text bold, apply to<th> tag */
+.currentSort{
+ font-weight:bold !important;
+}
+.alignRight{
+        text-align: right;
+}
+.alignLeft{
+        text-align: left;
+}
+.alignCenter{
+        text-align: center;
+}
+span.abc{clear:both;text-align:right}
+table.listHier th{background-color:#E6E6E6}
+.validate{color:red}
+
+.shorttext label { 
+width:250px;}
+

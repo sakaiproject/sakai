@@ -1,0 +1,13 @@
+JarIndex-Version: 1.0
+
+mysql-connector-java-3.0.6-stable-bin.jar
+org/gjt/mm/mysql
+org/gjt
+com/mysql/jdbc/jdbc2
+com
+com/mysql
+com/mysql/jdbc
+com/mysql/jdbc/jdbc2/optional
+org/gjt/mm
+com/mysql/jdbc/util
+org

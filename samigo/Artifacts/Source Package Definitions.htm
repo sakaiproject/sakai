@@ -1,0 +1,273 @@
+<html>
+<!--
+$Id: Source\040Package\040Definitions.htm,v 1.2 2005/01/07 18:56:02 esmiley.stanford.edu Exp $
+-->
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Navigo Source Code Package Defin</title>
+<style>
+<!--
+.ms-list1-0001-main { background-color: white }
+.ms-list1-0001-even { color: black; background-color: white }
+.ms-list1-0001-odd { color: black; background-color: #C3DAF9}
+-->
+</style>
+</head>
+
+<body>
+
+<h1>Deprecated:</h1>
+<h2>Navigo Source Code Package Definitions</h2>
+<hr>
+<table border="1" width="100%" id="table1" class="ms-list1-0001-main" style="border-collapse: collapse">
+	<!-- fpstyle: 24,000010000 -->
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject</font></td>
+		<td class="ms-list1-0001-even">Classes and properties that apply to the
+		entire application</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.business.*</font></td>
+		<td class="ms-list1-0001-odd">All business layer classes</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.business.control</font></td>
+		<td class="ms-list1-0001-even">Business logic controller classes</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.business.criteria</font></td>
+		<td class="ms-list1-0001-odd">Logical processing classes (criterion)</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.business.entity</font></td>
+		<td class="ms-list1-0001-even">All logical business object entities</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.business.entity.assessment.model</font></td>
+		<td class="ms-list1-0001-odd">Template editor assessment entities
+		<font color="#0000FF"><sup><a href="#1">1</a></sup></font></td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.business.entity.properties</font></td>
+		<td class="ms-list1-0001-even">Template editor property entities
+		<font color="#0000FF"><sup><a href="#1">1</a></sup></font></td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.business.exception</font></td>
+		<td class="ms-list1-0001-odd">All business layer exceptions</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.data</font></td>
+		<td class="ms-list1-0001-even">All data layer classes</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.data.dao</font></td>
+		<td class="ms-list1-0001-odd">Template editor data access objects</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.data.imsglobal.qti</font></td>
+		<td class="ms-list1-0001-even">Data beans for storing QTI settings
+		<font color="#0000FF"><sup><a href="#1">1</a></sup></font></td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ejb.servicelocator</font></td>
+		<td class="ms-list1-0001-odd">Template editor EJB service locator
+		classes</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.osid</font></td>
+		<td class="ms-list1-0001-even">All classes related to OKI OSID
+		implementations and helpers</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.osid.assessment</font></td>
+		<td class="ms-list1-0001-odd">Template editor OSID classes <sup>
+		<font color="#0000FF"><a href="#2">2</a></font></sup></td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.osid.assessment.ejb</font></td>
+		<td class="ms-list1-0001-even">Template editor EJB classes
+		<font color="#0000FF"><sup><a href="#1">1</a></sup></font></td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.osid.assessment.impl</font></td>
+		<td class="ms-list1-0001-odd">Assessment OSID implementation</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.osid.shared.impl</font></td>
+		<td class="ms-list1-0001-even">Shared OSID implementation</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.settings</font></td>
+		<td class="ms-list1-0001-odd">All classes and properties required to
+		bootstrap the application</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.struts</font></td>
+		<td class="ms-list1-0001-even">All struts related classes, most
+		importantly the RequestProcessor </td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.threadlocal</font></td>
+		<td class="ms-list1-0001-odd">All ThreadLocal implementations</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.*</font></td>
+		<td class="ms-list1-0001-even">All user interface layer classes</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.*</font></td>
+		<td class="ms-list1-0001-odd">All user interface later classes
+		supporting HTTP/HTML</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.action</font></td>
+		<td class="ms-list1-0001-even">Template editor action classes
+		<font color="#0000FF"><sup><a href="#1">1</a></sup></font></td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.asi.*</font></td>
+		<td class="ms-list1-0001-odd">All user interface later classes
+		supporting HTTP/HTML, QTI assessment, section, item (ASI)</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.asi.author.*</font></td>
+		<td class="ms-list1-0001-even">All authoring UI related classes</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.asi.delivery</font></td>
+		<td class="ms-list1-0001-odd">All ASI UI delivery classes</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.asi.delivery.fop</font></td>
+		<td class="ms-list1-0001-even">All ASI delivery classes that output PDF</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.asi.exporting</font></td>
+		<td class="ms-list1-0001-odd">QTI export functionality</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.asi.importing</font></td>
+		<td class="ms-list1-0001-even">QTI import functionality</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.asi.realize</font></td>
+		<td class="ms-list1-0001-odd">QTI realization logic
+		<font color="#0000FF"><sup><a href="#1">1</a></sup></font></td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.asi.result</font></td>
+		<td class="ms-list1-0001-even">Results recording logic</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.asi.select</font></td>
+		<td class="ms-list1-0001-odd">User selects an assessment for delivery
+		use case logic</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.debug</font></td>
+		<td class="ms-list1-0001-even">Debug classes intended to help developers
+		during development</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.form.*</font></td>
+		<td class="ms-list1-0001-odd">Template editor action forms</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.index</font></td>
+		<td class="ms-list1-0001-even">Navigo homepage functionality</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.item</font></td>
+		<td class="ms-list1-0001-odd">Template editor code <font color="#0000FF">
+		<sup><a href="#1">1</a></sup></font></td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.login</font></td>
+		<td class="ms-list1-0001-even">Authentication logic</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.logout</font></td>
+		<td class="ms-list1-0001-odd">Destroy authentication/session logic</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.messaging</font></td>
+		<td class="ms-list1-0001-even">User messaging related classes
+		(interactive)</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.navigation</font></td>
+		<td class="ms-list1-0001-odd">Navigation (choice selection)
+		functionality</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.smarttext</font></td>
+		<td class="ms-list1-0001-even">Smart-Text functionality</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		org.navigoproject.ui.web.util</font></td>
+		<td class="ms-list1-0001-odd">All HTTP/HTML UI utility classes</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-even"><font face="Courier New" size="2">
+		test.org.navigoproject.*</font></td>
+		<td class="ms-list1-0001-even">All unit tests</td>
+	</tr>
+	<tr>
+		<td class="ms-list1-0001-odd"><font face="Courier New" size="2">
+		test.org.navigoproject.fixture</font></td>
+		<td class="ms-list1-0001-odd">Junit test fixtures</td>
+	</tr>
+</table>
+<hr>
+<p><font color="#0000FF"><a name="1"><sup>1</sup></a></font><a name="1"> = Good
+candidates for refactoring packages/names</a><br>
+<font color="#0000FF"><a name="2"><sup>2</sup></a></font><a name="2"> = Good
+candidates for integration into existing classes</a></p>
+
+</body>
+
+</html>

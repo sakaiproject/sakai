@@ -1,0 +1,161 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet type="text/xml"
+href="..\..\..\webapp.war\xml\xsl\dataTransform\import\v1p2\extractItem.xsl"?>
+
+<item ident="122" title="Audio Recording">
+<duration>
+</duration>
+
+<itemmetadata>
+<qtimetadata>
+<qtimetadatafield>
+<fieldlabel>
+qmd_itemtype</fieldlabel>
+
+<fieldentry>
+Audio Recording</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+TEXT_FORMAT</fieldlabel>
+
+<fieldentry>
+HTML</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_OBJECTIVE</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_KEYWORD</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_RUBRIC</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+TIMEALLOWED</fieldlabel>
+
+<fieldentry>
+30</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+NUM_OF_ATTEMPTS</fieldlabel>
+
+<fieldentry>
+9999</fieldentry>
+
+</qtimetadatafield>
+
+</qtimetadata>
+
+</itemmetadata>
+
+<rubric view="All">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</rubric>
+
+<presentation label="Resp005">
+<flow class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+Recite a short poem.</mattext>
+
+</material>
+
+<material>
+<mat_extension>
+jsp/aam/applet/soundRecorder_captured.jsp</mat_extension>
+
+</material>
+
+<response_str ident="audio" rcardinality="Single" rtiming="No">
+<material_ref>
+</material_ref>
+
+</response_str>
+
+</flow>
+
+</presentation>
+
+<resprocessing>
+<outcomes>
+<decvar defaultval="0" maxvalue="5.0" minvalue="0" varname="SCORE" vartype="Integer">
+</decvar>
+
+</outcomes>
+
+</resprocessing>
+
+<itemfeedback ident="Correct1" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="InCorrect1" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="InCorrect" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+<material>
+<matimage embedded="base64" imagtype="text/html" uri="">
+</matimage>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+</item>

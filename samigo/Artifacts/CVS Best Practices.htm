@@ -1,0 +1,38 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Navigo CVS Best Practices</title>
+</head>
+
+<body>
+
+<h1>Navigo CVS Best Practices</h1>
+<hr>
+<ol type="I">
+	<li>Daily Routine<ol>
+		<li>Developers should begin their day by retrieving the latest updates 
+		from the repository.&nbsp; This is performed with cvs update:<ol>
+		<li>CVS: <font face="Courier New">cvs update -P -d</font></li>
+		<li>Eclipse: <font face="Courier New">Team &#8594; Update</font></li>
+	</ol>
+		</li>
+		<li>Developers should end their day by checking in <u>all</u> code that 
+		meets the following criteria:<ol>
+		<li>All code must compile.</li>
+		<li>Code should not break existing running code (i.e. some basic unit 
+		testing should be performed prior to check in).</li>
+		<li>This is performed with cvs commit:<ol>
+			<li>CVS: <font face="Courier New">cvs commit</font></li>
+			<li>Eclipse: <font face="Courier New">Team &#8594; Commit</font></li>
+		</ol></li>
+	</ol>
+		</li>
+	</ol>
+	</li>
+</ol>
+
+</body>
+
+</html>

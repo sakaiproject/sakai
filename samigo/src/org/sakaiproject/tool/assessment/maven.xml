@@ -1,0 +1,7 @@
+ <project default="pojo" xmlns:m="jelly:maven">
+         <goal name="pojo">
+            <attainGoal name="jar:install" />
+         </goal>
+     </project>
+
+

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ * <p>Copyright: Copyright (c) 2005 Sakai</p>
+ * <p>Description: QTI Persistence XML to XML Transform for Import</p>
+ * @author <a href="mailto:esmiley@stanford.edu">Ed Smiley</a>
+ * @version $Id: extractItem.xsl,v 1.20 2005/05/13 22:33:35 esmiley.stanford.edu Exp $
+-->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:output method="xml" doctype-public="-//W3C//DTD HTML 4.01//EN"
+ doctype-system="http://www.w3.org/TR/html4/strict.dtd"/>
+
+<xsl:template match="/">
+
+<itemData>
+  <ident><xsl:value-of select="//item/@ident" /></ident>
+  <title><xsl:value-of select="//item/@title" /></title>
+  <duration><xsl:value-of select="//item/duration" /></duration>
+  <instruction></instruction>
+  <createdBy></createdBy>
+  <createdDate></createdDate>
+  <lastModifiedBy></lastModifiedBy>
+  <lastModifiedDate></lastModifiedDate>
+  <score>
+    <xsl:value-of select="//resprocessing/outcomes/decvar/@maxvalue"/>
+  </score>
+  <hint></hint>
+  <hasRationale></hasRationale>
+  <status></status>
+  <!-- item text -->
+ <itemText type="list">
+  <xsl:value-of select="//presentation//material/mattext" />
+ </itemText>
+  <!-- FIB -->
+  <xsl:for-each select="//presentation//material/mattext">
+  <xsl:choose>
+    <xsl:when test="./*">
+      <itemFibText type="list"><xsl:copy-of select="./*"/></itemFibText>
+    </xsl:when>
+    <xsl:when test="string-length(.)">
+     <itemFibText type="list"><xsl:value-of select="."/></itemFibText>
+    </xsl:when>
+  </xsl:choose>
+  </xsl:for-each>
+  <!-- MATCHING -->
+  <xsl:for-each select="//presentation//response_grp//material/mattext">
+    <xsl:choose>
+      <xsl:when test="../../@match_group">
+        <xsl:variable name="src-ident"><xsl:value-of select="../../@ident"/></xsl:variable>
+        <itemMatchSourceText type="list">
+        <xsl:choose>
+          <xsl:when test="./*">
+            <xsl:copy-of select="./*"/>
+           </xsl:when>
+           <xsl:when test="string-length(.)">
+             <xsl:value-of select="."/>
+           </xsl:when>
+        </xsl:choose>
+        </itemMatchSourceText>
+        <xsl:for-each select="//respcondition/conditionvar/varequal">
+          <xsl:variable name="curr-ident"><xsl:value-of select="." /></xsl:variable>
+           <xsl:if test="$src-ident=$curr-ident">
+             <itemMatchIndex type="list"><xsl:value-of select="@index" /></itemMatchIndex>
+           </xsl:if>
+        </xsl:for-each>
+      </xsl:when>
+      <xsl:otherwise>
+        <itemMatchTargetText type="list">
+        <xsl:choose>
+          <xsl:when test="./*">
+            <xsl:copy-of select="./*"/>
+           </xsl:when>
+           <xsl:when test="string-length(.)">
+             <xsl:value-of select="."/>
+           </xsl:when>
+        </xsl:choose>
+        </itemMatchTargetText>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:for-each>
+  <!-- label(s) for correct answer(s), if any -->
+  <xsl:for-each select="//respcondition">
+    <xsl:if test="displayfeedback/@linkrefid='Correct'">
+      <itemAnswerCorrectLabel type="list"><xsl:value-of select="conditionvar/varequal"/></itemAnswerCorrectLabel>
+    </xsl:if>
+  </xsl:for-each>
+  <!-- answers -->
+  <xsl:for-each select="//presentation//response_lid/render_choice/response_label/material/mattext" >
+  <xsl:choose>
+    <xsl:when test="./*">
+      <itemAnswer type="list"><xsl:copy-of select="./*"/></itemAnswer>
+    </xsl:when>
+    <xsl:when test="string-length(.)">
+     <itemAnswer type="list"><xsl:value-of select="."/></itemAnswer>
+    </xsl:when>
+  </xsl:choose>
+  </xsl:for-each>
+  <xsl:for-each select="//respcondition/conditionvar/or/varequal" >
+  <xsl:choose>
+    <xsl:when test="./*">
+      <itemFibAnswer type="list"><xsl:copy-of select="./*"/></itemFibAnswer>
+    </xsl:when>
+    <xsl:when test="string-length(.)">
+     <itemFibAnswer type="list"><xsl:value-of select="."/></itemFibAnswer>
+    </xsl:when>
+  </xsl:choose>
+  </xsl:for-each>
+  <!-- feedback -->
+
+  <xsl:for-each select="//itemfeedback">
+    <xsl:choose>
+       <xsl:when test="@ident = 'InCorrect'">
+        <xsl:for-each select="flow_mat/material/mattext">
+        <xsl:choose>
+        <xsl:when test="./*">
+          <incorrectItemFeedback><xsl:copy-of select="./*"/></incorrectItemFeedback>
+        </xsl:when>
+        <xsl:when test="string-length(.)">
+         <incorrectItemFeedback><xsl:value-of select="."/></incorrectItemFeedback>
+        </xsl:when>
+        </xsl:choose>
+        </xsl:for-each>
+     </xsl:when>
+     <xsl:when test="@ident = 'Correct'">
+        <xsl:for-each select="flow_mat/material/mattext">
+        <xsl:choose>
+        <xsl:when test="./*">
+          <correctItemFeedback><xsl:copy-of select="./*"/></correctItemFeedback>
+        </xsl:when>
+        <xsl:when test="string-length(.)">
+         <correctItemFeedback><xsl:value-of select="."/></correctItemFeedback>
+        </xsl:when>
+        </xsl:choose>
+        </xsl:for-each>
+     </xsl:when>
+     <xsl:when test="@ident = 'AllCorrect'">
+        <xsl:for-each select="flow_mat/material/mattext">
+        <xsl:choose>
+        <xsl:when test="./*">
+          <correctItemFeedback><xsl:copy-of select="./*"/></correctItemFeedback>
+        </xsl:when>
+        <xsl:when test="string-length(.)">
+         <correctItemFeedback><xsl:value-of select="."/></correctItemFeedback>
+        </xsl:when>
+        </xsl:choose>
+        </xsl:for-each>
+     </xsl:when>
+     <xsl:when test="@ident = //item/@ident">
+      <xsl:for-each select="flow_mat/material/mattext">
+      <xsl:choose>
+        <xsl:when test="./*">
+          <generalItemFeedback><xsl:copy-of select="./*"/></generalItemFeedback>
+        </xsl:when>
+        <xsl:when test="string-length(.)">
+         <generalItemFeedback><xsl:value-of select="."/></generalItemFeedback>
+        </xsl:when>
+      </xsl:choose>
+      </xsl:for-each>
+     </xsl:when>
+     <xsl:otherwise>
+      <xsl:for-each select="flow_mat/material/mattext">
+      <xsl:choose>
+        <xsl:when test="./*">
+          <itemFeedback type="list"><xsl:copy-of select="./*"/></itemFeedback>
+        </xsl:when>
+        <xsl:when test="string-length(.)">
+         <itemFeedback type="list"><xsl:value-of select="."/></itemFeedback>
+        </xsl:when>
+      </xsl:choose>
+      </xsl:for-each>
+     </xsl:otherwise>
+    </xsl:choose>
+  </xsl:for-each>
+
+  <!-- media id for file upload and recording types, otherwise blank -->
+  <!--  TODO debug -->
+  <itemMedia type="list">
+<!--  <xsl:if test="$item-type='File Upload' or $item-type='Audio Recording'"> -->
+    <xsl:call-template name="extract-media-id">
+      <xsl:with-param name="raw-answer">
+        <!-- <xsl:value-of select="$item-answer-text"/> -->
+      </xsl:with-param>
+    </xsl:call-template>
+<!--  </xsl:if> -->
+  </itemMedia>
+
+  <!-- if other methods of determining type don't work, attempt to determine from structure-->
+  <!-- NOT guaranteed to be accurate, this is a fallback if none in metadata, title -->
+  <!-- DEPENDENCY WARNING: syncs with type strings in AuthoringConstantStrings.java -->
+  <xsl:for-each select="//item">
+    <xsl:variable name="labels"><xsl:for-each select=".//response_label"><xsl:value-of select="@ident"/></xsl:for-each></xsl:variable>
+    <introSpect>
+      <xsl:choose>
+        <xsl:when test=".//render_choice and .//response_grp">Matching</xsl:when>
+        <xsl:when test=".//resprocessing and .//render_fib">Fill In the Blank</xsl:when>
+        <!-- this is lame, but true false acts like a 2 answer MCSC with answers True, False -->
+        <xsl:when test=".//render_choice and $labels='TF'">True False</xsl:when>
+        <xsl:when test=".//render_choice">Multiple Choice</xsl:when>
+        <xsl:otherwise>Short Answers/Essay</xsl:otherwise>
+      </xsl:choose>
+    </introSpect>
+  </xsl:for-each>
+
+</itemData>
+
+
+
+</xsl:template>
+
+
+<!-- this template exists to strip the "id=" parameter off of a file upload type
+the current contract is that this type will have an answer text value that uses
+an id URL with the id of the media data record, if this is no longer the case,
+this template will need to be revised.
+-->
+
+<xsl:template name="extract-media-id">
+  <xsl:param name="raw-answer"/>
+    <xsl:value-of
+     select="substring-before(substring-after($raw-answer, '?id='), '&quot;')"/>
+</xsl:template>
+
+</xsl:stylesheet>

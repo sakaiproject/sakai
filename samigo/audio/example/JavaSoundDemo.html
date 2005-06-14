@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+
+<HEAD>
+<TITLE>Java Sound Demo</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+</HEAD>
+
+<BODY>
+<CENTER>
+<H2>Audio Recording Applet Example</H2>
+Record an audio clip back to the server.
+Requires Java Plug-in 1.3 (Windows, Solaris, Linux)
+<P>
+
+<!--
+EXAMPLE CODE:	Audio Recording Applet
+This assumes that the html code is in the same directory as the applet jar file.
+-->
+<OBJECT
+codeBase=http://java.sun.com/products/plugin/1.3/jinstall-13-win32.cab#Version=1,3,0,0
+height=250 width=400 classid=clsid:8AD9C840-044E-11D1-B3E9-00805F499D93>
+  <PARAM NAME="CODE" VALUE="CapturePlaybackApplet.class">
+  <PARAM NAME="ARCHIVE" VALUE="CapturePlayback.jar">
+  <PARAM NAME="type" VALUE="application/x-java-applet;version=1.3">
+  <PARAM NAME="scriptable" VALUE="false">
+  <PARAM NAME="file" VALUE="test.au">
+  <PARAM NAME="seconds" VALUE="30">
+  <PARAM NAME="limit" VALUE="10">
+  <PARAM NAME="dir" VALUE="/tmp">
+  <PARAM NAME="imageUrl" VALUE="/ed/audiotest/images/">
+<COMMENT>
+<EMBED type="application/x-java-applet;version=1.3"
+  CODE = "CapturePlaybackApplet.class"
+  ARCHIVE = "CapturePlayback.jar"
+  WIDTH = "400"
+  HEIGHT = "250"
+  file = "test.au"
+  seconds = "30"
+  limit = "10"
+  dir = "/tmp"
+  imageUrl="/ed/audiotest/images/"
+  scriptable=false
+  pluginspage="http://java.sun.com/products/plugin/1.3/plugin-install.html">
+<NOEMBED>
+</COMMENT>
+</NOEMBED>
+</EMBED>
+</OBJECT>
+
+</CENTER>
+</P>
+</BODY>
+</HTML>

@@ -1,0 +1,14 @@
+#
+# @(#)mailcap	1.6 02/05/23
+#
+# Default mailcap file for the JavaMail System.
+#
+# JavaMail content-handlers:
+#
+text/plain;;		x-java-content-handler=com.sun.mail.handlers.text_plain
+text/html;;		x-java-content-handler=com.sun.mail.handlers.text_html
+text/xml;;		x-java-content-handler=com.sun.mail.handlers.text_xml
+image/gif;;		x-java-content-handler=com.sun.mail.handlers.image_gif
+image/jpeg;;		x-java-content-handler=com.sun.mail.handlers.image_jpeg
+multipart/*;;		x-java-content-handler=com.sun.mail.handlers.multipart_mixed
+message/rfc822;;	x-java-content-handler=com.sun.mail.handlers.message_rfc822
