@@ -39,7 +39,7 @@ import org.sakaiproject.service.legacy.user.UserEdit;
  * </p>
  * 
  * @author University of Michigan, Sakai Software Development Team
- * @version $Revision: 1.1 $
+ * @version $Revision$
  */
 public class SampleUserDirectoryProvider implements UserDirectoryProvider
 {

@@ -30,7 +30,7 @@
  * 
  * @author David Ross, Albany Medical College
  * @author Rishi Pande, Virginia Tech
- * @version $Revision: 1.4 $
+ * @version $Revision$
  */
 
 package edu.amc.sakai.user;

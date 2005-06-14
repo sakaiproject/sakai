@@ -54,7 +54,7 @@ import org.sakaiproject.util.java.StringUtil;
 * <p>For more information on configuration, see the README.txt file<p>
 *
 * @author University of Michigan, Sakai Software Development Team
-* @version $Revision: 1.4 $
+* @version $Revision$
 */
 public class KerberosUserDirectoryProvider
 	implements UserDirectoryProvider

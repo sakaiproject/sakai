@@ -43,7 +43,7 @@ import org.sakaiproject.service.legacy.coursemanagement.CourseManagementProvider
  * </p>
  * 
  * @author University of Michigan, CHEF Software Development Team
- * @version $Revision: 1.3 $
+ * @version $Revision$
  */
 public class SampleCourseManagementProvider implements CourseManagementProvider
 {
