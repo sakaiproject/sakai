@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="assignmentOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>apll</value></property>
+      <property name="name"><value>Assignments Overview</value></property>
+      <property name="location"><value>/sakai_assignment/apll.html</value></property>
+      <property name="defaultForTool"><value>sakai.assignment</value></property>
+   </bean>
+
+   <bean id="createAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>aplm</value></property>
+      <property name="name"><value>Create Assignment</value></property>
+      <property name="location"><value>/sakai_assignment/aplm.html</value></property>
+   </bean>
+      <bean id="reviseAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>apln</value></property>
+      <property name="name"><value>Revise Assignment</value></property>
+      <property name="location"><value>/sakai_assignment/apln.html</value></property>
+   </bean>
+      <bean id="deleteAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>aplq</value></property>
+      <property name="name"><value>Duplicate or Delete Assignment</value></property>
+      <property name="location"><value>/sakai_assignment/aplq.html</value></property>
+   </bean>
+   
+   <bean id="gradingAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aplo</value></property>
+      <property name="name"><value>Grade Assignment/Reivew Student Status</value></property>
+      <property name="location"><value>/sakai_assignment/aplo.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="assignmentCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Assignment</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="assignmentOverview"/>
+                     <ref bean="createAssignment"/>
+                     <ref bean="reviseAssignment"/>
+                     <ref bean="deleteAssignment"/>
+                     <ref bean="gradingAssignment"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

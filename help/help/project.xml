@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+    <pomVersion>3</pomVersion>
+    <name>Sakai Help Help</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-help-content</id>
+	<currentVersion>2.0.0</currentVersion>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2004</inceptionYear>
+
+	<properties>
+		<deploy.type>jar</deploy.type>
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+	<dependencies>
+	</dependencies>
+
+    <build>
+
+      <sourceDirectory>src</sourceDirectory>
+
+      <resources>
+        <resource>
+          <directory>src</directory>
+            <includes>
+              <include>**/*.xml</include>
+              <include>**/*.html</include>
+            </includes>
+        </resource>
+      </resources>     
+
+    </build>
+</project>

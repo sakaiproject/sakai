@@ -1,0 +1,20 @@
+   body{
+      font: 10pt Verdana,sans-serif;
+      color: navy;
+   }
+   .trigger{
+      cursor: pointer;
+      cursor: hand;
+      display: block;
+   }
+   .branch{
+      display: none;
+      margin-left: 30px;
+      margin-bottom: 5px;
+   }
+   a{
+      text-decoration: none;
+   }
+   a:hover{
+      text-decoration: underline;
+   }

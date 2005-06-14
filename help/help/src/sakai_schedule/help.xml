@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="scheduleOverview"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>apkq</value>
+		</property>
+		<property name="name">
+			<value>Schedule Overview</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/apkq.html</value>
+		</property>
+		<property name="defaultForTool">
+			<value>sakai.schedule</value>
+		</property>
+	</bean>
+	<bean id="addActivity"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aplb</value>
+		</property>
+		<property name="name">
+			<value>Add Activity</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aplb.html</value>
+		</property>
+	</bean>
+	<bean id="addActivityAttachment"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>apmb</value>
+		</property>
+		<property name="name">
+			<value>Add Attachment to Activity</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/apmb.html</value>
+		</property>
+	</bean>
+	<bean id="viewSchedule"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>apkz</value>
+		</property>
+		<property name="name">
+			<value>View Activity Detail</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/apkz.html</value>
+		</property>
+	</bean>
+	<bean id="deleteActivity"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>apmc</value>
+		</property>
+		<property name="name">
+			<value>Edit/Delete Activity</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/apmc.html</value>
+		</property>
+	</bean>
+	<bean id="changeScheduleView"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>apku</value>
+		</property>
+		<property name="name">
+			<value>Change Schedule View</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/apku.html</value>
+		</property>
+	</bean>
+
+	<bean id="addField"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>apme</value>
+		</property>
+		<property name="name">
+			<value>Add field to calendar</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/apme.html</value>
+		</property>
+	</bean>
+
+	<bean id="mergeCalendar"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>apmd</value>
+		</property>
+		<property name="name">
+			<value>Merge Calendars</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/apmd.html</value>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.help.TableOfContents"
+		class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+		<property name="name">
+			<value>root</value>
+		</property>
+		<property name="categories">
+			<list>
+				<bean id="scheduleCategory"
+					class="org.sakaiproject.component.app.help.model.CategoryBean">
+					<property name="name">
+						<value>Schedules</value>
+					</property>
+					<property name="resources">
+						<list>
+							<ref bean="scheduleOverview" />
+							<ref bean="addActivity" />
+							<ref bean="addActivityAttachment" />
+							<ref bean="viewSchedule" />
+							<ref bean="deleteActivity" />
+							<ref bean="changeScheduleView" />
+							<ref bean="addField" />
+							<ref bean="mergeCalendar" />
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+</beans>

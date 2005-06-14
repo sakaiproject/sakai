@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="chatRoomOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>apli</value></property>
+      <property name="name"><value>Chat Room Overview</value></property>
+      <property name="location"><value>/sakai_chat/apli.html</value></property>
+      <property name="defaultForTool"><value>sakai.chat</value></property>
+   </bean>
+
+   <bean id="useChatRoom" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>aplk</value></property>
+      <property name="name"><value>Use Chat Room Features</value></property>
+      <property name="location"><value>/sakai_chat/aplk.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="chatRoomCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Chat Room</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="chatRoomOverview"/>
+                     <ref bean="useChatRoom"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

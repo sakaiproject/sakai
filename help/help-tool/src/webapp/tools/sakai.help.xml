@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.help" title="Help Documentation"
+		description="The Sakai Help Tool">
+		<category name="sakai.help" />
+	</tool>
+
+</registration>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<name>Sakai</name>
+	<groupId>sakaiproject</groupId>
+	<currentVersion>2.0.0</currentVersion>
+	<organization>
+		<name>Sakai</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+
+	<dependencies>
+
+		<!-- our plugin -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${pom.currentVersion}</version>
+			<type>plugin</type>
+		</dependency>
+
+	</dependencies>
+
+	<build>	
+	</build>
+
+</project>

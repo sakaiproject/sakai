@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="emailArchiveOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>apmi</value></property>
+      <property name="name"><value>Email Archives Overview</value></property>
+      <property name="location"><value>/sakai_mailbox/apmi.html</value></property>
+      <property name="defaultForTool"><value>sakai.mailbox</value></property>
+   </bean>
+
+   <bean id="customizeEmailArchive" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>appc</value></property>
+      <property name="name"><value>Customize Email Archive</value></property>
+      <property name="location"><value>/sakai_mailbox/appc.html</value></property>
+   </bean>
+
+      <bean id="readEmailArchive" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>apmj</value></property>
+      <property name="name"><value>Read Message in Email Archive</value></property>
+      <property name="location"><value>/sakai_mailbox/apmj.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="emailArchiveCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Email Archive</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="emailArchiveOverview"/>
+                     <ref bean="customizeEmailArchive"/>
+                     <ref bean="readEmailArchive"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

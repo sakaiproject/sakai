@@ -1,0 +1,110 @@
+/**********************************************************************************
+ *
+ * $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/Resource.java,v 1.2 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
+ *
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * 
+ * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ * 
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
+
+package org.sakaiproject.api.app.help;
+
+/**
+ * Resource in the help system
+ * @version $Id: Resource.java,v 1.2 2005/06/05 05:15:17 jlannan.iupui.edu Exp $ 
+ */
+public interface Resource
+{
+  /**
+   * get the doc id for the resource
+   * @return doc id
+   */
+  public String getDocId();
+
+  /**
+   * set the doc id for the resource
+   * @param docId
+   */
+  public void setDocId(String docId);
+
+  /**
+   * get the location of this resource
+   * @return location
+   */
+  public String getLocation();
+
+  /**
+   * set the location of this resource
+   * @param location
+   */
+  public void setLocation(String location);
+
+  /**
+   * get the name of this resource
+   * @return name
+   */
+  public String getName();
+
+  /**
+   * set the name of this resource
+   * @param name
+   */
+  public void setName(String name);
+
+  /**
+   * get the score for this resource
+   * @return score
+   */
+  public float getScore();
+
+  /**
+   * set the score for this resource
+   * @param score
+   */
+  public void setScore(float score);
+
+  /**
+   * get the formatted score for this resource
+   * @return formatted score
+   */
+  public String getFormattedScore();
+
+  /**
+   * get the category for this resource
+   * @param category
+   */
+  public void setCategory(Category category);
+  
+  /**
+   * determine if this document is the default for a tool
+   * @return
+   */
+  public String getDefaultForTool();
+  
+  /**
+   * set whether this resource is the default for a tool
+   * @param defaultForTool
+   */
+  public void setDefaultForTool(String defaultForTool);
+}
+
+/**********************************************************************************
+ *
+ * $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/Resource.java,v 1.2 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
+ *
+ **********************************************************************************/

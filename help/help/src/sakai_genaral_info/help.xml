@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+ <!--   <bean id="CLMenu" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>cl_menu</value></property>
+      <property name="name"><value>Sakai Menu</value></property>
+      <property name="location"><value>/sakai-help-tool/helpDocs/aprp.html</value></property>
+   </bean>
+
+   <bean id="OnCourseCL" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>onCourseCL</value></property>
+      <property name="name"><value>What is Sakai</value></property>
+      <property name="location"><value>/sakai-help-tool/helpDocs/apqd.html</value></property>
+   </bean>
+      <bean id="OnCoursedifference" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>onCourse_difference</value></property>
+      <property name="name"><value>Differences between old and new Sakai</value></property>
+      <property name="location"><value>/sakai-help-tool/helpDocs/apqa.html</value></property>
+   </bean>
+      <bean id="submitQuestion" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>submit_question</value></property>
+      <property name="name"><value>Submit question about Sakai</value></property>
+      <property name="location"><value>/sakai-help-tool/helpDocs/aprn.html</value></property>
+   </bean>
+      <bean id="clTimeline" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>cl_timeline</value></property>
+      <property name="name"><value>Sakai Timeline</value></property>
+      <property name="location"><value>/sakai-help-tool/helpDocs/apqc.html</value></property>
+   </bean>
+   
+   <bean id="backButton" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>back_button</value></property>
+      <property name="name"><value>What to do if hit back button</value></property>
+      <property name="location"><value>/sakai-help-tool/helpDocs/aqcs.html</value></property>
+   </bean> -->
+   
+<!--       <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="generalInfoCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>General Information</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="CLMenu"/>
+                     <ref bean="OnCourseCL"/>
+                     <ref bean="OnCoursedifference"/>
+                     <ref bean="submitQuestion"/>
+                     <ref bean="clTimeline"/>
+                     <ref bean="backButton"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>   -->
+</beans>

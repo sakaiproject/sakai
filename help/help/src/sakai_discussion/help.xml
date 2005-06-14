@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="discussionOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>apkk</value></property>
+      <property name="name"><value>discussions Overview</value></property>
+      <property name="location"><value>/sakai_discussion/apkk.html</value></property>
+      <property name="defaultForTool"><value>sakai.discussion</value></property>      
+   </bean>
+
+   <bean id="createDiscussionCategory" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>apkl</value></property>
+      <property name="name"><value>Create Discussion Category</value></property>
+      <property name="location"><value>/sakai_discussion/apkl.html</value></property>
+   </bean>
+      <bean id="postDiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>apko</value></property>
+      <property name="name"><value>Post Discussion Item</value></property>
+      <property name="location"><value>/sakai_discussion/apko.html</value></property>
+   </bean>
+      <bean id="replyDiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>apkp</value></property>
+      <property name="name"><value>Reply Discussion</value></property>
+      <property name="location"><value>/sakai_discussion/apkp.html</value></property>
+   </bean>
+      <bean id="createDiscussionTopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>apkm</value></property>
+      <property name="name"><value>Create Discussion Topic</value></property>
+      <property name="location"><value>/sakai_discussion/apkm.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="discussionCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Discussion</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="discussionOverview"/>
+                     <ref bean="createDiscussionCategory"/>
+                     <ref bean="createDiscussionTopic"/>
+                     <ref bean="postDiscussion"/>
+                     <ref bean="replyDiscussion"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
