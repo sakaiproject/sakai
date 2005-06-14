@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="org.springframework.orm.hibernate.SyllabusSessionFactory"
+		parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+		<property name="mappingResources">
+			<list>
+				<value>
+					org/sakaiproject/component/app/syllabus/SyllabusItemImpl.hbm.xml
+				</value>
+				<value>
+					org/sakaiproject/component/app/syllabus/SyllabusDataImpl.hbm.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="org.sakaiproject.api.app.syllabus.SyllabusService"
+		class="org.sakaiproject.component.app.syllabus.SyllabusServiceImpl"
+		singleton="true" init-method="init" destroy-method="destroy">
+		<property name="logger">
+			<ref bean="org.sakaiproject.service.framework.log.Logger" />
+		</property>
+		<property name="syllabusManager">
+			<ref
+				bean="org.sakaiproject.api.app.syllabus.SyllabusManager" />
+		</property>
+	</bean>
+
+	<bean id="syllabusTransactionManager"
+		class="org.springframework.orm.hibernate.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref
+				bean="org.springframework.orm.hibernate.SyllabusSessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.syllabus.SyllabusManager"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="syllabusTransactionManager" />
+		</property>
+		<property name="target">
+			<bean
+				class="org.sakaiproject.component.app.syllabus.SyllabusManagerImpl"
+				singleton="true">
+				<property name="sessionFactory">
+					<ref
+						bean="org.springframework.orm.hibernate.SyllabusSessionFactory" />
+				</property>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+
+</beans>

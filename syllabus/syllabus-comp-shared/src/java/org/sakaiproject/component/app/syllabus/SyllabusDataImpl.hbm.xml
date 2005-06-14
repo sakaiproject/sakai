@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class
+        name="org.sakaiproject.component.app.syllabus.SyllabusDataImpl"
+        table="SAKAI_SYLLABUS_DATA" optimistic-lock="version">
+        
+        <!-- A 36 hex character is our surrogate key.  -->
+        <id name="syllabusId" type="long">
+            <column name="id" not-null="true" length="19" />
+            <generator class="native">
+                <param name="sequence">SyllabusDataImpl_SEQ</param>
+            </generator>
+        </id>
+        
+        <version name="lockId" />               
+
+        <property name="asset" type="text">
+            <column name="asset" not-null="false"/>
+        </property>
+
+        <property name="position">
+            <column name="position" not-null="true" index="syllabus_position"/>
+        </property>
+        
+        <property name="title">
+            <column name="title" length="256" not-null="false"/>
+        </property>
+        
+        <property name="view">
+            <column name="xview" length="16" not-null="false"/>
+        </property>
+        
+        <property name="status">
+            <column name="status" length="64" not-null="false"/>
+        </property>
+        
+        <property name="emailNotification">
+            <column name="emailNotification" length="128" not-null="false"/>
+        </property>                        
+        
+        
+        <many-to-one name="syllabusItem"        
+                     column="surrogateKey"                     
+                     class="org.sakaiproject.component.app.syllabus.SyllabusItemImpl"/>
+                            
+
+    </class>
+    
+    <query name="findLargestSyllabusPosition">
+        <![CDATA[select max(data.position) from org.sakaiproject.component.app.syllabus.SyllabusDataImpl as data where data.syllabusItem = :foreignKey]]>
+    </query>    
+    
+    
+</hibernate-mapping>

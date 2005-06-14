@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+    <pomVersion>3</pomVersion>
+    <name>Sakai Syllabus Components Shared</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-syllabus-component-shared</id>
+	<currentVersion>2.0.0</currentVersion>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2004</inceptionYear>
+
+	<properties>
+		<deploy.type>jar</deploy.type>
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+    <dependencies>
+	    <dependency>
+  	  		<groupId>sakaiproject</groupId>
+        	<artifactId>sakai-syllabus-api</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<deploy.target>shared</deploy.target>
+			</properties>        
+    	</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-service</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+  		
+		<dependency>
+  			<groupId>hibernate</groupId>
+  			<artifactId>hibernate</artifactId>
+	  		<version>2.1.8</version>
+  		</dependency>
+  		
+	  	<dependency>
+  			<groupId>springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>1.1.5</version>			
+  		</dependency>
+
+	</dependencies>
+
+    <build>
+
+      <sourceDirectory>src/java</sourceDirectory>
+
+        <resources>
+          <resource>
+            <directory>${basedir}/src/bundle</directory>
+              <includes>
+                <include>**/*.properties</include>
+              </includes>
+          </resource>
+
+          <resource>
+            <directory>src/java</directory>
+              <includes>
+                <include>**/*.xml</include>
+              </includes>
+              <excludes>
+                <exclude>**/web.xml</exclude>
+              </excludes>
+          </resource>
+      </resources>     
+      
+    </build>
+</project>

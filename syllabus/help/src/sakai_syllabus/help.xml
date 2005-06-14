@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="syllabusOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>syllabus_overview</value>
+        </property>
+        <property name="name">
+            <value>Syllabus Overview</value>
+        </property>
+        <property name="location">
+            <value>/sakai_syllabus/aqck.html</value>
+        </property>
+    </bean>
+    <bean id="creatingSyllabusAsWebpage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>creatingSyllabusAsWebpage</value>
+        </property>
+        <property name="name">
+            <value>Creating syllabus as webpage</value>
+        </property>
+        <property name="location">
+            <value>/sakai_syllabus/aqgg.html</value>
+        </property>
+    </bean>
+    <bean id="addingSyllabusItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>addingSyllabusItem</value>
+        </property>
+        <property name="name">
+            <value>Adding a syllabus item</value>
+        </property>
+        <property name="location">
+            <value>/sakai_syllabus/aqgi.html</value>
+        </property>
+    </bean>
+    <bean id="editingSyllabusItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>editingSyllabusItem</value>
+        </property>
+        <property name="name">
+            <value>Editing a syllabus item</value>
+        </property>
+        <property name="location">
+            <value>/sakai_syllabus/aqgi.html</value>
+        </property>
+    </bean>
+    <bean id="deletingSyllabusItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>deletingSyllabusItem</value>
+        </property>
+        <property name="name">
+            <value>Deleting a syllabus item</value>
+        </property>
+        <property name="location">
+            <value>/sakai_syllabus/aqgi.html</value>
+        </property>
+    </bean>
+    <bean id="creatingSyllabus" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>creatingSyllabus</value>
+        </property>
+        <property name="name">
+            <value>Creating a syllabus</value>
+        </property>
+        <property name="location">
+            <value>/sakai_syllabus/aqgk.html</value>
+        </property>
+    </bean>
+    <bean id="creatingSequence" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>creatingSequence</value>
+        </property>
+        <property name="name">
+            <value>Changing sequence of items</value>
+        </property>
+        <property name="location">
+            <value>/sakai_syllabus/aqgj.html</value>
+        </property>
+    </bean>
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="syllabusCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>Syllabus Tool</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="syllabusOverview"/>
+                            <ref bean="creatingSyllabusAsWebpage"/>
+                            <ref bean="addingSyllabusItem"/>
+                            <ref bean="editingSyllabusItem"/>
+                            <ref bean="deletingSyllabusItem"/>
+                            <ref bean="creatingSyllabus"/>
+                            <ref bean="creatingSequence"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
