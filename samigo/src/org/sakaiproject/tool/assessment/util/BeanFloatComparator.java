@@ -25,7 +25,7 @@ import java.util.Map;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: BeanFloatComparator.java,v 1.2 2005/02/15 07:07:27 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 public class BeanFloatComparator
   extends BeanSortComparator

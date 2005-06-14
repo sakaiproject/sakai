@@ -51,7 +51,7 @@ import org.sakaiproject.tool.assessment.util.XmlUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: ImportAssessmentListener.java,v 1.10 2005/05/20 17:10:05 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ImportAssessmentListener implements ActionListener

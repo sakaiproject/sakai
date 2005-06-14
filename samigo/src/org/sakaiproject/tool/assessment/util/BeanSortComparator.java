@@ -30,7 +30,7 @@ import org.apache.commons.beanutils.BeanUtils;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: BeanSortComparator.java,v 1.4 2005/02/15 07:07:27 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 public class BeanSortComparator
   implements Comparator

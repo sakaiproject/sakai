@@ -78,7 +78,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: QuestionPoolTreeImpl.java,v 1.14 2005/05/31 19:14:31 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public class QuestionPoolTreeImpl
   implements AAMTree

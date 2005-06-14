@@ -25,7 +25,7 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 
 /**
- * <p>$Id: HistogramScoresBean.java,v 1.12 2005/05/31 19:14:25 janderse.umich.edu Exp $</p>
+ * <p>$Id$</p>
  * Copyright: Copyright (c) 2003-2004
  * </p>
  *

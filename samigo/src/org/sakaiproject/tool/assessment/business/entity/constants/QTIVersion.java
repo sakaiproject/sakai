@@ -28,7 +28,7 @@ package org.sakaiproject.tool.assessment.business.entity.constants;
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: QTIVersion.java,v 1.2 2005/05/17 23:00:36 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class QTIVersion

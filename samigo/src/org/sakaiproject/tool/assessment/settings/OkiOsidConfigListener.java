@@ -65,7 +65,7 @@ import osid.OsidOwner;
 /**
  * Configures OKI OSID impl at startup.
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: OkiOsidConfigListener.java,v 1.1 2005/04/12 15:37:02 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class OkiOsidConfigListener
   implements ServletContextListener

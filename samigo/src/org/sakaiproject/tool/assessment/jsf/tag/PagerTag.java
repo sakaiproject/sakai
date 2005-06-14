@@ -28,7 +28,7 @@ import javax.faces.webapp.UIComponentTag;
  * <p>Standard tag and mutator methods.</p>
  * @author Lydia Li
  * @author Ed Smiley
- * @version $Id: PagerTag.java,v 1.6 2004/10/20 17:01:37 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class PagerTag

@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: AuthorActionListener.java,v 1.30 2005/06/08 04:24:44 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class AuthorActionListener

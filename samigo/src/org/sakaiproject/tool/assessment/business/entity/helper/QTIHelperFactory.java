@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.business.entity.helper.item.ItemHelper20
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: QTIHelperFactory.java,v 1.10 2005/05/17 22:41:20 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class QTIHelperFactory implements Serializable

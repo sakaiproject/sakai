@@ -29,7 +29,7 @@ import javax.faces.webapp.UIComponentTag;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: DatePickerPopupTag.java,v 1.2 2004/08/25 16:21:38 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class DatePickerPopupTag extends UIComponentTag

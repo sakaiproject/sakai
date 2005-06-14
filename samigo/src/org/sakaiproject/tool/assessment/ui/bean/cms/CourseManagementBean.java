@@ -29,7 +29,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * <p> </p>
  * @author Ed Smiley
- * @version $Id: CourseManagementBean.java,v 1.2 2005/03/23 06:29:17 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class CourseManagementBean implements Serializable

@@ -32,7 +32,7 @@ import javax.faces.context.FacesContext;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: DataLineTag.java,v 1.4 2004/11/29 19:18:48 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class DataLineTag extends UIComponentTag

@@ -42,7 +42,7 @@ import javax.faces.context.FacesContext;
  * <p>Bean for QTI Import Data</p>
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: XMLImportBean.java,v 1.12 2005/06/07 22:44:02 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class XMLImportBean implements Serializable

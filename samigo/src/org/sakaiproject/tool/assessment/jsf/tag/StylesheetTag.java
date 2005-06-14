@@ -12,7 +12,7 @@ import javax.faces.webapp.UIComponentTag;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: StylesheetTag.java,v 1.1 2004/08/13 01:56:45 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class StylesheetTag extends UIComponentTag

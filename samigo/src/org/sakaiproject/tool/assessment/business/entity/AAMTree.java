@@ -63,7 +63,7 @@ import osid.shared.Id;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: AAMTree.java,v 1.2 2005/05/31 19:14:31 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public interface AAMTree
   extends Serializable

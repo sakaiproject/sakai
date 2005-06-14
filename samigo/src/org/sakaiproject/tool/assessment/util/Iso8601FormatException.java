@@ -27,7 +27,7 @@ package org.sakaiproject.tool.assessment.util;
  * <p>Copyright: Copyright 2003 Trustees of Indiana University</p>
  * <p>Company: </p>
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: Iso8601FormatException.java,v 1.1 2005/01/14 01:34:51 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class Iso8601FormatException
   extends FormatException

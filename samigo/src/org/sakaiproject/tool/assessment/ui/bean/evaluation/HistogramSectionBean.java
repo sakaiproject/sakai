@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p> </p>
  * @author Rachel Gollub <rgollub@stanford.edu>
- * @version $Id: HistogramSectionBean.java,v 1.1 2004/11/20 04:17:03 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 public class HistogramSectionBean
   implements Serializable

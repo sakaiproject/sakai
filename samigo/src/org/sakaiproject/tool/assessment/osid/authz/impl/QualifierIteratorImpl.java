@@ -11,7 +11,7 @@ import org.osid.authorization.QualifierIterator;
  * DOCUMENT ME!
  *
  * @author <a href="mailto:jlannan@iupui.edu">Jarrod Lannan</a>
- * @version $Id: QualifierIteratorImpl.java,v 1.1 2004/10/21 17:10:37 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class QualifierIteratorImpl
   implements QualifierIterator

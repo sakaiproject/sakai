@@ -31,7 +31,7 @@ import javax.faces.context.FacesContext;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: DatePickerTag.java,v 1.7 2005/05/05 06:14:45 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class DatePickerTag extends UIComponentTag

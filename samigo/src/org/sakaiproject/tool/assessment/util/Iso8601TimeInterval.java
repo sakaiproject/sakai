@@ -35,7 +35,7 @@ import org.sakaiproject.tool.assessment.business.exception.Iso8601FormatExceptio
  * Based on ISO8601 Specification.
  *
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: Iso8601TimeInterval.java,v 1.3 2005/05/20 16:42:25 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class Iso8601TimeInterval
 {

@@ -30,7 +30,7 @@ import javax.faces.context.FacesContext;
  * General authoring information.
  * @author Ed Smiley
  *
- * @version $Id: AuthorBean.java,v 1.23 2005/03/01 00:24:23 zqingru.stanford.edu Exp $
+ * @version $Id$
  */
 public class AuthorBean implements Serializable
 {

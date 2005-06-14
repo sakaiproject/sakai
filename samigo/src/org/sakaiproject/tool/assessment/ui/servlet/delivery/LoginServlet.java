@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: LoginServlet.java,v 1.13 2005/06/09 01:44:23 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class LoginServlet

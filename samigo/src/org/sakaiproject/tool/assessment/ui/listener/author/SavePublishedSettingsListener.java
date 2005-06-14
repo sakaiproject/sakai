@@ -55,7 +55,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: SavePublishedSettingsListener.java,v 1.13 2005/06/08 04:24:44 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class SavePublishedSettingsListener

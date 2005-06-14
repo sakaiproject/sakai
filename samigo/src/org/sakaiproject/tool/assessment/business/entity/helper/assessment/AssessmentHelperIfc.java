@@ -36,7 +36,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
  * <p>Copyright: Copyright (c) 2005</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: AssessmentHelperIfc.java,v 1.6 2005/05/31 19:14:29 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public interface AssessmentHelperIfc
 {

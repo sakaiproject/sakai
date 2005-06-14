@@ -26,7 +26,7 @@ import java.util.Collection;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: BeanSort.java,v 1.4 2005/02/24 01:18:16 zqingru.stanford.edu Exp $
+ * @version $Id$
  */
 public class BeanSort
 {

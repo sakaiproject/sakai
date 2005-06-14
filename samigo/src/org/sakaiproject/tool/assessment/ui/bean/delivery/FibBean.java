@@ -26,7 +26,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 
 /**
  * @author rgollub@stanford.edu
- * $Id: FibBean.java,v 1.3 2005/05/31 19:14:27 janderse.umich.edu Exp $
+ * $Id$
  */
 public class FibBean
 {

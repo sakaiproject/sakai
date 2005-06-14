@@ -30,7 +30,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p> </p>
  * @author Ed Smiley
- * @version $Id: PartData.java,v 1.3 2005/02/02 05:59:13 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 public class PartData
   implements Serializable

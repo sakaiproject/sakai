@@ -7,7 +7,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: QuestionPoolItemData.java,v 1.8 2005/05/31 19:14:28 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public class QuestionPoolItemData
   implements Serializable

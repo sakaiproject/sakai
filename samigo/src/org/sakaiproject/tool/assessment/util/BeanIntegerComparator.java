@@ -25,7 +25,7 @@ import java.util.Map;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: BeanIntegerComparator.java,v 1.1 2004/09/23 01:35:58 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class BeanIntegerComparator
   extends BeanSortComparator

@@ -80,7 +80,7 @@ import java.util.Date;
  * </p>
  *
  * @author Ed Smiley
- * @version $Id: SortableDate.java,v 1.1 2005/03/30 18:32:51 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class SortableDate
 {

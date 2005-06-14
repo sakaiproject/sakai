@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: QTIService.java,v 1.7 2005/05/13 16:07:15 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class QTIService

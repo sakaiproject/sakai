@@ -43,7 +43,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
  * <p>Organization: Sakai Project</p>
  * @author rshastri
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: Item.java,v 1.35 2005/05/21 03:40:34 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class Item extends ASIBaseClass
 {

@@ -38,7 +38,7 @@ import org.sakaiproject.tool.assessment.business.entity.RecordingData;
  * @author Marc Brierley
  * @author Lydia Li
  *
- * @version $Id: TemplateBean.java,v 1.18 2005/06/08 15:37:21 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class TemplateBean implements Serializable
 {

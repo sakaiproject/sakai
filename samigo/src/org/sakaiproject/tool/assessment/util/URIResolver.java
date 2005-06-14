@@ -31,7 +31,7 @@ import javax.xml.transform.stream.StreamSource;
  * <p>Copyright: Copyright (c) 2005</p>
  * <p>Organization: Sakai Project</p>
  * @author palcasi
- * @version $Id: URIResolver.java,v 1.1 2005/01/04 02:09:43 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class URIResolver implements javax.xml.transform.URIResolver
 {

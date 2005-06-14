@@ -32,7 +32,7 @@ import org.sakaiproject.service.framework.sql.SqlService;
  * This class will be used to initialize the state of the application.
  * 
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: SakaiBootStrap.java,v 1.1 2005/05/19 17:59:36 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class SakaiBootStrap
 {

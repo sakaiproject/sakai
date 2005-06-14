@@ -5,7 +5,7 @@ import java.io.Serializable;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: QualifierHierarchyData.java,v 1.4 2005/05/31 19:14:28 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public class QualifierHierarchyData
   implements Serializable

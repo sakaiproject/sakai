@@ -30,7 +30,7 @@ package org.sakaiproject.tool.assessment.business.entity.constants;
  * <p>Organization: Sakai Project</p>
  * @author rshastri
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: QTIConstantStrings.java,v 1.4 2005/05/17 23:00:36 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class QTIConstantStrings
 {

@@ -56,7 +56,7 @@ package org.navigoproject;
  * Provides a common place to house all application wide constants.
  * 
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon </a>
- * @version $Id: Constants.java,v 1.1.1.1 2004/07/28 21:32:06 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 public final class Constants
 {

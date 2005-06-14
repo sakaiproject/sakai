@@ -64,7 +64,7 @@ import java.util.Properties;
  * (and associated Properties).
  *
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: PathInfo.java,v 1.1 2005/04/12 15:37:02 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class PathInfo
     //extends AbstractCompositeObject

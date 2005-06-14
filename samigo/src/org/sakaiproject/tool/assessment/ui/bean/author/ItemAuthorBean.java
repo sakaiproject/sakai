@@ -50,7 +50,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * Backing bean for Item Authoring, uses ItemBean for UI
- * $Id: ItemAuthorBean.java,v 1.35 2005/06/06 21:29:39 lydial.stanford.edu Exp $
+ * $Id$
  */
 public class ItemAuthorBean
   implements Serializable

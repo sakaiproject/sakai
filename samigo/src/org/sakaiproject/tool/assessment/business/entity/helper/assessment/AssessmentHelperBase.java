@@ -51,7 +51,7 @@ import org.sakaiproject.tool.assessment.util.Iso8601TimeInterval;
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley esmiley@stanford.edu
  * @author Shastri, Rashmi <rshastri@iupui.edu>
- * @version $Id: AssessmentHelperBase.java,v 1.18 2005/06/06 22:30:04 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public abstract class AssessmentHelperBase implements AssessmentHelperIfc
 {

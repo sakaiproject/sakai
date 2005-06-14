@@ -31,7 +31,7 @@ import org.sakaiproject.tool.assessment.util.StringParseUtils;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Company: </p>
  * @author Ed Smiley
- * @version $Id: GetTextFromXML.java,v 1.3 2005/05/31 19:14:27 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class GetTextFromXML

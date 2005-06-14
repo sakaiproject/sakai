@@ -38,7 +38,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: ConfirmDeleteTemplateListener.java,v 1.11 2005/05/31 19:14:24 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class ConfirmDeleteTemplateListener

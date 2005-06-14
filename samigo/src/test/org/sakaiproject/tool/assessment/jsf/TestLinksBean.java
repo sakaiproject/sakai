@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: TestLinksBean.java,v 1.2 2004/11/24 02:32:57 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class TestLinksBean implements Serializable

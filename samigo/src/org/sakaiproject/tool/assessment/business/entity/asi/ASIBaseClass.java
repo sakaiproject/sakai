@@ -54,7 +54,7 @@ import org.xml.sax.SAXException;
  * <p>Organization: Sakai Project</p>
  * @author rshastri
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: ASIBaseClass.java,v 1.7 2005/05/31 19:14:30 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public abstract class ASIBaseClass
   extends XmlStringBuffer

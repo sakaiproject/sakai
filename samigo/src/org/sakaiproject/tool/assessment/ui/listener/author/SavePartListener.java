@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: SavePartListener.java,v 1.14 2005/06/10 04:36:08 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class SavePartListener

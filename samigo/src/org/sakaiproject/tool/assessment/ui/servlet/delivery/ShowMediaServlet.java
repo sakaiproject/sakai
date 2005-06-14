@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: ShowMediaServlet.java,v 1.9 2005/06/12 23:08:05 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ShowMediaServlet extends HttpServlet

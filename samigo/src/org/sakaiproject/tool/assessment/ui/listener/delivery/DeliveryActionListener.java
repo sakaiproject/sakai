@@ -63,7 +63,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: DeliveryActionListener.java,v 1.52 2005/06/10 21:56:54 zqingru.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class DeliveryActionListener implements ActionListener

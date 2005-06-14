@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: SubmitToGradingActionListener.java,v 1.24 2005/06/03 19:34:50 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class SubmitToGradingActionListener implements ActionListener

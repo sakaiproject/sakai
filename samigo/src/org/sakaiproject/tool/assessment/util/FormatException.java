@@ -23,7 +23,7 @@ package org.sakaiproject.tool.assessment.util;
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: FormatException.java,v 1.1 2005/01/14 01:34:51 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class FormatException
   extends RuntimeException

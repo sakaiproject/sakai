@@ -64,7 +64,7 @@ import org.sakaiproject.tool.assessment.settings.PathInfo;
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: AuthoringXml.java,v 1.17 2005/05/20 16:42:24 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class AuthoringXml

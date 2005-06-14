@@ -38,7 +38,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * <p> </p>
  * @author Ed Smiley
- * @version $Id: SectionContentsBean.java,v 1.19 2005/06/10 23:57:15 zqingru.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class SectionContentsBean implements Serializable {

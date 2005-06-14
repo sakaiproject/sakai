@@ -68,7 +68,7 @@ import org.apache.ojb.broker.metadata.SequenceDescriptor;
  *
  * @author <a href="mailto:bmcgough@indiana.edu">Brian McGough</a>
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: OjbBootStrap.java,v 1.1 2005/04/12 15:37:02 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class OjbBootStrap
 {

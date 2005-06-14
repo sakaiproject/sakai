@@ -37,7 +37,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * UI bean for authoring an Item
- * $Id: ItemBean.java,v 1.23 2005/05/31 19:14:24 janderse.umich.edu Exp $
+ * $Id$
  */
 public class ItemBean
   implements Serializable

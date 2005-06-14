@@ -1,7 +1,7 @@
 /*
  * $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/ui/web/filter/SetCharacterEncodingFilter.java,v 1.2 2005/05/31 19:14:27 janderse.umich.edu Exp $
- * $Revision: 1.2 $
- * $Date: 2005/05/31 19:14:27 $
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -82,7 +82,7 @@ import javax.servlet.ServletResponse;
  * or a value stashed in the current user's session).
  *
  * @author Craig McClanahan
- * @version $Id: SetCharacterEncodingFilter.java,v 1.2 2005/05/31 19:14:27 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public class SetCharacterEncodingFilter
   implements Filter

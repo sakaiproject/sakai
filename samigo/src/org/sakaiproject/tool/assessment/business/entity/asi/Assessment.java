@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.business.entity.constants.QTIConstantStr
  * <p>Organization: Sakai Project</p>
  * @author casong
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: Assessment.java,v 1.7 2005/05/20 16:16:10 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class Assessment  extends ASIBaseClass
 {

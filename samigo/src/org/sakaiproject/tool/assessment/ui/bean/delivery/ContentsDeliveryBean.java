@@ -27,7 +27,7 @@ import java.io.Serializable;
  * representation of the entire (table of) contents for an
  * assessment, or the contents presented in a praticular page view.</p>
  * @author Ed Smiley
- * @version $Id: ContentsDeliveryBean.java,v 1.3 2004/11/20 00:34:08 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ContentsDeliveryBean implements Serializable {

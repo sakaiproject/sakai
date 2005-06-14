@@ -45,7 +45,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: TotalScoreUpdateListener.java,v 1.10 2005/05/31 19:14:27 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class TotalScoreUpdateListener

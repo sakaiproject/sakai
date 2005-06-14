@@ -31,7 +31,7 @@ import java.util.ArrayList;
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *  </p>
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: SelectAssessmentBean.java,v 1.10 2005/02/24 23:15:05 zqingru.stanford.edu Exp $
+ * @version $Id$
  *
  * Used to be org.navigoproject.ui.web.asi.select.SelectAssessmentForm.java
  */

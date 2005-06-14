@@ -18,7 +18,7 @@ import org.w3c.dom.Document;
  * <p>Used to maintain information or to dump XML to client.</p>
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: XMLController.java,v 1.34 2005/05/31 19:14:27 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class XMLController implements Serializable

@@ -42,7 +42,7 @@ import java.util.ArrayList;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: DisplayAssetsBean.java,v 1.2 2004/10/01 15:56:55 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class DisplayAssetsBean
   implements Serializable

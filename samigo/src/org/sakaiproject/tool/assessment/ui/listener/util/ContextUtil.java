@@ -41,7 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: ContextUtil.java,v 1.10 2005/06/03 20:36:58 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class ContextUtil

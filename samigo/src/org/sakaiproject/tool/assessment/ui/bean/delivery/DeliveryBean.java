@@ -58,7 +58,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  * @author casong To change the template for this generated type comment go to
- * $Id: DeliveryBean.java,v 1.64 2005/06/11 21:53:00 zqingru.stanford.edu Exp $
+ * $Id$
  *
  * Used to be org.navigoproject.ui.web.asi.delivery.XmlDeliveryForm.java
  */

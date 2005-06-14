@@ -62,7 +62,7 @@ import org.w3c.dom.Element;
  * </p>
  *
  * @author Ed Smiley
- * @version $Id: RecordingData.java,v 1.3 2005/05/20 17:10:05 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class RecordingData
   implements Serializable

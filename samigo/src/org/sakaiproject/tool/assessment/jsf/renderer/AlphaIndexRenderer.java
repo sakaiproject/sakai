@@ -32,7 +32,7 @@ import javax.faces.render.Renderer;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: AlphaIndexRenderer.java,v 1.3 2004/11/12 04:58:44 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class AlphaIndexRenderer

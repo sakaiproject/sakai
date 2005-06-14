@@ -58,7 +58,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  *
  * @author Rachel Gollub <rgollub@stanford.edu>
  * @author Lydia Li<lydial@stanford.edu>
- * $Id: QuestionPoolBean.java,v 1.49 2005/05/31 19:14:29 janderse.umich.edu Exp $
+ * $Id$
  */
 public class QuestionPoolBean
   implements Serializable

@@ -30,7 +30,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 /**
  * This Data Model contains the tree.
  *
- * $Id: QuestionPoolDataModel.java,v 1.5 2005/05/31 19:14:29 janderse.umich.edu Exp $
+ * $Id$
  */
 public class QuestionPoolDataModel extends DataModel
 {

@@ -32,7 +32,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Description: Sakai Assessment Manager</p>
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
- * @version $Id: StartInsertItemListener.java,v 1.8 2005/06/02 23:11:39 lydial.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class StartInsertItemListener implements ValueChangeListener 

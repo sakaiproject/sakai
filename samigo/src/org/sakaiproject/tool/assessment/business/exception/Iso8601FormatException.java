@@ -59,7 +59,7 @@ package org.sakaiproject.tool.assessment.business.exception;
  * <p>Copyright: Copyright 2003 Trustees of Indiana University</p>
  * <p>Company: </p>
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: Iso8601FormatException.java,v 1.1 2005/03/23 21:28:29 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class Iso8601FormatException
   extends FormatException

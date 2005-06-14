@@ -34,7 +34,7 @@ import javax.faces.render.Renderer;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: ScriptRenderer.java,v 1.4 2004/10/27 21:56:00 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ScriptRenderer extends Renderer

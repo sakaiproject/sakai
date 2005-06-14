@@ -25,7 +25,7 @@ import java.util.ArrayList;
 /**
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * @author Ed Smiley
- * @version $Id: MetaDataBean.java,v 1.5 2004/10/13 19:14:32 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class MetaDataBean implements Serializable

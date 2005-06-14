@@ -29,7 +29,7 @@ import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
  * <p>Organization: Sakai Project</p>
  * <p>Support any QTI 2.0 only XML handling code</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: AssessmentHelper20Impl.java,v 1.4 2005/05/17 22:57:45 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 // Note assessment for QTI 1.2 and 2.0 are nearly identical

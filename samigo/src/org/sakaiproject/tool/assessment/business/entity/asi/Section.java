@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley esmiley@stanford.edu
  * @author Shastri, Rashmi <rshastri@iupui.edu>
- * @version $Id: Section.java,v 1.14 2005/05/20 16:15:50 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class Section extends ASIBaseClass
 {

@@ -24,7 +24,7 @@ package org.sakaiproject.tool.assessment.ui.bean.misc;
  * formerly in org.navigoproject.ui.web.debug;
  *
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: BuildInfoBean.java,v 1.1 2004/09/16 00:56:05 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class BuildInfoBean
 {

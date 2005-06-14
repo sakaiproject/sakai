@@ -7,7 +7,7 @@ import java.io.Serializable;
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: LinksModelBean.java,v 1.1 2004/11/30 18:24:02 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class LinksModelBean implements Serializable

@@ -53,7 +53,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
  * @author Ed Smiley esmiley@stanford.edu
  * <p>Originally ItemHelper.java</p>
  * @author Shastri, Rashmi <rshastri@iupui.edu>
- * @version $Id: ItemHelper12Impl.java,v 1.43 2005/06/06 22:30:04 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ItemHelper12Impl extends ItemHelperBase

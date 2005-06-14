@@ -34,7 +34,7 @@ import javax.faces.render.Renderer;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: StylesheetRenderer.java,v 1.2 2004/08/25 16:21:38 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class StylesheetRenderer extends Renderer

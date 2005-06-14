@@ -9,7 +9,7 @@ import java.util.Map;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: AAMTree.java,v 1.5 2005/05/31 19:14:30 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public interface AAMTree
   extends Serializable

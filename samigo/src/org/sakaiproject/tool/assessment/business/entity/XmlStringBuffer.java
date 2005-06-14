@@ -60,7 +60,7 @@ import org.xml.sax.SAXException;
  * <p>Organization: Sakai Project</p>
  * @author rshastri
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: XmlStringBuffer.java,v 1.3 2005/05/20 17:10:05 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class XmlStringBuffer
   implements java.io.Serializable

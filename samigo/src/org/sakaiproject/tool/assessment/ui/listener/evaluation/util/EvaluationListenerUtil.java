@@ -32,7 +32,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Organization: Sakai Project</p>
  * <p>Much of this code was originally in EvaluationAction</p>
  * @author Ed Smiley
- * @version $Id: EvaluationListenerUtil.java,v 1.9 2005/05/31 19:14:27 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class EvaluationListenerUtil

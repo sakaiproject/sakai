@@ -30,7 +30,7 @@ import javax.faces.context.FacesContext;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: TimerBarTag.java,v 1.1 2004/12/15 00:59:02 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class TimerBarTag

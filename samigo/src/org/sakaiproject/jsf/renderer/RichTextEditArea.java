@@ -36,7 +36,7 @@ import javax.faces.render.Renderer;
  * <p> </p>
  * @author cwen@iu.edu
  * @author Ed Smiley esmiley@stanford.edu (modifications)
- * @version $Id: RichTextEditArea.java,v 1.5 2005/06/08 01:22:54 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class RichTextEditArea extends Renderer
 {

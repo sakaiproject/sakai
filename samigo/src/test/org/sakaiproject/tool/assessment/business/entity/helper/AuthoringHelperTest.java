@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: AuthoringHelperTest.java,v 1.9 2005/05/31 19:14:31 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class AuthoringHelperTest {

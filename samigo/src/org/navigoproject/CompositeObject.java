@@ -59,7 +59,7 @@ package org.navigoproject;
  * <p>Copyright: Copyright 2003 Trustees of Indiana University</p>
  * <p>Company: </p>
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: CompositeObject.java,v 1.1.1.1 2004/07/28 21:32:06 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 public interface CompositeObject
 {

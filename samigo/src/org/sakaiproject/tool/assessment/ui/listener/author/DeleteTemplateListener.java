@@ -35,7 +35,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: DeleteTemplateListener.java,v 1.8 2005/05/31 19:14:24 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class DeleteTemplateListener extends TemplateBaseListener implements ActionListener

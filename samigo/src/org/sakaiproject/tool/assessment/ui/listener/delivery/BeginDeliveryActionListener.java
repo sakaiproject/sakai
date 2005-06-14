@@ -53,7 +53,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: BeginDeliveryActionListener.java,v 1.49 2005/06/11 09:03:41 zqingru.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class BeginDeliveryActionListener implements ActionListener

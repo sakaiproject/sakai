@@ -7,7 +7,7 @@ import java.io.Serializable;
  * <p>Used to maintain information or to dump XML to client.</p>
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: XMLDisplay.java,v 1.4 2005/01/19 18:03:27 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class XMLDisplay implements Serializable

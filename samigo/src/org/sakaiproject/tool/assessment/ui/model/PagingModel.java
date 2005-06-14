@@ -25,7 +25,7 @@ import java.io.Serializable;
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * <p> </p>
  * @author Ed Smiley
- * @version $Id: PagingModel.java,v 1.1 2004/10/20 22:05:40 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class PagingModel implements Serializable

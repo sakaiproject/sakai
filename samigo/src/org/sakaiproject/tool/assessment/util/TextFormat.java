@@ -31,7 +31,7 @@ import java.util.Vector;
  * <p>Organization: Sakai Project</p>
  * @author jlannan
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: TextFormat.java,v 1.1 2005/01/04 02:24:17 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class TextFormat
 {

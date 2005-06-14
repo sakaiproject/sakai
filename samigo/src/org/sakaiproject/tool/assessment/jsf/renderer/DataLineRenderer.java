@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.jsf.renderer.util.RendererUtil;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: DataLineRenderer.java,v 1.4 2005/05/31 19:14:29 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class DataLineRenderer extends Renderer

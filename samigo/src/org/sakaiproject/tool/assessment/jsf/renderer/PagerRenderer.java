@@ -41,7 +41,7 @@ import javax.faces.render.Renderer;
  * </p>
  * @author Lydia Li
  * @author Ed Smiley
- * @version $Id: PagerRenderer.java,v 1.9 2004/10/08 23:51:29 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class PagerRenderer

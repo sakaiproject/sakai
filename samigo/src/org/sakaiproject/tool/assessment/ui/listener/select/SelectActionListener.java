@@ -50,7 +50,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: SelectActionListener.java,v 1.48 2005/06/08 14:48:44 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class SelectActionListener

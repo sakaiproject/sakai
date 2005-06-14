@@ -51,7 +51,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Description: Sakai Assessment Manager</p>
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
- * @version $Id: ItemModifyListener.java,v 1.22 2005/06/02 23:11:39 lydial.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ItemModifyListener implements ActionListener

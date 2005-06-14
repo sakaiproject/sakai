@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.business.entity.helper.item.ItemHelperIf
  * @author Ed Smiley esmiley@stanford.edu
  * <p>Originally SectionHelper</p>
  * @author Shastri, Rashmi <rshastri@iupui.edu>
- * @version $Id: SectionHelperBase.java,v 1.4 2005/05/20 16:42:25 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 abstract public class SectionHelperBase implements SectionHelperIfc

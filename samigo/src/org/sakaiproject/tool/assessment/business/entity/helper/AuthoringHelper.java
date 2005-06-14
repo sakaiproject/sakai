@@ -75,7 +75,7 @@ import org.sakaiproject.tool.assessment.util.XmlUtil;
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley esmiley@stanford.edu
  * @author Shastri, Rashmi <rshastri@iupui.edu>
- * @version $Id: AuthoringHelper.java,v 1.85 2005/06/10 22:04:25 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class AuthoringHelper
 {

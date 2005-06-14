@@ -20,7 +20,7 @@ import org.sakaiproject.tool.assessment.util.XmlUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: QTITester.java,v 1.8 2005/02/28 18:55:44 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class QTITester {

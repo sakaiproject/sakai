@@ -22,7 +22,7 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 /**
  * @author casong
  * @author esmiley@stanford.edu
- * $Id: FeedbackComponent.java,v 1.10 2004/12/15 08:01:46 rgollub.stanford.edu Exp $
+ * $Id$
  */
 public class FeedbackComponent
 {

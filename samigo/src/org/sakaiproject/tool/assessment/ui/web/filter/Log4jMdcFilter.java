@@ -65,7 +65,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  *
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: Log4jMdcFilter.java,v 1.1 2005/03/30 21:19:21 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class Log4jMdcFilter
   implements Filter

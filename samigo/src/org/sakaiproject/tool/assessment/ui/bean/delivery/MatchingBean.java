@@ -28,7 +28,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
 /**
  * @author rgollub@stanford.edu
- * $Id: MatchingBean.java,v 1.4 2005/03/23 06:29:17 rgollub.stanford.edu Exp $
+ * $Id$
  */
 public class MatchingBean
 {

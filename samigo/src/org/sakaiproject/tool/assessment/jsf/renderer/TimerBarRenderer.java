@@ -36,7 +36,7 @@ import java.util.Map;
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
  * @author (JavaScript) Brian Gosselin of http://scriptasylum.com
- * @version $Id: TimerBarRenderer.java,v 1.11 2005/01/14 21:27:57 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class TimerBarRenderer extends Renderer

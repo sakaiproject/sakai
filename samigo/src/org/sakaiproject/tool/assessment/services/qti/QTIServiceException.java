@@ -30,7 +30,7 @@ package org.sakaiproject.tool.assessment.services.qti;
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: QTIServiceException.java,v 1.2 2005/05/13 16:07:15 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class QTIServiceException extends RuntimeException

@@ -33,7 +33,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * <p> </p>
  * @author Ed Smiley
- * @version $Id: ItemContentsBean.java,v 1.29 2005/06/12 23:08:04 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ItemContentsBean implements Serializable {

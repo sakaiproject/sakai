@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Description: Sakai Assessment Manager</p>
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
- * @version $Id: ImportQuestionsToAuthoring.java,v 1.6 2005/05/31 19:14:26 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class ImportQuestionsToAuthoring implements ActionListener

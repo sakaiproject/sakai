@@ -68,7 +68,7 @@ package org.navigoproject;
  * </p>
  *
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: AbstractCompositeObject.java,v 1.1.1.1 2004/07/28 21:32:06 rgollub.stanford.edu Exp $
+ * @version $Id$
  */
 public abstract class AbstractCompositeObject
   implements CompositeObject

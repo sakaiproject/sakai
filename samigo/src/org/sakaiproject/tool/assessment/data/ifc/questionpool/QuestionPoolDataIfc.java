@@ -30,7 +30,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: QuestionPoolDataIfc.java,v 1.5 2005/05/31 19:14:31 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public interface QuestionPoolDataIfc
       extends java.io.Serializable{

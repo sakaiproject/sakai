@@ -56,7 +56,7 @@ import org.xml.sax.SAXException;
  * mods:
  * @author Rachel Gollub rgollub@stanford.edu
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: XmlUtil.java,v 1.6 2005/05/21 00:53:27 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public final class XmlUtil

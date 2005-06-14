@@ -38,7 +38,7 @@ import java.util.Iterator;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: NavigationMapRenderer.java,v 1.3 2004/10/21 01:23:32 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class NavigationMapRenderer extends Renderer

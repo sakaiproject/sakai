@@ -12,7 +12,7 @@ import org.sakaiproject.tool.assessment.facade.DataFacadeException;
  *
  * @author <a href="mailto:rpembry@indiana.edu">Randall P. Embry</a>
  * @author <a href="mailto:jlannan@iupui.edu">Jarrod Lannan</a>
- * @version $Id: FunctionIteratorFacade.java,v 1.2 2005/05/31 19:14:27 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public class FunctionIteratorFacade
   implements FunctionIteratorIfc

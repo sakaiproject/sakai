@@ -43,7 +43,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: TemplateListener.java,v 1.6 2005/05/31 19:14:24 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class TemplateListener extends TemplateBaseListener

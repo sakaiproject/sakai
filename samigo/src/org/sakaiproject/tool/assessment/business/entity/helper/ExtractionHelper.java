@@ -75,7 +75,7 @@ import org.sakaiproject.tool.assessment.util.XmlUtil;
  * <p> </p>
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: ExtractionHelper.java,v 1.96 2005/06/06 22:30:04 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ExtractionHelper

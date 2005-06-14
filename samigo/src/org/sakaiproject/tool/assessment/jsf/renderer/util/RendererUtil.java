@@ -29,7 +29,7 @@ import javax.faces.context.FacesContext;
  * <p> </p>
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: RendererUtil.java,v 1.2 2004/12/17 17:14:38 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class RendererUtil

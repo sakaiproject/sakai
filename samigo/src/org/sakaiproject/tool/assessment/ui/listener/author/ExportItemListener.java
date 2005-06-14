@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: ExportItemListener.java,v 1.5 2005/06/10 20:20:20 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ExportItemListener implements ActionListener

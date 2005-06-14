@@ -35,7 +35,7 @@ import org.sakaiproject.service.framework.current.cover.CurrentService;
  * Provides access to thread-scoped variables, delegating to the Sakai CurrentService.
  * This implementation should only be used in a Sakai-Samigo integrated installation.
  * @author <a href="mailto:jonandersen@umich.edu">Jon Andersen</a>
- * @version $Id: ThreadLocalMapProvider.java,v 1.3 2005/06/05 03:04:50 ggolden.umich.edu Exp $
+ * @version $Id$
  */
 public class ThreadLocalMapProvider
 {

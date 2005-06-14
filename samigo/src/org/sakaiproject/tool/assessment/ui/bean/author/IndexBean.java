@@ -35,7 +35,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * Used to be org.navigoproject.ui.web.form.IndexForm.java
  *
  * @author $author$
- * @version $Id: IndexBean.java,v 1.10 2005/05/31 19:14:24 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public class IndexBean
   implements Serializable

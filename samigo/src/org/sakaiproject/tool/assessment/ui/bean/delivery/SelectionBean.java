@@ -27,7 +27,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
 /**
  * @author rgollub@stanford.edu
- * $Id: SelectionBean.java,v 1.2 2005/05/31 19:14:27 janderse.umich.edu Exp $
+ * $Id$
  */
 public class SelectionBean
 {

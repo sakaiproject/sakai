@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
  * <p>Organization: Sakai Project</p>
  * <p>Version for QTI 2.0 item XML, significant differences between 1.2 and 2.0</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: ItemHelper20Impl.java,v 1.13 2005/05/21 03:40:53 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class ItemHelper20Impl

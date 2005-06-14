@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Description: Sakai Assessment Manager</p>
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
- * @version $Id: ReorderPartsListener.java,v 1.5 2005/05/31 19:14:24 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class ReorderPartsListener

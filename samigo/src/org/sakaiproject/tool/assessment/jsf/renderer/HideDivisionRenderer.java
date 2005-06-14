@@ -34,7 +34,7 @@ import javax.faces.component.UIViewRoot;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: HideDivisionRenderer.java,v 1.10 2004/12/17 21:01:36 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class HideDivisionRenderer extends Renderer

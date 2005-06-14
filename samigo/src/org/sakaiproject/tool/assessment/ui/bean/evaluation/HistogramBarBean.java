@@ -24,7 +24,7 @@ import java.io.Serializable;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 /**
- * @version $Id: HistogramBarBean.java,v 1.4 2005/05/31 19:14:25 janderse.umich.edu Exp $
+ * @version $Id$
  * @author Ed Smiley
  */
 public class HistogramBarBean

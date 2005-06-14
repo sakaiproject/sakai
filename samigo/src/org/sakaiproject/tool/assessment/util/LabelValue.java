@@ -24,7 +24,7 @@ package org.sakaiproject.tool.assessment.util;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: LabelValue.java,v 1.1 2004/09/23 01:35:58 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class LabelValue
 {

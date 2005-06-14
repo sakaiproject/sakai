@@ -36,7 +36,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: RemovePublishedAssessmentListener.java,v 1.7 2005/05/31 19:14:24 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class RemovePublishedAssessmentListener

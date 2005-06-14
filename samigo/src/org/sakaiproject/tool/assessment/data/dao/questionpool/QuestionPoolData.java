@@ -31,7 +31,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: QuestionPoolData.java,v 1.8 2005/05/31 19:14:28 janderse.umich.edu Exp $
+ * @version $Id$
  */
 public class QuestionPoolData
   implements Serializable, QuestionPoolDataIfc

@@ -60,7 +60,7 @@ package org.sakaiproject.tool.assessment.settings;
  * <p>Copyright: Copyright 2003 Trustees of Indiana University</p>
  * <p>Company: </p>
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: ApplicationEnvironment.java,v 1.1 2005/04/12 15:37:02 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class ApplicationEnvironment
     //  extends AbstractCompositeObject

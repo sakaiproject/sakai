@@ -27,7 +27,7 @@ import java.text.*;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: BeanDateComparator.java,v 1.1 2005/02/24 01:15:50 zqingru.stanford.edu Exp $
+ * @version $Id$
  */
 public class BeanDateComparator
   extends BeanSortComparator

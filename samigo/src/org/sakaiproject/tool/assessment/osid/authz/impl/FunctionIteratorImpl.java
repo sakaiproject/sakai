@@ -12,7 +12,7 @@ import org.osid.authorization.FunctionIterator;
  *
  * @author <a href="mailto:rpembry@indiana.edu">Randall P. Embry</a>
  * @author <a href="mailto:jlannan@iupui.edu">Jarrod Lannan</a>
- * @version $Id: FunctionIteratorImpl.java,v 1.1 2004/10/21 17:10:37 daisyf.stanford.edu Exp $
+ * @version $Id$
  */
 public class FunctionIteratorImpl
   implements FunctionIterator

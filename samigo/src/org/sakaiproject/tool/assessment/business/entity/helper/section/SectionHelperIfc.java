@@ -33,7 +33,7 @@ import org.sakaiproject.tool.assessment.business.entity.asi.Section;
  * <p>Copyright: Copyright (c) 2005</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: SectionHelperIfc.java,v 1.4 2005/05/17 22:51:02 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 
 public interface SectionHelperIfc
@@ -43,7 +43,7 @@ public interface SectionHelperIfc
    * <p>Copyright: Copyright (c) 2005</p>
    * <p>Organization: Sakai Project</p>
    * @author Ed Smiley esmiley@stanford.edu
-   * @version $Id: SectionHelperIfc.java,v 1.4 2005/05/17 22:51:02 esmiley.stanford.edu Exp $
+   * @version $Id$
    */
 
 

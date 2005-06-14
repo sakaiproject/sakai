@@ -59,7 +59,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Qingru Zhang
- * @version $Id: SubmissionStatusListener.java,v 1.4 2005/05/31 19:14:27 janderse.umich.edu Exp $
+ * @version $Id$
  */
 
 public class SubmissionStatusListener

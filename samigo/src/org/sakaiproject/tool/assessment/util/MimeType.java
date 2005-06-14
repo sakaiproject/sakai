@@ -27,7 +27,7 @@ import java.util.HashMap;
  * We could also load from config file/table...
  *
  * @author esmiley@stanford.edu
- * @version $Id: MimeType.java,v 1.1 2005/01/06 18:52:21 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class MimeType {
   private static HashMap extensionMime = new HashMap();

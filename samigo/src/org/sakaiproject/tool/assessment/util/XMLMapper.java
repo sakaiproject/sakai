@@ -43,7 +43,7 @@ import org.w3c.dom.NodeList;
  * Note this now supports deep copy.
  *
  * @author @author Ed Smiley
- * @version $Id: XMLMapper.java,v 1.3 2005/05/20 16:42:25 esmiley.stanford.edu Exp $
+ * @version $Id$
  */
 public class XMLMapper
 {
