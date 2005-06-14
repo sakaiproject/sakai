@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook">
+	<class name="org.sakaiproject.tool.gradebook.facades.standalone.TeachingAssignmentStandalone" table="GB_TEACHING_ASSIGNMENT_T">
+
+		<id name="id" column="ID" type="long" access="field">
+			<generator class="native">
+				<param name="sequence">GB_TA_S</param>
+			</generator>
+		</id>
+
+		<many-to-one name="gradebook">
+			<column name="GRADEBOOK_ID" unique-key="GRADEBOOK_USER" not-null="true"/>
+		</many-to-one>
+
+		<many-to-one name="user" class="org.sakaiproject.tool.gradebook.facades.standalone.UserStandalone">
+			<column name="USER_ID" unique-key="GRADEBOOK_USER" not-null="true"/>
+		</many-to-one>
+
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<pomVersion>3</pomVersion>
+	<id>sakai-gradebook-testservice</id>
+	<groupId>sakaiproject</groupId>
+	<name>Sakai Gradebook Service Test Tool</name>
+	<currentVersion>2.0.0</currentVersion>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2004</inceptionYear>
+
+   	<properties>
+		<deploy.type>war</deploy.type>
+	</properties>
+
+	<dependencies>
+
+		<!-- Gradebook service -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-gradebook-service</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<deploy.type>jar</deploy.type>
+				<deploy.target>shared</deploy.target>
+			</properties>
+		</dependency>
+
+		<!-- Sakai2 Dependencies -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-service</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-session</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-session-component</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+		<!-- this is required for any Sakai JSF tool -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-tool</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<!-- these (jsf-app and util-web) are options to get full Sakai integration -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-app</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-web</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<!-- sakai2 plugin -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${pom.currentVersion}</version>
+			<type>plugin</type>
+		</dependency>
+
+		<!-- End Sakai2 Dependencies -->
+
+		<!-- MyFaces JSF -->
+		<dependency>
+			<groupId>myfaces</groupId>
+			<artifactId>myfaces</artifactId>
+			<version>1.0.9</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.8</version>
+		</dependency>
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-digester</groupId>
+			<artifactId>commons-digester</artifactId>
+			<version>1.6</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.7.0</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<!-- base64 used to implement STATE_SAVING_METHOD client -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.2</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<!-- java source -->
+		<sourceDirectory>src/java</sourceDirectory>
+
+	</build>
+
+</project>

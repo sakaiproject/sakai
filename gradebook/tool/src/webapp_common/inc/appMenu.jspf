@@ -1,0 +1,25 @@
+<%/*
+	Common application navigation links.
+	Accessed via <x:aliasBean alias="#{bean}" value="#{realPageBean}">...</x:aliasBean> .
+*/%>
+<x:div styleClass="navIntraTool">
+	<h:commandLink action="overview" immediate="true" rendered="#{viewName ne 'overview'}">
+		<h:outputText value="#{msgs.appmenu_overview}"/>
+	</h:commandLink>
+	<h:outputText value="#{msgs.appmenu_overview}" rendered="#{viewName eq 'overview'}" styleClass="currentView" />
+	<h:outputText value=" | "/>
+	<h:commandLink action="roster" immediate="true" rendered="#{viewName ne 'roster'}">
+		<h:outputText value="#{msgs.appmenu_roster}"/>
+	</h:commandLink>
+	<h:outputText value="#{msgs.appmenu_roster}" rendered="#{viewName eq 'roster'}" styleClass="currentView" />
+	<h:outputText value=" | "/>
+	<h:commandLink action="addAssignment" immediate="true" rendered="#{viewName ne 'addAssignment'}">
+		<h:outputText value="#{msgs.appmenu_add_assignment}"/>
+	</h:commandLink>
+	<h:outputText value="#{msgs.appmenu_add_assignment}" rendered="#{viewName eq 'addAssignment'}" styleClass="currentView" />
+	<h:outputText value=" | "/>
+	<h:commandLink action="feedbackOptions" immediate="true" rendered="#{viewName ne 'feedbackOptions'}">
+		<h:outputText value="#{msgs.appmenu_feedback_options}"/>
+	</h:commandLink>
+	<h:outputText value="#{msgs.appmenu_feedback_options}" rendered="#{viewName eq 'feedbackOptions'}" styleClass="currentView" />
+</x:div>

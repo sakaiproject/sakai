@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+<faces-config>
+	<navigation-rule>
+		<from-view-id>*</from-view-id>
+		<navigation-case>
+			<from-outcome>overview</from-outcome>
+			<to-view-id>/overview.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>roster</from-outcome>
+			<to-view-id>/roster.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>addAssignment</from-outcome>
+			<to-view-id>/addAssignment.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>assignmentDetails</from-outcome>
+			<to-view-id>/assignmentDetails.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>courseGradeDetails</from-outcome>
+			<to-view-id>/courseGradeDetails.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>editAssignment</from-outcome>
+			<to-view-id>/editAssignment.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>removeAssignment</from-outcome>
+			<to-view-id>/removeAssignment.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>feedbackOptions</from-outcome>
+			<to-view-id>/gradeOptions.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+	</navigation-rule>
+</faces-config>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="org_sakaiproject_tool_gradebook_facades_standalone_dataload_UserLoader"
+		class="org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoaderHibernateImpl">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+	</bean>
+
+	<bean id="org_sakaiproject_tool_gradebook_facades_standalone_dataload_EnrollmentLoader"
+		class="org.sakaiproject.tool.gradebook.facades.standalone.dataload.EnrollmentLoaderHibernateImpl">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+	</bean>
+
+	<bean id="org_sakaiproject_tool_gradebook_facades_standalone_dataload_TeachingAssignmentLoader"
+		class="org.sakaiproject.tool.gradebook.facades.standalone.dataload.TeachingAssignmentLoaderHibernateImpl">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+	</bean>
+
+	<bean id="org_sakaiproject_tool_gradebook_standalone_FrameworkManager"
+		class="org.sakaiproject.tool.gradebook.standalone.impl.FrameworkManagerImpl">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+	</bean>
+
+	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
+		class="org.sakaiproject.tool.gradebook.facades.test.AuthnTestImpl">
+		<property name="userUid"><value>testId</value></property>
+	</bean>
+
+</beans>

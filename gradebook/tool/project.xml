@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<pomVersion>3</pomVersion>
+	<id>sakai-gradebook-tool</id>
+	<groupId>sakaiproject</groupId>
+	<name>Sakai Gradebook Tool</name>
+	<currentVersion>2.0.0</currentVersion>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2004</inceptionYear>
+
+   	<properties>
+		<deploy.type>war</deploy.type>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-gradebook-service</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-gradebook-component-data</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-gradebook-component</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+<!-- Sakai2 Dependencies -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-service</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-session</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-session-component</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+		<!-- this is required for any Sakai JSF tool -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-tool</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<!-- these (jsf-app and util-web) are options to get full Sakai integration -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-app</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-web</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<!-- sakai2 plugin -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${pom.currentVersion}</version>
+			<type>plugin</type>
+		</dependency>
+
+<!-- End Sakai2 Dependencies -->
+
+
+<!-- Database dependencies used for integration testing and schema generation -->
+<!-- Please contact the gradebook development team before removing these -->
+
+<!-- Uncomment as necessary to run tests, or to generate new db schemas -->
+
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.7.3.0</version>
+		</dependency>
+
+<!-- 
+		<dependency>
+			<groupId>oracle</groupId>
+			<artifactId>oracle</artifactId>
+			<jar>ojdbc14.jar</jar>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>3.0.10-stable-bin</version>
+		</dependency>
+-->
+
+<!-- End database dependencies -->
+
+ 		<dependency>
+			<groupId>springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>1.1.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>aopalliance</groupId>
+			<artifactId>aopalliance</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>jta</groupId>
+			<artifactId>jta</artifactId>
+			<version>h2.1.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+			<version>2.1.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-full</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>odmg</groupId>
+			<artifactId>odmg</artifactId>
+			<version>3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.0</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-digester</groupId>
+			<artifactId>commons-digester</artifactId>
+			<version>1.6</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.7.0</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>2.0-final-20040126</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+<!-- MyFaces JSF -->
+		<dependency>
+			<groupId>myfaces</groupId>
+			<artifactId>myfaces</artifactId>
+			<version>1.0.9</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<!-- base64 used to implement STATE_SAVING_METHOD client -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.2</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.1.2</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+			<version>1.1.2</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<id>servletapi</id>
+			<version>2.3</version>
+			<properties>
+				<war.bundle>false</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+
+
+		<!-- Sakai tag library -->
+		<!-- For now we'll have to get this from the local respository. -->
+		<!-- Check out "scratch", go to "sakaix/jsf-widget", and run "maven". -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-widgets</artifactId>
+			<version>${pom.currentVersion}</version>
+			<url>http://sakaiproject.org/</url>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-widgets-myfaces</artifactId>
+			<version>${pom.currentVersion}</version>
+			<url>http://sakaiproject.org/</url>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<nagEmailAddress>
+			gradebook@collab.sakaiproject.org
+		</nagEmailAddress>
+		<sourceDirectory>src/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/hibernate</directory>
+				<includes>
+					<include>ehcache.xml</include>
+					<include>**/*.hbm.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${hibernate.properties.dir}</directory>
+				<includes>
+					<include>hibernate.properties</include>
+				</includes>
+			</resource>
+		</resources>
+
+		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+		<unitTest>
+			<includes>
+				<include>**/*Test.java</include>
+
+
+<!--
+	Include the following if you want to run the jcoverage goal.  Otherwise,
+	all of the database testing will be missed by the coverage tool.  The
+	TestManagers test assumes that the database is empty, so make sure you run
+	the schema goal before attempting to run jcoverage.
+-->
+
+<!--
+				<include>**/TestManagers.java</include>
+-->
+			</includes>
+			<resources>
+				<resource>
+					<directory>${basedir}/src/hibernate</directory>
+					<includes>
+						<include>ehcache.xml</include>
+						<include>**/*.hbm.xml</include>
+					</includes>
+				</resource>
+				<resource>
+					<directory>${basedir}/src/webapp_standalone/WEB-INF/</directory>
+					<includes>
+						<include>components.xml</include>
+					</includes>
+				</resource>
+				<resource>
+					<directory>${basedir}/src/test/</directory>
+					<includes>
+						<include>components-test.xml</include>
+						<include>components-archive.xml</include>
+					</includes>
+				</resource>
+				<resource>
+					<directory>${hibernate.properties.dir}</directory>
+					<includes>
+						<include>hibernate.properties</include>
+					</includes>
+				</resource>
+				<resource>
+					<directory>${basedir}</directory>
+					<includes>
+						<include>log4j.properties</include>
+					</includes>
+				</resource>
+			</resources>
+		</unitTest>
+	</build>
+</project>
+

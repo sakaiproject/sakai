@@ -1,0 +1,7 @@
+Adding a custom grade mapping
+- Create a new Java class that extends org.sakaiproject.tool.gradebook.GradeMapping
+- Create a default (no arg) constructor and populate the grades and defaultValues lists.  See one of the pre-defined grademappings for guidance.
+- Edit org.sakaiproject.tool.gradebook.GradeMapping.hbm.xml by adding the new grademapping subclass.  Follow the other grade mapping subclasses, and be sure to use a unique discriminator-value.
+- In org.sakaiproject.tool.gradebook.Gradebook.getAvailableGradeMappings(), add your custom grade mapping
+- If the custom grade mapping is to be the application-wide default grade mapping, set it to be so in Gradebook.getDefaultGradeMapping()
+

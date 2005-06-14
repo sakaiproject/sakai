@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+	default="full"
+	xmlns:j="jelly:core"
+	xmlns:ant="jelly:ant"
+	xmlns:maven="jelly:maven"
+	xmlns:u="jelly:util">
+
+	<goal name="full">
+		<attainGoal name="jar:install" />
+	</goal>
+
+</project>

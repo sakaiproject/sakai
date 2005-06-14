@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook">
+	<class name="org.sakaiproject.tool.gradebook.GradeMapping" table="GB_GRADE_MAP_T" discriminator-value="0">
+
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">GB_GRADE_MAPPING_S</param>
+			</generator>
+		</id>
+
+		<discriminator type="integer" column="OBJECT_TYPE_ID" />
+
+		<version type="integer" name="version" column="VERSION"/>
+
+		<many-to-one name="gradebook" column="GRADEBOOK_ID" not-null="true" />
+		
+		<map name="gradeMap" order-by="percent" table="GB_GRADE_TO_PERCENT_MAPPING_T" cascade="save-update" lazy="false">
+			<key column="GRADE_MAP_ID"/>
+			<index column="LETTER_GRADE" type="string"/>
+			<element column="PERCENT" type="double"/>
+		</map>
+
+		<subclass name="org.sakaiproject.tool.gradebook.PassNotPassMapping" discriminator-value="1" />
+		<subclass name="org.sakaiproject.tool.gradebook.LetterGradeMapping" discriminator-value="2" />
+		<subclass name="org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping" discriminator-value="3" />
+
+	</class>
+</hibernate-mapping>

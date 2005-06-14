@@ -1,0 +1,85 @@
+GRADEBOOK INTEGRATION NOTES
+
+By default, the gradebook currently builds and deploys a standalone version for easy testing and demos. But the application code is designed to be embededded in an LMS framework, and to be integrated with external assessment tools. Here are some pointers for integrators.
+
+
+1. INTERFACES
+
+There are two sets of integration interfaces: the gradebook service (which integrators call), and the facades (which integrators implement).
+
+1.1. Gradebook Service
+
+gb/service/src/java/org/sakaiproject/service/gradebook/shared/GradebookService.java
+
+The gradebook service interface provides handles to external code to change the state of the gradebook application. For the Sakai 2.0 Baseline, the gradebook has two programmatic clients: site management (to be able to create a new gradebook instance and associate it with other parts of the site) and Samigo (to add and score externally-managed assignments).
+
+1.2 Facades
+
+gb/tool/src/java/org/sakaiproject/tool/gradebook/facades/
+	Authn.java
+	Authz.java
+	ContextManagement.java
+	CourseManagement.java
+	Enrollment.java
+	Role.java
+	User.java
+
+The facade interfaces provide stable handles so that the gradebook can defer LMS framework decisions to the embedding LMS framework. For the most part, the interfaces are very simple. The exception is CourseManagement, which provides a number of more complex method signatures so that (if necessary) queries can be optimized and tailored to the data actually needed by the current request.
+
+Working standalone implementations of these services can be found in:
+
+gb/tool/src/java/org/sakaiproject/tool/gradebook/facades/standalone/
+
+These implementations are tested with the line "maven test-standalone" from the "gb/tool" directory. The facade implementations used by our test code are managed via Spring configuration files.  Test gradebooks can be loaded by calling "maven load-full" from the gb/tool directory.
+
+
+2. PACKAGING
+
+The standard "maven" build, when run from the "gb" directory produces an all-in-one standalone WAR for the application. But it also produces two JAR archives that may be of direct interest to integrators:
+
+gb/service/target/sakai-gradebook-service-sakai.2.0.jar
+
+  This contains the external service definitions, suitable for installing in a shared library.
+
+gb/tool/target/sakai-gradebook-tool-sakai.2.0.jar
+
+  This contains all application-specific classes (i.e., excluding our standalone facade implementations).
+
+Depending on the feedback we get from integrators, we'll be glad to revise these package definitions or produce other packages (e.g., for the application-specific JSP and JSF files).
+
+
+3. CONFIGURATION FILES
+
+gb/tool/src/webapp/WEB-INF/
+
+  components.xml - The Spring framework setup. Facade implementation choices are configured towards the bottom.
+
+  faces-application.xml - JSF application-wide configuration. Integrators may change this.
+
+  faces-beans.xml - JSF backing bean configuration. Integrators are unlikely to touch this.
+
+  faces-gb_jsf.xml - Configures gradebook-specific JSF components (if any).
+
+  faces-navigation.xml - JSF navigation configuration. Integrators are unlikely to touch this.
+
+  faces-test.xml - JSF configuration specific to standalone test deployments. Integrators are likely to drop this.
+
+  tlds/gb_jsf.tld - Tag definitions for gradebook-specific JSF components (if any).
+
+  web.xml - The usual. Integrators are likely to do a lot with this one!
+
+3.1. Servlet maps and filters
+
+The standalone gradebook uses filters to wrap authentication and authorization logic around JSF processing.
+
+"AuthnFilter" may or may not be of use to integrators. It's flexible enough to take a redirect URL to go to when authorization is lacking, and to take different Authn facade implementations.
+
+An "EntryServlet" is used to direct the user to the correct starting page based on their role in the selected gradebook. Again, this may or may not of use to integrators.
+
+The authorization-handling "RoleFilter" configuration is more central to the application. The Sakai 2.0 Baseline Gradebook has very simple role-based authorization requirements: it implements nine pages, one of which is available only to "students", and the others of which are available only to "instructors". As a result, it proved easy to set up via "web.xml". The RoleFilter simply checks to make sure that a gradebook has been selected and then checks to make sure that the current user has the specified role in that gradebook.
+
+(As explained in the Authz facade documentation, we expect for our authorization approach to be completely rethought when sections and roles are easily managed through Sakai, and so we expect the authorization interface to be completely redesigned soon. This aspect of the application is designed to be thrown away rather than built on.)
+
+3.2. HTML output
+
+We use standard servlet "prelude" and "coda" files to wrap each JSF page. To eliminate the "Logout" link which is meaningful only when running standalone, just drop "codaTestStandalone.jspf". To eliminate HTML "head" and "body" tags from the JSF output, making the application output suitable as a portlet or for embedding, the integrator can replace "preludeStandalone.jspf" with something like "preludeEmbedded.jspf", and drop "codaStandalone.jspf".

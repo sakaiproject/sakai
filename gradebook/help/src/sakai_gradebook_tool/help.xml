@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="gradebookOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>gradebook_overview</value>
+        </property>
+        <property name="name">
+            <value>Gradebook Overview</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqtz.html</value>
+        </property>
+		<property name="defaultForTool"><value>sakai.gradebook</value></property>
+    </bean>
+    <bean id="gradebookAddAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>gradebookAddAssignment</value>
+        </property>
+        <property name="name">
+            <value>Creating/adding, editing, or deleting a Gradebook assignment</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aque.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookAssignmentDetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>gradebookAssignmentDetails</value>
+        </property>
+        <property name="name">
+            <value>Viewing assignment details</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqur.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookEnteringScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>gradebookEnteringScores</value>
+        </property>
+        <property name="name">
+            <value>Entering or editing assignment scores in the Gradebook</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqud.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookSorting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>gradebookSorting</value>
+        </property>
+        <property name="name">
+            <value>Sorting Gradebook tables</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aquq.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookFeedbackOptions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>gradebookFeedbackOptions</value>
+        </property>
+        <property name="name">
+            <value>Setting student feedback options</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqub.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookRoster" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>gradebookRoster</value>
+        </property>
+        <property name="name">
+            <value>	Viewing and exporting a roster</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aquf.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookExportScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>gradebookExportScores</value>
+        </property>
+        <property name="name">
+            <value>Exporting scores from the Gradebook</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqug.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookCourseGradeOverride" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>gradebookCourseGradeOverride</value>
+        </property>
+        <property name="name">
+            <value>Overriding an autocalculated course grade</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqul.html</value>
+        </property>
+    </bean>
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="gradebookCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>Gradebook Tool</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="gradebookOverview"/>
+                            <ref bean="gradebookAddAssignment"/>
+                            <ref bean="gradebookAssignmentDetails"/>
+                            <ref bean="gradebookEnteringScores"/>
+                            <ref bean="gradebookSorting"/>
+                            <ref bean="gradebookRoster"/>
+                            <ref bean="gradebookCourseGradeOverride"/>
+                            <ref bean="gradebookFeedbackOptions"/>
+                            <ref bean="gradebookExportScores"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>

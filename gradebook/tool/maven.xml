@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="sakai:build"
+	xmlns:j="jelly:core"
+	xmlns:ant="jelly:ant"
+	xmlns:maven="jelly:maven"
+	xmlns:u="jelly:util">
+
+	<preGoal name="war:webapp">
+		<attainGoal name="war:clean"/>
+
+		<!-- Files common to both standalone and embedded builds -->
+		<ant:copy todir="${maven.war.webapp.dir}">
+			<ant:fileset dir="${maven.src.dir}/webapp_common" />
+		</ant:copy>
+
+		<!-- Copy build specific files -->
+		<j:choose>
+			<j:when test="${standalone.equals('true')}">
+				<ant:echo message="Copying standalone resources into webapp"/>
+
+				<!-- Standalone webapp files -->
+				<ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
+					<ant:fileset dir="${maven.src.dir}/webapp_standalone/">
+						<ant:include name="**/*"/>
+					</ant:fileset>
+				</ant:copy>
+
+				<!-- Standalone dependencies -->
+				<j:forEach var="lib" items="${pom.artifacts}">
+					<j:set var="dep" value="${lib.dependency}"/>
+					<j:if test="${dep.getProperty('war.bundle')!='false'}">
+						<ant:copy todir="${maven.war.webapp.dir}/WEB-INF/lib" file="${lib.path}" overwrite="true" />
+					</j:if>
+				</j:forEach>
+
+				<!-- Standalone webapp resources -->
+				<ant:copy file="${basedir}/log4j.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+				<ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+
+			</j:when>
+			<j:otherwise>
+				<ant:echo message="Copying sakai-dependent resources into webapp"/>
+
+				<ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
+					<ant:fileset dir="${maven.src.dir}/webapp_embedded/">
+						<ant:include name="**/*"/>
+					</ant:fileset>
+				</ant:copy>
+			</j:otherwise>
+		</j:choose>
+
+	</preGoal>
+
+	<!-- Copy the war into the tomcat webapps dir -->
+	<postGoal name="war:war">
+		<j:if test="${standalone.equals('true')}">
+			<ant:echo message="Copying standalone webapp to deployment directory '${standalone.deploy.dir}'"/>
+			<ant:copy file="${maven.build.dir}/${maven.war.final.name}" todir="${standalone.deploy.dir}"/>
+		</j:if>
+	</postGoal>
+
+	<goal name="schema">
+		<!-- Run the non-db tests first, so all of the test classes and mappings are available in ${maven.build.dest} -->
+		<attainGoal name="test:test" />
+		<j:set var="maven.hibernate.properties" value="${hibernate.properties.dir}/hibernate.properties" />
+		<j:set var="hibernate.hbm2ddl.auto" value="create" />
+		<j:set var="maven.hibernate.delimiter" value=";" />
+		<j:set var="maven.hibernate.quiet" value="false" />
+		<j:set var="maven.hibernate.input.dir" value="${basedir}/../component-data/target/classes,${basedir}/../component/target/classes,${basedir}/target/classes" />
+		<j:set var="maven.hibernate.input.includes" value="**/*.hbm.xml" />
+
+		<attainGoal name="hibernate:schema-export" />
+	</goal>
+
+	<goal name="test-managers">
+		<attainGoal name="schema" />
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestManagers" />
+		<attainGoal name="test:single" />
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestAssessmentIntegration" />
+		<attainGoal name="test:single" />
+	</goal>
+
+	<!-- The sakai archive services are not currently implemented -->
+	<goal name="test-archive">
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestArchive" />
+		<attainGoal name="test:single" />
+	</goal>
+
+	<goal name="load-full">
+		<attainGoal name="schema" />
+		<attainGoal name="load-gradebooks" />
+		<attainGoal name="load-users" />
+		<attainGoal name="load-grades" />
+	</goal>
+
+	<!-- load-full must be run before these tests will succeed. -->
+	<goal name="test-standalone">
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneFramework" />
+		<attainGoal name="test:single" />
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneAuthz" />
+		<attainGoal name="test:single" />
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneCourseManagement" />
+		<attainGoal name="test:single" />
+	</goal>
+
+	<goal name="load-gradebooks">
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestGradebookLoader" />
+		<attainGoal name="test:single" />
+	</goal>
+
+	<goal name="load-users">
+		<j:if test="${!maven.skip.users}">
+	 		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestUserEnrollmentTeacherLoader" />
+			<attainGoal name="test:single" />
+		</j:if>
+	</goal>
+
+	<goal name="load-grades">
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestGradeLoader" />
+		<attainGoal name="test:single" />
+	</goal>
+
+</project>

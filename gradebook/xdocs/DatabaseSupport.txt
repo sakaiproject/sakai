@@ -1,0 +1,100 @@
+
+DATABASE SUPPORT
+================
+
+By default, the standalone gradebook build uses hsqldb for persistence. Since a standalone gradebook isn't the highest delivery priority, we haven't yet put a lot of effort into automating a database switch (via a Maven target, for example). Here's how we test on various DB flavors.
+
+
+ORACLE
+======
+
+1) Since we can't package the Oracle JDBC library in the application archive, make sure that your server has it in its default classpath (e.g., "/jakarta-tomcat-5.0.28/shared/lib/ojdbc-14.jar").
+2) Create a "hibernate.properties" file for your DB setup. A sample is below.
+3) Update your build.properties to use the new hibernate.properties file.
+4) Run maven, cd tool, maven test-managers load-full
+
+---- hibernate.properties ----
+
+hibernate.connection.driver_class=oracle.jdbc.OracleDriver
+
+hibernate.connection.url=jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(HOST=ihost.yourschool.edu)(PROTOCOL=tcp)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=servicename.yourschool.edu)))
+
+hibernate.connection.username=secretuser
+hibernate.connection.password=secretpwd
+
+hibernate.dialect=net.sf.hibernate.dialect.OracleDialect
+
+hibernate.show_sql=false
+# hibernate.hbm2ddl.auto=update
+
+hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
+
+
+MYSQL
+=====
+
+1) Since we can't package the MySQL library in the application archive, make sure your server has it in its default classpath. To run our Maven standalone test programs and data-loaders, you'll also need to make sure that Maven can see it. An easy way to do that is to uncomment the following lines in "sakai2/gradebook/tool/project.xml":
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>3.0.10-stable-bin</version>
+		</dependency>
+
+2) Create a "hibernate.properties" file for your DB setup. A sample is below.
+3) Update your build.properties to use the new hibernate.properties file.
+4) Make sure your MySQL server is running. Create your target database (named "sakaigb" in the sample below) if it's not there already.
+4) Run maven, cd tool, maven test-managers load-full
+
+---- hibernate.properties ----
+
+hibernate.connection.driver_class=com.mysql.jdbc.Driver
+
+hibernate.connection.url=jdbc:mysql://localhost/sakaigb
+hibernate.connection.username=root
+hibernate.connection.password=root
+
+hibernate.dialect=net.sf.hibernate.dialect.MySQLDialect
+hibernate.show_sql=false
+
+hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
+
+
+HSQLDB
+======
+
+1) Download hsqldb and unzip it somewhere
+2) Copy hsqldb.jar to tomcat's common/lib (the jdbc driver is in the jar along with the db server and everything else!)
+3) Put the attached hibernate.properties somewhere
+4) Update your build.properties to use the new hibernate.properties file
+5) Put the attached startup.bat and server.properties into your unzipped hsqldb directory (you'll probably need to update some path names)
+6) Run startup.sh and make sure the messages look good
+7) Run maven, maven test-managers load-full
+
+---- hibernate.properties ----
+
+hibernate.connection.driver_class=org.hsqldb.jdbcDriver
+
+hibernate.connection.url=jdbc:hsqldb:hsql://localhost/sakaigb
+hibernate.connection.username=sa
+hibernate.connection.password=
+
+hibernate.dialect=net.sf.hibernate.dialect.HSQLDialect
+
+#hibernate.show_sql=true
+hibernate.show_sql=false
+
+# hibernate.hbm2ddl.auto=update
+
+hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
+
+
+---- startup.bat ----
+
+%JAVA_HOME%\bin\java.exe -cp C:/java/hsqldb/lib/hsqldb.jar org.hsqldb.Server
+
+
+---- server.properties ----
+
+server.database.0=file:/java/hsqldb/data/sakaigb
+server.dbname.0=sakaigb

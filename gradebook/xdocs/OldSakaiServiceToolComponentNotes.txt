@@ -1,0 +1,78 @@
+[OUT OF DATE. Copied from the very early "gradebook/gb/README" document.]
+
+The source for the gradebook tool, including its service interfaces and implementations
+(aka components), is configured as a set of maven projects as described in the
+sakai_tool_developer_v3.doc document available in the sakai development discussion
+group on collab.sakaiproject.org.
+
+A sample Grading Service interface is in service/src/java, with a hibernate
+implementation in component/src/java and unit tests in component/src/test.  The
+unit test just verifies that the service injection has taken place, and that a
+method in the implementation (component) can be called via an "injected"
+interface method.
+
+The service implementation, GradingServiceHibernateImpl, extends spring's
+HibernateDaoSupport.  If you are unfamiliar with this class, see the spring
+documentation for examples of how to use this class along with HibernateCallbacks.
+
+You will need to configure component/src/webapp/WEB-INF/components.xml with your
+database connection information.  The current setup assumes that you are using
+mysql.  If you are using some other database, you will need to also modify the
+dependencies defined in component/project.xml and deploy/project.xml to include
+your jdbc driver.  The components.xml file is sakai's version of spring's
+applicationContext.xml.  This file will need to be updated as the service
+definitions are expanded to provide more functionality and as they begin to
+reference other sakai services (logging, authZ, etc).
+
+Setting this project up required jumping through a few somewhat obsucure hoops:
+
+*** Since the Sakai framework as a whole has dependencies on spring for its
+component management, the spring jars are kept in shared/lib and therefore
+CAN NOT be included in any of the components deployed in the framework.  By
+specifying spring dependencies like this:
+
+   	<dependency>
+		<groupId>springframework</groupId>
+		<artifactId>spring-full</artifactId>
+		<version>1.0.1</version>
+
+		<!-- DO NOT INCLUDE THIS JAR IN THE WAR FILE -->
+		<!--
+		<properties>
+			<war.bundle>true</war.bundle>
+		</properties>
+		-->
+
+	</dependency>
+
+your spring-dependent component can be built (since spring will be in the classpath)
+but the artifact (a war file) deployed to sakai will not include the spring jars.
+
+*** In the deploy/project.xml file, which defines which of yuor generated
+artifacts will be deployed to sakai, make sure that you reference your JDBC like
+this:
+
+	<dependency>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<version>3.0.10-stable-bin</version>
+
+		<!-- DEPLOY THIS TO TOMCAT's common/lib DIRECTORY -->
+		<properties>
+			<common.lib>true</common.lib>
+		</properties>
+	</dependency>
+
+If the jdbc driver is bundled with any tool or component war, spring will be
+unable to load the jdbc driver.
+
+*** I may be slow, but I didn't understand why the service implementations (aka
+components) are deployed as a war file.  My best guess is that it keeps these
+classes seperated from any specific tool and can still be referenced by the sakai
+component manager.  This also keeps the web.xml file for the components clear of
+component manager specific xml, which the tool shouldn't need to know about.
+It's strange, but it seems to work.
+
+
+Josh Holtzman
+12.21.2004

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="sakai:build"
+	xmlns:j="jelly:core">
+
+	<goal name="javadoc">
+		<j:set var="goal" value="javadoc" />
+		<attainGoal name="multiproject:goal" />
+	</goal>
+
+</project>
+
