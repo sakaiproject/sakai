@@ -1,0 +1,10 @@
+The Open LDAP Provider contributors include:
+
+  Adrian Fish, Lancaster University Centre for e-Science
+       Initial Author 
+  Jose Garcia, Universitat de Lleida
+       Modification for 1.0RC2 
+  Alex Balleste, Universitat de Lleida
+       Updated for Sakai 2.0
+
+And is included here with permission.

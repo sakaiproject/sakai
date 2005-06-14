@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<name>Sakai Legacy Adaptor Components Package</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-legacy-providers</id>
+	<currentVersion>2.0.0</currentVersion>
+	<organization>
+		<name>University of Michigan</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+
+	<properties>
+		<!-- deploy as a components -->
+		<deploy.type>components</deploy.type>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-provider</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-java</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<!-- Needed for the JLDAP Provider
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jldap-provider</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+	
+		<dependency> 
+			<groupId>openldap</groupId> 
+			<artifactId>ldap</artifactId> 
+ 			<version>2005.03.29</version> 
+ 			<properties> 
+				<war.bundle>true</war.bundle> 
+			</properties> 
+		</dependency> 
+	 	-->
+
+		<!-- Needed for the Kerberos Provider 
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-kerberos-provider</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+	 	-->
+
+	</dependencies>
+
+	<build>
+
+		<!-- java source -->
+		<sourceDirectory>src/java</sourceDirectory>
+
+	</build>
+
+</project>

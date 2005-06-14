@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<name>Sakai Legacy Adaptor</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-legacy-provider</id>
+	<currentVersion>2.0.0</currentVersion>
+	<organization>
+		<name>University of Michigan</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+
+	<properties>
+		<!-- build as a jar -->
+		<deploy.type>jar</deploy.type>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-service</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-java</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<!-- java source -->
+		<sourceDirectory>src/java</sourceDirectory>
+
+		<resources>
+
+		</resources>
+
+	</build>
+
+</project>

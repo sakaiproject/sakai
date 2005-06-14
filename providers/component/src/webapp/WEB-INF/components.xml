@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.service.legacy.coursemanagement.CourseManagementProvider"
+			class="org.sakaiproject.component.legacy.coursemanagement.SampleCourseManagementProvider"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
+
+	<bean id="org.sakaiproject.service.legacy.realm.RealmProvider"
+			class="org.sakaiproject.component.legacy.realm.SampleRealmProvider"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+ 		<!-- <property name="xFile"><value>*some*path*/users.properties</value></property> -->
+	</bean>
+
+	
+	
+	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
+			class="org.sakaiproject.component.legacy.user.SampleUserDirectoryProvider"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
+
+<!--    Uncomment and configure to use the JLDAP Provider.
+                Default values below point to a test account at nldap.com (free ldap test server). 
+                To login with the nldap.com test account -      username: ldap-admin 
+                                                                password: admin
+                
+                Make sure to remove the SampleUserDirectoryProvider as there can only be
+                one provider active at any time.
+
+       <bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
+                        class="edu.amc.sakai.user.JLDAPDirectoryProvider"
+                        init-method="init"
+                        destroy-method="destroy"
+                        singleton="true">
+                <property name="logger"><ref bean="org.sakaiproject.service.framework.log.Logger"/></property>
+                <property name="ldapHost"><value>nldap.com</value></property>
+                <property name="ldapPort"><value>389</value></property> 
+                <property name="secureConnection"><value>false</value></property>
+                <property name="keystoreLocation"><value></value></property>
+                <property name="keystorePassword"><value></value></property>
+                <property name="basePath"><value>ou=sakai-ldap,ou=user,o=novell</value></property>
+                <property name="operationTimeout"><value>5000</value></property>
+                <property name="cacheTTL"><value>18000000</value></property>
+                <property name="attributeMappings">
+                        <map>
+                                <entry key="login"><value>cn</value></entry>    
+                                <entry key="distinguishedName"><value>dn</value></entry>        
+                                <entry key="firstName"><value>givenName</value></entry> 
+                                <entry key="lastName"><value>sn</value></entry> 
+                                <entry key="email"><value>mail</value></entry>  
+                                <entry key="groupMembership"><value>groupMembership</value></entry>     
+                        </map>
+                </property>
+        </bean>
+ -->
+
+<!--	Uncomment and configure to use the Kerberos Provider.
+		Make sure to remove the SampleUserDirectoryProvider as there can only be
+		one provider active at any time. -->
+
+<!--	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
+			class="org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="logger"><ref bean="org.sakaiproject.service.framework.log.Logger"/></property>
+		<property name="domain"><value>mydomain.edu</value></property>
+		<property name="loginContext"><value>KerberosAuthentication</value></property>
+		<property name="requireLocalAccount"><value>true</value></property>
+		<property name="knownUserMsg"><value>Integrity check on decrypted field failed</value></property>
+	</bean>
+-->
+</beans>
+
+
