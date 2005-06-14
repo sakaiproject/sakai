@@ -30,7 +30,7 @@ import javax.faces.webapp.UIComponentTag;
 
 /**
  * help frameset tag
- * @version $Id: HelpFrameSetTag.java,v 1.3 2005/06/09 16:39:39 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class HelpFrameSetTag extends UIComponentTag
 {

@@ -32,7 +32,7 @@ import javax.faces.webapp.UIComponentTag;
 
 /**
  * context sensitive UI component tag
- * @version $Id: ContextSensitiveTreeTag.java,v 1.1 2005/05/15 23:03:52 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class ContextSensitiveTreeTag extends UIComponentTag
 {

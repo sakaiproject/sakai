@@ -41,7 +41,7 @@ import org.sakaiproject.service.framework.config.cover.ServerConfigurationServic
 
 /**
  * render response
- * @version $Id: ContextSensitiveTreeRender.java,v 1.6 2005/06/09 16:39:39 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class ContextSensitiveTreeRender extends Renderer
 {

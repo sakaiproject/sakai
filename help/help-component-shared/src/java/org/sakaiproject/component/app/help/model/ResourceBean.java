@@ -36,7 +36,7 @@ import org.sakaiproject.api.app.help.Resource;
 
 /**
  * resource bean
- * @version $Id: ResourceBean.java,v 1.2 2005/06/05 05:15:15 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class ResourceBean implements Resource, Comparable
 {

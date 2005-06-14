@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * render help frame set 
- * @version $Id: HelpFrameSetRender.java,v 1.3 2005/06/09 16:39:39 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class HelpFrameSetRender extends Renderer
 {

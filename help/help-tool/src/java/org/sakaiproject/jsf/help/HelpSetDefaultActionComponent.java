@@ -34,7 +34,7 @@ import javax.faces.context.ResponseWriter;
 
 /**
  * help set default action component
- * @version $Id: HelpSetDefaultActionComponent.java,v 1.1 2005/05/15 23:03:52 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class HelpSetDefaultActionComponent extends UIOutput
 {

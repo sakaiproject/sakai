@@ -26,7 +26,7 @@ package org.sakaiproject.api.app.help;
 
 /**
  * Resource in the help system
- * @version $Id: Resource.java,v 1.2 2005/06/05 05:15:17 jlannan.iupui.edu Exp $ 
+ * @version $Id$ 
  */
 public interface Resource
 {

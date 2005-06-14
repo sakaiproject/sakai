@@ -26,7 +26,7 @@ package org.sakaiproject.component.app.help.model;
 
 /**
  * registration file
- * @version $Id: RegistrationFile.java,v 1.1 2005/05/19 15:39:14 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class RegistrationFile
 {

@@ -94,7 +94,7 @@ import sun.misc.BASE64Encoder;
 /**
  * HelpManager provides database and search capabilitites for the Sakai help tool.
  * @author <a href="mailto:jlannan.iupui.edu">Jarrod Lannan</a>
- * @version $Id: HelpManagerImpl.java,v 1.6 2005/06/11 17:16:54 jlannan.iupui.edu Exp $
+ * @version $Id$
  * 
  */
 public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager

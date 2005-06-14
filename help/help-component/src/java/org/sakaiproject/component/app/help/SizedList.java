@@ -30,7 +30,7 @@ import java.util.Iterator;
 
 /**
  * size list
- * @version $Id: SizedList.java,v 1.1 2005/05/19 15:39:14 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class SizedList extends ArrayList
 {

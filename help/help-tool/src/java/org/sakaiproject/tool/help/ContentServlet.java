@@ -41,7 +41,7 @@ import org.sakaiproject.api.kernel.component.cover.ComponentManager;
 
 /**
  * Content Servlet serves help documents to document frame.
- * @version $Id: ContentServlet.java,v 1.7 2005/06/11 17:16:53 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class ContentServlet extends HttpServlet
 {

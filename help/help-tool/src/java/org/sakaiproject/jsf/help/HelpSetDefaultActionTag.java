@@ -28,7 +28,7 @@ import javax.faces.webapp.UIComponentTag;
 
 /**
  * help set default action tag
- * @version $Id: HelpSetDefaultActionTag.java,v 1.1 2005/05/15 23:03:52 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class HelpSetDefaultActionTag extends UIComponentTag
 {

@@ -28,7 +28,7 @@ import org.sakaiproject.api.app.help.GlossaryEntry;
 
 /**
  * glossary entry bean
- * @version $Id: GlossaryEntryBean.java,v 1.1 2005/05/19 15:39:14 jlannan.iupui.edu Exp $ 
+ * @version $Id$ 
  */
 public class GlossaryEntryBean implements GlossaryEntry
 {

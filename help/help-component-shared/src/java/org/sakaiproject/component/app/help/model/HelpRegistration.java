@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * help registration
- * @version $Id: HelpRegistration.java,v 1.1 2005/05/19 15:39:14 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class HelpRegistration
 {

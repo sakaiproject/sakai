@@ -28,7 +28,7 @@ import java.util.Set;
 
 /**
  * Table of Contents
- * @version $Id: TableOfContents.java,v 1.1 2005/05/18 15:14:22 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public interface TableOfContents
 {

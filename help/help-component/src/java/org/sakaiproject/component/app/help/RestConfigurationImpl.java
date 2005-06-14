@@ -29,7 +29,7 @@ import org.sakaiproject.api.app.help.RestConfiguration;
 
 /**
  * @author <a href="mailto:jlannan.iupui.edu">Jarrod Lannan</a>
- * @version $Id: RestConfigurationImpl.java,v 1.1 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
+ * @version $Id$
  * 
  */
 public class RestConfigurationImpl implements RestConfiguration

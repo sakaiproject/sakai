@@ -27,7 +27,7 @@ package org.sakaiproject.api.app.help;
 import java.util.Collection;
 
 /**
- * @version $Id: Glossary.java,v 1.1 2005/05/18 15:14:22 jlannan.iupui.edu Exp $ 
+ * @version $Id$ 
  */
 public interface Glossary
 {

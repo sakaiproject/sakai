@@ -39,7 +39,7 @@ import org.sakaiproject.api.app.help.Resource;
 
 /**
  * toc tree renderer
- * @version $Id: TocTreeRender.java,v 1.2 2005/05/18 15:14:21 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class TocTreeRender extends Renderer
 {

@@ -31,7 +31,7 @@ import org.sakaiproject.api.app.help.TableOfContents;
 
 /**
  * toc display tool
- * @version $Id: TOCDisplayTool.java,v 1.2 2005/05/18 15:14:22 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class TOCDisplayTool
 {

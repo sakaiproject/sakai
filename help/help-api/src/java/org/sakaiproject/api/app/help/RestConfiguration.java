@@ -27,7 +27,7 @@ package org.sakaiproject.api.app.help;
 
 /**
  * @author <a href="mailto:jlannan.iupui.edu">Jarrod Lannan</a>
- * @version $Id: RestConfiguration.java,v 1.1 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
+ * @version $Id$
  * 
  */
 public interface RestConfiguration

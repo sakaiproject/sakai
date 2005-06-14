@@ -30,7 +30,7 @@ import java.util.Set;
 
 /**
  * Help Manager for the Sakai Help Tool.
- * @version $Id: HelpManager.java,v 1.2 2005/06/05 05:15:17 jlannan.iupui.edu Exp $ 
+ * @version $Id$ 
  */
 public interface HelpManager
 {

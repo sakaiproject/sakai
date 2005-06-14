@@ -30,7 +30,7 @@ import javax.faces.webapp.UIComponentTag;
 
 /**
  * question link tag
- * @version $Id: QuestionLinkTag.java,v 1.1 2005/05/15 23:03:52 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class QuestionLinkTag extends UIComponentTag
 {

@@ -39,7 +39,7 @@ import org.sakaiproject.util.web.Web;
  * HelpJsfTool extends JsfTool to support placement in the help frameset. 
  * 
  * @author <a href="mailto:jlannan.iupui.edu">Jarrod Lannan</a>
- * @version $Id: HelpJsfTool.java,v 1.3 2005/06/09 16:39:39 jlannan.iupui.edu Exp $
+ * @version $Id$
  * 
  * 
  */

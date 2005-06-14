@@ -40,7 +40,7 @@ import org.sakaiproject.component.app.help.model.GlossaryEntryBean;
 
 /**
  * default glossary
- * @version $Id: DefaultGlossary.java,v 1.1 2005/05/19 15:39:14 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class DefaultGlossary implements Glossary
 {

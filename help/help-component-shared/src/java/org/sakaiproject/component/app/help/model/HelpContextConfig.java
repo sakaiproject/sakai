@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * help context configuration
- * @version $Id: HelpContextConfig.java,v 1.1 2005/05/19 15:39:14 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class HelpContextConfig extends HashMap
 {

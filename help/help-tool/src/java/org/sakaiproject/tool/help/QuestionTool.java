@@ -33,7 +33,7 @@ import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 
 /**
  * question tool
- * @version $Id: QuestionTool.java,v 1.2 2005/05/18 15:14:22 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class QuestionTool
 {

@@ -29,7 +29,7 @@ import org.sakaiproject.api.app.help.Resource;
 
 /**
  * help tool
- * @version $Id: HelpTool.java,v 1.3 2005/06/05 05:15:15 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class HelpTool
 {

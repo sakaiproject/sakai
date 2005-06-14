@@ -34,7 +34,7 @@ import javax.faces.render.Renderer;
 
 /**
  * question link renderer
- * @version $Id: QuestionLinkRender.java,v 1.1 2005/05/15 23:03:52 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class QuestionLinkRender extends Renderer
 {

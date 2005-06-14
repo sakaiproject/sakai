@@ -33,7 +33,7 @@ import javax.xml.transform.stream.StreamSource;
 
 /**
  * uri resolver
- * @version $Id: URIResolver.java,v 1.1 2005/05/15 23:03:53 jlannan.iupui.edu Exp $
+ * @version $Id$
  */
 public class URIResolver implements javax.xml.transform.URIResolver
 {
