@@ -64,11 +64,15 @@ public class RemovePublishedAssessmentListener
     {
        DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
        assessmentId = delivery.getAssessmentId();
+       RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId);
+       thread.start();
     }
-
+    else 
+    {
+   
+    RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId);
+    thread.start();
     PublishedAssessmentService assessmentService = new PublishedAssessmentService();
-    //System.out.println("** remove assessmentId= "+assessmentId);
-    assessmentService.removeAssessment(assessmentId);
 
     //#3 - goto authorIndex.jsp so fix the assessment List in author bean after
     // removing an assessment
@@ -83,6 +87,7 @@ public class RemovePublishedAssessmentListener
         author.getInactivePublishedAssessmentOrderBy(),author.isInactivePublishedAscending());
      // get the managed bean, author and set the list
      author.setInactivePublishedAssessments(inactivePublishedList);
+    }
 
   }
 
