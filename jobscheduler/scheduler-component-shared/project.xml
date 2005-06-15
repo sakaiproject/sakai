@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<name>Sakai Scheduler Component</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-comp-shared-scheduler</id>
+	<currentVersion>2.0.0</currentVersion>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+
+	<properties>
+		<deploy.type>jar</deploy.type>
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+
+	<dependencies>
+
+		<dependency>
+			<groupId>quartz</groupId>
+			<artifactId>quartz</artifactId>
+			<version>1.4.0</version>
+			<properties>
+				<deploy.target>shared</deploy.target>>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scheduler-api</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<!--<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>jta</groupId>
+			<artifactId>jta</artifactId>
+			<version>1.0.1b</version>
+			<url>http://java.sun.com/products/jta/</url>
+		</dependency>
+
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-full</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>odmg</groupId>
+			<artifactId>odmg</artifactId>
+			<version>3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>0.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.7.2.2</version>
+		</dependency>
+        -->
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+
+			<resource>
+				<directory>src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.properties</include>
+				</includes>
+				<excludes>
+					<exclude>**/web.xml</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
+	</build>
+</project>

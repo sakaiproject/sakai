@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+
+	<application>
+		<message-bundle>
+			org.sakaiproject.tool.scheduler.bundle.Messages
+		</message-bundle>
+		<locale-config>
+			<default-locale>en</default-locale>
+			<supported-locale>de</supported-locale>
+			<supported-locale>fr</supported-locale>
+			<supported-locale>es</supported-locale>
+		</locale-config>
+	</application>
+	
+	<managed-bean>
+		<description>schedulerTool</description>
+		<managed-bean-name>schedulerTool</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.app.scheduler.SchedulerTool</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		
+		<managed-property>
+			<description>schedulerManager</description>
+			<property-name>schedulerManager</property-name>
+			<value>#{Components["org.sakaiproject.api.app.scheduler.SchedulerManager"]}</value>
+		</managed-property>							    
+	</managed-bean>			
+		
+	<navigation-rule>
+    	<from-view-id>/scheduler/main.jsp</from-view-id>
+		    <navigation-case>
+		    	<from-outcome>jobs</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>			    
+		    </navigation-case>
+	</navigation-rule>
+  
+	<navigation-rule>
+    	<from-view-id>/scheduler/jobs.jsp</from-view-id>
+		    <navigation-case>
+		    	<from-outcome>create_job</from-outcome>
+      			<to-view-id>/scheduler/create_job.jsp</to-view-id>
+		    </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>main</from-outcome>
+      			<to-view-id>/scheduler/main.jsp</to-view-id>
+		    </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>delete_jobs</from-outcome>
+      			<to-view-id>/scheduler/delete_jobs.jsp</to-view-id>
+		    </navigation-case>		    
+		    <navigation-case>
+		    	<from-outcome>edit_triggers</from-outcome>
+      			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+		    </navigation-case>		    		    
+	</navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/create_job.jsp</from-view-id>
+		    <navigation-case>
+		    	<from-outcome>jobs</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		    </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>main</from-outcome>
+      			<to-view-id>/scheduler/main.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/delete_jobs.jsp</from-view-id>
+		    <navigation-case>
+		    	<from-outcome>jobs</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/edit_triggers.jsp</from-view-id>
+		    <navigation-case>
+		    	<from-outcome>jobs</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		    </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>create_trigger</from-outcome>
+      			<to-view-id>/scheduler/create_trigger.jsp</to-view-id>
+		    </navigation-case>
+   		    <navigation-case>
+		    	<from-outcome>delete_triggers</from-outcome>
+      			<to-view-id>/scheduler/delete_triggers.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>	
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/delete_triggers.jsp</from-view-id>
+   		    <navigation-case>
+		    	<from-outcome>edit_triggers</from-outcome>
+      			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>					 
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/create_trigger.jsp</from-view-id>
+   		    <navigation-case>
+		    	<from-outcome>edit_triggers</from-outcome>
+      			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>					 
+  
+</faces-config>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<name>Sakai Scheduler Component</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-comp-scheduler</id>
+	<currentVersion>2.0.0</currentVersion>
+	<organization>
+		<name>University of Michigan</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+
+	<properties>
+		<deploy.type>components</deploy.type>
+	</properties>
+
+	<dependencies>
+			
+	</dependencies>
+
+	
+
+</project>

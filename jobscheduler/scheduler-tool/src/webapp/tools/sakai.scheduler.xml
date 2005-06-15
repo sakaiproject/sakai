@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.scheduler" title="Job Scheduler Based On Quartz"
+		description="Job Scheduler">
+		<category name="sakai.scheduler" />
+	</tool>
+
+</registration>
