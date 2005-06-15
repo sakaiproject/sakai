@@ -1,200 +1,116 @@
 Welcome to Samigo, the Sakai Assessment Manager.  This is a full-featured
-assessment module, that works as a standalone system or as part of a course
-management system.
+assessment module, that works as the "Test & Quizes" module in the Sakai2.0 management system.
 
 
-***** To build and run standalone Samigo and Sakai2-Samigo integrated v2.0: *****
-1. Expand sam.tar into c:\samigo in Windows using program like winunzip
-   or stuffIt. In Unix, you can run this incommand prompt:
-
-   shell> tar -xvf sam.tar
-   
-   If you would like to get Samigo from the sakai cvs repository, the module name for
-   Samigo is "sam" and the branch for version 1.5 is "samigo1_5_rc1". DO NOT check
-   out from "sam" main trunk as this is the developing Samigo version 2.0
-
-2. Download a copy of tomcat 5.5.9 or higher and the 1.4 compatible patch, and make sure
+***** To build and run Samigo as an integrated module in Sakai2.0: *****
+1. Install tomcat 5.5.9 and jdk 1.4.2
+   Download a copy of tomcat 5.5.9 or higher and the 1.4 compatible patch, and make sure
    your JAVA_HOME points to a java version of 1.4.2 or higher
 
    http://archive.apache.org/dist/jakarta/tomcat-5/v5.5.9/bin/jakarta-tomcat-5.5.9.tar.gz
    http://archive.apache.org/dist/jakarta/tomcat-5/v5.5.9/bin/jakarta-tomcat-5.5.9-compat.tar.gz
 
-3. Set up an Oracle user and create the tables by running
-   the following ddl files in your SQLPlus in this order
-   i.  01_schema_oracle.sql which contains SQL statement for createing all the
-       required tables and sequence. Be sure that you commit the changes if your
-       autocommit is not on.
-   ii. 02_defaultSetUp_oracle.sql which contains SQL statements for populating
-       basic information (such as Type and  a Default Template) required for
-       running Samigo
-   Both files are located inside sam/ddl/samigo-ddl/. You may want to spool the output to
-   check that all the tables and sequence are created accordingly. 
-   If you have previously installed an earlier version of Samigo and wish to migrate the
-   data over. Please first finish the installation process in this section before following
-   the instructions in "Migrating data from an earlier Samigo version".
+2. Install Samigo2.0 from the latest source
+   Note that the detailed instructions for installing sakai can be found at
+   http://cvs.sakaiproject.org/release/
 
-4. Configuring Samigo's security & settings
-    i.   copy the security and settings directories opt/sa_forms/ and opt/j2ee/
-         respectively to /opt in Unix and c:\ in Windows. Both directories can be
-         found in sam/conf/.
+   Install Sakai 2.0.0.  Either download the source from the release website,
+   or checkout the CVS modules.  CVS access requires a private key.
+   See http://cvs.sakaiproject.org/anoncvs/ to obtain and configure the
+   anonymous private key.
 
-    ii.  update /opt/sa_forms/java/dev/org/sakaiproject/security/sam/samigo.xml
-         so it reflects your Oracle database settings. You can skip to step 3c if you
-         do not mind the location of the security & settings directories.
+   Two most common mistakes that you can make when trying to set up the anonymous check out are:
+   i. you forgot to set CVS_RSH=ssh as your environment variable
+   ii. the read permission for your sakai_anoncvs_dsa is incorrect
 
-   iii.  If you prefer to put samigo.xml in a different location, you may do so by 
-         updating the following setting in sam/src/org/sakaiproject/spring/applicationContext.xml
+       -r--------   1 daisyf   staff        668 May 31 16:07 sakai_anoncvs_dsa
 
-         <value>file:/opt/sa_forms/java/dev/org/sakaiproject/security/sam/samigo.xml</value>
+   The current CVS tag is "sakai_2-0-0-rc3".
+   Samigo resides as a module under the sakai2 repository. If you have already checked out 
+   sakai2 using the following command, you should notice that samigo has alraedy been checked
+   out and is located at sakai2/sam/.
+   cvs -q -z9 -d :ext:sakaicvs:/cvs co -P -r sakai_2-0-0-rc3 sakai2
 
-         AND 
+   Otherwise, check out Samigo 2.0 using this command:
+   cvs -q -z9 -d :ext:sakaicvs:/cvs co -P -r sakai_2-0-0-rc3 sakai2/sam
 
-         the following parameter in sam/webapp/WEB_INF/web.xml
-
-         <context-param>
-           <param-name>PathToSecurity</param-name>
-           <param-value>/opt/sa_forms/java/dev</param-value>
-         </context-param>
-
-         Note that the directory structure after /opt/sa_forms/java/dev/ must remain as
-         org/sakaiproject/security/sam.
-
-     iv. you may also store the setting directories in a different location by updating
-         the following parameter in sam/webapp/WEB-INF/web.xml
-
-         <context-param>
-           <param-name>PathToSettings</param-name>
-           <param-value>/opt/j2ee/dev</param-value>
-         </context-param>
-
-         However, make sure that the directory structure after /opt/j2ee/dev/ remains as
-         org/sakaiproject/settings/sam/.
-
- c. Download Oracle JDBC Driver and install it in tomcat/shared/lib/ directory
-    Goto http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html,
-    select 10g(10.1.0.2.0) drivers, complete the licensing agreement to download this
-    driver:
-    ojdbc14.jar (1,352,918 bytes) - classes for use with JDK 1.4
-
- d. For Hypersonic database support, please read the section "Support for Hypersonic HSQLDB".
-
-5. Assuming that you already have "Maven" (version 1.0.2 or later)  installed and 
+3. Assuming that you already have "Maven" (version 1.0.2 or later)  installed and 
    it is executable  from anywhere. 
 
-   a. Samigo Standalone compilation: go to the sam top level directory, and do
-   "maven" in the command prompt. samigo.war will be created and
-   copied to the tomcat/webapps directory
+   If you run "maven sakai" under sakai2, all the modules (including Samigo) inside sakai2 will be
+   compiled and copied to the tomcat/webapps directory. This process can take over 10min the first
+   time, as a lot of libraries will be downloaded from maven remote repository to your 
+   ~home/.maven/repository. You will see a lot of download failure warning message, don't worry 
+   about it. All you need to watch out for is the "BUILD SUCCESSFUL" message at the end of 
+   the process.
 
-   b. Sakai2-Samigo Integrated compilation: you must check out "sakai2" code and run "maven sakai" 
-   before attempting to install Samigo. When you are ready, go to the sam top level directory, and do
-   "maven sakai" in the command prompt. samigo.war will be created and
-   copied to the tomcat/webapps directory
+   If you only want to recompile Samigo, goto sakai2/sam and run "maven sakai". The process will
+   take about 3min the first time and 2min any consecutive times.
 
-6. To deploy samigo.war, go to tomcat/bin, and do startup.sh
+4. To deploy samigo.war (and all the rest of sakai2), go to tomcat/bin, and do startup.sh
    (startup.bat for Windows)
 
-7. There are two points of entry for Samigo; the student view
-   and the instructor view.
-   In samigo Standalone, go to our welcome page:
-   http://your.server.name:8080/samigo/jsf/index/index.faces
-   You will see three "Student Entry Point" and one "Instructor Entry Point".
+5. Test Samigo as a tool inside of the Sakai portal
+   Login as admin at http://localhost:8080/portal.  Create a new worksite by clicking
+   on "Worksite Setup" on the left navigation bar, then "New", select "project website"
+   and hit "Continue". A project Information form will be displayed, complete the form
+   and hit "Continue". A list of tools available for your project will be displayed and
+   you should notice that Samigo is among them. Select "Gradebook" and "Test & Quizes"
+   and hit "Continue", and follow the instructions to finish setting up the new worksite.
+   You should notice that the new sie that you just created will appear as a tab near the
+   top of the screen, select it and now you shall notice that "Gradebook" and "Test & Quizes"
+   appears on the left navigation bar.
 
-   For Sakai2-Samigo integrated environment, you should create a working sie and select "Test & Quizzes"
-   as one of the site tool. When it is set, click at the site tab and select Test & Quizzes in the left 
-   navigation bar to start.
+6. Trying out Samigo 2.0 and Gradebook
+   To begin, we probably should create an assessment. Select "Test & Quizes" to get the
+   "Assessment Authoring page", type in an assessment name and hit the button "Create".
+   Add some questions to your assessment, when you are  ready to publish the assessment,
+   use the link "Settings" located near the top of the "Edit Assessment" page. Since, we
+   have included Gradebook in our site, by default any assessments published by Samigo will
+   be added to Gradebook. You should select Gradebook and check that out. Note that, in this
+   case all Gradebook does is providing a view to the students score in samigo. Gradebook
+   does not provide way for editing a score. To edit a score, you must return to Samigo to
+   do so.
 
-   To begin, we probably should create an assessment using the "Instructor Entry Point",
-   type in an assessment name and hit the button "Create". Add some questions to your 
-   assessment, when you are  ready to publish the assessment, use the link "Settings"
-   located near the top of the "Edit Assessment" page. Then you shall return to the 
-   welcome page and use one of the Student Entry point to access the assessment that you
-   just published.
+7. Taking the assessment
+   return to http://localhost:8080/portal, create a new account and join the new site that 
+   you just created in step 5. Once this new user become a member of a site, the site name
+   will appear as a tab near the top of the screen. Select the site, then "Test & Quizes",
+   now you are seeing the "Assessment Taking page". You should see that the assesment that
+   you created in step 6 showed up in the list.
 
+8. Where is all the data being stored?
+   Like the otehr Sakai2's modules, Samigo 2.0 came out of the box with support for HSQLDB,
+   the assessment that you created in step 5 is stored in memory managed by HSQLDB. You will
+   need to set up appropriate database instance if you were to persist these records. Refer
+   to sakai2 installation instructions for setting up different databases.
 
-***** Migrating data from Samigo version 1.2 and below *****
-1. You should complete the installation set up above and check that your Samigo
-   instance is working before attempting this.
-   To migrate your data from old tables over to the new tables in Samigo 1.5, run
-   the following ddl files in your SQLPlus in this order
-   i.  01_schema_oracle.sql which contains SQL statement for creating all the
-       required tables and sequence. Be sure that you commit the changes if your
-       autocommit is not on.
-   ii. 02_migrateData_v1_to_v1_5_oracle.sql which contains SQL statements that copy
-       your existing data over to the new tables. Note that all the sequence will be
-       reset accordingly.
-   Both files are located inside sam/ddl/samigo-ddl/. You may want to spool the output to
-   check that all the tables and sequence are created accordingly. 
+   a. it is recommended that in production, all the tables required should be created manually.
+      In the unix platform, you can simply run 
+      find . -name "*.sql" -print
+      to locate all the sql files.
+   b. Samigo's sql files are located at sakai2/sam/src/ and orgainized by the name of the 3 
+      databases that we support: oracle, hsqldb & mysql.
+      
+      For example: 01_schema_oracle.sql which contains SQL statement for creating all the
+      required tables and sequence in oracle . Be sure that you commit the changes if your
+      autocommit is not on. sakai-samigo.sql contains all the insert statement with default
+      value that is required to run Samigo. 
+
+9. A note about File Upload questions supported by Samigo 2.0, if you are creating all the 
+   Samigo 2.0. tables using the sql files, you are set and ready to support this question type.
+   If you were going to take advantage of the auto.ddl functionality that Hibernate provides.
+   In other words, Hibernate inspect the Samigo's OR map, create a set of ddl statements with
+   the best guess it could and create the tables when the application is deployed in tomcat.
+   In this case, you may need to inspect the data type for the column "MEDIA" in the table 
+   SAM_MEDIA_T. Depending on what Hibernate's best guess is, you may need to alter this column
+   accordingly. 
+
+   In oracle, Hibernate interpreted the binary column "MEDIA" with a "raw" datatype which is not
+   enough if you intend to store big files. In this case, drop the couln and add a new column with
+   the same name but select "blob" as its data type instead.
 
 Get Help: If you have any questions about the installation, please feel free to
 email navigo-dev@lists.stanford.edu. We will be glad to help.
 
-
-***** Support for Hypersonic HSQLDB ******
-1. Download Hypersonic 1.7.x from http://hsqldb.sourceforge.net/ and follow the installation instruction
-
-2. Add the following statement to sqltool.rc. If you have followed the HSQLDB installation instruction,
-   this file should be placed at the HSQLDB Owner's home directory.
-
-   urlid samigo
-   url jdbc:hsqldb:hsql://your.server.edu:9001/samigo
-   username sa
-   password
-
-   Note that we are using the user "sa" with password "" that came with the initial set up.
-
-3. Create ~/hsqldb/samigo/server.properties and add the following statement.
-
-   server.database.0=~/hsqldb/samigo
-   server.dbname.0=samigo
-
-4. Start the server with database "samigo" using these commands
-
-   shell> cd hsqldb/lib
-   shell> java -cp hsqldb.jar org.hsqldb.Server -database samigo &
-
-
-5. Create tables and popluate default settings using the SQL tool
-
-   shell> cd hsqldb/lib
-   shell> java -jar hsqldb.jar --rcfile ~/sqltool.rc samigo 
-
-   cut and paste SQL stmt from ~/sam/ddl/samigo-ddl/01_schema_hsqldb.sql and
-   ~/sam/ddl/samigo-ddl/02_defaultSetUp_hsqldb.sql to the "sql>" priompt
-
-   Afterward, execute "select * from sam_type_t;". If it returns a list of rows back,
-   then you have succssfully set up the database.
-
-6. Now, update the database settings in /opt/sa_forms/java/dev/org/sakaiproject/security/sam/samigo.xml
-   There is no need to specify the database name "samigo" as it is the only one that is up - step4.
-
-   db.driverClassName=org.hsqldb.jdbcDriver
-   db.url=jdbc:hsqldb:hsql://your.server.edu:9001
-   db.username=sa
-   db.password=
-
-***** Support for MySQL ******
-1. Download MySQL 4.x from http://dev.mysql.com/downloads/ and follow the installation instruction. 
-
-2. Start the database server using these commands
-
-   shell> cd mysql_installation_directory
-   shell> bin/mysqld_safe &
-
-3. Login to the database, create a user with a password (using GRANT), and create a database called "samigo"
-
-   shell> mysql -u root -p
-   mysql> grant all on * to 'yourname'@'%' identified by 'yourpassword';
-   mysql> create database samigo
-
-4. Create tables and popluate default settings
-
-   shell> mysql -u root -p samigo < ~/sam/ddl/samigo-ddl/01_schema_mysql.sql --force
-   shell> mysql -u root -p samigo < ~/sam/ddl/samigo-ddl/02_ defaultSetUp_mysql.sql  --force
-
-5. Now, update the database settings in /opt/sa_forms/java/dev/org/sakaiproject/security/sam/samigo.xml
-
-   db.driverClassName=com.mysql.jdbc.Driver
-   db.url=jdbc:mysql://your.server.edu:3306/samigo?user=youname&password=yourpassword&autoReconnect=true
-   db.username=yourname
-   db.password=yourpassword
 
