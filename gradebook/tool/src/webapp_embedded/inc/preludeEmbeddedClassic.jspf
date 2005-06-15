@@ -13,7 +13,9 @@
 		<!-- The original Gradebook look. -->
 		<link href="${pageContext.request.contextPath}/css/gradebookStandalone.css" rel="stylesheet" type="text/css" />
 		<link href="${pageContext.request.contextPath}/css/gradebook.css" rel="stylesheet" type="text/css" />
+<!--
 		<%= request.getAttribute("sakai.html.head.css.skin") %>
+-->
 		<%= request.getAttribute("sakai.html.head.js") %>
 		<script type="text/javascript" src="${pageContext.request.contextPath}/js/gradebook.js"></script>
 	</head>
