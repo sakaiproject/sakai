@@ -329,7 +329,7 @@ private boolean hideOneByOne= false;
    */
   public String getSectionTitle()
   {
-    return sectionTitle;
+    return this.sectionTitle;
   }
 
   /**
@@ -337,7 +337,7 @@ private boolean hideOneByOne= false;
    */
   public void setSectionTitle(String string)
   {
-    sectionTitle = string;
+    this.sectionTitle = string;
   }
   /**
    * @return the info

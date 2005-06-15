@@ -95,12 +95,13 @@ public class ItemGradingFacade
     this.submittedDate = submittedDate;
   }
   public Float getAutoScore() {
-      // Round to the nearest 1/10th.
+   // Round to the nearest 1/10th.
+   if (autoScore != null) {
     float alignment = autoScore.floatValue();
     int tmp = Math.round(alignment * 10.0f); 
     alignment = (float)tmp / 10.0f;
     autoScore = new Float(alignment);
-
+   }
     return autoScore;
   }
   public void setAutoScore(Float autoScore) {
@@ -108,12 +109,13 @@ public class ItemGradingFacade
   }
   public Float getOverrideScore() {
 
-    // Round to the nearest 1/10th.
+   // Round to the nearest 1/10th.
+   if (overrideScore != null) {
     float alignment = overrideScore.floatValue();
     int tmp = Math.round(alignment * 10.0f); 
     alignment = (float)tmp / 10.0f;
     overrideScore = new Float(alignment);
-
+   }
     return overrideScore;
   }
   public void setOverrideScore(Float overrideScore) {

@@ -332,20 +332,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       if (!regrade)
       {
         //data.setAssessmentGradingId(new Long(0)); // Always create a new one
-        data.setSubmittedDate(new Date());
-        if (data.getPublishedAssessment().getAssessmentAccessControl() != null
-         && data.getPublishedAssessment().getAssessmentAccessControl()
-            .getDueDate() != null &&
-            data.getPublishedAssessment().getAssessmentAccessControl()
-          .getDueDate().before(new Date()))
-          data.setIsLate(new Boolean(true));
-        else
-          data.setIsLate(new Boolean(false));
-        if (data.getForGrade().booleanValue())
-          data.setStatus(new Integer(1));
-        else
-          data.setStatus(new Integer(0));
-        data.setTotalOverrideScore(new Float(0));
+        setIsLate(data);
       }
       Set itemgrading = data.getItemGradingSet();
       Iterator iter = itemgrading.iterator();
@@ -673,6 +660,41 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  return null;
       return (AssessmentGradingData) assessmentGradings.get(0);
   }
+
+  public void saveItemGrading(ItemGradingIfc item) {
+    try {
+        getHibernateTemplate().saveOrUpdate((ItemGradingData)item);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void setIsLate(AssessmentGradingIfc data){
+    data.setSubmittedDate(new Date());
+    if (data.getPublishedAssessment().getAssessmentAccessControl() != null
+      && data.getPublishedAssessment().getAssessmentAccessControl()
+          .getDueDate() != null &&
+          data.getPublishedAssessment().getAssessmentAccessControl()
+          .getDueDate().before(new Date()))
+          data.setIsLate(new Boolean(true));
+    else
+      data.setIsLate(new Boolean(false));
+    if (data.getForGrade().booleanValue())
+      data.setStatus(new Integer(1));
+    else
+      data.setStatus(new Integer(0));
+    data.setTotalOverrideScore(new Float(0));
+  }
+
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment) {
+    setIsLate(assessment);
+    try {
+        getHibernateTemplate().saveOrUpdate((AssessmentGradingData)assessment);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
 
 /* Dummy Data
       AssessmentGradingSummaryData summary = new AssessmentGradingSummaryData();

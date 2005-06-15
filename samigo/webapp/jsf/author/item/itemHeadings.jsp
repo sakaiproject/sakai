@@ -18,19 +18,39 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
 
 <!-- breadcrumb-->
 <div>
-    <h:commandLink action="author" immediate="true">
+    <h:commandLink rendered="#{itemauthor.target == 'assessment'}" action="author" immediate="true">
       <h:outputText value="#{msg.global_nav_assessmt}" />
     </h:commandLink>
-    <h:outputText value=" > " />
-    <h:commandLink action="editAssessment" immediate="true">
+    <h:outputText rendered="#{itemauthor.target == 'assessment'}" value=" > " />
+    <h:commandLink action="editAssessment" immediate="true" rendered="#{itemauthor.target == 'assessment'}">
       <h:outputText value="#{msg.qs}: #{assessmentBean.title}" />
     </h:commandLink>
-    <h:outputText value=" > " />
-    <h:outputText value="#{msg.q} #{itemauthor.itemNo}" />
+    <h:outputText value=" > " rendered="#{itemauthor.target == 'assessment'}" />
+    <h:outputText value="#{msg.q} #{itemauthor.itemNo}" rendered="#{itemauthor.target == 'assessment'}"/>
 
 </div>
+<div>
+<h:outputText rendered="#{itemauthor.target == 'questionpool'}" value="#{msg.global_nav_pools}> "/>
+
+<samigo:dataLine rendered="#{itemauthor.target == 'questionpool'}" value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
+   separator=" > " first="0" rows="100" >
+  <h:column>
+    <h:commandLink action="#{questionpool.editPool}"  immediate="true">
+      <h:outputText value="#{parent.displayName}" />
+      <f:param name="qpid" value="#{parent.questionPoolId}"/>
+    </h:commandLink>
+  </h:column>
+</samigo:dataLine>
+<h:outputText rendered="#{questionpool.currentPool.showParentPools && itemauthor.target == 'questionpool'}" value=" > " />
+<h:commandLink rendered="#{itemauthor.target == 'questionpool'}" action="#{questionpool.editPool}"  immediate="true">
+  <h:outputText value="#{questionpool.currentPool.displayName}"/>
+  <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
+</h:commandLink>
+</div>
+
 <h3>
-   <h:outputText value="#{msg.modify_q}: #{assessmentBean.title}" />
+   <h:outputText value="#{msg.modify_q}:"/>
+   <h:outputText value="#{assessmentBean.title}" rendered="#{itemauthor.target == 'assessment'}"/>
 </h3>
 <!-- CHANGE TYPE -->
 <div class="indnt1">
@@ -82,7 +102,8 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
 <p class="navModeAction">
   <span class="leftNav">
    <b>
-     <h:outputText value="#{msg.q} #{itemauthor.itemNo}"/>
+     <h:outputText value="#{msg.q}"/>
+     <h:outputText rendered="#{itemauthor.target == 'assessment'}" value="#{itemauthor.itemNo}"/>
      <h:outputText value=" - "/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType == 1}" value="#{msg.multiple_choice_type}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 2}" value="#{msg.multiple_choice_type}"/>

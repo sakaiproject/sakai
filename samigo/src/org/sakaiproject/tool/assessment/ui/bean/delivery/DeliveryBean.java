@@ -1385,65 +1385,63 @@ public class DeliveryBean
    */
   public String addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
   {
-    // 1. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
-    String mediaLocation = (String) e.getNewValue();
-    log.debug("***1a. addMediaToItemGrading, new value ="+mediaLocation);
-    File media = new File(mediaLocation);
-    byte[] mediaByte = getMediaStream(mediaLocation);
-
-    // 2. get the questionId (which is the PublishedItemData.itemId)
-    int assessmentIndex = mediaLocation.lastIndexOf("assessment");
-    int questionIndex = mediaLocation.lastIndexOf("question");
-    int agentIndex = mediaLocation.indexOf("/", questionIndex+8);
-    String pubAssessmentId = mediaLocation.substring(assessmentIndex+10,questionIndex-1);
-    String questionId = mediaLocation.substring(questionIndex+8,agentIndex);
-    log.debug("***2a. addMediaToItemGrading, questionId ="+questionId);
-    log.debug("***2b. addMediaToItemGrading, assessmentId ="+assessmentId);
-
-    // 3. prepare itemGradingData
+    GradingService gradingService = new GradingService();
     PublishedAssessmentService publishedService = new PublishedAssessmentService();
-    PublishedItemData item = publishedService.loadPublishedItem(questionId);
-    log.debug("***3a. addMediaToItemGrading, item ="+item);
-    log.debug("***3b. addMediaToItemGrading, itemTextArray ="+item.getItemTextArray());
-    log.debug("***3c. addMediaToItemGrading, itemText(0) ="+item.getItemTextArray().get(0));
-    // there is only one text in audio question
-    PublishedItemText itemText = (PublishedItemText) item.getItemTextArraySorted().get(0);
-    ItemGradingData  itemGradingData = getItemGradingData(questionId);
-    itemGradingData.setAssessmentGrading(adata);
-    itemGradingData.setPublishedItem(item);
-    itemGradingData.setPublishedItemText(itemText);
-
-    // 4. attach itemGradingData to assessmentGrading
+    // 1. create assessmentGrading if it is null
     if (this.adata == null)
     {
       adata = new AssessmentGradingData();
       adata.setAgentId(AgentFacade.getAgentString());
       adata.setPublishedAssessment(publishedService.getPublishedAssessment(assessmentId).getData());
+      log.debug("***1a. addMediaToItemGrading, getForGrade()="+getForGrade());
+      adata.setForGrade(new Boolean(getForGrade()));
+      gradingService.saveOrUpdateAssessmentGrading(adata);
     }
-    // store AssessmentGradingData - I don't really understand this method
-    // but the stmt at ** failed if assessmentGrdaingData does not exist yet
-    adata.setForGrade(new Boolean(getForGrade()));
+    log.debug("***1b. addMediaToItemGrading, adata="+adata);
 
+    // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
+    String mediaLocation = (String) e.getNewValue();
+    log.debug("***2a. addMediaToItemGrading, new value ="+mediaLocation);
+    File media = new File(mediaLocation);
+    byte[] mediaByte = getMediaStream(mediaLocation);
+
+    // 3. get the questionId (which is the PublishedItemData.itemId)
+    int assessmentIndex = mediaLocation.lastIndexOf("assessment");
+    int questionIndex = mediaLocation.lastIndexOf("question");
+    int agentIndex = mediaLocation.indexOf("/", questionIndex+8);
+    String pubAssessmentId = mediaLocation.substring(assessmentIndex+10,questionIndex-1);
+    String questionId = mediaLocation.substring(questionIndex+8,agentIndex);
+    log.debug("***3a. addMediaToItemGrading, questionId ="+questionId);
+    log.debug("***3b. addMediaToItemGrading, assessmentId ="+assessmentId);
+
+    // 4. prepare itemGradingData and attach it to assessmentGarding
+    PublishedItemData item = publishedService.loadPublishedItem(questionId);
+    log.debug("***4a. addMediaToItemGrading, item ="+item);
+    log.debug("***4b. addMediaToItemGrading, itemTextArray ="+item.getItemTextArray());
+    log.debug("***4c. addMediaToItemGrading, itemText(0) ="+item.getItemTextArray().get(0));
+    // there is only one text in audio question
+    PublishedItemText itemText = (PublishedItemText) item.getItemTextArraySorted().get(0);
+    ItemGradingData  itemGradingData = getItemGradingData(questionId);
+    if (itemGradingData == null){
+      itemGradingData = new ItemGradingData();
+      itemGradingData.setAssessmentGrading(adata);
+      itemGradingData.setPublishedItem(item);
+      itemGradingData.setPublishedItemText(itemText);
+      itemGradingData.setSubmittedDate(new Date());
+      itemGradingData.setAgentId(AgentFacade.getAgentString());
+      itemGradingData.setOverrideScore(new Float(0));
+    }
+    setAssessmentGrading(adata);
+
+    // 5. save AssessmentGardingData with ItemGardingData
     Set itemDataSet = adata.getItemGradingSet();
-    log.debug("***4a. addMediaToItemGrading, itemDataSet="+itemDataSet);
+    log.debug("***5a. addMediaToItemGrading, itemDataSet="+itemDataSet);
     if (itemDataSet == null)
       itemDataSet = new HashSet();
-    else
-      itemDataSet.add(itemGradingData);
-    log.debug("***4b. addMediaToItemGrading, adata="+adata);
+    itemDataSet.add(itemGradingData);
     adata.setItemGradingSet(itemDataSet);
-    log.debug("***4c. addMediaToItemGrading, getForGrade()="+getForGrade());
-    // **
-    adata.setForGrade(new Boolean(getForGrade()));
-
-    log.debug("***4d. addMediaToItemGrading, adata="+adata);
-    if (adata.getItemGradingSet()==null)
-        adata.setItemGradingSet(new HashSet());
-    adata.getItemGradingSet().add(itemGradingData);
-    // 5. save AssessmentGardingData with ItemGardingData
-    GradingService gradingService = new GradingService();
-    gradingService.storeGrades(adata);
-    log.debug("***5. addMediaToItemGrading, saved="+adata);
+    gradingService.saveOrUpdateAssessmentGrading(adata);
+    log.debug("***5b. addMediaToItemGrading, saved="+adata);
 
     // 6. create a media record 
     FileDataSource source = new FileDataSource(media);
@@ -1451,6 +1449,9 @@ public class DeliveryBean
     boolean SAVETODB = MediaData.saveToDB();
     log.debug("**** SAVETODB="+SAVETODB);
     MediaData mediaData=null;
+    log.debug("***6a. addMediaToItemGrading, itemGradinDataId="+itemGradingData.getItemGradingId());
+    log.debug("***6b. addMediaToItemGrading, publishedItemId="+((PublishedItemData)itemGradingData.getPublishedItem()).getItemId());
+
     if (SAVETODB){ // put the byte[] in
       mediaData = new MediaData(itemGradingData, mediaByte,
                                 new Long(mediaByte.length + ""),
@@ -1468,14 +1469,15 @@ public class DeliveryBean
                                 AgentFacade.getAgentString(), new Date());
 
     }
-    log.debug("***6. addMediaToItemGrading, adata="+adata);
-
     Long mediaId = gradingService.saveMedia(mediaData);
     log.debug("mediaId="+mediaId);
+    log.debug("***6c. addMediaToItemGrading, media.itemGradinDataId="+((ItemGradingData)mediaData.getItemGradingData()).getItemGradingId());
+    log.debug("***6d. addMediaToItemGrading, mediaId="+mediaData.getMediaId());
+
     // 7. store mediaId in itemGradingRecord.answerText
     log.debug("***7. addMediaToItemGrading, adata="+adata);
     itemGradingData.setAnswerText(mediaId+"");
-    gradingService.storeGrades(adata);
+    gradingService.saveItemGrading(itemGradingData);
 
 /**
     forGrade = false;
@@ -1606,18 +1608,28 @@ public class DeliveryBean
   }
 
   public ItemGradingData getItemGradingData(String publishedItemId){
-    ItemGradingData itemGradingData = new ItemGradingData();
-    boolean notFound = true;
+    ItemGradingData selected = null;
     if (adata != null){
-	Set items = adata.getItemGradingSet();
+      Set items = adata.getItemGradingSet();
+      if (items!=null){
         Iterator iter = items.iterator();
-        while (iter.hasNext() && notFound){
-          itemGradingData = (ItemGradingData)iter.next();
-          if ((publishedItemId).equals(itemGradingData.getPublishedItem().getItemId().toString()))
-            notFound = false;
-	}
+        while (iter.hasNext()){
+          ItemGradingData itemGradingData = (ItemGradingData)iter.next();
+          String itemPublishedId = itemGradingData.getPublishedItem().getItemId().toString();
+          if ((publishedItemId).equals(itemPublishedId)){
+            log.debug("*** addMediaToItemGrading, same : found it");
+            selected = itemGradingData;
+	  }
+          else{
+            log.debug("*** addMediaToItemGrading, not the same");
+	  }
+        }
+        log.debug("*** addMediaToItemGrading, publishedItemId ="+publishedItemId);
+        if (selected!=null)
+          log.debug("*** addMediaToItemGrading, itemGradingData.publishedItemId ="+selected.getPublishedItem().getItemId().toString());
+      }
     }
-    return itemGradingData;
+    return selected;
   }
 
   public String getContextPath() {

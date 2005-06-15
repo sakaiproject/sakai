@@ -124,11 +124,12 @@ public class AssessmentGradingData
     }
     
     // Round to the nearest 1/10th.
-    float alignment = this.totalAutoScore.floatValue();
-    int tmp = Math.round(alignment * 10.0f); 
-    alignment = (float)tmp / 10.0f;
-    this.totalAutoScore = new Float(alignment);
-
+    if (this.totalAutoScore != null){
+      float alignment = this.totalAutoScore.floatValue();
+      int tmp = Math.round(alignment * 10.0f); 
+      alignment = (float)tmp / 10.0f;
+      this.totalAutoScore = new Float(alignment);
+    }
     return this.totalAutoScore;
   }
   public void setTotalAutoScore(Float totalAutoScore) {
@@ -136,6 +137,7 @@ public class AssessmentGradingData
   }
 
   public Float getTotalOverrideScore() {
+      /* bug fix for sam-485. totaloverridescore should get from the frontend, not from the itemGradingData. 
     if (getItemGradingSet()!=null){
       this.totalOverrideScore = new Float("0");
       float overrideScore = 0;
@@ -147,13 +149,15 @@ public class AssessmentGradingData
       }
     this.totalOverrideScore = new Float(overrideScore);
     }
+      */
 
     // Round to the nearest 1/10th.
-    float alignment = this.totalOverrideScore.floatValue();
-    int tmp = Math.round(alignment * 10.0f); 
-    alignment = (float)tmp / 10.0f;
-    this.totalOverrideScore = new Float(alignment);
-
+    if (this.totalOverrideScore !=null){
+      float alignment = this.totalOverrideScore.floatValue();
+      int tmp = Math.round(alignment * 10.0f); 
+      alignment = (float)tmp / 10.0f;
+      this.totalOverrideScore = new Float(alignment);
+    }
     return this.totalOverrideScore;
   }
 
@@ -171,11 +175,12 @@ public class AssessmentGradingData
     }
    
     // Round to the nearest 1/10th.
-    float alignment = this.finalScore.floatValue();
-    int tmp = Math.round(alignment * 10.0f); 
-    alignment = (float)tmp / 10.0f;
-    this.finalScore = new Float(alignment);
-
+    if (this.finalScore !=null ){
+      float alignment = this.finalScore.floatValue();
+      int tmp = Math.round(alignment * 10.0f); 
+      alignment = (float)tmp / 10.0f;
+      this.finalScore = new Float(alignment);
+    }
     return this.finalScore;
   }
   public void setFinalScore(Float finalScore) {

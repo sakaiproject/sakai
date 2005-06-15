@@ -105,7 +105,12 @@ public class ItemModifyListener implements ActionListener
       bean.setItemId(itemfacade.getItemId().toString());
       bean.setItemType(itemfacade.getTypeId().toString());
       itemauthorbean.setItemType(itemfacade.getTypeId().toString());
-      itemauthorbean.setItemNo(String.valueOf(itemfacade.getSequence().intValue() ));
+
+      // if the item only exists in pool, sequence = null 
+      if (itemfacade.getSequence()!=null) {
+        itemauthorbean.setItemNo(String.valueOf(itemfacade.getSequence().intValue() ));
+      }
+
       //System.out.println("lydiatest bena.getItemtype() " + bean.getItemType());
       //System.out.println("lydiatest itemauthor.getItemType() " + itemauthorbean.getItemType());
       bean.setItemScore(itemfacade.getScore().toString());

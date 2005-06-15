@@ -137,4 +137,7 @@ public class AgentFacade implements Serializable {
     return !isStandaloneEnvironment();
   }
 
+  public static String getCurrentSiteIdFromExternalServlet(HttpServletRequest req,  HttpServletResponse res){
+      return "Samigo Site";
+  }
  }

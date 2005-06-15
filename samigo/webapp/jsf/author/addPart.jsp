@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<!-- $Id: addPart.jsp,v 1.1 2005/06/12 23:51:27 daisyf.stanford.edu Exp $ -->
+<!-- $Id: addPart.jsp,v 1.2 2005/06/13 17:08:31 daisyf.stanford.edu Exp $ -->
   <f:view>
     <f:verbatim><!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -28,15 +28,13 @@
 <h:form id="addPartForm">
   <h:inputHidden id="assessmentId" value="#{sectionBean.assessmentId}"/>
   <h:inputHidden id="sectionId" value="#{sectionBean.sectionId}"/>
-
-
   <div class="indnt1">
   <div class="shorttext">
 <h:panelGrid columns="2" columnClasses="shorttext">
    <h:outputLabel value="#{msg.title}" />
    <h:inputText size="50" maxlength="250" value="#{sectionBean.sectionTitle}"/>
-     <h:outputText value="" />
-     <h:outputText value="#{msg.title_note}" /></h3>
+   <h:outputText value="" />
+   <h:outputText value="#{msg.title_note}" /></h3>
 </h:panelGrid>
   </div>
    <div class="longtext">

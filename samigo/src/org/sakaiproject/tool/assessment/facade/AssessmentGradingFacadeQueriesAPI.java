@@ -105,4 +105,11 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public AssessmentGradingData getLastAssessmentGradingByAgentId(
       Long publishedAssessmentId, String agentIdString);
+
+  public void saveItemGrading(ItemGradingIfc item);
+
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment);
+
+  public void setIsLate(AssessmentGradingIfc assessment);
+
 }

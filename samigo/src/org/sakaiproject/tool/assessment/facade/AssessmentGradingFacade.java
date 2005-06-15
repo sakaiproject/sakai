@@ -118,12 +118,14 @@ public class AssessmentGradingFacade
 
   public Float getTotalAutoScore() {
 
-    // Round to the nearest 1/10th.
+   // Round to the nearest 1/10th.
+   if (totalAutoScore != null)
+   {
     float alignment = totalAutoScore.floatValue();
     int tmp = Math.round(alignment * 10.0f); 
     alignment = (float)tmp / 10.0f;
     totalAutoScore = new Float(alignment);
-
+   }
     return totalAutoScore;
   }
 
@@ -133,12 +135,14 @@ public class AssessmentGradingFacade
 
   public Float getTotalOverrideScore() { 
 
-    // Round to the nearest 1/10th.
+   // Round to the nearest 1/10th.
+   if (totalOverrideScore != null) 
+   {
     float alignment = totalOverrideScore.floatValue();
     int tmp = Math.round(alignment * 10.0f); 
     alignment = (float)tmp / 10.0f;
     totalOverrideScore = new Float(alignment);
-
+   }
     return totalOverrideScore;
   }
 
@@ -148,11 +152,14 @@ public class AssessmentGradingFacade
 
   public Float getFinalScore() {
     
-    // Round to the nearest 1/10th.
+  // Round to the nearest 1/10th.
+  if ( finalScore != null)
+  {
     float alignment = finalScore.floatValue();
     int tmp = Math.round(alignment * 10.0f); 
     alignment = (float)tmp / 10.0f;
     finalScore = new Float(alignment);
+  }
 
     return finalScore;
   }

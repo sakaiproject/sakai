@@ -57,9 +57,6 @@ public class AuthorPartListener implements ActionListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
 
     // #1a. prepare sectionBean
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
@@ -69,8 +66,8 @@ public class AuthorPartListener implements ActionListener
     SectionBean sectionBean = (SectionBean) cu.lookupBean(
                                           "sectionBean");
     // clean it
-    sectionBean = new SectionBean();
     sectionBean.setSectionTitle("");
+    sectionBean.setSectionId("");
     String assessmentId = assessmentBean.getAssessmentId();
 
     // #1b. goto editPart.jsp
@@ -79,6 +76,7 @@ public class AuthorPartListener implements ActionListener
     // set default 
     sectionBean.setType(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()); 
     sectionBean.setQuestionOrdering(SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString()); 
+    log.debug("**** sectionBean.getTitle="+sectionBean.getSectionTitle());
   }
 
 }

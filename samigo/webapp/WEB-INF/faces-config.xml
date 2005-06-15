@@ -5,7 +5,7 @@
   Copyright: Copyright (c) 2004
   Organization: Sakai Project
   Author: Ed Smiley
-  @version $Id: faces-config.xml,v 1.95 2005/06/12 23:47:46 daisyf.stanford.edu Exp $
+  @version $Id: faces-config.xml,v 1.96 2005/06/13 17:08:31 daisyf.stanford.edu Exp $
 -->
 
 <!DOCTYPE faces-config PUBLIC
@@ -462,7 +462,7 @@
     <from-view-id>*</from-view-id>
     <navigation-case>
       <from-outcome>addPart</from-outcome>
-      <to-view-id>/jsf/author/addPart.jsp</to-view-id>
+      <to-view-id>/jsf/author/editPart.jsp</to-view-id>
     </navigation-case>
   </navigation-rule>
   <navigation-rule>

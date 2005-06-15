@@ -28,6 +28,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 
@@ -255,6 +256,26 @@ public class GradingService
     catch(Exception e)
     {
       log.error(e); throw new Error(e);
+    }
+  }
+
+  public void saveItemGrading(ItemGradingIfc item)
+  {
+    try {
+      PersistenceService.getInstance().
+        getAssessmentGradingFacadeQueries().saveItemGrading(item);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment)
+  {
+    try {
+      PersistenceService.getInstance().
+        getAssessmentGradingFacadeQueries().saveOrUpdateAssessmentGrading(assessment);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 
