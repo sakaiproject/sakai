@@ -1,6 +1,6 @@
 /**********************************************************************************
  *
- * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.6 2005/06/11 17:16:54 jlannan.iupui.edu Exp $
+ * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.7 2005/06/13 02:16:43 jlannan.iupui.edu Exp $
  *
  ***********************************************************************************
  *
@@ -445,7 +445,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
     URL urlResource;
     URLConnection urlConnection = null;
-    StringBuffer sBuffer = null;
+    StringBuffer sBuffer = new StringBuffer();
     if (resource.getLocation().startsWith("/"))
     {
       
@@ -460,9 +460,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
             .encode(basicAuthUserPass.getBytes());
 
         urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
-        
-        sBuffer = new StringBuffer();
-
+                
         BufferedReader br = new BufferedReader(new InputStreamReader(
             urlConnection.getInputStream()), 512);
         int readReturn = 0;
@@ -489,8 +487,15 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     if (getRestConfiguration().getOrganization().equals("sakai")){
       Reader reader = new BufferedReader(new InputStreamReader(urlResource
         .openStream()));
-      doc.add(Field.Text("content", reader));
-      reader.close();
+      
+      int readReturn = 0;
+      char[] cbuf = new char[512];
+      while ((readReturn = reader.read(cbuf, 0, 512)) != -1)
+      {
+        sBuffer.append(cbuf, 0, readReturn);
+      }                
+      
+      doc.add(Field.Text("content", sBuffer.toString()));      
     }
     else{
       doc.add(Field.Text("content", sBuffer.toString())); 
@@ -884,6 +889,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 }
 /**********************************************************************************
  *
- * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.6 2005/06/11 17:16:54 jlannan.iupui.edu Exp $
+ * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.7 2005/06/13 02:16:43 jlannan.iupui.edu Exp $
  *
  **********************************************************************************/
