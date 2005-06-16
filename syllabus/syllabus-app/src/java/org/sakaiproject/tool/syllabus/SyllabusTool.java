@@ -132,7 +132,10 @@ public class SyllabusTool
   protected String editAble = null;
 
   protected String title = null;
+  
   private boolean displayNoEntryMsg = false;
+  
+  private boolean displayTitleErroMsg = false;
 
   public SyllabusTool()
   {
@@ -415,6 +418,16 @@ public class SyllabusTool
   {
     this.editAble = editAble;
   }
+  
+  public void setDisplayTitleErroMsg(boolean displayTitleErroMsg)
+  {
+    this.displayTitleErroMsg = displayTitleErroMsg;
+  }
+  
+  public boolean getDisplayTitleErroMsg()
+  {
+    return displayTitleErroMsg;
+  }
 
   /* testing fileUpload
    * public FileUpload getFileUpload() { return fileUpload; } public void setFileUpload(FileUpload
@@ -480,6 +493,7 @@ public class SyllabusTool
   {
     logger.info(this + ".processEditCancel() in SyllabusTool ");
 
+    displayTitleErroMsg = false;
     entries.clear();
     entry = null;
     syllabusItem = null;
@@ -499,6 +513,16 @@ public class SyllabusTool
       }
       else
       {
+        if(entry.getEntry().getTitle() == null)
+        {
+          displayTitleErroMsg = true;
+          return "edit";          
+        }
+        else if(entry.getEntry().getTitle().trim().equals(""))
+        {
+          displayTitleErroMsg = true;
+          return "edit";
+        }        
         if (entry.justCreated == true)
         {
           syllabusManager.addSyllabusToSyllabusItem(syllabusItem, getEntry()
@@ -506,6 +530,7 @@ public class SyllabusTool
         }
       }
 
+      displayTitleErroMsg = false;
       entries.clear();
       entry = null;
       syllabusItem = null;
@@ -536,17 +561,28 @@ public class SyllabusTool
       }
       else
       {
+        if(entry.getEntry().getTitle() == null)
+        {
+          displayTitleErroMsg = true;
+          return "edit";          
+        }
+        else if(entry.getEntry().getTitle().trim().equals(""))
+        {
+          displayTitleErroMsg = true;
+          return "edit";
+        }        
         if (entry.justCreated == true)
         {
           getEntry().getEntry().setStatus("Posted");
           syllabusManager.addSyllabusToSyllabusItem(syllabusItem, getEntry()
               .getEntry());
           //syllabusManager.saveSyllabusItem(syllabusItem);
-
+          
           entries.clear();
           entry = null;
           syllabusItem = null;
-
+          displayTitleErroMsg = false;
+          
           return "main_edit";
         }
       }
@@ -642,6 +678,7 @@ public class SyllabusTool
   {
     logger.info(this + ".processReadCancel() in SyllabusTool");
 
+    displayTitleErroMsg = false;
     entries.clear();
     entry = null;
     syllabusItem = null;
@@ -661,12 +698,23 @@ public class SyllabusTool
       }
       else
       {
+        if(entry.getEntry().getTitle() == null)
+        {
+          displayTitleErroMsg = true;
+          return "read";          
+        }
+        else if(entry.getEntry().getTitle().trim().equals(""))
+        {
+          displayTitleErroMsg = true;
+          return "read";
+        }        
         if (entry.justCreated == false)
         {
           getEntry().getEntry().setStatus("Draft");
           syllabusManager.saveSyllabus(getEntry().getEntry());
         }
       }
+      displayTitleErroMsg = false;
       entries.clear();
       entry = null;
       syllabusItem = null;
@@ -697,11 +745,22 @@ public class SyllabusTool
       }
       else
       {
+        if(entry.getEntry().getTitle() == null)
+        {
+          displayTitleErroMsg = true;
+          return "read";          
+        }
+        else if(entry.getEntry().getTitle().trim().equals(""))
+        {
+          displayTitleErroMsg = true;
+          return "read";
+        }        
         if (entry.justCreated == false)
         {
           getEntry().getEntry().setStatus("Posted");
           syllabusManager.saveSyllabus(getEntry().getEntry());
 
+          displayTitleErroMsg = false;
           entries.clear();
           entry = null;
           syllabusItem = null;
@@ -777,7 +836,21 @@ public class SyllabusTool
 
   public String processEditPreview()
   {
-    return "preview";
+    if(entry.getEntry().getTitle() == null)
+    {
+      displayTitleErroMsg = true;
+      return "edit";          
+    }
+    else if(entry.getEntry().getTitle().trim().equals(""))
+    {
+      displayTitleErroMsg = true;
+      return "edit";
+    }
+    else
+    {
+      displayTitleErroMsg = false;
+      return "preview";
+    }
   }
 
   public String processEditPreviewBack()
@@ -787,7 +860,21 @@ public class SyllabusTool
 
   public String processReadPreview()
   {
-    return "read_preview";
+    if(entry.getEntry().getTitle() == null)
+    {
+      displayTitleErroMsg = true;
+      return "read";          
+    }
+    else if(entry.getEntry().getTitle().trim().equals(""))
+    {
+      displayTitleErroMsg = true;
+      return "read";
+    }
+    else
+    {
+      displayTitleErroMsg = false;
+      return "read_preview";
+    }
   }
 
   public String processReadPreviewBack()
