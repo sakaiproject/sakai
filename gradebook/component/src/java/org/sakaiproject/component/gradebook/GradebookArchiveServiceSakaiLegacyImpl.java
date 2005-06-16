@@ -1,6 +1,6 @@
 /**********************************************************************************
 *
-* $Header: /cvs/sakai2/gradebook/component/src/java/org/sakaiproject/component/gradebook/GradebookArchiveServiceSakaiLegacyImpl.java,v 1.7 2005/05/26 18:04:55 josh.media.berkeley.edu Exp $
+* $Id$
 *
 ***********************************************************************************
 *
