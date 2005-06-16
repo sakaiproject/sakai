@@ -1152,7 +1152,7 @@ public class DeliveryBean
 
     forGrade = false;
 
-    if (!previewAssessment.equals("true"))
+    if (!("true").equals(previewAssessment))
     {     
     SubmitToGradingActionListener listener =
      new SubmitToGradingActionListener();
@@ -1175,7 +1175,7 @@ public class DeliveryBean
     
     forGrade = false;
    
-    if (!previewAssessment.equals("true"))
+    if (!("true").equals(previewAssessment))
     { 
     SubmitToGradingActionListener listener =
      new SubmitToGradingActionListener();
