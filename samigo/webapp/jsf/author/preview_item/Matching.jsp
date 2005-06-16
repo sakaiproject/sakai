@@ -32,24 +32,32 @@ should be included in file importing DeliveryMessages
         <h:outputText escape="false" value="#{itemText.sequence}. #{itemText.text}" />
 
         <h:outputText value="" />
-        <h:panelGroup rendered="#{answer.correctAnswerFeedback != null && answer.correctAnswerFeedback ne ''}" styleClass="longtext">
-          <h:outputLabel value="#{msg.correct}:" />
-          <h:dataTable value="#{itemText.answerArray}" var="answer">
+
+        <%-- show correct & incorrect answer feedback, only need to show the set that is attached
+             to the correct answer. Look at the data in the table and you may understand this part 
+             better -daisyf --%>
+        <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
-              <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
+              <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFeedback!=null 
+               && answer.correctAnswerFeedback ne ''}" styleClass="longtext">
+                <h:outputLabel value="#{msg.correct}:" />
+                <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
+              </h:panelGroup>
             </h:column>
-          </h:dataTable>
-        </h:panelGroup>
+        </h:dataTable>
 
         <h:outputText value="" />
-        <h:panelGroup rendered="#{answer.inCorrectAnswerFeedback != null && answer.inCorrectAnswerFeedback ne ''}" styleClass="longtext">
-        <h:outputLabel value="#{msg.incorrect}:" />
-          <h:dataTable value="#{itemText.answerArray}" var="answer">
+
+        <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
-              <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
+              <h:panelGroup rendered="#{answer.isCorrect && answer.inCorrectAnswerFeedback!=null 
+               && answer.inCorrectAnswerFeedback ne ''}" styleClass="longtext">
+                <h:outputLabel value="#{msg.incorrect}:" />
+                <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
+              </h:panelGroup>
             </h:column>
-          </h:dataTable>
-        </h:panelGroup>
+        </h:dataTable>
+
       </h:panelGrid>
     </h:column>
   </h:dataTable>
