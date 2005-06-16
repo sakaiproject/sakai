@@ -211,6 +211,11 @@
       <to-view-id>/syllabus/preview.jsp</to-view-id>
       <redirect/>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>edit</from-outcome>
+      <to-view-id>/syllabus/edit.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
   </navigation-rule>
 
   <navigation-rule>
@@ -228,6 +233,11 @@
     <navigation-case>
       <from-outcome>read_preview</from-outcome>
       <to-view-id>/syllabus/read_preview.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>read</from-outcome>
+      <to-view-id>/syllabus/read.jsp</to-view-id>
       <redirect/>
     </navigation-case>
   </navigation-rule>
