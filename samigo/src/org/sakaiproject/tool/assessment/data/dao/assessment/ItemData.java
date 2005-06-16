@@ -610,7 +610,7 @@ public class ItemData
 		       }
                    else
 		       {
-			   if(answerKey.equals(""))
+			   if(("").equals(answerKey))
 			       { 
 				   answerKey=a.getLabel();
 			       }
