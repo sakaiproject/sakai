@@ -28,8 +28,9 @@
 							<h:outputText value="#{msgs.syllabus_title}"/>
 						</sakai:doc_section>
 						<sakai:doc_section>
-							<h:inputText value="#{SyllabusTool.entry.entry.title}" required="true" id="title"/>
-							<h:message for="title"  style="color: red"/>
+							<h:inputText value="#{SyllabusTool.entry.entry.title}" id="title"/>
+							<h:outputText value="#{msgs.empty_title_validate}" style="color: red" 
+								rendered="#{SyllabusTool.displayTitleErroMsg}"/>
 						</sakai:doc_section>
 
 						<h:outputText value="#{msgs.syllabus_content}"/>
