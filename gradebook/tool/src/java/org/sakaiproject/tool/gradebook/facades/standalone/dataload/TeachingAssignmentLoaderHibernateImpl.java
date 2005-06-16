@@ -1,6 +1,6 @@
 /**********************************************************************************
 *
-* $Header: /cvs/sakai2/gradebook/tool/src/java/org/sakaiproject/tool/gradebook/facades/standalone/dataload/TeachingAssignmentLoaderHibernateImpl.java,v 1.3 2005/05/26 18:04:56 josh.media.berkeley.edu Exp $
+* $Id$
 *
 ***********************************************************************************
 *
@@ -80,5 +80,5 @@ public class TeachingAssignmentLoaderHibernateImpl extends HibernateDaoSupport i
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/gradebook/tool/src/java/org/sakaiproject/tool/gradebook/facades/standalone/dataload/TeachingAssignmentLoaderHibernateImpl.java,v 1.3 2005/05/26 18:04:56 josh.media.berkeley.edu Exp $
+ * $Id$
  *************************************************************************************************************************************************************************************************************************************************************/

@@ -1,6 +1,6 @@
 /**********************************************************************************
 *
-* $Header: /cvs/sakai2/gradebook/tool/src/java/org/sakaiproject/tool/gradebook/facades/standalone/ContextManagementStandaloneImpl.java,v 1.3 2005/05/26 18:04:55 josh.media.berkeley.edu Exp $
+* $Id$
 *
 ***********************************************************************************
 *
@@ -56,5 +56,5 @@ public class ContextManagementStandaloneImpl implements ContextManagement {
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/gradebook/tool/src/java/org/sakaiproject/tool/gradebook/facades/standalone/ContextManagementStandaloneImpl.java,v 1.3 2005/05/26 18:04:55 josh.media.berkeley.edu Exp $
+ * $Id$
  *************************************************************************************************************************************************************************************************************************************************************/

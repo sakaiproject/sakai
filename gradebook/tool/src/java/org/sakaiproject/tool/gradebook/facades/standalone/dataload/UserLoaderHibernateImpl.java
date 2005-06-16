@@ -1,6 +1,6 @@
 /**********************************************************************************
 *
-* $Header: /cvs/sakai2/gradebook/tool/src/java/org/sakaiproject/tool/gradebook/facades/standalone/dataload/UserLoaderHibernateImpl.java,v 1.3 2005/05/26 18:04:56 josh.media.berkeley.edu Exp $
+* $Id$
 *
 ***********************************************************************************
 *
@@ -152,5 +152,5 @@ public class UserLoaderHibernateImpl extends HibernateDaoSupport implements User
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/gradebook/tool/src/java/org/sakaiproject/tool/gradebook/facades/standalone/dataload/UserLoaderHibernateImpl.java,v 1.3 2005/05/26 18:04:56 josh.media.berkeley.edu Exp $
+ * $Id$
  *************************************************************************************************************************************************************************************************************************************************************/
