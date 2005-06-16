@@ -259,7 +259,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       {
         AssessmentGradingData gdata = (AssessmentGradingData) iter.next();
         getHibernateTemplate().saveOrUpdate(gdata);
-        notifyGradebook(gdata);
+        // no need to notify gradebook if this submission is not for grade
+        if ((Boolean.TRUE).equals(gdata.getForGrade()))
+          notifyGradebook(gdata);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -383,7 +385,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       e.printStackTrace();
     }
     getHibernateTemplate().saveOrUpdate(data);
-    notifyGradebook(data);
+    // no need to notify gradebook if this submission is not for grade
+    if ((Boolean.TRUE).equals(data.getForGrade()))
+      notifyGradebook(data);
   }
 
   
