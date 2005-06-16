@@ -61,6 +61,9 @@
 	</postGoal>
 
 	<goal name="schema">
+		<!-- Skip the tests -->
+		<j:set var="maven.test.skip" value="true" />
+
 		<!-- Run the non-db tests first, so all of the test classes and mappings are available in ${maven.build.dest} -->
 		<attainGoal name="test:test" />
 		<j:set var="maven.hibernate.properties" value="${hibernate.properties.dir}/hibernate.properties" />
@@ -73,14 +76,6 @@
 		<attainGoal name="hibernate:schema-export" />
 	</goal>
 
-	<goal name="test-managers">
-		<attainGoal name="schema" />
-		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestManagers" />
-		<attainGoal name="test:single" />
-		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestAssessmentIntegration" />
-		<attainGoal name="test:single" />
-	</goal>
-
 	<!-- The sakai archive services are not currently implemented -->
 	<goal name="test-archive">
 		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestArchive" />
@@ -88,6 +83,8 @@
 	</goal>
 
 	<goal name="load-full">
+		<!-- Skip the tests -->
+		<j:set var="maven.test.skip" value="true" />
 		<attainGoal name="schema" />
 		<attainGoal name="load-gradebooks" />
 		<attainGoal name="load-users" />
@@ -96,6 +93,9 @@
 
 	<!-- load-full must be run before these tests will succeed. -->
 	<goal name="test-standalone">
+		<!-- Skip the tests -->
+		<j:set var="maven.test.skip" value="true" />
+
 		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneFramework" />
 		<attainGoal name="test:single" />
 		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneAuthz" />

@@ -24,7 +24,8 @@
 
 package org.sakaiproject.tool.gradebook.test;
 
-import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.facades.standalone.dataload.EnrollmentLoader;
 import org.sakaiproject.tool.gradebook.facades.standalone.dataload.TeachingAssignmentLoader;
 import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
@@ -34,35 +35,36 @@ import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class TestUserEnrollmentTeacherLoader extends SpringEnabledTestCase {
+public class TestUserEnrollmentTeacherLoader extends GradebookLoaderTestBase {
+    Log log = LogFactory.getLog(TestUserEnrollmentTeacherLoader.class);
 
     UserLoader userLoader;
     EnrollmentLoader enrollmentLoader;
     TeachingAssignmentLoader teachingAssignmentLoader;
-    GradebookManager gradebookManager;
-
-    protected void setUp() throws Exception {
-        log.info("Attempting to obtain spring-managed services.");
-        initialize("components.xml,components-test.xml");
-        userLoader = (UserLoader)getBean("org_sakaiproject_tool_gradebook_facades_standalone_dataload_UserLoader");
-        enrollmentLoader = (EnrollmentLoader)getBean("org_sakaiproject_tool_gradebook_facades_standalone_dataload_EnrollmentLoader");
-        teachingAssignmentLoader = (TeachingAssignmentLoader)getBean("org_sakaiproject_tool_gradebook_facades_standalone_dataload_TeachingAssignmentLoader");
-        gradebookManager = (GradebookManager)getBean("org_sakaiproject_tool_gradebook_business_GradebookManager");
+    
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
+        userLoader = (UserLoader)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_standalone_dataload_UserLoader");
+        enrollmentLoader = (EnrollmentLoader)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_standalone_dataload_EnrollmentLoader");
+        teachingAssignmentLoader = (TeachingAssignmentLoader)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_standalone_dataload_TeachingAssignmentLoader");
     }
 
     public void testLoadUsers() throws Exception {
-        log.warn("Loading users");
+        log.info("Loading users");
         userLoader.loadUsers();
+        setComplete();
     }
 
      public void testLoadEnrollments() throws Exception {
-        log.warn("Loading enrollments");
+        log.info("Loading enrollments");
         enrollmentLoader.loadEnrollments();
+        setComplete();
      }
 
      public void testLoadTeachingAssignments() throws Exception {
-        log.warn("Loading teaching assignments");
+        log.info("Loading teaching assignments");
         teachingAssignmentLoader.loadTeachingAssignments();
+        setComplete();
     }
 
 }

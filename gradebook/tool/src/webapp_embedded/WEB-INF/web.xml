@@ -10,7 +10,9 @@
 	</context-param>
 	<context-param>
 		<param-name>contextSharedLocation</param-name>
-		<param-value>/WEB-INF/components.xml</param-value>
+		<param-value>
+			/WEB-INF/components.xml
+		</param-value>
 	</context-param>
 
     <listener>

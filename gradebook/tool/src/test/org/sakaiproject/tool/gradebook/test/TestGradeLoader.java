@@ -31,13 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
-import org.sakaiproject.tool.gradebook.business.GradeManager;
-import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
 import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
 
@@ -45,32 +40,17 @@ import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  *
  */
-public class TestGradeLoader extends SpringEnabledTestCase {
-    static String GB_SERVICE = "org_sakaiproject_service_gradebook_GradebookService";
-    static String GB_MANAGER = "org_sakaiproject_tool_gradebook_business_GradebookManager";
-    static String ASN_MANAGER = "org_sakaiproject_tool_gradebook_business_GradableObjectManager";
-    static String GR_MANAGER = "org_sakaiproject_tool_gradebook_business_GradeManager";
-    static String COURSE_SERVICE = "org_sakaiproject_tool_gradebook_facades_CourseManagement";
-
-	protected void setUp() throws Exception {
-		log.info("Attempting to obtain spring-managed services.");
-		initialize("components.xml,components-test.xml");
-	}
+public class TestGradeLoader extends GradebookLoaderTestBase {
 
 	public void testPopulate() throws Exception {
         List gradebooks = new ArrayList();
 
-        GradebookService gbs = (GradebookService)getBean(GB_SERVICE);
-        GradebookManager gbm = (GradebookManager)getBean(GB_MANAGER);
-        GradableObjectManager am = (GradableObjectManager)getBean(ASN_MANAGER);
-        GradeManager gm = (GradeManager)getBean(GR_MANAGER);
-        CourseManagement cm = (CourseManagement)getBean(COURSE_SERVICE);
 
         // Fetch the first gradebook.
-        Gradebook gb = gbm.getGradebook(TestGradebookLoader.GRADEBOOK_WITH_GRADES);
+        Gradebook gb = gradebookManager.getGradebook(TestGradebookLoader.GRADEBOOK_WITH_GRADES);
 
-		Set enrollments = cm.getEnrollments(gb.getUid());
-		List assignments = am.getAssignments(gb.getId());
+		Set enrollments = courseManagement.getEnrollments(gb.getUid());
+		List assignments = gradableObjectManager.getAssignments(gb.getId());
 
 		for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {
 			Assignment asn = (Assignment)asnIter.next();
@@ -88,7 +68,7 @@ public class TestGradeLoader extends SpringEnabledTestCase {
                         !enr.getUser().getUserUid().equals(UserLoader.AUTHID_WITHOUT_GRADES_2)) {
                     Double grade = new Double(Math.ceil(asn.getPointsPossible().doubleValue() * Math.random()));
                     if(asn.isExternallyMaintained()) {
-                        gbs.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);
+                        gradebookService.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);
                     } else {
                         map.put(enr.getUser().getUserUid(), grade);
                     }
@@ -97,9 +77,11 @@ public class TestGradeLoader extends SpringEnabledTestCase {
 
             // Save the internal assignment scores
             if(!asn.isExternallyMaintained()) {
-            	gm.updateAssignmentGradeRecords(asn.getId(), map);
+            	gradeManager.updateAssignmentGradeRecords(asn.getId(), map);
             }
 		}
+        // Ensure that this is actually saved to the database
+        setComplete();
 	}
 }
 /**************************************************************************************************************************************************************************************************************************************************************

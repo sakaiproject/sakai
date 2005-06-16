@@ -136,6 +136,12 @@
 			<version>1.1.5</version>
 		</dependency>
 
+ 		<dependency>
+			<groupId>springframework</groupId>
+			<artifactId>spring-mock</artifactId>
+			<version>1.1.5</version>
+		</dependency>
+
 		<dependency>
 			<groupId>aopalliance</groupId>
 			<artifactId>aopalliance</artifactId>
@@ -365,14 +371,23 @@
 					</includes>
 				</resource>
 				<resource>
+					<directory>${basedir}/src/webapp_common/WEB-INF/</directory>
+					<includes>
+						<include>tx.xml</include>
+					</includes>
+				</resource>
+				<resource>
 					<directory>${basedir}/src/webapp_standalone/WEB-INF/</directory>
 					<includes>
 						<include>components.xml</include>
+						<include>db.xml</include>
 					</includes>
 				</resource>
 				<resource>
 					<directory>${basedir}/src/test/</directory>
 					<includes>
+						<include>db-mem.xml</include>
+						<include>hib.xml</include>
 						<include>components-test.xml</include>
 						<include>components-archive.xml</include>
 					</includes>

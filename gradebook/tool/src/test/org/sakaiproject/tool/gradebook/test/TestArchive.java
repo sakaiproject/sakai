@@ -50,7 +50,7 @@ import org.w3c.dom.Document;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  *
  */
-public class TestArchive extends SpringEnabledTestCase {
+public class TestArchive extends GradebookTestBase {
     private static final Log log = LogFactory.getLog(TestArchive.class);
     private static String GRADEBOOK_SERVICE_BEAN = "org.sakaiproject.service.gradebook.GradebookService";
     private static String GRADABLE_OBJECT_BEAN = "org_sakaiproject_tool_gradebook_business_GradableObjectManager";
@@ -77,13 +77,11 @@ public class TestArchive extends SpringEnabledTestCase {
         test.setUp();
     }
 
-    protected void setUp() throws Exception {
-        log.info("Attempting to obtain spring-managed services.");
-        initialize("components.xml,components-test.xml,components-archive.xml");
-        gradebookManager = (GradebookManager)getBean(TestManagers.GB_MANAGER);
-        gradableObjectManager = (GradableObjectManager)getBean(GRADABLE_OBJECT_BEAN);
-        gradebookService = (GradebookService)getBean(GRADEBOOK_SERVICE_BEAN);
-        archiveService = (GradebookArchiveService)getBean(ARCHIVE_BEAN);
+    protected void onSetUpInTransaction() throws Exception {
+        gradebookManager = (GradebookManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradebookManager");
+        gradableObjectManager = (GradableObjectManager)applicationContext.getBean(GRADABLE_OBJECT_BEAN);
+        gradebookService = (GradebookService)applicationContext.getBean(GRADEBOOK_SERVICE_BEAN);
+        archiveService = (GradebookArchiveService)applicationContext.getBean(ARCHIVE_BEAN);
     }
 
     public void testMarshallAndUnmarshall() throws Exception {
@@ -93,7 +91,7 @@ public class TestArchive extends SpringEnabledTestCase {
         Document doc = builder.newDocument();
 
         // Create the archive
-        Gradebook originalGradebook = gradebookManager.getGradebook(TestAssessmentIntegration.GB_NAME);
+        Gradebook originalGradebook = gradebookManager.getGradebook(this.getClass().getName());
         String messages = archiveService.createArchive(originalGradebook.getUid(), doc);
 
         // Create a new gradebook from the archive

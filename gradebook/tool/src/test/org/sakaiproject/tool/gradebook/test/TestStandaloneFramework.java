@@ -33,14 +33,12 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
 import org.sakaiproject.tool.gradebook.standalone.FrameworkManager;
 
-public class TestStandaloneFramework extends SpringEnabledTestCase {
+public class TestStandaloneFramework extends GradebookTestBase {
 	private static final Log log = LogFactory.getLog(TestStandaloneFramework.class);
 	FrameworkManager frameworkManager;
 
-	protected void setUp() throws Exception {
-		log.info("Attempting to obtain spring-managed services.");
-		initialize("components.xml,components-test.xml");
-        frameworkManager = (FrameworkManager)getBean("org_sakaiproject_tool_gradebook_standalone_FrameworkManager");
+	protected void onSetUpInTransaction() throws Exception {
+        frameworkManager = (FrameworkManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_standalone_FrameworkManager");
 	}
 
 	public void testGetAccessibleGradebooks() throws Exception {

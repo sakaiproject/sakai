@@ -30,20 +30,14 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
-import org.sakaiproject.tool.gradebook.business.GradebookManager;
 
 /**
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  *
  */
-public class TestGradebookLoader extends SpringEnabledTestCase {
+public class TestGradebookLoader extends GradebookLoaderTestBase {
 	private static final Log log = LogFactory.getLog(TestGradebookLoader.class);
-    static String GB_SERVICE = "org_sakaiproject_service_gradebook_GradebookService";
-    static String GB_MANAGER = "org_sakaiproject_tool_gradebook_business_GradebookManager";
-    static String ASN_MANAGER = "org_sakaiproject_tool_gradebook_business_GradableObjectManager";
 
     public static final String[] GRADEBOOK_UIDS = {
 			"QA_1",
@@ -79,18 +73,6 @@ public class TestGradebookLoader extends SpringEnabledTestCase {
     static String EXTERNAL_ASN_NAME2 = "External Assessment #2";
     static String ASN_NO_DUE_DATE_NAME = "Fl\u00F8ating Assignment (Due Whenever)";
 
-    GradebookService gbs;
-    GradebookManager gbm;
-    GradableObjectManager am;
-
-	protected void setUp() throws Exception {
-		log.info("Attempting to obtain spring-managed services.");
-        initialize("components.xml");
-        gbs = (GradebookService)getBean(GB_SERVICE);
-        gbm = (GradebookManager)getBean(GB_MANAGER);
-        am = (GradableObjectManager)getBean(ASN_MANAGER);
-	}
-
 	public void testLoadGradebooks() throws Exception {
         List gradebooks = new ArrayList();
         List gradebookUids = new ArrayList();
@@ -98,13 +80,13 @@ public class TestGradebookLoader extends SpringEnabledTestCase {
         // Create some gradebooks
         for(int i=0; i<GRADEBOOK_UIDS.length; i++) {
         	String gradebookUid = GRADEBOOK_UIDS[i];
-        	gbs.addGradebook(gradebookUid, GRADEBOOK_NAMES[i]);
+        	gradebookService.addGradebook(gradebookUid, GRADEBOOK_NAMES[i]);
             gradebookUids.add(gradebookUid);
         }
 
         // Fetch the gradebooks
         for(int i=0; i < GRADEBOOK_UIDS.length; i++) {
-            gradebooks.add(gbm.getGradebook((String)gradebookUids.get(i)));
+            gradebooks.add(gradebookManager.getGradebook((String)gradebookUids.get(i)));
         }
 
         // Add assignments for gradebook #6
@@ -114,17 +96,20 @@ public class TestGradebookLoader extends SpringEnabledTestCase {
         	Date date = new Date();
             date.setTime(date.getTime() - ((6 - i) * 86400000));
 
-log.info("i=" + i + ", date=" + date);
+            log.info("i=" + i + ", date=" + date);
 
-            am.createAssignment(gb.getId(), ASN_BASE_NAME + i, new Double(pts), date);
+            gradableObjectManager.createAssignment(gb.getId(), ASN_BASE_NAME + i, new Double(pts), date);
         }
 
         // Add an assignment without a due date.
-        am.createAssignment(gb.getId(), ASN_NO_DUE_DATE_NAME, new Double(50), null);
+        gradableObjectManager.createAssignment(gb.getId(), ASN_NO_DUE_DATE_NAME, new Double(50), null);
 
         // Add external assessments
-        gbs.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME1, "samigo://external1", EXTERNAL_ASN_NAME1, 10, new Date(), "Test and Quiz");
-        gbs.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME2, null, EXTERNAL_ASN_NAME2, 10, new Date(), "Test and Quiz");
+        gradebookService.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME1, "samigo://external1", EXTERNAL_ASN_NAME1, 10, new Date(), "Test and Quiz");
+        gradebookService.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME2, null, EXTERNAL_ASN_NAME2, 10, new Date(), "Test and Quiz");
+        
+        // Ensure that this is actually saved to the database
+        setComplete();
 	}
 }
 /**************************************************************************************************************************************************************************************************************************************************************

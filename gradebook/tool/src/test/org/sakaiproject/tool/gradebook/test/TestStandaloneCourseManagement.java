@@ -38,30 +38,16 @@ import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
 
 /**
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  *
  */
-public class TestStandaloneCourseManagement extends SpringEnabledTestCase {
+public class TestStandaloneCourseManagement extends GradebookTestBase {
 	private static final Log log = LogFactory.getLog(TestStandaloneCourseManagement.class);
 
-    static String CM = "org_sakaiproject_tool_gradebook_facades_CourseManagement";
-
-    CourseManagement courseManagement;
-    GradebookManager gradebookManager;
-    String gradebookUid;
-
-	protected void setUp() throws Exception {
-		log.info("Attempting to obtain spring-managed services.");
-		initialize("components.xml");
-        courseManagement = (CourseManagement)getBean(CM);
-        gradebookManager = (GradebookManager)getBean("org_sakaiproject_tool_gradebook_business_GradebookManager");
-        gradebookUid = "QA_8";	// All students in this one
-	}
+    protected String gradebookUid = "QA_8";
 
     public void testFindEnrollment() throws Exception {
         Set enrollments = courseManagement.findEnrollmentsByStudentNameOrDisplayUid(gradebookUid, "First Middle LastName211");
