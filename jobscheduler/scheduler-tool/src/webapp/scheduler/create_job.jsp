@@ -9,7 +9,7 @@
 	<sakai:view_container title="#{msgs.title_job}">
 		<sakai:view_content>
 			<h:form>
-  	    <h:graphicImage value="/images/quartz.gif"/>
+  	    <h:graphicImage value="/images/quartz.jpg"/>
 				<sakai:group_box title="#{msgs.create_job}">				 
 				  <sakai:panel_edit>
 				  				  					  						

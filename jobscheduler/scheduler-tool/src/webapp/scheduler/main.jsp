@@ -9,7 +9,7 @@
 <f:view>
 	<sakai:view_container title="#{msgs.title_job}">		
 	  <sakai:view_content>
-    	<h:graphicImage value="/images/quartz.gif" alt="Powered By Quartz"/>
+    	<h:graphicImage value="/images/quartz.jpg" alt="Powered By Quartz"/>
 	    <h:form>  	  
   	    <sakai:tool_bar>
  			    <sakai:tool_bar_item

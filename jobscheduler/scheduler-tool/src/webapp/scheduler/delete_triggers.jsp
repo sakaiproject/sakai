@@ -8,7 +8,7 @@
 <f:view>
 	<sakai:view_container title="#{msgs.title_job}">		
 	  <h:form>
-  	  <h:graphicImage value="/images/quartz.gif" alt="Powered By Quartz"/>      
+  	  <h:graphicImage value="/images/quartz.jpg" alt="Powered By Quartz"/>      
    	  <sakai:view_content>
     	  <h:outputText value="#{msgs.select_triggers_first}" styleClass="chefAlertBox" rendered="#{empty schedulerTool.filteredTriggersWrapperList}"/>    	        
   	    <h:dataTable rendered="#{!empty schedulerTool.filteredTriggersWrapperList}" value="#{schedulerTool.filteredTriggersWrapperList}" var="triggers" styleClass="chefFlatListViewTable" >

@@ -8,7 +8,7 @@
 <f:view>
 	<sakai:view_container title="#{msgs.title_trigger}">		
 	  <h:form>
-  	  <h:graphicImage value="/images/quartz.gif" alt="Powered By Quartz"/>
+  	  <h:graphicImage value="/images/quartz.jpg" alt="Powered By Quartz"/>
   	  <sakai:tool_bar_message value="Currently editing triggers for job: #{schedulerTool.selectedJobDetailWrapper.jobDetail.name}"/>
   	  <sakai:tool_bar>
 		   <sakai:tool_bar_item
