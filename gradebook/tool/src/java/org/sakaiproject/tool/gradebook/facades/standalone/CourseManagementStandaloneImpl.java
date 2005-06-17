@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.gradebook.facades.standalone;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +38,9 @@ import net.sf.hibernate.type.Type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
+import org.sakaiproject.tool.gradebook.facades.User;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -150,6 +153,28 @@ public class CourseManagementStandaloneImpl extends HibernateDaoSupport implemen
 			}
 		});
 	}
+
+    /**
+     * @see org.sakaiproject.tool.gradebook.facades.CourseManagement#getUser(java.lang.String)
+     */
+    public User getUser(final String userUid) throws UnknownUserException {
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
+                Query q = session.createQuery("from UserStandalone as user where user.userUid=:uid");
+                q.setString("uid", userUid);
+                return q.list();
+            }
+        };
+        
+        List list = (List)getHibernateTemplate().execute(hc);
+
+        if(list.size() == 0) {
+            throw new UnknownUserException("Unknown uid: " + userUid);
+        }
+
+        return (User)list.get(0);
+    }
 
 }
 

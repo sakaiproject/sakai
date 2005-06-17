@@ -39,6 +39,7 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.facades.standalone.EnrollmentStandalone;
 import org.sakaiproject.tool.gradebook.facades.standalone.UserStandalone;
@@ -207,6 +208,31 @@ public class GradeManagerTest extends GradebookTestBase {
         Assert.assertTrue(!gradeManager.isEnteredAssignmentScores(asgId));
     }
 
+    public void testGradeEvents() throws Exception {
+        Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
+        Long asgId = gradableObjectManager.createAssignment(gradebook.getId(), "GradingEvent Test", new Double(10), new Date());
+        Assignment assignment = (Assignment)gradableObjectManager.getAssignments(gradebook.getId()).get(0);
+
+        String studentId = "student1";
+        Set enrollments = new HashSet();
+        enrollments.add(new EnrollmentStandalone(new UserStandalone(studentId, null, null, null), gradebook));
+
+        // Create a map of studentUserUids to grades
+        Map map = new HashMap();
+        map.put(studentId, new Double(9));
+
+        // Saven the grades
+        gradeManager.updateAssignmentGradeRecords(asgId, map);
+
+        // Update the grades
+        map.put(studentId, new Double(10));
+        gradeManager.updateAssignmentGradeRecords(asgId, map);
+
+        // Ensure that there are two grading events for this student
+        GradingEvents events = gradeManager.getGradingEvents(assignment, enrollments);
+        Assert.assertEquals(events.getEvents(studentId).size(), 2);
+    }
+    
 }
 
 

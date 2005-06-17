@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.sakaiproject.service.gradebook.shared.UnknownUserException;
+
 /**
  * Facade to external course and group services.
  *
@@ -130,6 +132,13 @@ public interface CourseManagement {
 	 */
 	public List findEnrollmentsPagedByDisplayUid(String gradebookUid, int startRange, int rangeMaximum, boolean isAscending);
 
+    /**
+     * Looks up a user based on their uid.
+     * 
+     * @param userUid
+     * @return
+     */
+    public User getUser(String userUid) throws UnknownUserException;
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************

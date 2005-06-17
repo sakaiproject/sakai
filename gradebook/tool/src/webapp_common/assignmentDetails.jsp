@@ -138,6 +138,25 @@
 				</f:facet>
 				<h:outputText value="#{scoreRow.displayUid}"/>
 			</h:column>
+
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.assignment_details_log}" styleClass="tier0"/>
+				</f:facet>
+				<h:dataTable value="#{scoreRow.events}" var="event">
+					<h:column>
+						<h:outputText value="#{event.date}"/>
+					</h:column>
+					<h:column>
+						<h:outputFormat value="#{msgs.assignment_details_log_score}">
+							<f:param value="#{event.score}"/>
+							<f:param value="#{event.graderName}"/>
+						</h:outputFormat>
+					</h:column>
+				</h:dataTable>
+			</h:column>
+
+
 			<h:column>
 				<f:facet name="header">
 		            <x:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">

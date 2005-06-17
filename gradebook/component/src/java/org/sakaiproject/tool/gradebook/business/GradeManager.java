@@ -33,6 +33,7 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingEvents;
 
 /**
  * Manages GradableRecord persistence.
@@ -151,6 +152,14 @@ public interface GradeManager {
      */
     public CourseGradeRecord getStudentCourseGradeRecord(Gradebook gradebook, String studentId);
 
+    /**
+     * Gets the grading events for the enrollments on the given gradable object.
+     * 
+     * @param gradableObject
+     * @param enrollments
+     * @return
+     */
+    public GradingEvents getGradingEvents(GradableObject gradableObject, Collection enrollments);
 
 }
 
