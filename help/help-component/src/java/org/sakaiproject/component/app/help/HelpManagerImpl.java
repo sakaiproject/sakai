@@ -78,6 +78,7 @@ import org.sakaiproject.component.app.help.model.ContextBean;
 import org.sakaiproject.component.app.help.model.ResourceBean;
 import org.sakaiproject.component.app.help.model.SourceBean;
 import org.sakaiproject.component.app.help.model.TableOfContentsBean;
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -112,6 +113,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   private static final String TOC_API = "org.sakaiproject.api.app.help.TableOfContents";
 
   private static String REST_URL;
+  private static String EXTERNAL_URL;
 
   private Map helpContextConfig = new HashMap();
   private int contextSize;
@@ -448,19 +450,21 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     StringBuffer sBuffer = new StringBuffer();
     if (resource.getLocation().startsWith("/"))
     {
-      
-      if (!getRestConfiguration().getOrganization().equals("sakai")){
-        urlResource = new URL(getStaticRestUrl() + resource.getDocId() + "?domain="
-            + getRestConfiguration().getRestDomain());
+      // handle REST content
+      if (!getRestConfiguration().getOrganization().equals("sakai"))
+      {
+        urlResource = new URL(getStaticRestUrl() + resource.getDocId()
+            + "?domain=" + getRestConfiguration().getRestDomain());
         urlConnection = urlResource.openConnection();
 
-        String basicAuthUserPass = getRestConfiguration()
-            .getRestCredentials();
-        String encoding = new BASE64Encoder()
-            .encode(basicAuthUserPass.getBytes());
+        String basicAuthUserPass = getRestConfiguration().getRestCredentials();
+        String encoding = new BASE64Encoder().encode(basicAuthUserPass
+            .getBytes());
 
         urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
-                
+
+        sBuffer = new StringBuffer();
+
         BufferedReader br = new BufferedReader(new InputStreamReader(
             urlConnection.getInputStream()), 512);
         int readReturn = 0;
@@ -468,37 +472,57 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         while ((readReturn = br.read(cbuf, 0, 512)) != -1)
         {
           sBuffer.append(cbuf, 0, readReturn);
-        }                
-        
+        }
+
       }
-      else{
-        urlResource = getClass().getResource(resource.getLocation());
-      }            
+      else
+        if (!"".equals(EXTERNAL_URL))
+        {
+          // handle external help location
+          urlResource = new URL(EXTERNAL_URL + resource.getLocation());
+        }
+        else
+        {
+          // handle classpath location
+          urlResource = getClass().getResource(resource.getLocation());
+        }
     }
     else
     {
+      // handle external location specified in reg file
       urlResource = new URL(resource.getLocation());
     }
 
-    if (urlResource == null){
+    if (urlResource == null)
+    {
       return null;
     }
-        
-    if (getRestConfiguration().getOrganization().equals("sakai")){
+
+    if (getRestConfiguration().getOrganization().equals("sakai"))
+    {
       Reader reader = new BufferedReader(new InputStreamReader(urlResource
-        .openStream()));
-      
+          .openStream()));
+
       int readReturn = 0;
       char[] cbuf = new char[512];
       while ((readReturn = reader.read(cbuf, 0, 512)) != -1)
       {
         sBuffer.append(cbuf, 0, readReturn);
-      }                
-      
-      doc.add(Field.Text("content", sBuffer.toString()));      
+      }
+
+      doc.add(Field.Text("content", sBuffer.toString()));
+
+      cbuf = new char[512];
+      while ((readReturn = reader.read(cbuf, 0, 512)) != -1)
+      {
+        sBuffer.append(cbuf, 0, readReturn);
+      }
+
+      doc.add(Field.Text("content", sBuffer.toString()));
     }
-    else{
-      doc.add(Field.Text("content", sBuffer.toString())); 
+    else
+    {
+      doc.add(Field.Text("content", sBuffer.toString()));
     }
 
     return doc;
@@ -703,7 +727,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
    */
   public void setRestConfiguration(RestConfiguration restConfiguration)
   {
-    this.restConfiguration = restConfiguration;    
+    this.restConfiguration = restConfiguration;
   }
 
   /**
@@ -723,8 +747,25 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         if (!initialized.booleanValue())
         {
           dropExistingContent();
-          constructRestUrl();
-          registerHelpContent();          
+
+          if (!getRestConfiguration().getOrganization().equals("sakai"))
+          {
+            constructRestUrl();
+          }
+
+          // handle external help content
+          EXTERNAL_URL = ServerConfigurationService.getString("help.location");
+          if (!"".equals(EXTERNAL_URL))
+          {
+            if (EXTERNAL_URL.endsWith("/"))
+            {
+              // remove trailing forward slash
+              EXTERNAL_URL = EXTERNAL_URL.substring(0,
+                  EXTERNAL_URL.length() - 1);
+            }
+          }
+
+          registerHelpContent();
           initialized = Boolean.TRUE;
         }
       }
@@ -807,17 +848,35 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     for (Iterator i = helpClasspathRegList.iterator(); i.hasNext();)
     {
       String classpathUrl = (String) i.next();
-      URL urlResource = getClass().getResource(classpathUrl);
-
-      if (urlResource == null)
+      
+      URL urlResource = null;
+      
+      if (!"".equals(EXTERNAL_URL))
       {
-        LOG.debug("Unable to load classpath resource: " + classpathUrl);
-        continue;
+        // handle external help location
+        try{
+          urlResource = new URL(EXTERNAL_URL + classpathUrl);
+        }
+        catch (MalformedURLException e){
+          LOG.debug("Unable to load external URL: " + classpathUrl);
+          continue;
+        }
       }
+      else{        
+        urlResource= getClass().getResource(classpathUrl);
+        
+        if (urlResource == null)
+        {
+          LOG.debug("Unable to load resource: " + classpathUrl);
+          continue;
+        }
+      }
+            
       try
       {
         org.springframework.core.io.Resource resource = new InputStreamResource(
             urlResource.openStream(), classpathUrl);
+
         BeanFactory beanFactory = new XmlBeanFactory(resource);
         TableOfContents tocTemp = (TableOfContents) beanFactory
             .getBean(TOC_API);
