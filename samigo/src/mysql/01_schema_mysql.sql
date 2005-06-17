@@ -505,7 +505,7 @@ create table SAM_PUBLISHEDITEMMETADATA_T (
 create table SAM_MEDIA_T (
    MEDIAID bigint not null auto_increment,
    ITEMGRADINGID bigint,
-   MEDIA blob,
+   MEDIA longblob,
    FILESIZE integer,
    MIMETYPE varchar(80),
    DESCRIPTION varchar(4000),
