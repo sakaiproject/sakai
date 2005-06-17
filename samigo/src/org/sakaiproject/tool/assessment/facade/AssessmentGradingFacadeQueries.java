@@ -358,7 +358,20 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
               item.getTypeId().intValue() == 4) // True/False
             autoScore = getAnswerScore(itemdata);
           if (item.getTypeId().intValue() == 2) // MCMS
-            autoScore = getAnswerScore(itemdata); // How should we do this?
+	  {
+	    ArrayList answerArray = itemdata.getPublishedItemText().getAnswerArray();
+            int correctAnswers = 0;
+            if (answerArray != null) {
+               for (int i =0; i<answerArray.size(); i++)
+	       {
+                 PublishedAnswer a = (PublishedAnswer) answerArray.get(i);
+                 if (a.getIsCorrect().booleanValue()) {
+                  correctAnswers++;
+                 }
+               }
+            }   
+            autoScore = getAnswerScore(itemdata)/ correctAnswers;
+          }
           if (item.getTypeId().intValue() == 9) // Matching
               autoScore = (getAnswerScore(itemdata) / (float) item.getItemTextSet().size());
             // Skip 5/6/7, since they can't be autoscored
