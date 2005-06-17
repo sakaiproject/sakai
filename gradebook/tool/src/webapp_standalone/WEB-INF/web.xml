@@ -11,9 +11,9 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			/WEB-INF/components.xml
-			/WEB-INF/hib.xml
-			/WEB-INF/db.xml
+			/WEB-INF/spring-beans.xml
+			/WEB-INF/spring-hib.xml
+			/WEB-INF/spring-db.xml
 		</param-value>
 	</context-param>
 

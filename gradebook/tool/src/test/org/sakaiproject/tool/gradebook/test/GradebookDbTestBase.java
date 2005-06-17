@@ -24,11 +24,12 @@
 package org.sakaiproject.tool.gradebook.test;
 
 /**
- * TODO Document org.sakaiproject.tool.gradebook.test.GradebookLoaderTestBase
+ * Base class for running tests that depend on the configured database, not a
+ * transient in-memory db.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class GradebookLoaderTestBase extends GradebookTestBase {
+public class GradebookDbTestBase extends GradebookTestBase {
 
     /**
      * Always use the configured database, not the in-memory database, to load data
@@ -36,7 +37,7 @@ public class GradebookLoaderTestBase extends GradebookTestBase {
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
-        return new String[] {"components.xml", "components-test.xml", "hib.xml", "db.xml"};
+        return new String[] {"spring-beans.xml", "spring-beans-test.xml", "spring-hib.xml", "spring-db.xml"};
     }
 
 }

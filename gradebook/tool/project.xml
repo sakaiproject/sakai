@@ -371,25 +371,19 @@
 					</includes>
 				</resource>
 				<resource>
-					<directory>${basedir}/src/webapp_common/WEB-INF/</directory>
-					<includes>
-						<include>tx.xml</include>
-					</includes>
-				</resource>
-				<resource>
 					<directory>${basedir}/src/webapp_standalone/WEB-INF/</directory>
 					<includes>
-						<include>components.xml</include>
-						<include>db.xml</include>
+						<include>spring-beans.xml</include>
+						<include>spring-db.xml</include>
 					</includes>
 				</resource>
 				<resource>
 					<directory>${basedir}/src/test/</directory>
 					<includes>
-						<include>db-mem.xml</include>
-						<include>hib.xml</include>
-						<include>components-test.xml</include>
-						<include>components-archive.xml</include>
+						<include>spring-db-mem.xml</include>
+						<include>spring-hib.xml</include>
+						<include>spring-beans-test.xml</include>
+						<include>spring-archive.xml</include>
 					</includes>
 				</resource>
 				<resource>

@@ -40,7 +40,7 @@ import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  *
  */
-public class TestGradeLoader extends GradebookLoaderTestBase {
+public class TestGradeLoader extends GradebookDbTestBase {
 
 	public void testPopulate() throws Exception {
         List gradebooks = new ArrayList();

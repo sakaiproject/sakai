@@ -41,6 +41,9 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  * system property to "false".  In the "mem=false" case, the database configuration
  * is set in the hibernate.properties file in the "hibernate.properties.dir" directory.
  * 
+ * For tests that should always use the configured database (such as data loading tests),
+ * you should extend {@link org.sakaiproject.tool.gradebook.test.GradebookDbTestBase}
+ * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public abstract class GradebookTestBase extends AbstractTransactionalSpringContextTests {
@@ -70,14 +73,14 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
     protected String[] getConfigLocations() {
         String mem = System.getProperty("mem");
         
-        String[] configLocations = {"", "components.xml", "components-test.xml", "hib.xml"};
+        String[] configLocations = {"", "spring-beans.xml", "spring-beans-test.xml", "spring-hib.xml"};
         
         if("false".equals(mem)) {
             log.debug("Using configured database for testing");
-            configLocations[0] = "db.xml";
+            configLocations[0] = "spring-db.xml";
         } else {
             log.debug("Using in-memory database for testing");
-            configLocations[0] = "db-mem.xml";
+            configLocations[0] = "spring-db-mem.xml";
         }
         return configLocations;
     }

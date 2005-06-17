@@ -95,10 +95,8 @@
 	<goal name="test-standalone">
 		<!-- Skip the tests -->
 		<j:set var="maven.test.skip" value="true" />
-
+		
 		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneFramework" />
-		<attainGoal name="test:single" />
-		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneAuthz" />
 		<attainGoal name="test:single" />
 		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneCourseManagement" />
 		<attainGoal name="test:single" />
