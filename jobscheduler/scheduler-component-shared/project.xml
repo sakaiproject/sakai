@@ -31,6 +31,12 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-service</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-scheduler-api</artifactId>
 			<version>${pom.currentVersion}</version>
 		</dependency>
@@ -103,9 +109,9 @@
 
 		<resources>
 			<resource>
-				<directory>${basedir}/src/bundle</directory>
+				<directory>${basedir}/src/sql</directory>
 				<includes>
-					<include>**/*.properties</include>
+					<include>**/*.sql</include>
 				</includes>
 			</resource>
 

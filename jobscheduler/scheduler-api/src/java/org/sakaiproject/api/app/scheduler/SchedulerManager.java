@@ -106,6 +106,11 @@ public interface SchedulerManager
    * @param sched The sched to set.
    */
   public void setScheduler(Scheduler scheduler);
+  
+  /**
+   * set autoDdl
+   */
+  public void setAutoDdl(Boolean b);
 }
 /**********************************************************************************
  *

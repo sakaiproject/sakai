@@ -33,6 +33,9 @@
                 </property>
             </bean>
         </property>
+        <property name="autoDdl">
+          <value>${auto.ddl}</value>
+        </property>
     </bean>    
             
 </beans>

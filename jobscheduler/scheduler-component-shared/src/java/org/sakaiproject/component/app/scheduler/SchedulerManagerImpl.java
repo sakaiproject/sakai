@@ -17,6 +17,7 @@ import org.quartz.SchedulerFactory;
 import org.quartz.TriggerListener;
 import org.quartz.impl.StdSchedulerFactory;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.service.framework.sql.SqlService;
 
 public class SchedulerManagerImpl implements SchedulerManager
 {
@@ -28,6 +29,7 @@ public class SchedulerManagerImpl implements SchedulerManager
   private String qrtzPropFile;
   private Properties qrtzProperties;
   private TriggerListener globalTriggerListener;
+  private Boolean autoDdl;
 
   private static final String JOB_INTERFACE = "org.quartz.Job";
 
@@ -35,11 +37,14 @@ public class SchedulerManagerImpl implements SchedulerManager
   private Scheduler scheduler;
   private static final Log LOG = LogFactory.getLog(SchedulerManagerImpl.class);
 
-  public void init()
+public void init()
   {
 
     try
     {
+      
+      SqlService sqlService = org.sakaiproject.service.framework.sql.cover.SqlService
+      .getInstance();
 
       // load quartz properties file
       InputStream propertiesInputStream = this.getClass().getResourceAsStream(
@@ -57,6 +62,19 @@ public class SchedulerManagerImpl implements SchedulerManager
       qrtzProperties.setProperty("org.quartz.dataSource.myDS.password",
           dataSource.getPassword());
       qrtzProperties.setProperty("org.quartz.scheduler.instanceId", serverId);
+      
+      if ("hsqldb".equalsIgnoreCase(sqlService.getVendor())){
+        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.HSQLDBDelegate"); 
+      }
+      else if ("mysql".equalsIgnoreCase(sqlService.getVendor())){
+        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
+      }
+      else if ("oracle".equalsIgnoreCase(sqlService.getVendor())){
+        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate");
+      }
+      else{
+        LOG.warn("sakai vendor not supported");
+      }
 
       // note: becuase job classes are jarred , it is impossible to iterate
       // through a directory by calling listFiles on a file object.
@@ -92,6 +110,18 @@ public class SchedulerManagerImpl implements SchedulerManager
         }
       }
 
+      // run ddl            
+      if (autoDdl.booleanValue()){
+        try
+        {                        
+           sqlService.ddl(this.getClass().getClassLoader(), "quartz");
+        }       
+        catch (Throwable t)
+        {
+          LOG.warn(this + ".init(): ", t);
+        }
+      }
+
       // start scheduler and load jobs                 
       schedFactory = new StdSchedulerFactory(qrtzProperties);
       scheduler = schedFactory.getScheduler();
@@ -123,9 +153,7 @@ public class SchedulerManagerImpl implements SchedulerManager
       throw new Error("Scheduler cannot start!");
     }
 
-  }
-
-  private boolean doesImplementJobInterface(Class cl)
+  }  private boolean doesImplementJobInterface(Class cl)
   {
     Class[] classArr = cl.getInterfaces();
     for (int i = 0; i < classArr.length; i++)
@@ -250,4 +278,11 @@ public class SchedulerManagerImpl implements SchedulerManager
     this.scheduler = scheduler;
   }
 
+  /**
+   * @see org.sakaiproject.api.app.scheduler.SchedulerManager#setAutoDdl(java.lang.Boolean)
+   */
+  public void setAutoDdl(Boolean b)
+  {
+    autoDdl = b;
+  }
 }
