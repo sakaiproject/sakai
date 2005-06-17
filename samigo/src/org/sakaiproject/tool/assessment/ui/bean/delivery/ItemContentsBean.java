@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+ * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
  *
- * Licensed under the Educational Community License Version 1.0 (the "License");
+   * Licensed under the Educational Community License Version 1.0 (the "License");
  * By obtaining, using and/or copying this Original Work, you agree that you have read,
  * understand, and will comply with the terms and conditions of the Educational Community License.
  * You may obtain a copy of the License at:
@@ -15,7 +15,6 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
@@ -36,15 +35,17 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
  * @version $Id$
  */
 
-public class ItemContentsBean implements Serializable {
+public class ItemContentsBean
+  implements Serializable
+{
 
   private boolean review;
   private boolean unanswered;
   private ItemDataIfc itemData;
   private String gradingComment;
   private String feedback;
-  private String responseId="2";
-  private String responseText="";
+  private String responseId = "2";
+  private String responseText = "";
   private String[] responseIds = null;
   private float points;
   private float maxPoints;
@@ -66,25 +67,32 @@ public class ItemContentsBean implements Serializable {
   private Integer duration;
   private Integer triesAllowed;
 
+  // for display/hide score
+  private boolean showStudentScore;
+  private String pointsDisplayString;
 
-  
-  
-  public ItemContentsBean(){
+  public ItemContentsBean()
+  {
   }
 
   // added by daisyf on 11/22/04
-  public ItemContentsBean(ItemDataIfc itemData){
+  public ItemContentsBean(ItemDataIfc itemData)
+  {
     this.itemData = itemData;
     setInstruction(this.itemData.getInstruction());
     Integer sequence = this.itemData.getSequence();
     if (sequence != null)
+    {
       setNumber(sequence.intValue());
+    }
     else
+    {
       setNumber(1);
+    }
   }
 
   /**
-   * In the case of an ordinary question, this will obtain the a set of text with
+     * In the case of an ordinary question, this will obtain the a set of text with
    * one element and return it; in FIB return multiple elements separated by underscores.
    * @return text of question
    */
@@ -105,14 +113,15 @@ public class ItemContentsBean implements Serializable {
    */
   public String getStrippedText()
   {
-    return getText().replaceAll("<.*?>","");
+    return getText().replaceAll("<.*?>", "");
   }
 
   /**
    * String representation of the points.
    * @return String representation of the points.
    */
-  public float getPoints() {
+  public float getPoints()
+  {
     return points;
   }
 
@@ -120,7 +129,8 @@ public class ItemContentsBean implements Serializable {
    * String representation of the points.
    * @param points String representation of the points.
    */
-  public void setPoints(float points) {
+  public void setPoints(float points)
+  {
     this.points = points;
   }
 
@@ -128,13 +138,18 @@ public class ItemContentsBean implements Serializable {
    * Does this need review?
    * @return true if it is marked for review
    */
-  public boolean getReview() {
+  public boolean getReview()
+  {
     if (getItemGradingDataArray().isEmpty())
+    {
       return false;
+    }
     ItemGradingData data = (ItemGradingData) getItemGradingDataArray()
       .toArray()[0];
     if (data.getReview() == null)
+    {
       return false;
+    }
     return data.getReview().booleanValue();
   }
 
@@ -142,17 +157,20 @@ public class ItemContentsBean implements Serializable {
    * Does this need review?
    * @param review if true mark for review
    */
-  public void setReview(boolean preview) {
+  public void setReview(boolean preview)
+  {
     if (getItemGradingDataArray().isEmpty())
     {
       ItemGradingData data = new ItemGradingData();
       data.setPublishedItem(itemData);
       if (itemData.getItemTextSet().size() > 0)
-        data.setPublishedItemText((ItemTextIfc)
-         itemData.getItemTextSet().toArray()[0]);
+      {
+        data.setPublishedItemText( (ItemTextIfc)
+                                  itemData.getItemTextSet().toArray()[0]);
+      }
       ArrayList items = new ArrayList();
       items.add(data);
-      setItemGradingDataArray(items); 
+      setItemGradingDataArray(items);
     }
     Iterator iter = getItemGradingDataArray().iterator();
     while (iter.hasNext())
@@ -166,22 +184,29 @@ public class ItemContentsBean implements Serializable {
    * unanswered?
    * @return
    */
-  public boolean isUnanswered() {
+  public boolean isUnanswered()
+  {
     if (getItemGradingDataArray().isEmpty())
+    {
       return true;
+    }
     Iterator iter = getItemGradingDataArray().iterator();
     while (iter.hasNext())
     {
       ItemGradingData data = (ItemGradingData) iter.next();
       if (getItemData().getTypeId().toString().equals("8")) // fix for bug sam-330
       {
-	  if (data.getAnswerText() != null)
-              return false;
+        if (data.getAnswerText() != null)
+        {
+          return false;
+        }
       }
       else
       {
-          if (data.getPublishedAnswer() != null || data.getAnswerText() != null)
-              return false;
+        if (data.getPublishedAnswer() != null || data.getAnswerText() != null)
+        {
+          return false;
+        }
       }
     }
     return true;
@@ -191,7 +216,8 @@ public class ItemContentsBean implements Serializable {
    * unanswered?
    * @param unanswered
    */
-  public void setUnanswered(boolean unanswered) {
+  public void setUnanswered(boolean unanswered)
+  {
     this.unanswered = unanswered;
   }
 
@@ -199,7 +225,8 @@ public class ItemContentsBean implements Serializable {
    * String representation of the max points available for this question.
    * @return String representation of the max points.
    */
-  public float getMaxPoints() {
+  public float getMaxPoints()
+  {
     return maxPoints;
   }
 
@@ -207,7 +234,8 @@ public class ItemContentsBean implements Serializable {
    * String representation of the max points available for this question.
    * @param maxPoints String representation of the max points available
    */
-  public void setMaxPoints(float maxPoints) {
+  public void setMaxPoints(float maxPoints)
+  {
     this.maxPoints = maxPoints;
   }
 
@@ -215,7 +243,8 @@ public class ItemContentsBean implements Serializable {
    * question number
    * @return
    */
-  public int getNumber() {
+  public int getNumber()
+  {
     return number;
   }
 
@@ -223,7 +252,8 @@ public class ItemContentsBean implements Serializable {
    * question number
    * @param number
    */
-  public void setNumber(int number) {
+  public void setNumber(int number)
+  {
     this.number = number;
     this.itemData.setSequence(new Integer(number));
   }
@@ -232,7 +262,8 @@ public class ItemContentsBean implements Serializable {
    * the item data itself
    * @return
    */
-  public ItemDataIfc getItemData() {
+  public ItemDataIfc getItemData()
+  {
     return itemData;
   }
 
@@ -240,7 +271,8 @@ public class ItemContentsBean implements Serializable {
    * the item data itself
    * @param itemData
    */
-  public void setItemData(ItemDataIfc itemData) {
+  public void setItemData(ItemDataIfc itemData)
+  {
     this.itemData = itemData;
   }
 
@@ -248,9 +280,12 @@ public class ItemContentsBean implements Serializable {
    * grading comment
    * @return grading comment
    */
-  public String getGradingComment() {
+  public String getGradingComment()
+  {
     if (gradingComment == null)
+    {
       return "";
+    }
     return gradingComment;
   }
 
@@ -258,7 +293,8 @@ public class ItemContentsBean implements Serializable {
    * grading comment
    * @param gradingComment grading comment
    */
-  public void setGradingComment(String gradingComment) {
+  public void setGradingComment(String gradingComment)
+  {
     this.gradingComment = gradingComment;
   }
 
@@ -266,7 +302,8 @@ public class ItemContentsBean implements Serializable {
    * item level feedback
    * @return the item level feedback
    */
-  public String getFeedback() {
+  public String getFeedback()
+  {
     return feedback;
   }
 
@@ -274,7 +311,8 @@ public class ItemContentsBean implements Serializable {
    * item level feedback
    * @param feedback the item level feedback
    */
-  public void setFeedback(String feedback) {
+  public void setFeedback(String feedback)
+  {
     this.feedback = feedback;
   }
 
@@ -295,7 +333,9 @@ public class ItemContentsBean implements Serializable {
   public ArrayList getItemGradingDataArray()
   {
     if (itemGradingDataArray == null)
+    {
       return new ArrayList();
+    }
     return itemGradingDataArray;
   }
 
@@ -305,227 +345,269 @@ public class ItemContentsBean implements Serializable {
   }
 
   /* These are helper methods to get data into the database */
-    
+
   public String getResponseId()
   {
-   try {
-    if (selectionArray != null)
+    try
     {
-      Iterator iter = selectionArray.iterator();
-      while (iter.hasNext())
+      if (selectionArray != null)
       {
-        SelectionBean bean = (SelectionBean) iter.next();
-        if (bean.getResponse())
-          return bean.getAnswer().getId().toString();
+        Iterator iter = selectionArray.iterator();
+        while (iter.hasNext())
+        {
+          SelectionBean bean = (SelectionBean) iter.next();
+          if (bean.getResponse())
+          {
+            return bean.getAnswer().getId().toString();
+          }
+        }
+        return "";
       }
-      return "";
     }
-   } catch (Exception e) {
-     // True/false
-   }
-
-   try {
-    String response = "";
-    // String response = responseId;  //For testing
-    Iterator iter = getItemGradingDataArray().iterator();
-    if (iter.hasNext())
+    catch (Exception e)
     {
-      ItemGradingData data = (ItemGradingData) iter.next();
-      if (data.getPublishedAnswer() != null)
-        response = data.getPublishedAnswer().getId().toString();
+      // True/false
     }
-    return response;
-   } catch (Exception e) {
-     e.printStackTrace();
-     return responseId;
-   }
+
+    try
+    {
+      String response = "";
+      // String response = responseId;  //For testing
+      Iterator iter = getItemGradingDataArray().iterator();
+      if (iter.hasNext())
+      {
+        ItemGradingData data = (ItemGradingData) iter.next();
+        if (data.getPublishedAnswer() != null)
+        {
+          response = data.getPublishedAnswer().getId().toString();
+        }
+      }
+      return response;
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+      return responseId;
+    }
   }
 
   public void setResponseId(String presponseId)
   {
-   try {
-    responseId = presponseId;
- 
-    if (selectionArray != null && presponseId != null && 
-      !presponseId.trim().equals(""))
+    try
     {
-      Iterator iter = selectionArray.iterator();
+      responseId = presponseId;
+
+      if (selectionArray != null && presponseId != null &&
+          !presponseId.trim().equals(""))
+      {
+        Iterator iter = selectionArray.iterator();
+        while (iter.hasNext())
+        {
+          SelectionBean bean = (SelectionBean) iter.next();
+          if (bean.getAnswer().getId().toString().equals(presponseId))
+          {
+            bean.setResponse(true);
+          }
+          else
+          {
+            bean.setResponse(false);
+          }
+        }
+      }
+      return;
+    }
+    catch (Exception e)
+    {
+      // True/false
+    }
+
+    try
+    {
+      Iterator iter = getItemGradingDataArray().iterator();
+      if (!iter.hasNext() && (presponseId == null || presponseId.equals("")))
+      {
+        return;
+      }
+      ItemGradingData data = null;
+      if (iter.hasNext())
+      {
+        data = (ItemGradingData) iter.next();
+      }
+      else
+      {
+        data = new ItemGradingData();
+        data.setPublishedItem(itemData);
+        data.setPublishedItemText( (ItemTextIfc)
+                                  itemData.getItemTextSet().toArray()[0]);
+        ArrayList items = new ArrayList();
+        items.add(data);
+        setItemGradingDataArray(items);
+      }
+      iter = ( (ItemTextIfc) itemData.getItemTextSet().toArray()[0])
+        .getAnswerSet().iterator();
       while (iter.hasNext())
       {
-        SelectionBean bean = (SelectionBean) iter.next();
-        if (bean.getAnswer().getId().toString().equals(presponseId))
+        AnswerIfc answer = (AnswerIfc) iter.next();
+        if (answer.getId().toString().equals(responseId))
         {
-          bean.setResponse(true);
-        }
-        else
-        {
-          bean.setResponse(false);
+          data.setPublishedAnswer(answer);
+          break;
         }
       }
     }
-    return;
-   } catch (Exception e) {
-     // True/false
-   }
-
-   try {
-    Iterator iter = getItemGradingDataArray().iterator();
-    if (!iter.hasNext() && (presponseId == null || presponseId.equals("")))
-      return;
-    ItemGradingData data = null;
-    if (iter.hasNext())
+    catch (Exception e)
     {
-      data = (ItemGradingData) iter.next();
+      e.printStackTrace();
     }
-    else
-    {
-      data = new ItemGradingData();
-      data.setPublishedItem(itemData);
-      data.setPublishedItemText((ItemTextIfc)
-        itemData.getItemTextSet().toArray()[0]);
-      ArrayList items = new ArrayList();
-      items.add(data);
-      setItemGradingDataArray(items);
-    }
-    iter = ((ItemTextIfc) itemData.getItemTextSet().toArray()[0])
-      .getAnswerSet().iterator();
-    while (iter.hasNext())
-    {
-      AnswerIfc answer = (AnswerIfc) iter.next();
-      if (answer.getId().toString().equals(responseId)) 
-      {
-        data.setPublishedAnswer(answer);
-        break;
-      }
-    }
-   } catch (Exception e)  {
-     e.printStackTrace();
-   }
   }
 
   public String[] getResponseIds()
   {
-   try {
-    /*
-    ItemTextIfc text = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
-    String[] response = new String[text.getAnswerArraySorted().size()];
-    for (int i=0; i<response.length; i++)
+    try
     {
+      /*
+         ItemTextIfc text = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
+           String[] response = new String[text.getAnswerArraySorted().size()];
+           for (int i=0; i<response.length; i++)
+           {
+        Iterator iter = getItemGradingDataArray().iterator();
+        while (iter.hasNext())
+        {
+          ItemGradingData data = (ItemGradingData) iter.next();
+          if (data.getPublishedAnswer() != null && data.getPublishedAnswer().getId().toString().equals(text.getAnswerArraySorted().toArray()[i]))
+          {
+            response[i] = data.getPublishedAnswer().getId().toString();
+          }
+        }
+           } */
+
+      String[] response = new String[getItemGradingDataArray().size()];
       Iterator iter = getItemGradingDataArray().iterator();
+      int i = 0;
       while (iter.hasNext())
       {
         ItemGradingData data = (ItemGradingData) iter.next();
-        if (data.getPublishedAnswer() != null && data.getPublishedAnswer().getId().toString().equals(text.getAnswerArraySorted().toArray()[i]))
+        if (data.getPublishedAnswer() != null)
         {
-          response[i] = data.getPublishedAnswer().getId().toString();
+          response[i++] = data.getPublishedAnswer().getId().toString();
+        }
+        else
+        {
+          response[i++] = null;
         }
       }
-    } */
-
-    String[] response = new String[getItemGradingDataArray().size()];
-    Iterator iter = getItemGradingDataArray().iterator();
-    int i=0;
-    while (iter.hasNext())
-    {
-      ItemGradingData data = (ItemGradingData) iter.next();
-      if (data.getPublishedAnswer() != null)
-      {
-        response[i++] = data.getPublishedAnswer().getId().toString();
-      }
-      else
-        response[i++] = null;
+      return response;
     }
-    return response;
-   } catch (Exception e) {
-     e.printStackTrace();
-     return null;
-   }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+      return null;
+    }
   }
 
   public void setResponseIds(String[] presponseIds)
   {
-   try {
-    ArrayList newItems = new ArrayList();
-    responseIds = presponseIds;
-    if (getItemGradingDataArray().isEmpty() && 
-      (presponseIds == null || presponseIds.length == 0))
-      return;
-    for (int i=0; i< presponseIds.length; i++)
+    try
     {
-      ItemGradingData data = null;
-      Iterator iter = getItemGradingDataArray().iterator();
-      while (iter.hasNext())
+      ArrayList newItems = new ArrayList();
+      responseIds = presponseIds;
+      if (getItemGradingDataArray().isEmpty() &&
+          (presponseIds == null || presponseIds.length == 0))
       {
-        ItemGradingData temp = (ItemGradingData) iter.next();
-        if (temp.getPublishedAnswer() != null &&
-           temp.getPublishedAnswer().getId().toString().equals(presponseIds[i]))
-          data = temp;
+        return;
       }
-      if (data == null)
+      for (int i = 0; i < presponseIds.length; i++)
       {
-        data = new ItemGradingData();
-        data.setPublishedItem(itemData);
-        ItemTextIfc text = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
-        data.setPublishedItemText(text);
-        Iterator iter2 = text.getAnswerSet().iterator();
-        while (iter2.hasNext())
+        ItemGradingData data = null;
+        Iterator iter = getItemGradingDataArray().iterator();
+        while (iter.hasNext())
         {
-          AnswerIfc answer = (AnswerIfc) iter2.next();
-          if (answer.getId().toString().equals(presponseIds[i]))
-            data.setPublishedAnswer(answer);
+          ItemGradingData temp = (ItemGradingData) iter.next();
+          if (temp.getPublishedAnswer() != null &&
+              temp.getPublishedAnswer().getId().toString().equals(presponseIds[
+            i]))
+          {
+            data = temp;
+          }
         }
+        if (data == null)
+        {
+          data = new ItemGradingData();
+          data.setPublishedItem(itemData);
+          ItemTextIfc text = (ItemTextIfc) itemData.getItemTextSet().toArray()[
+            0];
+          data.setPublishedItemText(text);
+          Iterator iter2 = text.getAnswerSet().iterator();
+          while (iter2.hasNext())
+          {
+            AnswerIfc answer = (AnswerIfc) iter2.next();
+            if (answer.getId().toString().equals(presponseIds[i]))
+            {
+              data.setPublishedAnswer(answer);
+            }
+          }
+        }
+        newItems.add(data);
       }
-      newItems.add(data);
+      setItemGradingDataArray(newItems);
     }
-    setItemGradingDataArray(newItems);
-   } catch (Exception e)  {
-     e.printStackTrace();
-   }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
   }
 
   public String getResponseText()
   {
-   try {
-    String response = responseText;
-    Iterator iter = getItemGradingDataArray().iterator();
-    if (iter.hasNext())
+    try
     {
-      ItemGradingData data = (ItemGradingData) iter.next();
-      response = data.getAnswerText();
+      String response = responseText;
+      Iterator iter = getItemGradingDataArray().iterator();
+      if (iter.hasNext())
+      {
+        ItemGradingData data = (ItemGradingData) iter.next();
+        response = data.getAnswerText();
+      }
+      return response;
     }
-    return response;
-   } catch (Exception e) {
-     e.printStackTrace();
-     return responseText;
-   }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+      return responseText;
+    }
   }
 
   public void setResponseText(String presponseId)
   {
-   try {
-    responseText = presponseId;
-    Iterator iter = getItemGradingDataArray().iterator();
-    if (!iter.hasNext() && (presponseId == null || presponseId.equals("")))
-      return;
-    ItemGradingData data = null;
-    if (iter.hasNext())
+    try
     {
-      data = (ItemGradingData) iter.next();
+      responseText = presponseId;
+      Iterator iter = getItemGradingDataArray().iterator();
+      if (!iter.hasNext() && (presponseId == null || presponseId.equals("")))
+      {
+        return;
+      }
+      ItemGradingData data = null;
+      if (iter.hasNext())
+      {
+        data = (ItemGradingData) iter.next();
+      }
+      else
+      {
+        data = new ItemGradingData();
+        data.setPublishedItem(itemData);
+        data.setPublishedItemText( (ItemTextIfc)
+                                  itemData.getItemTextSet().toArray()[0]);
+        ArrayList items = new ArrayList();
+        items.add(data);
+        setItemGradingDataArray(items);
+      }
+      data.setAnswerText(presponseId);
     }
-    else
+    catch (Exception e)
     {
-      data = new ItemGradingData();
-      data.setPublishedItem(itemData);
-      data.setPublishedItemText((ItemTextIfc)
-        itemData.getItemTextSet().toArray()[0]);
-      ArrayList items = new ArrayList();
-      items.add(data);
-      setItemGradingDataArray(items);
+      e.printStackTrace();
     }
-     data.setAnswerText(presponseId);
-   } catch (Exception e)  {
-     e.printStackTrace();
-   }
   }
 
   public ArrayList getMatchingArray()
@@ -569,15 +651,18 @@ public class ItemContentsBean implements Serializable {
   }
 
   //  added by Daisy
-  public void setInstruction(String instruction){
+  public void setInstruction(String instruction)
+  {
     this.instruction = instruction;
   }
 
-  public String getInstruction(){
+  public String getInstruction()
+  {
     return this.instruction;
   }
 
-  public void setRationale(String newRationale){
+  public void setRationale(String newRationale)
+  {
     Iterator iter = getItemGradingDataArray().iterator();
     if (iter.hasNext())
     {
@@ -586,7 +671,8 @@ public class ItemContentsBean implements Serializable {
     }
   }
 
-  public String getRationale(){
+  public String getRationale()
+  {
     Iterator iter = getItemGradingDataArray().iterator();
     if (iter.hasNext())
     {
@@ -596,11 +682,13 @@ public class ItemContentsBean implements Serializable {
     return Validator.check(rationale, "");
   }
 
-  public String getKey() {
+  public String getKey()
+  {
     return key;
   }
- 
-  public void setKey(String newKey) {
+
+  public void setKey(String newKey)
+  {
     key = newKey;
   }
 
@@ -631,7 +719,7 @@ public class ItemContentsBean implements Serializable {
 
   public void setTriesAllowed(Integer param)
   {
-    triesAllowed= param;
+    triesAllowed = param;
   }
 
   public Integer getDuration()
@@ -647,21 +735,56 @@ public class ItemContentsBean implements Serializable {
   public ArrayList getMediaArray()
   {
     ArrayList mediaArray = new ArrayList();
-    ItemGradingData itemGradingData=null;
-    try {
+    ItemGradingData itemGradingData = null;
+    try
+    {
       Iterator iter = getItemGradingDataArray().iterator();
       if (iter.hasNext())
       {
         itemGradingData = (ItemGradingData) iter.next();
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e)
+    {
       e.printStackTrace();
     }
-    if (itemGradingData != null) 
+    if (itemGradingData != null)
+    {
       mediaArray = itemGradingData.getMediaArray();
+    }
     return mediaArray;
   }
 
+  /**
+   * Show the student score currently earned?
+   * @return the score
+   */
+  public boolean isShowStudentScore()
+  {
+    return showStudentScore;
+  }
 
+  /**
+   * Set the student score currently earned.
+   * @param showStudentScore true/false Show the student score currently earned?
+   */
+  public void setShowStudentScore(boolean showStudentScore)
+  {
+    this.showStudentScore = showStudentScore;
+  }
+
+  /**
+   * If we display the score, return it, followed by a slash.
+   * @return the score, return it, followed by a slash or ""
+   */
+  public String getPointsDisplayString()
+  {
+    String pointsDisplayString = "";
+    if (showStudentScore)
+    {
+      pointsDisplayString = "/" + points;
+    }
+    return pointsDisplayString;
+  }
 
 }

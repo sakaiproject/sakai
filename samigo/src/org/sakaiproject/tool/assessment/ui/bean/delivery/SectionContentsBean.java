@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+ * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
  *
- * Licensed under the Educational Community License Version 1.0 (the "License");
+   * Licensed under the Educational Community License Version 1.0 (the "License");
  * By obtaining, using and/or copying this Original Work, you agree that you have read,
  * understand, and will comply with the terms and conditions of the Educational Community License.
  * You may obtain a copy of the License at:
@@ -16,22 +16,22 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.io.Serializable;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Set;
 import javax.faces.model.SelectItem;
 
-import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+
 /**
  * <p> </p>
  * <p> </p>
@@ -41,7 +41,9 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
  * @version $Id$
  */
 
-public class SectionContentsBean implements Serializable {
+public class SectionContentsBean
+  implements Serializable
+{
   private String text;
   private String nonDefaultText;
   private java.util.ArrayList itemContents;
@@ -53,7 +55,7 @@ public class SectionContentsBean implements Serializable {
   private int numbering;
   private String numParts;
   private String description;
-  private int unansweredQuestions;// ItemContentsBeans
+  private int unansweredQuestions; // ItemContentsBeans
   private ArrayList questionNumbers = new ArrayList();
 
   // added section Type , question ordering
@@ -62,30 +64,36 @@ public class SectionContentsBean implements Serializable {
   private Integer numberToBeDrawn;
   private Long poolIdToBeDrawn;
 
-
-  public SectionContentsBean(){
+  public SectionContentsBean()
+  {
   }
+
   /**
    * Part description.
    * @return Part description.
    */
 
-  public String getText() {
+  public String getText()
+  {
     return text;
   }
 
-  public String getNonDefaultText() {
+  public String getNonDefaultText()
+  {
 
-   if ("Default".equals(text) || "default".equals(text)) 
-        return ""; 
-   return text; 
-  }  
+    if ("Default".equals(text) || "default".equals(text))
+    {
+      return "";
+    }
+    return text;
+  }
 
   /**
    * Part description.
    * @param text Part description.
    */
-  public void setText(String text) {
+  public void setText(String text)
+  {
     this.text = text;
   }
 
@@ -94,7 +102,8 @@ public class SectionContentsBean implements Serializable {
    *
    * @return the points
    */
-    public float getPoints() {
+  public float getPoints()
+  {
     return points;
   }
 
@@ -102,7 +111,8 @@ public class SectionContentsBean implements Serializable {
    * Points earned thus far for part.
    * @param points
    */
-  public void setPoints(float points) {
+  public void setPoints(float points)
+  {
     this.points = points;
   }
 
@@ -110,14 +120,17 @@ public class SectionContentsBean implements Serializable {
    * Number unanswered.
    * @return total unanswered.
    */
-  public int getUnansweredQuestions() {
+  public int getUnansweredQuestions()
+  {
     Iterator i = itemContents.iterator();
     int num = 0;
     while (i.hasNext())
     {
       ItemContentsBean next = (ItemContentsBean) i.next();
       if (next.isUnanswered())
+      {
         num++;
+      }
     }
     return num;
   }
@@ -126,7 +139,8 @@ public class SectionContentsBean implements Serializable {
    * Number unanswered.
    * @param unansweredQuestions
    */
-  public void setUnansweredQuestions(int unansweredQuestions) {
+  public void setUnansweredQuestions(int unansweredQuestions)
+  {
     this.unansweredQuestions = unansweredQuestions;
   }
 
@@ -134,7 +148,8 @@ public class SectionContentsBean implements Serializable {
    * Total points the part is worth.
    * @return max total points for part
    */
-  public float getMaxPoints() {
+  public float getMaxPoints()
+  {
     return maxPoints;
   }
 
@@ -142,7 +157,8 @@ public class SectionContentsBean implements Serializable {
    * Total points the part is worth.
    * @param maxPoints points the part is worth.
    */
-  public void setMaxPoints(float maxPoints) {
+  public void setMaxPoints(float maxPoints)
+  {
     this.maxPoints = maxPoints;
   }
 
@@ -150,7 +166,8 @@ public class SectionContentsBean implements Serializable {
    * Total number of questions.
    * @return total number of questions
    */
-  public int getQuestions() {
+  public int getQuestions()
+  {
     return questions;
   }
 
@@ -158,7 +175,8 @@ public class SectionContentsBean implements Serializable {
    * Total number of questions.
    * @param questions number of questions
    */
-  public void setQuestions(int questions) {
+  public void setQuestions(int questions)
+  {
     this.questions = questions;
   }
 
@@ -166,7 +184,8 @@ public class SectionContentsBean implements Serializable {
    * Total number of questions to list, based on numbering scheme
    * @return total number of questions
    */
-  public int getNumbering() {
+  public int getNumbering()
+  {
     return numbering;
   }
 
@@ -174,7 +193,8 @@ public class SectionContentsBean implements Serializable {
    * Total number of questions to list, based on numbering scheme
    * @param questions number of questions
    */
-  public void setNumbering(int newNumbering) {
+  public void setNumbering(int newNumbering)
+  {
     numbering = newNumbering;
   }
 
@@ -182,61 +202,67 @@ public class SectionContentsBean implements Serializable {
    * Contents of part.
    * @return item contents of part.
    */
-  public java.util.ArrayList getItemContents() {
-/*
-    if( (sectionAuthorType!= null) && (sectionAuthorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL) ))  
-      return getItemContentsForRandomDraw(); 
-    else if( (sectionAuthorType!= null) && (questionOrdering!=null ) && (sectionAuthorType.equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE)) && (questionOrdering.equals(SectionDataIfc.RANDOM_WITHIN_PART)))  
-      return getItemContentsForRandomQuestionOrdering(); 
-    else 
-      return itemContents;
-*/
-      return itemContents;
+  public java.util.ArrayList getItemContents()
+  {
+    /*
+        if( (sectionAuthorType!= null) && (sectionAuthorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL) ))
+          return getItemContentsForRandomDraw();
+        else if( (sectionAuthorType!= null) && (questionOrdering!=null ) && (sectionAuthorType.equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE)) && (questionOrdering.equals(SectionDataIfc.RANDOM_WITHIN_PART)))
+          return getItemContentsForRandomQuestionOrdering();
+        else
+          return itemContents;
+     */
+    return itemContents;
   }
 
-
-  public java.util.ArrayList getItemContentsForRandomDraw() {
+  public java.util.ArrayList getItemContentsForRandomDraw()
+  {
     // same ordering for each student
-    ArrayList randomsample = new ArrayList();  
-    long seed = (long) AgentFacade.getAgentString().hashCode(); 
-    Collections.shuffle(itemContents,  new Random(seed));
+    ArrayList randomsample = new ArrayList();
+    long seed = (long) AgentFacade.getAgentString().hashCode();
+    Collections.shuffle(itemContents, new Random(seed));
     int samplesize = numberToBeDrawn.intValue();
-    for (int i=0; i<samplesize; i++){
-      randomsample.add(itemContents.get(i)); 
+    for (int i = 0; i < samplesize; i++)
+    {
+      randomsample.add(itemContents.get(i));
     }
     return randomsample;
   }
 
-
-  public java.util.ArrayList getItemContentsForRandomQuestionOrdering() {
+  public java.util.ArrayList getItemContentsForRandomQuestionOrdering()
+  {
     // same ordering for each student
     long seed = (long) AgentFacade.getAgentString().hashCode();
-    Collections.shuffle(itemContents,  new Random(seed));
+    Collections.shuffle(itemContents, new Random(seed));
     return itemContents;
   }
-
 
   /**
    * Contents of part.
    * @param itemContents item contents of part.
    */
-  public void setItemContents(java.util.ArrayList itemContents) {
+  public void setItemContents(java.util.ArrayList itemContents)
+  {
     this.itemContents = itemContents;
   }
 
   /**
    * Get the size of the contents
    */
-  public String getItemContentsSize() {
+  public String getItemContentsSize()
+  {
     if (itemContents == null)
+    {
       return "0";
+    }
     return new Integer(itemContents.size()).toString();
   }
 
   /**
    * Set the size of the contents
    */
-  public void setItemContentsSize(String dummy) {
+  public void setItemContentsSize(String dummy)
+  {
     // noop
   }
 
@@ -244,7 +270,8 @@ public class SectionContentsBean implements Serializable {
    * Display part number.
    * @return display numbering
    */
-  public String getNumber() {
+  public String getNumber()
+  {
     return number;
   }
 
@@ -252,7 +279,8 @@ public class SectionContentsBean implements Serializable {
    * Display part number.
    * @param number display numbering
    */
-  public void setNumber(String number) {
+  public void setNumber(String number)
+  {
     this.number = number;
   }
 
@@ -260,88 +288,125 @@ public class SectionContentsBean implements Serializable {
   private String title;
   private String sequence;
 
-  public String getTitle() {
+  // for display/hide score
+  private boolean showStudentScore;
+  private String pointsDisplayString;
+
+  public String getTitle()
+  {
     return this.title;
   }
-  public void setTitle(String title) {
+
+  public void setTitle(String title)
+  {
     this.title = title;
   }
-  public ArrayList getQuestionNumbers() {
+
+  public ArrayList getQuestionNumbers()
+  {
     return questionNumbers;
   }
-  public void setQuestionNumbers() {
+
+  public void setQuestionNumbers()
+  {
     this.questionNumbers = new ArrayList();
-    for (int i=1; i<=this.itemContents.size(); i++){
+    for (int i = 1; i <= this.itemContents.size(); i++)
+    {
       this.questionNumbers.add(new SelectItem(new Integer(i)));
     }
   }
 
-  public SectionContentsBean(SectionDataIfc section){
-   try {
-    this.itemContents = new ArrayList();
-    setSectionId(section.getSectionId().toString());
-    setTitle(section.getTitle());
-    //System.out.println("** section title ="+this.title);
-    Integer sequence = section.getSequence();
-    if (sequence != null)
-      setNumber(sequence.toString());
-    else
-      setNumber("1");
-    setNumber(section.getSequence().toString());
-    // do teh rest later
-    Set itemSet = section.getItemSet();
-    if (itemSet != null){
-      setQuestions(itemSet.size());
-      Iterator i = itemSet.iterator();
-      while (i.hasNext()){
-        ItemDataIfc item = (ItemDataIfc)i.next();
-        ItemContentsBean itemBean = new ItemContentsBean(item);
-        this.itemContents.add(itemBean);
+  public SectionContentsBean(SectionDataIfc section)
+  {
+    try
+    {
+      this.itemContents = new ArrayList();
+      setSectionId(section.getSectionId().toString());
+      setTitle(section.getTitle());
+      //System.out.println("** section title ="+this.title);
+      Integer sequence = section.getSequence();
+      if (sequence != null)
+      {
+        setNumber(sequence.toString());
       }
+      else
+      {
+        setNumber("1");
+      }
+      setNumber(section.getSequence().toString());
+      // do teh rest later
+      Set itemSet = section.getItemSet();
+      if (itemSet != null)
+      {
+        setQuestions(itemSet.size());
+        Iterator i = itemSet.iterator();
+        while (i.hasNext())
+        {
+          ItemDataIfc item = (ItemDataIfc) i.next();
+          ItemContentsBean itemBean = new ItemContentsBean(item);
+          this.itemContents.add(itemBean);
+        }
+      }
+      // set questionNumbers now
+      setQuestionNumbers();
+      setMetaData(section);
     }
-    // set questionNumbers now
-    setQuestionNumbers();
-    setMetaData(section);
-   } catch (Exception e) {
-     e.printStackTrace();
-   }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
   }
 
-  public void setMetaData(SectionDataIfc section){
-    
-    if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) !=null ) {
-      Integer authortype = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE));
+  public void setMetaData(SectionDataIfc section)
+  {
+
+    if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
+    {
+      Integer authortype = new Integer(section.getSectionMetaDataByLabel(
+        SectionDataIfc.AUTHOR_TYPE));
       setSectionAuthorType(authortype);
 
-      if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ) {
-        if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-        Integer numberdrawn= new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-        setNumberToBeDrawn(numberdrawn);
+      if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(
+        SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
+      {
+        if (section.getSectionMetaDataByLabel(SectionDataIfc.
+                                              NUM_QUESTIONS_DRAWN) != null)
+        {
+          Integer numberdrawn = new Integer(section.getSectionMetaDataByLabel(
+            SectionDataIfc.NUM_QUESTIONS_DRAWN));
+          setNumberToBeDrawn(numberdrawn);
         }
 
-        if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW) !=null ) {
-        Long poolid= new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
-        setPoolIdToBeDrawn(poolid);
+        if (section.getSectionMetaDataByLabel(SectionDataIfc.
+                                              POOLID_FOR_RANDOM_DRAW) != null)
+        {
+          Long poolid = new Long(section.getSectionMetaDataByLabel(
+            SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+          setPoolIdToBeDrawn(poolid);
         }
       }
 
     }
-    else {
+    else
+    {
 
       setSectionAuthorType(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE);
     }
-    if (section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING) !=null ) {
-      Integer questionorder = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
+    if (section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING) != null)
+    {
+      Integer questionorder = new Integer(section.getSectionMetaDataByLabel(
+        SectionDataIfc.QUESTIONS_ORDERING));
       setQuestionOrdering(questionorder);
     }
-    else {
+    else
+    {
       setQuestionOrdering(SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE);
     }
 
   }
 
-
-  public String getSectionId() {
+  public String getSectionId()
+  {
     return sectionId;
   }
 
@@ -349,80 +414,135 @@ public class SectionContentsBean implements Serializable {
    * Part description.
    * @param text Part description.
    */
-  public void setSectionId(String sectionId) {
+  public void setSectionId(String sectionId)
+  {
     this.sectionId = sectionId;
   }
 
-  public String getNumParts() {
+  public String getNumParts()
+  {
     return numParts;
   }
 
-  public void setNumParts(String newNum) {
+  public void setNumParts(String newNum)
+  {
     numParts = newNum;
   }
 
-  public String getDescription() {
+  public String getDescription()
+  {
     return description;
   }
 
-  public void setDescription(String newDesc) {
+  public void setDescription(String newDesc)
+  {
     description = newDesc;
   }
 
-  public Integer getSectionAuthorType() {
+  public Integer getSectionAuthorType()
+  {
     return sectionAuthorType;
   }
 
-  public String getSectionAuthorTypeString() {
+  public String getSectionAuthorTypeString()
+  {
     return sectionAuthorType.toString();
   }
 
-  public void setSectionAuthorType(Integer param) {
-    sectionAuthorType= param;
+  public void setSectionAuthorType(Integer param)
+  {
+    sectionAuthorType = param;
   }
 
-  public Integer getQuestionOrdering() {
+  public Integer getQuestionOrdering()
+  {
     return questionOrdering;
   }
-  public String getQuestionOrderingString() {
+
+  public String getQuestionOrderingString()
+  {
     return questionOrdering.toString();
   }
 
-  public void setQuestionOrdering(Integer param) {
-    questionOrdering= param;
+  public void setQuestionOrdering(Integer param)
+  {
+    questionOrdering = param;
   }
 
-  public Integer getNumberToBeDrawn() {
+  public Integer getNumberToBeDrawn()
+  {
     return numberToBeDrawn;
   }
-  public String getNumberToBeDrawnString() {
+
+  public String getNumberToBeDrawnString()
+  {
     return numberToBeDrawn.toString();
   }
 
-  public void setNumberToBeDrawn(Integer param) {
-    numberToBeDrawn= param;
+  public void setNumberToBeDrawn(Integer param)
+  {
+    numberToBeDrawn = param;
   }
 
-  public Long getPoolIdToBeDrawn() {
+  public Long getPoolIdToBeDrawn()
+  {
     return poolIdToBeDrawn;
   }
-  public String getPoolIdToBeDrawnString() {
+
+  public String getPoolIdToBeDrawnString()
+  {
     return poolIdToBeDrawn.toString();
   }
 
-  public void setPoolIdToBeDrawn(Long param) {
-    poolIdToBeDrawn= param;
+  public void setPoolIdToBeDrawn(Long param)
+  {
+    poolIdToBeDrawn = param;
   }
 
-
-  public String getPoolNameToBeDrawn() {
-    if( (sectionAuthorType!= null) && (sectionAuthorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL) )) { 
+  public String getPoolNameToBeDrawn()
+  {
+    if ( (sectionAuthorType != null) &&
+        (sectionAuthorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)))
+    {
       QuestionPoolService qpservice = new QuestionPoolService();
-      QuestionPoolFacade poolfacade = qpservice.getPool(poolIdToBeDrawn, AgentFacade.getAgentString());
+      QuestionPoolFacade poolfacade = qpservice.getPool(poolIdToBeDrawn,
+        AgentFacade.getAgentString());
       return poolfacade.getTitle();
     }
     return "";
-	
+
+  }
+
+  /**
+   * Show the student score currently earned?
+   * @return the score
+   */
+  public boolean isShowStudentScore()
+  {
+    return showStudentScore;
+  }
+
+  /**
+   * Set the student score currently earned.
+   * @param showStudentScore true/false Show the student score currently earned?
+   */
+  public void setShowStudentScore(boolean showStudentScore)
+  {
+    this.showStudentScore = showStudentScore;
+  }
+
+  /**
+   * If we display the score, return it, followed by a slash.
+   * @return the score, return it, followed by a slash or ""
+   */
+  public String getPointsDisplayString()
+  {
+    String pointsDisplayString = "";
+    if (showStudentScore)
+    {
+      pointsDisplayString = "/" + points;
+    }
+    return pointsDisplayString;
   }
 
 }

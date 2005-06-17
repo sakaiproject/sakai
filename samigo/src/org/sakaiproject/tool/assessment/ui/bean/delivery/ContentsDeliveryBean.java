@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+ * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
  *
- * Licensed under the Educational Community License Version 1.0 (the "License");
+   * Licensed under the Educational Community License Version 1.0 (the "License");
  * By obtaining, using and/or copying this Original Work, you agree that you have read,
  * understand, and will comply with the terms and conditions of the Educational Community License.
  * You may obtain a copy of the License at:
@@ -30,51 +30,100 @@ import java.io.Serializable;
  * @version $Id$
  */
 
-public class ContentsDeliveryBean implements Serializable {
+public class ContentsDeliveryBean
+  implements Serializable
+{
   private java.util.ArrayList partsContents;
   private float currentScore;
-  private float maxScore;// SectionContentsBeans
+  private float maxScore; // SectionContentsBeans
+  // for display/hide score
+  private boolean showStudentScore;
+  private String pointsDisplayString;
 
   /**
    * Current score for entire contents.
    * @return current score for entire contents
    */
-  public float getCurrentScore() {
+  public float getCurrentScore()
+  {
     return currentScore;
   }
+
   /**
    * Current score for entire contents
    * @param currentScore current score for entire contents
    */
-  public void setCurrentScore(float currentScore) {
+  public void setCurrentScore(float currentScore)
+  {
     this.currentScore = currentScore;
   }
+
   /**
    * Maximum score for entire contents.
    * @return maximum score for entire contents
    */
-  public float getMaxScore() {
+  public float getMaxScore()
+  {
     return maxScore;
   }
+
   /**
    * Maximum score for entire contents.
    * @param maxScore maximum score for entire contents
    */
-  public void setMaxScore(float maxScore) {
+  public void setMaxScore(float maxScore)
+  {
     this.maxScore = maxScore;
   }
+
   /**
    * List of parts (SectionContentsBeans) for entire contents.
    * @return parts for entire contents
    */
-  public java.util.ArrayList getPartsContents() {
+  public java.util.ArrayList getPartsContents()
+  {
     return partsContents;
   }
+
   /**
    * Set parts (SectionContentsBeans) for entire contents
    * @param partsContents parts (SectionContentsBeans) for entire contents
    */
-  public void setPartsContents(java.util.ArrayList partsContents) {
+  public void setPartsContents(java.util.ArrayList partsContents)
+  {
     this.partsContents = partsContents;
   }
+
+  /**
+   * Show the student score currently earned?
+   * @return the score
+   */
+  public boolean isShowStudentScore()
+  {
+    return showStudentScore;
+  }
+
+  /**
+   * Set the student score currently earned.
+   * @param showStudentScore true/false Show the student score currently earned?
+   */
+  public void setShowStudentScore(boolean showStudentScore)
+  {
+    this.showStudentScore = showStudentScore;
+  }
+
+  /**
+   * If we display the score, return it, followed by a slash.
+   * @return the score, return it, followed by a slash or ""
+   */
+  public String getPointsDisplayString()
+  {
+    String pointsDisplayString = "";
+    if (showStudentScore)
+    {
+      pointsDisplayString = "/" + currentScore;
+    }
+    return pointsDisplayString;
+  }
+
 }
