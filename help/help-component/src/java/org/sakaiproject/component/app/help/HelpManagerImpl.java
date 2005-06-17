@@ -1,6 +1,6 @@
 /**********************************************************************************
  *
- * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.7 2005/06/13 02:16:43 jlannan.iupui.edu Exp $
+ * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.6 2005/06/11 17:16:54 jlannan.iupui.edu Exp $
  *
  ***********************************************************************************
  *
@@ -511,14 +511,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       }
 
       doc.add(Field.Text("content", sBuffer.toString()));
-
-      cbuf = new char[512];
-      while ((readReturn = reader.read(cbuf, 0, 512)) != -1)
-      {
-        sBuffer.append(cbuf, 0, readReturn);
-      }
-
-      doc.add(Field.Text("content", sBuffer.toString()));
     }
     else
     {
@@ -526,7 +518,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     }
 
     return doc;
-  }
+  }     
 
   /**
    * Get Table Of Contents Bean.
@@ -757,7 +749,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
           EXTERNAL_URL = ServerConfigurationService.getString("help.location");
           if (!"".equals(EXTERNAL_URL))
           {
-            if (EXTERNAL_URL.endsWith("/"))
+            if (!EXTERNAL_URL.endsWith("/"))
             {
               // remove trailing forward slash
               EXTERNAL_URL = EXTERNAL_URL.substring(0,
@@ -848,35 +840,17 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     for (Iterator i = helpClasspathRegList.iterator(); i.hasNext();)
     {
       String classpathUrl = (String) i.next();
-      
-      URL urlResource = null;
-      
-      if (!"".equals(EXTERNAL_URL))
+      URL urlResource = getClass().getResource(classpathUrl);
+
+      if (urlResource == null)
       {
-        // handle external help location
-        try{
-          urlResource = new URL(EXTERNAL_URL + classpathUrl);
-        }
-        catch (MalformedURLException e){
-          LOG.debug("Unable to load external URL: " + classpathUrl);
-          continue;
-        }
+        LOG.debug("Unable to load classpath resource: " + classpathUrl);
+        continue;
       }
-      else{        
-        urlResource= getClass().getResource(classpathUrl);
-        
-        if (urlResource == null)
-        {
-          LOG.debug("Unable to load resource: " + classpathUrl);
-          continue;
-        }
-      }
-            
       try
       {
         org.springframework.core.io.Resource resource = new InputStreamResource(
             urlResource.openStream(), classpathUrl);
-
         BeanFactory beanFactory = new XmlBeanFactory(resource);
         TableOfContents tocTemp = (TableOfContents) beanFactory
             .getBean(TOC_API);
@@ -948,6 +922,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 }
 /**********************************************************************************
  *
- * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.7 2005/06/13 02:16:43 jlannan.iupui.edu Exp $
+ * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.6 2005/06/11 17:16:54 jlannan.iupui.edu Exp $
  *
  **********************************************************************************/
