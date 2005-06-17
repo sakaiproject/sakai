@@ -17,7 +17,7 @@
       <!-- HSQLDB do not support blob - too bad, so let's Hibernate deal with it then 
       <column name="MEDIA" not-null="false" sql-type="blob"/>
       -->
-      <column name="MEDIA" not-null="false"/>
+      <column name="MEDIA" not-null="false" length="1000000000"/>
     </property>
     <property name="fileSize">
       <column name="FILESIZE" not-null="false" sql-type="integer"/>
