@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -16,44 +16,40 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/*
- * Created on Aug 6, 2003
- *
- */
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
-
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
-
-import javax.faces.context.FacesContext;
+import java.util.Set;
 import javax.activation.FileDataSource;
+import javax.faces.context.FacesContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
-import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
-
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
-import java.io.FileInputStream;
-import java.io.File;
-import java.io.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -162,6 +158,7 @@ public class DeliveryBean
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -1090852048737428722L;
+  private boolean showStudentScore;
 
   /**
    * Creates a new DeliveryBean object.
@@ -1153,7 +1150,7 @@ public class DeliveryBean
     forGrade = false;
 
     if (!("true").equals(previewAssessment))
-    {     
+    {
     SubmitToGradingActionListener listener =
      new SubmitToGradingActionListener();
     listener.processAction(null);
@@ -1172,11 +1169,11 @@ public class DeliveryBean
       partIndex--;
     if (getSettings().isFormatByQuestion())
       questionIndex--;
-    
+
     forGrade = false;
-   
+
     if (!("true").equals(previewAssessment))
-    { 
+    {
     SubmitToGradingActionListener listener =
      new SubmitToGradingActionListener();
     listener.processAction(null);
@@ -1354,7 +1351,7 @@ public class DeliveryBean
 	}
       }
       mediaStream2 = new FileInputStream(mediaLocation);
-      mediaByte = new byte[size]; 
+      mediaByte = new byte[size];
       mediaStream2.read(mediaByte, 0, size);
 
       FileOutputStream out = new FileOutputStream("/tmp/test.txt");
@@ -1443,7 +1440,7 @@ public class DeliveryBean
     gradingService.saveOrUpdateAssessmentGrading(adata);
     log.debug("***5b. addMediaToItemGrading, saved="+adata);
 
-    // 6. create a media record 
+    // 6. create a media record
     FileDataSource source = new FileDataSource(media);
     String mimeType = source.getContentType();
     boolean SAVETODB = MediaData.saveToDB();
@@ -1637,5 +1634,13 @@ public class DeliveryBean
   }
   public void setContextPath(String contextPath) {
     this.contextPath = contextPath;
+  }
+  public boolean isShowStudentScore()
+  {
+    return showStudentScore;
+  }
+  public void setShowStudentScore(boolean showStudentScore)
+  {
+    this.showStudentScore = showStudentScore;
   }
 }
