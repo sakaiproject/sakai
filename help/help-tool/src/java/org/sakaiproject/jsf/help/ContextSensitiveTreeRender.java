@@ -69,13 +69,17 @@ public class ContextSensitiveTreeRender extends Renderer
 
     String jsLibraryUrl = "../js";
     ResponseWriter writer = context.getResponseWriter();
+    writer.write("<html><head>");
     writer.write("<script type=\"text/javascript\" src=\"" + jsLibraryUrl
         + "/csTree.js\"></script>\n");
-    writer.write("<link href=\"" + skinRoot + "/tool_base.css\"" + " rel=\"stylesheet\">");
-    writer.write("<link href=\"" + skinRoot + "/" + skin + "/tool.css\"" + " rel=\"stylesheet\">");
+    writer.write("<link href=\"" + skinRoot + "/tool_base.css\""
+        + " rel=\"stylesheet\">");
+    writer.write("<link href=\"" + skinRoot + "/" + skin + "/tool.css\""
+        + " rel=\"stylesheet\">");
     writer
         .write("<link href=\"../css/csTree.css\" type=\"text/css\" rel=\"stylesheet\">");
     //writer.write("<body onload='collapseAll([\"ol\"]); openBookMark();'>");
+    writer.write("</head>");
     writer.write("<body>");
     writer.write("<ol id=\"root\">");
     UIData data = (UIData) component;
@@ -93,7 +97,7 @@ public class ContextSensitiveTreeRender extends Renderer
       writer.write("<script language=\"JavaScript\" src=\"" + jsLibraryUrl
           + "/search.js\"></script>\n");
     }
-    writer.write("</body>");
+    writer.write("</body></html>");
   }
 
   /**
@@ -112,27 +116,20 @@ public class ContextSensitiveTreeRender extends Renderer
       Set resources = category.getResources();
       String id = category.getName();
 
-      //      boolean contains = this.containsHelpDoc(helpDocId, resources);
-      //      if (contains)
-      //      {
-      //        id = "default";
-      //      }
-      writer
-          .write("<li><a id=\""
-              + id
-              + "\" href=\"#"
-              + category.getName()
-              + "\" onclick=\"toggle(this)\"><img src=\"../image/toc_closed.gif\" border=\"0\" id=\"I"
-              + category.getName() + "\">" + category.getName() + "</a>");
-      writer.write("<ol>");
+      writer.write("<li class=\"dir\">");
+      writer.write("<img src=\"../image/toc_closed.gif\" border=\"0\" id=\"I"
+          + category.getName() + "\"/>");
+      writer.write("<a id=\"" + id + "\" href=\"#" + category.getName()
+          + "\" onclick=\"toggle(this)\">" + category.getName() + "</a>");
 
+      writer.write("<ol class=\"docs\">");
       Set subCategories = category.getCategories();
       encodeRecursive(writer, subCategories, helpDocId);
       if (resources != null)
       {
         for (Iterator j = resources.iterator(); j.hasNext();)
         {
-          writer.write("<ul style=\"list-style:outside\">");
+          writer.write("<li>");
           Resource resource = (Resource) j.next();
 
           // either helpDocId will be a helpDocId (coming from search) or
@@ -141,24 +138,19 @@ public class ContextSensitiveTreeRender extends Renderer
               && (helpDocId.equals(resource.getDefaultForTool()) || helpDocId
                   .equals(resource.getDocId())))
           {
-            writer
-                .write("<a id=\"default\""
-                    + " href=\"content.hlp?docId="
-                    + resource.getDocId()
-                    + "\" target = \"content\"><img src=\"../image/topic.gif\" border=\"0\"/>"
-                    + resource.getName() + "</a>");
-            writer.write("</ul>");
+            writer.write("<img src=\"../image/topic.gif\" border=\"0\"/>");
+            writer.write("<a id=\"default\"" + " href=\"content.hlp?docId="
+                + resource.getDocId() + "\" target = \"content\">"
+                + resource.getName() + "</a>");
+            writer.write("</li>");
           }
           else
           {
-            writer
-                .write("<a id=\""
-                    + resource.getDocId()
-                    + "\" href=\"content.hlp?docId="
-                    + resource.getDocId()
-                    + "\" target = \"content\"><img src=\"../image/topic.gif\" border=\"0\"/>"
-                    + resource.getName() + "</a>");
-            writer.write("</ul>");
+            writer.write("<img src=\"../image/topic.gif\" border=\"0\"/>");
+            writer.write("<a id=\"" + resource.getDocId()
+                + "\" href=\"content.hlp?docId=" + resource.getDocId()
+                + "\" target = \"content\">" + resource.getName() + "</a>");
+            writer.write("</li>");
           }
         }
       }

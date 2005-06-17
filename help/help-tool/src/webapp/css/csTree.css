@@ -1,18 +1,8 @@
-body, ol, li, h2 { padding:0; margin: 0; }
 
+body {padding:0; margin: 0; font: 9pt}
 
-ol#root {  padding-left: 5px; margin-top: 2px; margin-bottom: 1px; list-style: none;}
-#root ol {  padding-left: 5px; margin-top: 2px; margin-bottom: 1px; list-style: none;}
-#root li { margin-bottom: 1px; padding-left: 5px;  margin-top: 2px; font-size: x-small; }
+ol {padding: 0; margin: 0; list-style: none;}
 
-.panel { border-bottom: 1px solid #999; margin-bottom: 2px; margin-top: 2px; background: #eee; }
+ol.docs {display:none}
 
-#root ul { margin-bottom: 1px; margin-top: 2px; list-style-position: inside; } 
-
-#root a { text-decoration: none; }
-
-
-.folder { background: url(../image/toc_closed.gif)  no-repeat; float: left; height: 14px; width: 26px; padding-right: 3px }
-.doc { background: url(../image/topic.gif) no-repeat; float: left; height: 14px; width: 12px; padding-right: 3px; margin-left: 20px;}
-
-
+li {margin-bottom: 1px; padding-left: 9px;  margin-top: 2px; font: 9pt}
