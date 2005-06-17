@@ -113,17 +113,20 @@ public class ContentsDeliveryBean
   }
 
   /**
-   * If we display the score, return it, followed by a slash.
-   * @return the score, return it, followed by a slash or ""
-   */
-  public String getPointsDisplayString()
-  {
-    String pointsDisplayString = "";
-    if (showStudentScore)
-    {
-      pointsDisplayString = "/" + currentScore;
-    }
-    return pointsDisplayString;
-  }
+  * If we display the current score, return it, otherwise an empty string.
+  * Not currently used, provided if we need it later.
+  * @return either, a) the current score, otherwise, b) "" (empty string)
+  */
+ public String getPointsDisplayString()
+ {
+   String pointsDisplayString = "";
+   if (showStudentScore)
+   {
+     pointsDisplayString = "" + currentScore;
+   }
+   return pointsDisplayString;
+ }
+
+
 
 }

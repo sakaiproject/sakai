@@ -775,14 +775,14 @@ public class ItemContentsBean
 
   /**
    * If we display the score, return it, followed by a slash.
-   * @return the score, return it, followed by a slash or ""
+   * @return either, a) the score followed by a slash, or, b) "" (empty string)
    */
   public String getPointsDisplayString()
   {
     String pointsDisplayString = "";
     if (showStudentScore)
     {
-      pointsDisplayString = "/" + points;
+      pointsDisplayString = points + "/";
     }
     return pointsDisplayString;
   }
