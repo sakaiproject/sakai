@@ -68,26 +68,37 @@ public class ContentServlet extends HttpServlet
     URL url;
     if (resource != null && resource.getLocation() != null)
     {
-      if (!getHelpManager().getRestConfiguration().getOrganization().equalsIgnoreCase("sakai"))
-      {        
-        writer.write(RestContentProvider.getTransformedDocument(
-            getServletContext(), getHelpManager(), docId));        
-      }      
-      else if (resource.getLocation().startsWith("/"))
+      if (!getHelpManager().getRestConfiguration().getOrganization()
+          .equalsIgnoreCase("sakai"))
       {
-        url = HelpManager.class.getResource(resource.getLocation());
-        BufferedReader br = new BufferedReader(new InputStreamReader(url
-            .openStream()), 512);
-
-        int readReturn = 0;
-        char[] cbuf = new char[512];
-        while ((readReturn = br.read(cbuf, 0, 512)) != -1)
-        {
-          writer.write(cbuf, 0, readReturn);
-        }
-        br.close();
-      }      
+        writer.write(RestContentProvider.getTransformedDocument(
+            getServletContext(), getHelpManager(), docId));
+      }
       else
+        if (resource.getLocation().startsWith("/"))
+        {
+          if (!"".equals(getHelpManager().getExternalLocation()))
+          {
+            url = new URL(getHelpManager().getExternalLocation()
+                + resource.getLocation());
+          }
+          else
+          {
+            url = HelpManager.class.getResource(resource.getLocation());
+          }
+
+          BufferedReader br = new BufferedReader(new InputStreamReader(url
+              .openStream()), 512);
+
+          int readReturn = 0;
+          char[] cbuf = new char[512];
+          while ((readReturn = br.read(cbuf, 0, 512)) != -1)
+          {
+            writer.write(cbuf, 0, readReturn);
+          }
+          br.close();
+        }
+        else
         {
           res.sendRedirect(resource.getLocation());
         }

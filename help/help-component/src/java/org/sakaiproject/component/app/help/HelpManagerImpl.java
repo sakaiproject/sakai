@@ -749,7 +749,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
           EXTERNAL_URL = ServerConfigurationService.getString("help.location");
           if (!"".equals(EXTERNAL_URL))
           {
-            if (!EXTERNAL_URL.endsWith("/"))
+            if (EXTERNAL_URL.endsWith("/"))
             {
               // remove trailing forward slash
               EXTERNAL_URL = EXTERNAL_URL.substring(0,
@@ -776,6 +776,15 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         + getRestConfiguration().getRestDomain() + "/";
   }
 
+  
+  /**
+   * @see org.sakaiproject.api.app.help.HelpManager#getExternalLocation()
+   */
+  public String getExternalLocation()
+  {
+    return EXTERNAL_URL;    
+  }
+  
   /**
    * @see org.sakaiproject.api.app.help.HelpManager#getStaticRestUrl()
    */
@@ -840,7 +849,29 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     for (Iterator i = helpClasspathRegList.iterator(); i.hasNext();)
     {
       String classpathUrl = (String) i.next();
-      URL urlResource = getClass().getResource(classpathUrl);
+      
+      URL urlResource = null;
+      
+      if (!"".equals(EXTERNAL_URL))
+      {
+        // handle external help location
+        try{
+          urlResource = new URL(EXTERNAL_URL + classpathUrl);
+        }
+        catch (MalformedURLException e){
+          LOG.debug("Unable to load external URL: " + classpathUrl);
+          continue;
+        }
+      }
+      else{        
+        urlResource= getClass().getResource(classpathUrl);
+        
+        if (urlResource == null)
+        {
+          LOG.debug("Unable to load resource: " + classpathUrl);
+          continue;
+        }
+      }                              
 
       if (urlResource == null)
       {

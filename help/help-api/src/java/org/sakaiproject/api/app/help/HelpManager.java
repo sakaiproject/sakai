@@ -211,6 +211,11 @@ public interface HelpManager
    */
   public String getStaticRestUrl();
   
+  /**
+   * get static EXTERNAL_LOCATION
+   * @return EXTERNAL_LOCATION
+   */
+  public String getExternalLocation();
 }
 
 /**********************************************************************************
