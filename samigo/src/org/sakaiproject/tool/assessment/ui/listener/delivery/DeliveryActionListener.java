@@ -2,7 +2,7 @@
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
  *
- * Licensed under the Educational Community License Version 1.0 (the "License");
+   * Licensed under the Educational Community License Version 1.0 (the "License");
  * By obtaining, using and/or copying this Original Work, you agree that you have read,
  * understand, and will comply with the terms and conditions of the Educational Community License.
  * You may obtain a copy of the License at:
@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
-
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -35,6 +34,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -66,7 +66,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 
-public class DeliveryActionListener implements ActionListener
+public class DeliveryActionListener
+  implements ActionListener
 {
 
   static String alphabet = new String("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -84,11 +85,12 @@ public class DeliveryActionListener implements ActionListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().
-                        getRequestParameterMap();
+      getRequestParameterMap();
     //System.out.println("requestParams: " + requestParams);
     //System.out.println("reqMap: " + reqMap);
 
-    try {
+    try
+    {
       // get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
 
@@ -98,22 +100,32 @@ public class DeliveryActionListener implements ActionListener
 
       String id = cu.lookupParam("publishedId");
       if (id == null)
-          id = delivery.getAssessmentId();
+      {
+        id = delivery.getAssessmentId();
 
+      }
       String showfeedbacknow = cu.lookupParam("showfeedbacknow");
       if (showfeedbacknow != null && showfeedbacknow.equals("true"))
+      {
         delivery.setFeedback("true");
+      }
       else
+      {
         delivery.setFeedback("false");
 
+      }
       String nofeedback = cu.lookupParam("nofeedback");
       if (nofeedback != null && nofeedback.equals("true"))
+      {
         delivery.setNoFeedback("true");
+      }
       else
-	delivery.setNoFeedback("false");
+      {
+        delivery.setNoFeedback("false");
 
-      // If this was called from the table of contents, go to the right
-      // question.
+        // If this was called from the table of contents, go to the right
+        // question.
+      }
       if (cu.lookupParam("partnumber") != null &&
           !cu.lookupParam("partnumber").trim().equals(""))
       {
@@ -121,12 +133,13 @@ public class DeliveryActionListener implements ActionListener
             delivery.getSettings().isFormatByQuestion())
         {
           delivery.setPartIndex(new Integer
-            (cu.lookupParam("partnumber")).intValue() - 1);
+                                (cu.lookupParam("partnumber")).intValue() - 1);
         }
         if (delivery.getSettings().isFormatByQuestion())
         {
           delivery.setQuestionIndex(new Integer
-            (cu.lookupParam("questionnumber")).intValue() - 1);
+                                    (cu.lookupParam("questionnumber")).intValue() -
+                                    1);
         }
       }
 
@@ -138,24 +151,30 @@ public class DeliveryActionListener implements ActionListener
         agent = cu.lookupParam("studentid");
         forEvaluation = true;
         if (cu.lookupParam("publishedIdd") != null)
+        {
           id = cu.lookupParam("publishedIdd");
 
-        // Reset all feedback to true, since this is the grader view
+          // Reset all feedback to true, since this is the grader view
+        }
       }
 
       // get service
       PublishedAssessmentService publishedAssessmentService = new
         PublishedAssessmentService();
 
-      String previewAssessment = (String)cu.lookupParam("previewAssessment");
-      String assessmentId = (String)cu.lookupParam("assessmentId");
+      String previewAssessment = (String) cu.lookupParam("previewAssessment");
+      String assessmentId = (String) cu.lookupParam("assessmentId");
 
       if (previewAssessment != null)
-         delivery.setPreviewAssessment(previewAssessment);
+      {
+        delivery.setPreviewAssessment(previewAssessment);
 
-      if ("true".equals(delivery.getPreviewAssessment()) && assessmentId !=null) {
+      }
+      if ("true".equals(delivery.getPreviewAssessment()) && assessmentId != null)
+      {
 
-	  id = publishedAssessmentService.getPublishedAssessmentId(assessmentId).toString();
+        id = publishedAssessmentService.getPublishedAssessmentId(assessmentId).
+          toString();
       }
 
       // get assessment
@@ -165,12 +184,16 @@ public class DeliveryActionListener implements ActionListener
       if (delivery.getPublishedAssessment() != null &&
           delivery.getPublishedAssessment().getPublishedAssessmentId().toString().
           equals(id))
+      {
         publishedAssessment = delivery.getPublishedAssessment();
+      }
       else
+      {
         publishedAssessment =
           publishedAssessmentService.getPublishedAssessment(id);
 
-      // determine if scores will display to student
+        // determine if scores will display to student
+      }
       if (Boolean.TRUE.equals(
         publishedAssessment.getAssessmentFeedback().getShowStudentScore()))
       {
@@ -193,8 +216,8 @@ public class DeliveryActionListener implements ActionListener
         Iterator keys = itemData.keySet().iterator();
         if (keys.hasNext())
         {
-          ItemGradingData igd = (ItemGradingData) ((ArrayList) itemData.get(keys
-.next())).toArray()[0];
+          ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemData.get(
+            keys.next())).toArray()[0];
           AssessmentGradingData agd =
             (AssessmentGradingData) igd.getAssessmentGrading();
           delivery.setAssessmentGrading(agd);
@@ -210,7 +233,8 @@ public class DeliveryActionListener implements ActionListener
         Iterator keys = itemData.keySet().iterator();
         if (keys.hasNext())
         {
-          ItemGradingData igd = (ItemGradingData) ((ArrayList) itemData.get(keys.next())).toArray()[0];
+          ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemData.get(
+            keys.next())).toArray()[0];
           AssessmentGradingData agd =
             (AssessmentGradingData) igd.getAssessmentGrading();
           delivery.setAssessmentGrading(agd);
@@ -220,10 +244,12 @@ public class DeliveryActionListener implements ActionListener
       // If we're reviewing an assessment and we're not showing
       // student responses, don't get them from the database.
       else if (delivery.getPreviewMode().equals("true") &&
-          !delivery.getFeedbackComponent().getShowResponse())
+               !delivery.getFeedbackComponent().getShowResponse())
+      {
         itemData = new HashMap();
 
-      // Otherwise, get them if they exist.
+        // Otherwise, get them if they exist.
+      }
       else
       {
         itemData = service.getLastItemGradingData(id, agent);
@@ -232,11 +258,14 @@ public class DeliveryActionListener implements ActionListener
         Iterator keys = itemData.keySet().iterator();
         if (keys.hasNext())
         {
-          ItemGradingData igd = (ItemGradingData) ((ArrayList) itemData.get(keys.next())).toArray()[0];
+          ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemData.get(
+            keys.next())).toArray()[0];
           AssessmentGradingData agd =
             (AssessmentGradingData) igd.getAssessmentGrading();
           if (agd.getTimeElapsed() != null)
+          {
             delivery.setTimeElapse(agd.getTimeElapsed().toString());
+          }
           delivery.setAssessmentGrading(agd);
         }
         else
@@ -245,12 +274,14 @@ public class DeliveryActionListener implements ActionListener
         }
       }
       if (delivery.getTimeElapse() == null)
+      {
         delivery.setTimeElapse("0");
 
-      // If this was called instead of Begin
+        // If this was called instead of Begin
+      }
       if (forEvaluation || delivery.getSettings() == null ||
           !delivery.getAssessmentId().equals
-           (publishedAssessment.getPublishedAssessmentId().toString()))
+          (publishedAssessment.getPublishedAssessmentId().toString()))
       {
         BeginDeliveryActionListener listener =
           new BeginDeliveryActionListener();
@@ -269,11 +300,13 @@ public class DeliveryActionListener implements ActionListener
 
         if (forEvaluation ||
             (delivery.getFeedbackComponent().getShowImmediate() ||
-            (delivery.getFeedbackComponent().getShowDateFeedback() &&
-             delivery.getSettings().getFeedbackDate() != null &&
-             delivery.getSettings().getFeedbackDate().before(new Date()))))
+             (delivery.getFeedbackComponent().getShowDateFeedback() &&
+              delivery.getSettings().getFeedbackDate() != null &&
+              delivery.getSettings().getFeedbackDate().before(new Date()))))
+        {
           delivery.setFeedback("true");
 
+        }
         if (forEvaluation)
         {
           delivery.getFeedbackComponent().setShowCorrectResponse(true);
@@ -288,7 +321,9 @@ public class DeliveryActionListener implements ActionListener
         else
         {
           if (!delivery.getFeedbackComponent().getShowResponse())
+          {
             itemData = new HashMap();
+          }
         }
       }
 
@@ -302,36 +337,40 @@ public class DeliveryActionListener implements ActionListener
       {
         SectionDataIfc section = (SectionDataIfc) i1.next();
 
-    //    items += section.getItemSet().size();  // bug 464
+        //    items += section.getItemSet().size();  // bug 464
         Iterator i2 = section.getItemArraySorted().iterator();
         while (i2.hasNext())
         {
-          items = items +1;    // bug 464
+          items = items + 1; // bug 464
           ItemDataIfc item = (ItemDataIfc) i2.next();
           itemData.put("sequence" + item.getItemId().toString(),
-            new Integer(sequenceno++));
+                       new Integer(sequenceno++));
         }
       }
       itemData.put("items", new Long(items));
 
       if (delivery.getAssessmentGrading() != null)
+      {
         delivery.setGraderComment
           (delivery.getAssessmentGrading().getComments());
+      }
       else
+      {
         delivery.setGraderComment(null);
 
-      //System.out.println("Setting grader comment to " + delivery.getGraderComment());
+        //System.out.println("Setting grader comment to " + delivery.getGraderComment());
 
-      // Set the begin time if we're just starting
-      //System.out.println("start begin time " + delivery.getBeginTime());
+        // Set the begin time if we're just starting
+        //System.out.println("start begin time " + delivery.getBeginTime());
+      }
       if (delivery.getBeginTime() == null)
       {
         //System.out.println("grading delivery time = " + delivery.getAssessmentGrading().getAttemptDate());
         if (delivery.getAssessmentGrading() != null &&
-              delivery.getAssessmentGrading().getAttemptDate() != null)
+            delivery.getAssessmentGrading().getAttemptDate() != null)
         {
           delivery.setBeginTime(delivery.getAssessmentGrading()
-            .getAttemptDate());
+                                .getAttemptDate());
         }
         else
         {
@@ -341,17 +380,19 @@ public class DeliveryActionListener implements ActionListener
 
       //System.out.println("Set begin time " + delivery.getBeginTime());
       // get table of contents
-      delivery.setTableOfContents(getContents(publishedAssessment, itemData, delivery));
+      delivery.setTableOfContents(getContents(publishedAssessment, itemData,
+                                              delivery));
 
       // get current page contents
       delivery.setPageContents(getPageContents(publishedAssessment,
-        delivery, itemData));
+                                               delivery, itemData));
 
       //System.out.println("Rachel: set page contents");
-    } catch (Exception e) {
+    }
+    catch (Exception e)
+    {
       e.printStackTrace();
     }
-
 
   }
 
@@ -360,7 +401,10 @@ public class DeliveryActionListener implements ActionListener
    * @param publishedAssessment the published assessment
    * @return
    */
-  private ContentsDeliveryBean getContents(PublishedAssessmentFacade publishedAssessment, HashMap itemData, DeliveryBean delivery)
+  private ContentsDeliveryBean getContents(PublishedAssessmentFacade
+                                           publishedAssessment,
+                                           HashMap itemData,
+                                           DeliveryBean delivery)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
     float currentScore = 0;
@@ -372,7 +416,8 @@ public class DeliveryActionListener implements ActionListener
     ArrayList partsContents = new ArrayList();
     while (iter.hasNext())
     {
-      SectionContentsBean partBean = getPartBean((SectionDataIfc) iter.next(), itemData, delivery);
+      SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
+                                                 itemData, delivery);
       partBean.setNumParts(new Integer(partSet.size()).toString());
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
@@ -395,14 +440,15 @@ public class DeliveryActionListener implements ActionListener
    * @param publishedAssessment the published assessment
    * @return
    */
-  public ContentsDeliveryBean getPageContents (
+  public ContentsDeliveryBean getPageContents(
     PublishedAssessmentFacade publishedAssessment,
     DeliveryBean delivery, HashMap itemData)
   {
 
     if (delivery.getSettings().isFormatByAssessment())
     {
-      return getPageContentsByAssessment(publishedAssessment, itemData, delivery);
+      return getPageContentsByAssessment(publishedAssessment, itemData,
+                                         delivery);
     }
 
     int itemIndex = delivery.getQuestionIndex();
@@ -410,11 +456,13 @@ public class DeliveryActionListener implements ActionListener
 
     if (delivery.getSettings().isFormatByPart())
     {
-      return getPageContentsByPart(publishedAssessment, itemIndex, sectionIndex, itemData, delivery);
+      return getPageContentsByPart(publishedAssessment, itemIndex, sectionIndex,
+                                   itemData, delivery);
     }
     else if (delivery.getSettings().isFormatByQuestion())
     {
-      return getPageContentsByQuestion(publishedAssessment, itemIndex, sectionIndex, itemData, delivery);
+      return getPageContentsByQuestion(publishedAssessment, itemIndex,
+                                       sectionIndex, itemData, delivery);
     }
 
     // default... ...shouldn't get here :O
@@ -429,7 +477,9 @@ public class DeliveryActionListener implements ActionListener
    * @param publishedAssessment the published assessment
    * @return ContentsDeliveryBean for page
    */
-  private ContentsDeliveryBean getPageContentsByAssessment(PublishedAssessmentFacade publishedAssessment, HashMap itemData, DeliveryBean delivery)
+  private ContentsDeliveryBean getPageContentsByAssessment(
+    PublishedAssessmentFacade publishedAssessment, HashMap itemData,
+    DeliveryBean delivery)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
     float currentScore = 0;
@@ -441,8 +491,8 @@ public class DeliveryActionListener implements ActionListener
     ArrayList partsContents = new ArrayList();
     while (iter.hasNext())
     {
-      SectionContentsBean partBean = getPartBean((SectionDataIfc) iter.next(),
-        itemData, delivery);
+      SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
+                                                 itemData, delivery);
       partBean.setNumParts(new Integer(partSet.size()).toString());
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
@@ -481,8 +531,8 @@ public class DeliveryActionListener implements ActionListener
     ArrayList partsContents = new ArrayList();
     while (iter.hasNext())
     {
-      SectionContentsBean partBean = getPartBean((SectionDataIfc) iter.next(),
-        itemData, delivery);
+      SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
+                                                 itemData, delivery);
       partBean.setNumParts(new Integer(partSet.size()).toString());
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
@@ -490,13 +540,21 @@ public class DeliveryActionListener implements ActionListener
       {
         partsContents.add(partBean);
         if (iter.hasNext())
+        {
           delivery.setContinue(true);
+        }
         else
+        {
           delivery.setContinue(false);
+        }
         if (sectionCount > 1)
+        {
           delivery.setPrevious(true);
+        }
         else
+        {
           delivery.setPrevious(false);
+        }
       }
     }
 
@@ -524,7 +582,7 @@ public class DeliveryActionListener implements ActionListener
     float maxScore = 0;
     int sectionCount = 0;
     int questionCount = 0; // This is to increment the part if we run
-                           // out of questions
+    // out of questions
     // get parts
     ArrayList partSet = publishedAssessment.getSectionArraySorted();
     Iterator iter = partSet.iterator();
@@ -561,18 +619,27 @@ public class DeliveryActionListener implements ActionListener
       if (sectionCount++ == sectionIndex)
       {
         SectionContentsBean partBeanWithQuestion =
-          this.getPartBeanWithOneQuestion(secFacade, itemIndex, itemData, delivery);
+          this.getPartBeanWithOneQuestion(secFacade, itemIndex, itemData,
+                                          delivery);
         partBeanWithQuestion.setNumParts(new Integer(partSet.size()).toString());
         partsContents.add(partBeanWithQuestion);
 
         if (iter.hasNext() || itemIndex < (questionCount - 1))
+        {
           delivery.setContinue(true);
+        }
         else
+        {
           delivery.setContinue(false);
+        }
         if (itemIndex > 0 || sectionIndex > 0)
+        {
           delivery.setPrevious(true);
+        }
         else
+        {
           delivery.setPrevious(false);
+        }
       }
     }
 
@@ -584,11 +651,13 @@ public class DeliveryActionListener implements ActionListener
   }
 
   /**
-   * Populate a SectionContentsBean properties and populate with ItemContentsBean
+     * Populate a SectionContentsBean properties and populate with ItemContentsBean
    * @param part this section
    * @return
    */
-  private SectionContentsBean getPartBean(SectionDataIfc part, HashMap itemData, DeliveryBean delivery){
+  private SectionContentsBean getPartBean(SectionDataIfc part, HashMap itemData,
+                                          DeliveryBean delivery)
+  {
     float maxPoints = 0;
     float points = 0;
     int unansweredQuestions = 0;
@@ -596,16 +665,16 @@ public class DeliveryActionListener implements ActionListener
     SectionContentsBean sec = new SectionContentsBean();
 
     ArrayList itemSet = part.getItemArraySorted();
-    sec.setQuestions(itemSet.size() );
+    sec.setQuestions(itemSet.size());
 
     if (delivery.getSettings().getItemNumbering().equals
-      (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
+        (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
     {
       sec.setNumbering(itemSet.size());
     }
     else
     {
-      sec.setNumbering(((Long) itemData.get("items")).intValue());
+      sec.setNumbering( ( (Long) itemData.get("items")).intValue());
     }
 
     sec.setText(part.getTitle());
@@ -617,23 +686,23 @@ public class DeliveryActionListener implements ActionListener
 
     Iterator iter = itemSet.iterator();
     ArrayList itemContents = new ArrayList();
-    int i=0;
+    int i = 0;
     while (iter.hasNext())
     {
       ItemDataIfc thisitem = (ItemDataIfc) iter.next();
       ItemContentsBean itemBean = getQuestionBean(thisitem,
-        itemData, delivery);
+                                                  itemData, delivery);
 
       // Deal with numbering
       itemBean.setNumber(++i);
       if (delivery.getSettings().getItemNumbering().equals
-        (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
+          (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
       {
         itemBean.setSequence(new Integer(itemBean.getNumber()).toString());
       }
       else
       {
-        itemBean.setSequence(((Integer) itemData.get("sequence" +
+        itemBean.setSequence( ( (Integer) itemData.get("sequence" +
           thisitem.getItemId().toString())).toString());
       }
 
@@ -652,11 +721,11 @@ public class DeliveryActionListener implements ActionListener
     // scoring information
     // Round to the nearest 1/10th.
     int tmp = Math.round(maxPoints * 10.0f);
-    maxPoints = (float)tmp / 10.0f;
+    maxPoints = (float) tmp / 10.0f;
     sec.setMaxPoints(maxPoints);
 
     tmp = Math.round(points * 10.0f);
-    points = (float)tmp / 10.0f;
+    points = (float) tmp / 10.0f;
     sec.setPoints(points);
 
     sec.setShowStudentScore(delivery.isShowStudentScore());
@@ -668,12 +737,13 @@ public class DeliveryActionListener implements ActionListener
   }
 
   /**
-   * Populate a SectionContentsBean properties and populate with ItemContentsBean
+     * Populate a SectionContentsBean properties and populate with ItemContentsBean
    * @param part this section
    * @return
    */
   private SectionContentsBean getPartBeanWithOneQuestion(
-    SectionDataIfc part, int itemIndex, HashMap itemData, DeliveryBean delivery){
+    SectionDataIfc part, int itemIndex, HashMap itemData, DeliveryBean delivery)
+  {
     float maxPoints = 0;
     float points = 0;
     int unansweredQuestions = 0;
@@ -682,16 +752,16 @@ public class DeliveryActionListener implements ActionListener
     SectionContentsBean sec = new SectionContentsBean();
 
     ArrayList itemSet = part.getItemArraySorted();
-    sec.setQuestions(itemSet.size() );
+    sec.setQuestions(itemSet.size());
 
     if (delivery.getSettings().getItemNumbering().equals
-      (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
+        (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
     {
       sec.setNumbering(itemSet.size());
     }
     else
     {
-      sec.setNumbering(((Long) itemData.get("items")).intValue());
+      sec.setNumbering( ( (Long) itemData.get("items")).intValue());
     }
 
     sec.setText(part.getTitle());
@@ -701,23 +771,23 @@ public class DeliveryActionListener implements ActionListener
     // get items
     Iterator iter = itemSet.iterator();
     ArrayList itemContents = new ArrayList();
-    int i=0;
+    int i = 0;
     while (iter.hasNext())
     {
       ItemDataIfc thisitem = (ItemDataIfc) iter.next();
       ItemContentsBean itemBean = getQuestionBean(thisitem,
-        itemData, delivery);
+                                                  itemData, delivery);
 
       // Numbering
       itemBean.setNumber(++i);
       if (delivery.getSettings().getItemNumbering().equals
-        (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
+          (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
       {
         itemBean.setSequence(new Integer(itemBean.getNumber()).toString());
       }
       else
       {
-        itemBean.setSequence(((Integer) itemData.get("sequence" +
+        itemBean.setSequence( ( (Integer) itemData.get("sequence" +
           thisitem.getItemId().toString())).toString());
       }
 
@@ -736,14 +806,14 @@ public class DeliveryActionListener implements ActionListener
       }
     }
 
-   // scoring information
-   // Round to the nearest 1/10th.
+    // scoring information
+    // Round to the nearest 1/10th.
     int tmp = Math.round(maxPoints * 10.0f);
-    maxPoints = (float)tmp / 10.0f;
+    maxPoints = (float) tmp / 10.0f;
     sec.setMaxPoints(maxPoints);
 
     tmp = Math.round(points * 10.0f);
-    points = (float)tmp / 10.0f;
+    points = (float) tmp / 10.0f;
     sec.setPoints(points);
 
     sec.setShowStudentScore(delivery.isShowStudentScore());
@@ -753,30 +823,34 @@ public class DeliveryActionListener implements ActionListener
 
     return sec;
   }
+
   /**
    * populate a single ItemContentsBean from an item for delivery
    * @param item  an Item
    * @return
    */
-  private ItemContentsBean getQuestionBean(ItemDataIfc item, HashMap itemData, DeliveryBean delivery)
+  private ItemContentsBean getQuestionBean(ItemDataIfc item, HashMap itemData,
+                                           DeliveryBean delivery)
   {
     ItemContentsBean itemBean = new ItemContentsBean();
     itemBean.setItemData(item);
     itemBean.setMaxPoints(item.getScore().floatValue());
-    itemBean.setPoints((float) 0);
+    itemBean.setPoints( (float) 0);
 
     // update maxNumAttempts for audio
-    if (item.getTriesAllowed() != null) {
-        itemBean.setTriesAllowed(item.getTriesAllowed());
-      }
+    if (item.getTriesAllowed() != null)
+    {
+      itemBean.setTriesAllowed(item.getTriesAllowed());
+    }
 
     // save timeallowed for audio recording
-    if (item.getDuration() != null) {
-        itemBean.setDuration(item.getDuration());
-      }
+    if (item.getDuration() != null)
+    {
+      itemBean.setDuration(item.getDuration());
+    }
 
     itemBean.setItemGradingDataArray
-      ((ArrayList) itemData.get(item.getItemId()));
+      ( (ArrayList) itemData.get(item.getItemId()));
 
     // Set comments and points
     Iterator i = itemBean.getItemGradingDataArray().iterator();
@@ -786,21 +860,29 @@ public class DeliveryActionListener implements ActionListener
       // All itemgradingdata comments for the same item are identical
       itemBean.setGradingComment(data.getComments());
       if (data.getAutoScore() != null)
+      {
         itemBean.setPoints(itemBean.getPoints() +
-          data.getAutoScore().floatValue());
+                           data.getAutoScore().floatValue());
+      }
     }
 
     if (item.getTypeId().toString().equals("5") ||
         item.getTypeId().toString().equals("6") ||
         item.getTypeId().toString().equals("3") ||
         item.getTypeId().toString().equals("7"))
+    {
       itemBean.setFeedback(item.getGeneralItemFeedback());
+    }
     else if (itemBean.getPoints() >= itemBean.getMaxPoints())
+    {
       itemBean.setFeedback(item.getCorrectItemFeedback());
+    }
     else
+    {
       itemBean.setFeedback(item.getInCorrectItemFeedback());
 
-    // Do we randomize answer list?
+      // Do we randomize answer list?
+    }
     boolean randomize = false;
     i = item.getItemMetaDataSet().iterator();
     while (i.hasNext())
@@ -818,94 +900,120 @@ public class DeliveryActionListener implements ActionListener
 
     ArrayList myanswers = new ArrayList();
 
-      // Generate the answer key
-      String key = "";
-      Iterator key1 = item.getItemTextArraySorted().iterator();
-      int j=1;
-      while (key1.hasNext())
+    // Generate the answer key
+    String key = "";
+    Iterator key1 = item.getItemTextArraySorted().iterator();
+    int j = 1;
+    while (key1.hasNext())
+    {
+      // We need to store the answers in an arraylist in case they're
+      // randomized -- we assign labels here, and then step through
+      // them again later, and we have to make sure the order is the
+      // same each time.
+      myanswers = new ArrayList(); // Start over each time so we don't
+      // get duplicates.
+      ItemTextIfc text = (ItemTextIfc) key1.next();
+      Iterator key2 = null;
+
+      // Never randomize Fill-in-the-blank, always randomize matching
+      if ( (randomize && !item.getTypeId().toString().equals("8")) ||
+          item.getTypeId().toString().equals("9"))
       {
-        // We need to store the answers in an arraylist in case they're
-        // randomized -- we assign labels here, and then step through
-        // them again later, and we have to make sure the order is the
-        // same each time.
-        myanswers = new ArrayList();  // Start over each time so we don't
-                                    // get duplicates.
-        ItemTextIfc text = (ItemTextIfc) key1.next();
-        Iterator key2 = null;
-
-        // Never randomize Fill-in-the-blank, always randomize matching
-        if ((randomize && !item.getTypeId().toString().equals("8")) ||
-            item.getTypeId().toString().equals("9"))
-          {
-            ArrayList shuffled = new ArrayList();
-            Iterator i1 = text.getAnswerArraySorted().iterator();
-            while (i1.hasNext())
-              shuffled.add(i1.next());
-
-            // Randomize matching the same way for each
-            if (item.getTypeId().toString().equals("9"))
-              Collections.shuffle(shuffled, new Random((long) item.getText().hashCode()));
-            else
-              Collections.shuffle(shuffled, new Random((long) item.getText().hashCode() + AgentFacade.getAgentString().hashCode()));
-            key2 = shuffled.iterator();
-          }
-        else
-          key2 = text.getAnswerArraySorted().iterator();
-        int k=0;
-        while (key2.hasNext())
+        ArrayList shuffled = new ArrayList();
+        Iterator i1 = text.getAnswerArraySorted().iterator();
+        while (i1.hasNext())
         {
-          AnswerIfc answer = (AnswerIfc) key2.next();
+          shuffled.add(i1.next());
 
-          // Don't save the answer if it has no text
-          if ((answer.getText() == null || answer.getText().trim().equals(""))
-              && (item.getTypeId().toString().equals("1") ||
-                  item.getTypeId().toString().equals("2") ||
-                  item.getTypeId().toString().equals("3")))
-          {
-              // Ignore, it's a null answer
-          }
-          else
-          {
-            // Set the label and key
-            if (item.getTypeId().toString().equals("1") ||
+          // Randomize matching the same way for each
+        }
+        if (item.getTypeId().toString().equals("9"))
+        {
+          Collections.shuffle(shuffled,
+                              new Random( (long) item.getText().hashCode()));
+        }
+        else
+        {
+          Collections.shuffle(shuffled,
+                              new Random( (long) item.getText().hashCode() +
+                                         AgentFacade.getAgentString().hashCode()));
+        }
+        key2 = shuffled.iterator();
+      }
+      else
+      {
+        key2 = text.getAnswerArraySorted().iterator();
+      }
+      int k = 0;
+      while (key2.hasNext())
+      {
+        AnswerIfc answer = (AnswerIfc) key2.next();
+
+        // Don't save the answer if it has no text
+        if ( (answer.getText() == null || answer.getText().trim().equals(""))
+            && (item.getTypeId().toString().equals("1") ||
                 item.getTypeId().toString().equals("2") ||
-                item.getTypeId().toString().equals("9")) {
-              answer.setLabel(new Character(alphabet.charAt(k++)).toString());
-              if (answer.getIsCorrect() != null &&
-                  answer.getIsCorrect().booleanValue())
+                item.getTypeId().toString().equals("3")))
+        {
+          // Ignore, it's a null answer
+        }
+        else
+        {
+          // Set the label and key
+          if (item.getTypeId().toString().equals("1") ||
+              item.getTypeId().toString().equals("2") ||
+              item.getTypeId().toString().equals("9"))
+          {
+            answer.setLabel(new Character(alphabet.charAt(k++)).toString());
+            if (answer.getIsCorrect() != null &&
+                answer.getIsCorrect().booleanValue())
+            {
+              String addition = "";
+              if (item.getTypeId().toString().equals("9"))
               {
-                String addition = "";
-                if (item.getTypeId().toString().equals("9"))
-                  addition = new Integer(j++).toString() + ":";
-                if (key.equals(""))
-                  key +=  addition + answer.getLabel();
-                else
-                  key += ", " + addition + answer.getLabel();
+                addition = new Integer(j++).toString() + ":";
+              }
+              if (key.equals(""))
+              {
+                key += addition + answer.getLabel();
+              }
+              else
+              {
+                key += ", " + addition + answer.getLabel();
               }
             }
-            if (item.getTypeId().toString().equals("4") &&
-                answer.getIsCorrect() != null &&
-                answer.getIsCorrect().booleanValue())
-              key = (answer.getText().equalsIgnoreCase("true")?"True":"False");
-            if (item.getTypeId().toString().equals("5") ||
-                item.getTypeId().toString().equals("6") ||
-                item.getTypeId().toString().equals("7"))
+          }
+          if (item.getTypeId().toString().equals("4") &&
+              answer.getIsCorrect() != null &&
+              answer.getIsCorrect().booleanValue())
+          {
+            key = (answer.getText().equalsIgnoreCase("true") ? "True" : "False");
+          }
+          if (item.getTypeId().toString().equals("5") ||
+              item.getTypeId().toString().equals("6") ||
+              item.getTypeId().toString().equals("7"))
+          {
+            key += answer.getText();
+          }
+          if (item.getTypeId().toString().equals("8"))
+          {
+            if (key.equals(""))
             {
               key += answer.getText();
             }
-            if (item.getTypeId().toString().equals("8"))
-              if (key.equals(""))
-                key += answer.getText();
-              else
-                key += ", " + answer.getText();
-            myanswers.add(answer);
+            else
+            {
+              key += ", " + answer.getText();
+            }
           }
+          myanswers.add(answer);
         }
       }
-      itemBean.setKey(key);
+    }
+    itemBean.setKey(key);
 
-      // Delete this
-      itemBean.setShuffledAnswers(myanswers);
+    // Delete this
+    itemBean.setShuffledAnswers(myanswers);
 
     // This creates the list of answers for an item
     ArrayList answers = new ArrayList();
@@ -913,8 +1021,9 @@ public class DeliveryActionListener implements ActionListener
         item.getTypeId().toString().equals("2") ||
         item.getTypeId().toString().equals("3") ||
         item.getTypeId().toString().equals("4") ||
-        item.getTypeId().toString().equals("9")) {
-    Iterator iter = myanswers.iterator();
+        item.getTypeId().toString().equals("9"))
+    {
+      Iterator iter = myanswers.iterator();
       while (iter.hasNext())
       {
         SelectionBean selectionBean = new SelectionBean();
@@ -925,22 +1034,32 @@ public class DeliveryActionListener implements ActionListener
         // It's saved lower case in the db -- this is a kludge
         if (item.getTypeId().toString().equals("4") && // True/False
             answer.getText().equals("true"))
+        {
           answer.setText("True");
+        }
         if (item.getTypeId().toString().equals("4") && // True/False
             answer.getText().equals("false"))
+        {
           answer.setText("False");
 
+        }
         String label = "";
         if (answer.getLabel() == null)
-        answer.setLabel("");
+        {
+          answer.setLabel("");
 
-        // Delete this when everything works.
-        if (! answer.getLabel().equals(""))
+          // Delete this when everything works.
+        }
+        if (!answer.getLabel().equals(""))
+        {
           label += answer.getLabel() + ". " + answer.getText();
+        }
         else
+        {
           label = answer.getText();
 
-        // Set the response to true or false for each answer
+          // Set the response to true or false for each answer
+        }
         selectionBean.setResponse(false);
         Iterator iter1 = itemBean.getItemGradingDataArray().iterator();
         while (iter1.hasNext())
@@ -948,26 +1067,34 @@ public class DeliveryActionListener implements ActionListener
           ItemGradingData data = (ItemGradingData) iter1.next();
           if (data.getPublishedAnswer() != null &&
               (data.getPublishedAnswer().equals(answer) ||
-                data.getPublishedAnswer().getId().equals(answer.getId())))
+               data.getPublishedAnswer().getId().equals(answer.getId())))
           {
             selectionBean.setItemGradingData(data);
             selectionBean.setResponse(true);
           }
         }
 
-        if (delivery.getFeedbackComponent() != null && delivery.getFeedback().equals("true") && delivery.getFeedbackComponent().getShowSelectionLevel())
+        if (delivery.getFeedbackComponent() != null &&
+            delivery.getFeedback().equals("true") &&
+            delivery.getFeedbackComponent().getShowSelectionLevel())
         {
           // If right answer, set feedback to correct, otherwise incorrect
           if (answer.getIsCorrect() == null)
+          {
             selectionBean.setFeedback(answer.getGeneralAnswerFeedback());
+          }
           else if (selectionBean.getResponse() &&
-               answer.getIsCorrect().booleanValue() ||
-              !selectionBean.getResponse() &&
-               !answer.getIsCorrect().booleanValue())
+                   answer.getIsCorrect().booleanValue() ||
+                   !selectionBean.getResponse() &&
+                   !answer.getIsCorrect().booleanValue())
+          {
             selectionBean.setFeedback(answer.getCorrectAnswerFeedback());
+          }
           else
+          {
             selectionBean.setFeedback(answer.getInCorrectAnswerFeedback());
 
+          }
         }
 
         // Delete this
@@ -975,16 +1102,22 @@ public class DeliveryActionListener implements ActionListener
         if (delivery.getFeedback().equals("true") &&
             delivery.getFeedbackComponent().getShowCorrectResponse() &&
             answer.getIsCorrect() != null)
+        {
           description = answer.getIsCorrect().toString();
 
-        // Delete this
+          // Delete this
+        }
         SelectItem newItem =
           new SelectItem(answer.getId().toString(), label, description);
 
         if (item.getTypeId().toString().equals("4"))
+        {
           answers.add(newItem);
+        }
         else
+        {
           answers.add(selectionBean);
+        }
       }
     }
     // Delete this
@@ -992,23 +1125,27 @@ public class DeliveryActionListener implements ActionListener
     itemBean.setSelectionArray(answers);
 
     if (item.getTypeId().toString().equals("9")) // matching
+    {
       populateMatching(item, itemBean);
 
+    }
     if (item.getTypeId().toString().equals("8")) // fill in the blank
+    {
       populateFib(item, itemBean);
 
-    // round the points to the nearest tenth
+      // round the points to the nearest tenth
 
+    }
     float alignment = itemBean.getMaxPoints();
     // Round to the nearest 1/10th.
     int tmp = Math.round(alignment * 10.0f);
-    alignment = (float)tmp / 10.0f;
+    alignment = (float) tmp / 10.0f;
     itemBean.setMaxPoints(alignment);
 
     alignment = itemBean.getPoints();
     // Round to the nearest 1/10th.
     tmp = Math.round(alignment * 10.0f);
-    alignment = (float)tmp / 10.0f;
+    alignment = (float) tmp / 10.0f;
     itemBean.setPoints(alignment);
 
     return itemBean;
@@ -1033,21 +1170,24 @@ public class DeliveryActionListener implements ActionListener
       ArrayList shuffled = new ArrayList();
       Iterator iter2 = text.getAnswerArraySorted().iterator();
       while (iter2.hasNext())
+      {
         shuffled.add(iter2.next());
 
+      }
       Collections.shuffle
-        (shuffled, new Random((long) item.getText().hashCode()));
+        (shuffled, new Random( (long) item.getText().hashCode()));
       iter2 = shuffled.iterator();
 
-      int i=0;
-      choices.add(new SelectItem("0","select", "")); // default value for choice
+      int i = 0;
+      choices.add(new SelectItem("0", "select", "")); // default value for choice
       while (iter2.hasNext())
       {
         AnswerIfc answer = (AnswerIfc) iter2.next();
         newAnswers.add(new Character(alphabet.charAt(i)).toString() +
-          ". " + answer.getText());
+                       ". " + answer.getText());
         choices.add(new SelectItem(answer.getId().toString(),
-          new Character(alphabet.charAt(i++)).toString(), ""));
+                                   new Character(alphabet.charAt(i++)).toString(),
+                                   ""));
       }
 
       mbean.setChoices(choices); // Set the A/B/C... pulldown
@@ -1065,14 +1205,18 @@ public class DeliveryActionListener implements ActionListener
           if (data.getPublishedAnswer() != null)
           {
             mbean.setResponse(data.getPublishedAnswer().getId()
-              .toString());
+                              .toString());
             if (data.getPublishedAnswer().getIsCorrect() != null &&
                 data.getPublishedAnswer().getIsCorrect().booleanValue())
+            {
               mbean.setFeedback(data.getPublishedAnswer()
-                .getCorrectAnswerFeedback());
+                                .getCorrectAnswerFeedback());
+            }
             else
+            {
               mbean.setFeedback(data.getPublishedAnswer()
-                .getInCorrectAnswerFeedback());
+                                .getInCorrectAnswerFeedback());
+            }
           }
           break;
         }
@@ -1094,11 +1238,11 @@ public class DeliveryActionListener implements ActionListener
     while (alltext.indexOf("{") > -1)
     {
       String tmp = alltext.substring(0, alltext.indexOf("{"));
-      alltext = alltext.substring(alltext.indexOf("}")+1);
+      alltext = alltext.substring(alltext.indexOf("}") + 1);
       texts.add(tmp);
     }
     texts.add(alltext);
-    int i=0;
+    int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();
     while (iter.hasNext())
     {
@@ -1106,7 +1250,7 @@ public class DeliveryActionListener implements ActionListener
       FibBean fbean = new FibBean();
       fbean.setItemContentsBean(bean);
       fbean.setAnswer(answer);
-      fbean.setText((String) texts.toArray()[i++]);
+      fbean.setText( (String) texts.toArray()[i++]);
       fbean.setHasInput(true);
 
       ArrayList datas = bean.getItemGradingDataArray();
@@ -1126,14 +1270,18 @@ public class DeliveryActionListener implements ActionListener
             fbean.setResponse(data.getAnswerText());
             fbean.setIsCorrect(false);
             if (answer.getText() == null)
+            {
               answer.setText("");
+            }
             StringTokenizer st2 = new StringTokenizer(answer.getText(), "|");
             while (st2.hasMoreTokens())
             {
               String nextT = st2.nextToken();
               if (data.getAnswerText() != null &&
                   data.getAnswerText().equalsIgnoreCase(nextT))
+              {
                 fbean.setIsCorrect(true);
+              }
             }
           }
         }
@@ -1142,7 +1290,7 @@ public class DeliveryActionListener implements ActionListener
     }
 
     FibBean fbean = new FibBean();
-    fbean.setText((String) texts.toArray()[i]);
+    fbean.setText( (String) texts.toArray()[i]);
     fbean.setHasInput(false);
     fibs.add(fbean);
 
