@@ -93,7 +93,7 @@ function saveTime()
 <div class="indnt1"><h4>
    <h:outputText value="#{msg.table_of_contents} " />
   <h:outputText styleClass="tier10" value="#{msg.tot_score} " />
- 
+
   <h:outputText value="#{delivery.tableOfContents.maxScore} " />
   <h:outputText value="#{msg.pt}" />
 </h4>
@@ -123,11 +123,11 @@ function saveTime()
 <font color="red"><h:messages/></font>
 
   <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
-  <h:column>  
+  <h:column>
 
  <samigo:hideDivision id="hidePartDiv" title = "#{msg.p} #{part.number} - #{part.nonDefaultText}  -
-       #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.points}/#{part.maxPoints} #{msg.pt}" >
-  
+       #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.pointsDisplayString}#{part.maxPoints} #{msg.pt}" >
+
       <h:dataTable value="#{part.itemContents}" var="question">
       <h:column>
    <f:verbatim><div class="indnt3"></f:verbatim>
@@ -138,9 +138,9 @@ function saveTime()
           <h:graphicImage
             alt="#{msg.q_marked}"
             url="/images/tree/marked.gif"  rendered="#{question.review}"/>
-        
+
             <h:commandLink immediate="true" action="takeAssessment" onmouseup="saveTime();">
-            <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.points}/#{question.maxPoints} #{msg.pt}) " escape="false" />
+            <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.maxPoints} #{msg.pt}) " escape="false" />
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
             <f:param name="partnumber" value="#{part.number}" />
             <f:param name="questionnumber" value="#{question.number}" />
@@ -152,7 +152,7 @@ function saveTime()
       </h:dataTable>
     </samigo:hideDivision>
 <f:verbatim></div></f:verbatim>
-  </h:column> 
+  </h:column>
   </h:dataTable>
 </div></div>
 <p class="act">
@@ -160,8 +160,8 @@ function saveTime()
     action="#{delivery.submitForGrade}" styleClass="active"  disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>
 
-  <h:commandButton type="submit" value="#{msg.button_save_x}" 
-    action="#{delivery.saveAndExit}" 
+  <h:commandButton type="submit" value="#{msg.button_save_x}"
+    action="#{delivery.saveAndExit}"
     rendered="#{!delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>
 
