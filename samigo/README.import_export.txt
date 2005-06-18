@@ -15,14 +15,15 @@ Note: Tests and Quizzes will accept files with any extension as long as they
 are in correct format for importation.  (SAK-1203).
 
 3. Question format issues on export.  
-In some cases, space was lost in the question text for the file upload question.  
-In some cases, one choice lost from Matching question (but not its pair).
-In some cases, some format changes reported in Fill In the Blank.  
-Issue reported with non-scored (survey) questions exported in incorrect format. (SAM-271)
+  a. In some cases, blank space was lost in the question text for the file upload question.  
+  b. In some cases, one choice lost from Matching question (but not its pair).
+  c. Fill In the Blank. In special case where the first option appears before any question text, 
+     question is exported from Sakai, and then reimported, format errors reported. Workaround (7 below).
+  d. Issue reported with non-scored (survey) questions exported in incorrect format. (SAM-271)
 
-4. Feedback and model answers on export.  Model Short Answer and Feedback are not supported for 
-Short Answer/Essay question.  
-Feedback not supported for File Upload question. (SAM-271).
+4. Feedback and model answers on export.  
+  Model Short Answer and Feedback are not supported for Short Answer/Essay question.  
+  Feedback not supported for File Upload question. (SAM-271).
 
 5. Sakai specific metadata.  Sakai specific metadata is supported by embedding assessment information 
 in QTI format.  The following metadata elements are not yet supported: 
@@ -53,8 +54,14 @@ There are two workarounds for this, using a text editor:
     b. A more general solution is to enclose the non-XHTML text in CDATA.  For example:
   <mattext texttype="text/html"><![CDATA[True-False: Ist diese Frage richtig oder falsch? (Richtig) ]]></mattext>
 
-  Note that the XML parser will make no attmempt to validate the enclosed character data, and will then
+  Note that the XML parser will make no attempt to validate the enclosed character data, and will then
   accept non-XHTML and even bad HTML.
+
+7. Workaround for fill-in-the-blank.(SAM-271)
+The workaround is to have some non-blank text in the phrasing of the question, such as
+   THE {ends} do not {justify} the means.
+instead of
+   {ends} do not {justify} the means.
 
 
 --------------------------------------------------
