@@ -26,7 +26,7 @@ should be included in file importing DeliveryMessages
   <h:outputText value="#{question.itemData.answerKey}" />
 
 
-<%-- OLD ANSWER KEY 
+<%-- OLD ANSWER KEY
 <h:panelGrid columns="2" styleClass="longtext">
 <h:outputLabel value="#{msg.answerKey}: "/>
    <h:panelGroup>
@@ -34,18 +34,19 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer2">
         <h:column>
-          <h:outputText rendered="#{answer2.isCorrect}" escape="false" value="#{answer2.text}" /> 
-        </h:column> 
+          <h:outputText rendered="#{answer2.isCorrect}" escape="false" value="#{answer2.text}" />
+        </h:column>
       </h:dataTable>
         </h:column>
       </h:dataTable>
 </h:panelGroup>
 --%>
 
-<h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correctItemFeedback}: "/>
- <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{question.itemData.correctItemFeedback}" />
-
-      <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{msg.incorrectItemFeedback}: "/>
-<h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{question.itemData.inCorrectItemFeedback}"/>
+  <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correctItemFeedback}: "/>
+  <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}"
+    value="#{question.itemData.correctItemFeedback}" escape="false"/>
+  <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{msg.incorrectItemFeedback}: "/>
+  <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}"
+    value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
 </h:panelGrid>
-   
+

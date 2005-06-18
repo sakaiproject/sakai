@@ -7,21 +7,22 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:dataTable value="#{itemText.answerArray}" var="answer">
         <h:column>
-        <f:verbatim><div class="longtext"></f:verbatim>  
+        <f:verbatim><div class="longtext"></f:verbatim>
 <h:outputLabel rendered="#{answer.text != null && answer.text ne ''}" value="#{msg.preview_model_short_answer}" />
           <f:verbatim><br/></f:verbatim>
           <h:outputText escape="false" value="#{answer.text}" />
-<f:verbatim></div></f:verbatim> 
+<f:verbatim></div></f:verbatim>
         </h:column>
       </h:dataTable>
 
-     
+
     </h:column>
   </h:dataTable>
 
 <f:verbatim> <div class="longtext"></f:verbatim>
-<h:outputLabel rendered="#{answer.text != null && answer.text ne ''}" value="#{msg.preview_model_short_answer}: "/><f:verbatim><br/></f:verbatim>
-<h:outputText rendered="#{answer.text != null && answer.text ne ''}" value="#{answer.text}" /><f:verbatim><br/></f:verbatim>
- <h:outputLabel rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}" value="#{msg.feedback}: " />
-  <h:outputText rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}" value="#{question.itemData.generalItemFeedback}" />
+  <h:outputLabel rendered="#{answer.text != null && answer.text ne ''}" value="#{msg.preview_model_short_answer}: "/><f:verbatim><br/></f:verbatim>
+  <h:outputText rendered="#{answer.text != null && answer.text ne ''}" value="#{answer.text}" /><f:verbatim><br/></f:verbatim>
+  <h:outputLabel rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}" value="#{msg.feedback}: " />
+  <h:outputText rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}"
+    value="#{question.itemData.generalItemFeedback}" escape="false" />
 <f:verbatim> </div></f:verbatim>

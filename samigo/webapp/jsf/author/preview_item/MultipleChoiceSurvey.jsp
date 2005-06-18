@@ -17,11 +17,12 @@ should be included in file importing DeliveryMessages
 
 <f:verbatim><div class="longtext"></f:verbatim>
   <h:outputLabel rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}" value="#{msg.generalItemFeedback}: " />
-  <h:outputText rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}" value="#{question.itemData.generalItemFeedback}" />
+  <h:outputText rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}"
+    value="#{question.itemData.generalItemFeedback}" escape="false" />
 
 <f:verbatim><div class="longtext"></f:verbatim>
 
 </h:column>
 </h:dataTable>
-     
- 
+
+

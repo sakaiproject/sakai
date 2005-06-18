@@ -7,7 +7,7 @@ should be included in file importing DeliveryMessages
   <!-- 1. print out the matching choices -->
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
-      <h:dataTable value="#{itemText.answerArraySorted}" var="answer" 
+      <h:dataTable value="#{itemText.answerArraySorted}" var="answer"
          rendered="#{itemText.sequence==1}">
         <h:column>
             <h:panelGrid columns="2">
@@ -22,7 +22,7 @@ should be included in file importing DeliveryMessages
   <!-- 2. print out the matching text -->
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
-      <h:panelGrid columns="2">  
+      <h:panelGrid columns="2">
         <h:selectOneMenu id="label" disabled="true">
           <f:selectItem itemValue="" itemLabel="select"/>
           <f:selectItem itemValue="" itemLabel="A"/>
@@ -34,11 +34,11 @@ should be included in file importing DeliveryMessages
         <h:outputText value="" />
 
         <%-- show correct & incorrect answer feedback, only need to show the set that is attached
-             to the correct answer. Look at the data in the table and you may understand this part 
+             to the correct answer. Look at the data in the table and you may understand this part
              better -daisyf --%>
         <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
-              <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFeedback!=null 
+              <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFeedback!=null
                && answer.correctAnswerFeedback ne ''}" styleClass="longtext">
                 <h:outputLabel value="#{msg.correct}:" />
                 <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
@@ -50,7 +50,7 @@ should be included in file importing DeliveryMessages
 
         <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
-              <h:panelGroup rendered="#{answer.isCorrect && answer.inCorrectAnswerFeedback!=null 
+              <h:panelGroup rendered="#{answer.isCorrect && answer.inCorrectAnswerFeedback!=null
                && answer.inCorrectAnswerFeedback ne ''}" styleClass="longtext">
                 <h:outputLabel value="#{msg.incorrect}:" />
                 <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
@@ -66,10 +66,12 @@ should be included in file importing DeliveryMessages
  <h:panelGrid columns="2" styleClass="longtext">
       <h:outputLabel value="#{msg.answerKey}: "/>
       <h:outputText escape="false" value="#{question.itemData.answerKey}" />
-     
+
       <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correct}:"/>
-      <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{question.itemData.correctItemFeedback}" />
-     
+      <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}"
+        value="#{question.itemData.correctItemFeedback}" escape="false" />
+
      <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{msg.incorrect}:"/>
-      <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{question.itemData.inCorrectItemFeedback}"/>
+      <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}"
+        value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
 </h:panelGrid>
