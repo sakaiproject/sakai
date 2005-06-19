@@ -24,6 +24,7 @@
 
 package org.sakaiproject.component.app.help;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +44,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
@@ -78,7 +83,7 @@ import org.sakaiproject.component.app.help.model.ContextBean;
 import org.sakaiproject.component.app.help.model.ResourceBean;
 import org.sakaiproject.component.app.help.model.SourceBean;
 import org.sakaiproject.component.app.help.model.TableOfContentsBean;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.service.framework.config.ServerConfigurationService;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -89,6 +94,11 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import sun.misc.BASE64Encoder;
 
@@ -119,6 +129,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   private int contextSize;
 
   private RestConfiguration restConfiguration;
+  private ServerConfigurationService serverConfigurationService;
 
   private TableOfContentsBean toc;
   private Boolean initialized = Boolean.FALSE;
@@ -131,6 +142,23 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
   private static final Log LOG = LogFactory.getLog(HelpManagerImpl.class);
 
+  
+  /**
+   * @see org.sakaiproject.api.app.help.HelpManager#getServerConfigurationService()
+   */
+  public ServerConfigurationService getServerConfigurationService()
+  {    
+    return serverConfigurationService;
+  }
+  
+  /**
+   * @see org.sakaiproject.api.app.help.HelpManager#setServerConfigurationService(org.sakaiproject.service.framework.config.ServerConfigurationService)
+   */
+  public void setServerConfigurationService(ServerConfigurationService s)
+  {    
+    serverConfigurationService = s;
+  }
+  
   public List getContexts(String mappedView)
   {
     return (List) helpContextConfig.get(mappedView);
@@ -518,7 +546,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     }
 
     return doc;
-  }     
+  }
 
   /**
    * Get Table Of Contents Bean.
@@ -746,7 +774,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
           }
 
           // handle external help content
-          EXTERNAL_URL = ServerConfigurationService.getString("help.location");
+          EXTERNAL_URL = getServerConfigurationService().getString("help.location");
           if (!"".equals(EXTERNAL_URL))
           {
             if (EXTERNAL_URL.endsWith("/"))
@@ -776,15 +804,14 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         + getRestConfiguration().getRestDomain() + "/";
   }
 
-  
   /**
    * @see org.sakaiproject.api.app.help.HelpManager#getExternalLocation()
    */
   public String getExternalLocation()
   {
-    return EXTERNAL_URL;    
+    return EXTERNAL_URL;
   }
-  
+
   /**
    * @see org.sakaiproject.api.app.help.HelpManager#getStaticRestUrl()
    */
@@ -813,8 +840,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   }
 
   /**
-   * Register help content from classpath registration files. 
-   * Index resources in Lucene.
+   * Register help content either locally or externally 
+   * Index resources in Lucene
    */
   private void registerHelpContent()
   {
@@ -823,81 +850,15 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       LOG.debug("registerHelpContent()");
     }
 
-    Set toolSet = toolManager.findTools(null, null);
-    List helpClasspathRegList = new ArrayList();
-
-    for (Iterator i = toolSet.iterator(); i.hasNext();)
+    // register external help docs
+    if (!"".equals(EXTERNAL_URL))
     {
-      Tool tool = (Tool) i.next();
-      if (tool != null && tool.getId() != null)
-      {
-        helpClasspathRegList.add("/"
-            + tool.getId().toLowerCase().replaceAll("\\.", "_") + "/"
-            + "help.xml");
-      }
+      registerExternalHelpContent(EXTERNAL_URL + "/help.xml");
     }
-
-    // add non-standard ids
-    helpClasspathRegList.add("/sakai_workspace/help.xml");
-    helpClasspathRegList.add("/sakai_web_content/help.xml");
-    helpClasspathRegList.add("/sakai_general_info/help.xml");
-    helpClasspathRegList.add("/sakai_grading/help.xml");
-    helpClasspathRegList.add("/sakai_worksite/help.xml");
-
-    Set allCategories = new TreeSet();
-
-    for (Iterator i = helpClasspathRegList.iterator(); i.hasNext();)
+    else
     {
-      String classpathUrl = (String) i.next();
-      
-      URL urlResource = null;
-      
-      if (!"".equals(EXTERNAL_URL))
-      {
-        // handle external help location
-        try{
-          urlResource = new URL(EXTERNAL_URL + classpathUrl);
-        }
-        catch (MalformedURLException e){
-          LOG.debug("Unable to load external URL: " + classpathUrl);
-          continue;
-        }
-      }
-      else{        
-        urlResource= getClass().getResource(classpathUrl);
-        
-        if (urlResource == null)
-        {
-          LOG.debug("Unable to load resource: " + classpathUrl);
-          continue;
-        }
-      }                              
-
-      if (urlResource == null)
-      {
-        LOG.debug("Unable to load classpath resource: " + classpathUrl);
-        continue;
-      }
-      try
-      {
-        org.springframework.core.io.Resource resource = new InputStreamResource(
-            urlResource.openStream(), classpathUrl);
-        BeanFactory beanFactory = new XmlBeanFactory(resource);
-        TableOfContents tocTemp = (TableOfContents) beanFactory
-            .getBean(TOC_API);
-        Set categories = tocTemp.getCategories();
-
-        storeRecursive(categories);
-        allCategories.addAll(categories);
-      }
-      catch (Exception e)
-      {
-        LOG.debug("Unable to load classpath resource: " + classpathUrl);
-      }
+      registerStaticContent();
     }
-
-    toc = new TableOfContentsBean();
-    toc.setCategories(allCategories);
 
     // create index in lucene
     IndexWriter writer = null;
@@ -948,6 +909,218 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     Date end = new Date();
     LOG.info("finished initializing lucene in "
         + (end.getTime() - start.getTime()) + " total milliseconds");
+  }
+
+  /**
+   * register external help content
+   * build document from external reg file
+   * @param externalHelpReg
+   */
+  public void registerExternalHelpContent(String externalHelpReg)
+  {
+
+    BufferedInputStream bis = null;
+    try
+    {
+      URL urlResource = new URL(externalHelpReg);
+      bis = new BufferedInputStream(urlResource.openStream());
+
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      dbf.setNamespaceAware(true);
+      DocumentBuilder builder = dbf.newDocumentBuilder();
+
+      InputSource is = new org.xml.sax.InputSource(bis);
+      org.w3c.dom.Document xmlDocument = builder.parse(is);
+
+      Node helpRegNode = (Node) xmlDocument.getDocumentElement();
+      recursiveExternalReg(helpRegNode, null);
+
+    }
+    catch (MalformedURLException e)
+    {
+      LOG.warn("Unable to load external URL: " + EXTERNAL_URL + "/help.xml");
+    }
+    catch (IOException e)
+    {
+      LOG.warn("I/O error opening external URL: " + EXTERNAL_URL + "/help.xml");
+    }
+    catch (ParserConfigurationException e)
+    {
+      LOG.error(e.getMessage(), e);
+    }
+    catch (SAXException e)
+    {
+      LOG.error(e.getMessage(), e);
+    }
+  }
+
+  /**
+   * register local content
+   */
+  public void registerStaticContent()
+  {
+    //  register static content
+    Set toolSet = toolManager.findTools(null, null);
+    List helpClasspathRegList = new ArrayList();
+
+    for (Iterator i = toolSet.iterator(); i.hasNext();)
+    {
+      Tool tool = (Tool) i.next();
+      if (tool != null && tool.getId() != null)
+      {
+        helpClasspathRegList.add("/"
+            + tool.getId().toLowerCase().replaceAll("\\.", "_") + "/"
+            + "help.xml");
+      }
+    }
+
+    // add non-standard ids
+    helpClasspathRegList.add("/sakai_workspace/help.xml");
+    helpClasspathRegList.add("/sakai_web_content/help.xml");
+    helpClasspathRegList.add("/sakai_general_info/help.xml");
+    helpClasspathRegList.add("/sakai_grading/help.xml");
+    helpClasspathRegList.add("/sakai_worksite/help.xml");
+
+    Set allCategories = new TreeSet();
+
+    for (Iterator i = helpClasspathRegList.iterator(); i.hasNext();)
+    {
+      String classpathUrl = (String) i.next();
+
+      URL urlResource = null;
+
+      if (!"".equals(EXTERNAL_URL))
+      {
+        // handle external help location
+        try
+        {
+          urlResource = new URL(EXTERNAL_URL + classpathUrl);
+        }
+        catch (MalformedURLException e)
+        {
+          LOG.debug("Unable to load external URL: " + classpathUrl);
+          continue;
+        }
+      }
+      else
+      {
+        urlResource = getClass().getResource(classpathUrl);
+
+        if (urlResource == null)
+        {
+          LOG.debug("Unable to load resource: " + classpathUrl);
+          continue;
+        }
+      }
+
+      if (urlResource == null)
+      {
+        LOG.debug("Unable to load classpath resource: " + classpathUrl);
+        continue;
+      }
+      try
+      {
+        org.springframework.core.io.Resource resource = new InputStreamResource(
+            urlResource.openStream(), classpathUrl);
+        BeanFactory beanFactory = new XmlBeanFactory(resource);
+        TableOfContents tocTemp = (TableOfContents) beanFactory
+            .getBean(TOC_API);
+        Set categories = tocTemp.getCategories();
+
+        storeRecursive(categories);
+        allCategories.addAll(categories);
+      }
+      catch (Exception e)
+      {
+        LOG.debug("Unable to load classpath resource: " + classpathUrl);
+      }
+    }
+
+    toc = new TableOfContentsBean();
+    toc.setCategories(allCategories);
+  }
+
+  private static int cnt = 0;
+
+  /**
+   * Parse external help reg doc recursively
+   * @param n
+   * @param category
+   */
+  public void recursiveExternalReg(Node n, Category category)
+  {
+
+    if (n == null)
+    {
+      return;
+    }
+
+    NodeList nodeList = n.getChildNodes();
+    int nodeListLength = nodeList.getLength();
+
+    for (int i = 0; i < nodeListLength; i++)
+    {
+      if (nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
+      {
+        continue;
+      }
+
+      Node currentNode = nodeList.item(i);
+      if ("category".equals(currentNode.getNodeName()))
+      {
+        Category childCategory = new CategoryBean();
+        childCategory.setName(currentNode.getAttributes().getNamedItem("name")
+            .getNodeValue());
+        
+        if (category != null){
+          childCategory.setParent(category);
+          category.getCategories().add(childCategory);
+        }
+        
+        storeCategory(childCategory);
+
+        if (LOG.isDebugEnabled())
+        {
+          LOG.debug("adding help category: " + childCategory.getName());
+        }
+        LOG.info("adding help category: " + childCategory.getName());
+
+        recursiveExternalReg(currentNode, childCategory);
+      }
+      else
+        if ("resource".equals(currentNode.getNodeName()))
+        {
+          Resource resource = new ResourceBean();
+          NamedNodeMap nnm = currentNode.getAttributes();
+
+          if (nnm != null)
+          {
+            resource.setName(nnm.getNamedItem("name").getNodeValue());
+            resource.setLocation(nnm.getNamedItem("location").getNodeValue());
+            resource.setDocId(new Integer(cnt).toString());
+            cnt++;
+
+            //defaultForTool is an optional attribute
+            if (nnm.getNamedItem("defaultForTool") != null)
+            {
+              resource.setDefaultForTool(nnm.getNamedItem("defaultForTool")
+                  .getNodeValue());
+            }
+          }
+
+          resource.setCategory(category);
+          category.getResources().add(resource);
+
+          if (LOG.isDebugEnabled())
+          {
+            LOG.debug("adding help resource: " + resource + " to category: "
+                + category.getName());
+          }
+          LOG.info("adding help resource: " + resource + " to category: "
+              + category.getName());
+          recursiveExternalReg(currentNode, category);
+        }
+    }
   }
 
 }

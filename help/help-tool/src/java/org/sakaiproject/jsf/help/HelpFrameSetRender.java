@@ -33,6 +33,8 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+
 /**
  * render help frame set 
  * @version $Id$
@@ -66,10 +68,9 @@ public class HelpFrameSetRender extends Renderer
     String helpParameter = ((HttpServletRequest) context.getExternalContext()
         .getRequest()).getParameter("help");
               
-//    if (helpParameter == null){
-//      helpParameter = "sakai.workspace";
-//    }
     tocToolUrl = tocToolUrl + "?help=" + helpParameter;
+    
+    helpWindowTitle = ServerConfigurationService.getString("ui.service");
     
     writer.write("<html><head><title>" + helpWindowTitle + "</title></head>");
     writer.write("<FRAMESET cols=\"30%, 70%\"><FRAMESET rows=\"250, 350\">");

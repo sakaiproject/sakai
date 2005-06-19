@@ -39,6 +39,7 @@ public class CategoryBean implements Category, Comparable
   private String name;
   private Set resources = new HashSet();
   private Set categories = new HashSet();
+  private Category parent;
 
   /**
    * get id
@@ -105,7 +106,18 @@ public class CategoryBean implements Category, Comparable
   {
     this.resources = resources;
   }
-
+  
+  /**
+   * @see org.sakaiproject.api.app.help.Category#getParent()
+   */
+  public Category getParent()
+  {
+    return parent;
+  }
+  public void setParent(Category parent)
+  {   
+    this.parent = parent;
+  }
   /**
    * @see java.lang.Object#equals(java.lang.Object)
    */

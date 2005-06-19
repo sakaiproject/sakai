@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sakaiproject.service.framework.config.ServerConfigurationService;
+
 /**
  * Help Manager for the Sakai Help Tool.
  * @version $Id$ 
@@ -216,6 +218,18 @@ public interface HelpManager
    * @return EXTERNAL_LOCATION
    */
   public String getExternalLocation();
+  
+  /**
+   * get server config service
+   * @return
+   */
+  public ServerConfigurationService getServerConfigurationService();
+ 
+  /**
+   * set server config service
+   * @param s
+   */
+  public void setServerConfigurationService(ServerConfigurationService s);
 }
 
 /**********************************************************************************

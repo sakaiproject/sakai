@@ -89,6 +89,15 @@ public class ContextSensitiveTreeRender extends Renderer
         .getRequest()).getParameter("help");
 
     Set categories = (Set) value;
+    
+    // filter to only include top-level categories
+    for (Iterator i = categories.iterator(); i.hasNext();){
+      Category c = (Category) i.next();
+      if (c.getParent() != null){
+        i.remove();
+      }
+    }
+    
     encodeRecursive(writer, categories, helpDocId);
     writer.write("</ol>");
 
@@ -113,6 +122,7 @@ public class ContextSensitiveTreeRender extends Renderer
     for (Iterator i = categories.iterator(); i.hasNext();)
     {
       Category category = (Category) i.next();
+             
       Set resources = category.getResources();
       String id = category.getName();
 
@@ -132,7 +142,7 @@ public class ContextSensitiveTreeRender extends Renderer
           writer.write("<li>");
           Resource resource = (Resource) j.next();
 
-          // either helpDocId will be a helpDocId (coming from search) or
+          // helpDocId will be a helpDocId (coming from search) or
           // will be a tool id coming from portal
           if (helpDocId != null
               && (helpDocId.equals(resource.getDefaultForTool()) || helpDocId

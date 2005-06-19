@@ -67,6 +67,19 @@ public interface Category
    * @param categories
    */
   public void setCategories(Set categories);
+  
+  /**
+   * get parent category
+   * @return category
+   */
+  public Category getParent();
+  
+  /**
+   * set parent category
+   * @param cat
+   */
+  public void setParent(Category cat);
+  
 }
 
 /**********************************************************************************

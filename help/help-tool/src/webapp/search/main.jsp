@@ -45,7 +45,7 @@
 		</sakai:group_box>
     </sakai:view_content>
 </h:form>
-<sakai:group_box title="#{msgs.search_result}">
+<sakai:group_box title="">
     <h:outputText value="#{SearchTool.numberOfResult}" />
     <sakai:flat_list value="#{SearchTool.searchResults}" var="result">
 	    <h:column>

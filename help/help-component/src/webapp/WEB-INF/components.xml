@@ -50,6 +50,9 @@
 					<ref
 						bean="org.sakaiproject.api.kernel.tool.ActiveToolManager" />
 				</property>
+				<property name="serverConfigurationService">
+					<ref bean="org.sakaiproject.service.framework.config.ServerConfigurationService"/>
+				</property>
 				<property name="txManager">
 					<ref bean="helpTransactionManager" />
 				</property>
