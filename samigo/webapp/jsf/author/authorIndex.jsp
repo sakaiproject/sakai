@@ -59,19 +59,17 @@
       <br/>
    </div>
 <div class="shorttext">
-      <h:outputLabel value="#{msg.assessment_title}" />
-
-    <h:inputText id="title" value="#{author.assessTitle}" size="60" required="true">
+    <h:outputLabel value="#{msg.assessment_title}" />
+    <h:inputText id="title" value="#{author.assessTitle}" size="32" required="true">
     <!-- AuthorAssessmentListener.createAssessment() read param from AuthorBean to
       create the assessment  -->
     </h:inputText>
     <h:commandButton type="submit" value="#{msg.button_create}" action="createAssessment">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
     </h:commandButton>
-
     <br />
-    <h:outputText value="#{msg.assessment_import}" styleClass="form_label" />
-    <h:outputText value="" styleClass="form_label" />
+    <br />
+    <h:outputLabel value="#{msg.assessment_import}" />
     <h:commandButton value="#{msg.button_import}" immediate="true" type="submit"
       action="importAssessment">
     </h:commandButton>
