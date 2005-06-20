@@ -16,7 +16,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
-        value="#{msg.title_total}" /></title>
+        value="#{msg.sub_status}" /></title>
       <samigo:stylesheet path="/css/samigo.css"/>
       <samigo:stylesheet path="/css/sam.css"/>
       </head>
@@ -44,7 +44,7 @@
     </h:commandLink>
   </p>
   <h3>
-    <h:outputText value="#{msg.title_total}"/>
+    <h:outputText value="#{msg.sub_status}"/>
     <h:outputText value=": "/>
     <h:outputText value="#{totalScores.assessmentName} "/>
   </h3>
@@ -74,23 +74,6 @@
 
   <h:messages layout="table" style="color:red"/>
 
-  <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
-  <span class="indnt1">
-     <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
-     <h:outputText value="#{totalScores.maxScore}" style="instruction"/></span>
-     <f:verbatim><br /></f:verbatim>
-<span class="indnt1">
-     <h:outputText value="#{msg.view}" />
-     <h:outputText value=": " /></span>
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissions"
-        required="true" onchange="document.forms[0].submit();" >
-      <f:selectItem itemValue="false" itemLabel="#{msg.last_sub}" />
-      <f:selectItem itemValue="true" itemLabel="#{msg.all_sub}" />
-      <f:valueChangeListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-     </h:selectOneMenu>
-  </span>
-
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 
   <span class="rightNav">
@@ -108,8 +91,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-  <h:dataTable id="totalScoreTable" value="#{totalScores.agents}"
-    var="description" style="listHier indnt2" columnClasses="textTable">
+  <h:dataTable styleClass="listHier" id="totalScoreTable" value="#{totalScores.agents}"
+    var="description">
     <!-- NAME/SUBMISSION ID -->
 
     <h:column>
@@ -121,7 +104,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="lastName" />
         </h:commandLink>
      </f:facet>
-     <h:panelGroup> <span class="indnt2">
+     <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />  
