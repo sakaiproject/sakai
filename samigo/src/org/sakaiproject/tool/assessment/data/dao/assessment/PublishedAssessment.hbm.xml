@@ -40,14 +40,14 @@
     <property name="createdBy">
       <column name="CREATEDBY" not-null="true" sql-type="varchar(36)" />
     </property>
-    <property name="createdDate">
-      <column name="CREATEDDATE" not-null="true" sql-type="date" />
+    <property name="createdDate" type="timestamp">
+      <column name="CREATEDDATE" not-null="true" />
     </property>
     <property name="lastModifiedBy">
       <column name="LASTMODIFIEDBY" not-null="true" sql-type="varchar(36)" />
     </property>
-    <property name="lastModifiedDate">
-      <column name="LASTMODIFIEDDATE" not-null="true" sql-type="date" />
+    <property name="lastModifiedDate" type="timestamp">
+      <column name="LASTMODIFIEDDATE" not-null="true" />
     </property>
     <set name="sectionSet" table="SAM_PUBLISHEDSECTION_T" cascade="all" order-by="sequence asc"
       inverse="true" lazy="true">
@@ -114,20 +114,20 @@
     <property name="lateHandling">
       <column name="LATEHANDLING" not-null="false" sql-type="integer" />
     </property>
-    <property name="startDate">
-      <column name="STARTDATE" not-null="false" sql-type="date" />
+    <property name="startDate" type="timestamp">
+      <column name="STARTDATE" not-null="false" />
     </property>
-    <property name="dueDate">
-      <column name="DUEDATE" not-null="false" sql-type="date" />
+    <property name="dueDate" type="timestamp">
+      <column name="DUEDATE" not-null="false" />
     </property>
-   <property name="scoreDate">
-      <column name="SCOREDATE" not-null="false" sql-type="date" />
+   <property name="scoreDate" type="timestamp">
+      <column name="SCOREDATE" not-null="false" />
     </property>
-    <property name="feedbackDate">
-      <column name="FEEDBACKDATE" not-null="false" sql-type="date" />
+    <property name="feedbackDate" type="timestamp">
+      <column name="FEEDBACKDATE" not-null="false" />
     </property>
-    <property name="retractDate">
-      <column name="RETRACTDATE" not-null="false" sql-type="date" />
+    <property name="retractDate" type="timestamp">
+      <column name="RETRACTDATE" not-null="false" />
     </property>
     <property name="autoSubmit">
       <column name="AUTOSUBMIT" not-null="false" sql-type="integer" />
@@ -283,14 +283,14 @@
     <property name="createdBy">
       <column name="CREATEDBY" not-null="true" sql-type="varchar(36)" />
     </property>
-    <property name="createdDate">
-      <column name="CREATEDDATE" not-null="true" sql-type="date" />
+    <property name="createdDate" type="timestamp">
+      <column name="CREATEDDATE" not-null="true" />
     </property>
     <property name="lastModifiedBy">
       <column name="LASTMODIFIEDBY" not-null="true" sql-type="varchar(36)" />
     </property>
-    <property name="lastModifiedDate">
-      <column name="LASTMODIFIEDDATE" not-null="true" sql-type="date" />
+    <property name="lastModifiedDate" type="timestamp">
+      <column name="LASTMODIFIEDDATE" not-null="true" />
     </property>
     <set name="itemSet" table="SAM_PUBLISHEDITEM_T" cascade="all" order-by="sequence asc"
       inverse="true" lazy="false">

@@ -52,14 +52,14 @@
     <property name="createdBy">
       <column name="CREATEDBY" not-null="true" sql-type="varchar(36)" />
     </property>
-    <property name="createdDate">
-      <column name="CREATEDDATE" not-null="true" sql-type="date" />
+    <property name="createdDate" type="timestamp">
+      <column name="CREATEDDATE" not-null="true" />
     </property>
     <property name="lastModifiedBy">
       <column name="LASTMODIFIEDBY" not-null="true" sql-type="varchar(36)" />
     </property>
-    <property name="lastModifiedDate">
-      <column name="LASTMODIFIEDDATE" not-null="true" sql-type="date" />
+    <property name="lastModifiedDate" type="timestamp">
+      <column name="LASTMODIFIEDDATE" not-null="true" />
     </property>
     <set name="itemTextSet" table="SAM_ITEMTEXT_T" cascade="all" order-by="sequence asc" inverse="true" lazy="false">
        <key column="ITEMID"/>

@@ -25,11 +25,11 @@
     <property name="organizationName">
       <column name="ORGANIZATIONNAME" not-null="false" sql-type="varchar(255)" />
     </property>
-    <property name="dateCreated">
-      <column name="DATECREATED" not-null="false" sql-type="date" />
+    <property name="dateCreated" type="timestamp">
+      <column name="DATECREATED" not-null="false" />
     </property>
-    <property name="lastModified">
-      <column name="LASTMODIFIEDDATE" not-null="false" sql-type="date" />
+    <property name="lastModified" type="timestamp">
+      <column name="LASTMODIFIEDDATE" not-null="false" />
     </property>
     <property name="lastModifiedById">
       <column name="LASTMODIFIEDBY" not-null="false" sql-type="varchar(255)" />

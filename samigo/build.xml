@@ -24,7 +24,7 @@
 		<fileset dir="target/samigo/WEB-INF/lib">
 		  <include name="*.jar"/>
 		</fileset>
-		<fileset dir="../../tomcat/shared/lib">
+		<fileset dir="../../../tomcat/shared/lib">
 		  <include name="*.jar"/>
 		</fileset>
 		<pathelement location="target/classes"/>
@@ -48,7 +48,7 @@
 		<include name="assessment/PublishedItemData.hbm.xml" />
 		<include name="authz/AuthorizationData.hbm.xml" />
 		<include name="grading/GradingData.hbm.xml" />
-		<include name="grading/MediaData.hbm.xml" />
+ 		<include name="grading/MediaData.hbm.xml" />
 		<include name="questionpool/QuestionPoolData.hbm.xml" />
 		<include name="shared/TypeData.hbm.xml" />
 	  </fileset>  	        
