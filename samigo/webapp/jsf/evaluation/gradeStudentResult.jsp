@@ -203,7 +203,9 @@
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{msg.cancel}" action="totalScores" immediate="true"/>
+   <h:commandButton value="#{msg.cancel}" action="totalScores" immediate="true">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+   </h:commandButton>
 </p>
 </h:form>
 
