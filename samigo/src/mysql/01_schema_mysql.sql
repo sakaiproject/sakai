@@ -77,7 +77,7 @@ create table SAM_ANSWER_T (
    ANSWERID bigint not null auto_increment,
    ITEMTEXTID bigint not null,
    ITEMID bigint not null,
-   TEXT varchar(4000),
+   TEXT text,
    SEQUENCE integer not null,
    LABEL varchar(20),
    ISCORRECT varchar(1),
@@ -89,7 +89,7 @@ create table SAM_PUBLISHEDASSESSMENT_T (
    ID bigint not null auto_increment,
    ASSESSMENTID bigint not null,
    TITLE varchar(255),
-   DESCRIPTION varchar(4000),
+   DESCRIPTION text,
    COMMENTS varchar(255),
    TYPEID varchar(36),
    INSTRUCTORNOTIFICATION integer,
@@ -97,26 +97,26 @@ create table SAM_PUBLISHEDASSESSMENT_T (
    MULTIPARTALLOWED integer,
    STATUS integer not null,
    CREATEDBY varchar(36) not null,
-   CREATEDDATE date not null,
+   CREATEDDATE datetime not null,
    LASTMODIFIEDBY varchar(36) not null,
-   LASTMODIFIEDDATE date not null,
+   LASTMODIFIEDDATE datetime not null,
    primary key (ID)
 );
 create table SAM_ASSESSMENTGRADING_T (
    ASSESSMENTGRADINGID bigint not null auto_increment,
    PUBLISHEDASSESSMENTID bigint not null,
    AGENTID varchar(36) not null,
-   SUBMITTEDDATE date not null,
+   SUBMITTEDDATE datetime not null,
    ISLATE varchar(1) not null,
    FORGRADE integer not null,
    TOTALAUTOSCORE float,
    TOTALOVERRIDESCORE float,
    FINALSCORE float,
-   COMMENTS varchar(4000),
+   COMMENTS text,
    GRADEDBY varchar(36),
-   GRADEDDATE date,
+   GRADEDDATE datetime,
    STATUS integer not null,
-   ATTEMPTDATE date,
+   ATTEMPTDATE datetime,
    TIMEELAPSED integer,
    primary key (ASSESSMENTGRADINGID)
 );
@@ -124,8 +124,8 @@ create table SAM_FUNCTIONDATA_T (
    FUNCTIONID bigint not null auto_increment,
    REFERENCENAME varchar(255) not null,
    DISPLAYNAME varchar(255),
-   DESCRIPTION varchar(4000),
-   FUNCTIONTYPEID varchar(4000),
+   DESCRIPTION text,
+   FUNCTIONTYPEID text,
    primary key (FUNCTIONID)
 );
 create table SAM_ITEMGRADING_T (
@@ -134,15 +134,15 @@ create table SAM_ITEMGRADING_T (
    PUBLISHEDITEMID bigint not null,
    PUBLISHEDITEMTEXTID bigint not null,
    AGENTID varchar(36) not null,
-   SUBMITTEDDATE date not null,
+   SUBMITTEDDATE datetime not null,
    PUBLISHEDANSWERID bigint,
-   RATIONALE varchar(4000),
-   ANSWERTEXT varchar(4000),
+   RATIONALE text,
+   ANSWERTEXT text,
    AUTOSCORE float,
    OVERRIDESCORE float,
-   COMMENTS varchar(4000),
+   COMMENTS text,
    GRADEDBY varchar(36),
-   GRADEDDATE date,
+   GRADEDDATE datetime,
    REVIEW integer,
    primary key (ITEMGRADINGID)
 );
@@ -166,13 +166,13 @@ create table SAM_SECTION_T (
    DURATION integer,
    SEQUENCE integer,
    TITLE varchar(255),
-   DESCRIPTION varchar(4000),
+   DESCRIPTION text,
    TYPEID integer,
    STATUS integer not null,
    CREATEDBY varchar(36) not null,
-   CREATEDDATE date not null,
+   CREATEDDATE datetime not null,
    LASTMODIFIEDBY varchar(36) not null,
-   LASTMODIFIEDDATE date not null,
+   LASTMODIFIEDDATE datetime not null,
    primary key (SECTIONID)
 );
 create table SAM_QUESTIONPOOLITEM_T (
@@ -184,14 +184,14 @@ create table SAM_PUBLISHEDITEMFEEDBACK_T (
    ITEMFEEDBACKID bigint not null auto_increment,
    ITEMID bigint not null,
    TYPEID varchar(36) not null,
-   TEXT varchar(4000),
+   TEXT text,
    primary key (ITEMFEEDBACKID)
 );
 create table SAM_ITEMFEEDBACK_T (
    ITEMFEEDBACKID bigint not null auto_increment,
    ITEMID bigint not null,
    TYPEID varchar(36) not null,
-   TEXT varchar(4000),
+   TEXT text,
    primary key (ITEMFEEDBACKID)
 );
 create table SAM_ITEMMETADATA_T (
@@ -221,7 +221,7 @@ create table SAM_GRADINGSUMMARY_T (
    AGENTID varchar(36) not null,
    TOTALSUBMITTED integer,
    TOTALSUBMITTEDFORGRADE integer,
-   LASTSUBMITTEDDATE date,
+   LASTSUBMITTEDDATE datetime,
    LASTSUBMITTEDASSESSMENTISLATE integer not null,
    SUMOF_AUTOSCOREFORGRADE float,
    AVERAGE_AUTOSCOREFORGRADE float,
@@ -263,27 +263,27 @@ create table SAM_PUBLISHEDACCESSCONTROL_T (
    TIMEDASSESSMENT integer,
    RETRYALLOWED integer,
    LATEHANDLING integer,
-   STARTDATE date,
-   DUEDATE date,
-   SCOREDATE date,
-   FEEDBACKDATE date,
-   RETRACTDATE date,
+   STARTDATE datetime,
+   DUEDATE datetime,
+   SCOREDATE datetime,
+   FEEDBACKDATE datetime,
+   RETRACTDATE datetime,
    AUTOSUBMIT integer,
    ITEMNAVIGATION integer,
    ITEMNUMBERING integer,
-   SUBMISSIONMESSAGE varchar(4000),
+   SUBMISSIONMESSAGE text,
    RELEASETO varchar(255),
    USERNAME varchar(255),
    PASSWORD varchar(255),
-   FINALPAGEURL varchar(1023),
+   FINALPAGEURL text,
    primary key (ASSESSMENTID)
 );
 create table SAM_QUALIFIERDATA_T (
    QUALIFIERID bigint not null,
    REFERENCENAME varchar(255) not null,
    DISPLAYNAME varchar(255),
-   DESCRIPTION varchar(4000),
-   QUALIFIERTYPEID varchar(4000),
+   DESCRIPTION text,
+   QUALIFIERTYPEID text,
    primary key (QUALIFIERID)
 );
 create table SAM_QUESTIONPOOLACCESS_T (
@@ -298,10 +298,10 @@ create table SAM_AUTHZDATA_T (
    AGENTID varchar(36) not null,
    FUNCTIONID varchar(36) not null,
    QUALIFIERID varchar(36) not null,
-   EFFECTIVEDATE date,
-   EXPIRATIONDATE date,
+   EFFECTIVEDATE datetime,
+   EXPIRATIONDATE datetime,
    LASTMODIFIEDBY varchar(36) not null,
-   LASTMODIFIEDDATE date not null,
+   LASTMODIFIEDDATE datetime not null,
    ISEXPLICIT integer,
    primary key (ID),
    unique (AGENTID, FUNCTIONID, QUALIFIERID)
@@ -323,14 +323,14 @@ create table SAM_ANSWERFEEDBACK_T (
    ANSWERFEEDBACKID bigint not null auto_increment,
    ANSWERID bigint not null,
    TYPEID varchar(36),
-   TEXT varchar(4000),
+   TEXT text,
    primary key (ANSWERFEEDBACKID)
 );
 create table SAM_PUBLISHEDANSWER_T (
    ANSWERID bigint not null auto_increment,
    ITEMTEXTID bigint not null,
    itemId bigint not null,
-   TEXT varchar(4000),
+   TEXT text,
    SEQUENCE integer not null,
    LABEL varchar(20),
    ISCORRECT varchar(1),
@@ -342,7 +342,7 @@ create table SAM_PUBLISHEDANSWERFEEDBACK_T (
    ANSWERFEEDBACKID bigint not null auto_increment,
    ANSWERID bigint not null,
    TYPEID varchar(36),
-   TEXT varchar(4000),
+   TEXT text,
    primary key (ANSWERFEEDBACKID)
 );
 create table SAM_PUBLISHEDITEM_T (
@@ -352,18 +352,18 @@ create table SAM_PUBLISHEDITEM_T (
    SEQUENCE integer,
    DURATION integer,
    TRIESALLOWED integer,
-   INSTRUCTION varchar(4000),
-   DESCRIPTION varchar(4000),
+   INSTRUCTION text,
+   DESCRIPTION text,
    TYPEID varchar(36) not null,
    GRADE varchar(80),
    SCORE float,
-   HINT varchar(4000),
+   HINT text,
    HASRATIONALE varchar(1),
    STATUS integer not null,
    CREATEDBY varchar(36) not null,
-   CREATEDDATE date not null,
+   CREATEDDATE datetime not null,
    LASTMODIFIEDBY varchar(36) not null,
-   LASTMODIFIEDDATE date not null,
+   LASTMODIFIEDDATE datetime not null,
    primary key (ITEMID)
 );
 create table SAM_ASSESSACCESSCONTROL_T (
@@ -377,19 +377,19 @@ create table SAM_ASSESSACCESSCONTROL_T (
    TIMEDASSESSMENT integer,
    RETRYALLOWED integer,
    LATEHANDLING integer,
-   STARTDATE date,
-   DUEDATE date,
-   SCOREDATE date,
-   FEEDBACKDATE date,
-   RETRACTDATE date,
+   STARTDATE datetime,
+   DUEDATE datetime,
+   SCOREDATE datetime,
+   FEEDBACKDATE datetime,
+   RETRACTDATE datetime,
    AUTOSUBMIT integer,
    ITEMNAVIGATION integer,
    ITEMNUMBERING integer,
-   SUBMISSIONMESSAGE varchar(4000),
+   SUBMISSIONMESSAGE text,
    RELEASETO varchar(255),
    USERNAME varchar(255),
    PASSWORD varchar(255),
-   FINALPAGEURL varchar(1023),
+   FINALPAGEURL text,
    primary key (ASSESSMENTID)
 );
 create table SAM_PUBLISHEDSECTION_T (
@@ -398,20 +398,20 @@ create table SAM_PUBLISHEDSECTION_T (
    DURATION integer,
    SEQUENCE integer,
    TITLE varchar(255),
-   DESCRIPTION varchar(4000),
+   DESCRIPTION text,
    TYPEID integer not null,
    STATUS integer not null,
    CREATEDBY varchar(36) not null,
-   CREATEDDATE date not null,
+   CREATEDDATE datetime not null,
    LASTMODIFIEDBY varchar(36) not null,
-   LASTMODIFIEDDATE date not null,
+   LASTMODIFIEDDATE datetime not null,
    primary key (SECTIONID)
 );
 create table SAM_PUBLISHEDITEMTEXT_T (
    ITEMTEXTID bigint not null auto_increment,
    ITEMID bigint not null,
    SEQUENCE integer not null,
-   TEXT varchar(4000),
+   TEXT text,
    primary key (ITEMTEXTID)
 );
 create table SAM_PUBLISHEDSECUREDIP_T (
@@ -428,13 +428,13 @@ create table SAM_QUESTIONPOOL_T (
    PARENTPOOLID integer,
    OWNERID varchar(255),
    ORGANIZATIONNAME varchar(255),
-   DATECREATED date,
-   LASTMODIFIEDDATE date,
+   DATECREATED datetime,
+   LASTMODIFIEDDATE datetime,
    LASTMODIFIEDBY varchar(255),
    DEFAULTACCESSTYPEID integer,
    OBJECTIVE varchar(255),
    KEYWORDS varchar(255),
-   RUBRIC varchar(4000),
+   RUBRIC text,
    TYPEID integer,
    INTELLECTUALPROPERTYID integer,
    primary key (QUESTIONPOOLID)
@@ -453,18 +453,18 @@ create table SAM_ITEM_T (
    SEQUENCE integer,
    DURATION integer,
    TRIESALLOWED integer,
-   INSTRUCTION varchar(4000),
-   DESCRIPTION varchar(4000),
+   INSTRUCTION text,
+   DESCRIPTION text,
    TYPEID varchar(36) not null,
    GRADE varchar(80),
    SCORE float,
-   HINT varchar(4000),
+   HINT text,
    HASRATIONALE varchar(1),
    STATUS integer not null,
    CREATEDBY varchar(36) not null,
-   CREATEDDATE date not null,
+   CREATEDDATE datetime not null,
    LASTMODIFIEDBY varchar(36) not null,
-   LASTMODIFIEDDATE date not null,
+   LASTMODIFIEDDATE datetime not null,
    primary key (ITEMID)
 );
 create table SAM_ASSESSFEEDBACK_T (
@@ -492,7 +492,7 @@ create table SAM_ITEMTEXT_T (
    ITEMTEXTID bigint not null auto_increment,
    ITEMID bigint not null,
    SEQUENCE integer not null,
-   TEXT varchar(4000),
+   TEXT text,
    primary key (ITEMTEXTID)
 );
 create table SAM_PUBLISHEDITEMMETADATA_T (
@@ -508,16 +508,16 @@ create table SAM_MEDIA_T (
    MEDIA longblob,
    FILESIZE integer,
    MIMETYPE varchar(80),
-   DESCRIPTION varchar(4000),
+   DESCRIPTION text,
    LOCATION varchar(255),
    FILENAME varchar(255),
    ISLINK integer,
    ISHTMLINLINE integer,
    STATUS integer,
    CREATEDBY varchar(36),
-   CREATEDDATE date,
+   CREATEDDATE datetime,
    LASTMODIFIEDBY varchar(36),
-   LASTMODIFIEDDATE date,
+   LASTMODIFIEDDATE datetime,
    primary key (MEDIAID)
 );
 create table SAM_ASSESSMENTBASE_T (
@@ -525,17 +525,17 @@ create table SAM_ASSESSMENTBASE_T (
    isTemplate varchar(255) not null,
    PARENTID integer,
    TITLE varchar(255),
-   DESCRIPTION varchar(4000),
-   COMMENTS varchar(4000),
+   DESCRIPTION text,
+   COMMENTS text,
    TYPEID varchar(36),
    INSTRUCTORNOTIFICATION integer,
    TESTEENOTIFICATION integer,
    MULTIPARTALLOWED integer,
    STATUS integer not null,
    CREATEDBY varchar(36) not null,
-   CREATEDDATE date not null,
+   CREATEDDATE datetime not null,
    LASTMODIFIEDBY varchar(36) not null,
-   LASTMODIFIEDDATE date not null,
+   LASTMODIFIEDDATE datetime not null,
    ASSESSMENTTEMPLATEID bigint,
    primary key (ID)
 );
@@ -544,12 +544,12 @@ create table SAM_TYPE_T (
    AUTHORITY varchar(255),
    DOMAIN varchar(255),
    KEYWORD varchar(255),
-   DESCRIPTION varchar(4000),
+   DESCRIPTION text,
    STATUS integer not null,
    CREATEDBY varchar(36) not null,
-   CREATEDDATE date not null,
+   CREATEDDATE datetime not null,
    LASTMODIFIEDBY varchar(36) not null,
-   LASTMODIFIEDDATE date not null,
+   LASTMODIFIEDDATE datetime not null,
    primary key (TYPEID)
 );
 create table SAM_ASSESSMETADATA_T (
