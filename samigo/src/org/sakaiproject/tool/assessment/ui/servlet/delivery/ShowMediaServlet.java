@@ -70,7 +70,7 @@ public class ShowMediaServlet extends HttpServlet
     log.debug("****current site Id ="+currentSiteId);
     log.debug("****media site Id ="+mediaSiteId);
     String role = AgentFacade.getRole(agentIdString);    
-    if (mediaData == null || !agentIdString.equals(mediaData.getCreatedBy()) || 
+    if (mediaData == null || (mediaData!=null && !agentIdString.equals(mediaData.getCreatedBy())) || 
 	!(("maintain").equals(role) && currentSiteId.equals(mediaSiteId)))
       accessDenied = false;
 
