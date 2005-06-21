@@ -13,9 +13,6 @@
 //-->
 </script>
 <title>Question List</title>
-<link href="<%=request.getContextPath()%>/css/main.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath()%>/jsp/aam/stylesheets/main.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath()%>/jsp/aam/stylesheets/nav.css" rel="stylesheet" type="text/css">
 </head>
 <body bgcolor="#ffffff" onload="collapseAllRows();flagRows();<%= request.getAttribute("html.body.onload") %>">
 

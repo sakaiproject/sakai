@@ -17,8 +17,6 @@
 </script>
 
 <title>Question List</title>
-<link href="<%=request.getContextPath()%>/css/main.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath()%>/jsp/aam/stylesheets/nav.css" rel="stylesheet" type="text/css">
 
 </head>
 <body bgcolor="#ffffff" onload="collapseAllRows();flagRows();document.forms[0].reset();<%= request.getAttribute("html.body.onload") %>">
@@ -29,7 +27,7 @@
 <logic:equal name="questionpool" property="fromAuthoring" value="1">
 <br>
 <div class="messageConfirm">
-Open a question pool and select a question using a checkbox, 
+Open a question pool and select a question using a checkbox,
 then click "Add to Assessment"
 </div>
 <br>
@@ -39,11 +37,11 @@ then click "Add to Assessment"
 <h1>
   <table width="100%">
     <tr>
-      <td class="h1text">Question Pools: 
+      <td class="h1text">Question Pools:
         <input type="button" name="badd" value="Add" onclick="document.location='<%=request.getContextPath()%>/startCreatePool.do?use=create'"/>
 	<input type="button" name="bimport" value="Import" onclick="document.location='<%=request.getContextPath()%>/startImportPool.do'"/>
 
-<% 
+<%
 // settings stored in SAM.properties
 if (!org.navigoproject.settings.ApplicationSettings.isPoolingUserAdminDisabled())
 { %>
@@ -51,7 +49,7 @@ if (!org.navigoproject.settings.ApplicationSettings.isPoolingUserAdminDisabled()
 <input type="button" name="buserAdmin" value="User Admin" onclick="document.location='<%=request.getContextPath()%>/userAdmin.do'"/>
 <% } %>
 </td>
-      <td class="alignRight"> 
+      <td class="alignRight">
         <input type="button" name="badd" value="My Assessments" onclick="document.location='<%=request.getContextPath()%>/asi/author/selectAuthoredAssessment.do'"/>
     </td>
   </tr>

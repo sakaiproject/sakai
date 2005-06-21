@@ -8,7 +8,6 @@
 <head><%= request.getAttribute("html.head") %>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Question Pools</title>
-<link href="stylesheets/main.css" rel="stylesheet" type="text/css">
 </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>" bgcolor="#ffffff">
 <table width="100%" border="0" cellpadding="0" cellspacing="0">

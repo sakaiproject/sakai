@@ -8,10 +8,9 @@
 <html:html>
 <head><%= request.getAttribute("html.head") %>
 <title>Import Question</title>
-<link href="<%=request.getContextPath()%>/css/main.css" rel="stylesheet" type="text/css">
 </head>
 <body bgcolor="#ffffff" onload="collapseAllRows();flagRows();<%= request.getAttribute("html.body.onload") %>">
-<div class="heading">Import Question</div>  
+<div class="heading">Import Question</div>
 
 
 <html:form action="importQuestion.do"  method="post" enctype="multipart/form-data">
@@ -26,7 +25,7 @@
 <span class="instructionsSteps">
 Import from a file:
 <bean:define name="questionpool" property="currentPool" id="thispool" />
-<bean:write name="thispool" property="id" /> 
+<bean:write name="thispool" property="id" />
 </td>
 </tr>
 
@@ -34,7 +33,7 @@ Import from a file:
 <td></td>
 <td class="instructionsSteps">
 <br/>
-File: 
+File:
 <html:file property="filename" />
 <br/>
 <br/>

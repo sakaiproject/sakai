@@ -8,15 +8,12 @@
 <html:html>
 <head><%= request.getAttribute("html.head") %>
 <title>Export Question</title>
-<link href="<%=request.getContextPath()%>/jsp/aam/stylesheets/main.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath()%>/css/main.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath()%>/jsp/aam/stylesheets/nav.css" rel="stylesheet" type="text/css">
 </head>
 <body bgcolor="#ffffff" onload="collapseAllRows();flagRows();<%= request.getAttribute("html.body.onload") %>">
-<div class="heading">Export Question(s)</div>  
+<div class="heading">Export Question(s)</div>
 
 
-<h2>Question Names  
+<h2>Question Names
 </h2>
 <br>
 
@@ -46,7 +43,7 @@ Select destinations:
 <tr>
 <td></td>
 <td class="instructionsSteps">
-Export to: 
+Export to:
 
 <html:file property="filename" />
 

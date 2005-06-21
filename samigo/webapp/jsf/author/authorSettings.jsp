@@ -18,9 +18,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.sakai_assessment_manager} - #{msg.settings}" /></title>
-      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
-      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>

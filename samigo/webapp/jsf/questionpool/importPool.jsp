@@ -8,10 +8,9 @@
 <html:html>
 <head><%= request.getAttribute("html.head") %>
 <title>Import Pool</title>
-<link href="<%=request.getContextPath()%>/css/main.css" rel="stylesheet" type="text/css">
 </head>
 <body bgcolor="#ffffff" onload="collapseAllRows();flagRows();<%= request.getAttribute("html.body.onload") %>">
-<div class="heading">Import Pool</div>  
+<div class="heading">Import Pool</div>
 
 
 <html:form action="importPool.do"  method="post" enctype="multipart/form-data">
@@ -32,7 +31,7 @@ Import from a file:
 <td></td>
 <td class="instructionsSteps">
 <br/>
-File: 
+File:
 <html:file property="filename" />
 <br/>
 <br/>

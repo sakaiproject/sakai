@@ -13,17 +13,14 @@
 //-->
 </script>
 <title>Move Question</title>
-<link href="<%=request.getContextPath()%>/jsp/aam/stylesheets/main.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath()%>/css/main.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath()%>/jsp/aam/stylesheets/nav.css" rel="stylesheet" type="text/css">
 </head>
 <body bgcolor="#ffffff" onload="collapseAllRows();flagRows();<%= request.getAttribute("html.body.onload") %>">
-<div class="heading">Move Question</div>  
+<div class="heading">Move Question</div>
 
 <html:form action="moveQuestion.do" method="post">
 
 <br>
-<h2>Question Text</h2>  
+<h2>Question Text</h2>
 <br>
 <logic:iterate id="qpool" collection='<%=session.getAttribute("selectedItems")%>'>
 <bean:write name="qpool" property="itemText" />

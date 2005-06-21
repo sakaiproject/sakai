@@ -15,9 +15,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
-      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       <samigo:script path="/js/authoring.js"/>
       </head>
 <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">

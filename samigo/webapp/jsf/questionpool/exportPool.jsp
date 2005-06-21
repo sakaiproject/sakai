@@ -8,10 +8,9 @@
 <html:html>
 <head><%= request.getAttribute("html.head") %>
 <title>Export Pool</title>
-<link href="<%=request.getContextPath()%>/css/main.css" rel="stylesheet" type="text/css">
 </head>
 <body bgcolor="#ffffff" onload="collapseAllRows();flagRows();<%= request.getAttribute("html.body.onload") %>">
-<div class="heading">Export Pool</div>  
+<div class="heading">Export Pool</div>
 
 
 <br/>
@@ -41,7 +40,7 @@
 <td></td>
 <td class="instructionsSteps">
 <br/>
-Export to: 
+Export to:
 
 <html:file property="filename" />
 
