@@ -165,7 +165,24 @@ public void init()
     }
     return false;
   }
-
+  
+  
+  /**
+   * @see org.sakaiproject.api.app.scheduler.SchedulerManager#destroy()
+   */
+  public void destroy()
+  {   
+    try{
+      if (!scheduler.isShutdown()){
+        scheduler.shutdown();
+      }
+    }       
+    catch (Throwable t){
+      LOG.error("An error occurred while stopping the scheduler", t);
+    }    
+  }
+  
+  
   /**
    * @return Returns the globalTriggerListener.
    */

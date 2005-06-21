@@ -5,7 +5,7 @@
                                                   
     <bean id="org.sakaiproject.api.app.scheduler.SchedulerManager"
         class="org.sakaiproject.component.app.scheduler.SchedulerManagerImpl"
-        init-method="init">        
+        init-method="init" destroy-method="destroy">        
         <property name="qrtzJobs">
             <set>
                 <value>org.sakaiproject.component.app.scheduler.jobs.NoRelatedClassTestJob</value>
