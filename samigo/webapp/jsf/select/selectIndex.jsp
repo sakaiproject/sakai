@@ -17,8 +17,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.page_title}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
   <!-- content... -->
@@ -56,8 +54,8 @@ sorting actions for table:
   <!-- SELECT TABLE -->
   <div class="indnt2">
   <h:dataTable id="selectTable" value="#{select.takeableAssessments}"
-    var="takeable" styleClass="listHier"> 
-    <h:column>  
+    var="takeable" styleClass="listHier">
+    <h:column>
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink id="taketitle" rendered="#{select.takeableSortOrder!='title'}">
@@ -65,9 +63,9 @@ sorting actions for table:
           <f:param name="takeAscending" value="true" />
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-          <h:outputText  value="#{msg.title} "  rendered="#{select.takeableSortOrder!='title'}" />  
+          <h:outputText  value="#{msg.title} "  rendered="#{select.takeableSortOrder!='title'}" />
         </h:commandLink>
-          <h:outputText  value="#{msg.title} " styleClass="currentSort" rendered="#{select.takeableSortOrder=='title'}" />    
+          <h:outputText  value="#{msg.title} " styleClass="currentSort" rendered="#{select.takeableSortOrder=='title'}" />
           <h:commandLink rendered="#{select.takeableSortOrder=='title' && select.takeableAscending }">
            <f:param name="takeAscending" value="false" />
            <f:actionListener
@@ -80,7 +78,7 @@ sorting actions for table:
              type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
            <h:graphicImage alt="#{msg.desc}" rendered="#{!select.takeableAscending}" url="/images/sortdescending.gif"/>
           </h:commandLink>
-       </h:panelGroup>    
+       </h:panelGroup>
       </f:facet>
       <h:commandLink action="beginAssessment" >
         <f:param name="publishedId" value="#{takeable.assessmentId}" />
@@ -97,7 +95,7 @@ sorting actions for table:
           <f:param name="takeableSortType" value="due" />
           <f:param name="takeAscending" value="true" />
           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />         
+             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:outputText value="#{msg.date_due} " rendered="#{select.takeableSortOrder!='due'}" />
         </h:commandLink>
         <h:outputText value="#{msg.date_due} " styleClass="currentSort" rendered="#{select.takeableSortOrder=='due'}" />
@@ -113,7 +111,7 @@ sorting actions for table:
              type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:graphicImage alt="#{msg.desc}" rendered="#{!select.takeableAscending}" url="/images/sortdescending.gif"/>
         </h:commandLink>
-       </h:panelGroup> 
+       </h:panelGroup>
       </f:facet>
       <h:outputText value="n/a" rendered="#{takeable.dueDate == null}" />
       <h:outputText value="#{takeable.dueDate}" style="color: red;" rendered="#{takeable.pastDue}">
@@ -145,7 +143,7 @@ sorting actions for table:
   <br />
   <br />
 --%>
- 
+
   <!-- REVIEW TABLE -->
 <%--
 sorting actions for table:
@@ -169,17 +167,17 @@ sorting actions for table:
           <f:param name="reviewableSortType" value="title" />
           <f:param name="reviewableAscending" value="true" />
           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />         
+             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:outputText value="#{msg.title} "  rendered="#{select.reviewableSortOrder!='title'}" />
         </h:commandLink>
-          <h:outputText value="#{msg.title} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='title'}" />  
+          <h:outputText value="#{msg.title} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='title'}" />
         <h:commandLink rendered="#{select.reviewableSortOrder=='title' && select.reviewableAscending } ">
           <f:param name="reviewableAscending" value="false" />
            <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:graphicImage alt="#{msg.asc}" rendered="#{select.reviewableSortOrder=='title' && select.reviewableAscending}"
             url="/images/sortascending.gif"/>
-        </h:commandLink> 
+        </h:commandLink>
        <h:commandLink rendered="#{select.reviewableSortOrder=='title' && !select.reviewableAscending } ">
           <f:param name="reviewableAscending" value="true" />
            <f:actionListener
@@ -188,11 +186,11 @@ sorting actions for table:
             url="/images/sortdescending.gif"/>
           </h:commandLink>
       </h:panelGroup>
-      </f:facet>   
+      </f:facet>
       <h:commandLink action="takeAssessment">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="review" value="true"/>
-        <f:param name="nofeedback" value="true"/> 
+        <f:param name="nofeedback" value="true"/>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
         <h:outputText value="#{reviewable.assessmentTitle} "/>
@@ -201,7 +199,7 @@ sorting actions for table:
        <h:commandLink action="takeAssessment" rendered="#{reviewable.feedback == 'true'}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="review" value="true" />
-        <f:param name="nofeedback" value="false"/> 
+        <f:param name="nofeedback" value="false"/>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
         <h:outputText value="#{msg.feedback} "/>
@@ -239,9 +237,9 @@ sorting actions for table:
           <f:param name="reviewableSortType" value="feedbackDate" />
           <f:param name="reviewableAscending" value="true" />
           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />         
+             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:outputText value="#{msg.feedback_date} " rendered="#{select.reviewableSortOrder!='feedbackDate'}" />
-        </h:commandLink> 
+        </h:commandLink>
           <h:outputText value="#{msg.feedback_date} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='feedbackDate'}" />
         <h:commandLink rendered="#{select.reviewableSortOrder=='feedbackDate' && select.reviewableAscending}">
            <f:param name="reviewableAscending" value="false" />
@@ -250,7 +248,7 @@ sorting actions for table:
           <h:graphicImage alt="#{msg.asc}"
             rendered="#{select.reviewableSortOrder=='feedbackDate' && select.reviewableAscending}"
             url="/images/sortascending.gif"/>
-        </h:commandLink> 
+        </h:commandLink>
         <h:commandLink rendered="#{select.reviewableSortOrder=='feedbackDate' && !select.reviewableAscending } ">
           <f:param name="reviewableAscending" value="true" />
            <f:actionListener
@@ -264,7 +262,7 @@ sorting actions for table:
       <h:outputText value="#{reviewable.feedbackDate} " rendered="#{reviewable.feedback eq 'true'}" >
         <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
       </h:outputText>
-      <h:outputText value="Immediate" rendered="#{reviewable.feedback eq 'true' 
+      <h:outputText value="Immediate" rendered="#{reviewable.feedback eq 'true'
         && reviewable.feedbackDate==null}" />
        <h:outputText value="#{msg.not_applicable}" rendered="#{reviewable.feedback eq 'false'}" />
     </h:column>
@@ -310,10 +308,10 @@ sorting actions for table:
           <f:param name="reviewableSortType" value="grade" />
           <f:param name="reviewableAscending" value="true" />
           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />       
+             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:outputText value="#{msg.grade} "  rendered="#{select.reviewableSortOrder!='grade'}" />
         </h:commandLink>
-          <h:outputText value="#{msg.grade} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='grade'}" /> 
+          <h:outputText value="#{msg.grade} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='grade'}" />
         <h:commandLink rendered="#{select.reviewableSortOrder=='grade' && select.reviewableAscending  }">
            <f:param name="reviewableAscending" value="false" />
            <f:actionListener
@@ -346,10 +344,10 @@ sorting actions for table:
           <f:param name="reviewableSortType" value="raw" />
           <f:param name="reviewableAscending" value="true" />
           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />         
+             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:outputText value="#{msg.score} " rendered="#{select.reviewableSortOrder!='raw'}"/>
         </h:commandLink>
-          <h:outputText value="#{msg.score} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='raw'}"/> 
+          <h:outputText value="#{msg.score} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='raw'}"/>
         <h:commandLink rendered="#{select.reviewableSortOrder=='raw' && select.reviewableAscending}">
            <f:param name="reviewableAscending" value="false" />
            <f:actionListener
@@ -357,7 +355,7 @@ sorting actions for table:
           <h:graphicImage alt="#{msg.asc}"
             rendered="#{select.reviewableSortOrder=='raw' && select.reviewableAscending}"
             url="/images/sortascending.gif"/>
-        </h:commandLink> 
+        </h:commandLink>
         <h:commandLink rendered="#{select.reviewableSortOrder=='raw' && !select.reviewableAscending}">
            <f:param name="reviewableAscending" value="true" />
            <f:actionListener
@@ -380,17 +378,17 @@ sorting actions for table:
           <f:param name="reviewableSortType" value="time" />
           <f:param name="reviewableAscending" value="true" />
           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />        
+             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:outputText value="#{msg.time} "  rendered="#{select.reviewableSortOrder!='time'}"/>
-        </h:commandLink> 
-          <h:outputText value="#{msg.time} "  styleClass="currentSort" rendered="#{select.reviewableSortOrder=='time'}"/> 
+        </h:commandLink>
+          <h:outputText value="#{msg.time} "  styleClass="currentSort" rendered="#{select.reviewableSortOrder=='time'}"/>
         <h:commandLink rendered="#{select.reviewableSortOrder=='time'&& select.reviewableAscending }">
            <f:param name="reviewableAscending" value="false" />
            <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:graphicImage alt="#{msg.asc}" rendered="#{select.reviewableSortOrder=='time' && select.reviewableAscending}"
            url="/images/sortascending.gif"/>
-        </h:commandLink>  
+        </h:commandLink>
         <h:commandLink rendered="#{select.reviewableSortOrder=='time'&& !select.reviewableAscending }">
            <f:param name="reviewableAscending" value="true" />
            <f:actionListener
@@ -422,7 +420,7 @@ sorting actions for table:
           <f:param name="reviewableSortType" value="submitted" />
           <f:param name="reviewableAscending" value="true" />
           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />  
+             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:outputText value="#{msg.submitted} " rendered="#{select.reviewableSortOrder!='submitted'}"/>
         </h:commandLink>
           <h:outputText value="#{msg.submitted} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='submitted'}"/>

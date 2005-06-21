@@ -17,8 +17,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -52,7 +50,7 @@
 <h:outputText value="#{qpmsg.click_save}"/>
 <p class="act">
 <h:commandButton type="submit"  action="#{itemauthor.doit}" value="#{msg.button_save}" styleClass="active">
-   <f:actionListener 
+   <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
    <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
 </h:commandButton>
@@ -61,7 +59,7 @@
     onclick="document.location='editPool.faces'"/>
 </p>
 
- 
+
 
 
 </h:form>

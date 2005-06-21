@@ -14,8 +14,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title>Exit</title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
   <!-- content... -->

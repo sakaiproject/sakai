@@ -21,9 +21,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="Edit Pool"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
-      <samigo:stylesheet path="/css/nav.css"/>
 <script language="javascript" style="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>

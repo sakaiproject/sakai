@@ -17,8 +17,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.publish_assessment_confirmation}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <!-- content... -->
@@ -41,8 +39,8 @@
      <h:outputLabel value="#{msg.assessment_available_date}" />
        <h:outputText rendered="#{assessmentSettings.startDate ne null}" value="#{assessmentSettings.startDate}" >
           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
-         
-       </h:outputText>    
+
+       </h:outputText>
        <h:outputText rendered="#{assessmentSettings.startDate eq null}" value="Immediate" />
     </div>
    <div class="shorttext">
@@ -67,14 +65,14 @@
 </div>
    <div class="shorttext">
      <h:outputLabel value="#{msg.auto_submit}" />
-     
+
        <h:outputText value="On" rendered="#{assessmentSettings.autoSubmit}" />
        <h:outputText value="Off" rendered="#{!assessmentSettings.autoSubmit}" />
     </div>
    <div class="shorttext">
 
      <h:outputLabel value="#{msg.submissions}" />
-   
+
        <h:outputText value="Unlimited" rendered="#{assessmentSettings.unlimitedSubmissions eq '1'}" />
        <h:outputText value="#{assessmentSettings.submissionsAllowed}"
          rendered="#{assessmentSettings.unlimitedSubmissions eq '0'}" />
@@ -82,7 +80,7 @@
    <div class="shorttext">
 
      <h:outputLabel value="#{msg.feedback_type}" />
-    
+
        <h:outputText value="Immediate" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" />
        <h:outputText value="No Feedback" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" />
        <h:outputText value="Available on #{assessmentSettings.feedbackDate}"
@@ -110,7 +108,7 @@
        <h:commandButton value="#{msg.button_cancel}" type="submit"
          action="author" />
 </p>
-   
+
  </h:form>
  <!-- end content -->
       </body>

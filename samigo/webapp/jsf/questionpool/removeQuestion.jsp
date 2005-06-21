@@ -13,9 +13,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="Remove Question"/></title>
-                        <!-- stylesheet and script widgets -->
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->

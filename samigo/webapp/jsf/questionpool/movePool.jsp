@@ -14,9 +14,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="Move Pool"/></title>
                         <!-- stylesheet and script widgets -->
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
-      <samigo:stylesheet path="/css/nav.css"/>
 <script language="javascript" style="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>

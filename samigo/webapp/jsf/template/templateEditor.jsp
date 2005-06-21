@@ -13,8 +13,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.template_editor}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       </head>
       <body onload="javascript:hideUnhideAllDivsWithWysiwyg('none');;<%= request.getAttribute("html.body.onload") %>">
@@ -554,7 +552,7 @@
   <h:inputHidden id="createdDate" value="#{template.createdDate}"/>
 
   <p class="act">
-  <h:panelGroup rendered="#{template.idString ne '1' || backingbean.prop1 eq 'admin'}">  
+  <h:panelGroup rendered="#{template.idString ne '1' || backingbean.prop1 eq 'admin'}">
     <h:commandButton type="submit" id="Submit" value="#{msg.save}"
       action="template" styleClass="active">
       <f:actionListener
@@ -564,7 +562,7 @@
     <h:commandButton type="submit" id="Cancel" value="#{msg.cancel}"
       action="template"/>
   </h:panelGroup>
-  <h:panelGroup rendered="#{template.idString eq '1' && backingbean.prop1 ne 'admin'}">  
+  <h:panelGroup rendered="#{template.idString eq '1' && backingbean.prop1 ne 'admin'}">
     <h:commandButton type="submit" id="Exit" value="#{msg.cancel}"
       action="template"/>
   </h:panelGroup>

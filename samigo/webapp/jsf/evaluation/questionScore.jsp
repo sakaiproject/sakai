@@ -17,9 +17,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
         value="#{msg.title_question}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
-      <!-- HTMLAREA -->
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
@@ -79,7 +76,7 @@
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
             <f:param name="newItemId" value="#{iteminit.id}" />
           </h:commandLink>
-          <h:outputText value="#{iteminit.partNumber} " 
+          <h:outputText value="#{iteminit.partNumber} "
              rendered="#{!iteminit.linked}" />
         </h:column>
       </samigo:dataLine>

@@ -18,8 +18,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.begin_assessment_}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <!-- content... -->
@@ -69,28 +67,28 @@
        <h:outputText value="#{msg.time_limit_hour} " />
        <h:outputText value="#{delivery.timeLimit_minute} " />
        <h:outputText value="#{msg.time_limit_minute}" />
-    </h:panelGroup> 
+    </h:panelGroup>
     <h:panelGroup rendered="#{!delivery.hasTimeLimit}">
        <h:outputText value="No Time Limit" />
-    </h:panelGroup> 
-   </div> 
-   <div class="shorttext"> 
+    </h:panelGroup>
+   </div>
+   <div class="shorttext">
     <h:outputLabel value="#{msg.num_subs}" />
            <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
           rendered="#{!delivery.settings.unlimitedAttempts}"/>
         <h:outputText value="#{msg.unlimited_}"
           rendered="#{delivery.settings.unlimitedAttempts}"/>
-   </div> 
+   </div>
 
-   <div class="shorttext"> 
+   <div class="shorttext">
     <h:outputLabel value="#{msg.auto_exp}" />
         <h:outputText value="#{msg.enabled_}"
           rendered="#{delivery.settings.autoSubmit}"/>
         <h:outputText value="#{msg.disabled}"
           rendered="#{!delivery.settings.autoSubmit}"/>
-   </div> 
+   </div>
 
-   <div class="shorttext"> 
+   <div class="shorttext">
     <h:outputLabel value="#{msg.feedback}" />
         <h:outputText value="#{msg.immed}"
           rendered="#{delivery.feedbackComponent.showImmediate}"/>
@@ -100,26 +98,26 @@
         </h:outputText>
         <h:outputText value="#{msg.none}"
           rendered="#{delivery.feedbackComponent.showNoFeedback}"/>
-   </div> 
-   <div class="shorttext"> 
+   </div>
+   <div class="shorttext">
     <h:outputLabel rendered="#{delivery.dueDate!=null}" value="#{msg.due_date}" />
       <h:outputText value="#{delivery.dueDate}" >
          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
       </h:outputText>
-   </div> 
+   </div>
 
-   <div class="shorttext"> 
+   <div class="shorttext">
     <h:outputLabel value="#{msg.username}"
       rendered="#{delivery.settings.username ne ''}" />
     <h:inputText value="#{delivery.username}"
       rendered="#{delivery.settings.username ne ''}" />
-   </div> 
-   <div class="shorttext"> 
+   </div>
+   <div class="shorttext">
     <h:outputLabel value="#{msg.password}"
       rendered="#{delivery.settings.username ne ''}" />
     <h:inputSecret value="#{delivery.password}"
       rendered="#{delivery.settings.username ne ''}" />
-   </div> 
+   </div>
 
  </div></div>
 <br/>
@@ -132,7 +130,7 @@
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
   <h:commandButton value="#{msg.button_cancel}" type="button"
-     style="act" onclick="javascript:window.open('/portal/','_top')" 
+     style="act" onclick="javascript:window.open('/portal/','_top')"
       rendered="#{delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}"/>
 </p>
 

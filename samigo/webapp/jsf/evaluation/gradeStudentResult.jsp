@@ -20,8 +20,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
         value="#{msg.title_total}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
       </head>
     <body onload="hideUnhideAllDivs('none');;<%= request.getAttribute("html.body.onload") %>">
@@ -102,7 +100,7 @@
       <f:verbatim><h4 class="tier2"></f:verbatim>
         <h:panelGroup>
           <h:outputText value="<a href=\"#" escape="false" />
-          <h:outputText value="#{part.number}_#{question.number}\">" 
+          <h:outputText value="#{part.number}_#{question.number}\">"
             escape="false" />
           <h:outputText value="#{question.number}. #{question.strippedText} #{question.maxPoints} #{dmsg.pt} " escape="false" />
           <h:outputText value="</a>" escape="false" />

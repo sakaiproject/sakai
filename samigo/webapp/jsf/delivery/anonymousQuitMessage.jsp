@@ -13,8 +13,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.invalid_assessment}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <h3> <h:outputText value="#{msg.anonymous_quit_warning}"/></h3>
@@ -22,7 +20,7 @@
  <div class="validation">
 <h:outputText  value="#{msg.anonymous_quit_warning_message}" />
  </div>
- 
+
 <p class="act">
   <h:commandButton value="#{msg.button_continue}" type="button"
      styleClass="active" onclick="javascript:history.go(-1);" />

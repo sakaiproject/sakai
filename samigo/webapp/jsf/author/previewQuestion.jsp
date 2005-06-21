@@ -16,8 +16,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.create_modify_a}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
 <body onload="document.forms[0].reset();;<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -33,7 +31,7 @@
     </h:panelGroup>
 
  </h:panelGrid>
-  
+
         <h:panelGrid>
           <h:panelGroup rendered="#{itemContents.itemData.typeId == 9}">
             <%@ include file="/jsf/author/questionpreview/Matching.jsp" %>
@@ -71,11 +69,11 @@
           <h:panelGroup rendered="#{itemContents.itemData.typeId == 3}">
             <%@ include file="/jsf/author/questionpreview/MultipleChoiceSurvey.jsp" %>
           </h:panelGroup>
-   
+
         </h:panelGrid>
 <p class="act">
   <h:commandButton value="#{msg.button_back}"  action="editPool" type="submit" styleClass="active"/>
- 
+
 </p>
 
 </h:form>

@@ -14,8 +14,6 @@
   <html xmlns="http://www.w3.org/1999/xhtml">
     <head><%= request.getAttribute("html.head") %>
     <title><h:outputText value="#{msg.table_of_contents}" /></title>
-    <samigo:stylesheet path="/css/samigo.css"/>
-    <samigo:stylesheet path="/css/sam.css"/>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
     </head>
     <body onload="hideUnhideAllDivs('none');;<%= request.getAttribute("html.body.onload") %>">

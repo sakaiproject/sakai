@@ -14,8 +14,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -33,7 +31,7 @@
     <h:column>
      <f:subview id="parts">
       <f:verbatim><h4 class="tier1"></f:verbatim>
-      <h:outputText value="#{msg.p} #{part.number} #{msg.of} #{part.numParts}" />  
+      <h:outputText value="#{msg.p} #{part.number} #{msg.of} #{part.numParts}" />
       <h:outputText value=" - #{part.text} />
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
       <!-- h:outputText value="#{msg.ans_q}, " / -->
@@ -74,7 +72,7 @@
           <h:panelGroup
             rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 3}">
            <f:subview id="deliverMultipleChoiceSingleCorrect">
-           <%@ include file="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.jsp" %> 
+           <%@ include file="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.jsp" %>
            </f:subview>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 2}">

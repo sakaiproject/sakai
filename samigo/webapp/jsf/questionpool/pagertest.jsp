@@ -13,8 +13,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.q_mgr}"/></title>
-      <samigo:stylesheet path="/css/main.css"/>
-	<samigo:stylesheet path="/jsp/aam/stylesheets/nav.css"/>
 <script language="javascript" style="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>

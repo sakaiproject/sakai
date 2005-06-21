@@ -14,8 +14,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
         value="#{msg.title_stat}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
@@ -67,7 +65,7 @@
 
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
-    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"> 
+    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
      <h:outputText value="#{msg.view} " />
       <h:outputText value=" : " />
      <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissions"
@@ -146,7 +144,7 @@
     <h:column rendered="#{histogramScores.randomType =='false'}">
       <h:panelGroup>
         <f:verbatim><h4></f:verbatim>
-          <h:outputText value="#{item.title}" escape="false" /> 
+          <h:outputText value="#{item.title}" escape="false" />
         <f:verbatim></h4></f:verbatim>
 
         <h:outputText value="#{item.questionText}" escape="false" />
@@ -175,10 +173,10 @@
           </h:column>
         </h:dataTable>
 
-        <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching --> 
+        <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching -->
 
         <h:panelGrid columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}" columnClasses="alignLeft,aligntRight">
-    
+
           <h:outputLabel for="responses" value="#{msg.responses}" />
           <h:outputText id="responses" value="#{item.numResponses}" />
           <h:outputLabel for="possible" value="#{msg.tot_poss_eq}" />
@@ -199,9 +197,9 @@
           <h:outputText id="responses2" value="#{item.numResponses}" />
           <h:outputLabel for="percentCorrect" value="#{msg.percentCorrect}" />
           <h:outputText id="percentCorrect" value="#{item.percentCorrect}" />
-        </h:panelGrid>  
+        </h:panelGrid>
 
-        
+
       </h:panelGroup>
     </h:column>
   </h:dataTable>

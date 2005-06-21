@@ -17,8 +17,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.submission}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <!-- content... -->
@@ -34,7 +32,7 @@
 
     <h:outputText value="#{msg.submission_confirmation_message_1}" />
     <h:outputText escape="false" value="#{delivery.submissionMessage}" />
- 
+
   <f:verbatim><p/></f:verbatim>
   <h:panelGrid columns="2" columnClasses="longtext">
 
@@ -68,14 +66,14 @@
        onclick="window.open('#{delivery.url}','new_window');">
         <h:outputText value="#{delivery.url}" />
     </h:outputLink>
-    
+
   </h:panelGrid>
 </div>
 
 <br /><br />
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-    <h:commandButton type="submit" value="#{msg.button_return}" action="select" 
+    <h:commandButton type="submit" value="#{msg.button_return}" action="select"
        rendered="#{!delivery.accessViaUrl}" />
     <h:commandButton value="#{msg.button_ok}" type="button" rendered="#{delivery.accessViaUrl}"
        style="act" onclick="javascript:window.open('login.faces','_top')" />

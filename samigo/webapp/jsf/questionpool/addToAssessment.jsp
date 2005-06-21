@@ -11,7 +11,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.add_to_assmt}"/></title>
 			<!-- stylesheet and script widgets go here -->
-      <samigo:stylesheet path="/css/main.css"/>
 			<samigo:script path="/js/treeJavascript.js" />
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">

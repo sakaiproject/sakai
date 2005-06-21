@@ -13,8 +13,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="Copy Questions"/></title>
-                        <!-- stylesheet and script widgets -->
-      <samigo:stylesheet path="/css/main.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -22,14 +20,14 @@
 <div class="heading">Copy Question</div>
 
 
-<h2>Question Text:</h2>  
+<h2>Question Text:</h2>
 <br>
 <logic:iterate id="qpool" collection='<%=session.getAttribute("selectedItems")%>'>
 <bean:write name="qpool" property="itemText" />
 <br>
 </logic:iterate>
 
-<h:panelGrid columns="2" > 
+<h:panelGrid columns="2" >
 
 <h:outputText styleClass="number" value="1"/>
 <h:outputText value="#{msg.copy_q_to}"/>
@@ -51,7 +49,7 @@
     action="cancelEditPool"/>
 
   </center>
- 
+
 </body>
 </html>
 </f:view>

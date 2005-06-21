@@ -13,8 +13,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.invalid_assessment}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <h3><h:outputText value="#{msg.assessment_not_available}"/></h3>
@@ -22,7 +20,7 @@
  <div class="validation">
 <h:outputText  value="#{msg.assessment_not_available_message}" />
  </div>
- 
+
 <p class="act">
   <h:commandButton value="#{msg.button_continue}" type="button"
        style="act" onclick="javascript:window.open('/portal','_top')" />

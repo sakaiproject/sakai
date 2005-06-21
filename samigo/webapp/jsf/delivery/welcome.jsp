@@ -13,13 +13,11 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.tool_title}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 Welcome, if this is the assessment, please continue
   <!-- content... -->
-  <h:form id="anonymousPage"> 
+  <h:form id="anonymousPage">
       <h:commandLink action="beginAssessment" >
         <f:param name="publishedId" value="#{delivery.publishedAssessment.publishedAssessmentId}" />
         <f:actionListener

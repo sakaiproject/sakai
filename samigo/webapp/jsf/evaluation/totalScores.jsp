@@ -17,8 +17,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
         value="#{msg.title_total}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
@@ -49,7 +47,7 @@
     <h:outputText value="#{totalScores.assessmentName} "/>
   </h3>
   <p class="navModeAction">
-    <h:commandLink action="submissionStatus" immediate="true" 
+    <h:commandLink action="submissionStatus" immediate="true"
       rendered="#{totalScores.anonymous eq 'true'}" >
       <h:outputText value="#{msg.sub_status}" />
       <f:actionListener
@@ -58,7 +56,7 @@
     <h:outputText value=" | " rendered="#{totalScores.anonymous eq 'true'}" />
     <h:outputText value="#{msg.title_total}" />
     <h:outputText value=" | " rendered="#{totalScores.firstItem ne ''}" />
-    <h:commandLink action="questionScores" immediate="true" 
+    <h:commandLink action="questionScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{msg.q_view}" />
       <f:actionListener

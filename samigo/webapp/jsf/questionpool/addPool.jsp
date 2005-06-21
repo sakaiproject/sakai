@@ -13,9 +13,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.add_title}"/></title>
-			<!-- stylesheet and script widgets -->
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -60,7 +57,7 @@
  </div>
 
 <p class="act">
-  <h:commandButton id="submit"  action="#{questionpool.doit}" 
+  <h:commandButton id="submit"  action="#{questionpool.doit}"
 	value="#{msg.save}" styleClass="active">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
   </h:commandButton>

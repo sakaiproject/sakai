@@ -19,20 +19,17 @@
 //-->
 </script>
       <title><h:outputText value="Edit Pool"/></title>
-                        <!-- stylesheet and script widgets -->
-      <samigo:stylesheet path="/css/main.css"/>
-      <samigo:stylesheet path="/jsp/aam/stylesheets/nav.css"/>
       </head>
 
 <body bgcolor="#ffffff" onload="collapseRowsByLevel(<%=questionpool.getHtmlIdLevel()%>);flagRows();<%= request.getAttribute("html.body.onload") %>">
 <div class="heading">Samigo</div>
-<html:form action="editpool.do" method="post"> 
-<logic:notEmpty name="questionpool" property="currentPool"> 
-<bean:define name="questionpool" property="currentPool" id="thisPool" type="org.navigoproject.ui.web.form.questionpool.QuestionPoolBean" /> 
-<bean:define name="questionpool" property="currentPool" id="headerPool" /> <bean:define name="thisPool" property="properties" id="props" /> 
-</logic:notEmpty> 
+<html:form action="editpool.do" method="post">
+<logic:notEmpty name="questionpool" property="currentPool">
+<bean:define name="questionpool" property="currentPool" id="thisPool" type="org.navigoproject.ui.web.form.questionpool.QuestionPoolBean" />
+<bean:define name="questionpool" property="currentPool" id="headerPool" /> <bean:define name="thisPool" property="properties" id="props" />
+</logic:notEmpty>
 
-<logic:match name="createpooluse" value="create"> 
+<logic:match name="createpooluse" value="create">
 <h1>Add Pool</h1>
 </logic:match>
 
@@ -47,7 +44,7 @@
 
 <logic:iterate name="parentpools" id="parent" type="org.navigoproject.business.entity.questionpool.model.QuestionPool" indexId="ctr">
 <html:link page="/startCreatePool.do?use=edit" paramName="parent" paramProperty="id" paramId="id">
-<bean:write name="parent" property="displayName" /> 
+<bean:write name="parent" property="displayName" />
 </html:link>
 >
 </logic:iterate>
@@ -71,7 +68,7 @@
   </tr>
   <tr>
     <td> Creator:</td>
-    <td> 
+    <td>
 	<bean:write name="questionpool" property="currentPool.properties.owner.displayName" />
     </td>
   <tr>
@@ -81,24 +78,24 @@
 <logic:empty name="parentpools">
   <tr>
     <td> Department/Group:</td>
-    <td> <html:textarea name="questionpool" 
+    <td> <html:textarea name="questionpool"
            property="currentPool.properties.organizationName" /></td>
   </tr>
 </logic:empty>
   <tr>
     <td> Description:</td>
-    <td> <html:textarea name="questionpool" 
+    <td> <html:textarea name="questionpool"
            property="currentPool.description" /></td>
   </tr>
 <logic:empty name="parentpools">
   <tr>
     <td> Objectives:</td>
-    <td> <html:text name="questionpool" 
+    <td> <html:text name="questionpool"
            property="currentPool.properties.objectives" /></td>
   </tr>
   <tr>
     <td> Keywords:</td>
-    <td> <html:text name="questionpool" 
+    <td> <html:text name="questionpool"
            property="currentPool.properties.keywords" /></td>
   </tr>
 </logic:empty>

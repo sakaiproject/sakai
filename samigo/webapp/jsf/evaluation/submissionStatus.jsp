@@ -17,8 +17,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
         value="#{msg.sub_status}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
@@ -56,7 +54,7 @@
       <h:outputText value="#{msg.title_total}" />
     </h:commandLink>
     <h:outputText value=" | " rendered="#{totalScores.firstItem ne ''}" />
-    <h:commandLink action="questionScores" immediate="true" 
+    <h:commandLink action="questionScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{msg.q_view}" />
       <f:actionListener
@@ -107,7 +105,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
-       <h:outputText value="\"></a>" escape="false" />  
+       <h:outputText value="\"></a>" escape="false" />
        <h:outputText value="#{description.firstName}" />
        <h:outputText value=" " />
        <h:outputText value="#{description.lastName}" />

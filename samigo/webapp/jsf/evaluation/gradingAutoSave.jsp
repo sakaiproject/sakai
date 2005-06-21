@@ -13,7 +13,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.grading}" /></title>
-      <samigo:stylesheet path="/css/main.css"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
