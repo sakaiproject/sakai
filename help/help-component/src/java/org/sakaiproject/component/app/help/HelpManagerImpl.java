@@ -142,23 +142,22 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
   private static final Log LOG = LogFactory.getLog(HelpManagerImpl.class);
 
-  
   /**
    * @see org.sakaiproject.api.app.help.HelpManager#getServerConfigurationService()
    */
   public ServerConfigurationService getServerConfigurationService()
-  {    
+  {
     return serverConfigurationService;
   }
-  
+
   /**
    * @see org.sakaiproject.api.app.help.HelpManager#setServerConfigurationService(org.sakaiproject.service.framework.config.ServerConfigurationService)
    */
   public void setServerConfigurationService(ServerConfigurationService s)
-  {    
+  {
     serverConfigurationService = s;
   }
-  
+
   public List getContexts(String mappedView)
   {
     return (List) helpContextConfig.get(mappedView);
@@ -469,14 +468,17 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       }
     }
 
-    doc.add(Field.Keyword("location", resource.getLocation()));
+    if (resource.getLocation() != null){
+      doc.add(Field.Keyword("location", resource.getLocation()));  
+    }
+    
     doc.add(Field.Keyword("name", resource.getName()));
     doc.add(Field.Keyword("id", resource.getId().toString()));
 
     URL urlResource;
     URLConnection urlConnection = null;
     StringBuffer sBuffer = new StringBuffer();
-    if (resource.getLocation().startsWith("/"))
+    if (resource.getLocation() == null || resource.getLocation().startsWith("/"))
     {
       // handle REST content
       if (!getRestConfiguration().getOrganization().equals("sakai"))
@@ -774,7 +776,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
           }
 
           // handle external help content
-          EXTERNAL_URL = getServerConfigurationService().getString("help.location");
+          EXTERNAL_URL = getServerConfigurationService().getString(
+              "help.location");
           if (!"".equals(EXTERNAL_URL))
           {
             if (EXTERNAL_URL.endsWith("/"))
@@ -1071,18 +1074,15 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         Category childCategory = new CategoryBean();
         childCategory.setName(currentNode.getAttributes().getNamedItem("name")
             .getNodeValue());
-        
-        if (category != null){
+
+        if (category != null)
+        {
           childCategory.setParent(category);
           category.getCategories().add(childCategory);
         }
-        
+
         storeCategory(childCategory);
 
-        if (LOG.isDebugEnabled())
-        {
-          LOG.debug("adding help category: " + childCategory.getName());
-        }
         LOG.info("adding help category: " + childCategory.getName());
 
         recursiveExternalReg(currentNode, childCategory);
@@ -1095,10 +1095,23 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
           if (nnm != null)
           {
+            // name required
             resource.setName(nnm.getNamedItem("name").getNodeValue());
-            resource.setLocation(nnm.getNamedItem("location").getNodeValue());
-            resource.setDocId(new Integer(cnt).toString());
-            cnt++;
+            
+            if (nnm.getNamedItem("location") != null)
+            {
+              resource.setLocation(nnm.getNamedItem("location").getNodeValue());
+            }
+
+            if (nnm.getNamedItem("docId") != null)
+            {
+              resource.setDocId(nnm.getNamedItem("docId").getNodeValue());
+            }
+            else
+            {
+              resource.setDocId(new Integer(cnt).toString());
+              cnt++;
+            }
 
             //defaultForTool is an optional attribute
             if (nnm.getNamedItem("defaultForTool") != null)
@@ -1110,12 +1123,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
           resource.setCategory(category);
           category.getResources().add(resource);
+          storeResource(resource);
 
-          if (LOG.isDebugEnabled())
-          {
-            LOG.debug("adding help resource: " + resource + " to category: "
-                + category.getName());
-          }
           LOG.info("adding help resource: " + resource + " to category: "
               + category.getName());
           recursiveExternalReg(currentNode, category);

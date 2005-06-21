@@ -14,7 +14,7 @@
 		</id>
 
 		<property name="name">
-			<column name="NAME" not-null="true" length="255" unique="true"/>
+			<column name="NAME" not-null="true" length="255"/>
 		</property>
 
 		<set name="resources" cascade="all-delete-orphan"

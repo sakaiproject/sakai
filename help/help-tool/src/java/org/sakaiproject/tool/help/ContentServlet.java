@@ -66,7 +66,7 @@ public class ContentServlet extends HttpServlet
     Resource resource = getHelpManager().getResourceByDocId(docId);
 
     URL url;
-    if (resource != null && resource.getLocation() != null)
+    if (resource != null)
     {
       if (!getHelpManager().getRestConfiguration().getOrganization()
           .equalsIgnoreCase("sakai"))

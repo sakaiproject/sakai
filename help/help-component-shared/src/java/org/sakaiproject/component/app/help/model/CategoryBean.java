@@ -140,7 +140,8 @@ public class CategoryBean implements Category, Comparable
   public int compareTo(Object o)
   {
     CategoryBean cb = (CategoryBean) o;
-    return name.compareTo(cb.name);
+    return id.compareTo(cb.id);
+    //return name.compareTo(cb.name);
   }
 }
 

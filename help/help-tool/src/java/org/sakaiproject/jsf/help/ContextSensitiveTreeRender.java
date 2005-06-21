@@ -27,6 +27,7 @@ package org.sakaiproject.jsf.help;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIData;
@@ -123,7 +124,7 @@ public class ContextSensitiveTreeRender extends Renderer
     {
       Category category = (Category) i.next();
              
-      Set resources = category.getResources();
+      Set resources = new TreeSet(category.getResources());
       String id = category.getName();
 
       writer.write("<li class=\"dir\">");
@@ -133,7 +134,7 @@ public class ContextSensitiveTreeRender extends Renderer
           + "\" onclick=\"toggle(this)\">" + category.getName() + "</a>");
 
       writer.write("<ol class=\"docs\">");
-      Set subCategories = category.getCategories();
+      Set subCategories = new TreeSet(category.getCategories());
       encodeRecursive(writer, subCategories, helpDocId);
       if (resources != null)
       {

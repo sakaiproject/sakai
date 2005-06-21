@@ -70,7 +70,7 @@ public class HelpFrameSetRender extends Renderer
               
     tocToolUrl = tocToolUrl + "?help=" + helpParameter;
     
-    helpWindowTitle = ServerConfigurationService.getString("ui.service");
+    helpWindowTitle = ServerConfigurationService.getString("ui.service") + " Help";
     
     writer.write("<html><head><title>" + helpWindowTitle + "</title></head>");
     writer.write("<FRAMESET cols=\"30%, 70%\"><FRAMESET rows=\"250, 350\">");

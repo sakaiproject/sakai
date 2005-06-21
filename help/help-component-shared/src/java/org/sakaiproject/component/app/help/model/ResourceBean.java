@@ -207,7 +207,12 @@ public class ResourceBean implements Resource, Comparable
   public int compareTo(Object object)
   {
     ResourceBean resourceBean = (ResourceBean) object;
-    return Float.compare(resourceBean.score, score);
+    if (resourceBean.score != 0){
+      return Float.compare(resourceBean.score, score);
+    }
+    else{
+      return (id.compareTo(resourceBean.id));
+    }
   }
 
   /**
