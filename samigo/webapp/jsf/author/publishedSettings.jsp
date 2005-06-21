@@ -18,6 +18,8 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.sakai_assessment_manager} - #{msg.settings}" /></title>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
+      <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
+      <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       </head>
     <body onload="hideUnhideAllDivsWithWysiwyg('none');;<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
