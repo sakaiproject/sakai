@@ -16,8 +16,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.index_title}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+  		<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+	  	<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -54,15 +55,15 @@
       <div class="shorttext">
       <h:outputLabel for="newName" value="#{msg.index_templates_title}"/>
       <!--h:outputText value="#{msg.index_templates_title}" /-->
-     
+
       <h:inputText id="tempName" value="#{template.newName}" size="60" required="true"/>
- 
+
       <h:commandButton type="submit" id="Submit" value="#{msg.index_button_create}"
        action="newTemplate">
               <f:actionListener
                 type="org.sakaiproject.tool.assessment.ui.listener.author.EditTemplateListener" />
        </h:commandButton>
-   
+
 <br/><h:message for="tempName" styleClass="validate"/>
 
   </div>
@@ -79,7 +80,7 @@
 
   <!-- controller buttons for invisible pager control -->
   <!-- samigo:pagerButtonControl controlId="templates" formId="editOrRemoveTemplateForm" / -->
-  <h:dataTable id="editDataTable" value="#{templateIndex.sortTemplateList}" 
+  <h:dataTable id="editDataTable" value="#{templateIndex.sortTemplateList}"
     var="templateListItem" styleClass="listHier">
     <h:column>
      <f:facet name="header">
@@ -90,7 +91,7 @@
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
           <h:outputText value="#{msg.index_templates_title} " rendered="#{templateIndex.templateOrderBy!='templateName'}" />
         </h:commandLink>
-          <h:outputText  value="#{msg.index_templates_title} " styleClass="currentSort" rendered="#{templateIndex.templateOrderBy=='templateName'}" />    
+          <h:outputText  value="#{msg.index_templates_title} " styleClass="currentSort" rendered="#{templateIndex.templateOrderBy=='templateName'}" />
           <h:commandLink immediate="true" action="sort" rendered="#{templateIndex.templateOrderBy=='templateName' && templateIndex.templateAscending }">
            <f:param name="templateAscending" value="false" />
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
@@ -107,14 +108,14 @@
        <!--h:panelGroup-->
         <h:commandLink id="editlink" action="editTemplate" immediate="true">
           <h:outputText value="#{templateListItem.templateName}" />
-          
+
           <f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateLoadListener" />
           <f:param name="templateId" value="#{templateListItem.idString}"/>
         </h:commandLink> <f:verbatim><br/></f:verbatim>
        <!--/h:panelGroup-->
       <!--h:panelGroup-->
-        <h:commandLink id="deletelink" action="confirmDeleteTemplate" immediate="true" 
+        <h:commandLink id="deletelink" action="confirmDeleteTemplate" immediate="true"
             rendered="#{templateListItem.idString ne 1}">
           <h:outputText value="#{msg.index_button_remove}" styleClass="itemAction"/>
             <f:param name="templateId" value="#{templateListItem.idString}"/>
@@ -134,14 +135,14 @@
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
           <h:outputText value="#{msg.index_templates_modified} " rendered="#{templateIndex.templateOrderBy!='lastModified'}" />
         </h:commandLink>
-        <h:outputText  value="#{msg.index_templates_modified} " styleClass="currentSort" rendered="#{templateIndex.templateOrderBy=='lastModified'}" />    
+        <h:outputText  value="#{msg.index_templates_modified} " styleClass="currentSort" rendered="#{templateIndex.templateOrderBy=='lastModified'}" />
         <h:commandLink immediate="true" action="sort" rendered="#{templateIndex.templateOrderBy=='lastModified' && templateIndex.templateAscending }">
            <f:param name="templateSortType" value="lastModified"/>
            <f:param name="templateAscending" value="false"/>
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
            <h:graphicImage alt="#{msg.asc}" rendered="#{templateIndex.templateAscending}" url="/images/sortascending.gif"/>
         </h:commandLink>
-          <h:commandLink immediate="true" action="sort" rendered="#{templateIndex.templateOrderBy=='lastModified'&& !templateIndex.templateAscending }">    
+          <h:commandLink immediate="true" action="sort" rendered="#{templateIndex.templateOrderBy=='lastModified'&& !templateIndex.templateAscending }">
            <f:param name="templateSortType" value="lastModified"/>
            <f:param name="templateAscending" value="true" />
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />

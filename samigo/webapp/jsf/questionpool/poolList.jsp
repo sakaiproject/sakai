@@ -18,9 +18,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.q_mgr}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
-      <samigo:stylesheet path="/css/nav.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <script language="javascript" style="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>
@@ -66,13 +66,13 @@
         <h:outputText value="#{msg.qps}"/>
 </p>
 
- 
+
  <h3><h:outputText value="#{msg.qps}"/></h3>
 
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_poolmanager}"/>
 
 <div class="indnt1">
-<h4 class="nav"><h:commandLink rendered="#{questionpool.importToAuthoring == 'false'}" id="add" immediate="true" action="#{questionpool.addPool}"> 
+<h4 class="nav"><h:commandLink rendered="#{questionpool.importToAuthoring == 'false'}" id="add" immediate="true" action="#{questionpool.addPool}">
   <h:outputText value="#{msg.add_new_pool}"/>
   <f:param name="qpid" value="0"/>
 </h:commandLink>
