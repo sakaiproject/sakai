@@ -47,7 +47,7 @@ td.external {
 td.left {text-align:left; vertical-align:bottom;}
 td.center {text-align:center; vertical-align:bottom;}
 td.right {text-align:right; vertical-align:bottom; padding-right:2em !important;}
-td.rightpadded {text-align:right; vertical-align:bottom; padding-right:4em !important;}
+td.rightpadded {text-align:right; vertical-align:bottom; padding-right:5em !important;}
 
 /* Most but not all tables are shown 100% width in the spec. */
 table.wideTable {
