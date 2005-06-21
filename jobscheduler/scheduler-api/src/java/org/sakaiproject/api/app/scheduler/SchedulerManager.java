@@ -36,15 +36,7 @@ import org.quartz.TriggerListener;
 public interface SchedulerManager
 {
   
-  /**
-   * creates and starts the quartz scheduler   
-   */
-  public void init();
-  
-  /**
-   * tear down scheduler on shutdown
-   */  
-  public void destroy();
+ 
 
   /**
    * @return Returns the globalTriggerListener.
