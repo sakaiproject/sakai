@@ -14,17 +14,17 @@
      basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
      var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
-      <head>
+      <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
       <samigo:stylesheet path="/css/samigo.css"/>
       <samigo:stylesheet path="/css/sam.css"/>
-     
+
       </head>
       <h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" />
       <h:outputText value="<a name='top'></a>" escape="false" />
 
 <!-- content... -->
-<h:form id="takeAssessmentForm" enctype="multipart/form-data" 
+<h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
 
 <script language="javascript">
@@ -92,7 +92,7 @@ function saveTime()
      <!-- f:subview id="parts" -->
       <f:verbatim><h4 class="tier1"></f:verbatim>
       <h:outputText value="#{msg.p} #{part.number} #{msg.of} #{part.numParts}" />
-      <h:outputText value=" - #{part.nonDefaultText}" escape="false"/> 
+      <h:outputText value=" - #{part.nonDefaultText}" escape="false"/>
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
       <!-- h:outputText value="#{msg.ans_q}, " / -->
       <!-- h:outputText value="#{part.points}/#{part.maxPoints} #{msg.pt}" / -->
@@ -132,7 +132,7 @@ function saveTime()
           <h:panelGroup
             rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 3}">
            <f:subview id="deliverMultipleChoiceSingleCorrect">
-           <%@ include file="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.jsp" %> 
+           <%@ include file="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.jsp" %>
            </f:subview>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 2}">
@@ -188,17 +188,17 @@ function saveTime()
     onclick="pauseTiming='true'">
   </h:commandButton>
 
-  <h:commandButton type="submit" value="#{msg.button_save_x}" 
+  <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
     rendered="#{delivery.previewMode ne 'true' && (delivery.navigation ne '1'&& delivery.continue) && !delivery.accessViaUrl}"  onclick="pauseTiming='true'" disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>
 
-  <h:commandButton type="submit" value="#{msg.button_quit}" 
+  <h:commandButton type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
     rendered="#{delivery.previewMode ne 'true' && delivery.accessViaUrl}" onclick="pauseTiming='true'" disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>
 
-<h:commandButton type="submit" value="#{msg.button_save_x}" 
+<h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.previewMode ne 'true' && (delivery.navigation eq '1'||!delivery.continue) && !delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>

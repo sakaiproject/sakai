@@ -19,7 +19,7 @@
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     </f:verbatim>
     <html xmlns="http://www.w3.org/1999/xhtml">
-      <head>
+      <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="Edit Pool"/></title>
       <samigo:stylesheet path="/css/samigo.css"/>
       <samigo:stylesheet path="/css/sam.css"/>
@@ -58,7 +58,7 @@
 
 </p>
 
-<samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent" 
+<samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
    separator=" > " first="0" rows="100" >
   <h:column>
     <h:commandLink action="#{questionpool.editPool}"  immediate="true">
@@ -72,7 +72,7 @@
 <h:outputText rendered="#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.displayName}"/>
 
 <h3 class="insColor insBak insBor">
-<h:outputText value="#{msg.qp}: "/> 
+<h:outputText value="#{msg.qp}: "/>
 <h:outputText value="#{questionpool.currentPool.displayName}"/>
 </h3>
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_editpool}"/>
@@ -87,7 +87,7 @@
  </div>
 
  <div class="shorttext indnt2">
-  <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{msg.dept}"/> 
+  <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{msg.dept}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="orgfield" size="30" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
  </div>
 
@@ -172,7 +172,7 @@
 
 <div class="indnt1">
 <!-- for normal pool operations -->
-  <h:commandButton id="submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.doit}" 
+  <h:commandButton id="submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.doit}"
         value="#{msg.update}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />
@@ -180,12 +180,12 @@
 
 <!-- for importing questions from pool to authoring -->
 
-  <h:commandButton id="import"   rendered="#{questionpool.importToAuthoring == 'true'}" action="#{questionpool.doit}" 
+  <h:commandButton id="import"   rendered="#{questionpool.importToAuthoring == 'true'}" action="#{questionpool.doit}"
         value="#{msg.import}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
 
-  
+
 
  <h:commandButton style="act" value="#{msg.cancel}" action="poolList" immediate="true"/>
  </div>
