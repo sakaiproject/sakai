@@ -18,8 +18,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.sakai_assessment_manager} - #{msg.settings}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
@@ -466,11 +467,11 @@ function validateUrl0(){
   <samigo:hideDivision id="div11" title="#{msg.heading_graphics}" >
     <f:verbatim><div class="indnt2"></f:verbatim>
     <h:panelGrid columns="1" columnClasses="shorttext" >
-      <h:panelGroup rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}"> 
+      <h:panelGroup rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}">
         <h:outputLabel value="#{msg.background_color}"/></b>
         <samigo:colorPicker value="#{assessmentSettings.bgColor}" size="10" id="pickColor"/>
       </h:panelGroup>
-      <h:panelGroup rendered="#{assessmentSettings.valueMap.bgImage_isInstructorEditable==true}"> 
+      <h:panelGroup rendered="#{assessmentSettings.valueMap.bgImage_isInstructorEditable==true}">
         <h:outputLabel value="#{msg.background_image}"/></b>
         <h:inputText size="80" value="#{assessmentSettings.bgImage}"/>
       </h:panelGroup>

@@ -16,8 +16,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.create_modify_a}" /></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <script language="javascript" style="text/JavaScript">
 <!--
 function resetSelectMenus(){
@@ -39,12 +40,12 @@ for (i=0; i<document.links.length; i++) {
   {
     newindex = i;
     break;
-  }  
+  }
 }
- 
-document.links[newindex].onclick(); 
+
+document.links[newindex].onclick();
 }
- 
+
 //-->
 </script>
 </head>
@@ -145,7 +146,7 @@ document.links[newindex].onclick();
 
  <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
   <h:column>
-<f:verbatim><h4></f:verbatim> 
+<f:verbatim><h4></f:verbatim>
     <h:panelGrid columns="2" width="100%">
       <h:panelGroup>
        <f:verbatim><b></f:verbatim> <h:outputText value="#{msg.p} " /> <f:verbatim></b></f:verbatim>
@@ -218,7 +219,7 @@ document.links[newindex].onclick();
 <f:verbatim><h5></f:verbatim>
         <h:panelGrid columns="2" width="100%">
           <h:panelGroup>
-           <f:verbatim><b></f:verbatim>   <h:outputText value="#{msg.q} " /> <f:verbatim></b></f:verbatim> 
+           <f:verbatim><b></f:verbatim>   <h:outputText value="#{msg.q} " /> <f:verbatim></b></f:verbatim>
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
             <h:selectOneMenu id="number" onchange="document.forms[0].submit();" value="#{question.number}">
               <f:selectItems value="#{partBean.questionNumbers}" />
@@ -281,7 +282,7 @@ document.links[newindex].onclick();
           </h:panelGroup>
 <f:verbatim> </div></f:verbatim>
     <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel value="#{msg.ins_new_q} "/>
-       
+
 <!-- each selectItem stores the itemtype, current sequence -->
 
 <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}" >
@@ -302,12 +303,12 @@ document.links[newindex].onclick();
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
 
 </h:selectOneMenu>
- <f:verbatim>    </div> </f:verbatim> 
+ <f:verbatim>    </div> </f:verbatim>
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
 </h:commandLink>
 </h:column>
 </h:dataTable>
-<f:verbatim>    </div> </f:verbatim> 
+<f:verbatim>    </div> </f:verbatim>
   </h:column>
 </h:dataTable>
 </div>
