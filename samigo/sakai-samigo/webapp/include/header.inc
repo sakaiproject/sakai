@@ -1,4 +1,8 @@
 <%
+    request.setAttribute("html.head", request.getAttribute("sakai.html.head"));
+    request.setAttribute("html.body.onload", request.getAttribute("sakai.html.body.onload"));   
+    request.setAttribute("html.head.sakai", request.getAttribute("sakai.html.head")); 
+/*
 	request.setAttribute("html.head", request.getAttribute("sakai.html.head.js"));
 	request.setAttribute("html.body.onload", request.getAttribute("sakai.html.body.onload"));	
 	request.setAttribute("html.head.sakai", request.getAttribute("sakai.html.head"));
@@ -25,4 +29,5 @@
 		request.setAttribute("html.head", htmlHead);
 		request.setAttribute("html.body.onload", htmlBodyOnload);
 	}	
+*/
 %>
