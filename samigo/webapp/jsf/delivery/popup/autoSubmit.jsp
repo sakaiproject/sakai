@@ -11,7 +11,7 @@
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
-      <head>
+      <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.auto_submit}" /></title>
       <samigo:stylesheet path="/css/samigo.css"/>
       <samigo:stylesheet path="/css/sam.css"/>
