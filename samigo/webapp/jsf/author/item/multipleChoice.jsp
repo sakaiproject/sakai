@@ -15,8 +15,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
       </head>
@@ -36,7 +37,7 @@
   <!-- this is for creating multiple choice questions -->
   <!-- 1 POINTS -->
 <div class="indnt2">
- 
+
  <span id="num1" class="number"></span>
      <div class="shorttext"> <h:outputLabel value="#{msg.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}"required="true" size="6" >
@@ -46,10 +47,10 @@
   <h:outputText value="  #{msg.zero_survey}" />
 </div>
   <!-- 2 TEXT -->
- 
-  <span id="num2" class="number"></span> 
+
+  <span id="num2" class="number"></span>
    <div class="longtext"><h:outputLabel value="#{msg.q_text}" />
-   
+
   <!-- WYSIWYG -->
     <%--
   <h:panelGrid columns="2">
@@ -63,7 +64,7 @@
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" >
      <f:validateLength minimum="1" maximum="4000"/>
    </samigo:wysiwyg>
-    
+
   </h:panelGrid>
 </div>
   <!-- 3 ANSWER -->
@@ -88,7 +89,7 @@
     <h:dataTable id="mcchoices" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" width="100%" headerClass="alignLeft longtext">
       <h:column>
         <f:facet name="header">
-       
+
           <h:outputLabel value="#{msg.correct_answer}"  />
 
         </f:facet>
@@ -124,7 +125,7 @@
    <samigo:wysiwyg rows="140" value="#{answer.text}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
- 
+
   </h:panelGrid>
 
 <%--
@@ -212,10 +213,10 @@
 
 </h:panelGrid>
 
- 
+
  <!-- FEEDBACK -->
  <span id="num8" class="number"></span>
-  <div class="longtext"> 
+  <div class="longtext">
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
 <div class="indnt3">
   <h:panelGrid columns="2">
@@ -281,7 +282,7 @@
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-  
+
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true"/>
  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_cancel}" action="editPool" immediate="true"/>
 

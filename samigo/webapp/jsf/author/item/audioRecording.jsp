@@ -15,9 +15,10 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
-       <samigo:script path="/js/authoring.js"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+      <samigo:script path="/js/authoring.js"/>
 
       </head>
 <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
@@ -34,7 +35,7 @@
 
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
- 
+
    <span id="num1" class="number"></span>
    <div class="shorttext">
     <h:outputLabel value="#{msg.answer_point_value}" />
@@ -49,9 +50,9 @@
 
 <span id="num2" class="number"></span>
   <div class="longtext"> <h:outputLabel for="qtextarea" value="#{msg.q_text}" />
- 
+
   <!-- WYSIWYG -->
-   
+
   <h:panelGrid width="50%">
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}"  >
      <f:validateLength maximum="4000"/>
@@ -71,7 +72,7 @@
   <!-- 4 attempts -->
    <span id="num4" class="number"></span>
   <div class="longtext">
-  
+
   <h:outputLabel value="#{msg.number_of_attempts}" />
   <h:outputText value="#{msg.number_of_attempts_indic}" />
   <h:selectOneMenu id="noattempts" value="#{itemauthor.currentItem.numAttempts}" required="true">
@@ -111,12 +112,12 @@
 
 
  <!-- FEEDBACK -->
-  
+
    <span id="num6" class="number"></span>
    <div class="longtext">
    <h:outputLabel value="#{msg.feedback_optional}<br />" />
 
-  
+
   <h:panelGrid width="50%">
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}"  >
      <f:validateLength maximum="4000"/>

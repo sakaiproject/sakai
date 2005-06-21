@@ -15,8 +15,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       <samigo:script path="/js/authoring.js"/>
       </head>
 <body onload="countNum();;<%= request.getAttribute("html.body.onload") %>">
@@ -31,7 +32,7 @@
  <div class="indnt2">
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
- 
+
    <span id="num1" class="number"></span>
 <div class="shorttext">
     <h:outputLabel value="#{msg.answer_point_value}"/>
@@ -47,7 +48,7 @@
  <div class="longtext">
   <h:outputLabel value="#{msg.q_text}" />
   <!-- STUB FOR WYSIWYG -->
- 
+
   <!-- WYSIWYG -->
     <%--
   <h:panelGrid columns="2">
@@ -77,7 +78,7 @@
 </div>
 
     <!-- 4 RATIONALE -->
-  
+
      <span id="num4" class="number"></span>
     <div class="longtext">
     <h:outputLabel value="#{msg.req_rationale}" />
@@ -91,7 +92,7 @@
   </div>
 
   <!-- 5 PART -->
- 
+
   <h:panelGrid rendered="#{itemauthor.target == 'assessment'}" columnClasses="shorttext">  <h:panelGroup>
    <f:verbatim><span id="num5" class="number"></span></f:verbatim>
   <h:outputLabel value="#{msg.assign_to_p}" />
@@ -104,7 +105,7 @@
 
 
   <!-- 6 POOL -->
- 
+
   <h:panelGrid rendered="#{itemauthor.target == 'assessment'}" columnClasses="shorttext">
   <h:panelGroup>
    <f:verbatim><span id="num6" class="number"></span></f:verbatim>
@@ -115,7 +116,7 @@
   </h:selectOneMenu>
   </h:panelGroup>
   </h:panelGrid>
- 
+
  <!-- FEEDBACK -->
 
   <span id="num7" class="number"></span><div class="longtext">
@@ -128,14 +129,14 @@
   <%--<h:panelGroup>--%>
 
   <!-- WYSIWYG -->
-   
+
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 
- 
+
   <!-- WYSIWYG -->
-   
+
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
@@ -164,7 +165,7 @@
 
 <%--
 <div class="longtext indnt1">
-  <h:panelGrid columns="3" rendered="#{itemauthor.showMetadata == 'true'}"> 
+  <h:panelGrid columns="3" rendered="#{itemauthor.showMetadata == 'true'}">
   <f:verbatim><span id="num8" class="number"></span></f:verbatim>
   <h:outputLabel for="obj" value="#{msg.objective}" />
   <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" />

@@ -15,8 +15,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       <!-- HTMLAREA -->
       <samigo:stylesheet path="/htmlarea/htmlarea.css"/>
       <samigo:script path="/htmlarea/htmlarea.js"/>
@@ -66,7 +67,7 @@
 <br/><h:message for="answerptr" styleClass="validate"/>
   </div>
   <!-- 2 TEXT -->
- 
+
     <span id="num2" class="number"></span>
   <div class="longtext"> <h:outputLabel for="qtextarea" value="#{msg.q_text}" />
   <br/>
@@ -80,7 +81,7 @@
   </div>
 
   <!-- 3 ANSWER -->
- 
+
       <span id="num3" class="number"></span>
     <div class="longtext"> <h:outputLabel value="#{msg.create_pairing} " /></div>
 
@@ -183,7 +184,7 @@
 
 <%--
     <!-- 4 RANDOMIZE -->
- 
+
     <span id="num4" class="number"></span>
    <div class="longtext">  <h:outputText value="#{msg.randomize_answers}" />
     <h:selectOneRadio value="#{itemauthor.currentItem.randomized}" >
@@ -196,7 +197,7 @@
 
 
     <!-- 5 RATIONALE -->
-  
+
       <span id="num5" class="number"></span>
    <div class="longtext"> <h:outputText value="#{msg.req_rationale}" />
     <h:selectOneRadio value="#{itemauthor.currentItem.rationale}" >
@@ -209,10 +210,10 @@
 
 --%>
     <!-- 6 PART -->
-  
+
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
        <f:verbatim> <span id="num6" class="number"></span></f:verbatim>
- 
+
   <h:outputLabel value="#{msg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -224,27 +225,27 @@
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
 
    <f:verbatim> <span id="num7" class="number"></span></f:verbatim>
- 
+
   <h:outputLabel value="#{msg.assign_to_question_p}" />
 <%-- stub debug --%>
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
   </h:selectOneMenu>
- 
+
   </h:panelGrid>
 
 
  <!-- FEEDBACK -->
- 
+
   <span id="num8" class="number"></span>
- <div class="longtext"> 
+ <div class="longtext">
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
   <h:panelGrid columns="2">
   <h:outputLabel value="#{msg.correct_answer_opti}" />
   <h:outputLabel value="#{msg.incorrect_answer_op}" />
 
-  
+
 
   <!-- WYSIWYG -->
     <%--

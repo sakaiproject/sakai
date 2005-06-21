@@ -15,8 +15,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       <samigo:script path="/js/authoring.js"/>
       </head>
 <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
@@ -41,12 +42,12 @@
   </div>
 
   <!-- 2 TEXT -->
-  
+
   <span id="num2" class="number"></span>
    <div class="longtext"><h:outputLabel for="qtextarea" value="#{msg.q_text}" />
   <br/>
   <!-- WYSIWYG -->
- 
+
   <h:panelGrid width="50%">
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}">
      <f:validateLength minimum="1" maximum="4000"/>
@@ -56,7 +57,7 @@
 
 </div>
   <!-- 3 PART -->
- 
+
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
   <f:verbatim><span id="num3" class="number"></span></f:verbatim>
   <h:outputLabel value="#{msg.assign_to_p}" />
@@ -76,11 +77,11 @@
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
   </h:selectOneMenu>
-  
+
   </h:panelGrid>
 
  <!-- 5 ANSWER and ANSWERFEEDBACK -->
-  
+
   <span id="num5" class="number"></span>
    <div class="longtext">
   <h:outputLabel value="#{msg.answer_provide_a_mo}" />

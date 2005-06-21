@@ -15,8 +15,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       <samigo:script path="/js/authoring.js"/>
       </head>
       <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
@@ -42,7 +43,7 @@
   <h:outputText value="  #{msg.zero_survey}" />
   </div>
   <!-- 2 TEXT -->
- 
+
    <span id="num2" class="number"></span>
  <div class="longtext">
   <h:outputLabel for="qtextarea" value="#{msg.q_text}" />
@@ -64,23 +65,23 @@
   </div>
 <%--  <div class="shorttext indnt1"> --%>
   <!-- 3 PART -->
-  
-   
+
+
   <h:panelGrid columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}" columns="3">
 <f:verbatim><span id="num3" class="number"></span></f:verbatim>
- 
+
   <h:outputLabel value="#{msg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
      <!-- use this in real  value="#{section.sectionNumberList}" -->
   </h:selectOneMenu>
- 
+
   </h:panelGrid>
 
-  
+
 
   <!-- 4 POOL -->
-  
+
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
    <f:verbatim><span id="num4" class="number"></span></f:verbatim>
   <h:outputLabel value="#{msg.assign_to_question_p}" />
@@ -88,18 +89,18 @@
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
   </h:selectOneMenu>
-  
+
   </h:panelGrid>
 
  <!-- FEEDBACK -->
- 
+
    <span id="num5" class="number"></span>
 <div class="longtext">
   <h:outputLabel value="#{msg.feedback_optional}<br />" />
 
 
   <!-- WYSIWYG -->
-  
+
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>

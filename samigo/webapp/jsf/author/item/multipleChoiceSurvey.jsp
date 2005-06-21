@@ -14,8 +14,9 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
-      <samigo:stylesheet path="/css/samigo.css"/>
-      <samigo:stylesheet path="/css/sam.css"/>
+      <%-- later, we'll use the new sakai 2.0 stylesheet tags --%>
+      <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
       <samigo:script path="/js/authoring.js"/>
       </head>
 <body onload="countNum();;<%= request.getAttribute("html.body.onload") %>">
@@ -34,12 +35,12 @@
   <div class="indnt2">
 <span id="num1" class="number"></span>
 <div class="shorttext">
-  
+
     <h:outputLabel value="#{msg.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
 <f:validateDoubleRange/>
 </h:inputText>
-  
+
     <h:message for="answerptr" styleClass="validate"/>
   <h:outputText value="  #{msg.zero_survey} " />
  </div>
@@ -58,7 +59,7 @@
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}">
      <f:validateLength minimum="1" maximum="4000"/>
    </samigo:wysiwyg>
- 
+
   </h:panelGrid>
   </div>
 
@@ -82,7 +83,7 @@
      <f:selectItem itemValue="SCALETEN" itemLabel="#{msg.scale10}" />
     </h:selectOneRadio>
   <br />
-   
+
   </div>
     <!-- 4 PART -->
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
@@ -115,7 +116,7 @@
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
- 
+
   </h:panelGrid>
   </div></div>
 
@@ -128,10 +129,10 @@
 <h:panelGrid columns="2" columnClasses="shorttext">
   <h:outputLabel value="#{msg.objective}" />
   <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" />
-   
+
   <h:outputLabel value="#{msg.keyword}" />
   <h:inputText id="keyword" value="#{itemauthor.currentItem.keyword}" />
-  
+
   <h:outputLabel value="#{msg.rubric_colon}" />
   <h:inputText id="rubric" value="#{itemauthor.currentItem.rubric}" />
   </h:panelGrid>
