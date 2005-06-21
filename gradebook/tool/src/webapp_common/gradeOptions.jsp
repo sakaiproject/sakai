@@ -17,11 +17,11 @@
 <!-- Grade Display -->
 		<h4><h:outputText value="#{msgs.feedback_options_grade_display}"/></h4>
 		<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
-			<h:selectBooleanCheckbox id="displayAssignmentGrades" value="#{feedbackOptionsBean.displayAssignmentGrades}"
+			<h:selectBooleanCheckbox id="displayAssignmentGrades" value="#{feedbackOptionsBean.localGradebook.assignmentsDisplayed}"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 			<h:outputLabel for="displayAssignmentGrades" value="#{msgs.feedback_options_grade_display_assignment_grades}" />
 
-			<h:selectBooleanCheckbox id="displayCourseGrades" value="#{feedbackOptionsBean.displayCourseGrades}"
+			<h:selectBooleanCheckbox id="displayCourseGrades" value="#{feedbackOptionsBean.localGradebook.courseGradeDisplayed}"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 			<h:outputLabel for="displayCourseGrades" value="#{msgs.feedback_options_grade_display_course_grades}" />
 		</h:panelGrid>
@@ -54,27 +54,29 @@
 		</p>
 
 <!-- GRADE MAPPING TABLE -->
-		<h:dataTable cellpadding="0" cellspacing="0"
+		<x:dataTable cellpadding="0" cellspacing="0"
 			id="mappingTable"
-			value="#{feedbackOptionsBean.gradeMappingRowsMap[feedbackOptionsBean.selectedGradeMappingId]}"
-			var="row"
+			value="#{feedbackOptionsBean.localGradebook.selectedGradeMapping.grades}"
+			var="grade"
 			styleClass="listHier narrowTable">
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.feedback_options_grade_header}"/>
 				</f:facet>
-				<h:outputText value="#{row.grade}"/>
+				<h:outputText value="#{grade}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.feedback_options_percent_header}"/>
 				</f:facet>
-				<h:outputText value="#{row.percentage}" rendered="#{row.readOnly}"/>
-				<h:inputText id="mappingValue" value="#{row.percentage}" rendered="#{!row.readOnly}"
+				<h:outputText value="#{feedbackOptionsBean.localGradebook.selectedGradeMapping.gradeMap[grade]}"
+					rendered="#{grade == feedbackOptionsBean.localGradebook.selectedGradeMapping.lowestGrade}"/>
+				<h:inputText id="mappingValue" value="#{feedbackOptionsBean.localGradebook.selectedGradeMapping.gradeMap[grade]}"
+					rendered="#{grade != feedbackOptionsBean.localGradebook.selectedGradeMapping.lowestGrade}"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 				<h:message for="mappingValue" styleClass="validationEmbedded" />
 			</h:column>
-		</h:dataTable>
+		</x:dataTable>
 
 		</div> <!-- END INDNT1 -->
 

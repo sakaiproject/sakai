@@ -24,6 +24,8 @@
 
 package org.sakaiproject.tool.gradebook.facades;
 
+import java.io.Serializable;
+
 /**
  * A User is a gradebook user.  This is an immutable convenience object returned by
  * the CourseManagement facade, usually obtained from an external service. It is not normally
@@ -31,7 +33,7 @@ package org.sakaiproject.tool.gradebook.facades;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public interface User {
+public interface User extends Serializable {
 	/**
 	 * @return Returns the userUid, the unique ID returned by the authentication facade and
 	 * used to identify users in the course management and authorization facades

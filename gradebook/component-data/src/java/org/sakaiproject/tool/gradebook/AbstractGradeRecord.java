@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -35,7 +36,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public abstract class AbstractGradeRecord {
+public abstract class AbstractGradeRecord implements Serializable {
     protected Long id;
     protected int version;
     protected String studentId;

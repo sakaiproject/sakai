@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -43,7 +44,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public abstract class GradableObject {
+public abstract class GradableObject implements Serializable {
     protected static final Log log = LogFactory.getLog(GradableObject.class);
 
     protected Long id;

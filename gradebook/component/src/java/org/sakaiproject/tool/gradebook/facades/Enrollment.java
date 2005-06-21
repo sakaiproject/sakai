@@ -24,6 +24,8 @@
 
 package org.sakaiproject.tool.gradebook.facades;
 
+import java.io.Serializable;
+
 /**
  * An enrollment defines the student relation between users and the gradebook.
  *
@@ -35,7 +37,7 @@ package org.sakaiproject.tool.gradebook.facades;
  * a placeholder. Fuller LMS functionality will require more data, especially
  * to support final course grade submittal.
  */
-public interface Enrollment {
+public interface Enrollment extends Serializable {
 	/**
 	 * @return user the user playing the student role
 	 */

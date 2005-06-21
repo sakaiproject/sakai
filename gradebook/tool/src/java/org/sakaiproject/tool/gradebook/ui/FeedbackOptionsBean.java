@@ -27,10 +27,8 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
@@ -62,94 +60,36 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	 */
 	private boolean workInProgress;
 
-	/** Holds "display assignment grades" checkbox's boolean value */
-	private Boolean displayAssignmentGrades;
+	/** Cache a copy of the gradebook object in the request thread, to keep track of all grade mapping changes */
+    private Gradebook localGradebook;
+    
+    private Long selectedGradeMappingId;
 
-	/** Holds "display course grades" checkbox's boolean value */
-	private Boolean displayCourseGrades;
+    /** The list of select box items */
+    private List gradeMappingsSelectItems;
 
-	/** The currently selected grade mapping id, bound to the selectGradeType select box */
-	private String selectedGradeMappingId;
-	private List gradeMappingsSelectItems;
-
-	/**
-	 * According to the functional specification, "If the values are changed, then
-	 * the instructor changes to a different scheme, then switches back, the GB
-	 * remembers the instructors previously entered scheme."
-	 * A comment by Oliver clarifies that this "remembering" doesn't involve
-	 * persistent storage: Change Grade Type "is exclusively a page control and
-	 * activating it does not save anything to the database."
-	 * As a result, we need to carry the last user-entered values for all grade
-	 * mappings, whether currently visible or not, across the request-thread.
-	 * Only the currently visible mapping will actually be saved by the "Save"
-	 * button, however.
-	 */
-	private Map gradeMappingRowsMap;	// Key = gradeMappingId, value = gradeMappingRows
-
-	// Controller fields - transient.
-	// (None needed at present.)
-
-	public class GradeMappingRow implements Serializable {
-		private String grade;
-		private Double percentage;	// Minimum percentage needed for grade
-		private boolean readOnly;	// The bottom grade always has a minimum of 0%
-
-		public GradeMappingRow() {
-		}
-		public GradeMappingRow(String grade, Double percentage, boolean readOnly) {
-			setGrade(grade);
-			setPercentage(percentage);
-			setReadOnly(readOnly);
-		}
-
-		public String getGrade() {
-			return grade;
-		}
-		public void setGrade(String grade) {
-			this.grade = grade;
-		}
-		public Double getPercentage() {
-			return percentage;
-		}
-		public void setPercentage(Double percentage) {
-			this.percentage = percentage;
-		}
-		public boolean isReadOnly() {
-			return readOnly;
-		}
-		public void setReadOnly(boolean readOnly) {
-			this.readOnly = readOnly;
-		}
-	}
-
+    public Gradebook getLocalGradebook() {
+        return localGradebook;
+    }
 	/**
 	 * Initializes this backing bean.
 	 */
 	protected void init() {
 		if (!workInProgress) {
-			Gradebook gradebook = getGradebook();
-
-			// Set the values for the checkboxed UI components
-			displayAssignmentGrades = new Boolean(gradebook.isAssignmentsDisplayed());
-			displayCourseGrades = new Boolean(gradebook.isCourseGradeDisplayed());
-
-			// Set the grade mapping id (for the select box UI component) and the selected grade mapping
-			selectedGradeMappingId = gradebook.getSelectedGradeMapping().getId().toString();
-			if (logger.isDebugEnabled()) logger.debug("init: selectedGradeMappingId=" + selectedGradeMappingId);
+			localGradebook = getGradebook();
 
 			// Load the grade mappings, sorted by name.
-			List gradeMappings = new ArrayList(gradebook.getGradeMappings());
+			List gradeMappings = new ArrayList(localGradebook.getGradeMappings());
 			Collections.sort(gradeMappings);
 
-			// Create the grade type drop-down menu, and initialize
-			// the set of grade mapping tables.
+			// Create the grade type drop-down menu
 			gradeMappingsSelectItems = new ArrayList(gradeMappings.size());
-			gradeMappingRowsMap = new HashMap(gradeMappings.size());
 			for (Iterator iter = gradeMappings.iterator(); iter.hasNext(); ) {
 				GradeMapping gradeMapping = (GradeMapping)iter.next();
 				gradeMappingsSelectItems.add(new SelectItem(gradeMapping.getId().toString(), gradeMapping.getName()));
-				updateMappingRow(gradeMapping);
 			}
+            // set the selected grade mapping
+            selectedGradeMappingId = localGradebook.getSelectedGradeMapping().getId();
 		}
 
 		// Set the view state.
@@ -162,8 +102,12 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	 * shown mapping, but we do remember them.
 	 */
 	public void changeGradeType(ActionEvent event) {
-		// The selectedGradeMappingId was changed during the Update Model Values phase.
-		// Not much else to do except re-render....
+        for(Iterator iter = localGradebook.getGradeMappings().iterator(); iter.hasNext();) {
+            GradeMapping mapping = (GradeMapping)iter.next();
+            if(mapping.getId().equals(selectedGradeMappingId)) {
+                localGradebook.setSelectedGradeMapping(mapping);
+            }
+        }
 	}
 
 	/**
@@ -172,48 +116,32 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	 * are.
 	 */
 	public void resetMappingValues(ActionEvent event) {
-		Gradebook gradebook = getGradebook();
-		GradeMapping gradeMapping = gradebook.getGradeMapping(Long.valueOf(selectedGradeMappingId));
-		gradeMapping.setDefaultValues();
-		updateMappingRow(gradeMapping);
+		localGradebook.getSelectedGradeMapping().setDefaultValues();
 	}
 
-	private void updateMappingRow(GradeMapping gradeMapping) {
-		List rows = new ArrayList();
-		for (Iterator iter = gradeMapping.getGrades().iterator(); iter.hasNext(); ) {
-			String grade = (String)iter.next();
-			boolean readOnly = !(iter.hasNext());
-			rows.add(new GradeMappingRow(grade, gradeMapping.getValue(grade), readOnly));
-		}
-		gradeMappingRowsMap.put(gradeMapping.getId().toString(), rows);
-	}
+//	private void updateMappingRow(GradeMapping gradeMapping) {
+//		List rows = new ArrayList();
+//		for (Iterator iter = gradeMapping.getGrades().iterator(); iter.hasNext(); ) {
+//			String grade = (String)iter.next();
+//			boolean readOnly = !(iter.hasNext());
+//			rows.add(new GradeMappingRow(grade, gradeMapping.getValue(grade), readOnly));
+//		}
+//		gradeMappingRowsMap.put(gradeMapping.getId().toString(), rows);
+//	}
 
 	/**
 	 * Updates the gradebook to reflect the currently selected grade type and mapping.
 	 */
 	public String save() {
-		List mappingRows = (List)gradeMappingRowsMap.get(selectedGradeMappingId);
-		if (!isMappingValid(mappingRows)) {
-			return null;
-		}
-
-		Gradebook gradebook = getGradebook();
-        String oldMappingName = gradebook.getSelectedGradeMapping().getName();
-		gradebook.setAssignmentsDisplayed(displayAssignmentGrades.booleanValue());
-		gradebook.setCourseGradeDisplayed(displayCourseGrades.booleanValue());
-
-		GradeMapping gradeMapping = gradebook.getGradeMapping(Long.valueOf(selectedGradeMappingId));
-		for (Iterator iter = mappingRows.iterator(); iter.hasNext(); ) {
-			GradeMappingRow row = (GradeMappingRow)iter.next();
-			gradeMapping.putValue(row.getGrade(), row.getPercentage());
-		}
-		gradebook.setSelectedGradeMapping(gradeMapping);
+        if (!isMappingValid(localGradebook.getSelectedGradeMapping())) {
+            return null;
+        }
 
 		try {
-			getGradebookManager().updateGradebook(gradebook);
+			getGradebookManager().updateGradebook(localGradebook);
             FacesUtil.addRedirectSafeMessage(getLocalizedString("feedback_options_submit_success"));
         } catch (IllegalStateException ise) {
-            FacesUtil.addErrorMessage(getLocalizedString("feedback_options_illegal_change", new String[] {oldMappingName}));
+            FacesUtil.addErrorMessage(getLocalizedString("feedback_options_illegal_change", new String[] {localGradebook.getSelectedGradeMapping().getName()}));
             return null;
 		} catch (StaleObjectModificationException e) {
             logger.error(e);
@@ -224,12 +152,12 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 		return "overview";
 	}
 
-	private boolean isMappingValid(List mappingRows) {
+	private boolean isMappingValid(GradeMapping gradeMapping) {
 		boolean valid = true;
 		Double previousPercentage = null;
-		for (Iterator iter = mappingRows.iterator(); iter.hasNext(); ) {
-			GradeMappingRow row = (GradeMappingRow)iter.next();
-			Double percentage = row.getPercentage();
+		for (Iterator iter = gradeMapping.getGrades().iterator(); iter.hasNext(); ) {
+            String grade = (String)iter.next();
+            Double percentage = (Double)gradeMapping.getValue(grade);
 			if (logger.isDebugEnabled()) logger.debug("checking percentage " + percentage + " for validity");
 
 			if (percentage == null) {
@@ -256,54 +184,19 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 		return "overview";
 	}
 
-	public String getSelectedGradeMappingId() {
-		if (logger.isDebugEnabled()) logger.debug("getSelectedGradeMappingId " + selectedGradeMappingId);
-		return selectedGradeMappingId;
-	}
-	public void setSelectedGradeMappingId(String gradeMappingId) {
-		if (logger.isDebugEnabled()) logger.debug("setSelectedGradeMappingId " + gradeMappingId);
-		this.selectedGradeMappingId = gradeMappingId;
-	}
-
-	public Map getGradeMappingRowsMap() {
-
-		return gradeMappingRowsMap;
-	}
-	public void setGradeMappingRowsMap(Map gradeMappingRowsMap) {
-		this.gradeMappingRowsMap = gradeMappingRowsMap;
-	}
-
-	public List getGradeMappingsSelectItems() {
+    public List getGradeMappingsSelectItems() {
 		return gradeMappingsSelectItems;
 	}
 	public void setGradeMappingsSelectItems(List gradeMappingsSelectItems) {
 		this.gradeMappingsSelectItems = gradeMappingsSelectItems;
 	}
 
-	/**
-	 * @return Returns the displayAssignmentGrades.
-	 */
-	public Boolean getDisplayAssignmentGrades() {
-		return displayAssignmentGrades;
-	}
-	/**
-	 * @param displayAssignmentGrades The displayAssignmentGrades to set.
-	 */
-	public void setDisplayAssignmentGrades(Boolean displayAssignmentGrades) {
-		this.displayAssignmentGrades = displayAssignmentGrades;
-	}
-	/**
-	 * @return Returns the displayCourseGrades.
-	 */
-	public Boolean getDisplayCourseGrades() {
-		return displayCourseGrades;
-	}
-	/**
-	 * @param displayCourseGrades The displayCourseGrades to set.
-	 */
-	public void setDisplayCourseGrades(Boolean displayCourseGrades) {
-		this.displayCourseGrades = displayCourseGrades;
-	}
+    public Long getSelectedGradeMappingId() {
+        return selectedGradeMappingId;
+    }
+    public void setSelectedGradeMappingId(Long selectedGradeMappingId) {
+        this.selectedGradeMappingId = selectedGradeMappingId;
+    }
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************

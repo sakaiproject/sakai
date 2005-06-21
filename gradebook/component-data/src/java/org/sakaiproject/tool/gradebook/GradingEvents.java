@@ -23,6 +23,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class GradingEvents {
+public class GradingEvents implements Serializable {
     protected Map studentsToEventsMap;
 
     public GradingEvents() {

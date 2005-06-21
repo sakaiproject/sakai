@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,7 +41,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
-public abstract class GradeMapping implements Comparable {
+public abstract class GradeMapping implements Serializable, Comparable {
 	protected Log log = LogFactory.getLog(GradeMapping.class);
 	protected Long id;
 	protected int version;
@@ -74,7 +75,7 @@ public abstract class GradeMapping implements Comparable {
 	public boolean isDefault() {
 		return this.getClass().equals(getGradebook().getDefaultGradeMapping());
 	}
-
+    
 	/**
 	 *
 	 * @return A List of the available grade values
@@ -83,6 +84,9 @@ public abstract class GradeMapping implements Comparable {
 		return grades;
 	}
 
+    public String getLowestGrade() {
+        return (String)grades.get(grades.size()-1);
+    }
 	/**
 	 *
 	 * @return A List of the default grade values

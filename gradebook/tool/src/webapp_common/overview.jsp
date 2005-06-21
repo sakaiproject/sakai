@@ -16,8 +16,8 @@
 		<h4><h:outputText value="#{msgs.overview_assignments_title}"/></h4>
 		<x:dataTable cellpadding="0" cellspacing="0"
 			id="assignmentsTable"
-			value="#{overviewBean.gradableObjectRows}"
-			var="gradableObjectRow"
+			value="#{overviewBean.gradableObjects}"
+			var="gradableObject"
 			sortColumn="#{overviewBean.assignmentSortColumn}"
             sortAscending="#{overviewBean.assignmentSortAscending}"
             columnClasses="left,left,rightpadded,rightpadded,external"
@@ -31,14 +31,14 @@
 		        </f:facet>
 
 				<!-- Assignment / Assessment link -->
-				<h:commandLink action="assignmentDetails" rendered="#{!gradableObjectRow.courseGrade}">
-					<h:outputText value="#{gradableObjectRow.name}" />
-					<f:param name="assignmentId" value="#{gradableObjectRow.id}"/>
+				<h:commandLink action="assignmentDetails" rendered="#{!gradableObject.courseGrade}">
+					<h:outputText value="#{gradableObject.name}" />
+					<f:param name="assignmentId" value="#{gradableObject.id}"/>
 				</h:commandLink>
 
 				<!-- Course grade link -->
-				<h:commandLink action="courseGradeDetails" rendered="#{gradableObjectRow.courseGrade}"  styleClass="courseGrade">
-					<h:outputText value="#{gradableObjectRow.name}" />
+				<h:commandLink action="courseGradeDetails" rendered="#{gradableObject.courseGrade}"  styleClass="courseGrade">
+					<h:outputText value="#{gradableObject.name}" />
 				</h:commandLink>
 			</h:column>
 			<h:column>
@@ -48,8 +48,8 @@
 		            </x:commandSortHeader>
 		        </f:facet>
 
-				<h:outputText value="#{gradableObjectRow.dueDate}" rendered="#{gradableObjectRow.dueDate != null}"/>
-				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{gradableObjectRow.dueDate == null && ! gradableObjectRow.courseGrade}"/>
+				<h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}"/>
+				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -58,10 +58,10 @@
 		            </x:commandSortHeader>
 		        </f:facet>
 
-				<h:outputText value="#{gradableObjectRow.mean}" rendered="#{gradableObjectRow.mean != null}">
+				<h:outputText value="#{gradableObject.formattedMean / 100}" rendered="#{gradableObject.formattedMean != null}">
 					<f:convertNumber type="percentage" integerOnly="true" />
 				</h:outputText>
-				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{gradableObjectRow.mean == null}"/>
+				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{gradableObject.formattedMean == null}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -69,13 +69,13 @@
 						<h:outputText value="#{msgs.overview_assignments_header_points}"/>
 		            </x:commandSortHeader>
 		        </f:facet>
-				<h:outputText value="#{gradableObjectRow.points}" rendered="#{gradableObjectRow.points != null}">
+				<h:outputText value="#{gradableObject.pointsForDisplay}" rendered="#{gradableObject.pointsForDisplay != null}">
 					<f:convertNumber />
 				</h:outputText>
-				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{gradableObjectRow.points == null}"/>
+				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{gradableObject.pointsForDisplay == null}"/>
 			</h:column>
 			<h:column>
-				<h:outputText value="from #{gradableObjectRow.externalAppName}" rendered="#{!empty gradableObjectRow.externalAppName}"/>
+				<h:outputText value="from #{gradableObject.externalAppName}" rendered="#{! gradableObject.courseGrade && ! empty gradableObject.externalAppName}"/>
 			</h:column>
 		</x:dataTable>
 

@@ -25,8 +25,6 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -45,11 +43,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 
     private static final Map columnSortMap;
 
-	// View maintenance fields - serializable.
-	private List gradableObjectRows;
-
-	// Controller fields - transient.
-	private transient List gradableObjects;
+	private List gradableObjects;
 
     static {
         columnSortMap = new HashMap();
@@ -59,116 +53,20 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
         columnSortMap.put(Assignment.SORT_BY_POINTS, Assignment.pointsComparator);
     }
 
-    
-	public class GradableObjectRow implements Serializable {
-		private Long id;
-		private transient String name;
-		private transient Date dueDate;
-		private transient Double mean;
-		private transient Double points;
-        private boolean externallyMaintained;
-        private String externalAppName;
-        private String externalUrl;
-        private boolean courseGrade;
-
-		public GradableObjectRow() {
-		}
-		public GradableObjectRow(GradableObject gradableObject) {
-			id = gradableObject.getId();
-			name = gradableObject.getName();
-			dueDate = gradableObject.getDateForDisplay();
-			Double formattedMean = gradableObject.getFormattedMean();
-            if(formattedMean != null) {
-                mean = new Double(formattedMean.doubleValue() / 100);
-            }
-			points = gradableObject.getPointsForDisplay();
-			courseGrade = gradableObject.isCourseGrade();
-            if(!gradableObject.isCourseGrade() && ((Assignment)gradableObject).isExternallyMaintained()) {
-                externallyMaintained = true;
-                externalAppName = ((Assignment)gradableObject).getExternalAppName();
-                externalUrl = ((Assignment)gradableObject).getExternalInstructorLink();
-            }
-		}
-
-		public Long getId() {
-			return id;
-		}
-		public void setId(Long id) {
-			this.id = id;
-		}
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		public Date getDueDate() {
-			return dueDate;
-		}
-		public void setDueDate(Date dueDate) {
-			this.dueDate = dueDate;
-		}
-		public Double getMean() {
-			return mean;
-		}
-		public void setMean(Double mean) {
-			this.mean = mean;
-		}
-		public Double getPoints() {
-			return points;
-		}
-		public void setPoints(Double points) {
-			this.points = points;
-		}
-		public boolean isCourseGrade() {
-			return courseGrade;
-		}
-		public void setCourseGrade(boolean courseGrade) {
-			this.courseGrade = courseGrade;
-		}
-		public String getExternalAppName() {
-			return externalAppName;
-		}
-		public void setExternalAppName(String externalAppName) {
-			this.externalAppName = externalAppName;
-		}
-		public String getExternalUrl() {
-			return externalUrl;
-		}
-		public void setExternalUrl(String externalUrl) {
-			this.externalUrl = externalUrl;
-		}
-		public boolean isExternallyMaintained() {
-			return externallyMaintained;
-		}
-		public void setExternallyMaintained(boolean externallyMaintained) {
-			this.externallyMaintained = externallyMaintained;
-		}
+	public List getGradableObjects() {
+		return gradableObjects;
 	}
-
-	public List getGradableObjectRows() {
-		return gradableObjectRows;
-	}
-	public void setGradableObjectRows(List gradableObjectRows) {
-		this.gradableObjectRows = gradableObjectRows;
+	public void setGradableObjects(List gradableObjects) {
+		this.gradableObjects = gradableObjects;
 	}
 
 	protected void init() {
-		// Clear view state.
-		gradableObjectRows = new ArrayList();
-        
 		// Get the list of assignments for this gradebook, sorted as defined in the overview page.
         gradableObjects = getGradableObjectManager().getAssignmentsWithStats(getGradebookId(),
         		getAssignmentSortColumn(), isAssignmentSortAscending());
-
         
 		// Always put the course grade last.
 		gradableObjects.add(getGradableObjectManager().getCourseGradeWithStats(getGradebookId()));
-
-		// Set up assignment rows.
-		for (Iterator iter = gradableObjects.iterator(); iter.hasNext(); ) {
-			gradableObjectRows.add(new GradableObjectRow((GradableObject)iter.next()));
-		}
 	}
     
     // Delegated sort methods

@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -40,7 +41,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class Gradebook {
+public class Gradebook implements Serializable {
     private Long id;
     private String uid;
     private int version;

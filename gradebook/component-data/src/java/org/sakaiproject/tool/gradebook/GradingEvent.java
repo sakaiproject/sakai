@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -34,7 +35,7 @@ import java.util.Date;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class GradingEvent {
+public class GradingEvent implements Serializable {
     private Long id;
     private String graderId;
     private String studentId;
