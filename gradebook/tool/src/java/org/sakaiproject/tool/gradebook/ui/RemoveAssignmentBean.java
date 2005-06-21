@@ -43,17 +43,12 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
     // View maintenance fields - serializable.
     private Long assignmentId;
     private boolean removeConfirmed;
-    private String assignmentName;
-
-    // Controller fields - transient.
-    private transient Assignment assignment;
+    private Assignment assignment;
 
     protected void init() {
         if (assignmentId != null) {
             assignment = (Assignment)getGradableObjectManager().getGradableObjectWithStats(assignmentId);
-            if (assignment != null) {
-        		assignmentName = assignment.getName();
-            } else {
+            if (assignment == null) {
                 // The assignment might have been removed since this link was set up.
                 if (logger.isWarnEnabled()) logger.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());
 
@@ -70,7 +65,7 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
                 FacesUtil.addErrorMessage(getLocalizedString("remove_assignment_locking_failure"));
                 return null;
             }
-            FacesUtil.addRedirectSafeMessage(getLocalizedString("remove_assignment_success", new String[] {assignmentName}));
+            FacesUtil.addRedirectSafeMessage(getLocalizedString("remove_assignment_success", new String[] {assignment.getName()}));
             return "overview";
         } else {
             FacesUtil.addErrorMessage(getLocalizedString("remove_assignment_confirmation_required"));
@@ -85,6 +80,13 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
         return "assignmentDetails";
     }
 
+    public Assignment getAssignment() {
+        return assignment;
+    }
+    public void setAssignment(Assignment assignment) {
+        this.assignment = assignment;
+    }
+
     /**
 	 * @return Returns the assignmentId.
 	 */
@@ -96,18 +98,6 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
 	 */
 	public void setAssignmentId(Long assignmentId) {
 		this.assignmentId = assignmentId;
-	}
-	/**
-	 * @return Returns the assignmentName.
-	 */
-	public String getAssignmentName() {
-		return assignmentName;
-	}
-	/**
-	 * @param assignmentName The assignmentName to set.
-	 */
-	public void setAssignmentName(String assignmentName) {
-		this.assignmentName = assignmentName;
 	}
 	/**
 	 * @return Returns the removeConfirmed.

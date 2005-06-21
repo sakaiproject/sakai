@@ -25,7 +25,6 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,31 +36,15 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 public class EditAssignmentBean extends GradebookDependentBean implements Serializable {
 	private static final Log logger = LogFactory.getLog(EditAssignmentBean.class);
 
-	// View maintenance fields - serializable.
 	private Long assignmentId;
-	private String title;
-	private Double points;
-	private Date dueDate;
-
-	// Controller fields - transient.
-	private transient Assignment assignment;
+    private Assignment assignment;
 
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("init assignment=" + assignment);
-		if (logger.isDebugEnabled()) logger.debug("    assignmentId=" + assignmentId + ", title=" + title + ", points=" + points + ", dueDate=" + dueDate);
 
-		// Clear view state.
-		title = null;
-		points = null;
-		dueDate = null;
-
-		if (assignmentId != null) {
+		if (assignment == null) {
 			assignment = (Assignment)getGradableObjectManager().getGradableObjectWithStats(assignmentId);
-			if (assignment != null) {
-				title = assignment.getName();
-				points = assignment.getPointsForDisplay();
-				dueDate = assignment.getDateForDisplay();
-			} else {
+			if (assignment == null) {
 				// The assignment might have been removed since this link was set up.
 				if (logger.isWarnEnabled()) logger.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());
 
@@ -72,11 +55,11 @@ public class EditAssignmentBean extends GradebookDependentBean implements Serial
 
 	public String updateAssignment() {
 		try {
-			getGradableObjectManager().updateAssignment(assignmentId, title, points, dueDate);
+			getGradableObjectManager().updateAssignment(assignmentId, assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate());
 			String messageKey = getGradeManager().isEnteredAssignmentScores(assignmentId) ?
 				"edit_assignment_save_scored" :
 				"edit_assignment_save";
-            FacesUtil.addRedirectSafeMessage(getLocalizedString(messageKey, new String[] {title}));
+            FacesUtil.addRedirectSafeMessage(getLocalizedString(messageKey, new String[] {assignment.getName()}));
 		} catch (ConflictingAssignmentNameException e) {
 			logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_name_conflict_failure"));
@@ -114,26 +97,10 @@ public class EditAssignmentBean extends GradebookDependentBean implements Serial
 		}
 	}
 
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public Double getPoints() {
-		return points;
-	}
-	public void setPoints(Double points) {
-		this.points = points;
-	}
-
-	public Date getDueDate() {
-		return dueDate;
-	}
-	public void setDueDate(Date dueDate) {
-		this.dueDate = dueDate;
-	}
+    public Assignment getAssignment() {
+        if (logger.isDebugEnabled()) logger.debug("getAssignment " + assignment);
+        return assignment;
+    }
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************

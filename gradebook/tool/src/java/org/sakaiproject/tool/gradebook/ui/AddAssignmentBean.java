@@ -25,7 +25,6 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,26 +36,19 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 public class AddAssignmentBean extends GradebookDependentBean implements Serializable {
 	private static final Log logger = LogFactory.getLog(AddAssignmentBean.class);
 
-	// View maintenance fields - serializable.
-	private String title;
-	private Double points;
-	private Date dueDate;
-
-	// Controller fields - transient.
-	private transient Assignment assignment;
+	private Assignment assignment;
 
 	protected void init() {
-		// Clear view state.
-		title = null;
-		points = null;
-		dueDate = null;
+        if(assignment == null) {
+            assignment = new Assignment();
+        }
 	}
 
 	public String saveNewAssignment() {
 		Long assignmentId;
 		try {
-			assignmentId = getGradableObjectManager().createAssignment(getGradebookId(), title, points, dueDate);
-            FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {title}));
+			assignmentId = getGradableObjectManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate());
+            FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));
 		} catch (ConflictingAssignmentNameException e) {
 			logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("add_assignment_name_conflict_failure"));
@@ -69,29 +61,9 @@ public class AddAssignmentBean extends GradebookDependentBean implements Seriali
 		return "overview";
 	}
 
-	/**
-	 * View maintenance methods.
-	 */
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public Double getPoints() {
-		return points;
-	}
-	public void setPoints(Double points) {
-		this.points = points;
-	}
-
-	public Date getDueDate() {
-		return dueDate;
-	}
-	public void setDueDate(Date dueDate) {
-		this.dueDate = dueDate;
-	}
+    public Assignment getAssignment() {
+        return assignment;
+    }
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************

@@ -6,13 +6,13 @@
 
 <h:panelGrid cellpadding="0" cellspacing="0" columns="3" columnClasses="itemName" styleClass="itemSummary">
 	<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"/>
-	<h:inputText id="title" value="#{bean.title}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+	<h:inputText id="title" value="#{bean.assignment.name}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 		<f:validateLength minimum="1" maximum="255"/>
 	</h:inputText>
 	<h:message for="title" styleClass="validationEmbedded" />
 
 	<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}"/>
-	<h:inputText id="points" value="#{bean.points}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+	<h:inputText id="points" value="#{bean.assignment.pointsPossible}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 		<f:convertNumber/>
 		<f:validateDoubleRange minimum="0.01" />
 		<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
@@ -25,7 +25,7 @@
 	</h:panelGroup>
 	<%/* Temporary workaround for lack of a date picker. */%>
 	<h:panelGroup>
-		<h:inputText id="dueDate" value="#{bean.dueDate}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+		<h:inputText id="dueDate" value="#{bean.assignment.dueDate}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 			<f:convertDateTime pattern="MM/dd/yy"/>
 		</h:inputText>
 		<f:verbatim>

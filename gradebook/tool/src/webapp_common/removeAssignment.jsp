@@ -15,7 +15,7 @@
 		<p>
 			<h:outputFormat value="#{msgs.remove_assignment_confirmation_question}"
 				escape="false">
-				<f:param value="#{removeAssignmentBean.assignmentName}"/>
+				<f:param value="#{removeAssignmentBean.assignment.name}"/>
 			</h:outputFormat>
 		</p>
 
