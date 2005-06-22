@@ -33,7 +33,7 @@
             <column name="redirectURL" not-null="false" length="512"/>
         </property>
         
-        <set name="syllabi" lazy="true" table="SYLLABUS_DATA" sort="natural"
+        <set name="syllabi" lazy="true" sort="natural"
              order-by="position asc" cascade="all-delete-orphan">
             <key column="surrogateKey"/>                        
             <one-to-many class="org.sakaiproject.component.app.syllabus.SyllabusDataImpl"/>            
