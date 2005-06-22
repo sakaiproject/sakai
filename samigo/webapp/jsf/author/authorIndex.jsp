@@ -123,7 +123,7 @@
 
     <h:outputLink value="#"
       onclick=
-      "window.open( '/samigo/jsf/qti/exportAssessment.faces?exportAssessmentId=#{coreAssessment.assessmentBaseId}','_qti_import', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
+      "window.open( '/samigo/jsf/qti/exportAssessment.faces?exportAssessmentId=#{coreAssessment.assessmentBaseId}','_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
        ><h:outputText id="linkExport" value="#{msg.link_export}"/>
       </h:outputLink>
  <f:verbatim></span></f:verbatim>
