@@ -1,6 +1,0 @@
-$Id$
-$HeadURL$
-$Revision$
-$Date$
-
-========
