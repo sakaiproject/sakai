@@ -1,2 +1,1 @@
-$Id
-$HeadURL
+$Id: $
