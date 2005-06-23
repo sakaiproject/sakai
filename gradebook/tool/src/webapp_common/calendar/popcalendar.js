@@ -1,6 +1,20 @@
-// Grabbed from MyFaces 1.0.9 and revised to work around problems relating
-// to MyFaces's transition to a new way of loading component resource
-// dependencies. Changes commented as "// *** GRADEBOOK ***".
+/*
+ * This code is based closely on the version of Tan Ling Wee's popular
+ * script distributed with Apache MyFaces 1.0.9 as:
+ *
+ *   src/components/org/apache/myfaces/custom/calendar/resource/popcalendar.js
+ *
+ * No licensing information is embedded in the MyFaces version of the file,
+ * but the MyFaces product is developed and distributed under the terms of
+ * The Apache Software License, Version 2.0.
+ *
+ * Some changes have been made to work around problems relating
+ * to MyFaces's way of loading component resource dependencies.
+ * Changes are flagged with the comment "// *** GRADEBOOK ***".
+ *
+ * TO DO: Replace with a standard UI date-picking component when one is
+ * available.
+ */
 
 //	written	by Tan Ling	Wee	on 2 Dec 2001
 //	last updated 20 June 2003
