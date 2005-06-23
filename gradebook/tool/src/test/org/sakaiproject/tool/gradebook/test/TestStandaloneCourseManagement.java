@@ -39,12 +39,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
+import org.sakaiproject.tool.gradebook.facades.User;
+import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
 
 /**
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  *
  */
-public class TestStandaloneCourseManagement extends GradebookTestBase {
+public class TestStandaloneCourseManagement extends GradebookDbTestBase {
 	private static final Log log = LogFactory.getLog(TestStandaloneCourseManagement.class);
 
     protected String gradebookUid = "QA_8";
@@ -158,6 +160,10 @@ public class TestStandaloneCourseManagement extends GradebookTestBase {
 		}
 	}
 
+    public void testFindUser() throws Exception {
+        // This throws an exception if this fails, so just make the call
+        User user = courseManagement.getUser(UserLoader.AUTHID_TEACHER_ALL);
+    }
 }
 /**************************************************************************************************************************************************************************************************************************************************************
  * $Id$
