@@ -1,3 +1,25 @@
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
@@ -87,15 +109,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
-  public List getAllSubmissions(String publishedId) 
+  public List getAllSubmissions(String publishedId)
   {
       Object[] objects = new Object[1];
       objects[0] = new Long(publishedId);
       Type[] types = new Type[1];
       types[0] = Hibernate.LONG;
-      List list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=1", objects, types);  
-      return list;  
-  }    
+      List list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=1", objects, types);
+      return list;
+  }
 
   public HashMap getItemScores(Long publishedId, Long itemId, String which)
   {
@@ -301,7 +323,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
               break;
             }
           }
-   
+
           // Now we can move on.
           getHibernateTemplate().saveOrUpdate(gdata);
           storeGrades(gdata.getAssessmentGrading(), true);
@@ -369,14 +391,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                   correctAnswers++;
                  }
                }
-            }   
+            }
             autoScore = getAnswerScore(itemdata)/ correctAnswers;
           }
           if (item.getTypeId().intValue() == 9) // Matching
               autoScore = (getAnswerScore(itemdata) / (float) item.getItemTextSet().size());
             // Skip 5/6/7, since they can't be autoscored
           else if (item.getTypeId().intValue() == 8) // FIB
-            autoScore = getFIBScore(itemdata) / 
+            autoScore = getFIBScore(itemdata) /
               (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
 
          }
@@ -387,7 +409,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         if (itemdata.getOverrideScore() == null)
           totalAutoScore += autoScore;
         else
-          totalAutoScore += 
+          totalAutoScore +=
             autoScore + itemdata.getOverrideScore().floatValue();
         itemdata.setAutoScore(new Float(autoScore));
       }
@@ -403,10 +425,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       notifyGradebook(data);
   }
 
-  
+
   /**
    * Notifies the gradebook that scores have been changed
-   * 
+   *
    * @param data The AssesmentGradingIfc representing the new score
    */
   private void notifyGradebook(AssessmentGradingIfc data) {
@@ -446,7 +468,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   {
     String answertext = data.getPublishedAnswer().getText();
     float totalScore = (float) 0;
-    if (answertext != null) 
+    if (answertext != null)
     {
      StringTokenizer st = new StringTokenizer(answertext, "|");
      while (st.hasMoreTokens())

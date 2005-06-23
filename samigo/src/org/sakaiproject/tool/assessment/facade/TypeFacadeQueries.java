@@ -14,15 +14,6 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.shared.extension.TypeExtension;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-/**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Company: </p>
- * @author not attributable
- * @version 1.0
- */
-
 
 public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacadeQueriesAPI{
 

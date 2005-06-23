@@ -1,8 +1,25 @@
-/**
- * @author
- * @version
- */
-
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
 import java.sql.SQLException;
@@ -298,7 +315,7 @@ public class AssessmentFacadeQueries
    * that it is not a full object, it contains merely assessmentBaseId (which is
    * the templateId) & title. This methods is used when a list of template titles
    * is required for displaying purposes.
-   * In Sakai2.0, template are scoped by creator, i.e. users can only see their own 
+   * In Sakai2.0, template are scoped by creator, i.e. users can only see their own
    * template plus the "Default Template"
    */
   public ArrayList getTitleOfAllActiveAssessmentTemplates() {
@@ -307,7 +324,7 @@ public class AssessmentFacadeQueries
                   " from AssessmentTemplateData a where a.status=1 and "+
                   " (a.assessmentBaseId=1 or a.createdBy=?) order by a.title";
     List list = getHibernateTemplate().find(query,
-                                            new Object[]{agent}, 
+                                            new Object[]{agent},
                                             new net.sf.hibernate.type.Type[] {Hibernate.STRING});
     ArrayList templateList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
@@ -556,7 +573,7 @@ public class AssessmentFacadeQueries
 
   public ArrayList getBasicInfoOfAllActiveAssessments(String orderBy, boolean ascending) {
 
-   
+
     String query ="select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)from AssessmentData a where a.status=1 order by a." +
         orderBy;
 
@@ -700,7 +717,7 @@ public class AssessmentFacadeQueries
 
     //FIXME This is a hack to workaround net.sf.hibernate.NonUniqueObjectException
     //    getHibernateTemplate().clear();
-    
+
     getHibernateTemplate().saveOrUpdate(data);
   }
 
@@ -840,7 +857,7 @@ public class AssessmentFacadeQueries
   }
 
   /**
-   * This method remove a set of questions form one section that is random draw 
+   * This method remove a set of questions form one section that is random draw
    * @param sourceSectionId
    */
   public void removeAllItems(Long sourceSectionId) {

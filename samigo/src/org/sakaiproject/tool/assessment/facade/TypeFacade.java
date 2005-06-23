@@ -6,15 +6,6 @@ import java.util.Date;
 
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
-/**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Company: </p>
- * @author not attributable
- * @version 1.0
- */
-
 public class TypeFacade implements Serializable, TypeIfc{
 
   // please make sure that the value match with the one in the Type table. Also see

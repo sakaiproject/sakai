@@ -1,3 +1,25 @@
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
@@ -271,7 +293,7 @@ public class PublishedAssessmentFacadeQueries
       SectionData section = (SectionData) i.next();
 
 //TODO note: 4/28  need to check if a part is random draw , if it is
-// then need to add questions from pool to this section, at this point, 
+// then need to add questions from pool to this section, at this point,
 
       PublishedSectionData publishedSection = new PublishedSectionData(
           section.getDuration(), section.getSequence(), section.getTitle(),
@@ -424,14 +446,14 @@ public class PublishedAssessmentFacadeQueries
     AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
     List list = getHibernateTemplate().find("from PublishedAssessmentData as p where p.assessment=? order by p.createdDate desc",assessment);
     Long publishedId = new Long(0);
-    if (!list.isEmpty()) 
+    if (!list.isEmpty())
     {
      PublishedAssessmentData f = (PublishedAssessmentData)list.get(0);
      publishedId = f.getPublishedAssessmentId();
     }
     return publishedId;
-   
-  } 
+
+  }
 
 
   public static void print(AssessmentBaseIfc a) {
@@ -502,8 +524,8 @@ public class PublishedAssessmentFacadeQueries
     return new PublishedAssessmentFacade(publishedAssessment);
   }
 
-    // This method is specific for publish an assessment for preview assessment, 
-    // because it will be deleted after preview is done, and shouldn't talk to gradebook. 
+    // This method is specific for publish an assessment for preview assessment,
+    // because it will be deleted after preview is done, and shouldn't talk to gradebook.
   public PublishedAssessmentFacade publishPreviewAssessment(AssessmentFacade
       assessment) {
     boolean addedToGradebook = false;
@@ -1116,10 +1138,10 @@ public class PublishedAssessmentFacadeQueries
   }
 
 
-  /** this return a HashMap containing 
+  /** this return a HashMap containing
    *  (Long publishedAssessmentId, PublishedAssessmentFacade publishedAssessment)
    *  Note that the publishedAssessment is a partial object used for display only.
-   *  do not use it for persisting. It only contains title, releaseTo, startDate, dueDate 
+   *  do not use it for persisting. It only contains title, releaseTo, startDate, dueDate
    *  & retractDate
    */
   public HashMap getAllAssessmentsReleasedToAuthenticatedUsers(){
