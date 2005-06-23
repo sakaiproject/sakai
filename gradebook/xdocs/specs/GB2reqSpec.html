@@ -78,7 +78,7 @@ p.draft {
   <li>Automatically import assignments and scores from Samigo </li>
   <li>Export scores and grades in excel, csv format </li>
 </ol>
-<p>B. The Sakai 2.0 gradebook will enable each student to: 
+<p>B. The Sakai 2.0 gradebook will enable each student to:
 </p>
 <ol>
   <li>View his/her own scores and grades, if they have been released by the instructor(s). </li>
@@ -121,7 +121,7 @@ p.draft {
 
 <ol>
   <li>View total possible points for all assignments and the cumulative class average </li>
-  <li>Filter the grading table by student name or id. 
+  <li>Filter the grading table by student name or id.
   <li>Set the number of students to view per page of the grading table </li>
   <li>Override autocalculated course grade </li>
   <li>Revert overridden autocalculated course grade </li>
@@ -131,7 +131,7 @@ p.draft {
 
 <p>E. <a href="#Student">Student Roster</a></p>
 <ol>
-  <li>Filter the grading table by student name or id. 
+  <li>Filter the grading table by student name or id.
   <li>Set the number of students to view per page of the grading table </li>
   <li>Page through all students based on the number of students to view per page </li>
   <li>View all assignments, each student's scores on all assignments, and the cumulative assignment point totals for each student. </li>
@@ -313,19 +313,12 @@ Returns an <strong>error</strong></p>
 <ol type="a">
   <li> Override values must be of the appropriate grade type (A, B . . . or A-, B+ . . .or P/NP) or an error is generated: &quot;The gradebook uses the grade type [pass/not pass|simple letter grade|letter grade +/-]. Please enter only values that correspond to the grade type X.&quot;</li>
   <li>Error messages are also generated next to each of the fields with bad values: &quot;Please enter valid grade.&quot;</li>
-  <li>If a bad value is entered for an autocalculated grade, upon save the Use Calculated button is <strong>not</strong> rendered with the error messages; if a saved overridden value is replaced with a bad value, upon save the Use Calculated button is rendered with the error messages.</li>
   <li>Saved overrides appear in the entry field as editable values.</li>
   <li>Values identical to the calculated course grade are treated as legitimate entries and do not generate an error.</li>
   <li>Deleting a saved overridden value, leaving the entry field blank and executing a save returns the course grade to the calculated value.</li>
 </ol>
 
-<h4>4. 'Use Calculated' button</h4>
-<ol type="a">
-  <li>The 'Use Calculated' button appears next to any grade that has been overridden</li>
-  <li>Activating the 'Use Calculated' button refreshes the page, leaves the grade entry field blank and returns the current grade to the calculated value.</li>
-</ol>
-
-<h4>5. Export </h4>
+<h4>4. Export </h4>
 <ol type="a">
   <li>Files are exported in .xls and .csv format</li>
   <li>The file name format is &quot;course_grade_[courseID]__date.*&quot;.  If the class number is not available  use 'course_grade_050611. Date format should follow the style guide.</li>
@@ -493,7 +486,7 @@ Returns an <strong>error</strong></p>
 <h4>VII. Functional Roadmap<a name="roadmap" id="roadmap"></a></h4>
 <p>The following is a partial list of features that will not be included in the 2.0 gradebook, but which are expected to be prioritized for post 2.0 development: </p>
 <ol>
-  <li>A richer set of grading schemes, including letter grades, percentages (applied to assignments and categories of assignments), 
+  <li>A richer set of grading schemes, including letter grades, percentages (applied to assignments and categories of assignments),
 
 
  automatic dropping of lowest score(s), and class curves</li>
