@@ -33,6 +33,7 @@ import java.util.Set;
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
+import net.sf.hibernate.StaleObjectStateException;
 import net.sf.hibernate.type.Type;
 
 import org.apache.commons.lang.StringUtils;
@@ -51,13 +52,13 @@ import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.sakaiproject.tool.gradebook.business.impl.BaseHibernateManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
 
 /**
  * A Hibernate implementation of GradebookService, which can be used by other
@@ -66,13 +67,11 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class GradebookServiceHibernateImpl extends HibernateDaoSupport implements GradebookService {
+public class GradebookServiceHibernateImpl extends BaseHibernateManager implements GradebookService {
     private static final Log log = LogFactory.getLog(GradebookServiceHibernateImpl.class);
 
     private GradebookManager gradebookManager;
-    private GradableObjectManager gradableObjectManager;
     private GradeManager gradeManager;
-    private Authn authn;
     private Authz authz;
 
 	public void addGradebook(final String uid, final String name) {
@@ -151,10 +150,10 @@ public class GradebookServiceHibernateImpl extends HibernateDaoSupport implement
 
         // Ensure that the externalId is unique within this gradebook
         HibernateCallback idConflictsCallback = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 String hql = "select count(asn) from Assignment as asn where asn.externalId=? and asn.gradebook.uid=?";
                 return (Integer)session.iterate(hql, new Object[] {externalId, gradebookUid}, new Type[] {Hibernate.STRING, Hibernate.STRING}).next();
-			}
+            }
         };
         Integer externalIdConflicts = (Integer)getHibernateTemplate().execute(idConflictsCallback);
         if(externalIdConflicts.intValue() > 0) {
@@ -174,18 +173,22 @@ public class GradebookServiceHibernateImpl extends HibernateDaoSupport implement
         }
 
         // Get the gradebook
-        Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
+        final Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
 
         // Create the external assignment
-        Assignment asn = new Assignment(gradebook, title, new Double(points), dueDate);
+        final Assignment asn = new Assignment(gradebook, title, new Double(points), dueDate);
         asn.setExternallyMaintained(true);
         asn.setExternalId(externalId);
         asn.setExternalInstructorLink(externalUrl);
         asn.setExternalStudentLink(externalUrl);
         asn.setExternalAppName(externalServiceDescription);
 
-        // Save the external assignment
-        getHibernateTemplate().save(asn);
+        getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                session.save(asn);
+                recalculateCourseGradeRecords(gradebook, getSession());
+                return null;
+            }});
 	}
 
 	/**
@@ -217,7 +220,7 @@ public class GradebookServiceHibernateImpl extends HibernateDaoSupport implement
         };
         Boolean performSortUpdate = (Boolean)getHibernateTemplate().execute(hc);
         if(performSortUpdate.booleanValue()) {
-            gradableObjectManager.updateCourseGradeRecordSortValues(gradebookManager.getGradebook(gradebookUid).getId(), false);
+            gradeManager.updateCourseGradeRecordSortValues(gradebookManager.getGradebook(gradebookUid).getId(), false);
         }
 	}
 
@@ -245,13 +248,26 @@ public class GradebookServiceHibernateImpl extends HibernateDaoSupport implement
                 String deleteExternalScoresHql = "from AssignmentGradeRecord as agr where agr.gradableObject=?";
                 int numScoresDeleted = session.delete(deleteExternalScoresHql, asn, Hibernate.entity(GradableObject.class));
                 log.warn(numScoresDeleted + " externally defined scores deleted from the gradebook");
-                session.delete(asn);
 
-                return studentsWithExternalScores;
+                // Delete the assessment
+                session.delete(asn);
+                
+                // Delete the scores
+                try {
+                    recalculateCourseGradeRecords(asn.getGradebook(), studentsWithExternalScores, session);
+                } catch (StaleObjectStateException e) {
+                    throw new HibernateOptimisticLockingFailureException(e);
+                }
+                return null;
 			}
         };
-        List studentIds = (List)getHibernateTemplate().execute(hc);
-        gradeManager.recalculateCourseGradeRecords(asn.getGradebook(), studentIds);
+
+        try {
+            getHibernateTemplate().execute(hc);
+        } catch (HibernateOptimisticLockingFailureException e) {
+            if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to remove an external assessment");
+            throw new RuntimeException(e);
+        }
 	}
 
     private Assignment getExternalAssignment(final String gradebookUid, final String externalId) throws GradebookNotFoundException {
@@ -299,23 +315,25 @@ public class GradebookServiceHibernateImpl extends HibernateDaoSupport implement
                     agr.setPointsEarned(points);
                     session.update(agr);
                 }
+                Gradebook gradebook = asn.getGradebook();
+                Set set = new HashSet();
+                set.add(studentId);
+                try {
+                    recalculateCourseGradeRecords(gradebook, set, session);
+                } catch (StaleObjectStateException e) {
+                    throw new HibernateOptimisticLockingFailureException(e);
+                }
                 return null;
             }
         };
-        getHibernateTemplate().execute(hc);
-        Set set = new HashSet();
-        set.add(studentId);
-        Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
-        gradeManager.recalculateCourseGradeRecords(gradebook, set);
+        try {
+            getHibernateTemplate().execute(hc);
+        } catch (HibernateOptimisticLockingFailureException e) {
+            if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
+            throw new RuntimeException(e);
+        }
 	}
 
-	public GradableObjectManager getGradableObjectManager() {
-		return gradableObjectManager;
-	}
-	public void setGradableObjectManager(
-			GradableObjectManager gradableObjectManager) {
-		this.gradableObjectManager = gradableObjectManager;
-	}
 	public GradebookManager getGradebookManager() {
 		return gradebookManager;
 	}

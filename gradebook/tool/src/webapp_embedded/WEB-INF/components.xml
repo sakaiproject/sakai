@@ -33,11 +33,11 @@
 						<property name="gradebookManager">
 							<ref bean="org_sakaiproject_tool_gradebook_business_GradebookManager" />
 						</property>
-						<property name="gradableObjectManager">
-							<ref bean="org_sakaiproject_tool_gradebook_business_GradableObjectManager" />
-						</property>
 						<property name="gradeManager">
 							<ref bean="org_sakaiproject_tool_gradebook_business_GradeManager" />
+						</property>
+						<property name="courseManagement">
+							<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
 						</property>
 						<property name="authn">
 							<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
@@ -82,34 +82,11 @@
 		<property name="courseManagement">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
 		</property>
-		<property name="gradableObjectManager">
-			<ref bean="org_sakaiproject_tool_gradebook_business_GradableObjectManager" />
+		<property name="authn">
+			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 		</property>
 		<property name="gradeManager">
 			<ref bean="org_sakaiproject_tool_gradebook_business_GradeManager" />
-		</property>
-	</bean>
-
-
-	<!-- Gradable Object Manager -->
-
-	<bean id="org_sakaiproject_tool_gradebook_business_GradableObjectManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager"><ref bean="gradebookTransactionManager"/></property>
-		<property name="target"><ref bean="org_sakaiproject_tool_gradebook_business_GradableObjectManagerHibernateImpl"/></property>
-		<property name="transactionAttributes">
-			<props>
-	            <prop key="create*">PROPAGATION_REQUIRED</prop>
-	            <prop key="update*">PROPAGATION_REQUIRED</prop>
-	            <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
-			</props>
-		</property>
-	</bean>
-
-	<bean id="org_sakaiproject_tool_gradebook_business_GradableObjectManagerHibernateImpl"
-		class="org.sakaiproject.tool.gradebook.business.impl.GradableObjectManagerHibernateImpl">
-		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
-		<property name="courseManagement">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
 		</property>
 	</bean>
 
@@ -130,8 +107,8 @@
 	<bean id="org_sakaiproject_tool_gradebook_business_GradeManagerHibernateImpl"
 		class="org.sakaiproject.tool.gradebook.business.impl.GradeManagerHibernateImpl">
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
-		<property name="gradableObjectManager">
-			<ref bean="org_sakaiproject_tool_gradebook_business_GradableObjectManager" />
+		<property name="courseManagement">
+			<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
 		</property>
 		<property name="authn">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
@@ -151,9 +128,6 @@
 		</property>
 		<property name="gradebookManager">
 			<ref bean="org_sakaiproject_tool_gradebook_business_GradebookManager" />
-		</property>
-		<property name="gradableObjectManager">
-			<ref bean="org_sakaiproject_tool_gradebook_business_GradableObjectManager" />
 		</property>
 	</bean>
 -->
@@ -192,7 +166,6 @@
 			<list>
 				<value>org.sakaiproject.service.gradebook.GradebookService</value>
 				<value>org_sakaiproject_tool_gradebook_business_GradebookManager</value>
-				<value>org_sakaiproject_tool_gradebook_business_GradableObjectManager</value>
 				<value>org_sakaiproject_tool_gradebook_business_GradeManager</value>
 			</list>
 		</property>

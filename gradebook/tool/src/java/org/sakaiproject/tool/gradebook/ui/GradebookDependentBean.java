@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
@@ -106,10 +105,6 @@ public abstract class GradebookDependentBean extends InitializableBean {
 
 	public GradebookManager getGradebookManager() {
 		return getGradebookBean().getGradebookManager();
-	}
-
-	public GradableObjectManager getGradableObjectManager() {
-		return getGradebookBean().getGradableObjectManager();
 	}
 
 	public CourseManagement getCourseManagementService() {

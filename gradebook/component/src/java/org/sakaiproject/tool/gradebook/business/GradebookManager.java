@@ -90,7 +90,7 @@ public interface GradebookManager {
      * should not count toward the total number of points in the gradebook.
      *
      * This method is obviously the oddball in this class, and should be in
-     * GradableObjectManager.  However, since we need to do course grade
+     * GradeManager.  However, since we need to do course grade
      * recalculations, we need to have a reference to the GradeManager.  This
      * is the easiest place to grab both of the needed managers.
      * 

@@ -71,8 +71,8 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Get a gradebook and an assignment
         Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-        gradableObjectManager.createAssignment(persistentGradebook.getId(), "Assignment #1", new Double(20), new Date());
-        Assignment persistentAssignment = (Assignment)gradableObjectManager.
+        gradeManager.createAssignment(persistentGradebook.getId(), "Assignment #1", new Double(20), new Date());
+        Assignment persistentAssignment = (Assignment)gradeManager.
             getAssignmentsWithStats(persistentGradebook.getId()).get(0);
 
         GradeRecordSet gradeRecordSet = new GradeRecordSet(persistentAssignment);
@@ -96,7 +96,7 @@ public class GradeManagerTest extends GradebookTestBase {
         }
 
         // Add overrides to the course grades
-        CourseGrade courseGrade = gradableObjectManager.getCourseGradeWithStats(persistentGradebook.getId());
+        CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(persistentGradebook.getId());
         records = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade);
 
         gradeRecordSet = new GradeRecordSet(courseGrade);
@@ -140,7 +140,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Ensure that the sort grades have been updated
         courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade);
-        double totalPoints = gradableObjectManager.getTotalPoints(persistentGradebook.getId());
+        double totalPoints = gradeManager.getTotalPoints(persistentGradebook.getId());
 
         for(Iterator iter = courseGradeRecords.iterator(); iter.hasNext();) {
             CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
@@ -170,8 +170,8 @@ public class GradeManagerTest extends GradebookTestBase {
 
     public void testNewExcessiveScores() throws Exception {
         Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
-        Long asgId = gradableObjectManager.createAssignment(gradebook.getId(), "Excessive Test", new Double(10), new Date());
-        Assignment asn = (Assignment)gradableObjectManager.getAssignmentsWithStats(gradebook.getId()).get(0);
+        Long asgId = gradeManager.createAssignment(gradebook.getId(), "Excessive Test", new Double(10), new Date());
+        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId()).get(0);
 
         // Create a grade record set
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
@@ -214,8 +214,8 @@ public class GradeManagerTest extends GradebookTestBase {
 
     public void testAssignmentScoresEntered() throws Exception {
         Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
-        Long asgId = gradableObjectManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date());
-        Assignment asn = (Assignment)gradableObjectManager.getAssignmentsWithStats(gradebook.getId()).get(0);
+        Long asgId = gradeManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date());
+        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId()).get(0);
 
         Set enrollments = new HashSet();
         enrollments.add(new EnrollmentStandalone(new UserStandalone("entered1", null, null, null), gradebook));
@@ -244,8 +244,8 @@ public class GradeManagerTest extends GradebookTestBase {
 
     public void testGradeEvents() throws Exception {
         Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
-        Long asgId = gradableObjectManager.createAssignment(gradebook.getId(), "GradingEvent Test", new Double(10), new Date());
-        Assignment assignment = (Assignment)gradableObjectManager.getAssignments(gradebook.getId()).get(0);
+        Long asgId = gradeManager.createAssignment(gradebook.getId(), "GradingEvent Test", new Double(10), new Date());
+        Assignment assignment = (Assignment)gradeManager.getAssignments(gradebook.getId()).get(0);
 
         String studentId = "student1";
         Set enrollments = new HashSet();

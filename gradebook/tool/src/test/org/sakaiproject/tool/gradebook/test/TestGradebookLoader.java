@@ -98,11 +98,11 @@ public class TestGradebookLoader extends GradebookDbTestBase {
 
             log.info("i=" + i + ", date=" + date);
 
-            gradableObjectManager.createAssignment(gb.getId(), ASN_BASE_NAME + i, new Double(pts), date);
+            gradeManager.createAssignment(gb.getId(), ASN_BASE_NAME + i, new Double(pts), date);
         }
 
         // Add an assignment without a due date.
-        gradableObjectManager.createAssignment(gb.getId(), ASN_NO_DUE_DATE_NAME, new Double(50), null);
+        gradeManager.createAssignment(gb.getId(), ASN_NO_DUE_DATE_NAME, new Double(50), null);
 
         // Add external assessments
         gradebookService.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME1, "samigo://external1", EXTERNAL_ASN_NAME1, 10, new Date(), "Test and Quiz");

@@ -25,11 +25,8 @@
 package org.sakaiproject.tool.gradebook.business.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
@@ -42,31 +39,23 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * Manages Gradebook persistence via hibernate.
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
-public class GradebookManagerHibernateImpl extends HibernateDaoSupport
+public class GradebookManagerHibernateImpl extends BaseHibernateManager
     implements GradebookManager {
 
     private static final Log log = LogFactory.getLog(GradebookManagerHibernateImpl.class);
 
-    private CourseManagement courseManagement;
-    private GradableObjectManager gradableObjectManager;
     private GradeManager gradeManager;
 
-    /**
-     */
     public Gradebook getGradebook(String uid) throws GradebookNotFoundException {
     	Gradebook gradebook = null;
     	List list = getHibernateTemplate().find("from Gradebook as gb where gb.uid=?",
@@ -78,8 +67,6 @@ public class GradebookManagerHibernateImpl extends HibernateDaoSupport
         }
     }
 
-    /**
-	 */
 	public void updateGradebook(final Gradebook gradebook) throws StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -108,7 +95,7 @@ public class GradebookManagerHibernateImpl extends HibernateDaoSupport
                 // If the same mapping is selected, but it has been modified, we need
                 // to trigger a sort value update on the explicitly entered course grades
                 if(!mappingFromPersistence.equals(gradebook.getSelectedGradeMapping())) {
-					gradableObjectManager.updateCourseGradeRecordSortValues(gradebook.getId(), true);
+					gradeManager.updateCourseGradeRecordSortValues(gradebook.getId(), true);
                 }
 
                 return null;
@@ -121,30 +108,24 @@ public class GradebookManagerHibernateImpl extends HibernateDaoSupport
         }
 	}
 
-    /**
-     */
     public void removeAssignment(final Long assignmentId) throws StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Assignment asn = (Assignment)session.load(Assignment.class, assignmentId);
-                Gradebook gradebook = asn.getGradebook();
                 asn.setRemoved(true);
                 session.update(asn);
                 if(logger.isInfoEnabled()) logger.info("Assignment " + asn.getName() + " has been removed from " + asn.getGradebook());
-                return gradebook;
+
+                // Update the course grade records
+                Gradebook gradebook = asn.getGradebook();
+                recalculateCourseGradeRecords(gradebook, session);
+
+                return null;
             }
         };
-        Gradebook gradebook = (Gradebook)getHibernateTemplate().execute(hc);
-        Collection enrollments = courseManagement.getEnrollments(gradebook.getUid());
-        Set studentIds = new HashSet();
-        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-            studentIds.add(((Enrollment)iter.next()).getUser().getUserUid());
-        }
-        gradeManager.recalculateCourseGradeRecords(gradebook, studentIds);
+        getHibernateTemplate().execute(hc);
     }
 
-    /**
-	 */
     public Gradebook getGradebook(Long id) {
         return (Gradebook)getHibernateTemplate().load(Gradebook.class, id);
     }
@@ -153,27 +134,10 @@ public class GradebookManagerHibernateImpl extends HibernateDaoSupport
         return ((Gradebook)getHibernateTemplate().load(Gradebook.class, id)).getUid();
     }
 
-	/**
-	 */
 	public List getEnrollments(Long gradebookId) {
         return new ArrayList(courseManagement.getEnrollments(getGradebookUid(gradebookId)));
 	}
 
-	/**
-	 */
-	public void setCourseManagement(CourseManagement courseManagement) {
-        this.courseManagement = courseManagement;
-	}
-	/**
-	 * @param gradableObjectManager The gradableObjectManager to set.
-	 */
-	public void setGradableObjectManager(
-			GradableObjectManager gradableObjectManager) {
-		this.gradableObjectManager = gradableObjectManager;
-	}
-	/**
-	 * @param gradeManager The gradeManager to set.
-	 */
 	public void setGradeManager(GradeManager gradeManager) {
 		this.gradeManager = gradeManager;
 	}

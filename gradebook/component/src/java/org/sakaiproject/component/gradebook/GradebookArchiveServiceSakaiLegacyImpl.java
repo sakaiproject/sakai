@@ -46,7 +46,7 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradebookArchive;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
+import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 import org.w3c.dom.Document;
@@ -69,7 +69,7 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
     private ContextManagement contextManagement;
     private GradebookService gradebookService;
     private GradebookManager gradebookManager;
-    private GradableObjectManager gradableObjectManager;
+    private GradeManager gradeManager;
     
 	/**
 	 * @see org.sakaiproject.service.legacy.resource.ResourceService#getLabel()
@@ -149,9 +149,9 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
         selectedGradeMapping.setGradeMap(concreteMap);
 
         
-        courseGrade = gradableObjectManager.getCourseGrade(gradebook.getId());
+        courseGrade = gradeManager.getCourseGrade(gradebook.getId());
         
-        Collection assignments = gradableObjectManager.getAssignments(gradebook.getId());
+        Collection assignments = gradeManager.getAssignments(gradebook.getId());
         concreteAssignments = new ArrayList();
         for(Iterator iter = assignments.iterator(); iter.hasNext();) {
             Assignment asn = (Assignment)iter.next();
@@ -203,7 +203,7 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
         for(Iterator iter = archive.getAssignments().iterator(); iter.hasNext();) {
             Assignment asn = (Assignment)iter.next();
             try {
-                gradableObjectManager.createAssignment(persistentGradebook.getId(), asn.getName(), asn.getPointsPossible(), asn.getDueDate());
+                gradeManager.createAssignment(persistentGradebook.getId(), asn.getName(), asn.getPointsPossible(), asn.getDueDate());
                 logMessages.append("Adding " + asn.getName() + " to gradebook " + persistentGradebook.getUid() + "\n");
             } catch (Exception ex) {
                 log.error(ex);
@@ -259,9 +259,9 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
     public void setContextManagement(ContextManagement contextManagement) {
         this.contextManagement = contextManagement;
     }
-    public void setGradableObjectManager(
-			GradableObjectManager gradableObjectManager) {
-		this.gradableObjectManager = gradableObjectManager;
+    public void setGradeManager(
+			GradeManager gradeManager) {
+		this.gradeManager = gradeManager;
 	}
 	public void setGradebookManager(GradebookManager gradebookManager) {
 		this.gradebookManager = gradebookManager;

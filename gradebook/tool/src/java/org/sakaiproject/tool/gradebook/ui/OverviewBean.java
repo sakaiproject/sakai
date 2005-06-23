@@ -62,11 +62,11 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 
 	protected void init() {
 		// Get the list of assignments for this gradebook, sorted as defined in the overview page.
-        gradableObjects = getGradableObjectManager().getAssignmentsWithStats(getGradebookId(),
+        gradableObjects = getGradeManager().getAssignmentsWithStats(getGradebookId(),
         		getAssignmentSortColumn(), isAssignmentSortAscending());
         
 		// Always put the course grade last.
-		gradableObjects.add(getGradableObjectManager().getCourseGradeWithStats(getGradebookId()));
+		gradableObjects.add(getGradeManager().getCourseGradeWithStats(getGradebookId()));
 	}
     
     // Delegated sort methods

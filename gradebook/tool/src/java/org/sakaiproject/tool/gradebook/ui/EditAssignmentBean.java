@@ -43,7 +43,7 @@ public class EditAssignmentBean extends GradebookDependentBean implements Serial
 		if (logger.isDebugEnabled()) logger.debug("init assignment=" + assignment);
 
 		if (assignment == null) {
-			assignment = (Assignment)getGradableObjectManager().getGradableObjectWithStats(assignmentId);
+			assignment = (Assignment)getGradeManager().getGradableObjectWithStats(assignmentId);
 			if (assignment == null) {
 				// The assignment might have been removed since this link was set up.
 				if (logger.isWarnEnabled()) logger.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());
@@ -55,7 +55,7 @@ public class EditAssignmentBean extends GradebookDependentBean implements Serial
 
 	public String updateAssignment() {
 		try {
-			getGradableObjectManager().updateAssignment(assignmentId, assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate());
+			getGradeManager().updateAssignment(assignmentId, assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate());
 			String messageKey = getGradeManager().isEnteredAssignmentScores(assignmentId) ?
 				"edit_assignment_save_scored" :
 				"edit_assignment_save";

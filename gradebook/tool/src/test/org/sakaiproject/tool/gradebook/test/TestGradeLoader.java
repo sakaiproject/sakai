@@ -50,7 +50,7 @@ public class TestGradeLoader extends GradebookDbTestBase {
         Gradebook gb = gradebookManager.getGradebook(TestGradebookLoader.GRADEBOOK_WITH_GRADES);
 
 		Set enrollments = courseManagement.getEnrollments(gb.getUid());
-		List assignments = gradableObjectManager.getAssignments(gb.getId());
+		List assignments = gradeManager.getAssignments(gb.getId());
 
 		for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {
 			Assignment asn = (Assignment)asnIter.next();

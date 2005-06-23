@@ -52,7 +52,6 @@
 			<list>
 				<value>org_sakaiproject_service_gradebook_GradebookService</value>
 				<value>org_sakaiproject_tool_gradebook_business_GradebookManager</value>
-				<value>org_sakaiproject_tool_gradebook_business_GradableObjectManager</value>
 				<value>org_sakaiproject_tool_gradebook_business_GradeManager</value>
 			</list>
 		</property>

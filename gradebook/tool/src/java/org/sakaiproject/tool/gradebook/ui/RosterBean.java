@@ -38,7 +38,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.NumberConverter;
 import javax.faces.event.ActionEvent;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
@@ -47,7 +46,6 @@ import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
-import org.sakaiproject.tool.gradebook.facades.User;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -96,31 +94,26 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	private transient Map scoresMap;
 
 	public class StudentRow implements Serializable {
-		private String studentUid;
-		private String sortName;
-		private String displayUid;
+        private Enrollment enrollment;
 
 		public StudentRow() {
 		}
 		public StudentRow(Enrollment enrollment) {
-			User user = enrollment.getUser();
-			studentUid = user.getUserUid();
-			sortName = StringUtils.abbreviate(user.getSortName(), 50);
-			displayUid = user.getDisplayUid();
+            this.enrollment = enrollment;
 		}
 
 		public String getStudentUid() {
-			return studentUid;
+			return enrollment.getUser().getUserUid();
 		}
 		public String getSortName() {
-			return sortName;
+			return enrollment.getUser().getSortName();
 		}
 		public String getDisplayUid() {
-			return displayUid;
+			return enrollment.getUser().getDisplayUid();
 		}
 
 		public Map getScores() {
-			return (Map)scoresMap.get(studentUid);
+			return (Map)scoresMap.get(enrollment.getUser().getUserUid());
 		}
 	}
 
@@ -181,8 +174,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
             studentRows.add(new StudentRow(enrollment));
         }
 
-		List gradableObjects = getGradableObjectManager().getAssignments(getGradebookId());
-		CourseGrade courseGrade = getGradableObjectManager().getCourseGradeWithStats(getGradebookId());
+		List gradableObjects = getGradeManager().getAssignments(getGradebookId());
+		CourseGrade courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId());
 		gradableObjectColumns = new ArrayList();
 		for (Iterator iter = gradableObjects.iterator(); iter.hasNext(); ) {
 			gradableObjectColumns.add(new GradableObjectColumn((GradableObject)iter.next()));

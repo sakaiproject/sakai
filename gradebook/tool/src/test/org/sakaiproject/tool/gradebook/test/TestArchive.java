@@ -42,7 +42,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
+import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.w3c.dom.Document;
 
@@ -53,12 +53,12 @@ import org.w3c.dom.Document;
 public class TestArchive extends GradebookTestBase {
     private static final Log log = LogFactory.getLog(TestArchive.class);
     private static String GRADEBOOK_SERVICE_BEAN = "org.sakaiproject.service.gradebook.GradebookService";
-    private static String GRADABLE_OBJECT_BEAN = "org_sakaiproject_tool_gradebook_business_GradableObjectManager";
+    private static String GRADABLE_OBJECT_BEAN = "org_sakaiproject_tool_gradebook_business_GradeManager";
     private static String ARCHIVE_BEAN = "org.sakaiproject.service.gradebook.shared.GradebookArchiveService";
     private static String GRADEBOOK_COPY = "copiedFromArchive";
     
     static GradebookManager gradebookManager;
-    static GradableObjectManager gradableObjectManager;
+    static GradeManager gradeManager;
     static GradebookService gradebookService;
     static GradebookArchiveService archiveService;
     
@@ -79,7 +79,7 @@ public class TestArchive extends GradebookTestBase {
 
     protected void onSetUpInTransaction() throws Exception {
         gradebookManager = (GradebookManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradebookManager");
-        gradableObjectManager = (GradableObjectManager)applicationContext.getBean(GRADABLE_OBJECT_BEAN);
+        gradeManager = (GradeManager)applicationContext.getBean(GRADABLE_OBJECT_BEAN);
         gradebookService = (GradebookService)applicationContext.getBean(GRADEBOOK_SERVICE_BEAN);
         archiveService = (GradebookArchiveService)applicationContext.getBean(ARCHIVE_BEAN);
     }
@@ -118,8 +118,8 @@ public class TestArchive extends GradebookTestBase {
         }
         
         // Make sure it has the same assignments as the original
-        List assignments = gradableObjectManager.getAssignments(gradebook.getId());
-        List originalAssignments = gradableObjectManager.getAssignments(originalGradebook.getId());
+        List assignments = gradeManager.getAssignments(gradebook.getId());
+        List originalAssignments = gradeManager.getAssignments(originalGradebook.getId());
         
         for(int i = 0; i < assignments.size(); i++) {
             Assignment newAsn = (Assignment)assignments.get(i);

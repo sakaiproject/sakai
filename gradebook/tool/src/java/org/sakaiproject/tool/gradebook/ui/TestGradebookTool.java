@@ -33,7 +33,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
@@ -50,15 +49,14 @@ public class TestGradebookTool {
     // Services
     private GradebookManager gradebookManager;
     private GradeManager gradeManager;
-    private GradableObjectManager gradableObjectManager;
     private CourseManagement courseManagementService;
 
     /**
      * @return A List of all assignments in the currently selected gradebook
      */
     public List getAssignments() {
-        List gradableObjects = gradableObjectManager.getAssignmentsWithStats(selectedGradebook.getId());
-        gradableObjects.add(gradableObjectManager.getCourseGradeWithStats(selectedGradebook.getId()));
+        List gradableObjects = gradeManager.getAssignmentsWithStats(selectedGradebook.getId());
+        gradableObjects.add(gradeManager.getCourseGradeWithStats(selectedGradebook.getId()));
         return gradableObjects;
     }
 
@@ -97,16 +95,16 @@ public class TestGradebookTool {
     //// Service Dependencies ////
 
 	/**
-	 * @return Returns the gradableObjectManager.
+	 * @return Returns the gradeManager.
 	 */
-	public GradableObjectManager getGradableObjectManager() {
-		return gradableObjectManager;
+	public GradeManager getGradeManager() {
+		return gradeManager;
 	}
 	/**
-	 * @param gradableObjectManager The gradableObjectManager to set.
+	 * @param gradeManager The gradeManager to set.
 	 */
-	public void setGradableObjectManager(GradableObjectManager gradableObjectManager) {
-		this.gradableObjectManager = gradableObjectManager;
+	public void setGradeManager(GradeManager gradeManager) {
+		this.gradeManager = gradeManager;
 	}
 	/**
 	 * @return Returns the courseManagementService.
@@ -132,18 +130,6 @@ public class TestGradebookTool {
 	 */
 	public void setGradebookManager(GradebookManager gradebookManager) {
 		this.gradebookManager = gradebookManager;
-	}
-	/**
-	 * @return Returns the gradeManager.
-	 */
-	public GradeManager getGradeManager() {
-		return gradeManager;
-	}
-	/**
-	 * @param gradeManager The gradeManager to set.
-	 */
-	public void setGradeManager(GradeManager gradeManager) {
-		this.gradeManager = gradeManager;
 	}
 }
 

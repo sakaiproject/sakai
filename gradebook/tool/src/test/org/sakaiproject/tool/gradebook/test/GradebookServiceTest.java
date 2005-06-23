@@ -67,10 +67,10 @@ public class GradebookServiceTest extends GradebookTestBase {
         
         // Add an internal assignment
         Long gbId = gradebookManager.getGradebook(className).getId();
-        gradableObjectManager.createAssignment(gbId, ASN_1, new Double(10), null);
+        gradeManager.createAssignment(gbId, ASN_1, new Double(10), null);
 
         // Add a score for the internal assignment
-        List assignments = gradableObjectManager.getAssignments(gbId);
+        List assignments = gradeManager.getAssignments(gbId);
         Assignment asn = null;
         for(Iterator iter = assignments.iterator(); iter.hasNext();) {
             Assignment tmp = (Assignment)iter.next();
@@ -132,7 +132,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         // Find the assessment and ensure that it has been updated
         Long gbId = gradebookManager.getGradebook(this.getClass().getName()).getId();
         Assignment asn = null;
-        List assignments = gradableObjectManager.getAssignments(gbId);
+        List assignments = gradeManager.getAssignments(gbId);
         for(Iterator iter = assignments.iterator(); iter.hasNext();) {
             Assignment tmp = (Assignment)iter.next();
             if(tmp.getExternalId() != null && tmp.getExternalId().equals(EXT_ID_1)) {
@@ -143,7 +143,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         Assert.assertEquals(asn.getPointsPossible(), new Double(20));
 
         // Ensure that the total points possible in the gradebook reflects the updated assessment's points
-        Assert.assertTrue(gradableObjectManager.getTotalPoints(gbId) == 30);
+        Assert.assertTrue(gradeManager.getTotalPoints(gbId) == 30);
     }
 
     public void testCreateExternalGradeRecords() throws Exception {

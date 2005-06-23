@@ -264,7 +264,7 @@ public class StudentViewBean extends EnrollmentTableBean implements Serializable
         if(!gradebook.isAssignmentsDisplayed()) {
             assignmentGradeRows = new ArrayList();
         } else {
-            List assignments = getGradableObjectManager().getAssignments(gradebook.getId());
+            List assignments = getGradeManager().getAssignments(gradebook.getId());
             List gradeRecords = getGradeManager().getStudentGradeRecords(gradebook.getId(), getUserUid());
 
             // Create a map of assignments to assignment grade rows

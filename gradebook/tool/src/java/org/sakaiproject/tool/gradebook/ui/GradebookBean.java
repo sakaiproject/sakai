@@ -33,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
@@ -62,7 +61,6 @@ public class GradebookBean extends InitializableBean {
 	// UI classes don't know that).
 	private GradebookManager gradebookManager;
 	private GradeManager gradeManager;
-	private GradableObjectManager gradableObjectManager;
 	private CourseManagement courseManagementService;
 	private Authn authnService;
 	private ContextManagement contextManagementService;
@@ -143,18 +141,6 @@ public class GradebookBean extends InitializableBean {
 		this.gradebookManager = gradebookManager;
 	}
 
-	/**
-	 * @return Returns the gradableObjectManager.
-	 */
-	public GradableObjectManager getGradableObjectManager() {
-		return gradableObjectManager;
-	}
-	/**
-	 * @param gradableObjectManager The gradableObjectManager to set.
-	 */
-	public void setGradableObjectManager(GradableObjectManager gradableObjectManager) {
-		this.gradableObjectManager = gradableObjectManager;
-	}
 	/**
 	 * @return Returns the courseManagementService.
 	 */

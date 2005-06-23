@@ -122,10 +122,10 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		// Clear view state.
 		scoreRows = new ArrayList();
 
-		courseGrade = getGradableObjectManager().getCourseGradeWithStats(getGradebookId());
+		courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId());
 
         gradeMapping = getGradebook().getSelectedGradeMapping();
-        totalPoints = getGradableObjectManager().getTotalPoints(getGradebookId());
+        totalPoints = getGradeManager().getTotalPoints(getGradebookId());
 
         // Set up searching and paging
         String defaultSearchString = getLocalizedString("search_default_student_search_string");

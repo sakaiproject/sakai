@@ -156,7 +156,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		scoreRows = new ArrayList();
 
 		if (assignmentId != null) {
-			assignment = (Assignment)getGradableObjectManager().getGradableObjectWithStats(assignmentId);
+			assignment = (Assignment)getGradeManager().getGradableObjectWithStats(assignmentId);
 			if (assignment != null) {
                 scores = new GradeRecordSet(assignment);
 
@@ -164,10 +164,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 // need to fetch the assignment statistics as well.
 				List assignments;
                 if(Assignment.SORT_BY_MEAN.equals(getAssignmentSortColumn())) {
-                    assignments = getGradableObjectManager().getAssignmentsWithStats(getGradebookId(),
+                    assignments = getGradeManager().getAssignmentsWithStats(getGradebookId(),
                             getAssignmentSortColumn(), isAssignmentSortAscending());
                 } else {
-                    assignments = getGradableObjectManager().getAssignments(getGradebookId(),
+                    assignments = getGradeManager().getAssignments(getGradebookId(),
                             getAssignmentSortColumn(), isAssignmentSortAscending());
                 }
 
@@ -258,7 +258,6 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		try {
 			saveScores();
 		} catch (StaleObjectModificationException e) {
-            logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("assignment_details_locking_failure"));
 		}
 	}

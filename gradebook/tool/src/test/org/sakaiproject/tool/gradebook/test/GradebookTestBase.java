@@ -26,7 +26,6 @@ package org.sakaiproject.tool.gradebook.test;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.business.GradableObjectManager;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
@@ -52,7 +51,6 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
     protected Authz authz;
     protected Authn authn;
     protected GradebookManager gradebookManager;
-    protected GradableObjectManager gradableObjectManager;
     protected GradeManager gradeManager;
     protected GradebookService gradebookService;
     protected CourseManagement courseManagement;
@@ -62,7 +60,6 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         authz = (Authz)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_Authz");
         gradebookService = (GradebookService)applicationContext.getBean("org_sakaiproject_service_gradebook_GradebookService");
         gradebookManager = (GradebookManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradebookManager");
-        gradableObjectManager = (GradableObjectManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradableObjectManager");
         gradeManager = (GradeManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradeManager");
         courseManagement = (CourseManagement)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_CourseManagement");
     }
