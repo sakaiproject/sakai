@@ -1,10 +1,9 @@
 /**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
 *
-* $Header: /cvs/sakai2/sam/src/org/sakaiproject/spring/SpringBeanLocator.java,v 1.4 2005/05/20 18:49:00 janderse.umich.edu Exp $
-*
-***********************************************************************************/
-/*
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -19,14 +18,15 @@
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*
+**********************************************************************************/
 
 package org.sakaiproject.spring;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
- 
+
 public class SpringBeanLocator{
 
   private static Log log = LogFactory.getLog(SpringBeanLocator.class);
@@ -42,12 +42,12 @@ public class SpringBeanLocator{
 
   public void setApplicationContext(WebApplicationContext context){
     ctx = context;
-  } 
+  }
 
   public Object getBean(String name){
       System.out.println("** context in Loactor"+ctx);
     return ctx.getBean(name);
-    
+
   }
 
 }
