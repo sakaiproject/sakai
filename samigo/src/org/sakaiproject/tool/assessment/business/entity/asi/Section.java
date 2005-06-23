@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.business.entity.helper.item.ItemHelperIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -265,7 +266,6 @@ public class Section extends ASIBaseClass
 
   /**
    * Add item list to this section document.
-   * @todo read in individual item data, right now just dumping templates
    *
    * @param items list of ItemDataIfc
    */
@@ -287,7 +287,18 @@ public class Section extends ASIBaseClass
       {
         ItemDataIfc item = (ItemDataIfc) items.get(i);
         TypeIfc type = item.getType();
-        Item itemXml = itemHelper.readTypeXMLItem(type);
+        Item itemXml;
+        if ( (type.MULTIPLE_CHOICE_SURVEY).equals(type.getTypeId()))
+        {
+          String scale = item.getItemMetaDataByLabel(ItemMetaDataIfc.SCALENAME);
+//          System.out.println("getting XML for survey type: " + scale);
+          itemXml = itemHelper.readTypeSurveyItem(scale);
+        }
+        else
+        {
+          itemXml = itemHelper.readTypeXMLItem(type);
+        }
+
         // update item data
         itemXml.setIdent(item.getItemIdString());
         itemXml.update(item);
