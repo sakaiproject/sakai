@@ -1,3 +1,25 @@
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 package org.sakaiproject.tool.assessment.data.dao.grading;
 
 import java.util.Date;
@@ -122,11 +144,11 @@ public class AssessmentGradingData
       }
       this.totalAutoScore = new Float(autoScore);
     }
-    
+
     // Round to the nearest 1/10th.
     if (this.totalAutoScore != null){
       float alignment = this.totalAutoScore.floatValue();
-      int tmp = Math.round(alignment * 10.0f); 
+      int tmp = Math.round(alignment * 10.0f);
       alignment = (float)tmp / 10.0f;
       this.totalAutoScore = new Float(alignment);
     }
@@ -137,7 +159,7 @@ public class AssessmentGradingData
   }
 
   public Float getTotalOverrideScore() {
-      /* bug fix for sam-485. totaloverridescore should get from the frontend, not from the itemGradingData. 
+      /* bug fix for sam-485. totaloverridescore should get from the frontend, not from the itemGradingData.
     if (getItemGradingSet()!=null){
       this.totalOverrideScore = new Float("0");
       float overrideScore = 0;
@@ -154,7 +176,7 @@ public class AssessmentGradingData
     // Round to the nearest 1/10th.
     if (this.totalOverrideScore !=null){
       float alignment = this.totalOverrideScore.floatValue();
-      int tmp = Math.round(alignment * 10.0f); 
+      int tmp = Math.round(alignment * 10.0f);
       alignment = (float)tmp / 10.0f;
       this.totalOverrideScore = new Float(alignment);
     }
@@ -173,11 +195,11 @@ public class AssessmentGradingData
          total += this.totalOverrideScore.floatValue();
       this.finalScore = new Float(total);
     }
-   
+
     // Round to the nearest 1/10th.
     if (this.finalScore !=null ){
       float alignment = this.finalScore.floatValue();
-      int tmp = Math.round(alignment * 10.0f); 
+      int tmp = Math.round(alignment * 10.0f);
       alignment = (float)tmp / 10.0f;
       this.finalScore = new Float(alignment);
     }
