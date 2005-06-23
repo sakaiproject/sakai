@@ -1,6 +1,9 @@
-
-/*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -15,7 +18,8 @@
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.util;
 
@@ -83,14 +87,14 @@ public class BeanSortComparator
     }
 
     // Deal with n/a case
-    if (s1.toLowerCase().startsWith("n/a") 
+    if (s1.toLowerCase().startsWith("n/a")
         && !s2.toLowerCase().startsWith("n/a"))
       return 1;
-    
-    if (s2.toLowerCase().startsWith("n/a") && 
+
+    if (s2.toLowerCase().startsWith("n/a") &&
         !s1.toLowerCase().startsWith("n/a"))
       return -1;
-    
+
     // Take out tags
     return s1.replaceAll("<.*?>", "").toLowerCase().compareTo
       (s2.replaceAll("<.*?>", "").toLowerCase());
