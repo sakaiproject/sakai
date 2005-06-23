@@ -27,7 +27,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Qingru Zhang 
- * @version $Id: RemovePublishedAssessmentThread.java,v 1.1 2005/06/14 22:06:26 zqingru.stanford.edu Exp $
+ * @version $Id$
  */
 
 public class RemovePublishedAssessmentThread extends Thread

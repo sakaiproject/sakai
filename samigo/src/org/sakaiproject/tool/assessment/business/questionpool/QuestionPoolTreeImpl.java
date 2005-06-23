@@ -1,54 +1,25 @@
-/*
- *                       Navigo Software License
- *
- * Copyright 2003, Trustees of Indiana University, The Regents of the University
- * of Michigan, and Stanford University, all rights reserved.
- *
- * This work, including software, documents, or other related items (the
- * "Software"), is being provided by the copyright holder(s) subject to the
- * terms of the Navigo Software License. By obtaining, using and/or copying this
- * Software, you agree that you have read, understand, and will comply with the
- * following terms and conditions of the Navigo Software License:
- *
- * Permission to use, copy, modify, and distribute this Software and its
- * documentation, with or without modification, for any purpose and without fee
- * or royalty is hereby granted, provided that you include the following on ALL
- * copies of the Software or portions thereof, including modifications or
- * derivatives, that you make:
- *
- *    The full text of the Navigo Software License in a location viewable to
- *    users of the redistributed or derivative work.
- *
- *    Any pre-existing intellectual property disclaimers, notices, or terms and
- *    conditions. If none exist, a short notice similar to the following should
- *    be used within the body of any redistributed or derivative Software:
- *    "Copyright 2003, Trustees of Indiana University, The Regents of the
- *    University of Michigan and Stanford University, all rights reserved."
- *
- *    Notice of any changes or modifications to the Navigo Software, including
- *    the date the changes were made.
- *
- *    Any modified software must be distributed in such as manner as to avoid
- *    any confusion with the original Navigo Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * The name and trademarks of copyright holder(s) and/or Indiana University,
- * The University of Michigan, Stanford University, or Navigo may NOT be used
- * in advertising or publicity pertaining to the Software without specific,
- * written prior permission. Title to copyright in the Software and any
- * associated documentation will at all times remain with the copyright holders.
- * The export of software employing encryption technology may require a specific
- * license from the United States Government. It is the responsibility of any
- * person or organization contemplating export to obtain such a license before
- * exporting this Software.
- */
+/**********************************************************************************
+* $HeaderURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.business.questionpool;
 
@@ -184,7 +155,7 @@ public class QuestionPoolTreeImpl
     }
   }
 
- 
+
   /**
    * Get a List of pools having parentId as parent
    * @param parentId the Id of the parent pool
@@ -252,13 +223,13 @@ public class QuestionPoolTreeImpl
 
       return null;
     }
-    
+
   }
 
 
   public void setCurrentObjectHTMLId(String param)
   {
-       currentObjectHTMLId = param;	
+       currentObjectHTMLId = param;
   }
 
   /**
@@ -351,8 +322,8 @@ public class QuestionPoolTreeImpl
   {
     Collection properties = new ArrayList();
 /*
-   // not used anymore, 
-  
+   // not used anymore,
+
     if(currentPoolId == null)
     {
       properties.add("Pool Name");
@@ -634,13 +605,13 @@ public class QuestionPoolTreeImpl
         {
          sort.toDateSort();
         }
-        else 
+        else
         {
          sort.toStringSort();
         }
 
         sort.sort();
-   
+
         if (!sortAscending)
 	{
 	    Collections.reverse(sortedList);
@@ -677,13 +648,13 @@ public class QuestionPoolTreeImpl
 
   /**
    * THis checks to see if given two pools have a common ancestor
-   */ 
+   */
   public boolean haveCommonRoot(Long poolIdA,Long poolIdB)
   {
     try{
     	Long rootA=poolIdA;
     	Long rootB=poolIdB;
-    
+
     	QuestionPoolFacade tempPool=(QuestionPoolFacade)poolMap.get(rootA.toString());
     	while(tempPool!=null){
       		if((tempPool.getParentPoolId()==null)||(((tempPool.getParentPoolId()).toString()).equals("0"))){
@@ -692,7 +663,7 @@ public class QuestionPoolTreeImpl
         		rootA = tempPool.getParentPoolId();
         		tempPool = (QuestionPoolFacade)poolMap.get(rootA.toString());
       		}
-    	} 
+    	}
     	tempPool=(QuestionPoolFacade)poolMap.get(rootB.toString());
     	while(tempPool!=null){
       		if((tempPool.getParentPoolId()==null)||(((tempPool.getParentPoolId()).toString()).equals("0"))){
@@ -701,7 +672,7 @@ public class QuestionPoolTreeImpl
         		rootB = tempPool.getParentPoolId();
         		tempPool = (QuestionPoolFacade)poolMap.get(rootB.toString());
       		}
-   	} 
+   	}
     	return rootA.equals(rootB);
     }
 	catch(Exception e){
@@ -721,10 +692,10 @@ public class QuestionPoolTreeImpl
       while((tempPoolId !=null)&&(tempPoolId.toString().compareTo("0")>0)){
         QuestionPoolFacade tempPool = (QuestionPoolFacade)poolMap.get(tempPoolId.toString());
         if(tempPool.getParentPoolId().toString().compareTo(poolB.toString())==0) return true;
-        tempPoolId = tempPool.getParentPoolId();   
+        tempPoolId = tempPool.getParentPoolId();
       }
       return false;
-    
+
     }catch(Exception e){
       e.printStackTrace();
 //      throw new Error(e);
@@ -750,7 +721,7 @@ public class QuestionPoolTreeImpl
         tempPool = (QuestionPoolFacade)poolMap.get(rootId.toString());
       }
     }
-    return level; 
+    return level;
     }catch(Exception e){
       e.printStackTrace();
 //      throw new Error(e);
