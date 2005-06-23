@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +42,7 @@ import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
@@ -51,36 +51,28 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 public class AssignmentDetailsBean extends EnrollmentTableBean {
 	private static final Log logger = LogFactory.getLog(AssignmentDetailsBean.class);
 
-	// View maintenance fields - serializable.
-	private Long assignmentId;
-    private String name;
-    private Double points;
-    private Double mean;
-    private Date dueDate;
-	private Long previousId;
-	private Long nextId;
 	private List scoreRows;
-	private Map scores;
-    private boolean external;
-    private String externalLink;
+	private GradeRecordSet scores;
 
-    // Controller fields - transient.
-    private transient Assignment assignment;
-	private transient Assignment previousAssignment;
-	private transient Assignment nextAssignment;
-    private transient String externalAppName;
+	private Long assignmentId;
+    private Assignment assignment;
+	private Assignment previousAssignment;
+	private Assignment nextAssignment;
 
 	public class ScoreRow implements Serializable {
-		private String studentUid;
-		private String sortName;	// Transient except for validation errors
-		private String displayUid;	// Transient except for validation errors
+        private AssignmentGradeRecord gradeRecord;
+        private Enrollment enrollment;
         private List events;
 		public ScoreRow() {
 		}
-		public ScoreRow(Enrollment enrollment, List gradingEvents) {
-			studentUid = enrollment.getUser().getUserUid();
-			sortName = enrollment.getUser().getSortName();
-			displayUid = enrollment.getUser().getDisplayUid();
+		public ScoreRow(Enrollment enrollment, AssignmentGradeRecord gradeRecord, List gradingEvents) {
+            this.enrollment = enrollment;
+            if(gradeRecord == null) {
+                this.gradeRecord = new AssignmentGradeRecord(assignment, enrollment.getUser().getUserUid(), null, null);
+                scores.addGradeRecord(this.gradeRecord);
+            } else {
+                this.gradeRecord = gradeRecord;
+            }
             
             events = new ArrayList();
             for(Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
@@ -135,29 +127,11 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
             }
         }
         
-		public String getStudentUid() {
-			return studentUid;
-		}
-		public void setStudentUid(String studentUid) {
-			this.studentUid = studentUid;
-		}
 		public Double getScore() {
-			return (Double)scores.get(studentUid);
+			return gradeRecord.getPointsEarned();
 		}
 		public void setScore(Double score) {
-			scores.put(studentUid, score);
-		}
-		public String getSortName() {
-			return sortName;
-		}
-		public void setSortName(String sortName) {
-			this.sortName = sortName;
-		}
-		public String getDisplayUid() {
-			return displayUid;
-		}
-		public void setDisplayUid(String displayUid) {
-			this.displayUid = displayUid;
+            gradeRecord.setPointsEarned(score);
 		}
         public List getEvents() {
             return events;
@@ -165,32 +139,26 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         public void setEvents(List events) {
             this.events = events;
         }
+        public Enrollment getEnrollment() {
+            return enrollment;
+        }
+        public void setEnrollment(Enrollment enrollment) {
+            this.enrollment = enrollment;
+        }
 	}
 
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);
-		if (logger.isDebugEnabled()) logger.debug("    assignmentId=" + assignmentId + ", previousId=" + previousId + ", nextId=" + nextId);
 
 		// Clear view state.
-        external = false;
-		previousId = null;
-		nextId = null;
+        previousAssignment = null;
+        nextAssignment = null;
 		scoreRows = new ArrayList();
-		scores = new HashMap();
 
 		if (assignmentId != null) {
-			assignment = assignment = (Assignment)getGradableObjectManager().getGradableObjectWithStats(assignmentId);
+			assignment = (Assignment)getGradableObjectManager().getGradableObjectWithStats(assignmentId);
 			if (assignment != null) {
-                // Populate the serializable assignment properties in this bean
-                name = assignment.getName();
-                points = assignment.getPointsForDisplay();
-                dueDate = assignment.getDateForDisplay();
-                Double formattedMean = assignment.getFormattedMean();
-                if(formattedMean != null) {
-                	mean = new Double(formattedMean.doubleValue() / 100);
-                } else {
-                    mean = null;
-                }
+                scores = new GradeRecordSet(assignment);
 
                 // Get the list of assignments.  If we are sorting by mean, we
                 // need to fetch the assignment statistics as well.
@@ -207,16 +175,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 int thisIndex = assignments.indexOf(assignment);
 				if (thisIndex > 0) {
 					previousAssignment = (Assignment)assignments.get(thisIndex - 1);
-					previousId = previousAssignment.getId();
 				}
 				if (thisIndex < (assignments.size() - 1)) {
 					nextAssignment = (Assignment)assignments.get(thisIndex + 1);
-					nextId = nextAssignment.getId();
 				}
-
-                external = assignment.isExternallyMaintained();
-                externalLink = assignment.getExternalInstructorLink();
-                externalAppName = assignment.getExternalAppName();
 
 				// Set up score rows.
 				Map enrollmentMap = getOrderedEnrollmentMap();
@@ -253,11 +215,12 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 
                 for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)iter.next();
-					scores.put(gradeRecord.getStudentId(), gradeRecord.getPointsEarned());
+					scores.addGradeRecord(gradeRecord);
 				}
 				for (Iterator iter = workingEnrollments.iterator(); iter.hasNext(); ) {
 					Enrollment enrollment = (Enrollment)iter.next();
-					scoreRows.add(new ScoreRow(enrollment, allEvents.getEvents(enrollment.getUser().getUserUid())));
+                    AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)scores.getGradeRecord(enrollment.getUser().getUserUid());
+					scoreRows.add(new ScoreRow(enrollment, gradeRecord, allEvents.getEvents(enrollment.getUser().getUserUid())));
 				}
 
 			} else {
@@ -278,7 +241,6 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	/**
 	 * Action listener to view a different assignment.
-	 * NOTE: No transient fields are available yet.
 	 */
 	public void processAssignmentIdChange(ActionEvent event) {
 		Map params = FacesUtil.getEventParameterMap(event);
@@ -291,7 +253,6 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	/**
 	 * Action listener to update scores.
-	 * NOTE: No transient fields are available yet.
 	 */
 	public void processUpdateScores(ActionEvent event) {
 		try {
@@ -304,7 +265,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	private void saveScores() throws StaleObjectModificationException {
 		if (logger.isInfoEnabled()) logger.info("saveScores " + assignmentId);
-		Set excessiveScores = getGradeManager().updateAssignmentGradeRecords(assignmentId, scores);
+		Set excessiveScores = getGradeManager().updateAssignmentGradeRecords(scores);
 
 		String messageKey = (excessiveScores.size() > 0) ?
 			"assignment_details_scores_saved_excessive" :
@@ -325,44 +286,16 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		if (logger.isDebugEnabled()) logger.debug("setAssignmentId " + assignmentId);
 		this.assignmentId = assignmentId;
 	}
-	public Long getNextId() {
-		return nextId;
-	}
-	public void setNextId(Long nextId) {
-		this.nextId = nextId;
-	}
-	public Long getPreviousId() {
-		return previousId;
-	}
-	public void setPreviousId(Long previousId) {
-		this.previousId = previousId;
-	}
-
-	public String getName() {
-        return name;
-	}
-
-	public Double getPoints() {
-        return points;
-	}
-
-	public Date getDueDate() {
-        return dueDate;
-	}
-
-	public Double getMean() {
-        return mean;
-	}
 
 	public boolean isFirst() {
-		return (previousId == null);
+		return (previousAssignment == null);
 	}
 	public String getPreviousTitle() {
 		return (previousAssignment != null) ? previousAssignment.getName() : "";
 	}
 
 	public boolean isLast() {
-		return (nextId == null);
+		return (nextAssignment == null);
 	}
 	public String getNextTitle() {
 		return (nextAssignment != null) ? nextAssignment.getName() : "";
@@ -374,24 +307,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	public void setScoreRows(List scoreRows) {
 		this.scoreRows = scoreRows;
 	}
-	public boolean isExternal() {
-		return external;
-	}
-	public void setExternal(boolean external) {
-		this.external = external;
-	}
-	public String getExternalLink() {
-		return externalLink;
-	}
-	public void setExternalLink(String externalLink) {
-		this.externalLink = externalLink;
-	}
-	public String getExternalAppName() {
-		return externalAppName;
-	}
-	public void setExternalAppName(String externalAppName) {
-		this.externalAppName = externalAppName;
-	}
+
     public boolean isEmptyEnrollments() {
         return emptyEnrollments;
     }
@@ -403,7 +319,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     // will be right-aligned). On the other hand, if the score column is read-only,
     // then we want to simply right-align the table column.
     public String getScoreColumnAlignment() {
-    	if (isExternal()) {
+    	if (assignment.isExternallyMaintained()) {
     		return "right";
     	} else {
     		return "left";
@@ -422,6 +338,27 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     }
     public void setSortColumn(String sortColumn) {
         getPreferencesBean().setAssignmentDetailsTableSortColumn(sortColumn);
+    }
+    public Assignment getAssignment() {
+        return assignment;
+    }
+    public void setAssignment(Assignment assignment) {
+        this.assignment = assignment;
+    }
+    public Assignment getNextAssignment() {
+        return nextAssignment;
+    }
+    public void setNextAssignment(Assignment nextAssignment) {
+        this.nextAssignment = nextAssignment;
+    }
+    public Assignment getPreviousAssignment() {
+        return previousAssignment;
+    }
+    public void setPreviousAssignment(Assignment previousAssignment) {
+        this.previousAssignment = previousAssignment;
+    }
+    public GradeRecordSet getScores() {
+        return scores;
     }
 }
 

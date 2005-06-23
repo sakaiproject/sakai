@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,7 +41,6 @@ import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.type.Type;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
@@ -50,6 +50,7 @@ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
@@ -193,66 +194,85 @@ public class GradeManagerHibernateImpl extends HibernateDaoSupport implements Gr
    /**
      * @return Returns set of student UIDs who were given scores higher than the assignment's value.
      */
-    public Set updateAssignmentGradeRecords(final Long assignmentId, final Map studentsToGrades)
+    public Set updateAssignmentGradeRecords(final GradeRecordSet gradeRecordSet)
         throws StaleObjectModificationException {
-		return (Set)getHibernateTemplate().execute(new HibernateCallback() {
+
+        final Collection gradeRecordsFromCall = gradeRecordSet.getAllGradeRecords();
+        final Set studentIds = gradeRecordSet.getAllStudentIds();
+        
+        // If no grade records are sent, don't bother doing anything with the db
+        if(gradeRecordsFromCall.size() == 0) {
+            log.debug("updateAssignmentGradeRecords called for zero grade records");
+            return new HashSet();
+        }
+        
+        return (Set)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-				Assignment assignment = (Assignment)session.load(Assignment.class, assignmentId);
+                // Evict the grade records from the session so we can check for point changes
+                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
+                    session.evict(iter.next());
+                }
+                
+                Assignment assignment = (Assignment)session.load(Assignment.class, gradeRecordSet.getGradableObject().getId());
 				Date now = new Date();
 				Gradebook gb = assignment.getGradebook();
 				String graderId = FacadeUtils.getUserUid(authn);
-				Set studentsWithUpdatedAssignmentGradeRecords = new HashSet();
 
+                Set studentsWithUpdatedAssignmentGradeRecords = new HashSet();
 				Set studentsWithExcessiveScores = new HashSet();
 
-				// Find the records for this gradable object
-				String hql = "from AssignmentGradeRecord as gr where gr.gradableObject=?";
-				List allGradeRecords = session.find(hql, assignment, Hibernate.entity(Assignment.class));
+				String hql = "select gr.studentId, gr.pointsEarned from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)";
+                Query q = session.createQuery(hql);
+                q.setParameter("go", assignment);
+                q.setParameterList("studentIds", studentIds);
+				List persistentGradeRecords = q.list();
+                
+				// Construct a map of student id to persistent grade record scores
+                Map scoreMap = new HashMap();
+                for(Iterator iter = persistentGradeRecords.iterator(); iter.hasNext();) {
+                    Object[] oa = (Object[])iter.next();
+                    scoreMap.put(oa[0], oa[1]);
+                }
 
-                for(Iterator mapIter = studentsToGrades.keySet().iterator(); mapIter.hasNext();) {
-                    // Get the student's userUid and grade from the studentsToGrades map
-                    String studentId = (String)mapIter.next();
-                    Number gradeNumber = (Number)studentsToGrades.get(studentId);
-                    Double grade = (gradeNumber != null) ? new Double(gradeNumber.doubleValue()) : null;
+                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
+                    // Keep track of whether this grade record needs to be updated
+                    boolean performUpdate = false;
 
-                    AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)findStudentGradeRecord(studentId, allGradeRecords);
-
-                    if (gradeRecord != null) {
-						 // If the grade hasn't changed, just move on
-						 if (gradeRecord.getPointsEarned() == null && grade == null) {
-							 continue;
-						 }
-						 if (gradeRecord.getPointsEarned() != null && grade != null && gradeRecord.getPointsEarned().equals(grade)) {
-							 continue;
-						 }
-
-						 // Since we are updating a student's grade in an assignment,
-						 // keep track of the student so we can update his/her course grade record
-						 studentsWithUpdatedAssignmentGradeRecords.add(studentId);
-
-						 gradeRecord.setPointsEarned(grade);
-                         gradeRecord.setGraderId(graderId);
-                         gradeRecord.setDateRecorded(now);
-                         if(logger.isDebugEnabled()) logger.debug(graderId + " is updating grade record " + gradeRecord);
-                         session.update(gradeRecord);
-                    } else if (grade == null) {
-                         continue; // If there is no existing grade record, and there is no new grade, don't do anything
-					} else {
-						// We are adding an assignment grade record, so keep track of this student so we can update the course grade record
-						studentsWithUpdatedAssignmentGradeRecords.add(studentId);
-
-						gradeRecord = new AssignmentGradeRecord(assignment, studentId, graderId, grade);
-						if(logger.isDebugEnabled()) logger.debug(graderId + " is saving grade record " + gradeRecord);
-						session.save(gradeRecord);
+                    AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+                    if(scoreMap.containsKey(gradeRecordFromCall.getStudentId())) {
+                        // The student already has a grade record, only perform an update if the grade has changed
+                        Double pointsInDb = (Double)scoreMap.get(gradeRecordFromCall.getStudentId());
+                        
+                        if( (pointsInDb != null && !pointsInDb.equals(gradeRecordFromCall.getPointsEarned())) ||
+                                (pointsInDb == null && gradeRecordFromCall.getPointsEarned() != null)) {
+                            // The grade record's value has changed
+                            gradeRecordFromCall.setGraderId(graderId);
+                            gradeRecordFromCall.setDateRecorded(now);
+                            session.update(gradeRecordFromCall);
+                            performUpdate = true;
+                        }
+                    } else {
+                        // This is a new grade record
+                        if(gradeRecordFromCall.getPointsEarned() != null) {
+                            gradeRecordFromCall.setGraderId(graderId);
+                            gradeRecordFromCall.setDateRecorded(now);
+                            session.save(gradeRecordFromCall);
+                            performUpdate = true;
+                        }
                     }
 
                     // Check for excessive (AKA extra credit) scoring.
-                    if ((grade != null) && (grade.compareTo(assignment.getPointsPossible()) > 0)) {
-                    	studentsWithExcessiveScores.add(studentId);
+                    if (performUpdate &&
+                            gradeRecordFromCall.getPointsEarned() != null &&
+                            gradeRecordFromCall.getPointsEarned().compareTo(assignment.getPointsPossible()) > 0) {
+                    	studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
                     }
 
-                    // Log the grading event
-                    session.save(new GradingEvent(assignment, graderId, studentId, grade));
+                    // Log the grading event, and keep track of the students with saved/updated grades
+                    if(performUpdate) {
+                        session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+                        studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
+                    }
                 }
 
                 // Update the course grade records for students with assignment grade record changes
@@ -265,12 +285,21 @@ public class GradeManagerHibernateImpl extends HibernateDaoSupport implements Gr
 
     /**
      */
-    public void updateCourseGradeRecords(final Long gradebookId, final Map studentsToGrades)
+    public void updateCourseGradeRecords(final GradeRecordSet gradeRecordSet)
         throws StaleObjectModificationException {
-		getHibernateTemplate().execute(new HibernateCallback() {
+        
+        if(gradeRecordSet.getAllGradeRecords().size() == 0) {
+            log.debug("updateCourseGradeRecords called with zero grade records to update");
+            return;
+        }
+
+        getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-				CourseGrade courseGrade = (CourseGrade)session.find("from CourseGrade as cg where cg.gradebook.id=?",
-					gradebookId, Hibernate.LONG).get(0);
+                for(Iterator iter = gradeRecordSet.getAllGradeRecords().iterator(); iter.hasNext();) {
+                    session.evict(iter.next());
+                }
+                
+				CourseGrade courseGrade = (CourseGrade)gradeRecordSet.getGradableObject();
 				Date now = new Date();
 				Gradebook gb = courseGrade.getGradebook();
 				String graderId = FacadeUtils.getUserUid(authn);
@@ -278,59 +307,50 @@ public class GradeManagerHibernateImpl extends HibernateDaoSupport implements Gr
 				// Find the number of points possible in this gradebook
 				double totalPointsPossibleInGradebook = gradableObjectManager.getTotalPoints(gb.getId());
 
-                // Find the records for this gradable object
-                String hql = "from CourseGradeRecord as gr where gr.gradableObject=?";
-                List allGradeRecords = session.find(hql, courseGrade, Hibernate.entity(CourseGrade.class));
+                // Find the grade records for these students on this gradable object
+                String hql = "select gr.studentId, gr.enteredGrade from CourseGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)";
+                Query q = session.createQuery(hql);
+                q.setParameter("go", courseGrade);
+                q.setParameterList("studentIds", gradeRecordSet.getAllStudentIds());
+                List persistentGradeRecords = q.list();
 
-                for(Iterator mapIter = studentsToGrades.keySet().iterator(); mapIter.hasNext();) {
-                    // Get the student's userUid and grade from the studentsToGrades map
-                    String studentId = (String)mapIter.next();
-                    String grade = StringUtils.trimToNull((String)studentsToGrades.get(studentId));
+                // Construct a map of student id to persistent grade record scores
+                Map scoreMap = new HashMap();
+                for(Iterator iter = persistentGradeRecords.iterator(); iter.hasNext();) {
+                    Object[] oa = (Object[])iter.next();
+                    scoreMap.put(oa[0], oa[1]);
+                }
+                
+                for(Iterator iter = gradeRecordSet.getAllGradeRecords().iterator(); iter.hasNext();) {
+                    // The possibly modified course grade record
+                    CourseGradeRecord gradeRecordFromCall = (CourseGradeRecord)iter.next();
+                    
+                    // The entered grade in the db for this grade record
+                    String grade = (String)scoreMap.get(gradeRecordFromCall.getStudentId());
 
-                    // Find this student's grade record
-                    CourseGradeRecord gradeRecord = (CourseGradeRecord)findStudentGradeRecord(studentId, allGradeRecords);
+                    // Update the existing record
 
-                    if(gradeRecord != null) {
-                        // Update the existing record
+					// If the entered grade hasn't changed, just move on
+					if(gradeRecordFromCall.getEnteredGrade() == null && grade == null) {
+						continue;
+					}
+					if(gradeRecordFromCall.getEnteredGrade() != null && grade != null && gradeRecordFromCall.getEnteredGrade().equals(grade)) {
+						continue;
+					}
 
-						// If the entered grade hasn't changed, just move on
-						if(gradeRecord.getEnteredGrade() == null && grade == null) {
-							continue;
-						}
-						if(gradeRecord.getEnteredGrade() != null && grade != null && gradeRecord.getEnteredGrade().equals(grade)) {
-							continue;
-						}
+					// Update the sort grade
+					if(gradeRecordFromCall.getEnteredGrade() == null) {
+						gradeRecordFromCall.setSortGrade(gradeRecordFromCall.calculatePercent(totalPointsPossibleInGradebook));
+					} else {
+						gradeRecordFromCall.setSortGrade(gb.getSelectedGradeMapping().getValue(gradeRecordFromCall.getEnteredGrade()));
+					}
 
-						// Update the entered grade
-						gradeRecord.setEnteredGrade(grade);
+					gradeRecordFromCall.setGraderId(graderId);
+					gradeRecordFromCall.setDateRecorded(now);
+                    session.saveOrUpdate(gradeRecordFromCall);
 
-						// Update the sort grade
-						if(grade == null) {
-							gradeRecord.setSortGrade(gradeRecord.calculatePercent(totalPointsPossibleInGradebook));
-						} else {
-							gradeRecord.setSortGrade(gb.getSelectedGradeMapping().getValue(grade));
-						}
-
-						gradeRecord.setGraderId(graderId);
-						gradeRecord.setDateRecorded(now);
-                        if(logger.isDebugEnabled()) logger.debug(graderId + " is updating grade record " + gradeRecord);
-                        session.update(gradeRecord);
-                    } else {
-                        if (grade == null) {
-                            continue; // If there is no existing grade record, and there is no new grade, don't do anything
-                        } else {
-                            // Save the new course grade record
-                            gradeRecord = new CourseGradeRecord(courseGrade, studentId, graderId, grade);
-
-							// Set the sort grade
-							gradeRecord.setSortGrade(gb.getSelectedGradeMapping().getValue(grade));
-
-                            if(logger.isDebugEnabled()) logger.debug(graderId + " is saving grade record " + gradeRecord);
-                            session.save(gradeRecord);
-                        }
-                    }
                     // Log the grading event
-                    session.save(new GradingEvent(courseGrade, graderId, studentId, grade));
+                    session.save(new GradingEvent(courseGrade, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getEnteredGrade()));
                 }
 
                 return null;

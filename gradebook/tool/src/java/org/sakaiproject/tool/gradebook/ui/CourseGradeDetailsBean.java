@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,6 @@ import java.util.Map;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIData;
 import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -45,6 +43,7 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
+import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
@@ -53,96 +52,54 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 	// View maintenance fields - serializable.
 	private List scoreRows;
-	private Map changedGrades;
-	private boolean workInProgress;
+//	private Map changedGrades;
+//	private boolean workInProgress;
 
 	// Controller fields - transient.
-	private transient CourseGrade courseGrade;
-	private transient Map scores;
-    private transient GradeMapping gradeMapping;
-    private transient double totalPoints;
+	private CourseGrade courseGrade;
+    private GradeRecordSet gradeRecordSet;
+    private GradeMapping gradeMapping;
+    private double totalPoints;
 
 	public class ScoreRow implements Serializable {
-		private String studentUid;
-		private String sortName;	// Transient except for validation errors
-		private String displayUid;	// Transient except for validation errors
-		private Double score;	// Transient except for validation errors
-        private String calculatedGrade;  // Transient except for validation errors
-		private String enteredGrade;
-
+        private Enrollment enrollment;
+        private CourseGradeRecord courseGradeRecord;
+        
 		public ScoreRow() {
 		}
 		public ScoreRow(Enrollment enrollment) {
-			studentUid = enrollment.getUser().getUserUid();
-			sortName = enrollment.getUser().getSortName();
-			displayUid = enrollment.getUser().getDisplayUid();
-			CourseGradeRecord gradeRecord = (CourseGradeRecord)scores.get(studentUid);
-            if(gradeRecord == null) {
+            this.enrollment = enrollment;
+			courseGradeRecord = (CourseGradeRecord)gradeRecordSet.getGradeRecord(enrollment.getUser().getUserUid());
+            if(courseGradeRecord == null) {
+                courseGradeRecord = new CourseGradeRecord(courseGrade, enrollment.getUser().getUserUid(), null, null);
                 List availableGrades = getGradebook().getSelectedGradeMapping().getGrades();
-                calculatedGrade = (String)availableGrades.get(availableGrades.size()-1); // Get the last/lowest grade
-            } else {
-                score = (Double)gradeRecord.getPointsEarned();
-                enteredGrade = gradeRecord.getEnteredGrade();
-                calculatedGrade = gradeRecord.getDisplayGrade();
             }
-
-            if (enteredGrade == null) {
-				enteredGrade = "";
-			}
 		}
 
         public String getCalculatedLetterGrade() {
-            if(score == null) {
+            if(courseGradeRecord == null) {
                 return gradeMapping.getGrade(new Double(0));
             }
-            Double val = new Double(score.doubleValue() / totalPoints * 100);
+            Double val = new Double(courseGradeRecord.getPointsEarned().doubleValue() / totalPoints * 100);
             return gradeMapping.getGrade(val);
         }
 
         public Double getCalculatedPercentGrade() {
-            if(score == null) {
+            if(courseGradeRecord == null) {
                 return new Double(0);
             }
-            return new Double(score.doubleValue() / totalPoints * 100);
+            return new Double(courseGradeRecord.getAutoCalculatedGrade().doubleValue() / totalPoints * 100);
         }
 
-		public String getStudentUid() {
-			return studentUid;
-		}
-		public void setStudentUid(String studentUid) {
-			this.studentUid = studentUid;
-		}
-		public String getEnteredGrade() {
-			return enteredGrade;
-		}
-		public void setEnteredGrade(String grade) {
-			this.enteredGrade = grade;
-		}
-
-		public String getSortName() {
-			return sortName;
-		}
-		public void setSortName(String sortName) {
-			this.sortName = sortName;
-		}
-		public String getDisplayUid() {
-			return displayUid;
-		}
-		public void setDisplayUid(String displayUid) {
-			this.displayUid = displayUid;
-		}
-		public Double getScore() {
-			return score;
-		}
-		public void setScore(Double score) {
-			this.score = score;
-		}
-		public String getCalculatedGrade() {
-			return calculatedGrade;
-		}
-		public void setCalculatedGrade(String calculatedGrade) {
-			this.calculatedGrade = calculatedGrade;
-		}
+        public CourseGradeRecord getCourseGradeRecord() {
+            return courseGradeRecord;
+        }
+        public void setCourseGradeRecord(CourseGradeRecord courseGradeRecord) {
+            this.courseGradeRecord = courseGradeRecord;
+        }
+        public Enrollment getEnrollment() {
+            return enrollment;
+        }
 	}
 
 	protected void init() {
@@ -158,9 +115,9 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		//      message. After fixing the error, the instructor saves.
 		//   4) JSF only calls value change listeners for the fixed grades, not for
 		//      the previously entered (but unsaved) valid grades.
-		if (!workInProgress) {
-			changedGrades = new HashMap();
-		}
+//		if (!workInProgress) {
+//			changedGrades = new HashMap();
+//		}
 
 		// Clear view state.
 		scoreRows = new ArrayList();
@@ -216,20 +173,28 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 			workingEnrollments = finalizeSortingAndPaging(workingEnrollments);
 		}
-
-		scores = new HashMap();
+		    gradeRecordSet = new GradeRecordSet(courseGrade);
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 			CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
-			scores.put(gradeRecord.getStudentId(), gradeRecord);
+			gradeRecordSet.addGradeRecord(gradeRecord);
 		}
 		for (Iterator iter = workingEnrollments.iterator(); iter.hasNext(); ) {
 			Enrollment enrollment = (Enrollment)iter.next();
             scoreRows.add(new ScoreRow(enrollment));
 		}
 
-		workInProgress = true;
+//		workInProgress = true;
 	}
-
+    
+    public CourseGrade getCourseGrade() {
+        return courseGrade;
+    }
+    public GradeRecordSet getGradeRecordSet() {
+        return gradeRecordSet;
+    }
+    public double getTotalPoints() {
+        return totalPoints;
+    }
 	/**
 	 * Action listener to update grades.
 	 * NOTE: No transient fields are available yet.
@@ -244,14 +209,11 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	}
 
 	private void saveGrades() throws StaleObjectModificationException {
-		if (logger.isInfoEnabled()) logger.info("saveGrades for gradebook=" + getGradebookUid() + ", user=" + getUserUid() + ", changing " + changedGrades.size() + " grades");
-
-		// Only save changed grades.
-		getGradeManager().updateCourseGradeRecords(getGradebookId(), changedGrades);
+		getGradeManager().updateCourseGradeRecords(gradeRecordSet);
 
 		// Clear the work-in-progress indicator so that the user can
 		// start fresh.
-		workInProgress = false;
+//		workInProgress = false;
 
 		// Let the user know.
 		FacesUtil.addMessage(getLocalizedString("course_grade_details_grades_saved"));
@@ -261,40 +223,6 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		UIData gradingTable = (UIData)component.findComponent("gradingTable");
 		return (ScoreRow)gradingTable.getRowData();
 	}
-
-	/**
-	 * Used to keep track of which course grades were actually changed.  We only
-	 * send the changed grades to the gradeManager service.
-	 * TODO The application currently assumes a difference between nulls
-	 * and blanks.
-	 */
-	public void courseGradeChanged(ValueChangeEvent event) {
-		if (logger.isDebugEnabled()) logger.debug("courseGradeChanged: old value=" + event.getOldValue()	+ ", new value=" + event.getNewValue());
-		ScoreRow scoreRow = getScoreRow(event.getComponent());
-		String studentUid = scoreRow.getStudentUid();
-		String newGrade = StringUtils.trimToNull((String)event.getNewValue());
-		changedGrades.put(studentUid, newGrade);
-	}
-
-	/**
-	 * View maintenance methods.
-	 */
-	public String getTitle() {
-		return courseGrade.getName();
-	}
-
-	public Double getPoints() {
-		return courseGrade.getPointsForDisplay();
-	}
-
-    public Double getMean() {
-        Double formattedMean = courseGrade.getFormattedMean();
-        if(formattedMean == null) {
-            return null;
-        } else {
-            return new Double(courseGrade.getFormattedMean().doubleValue() / 100);
-        }
-    }
 
 	public List getScoreRows() {
 		return scoreRows;

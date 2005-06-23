@@ -24,10 +24,8 @@
 package org.sakaiproject.tool.gradebook.test;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -37,7 +35,9 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
+import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -58,7 +58,9 @@ public class GradebookServiceTest extends GradebookTestBase {
      */
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-
+    }
+    
+    public void testCreateGradebook() throws Exception {
         // Use this test class name as the ID for the gradebook
         String className = this.getClass().getName();
         gradebookService.addGradebook(className, className);
@@ -77,9 +79,12 @@ public class GradebookServiceTest extends GradebookTestBase {
                 break;
             }
         }
-        Map map = new HashMap();
-        map.put("student1", new Double(10));
-        gradeManager.updateAssignmentGradeRecords(asn.getId(), map);
+        GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "student1", "teacher1", new Double(10)));
+        gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
+
+        // Make sure this doesn't roll back
+        setComplete();
     }
 
     /**

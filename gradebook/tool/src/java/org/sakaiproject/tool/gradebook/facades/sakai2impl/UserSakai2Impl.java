@@ -24,6 +24,8 @@
 
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
+import java.io.Serializable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
@@ -39,10 +41,16 @@ import org.sakaiproject.tool.gradebook.facades.Enrollment;
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class UserSakai2Impl implements org.sakaiproject.tool.gradebook.facades.User, Enrollment, Comparable {
+public class UserSakai2Impl implements org.sakaiproject.tool.gradebook.facades.User,
+    Enrollment, Comparable, Serializable {
+    
     private static final Log log = LogFactory.getLog(UserSakai2Impl.class);
     
-    private org.sakaiproject.service.legacy.user.User sakaiUser;
+    private String userUid;
+    private String sortName;
+    private String displayName;
+    private String displayUid;
+    
     
     /**
      * Create a UserSakai2Impl for consumption in the gradebook based on sakai's
@@ -51,35 +59,38 @@ public class UserSakai2Impl implements org.sakaiproject.tool.gradebook.facades.U
      * @param sakaiUser
      */
     public UserSakai2Impl(org.sakaiproject.service.legacy.user.User sakaiUser) {
-        this.sakaiUser = sakaiUser;
+        this.userUid = sakaiUser.getId();
+        this.sortName = sakaiUser.getSortName();
+        this.displayName = sakaiUser.getDisplayName();
+        this.displayUid = sakaiUser.getEmail();
     }
 
     /**
 	 * @see org.sakaiproject.tool.gradebook.facades.User#getUserUid()
 	 */
 	public String getUserUid() {
-		return sakaiUser.getId();
+		return userUid;
 	}
 
 	/**
 	 * @see org.sakaiproject.tool.gradebook.facades.User#getSortName()
 	 */
 	public String getSortName() {
-        return sakaiUser.getSortName();
+        return sortName;
 	}
 
 	/**
 	 * @see org.sakaiproject.tool.gradebook.facades.User#getDisplayUid()
 	 */
 	public String getDisplayUid() {
-        return sakaiUser.getEmail();
+        return displayUid;
 	}
 
 	/**
 	 * @see org.sakaiproject.tool.gradebook.facades.User#getDisplayName()
 	 */
 	public String getDisplayName() {
-        return sakaiUser.getDisplayName();
+        return displayName;
 	}
 
 	/**

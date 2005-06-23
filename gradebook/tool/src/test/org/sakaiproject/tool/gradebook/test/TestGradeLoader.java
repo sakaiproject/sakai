@@ -25,13 +25,13 @@
 package org.sakaiproject.tool.gradebook.test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
 import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
@@ -59,8 +59,8 @@ public class TestGradeLoader extends GradebookDbTestBase {
 			if (asn.getName().equals(TestGradebookLoader.ASN_NO_DUE_DATE_NAME)) {
 				continue;
 			}
-
-			Map map = new HashMap(); // Stores studentId->grade
+            
+            GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
 			for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
 				Enrollment enr = (Enrollment)enrIter.next();
                 // Don't add grades for those no good lazy students
@@ -70,14 +70,14 @@ public class TestGradeLoader extends GradebookDbTestBase {
                     if(asn.isExternallyMaintained()) {
                         gradebookService.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);
                     } else {
-                        map.put(enr.getUser().getUserUid(), grade);
+                        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, enr.getUser().getUserUid(), "testId", grade));
                     }
                 }
 			}
 
             // Save the internal assignment scores
             if(!asn.isExternallyMaintained()) {
-            	gradeManager.updateAssignmentGradeRecords(asn.getId(), map);
+            	gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
             }
 		}
         // Ensure that this is actually saved to the database

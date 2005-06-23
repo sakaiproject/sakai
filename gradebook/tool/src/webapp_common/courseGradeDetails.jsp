@@ -9,7 +9,7 @@
 	  <gbx:flowState bean="#{courseGradeDetailsBean}" />
 
 	  <div class="portletBody">
-		<h2><h:outputText value="#{courseGradeDetailsBean.title}"/></h2>
+		<h2><h:outputText value="#{courseGradeDetailsBean.courseGrade.name}"/></h2>
 
 		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false"/></div>
 
@@ -19,10 +19,10 @@
 			columnClasses="itemName"
 			styleClass="itemSummary">
 			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}"/>
-			<h:outputText id="points" value="#{courseGradeDetailsBean.points}"/>
+			<h:outputText id="points" value="#{courseGradeDetailsBean.courseGrade.pointsForDisplay}"/>
 
 			<h:outputText id="averageLabel" value="#{msgs.course_grade_details_average}"/>
-			<h:outputText id="average" value="#{courseGradeDetailsBean.mean}">
+			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean / 100}">
 				<f:convertNumber type="percentage" maxFractionDigits="2" />
 			</h:outputText>
 		</h:panelGrid>
@@ -52,7 +52,7 @@
 						<h:outputText value="#{msgs.assignment_details_student_name}"/>
 		            </x:commandSortHeader>
 				</f:facet>
-				<h:outputText value="#{scoreRow.sortName}"/>
+				<h:outputText value="#{scoreRow.enrollment.user.sortName}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -60,7 +60,7 @@
 						<h:outputText value="#{msgs.assignment_details_student_id}"/>
 		            </x:commandSortHeader>
 				</f:facet>
-				<h:outputText value="#{scoreRow.displayUid}"/>
+				<h:outputText value="#{scoreRow.enrollment.user.displayUid}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -68,7 +68,7 @@
 						<h:outputText value="#{msgs.assignment_details_points}"/>
 		            </x:commandSortHeader>
 				</f:facet>
-				<h:outputText value="#{scoreRow.score}">
+				<h:outputText value="#{scoreRow.courseGradeRecord.pointsEarned}">
 					<f:convertNumber pattern="#"/>
 				</h:outputText>
 			</h:column>
@@ -93,8 +93,7 @@
 				</f:facet>
 				<h:inputText
 					id="Grade"
-					valueChangeListener="#{courseGradeDetailsBean.courseGradeChanged}"
-					value="#{scoreRow.enteredGrade}"
+					value="#{scoreRow.courseGradeRecord.enteredGrade}"
 					size="4"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />

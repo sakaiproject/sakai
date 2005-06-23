@@ -26,12 +26,12 @@ package org.sakaiproject.tool.gradebook.business;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 
@@ -104,16 +104,15 @@ public interface GradeManager {
     public boolean isEnteredAssignmentScores(Long assignmentId);
 
     /**
-     * Updates the grade records for the keys (student IDs) in the studentsToPoints map.
+     * Updates the grade records in the GradeRecordSet.
      * Implementations of this method should add a new GradingEvent for each
      * grade record modified, and should update the autocalculated value for
      * each graded student's CourseGradeRecord.
      *
-     * @param studentsToPoints A Map of student IDs to points as java.lang.Double values
      * @return The set of student UIDs who were given scores higher than the
      * assignment's value.
      */
-    public Set updateAssignmentGradeRecords(Long assignmentId, Map studentsToPoints)
+    public Set updateAssignmentGradeRecords(GradeRecordSet gradeRecordSet)
         throws StaleObjectModificationException;
 
     /**
@@ -123,7 +122,7 @@ public interface GradeManager {
      *
      * @param studentsToPoints A Map of student IDs to grades
      */
-    public void updateCourseGradeRecords(Long gradebookId, Map studentsToPoints)
+    public void updateCourseGradeRecords(GradeRecordSet gradeRecordSet)
         throws StaleObjectModificationException;
 
     /**
