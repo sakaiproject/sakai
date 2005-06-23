@@ -1,10 +1,9 @@
 /**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
 *
-* $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/ui/servlet/StoreApplicationContext.java,v 1.5 2005/06/03 20:37:11 janderse.umich.edu Exp $
-*
-***********************************************************************************/
-/*
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -19,7 +18,8 @@
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.servlet;
 
@@ -46,7 +46,7 @@ public class StoreApplicationContext extends HttpServlet{
       System.out.println("***context="+ctx);
       SpringBeanLocator locator = SpringBeanLocator.getInstance();
       locator.setApplicationContext(ctx);
-      
+
       ContextUtil.setServletContext(config.getServletContext());
     }
   }

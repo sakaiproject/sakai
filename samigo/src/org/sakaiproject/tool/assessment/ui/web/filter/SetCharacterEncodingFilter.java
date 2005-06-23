@@ -1,8 +1,8 @@
-/*
- * $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/ui/web/filter/SetCharacterEncodingFilter.java,v 1.2 2005/05/31 19:14:27 janderse.umich.edu Exp $
- * $Revision$
- * $Date$
- *
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+ * Licencesed from The Apache Software Foundation
  * ====================================================================
  *
  * The Apache Software License, Version 1.1
