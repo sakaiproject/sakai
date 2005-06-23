@@ -1,6 +1,9 @@
-
-/*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -15,7 +18,8 @@
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
@@ -57,7 +61,7 @@ public class ItemAuthorBean
 {
   private static Log log = LogFactory.getLog(ItemAuthorBean.class);
 
-  private static String filename = "/org/sakaiproject/tool/assessment/bundle/AuthorMessages.properties"; 
+  private static String filename = "/org/sakaiproject/tool/assessment/bundle/AuthorMessages.properties";
   // internal use
   private static final String answerNumbers =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -103,7 +107,7 @@ public class ItemAuthorBean
   private String[] matchFeedbackList;
   private String[] answerFeedbackList;
 
-  // for navigation 
+  // for navigation
   private String outcome;
   /**
    * Creates a new ItemAuthorBean object.
@@ -545,7 +549,7 @@ public class ItemAuthorBean
 
   /**
    * set the survey scale
-   * @param param 
+   * @param param
    */
   public void setOutcome(String param)
   {
@@ -638,7 +642,7 @@ public class ItemAuthorBean
 		e.printStackTrace();
 	}
 
-   
+
 	String prop = p.getProperty("above_average");
     //System.out.println("lydiatest testing prop above_average= " + prop);
 
@@ -649,9 +653,9 @@ public class ItemAuthorBean
 	String falseprop= "False";
     String[] answerValues = {"true", "false"};  // not to be displayed in the UI
     String[] answerLabelText= {trueprop, falseprop};
-    currentItem.setAnswers(answerValues); 
-    currentItem.setAnswerLabels(answerLabelText); 
-	  
+    currentItem.setAnswers(answerValues);
+    currentItem.setAnswerLabels(answerLabelText);
+
     for (int i = 0; i < answerValues.length; i++) {
       SelectItem selection = new SelectItem();
       selection.setLabel(answerLabelText[i]);
@@ -683,24 +687,24 @@ public class ItemAuthorBean
    */
 
 // TODO use sectionBean.getsectionNumberList when its ready
-	
+
   public ArrayList getSectionSelectList() {
     ArrayList list = new ArrayList();
 
-    AssessmentBean assessbean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");  
+    AssessmentBean assessbean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     ArrayList sectionSet = assessbean.getSections();
     Iterator iter = sectionSet.iterator();
     int i =0;
-    while (iter.hasNext()){	
+    while (iter.hasNext()){
       i = i + 1;
       SectionContentsBean part = (SectionContentsBean) iter.next();
       SelectItem selection = new SelectItem();
 
-      // need to filter out all the random draw parts 
+      // need to filter out all the random draw parts
       if (part.getSectionAuthorType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)) {
-        // skip random draw parts, cannot add items to this part manually 
+        // skip random draw parts, cannot add items to this part manually
       }
-      else {    
+      else {
         if ("".equals(part.getTitle())) {
           selection.setLabel("Part " + i );
         }
@@ -710,7 +714,7 @@ public class ItemAuthorBean
         selection.setValue(part.getSectionId());
         list.add(selection);
       }
-   
+
     }
 
     Collections.reverse(list);
@@ -819,7 +823,7 @@ public class ItemAuthorBean
 
 
 ///////////////////////////////////////////////////////////////////////////
-//         ACTION METHODS  
+//         ACTION METHODS
 ///////////////////////////////////////////////////////////////////////////
   public String startCreateItem()
   {
@@ -827,7 +831,7 @@ public class ItemAuthorBean
      //System.out.println("lydiatest in startCreateItem");
      ItemBean item = new ItemBean();
 
-    // check to see if we arrived here from question pool  
+    // check to see if we arrived here from question pool
 
     //System.out.println("lydiatest we are adding to : "+ this.getTarget() );
     //System.out.println("lydiatest we are adding to : "+ this.getQpoolId() );
@@ -837,11 +841,11 @@ public class ItemAuthorBean
 
 // need to set indivdiual item properties
       this.setCurrentItem(item);
-	
+
 
 	item.setItemType(this.getItemType());
 	String nextpage= null;
-	int itype=0; // 
+	int itype=0; //
         if (this.getItemType()!=null) {
 		itype = new Integer(this.getItemType()).intValue();
  	}
@@ -905,10 +909,10 @@ public class ItemAuthorBean
 
 
   /**
-   * save the newly created Item 
+   * save the newly created Item
    */
 
-//TODO need to separate modify from save. for modify do not need to add to pool/assessment/secttion again.  
+//TODO need to separate modify from save. for modify do not need to add to pool/assessment/secttion again.
 
 /*
 // moved this to Listener class
@@ -919,12 +923,12 @@ public class ItemAuthorBean
       ItemBean bean = this.getCurrentItem();
 
 	ItemFacade item = new ItemFacade();
-      
+
 	ItemService delegate = new ItemService();
 
 	// update not working yet, delete, then add
       if ((bean.getItemId()!=null) && (!bean.getItemId().equals("0"))){
-	// if modify ,itemid shouldn't be null , or 0. 
+	// if modify ,itemid shouldn't be null , or 0.
         Long oldId = new Long(bean.getItemId());
 	//item = delegate.getItem(oldId, AgentFacade.getAgentString());
         delegate.deleteItem(oldId, AgentFacade.getAgentString());
@@ -944,19 +948,19 @@ public class ItemAuthorBean
       item.setLastModifiedBy(AgentFacade.getAgentString());
       item.setLastModifiedDate(new Date());
 
-      // update hasRationale 
+      // update hasRationale
 	if (bean.getRationale()!=null) {
       	  item.setHasRationale(new Boolean(bean.getRationale()));
 	}
 
-      // prepare itemText, including answers 
+      // prepare itemText, including answers
       item.setItemTextSet(prepareText(item, bean));
 
       // prepare MetaData
       item.setItemMetaDataSet(prepareMetaData(item, bean));
 
 
-      // prepare feedback, only store if feedbacks are not empty 
+      // prepare feedback, only store if feedbacks are not empty
 	if ((bean.getCorrFeedback()!=null) && (!bean.getCorrFeedback().equals(""))){
 	  item.setCorrectItemFeedback(bean.getCorrFeedback());
 	}
@@ -982,7 +986,7 @@ public class ItemAuthorBean
 
 //System.out.println("lydiatest target=assessment ");
 //System.out.println("lydiatest section "+  bean.getSelectedSection() );
-// need to associate item with assessment and sections. 
+// need to associate item with assessment and sections.
 //	AsssssmentService delegate = new ItemService();
 //        delegate.saveItem(,assessmentFacade, itemFacade);
 //System.out.println("lydiatest poolid  "+  bean.getSelectedPool() );
@@ -1003,8 +1007,8 @@ public class ItemAuthorBean
 
 
 /////////////////////////////////////////////////////////////
-// 1. save Question Text for items with single Question Text 
-// (except matching)  
+// 1. save Question Text for items with single Question Text
+// (except matching)
 /////////////////////////////////////////////////////////////
     ItemText text1 = new ItemText();
     text1.setItem(item.getData());
@@ -1014,7 +1018,7 @@ public class ItemAuthorBean
 
 /////////////////////////////////////////////////////////////
 //
-// 2. save Answers  
+// 2. save Answers
 //
 /////////////////////////////////////////////////////////////
 
@@ -1023,7 +1027,7 @@ public class ItemAuthorBean
 
 //System.out.println("lydiatest setting answers for true and false" );
 
-// find correct answer 
+// find correct answer
 
 	Answer newanswer = null;
     for (int i = 0; i < bean.getAnswers().length; i++)
@@ -1031,7 +1035,7 @@ public class ItemAuthorBean
 	String theanswer=bean.getAnswers()[i];
 	String thelabel=bean.getAnswerLabels()[i];  // store thelabel as the answer text
 	if ( bean.getCorrAnswer().equals(theanswer)) {
-	// label is null because we don't use labels in true/false questions 
+	// label is null because we don't use labels in true/false questions
 	// labels are like a, b, c, or i, ii, iii, in multiple choice type
 
 	newanswer= new Answer(text1, theanswer, new Long(i+1), null, Boolean.TRUE, null, new Float(bean.getItemScore()));
@@ -1051,11 +1055,11 @@ public class ItemAuthorBean
 	if (item.getTypeId().equals(TypeFacade.ESSAY_QUESTION)) {
 
 //System.out.println("lydiatest setting answers for short Answer item" );
-// Storing the model answer essay as an Answer, and feedback in the Answerfeedback 
+// Storing the model answer essay as an Answer, and feedback in the Answerfeedback
 
         String theanswer=bean.getCorrAnswer();
-	// label is null because we don't use labels in essay questions 
-	//theanswer is the model answer used as a sample for student 
+	// label is null because we don't use labels in essay questions
+	//theanswer is the model answer used as a sample for student
 	Answer modelanswer= new Answer(text1, theanswer, new Long(1), null, Boolean.TRUE, null, new Float(bean.getItemScore()));
 
 	HashSet answerFeedbackSet1 = new HashSet();
@@ -1163,20 +1167,20 @@ public class ItemAuthorBean
 
 
 	if (item.getTypeId().equals(TypeFacade.FILL_IN_BLANK)) {
-// this is for fill in blank 
+// this is for fill in blank
 	  String entiretext = bean.getItemText();
 	String fibtext = entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
 	text1.setText(fibtext);
           //System.out.println(" new text without answer is = " + fibtext);
-	  Object[] fibanswers = getFIBanswers(entiretext).toArray();	
+	  Object[] fibanswers = getFIBanswers(entiretext).toArray();
         for (int i = 0; i < fibanswers.length; i++) {
           //System.out.println(" lydiatest answers are = " + (String) fibanswers[i]);
 
- 	  
+
 	  Answer answer1 = new Answer(text1, (String)fibanswers[i], new Long(i+1), null, Boolean.TRUE, null, new Float(bean.getItemScore()));
         		answerSet1.add(answer1);
 	}
-		
+
 
     	text1.setAnswerSet(answerSet1);
     	textSet.add(text1);
@@ -1186,13 +1190,13 @@ public class ItemAuthorBean
 
 
 
-	if ((item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE)) || 
+	if ((item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE)) ||
 	(item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT))) {
-// this is for both single/multiple correct multiple choice types 
+// this is for both single/multiple correct multiple choice types
 //System.out.println("lydiatest multiple choice, " );
 
 	// for single choice
-        //String theanswer=bean.getCorrAnswer();  
+        //String theanswer=bean.getCorrAnswer();
 	Iterator iter = bean.getMultipleChoiceAnswers().iterator();
 	Answer answer=null;
 	while(iter.hasNext())
@@ -1216,18 +1220,18 @@ public class ItemAuthorBean
         textSet.add(text1);
 
   }
-	// for file Upload and audio recording 
-	else { 
+	// for file Upload and audio recording
+	else {
 	  // no answers need to be added
           textSet.add(text1);
         }
-	
+
 
 
 
 
 /////////////////////////////////////////////////////////////
-// END  
+// END
 /////////////////////////////////////////////////////////////
 
     return textSet;
@@ -1262,7 +1266,7 @@ public class ItemAuthorBean
 	}
 
 
-   // save ScaleName for survey if it's a survey item 
+   // save ScaleName for survey if it's a survey item
     if (bean.getScaleName()!=null){
 //System.out.println("lydiatest scalename()  "+  bean.getScaleName() );
     set.add(new ItemMetaData(item.getData(), ItemMetaData.SCALENAME, bean.getScaleName()));
@@ -1281,13 +1285,13 @@ public class ItemAuthorBean
     set.add(new ItemMetaData(item.getData(), ItemMetaData.POOLID, bean.getSelectedPool()));
 	}
 
-   // save timeallowed for audio recording  
+   // save timeallowed for audio recording
     if (bean.getTimeAllowed()!=null){
 //System.out.println("lydiatest poolid  "+  bean.getTimeAllowed() );
     set.add(new ItemMetaData(item.getData(), ItemMetaData.TIMEALLOWED, bean.getTimeAllowed()));
 	}
 
-   // save timeallowed for audio recording  
+   // save timeallowed for audio recording
     if (bean.getNumAttempts()!=null){
 //System.out.println("lydiatest poolid  "+  bean.getNumAttempts() );
     set.add(new ItemMetaData(item.getData(), ItemMetaData.NUMATTEMPTS, bean.getNumAttempts()));
@@ -1314,11 +1318,11 @@ public class ItemAuthorBean
   }
 
   /**
-  ** returns if the multile choice label is the correct choice, 
-  ** bean.getCorrAnswers() returns a string[] of labels 
-  ** bean.getCorrAnswer() returns a string of label 
+  ** returns if the multile choice label is the correct choice,
+  ** bean.getCorrAnswers() returns a string[] of labels
+  ** bean.getCorrAnswer() returns a string of label
   **/
-/*  
+/*
 // moved to listener class
   public boolean isCorrectChoice(ItemBean bean, String label){
 	boolean returnvalue = false;
@@ -1338,7 +1342,7 @@ public class ItemAuthorBean
       		while(iter.hasNext())
       		{
 
-		String currentcorrect= (String)iter.next();	
+		String currentcorrect= (String)iter.next();
                   if (currentcorrect.trim().equals(label)){
                         returnvalue= true;
 			break;
@@ -1351,7 +1355,7 @@ public class ItemAuthorBean
 
 	return returnvalue;
 }
-  
+
 */
 
   public String doit() {
@@ -1406,24 +1410,24 @@ ItemService delegate = new ItemService();
         Integer  currSeq = itemf.getSequence();
 
 	QuestionPoolService qpdelegate = new QuestionPoolService();
-        if ((qpdelegate.getPoolIdsByItem(deleteId.toString()) ==  null) || 
+        if ((qpdelegate.getPoolIdsByItem(deleteId.toString()) ==  null) ||
            (qpdelegate.getPoolIdsByItem(deleteId.toString()).isEmpty() )){
-	// if no reference to this item at all 
+	// if no reference to this item at all
         delegate.deleteItem(deleteId, AgentFacade.getAgentString());
 	}
 	else {
 	// if some pools still reference to this item , then just set section = null
 	  itemf.setSection(null);
 	  delegate.saveItem(itemf);
- 	}		
-        
+ 	}
+
     AssessmentService assessdelegate = new AssessmentService();
-      // reorder item numbers 
+      // reorder item numbers
 
     SectionFacade sectfacade = assessdelegate.getSection(currSection.getSectionId().toString());
       Set itemset = sectfacade.getItemFacadeSet();
     //System.out.println("lydiatest item itemset size is " + itemset.size());
-// should be size-1 now. 
+// should be size-1 now.
       Iterator iter = itemset.iterator();
       while (iter.hasNext()) {
         ItemFacade  itemfacade = (ItemFacade) iter.next();
@@ -1435,7 +1439,7 @@ ItemService delegate = new ItemService();
 	  delegate.saveItem(itemfacade);
         }
       }
-      
+
 
 
     //  go to editAssessment.jsp, need to first reset assessmentBean
@@ -1453,7 +1457,7 @@ ItemService delegate = new ItemService();
 
  public String confirmDeleteItem(){
     //System.out.println("lydiatest in confirm Delte Item ");
-  
+
         ItemService delegate = new ItemService();
         String itemId= ContextUtil.lookupParam("itemid");
     //System.out.println("lydiatest itemId in confirm is " + itemId);

@@ -1,6 +1,9 @@
-
-/*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -15,7 +18,8 @@
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
@@ -80,8 +84,8 @@ public class QuestionPoolBean
   private String[] selectedPools;
   private String[] selectedQuestions;
   private String[] destPools = {  }; // for multibox
-  private String[] destItems = {  }; // items to delete  
-  private String destPool=""; // for Move Pool Destination 
+  private String[] destItems = {  }; // items to delete
+  private String destPool=""; // for Move Pool Destination
   private FormFile filename; // for import /export
   private int htmlIdLevel; // pass this to javascript:collapseAll()
   private String questionType; // the question type to add
@@ -94,7 +98,7 @@ public class QuestionPoolBean
   private String searchQkeywords;
   private String searchQobj;
   private String searchQrubrics;
-  
+
   // import questions from pool to assessment
   private String assessmentID;
   private String selectedAssessment;
@@ -127,7 +131,7 @@ public class QuestionPoolBean
   private String outcome;
   private String deletePoolSource;  // either from poolList.jsp , or from editPool.jsp
   private String addPoolSource;  // either from poolList.jsp , or from editPool.jsp
- 
+
   /**
    * Creates a new QuestionPoolBean object.
    */
@@ -135,33 +139,33 @@ public class QuestionPoolBean
   {
     resetFields();
   }
- 
+
   public QuestionPoolDataModel getQpools()
   {
-     
+
 	buildTree();
 	//System.out.println("lydiatest inside getQpools, this.sortProperty = " + this.sortProperty);
         //if ((this.sortProperty!=null) && (!this.sortProperty.equals("lastModified"))) {
 	//System.out.println("lydiatest inside getQpools, not sort by lastModified, call tree.sortByProperty " );
  	  tree.sortByProperty(this.getSortProperty(),this.getSortAscending());
 	//}
-        Collection objects = tree.getSortedObjects(); 
+        Collection objects = tree.getSortedObjects();
         ListDataModel model = new ListDataModel((List) objects);
-        QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model); 
+        QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
 	return qpDataModel;
   }
 
   public QuestionPoolDataModel getCopyQpools()
   {
-      if (tree == null) 
+      if (tree == null)
       {
         buildTree();
       }
        	tree.sortByProperty(this.getSortCopyPoolProperty(),this.getSortCopyPoolAscending());
-	 
-        Collection objects = tree.getSortedObjects(); 
+
+        Collection objects = tree.getSortedObjects();
         ListDataModel model = new ListDataModel((List) objects);
-        QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model); 
+        QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
 	return qpDataModel;
   }
 
@@ -172,10 +176,10 @@ public class QuestionPoolBean
 	buildTree();
       }
         tree.sortByProperty(this.getSortMovePoolProperty(),this.getSortMovePoolAscending());
-   
-        Collection objects = tree.getSortedObjects(); 
+
+        Collection objects = tree.getSortedObjects();
         ListDataModel model = new ListDataModel((List) objects);
-        QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model); 
+        QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
 	return qpDataModel;
   }
 
@@ -184,7 +188,7 @@ public class QuestionPoolBean
 
       this.sortSubqpoolsByProperty((ArrayList)sortedSubqpools,this.getSortSubPoolProperty(),this.getSortSubPoolAscending());
       ListDataModel model = new ListDataModel((List) sortedSubqpools);
-      QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model); 
+      QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
       return qpDataModel;
   }
 
@@ -196,13 +200,13 @@ public class QuestionPoolBean
         {
          sort.toDateSort();
         }
-        else 
+        else
         {
          sort.toStringSort();
         }
 
         sort.sort();
-   
+
         if (!sortAscending)
 	{
 	    Collections.reverse(sortedList);
@@ -227,7 +231,7 @@ public class QuestionPoolBean
   {
 	sortedSubqpools = spools;
 
-  } 
+  }
 
 
   // This builds the tree.
@@ -276,7 +280,7 @@ public class QuestionPoolBean
   public List getPoolListSelectItems()
 {
   if (poolListSelectItems == null) {
-  	poolListSelectItems = new ArrayList(); 
+  	poolListSelectItems = new ArrayList();
 
       Collection objects = tree.getSortedObjects();
       Iterator iter = objects.iterator();
@@ -332,7 +336,7 @@ public class QuestionPoolBean
   public List getPoolsToDelete()
   {
 
-    List poolsToDeleteList = new ArrayList(); 
+    List poolsToDeleteList = new ArrayList();
     if (poolsToDelete!=null)
     {
       Iterator iter = poolsToDelete.iterator();
@@ -537,7 +541,7 @@ public class QuestionPoolBean
    String result =  previewQuestion();
    System.out.println("lydiatest in getItemToPreview preview is " + currentItem.getItemId());
 
-        
+
 */
     return itemToPreview;
   }
@@ -893,7 +897,7 @@ public class QuestionPoolBean
   }
 
   /**
-   * set the outcome for doit() 
+   * set the outcome for doit()
    * @param param
    */
   public void setOutcome(String param)
@@ -1069,7 +1073,7 @@ public class QuestionPoolBean
       Long sourceId = new Long(0);
       String destId= "";
       String sourceItemId = this.getCurrentItemId();
-    
+
         ArrayList destpools= ContextUtil.paramArrayValueLike("checkboxes");
         sourceId = this.getCurrentPool().getId();
     //System.out.println("lydiatest inside copyPool  src = " + sourceId);
@@ -1110,7 +1114,7 @@ public String startRemoveQuestions(){
 // used by the editPool.jsp, to remove one or more items
     //System.out.println("lydiatest in startRemoveQuestions");
       String itemId= "";
-   
+
         ArrayList destItems= ContextUtil.paramArrayValueLike("removeCheckbox");
 
         if (destItems.size() > 0) {
@@ -1158,9 +1162,9 @@ public String startRemoveQuestions(){
        QuestionPoolService delegate = new QuestionPoolService();
        delegate.removeQuestionFromPool(itemid, new Long(sourceId));
        //System.out.println("lydiatest removed " + itemid);
-	
 
-       // check to see if any pools are linked to this item 
+
+       // check to see if any pools are linked to this item
        ArrayList poollist = (ArrayList) delegate.getPoolIdsByItem(itemfacade.getItemIdString());
        //System.out.println("lydiatest are there any other pool reference to this " + itemid);
        if (poollist.isEmpty()) {
@@ -1220,14 +1224,14 @@ public String startRemoveQuestions(){
 // Pool level actions
   public String startCopyPool()
   {
-	getCheckedPool();	
+	getCheckedPool();
 	setActionType("pool");
 	return "copyPool";
   }
 
   public String startMovePool()
   {
-	getCheckedPool();	
+	getCheckedPool();
 	setActionType("pool");
 	return "movePool";
   }
@@ -1268,7 +1272,7 @@ public String startRemoveQuestions(){
           pool.setNumberOfSubpools(thepool.getSubPoolSize().toString());
           pool.setNumberOfQuestions(thepool.getQuestionSize().toString());
 
-	
+
       pool.setLastModified(new Date());
 
       this.setCurrentPool(pool);
@@ -1286,13 +1290,13 @@ public String startRemoveQuestions(){
   public String copyPool(){
 
     //System.out.println("lydiatest inside copyPool ");
-      Long sourceId = new Long(0); 
-      String destId= ""; 
-     
+      Long sourceId = new Long(0);
+      String destId= "";
+
 	ArrayList destpools= ContextUtil.paramArrayValueLike("checkboxes");
  	sourceId = this.getCurrentPool().getId();
     //System.out.println("lydiatest inside copyPool  src = " + sourceId);
-	
+
 	Iterator iter = destpools.iterator();
       while(iter.hasNext())
       {
@@ -1304,8 +1308,8 @@ public String startRemoveQuestions(){
             {
     //System.out.println("lydiatest inside copyPool  copy to dest : " + destId);
               QuestionPoolService delegate = new QuestionPoolService();
-		// TODO Uncomment the line below to test copyPool, 
-		delegate.copyPool(tree, AgentFacade.getAgentString(), 
+		// TODO Uncomment the line below to test copyPool,
+		delegate.copyPool(tree, AgentFacade.getAgentString(),
                   sourceId, new Long(destId));
             }
             catch(Exception e)
@@ -1322,7 +1326,7 @@ public String startRemoveQuestions(){
 
   }
 
- 
+
   public String movePool(){
 	//System.out.println("lydiatest in movePool");
      String sourceId = "";
@@ -1381,14 +1385,14 @@ public String startRemoveQuestions(){
           String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
     //System.out.println("lydiatest qpid = " + qpid);
 	if((qpid != "0") && (qpid !=null))
-// qpid = 0 if creating a new pool at root level 
+// qpid = 0 if creating a new pool at root level
           {
     //System.out.println("lydiatest not null qpid = " + qpid);
             pool.setParentPoolId(new Long(qpid));
 
           }
 
-// need to set indivdiual pool properties 
+// need to set indivdiual pool properties
       pool.setLastModified(new Date());
       this.setCurrentPool(pool);
       this.setHtmlIdLevel(htmlIdLevel);
@@ -1413,7 +1417,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 //System.out.println("lydiatest deleting.. "  + poolId);
 
-// we are add one element to the arrayList so we can reuse the deletePool() method. deletePool method expects an arrayList of pools to be deleted.  It is used by the poolList.jsp to delete multiple pools. 
+// we are add one element to the arrayList so we can reuse the deletePool() method. deletePool method expects an arrayList of pools to be deleted.  It is used by the poolList.jsp to delete multiple pools.
 
     	List qpools = new ArrayList();
         QuestionPoolService delegate = new QuestionPoolService();
@@ -1430,7 +1434,7 @@ String poolId = ContextUtil.lookupParam("qpid");
     //System.out.println("lydiatest in startRemovePool");
 	this.setDeletePoolSource("poollist");
       String poolId= "";
-    
+
         ArrayList destpools= ContextUtil.paramArrayValueLike("removeCheckbox");
 
     	List qpools = new ArrayList();
@@ -1470,7 +1474,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 	buildTree();
 
 	if (this.getDeletePoolSource().equals("editpool")) {
-    // #1a - so reset subpools tree 
+    // #1a - so reset subpools tree
 	Collection objects = tree.getSortedObjects(this.getCurrentPool().getId());
           this.setSortedSubqpools(objects);
 	  QuestionPoolFacade thepool= delegate.getPool(this.getCurrentPool().getId(), AgentFacade.getAgentString());
@@ -1509,7 +1513,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
 /*
-// use the Listener instead, because for edit pool, i need to do savePool and remove subpool when 'update' button is clicked 
+// use the Listener instead, because for edit pool, i need to do savePool and remove subpool when 'update' button is clicked
   public String savePool(){
 // save newly created pool
     //System.out.println("lydiatest action savePool");
@@ -1541,7 +1545,7 @@ String poolId = ContextUtil.lookupParam("qpid");
       questionpool.setObjectives(bean.getObjectives());
       questionpool.setKeywords(bean.getKeywords());
 // need to set owner and accesstype
-//owner is hardcoded for now 
+//owner is hardcoded for now
       questionpool.setOwnerId(AgentFacade.getAgentString());
       questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
 
@@ -1567,7 +1571,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
 
-*/ 
+*/
 
   public String editPool(){
     //System.out.println("lydiatest action editPool");
@@ -1597,7 +1601,7 @@ String poolId = ContextUtil.lookupParam("qpid");
     //System.out.println("lydiatest qpid = " + qpid);
 */
 
-          if(qpid != null) 
+          if(qpid != null)
           {
           	pool.setId(new Long(qpid));
           }
@@ -1711,34 +1715,34 @@ String poolid = ContextUtil.lookupParam("poolId");
     //System.out.println("lydiatest we are sorting by column : " + this.getSortProperty());
     return "poolList";
   }
- 
+
   public String sortCopyPoolByColumnHeader() {
-    
+
     String sortString = ContextUtil.lookupParam("copyPoolOrderBy");
     String ascending = ContextUtil.lookupParam("copyPoolAscending");
     this.setSortCopyPoolProperty(sortString);
     this.setSortCopyPoolAscending((Boolean.valueOf(ascending)).booleanValue());
-    
+
     return "copyPool";
   }
 
   public String sortMovePoolByColumnHeader() {
-    
+
     String sortString = ContextUtil.lookupParam("movePoolOrderBy");
     String ascending = ContextUtil.lookupParam("movePoolAscending");
     this.setSortMovePoolProperty(sortString);
     this.setSortMovePoolAscending((Boolean.valueOf(ascending)).booleanValue());
-    
+
     return "movePool";
   }
 
   public String sortSubPoolByColumnHeader() {
-    
+
     String sortString = ContextUtil.lookupParam("subPoolOrderBy");
     String ascending = ContextUtil.lookupParam("subPoolAscending");
     this.setSortSubPoolProperty(sortString);
     this.setSortSubPoolAscending((Boolean.valueOf(ascending)).booleanValue());
-    
+
     return "editPool";
   }
 

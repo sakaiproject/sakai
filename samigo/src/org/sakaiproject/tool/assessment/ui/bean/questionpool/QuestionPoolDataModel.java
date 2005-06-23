@@ -1,6 +1,9 @@
-
-/*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -15,7 +18,8 @@
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
@@ -45,7 +49,7 @@ public class QuestionPoolDataModel extends DataModel
    */
   public QuestionPoolDataModel(AAMTree tree, DataModel model)
   {
-     this.model = model; 
+     this.model = model;
      this.tree=tree;
     //buildTree();
   }
@@ -65,28 +69,28 @@ public class QuestionPoolDataModel extends DataModel
 
   public boolean isRowAvailable() {
 	return model.isRowAvailable();
-  } 
+  }
 
   public int getRowCount() {
 	return model.getRowCount();
-  } 
+  }
 
   public int getRowIndex() {
 	return model.getRowIndex();
-  } 
+  }
 
   public void setRowIndex(int rowIndex) {
 	model.setRowIndex(rowIndex);
-  } 
+  }
 
   public Object getWrappedData() {
 	return model.getWrappedData();
-  } 
-  
+  }
+
   public void setWrappedData(Object data) {
 	model.setWrappedData(data);
-  } 
-  
+  }
+
   public void addDataModelListener(DataModelListener listener) {
 	model.addDataModelListener(listener);
   }
@@ -94,7 +98,7 @@ public class QuestionPoolDataModel extends DataModel
   public DataModelListener[] getDataModelListeners(){
 	return model.getDataModelListeners();
   }
-  
+
   public void removeDataModelListener(DataModelListener listener) {
 	model.removeDataModelListener(listener);
 

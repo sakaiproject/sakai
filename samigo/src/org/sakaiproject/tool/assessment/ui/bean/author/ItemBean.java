@@ -1,6 +1,9 @@
-
-/*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -15,7 +18,8 @@
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
@@ -56,8 +60,8 @@ public class ItemBean
   private String itemType;
   private String itemScore= "0";
   private String[] answers;
-  private String[] answerLabels;  //  such as A, B, C 
-  private String[] corrAnswers;  // store checkbox values(labels) for multiple correct answers, as in mcmc type  
+  private String[] answerLabels;  //  such as A, B, C
+  private String[] corrAnswers;  // store checkbox values(labels) for multiple correct answers, as in mcmc type
   private String corrAnswer;  // store text value for single correct answer, as in true/false , mcsc, also used for essay's model answer
   private ArrayList multipleChoiceAnswers;  // store List of answers multiple choice items, ArrayList of AnswerBean
   private String additionalChoices = "0";  // additonal multiple choice answers to be add. for the select menu
@@ -75,10 +79,10 @@ public class ItemBean
   private String randomized = "false";
   private String rationale = "false";
 
-// for matching only 
-  private String instruction;  // matching's question text 
-  private ArrayList matchItemBeanList;  // store List of MatchItemBean, used for Matching only 
-  private MatchItemBean currentMatchPair;  // do not need this ?   store List of MatchItemBeans, used for Matching only 
+// for matching only
+  private String instruction;  // matching's question text
+  private ArrayList matchItemBeanList;  // store List of MatchItemBean, used for Matching only
+  private MatchItemBean currentMatchPair;  // do not need this ?   store List of MatchItemBeans, used for Matching only
 
 // begin DELETEME
   private String[] matches;
@@ -96,7 +100,7 @@ public class ItemBean
   private String rubric;
   private String timeAllowed;
   private String numAttempts;
- 
+
 
   private String selectedPool;  // pool id for the item to be added to
   private String origPool;  // pool id for the item to be added to
@@ -159,7 +163,7 @@ public class ItemBean
 
   /**
    * value of question
-   * @param score 
+   * @param score
    */
   public void setItemScore(String score)
   {
@@ -429,7 +433,7 @@ public class ItemBean
 
   /**
    * for incorrect feedback
-   * @return the incorrFeedback 
+   * @return the incorrFeedback
    */
   public String getIncorrFeedback()
   {
@@ -437,8 +441,8 @@ public class ItemBean
   }
 
   /**
-   * set the incorrectfeedback 
-   * @param incorrFeedback 
+   * set the incorrectfeedback
+   * @param incorrFeedback
    */
   public void setIncorrFeedback(String param)
   {
@@ -446,7 +450,7 @@ public class ItemBean
   }
 
   /**
-   * for correct feedback 
+   * for correct feedback
    * @return the scale
    */
   public String getCorrFeedback()
@@ -455,8 +459,8 @@ public class ItemBean
   }
 
   /**
-   * set the corrfeedback 
-   * @param corrfeedback 
+   * set the corrfeedback
+   * @param corrfeedback
    */
   public void setCorrFeedback(String param)
   {
@@ -484,7 +488,7 @@ public class ItemBean
 
 
    /**
-   * get keyword metadata 
+   * get keyword metadata
    */
   public String getKeyword()
   {
@@ -492,8 +496,8 @@ public class ItemBean
   }
 
   /**
-   * set metadata 
-   * @param param 
+   * set metadata
+   * @param param
    */
   public void setKeyword(String param)
   {
@@ -585,7 +589,7 @@ public class ItemBean
   public ArrayList getMatchItemBeanList()
   {
 	return matchItemBeanList;
-  } 
+  }
 
   public void setCurrentMatchPair(MatchItemBean param)
   {
@@ -870,7 +874,7 @@ public class ItemBean
 	// build a default list of 4 choices, a, b, c, d,
 	if (multipleChoiceAnswers!=null) {
 		return multipleChoiceAnswers;
-	// for modify 
+	// for modify
  	}
 	else {
 
@@ -913,7 +917,7 @@ public class ItemBean
 	FacesContext context = FacesContext.getCurrentInstance();
 	String newvalue = (String) event.getNewValue();
 //System.out.println("lydiatest in additonal choices " + newvalue);
-	ArrayList list = getMultipleChoiceAnswers(); // get existing list 
+	ArrayList list = getMultipleChoiceAnswers(); // get existing list
 	if (list!=null) {
 		// add additional answer bean
 		int currentsize = list.size();
@@ -929,9 +933,9 @@ public class ItemBean
 	setMultipleChoiceAnswers(list);
 	setAdditionalChoices("0");
 
- 	
+
 //System.out.println("lydiatest setadditional choices " + additionalChoices);
- 	
+
 //System.out.println("lydiatest END addChoice(),  in new list size " + multipleChoiceAnswers.size());
 
   }
@@ -982,12 +986,12 @@ public class ItemBean
                 }
 		else {
 		currentindex=currentindex+1;
-		// reset sequence and labels , shift the seq/labels after a choice is deleted 
+		// reset sequence and labels , shift the seq/labels after a choice is deleted
               		answerbean.setSequence(new Long(currentindex));
                 	answerbean.setLabel(AnswerBean.choiceLabels[currentindex-1]);
 		}
           }
-	
+
         }
         setMultipleChoiceAnswers(list);
 
@@ -997,17 +1001,17 @@ public class ItemBean
   }
 
 
-// Huong added for matching 
+// Huong added for matching
 
 public boolean checkMatch(){
      String choice=currentMatchPair.getChoice();
      String match=currentMatchPair.getMatch();
      FacesContext context=FacesContext.getCurrentInstance();
-     
+
      ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
      String err;
      if(choice==null ||choice.equals("")|| match==null || match.equals("")){
-	 err=(String)rb.getObject("match_error");      
+	 err=(String)rb.getObject("match_error");
 	 context.addMessage(null,new FacesMessage(err));
             return false;
      }
@@ -1022,7 +1026,7 @@ public boolean checkMatch(){
 //System.out.println("lydiatest addMatchpair: " );
     // get existing list
     ArrayList list = getMatchItemBeanList();
-//System.out.println("lydiatest before adding we have how many pairs: " + this.getMatchItemBeanList().size()); 
+//System.out.println("lydiatest before adding we have how many pairs: " + this.getMatchItemBeanList().size());
 
     Iterator biter = this.getMatchItemBeanList().iterator();
     while(biter.hasNext())
@@ -1034,8 +1038,8 @@ public boolean checkMatch(){
 
 
     MatchItemBean currpair = this.getCurrentMatchPair();
-    if (!currpair.getSequence().equals(new Long(-1))) { 
-      // for modify 
+    if (!currpair.getSequence().equals(new Long(-1))) {
+      // for modify
       int seqno =  currpair.getSequence().intValue()-1;
       MatchItemBean newpair= (MatchItemBean)  this.getMatchItemBeanList().get(seqno);
       newpair.setSequence(currpair.getSequence());
@@ -1044,8 +1048,8 @@ public boolean checkMatch(){
       newpair.setCorrMatchFeedback(currpair.getCorrMatchFeedback());
       newpair.setIncorrMatchFeedback(currpair.getIncorrMatchFeedback());
       newpair.setIsCorrect(Boolean.TRUE);
-//System.out.println("lydiatest we are modifying this pair: " + newpair.getSequence() + " " + newpair.getChoice() + " " + newpair.getMatch() ); 
-//System.out.println("lydiatest and : " + newpair.getIsCorrect().toString() + " " + newpair.getCorrMatchFeedback()  + " " + newpair.getIncorrMatchFeedback()); 
+//System.out.println("lydiatest we are modifying this pair: " + newpair.getSequence() + " " + newpair.getChoice() + " " + newpair.getMatch() );
+//System.out.println("lydiatest and : " + newpair.getIsCorrect().toString() + " " + newpair.getCorrMatchFeedback()  + " " + newpair.getIncorrMatchFeedback());
     }
     else {
       // for new pair
@@ -1057,8 +1061,8 @@ public boolean checkMatch(){
       newpair.setIsCorrect(Boolean.TRUE);
       newpair.setSequence(new Long(list.size()+1));
 
-//System.out.println("lydiatest we are adding this pair: " + newpair.getSequence() + " " + newpair.getChoice() + " " + newpair.getMatch() ); 
-//System.out.println("lydiatest and : " + newpair.getIsCorrect().toString() + " " + newpair.getCorrMatchFeedback()  + " " + newpair.getIncorrMatchFeedback()); 
+//System.out.println("lydiatest we are adding this pair: " + newpair.getSequence() + " " + newpair.getChoice() + " " + newpair.getMatch() );
+//System.out.println("lydiatest and : " + newpair.getIsCorrect().toString() + " " + newpair.getCorrMatchFeedback()  + " " + newpair.getIncorrMatchFeedback());
     list.add(newpair);
     }
 
@@ -1068,15 +1072,15 @@ public boolean checkMatch(){
 
 
 //debugging
-//System.out.println("lydiatest we are total how many pairs: " + this.getMatchItemBeanList().size()); 
+//System.out.println("lydiatest we are total how many pairs: " + this.getMatchItemBeanList().size());
     Iterator iter = list.iterator();
     while(iter.hasNext())
     {
       MatchItemBean apair = (MatchItemBean) iter.next();
-//System.out.println("lydiatest we now have pair: " + apair.getSequence() + " " + apair.getChoice() + " " + apair.getMatch() ); 
-//System.out.println("lydiatest and : " + apair.getIsCorrect().toString() + " " + apair.getCorrMatchFeedback()  + " " + apair.getIncorrMatchFeedback()); 
+//System.out.println("lydiatest we now have pair: " + apair.getSequence() + " " + apair.getChoice() + " " + apair.getMatch() );
+//System.out.println("lydiatest and : " + apair.getIsCorrect().toString() + " " + apair.getCorrMatchFeedback()  + " " + apair.getIncorrMatchFeedback());
     }
-      
+
     MatchItemBean matchitem = new MatchItemBean();
     this.setCurrentMatchPair(matchitem);
       }
@@ -1114,7 +1118,7 @@ public boolean checkMatch(){
     while(iter.hasNext())
     {
       MatchItemBean apair = (MatchItemBean) iter.next();
-      apair.setSequence(new Long(i));	
+      apair.setSequence(new Long(i));
       i++;
     }
 
@@ -1137,25 +1141,25 @@ public boolean checkMatch(){
     //Huong added for validation of answers
     public String checkAnswer(){
 	return checkError(false);
-     
+
 }
     public String checkPoolAnswer(){
         return checkError(true);
 }
-   
+
 
 public String checkError(boolean isPool){
-       
+
     String returnValue;
     boolean correct=false;
      FacesContext context=FacesContext.getCurrentInstance();
 	 ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-   
+
     String err1,err2;
-      
-            if(itemType.equals(TypeFacade.MULTIPLE_CHOICE.toString())){      
+
+            if(itemType.equals(TypeFacade.MULTIPLE_CHOICE.toString())){
 	     if(corrAnswer==null ||corrAnswer.equals(""))
-		 { 
+		 {
                      err1=(String)rb.getObject("MC_SingleSelect_error");
 		     context.addMessage(null,new FacesMessage(err1));
                      if(isPool){
@@ -1165,7 +1169,7 @@ public String checkError(boolean isPool){
 			 returnValue="MCAddFailure";
 		     }
 		 }
-	     else 
+	     else
 		 {
                      if(isPool){
 		     returnValue= "MCPoolAddSuccess";
@@ -1180,16 +1184,16 @@ public String checkError(boolean isPool){
 		 if (multipleChoiceAnswers!=null) {
 		     while (iter.hasNext()) {
 			 AnswerBean answerbean = (AnswerBean) iter.next();
-                        
+
 			 if (isCorrectChoice(answerbean.getLabel().trim())){
 			     correct=true;
                              break;
 			 }
 		     }
 		 }
- 
+
 		  if(!correct){
-		     
+
                      err2=(String)rb.getObject("MC_MultiSelect_error");
 		     context.addMessage(null,new FacesMessage(err2));
                      if(isPool){
@@ -1207,16 +1211,16 @@ public String checkError(boolean isPool){
                      else{
 			 returnValue="MCAddSuccess";
 		     }
-		    
+
 		 }
 	     }
 	 return returnValue;
- 
+
     }
 
 
 
-/* not used 
+/* not used
 
   public ArrayList getMultipleChoiceAnswerSelectList() {
 
@@ -1235,5 +1239,5 @@ public String checkError(boolean isPool){
   }
 
 */
- 
+
 }

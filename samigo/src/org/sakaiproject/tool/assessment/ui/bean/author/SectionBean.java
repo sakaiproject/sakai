@@ -1,6 +1,9 @@
-
-/*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -15,14 +18,9 @@
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*
+**********************************************************************************/
 
-/*
- * Created on Mar 30, 2004
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
@@ -236,7 +234,7 @@ private boolean hideOneByOne= false;
 
     FacesContext context=FacesContext.getCurrentInstance();
     ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-  
+
 
     if (hideRandom){
         SelectItem selection = new SelectItem();
@@ -500,7 +498,7 @@ private boolean hideOneByOne= false;
 
 
    /**
-   * get type  
+   * get type
    */
   public String getType()
   {
@@ -508,7 +506,7 @@ private boolean hideOneByOne= false;
   }
 
   /**
-   * set type  
+   * set type
    * @param param
    */
   public void setType(String param)
@@ -518,7 +516,7 @@ private boolean hideOneByOne= false;
 
 
    /**
-   * get questionOrdering 
+   * get questionOrdering
    */
   public String getQuestionOrdering()
   {
@@ -526,7 +524,7 @@ private boolean hideOneByOne= false;
   }
 
   /**
-   * set questionOrdering 
+   * set questionOrdering
    * @param param
    */
   public void setQuestionOrdering(String param)
