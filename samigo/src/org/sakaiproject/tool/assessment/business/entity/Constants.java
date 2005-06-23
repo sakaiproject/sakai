@@ -1,9 +1,9 @@
 /**********************************************************************************
-* $HeadURL$
-* $Id$
+* $HeadURL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/business/entity/AAMTree.java $
+* $Id: AAMTree.java 199 2005-06-23 18:51:52Z esmiley@stanford.edu $
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
