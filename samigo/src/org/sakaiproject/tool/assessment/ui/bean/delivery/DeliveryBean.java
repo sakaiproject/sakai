@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import javax.activation.FileDataSource;
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
@@ -55,6 +54,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
+import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 
 /**
  *
@@ -1446,8 +1446,7 @@ public class DeliveryBean
     log.debug("***5b. addMediaToItemGrading, saved="+adata);
 
     // 6. create a media record
-    FileDataSource source = new FileDataSource(media);
-    String mimeType = source.getContentType();
+    String mimeType = MimeTypesLocator.getInstance().getContentType(media);  
     boolean SAVETODB = MediaData.saveToDB();
     log.debug("**** SAVETODB="+SAVETODB);
     MediaData mediaData=null;

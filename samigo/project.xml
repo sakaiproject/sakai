@@ -157,7 +157,7 @@
 			<artifactId>activation</artifactId>
 			<version>1.0.2</version>
 			<properties>
-				<war.bundle>standalone</war.bundle>
+				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
 		<dependency>

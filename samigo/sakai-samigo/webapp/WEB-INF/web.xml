@@ -234,6 +234,13 @@
     <load-on-startup>2</load-on-startup>
   </servlet>
 
+  <servlet>
+    <servlet-name>initMimeTypes</servlet-name>
+    <description>This servlet load the Type and all QuestionPool into a HashMap in memory</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.InitMimeTypes</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+
 
     <!-- Faces Servlet -->
     <servlet>

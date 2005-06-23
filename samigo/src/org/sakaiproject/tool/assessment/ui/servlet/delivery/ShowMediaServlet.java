@@ -109,12 +109,14 @@ public class ShowMediaServlet extends HttpServlet
     }
 
     String displayType="inline";
-    res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
     res.setContentLength(count);
     if (mediaData.getMimeType()!=null)
       res.setContentType(mediaData.getMimeType());
-    else
+    else{
+      displayType="attachment";
       res.setContentType("application/octet-stream");
+    }
+    res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
     res.flushBuffer();
     buf_outputStream.close();
     buf_inputStream.close();
