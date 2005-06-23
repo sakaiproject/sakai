@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/services/qti/QTIServiceException.java,v 1.2 2005/05/13 16:07:15 esmiley.stanford.edu Exp $
-*
+* $HeadURL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
