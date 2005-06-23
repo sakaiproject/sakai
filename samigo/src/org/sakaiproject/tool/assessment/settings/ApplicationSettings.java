@@ -58,7 +58,7 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.navigoproject.Constants;
+import org.sakaiproject.tool.assessment.business.entity.Constants;
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon </a>
