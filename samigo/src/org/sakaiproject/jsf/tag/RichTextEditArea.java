@@ -1,3 +1,26 @@
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
+
 package org.sakaiproject.jsf.tag;
 
 import javax.faces.component.UIComponent;
@@ -13,9 +36,9 @@ public class RichTextEditArea extends UIComponentTag
   private String rows;
   private String justArea;
 
-  public void setValue(String newValue) 
-  { 
-    value = newValue; 
+  public void setValue(String newValue)
+  {
+    value = newValue;
   }
 
   public String getValue()
@@ -23,8 +46,8 @@ public class RichTextEditArea extends UIComponentTag
     return value;
   }
 
-  public void setColumns(String newC) 
-  { 
+  public void setColumns(String newC)
+  {
     columns = newC;
   }
 
@@ -32,10 +55,10 @@ public class RichTextEditArea extends UIComponentTag
   {
     return columns;
   }
-    
-  public void setRows(String newRows) 
-  { 
-    rows = newRows; 
+
+  public void setRows(String newRows)
+  {
+    rows = newRows;
   }
 
   public String getRows()
@@ -43,9 +66,9 @@ public class RichTextEditArea extends UIComponentTag
     return rows;
   }
 
-  public void setJustArea(String newJ) 
-  { 
-    justArea = newJ; 
+  public void setJustArea(String newJ)
+  {
+    justArea = newJ;
   }
 
   public String getJustArea()
@@ -72,7 +95,7 @@ public class RichTextEditArea extends UIComponentTag
     setString(component, "justArea", justArea);
 	}
 
-	public void release() 
+	public void release()
 	{
     super.release();
     value = null;
@@ -82,7 +105,7 @@ public class RichTextEditArea extends UIComponentTag
   }
 
   public static void setString(UIComponent component, String attributeName,
-          String attributeValue) 
+          String attributeValue)
   {
     if(attributeValue == null)
       return;
@@ -93,11 +116,11 @@ public class RichTextEditArea extends UIComponentTag
   }
 
   public static void setValueBinding(UIComponent component, String attributeName,
-          String attributeValue) 
+          String attributeValue)
   {
     FacesContext context = FacesContext.getCurrentInstance();
     Application app = context.getApplication();
     ValueBinding vb = app.createValueBinding(attributeValue);
     component.setValueBinding(attributeName, vb);
-  }     
+  }
 }
