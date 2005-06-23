@@ -1,5 +1,9 @@
-/*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -14,7 +18,8 @@
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.jsf.renderer;
 
@@ -99,9 +104,9 @@ public class TimerBarRenderer extends Renderer
          writer.write("\n// Based on Script by Brian Gosselin of http://scriptasylum.com");
          writer.write("\n  var loadedcolor='gray' ;            // PROGRESS BAR COLOR");
 
-        
+
          writer.write("\n  var unloadedcolor='green';         // COLOR OF UNLOADED AREA");
-               
+
          writer.write("\n  var bordercolor='navy';            // COLOR OF THE BORDER");
          writer.write("\n  var barheight = " + attrMap.get("height") + "; // HEIGHT OF PROGRESS BAR IN PIXELS");
          writer.write("\n  var barwidth = " + attrMap.get("width") + "; // WIDTH OF THE BAR IN PIXELS");
