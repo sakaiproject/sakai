@@ -1,20 +1,25 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
-     * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
@@ -47,14 +52,14 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 
-public class ReorderQuestionsListener implements ValueChangeListener 
+public class ReorderQuestionsListener implements ValueChangeListener
 {
 
     private static Log log = LogFactory.getLog(ReorderQuestionsListener.class);
 
   /**
    * Standard process action method.
-   * @param ae ValueChangeEvent 
+   * @param ae ValueChangeEvent
    * @throws AbortProcessingException
    */
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
@@ -64,33 +69,33 @@ public class ReorderQuestionsListener implements ValueChangeListener
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     FacesContext context = FacesContext.getCurrentInstance();
- 
-//debugging 
+
+//debugging
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
     //System.out.println("debugging ActionEvent: " + ae);
     //System.out.println("debug requestParams: " + requestParams);
     //System.out.println("debug reqMap: " + reqMap);
 
-//debugging 
+//debugging
 
 
 
 
-    String oldPos= ae.getOldValue().toString();	
+    String oldPos= ae.getOldValue().toString();
     //System.out.println("lydiatest ae.getOldValue : " + oldPos);
-    String newPos= ae.getNewValue().toString();	
+    String newPos= ae.getNewValue().toString();
     //System.out.println("lydiatest ae.getNewValue : " + newPos);
 
 //    String itemParam = String.valueOf( ((Integer)ae.getOldValue()).intValue()-1) + ":currItemId";
-    String pulldownId  = ae.getComponent().getClientId(context); 
+    String pulldownId  = ae.getComponent().getClientId(context);
     String itemParam = pulldownId.replaceFirst("number","currItemId");
     //System.out.println("lydiatest itemParam =" + itemParam);
     String itemId= ContextUtil.lookupParam(itemParam);
     //System.out.println("lydiatest itemid : " + itemId);
 
     if (itemId !=null) {
-      // somehow ae.getOldValue() keeps the old value, thus we get itemId==null 
+      // somehow ae.getOldValue() keeps the old value, thus we get itemId==null
 
     ItemFacade itemf = new ItemFacade();
     ItemService delegate = new ItemService();
@@ -98,13 +103,13 @@ public class ReorderQuestionsListener implements ValueChangeListener
 
     SectionFacade  sectFacade = (SectionFacade) itemf.getSection();
     reorderSequences(sectFacade, new Integer(oldPos), new Integer(newPos));
-  
+
 
 
 
 
    // goto editAssessment.jsp, so reset assessmentBean
-    AssessmentService assessdelegate = new AssessmentService(); 
+    AssessmentService assessdelegate = new AssessmentService();
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
     assessmentBean.setAssessment(assessment);
@@ -114,8 +119,8 @@ public class ReorderQuestionsListener implements ValueChangeListener
     }
 
   }
- 
-  
+
+
  /**
   ** shift sequence number down when inserting or reordering
   **/
@@ -152,5 +157,5 @@ public class ReorderQuestionsListener implements ValueChangeListener
   }
 
 
-   
+
 }

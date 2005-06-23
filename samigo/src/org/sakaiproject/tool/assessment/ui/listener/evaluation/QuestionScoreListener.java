@@ -1,20 +1,25 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
@@ -144,7 +149,7 @@ public class QuestionScoreListener
       bean.setPublishedId(publishedId);
       Date dueDate = null;
 
-      TotalScoresBean totalBean = 
+      TotalScoresBean totalBean =
         (TotalScoresBean) cu.lookupBean("totalScores");
 
       ArrayList scores = new ArrayList();
@@ -156,7 +161,7 @@ public class QuestionScoreListener
         scores.addAll((ArrayList) map.get(iter.next()));
       }
 
-      // List them by item and assessmentgradingid, so we can 
+      // List them by item and assessmentgradingid, so we can
       // group answers by item and save them for update use.
       iter = scores.iterator();
       HashMap scoresByItem = new HashMap();
@@ -174,7 +179,7 @@ public class QuestionScoreListener
         ArrayList newList = new ArrayList();
         boolean added = false;
         while (iter2.hasNext())
-        { 
+        {
           ItemGradingData tmpData = (ItemGradingData) iter2.next();
           if (idata.getPublishedAnswer() != null &&
               tmpData.getPublishedAnswer() != null &&
@@ -197,7 +202,7 @@ public class QuestionScoreListener
          + ":" + idata.getPublishedItem().getItemId(), newList);
       }
       bean.setScoresByItem(scoresByItem);
-        
+
       iter = scores.iterator();
       //System.out.println("Has this many agents: " + scores.size());
       if (!iter.hasNext())
@@ -213,7 +218,7 @@ public class QuestionScoreListener
       if (data.getAssessmentGrading().getPublishedAssessment() != null)
       {
 	  //bean.setAssessmentName(data.getAssessmentGrading().getPublishedAssessment().getAssessment().getTitle());
-	bean.setAssessmentName(totalBean.getAssessmentName()); // get name from totalScoreBean, instead of from the backend.(the name should be same). bug fix for sam-255. 
+	bean.setAssessmentName(totalBean.getAssessmentName()); // get name from totalScoreBean, instead of from the backend.(the name should be same). bug fix for sam-255.
         bean.setAssessmentId(data.getAssessmentGrading().getPublishedAssessment().getAssessment().getAssessmentBaseId().toString());
 
         // if section set is null, initialize it - daisyf , 01/31/05

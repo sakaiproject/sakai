@@ -1,20 +1,25 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
@@ -102,7 +107,7 @@ public class StudentScoreUpdateListener
           //System.out.println("Gradingarray length = " + gradingarray.size());
           // Create a new one if we need it.
           if (gradingarray.isEmpty() && (question.getPoints() > 0  ||
-              (question.getGradingComment() != null && 
+              (question.getGradingComment() != null &&
                !question.getGradingComment().trim().equals("")) ))
           {
             question.setReview(false); // This creates an itemgradingdata
@@ -110,7 +115,7 @@ public class StudentScoreUpdateListener
           }
           //System.out.println("Gradingarray length2 = " + gradingarray.size());
           Iterator iter3 = gradingarray.iterator();
-          while (iter3.hasNext())  
+          while (iter3.hasNext())
           {
             ItemGradingData data = (ItemGradingData) iter3.next();
             if (data.getAgentId() == null)
@@ -130,11 +135,11 @@ public class StudentScoreUpdateListener
           }
         }
       }
-  
+
       if (adata == null)
         return true; // Nothing to save.
 
-      adata.setComments(bean.getComments()); 
+      adata.setComments(bean.getComments());
       //System.out.println("Got total comments: " + adata.getComments());
 
       // Some of the itemgradingdatas may be new.
@@ -146,7 +151,7 @@ public class StudentScoreUpdateListener
       }
       GradingService delegate = new GradingService();
       delegate.saveItemScores(list);
-      
+
       log.info("Saved student scores.");
     }
     catch (Exception e)

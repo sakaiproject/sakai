@@ -1,20 +1,25 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
-     * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.select;
 
@@ -140,7 +145,7 @@ public class SelectActionListener
     for (int k = 0; k < recentSubmittedList.size(); k++) {
       AssessmentGradingFacade g = (AssessmentGradingFacade)
           recentSubmittedList.get(k);
-      // check 
+      // check
       // 1. the assessment is released to any authenticated users. OR
       // 2. if publishedAssessment belongs to the current site. If so,
       // continue. This is really for the integrated
@@ -161,12 +166,12 @@ public class SelectActionListener
         if (g.getFinalScore() != null) {
           delivery.setGrade(g.getFinalScore().toString());
           delivery.setRawScore(g.getFinalScore().toString()); // Bug 318 fix. It seems raw score should also be based on final score.
-	  delivery.setRaw(g.getFinalScore().longValue());     
+	  delivery.setRaw(g.getFinalScore().longValue());
         }
 
         //if (g.getTotalAutoScore() != null) {
 	//    delivery.setRawScore(g.getTotalAutoScore().toString());
-	//    delivery.setRaw(g.getTotalAutoScore().longValue());         
+	//    delivery.setRaw(g.getTotalAutoScore().longValue());
         //}
         delivery.setTimeElapse(getTimeElapsed(g.getTimeElapsed()));
         delivery.setSubmissionDate(g.getSubmittedDate());
@@ -190,7 +195,7 @@ public class SelectActionListener
         // check is feedback is available
         String hasFeedback = hasFeedback(g, publishedAssessmentHash);
         delivery.setFeedback(hasFeedback);
-        
+
         // check if score is available
         HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
         delivery.setShowScore(showScore(g, hasFeedback, feedbackHash));
@@ -224,18 +229,18 @@ public class SelectActionListener
     {
       bs.toNumericSort();
       bs2.toNumericSort();
-    } 
+    }
     else if ( getSubmittedOrderBy(select).equals("submissionDate")||getSubmittedOrderBy(select).equals("feedbackDate"))
     {
          bs.toDateSort();
          bs2.toDateSort();
     }
-    else 
+    else
     {
          bs.toStringSort();
          bs2.toStringSort();
     }
-    bs.sort(); 
+    bs.sort();
     bs2.sort();
 
     submittedAssessmentGradingList = new ArrayList();
@@ -250,7 +255,7 @@ public class SelectActionListener
     // set the managed beanlist properties that we need
     select.setTakeableAssessments(takeablePublishedList);
     select.setReviewableAssessments(submittedAssessmentGradingList);
-   
+
   }
 
   /**
@@ -351,7 +356,7 @@ public class SelectActionListener
 
   // 3. go through the pub list retrieved from DB and check if
   // agent is authorizaed and filter out the one that does not meet the
-  // takeable criteria. 
+  // takeable criteria.
   private ArrayList getTakeableList(ArrayList assessmentList, HashMap h) {
     ArrayList takeableList = new ArrayList();
     for (int i = 0; i < assessmentList.size(); i++) {
@@ -419,10 +424,10 @@ public class SelectActionListener
       return hasFeedback;
     }
 
-    if ((AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK).equals(p.getFeedbackDelivery()) 
+    if ((AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK).equals(p.getFeedbackDelivery())
         || ((AssessmentFeedbackIfc.FEEDBACK_BY_DATE).equals(p.getFeedbackDelivery()) && p.getFeedbackDate()!= null && currentDate.after(p.getFeedbackDate())))
     {
-      hasFeedback="true";    
+      hasFeedback="true";
     }
     return hasFeedback;
   }
@@ -430,7 +435,7 @@ public class SelectActionListener
 
   private String hasStats(AssessmentGradingFacade a, HashMap feedbackHash){
     String hasStats = "false";
-  
+
     AssessmentFeedbackIfc f= (AssessmentFeedbackIfc)feedbackHash.get(a.getPublishedAssessmentId());
 
     if (f!=null){
@@ -438,8 +443,8 @@ public class SelectActionListener
        {
 	hasStats = "true";
        }
-    }    
-    log.info("hasStats == " + hasStats);    
+    }
+    log.info("hasStats == " + hasStats);
     return hasStats;
   }
 

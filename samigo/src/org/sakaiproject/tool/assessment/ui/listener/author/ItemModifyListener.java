@@ -1,20 +1,25 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
-     * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
@@ -88,7 +93,7 @@ public class ItemModifyListener implements ActionListener
 
   }
 
-  
+
   public boolean populateItemBean(ItemAuthorBean itemauthorbean, String itemId) {
         String nextpage= null;
       //System.out.println("lydiatest in ItemModifyListenr.  populateItemBean ");
@@ -106,7 +111,7 @@ public class ItemModifyListener implements ActionListener
       bean.setItemType(itemfacade.getTypeId().toString());
       itemauthorbean.setItemType(itemfacade.getTypeId().toString());
 
-      // if the item only exists in pool, sequence = null 
+      // if the item only exists in pool, sequence = null
       if (itemfacade.getSequence()!=null) {
         itemauthorbean.setItemNo(String.valueOf(itemfacade.getSequence().intValue() ));
       }
@@ -140,7 +145,7 @@ public class ItemModifyListener implements ActionListener
       else {
         populateItemText(itemauthorbean, itemfacade, bean);
       }
-	
+
 
         int itype=0; // default to true/false
         if (itemauthorbean.getItemType()!=null) {
@@ -223,7 +228,7 @@ public class ItemModifyListener implements ActionListener
       // set current ItemBean in ItemAuthorBean
       itemauthorbean.setCurrentItem(bean);
 
-	// set outcome for action 
+	// set outcome for action
 	itemauthorbean.setOutcome(nextpage);
 	return true;
   }
@@ -238,7 +243,7 @@ public class ItemModifyListener implements ActionListener
        bean.setItemText(itemText.getText());
 
 /////////////////////////////////////////////////////////////
-// Get current Answers choices 
+// Get current Answers choices
 /////////////////////////////////////////////////////////////
 
 
@@ -252,7 +257,7 @@ public class ItemModifyListener implements ActionListener
 
          Answer answer = (Answer) iter1.next();
          if (answer.getIsCorrect() != null &&
-             answer.getIsCorrect().booleanValue()){ 
+             answer.getIsCorrect().booleanValue()){
 	   bean.setCorrAnswer(answer.getText());
    	 }
        }
@@ -274,18 +279,18 @@ public class ItemModifyListener implements ActionListener
          while (iter2.hasNext()){
 		bean.setCorrFeedback(((AnswerFeedback)iter2.next()).getText() );
  	 }
-    
+
        }
 
        }
 
 
        if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_BLANK)) {
-  	 	 
+
 // restore the original question text, which includes answers in the braces.
 
-       String orig = itemText.getText(); 
-       String replaced = null; 
+       String orig = itemText.getText();
+       String replaced = null;
        Set answerSet = itemText.getAnswerSet();
        Iterator iter1 = answerSet.iterator();
        //need to check sequence no, since this answerSet returns answers in random order
@@ -302,7 +307,7 @@ public class ItemModifyListener implements ActionListener
  	 else {
            answerArray[seq.intValue()-1] = answerArray[seq.intValue()-1] + " | " + answer;
 	 }
-	
+
 //System.out.println(" lydiatest ....answrarray [ " +( seq.intValue()-1) + "] = " + answer);
        }
        for (int i=0; i<answerArray.length; i++) {
@@ -319,7 +324,7 @@ public class ItemModifyListener implements ActionListener
        } //fib
 
        if ((new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) ||(new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) ) {
-	 Set answerobjlist = itemText.getAnswerSet(); 
+	 Set answerobjlist = itemText.getAnswerSet();
          String afeedback =  "" ;
 	 Iterator iter1 = answerobjlist.iterator();
 	 ArrayList answerbeanlist = new ArrayList();
@@ -335,7 +340,7 @@ public class ItemModifyListener implements ActionListener
          }
          for (int i=0; i<answerArray.length; i++) {
            Set feedbackSet = answerArray[i].getAnswerFeedbackSet();
-	   // contains only one element in the Set 
+	   // contains only one element in the Set
 	   if (feedbackSet.size() == 1) {
 	     AnswerFeedback afbobj=(AnswerFeedback) feedbackSet.iterator().next();
              afeedback = afbobj.getText();
@@ -348,11 +353,11 @@ public class ItemModifyListener implements ActionListener
                 answerbean.setIsCorrect(answerArray[i].getIsCorrect());
 		if (answerbean.getIsCorrect() != null &&
                     answerbean.getIsCorrect().booleanValue()) {
-		  correctlist.add(answerbean); 
+		  correctlist.add(answerbean);
 		}
                 answerbeanlist.add(answerbean);
          }
-      	 		 
+
 	// set correct choice for single correct
        if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) {
 	 Iterator iter2 = correctlist.iterator();
@@ -364,11 +369,11 @@ public class ItemModifyListener implements ActionListener
 	   break;
 	 }
 	}
- 
+
 	// set correct choice for multiple correct
        if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) {
-	int corrsize = correctlist.size(); 
-	String[] corrchoices = new String[corrsize]; 
+	int corrsize = correctlist.size();
+	String[] corrchoices = new String[corrsize];
 	Iterator iter3 = correctlist.iterator();
         int counter =  0;
         while(iter3.hasNext())
@@ -384,13 +389,13 @@ public class ItemModifyListener implements ActionListener
 	 bean.setMultipleChoiceAnswers(answerbeanlist);
 
 
-       } // mc 
+       } // mc
 
 /////////////////////////////////////////////////////////////
 // Finish Answers
 /////////////////////////////////////////////////////////////
 
-    } // looping through itemtextSet , only loop once for these types, 
+    } // looping through itemtextSet , only loop once for these types,
   }
 
 
@@ -408,7 +413,7 @@ public class ItemModifyListener implements ActionListener
        MatchItemBean choicebean =  new MatchItemBean();
        choicebean.setChoice(itemText.getText());
 
-     //System.out.println("lydiatest in populateItemTextForMatching , set choice = " + choicebean.getChoice()); 
+     //System.out.println("lydiatest in populateItemTextForMatching , set choice = " + choicebean.getChoice());
        Set answerSet = itemText.getAnswerSet();
        Iterator iter1 = answerSet.iterator();
        while (iter1.hasNext()){
@@ -416,13 +421,13 @@ public class ItemModifyListener implements ActionListener
          if (answer.getIsCorrect() != null &&
              answer.getIsCorrect().booleanValue()){
            choicebean.setMatch(answer.getText());
-     //System.out.println("lydiatest in populateItemTextForMatching , set match() = " + choicebean.getMatch()); 
+     //System.out.println("lydiatest in populateItemTextForMatching , set match() = " + choicebean.getMatch());
            choicebean.setSequence(answer.getSequence());
            choicebean.setIsCorrect(Boolean.TRUE);
            Set feedbackSet = answer.getAnswerFeedbackSet();
            Iterator iter2 = feedbackSet.iterator();
            while (iter2.hasNext()){
-             
+
              AnswerFeedback feedback =(AnswerFeedback) iter2.next();
              if (feedback.getTypeId().equals(AnswerFeedbackIfc.CORRECT_FEEDBACK)) {
                choicebean.setCorrMatchFeedback(feedback.getText());
@@ -431,15 +436,15 @@ public class ItemModifyListener implements ActionListener
                choicebean.setIncorrMatchFeedback(feedback.getText());
              }
            }
-     //System.out.println("lydiatest in populateItemTextForMatching , set corrfeedback = " + choicebean.getCorrMatchFeedback()); 
-     //System.out.println("lydiatest in populateItemTextForMatching , set corrfeedback = " + choicebean.getIncorrMatchFeedback()); 
+     //System.out.println("lydiatest in populateItemTextForMatching , set corrfeedback = " + choicebean.getCorrMatchFeedback());
+     //System.out.println("lydiatest in populateItemTextForMatching , set corrfeedback = " + choicebean.getIncorrMatchFeedback());
          }
        }
        matchItemBeanList.add(choicebean);
      }
 
      bean.setMatchItemBeanList(matchItemBeanList);
-     //System.out.println("lydiatest in populateItemTextForMatching , matchitembeanlist.size() = " + 
+     //System.out.println("lydiatest in populateItemTextForMatching , matchitembeanlist.size() = " +
      //	bean.getMatchItemBeanList().size()  );
 
 
@@ -460,46 +465,46 @@ public class ItemModifyListener implements ActionListener
        ItemMetaData meta= (ItemMetaData) iter.next();
        if (meta.getLabel().equals(ItemMetaData.OBJECTIVE)){
 	 bean.setObjective(meta.getEntry());
-       }	 
+       }
        if (meta.getLabel().equals(ItemMetaData.KEYWORD)){
 	 bean.setKeyword(meta.getEntry());
-       }	 
+       }
        if (meta.getLabel().equals(ItemMetaData.RUBRIC)){
 	 bean.setRubric(meta.getEntry());
-       }	 
+       }
        if (meta.getLabel().equals(ItemMetaData.RANDOMIZE)){
 	 bean.setRandomized(meta.getEntry());
-       }	 
+       }
 
 	// get scalename for fill in blank from the metadata set
        if (meta.getLabel().equals(ItemMetaData.SCALENAME)){
 	 bean.setScaleName(meta.getEntry());
-       }	 
+       }
 
-	// get part id for the item 
+	// get part id for the item
        if (meta.getLabel().equals(ItemMetaData.PARTID)){
 	 bean.setSelectedSection(meta.getEntry());
 	 bean.setOrigSection(meta.getEntry());
-       }	 
+       }
 
-	// get pool id for the item 
+	// get pool id for the item
        if (meta.getLabel().equals(ItemMetaData.POOLID)){
 	 bean.setSelectedPool(meta.getEntry());
 	 bean.setOrigPool(meta.getEntry());
-       }	 
+       }
 
-	// get timeallowed for audio recording item 
+	// get timeallowed for audio recording item
        if (meta.getLabel().equals(ItemMetaData.TIMEALLOWED)){
 	 bean.setTimeAllowed(meta.getEntry());
-       }	 
+       }
 
-	// get number of attempts for audio recording item 
+	// get number of attempts for audio recording item
        if (meta.getLabel().equals(ItemMetaData.NUMATTEMPTS)){
 	 bean.setNumAttempts(meta.getEntry());
-       }	 
+       }
 
 
-     }	 
+     }
   }
 
 
@@ -507,5 +512,5 @@ public class ItemModifyListener implements ActionListener
 
 
 
-   
+
 }

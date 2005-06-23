@@ -1,20 +1,25 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
@@ -176,11 +181,11 @@ public class TotalScoreListener
         HashSet sectionSet = PersistenceService.getInstance().
             getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(pub);
         data.getPublishedAssessment().setSectionSet(sectionSet);
- 
+
         // Set first item for question scores.  This can be complicated.
         // It's important because it simplifies Question Scores to do this
         // once and keep track of it -- the data is available here, and
-        // not there.  If firstItem is "", there are no items with 
+        // not there.  If firstItem is "", there are no items with
         // answers, and the QuestionScores and Histograms pages don't
         // show.  This is a very weird case, but has to be handled.
         String firstitem = "";
@@ -197,8 +202,8 @@ public class TotalScoreListener
           }
         }
         bean.setAnsweredItems(answeredItems); // Save for QuestionScores
-        
-        boolean foundid = false; 
+
+        boolean foundid = false;
         i2 = data.getPublishedAssessment().getSectionArraySorted().iterator();
         while (i2.hasNext() && !foundid)
         {
@@ -214,8 +219,8 @@ public class TotalScoreListener
             }
           }
         }
-        
-        //System.out.println("Rachel: Setting first item to " + 
+
+        //System.out.println("Rachel: Setting first item to " +
         //  bean.getFirstItem());
 
         try {
@@ -307,7 +312,7 @@ public class TotalScoreListener
         results.setTotalOverrideScore(gdata.getTotalOverrideScore().toString());
         results.setFinalScore(gdata.getFinalScore().toString());
         results.setComments(gdata.getComments());
- 
+
         if (dueDate == null || gdata.getSubmittedDate().before(dueDate))
           results.setIsLate(new Boolean(false));
         else

@@ -1,20 +1,25 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
-     * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
@@ -83,13 +88,13 @@ public class ImportQuestionsToAuthoring implements ActionListener
       SectionService sectiondelegate = new SectionService();
       AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean("assessmentBean");
       ItemAuthorBean itemauthor = (ItemAuthorBean) cu.lookupBean("itemauthor");
-      int itempos= 0; 
+      int itempos= 0;
       SectionFacade section = null;
       ItemFacade itemfacade = new ItemFacade();
 
       //System.out.println("lydiatest before cloning itemfacade's  address for itemfacade = " + itemfacade);
       String itemId= "";
-  
+
       ArrayList destItems= ContextUtil.paramArrayValueLike("importCheckbox");
 
       if (destItems.size() > 0) {
@@ -130,19 +135,19 @@ public class ImportQuestionsToAuthoring implements ActionListener
                 // if inserting or a question
                 String insertPos = itemauthor.getInsertPosition();
                 ItemAddListener itemAddListener = new ItemAddListener();
-                int insertPosIntvalue = new Integer(insertPos).intValue() + itempos; 
+                int insertPosIntvalue = new Integer(insertPos).intValue() + itempos;
                 itemAddListener.shiftSequences(section, new Integer(insertPosIntvalue));
-                int insertPosInt= insertPosIntvalue + 1 ;  
+                int insertPosInt= insertPosIntvalue + 1 ;
                 itemfacade.setSequence(new Integer(insertPosInt));
               }
- 
-          
+
+
           delegate.saveItem(itemfacade);
         //System.out.println("lydiatest after saveItem , itemfacade's itemId = " + itemfacade.getItemId());
-          // remove POOLID metadata if any, 
+          // remove POOLID metadata if any,
           delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.POOLID, AgentFacade.getAgentString());
           delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID, AgentFacade.getAgentString());
- 
+
           //itemfacade.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
           //delegate.saveItem(itemfacade);
 
@@ -156,23 +161,23 @@ public class ImportQuestionsToAuthoring implements ActionListener
       // reset InsertPosition
       itemauthor.setInsertPosition("");
 
-   //TODO need to reset assessments. 
+   //TODO need to reset assessments.
       AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
       assessmentBean.setAssessment(assessment);
 
       qpoolbean.setOutcome("editAssessment");
       }
       else {
-      // nothing is checked 
+      // nothing is checked
       qpoolbean.setOutcome("editPool");
       }
     }
-    catch (Exception e) { 
+    catch (Exception e) {
 	e.printStackTrace();
 	return false;
-    }	
-	
+    }
+
     return true;
   }
-   
+
 }

@@ -1,20 +1,25 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
-     * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
@@ -98,7 +103,7 @@ public class ItemAddListener
 		}
 	}
     else //Multiple choice,multiple correct
-	{   
+	{
 	    Iterator iter = item.getMultipleChoiceAnswers().iterator();
 	    if(item.getMultipleChoiceAnswers()!=null){
 	    while (iter.hasNext()) {
@@ -106,7 +111,7 @@ public class ItemAddListener
 		if (isCorrectChoice(item, answerbean.getLabel().trim()))
 		    {
 			correct=true;
-		   
+
 			break;
 		    }
 	    }
@@ -117,8 +122,8 @@ public class ItemAddListener
 		    }
 		}
 	    }
-	}	
-	
+	}
+
   }
 
   public boolean saveItem(ItemAuthorBean itemauthor) {
@@ -293,15 +298,15 @@ public class ItemAddListener
 
           if (update) {
 	  // if Modify, need to reorder if assgned to different section '
-            if ( (bean.getOrigSection() != null) && 
+            if ( (bean.getOrigSection() != null) &&
 		(!bean.getOrigSection().equals(bean.getSelectedSection()))) {
 		//System.out.println("lydiatest modified, assigned to new section " + bean.getOrigSection() + " to new section = " + bean.getSelectedSection() );
-                // if reassigned to different section  
+                // if reassigned to different section
               Integer oldSeq = item.getSequence();
               item.setSequence(new Integer(section.getItemSet().size() + 1));
               //System.out.println("lydiatest new sequence is " + item.getSequence());
-              
-              // reorder the sequences of items in the OrigSection 
+
+              // reorder the sequences of items in the OrigSection
     	      SectionFacade origsect= assessdelegate.getSection(bean.getOrigSection());
               //System.out.println("lydiatest reorder old items sequence in origSection ");
 	      shiftItemsInOrigSection(origsect, oldSeq);
@@ -423,12 +428,12 @@ public class ItemAddListener
             //  "lydiatest prepareTextForMatching:  CORRECT answer :  " +
             //  answerbean.getMatch());
           answer = new Answer(choicetext, stripPtags(answerbean.getMatch()),
-                              answerbean.getSequence(), 
+                              answerbean.getSequence(),
 			      AnswerBean.choiceLabels[answerbean.getSequence().intValue()-1],
                               Boolean.TRUE, null,
                               new Float(bean.getItemScore()));
 
-          // only add feedback for correct pairs 
+          // only add feedback for correct pairs
         HashSet answerFeedbackSet = new HashSet();
         answerFeedbackSet.add(new AnswerFeedback(answer,
                                                  AnswerFeedbackIfc.
@@ -457,7 +462,7 @@ public class ItemAddListener
                               Boolean.FALSE, null, new Float(bean.getItemScore()));
         }
 
-//      record answers for all combination of pairs 
+//      record answers for all combination of pairs
 
         HashSet answerFeedbackSet = new HashSet();
         answerFeedbackSet.add(new AnswerFeedback(answer,
@@ -674,7 +679,7 @@ public class ItemAddListener
         Answer answer1 = new Answer(text1, oneanswer,
                                       new Long(i + 1), null, Boolean.TRUE, null,
                                       new Float(bean.getItemScore()));
-        answerSet1.add(answer1);  
+        answerSet1.add(answer1);
       }
 
       text1.setAnswerSet(answerSet1);
@@ -827,7 +832,7 @@ public class ItemAddListener
         list.add(tokens[i]);
       }
       }
-    } // token.length>1 
+    } // token.length>1
 
     return list;
 
@@ -920,7 +925,7 @@ public class ItemAddListener
   }
 
   private String stripPtags(String origtext) {
-   // interim solution for the wywisyg bug. This will strip off the first <p> and last </p> if both exists.  
+   // interim solution for the wywisyg bug. This will strip off the first <p> and last </p> if both exists.
     String newanswer = origtext;
     if ((origtext!= null)&& (origtext.startsWith("<p")) && (origtext.endsWith("</p>")) ){
        newanswer = origtext.substring(origtext.indexOf(">") + 1, origtext.lastIndexOf("</p>"));

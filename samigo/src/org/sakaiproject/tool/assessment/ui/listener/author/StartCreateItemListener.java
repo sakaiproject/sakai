@@ -1,20 +1,25 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
-     * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
@@ -47,7 +52,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 
-public class StartCreateItemListener implements ValueChangeListener, ActionListener 
+public class StartCreateItemListener implements ValueChangeListener, ActionListener
 {
 
   private static Log log = LogFactory.getLog(StartCreateItemListener.class);
@@ -57,7 +62,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 
   /**
    * Standard process action method.
-   * @param ae ValueChangeEvent 
+   * @param ae ValueChangeEvent
    * @throws AbortProcessingException
    */
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
@@ -86,11 +91,11 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 // TODO need to get rid of this, and figure out how selectonemenu can navigate to a diff page
   /**
    * Standard process action method.
-   * @param ae ActionEvent 
+   * @param ae ActionEvent
    * @throws AbortProcessingException
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
-  // used by question pool's selectQuestionType.jsp 
+  // used by question pool's selectQuestionType.jsp
   {
     log.debug("StartCreateItemListener actionLISTENER.");
     log.debug("lydiatest BEGIN STartCreateItem processAction ");
@@ -106,7 +111,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 
   }
 
-  
+
   public boolean startCreateItem(ItemAuthorBean itemauthorbean) {
 
    String nextpage= null;
@@ -141,8 +146,8 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 */
 
         item.setItemType(itemauthorbean.getItemType());
-     
- 
+
+
         itemauthorbean.setItemType("");
         itemauthorbean.setItemTypeString("");
         int itype=0; //
@@ -211,7 +216,7 @@ log.debug("lydiatest in Start creating Import question from pool ");
       itemauthorbean.setShowMetadata(assessment.getHasMetaDataForQuestions());
 
       log.debug("lydiatest showMetadata : " + itemauthorbean.getShowMetadata());
-      // set section 
+      // set section
 
         if (itemauthorbean.getInsertToSection()!=null) {
        // for inserting an item, this should be sequence, e.g. 1, 2, ...etc
@@ -222,8 +227,8 @@ log.debug("lydiatest in Start creating Import question from pool ");
         }
         else {
          // do not set section here, sections are set by the form
-       // for adding an item, add to the last section, sequence = 1 
-          //SectionDataIfc section = assessment.getDefaultSection();  
+       // for adding an item, add to the last section, sequence = 1
+          //SectionDataIfc section = assessment.getDefaultSection();
           //String sectionid = section.getSectionId().toString();
           //item.setSelectedSection(sectionid);
       log.debug("lydiatest itemauthorbean.getInsertToSection IS null : " + item.getSelectedSection());
@@ -240,7 +245,7 @@ log.debug("lydiatest in Start creating Import question from pool ");
           //log.debug("lydiatest selecte section in pool : " + qpoolBean.getSelectedSection());
         }
       log.debug("lydiatest selecte section : " + item.getSelectedSection());
-     
+
     }
     else {
      // for question pool , always show metadata as default
@@ -261,5 +266,5 @@ log.debug("lydiatest in Start creating Import question from pool ");
 
 
 
-   
+
 }

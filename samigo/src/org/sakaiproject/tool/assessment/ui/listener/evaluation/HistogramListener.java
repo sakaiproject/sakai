@@ -1,20 +1,26 @@
-/*
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
- *
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- *
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/**********************************************************************************
+* $HeadURL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
+
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
@@ -86,12 +92,12 @@ public class HistogramListener
     HistogramScoresBean bean = (HistogramScoresBean) cu.lookupBean(
                                "histogramScores");
     String publishedId = totalBean.getPublishedId();
-   
+
     if (publishedId == "0")
     {
 	publishedId = (String) cu.lookupParam("publishedId");
     }
-   
+
     log.info("Calling histogramScores.");
     if (!histogramScores(publishedId, bean, totalBean))
     {
@@ -110,13 +116,13 @@ public class HistogramListener
                                 "totalScores");
     HistogramScoresBean bean = (HistogramScoresBean) cu.lookupBean(
                                "histogramScores");
-    String publishedId = totalBean.getPublishedId(); 
-   
+    String publishedId = totalBean.getPublishedId();
+
     if (publishedId == "0")
     {
 	publishedId = (String) cu.lookupParam("publishedId");
     }
-     
+
     log.info("Calling histogramScores.");
     if (!histogramScores(publishedId, bean, totalBean))
     {
@@ -171,7 +177,7 @@ public class HistogramListener
         HashSet sectionSet = PersistenceService.getInstance().
             getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(pub);
         data.getPublishedAssessment().setSectionSet(sectionSet);
-        
+
         ArrayList parts =
           data.getPublishedAssessment().getSectionArraySorted();
         ArrayList info = new ArrayList();
@@ -211,7 +217,7 @@ public class HistogramListener
             HistogramQuestionScoresBean qbean =
               new HistogramQuestionScoresBean();
 
-            // if this part is a randompart , then set randompart = true 
+            // if this part is a randompart , then set randompart = true
 	    qbean.setRandomType(isRandompart);
 	    ItemDataIfc item = (ItemDataIfc) iter2.next();
             String type = delegate.getTextForId(item.getTypeId());
@@ -222,7 +228,7 @@ public class HistogramListener
             qbean.setQuestionText(item.getText());
             qbean.setQuestionType(item.getTypeId().toString());
             totalpossible = totalpossible + item.getScore().doubleValue();
-            ArrayList responses = null; 
+            ArrayList responses = null;
             determineResults(qbean, (ArrayList) itemscores.get
               (item.getItemId()));
             qbean.setTotalScore(item.getScore().toString());
@@ -231,7 +237,7 @@ public class HistogramListener
         }
         bean.setInfo(info);
         bean.setRandomType(hasRandompart);
-       
+
         Map assessmentMap = getAssessmentStatisticsMap(scores);
 
         // test to see if it gets back empty map
@@ -412,11 +418,11 @@ public class HistogramListener
       int num =	((Integer) results.get(answerId)).intValue();
       numarray[i] = num;
       bars[i] = new HistogramBarBean();
-      if (!qbean.getQuestionType().equals("8")) 
+      if (!qbean.getQuestionType().equals("8"))
       {
           bars[i].setLabel(answer.getText());
       }
-      else 
+      else
       {
           ItemDataIfc item = ((ItemGradingData) scores.toArray()[0])
           .getPublishedItem();
@@ -535,7 +541,7 @@ public class HistogramListener
       qbean.setQ3( (String) assessmentMap.get("q3"));
       qbean.setQ4( (String) assessmentMap.get("q4"));
       //qbean.setTotalScore( (String) assessmentMap.get("maxScore"));
-      
+
 
       HistogramBarBean[] bars =
         new HistogramBarBean[qbean.getColumnHeight().length];
@@ -584,7 +590,7 @@ public class HistogramListener
           autoScore = ((ItemGradingData) data).getAutoScore().floatValue();
         float overrideScore = (float) 0.0;
         if (((ItemGradingData) data).getOverrideScore() != null)
-          overrideScore = 
+          overrideScore =
             ((ItemGradingData) data).getOverrideScore().floatValue();
         floats.add(new Float(autoScore + overrideScore));
       }
