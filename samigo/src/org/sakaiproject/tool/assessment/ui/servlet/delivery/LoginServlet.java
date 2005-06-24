@@ -139,7 +139,7 @@ public class LoginServlet
           if (isAuthenticated) {
             isMember = checkMembership(pub, req, res);
           }
-          else if (anonymousAllowed) {
+          if (anonymousAllowed) {
             AgentFacade.createAnonymous();
             isAuthenticatedAsAnonymous = true;
             delivery.setAnonymousLogin(true);
