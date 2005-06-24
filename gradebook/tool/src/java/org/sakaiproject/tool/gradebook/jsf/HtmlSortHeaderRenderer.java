@@ -23,7 +23,9 @@
 **********************************************************************************/
 
 /*
- * Based on org.apache.myfaces.custom.sortheader.HtmlSortHeaderRenderer.
+ * Based very slightly on org.apache.myfaces.custom.sortheader.HtmlSortHeaderRenderer.
+ * (Only about a half-dozen lines of code are in common.)
+ *
  * The original file's license header is below.
  */
 
@@ -63,6 +65,8 @@ import org.apache.myfaces.renderkit.html.HtmlLinkRendererBase;
 
 /**
  * Based on org.apache.myfaces.custom.sortheader.HtmlSortHeaderRenderer.
+ * Modified to better distinguish the current sort column and to use an image file
+ * to indicate direction.
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
