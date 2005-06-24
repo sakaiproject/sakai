@@ -1,7 +1,31 @@
-<%-- $Id: deliverMultipleChoiceSingleCorrect.jsp,v 1.24 2005/05/26 21:42:15 zqingru.stanford.edu Exp $
+<%-- $Id$
 include file for delivering multiple choice questions
 should be included in file importing DeliveryMessages
 --%>
+<!--
+* $Id$
+<%--
+***********************************************************************************
+*
+* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
+--%>
+-->
 <h:outputText value="<script>" escape="false" />
 <h:outputText value="var selectedRadioButton#{question.itemData.itemId};" escape="false" />
 <h:outputText value="function uncheckRadioButtons#{question.itemData.itemId}(radioButton) {" escape="false" />
@@ -12,16 +36,16 @@ should be included in file importing DeliveryMessages
 <h:outputText value="selectedRadioButton#{question.itemData.itemId}.checked = true;" escape="false" />
 <h:outputText value="}" escape="false" />
 <h:outputText value="</script>" escape="false" />
- 
+
   <h:outputText value="#{question.text}"  escape="false"/>
   <h:dataTable value="#{question.selectionArray}" var="selection">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
-      <h:graphicImage id="image" 
+      <h:graphicImage id="image"
         rendered="#{selection.answer.isCorrect eq 'true' && selection.response}"
         alt="#{msg.correct}" url="/images/checkmark.gif" >
       </h:graphicImage>
-      <h:graphicImage id="image2" 
+      <h:graphicImage id="image2"
         rendered="#{selection.answer.isCorrect ne 'true' && selection.response}"
         width="16" height="16"
         alt="#{msg.not_correct}" url="/images/delivery/spacer.gif">
@@ -65,7 +89,7 @@ should be included in file importing DeliveryMessages
     <f:verbatim></b></f:verbatim>
     <h:outputText id="answerKeyMC"
        value="#{question.key}" escape="false" />
-    
+
   </h:panelGroup>
 
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedback ne '' && question.feedback != null && !delivery.noFeedback=='true'}">
@@ -80,7 +104,7 @@ should be included in file importing DeliveryMessages
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="commentSC" value="#{msg.comment}: " />
     <f:verbatim></b></f:verbatim>
-    <h:outputText id="commentSC" value="#{question.gradingComment}" 
+    <h:outputText id="commentSC" value="#{question.gradingComment}"
       escape="false" />
   </h:panelGroup>
 </h:panelGroup>

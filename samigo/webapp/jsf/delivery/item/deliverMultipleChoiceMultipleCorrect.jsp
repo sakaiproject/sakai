@@ -1,23 +1,24 @@
-<%-- $Id: deliverMultipleChoiceMultipleCorrect.jsp,v 1.26 2005/05/06 00:15:01 zqingru.stanford.edu Exp $
+<%-- $Id$
 include file for delivering multiple choice questions
 should be included in file importing DeliveryMessages
 --%>
+
   <h:outputText value="#{question.text}"  escape="false"/>
   <h:dataTable value="#{question.selectionArray}" var="selection">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
-      <h:graphicImage id="image" 
+      <h:graphicImage id="image"
         rendered="#{selection.answer.isCorrect eq 'true' && selection.response}"
         alt="#{msg.correct}" url="/images/checkmark.gif" >
       </h:graphicImage>
-      <h:graphicImage id="image2" 
+      <h:graphicImage id="image2"
         rendered="#{selection.answer.isCorrect ne 'true' && selection.response}"
         width="16" height="16"
         alt="#{msg.not_correct}" url="/images/delivery/spacer.gif">
       </h:graphicImage>
     </h:column>
     <h:column>
-     <h:selectBooleanCheckbox value="#{selection.response}" 
+     <h:selectBooleanCheckbox value="#{selection.response}"
        disabled="#{delivery.previewMode eq 'true'}" />
      <h:outputText value=" #{selection.answer.label}" escape="false" />
      <h:outputText value="." rendered="#{selection.answer.label ne ''}" />
@@ -49,7 +50,7 @@ should be included in file importing DeliveryMessages
     <f:verbatim></b></f:verbatim>
     <h:outputText id="answerKeyMC"
        value="#{question.key}" escape="false" />
-    
+
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedback ne '' && question.feedback != null && !delivery.noFeedback=='true'}">
     <f:verbatim><br /></f:verbatim>
@@ -63,7 +64,7 @@ should be included in file importing DeliveryMessages
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="commentSC" value="#{msg.comment}: " />
     <f:verbatim></b></f:verbatim>
-    <h:outputText id="commentSC" value="#{question.gradingComment}" 
+    <h:outputText id="commentSC" value="#{question.gradingComment}"
       escape="false" />
   </h:panelGroup>
 </h:panelGroup>
