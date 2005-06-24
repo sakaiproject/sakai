@@ -21,7 +21,6 @@ import org.w3c.dom.Document;
 /**
  * <p> Test program</p>
  * <p> </p>
- * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
