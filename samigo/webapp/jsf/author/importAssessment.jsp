@@ -14,7 +14,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <%@ taglib uri="/WEB-INF/struts-template.tld" prefix="template" %>
-<!-- $Id: importAssessment.jsp,v 1.7 2005/05/24 16:54:50 janderse.umich.edu Exp $ -->
+<!-- $Id$ -->
   <f:view>
     <f:verbatim><!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"

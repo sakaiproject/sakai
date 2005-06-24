@@ -1,4 +1,4 @@
-<%-- $Id: TrueFalse.jsp,v 1.1 2005/02/03 03:08:48 zqingru.stanford.edu Exp $
+<%-- $Id$
 include file for delivering true false questions
 should be included in file importing DeliveryMessages
 --%>

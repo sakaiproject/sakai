@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<!-- $Id: itemauthor.jsp,v 1.10 2005/05/24 16:54:49 janderse.umich.edu Exp $ -->
+<!-- $Id$ -->
   <f:view>
     <f:verbatim><!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
