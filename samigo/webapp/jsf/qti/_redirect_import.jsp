@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<!-- $Id: _redirect_import.jsp,v 1.4 2005/05/24 16:54:50 janderse.umich.edu Exp $ -->
+<!-- $Id$ -->
 <html>
  <head><%= request.getAttribute("html.head") %>
   <meta http-equiv="refresh"
