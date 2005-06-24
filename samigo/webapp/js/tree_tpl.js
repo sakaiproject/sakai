@@ -1,3 +1,10 @@
+// Title: Tigra Tree
+// Description: See the demo at url
+// URL: http://www.softcomplex.com/products/tigra_menu_tree/
+// Version: 1.1 (size optimized)
+// Date: 11-12-2002 (mm-dd-yyyy)
+// Contact: feedback@softcomplex.com (specify product title in the subject)
+// Notes: This script is free. Visit official site for further details.
 /*
 	Feel free to use your custom icons for the tree. Make sure they are all of the same size.
 	User icons collections are welcome, we'll publish them giving all regards.

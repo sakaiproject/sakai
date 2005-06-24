@@ -1,3 +1,26 @@
+/**********************************************************************************
+* $HeadURL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/jsf/component/RichTextEditArea.java $
+* $Id: RichTextEditArea.java 226 2005-06-23 23:46:26Z esmiley@stanford.edu $
+***********************************************************************************
+*
+* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
+
 //**************GET ELEMENT for diffrent Browsers***************************************************************
 
 function getElm(thisid)
@@ -23,15 +46,15 @@ function getElm(thisid)
    }
    if(thiselm)
    {
-      
+
       if(thiselm == null)
       {
-        
+
          return;
       }
-      else 
+      else
       {
-      		
+
          return thiselm;
       }
    }
@@ -45,34 +68,34 @@ function enableDisableRadioButtons(nameRadio, action)
     		var elmnum = chkelms.length; // set the number of input elements
       for (var i=0; i < elmnum; i++) // loop through each one of input element to check name and then set disabled...
       if(chkelms[i].name == nameRadio && chkelms[i].type =="radio" ) {
-        chkelms[i].disabled = action;     
+        chkelms[i].disabled = action;
       }
-     }   
-          
-                 
+     }
+
+
 //-----------------------------------------------------------------------------------------------------------------
 // functions to find all elements for specific tag name and name attribute
 function getelmbytag(tag)
 {
  var elm = new Array();
-  
+
  if (document.getElementsByTagName(tag)) {
-              // browser implements part of W3C DOM HTML ( Gecko, Internet Explorer 5+, Opera 5+     
+              // browser implements part of W3C DOM HTML ( Gecko, Internet Explorer 5+, Opera 5+
     elm = document.getElementsByTagName(tag);  }
- 
-    else if (document.all){  
+
+    else if (document.all){
         elm = document.all[tag];
    //Internet Explorer 4 or Opera with IE user agent
            }
-      
+
      else if (document.layers){ // Navigator 4
             elm = document.layers[tag];
       }
- 
+
    if (elm)  { // Browser supports elm
       return elm;
      }
- else { return;}    
+ else { return;}
 }
 
 
@@ -97,7 +120,7 @@ function move(fbox, tbox)
          arrTbox[tLength] = fbox.options[i].text;
          tLength++;
       }
-      else 
+      else
       {
          arrFbox[fLength] = fbox.options[i].text;
          fLength++;
@@ -138,7 +161,7 @@ function getSelectedRadio(buttonGroup)
          }
       }
    }
-   else 
+   else
    {
       if(buttonGroup.checked)
       {
@@ -159,14 +182,14 @@ function getSelectedRadioValue(buttonGroup)
    {
       return "";
    }
-   else 
+   else
    {
       if(buttonGroup[i])
       {
          // Make sure the button group is an array (not just one button)
          return buttonGroup[i].value;
       }
-      else 
+      else
       {
          // The button group is just the one button, and it is checked
          return buttonGroup.value;
@@ -195,7 +218,7 @@ function getSelectedCheckbox(buttonGroup)
          }
       }
    }
-   else 
+   else
    {
       // There is only one check box (it's not an array)
       if(buttonGroup.checked)
@@ -228,7 +251,7 @@ function getSelectedCheckboxValue(buttonGroup)
             // Make sure it's an array
             retArr[i] = buttonGroup[selectedItems[i]].value;
          }
-         else 
+         else
          {
             // It's not an array (there's just one check box and it's selected)
             retArr[i] = buttonGroup.value;
@@ -253,7 +276,7 @@ function getFieldValue(field)
          var i = field.selectedIndex;
          if(i == - 1)
          return "";
-         else 
+         else
          return(field.options[i].value == "") ? field.options[i].text : field.options[i].value;
       case "select-multiple" :
          var allChecked = new Array();
@@ -270,7 +293,7 @@ function getFieldValue(field)
          {
             return field.value;
          }
-         else 
+         else
          {
             return "";
          }
@@ -289,7 +312,7 @@ function getFieldValue(field)
             if(field[i].checked) allChecked[allChecked.length] = field[i].value;
             return allChecked;
          }
-         else 
+         else
          var str = "";
          for(x in field)
          {
@@ -330,7 +353,7 @@ function isEmptyElement(formElement)
    {
       return true;
    }
-   else 
+   else
    {
       return false;
    }
@@ -524,7 +547,7 @@ function setFieldsToUpperCase()
 }
 //-------------------------------------------------------------------
 // disallowBlank(input_object[,message[,true]])
-//   Checks a form field for a blank value. Optionally alerts if 
+//   Checks a form field for a blank value. Optionally alerts if
 //   blank and focuses
 //-------------------------------------------------------------------
 
@@ -556,7 +579,7 @@ function disallowBlank(obj)
 }
 //-------------------------------------------------------------------
 // disallowModify(input_object[,message[,true]])
-//   Checks a form field for a value different than defaultValue. 
+//   Checks a form field for a value different than defaultValue.
 //   Optionally alerts and focuses
 //-------------------------------------------------------------------
 

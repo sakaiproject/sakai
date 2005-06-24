@@ -1,9 +1,24 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/sam/webapp/js/sakai_tool_headscripts.js,v 1.1 2005/04/14 18:37:07 daisyf.stanford.edu Exp $
-*
+* $HeadURL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/jsf/component/RichTextEditArea.java $
+* $Id: RichTextEditArea.java 226 2005-06-23 23:46:26Z esmiley@stanford.edu $
 ***********************************************************************************
-@license@
+*
+* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
 **********************************************************************************/
 
 var courierRunning = false;
@@ -20,7 +35,7 @@ function openWindow(url, title, options)
 	return win;
 }
 
-function sitehelp(whereto) 
+function sitehelp(whereto)
 {
 	umcthelp=window.open(whereto,'umcthelpWindow','toolbar=yes,scrollbars=yes,resizable=yes,menubar=no,status=yes,directories=no,location=no,width=600,height=400')
 }
@@ -41,7 +56,7 @@ function showSubmitMessage()
 {
 	var submitDiv = document.getElementById('SubmitMessage');
 	var normalDiv = document.getElementById('chefPortletContainer')
-	if (submitDiv != null) 
+	if (submitDiv != null)
 	{
 		submitDiv.style.display = '';
 		if (normalDiv != null)
@@ -54,14 +69,14 @@ function showSubmitMessage()
 // PLEASE SEE http://www.worldtimzone.com/res/encode/
 // before modifying any of this UTF-8 encoding JavaScript!
 /* ***************************
-** Most of this code was kindly 
+** Most of this code was kindly
 ** provided to me by
 ** Andrew Clover (and at doxdesk dot com)
-** http://and.doxdesk.com/ 
-** in response to my plea in my blog at 
+** http://and.doxdesk.com/
+** in response to my plea in my blog at
 ** http://worldtimzone.com/blog/date/2002/09/24
 ** It was unclear whether he created it.
-*/ 
+*/
 // Uses the JavaScript built-in function encodeURIComponent()
 // which properly encodes UTF-8.  If the function isn't available,
 // emulates the function (older browsers like IE 5.0)
@@ -74,7 +89,7 @@ function myEscape(value)
 		// IE 5.5+ and Netscape 6+ and Mozilla
 		return encodeURIComponent(value);
 	}
-	else 
+	else
 	{
 		// Need to mimic the JavaScript version
 		// Netscape 4 and IE 4 and IE 5.0
@@ -184,7 +199,7 @@ function formSubmitOnEnter(field, event)
 		field.form.submit();
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -209,7 +224,7 @@ function clickOnEnter(event, element)
 		}
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -279,7 +294,7 @@ function setFocus(elements)
 		{
 			focal_point = focal_point.getElementById(elements[i]);
 		}
-		
+
 		if(focal_point.contentDocument)
 		{
 			focal_point = focal_point.contentDocument;
@@ -297,7 +312,7 @@ function setFocus(elements)
 			break;
 		}
 	}
-	
+
 	if(focal_point && focal_point.focus)
 	{
 		focal_point.focus();
@@ -311,7 +326,7 @@ function addAuto(loc)
 
 	// not if already there
 	if (str.indexOf("auto=courier") != -1) return str;
-	
+
 	if (str.indexOf("?") != -1)
 	{
 		// has a ?
@@ -343,7 +358,7 @@ function showNotif(item, button,formName)
 			document.showItem = eval('document.layers[item]');
 
 			document.showItem.style.visibility = "visible";
-	}		
+	}
 }
 
 /**********************************************************************************
