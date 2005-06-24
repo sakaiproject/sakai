@@ -85,44 +85,44 @@ public class ShowMediaServlet extends HttpServlet
       dispatcher.forward(req, res);
     }
     else {
-    FileInputStream inputStream = null;
-    BufferedInputStream buf_inputStream = null;
-    ServletOutputStream outputStream = res.getOutputStream();
-    BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
-
-    if (mediaLocation == null){
-      buf_inputStream = new BufferedInputStream(new ByteArrayInputStream(media));
-    }
-    else{
-      inputStream = getFileStream(mediaLocation);
-      buf_inputStream = new BufferedInputStream(inputStream);
-    }
-
-    int i=0;
-    int count=0;
-    if (buf_inputStream !=null){
-      while ((i=buf_inputStream.read()) != -1){
-        buf_outputStream.write(i);
-        log.debug(i+"");
-        count++;
+      String displayType="inline";
+      if (mediaData.getMimeType()!=null){
+	res.setContentType(mediaData.getMimeType());
       }
-    }
+      else {
+        displayType="attachment";
+        res.setContentType("application/octet-stream");
+      }
+      res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
 
-    String displayType="inline";
-    res.setContentLength(count);
-    if (mediaData.getMimeType()!=null)
-      res.setContentType(mediaData.getMimeType());
-    else{
-      displayType="attachment";
-      res.setContentType("application/octet-stream");
-    }
-    res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
-    res.flushBuffer();
-    buf_outputStream.close();
-    buf_inputStream.close();
-    if (inputStream != null)
-      inputStream.close();
-    outputStream.close();
+      //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
+      FileInputStream inputStream = null;
+      BufferedInputStream buf_inputStream = null;
+      ServletOutputStream outputStream = res.getOutputStream();
+      BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
+      if (mediaLocation == null){
+        buf_inputStream = new BufferedInputStream(new ByteArrayInputStream(media));
+      }
+      else{
+        inputStream = getFileStream(mediaLocation);
+        buf_inputStream = new BufferedInputStream(inputStream);
+      }
+      int i=0;
+      int count=0;
+      if (buf_inputStream !=null){
+        while ((i=buf_inputStream.read()) != -1){
+          buf_outputStream.write(i);
+          count++;
+        }
+      }
+
+      res.setContentLength(count);
+      res.flushBuffer();
+      buf_outputStream.close();
+      buf_inputStream.close();
+      if (inputStream != null)
+        inputStream.close();
+      outputStream.close();
     }
   }
 
