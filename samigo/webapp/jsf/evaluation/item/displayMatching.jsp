@@ -1,4 +1,4 @@
-<%-- $Id: displayMatching.jsp,v 1.6 2005/02/01 18:42:42 rgollub.stanford.edu Exp $
+<%-- $Id$
 include file for displaying matching questions
 --%>
 <h:outputText value="#{question.description}" escape="false"/>
