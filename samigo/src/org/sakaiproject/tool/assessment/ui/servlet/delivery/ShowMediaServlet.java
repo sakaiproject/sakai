@@ -70,12 +70,15 @@ public class ShowMediaServlet extends HttpServlet
     // b. if you have a "maintain" role in the site where the media has been created.
     boolean accessDenied = true;
     String agentIdString = req.getRemoteUser();
+    if (agentIdString == null) // try this
+      agentIdString = AgentFacade.getAgentString(req, res);
     String currentSiteId = AgentFacade.getCurrentSiteIdFromExternalServlet(req,res);
     String mediaSiteId = mediaData.getItemGradingData().getAssessmentGrading().getPublishedAssessment().getOwnerSiteId();
+    log.debug("agentIdString ="+agentIdString);
     log.debug("****current site Id ="+currentSiteId);
     log.debug("****media site Id ="+mediaSiteId);
     String role = AgentFacade.getRole(agentIdString);
-    if (mediaData == null || (mediaData!=null && !agentIdString.equals(mediaData.getCreatedBy())) ||
+    if (agentIdString ==null || mediaData == null || (mediaData!=null && (agentIdString !=null && !agentIdString.equals(mediaData.getCreatedBy()))) ||
 	!(("maintain").equals(role) && currentSiteId.equals(mediaSiteId)))
       accessDenied = false;
 
