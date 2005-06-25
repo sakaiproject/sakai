@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 <!-- $Id: web.xml,v 1.25 2005/05/24 23:05:40 daisyf.stanford.edu Exp $ -->
   <display-name>SAM</display-name>
@@ -131,6 +131,13 @@
   </servlet>
 
   <servlet>
+    <servlet-name>ShowQTIServlet</servlet-name>
+    <display-name>Show QTI XML</display-name>
+    <description>Show QTI XML from XMLDisplay bean</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.qti.ShowQTIServlet</servlet-class>
+  </servlet>
+
+  <servlet>
     <servlet-name>ShowMediaServlet</servlet-name>
     <display-name>Show Media</display-name>
     <description>This is the description of my J2EE component</description>
@@ -195,6 +202,11 @@
   </servlet-mapping>
 
   <servlet-mapping>
+    <servlet-name>ShowQTIServlet</servlet-name>
+    <url-pattern>/servlet/exportQTI</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
     <servlet-name>LoginServlet</servlet-name>
     <url-pattern>/servlet/Login</url-pattern>
   </servlet-mapping>
@@ -250,7 +262,7 @@
     <servlet-name>SOAPMonitorService</servlet-name>
     <url-pattern>/SOAPMonitor</url-pattern>
   </servlet-mapping>
-  
+
 
  <!-- uncomment this if you want the admin servlet -->
   <servlet-mapping>
@@ -258,7 +270,7 @@
     <url-pattern>/servlet/AdminServlet</url-pattern>
   </servlet-mapping>
 
-  
+
 
   <!-- BEGIN SAMIGO JSF SECTION-->
 
