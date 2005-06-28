@@ -59,7 +59,7 @@ public class ShowMediaServlet extends HttpServlet
       throws ServletException, IOException
   {
     String mediaId = req.getParameter("mediaId");
-    log.debug("**mediaId = "+mediaId);
+    log.info("**mediaId = "+mediaId);
     GradingService gradingService = new GradingService();
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
@@ -74,14 +74,14 @@ public class ShowMediaServlet extends HttpServlet
       agentIdString = AgentFacade.getAgentString(req, res);
     String currentSiteId = AgentFacade.getCurrentSiteIdFromExternalServlet(req,res);
     String mediaSiteId = mediaData.getItemGradingData().getAssessmentGrading().getPublishedAssessment().getOwnerSiteId();
-    log.debug("agentIdString ="+agentIdString);
-    log.debug("****current site Id ="+currentSiteId);
-    log.debug("****media site Id ="+mediaSiteId);
+    log.info("agentIdString ="+agentIdString);
+    log.info("****current site Id ="+currentSiteId);
+    log.info("****media site Id ="+mediaSiteId);
     String role = AgentFacade.getRole(agentIdString);
-    if (agentIdString ==null || mediaData == null || (mediaData!=null && (agentIdString !=null && !agentIdString.equals(mediaData.getCreatedBy()))) ||
-	!(("maintain").equals(role) && currentSiteId.equals(mediaSiteId)))
+    if (agentIdString !=null && mediaData != null &&
+	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator
+	 || (("maintain").equals(role) && currentSiteId.equals(mediaSiteId)))) // u have maintain role
       accessDenied = false;
-
     if (accessDenied){
       String path = "/jsf/delivery/mediaAccessDenied.faces";
       RequestDispatcher dispatcher = req.getRequestDispatcher(path);
@@ -96,6 +96,7 @@ public class ShowMediaServlet extends HttpServlet
         displayType="attachment";
         res.setContentType("application/octet-stream");
       }
+      log.info(displayType+";filename=\""+mediaData.getFilename()+"\";");
       res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
 
       //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
@@ -136,7 +137,7 @@ public class ShowMediaServlet extends HttpServlet
       inputStream = new FileInputStream(media);
     }
     catch (FileNotFoundException ex) {
-      log.debug("file not found="+ex.getMessage());
+      log.warn("file not found="+ex.getMessage());
     }
     return inputStream;
   }
