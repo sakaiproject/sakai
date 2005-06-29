@@ -4,7 +4,7 @@
  *
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+ * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
  * 
  * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -35,8 +35,6 @@ import org.quartz.TriggerListener;
  */
 public interface SchedulerManager
 {
-  
- 
 
   /**
    * @return Returns the globalTriggerListener.
@@ -107,7 +105,7 @@ public interface SchedulerManager
    * @param sched The sched to set.
    */
   public void setScheduler(Scheduler scheduler);
-  
+
   /**
    * set autoDdl
    */
