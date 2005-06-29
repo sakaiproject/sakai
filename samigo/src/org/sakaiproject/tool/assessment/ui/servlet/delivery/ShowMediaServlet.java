@@ -96,7 +96,7 @@ public class ShowMediaServlet extends HttpServlet
         displayType="attachment";
         res.setContentType("application/octet-stream");
       }
-      log.info(displayType+";filename=\""+mediaData.getFilename()+"\";");
+      log.info("****"+displayType+";filename=\""+mediaData.getFilename()+"\";");
       res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
 
       //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
@@ -104,8 +104,9 @@ public class ShowMediaServlet extends HttpServlet
       BufferedInputStream buf_inputStream = null;
       ServletOutputStream outputStream = res.getOutputStream();
       BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
-      if (mediaLocation == null){
+      if (mediaLocation == null || (mediaLocation.trim()).equals("")){
         buf_inputStream = new BufferedInputStream(new ByteArrayInputStream(media));
+        log.info("**** media.length="+media.length);
       }
       else{
         inputStream = getFileStream(mediaLocation);
@@ -116,10 +117,13 @@ public class ShowMediaServlet extends HttpServlet
       if (buf_inputStream !=null){
         while ((i=buf_inputStream.read()) != -1){
           buf_outputStream.write(i);
+          //System.out.print(i);
           count++;
         }
       }
 
+      log.info("**** mediaLocation="+mediaLocation);
+      log.info("**** count="+count);
       res.setContentLength(count);
       res.flushBuffer();
       buf_outputStream.close();
