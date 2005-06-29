@@ -13,10 +13,7 @@
     <many-to-one name="itemGradingData"
       class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"
       column="ITEMGRADINGID" />
-    <property name="media" type="binary">
-      <!-- HSQLDB do not support blob - too bad, so let's Hibernate deal with it then 
-      <column name="MEDIA" not-null="false" sql-type="blob"/>
-      -->
+    <property name="media">
       <column name="MEDIA" not-null="false" length="1000000000"/>
     </property>
     <property name="fileSize">
