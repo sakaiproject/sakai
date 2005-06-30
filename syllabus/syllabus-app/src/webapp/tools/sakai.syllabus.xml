@@ -8,5 +8,7 @@
 			
 		<category name="course" />
 		<category name="project" />
+
+		<configuration name="help.id" value="syllabus_overview" />
 	</tool>	
 </registration>
