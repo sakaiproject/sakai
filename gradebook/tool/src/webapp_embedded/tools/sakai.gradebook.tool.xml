@@ -4,5 +4,6 @@
 		description="Stores and computes grades">
 		<category name="course" />
 		<category name="project" />
+		<configuration name="help.id" value="sakai.gradebook" />
 	</tool>
 </registration>
