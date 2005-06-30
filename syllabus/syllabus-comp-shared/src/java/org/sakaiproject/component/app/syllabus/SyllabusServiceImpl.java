@@ -319,8 +319,15 @@ public class SyllabusServiceImpl implements SyllabusService
                               .createSyllabusItem(UserDirectoryService
                                   .getCurrentUser().getId(), page, syElement
                                   .getAttribute(SYLLABUS_REDIRECT_URL));
+                          } 
+                          //added htripath: get imported redirecturl, even if syllabus item is existing.
+                          else{
+                            if (syElement.getAttribute(SYLLABUS_REDIRECT_URL) !=null){
+                              syllabusItem.setRedirectURL(syElement.getAttribute(SYLLABUS_REDIRECT_URL));
+                              syllabusManager.saveSyllabusItem(syllabusItem) ;
+                            }                            
                           }
-                          
+                          //
                           NodeList allSyllabiNodes = syElement.getChildNodes();
                           int lengthSyllabi = allSyllabiNodes.getLength();
                           for (int j = 0; j < lengthSyllabi; j++)
