@@ -151,6 +151,15 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       return data;
     }
   }
+    
+  /**
+   * removes a syllabus data object (on form cancel action) 
+   * @see org.sakaiproject.api.app.syllabus.SyllabusManager#removeSyllabusDataObject(org.sakaiproject.api.app.syllabus.SyllabusData)
+   */
+  public void removeSyllabusDataObject(SyllabusData o)
+  {
+    getHibernateTemplate().delete(o);
+  }
   
   /**
    * swapSyllabusDataPositions swaps positions for two SyllabusData objects

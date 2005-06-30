@@ -46,6 +46,8 @@ public interface SyllabusManager
   public SyllabusData createSyllabusDataObject(String title, Integer position,
       String assetId, String view, String status, String emailNotification);
   
+  public void removeSyllabusDataObject(SyllabusData o);
+  
   public Set getSyllabiForSyllabusItem(final SyllabusItem syllabusItem);
   
   public void swapSyllabusDataPositions(final SyllabusItem syllabusItem, final SyllabusData d1, final SyllabusData d2);

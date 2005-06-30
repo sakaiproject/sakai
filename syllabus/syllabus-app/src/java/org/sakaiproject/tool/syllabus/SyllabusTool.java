@@ -29,11 +29,11 @@ import java.util.Set;
 
 import javax.faces.context.FacesContext;
 
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.kernel.tool.Placement;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
@@ -493,6 +493,10 @@ public class SyllabusTool
   {
     logger.info(this + ".processEditCancel() in SyllabusTool ");
 
+    if (entry != null){
+      syllabusManager.removeSyllabusDataObject(entry.getEntry());      
+    }
+    
     displayTitleErroMsg = false;
     entries.clear();
     entry = null;
