@@ -57,6 +57,8 @@ public interface SyllabusManager
   public Integer findLargestSyllabusPosition(final SyllabusItem syllabusItem);
   
   public SyllabusItem getSyllabusItemByContextId(final String contextId);
+  
+  public SyllabusData getSyllabusData(final String dataId);
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************

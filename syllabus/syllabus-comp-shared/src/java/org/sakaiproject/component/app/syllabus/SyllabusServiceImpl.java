@@ -35,12 +35,23 @@ import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.kernel.tool.Placement;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.component.legacy.message.BaseMessageService.BaseMessageEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.framework.log.Logger;
+import org.sakaiproject.service.framework.session.cover.UsageSessionService;
+import org.sakaiproject.service.legacy.event.Event;
+import org.sakaiproject.service.legacy.event.cover.EventTrackingService;
+import org.sakaiproject.service.legacy.notification.NotificationEdit;
+import org.sakaiproject.service.legacy.notification.NotificationService;
 import org.sakaiproject.service.legacy.resource.ReferenceVector;
 import org.sakaiproject.service.legacy.resource.Resource;
+import org.sakaiproject.service.legacy.resource.ResourceProperties;
+import org.sakaiproject.service.legacy.resource.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.service.legacy.time.cover.TimeService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -48,6 +59,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+
+import org.sakaiproject.service.legacy.resource.Edit;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * @author rshastri TODO To change the template for this generated type comment go to Window -
@@ -80,12 +97,27 @@ public class SyllabusServiceImpl implements SyllabusService
   /** Dependency: a logger component. */
   private Logger logger = null;
   
-
+  protected NotificationService notificationService = null;
+  protected String m_relativeAccessPoint = null;
+  
 //sakai2 -- add init and destroy methods  
 	public void init()
 	{
 	  ServerConfigurationService.registerResourceService(this);
+	  
+	  m_relativeAccessPoint = REFERENCE_ROOT;
+	  
+	  NotificationEdit edit = notificationService.addTransientNotification();
+	  
+	  edit.setFunction(EVENT_SYLLABUS_POST_NEW);
+	  edit.addFunction(EVENT_SYLLABUS_POST_CHANGE);
+	  edit.addFunction(EVENT_SYLLABUS_DELETE_POST);
+	  
+	  edit.setResourceFilter(getAccessPoint(true));
+	  
+	  edit.setAction(new SiteEmailNotificationSyllabus());
 	}
+
 	public void destroy()
 	{
 	}
@@ -617,208 +649,252 @@ public class SyllabusServiceImpl implements SyllabusService
     }*/
   }
 
-}
+  public void setNotificationService(NotificationService notificationService)
+	{
+		this.notificationService = notificationService;
+	}
 
-/*
- *  public String merge(String siteId, Element root, String archivePath,
-    String fromSiteId, Map attachmentNames, HashMap userIdTrans,
-    Set userListAllowImport)
-{
-  class SyllabusData_M extends SyllabusDataImpl
+  protected String getAccessPoint(boolean relative)
+	{
+		return (relative ? "" : ServerConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
+	}
+  
+  public void postNewSyllabus(SyllabusData data)
   {
-    private SyllabusData syllabusData;
-
-    public SyllabusData_M()
+    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data);
+    
+    addLiveSyllabusProperties(bre);
+    
+    bre.setEvent(EVENT_SYLLABUS_POST_NEW);
+    
+    String emailNotify = data.getEmailNotification();
+    
+    int priority;
+    
+    if(emailNotify.equalsIgnoreCase("none"))
     {
-
+      priority = NotificationService.NOTI_NONE;
     }
-
-    public SyllabusData_M(SyllabusData syllabusData)
+    else if(emailNotify.equalsIgnoreCase("high"))
     {
-      this.syllabusData = syllabusData;
+      priority = NotificationService.NOTI_REQUIRED;
     }
-
-    public int hashCode()
+    else if(emailNotify.equalsIgnoreCase("low"))
     {
-      return IdService.getUniqueId().hashCode();
-    }
-
-    public SyllabusData getSyllabusData()
-    {
-      return this.syllabusData;
-    }
-  }
-
-  // buffer for the results log
-  StringBuffer results = new StringBuffer();
-  // populate SyllabusItem
-  int syDataCount = 0;
-  SyllabusItem syItem = null;
-  Set syllabusDataSet = new HashSet();
-  try
-  {
-    NodeList allChildrenNodes = root.getChildNodes();
-    int length = allChildrenNodes.getLength();
-    for (int i = 0; i < length; i++)
-    {
-      Node child = allChildrenNodes.item(i);
-      if (child.getNodeType() == Node.ELEMENT_NODE)
-      {
-        Element syElement = (Element) child;
-
-        if (syElement.getTagName().equals(SYLLABUS))
-        {
-          syItem = new SyllabusItemImpl();
-          syItem
-              .setRedirectURL(syElement.getAttribute(SYLLABUS_REDIRECT_URL));
-
-          NodeList allSyllabiNodes = syElement.getChildNodes();
-          int lengthSyllabi = allSyllabiNodes.getLength();
-          for (int j = 0; j < lengthSyllabi; j++)
-          {
-            Node child2 = allSyllabiNodes.item(j);
-            if (child2.getNodeType() == Node.ELEMENT_NODE)
-            {
-
-              Element syDataElement = (Element) child2;
-              if (syDataElement.getTagName().equals(SYLLABUS_DATA))
-              {
-                syDataCount = syDataCount + 1;
-                SyllabusData_M syData = new SyllabusData_M();
-                syData
-                    .setView(syDataElement.getAttribute(SYLLABUS_DATA_VIEW));
-                syData.setTitle(syDataElement
-                    .getAttribute(SYLLABUS_DATA_TITLE));
-                syData.setStatus(syDataElement
-                    .getAttribute(SYLLABUS_DATA_STATUS));
-                syData.setEmailNotification(syDataElement
-                    .getAttribute(SYLLABUS_DATA_EMAIL_NOTIFICATION));
-
-                NodeList allAssetNodes = syDataElement.getChildNodes();
-                int lengthSyData = allAssetNodes.getLength();
-                for (int k = 0; k < lengthSyData; k++)
-                {
-                  Node child3 = allAssetNodes.item(k);
-                  if (child3.getNodeType() == Node.ELEMENT_NODE)
-                  {
-                    Element assetEle = (Element) child3;
-                    if (assetEle.getTagName().equals(SYLLABUS_DATA_ASSET))
-                    {
-                      NodeList assetStringNodes = assetEle.getChildNodes();
-                      int lengthAssetNodes = assetStringNodes.getLength();
-                      for (int l = 0; l < lengthAssetNodes; l++)
-                      {
-                        Node child4 = assetStringNodes.item(l);
-                        if (child4.getNodeType() == Node.TEXT_NODE)
-                        {
-                          Text textNode = (Text) child4;
-                          syData.setAsset(textNode.getData());
-                        }
-                      }
-                    }
-                  }
-                }
-                if (syllabusDataSet != null && syData != null)
-                {
-                  syllabusDataSet.add(syData);
-                }
-              }
-            }
-          }
-          if (syllabusDataSet.size() > 0)
-          {
-            syItem.setSyllabi(syllabusDataSet);
-          }
-
-        }
-
-      }
-
-    }
-    if (syItem != null)
-    {
-      // processMerge in existing tools for given site
-      if (siteId != null && siteId.trim().length() > 0)
-      {
-
-        Iterator pageIter = getSyllabusPages(siteId);
-        if (pageIter != null)
-        {
-          while (pageIter.hasNext())
-          {
-            String page = (String) pageIter.next();
-            if (page != null)
-            {
-              SyllabusItem syllabusItem = syllabusManager
-                  .getSyllabusItemByContextId(page);
-              if (syllabusItem == null)
-              {
-                syllabusItem = syllabusManager.createSyllabusItem(
-                    UserDirectoryService.getCurrentUser().getId(), page,
-                    syItem.getRedirectURL());
-              }
-              if (syItem.getSyllabi() != null
-                  && syItem.getSyllabi().size() > 0)
-              {
-                Set lst = (HashSet) syItem.getSyllabi();
-                Iterator syDataIter = lst.iterator();
-                while (syDataIter.hasNext())
-                {
-                  SyllabusData_M mySyData = (SyllabusData_M) syDataIter
-                      .next();
-                  int initPosition = syllabusManager
-                      .findLargestSyllabusPosition(syllabusItem).intValue() + 1;
-                  SyllabusData syData = syllabusManager
-                      .createSyllabusDataObject(mySyData.getTitle(),
-                          (new Integer(initPosition)), mySyData.getAsset(),
-                          mySyData.getView(), mySyData.getStatus(), mySyData
-                              .getEmailNotification());
-
-                  syllabusManager.addSyllabusToSyllabusItem(syllabusItem,
-                      syData);
-                }
-              }
-            }
-          }
-          results.append("merging syllabus " + siteId + " (" + syDataCount
-              + ") syllabus items.\n");
-          return results.toString();
-        }
-        else
-        {
-          results
-              .append("merging syllabus : no syllabus tool found for site "
-                  + siteId + " \n");
-          return results.toString();
-        }
-
-      }
+      priority = NotificationService.NOTI_OPTIONAL;
     }
     else
     {
-      results
-          .append("merging syllabus: error : no syllabus found in xml file"
-              + siteId + " \n");
+      priority = NotificationService.NOTI_NONE;
     }
-  }
-  catch (DOMException e)
-  {
-    logger.error(e.getMessage(), e);
-    results.append("merging " + getLabel() + " failed during xml parsing.\n");
 
+		Event event =
+		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+			    true, priority);
+		
+		EventTrackingService.post(event);
   }
-  catch (Exception e)
+  
+  public class BaseResourceEdit implements Resource, Edit
   {
-    logger.error(e.getMessage(), e);
-    results.append("merging " + getLabel() + " failed.\n");
-  }
+		protected String m_id = null;
 
-  return results.toString();
+		protected String m_event = null;
+
+		protected boolean m_active = false;
+
+		protected boolean m_isRemoved = false;
+
+		protected boolean m_bodyUpdated = false;
+		
+		protected ResourcePropertiesEdit m_properties = null;
+		
+		protected String m_reference = null;
+		
+		protected SyllabusData m_data = null;
+
+		public BaseResourceEdit(String id, SyllabusData data)
+		{
+	    Placement placement = ToolManager.getCurrentPlacement();
+			String currentSiteId = placement.getContext();
+			
+			m_id = id;
+			
+			m_data = data;
+			
+			m_reference = Resource.SEPARATOR + currentSiteId + Resource.SEPARATOR + m_id;
+			
+			m_properties = new BaseResourcePropertiesEdit();
+			
+			m_properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, data.getTitle());
+		}
+
+		public String getUrl()
+    {
+			return getAccessPoint(false) + "/" + m_id;
+    }
+
+    public String getReference()
+    {
+      String thisString = getAccessPoint(true) + m_reference;
+			return getAccessPoint(true) + m_reference;
+    }
+
+    public String getId()
+    {
+      return m_id;
+    }
+
+    public ResourceProperties getProperties()
+    {
+      return m_properties;
+    }
+
+    public Element toXml(Document doc, Stack stack)
+    {
+			Element syllabus = doc.createElement("syllabus");
+
+			if (stack.isEmpty())
+			{
+				doc.appendChild(syllabus);
+			}
+			else
+			{
+				((Element) stack.peek()).appendChild(syllabus);
+			}
+
+			stack.push(syllabus);
+
+			syllabus.setAttribute("id", m_id);
+			syllabus.setAttribute("subject", m_data.getTitle());
+			syllabus.setAttribute("body", m_data.getAsset());
+
+			m_properties.toXml(doc, stack);
+
+			stack.pop();
+
+			return syllabus;
+
+    }
+
+    public boolean isActiveEdit()
+    {
+      return m_active;
+    }
+
+    public ResourcePropertiesEdit getPropertiesEdit()
+    {
+      return m_properties;
+    }
+    
+    protected void closeEdit()
+    {
+      m_active = false;
+    }
+    
+    protected void activate()
+    {
+      m_active = true;
+    }
+    
+		protected String getEvent()
+		{
+			return m_event;
+		}
+		
+		protected void setEvent(String event)
+		{
+		  m_event = event; 
+		}
+  }
+  
+	protected void addLiveSyllabusProperties(BaseResourceEdit r)
+	{
+		ResourcePropertiesEdit p = r.getPropertiesEdit();
+
+		String current = UsageSessionService.getSessionUserId();
+		p.addProperty(ResourceProperties.PROP_CREATOR, current);
+		p.addProperty(ResourceProperties.PROP_MODIFIED_BY, current);
+
+		String now = TimeService.newTime().toString();
+		p.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
+		p.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
+
+		p.addProperty(ResourceProperties.PROP_IS_COLLECTION, "false");
+	}
+	
+	public void postChangeSyllabus(SyllabusData data)
+	{
+    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data);
+    
+    addLiveSyllabusProperties(bre);
+    
+    bre.setEvent(EVENT_SYLLABUS_POST_CHANGE);
+    
+    String emailNotify = data.getEmailNotification();
+    
+    int priority;
+    
+    if(emailNotify.equalsIgnoreCase("none"))
+    {
+      priority = NotificationService.NOTI_NONE;
+    }
+    else if(emailNotify.equalsIgnoreCase("high"))
+    {
+      priority = NotificationService.NOTI_REQUIRED;
+    }
+    else if(emailNotify.equalsIgnoreCase("low"))
+    {
+      priority = NotificationService.NOTI_OPTIONAL;
+    }
+    else
+    {
+      priority = NotificationService.NOTI_NONE;
+    }
+
+		Event event =
+		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+			    true, priority);
+		
+		EventTrackingService.post(event);
+	}
+
+	public void deletePostedSyllabus(SyllabusData data)
+	{
+    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data);
+    
+    addLiveSyllabusProperties(bre);
+    
+    bre.setEvent(EVENT_SYLLABUS_DELETE_POST);
+    
+    String emailNotify = data.getEmailNotification();
+    
+    int priority;
+    
+    if(emailNotify.equalsIgnoreCase("none"))
+    {
+      priority = NotificationService.NOTI_NONE;
+    }
+    else if(emailNotify.equalsIgnoreCase("high"))
+    {
+      priority = NotificationService.NOTI_REQUIRED;
+    }
+    else if(emailNotify.equalsIgnoreCase("low"))
+    {
+      priority = NotificationService.NOTI_OPTIONAL;
+    }
+    else
+    {
+      priority = NotificationService.NOTI_NONE;
+    }
+
+		Event event =
+		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+			    true, priority);
+		
+		EventTrackingService.post(event);
+	}
 }
-
- * 
- */
-
 /**************************************************************************************************************************************************************************************************************************************************************
  * $Header: /cvs/sakai2/syllabus/syllabus-comp-shared/src/java/org/sakaiproject/component/app/syllabus/SyllabusServiceImpl.java,v 1.4 2005/05/19 14:26:30 cwen.iupui.edu Exp $
  *************************************************************************************************************************************************************************************************************************************************************/

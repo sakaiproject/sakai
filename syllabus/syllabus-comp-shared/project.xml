@@ -32,7 +32,37 @@
 			<artifactId>sakai-legacy-service</artifactId>
 			<version>${pom.currentVersion}</version>
 		</dependency>
-  		
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-component</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-java</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-xml</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>		
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>  		  
+		
 		<dependency>
   			<groupId>hibernate</groupId>
   			<artifactId>hibernate</artifactId>

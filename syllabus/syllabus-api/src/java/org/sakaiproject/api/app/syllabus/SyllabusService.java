@@ -24,13 +24,28 @@
 
 package org.sakaiproject.api.app.syllabus;
 
+import org.sakaiproject.service.legacy.resource.Resource;
 import org.sakaiproject.service.legacy.resource.ResourceService;
 
 public interface SyllabusService extends ResourceService
 {
   /** This string can be used to find the service in the service manager. */
 	public static final String SERVICE_NAME = SyllabusService.class.getName();
-	 
+	
+	public static final String EVENT_SYLLABUS_POST_NEW = "syllabus.post.new";
+	
+	public static final String EVENT_SYLLABUS_POST_CHANGE = "syllabus.post.change";
+	
+	public static final String EVENT_SYLLABUS_DELETE_POST = "syllabus.delete.posted";
+	
+	public static final String REFERENCE_ROOT = Resource.SEPARATOR + "syllabus";
+	
+	public void postNewSyllabus(SyllabusData data);
+	
+	public void postChangeSyllabus(SyllabusData data);
+	
+	public void deletePostedSyllabus(SyllabusData data);
+	
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************

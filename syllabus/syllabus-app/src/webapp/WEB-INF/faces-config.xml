@@ -50,7 +50,11 @@
 			<property-name>logger</property-name>
 			<value>#{Components["org.sakaiproject.service.framework.log.Logger"]}</value>
 		</managed-property>
-    
+		<managed-property>
+			<description>syllabusService</description>
+			<property-name>syllabusService</property-name>
+			<value>#{Components["org.sakaiproject.api.app.syllabus.SyllabusService"]}</value>
+		</managed-property>    
 	</managed-bean>
 
   <component>

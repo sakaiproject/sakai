@@ -42,6 +42,14 @@ import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 
 import com.sun.faces.util.MessageFactory;
+
+import org.sakaiproject.service.framework.email.cover.EmailService;
+import org.sakaiproject.service.legacy.realm.cover.RealmService;
+import org.sakaiproject.service.legacy.realm.Realm;
+import org.sakaiproject.service.legacy.user.User;
+//import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.api.app.syllabus.SyllabusService;
+
 //sakai2 - no need to import org.sakaiproject.jsf.ToolBean here as sakai does.
 
 /**
@@ -136,6 +144,8 @@ public class SyllabusTool
   private boolean displayNoEntryMsg = false;
   
   private boolean displayTitleErroMsg = false;
+  
+  private SyllabusService syllabusService;
 
   public SyllabusTool()
   {
@@ -463,6 +473,12 @@ public class SyllabusTool
         for (int i = 0; i < selected.size(); i++)
         {
           DecoratedSyllabusEntry den = (DecoratedSyllabusEntry) selected.get(i);
+          
+          if(den.getEntry().getStatus().equalsIgnoreCase("Posted"))
+          {
+            syllabusService.deletePostedSyllabus(den.getEntry());
+          }
+          
           syllabusManager.removeSyllabusFromSyllabusItem(syllabusItem, den
               .getEntry());
         }
@@ -581,6 +597,7 @@ public class SyllabusTool
           syllabusManager.addSyllabusToSyllabusItem(syllabusItem, getEntry()
               .getEntry());
           //syllabusManager.saveSyllabusItem(syllabusItem);
+          syllabusService.postNewSyllabus(getEntry().getEntry());
           
           entries.clear();
           entry = null;
@@ -594,6 +611,7 @@ public class SyllabusTool
     catch (Exception e)
     {
       logger.info(this + ".processEditPost in SyllabusTool: " + e);
+      e.printStackTrace();
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
@@ -764,6 +782,8 @@ public class SyllabusTool
           getEntry().getEntry().setStatus("Posted");
           syllabusManager.saveSyllabus(getEntry().getEntry());
 
+          syllabusService.postChangeSyllabus(getEntry().getEntry());
+          
           displayTitleErroMsg = false;
           entries.clear();
           entry = null;
@@ -1026,6 +1046,59 @@ public class SyllabusTool
   public String getTitle()
   {
     return SiteService.findTool(PortalService.getCurrentToolId()).getTitle();
+  }
+  
+/*test send email.  private void sendNotification()
+  {
+    String realmName = "/site/" + siteId;
+    try
+    {
+      Realm siteRealm = RealmService.getRealm(realmName);
+      Set users = siteRealm.getUsers();
+      
+      if(entry.getEntry().getEmailNotification().equalsIgnoreCase("high"))
+      {
+        Iterator userIter = users.iterator();
+        String userId;
+        User thisUser;
+        while(userIter.hasNext())
+        {
+          userId = (String) userIter.next();
+          thisUser = UserDirectoryService.getUser(userId);
+          if(thisUser.getEmail() != null)
+          {
+            if(!thisUser.getEmail().equalsIgnoreCase(""))
+            {
+              EmailService.send("cwen@iupui.edu", thisUser.getEmail(), entry.getEntry().getTitle(), 
+                  entry.getEntry().getAsset(), null, null, null);
+            }
+          }
+        }
+      }
+      else if(this.entry.in_entry.getEmailNotification().equalsIgnoreCase("low"))
+      {
+      }
+      else
+      {
+      }
+    }
+    catch(Exception e)
+    {
+      logger.info(this + ".sendNotification() in SyllabusTool.");
+      e.printStackTrace();
+    }
+//for test    EmailService.send("cwen@iupui.edu", "cwen@iupui.edu", entry.getEntry().getTitle(), 
+//for test        entry.getEntry().getAsset(), null, null, null);
+  }*/
+
+  public SyllabusService getSyllabusService()
+  {
+    return syllabusService;
+  }
+  
+  public void setSyllabusService(SyllabusService syllabusService)
+  {
+    this.syllabusService = syllabusService;
   }
 }
 

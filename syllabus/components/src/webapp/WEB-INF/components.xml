@@ -24,6 +24,9 @@
 			<ref
 				bean="org.sakaiproject.api.app.syllabus.SyllabusManager" />
 		</property>
+		<property name="notificationService">
+			<ref bean="org.sakaiproject.service.legacy.notification.NotificationService" />
+		</property>
 	</bean>
 
 	<bean id="syllabusTransactionManager"

@@ -60,7 +60,8 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   private static final String SURROGATE_KEY = "surrogateKey";
   private static final String SYLLABI = "syllabi";  
   private static final String FOREIGN_KEY = "foreignKey";
-
+  private static final String QUERY_BY_SYLLABUSDATAID = "findSyllabusDataByDataIds";
+  private static final String DATA_KEY = "syllabusId";
   
   /**
    * createSyllabusItem creates a new SyllabusItem
@@ -308,7 +309,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException
       {
-        
+
         SyllabusItem returnedItem = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
         if (returnedItem != null){          
           returnedItem.getSyllabi().add(syllabusData);                   
@@ -368,7 +369,29 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   {
     getHibernateTemplate().saveOrUpdate(data);
   }  
-    
+
+  public SyllabusData getSyllabusData(final String dataId)
+  {
+    if (dataId == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }
+    else
+    {                 
+      HibernateCallback hcb = new HibernateCallback()
+      {
+        public Object doInHibernate(Session session) throws HibernateException,
+            SQLException
+        {
+          Long longObj = new Long(dataId);
+          SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, longObj);
+          return returnedData;
+        }
+      }; 
+      return (SyllabusData) getHibernateTemplate().execute(hcb);
+    }
+
+  }  
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************
