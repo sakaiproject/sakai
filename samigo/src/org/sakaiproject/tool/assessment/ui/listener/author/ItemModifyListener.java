@@ -116,9 +116,17 @@ public class ItemModifyListener implements ActionListener
         itemauthorbean.setItemNo(String.valueOf(itemfacade.getSequence().intValue() ));
       }
 
-      //System.out.println("lydiatest bena.getItemtype() " + bean.getItemType());
-      //System.out.println("lydiatest itemauthor.getItemType() " + itemauthorbean.getItemType());
-      bean.setItemScore(itemfacade.getScore().toString());
+      Float points = itemfacade.getScore();
+      String score;
+      if (points!=null)
+       {
+        score = points.toString();
+       }
+      else // cover modifying an imported XML assessment that has no score yet
+       {
+         score ="0.0";
+       }
+      bean.setItemScore(score);
       if (itemfacade.getHasRationale() !=null) {
         bean.setRationale(itemfacade.getHasRationale().toString());
       }
