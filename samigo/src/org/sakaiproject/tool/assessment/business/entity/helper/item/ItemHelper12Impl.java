@@ -265,16 +265,15 @@ public class ItemHelper12Impl extends ItemHelperBase
     if (isInsert)
     {
       itemXml.insertElement(nextNode, xpath, "itemfeedback");
-      log.debug("Adding feedback: " + xpath +
+      log.debug("Adding " + responseLabel + " feedback '" + value + "': " + xpath +
                "/itemfeedback[" + responseNo + "]" +
                "<==/itemfeedback/flow_mat/material/mattext");
       itemXml.add(
-        xpath + "/itemfeedback[" + responseNo + "]",
-        "flow_mat/material/mattext");
+        xpath, "itemfeedback/flow_mat/material/mattext");
     }
     else
     {
-      log.debug("Updating feedback: " + xpath +
+      log.debug("Updating " + responseLabel + " feedback '" + value + "': " + xpath +
                "<==/itemfeedback/flow_mat/material/mattext");
 //      itemXml.add(xpath, "/itemfeedback/flow_mat/material/mattext");
     }
@@ -1157,10 +1156,16 @@ public class ItemHelper12Impl extends ItemHelperBase
         xpathIndex++;
       }
       // finally, add in General Feedback
+      log.debug("\nDebug add in General Feedback");
       String generalFeedback = itemTextIfc.getItem().getGeneralItemFeedback();
+      log.debug("\ngeneralFeedback: " + generalFeedback);
       String itemId = itemTextIfc.getItem().getItemIdString();
+      log.debug("\nitemId: " + itemId);
       if (generalFeedback != null)
       {
+        log.debug("\ngeneralFeedback != null");
+        log.debug("\nadding generalFeedback for itemId: " + itemId +
+                 "xpathIndex: " + xpathIndex);
         addItemfeedback(
           itemXml, generalFeedback, true, "" + xpathIndex++, itemId);
       }
