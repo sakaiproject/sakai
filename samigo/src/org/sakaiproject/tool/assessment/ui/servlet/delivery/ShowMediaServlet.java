@@ -63,7 +63,9 @@ public class ShowMediaServlet extends HttpServlet
     GradingService gradingService = new GradingService();
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
-    byte[] media = mediaData.getMedia();
+    log.info("**** media size="+mediaData.getFileSize());
+    byte[] media = new byte[mediaData.getFileSize().intValue()];
+    media = mediaData.getMedia();
 
     // who can access the media? You can,
     // a. if you are the creator.
