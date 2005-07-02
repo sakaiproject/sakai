@@ -1040,21 +1040,22 @@ public class ExtractionHelper
       Object o = itemMap.get(key);
       System.out.println("itemMap: " + key + "=" + itemMap.get(key));
     }
+
     log.debug("\n*** calculating item feedback from" + itemMap);
-    String correctItemFeedback = (String) itemMap.get(
-        "correctItemFeedback");
-    String incorrectItemFeedback = (String) itemMap.get(
-        "incorrectItemFeedback");
-    String generalItemFeedback = (String) itemMap.get(
-        "generalItemFeedback");
-    // now if this is an Audio, File Upload or Short Answer question just
-    // get whatever feedback is there and put it in general, note: in
-    //  some versions of Navigo the general feedback is exported as "InCorrect"!
+    String correctItemFeedback = (String) itemMap.get("correctItemFeedback");
+    String incorrectItemFeedback = (String) itemMap.get("incorrectItemFeedback");
+    String generalItemFeedback = (String) itemMap.get("generalItemFeedback");
+    if (generalItemFeedback==null) generalItemFeedback = "";
+
+    // NOTE:
+    // in early Samigo (aka Navigo) general feedback exported as "InCorrect"!
+    // now if this is an Audio, File Upload or Short Answer question additional
+    // feedback will append feedback to general, this should be OK, since
+    // QTI with general feedback for these types will leave them empty
     if (TypeIfc.AUDIO_RECORDING.longValue() == typeId.longValue() ||
         TypeIfc.FILE_UPLOAD.longValue() == typeId.longValue() ||
         TypeIfc.ESSAY_QUESTION.longValue() == typeId.longValue())
     {
-      generalItemFeedback = "";
       if (notNullOrEmpty(incorrectItemFeedback))
       {
         generalItemFeedback += " " + incorrectItemFeedback;
