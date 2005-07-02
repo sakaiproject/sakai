@@ -1108,69 +1108,106 @@ public class ItemHelper12Impl extends ItemHelperBase
 
       if (first) // then do once
       {
-        // add in Correct and InCorrect Feedback
-        String correctFeedback = itemTextIfc.getItem().getCorrectItemFeedback();
-        String incorrectFeedback = itemTextIfc.getItem().
-          getInCorrectItemFeedback();
-        log.debug("CORRECT FEEDBACK: " + correctFeedback);
-        if (correctFeedback != null)
-        {
-          this.addItemfeedback(
-            itemXml, correctFeedback, false, "1", "" + "Correct");
-        }
-        log.debug("INCORRECT FEEDBACK: " + incorrectFeedback);
-        if (incorrectFeedback != null)
-        {
-          this.addItemfeedback(
-            itemXml, incorrectFeedback, false, "2", "" + "InCorrect");
-        }
+        addCorrectAndIncorrectFeedback(itemXml, itemTextIfc);
         xpathIndex = 3;
         first = false;
       }
 
-      // answer feedback
       answerSet = itemTextIfc.getAnswerSet();
       Iterator aiter = answerSet.iterator();
       while (aiter.hasNext())
       {
         AnswerIfc answer = (AnswerIfc) aiter.next();
-        String value = answer.getGeneralAnswerFeedback();
-        log.debug("answer feedback: " + answer.getText());
-        Node node = null;
-        try
-        {
-          boolean isInsert = true;
-          if (nodeIter.hasNext())
-          {
-            isInsert = false;
-          }
-          addItemfeedback(
-            itemXml, value, isInsert, "" + xpathIndex, "" + label);
-        }
-        catch (Exception ex)
-        {
-          log.error("Cannot process source document.", ex);
-        }
-
+        addAnswerFeedback(itemXml, xpathIndex, nodeIter, label, answer);
         label++;
         xpathIndex++;
       }
-      // finally, add in General Feedback
-      log.debug("\nDebug add in General Feedback");
-      String generalFeedback = itemTextIfc.getItem().getGeneralItemFeedback();
-      log.debug("\ngeneralFeedback: " + generalFeedback);
-      String itemId = itemTextIfc.getItem().getItemIdString();
-      log.debug("\nitemId: " + itemId);
-      if (generalFeedback != null)
-      {
-        log.debug("\ngeneralFeedback != null");
-        log.debug("\nadding generalFeedback for itemId: " + itemId +
-                 "xpathIndex: " + xpathIndex);
-        addItemfeedback(
-          itemXml, generalFeedback, true, "" + xpathIndex++, itemId);
-      }
+
+      addGeneralFeedback(itemXml, xpathIndex, itemTextIfc);
     }
 
+  }
+
+  /**
+   * Adds feedback with idents of Correct and InCorrect
+   * @param itemXml
+   * @param itemTextIfc
+   */
+
+  private void addCorrectAndIncorrectFeedback(Item itemXml,
+                                              ItemTextIfc itemTextIfc)
+  {
+    String correctFeedback = itemTextIfc.getItem().getCorrectItemFeedback();
+    String incorrectFeedback = itemTextIfc.getItem().
+      getInCorrectItemFeedback();
+    log.debug("CORRECT FEEDBACK: " + correctFeedback);
+    if (correctFeedback != null)
+    {
+      this.addItemfeedback(
+        itemXml, correctFeedback, false, "1", "" + "Correct");
+    }
+    log.debug("INCORRECT FEEDBACK: " + incorrectFeedback);
+    if (incorrectFeedback != null)
+    {
+      this.addItemfeedback(
+        itemXml, incorrectFeedback, false, "2", "" + "InCorrect");
+    }
+  }
+
+  /**
+   * Adds feedback with ident referencing item ident
+   * @param itemXml
+   * @param xpathIndex
+   * @param itemTextIfc
+   */
+  private void addGeneralFeedback(Item itemXml, int xpathIndex,
+                                  ItemTextIfc itemTextIfc)
+  {
+    log.debug("\nDebug add in General Feedback");
+    String generalFeedback = itemTextIfc.getItem().getGeneralItemFeedback();
+    log.debug("\ngeneralFeedback: " + generalFeedback);
+    String itemId = itemTextIfc.getItem().getItemIdString();
+    log.debug("\nitemId: " + itemId);
+    if (generalFeedback != null)
+    {
+      log.debug("\ngeneralFeedback != null");
+      log.debug("\nadding generalFeedback for itemId: " + itemId +
+               "xpathIndex: " + xpathIndex);
+      addItemfeedback(
+        itemXml, generalFeedback, true, "" + xpathIndex++, itemId);
+    }
+  }
+
+  /**
+   * Adds feedback with ident referencing answer ident.
+   * @param itemXml
+   * @param xpathIndex
+   * @param nodeIter
+   * @param label
+   * @param answer
+   */
+
+  private void addAnswerFeedback(Item itemXml, int xpathIndex,
+                                 Iterator nodeIter, char label,
+                                 AnswerIfc answer)
+  {
+    String value = answer.getGeneralAnswerFeedback();
+    log.debug("answer feedback: " + answer.getText());
+    Node node = null;
+    try
+    {
+      boolean isInsert = true;
+      if (nodeIter.hasNext())
+      {
+        isInsert = false;
+      }
+      addItemfeedback(
+        itemXml, value, isInsert, "" + xpathIndex, "" + label);
+    }
+    catch (Exception ex)
+    {
+      log.error("Cannot process source document.", ex);
+    }
   }
 
   ////////////////////////////////////////////////////////////////
