@@ -80,6 +80,16 @@
       <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
     </respcondition>
   </resprocessing>
+  <itemfeedback ident="Correct" view="All">
+    <flow_mat>
+      <material>
+        <mattext/>
+      </material>
+      <material>
+        <matimage imagtype="text/html" uri=""/>
+      </material>
+    </flow_mat>
+  </itemfeedback>
   <itemfeedback ident="InCorrect" view="All">
     <flow_mat>
       <material>
