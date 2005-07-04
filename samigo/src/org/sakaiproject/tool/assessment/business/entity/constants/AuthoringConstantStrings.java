@@ -59,7 +59,7 @@ public class AuthoringConstantStrings
   public static String MCMC = "Multiple Correct Answer";
   public static String MCSC = "Multiple Choice";
   public static String TF = "True False";
-  public static String SURVEY = "Survey";
+  public static String SURVEY = "Multiple Choice Survey";
   public static String ESSAY = "Short Answers/Essay";
 //  public static String ESSAY = "Essay";
   public static String AUDIO = "Audio Recording";
