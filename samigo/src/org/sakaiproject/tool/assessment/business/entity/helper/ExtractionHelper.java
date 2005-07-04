@@ -945,6 +945,10 @@ public class ExtractionHelper
                                String itemIntrospect,
                                String qmdType)
   {
+    log.debug("qmdType: " + qmdType);
+    log.debug("title: " + title);
+    log.debug("itemIntrospect: " + itemIntrospect);
+
     String itemType = qmdType;
 
     if (itemType == null)
@@ -958,6 +962,8 @@ public class ExtractionHelper
         itemType = itemIntrospect;
       }
     }
+    log.debug("returning itemType: " + itemType);
+
     return itemType;
   }
 
@@ -1500,6 +1506,10 @@ public class ExtractionHelper
     {
       itemType = AuthoringConstantStrings.TF;
     }
+    else if (lower.indexOf("survey") != -1 )
+    {
+      itemType = AuthoringConstantStrings.SURVEY;
+    }
     else if (lower.indexOf("multiple") != -1 &&
              lower.indexOf("correct") != -1)
     {
@@ -1540,13 +1550,13 @@ public class ExtractionHelper
    * Note, this may be deprecated in favor of a vocabulary based approach.
    * Need to investigate.  Anyway, this is the form that is backwardly compatible.
    *
-   * @todo take hardcode conversion of file upload out for Samigo 2.0!
-   *
    * @param metadataMap
    * @return
    */
   private Long getType(String qmd_itemtype)
   {
+    log.debug("getType() ");
+
     String[] typeArray = AuthoringConstantStrings.itemTypes;
     for (int i = 0; i < typeArray.length; i++)
     {
@@ -1554,6 +1564,8 @@ public class ExtractionHelper
                 typeArray[i] + "'?...");
       if (qmd_itemtype.trim().equalsIgnoreCase(typeArray[i]))
       {
+        log.debug("getType returns: " + i);
+
         return new Long(i);
       }
     }
