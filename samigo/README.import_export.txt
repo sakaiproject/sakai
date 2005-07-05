@@ -16,10 +16,7 @@ are in correct format for importation.  (SAK-1203).
 
 3. Question format issues on export.
   a. In some cases, blank space was lost in the question text for the file upload question.
-  b. In some cases, one choice lost from Matching question (but not its pair).
-  c. Fill In the Blank. In special case where the first option appears before any question text,
-     question is exported from Sakai, and then reimported, format errors reported. Workaround (7 below).
-  d. Issue reported with non-scored (survey) questions exported in incorrect format. (SAM-271)
+  b. In some cases, one choice lost from Matching question (but not its pair). (SAM-271).
 
 4. Exporting model answers.
   Model Short Answer is not supported for exporting Short Answer/Essay question. (SAM-271).
@@ -55,13 +52,6 @@ There are two workarounds for this, using a text editor:
 
   Note that the XML parser will make no attempt to validate the enclosed character data, and will then
   accept non-XHTML and even bad HTML.
-
-7. Workaround for fill-in-the-blank.(SAM-271)
-The workaround is to have some non-blank text in the phrasing of the question, such as
-   THE {ends} do not {justify} the means.
-instead of
-   {ends} do not {justify} the means.
-
 
 --------------------------------------------------
 $Id: README.import_export.txt,v 1.3 2005/06/15 01:06:59 esmiley.stanford.edu Exp $
