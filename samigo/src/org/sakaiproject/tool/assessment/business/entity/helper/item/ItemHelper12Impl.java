@@ -62,6 +62,7 @@ public class ItemHelper12Impl extends ItemHelperBase
   private static Log log = LogFactory.getLog(ItemHelper12Impl.class);
   private static final String MATCH_XPATH =
     "item/presentation/flow/response_grp/render_choice";
+  private static final String NBSP = "&#160;";
 
   private Document doc;
 
@@ -549,6 +550,23 @@ public class ItemHelper12Impl extends ItemHelperBase
   }
 
   /**
+   * we ensure that answer text between brackets is always nonempty, also that
+   * starting text is nonempty, we use a non-breaking space for this purpose
+   * @param fib
+   * @return
+   */
+  private static String padFibWithNonbreakSpacesText(String fib)
+  {
+
+    if (fib.startsWith("{"))
+    {
+      fib = NBSP + fib;
+    }
+    return fib.replaceAll("\\}\\{", "}" + NBSP + "{");
+  }
+
+
+  /**
    * Special FIB processing.
    * @param itemXml
    * @param responseCondNo
@@ -876,6 +894,8 @@ public class ItemHelper12Impl extends ItemHelperBase
    */
   private static List parseFillInBlank(String input)
   {
+    input = padFibWithNonbreakSpacesText(input);
+    log.info("padFibWithNonbreakSpacesText input: " + input);
 
     Map tempMap = null;
     List storeParts = new ArrayList();
