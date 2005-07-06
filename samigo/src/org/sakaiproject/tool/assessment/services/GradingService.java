@@ -23,7 +23,6 @@
 
 package org.sakaiproject.tool.assessment.services;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
