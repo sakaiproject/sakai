@@ -30,7 +30,14 @@
 
 		<property name="name" type="string" column="NAME"
 			not-null="false" index="HELP_CAT_IDX" />
+
 		<property name="location" type="string" column="LOCATION"
+			not-null="false" />
+
+		<property name="source" type="text" column="SOURCE"
+			not-null="false" />
+
+		<property name="tstamp" type="long" column="TSTAMP"
 			not-null="false" />
 
 		<many-to-one name="category" class="CategoryBean"

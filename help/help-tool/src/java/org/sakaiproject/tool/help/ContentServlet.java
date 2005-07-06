@@ -72,7 +72,7 @@ public class ContentServlet extends HttpServlet
           .equalsIgnoreCase("sakai"))
       {
         writer.write(RestContentProvider.getTransformedDocument(
-            getServletContext(), getHelpManager(), docId));
+            getServletContext(), getHelpManager(), resource));
       }
       else
         if (resource.getLocation().startsWith("/"))

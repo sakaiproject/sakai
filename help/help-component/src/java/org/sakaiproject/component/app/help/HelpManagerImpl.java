@@ -203,10 +203,10 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
    */
   public void storeResource(Resource resource)
   {
-    if (getResourceByDocId(resource.getDocId()) == null)
-    {
+    //if (getResourceByDocId(resource.getDocId()) == null)
+    //{
       getHibernateTemplate().saveOrUpdate(resource);
-    }
+    //}
   }
 
   /**

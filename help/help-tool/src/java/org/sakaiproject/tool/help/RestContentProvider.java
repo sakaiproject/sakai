@@ -32,6 +32,9 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -51,6 +54,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.sakaiproject.api.app.help.HelpManager;
+import org.sakaiproject.api.app.help.Resource;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -69,6 +73,8 @@ public class RestContentProvider
   private static Boolean XSL_INITIALIZED = Boolean.FALSE;
 
   private static Document xslDocument;
+  
+  private static final Map cacheMap = new HashMap();
 
   private static Log LOG = LogFactory
       .getLog("org.sakaiproject.tool.help.RestContentProvider");
@@ -375,20 +381,32 @@ public class RestContentProvider
    * @return transformed document
    */
   public static String getTransformedDocument(ServletContext context,
-      HelpManager helpManager, String docId)
+      HelpManager helpManager, Resource resource)
   {
     
+	Long now = new Long((new Date()).getTime());
+	  
     if (LOG.isDebugEnabled())
     {
       LOG.debug("getTransformedDocument(ServletContext " + context
-          + ", HelpManager " + helpManager + "String " + docId + ")");
+          + ", HelpManager " + helpManager + "String " + resource.getDocId() + ")");
     }
     
+    // test if resource is cached
+    if (resource.getTstamp() != null){
+      if ((now.longValue() - resource.getTstamp().longValue()) < helpManager.getRestConfiguration().getCacheInterval()){
+        if (LOG.isDebugEnabled()){
+          LOG.debug("retrieving document: " + resource.getDocId() + " from cache");                
+        }
+        return resource.getSource();
+      }
+    }
+        
     URL url = null;
     String transformedString = null;
     try
     {
-      url = new URL(helpManager.getStaticRestUrl() + docId + "?domain="
+      url = new URL(helpManager.getStaticRestUrl() + resource.getDocId() + "?domain="
           + helpManager.getRestConfiguration().getRestDomain());
       URLConnection urlConnection = url.openConnection();
 
@@ -411,7 +429,7 @@ public class RestContentProvider
       }
 
       Document transformedDocument = getTransformedDocument(context, sBuffer);
-      transformedString = serializeDocument(transformedDocument);
+      transformedString = serializeDocument(transformedDocument);            
     }
     catch (MalformedURLException e)
     {
@@ -421,6 +439,11 @@ public class RestContentProvider
     {
       LOG.error("Could not open connection to REST document: " + url.getPath());
     }
+        
+    resource.setSource(transformedString);
+    resource.setTstamp(now);
+    helpManager.storeResource(resource);
+    
     return transformedString;
   }
   

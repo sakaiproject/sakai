@@ -56,6 +56,12 @@ public interface RestConfiguration
    */
   public String getRestDomain();
   
+  /**
+   * get cache interval
+   * @return cache interval
+   */
+  public long getCacheInterval();
+  
 }
 
 /**********************************************************************************

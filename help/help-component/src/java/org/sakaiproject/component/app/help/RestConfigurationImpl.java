@@ -41,6 +41,7 @@ public class RestConfigurationImpl implements RestConfiguration
   private String organization;
   private String restDomain;
   private String restUrl;
+  private long cacheInterval;
   
   /**
    * @see org.sakaiproject.api.app.help.RestConfiguration#getOrganization()
@@ -105,6 +106,23 @@ public class RestConfigurationImpl implements RestConfiguration
   public void setRestUrl(String restUrl){
     this.restUrl = restUrl;
   }
+
+  /**
+   * @see org.sakaiproject.api.app.help.RestConfiguration#getCacheInterval()
+   */
+  public long getCacheInterval() {
+	return cacheInterval;	
+  }
+
+/**
+   * set cache interval
+   * @param cacheInterval
+   */
+  public void setCacheInterval(long cacheInterval) {
+	this.cacheInterval = cacheInterval;
+  }
+  
+  
 }
 
 /**********************************************************************************

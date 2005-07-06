@@ -29,8 +29,6 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.transform.Source;
-
 import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.Resource;
 
@@ -45,7 +43,8 @@ public class ResourceBean implements Resource, Comparable
   private String name;
   private Set contexts = new HashSet();
   private String location;
-  private Source source;
+  private String source;
+  private Long tstamp;
   private float score;
   private String formattedScore;
   private String defaultForTool;
@@ -144,17 +143,31 @@ public class ResourceBean implements Resource, Comparable
   /**
    * @see org.sakaiproject.api.app.help.Resource#getSource()
    */
-  public Source getSource()
+  public String getSource()
   {
     return source;
   }
 
   /**
-   * @see org.sakaiproject.api.app.help.Resource#setSource(javax.xml.transform.Source)
+   * @see org.sakaiproject.api.app.help.Resource#setSource(java.lang.String)
    */
-  public void setSource(Source source)
+  public void setSource(String source)
   {
     this.source = source;
+  }
+    
+  /**
+   * @see org.sakaiproject.api.app.help.Resource#getTstamp()
+   */
+  public Long getTstamp() {	
+	return tstamp;
+  }
+
+  /**
+   * @see org.sakaiproject.api.app.help.Resource#setTstamp(java.lang.Long)
+   */
+  public void setTstamp(Long tstamp) {
+	this.tstamp = tstamp;	
   }
 
   /**
@@ -258,6 +271,8 @@ public class ResourceBean implements Resource, Comparable
     sb.append(", location=");
     sb.append(location);
     sb.append(", defaultForTool=");
+    sb.append(", source=");
+    sb.append(source);
     sb.append(defaultForTool);
     return sb.toString();
   }

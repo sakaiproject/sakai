@@ -129,6 +129,9 @@
 		<property name="restDomain">
 			<value>sakaihelp</value>
 		</property>
+		<property name="cacheInterval">
+		    <value>7200000</value>
+		</property>
 	</bean>
 	
 </beans>

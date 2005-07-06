@@ -52,8 +52,32 @@ public interface Resource
    * set the location of this resource
    * @param location
    */
-  public void setLocation(String location);
+  public void setLocation(String source);
+  
+  /**
+   * get the source of this resource
+   * @return source
+   */
+  public String getSource();
 
+  /**
+   * set the source of this resource
+   * @param source
+   */
+  public void setSource(String source);
+
+  /**
+   * get the time stamp of this resource
+   * @return tstamp
+   */
+  public Long getTstamp();
+
+  /**
+   * set the time stamp of this resource
+   * @param tstamp
+   */
+  public void setTstamp(Long tstamp);
+  
   /**
    * get the name of this resource
    * @return name
