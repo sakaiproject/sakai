@@ -22,6 +22,11 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,6 +38,7 @@ import java.util.StringTokenizer;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.type.Type;
+import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -632,7 +638,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public MediaData getMedia(Long mediaId){
-    return (MediaData) getHibernateTemplate().load(MediaData.class,mediaId);
+    MediaData mediaData = (MediaData) getHibernateTemplate().load(MediaData.class,mediaId);
+    mediaData.setMedia(getMediaStream(mediaId));
+    return mediaData;
   }
 
   public ArrayList getMediaArray(Long itemGradingId){
@@ -734,32 +742,47 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
+  private byte[] getMediaStream(Long mediaId){
+    byte[] b = new byte[4000];
+    Session session = null;
+    try{
+      session = getSessionFactory().openSession(); 
+      Connection conn = session.connection();
+      log.debug("****Connection="+conn);
+      String query="select MEDIA from SAM_MEDIA_T where MEDIAID=?";
+      PreparedStatement statement = conn.prepareStatement(query);
+      statement.setLong(1, mediaId.longValue());
+      ResultSet rs = statement.executeQuery();
+      if (rs.next()){
+        java.lang.Object o = rs.getObject("MEDIA");
+        if (o!=null){
+          InputStream in = rs.getBinaryStream("MEDIA");
+          in.mark(0);
+          int ch;
+          int len=0;
+          while ((ch=in.read())!=-1)
+	      len++;
 
-/* Dummy Data
-      AssessmentGradingSummaryData summary = new AssessmentGradingSummaryData();
-      AssessmentGradingData data = new AssessmentGradingData();
-      data.setTotalAutoScore(new Float(8.0));
-      data.setTotalOverrideScore(new Float(5.0));
-      data.setFinalScore(new Float(3.0));
-      data.setComments("Good job!");
-      data.setIsLate(new Boolean(false));
-      data.setForGrade(new Boolean(true));
-      data.setSubmittedDate(new Date());
-      data.setAgentId("admin");
-      AssessmentData assess = new AssessmentData(new Long(0), "Assessment", "An
-assessment", "comment", new Long(1), new Long(1), new Integer(1), new Integer(1)
-, new Integer(1), new Integer(0), "admin", new Date(), "admin", new Date());
-      PublishedAssessmentData pub = new PublishedAssessmentData("Assessment", "A
-n assessment", "comment", new Long(1), new Integer(1), new Integer(1), new Integ
-er(1), new Integer(0), "admin", new Date(), "admin", new Date());
-      pub.setPublishedAssessmentId(new Long(1));
-      assess.setAssessmentBaseId(new Long(1));
-      pub.setAssessment(assess);
-      data.setPublishedAssessment(pub);
-      data.setAgentId("admin");
-      ArrayList list = new ArrayList();
-      summary.setAcceptedAssessmentGrading(data);
-      list.add(summary);
-      return list;
-*/
+          b = new byte[len];
+          in.reset();
+          in.read(b,0,len);
+          in.close();
+	}
+      }
+    }
+    catch(Exception e){
+      log.warn(e.getMessage());
+    }
+    finally{
+      try{
+        if (session !=null) session.close();
+      }
+      catch(Exception ex){
+        log.warn(ex.getMessage());
+      }
+    }
+    return b;
+  }
+
+
 }
