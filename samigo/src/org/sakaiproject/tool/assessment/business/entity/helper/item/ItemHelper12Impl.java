@@ -354,6 +354,10 @@ public class ItemHelper12Impl extends ItemHelperBase
   private void setItemTextMatching(List itemTextList, Item itemXml)
   {
     String xpath = MATCH_XPATH;
+    Map allTargets = new HashMap();
+
+    itemXml.add(xpath, "response_label");
+
     String randomNumber = ("" + Math.random()).substring(2);
     log.debug("In setItemTextMatching().");
 
@@ -365,7 +369,6 @@ public class ItemHelper12Impl extends ItemHelperBase
     // just in case we screw up
     if (itSize > 0) currentPerItemScore = currentMaxScore.floatValue()/itSize;
     int respCondCount = 0;  //used to count the respconditions
-
 
     while (iter.hasNext())
     {
@@ -392,7 +395,8 @@ public class ItemHelper12Impl extends ItemHelperBase
         log.debug("label: " + label);
         log.debug("answerSequence: " + answerSequence);
         log.debug("correct: " + correct);
-        String responseNo = "" + sequence;
+///////////////
+        String responseNo = "" + (answerSequence.longValue() - noSources + 1);
         log.debug("responseNo: " + responseNo);
         String respIdent = "MT-" + randomNumber + "-" + label;
         log.debug("respIdent: " + respIdent);
@@ -404,13 +408,16 @@ public class ItemHelper12Impl extends ItemHelperBase
           log.debug(text + "==>" + answerText);
           // put in global (ewww) ident list
           allIdents.add(respIdent);
+          allTargets.put(respIdent, answerText);
+          log.debug("allIdents now=" + allIdents);
+
 //          itemXml.add(xpath, "response_label");
 
-          log.debug("addMatchingResponseLabelTarget(): ");
-          log.debug(" respIdent: " + respIdent);
-          log.debug(" responseNo: " + responseNo);
-          log.debug(" value: " + answerText);
-          addMatchingResponseLabelTarget(itemXml, responseNo, respIdent, answerText);
+//          log.info("addMatchingResponseLabelTarget(): ");
+//          log.info(" respIdent: " + respIdent);
+//          log.info(" responseNo: " + responseNo);
+//          log.info(" value: " + answerText);
+//          addMatchingResponseLabelTarget(itemXml, responseNo, respIdent, answerText);
 
 //          itemXml.add(xpath, "response_label");
           log.debug("correct response: addMatchingRespcondition(true...");
@@ -430,11 +437,12 @@ public class ItemHelper12Impl extends ItemHelperBase
           log.debug(" respCondNo: " + respCondNo);
           addMatchingRespcondition(false, itemXml, respCondNo, respIdent,
                                  responseLabelIdent);
+          log.debug("we skip adding the response label when false for:" + respIdent);
           continue; // we skip adding the response label when false
         }
       }
 
-      itemXml.add(xpath, "response_label");
+//      itemXml.add(xpath, "response_label");
       String responseNo = "" + sequence;
 
       log.debug("addMatchingResponseLabelEntry(): ");
@@ -443,7 +451,20 @@ public class ItemHelper12Impl extends ItemHelperBase
       log.debug("value: " + text);
       addMatchingResponseLabelSource(itemXml, responseNo, responseLabelIdent, text);
     }
-    log.debug("updateAllSourceMatchGroup(): " );
+
+    for (int i = 0; i < allIdents.size(); i++)
+    {
+      String respIdent = (String) allIdents.get(i);
+      String answerText = (String) allTargets.get(respIdent);
+      String responseNo = "" + (i + 1);
+      log.info("addMatchingResponseLabelTarget(): ");
+      log.info(" respIdent: " + respIdent);
+      log.info(" responseNo: " + responseNo);
+      log.info(" value: " + answerText);
+      addMatchingResponseLabelTarget(itemXml, responseNo, respIdent, answerText);
+
+    }
+    log.debug("updateAllSourceMatchGroup(): ");
     updateAllSourceMatchGroup(itemXml);
   }
 
@@ -895,7 +916,7 @@ public class ItemHelper12Impl extends ItemHelperBase
   private static List parseFillInBlank(String input)
   {
     input = padFibWithNonbreakSpacesText(input);
-    log.info("padFibWithNonbreakSpacesText input: " + input);
+    log.debug("padFibWithNonbreakSpacesText input: " + input);
 
     Map tempMap = null;
     List storeParts = new ArrayList();
@@ -1244,28 +1265,20 @@ public class ItemHelper12Impl extends ItemHelperBase
   private void addMatchingResponseLabelTarget(
     Item itemXml, String responseNo, String respIdent, String value)
   {
-    String xpath = MATCH_XPATH;
+    log.info("  BEGIN addMatchingResponseLabelTarget()");
 
-    String nextNode = "response_label[" + responseNo + "]";
-    itemXml.insertElement(nextNode, xpath, "response_label");
-    itemXml.add(
-      xpath + "/response_label[" + responseNo + "]", "material/mattext");
-    try
-    {
-      itemXml.update(
-        xpath + "/response_label[" + responseNo + "]/material/mattext",
-        value);
-    }
-    catch (Exception ex)
-    {
-      log.warn("Unable to set mattext in '" + xpath + "/response_label[" +
-               responseNo + "]' to '" + value + "'");
-    }
+    String xpath = MATCH_XPATH;
+    log.info("    respIdent: " + respIdent);
+    log.info("    target: " + value);
+    log.info("    insertResponseLabelMattext in " + xpath);
+    insertResponseLabelMattext(itemXml, responseNo, value, xpath);
 
     String newPath = xpath + "/response_label[" + responseNo + "]";
     itemXml.addAttribute(newPath, "ident");
     newPath = xpath + "/response_label[" + responseNo + "]/@ident";
     updateItemXml(itemXml, newPath, respIdent);
+
+    log.info("  END addMatchingResponseLabelTarget()");
   }
 
   /**
@@ -1280,21 +1293,7 @@ public class ItemHelper12Impl extends ItemHelperBase
   {
     String xpath = MATCH_XPATH;
 
-    String nextNode = "response_label[" + responseNo + "]";
-    itemXml.insertElement(nextNode, xpath, "response_label");
-    itemXml.add(
-      xpath + "/response_label[" + responseNo + "]", "material/mattext");
-    try
-    {
-      itemXml.update(
-        xpath + "/response_label[" + responseNo + "]/material/mattext",
-        value);
-    }
-    catch (Exception ex)
-    {
-      log.warn("Unable to set mattext in '" + xpath + "/response_label[" +
-               responseNo + "]' to '" + value + "'");
-    }
+    insertResponseLabelMattext(itemXml, responseNo, value, xpath);
 
     itemXml.addAttribute(
       xpath + "/response_label[" + responseNo + "]", "match_max");
@@ -1309,25 +1308,35 @@ public class ItemHelper12Impl extends ItemHelperBase
     itemXml.addAttribute(newPath, "ident");
     newPath = xpath + "/response_label[" + responseNo + "]/@ident";
     updateItemXml(itemXml, newPath, responseLabelIdent);
-
-    //add value
-//    xpath = xpath + "/response_label[" + responseNo + "]";
-//    itemXml.add(xpath, "material/mattext");
-//    xpath = xpath + "/material[2]/matimage";
-
-    //Add placeholder for image
-//    xpath = xpath + "/response_label[" + responseNo + "]";
-//    itemXml.add(xpath, "material/matimage");
-//    xpath = xpath + "/material[2]/matimage";
-
-    //Image attributes
-//    log.debug(xpath);
-//    itemXml.addAttribute(xpath, "uri");
-//    itemXml.addAttribute(xpath, "imagetype");
-//    xpath = xpath + "/@imagetype";
-//    updateItemXml(itemXml, xpath, "text/html");
   }
 
+  /**
+   * utility method for addMatchingResponseLabelTarget(), addMatchingResponseLabelSource()
+   * @param itemXml
+   * @param responseNo
+   * @param value
+   * @param xpath
+   */
+  private void insertResponseLabelMattext(Item itemXml, String responseNo,
+                                          String value, String xpath)
+  {
+    String nextNode = "response_label[" + responseNo + "]";
+    itemXml.insertElement(nextNode, xpath, "response_label");
+    log.info("inserting " + nextNode + " to '" + xpath + "'.");
+    itemXml.add(
+      xpath + "/response_label[" + responseNo + "]", "material/mattext");
+    try
+    {
+      itemXml.update(
+        xpath + "/response_label[" + responseNo + "]/material/mattext",
+        value);
+    }
+    catch (Exception ex)
+    {
+      log.warn("Unable to set mattext in '" + xpath + "/response_label[" +
+               responseNo + "]' to '" + value + "'");
+    }
+  }
   /**
    * Add the matching item feedback.
 
