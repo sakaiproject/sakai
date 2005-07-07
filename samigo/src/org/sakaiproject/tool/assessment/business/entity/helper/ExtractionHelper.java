@@ -380,7 +380,6 @@ public class ExtractionHelper
   public void updateAssessment(AssessmentFacade assessment,
                                Map assessmentMap)
   {
-    log.debug("Updating AssessmentFacade assessment<==Map assessmentMap");
     String title;
     String displayName;
     String description;
@@ -868,8 +867,6 @@ public class ExtractionHelper
    */
   public void updateSection(SectionFacade section, Map sectionMap)
   {
-    log.debug("Updating SectionFacade section<==Map sectionMap");
-    log.debug("Section Title: " + sectionMap.get("title"));
     section.setTitle( (String) sectionMap.get("title"));
     section.setDescription( (String) sectionMap.get("description"));
     section.setLastModifiedBy("Sakai Import");
@@ -884,7 +881,6 @@ public class ExtractionHelper
    */
   public void updateItem(ItemFacade item, Map itemMap)
   {
-    log.debug("\n*** Updating ItemFacade item<==Map itemMap");
     // type and title
     String title = (String) itemMap.get("title");
     item.setDescription(title);
@@ -895,29 +891,20 @@ public class ExtractionHelper
     String itemIntrospect = (String) itemMap.get("itemIntrospect");
     String itemType = calculateType(item, title, itemIntrospect, qmd);
     Long typeId = getType(itemType); // we use this later...
-    log.debug("SETTING TYPE: ItemFacade item<==Map itemMap");
-    log.debug("============>item type id: '" + typeId + "'");
     item.setTypeId(typeId);
 
     // meta data
     List metadataList = (List) itemMap.get("metadata");
-    log.debug("\n*** SETTING METADATA: ItemFacade item<==Map itemMap");
     addMetadata(metadataList, item);
 
     // basic properties
-    log.debug("SETTING PROPERTIES: ItemFacade item<==Map itemMap");
     addItemProperties(item, itemMap);
 
     // feedback
-    log.debug("\n*** SETTING FEEDBACK: ItemFacade item<==Map itemMap");
     // correct, incorrect, general
     addFeedback(item, itemMap, typeId);
 
     // item text and answers
-    log.debug("\n*** SETTING TEXT AND ANSWERS: ItemFacade item<==Map itemMap");
-    log.debug("\n*** FILL_IN_BLANK=" + TypeIfc.FILL_IN_BLANK.longValue());
-    log.debug("\n*** MATCHING=" + TypeIfc.MATCHING.longValue());
-    log.debug("\n*** TYPE=" + typeId.longValue());
     if (TypeIfc.FILL_IN_BLANK.longValue() == typeId.longValue())
     {
       addFibTextAndAnswers(item, itemMap);
@@ -1047,7 +1034,6 @@ public class ExtractionHelper
       System.out.println("itemMap: " + key + "=" + itemMap.get(key));
     }
 
-    log.debug("\n*** calculating item feedback from" + itemMap);
     String correctItemFeedback = (String) itemMap.get("correctItemFeedback");
     String incorrectItemFeedback = (String) itemMap.get("incorrectItemFeedback");
     String generalItemFeedback = (String) itemMap.get("generalItemFeedback");
@@ -1072,23 +1058,16 @@ public class ExtractionHelper
       }
     }
 
-    log.debug("\n*** correctItemFeedback=" + correctItemFeedback);
-    log.debug("\n*** incorrectItemFeedback=" + incorrectItemFeedback);
-    log.debug("\n*** generalItemFeedback=" + generalItemFeedback);
-
     if (notNullOrEmpty(correctItemFeedback))
     {
-      log.debug("\n*** setting correctItemFeedback");
       item.setCorrectItemFeedback(correctItemFeedback);
     }
     if (notNullOrEmpty(incorrectItemFeedback))
     {
-      log.debug("\n*** setting incorrectItemFeedback");
       item.setInCorrectItemFeedback(incorrectItemFeedback);
     }
     if (notNullOrEmpty(generalItemFeedback))
     {
-      log.debug("\n*** setting generalItemFeedback");
       item.setGeneralItemFeedback(generalItemFeedback);
     }
 
@@ -1164,7 +1143,6 @@ public class ExtractionHelper
       {
         Answer answer = new Answer();
         String answerText = (String) answerList.get(a);
-        log.debug("EXTRACT ANSWER DEBUG: " + answerText);
         // these are not supposed to be empty
         if (notNullOrEmpty(answerText))
         {
@@ -1190,7 +1168,6 @@ public class ExtractionHelper
           HashSet set = new HashSet();
           if (answerFeedbackList != null)
           {
-            log.debug("\n*** extracting answer: " + a);
             AnswerFeedback answerFeedback = new AnswerFeedback();
             answerFeedback.setAnswer(answer);
             answerFeedback.setTypeId(AnswerFeedbackIfc.GENERAL_FEEDBACK);
@@ -1280,7 +1257,6 @@ public class ExtractionHelper
     for (int i = 0; i < itemTextList.size(); i++)
     {
       String text = (String) itemTextList.get(i);
-      log.debug("\n*** text=" + text);
       // we are assuming non-empty text/answer/non-empty text/answer etc.
       if (text == null || text=="")
       {
@@ -1292,19 +1268,16 @@ public class ExtractionHelper
         itemTextString += FIB_BLANK_INDICATOR;
       }
     }
-    log.debug("\n*** complete text=" + itemTextString);
     itemText.setText(itemTextString);
     itemText.setItem(item.getData());
     itemText.setSequence(new Long(0));
     HashSet answerSet = new HashSet();
     char answerLabel = 'A';
 
-    log.debug("\n*** calculating FIB " + answerList.size() + " answers");
     for (int a = 0; a < answerList.size(); a++)
     {
       Answer answer = new Answer();
       String answerText = (String) answerList.get(a);
-      log.debug("EXTRACT ANSWER: " + answerText);
       // these are not supposed to be empty
       if (notNullOrEmpty(answerText))
       {
@@ -1319,7 +1292,6 @@ public class ExtractionHelper
         HashSet set = new HashSet();
         if (answerFeedbackList != null)
         {
-          log.debug("\n*** extracting answer feedback: " + a);
           AnswerFeedback answerFeedback = new AnswerFeedback();
           answerFeedback.setAnswer(answer);
           answerFeedback.setTypeId(AnswerFeedbackIfc.GENERAL_FEEDBACK);
@@ -1335,11 +1307,8 @@ public class ExtractionHelper
       }
     }
 
-    log.debug("SET ANSWER SET");
     itemText.setAnswerSet(answerSet);
-    log.debug("ADD ITEM TEXT");
     itemTextSet.add(itemText);
-    log.debug("SET ITEM TEXT SET");
     item.setItemTextSet(itemTextSet);
   }
 
@@ -1350,7 +1319,6 @@ public class ExtractionHelper
    */
   private void addMatchTextAndAnswers(ItemFacade item, Map itemMap)
   {
-    log.info("addMatchTextAndAnswers(ItemFacade item, Map itemMap)");
 
     List sourceList = (List) itemMap.get("itemMatchSourceText");
     List targetList = (List) itemMap.get("itemMatchTargetText");
@@ -1366,13 +1334,12 @@ public class ExtractionHelper
     itemTextList =
       itemTextList == null ? new ArrayList() : itemTextList;
 
-    // hopefully will not happen, but this will allow us to get the data
-    // that we can find
+    // hopefully will not happen
     if (targetList.size() <indexList.size())
     {
-      log.warn("Something is wrong, padding targets with blanks.");
-      log.info("targetList.size(): " + targetList.size());
-      log.info("indexList.size(): " + indexList.size());
+      log.warn("Something is wrong, targetList.size() <indexList.size()");
+      log.warn("targetList.size(): " + targetList.size());
+      log.warn("indexList.size(): " + indexList.size());
 
       // OK, I am going to NOT do this, see if it works OK
 //      for (int i = targetList.size(); i < indexList.size() + 1; i++)
@@ -1390,7 +1357,7 @@ public class ExtractionHelper
 
     // first, add the question text
     item.setInstruction(itemTextString);
-    log.info("item.setInstruction itemTextString: " + itemTextString);
+    log.debug("item.setInstruction itemTextString: " + itemTextString);
 
     // loop through source texts indicating answers (targets)
     for (int i = 0; i < sourceList.size(); i++)
@@ -1398,17 +1365,13 @@ public class ExtractionHelper
       // create the entry for the matching item (source)
       String sourceText = (String) sourceList.get(i);
       if (sourceText == null) sourceText="";
-      log.info("sourceText: " + sourceText);
-      log.info("sequence: " + i + 1);
       ItemText sourceItemText = new ItemText();
-      log.info("created sourceItemText ");
       sourceItemText.setText(sourceText);
       sourceItemText.setItem(item.getData());
       sourceItemText.setSequence(new Long(i + 1));
 
       // find the matching answer (target)
       HashSet targetSet = new HashSet();
-      log.info("created targetSet");
       String targetString;
       int targetIndex = 999;// obviously not matching value
       try
@@ -1432,7 +1395,6 @@ public class ExtractionHelper
         {
           targetString = "";
         }
-        log.info("EXTRACT ANSWER: targetString: " + targetString);
         Answer target = new Answer();
 
         String label = "" + answerLabel++;
@@ -1441,20 +1403,15 @@ public class ExtractionHelper
         target.setItemText(sourceItemText);
         target.setItem(item.getData());
         target.setSequence(new Long(a + 1));
-        log.info("setSequence: " + a + 1);
-        log.info("label: " + label);
-        log.info("source: " + sourceText);
-
 
         // if this answer is the indexed one, flag as correct
         if (a + 1 == targetIndex)
         {
           target.setIsCorrect(Boolean.TRUE);
-          log.info("source: " + sourceText + " matches target: " + targetString);
+          log.debug("source: " + sourceText + " matches target: " + targetString);
         }
         if (answerFeedbackList != null)
         {
-          log.debug("extracting answer feedback");
           Set targetFeedbackSet = new HashSet();
           AnswerFeedback tAnswerFeedback = new AnswerFeedback();
           tAnswerFeedback.setAnswer(target);
@@ -1472,16 +1429,12 @@ public class ExtractionHelper
           }
         }
         targetSet.add(target);
-        log.info("ADD TO ANSWER SET: targetSet.add(target)");
       }
 
       sourceItemText.setAnswerSet(targetSet);
-      log.info("ADD ANSWER SET: sourceItemText.setAnswerSet(answerSet)");
       itemTextSet.add(sourceItemText);
-      log.info("ADD ITEM TEXT: itemTextSet.add(itemText)");
     }
 
-    log.info("SET ITEM TEXT SET");
     item.setItemTextSet(itemTextSet);
   }
 
@@ -1637,8 +1590,6 @@ public class ExtractionHelper
       if (st.hasMoreTokens())
       {
         value = st.nextToken().trim();
-        log.debug("==>ITEM METADATA key ='" + key + "'.");
-        log.debug("==>ITEM METADATA value length =" + value.length() + ".");
         item.addItemMetaData(key, value);
       }
     }
@@ -1690,10 +1641,6 @@ public class ExtractionHelper
       if (st.hasMoreTokens())
       {
         value = st.nextToken().trim();
-        log.debug("\n\n==>ASSESSMENT METADATA key ='" + key + "'.");
-        log.debug("\n\n==>ASSESSMENT METADATA value length =" + value.length() +
-                 ".");
-
         assessment.addAssessmentMetaData(key, value);
       }
     }
