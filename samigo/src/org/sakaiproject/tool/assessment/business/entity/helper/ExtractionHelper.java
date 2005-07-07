@@ -1350,7 +1350,7 @@ public class ExtractionHelper
    */
   private void addMatchTextAndAnswers(ItemFacade item, Map itemMap)
   {
-    log.debug("addMatchTextAndAnswers(ItemFacade item, Map itemMap)");
+    log.info("addMatchTextAndAnswers(ItemFacade item, Map itemMap)");
 
     List sourceList = (List) itemMap.get("itemMatchSourceText");
     List targetList = (List) itemMap.get("itemMatchTargetText");
@@ -1371,8 +1371,8 @@ public class ExtractionHelper
     if (targetList.size() <indexList.size())
     {
       log.warn("Something is wrong, padding targets with blanks.");
-      log.debug("targetList.size(): " + targetList.size());
-      log.debug("indexList.size(): " + indexList.size());
+      log.info("targetList.size(): " + targetList.size());
+      log.info("indexList.size(): " + indexList.size());
 
       // OK, I am going to NOT do this, see if it works OK
 //      for (int i = targetList.size(); i < indexList.size() + 1; i++)
@@ -1390,7 +1390,7 @@ public class ExtractionHelper
 
     // first, add the question text
     item.setInstruction(itemTextString);
-    log.debug("item.setInstruction itemTextString: " + itemTextString);
+    log.info("item.setInstruction itemTextString: " + itemTextString);
 
     // loop through source texts indicating answers (targets)
     for (int i = 0; i < sourceList.size(); i++)
@@ -1398,17 +1398,17 @@ public class ExtractionHelper
       // create the entry for the matching item (source)
       String sourceText = (String) sourceList.get(i);
       if (sourceText == null) sourceText="";
-      log.debug("sourceText: " + sourceText);
-      log.debug("sequence: " + i + 1);
+      log.info("sourceText: " + sourceText);
+      log.info("sequence: " + i + 1);
       ItemText sourceItemText = new ItemText();
-      log.debug("created sourceItemText ");
+      log.info("created sourceItemText ");
       sourceItemText.setText(sourceText);
       sourceItemText.setItem(item.getData());
       sourceItemText.setSequence(new Long(i + 1));
 
       // find the matching answer (target)
       HashSet targetSet = new HashSet();
-      log.debug("created targetSet");
+      log.info("created targetSet");
       String targetString;
       int targetIndex = 999;// obviously not matching value
       try
@@ -1432,7 +1432,7 @@ public class ExtractionHelper
         {
           targetString = "";
         }
-        log.debug("EXTRACT ANSWER: targetString: " + targetString);
+        log.info("EXTRACT ANSWER: targetString: " + targetString);
         Answer target = new Answer();
 
         String label = "" + answerLabel++;
@@ -1441,16 +1441,16 @@ public class ExtractionHelper
         target.setItemText(sourceItemText);
         target.setItem(item.getData());
         target.setSequence(new Long(a + 1));
-        log.debug("setSequence: " + a + 1);
-        log.debug("label: " + label);
-        log.debug("source: " + sourceText);
+        log.info("setSequence: " + a + 1);
+        log.info("label: " + label);
+        log.info("source: " + sourceText);
 
 
         // if this answer is the indexed one, flag as correct
         if (a + 1 == targetIndex)
         {
           target.setIsCorrect(Boolean.TRUE);
-          log.debug("source: " + sourceText + " matches target: " + targetString);
+          log.info("source: " + sourceText + " matches target: " + targetString);
         }
         if (answerFeedbackList != null)
         {
@@ -1472,16 +1472,16 @@ public class ExtractionHelper
           }
         }
         targetSet.add(target);
-        log.debug("ADD TO ANSWER SET: targetSet.add(target)");
+        log.info("ADD TO ANSWER SET: targetSet.add(target)");
       }
 
       sourceItemText.setAnswerSet(targetSet);
-      log.debug("ADD ANSWER SET: sourceItemText.setAnswerSet(answerSet)");
+      log.info("ADD ANSWER SET: sourceItemText.setAnswerSet(answerSet)");
       itemTextSet.add(sourceItemText);
-      log.debug("ADD ITEM TEXT: itemTextSet.add(itemText)");
+      log.info("ADD ITEM TEXT: itemTextSet.add(itemText)");
     }
 
-    log.debug("SET ITEM TEXT SET");
+    log.info("SET ITEM TEXT SET");
     item.setItemTextSet(itemTextSet);
   }
 
