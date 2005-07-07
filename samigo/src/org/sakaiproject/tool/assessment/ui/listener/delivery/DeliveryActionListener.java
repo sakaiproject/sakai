@@ -934,14 +934,23 @@ public class DeliveryActionListener
         }
         if (item.getTypeId().toString().equals("9"))
         {
+/*
           Collections.shuffle(shuffled,
                               new Random( (long) item.getText().hashCode()));
+*/
+          Collections.shuffle(shuffled,
+                              new Random( (long) item.getText().hashCode() +
+          			AgentFacade.getAgentString().hashCode()));
         }
         else
         {
           Collections.shuffle(shuffled,
+                              new Random( (long) item.getText().hashCode()));
+/*
+          Collections.shuffle(shuffled,
                               new Random( (long) item.getText().hashCode() +
                                          AgentFacade.getAgentString().hashCode()));
+*/
         }
         key2 = shuffled.iterator();
       }
@@ -1179,8 +1188,14 @@ public class DeliveryActionListener
         shuffled.add(iter2.next());
 
       }
+      Collections.shuffle(shuffled, 
+	new Random( (long) item.getText().hashCode() + 
+	AgentFacade.getAgentString().hashCode()));
+
+/*
       Collections.shuffle
         (shuffled, new Random( (long) item.getText().hashCode()));
+*/
       iter2 = shuffled.iterator();
 
       int i = 0;
