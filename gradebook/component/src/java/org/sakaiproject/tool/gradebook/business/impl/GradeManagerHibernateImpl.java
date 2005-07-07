@@ -275,27 +275,22 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                         studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
                     }
                 }
+                try {
+                    session.flush();
+                    session.clear();
+                } catch (StaleObjectStateException sose) {
+                    if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update assignment grade records");
+                    throw new StaleObjectModificationException(sose);
+                }
 
                 // Update the course grade records for students with assignment grade record changes
-                // TODO Why do I need to do the translation from hibernate to spring exceptions manually?
-                try {
-                    recalculateCourseGradeRecords(gb, studentsWithUpdatedAssignmentGradeRecords, session);
-                } catch (StaleObjectStateException e) {
-                    throw new HibernateOptimisticLockingFailureException(e);
-                }
+                recalculateCourseGradeRecords(gb, studentsWithUpdatedAssignmentGradeRecords, session);
 
                 return studentsWithExcessiveScores;
 			}
 		};
         
-        Set studentsWithExcessiveScores;
-        try {
-            studentsWithExcessiveScores = (Set)getHibernateTemplate().execute(hc);
-            return studentsWithExcessiveScores;
-        } catch (HibernateOptimisticLockingFailureException e) {
-            if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update assignment grade records");
-            throw new StaleObjectModificationException(e);
-        }
+        return (Set)getHibernateTemplate().execute(hc);
     }
 
     /**
@@ -362,7 +357,13 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
 					gradeRecordFromCall.setGraderId(graderId);
 					gradeRecordFromCall.setDateRecorded(now);
-                    session.saveOrUpdate(gradeRecordFromCall);
+                    try {
+                        session.saveOrUpdate(gradeRecordFromCall);
+                        session.flush();
+                    } catch (StaleObjectStateException sose) {
+                        if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update course grade records");
+                        throw new StaleObjectModificationException(sose);
+                    }
 
                     // Log the grading event
                     session.save(new GradingEvent(courseGrade, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getEnteredGrade()));
@@ -371,14 +372,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 return null;
             }
         };
-
-        try {
-            getHibernateTemplate().execute(hc);
-        } catch (HibernateOptimisticLockingFailureException e) {
-            if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update course grade records");
-            throw new StaleObjectModificationException(e);
-        }
-
+        getHibernateTemplate().execute(hc);
     }
 
 
@@ -633,7 +627,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 
                 // Save the new assignment
                 Long id = (Long)session.save(asn);
-
+                
                 // Recalculate the course grades
                 recalculateCourseGradeRecords(asn.getGradebook(), session);
 
@@ -652,17 +646,21 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
     /**
      */
-    public void updateAssignment(final Long assignmentId, final String name, final Double points, final Date dueDate)
+    public void updateAssignment(final Assignment assignment)
         throws ConflictingAssignmentNameException, StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
+                // Ensure that we don't have the assignment in the session, since
+                // we need to compare the existing one in the db to our edited assignment
+                session.evict(assignment);
+
                 boolean pointsChanged = false;
-                if (logger.isInfoEnabled()) logger.info("updateAssignment(" + assignmentId + ", " + name + ", " + points + ", " + dueDate);
-                Assignment asn = (Assignment)session.load(Assignment.class, assignmentId);
+
+                Assignment asnFromDb = (Assignment)session.load(Assignment.class, assignment.getId());
 
                 int numNameConflicts = ((Integer)session.iterate(
                         "select count(go) from GradableObject as go where go.removed=false and go.name = ? and go.gradebook = ? and go.id != ?",
-                        new Object[] {name, asn.getGradebook(), assignmentId},
+                        new Object[] {assignment.getName(), assignment.getGradebook(), assignment.getId()},
                         new Type[] {Hibernate.STRING, Hibernate.entity(Gradebook.class), Hibernate.LONG}
                 ).next()).intValue();
 
@@ -670,20 +668,19 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                     throw new RuntimeConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
                 }
 
-                asn.setName(name);
-                if(!asn.getPointsPossible().equals(points)) {
+                if(!asnFromDb.getPointsPossible().equals(assignment.getPointsPossible())) {
                     pointsChanged = true;
                 }
-                asn.setPointsPossible(points);
-                asn.setDueDate(dueDate);
-                session.update(asn);
+
+                session.evict(asnFromDb);
+                session.update(assignment);
+                
+                // Flush the session before calling on the course grade updates (we want data contention to happen here, not there)
+                session.flush();
+                session.clear();
                 
                 if(pointsChanged) {
-                    try {
-                        recalculateCourseGradeRecords(asn.getGradebook(), session);
-                    } catch (StaleObjectStateException e) {
-                        throw new HibernateOptimisticLockingFailureException(e);
-                    }
+                    updateCourseGradeRecordSortValues(assignment.getGradebook().getId(), false);
                 }
 
                 return null;
@@ -709,7 +706,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
     }
 
     /**
-     * TODO This should be deleted, since it should be handled by recalculateCourseGradeRecords
+     * TODO Should this be deleted, since it should be handled by recalculateCourseGradeRecords?
      */
     public void updateCourseGradeRecordSortValues(final Long gradebookId, final boolean manuallyEnteredRecords) {
         HibernateCallback hc = new HibernateCallback() {

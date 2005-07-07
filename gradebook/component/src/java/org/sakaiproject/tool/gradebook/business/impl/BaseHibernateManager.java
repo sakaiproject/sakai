@@ -36,7 +36,6 @@ import net.sf.hibernate.type.Type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -115,10 +114,16 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      * gradebook is modified, either by editing, adding, or removing assignments
      * or external assessments.
      * 
+     * You must flush and clear the hibernate session prior to calling this method,
+     * or you risk causing data contention here.  If data contention does occur
+     * here, you will be unable to catch the exception (due to the spring proxy
+     * mechanism).
+     * 
+     * TODO Clean up optimistic locking difficulties in recalculate grades
+     * 
      * @param gradebook The gradebook containing the course grade records to update
      * @param studentIds The collection of student IDs
      * @param session The hibernate session
-     * @throws StaleObjectModificationException
      */
     protected void recalculateCourseGradeRecords(final Gradebook gradebook,
             final Collection studentIds, Session session) throws HibernateException {

@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
@@ -225,13 +226,8 @@ public interface GradeManager {
 
     /**
      * Updates an existing assignment
-     *
-     * @param assignmentId The assignment ID
-     * @param name The assignment's name (must be unique in the gradebook and not be null)
-     * @param points The number of points possible for this assignment (must not be null)
-     * @param dueDate The due date for the assignment (optional)
      */
-    public void updateAssignment(Long assignmentId, String name, Double points, Date dueDate)
+    public void updateAssignment(Assignment assignment)
         throws ConflictingAssignmentNameException, StaleObjectModificationException;
 
     /**

@@ -30,7 +30,7 @@ package org.sakaiproject.service.gradebook.shared;
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class StaleObjectModificationException extends GradebookException {
+public class StaleObjectModificationException extends RuntimeException {
     public StaleObjectModificationException(Throwable t) {
         super(t);
     }

@@ -65,7 +65,9 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
     public void testCreateAndUpdateAssignment() throws Exception {
         Long asnId = gradeManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), new Date());;
-        gradeManager.updateAssignment(asnId, ASN1_NAME, new Double(20), new Date());
+        Assignment asn = (Assignment)gradeManager.getGradableObject(asnId);
+        asn.setPointsPossible(new Double(20));
+        gradeManager.updateAssignment(asn);
 
         // Fetch the updated assignment with statistics
         Assignment persistentAssignment = (Assignment)gradeManager.getGradableObjectWithStats(asnId);
@@ -83,11 +85,14 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
         // Save a second assignment
         Long secondId = gradeManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(10), new Date());;
+        Assignment asn2 = (Assignment)gradeManager.getGradableObject(secondId);
+
+        errorThrown = false;
 
         // Try to update its name to that of the first
-        errorThrown = false;
+        asn2.setName(ASN1_NAME);
         try {
-            gradeManager.updateAssignment(secondId, ASN1_NAME, new Double(10), new Date());
+            gradeManager.updateAssignment(asn2);
         } catch (ConflictingAssignmentNameException e) {
             errorThrown = true;
         }

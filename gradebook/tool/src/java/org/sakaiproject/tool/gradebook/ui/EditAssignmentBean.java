@@ -55,7 +55,7 @@ public class EditAssignmentBean extends GradebookDependentBean implements Serial
 
 	public String updateAssignment() {
 		try {
-			getGradeManager().updateAssignment(assignmentId, assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate());
+			getGradeManager().updateAssignment(assignment);
 			String messageKey = getGradeManager().isEnteredAssignmentScores(assignmentId) ?
 				"edit_assignment_save_scored" :
 				"edit_assignment_save";

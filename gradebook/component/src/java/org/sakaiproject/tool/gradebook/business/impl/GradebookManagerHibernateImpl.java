@@ -31,6 +31,7 @@ import java.util.List;
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
+import net.sf.hibernate.StaleObjectStateException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,7 +43,6 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
 
 /**
  * Manages Gradebook persistence via hibernate.
@@ -90,7 +90,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     session.evict(iter.next());
                 }
                 session.evict(gradebookFromPersistence);
-                session.update(gradebook);
+                try {
+                    session.update(gradebook);
+                    session.flush();
+                } catch (StaleObjectStateException e) {
+                    throw new StaleObjectModificationException(e);
+                }
 
                 // If the same mapping is selected, but it has been modified, we need
                 // to trigger a sort value update on the explicitly entered course grades
@@ -101,11 +106,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 return null;
             }
         };
-        try {
-            getHibernateTemplate().execute(hc);
-        } catch (HibernateOptimisticLockingFailureException e) {
-            throw new StaleObjectModificationException(e);
-        }
+        getHibernateTemplate().execute(hc);
 	}
 
     public void removeAssignment(final Long assignmentId) throws StaleObjectModificationException {

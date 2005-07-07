@@ -45,6 +45,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -58,7 +59,6 @@ import org.sakaiproject.tool.gradebook.business.impl.BaseHibernateManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
 
 /**
  * A Hibernate implementation of GradebookService, which can be used by other
@@ -254,20 +254,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 
                 // Delete the scores
                 try {
+                    session.flush();
+                    session.clear();
                     recalculateCourseGradeRecords(asn.getGradebook(), studentsWithExternalScores, session);
                 } catch (StaleObjectStateException e) {
-                    throw new HibernateOptimisticLockingFailureException(e);
+                    if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to remove an external assessment");
+                    throw new StaleObjectModificationException(e);
                 }
                 return null;
 			}
         };
-
-        try {
-            getHibernateTemplate().execute(hc);
-        } catch (HibernateOptimisticLockingFailureException e) {
-            if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to remove an external assessment");
-            throw new RuntimeException(e);
-        }
+        getHibernateTemplate().execute(hc);
 	}
 
     private Assignment getExternalAssignment(final String gradebookUid, final String externalId) throws GradebookNotFoundException {
@@ -319,19 +316,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 Set set = new HashSet();
                 set.add(studentId);
                 try {
+                    session.flush();
+                    session.clear();
                     recalculateCourseGradeRecords(gradebook, set, session);
                 } catch (StaleObjectStateException e) {
-                    throw new HibernateOptimisticLockingFailureException(e);
+                    if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
+                    throw new StaleObjectModificationException(e);
                 }
                 return null;
             }
         };
-        try {
-            getHibernateTemplate().execute(hc);
-        } catch (HibernateOptimisticLockingFailureException e) {
-            if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
-            throw new RuntimeException(e);
-        }
+        getHibernateTemplate().execute(hc);
 	}
 
 	public GradebookManager getGradebookManager() {

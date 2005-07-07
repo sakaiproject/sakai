@@ -29,7 +29,6 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
@@ -53,10 +52,6 @@ public class AddAssignmentBean extends GradebookDependentBean implements Seriali
 			logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("add_assignment_name_conflict_failure"));
 			return "failure";
-        } catch (StaleObjectModificationException e) {
-            logger.error(e);
-            FacesUtil.addErrorMessage(getLocalizedString("add_assignment_locking_failure"));
-            return "failure";
 		}
 		return "overview";
 	}
