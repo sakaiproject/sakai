@@ -25,14 +25,15 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
@@ -58,14 +59,19 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     private Assignment assignment;
 	private Assignment previousAssignment;
 	private Assignment nextAssignment;
+    
+    private SimpleDateFormat dateFormat;
 
 	public class ScoreRow implements Serializable {
         private AssignmentGradeRecord gradeRecord;
         private Enrollment enrollment;
-        private List events;
+        private StringBuffer eventsString;
+        private static final char EVENT_SEP_CHAR = '|';
+        
 		public ScoreRow() {
 		}
 		public ScoreRow(Enrollment enrollment, AssignmentGradeRecord gradeRecord, List gradingEvents) {
+            Collections.sort(gradingEvents);
             this.enrollment = enrollment;
             if(gradeRecord == null) {
                 this.gradeRecord = new AssignmentGradeRecord(assignment, enrollment.getUser().getUserUid(), null, null);
@@ -74,7 +80,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 this.gradeRecord = gradeRecord;
             }
             
-            events = new ArrayList();
+            eventsString = new StringBuffer();
             for(Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
                 GradingEvent gradingEvent = (GradingEvent)iter.next();
                 String graderName;
@@ -84,48 +90,16 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                     logger.warn("Unable to find user with uid=" + gradingEvent.getGraderId());
                     graderName = gradingEvent.getGraderId();
                 }
-                Event event = new Event(gradingEvent.getDateGraded(), gradingEvent.getGrade(),graderName);
-                events.add(event);
+                eventsString.append(dateFormat.format(gradingEvent.getDateGraded()));
+                eventsString.append(EVENT_SEP_CHAR);
+                eventsString.append(gradingEvent.getGrade());
+                eventsString.append(EVENT_SEP_CHAR);
+                eventsString.append(graderName);
+                if(iter.hasNext()) {
+                    eventsString.append(EVENT_SEP_CHAR);
+                }
             }
-            Collections.sort(events);
 		}
-        
-        public class Event implements Comparable, Serializable {
-            private Date date;
-            private String score;
-            private String graderName;
-
-            public Event(Date date, String score, String graderName) {
-                this.date = date;
-                this.score = score;
-                this.graderName = graderName;
-            }
-
-            public Date getDate() {
-                return date;
-            }
-            public void setDate(Date date) {
-                this.date = date;
-            }
-            public String getGraderName() {
-                return graderName;
-            }
-            public void setGraderName(String graderName) {
-                this.graderName = graderName;
-            }
-            public String getScore() {
-                return score;
-            }
-            public void setScore(String score) {
-                this.score = score;
-            }
-            /**
-             * @see java.lang.Comparable#compareTo(java.lang.Object)
-             */
-            public int compareTo(Object o) {
-                return this.date.compareTo(((Event)o).getDate());
-            }
-        }
         
 		public Double getScore() {
 			return gradeRecord.getPointsEarned();
@@ -133,24 +107,20 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		public void setScore(Double score) {
             gradeRecord.setPointsEarned(score);
 		}
-        public List getEvents() {
-            return events;
-        }
-        public void setEvents(List events) {
-            this.events = events;
-        }
         public Enrollment getEnrollment() {
             return enrollment;
         }
-        public void setEnrollment(Enrollment enrollment) {
-            this.enrollment = enrollment;
+        public String getEventsString() {
+            return eventsString.toString();
         }
 	}
 
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);
 
-		// Clear view state.
+        dateFormat = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss", FacesContext.getCurrentInstance().getExternalContext().getRequestLocale());
+
+        // Clear view state.
         previousAssignment = null;
         nextAssignment = null;
 		scoreRows = new ArrayList();

@@ -35,7 +35,7 @@ import java.util.Date;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class GradingEvent implements Serializable {
+public class GradingEvent implements Comparable, Serializable {
     private Long id;
     private String graderId;
     private String studentId;
@@ -129,6 +129,13 @@ public class GradingEvent implements Serializable {
 	public void setStudentId(String studentId) {
 		this.studentId = studentId;
 	}
+
+    /**
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareTo(Object o) {
+        return dateGraded.compareTo(((GradingEvent)o).dateGraded);
+    }
 }
 
 /**************************************************************************************************************************************************************************************************************************************************************

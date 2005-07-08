@@ -143,17 +143,11 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.assignment_details_log}" styleClass="tier0"/>
 				</f:facet>
-				<h:dataTable value="#{scoreRow.events}" var="event">
-					<h:column>
-						<h:outputText value="#{event.date}"/>
-					</h:column>
-					<h:column>
-						<h:outputFormat value="#{msgs.assignment_details_log_score}">
-							<f:param value="#{event.score}"/>
-							<f:param value="#{event.graderName}"/>
-						</h:outputFormat>
-					</h:column>
-				</h:dataTable>
+				<h:commandButton
+					id="log"
+					image="images/log.png"
+					rendered="#{not empty scoreRow.eventsString}"
+					onclick="javascript:toggleWindow(this, '#{msgs.assignment_details_log_window_title}', '#{scoreRow.eventsString}');return false;"/>
 			</h:column>
 
 
