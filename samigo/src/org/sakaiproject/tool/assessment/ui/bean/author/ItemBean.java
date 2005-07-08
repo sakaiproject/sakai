@@ -962,6 +962,24 @@ public class ItemBean
         setMultipleChoiceAnswers(list);
         setAdditionalChoices("0");
 
+        // if mcmc, need to set corrAnswers 
+       if (getMultipleCorrect()) {
+	//System.out.println("lydiatest getMultiplecorrect ()=  " + getMultipleCorrect());
+          ArrayList corranswersList = ContextUtil.paramArrayValueLike("mccheckboxes");
+          int corrsize = corranswersList.size();
+          int counter = 0;
+          String[] corrchoices = new String[corrsize];
+          Iterator iter = corranswersList.iterator();
+          while (iter.hasNext()) {
+
+            String currentcorrect = (String) iter.next();
+	    corrchoices[counter]= currentcorrect; 
+            counter++;
+          }
+        //System.out.println("lydiatest corchoices are " + corrchoices.toString());
+        this.setCorrAnswers(corrchoices);
+       }
+
 
 //System.out.println("lydiatest setadditional choices " + additionalChoices);
 
