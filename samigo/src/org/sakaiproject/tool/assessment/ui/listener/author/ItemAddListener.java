@@ -102,6 +102,8 @@ public class ItemAddListener
 
 		}
 	}
+/*
+    // do not need to check for mcmc 
     else //Multiple choice,multiple correct
 	{
 	    Iterator iter = item.getMultipleChoiceAnswers().iterator();
@@ -123,6 +125,7 @@ public class ItemAddListener
 		}
 	    }
 	}
+*/
 
   }
 
