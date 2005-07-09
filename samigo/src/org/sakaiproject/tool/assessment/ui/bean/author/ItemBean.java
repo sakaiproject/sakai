@@ -1022,8 +1022,9 @@ public class ItemBean
 // Huong added for matching
 
 public boolean checkMatch(){
-     String choice=currentMatchPair.getChoice();
-     String match=currentMatchPair.getMatch();
+     String choice=currentMatchPair.getChoice().trim();
+
+     String match=currentMatchPair.getMatch().trim();
      FacesContext context=FacesContext.getCurrentInstance();
 
      ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
