@@ -606,7 +606,9 @@ public class DeliveryActionListener
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
 
-      questionCount = secFacade.getItemSet().size();
+      //questionCount = secFacade.getItemSet().size();
+      // need to  get ItemArraySort, insteand of getItemSet, to return corr number for random draw parts
+      questionCount = secFacade.getItemArraySorted().size();
 
       if (itemIndex > (questionCount - 1) && sectionCount == sectionIndex)
       {
