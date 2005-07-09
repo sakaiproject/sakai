@@ -1022,6 +1022,7 @@ public class ItemBean
 // Huong added for matching
 
 public boolean checkMatch(){
+// need to trim, 'cuz in  mozilla, the field is printed as ^M , a new line char. 
      String choice=currentMatchPair.getChoice().trim();
 
      String match=currentMatchPair.getMatch().trim();
