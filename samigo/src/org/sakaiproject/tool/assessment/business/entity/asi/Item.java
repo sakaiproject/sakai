@@ -137,7 +137,7 @@ public class Item extends ASIBaseClass
     if (list.size() > 0)
     {
       Element element = (Element) list.get(0);
-      element.setAttribute(QTIConstantStrings.TITLE, title);
+      element.setAttribute(QTIConstantStrings.TITLE, escapeXml(title));
     }
   }
 

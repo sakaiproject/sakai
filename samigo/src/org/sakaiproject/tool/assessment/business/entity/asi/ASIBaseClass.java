@@ -27,9 +27,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.dom.CharacterDataImpl;
@@ -37,8 +37,6 @@ import org.apache.xerces.dom.CommentImpl;
 import org.apache.xerces.dom.CoreDocumentImpl;
 import org.apache.xerces.dom.ElementImpl;
 import org.apache.xerces.dom.TextImpl;
-import org.sakaiproject.tool.assessment.business.entity.XmlStringBuffer;
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIConstantStrings;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Comment;
 import org.w3c.dom.DOMException;
@@ -48,6 +46,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
+
+import org.sakaiproject.tool.assessment.business.entity.XmlStringBuffer;
+import org.sakaiproject.tool.assessment.business.entity.constants.QTIConstantStrings;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -129,6 +130,19 @@ public abstract class ASIBaseClass
 
 
   /**
+   * Simple wrapper over commons lang util method, but we may add additional
+   * logic in the future for special QTI export purposes.
+   * @param s
+   * @return escaped string e.g.
+   * < \u04D0rnesen & Jones > becomes &lt;&#1232;rnesen &amp; Jones &gt;
+   */
+  public static String escapeXml(String s)
+  {
+    if (s==null) return "";
+    return StringEscapeUtils.escapeXml(s);
+  }
+
+  /**
    * DOCUMENTATION PENDING
    *
    * @param xpath DOCUMENTATION PENDING
@@ -181,13 +195,15 @@ public abstract class ASIBaseClass
   }
 
   /**
-   * DOCUMENTATION PENDING
+   * Set field entry.
    *
-   * @param xpath DOCUMENTATION PENDING
-   * @param setValue DOCUMENTATION PENDING
+   * @param xpath
+   * @param setValue
    */
-  protected void setFieldentry(String xpath, String setValue)
+  protected void setFieldentry(String xpath, String value)
   {
+    String setValue = escapeXml(value);
+
     if(log.isDebugEnabled())
     {
       log.debug("setFieldentry(String " + xpath + ", String " + setValue + ")");
@@ -247,10 +263,10 @@ public abstract class ASIBaseClass
   }
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @param xpath DOCUMENTATION PENDING
-   * @param fieldlabel DOCUMENTATION PENDING
+   *
+   * @param xpath
+   * @param fieldlabel
    */
   protected void createFieldentry(String xpath, String fieldlabel)
   {
@@ -306,16 +322,16 @@ public abstract class ASIBaseClass
   /**
    * Methods shared by Assessment and Section only
    *
-   * @param basePath DOCUMENTATION PENDING
+   * @param basePath
    *
-   * @return DOCUMENTATION PENDING
+   * @return
    */
   /**
-   * DOCUMENTATION PENDING
    *
-   * @param basePath DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   * @param basePath
+   *
+   * @return
    */
   protected List getAllSections(String basePath)
   {
@@ -338,9 +354,9 @@ public abstract class ASIBaseClass
   }
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @param basePath DOCUMENTATION PENDING
+   *
+   * @param basePath
    */
   protected void removeSections(String basePath)
   {
@@ -354,11 +370,11 @@ public abstract class ASIBaseClass
   }
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @param basePath DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   * @param basePath
+   *
+   * @return
    */
   protected ArrayList selectSections(String basePath)
   {
@@ -401,12 +417,12 @@ public abstract class ASIBaseClass
   }
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @param basePath DOCUMENTATION PENDING
-   * @param selectElement DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   * @param basePath
+   * @param selectElement
+   *
+   * @return
    */
   protected List processSelectElement(String basePath, Element selectElement)
   {
@@ -439,12 +455,12 @@ public abstract class ASIBaseClass
   }
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @param basePath DOCUMENTATION PENDING
-   * @param selectNumber DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   * @param basePath
+   * @param selectNumber
+   *
+   * @return
    */
   protected List getNumOfSections(String basePath, int selectNumber)
   {
@@ -480,10 +496,10 @@ public abstract class ASIBaseClass
   }
 
 //  /**
-//   * DOCUMENTATION PENDING
 //   *
-//   * @param basePath DOCUMENTATION PENDING
-//   * @param sections DOCUMENTATION PENDING
+//   *
+//   * @param basePath
+//   * @param sections
 //   */
 //  protected void orderSections(String basePath, ArrayList sections, int qtiVersion)
 //  {
@@ -528,10 +544,10 @@ public abstract class ASIBaseClass
 //  }
 
 //  /**
-//   * DOCUMENTATION PENDING
 //   *
-//   * @param basePath DOCUMENTATION PENDING
-//   * @param sections DOCUMENTATION PENDING
+//   *
+//   * @param basePath
+//   * @param sections
 //   */
 //  protected void addSections(String basePath, ArrayList sections, int qtiVersion)
 //  {

@@ -116,7 +116,7 @@ public class Section extends ASIBaseClass
     if (list.size() > 0)
     {
       Element element = (Element) list.get(0);
-      element.setAttribute("title", title);
+      element.setAttribute("title", escapeXml(title));
     }
   }
 
