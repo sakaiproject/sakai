@@ -34,11 +34,11 @@ should be included in file importing DeliveryMessages
   <!-- For ItemGradingData, it is very important that target must be in this format: -->
   <!-- assessmentXXX/questionXXX/agentId -->
   <!-- please check the valueChangeListener to get the final destination -->
-  <corejsf:upload
-    target="/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{backingbean.prop1}"
-    valueChangeListener="#{delivery.addMediaToItemGrading}" />
-  <f:verbatim>&nbsp;&nbsp;</f:verbatim>
-  <h:commandButton value="Upload" action="submit"/>
+  <h:inputText size="50" />
+  <h:outputText value="  " />
+  <h:commandButton value="Browse" type="button"/>
+  <h:outputText value="  " />
+  <h:commandButton value="Upload" type="button"/>
 </h:panelGroup>
 <f:verbatim><br /></f:verbatim>
 
