@@ -32,6 +32,7 @@ import javax.faces.context.FacesContext;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.PermissionException;
@@ -42,13 +43,6 @@ import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 
 import com.sun.faces.util.MessageFactory;
-
-import org.sakaiproject.service.framework.email.cover.EmailService;
-import org.sakaiproject.service.legacy.realm.cover.RealmService;
-import org.sakaiproject.service.legacy.realm.Realm;
-import org.sakaiproject.service.legacy.user.User;
-//import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.api.app.syllabus.SyllabusService;
 
 //sakai2 - no need to import org.sakaiproject.jsf.ToolBean here as sakai does.
 

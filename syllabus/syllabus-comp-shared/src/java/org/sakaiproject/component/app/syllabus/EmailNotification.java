@@ -25,12 +25,13 @@ package org.sakaiproject.component.app.syllabus;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.exception.EmptyException;
+import org.sakaiproject.api.app.syllabus.SyllabusData;
+import org.sakaiproject.api.app.syllabus.SyllabusItem;
+import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.kernel.component.cover.ComponentManager;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.framework.email.cover.EmailService;
 import org.sakaiproject.service.legacy.digest.DigestMessage;
@@ -40,17 +41,11 @@ import org.sakaiproject.service.legacy.event.Event;
 import org.sakaiproject.service.legacy.notification.Notification;
 import org.sakaiproject.service.legacy.notification.NotificationAction;
 import org.sakaiproject.service.legacy.notification.cover.NotificationService;
-import org.sakaiproject.service.legacy.preference.Preferences;
-import org.sakaiproject.service.legacy.preference.cover.PreferencesService;
 import org.sakaiproject.service.legacy.resource.Reference;
-import org.sakaiproject.service.legacy.resource.Resource;
-import org.sakaiproject.service.legacy.resource.ResourceProperties;
 import org.sakaiproject.service.legacy.time.cover.TimeService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.util.java.StringUtil;
 import org.w3c.dom.Element;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
-import org.sakaiproject.api.app.syllabus.*;
 
 public class EmailNotification
 	implements NotificationAction

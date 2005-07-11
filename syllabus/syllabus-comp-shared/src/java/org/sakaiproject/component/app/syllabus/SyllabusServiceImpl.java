@@ -31,13 +31,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.component.legacy.message.BaseMessageService.BaseMessageEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.framework.log.Logger;
@@ -46,6 +45,7 @@ import org.sakaiproject.service.legacy.event.Event;
 import org.sakaiproject.service.legacy.event.cover.EventTrackingService;
 import org.sakaiproject.service.legacy.notification.NotificationEdit;
 import org.sakaiproject.service.legacy.notification.NotificationService;
+import org.sakaiproject.service.legacy.resource.Edit;
 import org.sakaiproject.service.legacy.resource.ReferenceVector;
 import org.sakaiproject.service.legacy.resource.Resource;
 import org.sakaiproject.service.legacy.resource.ResourceProperties;
@@ -59,12 +59,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-
-import org.sakaiproject.service.legacy.resource.Edit;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * @author rshastri TODO To change the template for this generated type comment go to Window -

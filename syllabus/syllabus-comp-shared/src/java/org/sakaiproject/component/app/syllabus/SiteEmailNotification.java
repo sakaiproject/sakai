@@ -26,6 +26,10 @@ package org.sakaiproject.component.app.syllabus;
 import java.util.List;
 import java.util.Vector;
 
+import org.sakaiproject.api.app.syllabus.SyllabusData;
+import org.sakaiproject.api.app.syllabus.SyllabusItem;
+import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.kernel.component.cover.ComponentManager;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.legacy.alias.Alias;
 import org.sakaiproject.service.legacy.alias.cover.AliasService;
@@ -36,14 +40,6 @@ import org.sakaiproject.service.legacy.resource.Reference;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
-
-import org.sakaiproject.api.app.syllabus.SyllabusData;
-import org.sakaiproject.api.app.syllabus.SyllabusItem;
-import org.sakaiproject.api.app.syllabus.SyllabusManager;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
-import org.sakaiproject.api.app.syllabus.*;
 
 public class SiteEmailNotification
 	extends EmailNotification

@@ -25,7 +25,6 @@
 package org.sakaiproject.api.app.syllabus.cover;
 
 import org.sakaiproject.service.framework.component.cover.ComponentManager;
-import org.sakaiproject.service.legacy.resource.ResourceProperties;
 
 public class SyllabusService
 {

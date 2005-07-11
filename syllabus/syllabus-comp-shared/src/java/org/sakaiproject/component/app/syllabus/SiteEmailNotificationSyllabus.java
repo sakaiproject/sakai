@@ -24,31 +24,24 @@
 package org.sakaiproject.component.app.syllabus;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.sakaiproject.api.app.syllabus.SyllabusData;
+import org.sakaiproject.api.app.syllabus.SyllabusItem;
+import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.app.syllabus.SyllabusService;
+import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 import org.sakaiproject.service.legacy.event.Event;
 import org.sakaiproject.service.legacy.notification.Notification;
 import org.sakaiproject.service.legacy.notification.NotificationAction;
 import org.sakaiproject.service.legacy.resource.Reference;
-import org.sakaiproject.service.legacy.resource.ResourceProperties;
-import org.sakaiproject.service.legacy.resource.ReferenceVector;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
-
-import org.sakaiproject.service.legacy.resource.Resource;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
-import org.sakaiproject.api.app.syllabus.SyllabusData;
-import org.sakaiproject.api.app.syllabus.SyllabusService;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
-import org.sakaiproject.api.app.syllabus.*;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.service.legacy.user.User;
 
 public class SiteEmailNotificationSyllabus
 	extends SiteEmailNotification
