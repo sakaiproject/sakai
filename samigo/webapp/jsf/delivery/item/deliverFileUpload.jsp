@@ -28,7 +28,20 @@ should be included in file importing DeliveryMessages
 --%>
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:panelGroup>
+<h:panelGroup rendered="#{delivery.previewMode ne 'true'}">
+  <h:outputText value="#{msg.file}" />
+  <!-- note that target represent the location where the upload medis will be temporarily stored -->
+  <!-- For ItemGradingData, it is very important that target must be in this format: -->
+  <!-- assessmentXXX/questionXXX/agentId -->
+  <!-- please check the valueChangeListener to get the final destination -->
+  <corejsf:upload
+    target="/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{backingbean.prop1}"
+    valueChangeListener="#{delivery.addMediaToItemGrading}" />
+  <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+  <h:commandButton value="Upload" action="submit"/>
+</h:panelGroup>
+
+<h:panelGroup rendered="#{delivery.previewMode eq 'true'}">
   <h:outputText value="#{msg.file}" />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
   <!-- For ItemGradingData, it is very important that target must be in this format: -->
@@ -40,6 +53,7 @@ should be included in file importing DeliveryMessages
   <h:outputText value="  " />
   <h:commandButton value="Upload" type="button"/>
 </h:panelGroup>
+
 <f:verbatim><br /></f:verbatim>
 
       <%-- media list, note that question is ItemContentBean --%>
