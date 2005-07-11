@@ -380,7 +380,6 @@
         <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
       </h:commandLink>
- <f:verbatim></span></f:verbatim>
 <%-- This is a convenient link for Daisy, hide it for now
        <h:outputText value=" | " />
       <h:commandLink id="removeAssessment" immediate="true" action="removeAssessment">
@@ -389,13 +388,14 @@
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
       </h:commandLink>
 --%>
-      <h:outputText rendered="#{publishedAssessment.submissionSize >0}" value="|"/>
-      <h:commandLink action="totalScores" immediate="true" rendered="#{publishedAssessment.submissionSize >0}">
+      <h:outputText rendered="#{inactivePublishedAssessment.submissionSize >0}" value=" | "/>
+      <h:commandLink action="totalScores" immediate="true" rendered="#{inactivePublishedAssessment.submissionSize >0}">
 
         <h:outputText value="Scores" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="publishedId" value="#{inactivePublishedAssessment.publishedAssessmentId}" />
       </h:commandLink>
+ <f:verbatim></span></f:verbatim>
     </h:column>
     <h:column>
       <f:facet name="header">
