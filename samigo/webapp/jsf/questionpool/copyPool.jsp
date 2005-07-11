@@ -57,7 +57,7 @@
 <div class="indnt1">
 <h:outputText value="#{msg.sel_dest_copy} "/>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionpool.currentPool.displayName}"/>
-<h:outputText  rendered="#{questionpool.actionType == 'item'}" value="#{questionpool.currentItem.text}"/>
+<h:outputText  rendered="#{questionpool.actionType == 'item'}" value="#{questionpool.currentItem.text}" escape="false"/>
 
 </div>
 <div class="longtext indnt2">
