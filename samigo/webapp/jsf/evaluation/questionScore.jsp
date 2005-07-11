@@ -149,7 +149,7 @@ $Id$
   </h:panelGroup>
   <h:panelGroup rendered="#{questionScores.typeId == '6'}">
     <f:subview id="displayFileUpload">
-    <%@ include file="/jsf/evaluation/item/displayFileUpload.jsp" %>
+    <%@ include file="/jsf/evaluation/item/displayFileUploadQuestion.jsp" %>
     </f:subview>
   </h:panelGroup>
   <h:panelGroup rendered="#{questionScores.typeId == '8'}">
@@ -442,7 +442,13 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="answer" />
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{description.answer}" escape="false" />
+      <!-- display of answer to file upload question is diffenent from other types - daisyf -->
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6'}" />
+      <h:panelGroup rendered="#{questionScores.typeId == '6'}">
+        <f:subview id="displayFileUpload2">
+          <%@ include file="/jsf/evaluation/item/displayFileUploadAnswer.jsp" %>
+        </f:subview>
+      </h:panelGroup>
     </h:column>
 
     <h:column rendered="#{questionScores.sortType=='answer'}">

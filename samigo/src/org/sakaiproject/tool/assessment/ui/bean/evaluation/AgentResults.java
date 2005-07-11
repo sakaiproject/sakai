@@ -28,6 +28,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * A set of information for an agent.  This contains both totalScores
@@ -60,6 +61,7 @@ public class AgentResults
   private String gradedBy;
   private Date gradedDate;
   private Set itemGradingSet;
+  private ArrayList itemGradingArrayList;
 
   public AgentResults() {
   }
@@ -217,6 +219,15 @@ public class AgentResults
 
   public void setItemGradingSet(Set itemGradingSet) {
     this.itemGradingSet = itemGradingSet;
+  }
+
+  // added by daisy to support to display answers to file upload question
+  public ArrayList getItemGradingArrayList() {
+    return itemGradingArrayList;
+  }
+
+  public void setItemGradingArrayList(ArrayList itemGradingArrayList) {
+    this.itemGradingArrayList = itemGradingArrayList;
   }
 
 }

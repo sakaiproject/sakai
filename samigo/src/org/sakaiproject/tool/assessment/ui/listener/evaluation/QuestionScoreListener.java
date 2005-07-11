@@ -355,6 +355,8 @@ public class QuestionScoreListener
 
         // Get all the answers for this question to put in one grading row
         ArrayList answerList = (ArrayList) iter.next();
+        results.setItemGradingArrayList(answerList);
+
         Iterator iter2 = answerList.iterator();
         while (iter2.hasNext())
         {
