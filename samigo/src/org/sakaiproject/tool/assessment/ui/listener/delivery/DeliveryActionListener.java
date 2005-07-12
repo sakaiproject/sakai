@@ -57,6 +57,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -300,7 +301,20 @@ public class DeliveryActionListener
         SectionDataIfc section = (SectionDataIfc) i1.next();
 
         //    items += section.getItemSet().size();  // bug 464
-        Iterator i2 = section.getItemArraySorted().iterator();
+        Iterator i2 = null;
+
+    	if (delivery.getForGrading()) {
+
+       	  StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
+          long seed = (long) studentscorebean.getStudentId().hashCode();
+          i2 = section.getItemArraySortedWithRandom(seed).iterator();
+        }
+        else {
+          i2 = section.getItemArraySorted().iterator();
+    }
+
+
+
         while (i2.hasNext())
         {
           items = items + 1; // bug 464
@@ -675,7 +689,17 @@ public class DeliveryActionListener
 
     SectionContentsBean sec = new SectionContentsBean();
 
-    ArrayList itemSet = part.getItemArraySorted();
+    ArrayList itemSet = null;
+    if (delivery.getForGrading()) {
+
+      StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
+      long seed = (long) studentscorebean.getStudentId().hashCode();
+      itemSet = part.getItemArraySortedWithRandom(seed);
+    }
+    else {
+      itemSet = part.getItemArraySorted();
+    }
+
     sec.setQuestions(itemSet.size());
 
     if (delivery.getSettings().getItemNumbering().equals
@@ -761,8 +785,8 @@ public class DeliveryActionListener
     int itemCount = 0;
 
     SectionContentsBean sec = new SectionContentsBean();
-
     ArrayList itemSet = part.getItemArraySorted();
+
     sec.setQuestions(itemSet.size());
 
     if (delivery.getSettings().getItemNumbering().equals
