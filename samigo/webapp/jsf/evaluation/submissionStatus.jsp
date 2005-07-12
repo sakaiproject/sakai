@@ -121,7 +121,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     var="description">
     <!-- NAME/SUBMISSION ID -->
 
-    <h:column>
+    <h:column rendered="#{submissionStatus.sortType ne 'lastName'}">
      <f:facet name="header">
         <h:commandLink immediate="true" id="lastName" action="submissionStatus">
           <h:outputText value="#{msg.name}" />
@@ -141,8 +141,24 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
      </h:panelGroup>
     </h:column>
 
+    <h:column rendered="#{submissionStatus.sortType eq 'lastName'}">
+     <f:facet name="header">
+          <h:outputText value="#{msg.name}" />
+     </f:facet>
+     <h:panelGroup>
+       <h:outputText value="<a name=\"" escape="false" />
+       <h:outputText value="#{description.lastInitial}" />
+       <h:outputText value="\"></a>" escape="false" />
+       <h:outputText value="#{description.firstName}" />
+       <h:outputText value=" " />
+       <h:outputText value="#{description.lastName}" />
+     </span>
+     </h:panelGroup>
+    </h:column>
+    
+
    <!-- STUDENT ID -->
-    <h:column>
+    <h:column  rendered="#{submissionStatus.sortType ne 'idString'}" >
      <f:facet name="header">
        <h:commandLink id="idString" action="submissionStatus" >
           <h:outputText value="#{msg.uid}" />
@@ -162,7 +178,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     </h:column>
 
     <!-- ROLE -->
-    <h:column>
+    <h:column rendered="#{submissionStatus.sortType ne 'role'}">
      <f:facet name="header" >
         <h:commandLink id="role" action="submissionStatus">
           <h:outputText value="#{msg.role}" />
@@ -182,7 +198,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     </h:column>
 
     <!-- DATE -->
-    <h:column>
+    <h:column rendered="#{submissionStatus.sortType ne 'submittedDate'}">
      <f:facet name="header">
         <h:commandLink id="submittedDate" action="submissionStatus">
           <h:outputText value="#{msg.date}" />
