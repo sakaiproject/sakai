@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -91,7 +92,7 @@ public class SubmissionStatusListener
     System.out.println("reqMap: " + reqMap);
 
     log.info("Submission Status LISTENER.");
-    TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
+    SubmissionStatusBean bean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
@@ -106,18 +107,18 @@ public class SubmissionStatusListener
 
 
   /**
-   * This will populate the TotalScoresBean with the data associated with the
+   * This will populate the SubmissionStatusBean with the data associated with the
    * particular versioned assessment based on the publishedId.
    *
    * @todo Some of this code will change when we move this to Hibernate persistence.
    * @param publishedId String
-   * @param bean TotalScoresBean
+   * @param bean SubmissionStatusBean
    * @return boolean
    */
   public boolean totalScores(
-    String publishedId, TotalScoresBean bean, boolean isValueChange)
+    String publishedId, SubmissionStatusBean bean, boolean isValueChange)
   {
-    log.debug("totalScores()");
+    log.debug("submissionStatus()");
     try
     {
       GradingService delegate =	new GradingService();
@@ -129,7 +130,7 @@ public class SubmissionStatusListener
       System.out.println("Rachel: allSubmissions = " + which);
       if (which == null)
         which = "false";
-      bean.setAllSubmissions(which);
+      bean.setAllSubmissions("true");
       bean.setPublishedId(publishedId);
       ArrayList scores = delegate.getAllSubmissions(publishedId);
       Iterator iter = scores.iterator();
