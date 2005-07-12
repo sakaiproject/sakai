@@ -96,26 +96,28 @@ public class BeginDeliveryActionListener implements ActionListener
 
     if (publishedId == null || publishedId.trim().equals(""))
     {
-	// this is accessed via assessment preview link
-       if ("true".equals(delivery.getPreviewAssessment()) && assessmentId !=null) {
+	     // this is accessed via assessment preview link
+       if ("true".equals(delivery.getPreviewAssessment()) && assessmentId !=null)
+       {
         //now always publish and get a new publishedId for preview assessment
-               AssessmentService assessmentService = new AssessmentService();
-               AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
-               try {
-                pub = publishedAssessmentService.publishPreviewAssessment(assessment);
-               } catch (Exception e) {
-                log.error(e);
-                e.printStackTrace();
-               }
-               publishedId = pub.getPublishedAssessmentId().toString();
+         AssessmentService assessmentService = new AssessmentService();
+         AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+         try {
+          pub = publishedAssessmentService.publishPreviewAssessment(assessment);
+         } catch (Exception e) {
+          log.error(e);
+          e.printStackTrace();
+         }
+         publishedId = pub.getPublishedAssessmentId().toString();
        }
-       else {
-      // this is accessed via publishedUrl so pubishedId==null
+       else
+       {
+         // this is accessed via publishedUrl so pubishedId==null
          pub = delivery.getPublishedAssessment();
-        if (pub == null)
+         if (pub == null)
            throw new AbortProcessingException(
             "taking: publishedAsessmentId null or blank");
-        else
+         else
            publishedId = pub.getPublishedAssessmentId().toString();
        }
     }
