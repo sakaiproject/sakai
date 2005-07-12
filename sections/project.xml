@@ -20,6 +20,55 @@
 		</dependency>
 	</dependencies>
 
-	<build>	
+	<developers>
+		<developer>
+			<id>jholtzman</id>
+			<name>Josh Holtzman</name>
+			<email>jholtzman@berkeley.edu</email>
+			<organization>UC Berkeley</organization>
+			<organizationUrl>http://media.berkeley.edy</organizationUrl>
+			<roles>
+				<role>Lead Developer</role>
+			</roles>
+			<timezone>-8</timezone>
+			<properties>
+				Yahoo IM: joshua_m_holtzman
+			</properties>
+		</developer>
+		<developer>
+			<id>oheyer</id>
+			<name>Oliver Heyer</name>
+			<email>oliver@media.berkeley.edu</email>
+			<organization>UC Berkeley</organization>
+			<organizationUrl>http://media.berkeley.edy</organizationUrl>
+			<roles>
+				<role>Project Manager</role>
+			</roles>
+			<timezone>-8</timezone>
+			<properties>
+				Yahoo IM: oliver_heyer
+			</properties>
+		</developer>
+		<developer>
+			<id>rdavis</id>
+			<name>Ray Davis</name>
+			<email>ray@media.berkeley.edu</email>
+			<organization>UC Berkeley</organization>
+			<organizationUrl>http://media.berkeley.edy</organizationUrl>
+			<roles>
+				<role>Developer</role>
+			</roles>
+			<timezone>-8</timezone>
+			<properties>
+				Yahoo IM: kokonino_ray
+			</properties>
+		</developer>
+
+	</developers>
+
+	<reports/>
+
+	<build>
+		<nagEmailAddress>jholtzman@berkeley.edu</nagEmailAddress>
 	</build>
 </project>
