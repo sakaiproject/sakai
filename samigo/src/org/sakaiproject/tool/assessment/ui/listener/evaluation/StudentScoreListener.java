@@ -97,12 +97,15 @@ public class StudentScoreListener
       bean.setAssessmentGradingId(cu.lookupParam("gradingData"));
       bean.setItemId(cu.lookupParam("itemId"));
 
+      DeliveryBean dbean = (DeliveryBean) cu.lookupBean("delivery");
+      dbean.setForGrading(true);
+
       DeliveryActionListener listener = new DeliveryActionListener();
       listener.processAction(null);
 
-      DeliveryBean dbean = (DeliveryBean) cu.lookupBean("delivery");
       bean.setComments(dbean.getAssessmentGrading().getComments());
 
+      dbean.setForGrading(false);
       return true;
     } catch (Exception e) {
       e.printStackTrace();
