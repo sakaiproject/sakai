@@ -40,7 +40,7 @@ public class PublishingTarget implements PublishingTargetIfc {
     
      map = new HashMap();
      map.put("Anonymous Users", "ANONYMOUS_USERS");
-     map.put("All Users in "+AgentFacade.getCurrentSiteName(), AgentFacade.getCurrentSiteId());
+     map.put(AgentFacade.getCurrentSiteName(), AgentFacade.getCurrentSiteId());
      // in sakai2.0, we do not wnat to support Authenticated Users anymore
      //map.put("Authenticated Users", "AUTHENTICATED_USERS");
           
