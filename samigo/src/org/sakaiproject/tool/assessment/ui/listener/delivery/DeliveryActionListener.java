@@ -87,12 +87,7 @@ public class DeliveryActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().
-      getRequestParameterMap();
-    //System.out.println("requestParams: " + requestParams);
-    //System.out.println("reqMap: " + reqMap);
+    log.info("DeliveryActionListener.processAction() ");
 
     try
     {
@@ -363,14 +358,12 @@ public class DeliveryActionListener
       {
         delivery.setGraderComment(null);
 
-        //System.out.println("Setting grader comment to " + delivery.getGraderComment());
 
         // Set the begin time if we're just starting
-        //System.out.println("start begin time " + delivery.getBeginTime());
       }
       if (delivery.getBeginTime() == null)
       {
-        //System.out.println("grading delivery time = " + delivery.getAssessmentGrading().getAttemptDate());
+        log.info("grading delivery time = " + delivery.getAssessmentGrading().getAttemptDate());
         if (delivery.getAssessmentGrading() != null &&
             delivery.getAssessmentGrading().getAttemptDate() != null)
         {
@@ -383,7 +376,7 @@ public class DeliveryActionListener
         }
       }
 
-      //System.out.println("Set begin time " + delivery.getBeginTime());
+      log.info("Set begin time " + delivery.getBeginTime());
       // get table of contents
       delivery.setTableOfContents(getContents(publishedAssessment, itemData,
                                               delivery));
@@ -391,8 +384,6 @@ public class DeliveryActionListener
       // get current page contents
       delivery.setPageContents(getPageContents(publishedAssessment,
                                                delivery, itemData));
-
-      //System.out.println("Rachel: set page contents");
     }
     catch (Exception e)
     {
@@ -592,7 +583,6 @@ public class DeliveryActionListener
     ArrayList partSet = publishedAssessment.getSectionArraySorted();
     Iterator iter = partSet.iterator();
     ArrayList partsContents = new ArrayList();
-    //System.out.println("Rachel: sectionIndex = " + sectionIndex + ", itemIndex = " + itemIndex);
     if (itemIndex < 0)
     {
       sectionIndex--;
@@ -1190,8 +1180,8 @@ public class DeliveryActionListener
         shuffled.add(iter2.next());
 
       }
-      Collections.shuffle(shuffled, 
-	new Random( (long) item.getText().hashCode() + 
+      Collections.shuffle(shuffled,
+	new Random( (long) item.getText().hashCode() +
 	AgentFacade.getAgentString().hashCode()));
 
 /*

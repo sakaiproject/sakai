@@ -71,12 +71,7 @@ public class SubmitToGradingActionListener implements ActionListener
     AbortProcessingException
   {
     try {
-      FacesContext context = FacesContext.getCurrentInstance();
-      Map reqMap = context.getExternalContext().getRequestMap();
-      Map requestParams = context.getExternalContext().
-                        getRequestParameterMap();
-      //System.out.println("requestParams: " + requestParams);
-      //System.out.println("reqMap: " + reqMap);
+      log.info("ReviewActionListener.processAction() ");
 
       // get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
@@ -164,12 +159,10 @@ public class SubmitToGradingActionListener implements ActionListener
       while (iter2.hasNext())
       {
         ItemContentsBean item = (ItemContentsBean) iter2.next();
-        //System.out.println("********");
-        //System.out.println("Debug item " + item.getItemData().getItemId());
         ArrayList grading = item.getItemGradingDataArray();
         if (grading.isEmpty())
         {
-        //  System.out.println("No item grading data.");
+          log.info("No item grading data.");
         }
         else
         {
@@ -177,13 +170,6 @@ public class SubmitToGradingActionListener implements ActionListener
           while (iter3.hasNext())
           {
             ItemGradingData data = (ItemGradingData) iter3.next();
-            //System.out.println("======");
-            //if (data.getPublishedAnswer() != null)
-           // {
-            //  System.out.println("Answer Id = " + data.getPublishedAnswer().getText());
-            //}
-            //System.out.println("Answer text = " + data.getAnswerText());
-            //System.out.println("======");
 
             // Don't add the data if no item is selected
             if (data.getPublishedAnswer() != null ||
@@ -195,7 +181,6 @@ public class SubmitToGradingActionListener implements ActionListener
               adata = (AssessmentGradingData) data.getAssessmentGrading();
           }
         }
-        //System.out.println("********");
       }
     }
 
@@ -251,7 +236,7 @@ public class SubmitToGradingActionListener implements ActionListener
       adata.setForGrade(new Boolean(delivery.getForGrade()));
     }
 
-    //System.out.println("Before time elapsed " + adata.getTimeElapsed());
+    log.info("Before time elapsed " + adata.getTimeElapsed());
     // Set time elapsed if this is a timed test
     if (adata.getTimeElapsed() == null)
       adata.setTimeElapsed(new Integer(0));
@@ -262,7 +247,7 @@ public class SubmitToGradingActionListener implements ActionListener
       adata.setTimeElapsed(new Integer(
         new Integer(delivery.getTimeElapse()).intValue() / 10));
 
-    //System.out.println("Set time elapsed " + adata.getTimeElapsed());
+    log.info("Set time elapsed " + adata.getTimeElapsed());
     // Store the date you started this attempt.
     adata.setAttemptDate(delivery.getBeginTime());
 

@@ -74,12 +74,7 @@ public class BeginDeliveryActionListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().
-                        getRequestParameterMap();
-    log.info("requestParams: " + requestParams);
-    log.info("reqMap: " + reqMap);
+    log.info("BeginDeliveryActionListener.processAction() ");
 
     // get managed bean
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
@@ -316,17 +311,13 @@ public class BeginDeliveryActionListener implements ActionListener
     PublishedAssessmentService service = new PublishedAssessmentService();
     int totalSubmissions = (service.getTotalSubmission(AgentFacade.getAgentString(),
         publishedAssessmentId.toString())).intValue();
-    //System.out.println("*** totalSubmissions"+totalSubmissions);
     settings.setAutoSubmit(control.AUTO_SUBMIT.equals(control.getAutoSubmit()));
-    //System.out.println("Autosubmit = " + control.getAutoSubmit());
     settings.setAutoSave(control.AUTO_SAVE.equals(control.getSubmissionsSaved()));
     settings.setDueDate(control.getDueDate());
     if ((Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
       settings.setUnlimitedAttempts(true);
-      //System.out.println("**unlimited submission");
     }
     else{
-      //System.out.println("**limited submission");
       settings.setUnlimitedAttempts(false);
       if (control.getSubmissionsAllowed() != null) {
         settings.setMaxAttempts(control.getSubmissionsAllowed().intValue());

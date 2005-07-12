@@ -62,19 +62,14 @@ public class RedirectLoginListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().
-                        getRequestParameterMap();
-    System.out.println("requestParams: " + requestParams);
-    //System.out.println("reqMap: " + reqMap);
+    log.info("RedirectLoginListener.processAction() ");
 
     try {
       // if users is authenticated, goto selectAssessment
       // else go to login page
       // get managed bean
       String outcome = "select";
-      System.out.println("agentId="+AgentFacade.getAgentString());
+      log.info("agentId="+AgentFacade.getAgentString());
       if (AgentFacade.getAgentString()==null || ("").equals(AgentFacade.getAgentString()))
         outcome = "index";
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");

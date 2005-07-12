@@ -66,19 +66,13 @@ public class ReviewActionListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().
-                        getRequestParameterMap();
-    log.info("requestParams: " + requestParams);
-    log.info("reqMap: " + reqMap);
+    log.info("ReviewActionListener.processAction() ");
 
     try {
       // get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
 
       String reviewAssessmentId = cu.lookupParam("reviewAssessmentId");
-      //System.out.println("Lydiatest : got ID " + reviewAssessmentId);
 
       // get service
       PublishedAssessmentService publishedAssessmentService = new
@@ -88,7 +82,6 @@ public class ReviewActionListener implements ActionListener
       PublishedAssessmentFacade publishedAssessment =
         publishedAssessmentService.getPublishedAssessment(reviewAssessmentId);
 
-      //System.out.println("lydiatest: got a published assessment.");
 
       GradingService service = new GradingService();
       HashMap itemData = service.getLastItemGradingData
@@ -97,22 +90,12 @@ public class ReviewActionListener implements ActionListener
       // get current page contents
       if (delivery.getPageContents() == null)
       {
-        DeliveryActionListener listener = new DeliveryActionListener()
-;
+        DeliveryActionListener listener = new DeliveryActionListener();
         delivery.setPageContents(listener.getPageContents(publishedAssessment, delivery, itemData));
     }
 
         delivery.setPreviewMode(true);
 
-
-
-// for debug
-/*
-      System.out.println("lydiatest: set page contents");
-
-      System.out.println("lydiatest: currentScore = " + delivery.getPageContents().getCurrentScore());
-      System.out.println("lydiatest: MaxScore = " + delivery.getPageContents().getMaxScore());
-*/
       Iterator iter = delivery.getPageContents().getPartsContents().iterator();
       while (iter.hasNext()) {
 
@@ -120,9 +103,6 @@ public class ReviewActionListener implements ActionListener
         Iterator itemiter = sectbean.getItemContents().iterator();
         while (itemiter.hasNext()) {
           ItemContentsBean itembean = (ItemContentsBean) itemiter.next();
-          //System.out.println("lydiatest: feedback = " + itembean.getFeedback());
-          //System.out.println("lydiatest: points= " + itembean.getPoints());
-          //System.out.println("lydiatest: number= " + itembean.getNumber());
         }
       }
 
