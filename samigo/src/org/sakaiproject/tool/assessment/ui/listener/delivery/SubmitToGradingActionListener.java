@@ -264,17 +264,6 @@ public class SubmitToGradingActionListener implements ActionListener
 
     service.storeGrades(adata);
 
-
-    // Please don't put this back in.  It shouldn't be here -- the
-    // submissions remaining are now handled by the main page.  This
-    // is just causing assessments to be impossible to submit for
-    // no reason. If you're going to do this, you need to make sure
-    // you don't do this for every save, only for a submit (where
-    // forGrade = true), and that you don't throw an exception
-    // *after* someone's submitted, for any reason -- if they get
-    // to the point where they can submit, it's too late to throw
-    // an exception and erase all their work. -- rmg
-    //processSubmissionsRemaining(delivery);
     delivery.setSubmissionId(submissionId);
     delivery.setSubmissionTicket(submissionId);// is this the same thing? hmmmm
     delivery.setSubmissionDate(new Date());
