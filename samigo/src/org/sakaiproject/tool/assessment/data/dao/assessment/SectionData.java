@@ -247,7 +247,21 @@ public class SectionData
     return list;
   }
 
+  public ArrayList getItemArraySortedForGrading() {
+  // placeholder for now, need to have it 'cuz they are in ifc.
+    ArrayList list = getItemArray();
+    Collections.sort(list);
+    return list;
+  }
+
   public ArrayList getItemArraySorted() {
+    ArrayList list = getItemArray();
+    Collections.sort(list);
+    return list;
+  }
+
+  public ArrayList getItemArraySortedWithRandom(long seed){
+  // placeholder for now, need to have it 'cuz they are in ifc.
     ArrayList list = getItemArray();
     Collections.sort(list);
     return list;

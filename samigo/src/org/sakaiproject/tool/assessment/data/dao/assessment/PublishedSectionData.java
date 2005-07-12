@@ -251,7 +251,19 @@ public class PublishedSectionData
     return (String)this.sectionMetaDataMap.get(label);
   }
 
+  public ArrayList getItemArraySortedForGrading() {
+  // this returns all items, used for grading
+    ArrayList list = getItemArray();
+    Collections.sort(list);
+    return list;
+  }
+
   public ArrayList getItemArraySorted() {
+    long seed = (long) AgentFacade.getAgentString().hashCode();
+    return getItemArraySortedWithRandom(seed);
+  }
+
+  public ArrayList getItemArraySortedWithRandom(long seed) {
 
     ArrayList list = getItemArray();
     Integer numberToBeDrawn= null;
@@ -260,7 +272,7 @@ public class PublishedSectionData
 
       // same ordering for each student
       ArrayList randomsample = new ArrayList();
-      long seed = (long) AgentFacade.getAgentString().hashCode();
+      //long seed = (long) AgentFacade.getAgentString().hashCode();
       Collections.shuffle(list,  new Random(seed));
 
       if (getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
@@ -276,7 +288,7 @@ public class PublishedSectionData
     }
     else if((getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING)!=null ) && (getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING).equals(SectionDataIfc.RANDOM_WITHIN_PART.toString())) ){
          // same ordering for each student
-    long seed = (long) AgentFacade.getAgentString().hashCode();
+    //long seed = (long) AgentFacade.getAgentString().hashCode();
     Collections.shuffle(list,  new Random(seed));
     return list;
 
