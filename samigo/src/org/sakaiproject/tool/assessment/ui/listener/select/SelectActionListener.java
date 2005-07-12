@@ -357,13 +357,16 @@ public class SelectActionListener
   // 3. go through the pub list retrieved from DB and check if
   // agent is authorizaed and filter out the one that does not meet the
   // takeable criteria.
+  // SAK-1464: we also want to filter out assessment released To Anonymous Users
   private ArrayList getTakeableList(ArrayList assessmentList, HashMap h) {
     ArrayList takeableList = new ArrayList();
     for (int i = 0; i < assessmentList.size(); i++) {
       PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
       if (PersistenceService.getInstance().getAuthzQueriesFacade().isAuthorized(
            AgentFacade.getAgentString(), "TAKE_PUBLISHED_ASSESSMENT",
-           f.getPublishedAssessmentId().toString())) {
+           f.getPublishedAssessmentId().toString())
+          && f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
+          && f.getReleaseTo().indexOf("Anonymous Users") == -1 ) {
         if (isAvailable(f, h))
           takeableList.add(f);
       }
