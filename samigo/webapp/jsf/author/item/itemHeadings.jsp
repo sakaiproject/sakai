@@ -92,11 +92,13 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
   <f:selectItem itemLabel="#{msg.fill_in_the_blank}" itemValue="8"/>
   <f:selectItem itemLabel="#{msg.matching}" itemValue="9"/>
   <f:selectItem itemLabel="#{msg.true_false}" itemValue="4"/>
+<%--
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
+--%>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
 </h:selectOneMenu>
 
-
+<!-- if not from qpool , show the last option: copy from question pool-->
 <h:selectOneMenu onchange="document.links[5].onclick();" rendered="#{questionpool.importToAuthoring == 'false'}"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2">
   <f:valueChangeListener
