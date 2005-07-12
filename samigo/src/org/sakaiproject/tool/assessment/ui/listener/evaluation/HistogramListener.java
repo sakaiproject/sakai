@@ -208,7 +208,7 @@ public class HistogramListener
             section.setSequence(new Integer(secseq++));
           String title = "Part " + section.getSequence().toString();
           title += ", Question ";
-          ArrayList itemset = section.getItemArraySorted();
+          ArrayList itemset = section.getItemArraySortedForGrading();
           int seq = 1;
           Iterator iter2 = itemset.iterator();
 
