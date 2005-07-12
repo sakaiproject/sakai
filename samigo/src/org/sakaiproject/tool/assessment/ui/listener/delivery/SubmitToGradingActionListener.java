@@ -237,13 +237,17 @@ public class SubmitToGradingActionListener implements ActionListener
     log.info("Before time elapsed " + adata.getTimeElapsed());
     // Set time elapsed if this is a timed test
     if (adata.getTimeElapsed() == null)
+    {
       adata.setTimeElapsed(new Integer(0));
+    }
+    // Don't divide by 10 again if we were at the TOC
     if (delivery.getTimeElapse() != null &&
-      !delivery.getTimeElapse().equals("0") && // Don't save resets.
-      !delivery.getTimeElapse().equals(adata.getTimeElapsed().toString()))
-       // Don't divide by 10 again if we were at the TOC
+        !delivery.getTimeElapse().equals("0") && // Don't save resets.
+        !delivery.getTimeElapse().equals(adata.getTimeElapsed().toString()))
+    {
       adata.setTimeElapsed(new Integer(
         new Integer(delivery.getTimeElapse()).intValue() / 10));
+    }
 
     log.info("Set time elapsed " + adata.getTimeElapsed());
     // Store the date you started this attempt.
