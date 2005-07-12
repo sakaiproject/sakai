@@ -180,7 +180,7 @@ public class SubmissionStatusListener
         while (i2.hasNext() && !foundid)
         {
           SectionDataIfc sdata = (SectionDataIfc) i2.next();
-          Iterator i3 = sdata.getItemArraySorted().iterator();
+          Iterator i3 = sdata.getItemArraySortedForGrading().iterator();
           while (i3.hasNext() && !foundid)
           {
             ItemDataIfc idata = (ItemDataIfc) i3.next();
@@ -224,7 +224,7 @@ public class SubmissionStatusListener
           while (iter2.hasNext())
           {
             SectionDataIfc sdata = (SectionDataIfc) iter2.next();
-            Iterator iter3 = sdata.getItemArraySorted().iterator();
+            Iterator iter3 = sdata.getItemArraySortedForGrading().iterator();
             while (iter3.hasNext())
             {
               ItemDataIfc idata = (ItemDataIfc) iter3.next();
