@@ -176,6 +176,12 @@
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
+ <managed-bean>
+    <description>For evaluation: Submission Status backing bean.</description>
+    <managed-bean-name>submissionStatus</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
   <managed-bean>
     <description>For evaluation: Student Scores backing bean.</description>
     <managed-bean-name>studentScores</managed-bean-name>
