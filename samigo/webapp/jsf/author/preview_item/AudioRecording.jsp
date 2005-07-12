@@ -56,7 +56,7 @@ should be included in file importing DeliveryMessages
 
 <f:verbatim> <div class="longtext"></f:verbatim>
 
- <h:outputText rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}" escape="false" value="#{msg.general_fb}: " />
+ <h:outputText rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}" escape="false" value="#{msg.feedback}: " />
   <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
 <f:verbatim> </div></f:verbatim>
 
