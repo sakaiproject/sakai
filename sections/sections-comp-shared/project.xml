@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<name>Sakai Sections Shared Components</name>
+	<groupId>sakaiproject</groupId>
+    <id>sakai-sections-comp-shared</id>
+	<currentVersion>2.0.0</currentVersion>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2005</inceptionYear>
+
+	<!--  Globally shared for now -->
+   	<properties>
+		<deploy.type>jar</deploy.type>
+	    <deploy.target>shared</deploy.target>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-sections-api</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${pom.currentVersion}</version>
+			<type>plugin</type>
+		</dependency>
+	</dependencies>
+
+	<reports/>
+
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+	</build>
+</project>

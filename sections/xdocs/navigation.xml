@@ -4,15 +4,18 @@
   <title>Sakai Sectioning Tool</title>
   <body>
 
-    <!-- Links defined across the top right of the site -->
     <links>
       <item name="Maven" href="http://maven.apache.org/"/>
       <item name="Sakai" href="http://www.sakaiproject.org/"/>
     </links>
 
-    <!-- Menu in the Left Navigation -->
     <menu name="Specs">
       <item name="Specs and Functional Requirements" href="/specs/index.html" />
+	</menu>
+
+    <menu name="Coverage Reports">
+      <item name="Shared Components" href="../sections-comp-shared/target/jcoverage/doc/" />
+      <item name="Sectioning Tool" href="../sections-app/target/jcoverage/doc/" />
 	</menu>
 
   </body>

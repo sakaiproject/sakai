@@ -2,9 +2,11 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<name>sakai-sections</name>
-	<groupId>sakai-sections</groupId>
+	<name>Sakai Sections Project</name>
+	<groupId>sakaiproject</groupId>
+    <id>sakai-sections</id>
 	<currentVersion>2.0.0</currentVersion>
+
 	<organization>
 		<name>Sakai Project</name>
 		<url>http://sakaiproject.org/</url>
@@ -31,9 +33,6 @@
 				<role>Lead Developer</role>
 			</roles>
 			<timezone>-8</timezone>
-			<properties>
-				Yahoo IM: joshua_m_holtzman
-			</properties>
 		</developer>
 		<developer>
 			<id>oheyer</id>
@@ -45,9 +44,6 @@
 				<role>Project Manager</role>
 			</roles>
 			<timezone>-8</timezone>
-			<properties>
-				Yahoo IM: oliver_heyer
-			</properties>
 		</developer>
 		<developer>
 			<id>rdavis</id>
@@ -59,11 +55,18 @@
 				<role>Developer</role>
 			</roles>
 			<timezone>-8</timezone>
-			<properties>
-				Yahoo IM: kokonino_ray
-			</properties>
 		</developer>
-
+		<developer>
+			<id>dogle</id>
+			<name>Daphne Ogle</name>
+			<email>dogle@umich.edu</email>
+			<organization>University of Michigan</organization>
+			<organizationUrl>http://www.umich.edu</organizationUrl>
+			<roles>
+				<role>UI Designer</role>
+			</roles>
+			<timezone>-5</timezone>
+		</developer>
 	</developers>
 
 	<reports/>
