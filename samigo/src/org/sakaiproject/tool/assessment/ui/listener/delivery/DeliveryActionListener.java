@@ -121,24 +121,11 @@ public class DeliveryActionListener
       {
         delivery.setNoFeedback("false");
 
-        // If this was called from the table of contents, go to the right
-        // question.
       }
       if (cu.lookupParam("partnumber") != null &&
           !cu.lookupParam("partnumber").trim().equals(""))
       {
-        if (delivery.getSettings().isFormatByPart() ||
-            delivery.getSettings().isFormatByQuestion())
-        {
-          delivery.setPartIndex(new Integer
-                                (cu.lookupParam("partnumber")).intValue() - 1);
-        }
-        if (delivery.getSettings().isFormatByQuestion())
-        {
-          delivery.setQuestionIndex(new Integer
-                                    (cu.lookupParam("questionnumber")).intValue() -
-                                    1);
-        }
+        goToRightQuestionFromTOC(delivery);
       }
 
       String agent = AgentFacade.getAgentString();
@@ -211,15 +198,7 @@ public class DeliveryActionListener
           cu.lookupParam("review").equals("true"))
       {
         itemData = service.getSubmitData(id, agent);
-        Iterator keys = itemData.keySet().iterator();
-        if (keys.hasNext())
-        {
-          ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemData.get(
-            keys.next())).toArray()[0];
-          AssessmentGradingData agd =
-            (AssessmentGradingData) igd.getAssessmentGrading();
-          delivery.setAssessmentGrading(agd);
-        }
+        setAssessmentGradingFromItemData(delivery, itemData);
       }
 
       // If this is for grading a student's responses, get those
@@ -228,15 +207,7 @@ public class DeliveryActionListener
       {
         itemData = service.getStudentGradingData
           (cu.lookupParam("gradingData"));
-        Iterator keys = itemData.keySet().iterator();
-        if (keys.hasNext())
-        {
-          ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemData.get(
-            keys.next())).toArray()[0];
-          AssessmentGradingData agd =
-            (AssessmentGradingData) igd.getAssessmentGrading();
-          delivery.setAssessmentGrading(agd);
-        }
+        setAssessmentGradingFromItemData(delivery, itemData);
       }
 
       // If we're reviewing an assessment and we're not showing
@@ -307,14 +278,7 @@ public class DeliveryActionListener
         }
         if (forEvaluation)
         {
-          delivery.getFeedbackComponent().setShowCorrectResponse(true);
-          delivery.getFeedbackComponent().setShowGraderComment(true);
-          delivery.getFeedbackComponent().setShowItemLevel(true);
-          delivery.getFeedbackComponent().setShowQuestion(true);
-          delivery.getFeedbackComponent().setShowResponse(true);
-          delivery.getFeedbackComponent().setShowSelectionLevel(true);
-          delivery.getFeedbackComponent().setShowStats(true);
-          delivery.getFeedbackComponent().setShowStudentScore(true);
+          setDeliveryFeedbackOnforEvaluation(delivery);
         }
         else
         {
@@ -388,6 +352,58 @@ public class DeliveryActionListener
       e.printStackTrace();
     }
 
+  }
+
+  private void setAssessmentGradingFromItemData(DeliveryBean delivery,
+                                                HashMap itemData)
+  {
+    Iterator keys = itemData.keySet().iterator();
+    if (keys.hasNext())
+    {
+      ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemData.get(
+        keys.next())).toArray()[0];
+      AssessmentGradingData agd =
+        (AssessmentGradingData) igd.getAssessmentGrading();
+      delivery.setAssessmentGrading(agd);
+    }
+  }
+
+  /**
+   * Put the setShows on.
+   * @param delivery the delivery bean
+   */
+  private void setDeliveryFeedbackOnforEvaluation(DeliveryBean delivery)
+  {
+    delivery.getFeedbackComponent().setShowCorrectResponse(true);
+    delivery.getFeedbackComponent().setShowGraderComment(true);
+    delivery.getFeedbackComponent().setShowItemLevel(true);
+    delivery.getFeedbackComponent().setShowQuestion(true);
+    delivery.getFeedbackComponent().setShowResponse(true);
+    delivery.getFeedbackComponent().setShowSelectionLevel(true);
+    delivery.getFeedbackComponent().setShowStats(true);
+    delivery.getFeedbackComponent().setShowStudentScore(true);
+  }
+
+  /**
+   * Sets the delivery bean to the right place when navigating from TOC
+   * @param delivery
+   * @throws java.lang.NumberFormatException
+   */
+  private void goToRightQuestionFromTOC(DeliveryBean delivery) throws
+    NumberFormatException
+  {
+    if (delivery.getSettings().isFormatByPart() ||
+        delivery.getSettings().isFormatByQuestion())
+    {
+      delivery.setPartIndex(new Integer
+                            (cu.lookupParam("partnumber")).intValue() - 1);
+    }
+    if (delivery.getSettings().isFormatByQuestion())
+    {
+      delivery.setQuestionIndex(new Integer
+          (cu.lookupParam("questionnumber")).intValue() - 1);
+
+    }
   }
 
   /**
