@@ -254,7 +254,7 @@ public class QuestionScoreListener
           while (iter2.hasNext())
           {
             SectionDataIfc sdata = (SectionDataIfc) iter2.next();
-            Iterator iter3 = sdata.getItemArraySorted().iterator();
+            Iterator iter3 = sdata.getItemArraySortedForGrading().iterator();
             while (iter3.hasNext())
             {
               ItemDataIfc idata = (ItemDataIfc) iter3.next();
@@ -277,7 +277,7 @@ public class QuestionScoreListener
         PartData part = new PartData();
         part.setPartNumber("Section " + i + ":");
         part.setId(section.getSectionId().toString());
-        Iterator iter2 = section.getItemArraySorted().iterator();
+        Iterator iter2 = section.getItemArraySortedForGrading().iterator();
         int j = 1;
         while (iter2.hasNext())
         {
