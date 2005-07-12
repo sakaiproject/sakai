@@ -95,6 +95,11 @@ $Id$
 
   <h:messages layout="table" style="color:red"/>
 
+  <span class="indnt1">
+     <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
+     <h:outputText value="#{totalScores.maxScore}" style="instruction"/></span>
+     <f:verbatim><br /></f:verbatim>
+
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 
   <span class="rightNav">
@@ -118,10 +123,10 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
     <h:column>
      <f:facet name="header">
-        <h:commandLink immediate="true" id="lastName" action="totalScores">
+        <h:commandLink immediate="true" id="lastName" action="submissionStatus">
           <h:outputText value="#{msg.name}" />
         <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="lastName" />
         </h:commandLink>
      </f:facet>
@@ -139,17 +144,17 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <!-- STUDENT ID -->
     <h:column>
      <f:facet name="header">
-       <h:commandLink id="idString" action="totalScores" >
+       <h:commandLink id="idString" action="submissionStatus" >
           <h:outputText value="#{msg.uid}" />
         <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="idString" />
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.idString}" />
     </h:column>
 
-    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'idString'}" >
+    <h:column rendered="#{submissionStatus.sortType eq 'idString'}" >
      <f:facet name="header">
        <h:outputText value="#{msg.uid}" />
      </f:facet>
@@ -159,17 +164,17 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- ROLE -->
     <h:column>
      <f:facet name="header" >
-        <h:commandLink id="role" action="totalScores">
+        <h:commandLink id="role" action="submissionStatus">
           <h:outputText value="#{msg.role}" />
         <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="role" />
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.role}"/>
     </h:column>
 
-    <h:column rendered="#{totalScores.sortType eq 'role'}">
+    <h:column rendered="#{submissionStatus.sortType eq 'role'}">
      <f:facet name="header" >
        <h:outputText value="#{msg.role}" />
      </f:facet>
@@ -179,10 +184,10 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- DATE -->
     <h:column>
      <f:facet name="header">
-        <h:commandLink id="submittedDate" action="totalScores">
+        <h:commandLink id="submittedDate" action="submissionStatus">
           <h:outputText value="#{msg.date}" />
         <f:actionListener
-          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="submittedDate" />
         </h:commandLink>
      </f:facet>
@@ -191,7 +196,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         </h:outputText>
     </h:column>
 
-    <h:column rendered="#{totalScores.sortType=='submittedDate'}">
+    <h:column rendered="#{submissionStatus.sortType=='submittedDate'}">
      <f:facet name="header">
        <h:outputText value="#{msg.date}" />
      </f:facet>
