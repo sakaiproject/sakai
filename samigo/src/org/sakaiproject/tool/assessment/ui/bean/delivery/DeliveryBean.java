@@ -164,6 +164,9 @@ public class DeliveryBean
   private final static long serialVersionUID = -1090852048737428722L;
   private boolean showStudentScore;
 
+  // lydial added for allowing studentScore view for random draw parts
+  private boolean forGrading;  // to reuse deliveryActionListener for grading pages 
+
   /**
    * Creates a new DeliveryBean object.
    */
@@ -1647,4 +1650,12 @@ public class DeliveryBean
 	this.showStudentScore = showStudentScore;
     }
 
+    public boolean getForGrading()
+    {
+	return forGrading;
+    }
+    public void setForGrading(boolean param)
+    {
+	this.forGrading= param;
+    }
 }
