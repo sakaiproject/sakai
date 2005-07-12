@@ -69,7 +69,7 @@ public class SubmitToGradingActionListener implements ActionListener
     AbortProcessingException
   {
     try {
-      log.info("ReviewActionListener.processAction() ");
+      log.info("SubmitToGradingActionListener.processAction() ");
 
       // get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
@@ -96,16 +96,25 @@ public class SubmitToGradingActionListener implements ActionListener
       if (adata !=null && delivery.getForGrade())
         setConfirmation(adata, publishedAssessment, delivery);
 
-      // decrement submission remaining by 1 if it is submitting for grade and there is a
-      // limit on submission
-      if ((Boolean.TRUE).equals(adata.getForGrade()) &&
-           !(Boolean.TRUE).equals(publishedAssessment.getAssessmentAccessControl().getUnlimitedSubmissions()))
-       delivery.setSubmissionsRemaining(delivery.getSubmissionsRemaining() - 1);
-
+      if (isForGrade(adata) && !isUnlimited(publishedAssessment))
+      {
+        delivery.setSubmissionsRemaining(
+            delivery.getSubmissionsRemaining() - 1);
+      }
 
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  private boolean isForGrade(AssessmentGradingData aData)
+  {
+    return (Boolean.TRUE).equals(aData.getForGrade());
+  }
+
+  private boolean isUnlimited(PublishedAssessmentFacade publishedAssessment)
+  {
+    return (Boolean.TRUE).equals(publishedAssessment.getAssessmentAccessControl().getUnlimitedSubmissions());
   }
 
   /**
@@ -118,23 +127,55 @@ public class SubmitToGradingActionListener implements ActionListener
   private void setConfirmation(AssessmentGradingData adata,
                                PublishedAssessmentFacade publishedAssessment,
                                DeliveryBean delivery){
-    // 1a. set finalPage url in delivery bean
     if (publishedAssessment.getAssessmentAccessControl()!=null){
-      String url = publishedAssessment.getAssessmentAccessControl().
-          getFinalPageUrl();
-      if (url != null)
-          url = url.trim();
-      delivery.setUrl(url);
-      // 1b. set submission message
-      String submissionMessage = publishedAssessment.getAssessmentAccessControl().
-          getSubmissionMessage();
-      if (submissionMessage != null)
-        delivery.setSubmissionMessage(submissionMessage);
+      setFinalPage(publishedAssessment, delivery);
+      setSubmissionMessage(publishedAssessment, delivery);
     }
-    // 2. set confirmationId which is AssessmentGradingId-TimeStamp
+    setConfirmationId(adata, publishedAssessment, delivery);
+  }
+
+  /**
+   * Set confirmationId which is AssessmentGradingId-TimeStamp.
+   * @param adata
+   * @param publishedAssessment
+   * @param delivery
+   */
+  private void setConfirmationId(AssessmentGradingData adata,
+                                 PublishedAssessmentFacade publishedAssessment,
+                                 DeliveryBean delivery)
+  {
     delivery.setConfirmation(adata.getAssessmentGradingId()+"-"+
         publishedAssessment.getPublishedAssessmentId()+"-"+
         adata.getAgentId()+"-"+adata.getSubmittedDate().toString());
+  }
+
+  /**
+   * Set the submission message.
+   * @param publishedAssessment
+   * @param delivery
+   */
+  private void setSubmissionMessage(PublishedAssessmentFacade
+                                    publishedAssessment, DeliveryBean delivery)
+  {
+    String submissionMessage = publishedAssessment.getAssessmentAccessControl().
+        getSubmissionMessage();
+    if (submissionMessage != null)
+      delivery.setSubmissionMessage(submissionMessage);
+  }
+
+  /**
+   * Set finalPage url in delivery bean.
+   * @param publishedAssessment
+   * @param delivery
+   */
+  private void setFinalPage(PublishedAssessmentFacade publishedAssessment,
+                            DeliveryBean delivery)
+  {
+    String url = publishedAssessment.getAssessmentAccessControl().
+        getFinalPageUrl();
+    if (url != null)
+        url = url.trim();
+    delivery.setUrl(url);
   }
 
   /**
@@ -188,45 +229,13 @@ public class SubmitToGradingActionListener implements ActionListener
     GradingService service = new GradingService();
     if (adata == null)
     {
-      adata = new AssessmentGradingData();
-      adata.setAgentId(AgentFacade.getAgentString());
-      adata.setForGrade(new Boolean(delivery.getForGrade()));
-      adata.setItemGradingSet(itemData);
-      adata.setPublishedAssessment(publishedAssessment.getData());
+      adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemData);
     }
     else
     {
-      // The assessment grading set is out of date, so we need to
-      // integrate all the new itemgradingdatas into it.
       ArrayList adds = new ArrayList();
       ArrayList removes = new ArrayList();
-      Iterator i1 = itemData.iterator();
-
-      while (i1.hasNext())
-      {
-        ItemGradingData data = (ItemGradingData) i1.next();
-        if (!adata.getItemGradingSet().contains(data))
-        {
-          Iterator iter2 = adata.getItemGradingSet().iterator();
-          boolean added = false;
-          if (data.getItemGradingId() != null)
-          {
-            while (iter2.hasNext())
-            {
-              ItemGradingData olddata = (ItemGradingData) iter2.next();
-              if (data.getItemGradingId().equals(olddata.getItemGradingId()))
-              {
-                data.setAssessmentGrading(adata);
-                removes.add(olddata);
-                adds.add(data);
-                added = true;
-              }
-            }
-          }
-          if (!added)
-            adds.add(data);
-        }
-      }
+      integrateItemGradingDatas(itemData, adata, adds, removes);
 
       // Add and remove separately so we don't get concurrent modification
       adata.getItemGradingSet().removeAll(removes);
@@ -275,17 +284,63 @@ public class SubmitToGradingActionListener implements ActionListener
   }
 
   /**
-   * wraps a check on validity and if OK updates DeliveryBean decremented
-   * @param delivery DeliveryBean
+   * Make a new AssessmentGradingData object for delivery
+   * @param publishedAssessment the PublishedAssessmentFacade
+   * @param delivery the DeliveryBean
+   * @param itemData the item data
+   * @return
    */
-  private void processSubmissionsRemaining(DeliveryBean delivery)
+  private AssessmentGradingData makeNewAssessmentGrading(
+    PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery,
+    HashSet itemData)
   {
-    int subRemain = delivery.getSubmissionsRemaining();
-    if (subRemain<1){
-    throw new IllegalArgumentException("Cannot submit when number of submissions is " +
-      subRemain + ".");
-    }
-    subRemain--;
-    delivery.setSubmissionsRemaining(subRemain);
+    AssessmentGradingData adata = new AssessmentGradingData();
+    adata.setAgentId(AgentFacade.getAgentString());
+    adata.setForGrade(new Boolean(delivery.getForGrade()));
+    adata.setItemGradingSet(itemData);
+    adata.setPublishedAssessment(publishedAssessment.getData());
+    return adata;
   }
+
+  /**
+   * figure out what new item grading data needs to be added, removed
+   * @param itemData
+   * @param adata
+   * @param adds the data that needs to be added
+   * @param removes the data that needs to be removed
+   */
+
+  private void integrateItemGradingDatas(HashSet itemData,
+                                         AssessmentGradingData adata,
+                                         ArrayList adds, ArrayList removes)
+  {
+    Iterator i1 = itemData.iterator();
+
+    while (i1.hasNext())
+    {
+      ItemGradingData data = (ItemGradingData) i1.next();
+      if (!adata.getItemGradingSet().contains(data))
+      {
+        Iterator iter2 = adata.getItemGradingSet().iterator();
+        boolean added = false;
+        if (data.getItemGradingId() != null)
+        {
+          while (iter2.hasNext())
+          {
+            ItemGradingData olddata = (ItemGradingData) iter2.next();
+            if (data.getItemGradingId().equals(olddata.getItemGradingId()))
+            {
+              data.setAssessmentGrading(adata);
+              removes.add(olddata);
+              adds.add(data);
+              added = true;
+            }
+          }
+        }
+        if (!added)
+          adds.add(data);
+      }
+    }
+  }
+
 }
