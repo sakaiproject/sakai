@@ -131,7 +131,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-jsf-widgets-1</artifactId>
+			<artifactId>sakai-jsf-widgets</artifactId>
 			<version>${pom.currentVersion}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
