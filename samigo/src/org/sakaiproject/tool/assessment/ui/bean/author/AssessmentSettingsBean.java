@@ -107,6 +107,7 @@ public class AssessmentSettingsBean
   private String releaseTo;
   private SelectItem[] publishingTargets;
   private String[] targetSelected;
+  private String firstTargetSelected;
   private String username;
   private String password;
   private String finalPageUrl;
@@ -212,6 +213,7 @@ public class AssessmentSettingsBean
         this.releaseTo = accessControl.getReleaseTo(); // list of String
         this.publishingTargets = getPublishingTargets();
         this.targetSelected = getTargetSelected(releaseTo);
+        this.firstTargetSelected = getFirstTargetSelected(releaseTo);
 
         //System.out.println("****3c. access control: time limit");
         this.timeLimit = accessControl.getTimeLimit(); // in seconds
@@ -993,6 +995,24 @@ public class AssessmentSettingsBean
       }
     }
     return this.targetSelected;
+  }
+
+
+  public void setFirstTargetSelected(String firstTargetSelected){
+    this.firstTargetSelected = firstTargetSelected.trim();
+    this.targetSelected[0] = firstTargetSelected.trim();
+  }
+
+  public String getFirstTargetSelected(){
+    return firstTargetSelected;
+  }
+
+  public String getFirstTargetSelected(String releaseTo){
+    if (releaseTo != null){
+      this.targetSelected = releaseTo.split(",");
+      this.firstTargetSelected = targetSelected[0].trim();
+    }
+    return this.firstTargetSelected;
   }
 
   public String getPublishedUrl() {

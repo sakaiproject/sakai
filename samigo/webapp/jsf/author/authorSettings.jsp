@@ -179,10 +179,11 @@ function validateUrl0(){
 <h:panelGroup rendered="#{assessmentSettings.valueMap.anonymousRelease_isInstructorEditable==true or assessmentSettings.valueMap.authenticatedRelease_isInstructorEditable==true}" >
   <samigo:hideDivision title="#{msg.heading_released_to}" id="div3">
     <f:verbatim><div class="indnt2"></f:verbatim>
-    <h:panelGrid   summary="#{summary_msg.released_to_info_sec}">
-      <h:selectManyCheckbox layout="pagedirection" value="#{assessmentSettings.targetSelected}">
+    <h:panelGrid summary="#{summary_msg.released_to_info_sec}">
+      <h:selectOneRadio layout="pagedirection" value="#{assessmentSettings.firstTargetSelected}"
+        required="true" >
         <f:selectItems value="#{assessmentSettings.publishingTargets}" />
-      </h:selectManyCheckbox>
+      </h:selectOneRadio>
     </h:panelGrid>
  <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>

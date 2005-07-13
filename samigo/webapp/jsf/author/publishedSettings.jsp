@@ -129,9 +129,14 @@
   <samigo:hideDivision title="#{msg.heading_released_to}" id="div3">
 <div class="indnt2">
     <h:panelGrid   summary="#{summary_msg.released_to_info_sec}">
+<%--
       <h:selectManyCheckbox disabled="true" layout="pagedirection" value="#{publishedSettings.targetSelected}">
         <f:selectItems value="#{assessmentSettings.publishingTargets}" />
       </h:selectManyCheckbox>
+--%>
+      <h:selectOneRadio disabled="true" layout="pagedirection" value="#{publishedSettings.firstTargetSelected}">
+        <f:selectItems value="#{assessmentSettings.publishingTargets}" />
+      </h:selectOneRadio>
       <h:panelGroup styleClass="longtext">
     <h:outputLabel value="#{msg.published_assessment_url}: " />
         <h:outputText value="#{publishedSettings.publishedUrl}" />
