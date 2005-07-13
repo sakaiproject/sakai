@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
 <%@ taglib uri="http://sakaiproject.org/jsf/gradebook" prefix="gbx"%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakaix" prefix="sakaix"%>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
 <f:loadBundle basename="org.sakaiproject.tool.gradebook.bundle.Messages" var="msgs"/>
 <html>
 	<head>

@@ -6,7 +6,7 @@ Regardless of which jsf core implementation you choose, the gradebook does
 depend on the myfaces add-on extensions library, which provides features such
 as sortable tables and other goodies.  In order to use the Sun implementation,
 there are several build and configuration changes that must be made to the
-gradebook and the supporting sakaix jsf tag library.
+gradebook and the supporting sakai jsf tag library.
 
 1) gb/tool/project.xml: Uncomment the section labeled "Sun JSF support" and
 modify the "MyFaces JSF support" section to look like this:
@@ -30,11 +30,11 @@ artifacts to a maven repository).
 2) Remove the myfaces listener from web.xml
 
 3) Since the sakai jsf widget set must be build for either sun or myfaces, you
-must edit JSFDepends.java in the sakaix jsf widget project, rebuild the project,
+must edit JSFDepends.java in the sakai jsf widget project, rebuild the project,
 and ensure that the gradebook is build referencing the new jar.  I renamed the
 jar sakai-jsf-widget-sun-sakai.2.0.0.jar to keep a distinction between the
 default myfaces build and the sun build, and updated the gradebook's project.xml
-to reference this new sakaix artifact.
+to reference this new sakai artifact.
 
 4) It appears that the Sun RI has the same bug that myfaces just fixed regarding
 the "percentage" attribute of the f:convertNumber tag.  Update all uses of this

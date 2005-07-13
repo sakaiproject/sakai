@@ -296,8 +296,6 @@
 
 
 		<!-- Sakai tag library -->
-		<!-- For now we'll have to get this from the local respository. -->
-		<!-- Check out "scratch", go to "sakaix/jsf-widget", and run "maven". -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-jsf-widgets</artifactId>
