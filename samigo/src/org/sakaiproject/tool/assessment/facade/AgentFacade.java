@@ -164,6 +164,7 @@ public class AgentFacade implements Serializable {
   }
 
   public static String getAnonymousId(){
+    String agentS = "";
     BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
     //System.out.println("Bean = " + bean.getProp1());
     if (bean != null && !bean.getProp1().equals("prop1"))
