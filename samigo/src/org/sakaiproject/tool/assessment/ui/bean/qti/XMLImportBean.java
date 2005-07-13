@@ -185,7 +185,8 @@ public class XMLImportBean implements Serializable
    */
   private AssessmentFacade createImportedAssessment(String fullFileName, int qti)
   {
-    Document document = XmlUtil.readDocument(fullFileName);
+    //trim = true so that xml processing instruction at top line, even if not.
+    Document document = XmlUtil.readDocument(fullFileName, true);
     QTIService qtiService = new QTIService();
     return qtiService.createImportedAssessment(document, qti);
   }

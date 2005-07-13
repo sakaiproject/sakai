@@ -47,6 +47,10 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import java.io.FileReader;
+import java.io.Reader;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 
 
 /**
@@ -260,14 +264,24 @@ public final class XmlUtil
     return source;
   }
   /**
-   * DOCUMENTATION PENDING
+   * direct parse of the file to XML document
+   * @param path the path
    *
-   * @param context DOCUMENTATION PENDING
-   * @param path DOCUMENTATION PENDING
-   *
-   * @return DOCUMENTATION PENDING
+   * @return a Document
    */
   public static Document readDocument(String path)
+  {
+    return readDocument(path, false);
+  }
+
+  /**
+   * This more forgiving version skips blank lines if trim = true
+   * Otherwise it does a direct parse of the file.
+   * @param path file path
+   * @param trim trim blank lines true/false
+   * @return
+   */
+ public static Document readDocument(String path, boolean trim)
   {
     if(log.isDebugEnabled())
     {
@@ -278,7 +292,32 @@ public final class XmlUtil
 
     try
     {
-      InputStream inputStream = new FileInputStream(path);
+      InputStream inputStream;
+
+      if (trim)
+      {
+        BufferedReader in = new BufferedReader(new FileReader(path));
+
+        StringBuffer buffer = new StringBuffer();
+        String s = "";
+        while ( (s = in.readLine()) != null)
+        {
+          if (s.trim().length()>0) // skip blank lines
+          {
+            buffer.append(s);
+            buffer.append("\n");
+          }
+        }
+        in.close();
+        byte[] bytes = buffer.toString().getBytes();
+
+        inputStream = new ByteArrayInputStream(bytes);
+      }
+      else
+      {
+        inputStream = new FileInputStream(path);
+      }
+
       DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
       builderFactory.setNamespaceAware(true);
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
@@ -301,11 +340,11 @@ public final class XmlUtil
   }
 
   /**
-   * DOCUMENTATION PENDING
+   * Create a transformer from a stylesheet
    *
-   * @param xslSource DOCUMENTATION PENDING
+   * @param stylesheet Document
    *
-   * @return DOCUMENTATION PENDING
+   * @return the Transformer
    */
   public static Transformer createTransformer(Document stylesheet)
   {
@@ -336,6 +375,13 @@ public final class XmlUtil
     return transformer;
   }
 
+  /**
+   * Create a transformer from a stylesheet
+   *
+   * @param source DOMSource
+   *
+   * @return the Transformer
+   */
   public static Transformer createTransformer(DOMSource source)
   {
     if(log.isDebugEnabled())
@@ -362,11 +408,11 @@ public final class XmlUtil
   }
 
   /**
-   * DOCUMENTATION PENDING
+   * Do XSLT transform.
    *
-   * @param transformer DOCUMENTATION PENDING
-   * @param source DOCUMENTATION PENDING
-   * @param result DOCUMENTATION PENDING
+   * @param transformer the transsformer
+   * @param source the source
+   * @param result the result
    */
   private static void transform(
     Transformer transformer, Source source, Result result)
@@ -389,12 +435,12 @@ public final class XmlUtil
   }
 
   /**
-   * DOCUMENTATION PENDING
+   * Transform one document into another
    *
-   * @param document DOCUMENTATION PENDING
-   * @param stylesheet DOCUMENTATION PENDING
+   * @param document source Document
+   * @param stylesheet XSLT Document
    *
-   * @return DOCUMENTATION PENDING
+   * @return transformed Document
    */
   public static Document transformDocument(
     Document document, Document stylesheet)
@@ -446,7 +492,7 @@ public final class XmlUtil
   }
 
   /**
-   * Get a textual representation of a Node for debugging purposes
+   * Get a textual representation of a Node.
    * @param node The Node
    * @return the document in a text string
    */
