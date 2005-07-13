@@ -96,6 +96,7 @@ public class PublishedAssessmentSettingsBean
   private String submissionMessage;
   private SelectItem[] publishingTargets;
   private String[] targetSelected;
+  private String firstTargetSelected;
   private String releaseTo;
   private String username;
   private String password;
@@ -174,6 +175,7 @@ public class PublishedAssessmentSettingsBean
         this.releaseTo = accessControl.getReleaseTo(); // list of String
         this.publishingTargets = getPublishingTargets();
         this.targetSelected = getTargetSelected(releaseTo);
+        this.firstTargetSelected = getFirstTargetSelected(releaseTo);
 
         this.timeLimit = accessControl.getTimeLimit(); // in seconds
         if (timeLimit !=null && timeLimit.intValue()>0)
@@ -911,6 +913,22 @@ public class PublishedAssessmentSettingsBean
     return this.targetSelected;
   }
 
+  public void setFirstTargetSelected(String firstTargetSelected){
+    this.firstTargetSelected = firstTargetSelected.trim();
+    this.targetSelected[0] = firstTargetSelected.trim();
+  }
+
+  public String getFirstTargetSelected(){
+    return firstTargetSelected;
+  }
+
+  public String getFirstTargetSelected(String releaseTo){
+    if (releaseTo != null){
+      this.targetSelected = releaseTo.split(",");
+      this.firstTargetSelected = targetSelected[0].trim();
+    }
+    return this.firstTargetSelected;
+  }
 
 }
 /**********************************************************************************
