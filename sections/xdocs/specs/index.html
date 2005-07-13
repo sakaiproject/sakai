@@ -55,12 +55,10 @@ p.draft {
 <p class="draft">&nbsp;</p>
 <h3>User and Group/Sectioning Tool Project Statement and Functional Requirements</h3>
 <h3><strong> (DRAFT -- SUBJECT TO EXTENSIVE REVISION. REQUIREMENTS MAY BE SIGNIFICANTLY CURTAILED IN FINAL VERSION)</strong></h3>
-
 <p><a name="home"></a><a href="#def">Definitions</a>| <a href="#scope">Scope statement</a>| <a href="#out">Out of scope</a>| <a href="#dep">Dependencies</a>| <a href="#over">Functional Overview</a>| <a href="#reqs">Functional Requirements</a></p>
 <h3>I. Definitions<a name="def"></a></h3>
 Because a user and group/section management tool is related to a wide range of administrative functionality and reliant on multiple framework services, there is significant room for misinterpretation and misunderstanding of key concepts. To help reduce potential confusion, the  following terms and definitions should be kept in mind while reading this document:
 <p><strong>Roles</strong> (these are <strong>generic</strong> and should <strong>not be considered officially supported, OOTB Sakai roles</strong>): </p>
-
 <ul>
   <li><strong>Sys Admin</strong> -- A technical and user support person with full access to all of the system's administrative capabilities. 
 
@@ -76,7 +74,6 @@ Because a user and group/section management tool is related to a wide range of a
 
 
  Usually a professor, lecturer or teaching assistant who is a member of a course and who has overall administrative control of the course site and sections/groups. S/he has access to all sections/groups.<br />
-
   </li>
   <li><strong>Section Leader </strong>-- A teaching assistant, graduate student instructor or faculty member with  administrative access to and control of the course and sections/groups that is usually limited in some way. <br />
   </li>
@@ -89,25 +86,28 @@ not in an administrative or instructional capacity for sections.</li>
 </ul>
 <p><strong>Courses</strong></p>
 <ul>
-
   <li><strong>Course</strong> -- An instance of a canonical course, e.g., Math 16B Fall 2005 and the associated roster of students, instructors and section leaders. Class might be a more precise and distinctive term, but course seems to have wider usage in this context. Course is also preferred to the more general &quot;worksite&quot; here, although they should be considered equivalent to each other for purposes of this document.<br />
   </li>
-  <li><strong>Section</strong> -- A subset of students in a class that meet under the guidance of a section leader. Section metadata and memberships may be aligned with or may be defined by enterprise  data from an outside system. In many cases all students in a course must belong to one or more types of sections (but are not allowed to be in more than one section of any type).<br />
+  <li><strong>Section</strong>  -- A subset of students in a class that usually meet under the guidance of a section leader. Section metadata and memberships may be aligned with or may be defined by enterprise  data from an outside system. In many cases all students in a course must belong to one or more types of sections (but are not allowed to be in more than one section of any type). There are roughly 4 types of section scenarios:
+    <br />    
+    <ol>
+      <li><strong>Externally defined, externally controlled formal sections</strong> -- Section metadata and memberships  are defined and maintained in enterprise systems outside of Sakai.</li>
+      <li><strong>Externally initialized, internally manged and negotiated formal sections</strong> -- Section metadata and memberships are defined wholly or in part in enterprise systems outside of Sakai, but can be managed and modified inside of Sakai [This type will likely <strong>not be supported</strong> in 2.1] </li>
+      <li><strong>Internally defined, internally controlled formal sections</strong> -- Section metadata and memberships are defined and managed in Sakai, but are usually aligned in some respects with &quot;official&quot; sections, e.g., the meeting location.</li>
+      <li><strong>Internally defined, internally controlled informal sections</strong> -- An ad hoc <strong>group</strong> or subset of students in a course. This group may have one of a variety of functions: study groups, project team, etc. The group may or may not have a section leader. [This type will <strong>not be directly supported</strong> in the sectioning tool. However, the boundary between a formal and informal Internally defined, internally controlled is largely related to workflow. In other words, the ability to create formal sections should allow many instructors to meet their needs for ad hoc groups.] <br />
+      </li>
+    </ol>
   </li>
-
-  <li><strong>Group</strong> -- An ad hoc subset of students in a course. This group may have one of a variety of functions: study groups, project team, etc. The group may or may not have a section leader. <strong>Note: Hereinafter, the term section will also be used to cover groups in the functional requirements. </strong></li>
   </ul>
 <p><strong>Framework and Services</strong></p>
 <ul>
   <li><strong>Section awareness</strong> -- Essentially, the ability to restrict or expand selectively what the members of a section, in terms of their roles, can do within the context of a course site. Role permissions vis a vis sections might be defined at the system level.<br />
   </li>
-
   <li><strong>Hierarchy</strong> -- A term that came to  cover what has subsequently been broken out into the services that support, among other things, section management and awareness, and, by extension, came to represent sectioning itself. <br />
   </li>
-  <li><strong>SuperStructure</strong> -- Network of hierarchical nodes that represent tools, content and users. For example, Course-&gt; Section, where sections are nested under courses. The hierarchical representation of users in a course does not have to parallel how tools and content are arranged. The Superstructure locates who and what is where.<br />
+  <li><strong>SuperStructure</strong> -- Network of hierarchical nodes that represent tools, content and users. For example, Course-&gt; Section, where sections are nested under courses. The hierarchical representation of users in a course does not have to parallel how tools and content are arranged. The SuperStructure can comprise multiple hierarchies. The Superstructure locates who and what is where.<br />
   </li>
   <li><strong>AuthZ</strong> -- Controls who can do what where. For example, Sarah is the Section Leader for sections 1 and 3. Sarah can view and grade only the students in her sections. Superstructure,  by providing the who and where,  helps enable these controls.<br />
-
   </li>
   <li><strong>Course Management API</strong> -- Provides the course data -- name, course id, course roster, section names, section leaders, students in a section etc. -- to the various Sakai tools that use that information. This information can be entered  into the system manually or it can be transferred into the system from other enterprise applications. How Course Management works with AuthZ and Superstructure  is an open question.</li>
 </ul>
@@ -116,7 +116,6 @@ not in an administrative or instructional capacity for sections.</li>
 <p>The primary deliverable for this subproject is a a new Sakai administrative tool that allows authorized users to create course sections/groups and/or manage section/group metadata and memberships. The tool will be available to authorized users for each course site in the current Site Info area.  Tool design, development, integration and final QA will be completed by 10/29/05.</p>
 <p><a href="#home">Back</a></p>
 <h3>III. Out of scope<a name="out" id="out"></a></h3>
-
 <p>The sectioning tool represents a fundamental shift in Sakai's administrative capabilities. The introduction of sectioning into the overall Sakai administrative workflow is a major change to the application that should entail a review and redesign of the administrative tools in My Workspace and Admin Workspace in addition to any changes made at the course site level within Site Info. Instead, the twin constraints of time and resources demand that the subproject keep the outside impact of the new tool to a minimum.</p>
 <ol>
   <li>Any required changes to  administrative areas outside of the existing functionality within the Site Info area that is subsumed by the new sectioning tool are out of scope. Resources outside of the subproject team must be allocated to fully identify any impacts and to do the contingent design and development work. See dependencies.</li>
@@ -124,7 +123,6 @@ not in an administrative or instructional capacity for sections.</li>
 </ol>
 <p><a href="#home">Back</a></p>
 <h3><strong>IV. Dependencies<a name="dep"></a></strong></h3>
-
 <p>1. In order to complete the sectioning tool by the October delivery date, the following framework services should be implemented, integrated and tested at a point early enough for the developers to build the tool on those services. Schedule TBD. This work must be closely coordinated with the subproject's technical lead. </p>
 <ul>
   <li>Superstructure. This is finished and implemented, but unintegrated and untested. This is required to establish the hierarchy among courses and sections.</li>
@@ -133,7 +131,6 @@ not in an administrative or instructional capacity for sections.</li>
 </ul>
 <p>2.  There must be at least one tool that uses the sectioning tool's management capabilities or there will be no relevant context for the sectioning. Section aware tool(s) TBD. UI elements and other code developed for the sectioning tool should be re-usable for other section aware tools. </p>
 <p>3. Any other required changes to My Workspace and Admin workspace. TBD.</p>
-
 <p><a href="#home">Back</a></p>
 <h3>V. Functional Overview<a name="over"></a></h3>
 <p>TBD</p>
@@ -141,14 +138,13 @@ not in an administrative or instructional capacity for sections.</li>
 <h3>VI. Functional Requirements<a name="reqs"></a></h3>
 <p>The term section will be used to cover groups in the initial draft of the functional requirements.</p>
 <p><strong>A. Instructor, Section leader, Sys admin or Dept admin</strong> can perform the following actions, depending on specific role authorizations. They will be referred to collectively as <strong>&quot;Authorized Users.&quot;</strong></p>
-
 <p>1.<u>Creating and editing sections and section types</u> </p>
 <ol type="a">
-  <li>Authorized users can create a new section type (e.g., discussion, lab, project) [names of sections]</li>
+  <li>Authorized users can create a new section type (e.g., discussion, lab, project) and related alpha numeric sequence</li>
+  <li>Authorized users can give a name to a section that is either its type in a sequence or is different from its  type </li>
   <li>Authorized users can specify if students in the course are required to be members of at least one section of a particular type</li>
   <li>Authorized users can create new sections for a course and specify the type (e.g., discussion, lab, project) and the number of sections of a particular type to be created.</li>
-  <li> Authorized users can choose to make an existing course a section of another course.</li>
-
+  <li> Authorized users can choose to make an existing course a section of another course. [This requirement may be dropped] </li>
   <li>Authorized users can specify if students may be members in more than one section of a particular type</li>
   <li>Authorized users can set the locations and times of section meetings, and set the maximum number of students in a section.</li>
   <li>Authorized users can edit the locations and times of meetings, and  the maximum number of students in a section. [Time is a tough problem]</li>
@@ -156,31 +152,28 @@ not in an administrative or instructional capacity for sections.</li>
 </ol>
 <p>2. <u>Managing memberships</u></p>
 <ol type="a">
-
   <li>Authorized users can assign zero or more section leaders to one or more sections by selecting from current members of the course in the section leader role.</li>
   <li>Authorized users can add one or more student(s) to one or more section(s) by selecting from current members of the course in the student role</li>
   <li>Authorized users can add a member to a course by selecting the appropriate entry from the results of an official campus directory user name or ID search and assigning that member to one or more sections as either a Student or Section Leader </li>
   <li>Authorized users can re-assign one or more section leaders to sections of one type at a time </li>
   <li>Authorized users can remove one or more section leaders from sections of one type at a time [see noteto1h above] </li>
   <li>Authorized users can remove one or more section leaders from the course and all sections </li>
-
   <li>Authorized users can switch one or more students among sections of one type at a time </li>
   <li>Authorized users can remove one or more student(s) from sections of one type at a time [see noteto1h above]</li>
   <li>Authorized users can remove one or more students from the course and all sections</li>
   <li>Authorized users can allow students to sign up for and/or switch among or remove themselves from all or selected sections</li>
+  <li>Autorized users can add students to a section in a batch.</li>
   <li>Authorized users can override management of section memberships by systems outside of Sakai</li>
 </ol>
 <p>3. <u>Managing permissions</u></p>
-
 <ol type="a">
-  <li>Authorized users can restrict other users read and/or write abilities to one or more sections on a tool by tool basis </li>
+  <li>Authorized users can restrict other users permissions to one or more sections on a tool by tool basis </li>
 </ol>
 <p>4. <u>Viewing and manipulating section data </u></p>
 <ol type="a">
   <li>Authorized users can view a list of per-section specific info (days, time, instructor, room, current enrollment, available slots, max enrollment, etc.) and sort by the information columns. </li>
   <li>Authorized users can view roster by section type and sort by any column of data</li>
   <li> Authorized users can select a default section type by which to display the roster </li>
-
 </ol>
 <p><strong>B. Student Requirements</strong></p>
 <p>Note: Ben added &quot;Student creates a new group&quot; to the use case goals. This begs the question &quot;When does a student join the ranks of the 'Authorized Users' above? which of the above functional requirements are transferable?&quot; I have left this use case out for the time being. </p>
@@ -192,7 +185,6 @@ not in an administrative or instructional capacity for sections.</li>
  whether they are member or not,
 
 etc.) and sort by the information columns.</li>
-
 </ol>
   
 
@@ -201,9 +193,8 @@ etc.) and sort by the information columns.</li>
   <li>Authorized students can sign up for and /or switch among or remove themselves from all or selected sections. </li>
   </ol>
 <p><strong>C. Sakai Requirements</strong></p>
-<p><strong>Note: ? </strong>Sakai ? here is defined as the combination of services - course management, superstructure, authorization - that will enable the system to automate and control section-related administrative tasks. </p>
+<p><strong>Note: “ </strong>Sakai ” here is defined as the combination of services - course management, superstructure, authorization - that will enable the system to automate and control section-related administrative tasks. </p>
 <p>1.<u>Creating and editing sections and section types</u> </p>
-
 <ol type="a">
   <li>Sakai can create one or more types of sections based on course management data</li>
   <li>Sakai can bar the disbanding of any section officially defined through an  enterprise system outside Sakai</li>
@@ -212,8 +203,7 @@ etc.) and sort by the information columns.</li>
 <ol type="a">
   <li>Sakai can associate enterprise defined students in a course with their sections </li>
   <li> Sakai can associate enterprise defined Section Leaders in a course with their sections </li>
-
-  <li>Sakai can reconcile official section enrollment data with the Sakai section memberships</li>
+  <li>Sakai can reconcile official section enrollment data with the Sakai section memberships [likely to be deferred until post 2.1 development]]</li>
   <li>Sakai can bar or restrict the membership management of sections officially defined  through an  enterprise system outside Sakai</li>
 </ol>
 <p>3. <u>Managing permissions</u></p>
@@ -221,7 +211,6 @@ etc.) and sort by the information columns.</li>
   <li>Sakai can restrict read and/or write abilities of members to one or more sections on a tool by tool basis  </li>
 </ol>
 <p><a href="#home">Back</a></p>
-
 </div>
 </body>
 </html>
