@@ -339,7 +339,7 @@ public class DeliveryActionListener
       }
       if (delivery.getBeginTime() == null)
       {
-        log.info("grading delivery time = " + delivery.getAssessmentGrading().getAttemptDate());
+        //log.info("grading delivery time = " + delivery.getAssessmentGrading().getAttemptDate());
         if (delivery.getAssessmentGrading() != null &&
             delivery.getAssessmentGrading().getAttemptDate() != null)
         {
