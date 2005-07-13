@@ -1391,12 +1391,16 @@ public class DeliveryBean
   {
     GradingService gradingService = new GradingService();
     PublishedAssessmentService publishedService = new PublishedAssessmentService();
+    PublishedAssessmentFacade publishedAssessment = publishedService.getPublishedAssessment(assessmentId);
+    String agent = AgentFacade.getAgentString();
+    if (publishedAssessment.getAssessmentAccessControl().getReleaseTo().indexOf("Anonymous Users") > -1)
+	agent = AgentFacade.getAnonymousId();
     // 1. create assessmentGrading if it is null
     if (this.adata == null)
     {
       adata = new AssessmentGradingData();
-      adata.setAgentId(AgentFacade.getAgentString());
-      adata.setPublishedAssessment(publishedService.getPublishedAssessment(assessmentId).getData());
+      adata.setAgentId(agent);
+      adata.setPublishedAssessment(publishedAssessment.getData());
       log.debug("***1a. addMediaToItemGrading, getForGrade()="+getForGrade());
       adata.setForGrade(new Boolean(getForGrade()));
       gradingService.saveOrUpdateAssessmentGrading(adata);
@@ -1432,7 +1436,7 @@ public class DeliveryBean
       itemGradingData.setPublishedItem(item);
       itemGradingData.setPublishedItemText(itemText);
       itemGradingData.setSubmittedDate(new Date());
-      itemGradingData.setAgentId(AgentFacade.getAgentString());
+      itemGradingData.setAgentId(agent);
       itemGradingData.setOverrideScore(new Float(0));
     }
     setAssessmentGrading(adata);
@@ -1460,16 +1464,16 @@ public class DeliveryBean
                                 new Long(mediaByte.length + ""),
                                 mimeType, "description", null,
                                 media.getName(), false, false, new Integer(1),
-                                AgentFacade.getAgentString(), new Date(),
-                                AgentFacade.getAgentString(), new Date());
+                                agent, new Date(),
+                                agent, new Date());
     }
     else{ // put the location in
       mediaData = new MediaData(itemGradingData, null,
                                 new Long(mediaByte.length + ""),
                                 mimeType, "description", mediaLocation,
                                 media.getName(), false, false, new Integer(1),
-                                AgentFacade.getAgentString(), new Date(),
-                                AgentFacade.getAgentString(), new Date());
+                                agent, new Date(),
+                                agent, new Date());
 
     }
     Long mediaId = gradingService.saveMedia(mediaData);

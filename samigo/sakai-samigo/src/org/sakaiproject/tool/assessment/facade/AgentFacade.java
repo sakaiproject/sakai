@@ -51,16 +51,10 @@ public class AgentFacade implements Serializable {
     String agentS="";
     // this is anonymous user sign 'cos sakai don't know about them
     if (UserDirectoryService.getCurrentUser().getId()==null || ("").equals(UserDirectoryService.getCurrentUser().getId())){
-      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-      log.debug("Bean = " + bean.getProp1());
-      if (bean != null && !bean.getProp1().equals("prop1"))
-        agentS = bean.getProp1();
+      agentS = getAnonymousId();
     }
     else {
       agentS = UserDirectoryService.getCurrentUser().getId();
-      // please see SAM-323
-      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-      bean.setProp1(agentS);
     }
     log.debug("** getAgentString() ="+agentS);
     return agentS;
@@ -78,9 +72,6 @@ public class AgentFacade implements Serializable {
     }
     else {
       agentS = UserDirectoryService.getCurrentUser().getId();
-      // please see SAM-323
-      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-      bean.setProp1(agentS);
     }
     System.out.println("** getAgentString() ="+agentS);
     return agentS;
@@ -204,11 +195,12 @@ public class AgentFacade implements Serializable {
   }
 
   // this method should live somewhere else
-  public static void createAnonymous(){
+  public static String createAnonymous(){
     BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
     String agentS = "anonymous_"+(new java.util.Date()).getTime();
     log.debug("create anonymous ="+agentS);
     bean.setProp1(agentS);
+    return agentS;
   }
 
   public static String getCurrentSiteName(){
@@ -256,6 +248,14 @@ public class AgentFacade implements Serializable {
 
   public static boolean isIntegratedEnvironment(){
     return !isStandaloneEnvironment();
+  }
+
+  public static String getAnonymousId(){
+    String agentS="";
+    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+    if (bean != null && !bean.getProp1().equals("prop1"))
+        agentS = bean.getProp1();
+    return agentS;
   }
 
 }

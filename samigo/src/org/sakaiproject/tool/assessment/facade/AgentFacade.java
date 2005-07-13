@@ -144,9 +144,11 @@ public class AgentFacade implements Serializable {
     return "Samigo Administrator";
   }
 
-  public static void createAnonymous(){
+  public static String createAnonymous(){
     BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-    bean.setProp1("anonymous_"+(new java.util.Date()).getTime());
+    String anonymousId = "anonymous_"+(new java.util.Date()).getTime();
+    bean.setProp1(anonymousId);
+    return anonymousId;
   }
 
   public static boolean isStandaloneEnvironment(){
@@ -160,4 +162,13 @@ public class AgentFacade implements Serializable {
   public static String getCurrentSiteIdFromExternalServlet(HttpServletRequest req,  HttpServletResponse res){
       return "Samigo Site";
   }
+
+  public static String getAnonymousId(){
+    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+    //System.out.println("Bean = " + bean.getProp1());
+    if (bean != null && !bean.getProp1().equals("prop1"))
+      agentS = bean.getProp1();
+    return agentS;
+  }
+
  }

@@ -76,7 +76,7 @@ public class LoginServlet
   {
     HttpSession httpSession = req.getSession(true);
     httpSession.setMaxInactiveInterval(3600); // one hour
-    //we are going to use the delivery bean to flag that this access is via url
+    // we are going to use the delivery bean to flag that this access is via url
     // this is the flag that we will use in deliverAssessment.jsp to decide what
     // button to display - daisyf
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet(
@@ -97,78 +97,61 @@ public class LoginServlet
     String contextPath = req.getContextPath();
     String path = "/jsf/delivery/invalidAssessment.faces";
     boolean relativePath = true;
-    String agentIdString = req.getRemoteUser();
-    System.out.println("**** req.getRemoteUser() = "+req.getRemoteUser());
-    boolean isAuthenticated = ( agentIdString!= null &&
-          !("").equals(agentIdString));
+    
+    String agentIdString = "";
+    boolean isAuthorized = false;
+    boolean isAuthenticated = false;
+
     if (pub != null){
-      // check if it is available
+      // Determine if assessment accept Anonymous Users. If so, starting in version 2.0.1
+      // all users will be authenticated as anonymous for the assessment in this case.
+      boolean anonymousAllowed = false;
+      String releaseTo = pub.getAssessmentAccessControl().getReleaseTo();
+      if (releaseTo != null && releaseTo.indexOf("Anonymous Users")> -1){
+        anonymousAllowed = true;
+        agentIdString = AgentFacade.createAnonymous();
+        isAuthenticated = true;
+        isAuthorized = true;
+        delivery.setAnonymousLogin(true);
+      }
+      else { // check membership
+	agentIdString = req.getRemoteUser();
+        isAuthenticated = ( agentIdString!= null && !("").equals(agentIdString));
+        if (isAuthenticated)
+          isAuthorized = checkMembership(pub, req, res);
+      }
+ 
+      // check if assessment is available
       // We are getting the total no. of submission (for grade) per assessment
       // by the given agent at the same time
-      Integer submissions = new Integer(0);
-      if (isAuthenticated){
-        submissions = service.getTotalSubmission(agentIdString,
-            pub.getPublishedAssessmentId().toString());
+      boolean assessmentIsAvailable = assessmentIsAvailable(service, agentIdString, pub);
+      if (isAuthorized){
+        if (!assessmentIsAvailable) {
+          path = "/jsf/delivery/assessmentNotAvailable.faces";
+        }
+        else { 
+          // if assessment is available, set it in delivery bean for display in deliverAssessment.jsp
+          delivery.setPublishedAssessment(pub);
+          BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
+          listener.processAction(null);
+          path = "/jsf/delivery/beginTakingAssessment_viaurl.faces";
+        }
       }
-      HashMap h = new HashMap();
-      if (submissions.intValue()>0)
-        h.put(pub.getPublishedAssessmentId(), submissions);
-      boolean isAvailable = isAvailable(pub, h);
-      log.debug("**** isAvailable="+isAvailable);
-      log.debug("pub assessmentId="+pub.getPublishedAssessmentId());
-      log.debug("pub assessment relaeseTo="+pub.getAssessmentAccessControl().getReleaseTo());
-      if (!isAvailable) {
-        path = "/jsf/delivery/assessmentNotAvailable.faces";
-      }
-      else {
-        // if assessment is available, set it in delivery bean for display in deliverAssessment.jsp
-        delivery.setPublishedAssessment(pub);
-        // boolean anonymousAllowed = AuthorizationFacade.isAuthorized(
-        //    "ANONYMOUS_USERS","TAKE_ASSESSMENT",pubId.toString());
-        String releaseTo = pub.getAssessmentAccessControl().getReleaseTo();
-        if (releaseTo != null) {
-          boolean anonymousAllowed = ( (releaseTo).indexOf(
-              "Anonymous Users") > -1);
-          boolean authenticatedAllowed = ( (releaseTo).indexOf(
-              "Authenticated Users") > -1);
-
-          // check if user is member of the site which has access to the published
-          // assessment
-          boolean isMember = false;
-          boolean isAuthenticatedAsAnonymous = false;
-          if (isAuthenticated) {
-            isMember = checkMembership(pub, req, res);
-          }
-          if (anonymousAllowed) {
-            AgentFacade.createAnonymous();
-            isAuthenticatedAsAnonymous = true;
-            delivery.setAnonymousLogin(true);
-          }
-
-          if ((authenticatedAllowed && isAuthenticated)
-              || (isMember && isAuthenticated) || isAuthenticatedAsAnonymous) {
-            BeginDeliveryActionListener listener = new
-                BeginDeliveryActionListener();
-            listener.processAction(null);
-            path = "/jsf/delivery/beginTakingAssessment_viaurl.faces";
-          }
-          else if (!isAuthenticated && !isAuthenticatedAsAnonymous){
-	      if (AgentFacade.isStandaloneEnvironment())
-                path = "/jsf/delivery/login.faces";
-              else{
-                relativePath = false;
-                path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
-	      }
-          }
-          else if (isAuthenticated && !isMember){
-            path = "/jsf/delivery/accessDenied.faces";
+      else{ // notAuthorized
+        if (!isAuthenticated){
+          if (AgentFacade.isStandaloneEnvironment())
+            path = "/jsf/delivery/login.faces";
+          else{
+            relativePath = false;
+            path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
 	  }
-          else if (isAuthenticated && !authenticatedAllowed){
-            path = "/jsf/delivery/accessDenied.faces";
-	  }
-	}
+        }
+        else { //isAuthenticated but not authorized
+          path = "/jsf/delivery/accessDenied.faces";
+        }
       }
     }
+
     log.debug("***path"+path);
     if (relativePath){
       dispatcher = req.getRequestDispatcher(path);
@@ -238,4 +221,21 @@ public class LoginServlet
     return returnValue;
   }
 
+  // check if assessment is available based on criteria like
+  // dueDate 
+  public boolean assessmentIsAvailable(PublishedAssessmentService service,
+      String agentIdString, PublishedAssessmentFacade pub){
+    boolean assessmentIsAvailable = false;
+    Integer submissions = new Integer(0);
+    submissions = service.getTotalSubmission(agentIdString,
+    pub.getPublishedAssessmentId().toString());
+    HashMap h = new HashMap();
+    if (submissions.intValue()>0)
+      h.put(pub.getPublishedAssessmentId(), submissions);
+    assessmentIsAvailable = isAvailable(pub, h);
+    log.debug("**** assessmentIsAvailable="+assessmentIsAvailable);
+    log.debug("pub assessmentId="+pub.getPublishedAssessmentId());
+    log.debug("pub assessment relaeseTo="+pub.getAssessmentAccessControl().getReleaseTo());
+    return assessmentIsAvailable;
+  }
 }

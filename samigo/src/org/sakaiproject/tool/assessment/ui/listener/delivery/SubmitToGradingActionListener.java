@@ -284,7 +284,10 @@ public class SubmitToGradingActionListener implements ActionListener
     HashSet itemData)
   {
     AssessmentGradingData adata = new AssessmentGradingData();
-    adata.setAgentId(AgentFacade.getAgentString());
+    if (publishedAssessment.getAssessmentAccessControl().getReleaseTo().indexOf("Anonymous Users")==-1)
+      adata.setAgentId(AgentFacade.getAgentString());
+    else
+      adata.setAgentId(AgentFacade.getAnonymousId());
     adata.setForGrade(new Boolean(delivery.getForGrade()));
     adata.setItemGradingSet(itemData);
     adata.setPublishedAssessment(publishedAssessment.getData());
