@@ -22,7 +22,7 @@
 			<%@include file="/inc/assignmentEditing.jspf"%>
 		</x:aliasBean>
 
-		<p class="act">
+		<p class="act calendarPadding">
 			<h:commandButton
 				id="saveButton"
 				styleClass="active"

@@ -25,7 +25,7 @@
 
 		</div>
 
-		<p class="act">
+		<p class="act calendarPadding">
 			<h:commandButton
 				id="saveButton"
 				styleClass="active"

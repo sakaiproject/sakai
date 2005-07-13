@@ -74,3 +74,13 @@ td.prefixedCheckbox {
 	padding-right:.5em;
 }
 
+/*
+	TEMPORARY WORKAROUND - SAK-1154
+	Until we break out of iframes or get a user-movable calendar DHTML popup,
+	we need to add some space to the bottom of the assignment editor pages
+	so that the calendar doesn't get cut off by the bottom of the portal's
+	iframe.
+*/
+.calendarPadding {
+	margin-bottom:100px;
+}
