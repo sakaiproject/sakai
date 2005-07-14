@@ -38,6 +38,8 @@
       <title><h:outputText value="#{msg.auto_submit}" /></title>
       </head>
       <body>
+
+<div class="portletBody">
 <!-- content... -->
 <h3><h:outputText value="#{msg.auto_submit}" /></h3>
 <div class="tier1">
@@ -52,6 +54,7 @@
   </h:form>
 </div>
 <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>
