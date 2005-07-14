@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/RestConfigurationImpl.java,v 1.1 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
-*
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -125,8 +124,4 @@ public class RestConfigurationImpl implements RestConfiguration
   
 }
 
-/**********************************************************************************
-*
-* $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/RestConfigurationImpl.java,v 1.1 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
-*
-**********************************************************************************/
+

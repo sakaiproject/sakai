@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/HelpManager.java,v 1.2 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -232,8 +231,4 @@ public interface HelpManager
   public void setServerConfigurationService(ServerConfigurationService s);
 }
 
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/HelpManager.java,v 1.2 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
- *
- **********************************************************************************/
+

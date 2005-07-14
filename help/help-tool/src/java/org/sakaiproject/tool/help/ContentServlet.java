@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-tool/src/java/org/sakaiproject/tool/help/ContentServlet.java,v 1.7 2005/06/11 17:16:53 jlannan.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -125,8 +124,4 @@ public class ContentServlet extends HttpServlet
   }
 }
 
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-tool/src/java/org/sakaiproject/tool/help/ContentServlet.java,v 1.7 2005/06/11 17:16:53 jlannan.iupui.edu Exp $
- *
- **********************************************************************************/
+

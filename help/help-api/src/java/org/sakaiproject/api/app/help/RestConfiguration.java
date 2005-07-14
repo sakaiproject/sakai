@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/RestConfiguration.java,v 1.1 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
-*
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -64,8 +63,4 @@ public interface RestConfiguration
   
 }
 
-/**********************************************************************************
-*
-* $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/RestConfiguration.java,v 1.1 2005/06/05 05:15:17 jlannan.iupui.edu Exp $
-*
-**********************************************************************************/
+

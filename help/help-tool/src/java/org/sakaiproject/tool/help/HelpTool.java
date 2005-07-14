@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-tool/src/java/org/sakaiproject/tool/help/HelpTool.java,v 1.3 2005/06/05 05:15:15 jlannan.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation

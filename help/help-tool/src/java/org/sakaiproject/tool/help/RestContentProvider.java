@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-tool/src/java/org/sakaiproject/tool/help/RestContentProvider.java,v 1.2 2005/06/08 17:47:30 jlannan.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation

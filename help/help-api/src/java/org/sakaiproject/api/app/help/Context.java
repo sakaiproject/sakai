@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/Context.java,v 1.1 2005/05/18 15:14:22 jlannan.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -44,8 +43,4 @@ public interface Context
   public void setName(String name);
 }
 
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/Context.java,v 1.1 2005/05/18 15:14:22 jlannan.iupui.edu Exp $
- *
- **********************************************************************************/
+

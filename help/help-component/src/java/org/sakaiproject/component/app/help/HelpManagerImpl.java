@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.6 2005/06/11 17:16:54 jlannan.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -1133,8 +1132,4 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   }
 
 }
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/HelpManagerImpl.java,v 1.6 2005/06/11 17:16:54 jlannan.iupui.edu Exp $
- *
- **********************************************************************************/
+

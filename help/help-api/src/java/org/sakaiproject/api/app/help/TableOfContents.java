@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/TableOfContents.java,v 1.1 2005/05/18 15:14:22 jlannan.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -57,8 +56,4 @@ public interface TableOfContents
   public void setCategories(Set categories);
 }
 
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-api/src/java/org/sakaiproject/api/app/help/TableOfContents.java,v 1.1 2005/05/18 15:14:22 jlannan.iupui.edu Exp $
- *
- **********************************************************************************/
+

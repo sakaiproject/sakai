@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/DefaultGlossary.java,v 1.1 2005/05/19 15:39:14 jlannan.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -136,8 +135,4 @@ public class DefaultGlossary implements Glossary
   }
 }
 
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/help/help-component/src/java/org/sakaiproject/component/app/help/DefaultGlossary.java,v 1.1 2005/05/19 15:39:14 jlannan.iupui.edu Exp $
- *
- **********************************************************************************/
+
