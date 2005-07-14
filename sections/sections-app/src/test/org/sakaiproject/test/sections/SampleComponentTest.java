@@ -25,6 +25,7 @@ package org.sakaiproject.test.sections;
 
 import junit.framework.Assert;
 
+import org.sakaiproject.api.sections.CourseSection;
 import org.sakaiproject.api.sections.SampleManager;
 
 public class SampleComponentTest extends SectionsTestBase{
@@ -35,7 +36,9 @@ public class SampleComponentTest extends SectionsTestBase{
     }
 
     public void testSampleMethod() throws Exception {
-        Assert.assertTrue(sample.aMethod().equals("foo"));
+        sample.createSection("foo");
+        CourseSection section = (CourseSection)sample.getSections().get(0);
+        Assert.assertTrue(section.getTitle().equals("foo"));
     }
 }
 

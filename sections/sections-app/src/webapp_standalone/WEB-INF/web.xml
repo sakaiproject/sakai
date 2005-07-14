@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<web-app id="WebApp_9" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>sakai-sections</display-name>
+	<description>Sakai Sections Tool</description>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			/WEB-INF/spring-beans.xml
+			/WEB-INF/spring-hib.xml
+			/WEB-INF/spring-db.xml
+		</param-value>
+	</context-param>
+	<context-param>
+		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-value>client</param-value>
+	</context-param>
+	<context-param>
+		<param-name>javax.faces.CONFIG_FILES</param-name>
+		<param-value>
+			/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml
+		</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+
+	<!-- MyFaces support -->
+	<listener>
+		<listener-class>
+			org.apache.myfaces.webapp.StartupServletContextListener
+		</listener-class>
+	</listener>
+
+	<!-- Faces Servlet -->
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.jsf</url-pattern>
+	</servlet-mapping>
+
+	<jsp-config>
+		<jsp-property-group>
+			<url-pattern>*.jsp</url-pattern>
+			<include-prelude>/inc/prelude.jspf</include-prelude>
+			<include-coda>/inc/coda.jspf</include-coda>
+		</jsp-property-group>
+	</jsp-config>
+
+</web-app>

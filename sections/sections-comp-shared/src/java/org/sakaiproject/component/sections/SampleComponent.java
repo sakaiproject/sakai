@@ -23,14 +23,64 @@
 **********************************************************************************/
 package org.sakaiproject.component.sections;
 
+import java.util.Date;
+import java.util.List;
+
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.Session;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.sections.SampleManager;
+import org.sakaiproject.tool.sections.CourseSectionImpl;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class SampleComponent implements SampleManager {
-
-    public String aMethod() {
-        return "foo";
-    }
+public class SampleComponent extends HibernateDaoSupport implements SampleManager {
+    private static final Log log = LogFactory.getLog(SampleComponent.class);
     
+    public String createSection(final String title) {
+        // TODO Get the uuid from a uuid manager
+        final String uuid = Long.toString((new Date()).getTime());
+        log.info("Creating UUID = " + uuid);
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+                CourseSectionImpl section = new CourseSectionImpl();
+                section.setTitle(title);
+                section.setUuid(uuid);
+                session.save(section);
+                return null;
+            }
+        };
+            
+        getHibernateTemplate().execute(hc);
+        return uuid;
+    }
+
+    public void disbandSection(final String uuid) {
+        log.info("Disbanding UUID = " + uuid);
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+                Query q = session.createQuery("from CourseSectionImpl as section where section.uuid=:uuid");
+                q.setParameter("uuid", uuid);
+                CourseSectionImpl section = (CourseSectionImpl)q.list().get(0);
+                session.delete(section);
+                return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+    }
+
+    public List getSections() {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+                Query q = session.createQuery("from CourseSectionImpl as section");
+                return q.list();
+            }
+        };
+        return (List)getHibernateTemplate().execute(hc);
+    }
 }
 
 

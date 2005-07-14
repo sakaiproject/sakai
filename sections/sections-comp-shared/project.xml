@@ -12,24 +12,114 @@
 	</organization>
 	<inceptionYear>2005</inceptionYear>
 
-	<!--  Globally shared for now -->
    	<properties>
 		<deploy.type>jar</deploy.type>
-	    <deploy.target>shared</deploy.target>
 	</properties>
 	
 	<dependencies>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-sections-api</artifactId>
-			<version>${pom.currentVersion}</version>
-		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai</artifactId>
 			<version>${pom.currentVersion}</version>
 			<type>plugin</type>
 		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-sections-api</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+ 		<dependency>
+			<groupId>springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>1.1.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>aopalliance</groupId>
+			<artifactId>aopalliance</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>jta</groupId>
+			<artifactId>jta</artifactId>
+			<version>h2.1.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+			<version>2.1.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-full</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>odmg</groupId>
+			<artifactId>odmg</artifactId>
+			<version>3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-digester</groupId>
+			<artifactId>commons-digester</artifactId>
+			<version>1.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.7.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<reports/>

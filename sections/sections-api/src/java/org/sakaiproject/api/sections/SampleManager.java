@@ -23,8 +23,12 @@
 **********************************************************************************/
 package org.sakaiproject.api.sections;
 
+import java.util.List;
+
 public interface SampleManager {
-    public String aMethod();
+    public List getSections();
+    public String createSection(String title);
+    public void disbandSection(String uuid);
 }
 
 

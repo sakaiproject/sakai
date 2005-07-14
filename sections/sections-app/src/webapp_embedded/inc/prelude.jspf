@@ -1,0 +1,15 @@
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<f:loadBundle basename="org.sakaiproject.tool.sections.bundle.Messages" var="msgs"/>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/xml; charset=UTF-8" />
+	<title>Sections</title>
+		<%= request.getAttribute("sakai.html.head.css.base") %>
+		<!-- Insert local css here -->
+		<%= request.getAttribute("sakai.html.head.css.skin") %>
+		<%= request.getAttribute("sakai.html.head.js") %>
+		<!-- Insert local js here -->
+	</head>
+	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>">

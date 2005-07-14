@@ -18,7 +18,7 @@
 		<property name="dataSource"><ref bean="sectionsDataSource"/></property>
 		<property name="mappingResources">
 		    <list>
-				<value>org/sakaiproject/tool/sections/Section.hbm.xml</value>
+				<value>org/sakaiproject/tool/sections/CourseSectionImpl.hbm.xml</value>
 			</list>
 		</property>
 		

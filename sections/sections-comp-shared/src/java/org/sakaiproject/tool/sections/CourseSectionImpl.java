@@ -21,13 +21,48 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-package org.sakaiproject.service.common.coursemanagement;
+package org.sakaiproject.tool.sections;
 
-public interface CourseSection {
-    public String getUuid();
-    public String getTitle();
+import java.io.Serializable;
+
+import org.sakaiproject.api.sections.CourseSection;
+
+public class CourseSectionImpl implements CourseSection, Serializable {
+    
+    private static final long serialVersionUID = -2340773424261615857L;
+
+    private long id;
+    private int version;
+    private String uuid;
+    private String title;
+    
+    public long getId() {
+        return id;
+    }
+    public void setId(long id) {
+        this.id = id;
+    }
+    public int getVersion() {
+        return version;
+    }
+    public void setVersion(int version) {
+        this.version = version;
+    }
+    public String getUuid() {
+        return uuid;
+    }
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 }
 
 
-
-
+/**********************************************************************************
+ * $Id$
+ *********************************************************************************/

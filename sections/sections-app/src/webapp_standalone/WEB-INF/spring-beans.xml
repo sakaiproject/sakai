@@ -3,6 +3,6 @@
 
 <beans>
 	<bean id="org.sakaiproject.api.sections.SampleManager" class="org.sakaiproject.component.sections.SampleComponent">
-	
+		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
 	</bean>
 </beans>
