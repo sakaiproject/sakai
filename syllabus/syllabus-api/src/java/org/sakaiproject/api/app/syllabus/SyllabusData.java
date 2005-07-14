@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/syllabus/syllabus-api/src/java/org/sakaiproject/api/app/syllabus/SyllabusData.java,v 1.1 2005/05/19 14:25:58 cwen.iupui.edu Exp $
-*
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -106,6 +105,5 @@ public interface SyllabusData
   public void setSyllabusItem(SyllabusItem syllabusItem);
 }
 
-/**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/syllabus/syllabus-api/src/java/org/sakaiproject/api/app/syllabus/SyllabusData.java,v 1.1 2005/05/19 14:25:58 cwen.iupui.edu Exp $
- *************************************************************************************************************************************************************************************************************************************************************/
+
+

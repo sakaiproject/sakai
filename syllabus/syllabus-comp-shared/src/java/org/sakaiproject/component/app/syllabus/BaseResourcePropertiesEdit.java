@@ -1,7 +1,6 @@
-/*********************************************************************************
-*
-* $Header: /cvs/sakai2/syllabus/syllabus-comp-shared/src/java/org/sakaiproject/component/app/syllabus/BaseResourcePropertiesEdit.java,v 1.4 2005/07/01 09:11:28 cwen.iupui.edu Exp $
-*
+/**********************************************************************************
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -204,6 +203,5 @@ public class BaseResourcePropertiesEdit
 
 }   // BaseResourcePropertiesEdit
 
-/**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/syllabus/syllabus-comp-shared/src/java/org/sakaiproject/component/app/syllabus/BaseResourcePropertiesEdit.java,v 1.4 2005/07/01 09:11:28 cwen.iupui.edu Exp $
- *************************************************************************************************************************************************************************************************************************************************************/
+
+

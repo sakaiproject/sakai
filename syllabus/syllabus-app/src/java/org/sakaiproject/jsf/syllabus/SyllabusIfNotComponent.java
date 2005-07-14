@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/syllabus/syllabus-app/src/java/org/sakaiproject/jsf/syllabus/SyllabusIfNotComponent.java,v 1.2 2005/05/07 17:03:08 ggolden.umich.edu Exp $
-*
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -44,6 +43,5 @@ public class SyllabusIfNotComponent extends UIComponentBase
 	}	
 }
 
-/**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/syllabus/syllabus-app/src/java/org/sakaiproject/jsf/syllabus/SyllabusIfNotComponent.java,v 1.2 2005/05/07 17:03:08 ggolden.umich.edu Exp $
- *************************************************************************************************************************************************************************************************************************************************************/
+
+

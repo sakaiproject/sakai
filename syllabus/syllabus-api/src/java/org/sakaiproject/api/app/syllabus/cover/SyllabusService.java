@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/syllabus/syllabus-api/src/java/org/sakaiproject/api/app/syllabus/cover/SyllabusService.java,v 1.1 2005/05/19 14:25:58 cwen.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -105,6 +104,5 @@ public static org.sakaiproject.api.app.syllabus.SyllabusService getInstance()
   }
 }
 
-/**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/syllabus/syllabus-api/src/java/org/sakaiproject/api/app/syllabus/cover/SyllabusService.java,v 1.1 2005/05/19 14:25:58 cwen.iupui.edu Exp $
- *************************************************************************************************************************************************************************************************************************************************************/
+
+

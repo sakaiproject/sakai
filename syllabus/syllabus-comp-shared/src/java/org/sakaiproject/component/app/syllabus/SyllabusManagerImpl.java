@@ -1,7 +1,6 @@
-/*********************************************************************************
-*
-* $Header: /cvs/sakai2/syllabus/syllabus-comp-shared/src/java/org/sakaiproject/component/app/syllabus/SyllabusManagerImpl.java,v 1.4 2005/05/25 21:11:28 jlannan.iupui.edu Exp $
-*
+/**********************************************************************************
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -394,6 +393,5 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   }  
 }
 
-/**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/syllabus/syllabus-comp-shared/src/java/org/sakaiproject/component/app/syllabus/SyllabusManagerImpl.java,v 1.4 2005/05/25 21:11:28 jlannan.iupui.edu Exp $
- *************************************************************************************************************************************************************************************************************************************************************/
+
+

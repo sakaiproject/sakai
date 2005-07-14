@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/syllabus/syllabus-comp-shared/src/java/org/sakaiproject/component/app/syllabus/SyllabusServiceImpl.java,v 1.4 2005/05/19 14:26:30 cwen.iupui.edu Exp $
-*
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -889,7 +888,6 @@ public class SyllabusServiceImpl implements SyllabusService
 		EventTrackingService.post(event);
 	}
 }
-/**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/syllabus/syllabus-comp-shared/src/java/org/sakaiproject/component/app/syllabus/SyllabusServiceImpl.java,v 1.4 2005/05/19 14:26:30 cwen.iupui.edu Exp $
- *************************************************************************************************************************************************************************************************************************************************************/
+
+
 
