@@ -39,6 +39,8 @@
       <title><h:outputText value="#{msg.item_display_author}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <!-- content... -->
 <!-- FORM -->
 <h:form id="itemauthor">
@@ -137,6 +139,8 @@
 
 
 <!-- end content -->
+</div>
+
     </body>
   </html>
 </f:view>

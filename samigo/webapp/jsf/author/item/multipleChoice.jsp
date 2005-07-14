@@ -42,6 +42,8 @@
       <samigo:script path="/js/authoring.js"/>
       </head>
 <body onload="resetInsertAnswerSelectMenus();countNum();<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <!-- content... -->
 <!-- FORM -->
 <!-- HEADING -->
@@ -309,6 +311,8 @@
 </p>
 </h:form>
 <!-- end content -->
+</div>
+
     </body>
   </html>
 </f:view>

@@ -62,6 +62,8 @@
 <%--
       <body onload="javascript:initEditors('<%=request.getContextPath()%>');;<%= request.getAttribute("html.body.onload") %>">
 --%>
+
+<div class="portletBody">
 <!-- content... -->
 <!-- FORM -->
 
@@ -334,6 +336,8 @@
 </p>
 </h:form>
 <!-- end content -->
+</div>
+
     </body>
   </html>
 </f:view>

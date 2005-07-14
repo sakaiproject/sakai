@@ -42,6 +42,8 @@
 
       </head>
 <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <!-- content... -->
 <!-- FORM -->
 
@@ -181,6 +183,7 @@
 
 
 <!-- end content -->
+</div>
     </body>
   </html>
 </f:view>
