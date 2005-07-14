@@ -65,6 +65,19 @@ For example:
   Note that the XML parser will make no attempt to validate CDATA enclosed
 character data, and will then accept non-XHTML and even bad HTML.
 
---------------------------------------------------
-$Id: README.import_export.txt,v 1.3 2005/06/15 01:06:59 esmiley.stanford.edu Exp $
---------------------------------------------------
+7. Fix for JSF corruption of XML export.
+   a. In some builds of the portal we are seeing the addition of one or more
+blank lines on export by JSF itself. The XML spcification does not allow this.
+As of 2.01 have added a fix that any XML file with extra blank lines will have
+these trimmed on import so that exported files will always import.
+    b. If you wish to import Sakai exports into other systems, or validating XML
+editors, you may need to remove blank lines before the XML declaration.
+(SAK-1499)
+
+8. Respondus.
+Fixed in 2.01.  Respondus questions with missing score can be edited.
+Note: there are some non-Sakai QTI formatting issues in Respondus. We will be
+building alternate processing to handle these, realistically, to be taken care
+of in the next release. (SAM-500)
+
+
