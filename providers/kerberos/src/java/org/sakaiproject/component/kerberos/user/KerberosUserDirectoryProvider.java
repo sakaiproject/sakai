@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/providers/kerberos/src/java/org/sakaiproject/component/kerberos/user/KerberosUserDirectoryProvider.java,v 1.4 2005/06/02 14:50:09 csev.umich.edu Exp $
-*
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -477,11 +476,8 @@ public class KerberosUserDirectoryProvider
 
 }	// KerberosUserDirectoryProvider
 
-/**********************************************************************************
-*
-* $Header: /cvs/sakai2/providers/kerberos/src/java/org/sakaiproject/component/kerberos/user/KerberosUserDirectoryProvider.java,v 1.4 2005/06/02 14:50:09 csev.umich.edu Exp $
-*
-**********************************************************************************/
+
+
 
 
 

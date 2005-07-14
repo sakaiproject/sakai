@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/providers/sample/src/java/org/sakaiproject/component/legacy/coursemanagement/SampleCourseManagementProvider.java,v 1.3 2005/05/24 00:43:01 ggolden.umich.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -157,6 +156,5 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 	}
 }
 
-/**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/providers/sample/src/java/org/sakaiproject/component/legacy/coursemanagement/SampleCourseManagementProvider.java,v 1.3 2005/05/24 00:43:01 ggolden.umich.edu Exp $
- *************************************************************************************************************************************************************************************************************************************************************/
+
+

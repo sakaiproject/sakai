@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/providers/jldap/src/java/edu/amc/sakai/user/JLDAPDirectoryProvider.java,v 1.4 2005/06/10 16:21:45 csev.umich.edu Exp $
-*
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,

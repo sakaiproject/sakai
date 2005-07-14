@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/providers/imsent/src/java/org/sakaiproject/component/imsent/user/IMSEntUserDirectoryProvider.java,v 1.3 2005/06/06 20:39:35 csev.umich.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -374,6 +373,5 @@ public class IMSEntUserDirectoryProvider implements UserDirectoryProvider
 
 } // SampleUserDirectoryProvider
 
-/**************************************************************************************************************************************************************************************************************************************************************
- * $Header: /cvs/sakai2/providers/imsent/src/java/org/sakaiproject/component/imsent/user/IMSEntUserDirectoryProvider.java,v 1.3 2005/06/06 20:39:35 csev.umich.edu Exp $
- *************************************************************************************************************************************************************************************************************************************************************/
+
+

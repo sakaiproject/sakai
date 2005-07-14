@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/providers/openldap/src/java/es/udl/asic/user/OpenLdapDirectoryProvider.java,v 1.1 2005/06/03 11:54:21 csev.umich.edu Exp $
-*
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
