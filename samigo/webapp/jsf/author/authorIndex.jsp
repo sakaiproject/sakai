@@ -42,6 +42,8 @@
       <title><h:outputText value="#{msg.auth_front_door}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+      <div class="portletBody">
+      
 <!-- content... -->
 
 <h:form id="authorIndexForm">
@@ -481,7 +483,7 @@
 
 </h:form>
 <!-- end content -->
-
+	  </div>
       </body>
     </html>
   </f:view>
