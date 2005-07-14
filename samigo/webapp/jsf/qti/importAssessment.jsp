@@ -63,13 +63,15 @@
      valueChangeListener="#{xmlImport.importFromQti}" />
 
    <h:commandButton value="#{msg.import_action}" type="submit"
-       style="act" />
+      style="act" action="author" />
  </h:form>
-
+<%-- SAK-1298 --%>
+<%--
  <h:form id="doneForm">
    <h:commandButton value="#{msg.import_cancel_action}" type="submit"
       style="act" action="author" immediate="true"/>
  </h:form>
+--%>
  <!-- end content -->
       </body>
     </html>
