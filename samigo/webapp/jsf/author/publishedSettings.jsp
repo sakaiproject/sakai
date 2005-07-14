@@ -45,6 +45,8 @@
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       </head>
     <body onload="hideUnhideAllDivsWithWysiwyg('none');;<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <!-- content... -->
 <h:form id="assessmentSettingsAction">
   <h:inputHidden id="assessmentId" value="#{publishedSettings.assessmentId}"/>
@@ -496,6 +498,8 @@
 </p>
 </h:form>
 <!-- end content -->
+</div>
+
       </body>
     </html>
   </f:view>

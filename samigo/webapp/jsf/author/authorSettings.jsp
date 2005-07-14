@@ -71,6 +71,8 @@ function validateUrl0(){
       </head>
     <body onload="hideUnhideAllDivsWithWysiwyg('none');;<%= request.getAttribute("html.body.onload") %>">
 
+<div class="portletBody">
+
 <!-- content... -->
 <h:form id="assessmentSettingsAction">
 <f:verbatim><font color="red"></f:verbatim>
@@ -555,6 +557,7 @@ function validateUrl0(){
 </p>
 </h:form>
 <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>

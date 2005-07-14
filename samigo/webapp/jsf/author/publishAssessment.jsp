@@ -42,6 +42,8 @@
       <title><h:outputText value="#{msg.publish_assessment_confirmation}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
  <!-- content... -->
  <h:form id="publishAssessmentForm">
    <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
@@ -134,6 +136,8 @@
 
  </h:form>
  <!-- end content -->
+</div>
+
       </body>
     </html>
   </f:view>

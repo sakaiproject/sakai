@@ -39,6 +39,8 @@
       <title><h:outputText value="#{msg.create_modify_p}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <!-- content... -->
 <!-- some back end stuff stubbed -->
 <!-- TODO need to add validation-->
@@ -167,6 +169,7 @@
 
 </h:form>
 <!-- end content -->
+</div>
 
       </body>
     </html>

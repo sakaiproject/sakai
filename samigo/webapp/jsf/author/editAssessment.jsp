@@ -68,6 +68,8 @@ document.links[newindex].onclick();
 </script>
 </head>
 <body onload="document.forms[0].reset(); resetSelectMenus(); ;<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <!-- content... -->
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
@@ -334,6 +336,8 @@ document.links[newindex].onclick();
 
 </h:form>
 <!-- end content -->
+</div>
+
       </body>
     </html>
   </f:view>

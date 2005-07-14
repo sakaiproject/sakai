@@ -39,6 +39,8 @@
       <title><h:outputText value="#{msg.item_display_author}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <!-- content... -->
 <!-- FORM -->
 <h:form id="itemForm">
@@ -71,6 +73,7 @@ something like if type true false render include true false etc.
 
 </h:form>
 <!-- end content -->
+</div>
     </body>
   </html>
 </f:view>

@@ -39,6 +39,8 @@
       <title><h:outputText value="#{msg.remove_q_conf}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
   <!-- content... -->
 
  <h:form>
@@ -56,7 +58,7 @@
 
  </h:form>
  <!-- end content -->
-
+</div>
       </body>
     </html>
   </f:view>

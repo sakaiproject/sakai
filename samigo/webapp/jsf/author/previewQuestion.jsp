@@ -39,6 +39,8 @@
       <title><h:outputText value="#{msg.create_modify_a}" /></title>
       </head>
 <body onload="document.forms[0].reset();;<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <!-- content... -->
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
@@ -99,6 +101,7 @@
 
 </h:form>
 <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>

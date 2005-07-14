@@ -39,6 +39,8 @@
       <title><h:outputText value="#{msg.remove_assessment_co}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
  <!-- content... -->
  <h:form id="removeAssessmentForm">
    <h:outputText value="#{assessment.assessmentId}"/>
@@ -58,6 +60,8 @@
     </p>
  </h:form>
  <!-- end content -->
+</div>
+
       </body>
     </html>
   </f:view>
