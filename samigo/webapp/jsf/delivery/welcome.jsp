@@ -39,6 +39,8 @@
       <title><h:outputText value="#{msg.tool_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 Welcome, if this is the assessment, please continue
   <!-- content... -->
   <h:form id="anonymousPage">
@@ -50,6 +52,7 @@ Welcome, if this is the assessment, please continue
       </h:commandLink>
   </h:form>
   <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>

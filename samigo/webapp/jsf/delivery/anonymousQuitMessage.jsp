@@ -39,6 +39,8 @@
       <title><h:outputText value="#{msg.invalid_assessment}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <h3> <h:outputText value="#{msg.anonymous_quit_warning}"/></h3>
 <h:form id="redirectLoginForm">
  <div class="validation">
@@ -53,7 +55,7 @@
      onclick="javascript:window.open('/portal/','_top')" />
 </p>
 </h:form>
-
+</div>
       </body>
     </html>
   </f:view>

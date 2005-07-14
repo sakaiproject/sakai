@@ -40,6 +40,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
+<div class="portletBody">
 <h:form id="redirectLoginForm">
   <h:outputText value="#{msg.access_denied}"/>
    <div class="validation">
@@ -55,7 +56,7 @@
        type="org.sakaiproject.tool.assessment.ui.listener.delivery.RedirectLoginListener" />
   </h:commandButton>
 </h:form>
-
+</div>
       </body>
     </html>
   </f:view>

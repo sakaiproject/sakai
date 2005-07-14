@@ -42,8 +42,11 @@
         <h:outputText escape="false" value="<meta http-equiv='Refresh' content='0; URL=#{delivery.contextPath}/jsf/delivery/beginTakingAssessment.faces'>"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
  <!-- content... -->
   <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>

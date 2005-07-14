@@ -42,6 +42,8 @@
       <title><h:outputText value="#{msg.begin_assessment_}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
  <!-- content... -->
 
 <h:form id="takeAssessmentForm">
@@ -174,6 +176,7 @@
 
 </h:form>
   <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>

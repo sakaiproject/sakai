@@ -40,6 +40,8 @@
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
     </head>
     <body onload="hideUnhideAllDivs('none');;<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <!-- content... -->
 <script language="javascript">
 function checkRadio()
@@ -210,6 +212,7 @@ function saveTime()
 
 </h:form>
 <!-- end content -->
+</div>
     </body>
   </html>
 </f:view>

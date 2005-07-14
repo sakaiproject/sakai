@@ -42,6 +42,7 @@
       <h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" />
       <h:outputText value="<a name='top'></a>" escape="false" />
 
+<div class="portletBody">
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
@@ -242,6 +243,7 @@ function saveTime()
 
 </h:form>
 <!-- end content -->
+</div>
     </body>
   </html>
 </f:view>

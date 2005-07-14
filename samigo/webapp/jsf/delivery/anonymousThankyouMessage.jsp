@@ -40,13 +40,14 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
+<div class="portletBody">
 <h:form id="redirectLoginForm">
   <h:outputText value="#{msg.anonymous_thank_you}"/>
   <h3 style="insColor insBak"><h:outputText  value="#{msg.anonymous_thank_you_message}" /></h3>
   <h:commandButton value="#{msg.button_continue}" type="button"
      style="act" onclick="javascript:window.open('/portal/','_top')" />
 </h:form>
-
+</div>
       </body>
     </html>
   </f:view>

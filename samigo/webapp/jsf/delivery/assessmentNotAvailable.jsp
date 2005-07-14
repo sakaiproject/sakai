@@ -39,6 +39,8 @@
 --%>
 -->
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
 <h3><h:outputText value="#{msg.assessment_not_available}"/></h3>
 <h:form id="redirectLoginForm">
  <div class="validation">
@@ -57,6 +59,7 @@
 -->
 </p>
 </h:form>
+</div>
       </body>
     </html>
   </f:view>

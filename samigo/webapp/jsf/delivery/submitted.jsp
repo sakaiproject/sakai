@@ -42,6 +42,8 @@
       <title><h:outputText value="#{msg.submission}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
  <!-- content... -->
 <h3><h:outputText value="#{msg.submission}" /></h3>
 <div class="indnt1">
@@ -105,6 +107,8 @@
 
 </h:form>
   <!-- end content -->
+</div>
+
       </body>
     </html>
   </f:view>

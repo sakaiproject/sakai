@@ -40,6 +40,8 @@
       <title><h:outputText value="#{msg.timeout}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
   <!-- content... -->
   <h3><h:outputText value="#{msg.timeout}"/></h3>
  <h:form id="removeTemplateForm">
@@ -58,6 +60,7 @@
  </p>
  </h:form>
   <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>

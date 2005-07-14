@@ -40,6 +40,8 @@
       <title><h:outputText value="#{msg.access_denied}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
   <!-- content... -->
   <h3><h:outputText value="#{msg.access_denied}"/></h3>
  <h:form id="removeTemplateForm">
@@ -61,6 +63,7 @@
 
  </h:form>
   <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>

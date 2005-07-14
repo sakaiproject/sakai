@@ -15,6 +15,9 @@
       <title><h:outputText value="#{msg.invalid_assessment}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
+
 <!--
 * $Id$
 <%--
@@ -46,6 +49,7 @@
   <h:commandButton value="#{msg.button_ok}" type="button"
      style="act" onclick="javascript:window.open('../jsf/delivery/login.faces','_top')" />
 </h:form>
+</div>
 
       </body>
     </html>

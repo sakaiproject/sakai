@@ -39,9 +39,12 @@
       <title><h:outputText value="#{msg.remove_assessment_co}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<div class="portletBody">
  <!-- content... -->
   <h3><h:outputText value="This is a stub for delivery."/></h3>
   <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>
