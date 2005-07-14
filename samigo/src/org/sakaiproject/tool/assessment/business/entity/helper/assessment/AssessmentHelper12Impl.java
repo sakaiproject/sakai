@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $HeadURL$
+* $URL$
 * $Id$
 ***********************************************************************************
 *
@@ -48,8 +48,5 @@ public class AssessmentHelper12Impl extends AssessmentHelperBase
 
 
 }
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/business/entity/helper/assessment/AssessmentHelper12Impl.java,v 1.4 2005/05/17 22:57:45 esmiley.stanford.edu Exp $
- *
- ***********************************************************************************/
+
+

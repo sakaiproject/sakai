@@ -1,5 +1,5 @@
 /**********************************************************************************
- * $HeadURL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/business/entity/helper/ExtractionHelper.java $
+ * $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/business/entity/helper/ExtractionHelper.java $
  * $Id: ExtractionHelper.java 426 2005-07-07 17:57:41Z esmiley@stanford.edu $
  ***********************************************************************************
  *

@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $HeadURL$
+* $URL$
 * $Id$
 ***********************************************************************************
 *
@@ -270,8 +270,5 @@ abstract public class SectionHelperBase implements SectionHelperIfc
   }
 
 }
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/business/entity/helper/section/SectionHelperBase.java,v 1.4 2005/05/20 16:42:25 esmiley.stanford.edu Exp $
- *
- ***********************************************************************************/
+
+

@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $HeadURL$
+* $URL$
 * $Id$
 ***********************************************************************************
 *
@@ -48,8 +48,5 @@ public class SectionHelper20Impl extends SectionHelperBase
   protected int getQtiVersion(){return QTIVersion.VERSION_2_0;}
 
 }
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/business/entity/helper/section/SectionHelper20Impl.java,v 1.4 2005/05/17 22:51:02 esmiley.stanford.edu Exp $
- *
- ***********************************************************************************/
+
+

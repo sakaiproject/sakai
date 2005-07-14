@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $HeadURL$
+* $URL$
 * $Id$
 ***********************************************************************************
 *
@@ -199,8 +199,5 @@ public interface ItemHelperIfc
    */
   public void setFeedback(ArrayList itemTextList, Item itemXml);
 }
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/business/entity/helper/item/ItemHelperIfc.java,v 1.11 2005/05/31 19:14:29 janderse.umich.edu Exp $
- *
- ***********************************************************************************/
+
+

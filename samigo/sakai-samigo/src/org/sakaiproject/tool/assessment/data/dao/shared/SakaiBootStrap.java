@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/sakai2/sam/sakai-samigo/src/org/sakaiproject/tool/assessment/data/dao/shared/SakaiBootStrap.java,v 1.1 2005/05/19 17:59:36 daisyf.stanford.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -92,8 +91,5 @@ public class SakaiBootStrap
 
 }
 
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/sam/sakai-samigo/src/org/sakaiproject/tool/assessment/data/dao/shared/SakaiBootStrap.java,v 1.1 2005/05/19 17:59:36 daisyf.stanford.edu Exp $
- *
- **********************************************************************************/
+
+

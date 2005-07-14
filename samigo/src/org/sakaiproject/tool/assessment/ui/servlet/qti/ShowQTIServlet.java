@@ -1,5 +1,5 @@
 /**********************************************************************************
- * $HeadURL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/ui/servlet/delivery/ShowMediaServlet.java $
+ * $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/ui/servlet/delivery/ShowMediaServlet.java $
  * $Id: ShowMediaServlet.java 244 2005-06-24 04:06:14Z daisyf@stanford.edu $
  ***********************************************************************************
  *

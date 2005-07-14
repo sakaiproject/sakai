@@ -1,7 +1,6 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/sam/sakai-samigo/src/org/sakaiproject/tool/assessment/facade/GradebookFacade.java,v 1.4 2005/06/03 20:32:22 janderse.umich.edu Exp $
-*
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -59,8 +58,5 @@ public class GradebookFacade implements Serializable {
 
  }
 
-/**********************************************************************************
-*
-* $Header: /cvs/sakai2/sam/sakai-samigo/src/org/sakaiproject/tool/assessment/facade/GradebookFacade.java,v 1.4 2005/06/03 20:32:22 janderse.umich.edu Exp $
-*
-**********************************************************************************/
+
+

@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $HeadURL$
+* $URL$
 * $Id$
 ***********************************************************************************
 *
@@ -262,8 +262,5 @@ public class QTIConstantStrings
   public static String FIELDLABEL = "fieldlabel";
   public static String FIELDENTRY = "fieldentry";
 }
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/business/entity/constants/QTIConstantStrings.java,v 1.4 2005/05/17 23:00:36 esmiley.stanford.edu Exp $
- *
- ***********************************************************************************/
+
+

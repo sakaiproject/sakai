@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $HeadURL$
+* $URL$
 * $Id$
 ***********************************************************************************
 *
@@ -530,8 +530,5 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
   }
 
 }
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/business/entity/helper/assessment/AssessmentHelperBase.java,v 1.18 2005/06/06 22:30:04 esmiley.stanford.edu Exp $
- *
- ***********************************************************************************/
+
+

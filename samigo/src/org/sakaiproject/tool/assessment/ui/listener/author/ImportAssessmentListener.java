@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $HeadURL$
+* $URL$
 * $Id$
 ***********************************************************************************
 *
@@ -114,8 +114,5 @@ public class ImportAssessmentListener implements ActionListener
   }
 
 }
-/**********************************************************************************
- *
- * $Header: /cvs/sakai2/sam/src/org/sakaiproject/tool/assessment/ui/listener/author/ImportAssessmentListener.java,v 1.10 2005/05/20 17:10:05 esmiley.stanford.edu Exp $
- *
- ***********************************************************************************/
+
+

@@ -101,9 +101,6 @@ public class GradebookServiceHelper
     }
 }
 
-/**********************************************************************************
-*
-* $Header: /cvs/sakai2/sam/sakai-samigo/src/org/sakaiproject/tool/assessment/services/gradebook/GradebookServiceHelper.java,v 1.13 2005/06/07 20:46:31 daisyf.stanford.edu Exp $
-*
-***********************************************************************************/
+
+
 

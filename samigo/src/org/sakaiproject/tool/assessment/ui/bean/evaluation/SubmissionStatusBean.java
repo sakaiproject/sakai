@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $HeadURL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/ui/bean/evaluation/TotalScoresBean.java $
+* $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/ui/bean/evaluation/TotalScoresBean.java $
 * $Id: TotalScoresBean.java 202 2005-06-23 19:34:41Z esmiley@stanford.edu $
 ***********************************************************************************
 *

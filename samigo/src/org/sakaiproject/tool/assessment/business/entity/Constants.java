@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $HeadURL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/business/entity/AAMTree.java $
+* $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/business/entity/AAMTree.java $
 * $Id: AAMTree.java 199 2005-06-23 18:51:52Z esmiley@stanford.edu $
 ***********************************************************************************
 *
