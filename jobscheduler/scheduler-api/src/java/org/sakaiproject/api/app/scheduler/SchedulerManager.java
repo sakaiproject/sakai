@@ -1,8 +1,7 @@
 /**********************************************************************************
- *
- * $Header: /cvs/scratch/scheduler/scheduler-api/src/java/org/sakaiproject/api/app/scheduler/SchedulerManager.java,v 1.1 2005/05/31 18:04:09 jlannan.iupui.edu Exp $
- *
- ***********************************************************************************
+ * $URL$
+ * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -111,8 +110,4 @@ public interface SchedulerManager
    */
   public void setAutoDdl(Boolean b);
 }
-/**********************************************************************************
- *
- * $Header: /cvs/scratch/scheduler/scheduler-api/src/java/org/sakaiproject/api/app/scheduler/SchedulerManager.java,v 1.1 2005/05/31 18:04:09 jlannan.iupui.edu Exp $
- *
- **********************************************************************************/
+
