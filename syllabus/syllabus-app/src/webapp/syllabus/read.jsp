@@ -34,7 +34,7 @@
 						</sakai:doc_section>
 
 						<h:outputText value="#{msgs.syllabus_content}"/>
-						<sakai:rich_text_area value="#{SyllabusTool.entry.entry.asset}"   rows="17" columns="80" javascriptLibrary="/library/htmlarea"/>
+						<sakai:rich_text_area value="#{SyllabusTool.entry.entry.asset}"   rows="17" columns="65" javascriptLibrary="/library/htmlarea"/>
 	
 <%--						<h:outputText value="#{msgs.syllabus_view}"/>
 						<h:selectOneRadio id="chooseCreatSyllaType" value="#{SyllabusTool.entry.entry.view}" layout="pageDirection">
