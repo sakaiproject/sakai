@@ -33,7 +33,7 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
           <h:graphicImage id="image2"
-             alt="#{msg.not_correct}" url="/images/unchecked.gif" >
+             alt="#{msg.not_correct}" url="/images/radiounchecked.gif" >
           </h:graphicImage>
           <h:outputText escape="false" value="#{answer.text}" />
         </h:column>

@@ -32,10 +32,10 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
           <h:graphicImage id="image1" rendered="#{answer.isCorrect}"
-             alt="#{msg.correct}" url="/images/checked.gif" >
+             alt="#{msg.correct}" url="/images/radiochecked.gif" >
           </h:graphicImage>
           <h:graphicImage id="image2" rendered="#{!answer.isCorrect}"
-             alt="#{msg.not_correct}" url="/images/unchecked.gif" >
+             alt="#{msg.not_correct}" url="/images/radiounchecked.gif" >
           </h:graphicImage>
           <h:outputText escape="false" value="#{answer.label}. #{answer.text}" /></h:column><h:column>
 
