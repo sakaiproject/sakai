@@ -42,6 +42,8 @@ should be included in file importing DeliveryMessages
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="answerKeyMC" value="#{msg.model} " />
      <f:verbatim></b></f:verbatim>
+    <h:outputText value="#{question.key}" />
+
     <h:outputLink  value="#" onclick="javascript:window.alert('#{question.key}');" >
     <h:outputText value="#{dmsg.click}" />
     </h:outputLink>
