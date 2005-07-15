@@ -199,7 +199,7 @@ public class DeliveryActionListener
           cu.lookupParam("review").equals("true"))
       {
         itemData = service.getSubmitData(id, agent);
-        setAssessmentGradingFromItemData(delivery, itemData);
+        setAssessmentGradingFromItemData(delivery, itemData, false);
       }
 
       // If this is for grading a student's responses, get those
@@ -208,7 +208,7 @@ public class DeliveryActionListener
       {
         itemData = service.getStudentGradingData
           (cu.lookupParam("gradingData"));
-        setAssessmentGradingFromItemData(delivery, itemData);
+        setAssessmentGradingFromItemData(delivery, itemData, false);
       }
 
       // If we're reviewing an assessment and we're not showing
@@ -223,28 +223,12 @@ public class DeliveryActionListener
       else
       {
         itemData = service.getLastItemGradingData(id, agent);
-
-        // Get the assessmentGradingData to set timeElapsed
-        Iterator keys = itemData.keySet().iterator();
-        if (keys.hasNext())
-        {
-          ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemData.get(
-            keys.next())).toArray()[0];
-          AssessmentGradingData agd =
-            (AssessmentGradingData) igd.getAssessmentGrading();
-          if (agd.getTimeElapsed() != null)
-          {
-            delivery.setTimeElapse(agd.getTimeElapsed().toString());
-          }
-          delivery.setAssessmentGrading(agd);
-        }
-        else
-        {
-          delivery.setAssessmentGrading(null);
-        }
+        setAssessmentGradingFromItemData(delivery, itemData, true);
       }
       if (delivery.getTimeElapse() == null)
       {
+        log.info("delivery.getTimeElapse() == null");
+        log.info("delivery.setTimeElapse(\"0\")");
         delivery.setTimeElapse("0");
 
         // If this was called instead of Begin
@@ -345,6 +329,12 @@ public class DeliveryActionListener
         {
           delivery.setBeginTime(delivery.getAssessmentGrading()
                                 .getAttemptDate());
+          // SAM-387
+          Integer time = delivery.getAssessmentGrading().getTimeElapsed();
+          if (time !=null)
+          {
+            delivery.setTimeElapse(""+delivery.getAssessmentGrading().getTimeElapsed());
+          }
         }
         else
         {
@@ -353,6 +343,7 @@ public class DeliveryActionListener
       }
 
       log.info("Set begin time " + delivery.getBeginTime());
+      log.info("Set elapsed time " + delivery.getTimeElapse());
       // get table of contents
       delivery.setTableOfContents(getContents(publishedAssessment, itemData,
                                               delivery));
@@ -368,18 +359,43 @@ public class DeliveryActionListener
 
   }
 
+  /**
+   * Look up item grading data and set assesment grading data from it or,
+   * if there is none set null if setNullOK.
+   * @param delivery the delivery bean
+   * @param itemData the itemData hash map
+   * @param setNullOK if there is none set null if true
+   */
   private void setAssessmentGradingFromItemData(DeliveryBean delivery,
-                                                HashMap itemData)
+                      HashMap itemData, boolean setNullOK)
   {
+    log.info("BEGIN setAssessmentGradingFromItemData()");
+    log.info("delivery.getTimeElapse(): " + delivery.getTimeElapse());
+
     Iterator keys = itemData.keySet().iterator();
     if (keys.hasNext())
     {
+      log.info("itemData.keySet().iterator().hasNext()");
       ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemData.get(
         keys.next())).toArray()[0];
       AssessmentGradingData agd =
         (AssessmentGradingData) igd.getAssessmentGrading();
+      // SAM-387
+      if (agd.getTimeElapsed() != null)
+      {
+        log.info("agd.getTimeElapsed() != null, set time elapsed: "+
+                 agd.getTimeElapsed().toString());
+        delivery.setTimeElapse(agd.getTimeElapsed().toString());
+      }
       delivery.setAssessmentGrading(agd);
     }
+    else
+    {
+      if (setNullOK) delivery.setAssessmentGrading(null);
+    }
+
+    log.info("delivery.getTimeElapse(): " + delivery.getTimeElapse());
+    log.info("END setAssessmentGradingFromItemData()");
   }
 
   /**
