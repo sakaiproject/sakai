@@ -54,9 +54,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
- * @version $Id$
  */
 
 public class ItemModifyListener implements ActionListener
@@ -106,6 +104,7 @@ public class ItemModifyListener implements ActionListener
       ItemFacade itemfacade =  delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
 
 
+      log.info("lydiatest, we are modify itemid = " + itemId);
       //System.out.println("lydiatest itemfacade.gettypeid() " + itemfacade.getTypeId());
       bean.setItemId(itemfacade.getItemId().toString());
       bean.setItemType(itemfacade.getTypeId().toString());

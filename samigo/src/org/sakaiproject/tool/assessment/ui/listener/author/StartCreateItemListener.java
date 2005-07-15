@@ -47,9 +47,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
- * @version $Id$
  */
 
 public class StartCreateItemListener implements ValueChangeListener, ActionListener
@@ -59,6 +57,9 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
   private static ContextUtil cu;
   private String scalename;  // used for multiple choice Survey
 
+
+  // both actionListener and valueChangeListener methods are used, 
+  // for authoring asseessments and qpools
 
   /**
    * Standard process action method.
@@ -79,16 +80,37 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
     log.debug("lydiatest selectedvalue in StartCreateItemListener's process value change() =   " + selectedvalue);
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
       itemauthorbean.setItemType(selectedvalue);
-      if (!startCreateItem(itemauthorbean))
-      {
-        throw new RuntimeException("failed to startCreatItem.");
-      }
+
+    boolean update = false;
+    String curritemid = null;
+    // check if it is coming from Item Modify page.
+    ItemBean curritem = itemauthorbean.getCurrentItem();
+    if (curritem!=null) {
+      curritemid = curritem.getItemId();
+      update = true;
+      log.debug("lydiatest it is from modify , itemid  " + curritemid);
+    }
+    else {
+      log.debug("lydiatest it is not from modify , itemid  (shoudl be null) = " + curritemid);
+    }
+
+    if (!startCreateItem(itemauthorbean))
+    {
+      throw new RuntimeException("failed to startCreatItem.");
+    }
+
+    if (update){
+        // if update, then update currentItem's itemId.
+       itemauthorbean.getCurrentItem().setItemId(curritemid);
+      log.debug("lydiatest after StartCreateItem, reset itemid to old item id for modify =" + curritem.getItemId());
     }
 
 
+
+
+    }
   }
 
-// TODO need to get rid of this, and figure out how selectonemenu can navigate to a diff page
   /**
    * Standard process action method.
    * @param ae ActionEvent
@@ -103,10 +125,32 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 
     log.debug("lydiatest BEGIN STartCreateItem item type " + itemauthorbean.getItemType());
 
+  /* 
+    boolean update = false;
+    String curritemid = null;
+    // check if it is coming from Item Modify page.
+    ItemBean curritem = itemauthorbean.getCurrentItem();
+    if (curritem!=null) {
+      curritemid = curritem.getItemId();
+      log.debug("lydiatest it is from modify" + itemauthorbean.getItemType());
+    }
+    else {
+      log.debug("lydiatest it is not from modify" + itemauthorbean.getItemType());
+    }
+
+*/
     if (!startCreateItem(itemauthorbean))
     {
       throw new RuntimeException("failed to startCreatItem.");
     }
+    
+/*
+    if (update){
+	// if update, then update currentItem's itemId. 
+       curritem.setItemId(curritemid); 
+      log.debug("lydiatest after StartCreateItem, reset itemid to old item id for modify =" + curritem.getItemId());
+    }
+*/
 
 
   }

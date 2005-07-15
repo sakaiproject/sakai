@@ -59,9 +59,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
- * @version $Id$
  */
 
 public class ItemAddListener
@@ -82,6 +80,7 @@ public class ItemAddListener
     System.out.println("lydiatest BEGIN Add item");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
     ItemBean item =itemauthorbean.getCurrentItem();
+    log.debug("lydiatest item.id = " + item.getItemId());
     String answer=item.getCorrAnswer();
     String iType=item.getItemType();
     //if((!iType.equals("1"))&&(!iType.equals("2"))){
@@ -140,7 +139,7 @@ public class ItemAddListener
       // update not working yet, delete, then add
       if ( (bean.getItemId() != null) && (!bean.getItemId().equals("0"))) {
         update = true;
-        //System.out.println("lydiatest in saveItem()  this is for MODIFY ");
+        log.debug("lydiatest in saveItem()  this is for MODIFY ");
         // if modify ,itemid shouldn't be null , or 0.
         Long oldId = new Long(bean.getItemId());
         delegate.deleteItemContent(oldId, AgentFacade.getAgentString());
