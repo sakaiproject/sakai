@@ -4,6 +4,8 @@
 	<!-- Manually initialize the bean (replace this with flowstate) -->
 	<h:outputFormat value="#{sampleBean.configureBean}"/>
 
+	<h:outputText value="Username: #{sampleBean.userName}"/>
+
 	<p>
 		<h:outputText value="#{msgs.sample_create_section}"/>
 		<h:inputText value="#{sampleBean.title}"/>

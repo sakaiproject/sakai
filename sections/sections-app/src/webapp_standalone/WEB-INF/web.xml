@@ -20,7 +20,7 @@
 	<context-param>
 		<param-name>javax.faces.CONFIG_FILES</param-name>
 		<param-value>
-			/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml
+			/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml,/WEB-INF/faces-standalone-beans.xml
 		</param-value>
 	</context-param>
 

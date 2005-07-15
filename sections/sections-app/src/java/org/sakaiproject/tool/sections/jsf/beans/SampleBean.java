@@ -31,9 +31,9 @@ import javax.faces.event.ActionEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.sections.SampleManager;
+import org.sakaiproject.api.sections.facades.Authn;
 
 /**
- * 
  * A sample jsf backing bean.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
@@ -44,8 +44,13 @@ public class SampleBean extends InitializableBean implements Serializable {
     
     // TODO Centralize the local services in a base backing bean
     private SampleManager sampleManager;
+    private Authn authn;
     
+    // Fields for the UI (initialize these in init())
     private List sections;
+    private String userName;
+    
+    // Fields for UI Components
     private String title;
 
 
@@ -57,6 +62,7 @@ public class SampleBean extends InitializableBean implements Serializable {
     protected void init() {
         log.info("SampleBean initializing...");
         sections = sampleManager.getSections();
+        userName = authn.getUserUid();
     }
     
     // Manually initialize the bean
@@ -77,6 +83,9 @@ public class SampleBean extends InitializableBean implements Serializable {
     public List getSections() {
         return sections;
     }
+    public String getUserName() {
+        return userName;
+    }
     public String getTitle() {
         return title;
     }
@@ -89,6 +98,9 @@ public class SampleBean extends InitializableBean implements Serializable {
         this.sampleManager = sampleManager;
     }
     
+    public void setAuthn(Authn authn) {
+        this.authn = authn;
+    }
 }
 
 

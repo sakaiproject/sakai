@@ -2,7 +2,12 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<bean id="org.sakaiproject.api.sections.SampleManager" class="org.sakaiproject.component.sections.SampleComponent">
+	<bean id="org.sakaiproject.api.sections.SampleManager"
+		class="org.sakaiproject.component.sections.SampleComponent">
 		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
 	</bean>
+
+	<!-- Authn service impl -->
+	<bean id="org.sakaiproject.api.sections.facades.Authn"
+		class="org.sakaiproject.component.sections.facades.impl.standalone.AuthnStandaloneImpl"/>
 </beans>

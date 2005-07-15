@@ -11,5 +11,10 @@
 			<property-name>sampleManager</property-name>
 			<value>#{org_sakaiproject_api_sections_SampleManager}</value>
 		</managed-property>
+		<managed-property>
+			<description>Authn</description>
+			<property-name>authn</property-name>
+			<value>#{org_sakaiproject_api_sections_facades_Authn}</value>
+		</managed-property>
 	</managed-bean>
 </faces-config>
