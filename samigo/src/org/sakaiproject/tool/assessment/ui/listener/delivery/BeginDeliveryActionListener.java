@@ -76,6 +76,7 @@ public class BeginDeliveryActionListener implements ActionListener
 
     // get managed bean
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+    delivery.setTimeRunning(false);
     // get service
     PublishedAssessmentService publishedAssessmentService = new
         PublishedAssessmentService();
