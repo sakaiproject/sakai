@@ -531,6 +531,7 @@ public class PublishedAssessmentFacadeQueries
     boolean addedToGradebook = false;
     PublishedAssessmentData publishedAssessment = preparePublishedAssessment( (
         AssessmentData) assessment.getData());
+    publishedAssessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
     getHibernateTemplate().save(publishedAssessment);
     // write authorization
     createAuthorization(publishedAssessment);
