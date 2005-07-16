@@ -165,7 +165,10 @@ public class DeliveryBean
   private boolean showStudentScore;
 
   // lydial added for allowing studentScore view for random draw parts
-  private boolean forGrading;  // to reuse deliveryActionListener for grading pages 
+  private boolean forGrading;  // to reuse deliveryActionListener for grading pages
+
+  // esmiley added to track if timer has been started in timed assessments
+  private boolean timeRunning;
 
   /**
    * Creates a new DeliveryBean object.
@@ -1157,7 +1160,7 @@ public class DeliveryBean
     forGrade = false;
 
     if (!("true").equals(previewAssessment))
-    {     
+    {
     SubmitToGradingActionListener listener =
      new SubmitToGradingActionListener();
     listener.processAction(null);
@@ -1176,11 +1179,11 @@ public class DeliveryBean
       partIndex--;
     if (getSettings().isFormatByQuestion())
       questionIndex--;
-    
+
     forGrade = false;
-   
+
     if (!("true").equals(previewAssessment))
-    { 
+    {
     SubmitToGradingActionListener listener =
      new SubmitToGradingActionListener();
     listener.processAction(null);
@@ -1358,7 +1361,7 @@ public class DeliveryBean
 	}
       }
       mediaStream2 = new FileInputStream(mediaLocation);
-      mediaByte = new byte[size]; 
+      mediaByte = new byte[size];
       mediaStream2.read(mediaByte, 0, size);
 
       FileOutputStream out = new FileOutputStream("/tmp/test.txt");
@@ -1451,7 +1454,7 @@ public class DeliveryBean
     gradingService.saveOrUpdateAssessmentGrading(adata);
     log.debug("***5b. addMediaToItemGrading, saved="+adata);
 
-    // 6. create a media record 
+    // 6. create a media record
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
     boolean SAVETODB = MediaData.saveToDB();
     log.debug("**** SAVETODB="+SAVETODB);
@@ -1662,4 +1665,12 @@ public class DeliveryBean
     {
 	this.forGrading= param;
     }
+  public boolean isTimeRunning()
+  {
+    return timeRunning;
+  }
+  public void setTimeRunning(boolean timeRunning)
+  {
+    this.timeRunning = timeRunning;
+  }
 }
