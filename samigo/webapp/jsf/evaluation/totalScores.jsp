@@ -122,11 +122,12 @@
       prevText="Previous" nextText="Next" numItems="10" />
     </span>
 END OF TEMPORARY OUT FOR THIS RELEASE --%>
-    <span class="abc">
-      <samigo:alphaIndex initials="#{totalScores.agentInitials}" />
 
-    </span>
-
+  <h:panelGroup rendered="#{totalScores.anonymous eq 'false'}">
+   <f:verbatim><span class="abc"></f:verbatim> 
+     <samigo:alphaIndex initials="#{totalScores.agentInitials}" />
+   <f:verbatim></span></f:verbatim> 
+  </h:panelGroup>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
