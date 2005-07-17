@@ -3,31 +3,37 @@
 
 <beans>
    <bean id="discussionOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>apkk</value></property>
+      <property name="docId"><value>ardo</value></property>
       <property name="name"><value>discussions Overview</value></property>
-      <property name="location"><value>/sakai_discussion/apkk.html</value></property>
+      <property name="location"><value>/sakai_discussion/ardo.html</value></property>
       <property name="defaultForTool"><value>sakai.discussion</value></property>      
    </bean>
 
    <bean id="createDiscussionCategory" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>apkl</value></property>
+         <property name="docId"><value>arfh</value></property>
       <property name="name"><value>Create Discussion Category</value></property>
-      <property name="location"><value>/sakai_discussion/apkl.html</value></property>
+      <property name="location"><value>/sakai_discussion/arfh.html</value></property>
    </bean>
       <bean id="postDiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>apko</value></property>
+         <property name="docId"><value>arau</value></property>
       <property name="name"><value>Post Discussion Item</value></property>
-      <property name="location"><value>/sakai_discussion/apko.html</value></property>
+      <property name="location"><value>/sakai_discussion/arau.html</value></property>
    </bean>
       <bean id="replyDiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>apkp</value></property>
+         <property name="docId"><value>araz</value></property>
       <property name="name"><value>Reply Discussion</value></property>
-      <property name="location"><value>/sakai_discussion/apkp.html</value></property>
+      <property name="location"><value>/sakai_discussion/araz.html</value></property>
    </bean>
       <bean id="createDiscussionTopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>apkm</value></property>
+         <property name="docId"><value>arbb</value></property>
       <property name="name"><value>Create Discussion Topic</value></property>
-      <property name="location"><value>/sakai_discussion/apkm.html</value></property>
+      <property name="location"><value>/sakai_discussion/arbb.html</value></property>
+   </bean>
+   
+   <bean id="customizeDiscussionView" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arca</value></property>
+      <property name="name"><value>Customize Discussion View</value></property>
+      <property name="location"><value>/sakai_discussion/arca.html</value></property>
    </bean>
    
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
@@ -44,6 +50,7 @@
                      <ref bean="createDiscussionTopic"/>
                      <ref bean="postDiscussion"/>
                      <ref bean="replyDiscussion"/>
+					 <ref bean="customizeDiscussionView"/>
                   </list>
                </property>
             </bean>

@@ -201,11 +201,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
    * @see org.sakaiproject.api.app.help.HelpManager#storeResource(org.sakaiproject.api.help.Resource)
    */
   public void storeResource(Resource resource)
-  {
-    //if (getResourceByDocId(resource.getDocId()) == null)
-    //{
-      getHibernateTemplate().saveOrUpdate(resource);
-    //}
+  {    
+    getHibernateTemplate().saveOrUpdate(resource);   
   }
 
   /**
@@ -982,12 +979,17 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     helpClasspathRegList.add("/sakai_general_info/help.xml");
     helpClasspathRegList.add("/sakai_grading/help.xml");
     helpClasspathRegList.add("/sakai_worksite/help.xml");
+    helpClasspathRegList.add("/sakai_menubar/help.xml");
+    helpClasspathRegList.add("/sakai_course_sites/help.xml");    
+    helpClasspathRegList.add("/sakai_permissions/help.xml");
+    helpClasspathRegList.add("/sakai_samigo/help.xml");
 
     Set allCategories = new TreeSet();
+    
 
     for (Iterator i = helpClasspathRegList.iterator(); i.hasNext();)
     {
-      String classpathUrl = (String) i.next();
+      String classpathUrl = (String) i.next();      
 
       URL urlResource = null;
 
@@ -1040,6 +1042,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
     toc = new TableOfContentsBean();
     toc.setCategories(allCategories);
+        
   }
 
   private static int cnt = 0;

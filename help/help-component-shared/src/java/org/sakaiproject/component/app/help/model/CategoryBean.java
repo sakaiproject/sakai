@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.sakaiproject.api.app.help.Category;
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 
 /**
  * category bean
@@ -139,8 +140,13 @@ public class CategoryBean implements Category, Comparable
   public int compareTo(Object o)
   {
     CategoryBean cb = (CategoryBean) o;
-    return id.compareTo(cb.id);
-    //return name.compareTo(cb.name);
+    
+    if (!"".equals(ServerConfigurationService.getString("help.location"))){
+      return id.compareTo(cb.id);	
+    }
+    else{
+      return name.compareTo(cb.name);
+    }   
   }
 }
 

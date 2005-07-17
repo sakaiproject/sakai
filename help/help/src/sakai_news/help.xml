@@ -2,19 +2,25 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+
+   <bean id="newsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcf</value></property>
+      <property name="name"><value>News Overview</value></property>
+      <property name="location"><value>/sakai_news/arcf.html</value></property>
+      <property name="defaultForTool"><value>sakai.chat</value></property>
+   </bean>
+   
    <bean id="setupNews" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>apmn</value></property>
-      <property name="name"><value>Set up News</value></property>
-      <property name="location"><value>/sakai_news/apmn.html</value></property>
-      <property name="defaultForTool"><value>sakai.news</value></property>
+      <property name="docId"><value>areh</value></property>
+      <property name="name"><value>Add/Edit/Delete News</value></property>
+      <property name="location"><value>/sakai_news/areh.html</value></property>
    </bean>
     
        <bean id="viewNewsFeed" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>appf</value></property>
+      <property name="docId"><value>arak</value></property>
       <property name="name"><value>View News Feed</value></property>
-      <property name="location"><value>/sakai_news/appf.html</value></property>
+      <property name="location"><value>/sakai_news/arak.html</value></property>
    </bean>
-
    
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
@@ -25,8 +31,9 @@
                <property name="name"><value>News</value></property>
                <property name="resources">
                   <list>
-                     <ref bean="setupNews"/>
-                      <ref bean="viewNewsFeed"/>
+                     <ref bean="newsOverview"/>
+					 <ref bean="setupNews"/>
+                     <ref bean="viewNewsFeed"/>
                   </list>
                </property>
             </bean>

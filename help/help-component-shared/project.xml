@@ -24,6 +24,12 @@
 			<artifactId>sakai-help-api</artifactId>
 			<version>${pom.currentVersion}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-service</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
 
 	</dependencies>
 

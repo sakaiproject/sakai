@@ -4,13 +4,13 @@
 	<bean id="scheduleOverview"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>apkq</value>
+			<value>aray</value>
 		</property>
 		<property name="name">
 			<value>Schedule Overview</value>
 		</property>
 		<property name="location">
-			<value>/sakai_schedule/apkq.html</value>
+			<value>/sakai_schedule/aray.html</value>
 		</property>
 		<property name="defaultForTool">
 			<value>sakai.schedule</value>
@@ -19,89 +19,104 @@
 	<bean id="addActivity"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>aplb</value>
+			<value>aqyn</value>
 		</property>
 		<property name="name">
 			<value>Add Activity</value>
 		</property>
 		<property name="location">
-			<value>/sakai_schedule/aplb.html</value>
+			<value>/sakai_schedule/aqyn.html</value>
 		</property>
 	</bean>
 	<bean id="addActivityAttachment"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>apmb</value>
+			<value>argn</value>
 		</property>
 		<property name="name">
 			<value>Add Attachment to Activity</value>
 		</property>
 		<property name="location">
-			<value>/sakai_schedule/apmb.html</value>
+			<value>/sakai_schedule/argn.html</value>
 		</property>
 	</bean>
 	<bean id="viewSchedule"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>apkz</value>
+			<value>aqzh</value>
 		</property>
 		<property name="name">
 			<value>View Activity Detail</value>
 		</property>
 		<property name="location">
-			<value>/sakai_schedule/apkz.html</value>
+			<value>/sakai_schedule/aqzh.html</value>
 		</property>
 	</bean>
 	<bean id="deleteActivity"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>apmc</value>
+			<value>aqzc</value>
 		</property>
 		<property name="name">
 			<value>Edit/Delete Activity</value>
 		</property>
 		<property name="location">
-			<value>/sakai_schedule/apmc.html</value>
+			<value>/sakai_schedule/aqzc.html</value>
 		</property>
 	</bean>
+
 	<bean id="changeScheduleView"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>apku</value>
+			<value>aqyp</value>
 		</property>
 		<property name="name">
 			<value>Change Schedule View</value>
 		</property>
 		<property name="location">
-			<value>/sakai_schedule/apku.html</value>
+			<value>/sakai_schedule/aqyp.html</value>
 		</property>
 	</bean>
 
-	<bean id="addField"
+	<bean id="printCalendar"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>apme</value>
+			<value>arfe</value>
 		</property>
 		<property name="name">
 			<value>Add field to calendar</value>
 		</property>
 		<property name="location">
-			<value>/sakai_schedule/apme.html</value>
+			<value>/sakai_schedule/arfe.html</value>
 		</property>
 	</bean>
 
 	<bean id="mergeCalendar"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>apmd</value>
+			<value>aqyl</value>
 		</property>
 		<property name="name">
 			<value>Merge Calendars</value>
 		</property>
 		<property name="location">
-			<value>/sakai_schedule/apmd.html</value>
+			<value>/sakai_schedule/aqyl.html</value>
 		</property>
 	</bean>
+	
+	<bean id="importCalendar"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>argo</value>
+		</property>
+		<property name="name">
+			<value>Import Calendars</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/argo.html</value>
+		</property>
+	</bean>
+
 
 	<bean id="org.sakaiproject.api.app.help.TableOfContents"
 		class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
@@ -123,8 +138,9 @@
 							<ref bean="viewSchedule" />
 							<ref bean="deleteActivity" />
 							<ref bean="changeScheduleView" />
-							<ref bean="addField" />
+							<ref bean="printCalendar" />
 							<ref bean="mergeCalendar" />
+							<ref bean="importCalendar" />
 						</list>
 					</property>
 				</bean>

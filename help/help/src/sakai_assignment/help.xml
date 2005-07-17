@@ -3,32 +3,79 @@
 
 <beans>
    <bean id="assignmentOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>apll</value></property>
+      <property name="docId"><value>ardn</value></property>
       <property name="name"><value>Assignments Overview</value></property>
-      <property name="location"><value>/sakai_assignment/apll.html</value></property>
+      <property name="location"><value>/sakai_assignment/ardn.html</value></property>
       <property name="defaultForTool"><value>sakai.assignment</value></property>
    </bean>
 
    <bean id="createAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>aplm</value></property>
-      <property name="name"><value>Create Assignment</value></property>
-      <property name="location"><value>/sakai_assignment/aplm.html</value></property>
-   </bean>
-      <bean id="reviseAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>apln</value></property>
-      <property name="name"><value>Revise Assignment</value></property>
-      <property name="location"><value>/sakai_assignment/apln.html</value></property>
-   </bean>
-      <bean id="deleteAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>aplq</value></property>
-      <property name="name"><value>Duplicate or Delete Assignment</value></property>
-      <property name="location"><value>/sakai_assignment/aplq.html</value></property>
+         <property name="docId"><value>arbs</value></property>
+      <property name="name"><value>Create/Add Edit or Delete Assignments</value></property>
+      <property name="location"><value>/sakai_assignment/arbs.html</value></property>
    </bean>
    
    <bean id="gradingAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aplo</value></property>
-      <property name="name"><value>Grade Assignment/Reivew Student Status</value></property>
-      <property name="location"><value>/sakai_assignment/aplo.html</value></property>
+      <property name="docId"><value>arda</value></property>
+      <property name="name"><value>Grade Assignment/Review Student Status</value></property>
+      <property name="location"><value>/sakai_assignment/arda.html</value></property>
+   </bean>
+   
+   <bean id="assignmentAttachment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arda</value></property>
+      <property name="name"><value>Add Attachments</value></property>
+      <property name="location"><value>/sakai_assignment/arda.html</value></property>
+   </bean>
+  
+   <bean id="reviseAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzj</value></property>
+      <property name="name"><value>See How Assignments Look</value></property>
+      <property name="location"><value>/sakai_assignment/aqzj.html</value></property>
+   </bean>  
+   <bean id="returnAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardd</value></property>
+      <property name="name"><value>Return Assignments</value></property>
+      <property name="location"><value>/sakai_assignment/ardd.html</value></property>
+   </bean>   
+   <bean id="resubmitAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcy</value></property>
+      <property name="name"><value>Resubmit Assignments</value></property>
+      <property name="location"><value>/sakai_assignment/arcy.html</value></property>
+   </bean>   
+   <bean id="exportAssignmentGrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcd</value></property>
+      <property name="name"><value>Export Assignment Grades</value></property>
+      <property name="location"><value>/sakai_assignment/arcd.html</value></property>
+   </bean>   
+   <bean id="readAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aren</value></property>
+      <property name="name"><value>Read Assignments</value></property>
+      <property name="location"><value>/sakai_assignment/aren.html</value></property>
+   </bean>  
+   <bean id="duplicateAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardj</value></property>
+      <property name="name"><value>Duplicate Assignments</value></property>
+      <property name="location"><value>/sakai_assignment/ardj.html</value></property>
+   </bean>   
+   <bean id="submitAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbm</value></property>
+      <property name="name"><value>Complete and Submit Assignments</value></property>
+      <property name="location"><value>/sakai_assignment/arbm.html</value></property>
+   </bean>   
+   <bean id="postAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbk</value></property>
+      <property name="name"><value>Post Assignments</value></property>
+      <property name="location"><value>/sakai_assignment/arbk.html</value></property>
+   </bean>   
+   <bean id="assignmentHonorPledge" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbi</value></property>
+      <property name="name"><value>Add Honor Pledge</value></property>
+      <property name="location"><value>/sakai_assignment/arbi.html</value></property>
+   </bean>   
+   <bean id="checkAssignmentGrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbg</value></property>
+      <property name="name"><value>Check Assignment Grade</value></property>
+      <property name="location"><value>/sakai_assignment/arbg.html</value></property>
    </bean>
    
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
@@ -37,14 +84,24 @@
       <property name="categories">
          <list>
             <bean id="assignmentCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
-               <property name="name"><value>Assignment</value></property>
+               <property name="name"><value>Assignments</value></property>
                <property name="resources">
                   <list>
                      <ref bean="assignmentOverview"/>
                      <ref bean="createAssignment"/>
-                     <ref bean="reviseAssignment"/>
-                     <ref bean="deleteAssignment"/>
-                     <ref bean="gradingAssignment"/>
+					 <ref bean="gradingAssignment"/>
+					 <ref bean="assignmentAttachment"/>
+                     <ref bean="reviseAssignment"/>					 
+					 <ref bean="returnAssignment"/>
+					 <ref bean="resubmitAssignment"/>
+					 <ref bean="exportAssignmentGrade"/>
+					 <ref bean="readAssignment"/>
+					 <ref bean="duplicateAssignment"/>
+					 <ref bean="submitAssignment"/>
+					 <ref bean="postAssignment"/>
+					 <ref bean="assignmentHonorPledge"/>
+					 <ref bean="checkAssignmentGrade"/>
+                     
                   </list>
                </property>
             </bean>

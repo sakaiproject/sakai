@@ -3,37 +3,37 @@
 
 <beans>
    <bean id="resourceOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aplu</value></property>
+      <property name="docId"><value>area</value></property>
       <property name="name"><value>Resources Overview</value></property>
-      <property name="location"><value>/sakai_resources/aplu.html</value></property>
+      <property name="location"><value>/sakai_resources/area.html</value></property>
       <property name="defaultForTool"><value>sakai.resources</value></property>      
    </bean>
 
    <bean id="createResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>aplv</value></property>
-      <property name="name"><value>Create Resource</value></property>
-      <property name="location"><value>/sakai_resources/aplv.html</value></property>
+         <property name="docId"><value>arcg</value></property>
+      <property name="name"><value>Create/Add/Edit/Delete Resource</value></property>
+      <property name="location"><value>/sakai_resources/arcg.html</value></property>
    </bean>
       <bean id="moveResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>aplx</value></property>
+         <property name="docId"><value>arex</value></property>
       <property name="name"><value>Move Resource</value></property>
-      <property name="location"><value>/sakai_resources/aplx.html</value></property>
+      <property name="location"><value>/sakai_resources/arex.html</value></property>
    </bean>
       <bean id="reviseResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>aplw</value></property>
-      <property name="name"><value>Revise Resource</value></property>
-      <property name="location"><value>/sakai_resources/aplw.html</value></property>
+         <property name="docId"><value>arbe</value></property>
+      <property name="name"><value>View/Open Resource</value></property>
+      <property name="location"><value>/sakai_resources/arbe.html</value></property>
    </bean>
       <bean id="deleteResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>aplz</value></property>
-      <property name="name"><value>Delete Resource</value></property>
-      <property name="location"><value>/sakai_resources/aplz.html</value></property>
+         <property name="docId"><value>aqyf</value></property>
+      <property name="name"><value>Copy Resource</value></property>
+      <property name="location"><value>/sakai_resources/aqyf.html</value></property>
       </bean>
     
           <bean id="replaceResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>aply</value></property>
-      <property name="name"><value>ReplaceResource</value></property>
-      <property name="location"><value>/sakai_resources/aply.html</value></property>
+         <property name="docId"><value>arfd</value></property>
+      <property name="name"><value>View Resource Metadata</value></property>
+      <property name="location"><value>/sakai_resources/arfd.html</value></property>
    </bean>
    
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
@@ -48,7 +48,7 @@
                      <ref bean="resourceOverview"/>
                      <ref bean="createResource"/>
                      <ref bean="reviseResource"/>
-                      <!-- <ref bean="replaceResource"/> -->
+                      <ref bean="replaceResource"/>
                       <ref bean="moveResource"/>
                      <ref bean="deleteResource"/>
                   </list>
