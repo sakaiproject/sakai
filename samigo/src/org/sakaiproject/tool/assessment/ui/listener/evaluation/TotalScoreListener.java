@@ -329,7 +329,7 @@ public class TotalScoreListener
                  results.getFirstName().length() > 0)
           results.setLastInitial(results.getFirstName().substring(0,1));
         else
-          results.setLastInitial("A");
+          results.setLastInitial("Anonymous");
         results.setIdString(agent.getIdString());
         results.setRole(agent.getRole());
         agents.add(results);
