@@ -117,7 +117,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-  <h:dataTable styleClass="listHier" id="totalScoreTable" value="#{totalScores.agents}"
+  <h:dataTable styleClass="listHier" id="totalScoreTable" value="#{submissionStatus.agents}"
     var="description">
     <!-- NAME/SUBMISSION ID -->
 
