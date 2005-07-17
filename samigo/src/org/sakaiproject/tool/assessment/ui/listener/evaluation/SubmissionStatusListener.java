@@ -130,7 +130,7 @@ public class SubmissionStatusListener
       System.out.println("Rachel: allSubmissions = " + which);
       if (which == null)
         which = "false";
-      bean.setAllSubmissions("true");
+      bean.setAllSubmissions(which);
       bean.setPublishedId(publishedId);
       ArrayList scores = delegate.getAllSubmissions(publishedId);
       Iterator iter = scores.iterator();
