@@ -72,6 +72,7 @@
     <h:commandLink action="submissionStatus" immediate="true"
       rendered="#{totalScores.anonymous eq 'true'}" >
       <h:outputText value="#{msg.sub_status}" />
+      <f:param name="allSubmissions" value="true"/>
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
     </h:commandLink>
