@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html><head>
+<link type="text/css" href="/library/skin/tool_base.css" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" rel="stylesheet" />
+</head><body>
+
+<h2>In Sakai 2.0, what are the relationships among
+    types, realms, roles, and permissions?
+</h2>
+<h3>Types</h3>
+
+<p>Type is the broadest user designation within Sakai; its first division
+is between administrative and non-administrative:</p>
+
+<ul>
+<li>
+<strong>Administrative:</strong> The "admin" account type has
+access to tools (in his/her My Workspace) to which no
+non-admin user has access. The admin has tools such as Users, Realms,
+and Sites that allow for the creation, deletion, and general
+administration of these entities. The admin also has privileges and
+permissions not available to any other user. For example, the admin
+can see and edit all sites.
+
+<p>When Sakai is first installed, the admin is the only pre-installed
+account, and is thus used to create worksites. Once users are added to
+the system (using the admin's User tool), any user who is given the
+user type "registered" or "maintain" (defined below) will have the
+ability to create new sites.</p>
+</li>
+<li>
+<strong>Non-administrative:</strong> Account type in the
+non-administrative sense essentially defines the ability to create
+worksites; there are three default non-administrative account types:
+
+<br><br>
+<ul>
+<li>
+<strong>Registered:</strong> This account type can create new
+sites. An account created with the "New Account widget" is
+given the "registered" type.
+
+<p><strong>Administrative note:</strong> The ability to create a site
+ derives from the <code>site.add</code> permission granted in
+ the <code>!user.template.registered</code> realm. Complicating this,
+ however, is the fact that a user account type has associated with it
+ both <code>.auth</code> (authorized) and <code>.anon</code>
+
+ (anonymous, i.e., not logged in) roles. Strictly speaking, it is the
+ <code>site.add</code> permission in the <code>.auth</code> role of
+ <code>!user.template.registered</code> that grants the permission.</p>
+</li>
+<li>
+<strong>Maintain:</strong> The "maintain" account type exists for
+legacy reasons; its functionality is the same as "registered".
+
+<p><strong>Note:</strong> Do not confuse the account type "maintain"
+with the role of "maintain" that may be given to a user in a
+particular site and/or for a particular tool. Account type and role in
+a worksite serve different purposes.</p>
+</li>
+<li>
+<strong>Guest:</strong> By default, "guest" user types cannot
+create worksites.</li>
+</ul>
+</li>
+</ul>
+
+<p>Note that sites can also have types; these types determine what
+default roles the site recognizes. For example, a course site (as
+opposed to a project site) might get the
+<code>!site.template.course</code> roles (i.e., those defined by the
+
+<code>!site.template.course</code> realm). The default site roles, which
+can be changed by the admin, are "maintain" and "access". Each of these
+has a different matrix of permitted abilities within the site.</p>
+
+<h3>Realms and roles</h3>
+
+<p>A user's account type determines the realm associated with the user's
+account; e.g., a guest user is associated with the
+<code>!user.template.guest</code> realm. Realms are packages of
+security grants; thus, they determine a user's roles within a
+site. The permissions enabled for roles can be different for different
+sites; the defaults are set in the worksite's default template (e.g.,
+<code>!site.template.course</code> for a course site or
+<code>!site.template.project</code> for a project site).</p>
+
+<p>For normal (i.e., non-admin) users, the ability to create sites is
+outside the scope of a particular worksite, and is determined by the
+type of account (as described above in the "Types" section). The
+account type determines which realm template the user has, and in the
+realm template is the control for ability to create sites. For
+example, by default the realm template
+<code>!user.template.registered</code> has the <code>site.add</code>
+permission enabled so that any user of the "registered" type will be
+able to create worksites.</p>
+
+<p>The creator of a worksite is automatically a member of it and has by
+default a "maintain" role for it (though the role which the worksite
+creator will get by default is configurable by the admin). The
+creator of a worksite has the ability to control what users can do
+with what tools in the worksite. This is accomplished by specifying a
+role to be used when a user is added (either by the site creator using
+Worksite Setup or by the user him- or herself if the worksite has been made
+joinable). The role can be one of two default roles ("maintain" and
+"access"), or it can be a role that has been created by the admin. The
+functionality to create a new role in a site is in the admin's Realm
+tool, and so is not available to normal users at this time.</p>
+
+<p>All users are assigned the "maintain" role in their respective My
+Workspaces; this gives a user edit control over his or her My Workspace.</p>
+
+<h3>Permissions</h3>
+<p>The default "maintain" and "access" roles for sites have certain
+permissions enabled. In general, the "maintain" role has full
+permission to create, edit, and delete within a worksite. The "access"
+role has fewer permissions, and cannot create content or delete in all
+tools. For example, by default the "access" role cannot upload files
+into Resources, but can create Chat messages and Discussion replies.</p>
+
+<p>Those users with a role that has worksite edit capabilities (e.g., the
+default "maintain" role) can change the permissions associated with a
+role for a particular tool.</p>
+
+<p>For a detailed list, by tool, of the different permissions that can be
+granted or disallowed for a specific task using that tool, see the
+"Role permissions" list in the Sakaipedia:
+<a href="http://bugs.sakaiproject.org/confluence/display/ENC/Role+permissions#Rolepermissions-schedule">http://bugs.sakaiproject.org/confluence/display/ENC/Role+permissions#Rolepermissions-schedule</a>
+
+For a similar list geared toward admins as they edit Users and Realms,
+see this entry:
+<a href="http://bugs.sakaiproject.org/confluence/display/ENC/Permissions+list">http://bugs.sakaiproject.org/confluence/display/ENC/Permissions+list</a></p>
+
+
+
+
+
+
+
+</body></html>

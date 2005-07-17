@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="courseSitesOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardt</value></property>
+      <property name="name"><value>Course/Project Sites Overview</value></property>
+      <property name="location"><value>/sakai_course_sites/ardt.html</value></property>
+      <property name="defaultForTool"><value>sakai.course.sites</value></property>      
+   </bean>
+   
+   <bean id="createWorksites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzr</value></property>
+      <property name="name"><value>Create/Add/Edit/Delete Work Sites</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzr.html</value></property>
+   </bean>
+   
+   <bean id="addParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyo</value></property>
+      <property name="name"><value>Add/Edit/Delete Participants</value></property>
+      <property name="location"><value>/sakai_course_sites/aqyo.html</value></property>
+   </bean>
+
+   <bean id="controlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzw</value></property>
+      <property name="name"><value>Control Access from Worksite Setup</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzw.html</value></property>
+   </bean>
+   
+   <bean id="publishSite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arad</value></property>
+      <property name="name"><value>Publish/Unpublish Site from Worksite Setup</value></property>
+      <property name="location"><value>/sakai_course_sites/arad.html</value></property>
+   </bean>
+    
+   <bean id="navigation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzm</value></property>
+      <property name="name"><value>Sakai 2.0 Navigation</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzm.html</value></property>
+   </bean>
+  
+   <bean id="resetButton" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzn</value></property>
+      <property name="name"><value>Reset Button</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzn.html</value></property>
+   </bean>
+   
+   <bean id="reviewProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ards</value></property>
+      <property name="name"><value>Review My Profile</value></property>
+      <property name="location"><value>/sakai_course_sites/ards.html</value></property>
+   </bean>
+         
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="courseSitesCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Course/Project Sites</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="courseSitesOverview"/>
+                     <ref bean="createWorksites"/>
+                     <ref bean="addParticipants"/>
+                      <ref bean="controlAccess"/>
+                      <ref bean="publishSite"/>
+                     <ref bean="navigation"/>
+					 <ref bean="resetButton"/>
+					 <ref bean="reviewProfile">
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
