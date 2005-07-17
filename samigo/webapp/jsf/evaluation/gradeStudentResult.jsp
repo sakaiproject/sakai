@@ -219,7 +219,7 @@ $Id$
 </div>
 
 <p class="act">
-   <h:commandButton styleClass="active" value="#{msg.save_cont}" action="studentScores" type="submit" >
+   <h:commandButton styleClass="active" value="#{msg.save_cont}" action="totalScores" type="submit" >
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
       <f:actionListener
