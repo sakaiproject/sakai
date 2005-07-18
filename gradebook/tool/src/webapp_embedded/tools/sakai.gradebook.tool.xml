@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <registration>
 	<tool id="sakai.gradebook.tool" title="Gradebook"
-		description="Stores and computes grades">
+		description="For storing and computing assessment grades from Tests &amp; Quizzes or that are manually entered.">
 		<category name="course" />
 		<category name="project" />
 		<configuration name="help.id" value="sakai.gradebook" />
