@@ -51,7 +51,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: Samigo</p>
- * <p>Purpose:  this module creates the lists of published assessments for the select index
+ * <p>Purpose:  this module handles the beginning of the assessment
  * <p>Description: Sakai Assessment Manager</p>
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
@@ -72,11 +72,12 @@ public class BeginDeliveryActionListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    log.info("BeginDeliveryActionListener.processAction() ");
+    log.debug("BeginDeliveryActionListener.processAction() ");
 
     // get managed bean
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-    delivery.setTimeRunning(false);
+    delivery.setTimeRunning(true);
+
     // get service
     PublishedAssessmentService publishedAssessmentService = new
         PublishedAssessmentService();

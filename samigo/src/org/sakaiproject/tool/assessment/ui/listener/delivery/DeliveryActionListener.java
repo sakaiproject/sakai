@@ -59,6 +59,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 
 /**
  * <p>Title: Samigo</p>
@@ -86,7 +87,7 @@ public class DeliveryActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    log.info("DeliveryActionListener.processAction() ");
+    log.debug("DeliveryActionListener.processAction() ");
 
     try
     {
@@ -94,7 +95,10 @@ public class DeliveryActionListener
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
 
       // Clear elapsed time, set not timed out
-      delivery.setTimeElapse(null);
+      if (!delivery.isTimeRunning())
+      {
+        delivery.setTimeElapse(null);
+      }
       delivery.setTimeOutSubmission("false");
 
       String id = cu.lookupParam("publishedId");
@@ -227,8 +231,8 @@ public class DeliveryActionListener
       }
       if (delivery.getTimeElapse() == null)
       {
-        log.info("delivery.getTimeElapse() == null");
-        log.info("delivery.setTimeElapse(\"0\")");
+        log.debug("delivery.getTimeElapse() == null");
+        log.debug("delivery.setTimeElapse(\"0\")");
         delivery.setTimeElapse("0");
 
         // If this was called instead of Begin
@@ -323,18 +327,11 @@ public class DeliveryActionListener
       }
       if (delivery.getBeginTime() == null)
       {
-        //log.info("grading delivery time = " + delivery.getAssessmentGrading().getAttemptDate());
         if (delivery.getAssessmentGrading() != null &&
             delivery.getAssessmentGrading().getAttemptDate() != null)
         {
           delivery.setBeginTime(delivery.getAssessmentGrading()
                                 .getAttemptDate());
-          // SAM-387
-          Integer time = delivery.getAssessmentGrading().getTimeElapsed();
-          if (time !=null)
-          {
-            delivery.setTimeElapse(""+delivery.getAssessmentGrading().getTimeElapsed());
-          }
         }
         else
         {
@@ -342,8 +339,8 @@ public class DeliveryActionListener
         }
       }
 
-      log.info("Set begin time " + delivery.getBeginTime());
-      log.info("Set elapsed time " + delivery.getTimeElapse());
+      log.debug("Set begin time " + delivery.getBeginTime());
+      log.debug("Set elapsed time " + delivery.getTimeElapse());
       // get table of contents
       delivery.setTableOfContents(getContents(publishedAssessment, itemData,
                                               delivery));
@@ -369,33 +366,22 @@ public class DeliveryActionListener
   private void setAssessmentGradingFromItemData(DeliveryBean delivery,
                       HashMap itemData, boolean setNullOK)
   {
-    log.info("BEGIN setAssessmentGradingFromItemData()");
-    log.info("delivery.getTimeElapse(): " + delivery.getTimeElapse());
-
     Iterator keys = itemData.keySet().iterator();
     if (keys.hasNext())
     {
-      log.info("itemData.keySet().iterator().hasNext()");
+      log.debug("itemData.keySet().iterator().hasNext()");
       ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemData.get(
         keys.next())).toArray()[0];
       AssessmentGradingData agd =
         (AssessmentGradingData) igd.getAssessmentGrading();
-      // SAM-387
-      if (agd.getTimeElapsed() != null)
-      {
-        log.info("agd.getTimeElapsed() != null, set time elapsed: "+
-                 agd.getTimeElapsed().toString());
-        delivery.setTimeElapse(agd.getTimeElapsed().toString());
-      }
       delivery.setAssessmentGrading(agd);
+      log.debug("setAssessmentGradingFromItemData agd.getTimeElapsed(): " + agd.getTimeElapsed());
+      log.debug("setAssessmentGradingFromItemData delivery.getTimeElapse(): " + delivery.getTimeElapse());
     }
     else
     {
       if (setNullOK) delivery.setAssessmentGrading(null);
     }
-
-    log.info("delivery.getTimeElapse(): " + delivery.getTimeElapse());
-    log.info("END setAssessmentGradingFromItemData()");
   }
 
   /**
@@ -770,17 +756,9 @@ public class DeliveryActionListener
     }
 
     // scoring information
-    // Round to the nearest 1/10th.
-    int tmp = Math.round(maxPoints * 10.0f);
-    maxPoints = (float) tmp / 10.0f;
-    sec.setMaxPoints(maxPoints);
-
-    tmp = Math.round(points * 10.0f);
-    points = (float) tmp / 10.0f;
-    sec.setPoints(points);
-
+    sec.setMaxPoints(roundToTenths(maxPoints));
+    sec.setPoints(roundToTenths(points));
     sec.setShowStudentScore(delivery.isShowStudentScore());
-
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
 
@@ -788,7 +766,7 @@ public class DeliveryActionListener
   }
 
   /**
-     * Populate a SectionContentsBean properties and populate with ItemContentsBean
+   * Populate a SectionContentsBean properties and populate with ItemContentsBean
    * @param part this section
    * @return
    */
@@ -858,21 +836,25 @@ public class DeliveryActionListener
     }
 
     // scoring information
-    // Round to the nearest 1/10th.
-    int tmp = Math.round(maxPoints * 10.0f);
-    maxPoints = (float) tmp / 10.0f;
-    sec.setMaxPoints(maxPoints);
-
-    tmp = Math.round(points * 10.0f);
-    points = (float) tmp / 10.0f;
-    sec.setPoints(points);
-
+    sec.setMaxPoints(roundToTenths(maxPoints));
+    sec.setPoints(roundToTenths(points));
     sec.setShowStudentScore(delivery.isShowStudentScore());
-
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
 
     return sec;
+  }
+
+  /**
+   * Helper method.
+   * @param points
+   * @return
+   */
+  private float roundToTenths(float points)
+  {
+    int tmp = Math.round(points * 10.0f);
+    points = (float) tmp / 10.0f;
+    return points;
   }
 
   /**

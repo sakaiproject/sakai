@@ -119,6 +119,8 @@ public class SelectActionListener
       delivery.setAssessmentId(f.getPublishedAssessmentId().toString());
       delivery.setAssessmentTitle(f.getTitle());
       delivery.setDueDate(f.getDueDate());
+      delivery.setTimeRunning(false);// set to true in BeginDeliveryActionListener
+
       // check pastDue
       if (f.getDueDate()!=null && (new Date()).after(f.getDueDate()))
         delivery.setPastDue(true);
@@ -447,7 +449,7 @@ public class SelectActionListener
 	hasStats = "true";
        }
     }
-    log.info("hasStats == " + hasStats);
+    log.debug("hasStats == " + hasStats);
     return hasStats;
   }
 
