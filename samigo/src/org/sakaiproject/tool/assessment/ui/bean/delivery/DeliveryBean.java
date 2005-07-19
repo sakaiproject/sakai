@@ -167,6 +167,7 @@ public class DeliveryBean
   // lydial added for allowing studentScore view for random draw parts
   private boolean forGrading;  // to reuse deliveryActionListener for grading pages
 
+  // SAM-387
   // esmiley added to track if timer has been started in timed assessments
   private boolean timeRunning;
 
