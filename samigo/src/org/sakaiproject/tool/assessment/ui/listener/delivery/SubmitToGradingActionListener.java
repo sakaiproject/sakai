@@ -69,7 +69,7 @@ public class SubmitToGradingActionListener implements ActionListener
     AbortProcessingException
   {
     try {
-      log.info("SubmitToGradingActionListener.processAction() ");
+      log.debug("SubmitToGradingActionListener.processAction() ");
 
       // get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
@@ -90,7 +90,28 @@ public class SubmitToGradingActionListener implements ActionListener
         publishedAssessment =
           publishedAssessmentService.getPublishedAssessment(delivery.getAssessmentId());
 
-        AssessmentGradingData adata = submitToGradingService( publishedAssessment,delivery);
+       AssessmentGradingData adata = submitToGradingService( publishedAssessment,delivery);
+
+      /////////////////////////////////////////
+      // KLUDGE !!!
+      // SAM-387
+      // somewhere in a Galaxy far, far away,
+      // this value is getting 10X as big!
+      // this will allow UI to get the correct
+      // value on the next iteration
+      //
+      // if you find out why, please fix and
+      // remove this code
+      //
+      /////////////////////////////////////////
+      try
+      {
+        delivery.setTimeElapse("" +
+             new Integer(delivery.getTimeElapse()).intValue() / 10);
+      }
+      catch (NumberFormatException ex)
+      {
+      }
 
       // set url & confirmation after saving the record for grade
       if (adata !=null && delivery.getForGrade())
@@ -201,7 +222,7 @@ public class SubmitToGradingActionListener implements ActionListener
         ArrayList grading = item.getItemGradingDataArray();
         if (grading.isEmpty())
         {
-          log.info("No item grading data.");
+          log.debug("No item grading data.");
         }
         else
         {
@@ -243,7 +264,7 @@ public class SubmitToGradingActionListener implements ActionListener
       adata.setForGrade(new Boolean(delivery.getForGrade()));
     }
 
-    log.info("Before time elapsed " + adata.getTimeElapsed());
+    log.debug("Before time elapsed " + adata.getTimeElapsed());
     // Set time elapsed if this is a timed test
     if (adata.getTimeElapsed() == null)
     {
@@ -251,14 +272,18 @@ public class SubmitToGradingActionListener implements ActionListener
     }
     // Don't divide by 10 again if we were at the TOC
     if (delivery.getTimeElapse() != null &&
-        !delivery.getTimeElapse().equals("0") && // Don't save resets.
-        !delivery.getTimeElapse().equals(adata.getTimeElapsed().toString()))
+        !delivery.getTimeElapse().equals("0")  && // Don't save resets.
+        !delivery.getTimeElapse().equals( "" +(adata.getTimeElapsed().intValue() / 10)))
+ //        !delivery.getTimeElapse().equals(adata.getTimeElapsed().toString()))
     {
       adata.setTimeElapsed(new Integer(
         new Integer(delivery.getTimeElapse()).intValue() / 10));
+      delivery.setTimeRunning(true);
     }
 
-    log.info("Set time elapsed " + adata.getTimeElapsed());
+    log.debug("Set time elapsed " + adata.getTimeElapsed());
+    log.debug("Get delivery.getTimeElapse(): " + delivery.getTimeElapse());
+
     // Store the date you started this attempt.
     adata.setAttemptDate(delivery.getBeginTime());
 
