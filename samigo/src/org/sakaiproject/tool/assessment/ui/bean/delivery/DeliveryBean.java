@@ -38,6 +38,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
+import org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import java.io.FileInputStream;
 import java.io.File;
@@ -51,6 +52,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
@@ -1407,6 +1409,7 @@ public class DeliveryBean
       adata.setPublishedAssessment(publishedAssessment.getData());
       log.debug("***1a. addMediaToItemGrading, getForGrade()="+getForGrade());
       adata.setForGrade(new Boolean(getForGrade()));
+      adata.setAttemptDate(getBeginTime());
       gradingService.saveOrUpdateAssessmentGrading(adata);
     }
     log.debug("***1b. addMediaToItemGrading, adata="+adata);
@@ -1490,14 +1493,17 @@ public class DeliveryBean
     itemGradingData.setAnswerText(mediaId+"");
     gradingService.saveItemGrading(itemGradingData);
 
-/**
-    forGrade = false;
-    SubmitToGradingActionListener listener =
-      new SubmitToGradingActionListener();
-    listener.processAction(null);
-*/
+    // 8. do whatever need doing
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
+
+    // 9. do the timer thing
+    Integer timeLimit = adata.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit();
+    if (timeLimit!=null && timeLimit.intValue()>0){
+      UpdateTimerListener l3 = new UpdateTimerListener();
+      l3.processAction(null);
+    }
+
     reload = true;
     return "takeAssessment";
 
@@ -1506,6 +1512,7 @@ public class DeliveryBean
   public boolean getNotTakeable() {
     return notTakeable;
   }
+
   public void setNotTakeable(boolean notTakeable) {
     this.notTakeable = notTakeable;
   }
