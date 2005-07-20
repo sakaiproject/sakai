@@ -92,27 +92,6 @@ public class SubmitToGradingActionListener implements ActionListener
 
        AssessmentGradingData adata = submitToGradingService( publishedAssessment,delivery);
 
-      /////////////////////////////////////////
-      // KLUDGE !!!
-      // SAM-387
-      // somewhere in a Galaxy far, far away,
-      // this value is getting 10X as big!
-      // this will allow UI to get the correct
-      // value on the next iteration
-      //
-      // if you find out why, please fix and
-      // remove this code
-      //
-      /////////////////////////////////////////
-      try
-      {
-        delivery.setTimeElapse("" +
-             new Integer(delivery.getTimeElapse()).intValue() / 10);
-      }
-      catch (NumberFormatException ex)
-      {
-      }
-
       // set url & confirmation after saving the record for grade
       if (adata !=null && delivery.getForGrade())
         setConfirmation(adata, publishedAssessment, delivery);
@@ -273,11 +252,13 @@ public class SubmitToGradingActionListener implements ActionListener
     // Don't divide by 10 again if we were at the TOC
     if (delivery.getTimeElapse() != null &&
         !delivery.getTimeElapse().equals("0")  && // Don't save resets.
-        !delivery.getTimeElapse().equals( "" +(adata.getTimeElapsed().intValue() / 10)))
+        !delivery.getTimeElapse().equals( "" +adata.getTimeElapsed().toString()))
  //        !delivery.getTimeElapse().equals(adata.getTimeElapsed().toString()))
     {
-      adata.setTimeElapsed(new Integer(
-        new Integer(delivery.getTimeElapse()).intValue() / 10));
+	log.debug("**** Delivery time elapse="+delivery.getTimeElapse());
+      String a = delivery.getTimeElapse();
+      a = a.substring(0, a.lastIndexOf("."));
+      adata.setTimeElapsed(new Integer(a));
       delivery.setTimeRunning(true);
     }
 
