@@ -45,7 +45,7 @@
 <div class="portletBody">
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
-   onsubmit="saveTime()">
+   onsubmit="alert('We are submitting');saveTime()">
 
 <script language="javascript">
 function checkRadio()
@@ -71,7 +71,9 @@ function saveTime()
 {
   if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){
   pauseTiming = 'true';
-  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded;
+  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded/10;
+  alert("loaded"+loaded); 
+  alert("elapsed"+document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value); 
  }
 }
 
@@ -94,6 +96,7 @@ function saveTime()
 </h:panelGroup>
 
 <!-- HEADING -->
+
 <f:subview id="assessmentDeliveryHeading">
 <%@ include file="/jsf/delivery/assessmentDeliveryHeading.jsp" %>
 </f:subview>
