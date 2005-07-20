@@ -72,8 +72,6 @@ function saveTime()
   if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){
   pauseTiming = 'true';
   document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded/10;
-  alert("loaded"+loaded); 
-  alert("elapsed"+document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value); 
  }
 }
 
