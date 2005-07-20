@@ -45,7 +45,7 @@
 <div class="portletBody">
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
-   onsubmit="alert('We are submitting');saveTime()">
+   onsubmit="saveTime()">
 
 <script language="javascript">
 function checkRadio()
