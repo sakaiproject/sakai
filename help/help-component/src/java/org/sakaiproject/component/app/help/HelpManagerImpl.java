@@ -625,7 +625,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         net.sf.hibernate.Query q = session
             .getNamedQuery(QUERY_GETRESOURCEBYDOCID);
         q.setString(DOCID, docId);
-        return q.uniqueResult();
+        return (Resource) q.list().get(0);        
       }
     };
     Resource resource = (Resource) getHibernateTemplate().execute(hcb);
