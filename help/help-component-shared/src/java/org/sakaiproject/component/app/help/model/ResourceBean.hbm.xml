@@ -19,8 +19,7 @@
 		</id>
 
 		<property name="docId">
-			<column name="document_id" length="36" not-null="true"
-				unique="true" />
+			<column name="document_id" length="36" not-null="true"/>
 		</property>
 
 		<property name="defaultForTool">
