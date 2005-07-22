@@ -26,7 +26,7 @@ package org.sakaiproject.tool.assessment.business.entity.helper.section;
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
 
 /**
- * <p>Copyright: Copyright (c) 2004</p>
+ * <p>Copyright: Copyright (c) 2005</p>
  * <p>Organization: Sakai Project</p>
  * <p>Support any QTI 1.2 only XML handling code</p>
  * @author Ed Smiley esmiley@stanford.edu
@@ -38,7 +38,7 @@ public class SectionHelper12Impl extends SectionHelperBase
 {
   public SectionHelper12Impl()
   {
-    System.out.println("SectionHelper12Impl");
+//    System.out.println("SectionHelper12Impl");
   }
 
   /**
