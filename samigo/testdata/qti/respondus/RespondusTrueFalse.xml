@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<questestinterop>
+
+<assessment title="TrueFalse" ident="A1001">
+<section title="Main" ident="S1002">
+
+<item title="This is a TF" ident="QUE_1003">
+<presentation>
+<material>
+<mattext texttype="text/html"><![CDATA[Is this a true-false question? ]]></mattext>
+</material>
+<response_lid ident="QUE_1004_RL" rcardinality="Single" rtiming="No">
+<render_choice>
+<response_label ident="QUE_1005_A1">
+<material>
+<mattext texttype="text/html"><![CDATA[True]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1006_A2">
+<material>
+<mattext texttype="text/html"><![CDATA[False]]></mattext>
+</material>
+</response_label>
+</render_choice>
+</response_lid>
+</presentation>
+<resprocessing>
+<outcomes>
+  <decvar vartype="Decimal" defaultval="0" varname="que_score"/>
+</outcomes>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1004_RL">QUE_1005_A1</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Set">1.00</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1004_RL">QUE_1006_A2</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">0</setvar>
+</respcondition>
+</resprocessing>
+</item>
+
+
+</section>
+</assessment>
+
+</questestinterop>
