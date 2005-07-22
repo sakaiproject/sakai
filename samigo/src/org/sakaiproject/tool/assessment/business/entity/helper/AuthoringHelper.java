@@ -69,6 +69,9 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.XmlUtil;
+import org.w3c.dom.NodeList;
+import org.apache.xpath.XPathAPI;
+import javax.xml.transform.TransformerException;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -83,8 +86,6 @@ public class AuthoringHelper
 //  private static final AuthoringXml ax = new AuthoringXml(QTIVersion.VERSION_1_2);
   private AuthoringXml ax ;
 
-  private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss a";
-  private  static final String DISPLAY_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss a";
   private int qtiVersion;
 
   private AuthoringHelper()
@@ -105,7 +106,6 @@ public class AuthoringHelper
         "Version Codes supported: QTIVersion.VERSION_1_2, QTIVersion.VERSION_2_0");
     }
     ax = new AuthoringXml(qtiVersion);
-    System.out.println("debug: setting qtiversion: " + qtiVersion);
   }
 
   /**
@@ -165,14 +165,6 @@ public class AuthoringHelper
           BGCOLOR);
       bgImage = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGIMAGE);
-
-//       System.out.println("************* global settings");
-//       System.out.println("authors="+authors);;
-//       System.out.println("objectives="+objectives);;
-//       System.out.println("keywords="+keywords);;
-//       System.out.println("rubrics="+rubrics);;
-//       System.out.println("bgColor="+bgColor);;
-//       System.out.println("bgImage="+bgImage);;
 
       if (authors!= null)
       {
@@ -235,11 +227,9 @@ public class AuthoringHelper
       assessmentHelper.updateMetaData(assessmentXml, assessment);
 
       // sections
-//      SectionHelper sectionHelper = new SectionHelper();
       factory = new QTIHelperFactory();
       SectionHelperIfc sectionHelper =
           factory.getSectionHelperInstance(this.qtiVersion);
-//      List sectionList = assessment.getSectionArray();
       List sectionList = assessment.getSectionArraySorted();
       for (int i=0 ; i< sectionList.size(); i++)
       {
@@ -276,6 +266,32 @@ public class AuthoringHelper
     for (int i = 0; i < itemIds.length; i++)
     {
       Document itemDoc = getItem(itemIds[i]);
+      Element itemElement = itemDoc.getDocumentElement();
+      Node itemImport = objectBank.importNode(itemElement, true);
+      ob.appendChild(itemImport);
+    }
+    root.appendChild(ob);
+    objectBank.appendChild(root);
+
+    return objectBank;
+  }
+  /**
+   * Get an object bank of asessments (asi) in Document form.
+   *
+   * @param assessmentIds array of the the assessment ids
+   * @return the Document with the item bank data
+   */
+  public Document getAssessmentBank(String[] assessmentIds)
+  {
+    Document objectBank = XmlUtil.createDocument();
+
+    Element root = objectBank.createElement("questestinterop");
+    Element ob = objectBank.createElement("objectbank");
+    String objectBankIdent = "object" + Math.random();
+    ob.setAttribute("ident", objectBankIdent);
+    for (int i = 0; i < assessmentIds.length; i++)
+    {
+      Document itemDoc = getAssessment(assessmentIds[i]);
       Element itemElement = itemDoc.getDocumentElement();
       Node itemImport = objectBank.importNode(itemElement, true);
       ob.appendChild(itemImport);
@@ -397,51 +413,72 @@ public class AuthoringHelper
     return is;
   }
 
+
   /**
-   * DOCUMENTATION PENDING
-   *
-   * @param fileName DOCUMENTATION PENDING
-   *
-   * @return DOCUMENTATION PENDING
+   * Pull apart object bank into multiple assessments
+   * @todo NOT IMPLEMENTED YET (uses private getDocumentsFromObjectBankDoc)
+   * @param objectBank
+   * @return an array of AssesmentFacades
    */
-  public XmlStringBuffer readFile(String fileName)
+  public AssessmentFacade[] createMultipleImportedAssessments(Document objectBank)
   {
-    if(log.isDebugEnabled())
-    {
-      log.debug("readFile(String" + fileName + ")");
-    }
-
-    XmlStringBuffer xmlString = null;
-    InputStreamReader reader;
-    String xmlExample;
-    try
-    {
-      InputStream is = new FileInputStream(fileName);
-      reader = new InputStreamReader(is);
-      StringWriter out = new StringWriter();
-      int c;
-
-      while((c = reader.read()) != -1)
-      {
-        out.write(c);
-      }
-
-      reader.close();
-      xmlExample = (String) out.toString();
-      xmlString = new XmlStringBuffer(xmlExample);
-    }
-    catch(FileNotFoundException e)
-    {
-      log.error(e.getMessage(), e);
-    }
-    catch(IOException e1)
-    {
-      log.error(e1.getMessage(), e1);
-    }
-
-    return xmlString;
+    Document[] docs = getDocumentsFromObjectBankDoc(objectBank, "assessment");
+    return createMultipleImportedAssessments(docs);
   }
 
+  /**
+   * Pull apart object bank based on elementName
+   * @param objectBank
+   * @param elementName e.g. "assessment", "item", etc.
+   * @return
+   */
+  private Document[] getDocumentsFromObjectBankDoc(Document objectBank,
+    String elementName)
+  {
+    Document[] documents = null;
+    try
+    {
+      // Get the matching elements
+      NodeList nodeList =
+        XPathAPI.selectNodeList(objectBank, "//" + elementName);
+
+      int numDocs = nodeList.getLength();
+      if (numDocs == 0)
+        return null;
+
+      documents = new Document[numDocs];
+
+      for (int i = 0; i < numDocs; i++)
+      {
+        Node node = (Node) nodeList.item(i);
+        Document objectDoc = XmlUtil.createDocument();
+        Node importNode = objectDoc.importNode(node, true);
+        objectDoc.appendChild(importNode);
+        documents[i] = objectDoc;
+      }
+    }
+    catch (TransformerException e)
+    {
+      throw (new RuntimeException("TransformerException: Cannot extract " +
+          elementName + " from object bank"));
+    }
+
+    return documents;
+  }
+
+  /**
+   * Import multiple assessment documents in QTI format, extract & persist.
+   * @param objectBank
+   * @return an array of AssesmentFacades
+   */
+  public AssessmentFacade[] createMultipleImportedAssessments(Document[] documents)
+  {
+    AssessmentFacade[] assessments = new AssessmentFacade[documents.length];
+    for (int i = 0; i < documents.length; i++) {
+      assessments[i] = createImportedAssessment(documents[i]);
+    }
+    return assessments;
+  }
 
   /**
    * Import an assessment XML document in QTI format, extract & persist the data.
@@ -467,7 +504,6 @@ public class AuthoringHelper
       ItemService itemService = new ItemService();
       Assessment assessmentXml = new Assessment(document);
       Map assessmentMap = exHelper.mapAssessment(assessmentXml);
-//      assessment = exHelper.createAssessment(assessmentMap);
       String description = (String) assessmentMap.get("description");
       String title = (String) assessmentMap.get("title");
       assessment = assessmentService.createAssessmentWithoutDefaultSection(
@@ -508,12 +544,7 @@ public class AuthoringHelper
         section.setLastModifiedDate(assessment.getCreatedDate());
         section.setTypeId(TypeIfc.DEFAULT_SECTION);
         section.setStatus(new Integer(1));
-        // set the sequence
         section.setSequence(new Integer(sec + 1));
-//        // add the section to the assessment
-//        section.setAssessmentId(assessment.getAssessmentId());//many to one
-//        section.setAssessment(assessment);
-//        assessment.getSectionArray().add(section);// one to many
 
         List itemList = exHelper.getItemXmlList(sectionXml);
         for (int itm = 0; itm < itemList.size(); itm++)// for each item
@@ -554,7 +585,6 @@ public class AuthoringHelper
         }// ... end for each item
         assessmentService.saveOrUpdateSection(section);
         log.debug("SECTION title set to: " + section.getTitle());
-        System.out.println("SECTION description set to: " + section.getDescription());
 
       }// ... end for each section
 
@@ -615,7 +645,6 @@ public class AuthoringHelper
     catch(Exception e)
     {
       log.error(e.getMessage(), e);
-//      e.printStackTrace();
     }
 
     return item;
@@ -623,11 +652,11 @@ public class AuthoringHelper
 
 
   /**
-   * DOCUMENTATION PENDING
+   * Create an XmlStringBuffer (base class for A,S,I XML classes)
    *
-   * @param inputStream DOCUMENTATION PENDING
+   * @param inputStream the input stram
    *
-   * @return DOCUMENTATION PENDING
+   * @return an XmlStringBuffer (this is the base class for A,S,I XML classes)
    */
   public XmlStringBuffer readXMLDocument(InputStream inputStream)
   {
@@ -662,6 +691,12 @@ public class AuthoringHelper
   }
 
 
+  /**
+   * helper method
+   * @param inputStr
+   * @param delimiter
+   * @return
+   */
   public ArrayList changeDelimitedStringtoArray(String inputStr, String delimiter)
     {
       ArrayList selectedList = new ArrayList();
@@ -684,37 +719,6 @@ public class AuthoringHelper
       return selectedList;
     }
 
-    /**
-     * current date default format
-     * @return date string
-     */
-    public String getCurrentDateAndTime()
-    {
-         return getCurrentDateAndTime(DATE_FORMAT);
-    }
-    /**
-     * current date default format
-     * @return date string
-     */
-    public String getCurrentDisplayDateAndTime()
-    {
-         return getCurrentDateAndTime(DISPLAY_DATE_FORMAT);
-    }
-
-    /**
-     * current date format
-     * @param dateFormat
-     * @return date string
-     */
-    public String getCurrentDateAndTime(String dateFormat)
-    {
-      Calendar cal = Calendar.getInstance(TimeZone.getDefault());
-      java.text.SimpleDateFormat sdf =
-        new java.text.SimpleDateFormat(dateFormat);
-      sdf.setTimeZone(TimeZone.getDefault());
-      log.debug("Now : " + sdf.format(cal.getTime()));
-      return sdf.format(cal.getTime());
-    }
   public int getQtiVersion()
   {
     return qtiVersion;
