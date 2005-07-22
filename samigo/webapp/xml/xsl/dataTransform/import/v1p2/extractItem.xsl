@@ -21,7 +21,17 @@
   <lastModifiedBy></lastModifiedBy>
   <lastModifiedDate></lastModifiedDate>
   <score>
-    <xsl:value-of select="//resprocessing/outcomes/decvar/@maxvalue"/>
+    <xsl:value-of
+      select="//resprocessing/outcomes/decvar[@varname='SCORE']/@maxvalue"/>
+    <!-- Respondus multiple correct answer -->
+    <xsl:value-of
+      select="//resprocessing/outcomes/decvar[@varname='que_score']/@maxvalue"/>
+    <!-- Respondus single correct answer -->
+    <xsl:for-each select="//respcondition">
+      <xsl:if test="setvar/@varname='que_score' and setvar/@action='Set'">
+      <xsl:value-of select="setvar"/><!--  if not single adds innocuous '0' -->
+      </xsl:if>
+    </xsl:for-each>
   </score>
   <hint></hint>
   <hasRationale></hasRationale>
