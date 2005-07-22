@@ -1,49 +1,47 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-*
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-*
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ *
+   * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ *
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.business.entity.helper;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.TimeZone;
 import javax.faces.context.FacesContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.business.entity.XmlStringBuffer;
@@ -69,9 +67,6 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.XmlUtil;
-import org.w3c.dom.NodeList;
-import org.apache.xpath.XPathAPI;
-import javax.xml.transform.TransformerException;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -84,7 +79,7 @@ public class AuthoringHelper
 {
   private static Log log = LogFactory.getLog(AuthoringHelper.class);
 //  private static final AuthoringXml ax = new AuthoringXml(QTIVersion.VERSION_1_2);
-  private AuthoringXml ax ;
+  private AuthoringXml ax;
 
   private int qtiVersion;
 
@@ -99,7 +94,7 @@ public class AuthoringHelper
    */
   public AuthoringHelper(int qtiVersion)
   {
-    this.qtiVersion =qtiVersion;
+    this.qtiVersion = qtiVersion;
     if (!QTIVersion.isValid(qtiVersion))
     {
       throw new IllegalArgumentException(
@@ -141,7 +136,7 @@ public class AuthoringHelper
       AssessmentService assessmentService = new AssessmentService();
       QTIHelperFactory factory = new QTIHelperFactory();
       log.debug("getAssessment() Getting assessment document for" +
-        assessmentId + "from AssessmentService.");
+                assessmentId + "from AssessmentService.");
 
       AssessmentFacade assessment =
         assessmentService.getAssessment(assessmentId);
@@ -151,22 +146,23 @@ public class AuthoringHelper
       Assessment assessmentXml = assessmentHelper.readXMLDocument(is);
       assessmentXml.setIdent(assessmentId);
       assessmentXml.setTitle(assessment.getTitle());
-      assessmentHelper.setDescriptiveText(assessment.getDescription(), assessmentXml);
+      assessmentHelper.setDescriptiveText(assessment.getDescription(),
+                                          assessmentXml);
 
       authors =
-          assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.AUTHORS);
+        assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.AUTHORS);
       objectives = assessment.getAssessmentMetaDataByLabel(
-          AssessmentMetaDataIfc.OBJECTIVES);
+        AssessmentMetaDataIfc.OBJECTIVES);
       keywords = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
-          KEYWORDS);
+        KEYWORDS);
       rubrics = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
-          RUBRICS);
+        RUBRICS);
       bgColor = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
-          BGCOLOR);
+        BGCOLOR);
       bgImage = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
-          BGIMAGE);
+        BGIMAGE);
 
-      if (authors!= null)
+      if (authors != null)
       {
         assessmentXml.setFieldentry("AUTHORS", authors);
         log.debug("\n\ngetAssessmentMetaDataByLabel AUTHORS = " + authors);
@@ -174,7 +170,7 @@ public class AuthoringHelper
       else
       {
         String createdBy = assessment.getCreatedBy();
-        if (createdBy!= null)
+        if (createdBy != null)
         {
           assessmentXml.setFieldentry("AUTHORS", createdBy);
           log.debug("\n\ngetCreatedBy AUTHORS = " + createdBy);
@@ -185,23 +181,23 @@ public class AuthoringHelper
         }
       }
 
-      if (objectives!= null )
+      if (objectives != null)
       {
         assessmentXml.setFieldentry("ASSESSMENT_OBJECTIVES", objectives);
       }
-      if (keywords!= null )
+      if (keywords != null)
       {
         assessmentXml.setFieldentry("ASSESSMENT_KEYWORDS", keywords);
       }
-      if (rubrics!= null )
+      if (rubrics != null)
       {
         assessmentXml.setFieldentry("ASSESSMENT_RUBRICS", rubrics);
       }
-      if (bgColor!= null )
+      if (bgColor != null)
       {
         assessmentXml.setFieldentry("BGCOLOR", bgColor);
       }
-      if (bgImage!= null )
+      if (bgImage != null)
       {
         assessmentXml.setFieldentry("BGIMG", bgImage);
       }
@@ -211,17 +207,20 @@ public class AuthoringHelper
       if (evaluationModel != null)
       {
         assessmentHelper.updateEvaluationModel(assessmentXml,
-          evaluationModel);
+                                               evaluationModel);
       }
-      AssessmentFeedbackIfc assessmentFeedback = assessment.getAssessmentFeedback();
+      AssessmentFeedbackIfc assessmentFeedback = assessment.
+        getAssessmentFeedback();
       if (assessmentFeedback != null)
       {
         assessmentHelper.updateFeedbackModel(assessmentXml, assessmentFeedback);
       }
-      AssessmentAccessControlIfc assessmentAccessControl = assessment.getAssessmentAccessControl();
+      AssessmentAccessControlIfc assessmentAccessControl = assessment.
+        getAssessmentAccessControl();
       if (assessmentAccessControl != null)
       {
-        assessmentHelper.updateAccessControl(assessmentXml, assessmentAccessControl);
+        assessmentHelper.updateAccessControl(assessmentXml,
+                                             assessmentAccessControl);
       }
       log.debug("\nupdateMetaData(assessmentXml, assessment)");
       assessmentHelper.updateMetaData(assessmentXml, assessment);
@@ -229,9 +228,9 @@ public class AuthoringHelper
       // sections
       factory = new QTIHelperFactory();
       SectionHelperIfc sectionHelper =
-          factory.getSectionHelperInstance(this.qtiVersion);
+        factory.getSectionHelperInstance(this.qtiVersion);
       List sectionList = assessment.getSectionArraySorted();
-      for (int i=0 ; i< sectionList.size(); i++)
+      for (int i = 0; i < sectionList.size(); i++)
       {
         SectionDataIfc section = (SectionDataIfc) sectionList.get(i);
         Section sectionXml =
@@ -275,6 +274,7 @@ public class AuthoringHelper
 
     return objectBank;
   }
+
   /**
    * Get an object bank of asessments (asi) in Document form.
    *
@@ -320,17 +320,24 @@ public class AuthoringHelper
       ItemDataIfc item = itemService.getItem(itemId);
       TypeIfc type = item.getType();
       log.debug("Getting item type:");
-      log.debug("type.AUDIO_RECORDING.equals(type): " + type.AUDIO_RECORDING.equals(type));
-      log.debug("type.ESSAY_QUESTION.equals(type): " + type.ESSAY_QUESTION.equals(type));
-      log.debug("type.FILE_UPLOAD.equals(type): " + type.FILE_UPLOAD.equals(type));
-      log.debug("type.FILL_IN_BLANK.equals(type): " + type.FILL_IN_BLANK.equals(type));
+      log.debug("type.AUDIO_RECORDING.equals(type): " +
+                type.AUDIO_RECORDING.equals(type));
+      log.debug("type.ESSAY_QUESTION.equals(type): " +
+                type.ESSAY_QUESTION.equals(type));
+      log.debug("type.FILE_UPLOAD.equals(type): " +
+                type.FILE_UPLOAD.equals(type));
+      log.debug("type.FILL_IN_BLANK.equals(type): " +
+                type.FILL_IN_BLANK.equals(type));
       log.debug("type.MATCHING.equals(type): " + type.MATCHING.equals(type));
-      log.debug("type.MULTIPLE_CHOICE.equals(type): " + type.MULTIPLE_CHOICE.equals(type));
-      log.debug("type.MULTIPLE_CHOICE_SURVEY.equals(type): " + type.MULTIPLE_CHOICE_SURVEY.equals(type));
-      log.debug("type.MULTIPLE_CORRECT.equals(type): " + type.MULTIPLE_CORRECT.equals(type));
+      log.debug("type.MULTIPLE_CHOICE.equals(type): " +
+                type.MULTIPLE_CHOICE.equals(type));
+      log.debug("type.MULTIPLE_CHOICE_SURVEY.equals(type): " +
+                type.MULTIPLE_CHOICE_SURVEY.equals(type));
+      log.debug("type.MULTIPLE_CORRECT.equals(type): " +
+                type.MULTIPLE_CORRECT.equals(type));
       log.debug("type.TRUE_FALSE.equals(type): " + type.TRUE_FALSE.equals(type));
 
-      if ((type.MULTIPLE_CHOICE_SURVEY).equals(type))
+      if ( (type.MULTIPLE_CHOICE_SURVEY).equals(type))
 
       {
         String scale = item.getItemMetaDataByLabel(ItemMetaData.SCALENAME);
@@ -343,7 +350,6 @@ public class AuthoringHelper
       itemXml.setIdent(item.getItemIdString());
       itemXml.update(item);
       return itemXml.getDocument();
-
 
     }
     catch (Exception ex)
@@ -362,11 +368,11 @@ public class AuthoringHelper
    * @throws ParserConfigurationException
    */
   private void addSection(Assessment assessmentXml,
-    Section sectionXml) throws IOException, SAXException,
+                          Section sectionXml) throws IOException, SAXException,
     ParserConfigurationException
   {
     ax.addElement(assessmentXml.getDocument(), "questestinterop/assessment",
-          sectionXml.getDocument().getDocumentElement());
+                  sectionXml.getDocument().getDocumentElement());
   }
 
   /**
@@ -377,7 +383,7 @@ public class AuthoringHelper
   public InputStream getBlankAssessmentTemplateContextStream()
   {
     InputStream is = ax.getTemplateInputStream(ax.ASSESSMENT,
-                     FacesContext.getCurrentInstance());
+                                               FacesContext.getCurrentInstance());
     return is;
   }
 
@@ -399,7 +405,7 @@ public class AuthoringHelper
   public InputStream getBlankSectionTemplateContextStream()
   {
     InputStream is = ax.getTemplateInputStream(ax.SECTION,
-                     FacesContext.getCurrentInstance());
+                                               FacesContext.getCurrentInstance());
     return is;
   }
 
@@ -413,14 +419,13 @@ public class AuthoringHelper
     return is;
   }
 
-
   /**
    * Pull apart object bank into multiple assessments
-   * @todo NOT IMPLEMENTED YET (uses private getDocumentsFromObjectBankDoc)
    * @param objectBank
    * @return an array of AssesmentFacades
    */
-  public AssessmentFacade[] createMultipleImportedAssessments(Document objectBank)
+  public AssessmentFacade[] createMultipleImportedAssessments(Document
+    objectBank)
   {
     Document[] docs = getDocumentsFromObjectBankDoc(objectBank, "assessment");
     return createMultipleImportedAssessments(docs);
@@ -444,7 +449,9 @@ public class AuthoringHelper
 
       int numDocs = nodeList.getLength();
       if (numDocs == 0)
+      {
         return null;
+      }
 
       documents = new Document[numDocs];
 
@@ -460,7 +467,7 @@ public class AuthoringHelper
     catch (TransformerException e)
     {
       throw (new RuntimeException("TransformerException: Cannot extract " +
-          elementName + " from object bank"));
+                                  elementName + " from object bank"));
     }
 
     return documents;
@@ -471,26 +478,28 @@ public class AuthoringHelper
    * @param objectBank
    * @return an array of AssesmentFacades
    */
-  public AssessmentFacade[] createMultipleImportedAssessments(Document[] documents)
+  public AssessmentFacade[] createMultipleImportedAssessments(Document[]
+    documents)
   {
     AssessmentFacade[] assessments = new AssessmentFacade[documents.length];
-    for (int i = 0; i < documents.length; i++) {
+    for (int i = 0; i < documents.length; i++)
+    {
       assessments[i] = createImportedAssessment(documents[i]);
     }
     return assessments;
   }
 
   /**
-   * Import an assessment XML document in QTI format, extract & persist the data.
+     * Import an assessment XML document in QTI format, extract & persist the data.
    * @param document the assessment XML document in QTI format
    * @return a persisted assessment
    */
   public AssessmentFacade createImportedAssessment(Document document)
   {
     log.debug(
-        document==null?
-        "DOCUMENT IS NULL IN createPublishedAssessment(Document)":
-        "createPublishedAssessment(Document)");
+      document == null ?
+      "DOCUMENT IS NULL IN createPublishedAssessment(Document)" :
+      "createPublishedAssessment(Document)");
     AssessmentFacade assessment = null;
 
     try
@@ -525,19 +534,18 @@ public class AuthoringHelper
       int sectionListSize = sectionList.size();
       log.debug("sections=" + sectionListSize);
 
-
-      for (int sec = 0; sec < sectionListSize; sec++)// for each section...
+      for (int sec = 0; sec < sectionListSize; sec++) // for each section...
       {
-        Section sectionXml =(Section) sectionList.get(sec);
+        Section sectionXml = (Section) sectionList.get(sec);
         Map sectionMap = exHelper.mapSection(sectionXml);
         log.debug("SECTION MAP=" + sectionMap);
         // create the assessment section
         SectionFacade section =
-            assessmentService.addSection("" + assessment.getAssessmentId());
+          assessmentService.addSection("" + assessment.getAssessmentId());
         exHelper.updateSection(section, sectionMap);
         // make sure we are the creator
         log.debug("section " + section.getTitle() +
-          "created by '" + me+ "'.");
+                  "created by '" + me + "'.");
         section.setCreatedBy(me);
         section.setCreatedDate(assessment.getCreatedDate());
         section.setLastModifiedBy(me);
@@ -547,7 +555,7 @@ public class AuthoringHelper
         section.setSequence(new Integer(sec + 1));
 
         List itemList = exHelper.getItemXmlList(sectionXml);
-        for (int itm = 0; itm < itemList.size(); itm++)// for each item
+        for (int itm = 0; itm < itemList.size(); itm++) // for each item
         {
           log.debug("items=" + itemList.size());
           Item itemXml = (Item) itemList.get(itm);
@@ -561,51 +569,25 @@ public class AuthoringHelper
           item.setCreatedDate(assessment.getCreatedDate());
           item.setLastModifiedBy(me);
           item.setLastModifiedDate(assessment.getCreatedDate());
-          log.debug("ITEM TYPE IS: " +item.getTypeId());
+          log.debug("ITEM TYPE IS: " + item.getTypeId());
           item.setStatus(ItemDataIfc.ACTIVE_STATUS);
           // assign the next sequence number
           item.setSequence(new Integer(itm + 1));
           // add item to section
-          item.setSection(section);// one to many
-          section.addItem(item);// many to one
+          item.setSection(section); // one to many
+          section.addItem(item); // many to one
           itemService.saveItem(item);
-          // debugging
-          log.debug("ITEM:  ans key" + item.getAnswerKey() );
-          log.debug("ITEM:  correct feed" + item.getCorrectItemFeedback() );
-          log.debug("ITEM:  incorrect feed " + item.getInCorrectItemFeedback() );
-          log.debug("ITEM:  by " + item.getCreatedBy() );
-          log.debug("ITEM:  date" + item.getCreatedDate() );
-          log.debug("ITEM:  desc " + item.getDescription() );
-          log.debug("ITEM:  duration" + item.getDuration() );
-          log.debug("ITEM:  general feed " + item.getGeneralItemFeedback() );
-          log.debug("ITEM:  incorrect " + item.getInCorrectItemFeedback() );
-          log.debug("ITEM:  is true " + item.getIsTrue() );
-          log.debug("ITEM DEBUG item text" + item.getText() );
-          log.debug("ITEM:  item text" + item.getText() );
-        }// ... end for each item
+        } // ... end for each item
         assessmentService.saveOrUpdateSection(section);
         log.debug("SECTION title set to: " + section.getTitle());
 
-      }// ... end for each section
+      } // ... end for each section
 
       log.debug("assessment created by '" + assessment.getCreatedBy() + "'.");
       assessmentService.update(assessment);
-      // debugging
-      log.debug("ASSESSMENT:  meta " + assessment.getAssessmentMetaDataMap());
-      log.debug("ASSESSMENT:  feed " + assessment.getAssessmentFeedback());
-      log.debug("ASSESSMENT:  comments  " + assessment.getComments());
-      log.debug("ASSESSMENT:  by " + assessment.getCreatedBy());
-      log.debug("ASSESSMENT:  by date " + assessment.getCreatedDate());
-      log.debug("ASSESSMENT:  desc" + assessment.getDescription());
-      log.debug("ASSESSMENT:  disp " + assessment.getDisplayName());
-      log.debug("ASSESSMENT:  last by " + assessment.getLastModifiedBy());
-      log.debug("ASSESSMENT:  last date" + assessment.getLastModifiedDate());
-      log.debug("ASSESSMENT:  mult " + assessment.getMultipartAllowed());
-      log.debug("ASSESSMENT:  title " + assessment.getTitle());
-      log.debug("ASSESSMENT DEBUG title " + assessment.getTitle());
       assessmentService.saveAssessment(assessment);
     }
-    catch(Exception e)
+    catch (Exception e)
     {
       log.error(e.getMessage(), e);
       throw new RuntimeException(e);
@@ -623,9 +605,9 @@ public class AuthoringHelper
   public ItemFacade createImportedItem(Document document)
   {
     log.debug(
-        document==null?
-        "DOCUMENT IS NULL IN createImportedItem(Document)":
-        "createImportedItem(Document)");
+      document == null ?
+      "DOCUMENT IS NULL IN createImportedItem(Document)" :
+      "createImportedItem(Document)");
     ItemFacade item = new ItemFacade();
 
     try
@@ -642,14 +624,13 @@ public class AuthoringHelper
       log.debug("Saving item");
       itemService.saveItem(item);
     }
-    catch(Exception e)
+    catch (Exception e)
     {
       log.error(e.getMessage(), e);
     }
 
     return item;
   }
-
 
   /**
    * Create an XmlStringBuffer (base class for A,S,I XML classes)
@@ -660,7 +641,7 @@ public class AuthoringHelper
    */
   public XmlStringBuffer readXMLDocument(InputStream inputStream)
   {
-    if(log.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
       log.debug("readDocument(InputStream " + inputStream);
     }
@@ -674,15 +655,15 @@ public class AuthoringHelper
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.parse(inputStream);
     }
-    catch(ParserConfigurationException e)
+    catch (ParserConfigurationException e)
     {
       log.error(e.getMessage(), e);
     }
-    catch(SAXException e)
+    catch (SAXException e)
     {
       log.error(e.getMessage(), e);
     }
-    catch(IOException e)
+    catch (IOException e)
     {
       log.error(e.getMessage(), e);
     }
@@ -690,44 +671,43 @@ public class AuthoringHelper
     return new XmlStringBuffer(document);
   }
 
-
   /**
-   * helper method
+   * Helper method.
    * @param inputStr
    * @param delimiter
    * @return
    */
-  public ArrayList changeDelimitedStringtoArray(String inputStr, String delimiter)
+  public ArrayList changeDelimitedStringtoArray(String inputStr,
+                                                String delimiter)
+  {
+    ArrayList selectedList = new ArrayList();
+    if (inputStr != null && inputStr.trim().length() > 0)
     {
-      ArrayList selectedList = new ArrayList();
-      if(inputStr != null && inputStr.trim().length() >0 )
+      StringTokenizer st = new StringTokenizer(inputStr, delimiter);
+      if (st != null)
       {
-        StringTokenizer st = new StringTokenizer(inputStr, delimiter );
-        if(st != null)
-        {
 
-        while(st.hasMoreTokens())
+        while (st.hasMoreTokens())
         {
           selectedList.add(st.nextToken());
         }
-        }
-        else
-        {
-          selectedList.add(inputStr);
-        }
       }
-      return selectedList;
+      else
+      {
+        selectedList.add(inputStr);
+      }
     }
+    return selectedList;
+  }
 
   public int getQtiVersion()
   {
     return qtiVersion;
   }
+
   public void setQtiVersion(int qtiVersion)
   {
     this.qtiVersion = qtiVersion;
   }
 
 }
-
-
