@@ -1,25 +1,25 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-*
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-*
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ *
+   * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ *
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.business.entity.helper.item;
 
@@ -40,7 +40,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.sakaiproject.tool.assessment.business.entity.asi.Item;
-import org.sakaiproject.tool.assessment.business.entity.constants.AuthoringConstantStrings;
+import org.sakaiproject.tool.assessment.business.entity.constants.
+  AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -345,8 +346,11 @@ public class ItemHelper12Impl extends ItemHelperBase
     float itSize = itemTextList.size();
 
     // just in case we screw up
-    if (itSize > 0) currentPerItemScore = currentMaxScore.floatValue()/itSize;
-    int respCondCount = 0;  //used to count the respconditions
+    if (itSize > 0)
+    {
+      currentPerItemScore = currentMaxScore.floatValue() / itSize;
+    }
+    int respCondCount = 0; //used to count the respconditions
 
     while (iter.hasNext())
     {
@@ -376,22 +380,23 @@ public class ItemHelper12Impl extends ItemHelperBase
         if (Boolean.TRUE.equals(correct))
         {
           log.debug("Matching: matched.");
-          allIdents.add(respIdent);// put in global (ewww) ident list
+          allIdents.add(respIdent); // put in global (ewww) ident list
           allTargets.put(respIdent, answerText);
           addMatchingRespcondition(true, itemXml, respCondNo, respIdent,
-                                 responseLabelIdent);
+                                   responseLabelIdent);
         }
         else
         {
           log.debug("Matching: NOT matched.");
           addMatchingRespcondition(false, itemXml, respCondNo, respIdent,
-                                 responseLabelIdent);
+                                   responseLabelIdent);
           continue; // we skip adding the response label when false
         }
       }
 
       String responseNo = "" + sequence;
-      addMatchingResponseLabelSource(itemXml, responseNo, responseLabelIdent, text);
+      addMatchingResponseLabelSource(itemXml, responseNo, responseLabelIdent,
+                                     text);
     }
 
     // add targets (addMatchingResponseLabelTarget())
@@ -405,8 +410,6 @@ public class ItemHelper12Impl extends ItemHelperBase
     }
     updateAllSourceMatchGroup(itemXml);
   }
-
-
 
   //////////////////////////////////////////////////////////////////////////////
   // FILL IN THE BLANK
@@ -518,7 +521,6 @@ public class ItemHelper12Impl extends ItemHelperBase
     return fib.replaceAll("\\}\\{", "}" + NBSP + "{");
   }
 
-
   /**
    * Special FIB processing.
    * @param itemXml
@@ -559,18 +561,18 @@ public class ItemHelper12Impl extends ItemHelperBase
       updateItemXml(itemXml, varequal, responses[i]);
     }
 
-     //Add setvar
-     itemXml.add(respCond, "setvar");
-     itemXml.addAttribute(respCond + "/setvar", "action");
+    //Add setvar
+    itemXml.add(respCond, "setvar");
+    itemXml.addAttribute(respCond + "/setvar", "action");
 
-      updateItemXml(
+    updateItemXml(
       itemXml, respCond + "/setvar/@action", "Add");
-      itemXml.addAttribute(respCond + "/setvar", "varname");
+    itemXml.addAttribute(respCond + "/setvar", "varname");
 
-      updateItemXml(
+    updateItemXml(
       itemXml, respCond + "/setvar/@varname", "SCORE");
 
-      updateItemXml(itemXml, respCond + "/setvar", points); // this should be minimum value
+    updateItemXml(itemXml, respCond + "/setvar", points); // this should be minimum value
 
     return itemXml;
   }
@@ -616,18 +618,18 @@ public class ItemHelper12Impl extends ItemHelperBase
       updateItemXml(itemXml, varequal, response);
     }
 
-     //Add setvar
-     itemXml.add(respCond, "setvar");
-     itemXml.addAttribute(respCond + "/setvar", "action");
+    //Add setvar
+    itemXml.add(respCond, "setvar");
+    itemXml.addAttribute(respCond + "/setvar", "action");
 
-      updateItemXml(
+    updateItemXml(
       itemXml, respCond + "/setvar/@action", "Add");
-      itemXml.addAttribute(respCond + "/setvar", "varname");
+    itemXml.addAttribute(respCond + "/setvar", "varname");
 
-      updateItemXml(
+    updateItemXml(
       itemXml, respCond + "/setvar/@varname", "SCORE");
 
-      updateItemXml(itemXml, respCond + "/setvar", points); // this should be minimum value
+    updateItemXml(itemXml, respCond + "/setvar", points); // this should be minimum value
 
     return itemXml;
   }
@@ -664,8 +666,8 @@ public class ItemHelper12Impl extends ItemHelperBase
       }
     }
 
-     //Add display feedback
-     itemXml.add(respCond, "displayfeedback");
+    //Add display feedback
+    itemXml.add(respCond, "displayfeedback");
     itemXml.addAttribute(respCond + "/displayfeedback", "feedbacktype");
 
     updateItemXml(
@@ -1246,9 +1248,9 @@ public class ItemHelper12Impl extends ItemHelperBase
                responseNo + "]' to '" + value + "'");
     }
   }
+
   /**
    * Add the matching item feedback.
-
    *
    * @param itemXml
    * @param feedbackIdent
@@ -1290,7 +1292,9 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param responseLabelIdent
    */
   private void addMatchingRespcondition(boolean correct,
-    Item itemXml, String responseNo, String respident, String responseLabelIdent)
+                                        Item itemXml, String responseNo,
+                                        String respident,
+                                        String responseLabelIdent)
   {
 
     String xpath = "item/resprocessing";
@@ -1309,13 +1313,12 @@ public class ItemHelper12Impl extends ItemHelperBase
     if (respident != null)
     {
 
-        updateItemXml(
+      updateItemXml(
         itemXml, respCond + "/conditionvar/varequal/@respident", respident);
     }
 
-
     updateItemXml(
-    itemXml, respCond + "/conditionvar/varequal", responseLabelIdent);
+      itemXml, respCond + "/conditionvar/varequal", responseLabelIdent);
 
     //Add setvar
     itemXml.add(respCond, "setvar");
@@ -1349,7 +1352,8 @@ public class ItemHelper12Impl extends ItemHelperBase
    * DO NOT CALL before we have all the target idents ready
    * @param itemXml
    */
-  private void updateAllSourceMatchGroup( Item itemXml) {
+  private void updateAllSourceMatchGroup(Item itemXml)
+  {
     String matchGroupsXpath =
       "item/presentation/flow/response_grp/render_choice/response_label[(@match_group)]";
 
@@ -1387,4 +1391,3 @@ public class ItemHelper12Impl extends ItemHelperBase
   }
 
 }
-

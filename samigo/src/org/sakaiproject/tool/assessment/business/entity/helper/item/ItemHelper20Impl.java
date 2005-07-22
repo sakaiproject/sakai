@@ -1,28 +1,28 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-*
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-*
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
-
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ *
+ * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ *
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.business.entity.helper.item;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,9 +50,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
  * @version $Id$
  */
 
-public class ItemHelper20Impl
-    extends ItemHelperBase
-    implements ItemHelperIfc
+public class ItemHelper20Impl extends ItemHelperBase
+  implements ItemHelperIfc
 {
   private static Log log = LogFactory.getLog(ItemHelper20Impl.class);
   private AuthoringXml authoringXml;
@@ -83,11 +82,14 @@ public class ItemHelper20Impl
     }
     // set the responseElse baseValue, if it exists
     String xPath =
-        "assessmentItem/responseCondition/responseIf/" +
-        "setOutcomeValue/baseValue";
+      "assessmentItem/responseCondition/responseIf/" +
+      "setOutcomeValue/baseValue";
     // test if this is a type that has this baseValue
     List list = itemXml.selectNodes(xPath);
-    if (list==null || list.size()==0) return;
+    if (list == null || list.size() == 0)
+    {
+      return;
+    }
     updateItemXml(itemXml, xPath, score.toString());
   }
 
@@ -105,18 +107,24 @@ public class ItemHelper20Impl
     }
     // first, set the outcomeDeclaration defaultValue, if it exists
     String xPath =
-        "assessmentItem/responseDeclaration/outcomeDeclaration/defaultValue";
+      "assessmentItem/responseDeclaration/outcomeDeclaration/defaultValue";
     // test if this is a type that has a defaultValue
     List list = itemXml.selectNodes(xPath);
-    if (list==null || list.size()==0) return;
+    if (list == null || list.size() == 0)
+    {
+      return;
+    }
     updateItemXml(itemXml, xPath, score.toString());
     // next, set the responseElse baseValue, if it exists
     xPath =
-        "assessmentItem/responseCondition/responseElse/" +
-        "setOutcomeValue/baseValue";
+      "assessmentItem/responseCondition/responseElse/" +
+      "setOutcomeValue/baseValue";
     // test if this is a type that has this baseValue
     list = itemXml.selectNodes(xPath);
-    if (list==null || list.size()==0) return;
+    if (list == null || list.size() == 0)
+    {
+      return;
+    }
     updateItemXml(itemXml, xPath, score.toString());
   }
 
@@ -129,7 +137,6 @@ public class ItemHelper20Impl
     String xPath = "assessmentItem/responseDeclaration/correctResponse/value";
     updateItemXml(itemXml, xPath, correctAnswerLabel);
   }
-
 
   /**
    * assessmentItem/qtiMetadata not be permissible in QTI 2.0
@@ -153,8 +160,8 @@ public class ItemHelper20Impl
   public String getMetaLabelXPath(String fieldlabel)
   {
     String xpath =
-        "assessmentItem/qtiMetadata/qtimetadatafield/fieldlabel[text()='" +
-        fieldlabel + "']/following-sibling::fieldentry";
+      "assessmentItem/qtiMetadata/qtimetadatafield/fieldlabel[text()='" +
+      fieldlabel + "']/following-sibling::fieldentry";
     return xpath;
   }
 
@@ -170,12 +177,11 @@ public class ItemHelper20Impl
     if (itemType.equals(AuthoringConstantStrings.MATCHING))
     {
       xpath =
-      "assessmentItem/itemBody/matchInteraction/simpleMatchSet/simpleAssociableChoice";
+        "assessmentItem/itemBody/matchInteraction/simpleMatchSet/simpleAssociableChoice";
     }
 
     return makeItemNodeText(itemXml, xpath);
   }
-
 
   /**
    * Set the (one or more) item texts.
@@ -187,28 +193,33 @@ public class ItemHelper20Impl
   public void setItemTexts(ArrayList itemTextList, Item itemXml)
   {
     String xPath = "assessmentItem/itemBody";
-    if (itemTextList.size() < 1) {
+    if (itemTextList.size() < 1)
+    {
       return;
     }
 
-    if (itemXml.isMatching()) {
+    if (itemXml.isMatching())
+    {
 //      process matching
 //      return;
     }
 
     String text = ( (ItemTextIfc) itemTextList.get(0)).getText();
     log.debug("item text: " + text);
-    if (itemXml.isFIB()) {
+    if (itemXml.isFIB())
+    {
 //      process fib
 //      return;
     }
-      try {
-        itemXml.update(xPath, text);
-      }
-      catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
+    try
+    {
+      itemXml.update(xPath, text);
     }
+    catch (Exception ex)
+    {
+      throw new RuntimeException(ex);
+    }
+  }
 
 //  }
 
@@ -229,7 +240,6 @@ public class ItemHelper20Impl
       element.getAttribute(QTIConstantStrings.TITLE);
     }
 
-
     return type;
   }
 
@@ -248,7 +258,7 @@ public class ItemHelper20Impl
     }
     // OK, so now we are in business.
     String xpath =
-        "assessmentItem/itemBody/choiceInteraction/<simpleChoice";
+      "assessmentItem/itemBody/choiceInteraction/<simpleChoice";
 
     List list = itemXml.selectNodes(xpath);
     log.debug("xpath size:" + list.size());
@@ -286,7 +296,7 @@ public class ItemHelper20Impl
           }
 
           this.addIndexedEntry(itemXml, xpath, value,
-          isInsert, xpathIndex, "" + label);
+                               isInsert, xpathIndex, "" + label);
 
         }
         catch (Exception ex)
@@ -308,11 +318,15 @@ public class ItemHelper20Impl
 
   public void setFeedback(ArrayList itemTextList, Item itemXml)
   {
-    String xpath = "assessmentItem/itemBody/choiceInteraction/<simpleChoice/feedbackInline";
+    String xpath =
+      "assessmentItem/itemBody/choiceInteraction/<simpleChoice/feedbackInline";
     // for any answers that are now in the template, create a feedback
     int xpathIndex = 1;
     List list = itemXml.selectNodes(xpath);
-    if (list==null) return;
+    if (list == null)
+    {
+      return;
+    }
 
     Iterator nodeIter = list.iterator();
     Iterator iter = itemTextList.iterator();
@@ -322,13 +336,14 @@ public class ItemHelper20Impl
     boolean first = true;
     while (iter.hasNext())
     {
-      ItemTextIfc itemTextIfc = (ItemTextIfc)iter.next();
+      ItemTextIfc itemTextIfc = (ItemTextIfc) iter.next();
 
       if (first) // then do once
       {
         // add in Correct and InCorrect Feedback
         String correctFeedback = itemTextIfc.getItem().getCorrectItemFeedback();
-        String incorrectFeedback = itemTextIfc.getItem().getInCorrectItemFeedback();
+        String incorrectFeedback = itemTextIfc.getItem().
+          getInCorrectItemFeedback();
         String generalFeedback = itemTextIfc.getItem().getGeneralItemFeedback();
         log.debug("NEED TO SET CORRECT FEEDBACK: " + correctFeedback);
         log.debug("NEED TO SET INCORRECT FEEDBACK: " + incorrectFeedback);
@@ -376,7 +391,7 @@ public class ItemHelper20Impl
    * @param identifier set this attribute if not null)
    */
   private void addIndexedEntry(Item itemXml, String xpath, String value,
-    boolean isInsert, int index, String identifier)
+                               boolean isInsert, int index, String identifier)
 
   {
     String indexBrackets = "[" + index + "]";
@@ -393,16 +408,18 @@ public class ItemHelper20Impl
     }
     try
     {
-      if (value==null) value ="";
+      if (value == null)
+      {
+        value = "";
+      }
       itemXml.update(thisNode, value);
       log.debug("updated value in addIndexedEntry()");
     }
     catch (Exception ex)
     {
-      log.error("Cannot update value in addIndexedEntry(): " + ex );
+      log.error("Cannot update value in addIndexedEntry(): " + ex);
     }
   }
-
 
   /**
    * get QTI version
@@ -423,8 +440,6 @@ public class ItemHelper20Impl
   }
 
   public void setItemText(String itemText, Item itemXml)
-  {//todo
+  { //todo
   }
 }
-
-

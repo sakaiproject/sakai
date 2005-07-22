@@ -1,28 +1,28 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-*
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-*
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
-
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ *
+ * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ *
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.business.entity.helper.item;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -43,7 +43,7 @@ import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 public abstract class ItemHelperBase
-    implements ItemHelperIfc
+  implements ItemHelperIfc
 {
   private static Log log = LogFactory.getLog(ItemHelperBase.class);
 
@@ -53,7 +53,7 @@ public abstract class ItemHelperBase
   protected static final long ITEM_FIB = TypeIfc.FILL_IN_BLANK.longValue();
   protected static final long ITEM_MCSC = TypeIfc.MULTIPLE_CHOICE.longValue();
   protected static final long ITEM_SURVEY = TypeIfc.MULTIPLE_CHOICE_SURVEY.
-      longValue();
+    longValue();
   protected static final long ITEM_MCMC = TypeIfc.MULTIPLE_CORRECT.longValue();
   protected static final long ITEM_TF = TypeIfc.TRUE_FALSE.longValue();
   protected static final long ITEM_MATCHING = TypeIfc.MATCHING.longValue();
@@ -78,7 +78,7 @@ public abstract class ItemHelperBase
    * @return an Item XML object
    */
   public Item readXMLDocument(
-      InputStream inputStream)
+    InputStream inputStream)
   {
     if (log.isDebugEnabled())
     {
@@ -91,9 +91,9 @@ public abstract class ItemHelperBase
     {
       AuthoringHelper authoringHelper = new AuthoringHelper(getQtiVersion());
       itemXml =
-          new Item(
-          authoringHelper.readXMLDocument(inputStream).getDocument(),
-          getQtiVersion());
+        new Item(
+        authoringHelper.readXMLDocument(inputStream).getDocument(),
+        getQtiVersion());
     }
     catch (ParserConfigurationException e)
     {
@@ -284,13 +284,13 @@ public abstract class ItemHelperBase
    * @return the item xml
    */
   public Item updateItemXml(
-      Item itemXml, String xpath, String value)
+    Item itemXml, String xpath, String value)
   {
     if (log.isDebugEnabled())
     {
       log.debug(
-          "updateItemXml(Item " + itemXml +
-          ", String" + xpath + ", String" + value + ")");
+        "updateItemXml(Item " + itemXml +
+        ", String" + xpath + ", String" + value + ")");
     }
 
     try
@@ -334,5 +334,3 @@ public abstract class ItemHelperBase
   }
 
 }
-
-
