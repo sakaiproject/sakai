@@ -83,6 +83,12 @@
       <itemAnswerCorrectLabel type="list"><xsl:value-of select="conditionvar/varequal"/></itemAnswerCorrectLabel>
     </xsl:if>
   </xsl:for-each>
+  <!-- alternate for Respondus questions -->
+  <xsl:for-each select="//respcondition">
+    <xsl:if test="setvar/@varname='que_score' and setvar/@action='Set'">
+      <itemAnswerCorrectLabel type="list"><xsl:value-of select="conditionvar/varequal"/></itemAnswerCorrectLabel>
+    </xsl:if>
+  </xsl:for-each>
   <!-- answers -->
   <xsl:for-each select="//presentation//response_lid/render_choice/response_label/material/mattext" >
   <xsl:choose>
