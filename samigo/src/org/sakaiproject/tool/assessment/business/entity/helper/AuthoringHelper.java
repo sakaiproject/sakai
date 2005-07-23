@@ -111,7 +111,9 @@ public class AuthoringHelper
    */
   public Document getAssessment(String assessmentId)
   {
-    InputStream is = getBlankAssessmentTemplateContextStream();
+    InputStream is =
+      ax.getTemplateInputStream(ax.ASSESSMENT, FacesContext.getCurrentInstance());
+
     return getAssessment(assessmentId, is);
   }
 
@@ -135,8 +137,6 @@ public class AuthoringHelper
 
       AssessmentService assessmentService = new AssessmentService();
       QTIHelperFactory factory = new QTIHelperFactory();
-      log.debug("getAssessment() Getting assessment document for" +
-                assessmentId + "from AssessmentService.");
 
       AssessmentFacade assessment =
         assessmentService.getAssessment(assessmentId);
@@ -165,7 +165,6 @@ public class AuthoringHelper
       if (authors != null)
       {
         assessmentXml.setFieldentry("AUTHORS", authors);
-        log.debug("\n\ngetAssessmentMetaDataByLabel AUTHORS = " + authors);
       }
       else
       {
@@ -173,7 +172,6 @@ public class AuthoringHelper
         if (createdBy != null)
         {
           assessmentXml.setFieldentry("AUTHORS", createdBy);
-          log.debug("\n\ngetCreatedBy AUTHORS = " + createdBy);
         }
         else
         {
@@ -222,7 +220,6 @@ public class AuthoringHelper
         assessmentHelper.updateAccessControl(assessmentXml,
                                              assessmentAccessControl);
       }
-      log.debug("\nupdateMetaData(assessmentXml, assessment)");
       assessmentHelper.updateMetaData(assessmentXml, assessment);
 
       // sections
@@ -233,8 +230,9 @@ public class AuthoringHelper
       for (int i = 0; i < sectionList.size(); i++)
       {
         SectionDataIfc section = (SectionDataIfc) sectionList.get(i);
-        Section sectionXml =
-          sectionHelper.readXMLDocument(getBlankSectionTemplateContextStream());
+        InputStream sis =
+          ax.getTemplateInputStream(ax.SECTION, FacesContext.getCurrentInstance());
+        Section sectionXml = sectionHelper.readXMLDocument(sis);
         sectionXml.update(section);
         addSection(assessmentXml, sectionXml);
       }
@@ -309,7 +307,6 @@ public class AuthoringHelper
    */
   public Document getItem(String itemId)
   {
-    log.debug("AuthoringHelper.getItem()");
     Item itemXml = new Item(this.qtiVersion);
     try
     {
@@ -319,23 +316,6 @@ public class AuthoringHelper
         factory.getItemHelperInstance(this.qtiVersion);
       ItemDataIfc item = itemService.getItem(itemId);
       TypeIfc type = item.getType();
-      log.debug("Getting item type:");
-      log.debug("type.AUDIO_RECORDING.equals(type): " +
-                type.AUDIO_RECORDING.equals(type));
-      log.debug("type.ESSAY_QUESTION.equals(type): " +
-                type.ESSAY_QUESTION.equals(type));
-      log.debug("type.FILE_UPLOAD.equals(type): " +
-                type.FILE_UPLOAD.equals(type));
-      log.debug("type.FILL_IN_BLANK.equals(type): " +
-                type.FILL_IN_BLANK.equals(type));
-      log.debug("type.MATCHING.equals(type): " + type.MATCHING.equals(type));
-      log.debug("type.MULTIPLE_CHOICE.equals(type): " +
-                type.MULTIPLE_CHOICE.equals(type));
-      log.debug("type.MULTIPLE_CHOICE_SURVEY.equals(type): " +
-                type.MULTIPLE_CHOICE_SURVEY.equals(type));
-      log.debug("type.MULTIPLE_CORRECT.equals(type): " +
-                type.MULTIPLE_CORRECT.equals(type));
-      log.debug("type.TRUE_FALSE.equals(type): " + type.TRUE_FALSE.equals(type));
 
       if ( (type.MULTIPLE_CHOICE_SURVEY).equals(type))
 
@@ -375,39 +355,6 @@ public class AuthoringHelper
                   sectionXml.getDocument().getDocumentElement());
   }
 
-  /**
-   * Get an InputStream to an unpopulated assessment XML from context.
-   * @param context the FacesContext
-   * @return InputStream to an unpopulated assessment XML
-   */
-  public InputStream getBlankAssessmentTemplateContextStream()
-  {
-    InputStream is = ax.getTemplateInputStream(ax.ASSESSMENT,
-                                               FacesContext.getCurrentInstance());
-    return is;
-  }
-
-  /**
-   * Get an InputStream to an unpopulated assessment XML from file system.
-   * @return InputStream to an unpopulated assessment XML
-   */
-  public InputStream getBlankAssessmentTemplateFileStream()
-  {
-    InputStream is = ax.getTemplateInputStream(ax.ASSESSMENT);
-    return is;
-  }
-
-  /**
-   * Get an InputStream to an unpopulated section XML from context.
-   * @param context the FacesContext
-   * @return InputStream to an unpopulated section XML
-   */
-  public InputStream getBlankSectionTemplateContextStream()
-  {
-    InputStream is = ax.getTemplateInputStream(ax.SECTION,
-                                               FacesContext.getCurrentInstance());
-    return is;
-  }
 
   /**
    * Get an InputStream to an unpopulated section XML from file system.
@@ -496,10 +443,6 @@ public class AuthoringHelper
    */
   public AssessmentFacade createImportedAssessment(Document document)
   {
-    log.debug(
-      document == null ?
-      "DOCUMENT IS NULL IN createPublishedAssessment(Document)" :
-      "createPublishedAssessment(Document)");
     AssessmentFacade assessment = null;
 
     try
@@ -538,14 +481,11 @@ public class AuthoringHelper
       {
         Section sectionXml = (Section) sectionList.get(sec);
         Map sectionMap = exHelper.mapSection(sectionXml);
-        log.debug("SECTION MAP=" + sectionMap);
         // create the assessment section
         SectionFacade section =
           assessmentService.addSection("" + assessment.getAssessmentId());
         exHelper.updateSection(section, sectionMap);
         // make sure we are the creator
-        log.debug("section " + section.getTitle() +
-                  "created by '" + me + "'.");
         section.setCreatedBy(me);
         section.setCreatedDate(assessment.getCreatedDate());
         section.setLastModifiedBy(me);
@@ -560,7 +500,6 @@ public class AuthoringHelper
           log.debug("items=" + itemList.size());
           Item itemXml = (Item) itemList.get(itm);
           Map itemMap = exHelper.mapItem(itemXml);
-          log.debug("ITEM MAP=" + itemMap);
 
           ItemFacade item = new ItemFacade();
           exHelper.updateItem(item, itemMap);
@@ -569,7 +508,6 @@ public class AuthoringHelper
           item.setCreatedDate(assessment.getCreatedDate());
           item.setLastModifiedBy(me);
           item.setLastModifiedDate(assessment.getCreatedDate());
-          log.debug("ITEM TYPE IS: " + item.getTypeId());
           item.setStatus(ItemDataIfc.ACTIVE_STATUS);
           // assign the next sequence number
           item.setSequence(new Integer(itm + 1));
@@ -579,11 +517,9 @@ public class AuthoringHelper
           itemService.saveItem(item);
         } // ... end for each item
         assessmentService.saveOrUpdateSection(section);
-        log.debug("SECTION title set to: " + section.getTitle());
 
       } // ... end for each section
 
-      log.debug("assessment created by '" + assessment.getCreatedBy() + "'.");
       assessmentService.update(assessment);
       assessmentService.saveAssessment(assessment);
     }
@@ -604,24 +540,16 @@ public class AuthoringHelper
    */
   public ItemFacade createImportedItem(Document document)
   {
-    log.debug(
-      document == null ?
-      "DOCUMENT IS NULL IN createImportedItem(Document)" :
-      "createImportedItem(Document)");
     ItemFacade item = new ItemFacade();
 
     try
     {
       // create the item
       ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
-      log.debug("XSLT Path: " + exHelper.getTransformPath());
       Item itemXml = new Item(document, QTIVersion.VERSION_1_2);
       Map itemMap = exHelper.mapItem(itemXml);
-      log.debug("ITEM MAP=" + itemMap);
-      log.debug("updating item");
       exHelper.updateItem(item, itemMap);
       ItemService itemService = new ItemService();
-      log.debug("Saving item");
       itemService.saveItem(item);
     }
     catch (Exception e)
@@ -641,11 +569,6 @@ public class AuthoringHelper
    */
   public XmlStringBuffer readXMLDocument(InputStream inputStream)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("readDocument(InputStream " + inputStream);
-    }
-
     Document document = null;
     DocumentBuilderFactory builderFactory =
       DocumentBuilderFactory.newInstance();
