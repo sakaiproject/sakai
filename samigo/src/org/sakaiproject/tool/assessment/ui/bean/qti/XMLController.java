@@ -1,49 +1,50 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-*
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-*
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ *
+ * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ *
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
 package org.sakaiproject.tool.assessment.ui.bean.qti;
 
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.StringTokenizer;
-
 import javax.faces.context.FacesContext;
+
+import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.util.XmlUtil;
-import org.w3c.dom.Document;
 
 /**
  * <p>Bean for QTI XML or XML fragments and descriptive information. </p>
  * <p>Used to maintain information or to dump XML to client.</p>
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id$
+   * @version $Id$
  */
 
-public class XMLController implements Serializable
+public class XMLController
+  implements Serializable
 {
   private XMLDisplay xmlBean;
   private String documentType;
@@ -52,7 +53,7 @@ public class XMLController implements Serializable
 
   public XMLController()
   {
-    qtiVersion = QTIVersion.VERSION_1_2;//default
+    qtiVersion = QTIVersion.VERSION_1_2; //default
   }
 
   public XMLDisplay getXmlBean()
@@ -123,9 +124,9 @@ public class XMLController implements Serializable
     catch (Exception ex)
     {
       xmlBean.setXml("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + "\n" +
-                "<error-report>" + "\n" +
-                ex.toString() + "\n" +
-                "</error-report>" + "\n" );
+                     "<error-report>" + "\n" +
+                     ex.toString() + "\n" +
+                     "</error-report>" + "\n");
       xmlBean.setDescription(ex.toString());
       xmlBean.setName("error");
       xmlBean.setId("");
@@ -157,21 +158,22 @@ public class XMLController implements Serializable
     this.id = id;
   }
 
-
   private void assessment()
   {
     xmlBean.setId(id);
     xmlBean.setName(documentType);
 //    System.out.println("assessment() id=" + id);
 
-    if (id !=null && id.length()>0) // return populated xml from template
+    if (id != null && id.length() > 0) // return populated xml from template
     {
       QTIService qtiService = new QTIService();
       System.out.println("XMLController.assessment() assessment " +
-        "qtiService.getExportedAssessment(id=" + id + ", qtiVersion=" +
-        qtiVersion+ ")");
+                         "qtiService.getExportedAssessment(id=" + id +
+                         ", qtiVersion=" +
+                         qtiVersion + ")");
       Document doc = qtiService.getExportedAssessment(id, qtiVersion);
-      xmlBean.setDescription("Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
+      xmlBean.setDescription(
+        "Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
       xmlBean.setName("assessment " + id);
       xmlBean.setXml(XmlUtil.getDOMString(doc));
     }
@@ -180,7 +182,11 @@ public class XMLController implements Serializable
       xmlBean.setDescription("assessment template");
       AuthoringHelper authHelper = new AuthoringHelper(qtiVersion);
       AuthoringXml ax = getAuthoringXml();
-      String xml = ax.getTemplateAsString(authHelper.getBlankAssessmentTemplateContextStream());
+
+      String xml =
+        ax.getTemplateAsString(
+        ax.getTemplateInputStream(ax.ASSESSMENT,
+                                  FacesContext.getCurrentInstance()));
       xmlBean.setXml(xml);
     }
   }
@@ -192,18 +198,20 @@ public class XMLController implements Serializable
   {
     xmlBean.setId(id);
     AuthoringXml ax = getAuthoringXml();
-    if (id !=null && id.length()>0)
+    if (id != null && id.length() > 0)
     {
       xmlBean.setDescription("section fragment id=" + id);
-      xmlBean.setName(documentType);// get from document later
-      InputStream is = ax.getTemplateInputStream(ax.SECTION,FacesContext.getCurrentInstance());
+      xmlBean.setName(documentType); // get from document later
+      InputStream is = ax.getTemplateInputStream(ax.SECTION,
+                                                 FacesContext.getCurrentInstance());
       xmlBean.setXml(ax.getTemplateAsString(is));
     }
     else
     {
       xmlBean.setDescription("section template");
-      xmlBean.setName(documentType);// get from document later
-      InputStream is = ax.getTemplateInputStream(ax.SECTION,FacesContext.getCurrentInstance());
+      xmlBean.setName(documentType); // get from document later
+      InputStream is = ax.getTemplateInputStream(ax.SECTION,
+                                                 FacesContext.getCurrentInstance());
       xmlBean.setXml(ax.getTemplateAsString(is));
     }
   }
@@ -215,12 +223,13 @@ public class XMLController implements Serializable
   {
 //    System.out.println("got to item.");
     xmlBean.setId(id);
-    if (id !=null && id.length()>0)
+    if (id != null && id.length() > 0)
     {
       QTIService qtiService = new QTIService();
       Document doc = qtiService.getExportedItem(id, qtiVersion);
-      xmlBean.setDescription("Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
-      xmlBean.setName("item " + id);// get from document later
+      xmlBean.setDescription(
+        "Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
+      xmlBean.setName("item " + id); // get from document later
       xmlBean.setXml(XmlUtil.getDOMString(doc));
     }
     else // for testing
@@ -228,8 +237,9 @@ public class XMLController implements Serializable
       AuthoringHelper ah = new AuthoringHelper(qtiVersion);
       AuthoringXml ax = getAuthoringXml();
       xmlBean.setDescription("item template");
-      xmlBean.setName(documentType);// get from document later
-      InputStream is = ax.getTemplateInputStream(documentType, FacesContext.getCurrentInstance());
+      xmlBean.setName(documentType); // get from document later
+      InputStream is = ax.getTemplateInputStream(documentType,
+                                                 FacesContext.getCurrentInstance());
       xmlBean.setXml(ax.getTemplateAsString(is));
     }
   }
@@ -239,20 +249,21 @@ public class XMLController implements Serializable
    */
   private void itemBank()
   {
-    xmlBean.setId(id);// this will be an item list
-    if (id !=null && id.length()>0)
+    xmlBean.setId(id); // this will be an item list
+    if (id != null && id.length() > 0)
     {
       QTIService qtiService = new QTIService();
       StringTokenizer st = new StringTokenizer(id, ",");
       int tokens = st.countTokens();
       String[] ids = new String[tokens];
-      for (int i=0; st.hasMoreTokens(); i++)
+      for (int i = 0; st.hasMoreTokens(); i++)
       {
         ids[i] = st.nextToken();
       }
       Document doc = qtiService.getExportedItemBank(ids, qtiVersion);
-      xmlBean.setDescription("Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
-      xmlBean.setName("object bank for items " + id);// get from document later
+      xmlBean.setDescription(
+        "Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
+      xmlBean.setName("object bank for items " + id); // get from document later
       xmlBean.setXml(XmlUtil.getDOMString(doc));
     }
     else
@@ -264,8 +275,9 @@ public class XMLController implements Serializable
   private void frag()
   {
     xmlBean.setDescription("survey item fragment template");
-    xmlBean.setName(documentType);// get from document later
-    InputStream is = getAuthoringXml().getTemplateInputStream(documentType, FacesContext.getCurrentInstance());
+    xmlBean.setName(documentType); // get from document later
+    InputStream is = getAuthoringXml().getTemplateInputStream(documentType,
+      FacesContext.getCurrentInstance());
     xmlBean.setXml(getAuthoringXml().getTemplateAsString(is));
   }
 
@@ -326,7 +338,7 @@ public class XMLController implements Serializable
     System.out.println("xml controller setQtiVersion()=" + qtiVersion);
   }
 
-  public  AuthoringXml getAuthoringXml()
+  public AuthoringXml getAuthoringXml()
   {
     return new AuthoringXml(getQtiVersion());
   }
