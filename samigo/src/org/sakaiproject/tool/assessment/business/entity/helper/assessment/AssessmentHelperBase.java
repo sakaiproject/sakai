@@ -1,25 +1,26 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-*
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-*
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ *
+
+ * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ *
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.business.entity.helper.assessment;
 
@@ -47,20 +48,20 @@ import org.sakaiproject.tool.assessment.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.util.Iso8601TimeInterval;
 
 /**
- * <p>Copyright: Copyright (c) 2004</p>
+ * <p>Copyright: Copyright (c) 2005/p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @author Shastri, Rashmi <rshastri@iupui.edu>
+ * @author based on some code by: Shastri, Rashmi <rshastri@iupui.edu>
  * @version $Id$
  */
-public abstract class AssessmentHelperBase implements AssessmentHelperIfc
+public abstract class AssessmentHelperBase
+  implements AssessmentHelperIfc
 {
   private static Log log = LogFactory.getLog(AssessmentHelperBase.class);
 
   private Document doc;
 
   abstract protected int getQtiVersion();
-
 
   /**
    * Read in assessment XML from input stream
@@ -108,7 +109,7 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
    * @param feedback
    */
   public void updateFeedbackModel(Assessment assessmentXml,
-    AssessmentFeedbackIfc feedback)
+                                  AssessmentFeedbackIfc feedback)
   {
     Integer feedbackDelivery = feedback.getFeedbackDelivery();
     if (feedback.FEEDBACK_BY_DATE.equals(feedbackDelivery))
@@ -125,21 +126,25 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
     }
 
     assessmentXml.setFieldentry("FEEDBACK_SHOW_QUESTION",
-      qtiBooleanString(feedback.getShowQuestionText()));
+                                qtiBooleanString(feedback.getShowQuestionText()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_RESPONSE",
-      qtiBooleanString(feedback.getShowStudentResponse()));
+                                qtiBooleanString(feedback.
+                                                 getShowStudentResponse()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_CORRECT_RESPONSE",
-      qtiBooleanString(feedback.getShowCorrectResponse()));
+                                qtiBooleanString(feedback.
+                                                 getShowCorrectResponse()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_STUDENT_SCORE",
-      qtiBooleanString(feedback.getShowStudentScore()));
+                                qtiBooleanString(feedback.getShowStudentScore()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_ITEM_LEVEL",
-      qtiBooleanString(feedback.getShowQuestionLevelFeedback()));
+                                qtiBooleanString(feedback.
+                                                 getShowQuestionLevelFeedback()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_SELECTION_LEVEL",
-      qtiBooleanString(feedback.getShowSelectionLevelFeedback()));
+                                qtiBooleanString(feedback.
+                                                 getShowSelectionLevelFeedback()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_GRADER_COMMENT",
-      qtiBooleanString(feedback.getShowGraderComments()));
+                                qtiBooleanString(feedback.getShowGraderComments()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_STATS",
-      qtiBooleanString(feedback.getShowStatistics()));
+                                qtiBooleanString(feedback.getShowStatistics()));
   }
 
   /**
@@ -148,18 +153,25 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
    * @param evaluationModel
    */
   public void updateEvaluationModel(Assessment assessmentXml,
-    EvaluationModelIfc evaluationModel)
+                                    EvaluationModelIfc evaluationModel)
   {
     // debugging
-    log.debug("EvaluationModelIfc.ANONYMOUS_GRADING: " + EvaluationModelIfc.ANONYMOUS_GRADING);
-    log.debug("evaluationModel.getAnonymousGrading(): " + evaluationModel.getAnonymousGrading());
-    log.debug("EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString(): " + EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString());
-    log.debug("evaluationModel.getToGradeBook(): " + evaluationModel.getToGradeBook());
-    log.debug("EvaluationModelIfc.HIGHEST_SCORE: " + EvaluationModelIfc.HIGHEST_SCORE);
-    log.debug("evaluationModel.getScoringType(): " + evaluationModel.getScoringType());
+    log.debug("EvaluationModelIfc.ANONYMOUS_GRADING: " +
+              EvaluationModelIfc.ANONYMOUS_GRADING);
+    log.debug("evaluationModel.getAnonymousGrading(): " +
+              evaluationModel.getAnonymousGrading());
+    log.debug("EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString(): " +
+              EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString());
+    log.debug("evaluationModel.getToGradeBook(): " +
+              evaluationModel.getToGradeBook());
+    log.debug("EvaluationModelIfc.HIGHEST_SCORE: " +
+              EvaluationModelIfc.HIGHEST_SCORE);
+    log.debug("evaluationModel.getScoringType(): " +
+              evaluationModel.getScoringType());
 
     // anonymous grading
-    if (EvaluationModelIfc.ANONYMOUS_GRADING.equals(evaluationModel.getAnonymousGrading()))
+    if (EvaluationModelIfc.ANONYMOUS_GRADING.equals(evaluationModel.
+      getAnonymousGrading()))
     {
       assessmentXml.setFieldentry("ANONYMOUS_GRADING", "True");
     }
@@ -176,7 +188,7 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
 
     }
     else if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().
-        equals(evaluationModel.getToGradeBook()))
+             equals(evaluationModel.getToGradeBook()))
     {
       assessmentXml.setFieldentry("GRADEBOOK_OPTIONS", "DEFAULT");
     }
@@ -186,7 +198,8 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
     {
       assessmentXml.setFieldentry("GRADE_SCORE", "HIGHEST_SCORE");
     }
-    else  if (EvaluationModelIfc.AVERAGE_SCORE.equals(evaluationModel.getScoringType()))
+    else if (EvaluationModelIfc.AVERAGE_SCORE.equals(evaluationModel.
+      getScoringType()))
     {
       assessmentXml.setFieldentry("GRADE_SCORE", "AVERAGE_SCORE");
     }
@@ -200,7 +213,8 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
    */
   public void setDescriptiveText(String description, Assessment assessmentXml)
   {
-    String xpath = "questestinterop/assessment/presentation_material/flow_mat/material/mattext";
+    String xpath =
+      "questestinterop/assessment/presentation_material/flow_mat/material/mattext";
 
     List list = assessmentXml.selectNodes(xpath);
     try
@@ -219,7 +233,7 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
    * @param accessControl
    */
   public void updateAccessControl(Assessment assessmentXml,
-    AssessmentAccessControlIfc accessControl)
+                                  AssessmentAccessControlIfc accessControl)
   {
     // DATES
     Date dueDate = accessControl.getDueDate();
@@ -229,7 +243,7 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
     Date feedbackDate = accessControl.getFeedbackDate();
     assessmentXml.setFieldentry("END_DATE", formatDate(dueDate));
     assessmentXml.setFieldentry("FEEDBACK_DELIVERY_DATE",
-      formatDate(feedbackDate));
+                                formatDate(feedbackDate));
     assessmentXml.setFieldentry("RETRACT_DATE", formatDate(restractDate));
     assessmentXml.setFieldentry("START_DATE", formatDate(startDate));
 
@@ -247,7 +261,7 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
       submissionsAllowed = accessControl.UNLIMITED_SUBMISSIONS_ALLOWED;
     }
     assessmentXml.setFieldentry("MAX_ATTEMPTS",
-      submissionsAllowed.toString());
+                                submissionsAllowed.toString());
 
     // OTHER CONTROLS
     Integer autoSubmit = accessControl.getAutoSubmit();
@@ -269,7 +283,6 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
     // getTimedAssessment() does not always tell us
     if (timeLimit != null && timeLimit != new Integer(0))
     {
-      System.out.println("timeLimit="+timeLimit);
       setDuration(timeLimit, assessmentXml);
     }
 
@@ -343,39 +356,40 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
    * @param assessment
    */
   public void updateMetaData(Assessment assessmentXml,
-    AssessmentFacade assessment)
+                             AssessmentFacade assessment)
   {
-    String[] editKeys = {
-        "templateInfo_isInstructorEditable",
-        "assessmentAuthor_isInstructorEditable",
-        "assessmentCreator_isInstructorEditable",
-        "description_isInstructorEditable",
-        "dueDate_isInstructorEditable",
-        "retractDate_isInstructorEditable",
-        "anonymousRelease_isInstructorEditable",
-        "authenticatedRelease_isInstructorEditable",
-        "ipAccessType_isInstructorEditable",
-        "passwordRequired_isInstructorEditable",
-        "timedAssessment_isInstructorEditable",
-        "timedAssessmentAutoSubmit_isInstructorEditable",
-        "itemAccessType_isInstructorEditable",
-        "displayChunking_isInstructorEditable",
-        "displayNumbering_isInstructorEditable",
-        "submissionModel_isInstructorEditable",
-        "lateHandling_isInstructorEditable",
-        "autoSave_isInstructorEditable",
-        "submissionMessage_isInstructorEditable",
-        "finalPageURL_isInstructorEditable",
-        "feedbackType_isInstructorEditable",
-        "feedbackComponents_isInstructorEditable",
-        "testeeIdentity_isInstructorEditable",
-        "toGradebook_isInstructorEditable",
-        "recordedScore_isInstructorEditable",
-        "bgColor_isInstructorEditable",
-        "bgImage_isInstructorEditable",
-        "metadataAssess_isInstructorEditable",
-        "metadataParts_isInstructorEditable",
-        "metadataQuestions_isInstructorEditable",
+    String[] editKeys =
+      {
+      "templateInfo_isInstructorEditable",
+      "assessmentAuthor_isInstructorEditable",
+      "assessmentCreator_isInstructorEditable",
+      "description_isInstructorEditable",
+      "dueDate_isInstructorEditable",
+      "retractDate_isInstructorEditable",
+      "anonymousRelease_isInstructorEditable",
+      "authenticatedRelease_isInstructorEditable",
+      "ipAccessType_isInstructorEditable",
+      "passwordRequired_isInstructorEditable",
+      "timedAssessment_isInstructorEditable",
+      "timedAssessmentAutoSubmit_isInstructorEditable",
+      "itemAccessType_isInstructorEditable",
+      "displayChunking_isInstructorEditable",
+      "displayNumbering_isInstructorEditable",
+      "submissionModel_isInstructorEditable",
+      "lateHandling_isInstructorEditable",
+      "autoSave_isInstructorEditable",
+      "submissionMessage_isInstructorEditable",
+      "finalPageURL_isInstructorEditable",
+      "feedbackType_isInstructorEditable",
+      "feedbackComponents_isInstructorEditable",
+      "testeeIdentity_isInstructorEditable",
+      "toGradebook_isInstructorEditable",
+      "recordedScore_isInstructorEditable",
+      "bgColor_isInstructorEditable",
+      "bgImage_isInstructorEditable",
+      "metadataAssess_isInstructorEditable",
+      "metadataParts_isInstructorEditable",
+      "metadataQuestions_isInstructorEditable",
     };
 
     String key;
@@ -386,7 +400,8 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
       setField(assessmentXml, assessment, editKeys[i]);
     }
     //  item metadata
-    setField(assessmentXml, assessment, "hasMetaDataForQuestions","COLLECT_ITEM_METADATA");
+    setField(assessmentXml, assessment, "hasMetaDataForQuestions",
+             "COLLECT_ITEM_METADATA");
   }
 
   /**
@@ -405,7 +420,10 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
     log.debug("key: " + key);
     log.debug("value: " + value);
 
-    if (value==null) return;
+    if (value == null)
+    {
+      return;
+    }
 
     assessmentXml.setFieldentry(translationKey, value);
   }
@@ -422,7 +440,6 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
     setField(assessmentXml, assessment, key, key);
   }
 
-
   /**
    * format Iso8601 Date
    * @param date Date object
@@ -438,7 +455,6 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
     return iso.format(date);
   }
 
-
   /**
    * Map Boolean to text string
    * @param b Boolean
@@ -446,7 +462,7 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
    */
   public String qtiBooleanString(Boolean b)
   {
-    if (b !=null && b.booleanValue())
+    if (b != null && b.booleanValue())
     {
       return "True";
     }
@@ -460,13 +476,12 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
    */
   public String qtiBooleanString(Integer i)
   {
-    if (i !=null && i.intValue() != 0)
+    if (i != null && i.intValue() != 0)
     {
       return "True";
     }
     return "False";
   }
-
 
   /**
    * get section XML by title
@@ -510,9 +525,9 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
   }
 
   /** Set the assessment duration.
-  * @param duration assessment duration in seconds
-  * @param assessmentXml the xml
-  */
+   * @param duration assessment duration in seconds
+   * @param assessmentXml the xml
+   */
   public void setDuration(Integer duration, Assessment assessmentXml)
   {
     String xpath = "questestinterop/assessment/duration";
@@ -520,15 +535,13 @@ public abstract class AssessmentHelperBase implements AssessmentHelperIfc
     try
     {
       Iso8601TimeInterval isoTime =
-      new Iso8601TimeInterval(1000 * duration.longValue());
+        new Iso8601TimeInterval(1000 * duration.longValue());
       assessmentXml.update(xpath, isoTime.toString());
     }
-      catch (Exception ex)
+    catch (Exception ex)
     {
       log.error(ex.getMessage(), ex);
     }
   }
 
 }
-
-

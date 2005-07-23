@@ -1,25 +1,25 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-*
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-*
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ *
+   * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ *
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.business.entity.helper.assessment;
 
@@ -57,7 +57,7 @@ public interface AssessmentHelperIfc
    * @param feedback
    */
   public void updateFeedbackModel(Assessment assessmentXml,
-    AssessmentFeedbackIfc feedback);
+                                  AssessmentFeedbackIfc feedback);
 
   /**
    * Set evaluation settings in XML.
@@ -65,7 +65,7 @@ public interface AssessmentHelperIfc
    * @param evaluationModel
    */
   public void updateEvaluationModel(Assessment assessmentXml,
-    EvaluationModelIfc evaluationModel);
+                                    EvaluationModelIfc evaluationModel);
 
   /**
    * Set access control settings in XML.
@@ -73,22 +73,18 @@ public interface AssessmentHelperIfc
    * @param accessControl
    */
   public void updateAccessControl(Assessment assessmentXml,
-    AssessmentAccessControlIfc accessControl);
+                                  AssessmentAccessControlIfc accessControl);
 
   public void updateMetaData(Assessment assessmentXml,
-    AssessmentFacade assessment);
+                             AssessmentFacade assessment);
 
   /**
- * Set the assessment description.
- * This is valid for all undelimited single item texts.
- * Not valid for matching or fill in the blank
- * @param description assessment description
- * @param assessmentXml the xml
- */
+   * Set the assessment description.
+   * This is valid for all undelimited single item texts.
+   * Not valid for matching or fill in the blank
+   * @param description assessment description
+   * @param assessmentXml the xml
+   */
   public void setDescriptiveText(String description, Assessment assessmentXml);
 
-
-
 }
-
-
