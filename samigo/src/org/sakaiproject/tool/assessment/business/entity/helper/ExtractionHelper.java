@@ -1088,24 +1088,6 @@ public class ExtractionHelper
   }
 
   /**
-   * matching only: create the answer feedback set for an answer
-   * @param answer
-   * @param correct
-   * @param incorrect
-   */
-  private void addMatchingAnswerFeedback(Answer answer,
-                                         String correct, String incorrect)
-  {
-    HashSet answerFeedbackSet = new HashSet();
-    answerFeedbackSet.add(new AnswerFeedback(answer,
-                                             AnswerFeedbackIfc.CORRECT_FEEDBACK,
-                                             correct));
-    answerFeedbackSet.add(new AnswerFeedback(answer,
-                                             AnswerFeedbackIfc.
-                                             INCORRECT_FEEDBACK, incorrect));
-  }
-
-  /**
    * @param item
    * @param itemMap
    */
