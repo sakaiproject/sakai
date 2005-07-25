@@ -112,7 +112,7 @@ document.links[newindex].onclick();
     <h:outputText value="#{assessmentBean.totalScore} #{msg.total_pt}" />
  </div>
   <p class="navModeAction">
-    <h:commandLink id="addPart" action="addPart" immediate="true">
+    <h:commandLink id="addPart" action="editPart" immediate="true">
       <h:outputText value="#{msg.subnav_add_part}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorPartListener" />
@@ -331,6 +331,8 @@ document.links[newindex].onclick();
 <f:verbatim>    </div> </f:verbatim>
   </h:column>
 </h:dataTable>
+
+<h:outputText rendered="#{assessmentBean.hasRandomDrawPart}" value="#{msg.random_draw_total_score}"/>
 </div>
 
 
