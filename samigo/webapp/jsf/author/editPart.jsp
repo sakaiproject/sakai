@@ -107,10 +107,11 @@
 <h:panelGrid rendered="#{sectionBean.hideRandom eq 'false'}" columns="2" columnClasses="longtext" >
 --%>
 
+<h:message for="numSelected" styleClass="validate"/>
 <h:panelGrid columns="2" columnClasses="longtext" >
    <h:outputText value="#{msg.number_of_qs}" />
 
-   <h:inputText disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
+   <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
 
    <h:outputText value="#{msg.pool_name} " />
    <h:selectOneMenu disabled="#{sectionBean.type == '1'}" required="true" id="assignToPool" value="#{sectionBean.selectedPool}">
@@ -160,7 +161,7 @@
 
   <p class="act">
      <h:commandButton value="#{msg.button_save}" type="submit"
-       styleClass="active" action="editAssessment" >
+       styleClass="active" action="#{sectionBean.getOutcome}" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener" />
      </h:commandButton>
