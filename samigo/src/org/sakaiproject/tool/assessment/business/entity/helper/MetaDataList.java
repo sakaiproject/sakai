@@ -97,7 +97,7 @@ public class MetaDataList
    * @param metadataList extraction-created list of "|" key value pairs
    * @param item the item
    */
-  private void addTo(ItemDataIfc item)
+  public void addTo(ItemDataIfc item)
   {
     if (metadataList == null)
     {
@@ -126,8 +126,7 @@ public class MetaDataList
    * Adds extraction-created list of "|" key value pairs
    * to assessment metadata map, if there are any.
    * Example:<br/>
-   * <p>á
-   *
+   * <p>
    * &lt; metadata type =" list " &gt; FEEDBACK_SHOW_CORRECT_RESPONSE|True &lt;/ metadata &gt;<br/> á
    * &lt; metadata type =" list " &gt; FEEDBACK_SHOW_STUDENT_SCORE|True &lt/ metadata &gt;<br/>
    * Becomes:<br/>
@@ -136,7 +135,7 @@ public class MetaDataList
    * @param metadataList extraction-created list of "|" key value pairs
    * @param assessment the assessment
    */
-  private void addTo(AssessmentFacade assessment)
+  public void addTo(AssessmentFacade assessment)
   {
     if (metadataList == null)
     {
@@ -205,7 +204,7 @@ public class MetaDataList
    *
    * @param assessment
    */
-  private void setDefaults(AssessmentFacade assessment)
+  public void setDefaults(AssessmentFacade assessment)
   {
     // turn this off specially, as template settings are meaningless on import
     assessment.addAssessmentMetaData("templateInfo_isInstructorEditable",
