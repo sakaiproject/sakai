@@ -35,13 +35,8 @@
 
 						<h:outputText value="#{msgs.syllabus_content}"/>
 						<sakai:rich_text_area value="#{SyllabusTool.entry.entry.asset}"   rows="17" columns="65" javascriptLibrary="/library/htmlarea"/>
-	
-<%--						<h:outputText value="#{msgs.syllabus_view}"/>
-						<h:selectOneRadio id="chooseCreatSyllaType" value="#{SyllabusTool.entry.entry.view}" layout="pageDirection">
-			 				<f:selectItem itemLabel="#{msgs.yes}" itemValue="yes"/>
-					 		<f:selectItem itemLabel= "#{msgs.no}" itemValue="no"/>
-						</h:selectOneRadio>--%>
-
+						<h:outputText value="" style="color: red"  rendered="#{SyllabusTool.displayEvilTagMsg}"/>
+					    <h:outputText value="#{msgs.empty_content_validate} #{SyllabusTool.evilTagMsg}" style="color: red"  rendered="#{SyllabusTool.displayEvilTagMsg}"/>
 					</sakai:panel_edit>
 
 				</sakai:group_box>

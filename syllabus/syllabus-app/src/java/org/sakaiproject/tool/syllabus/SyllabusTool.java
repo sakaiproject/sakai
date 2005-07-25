@@ -40,6 +40,7 @@ import org.sakaiproject.service.framework.portal.cover.PortalService;
 import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 
 import com.sun.faces.util.MessageFactory;
 
@@ -137,6 +138,10 @@ public class SyllabusTool
   private boolean displayNoEntryMsg = false;
   
   private boolean displayTitleErroMsg = false;
+  
+  private boolean displayEvilTagMsg=false;
+  
+  private String evilTagMsg=null;
   
   private SyllabusService syllabusService;
 
@@ -437,14 +442,34 @@ public class SyllabusTool
    * fileUpload) { this.fileUpload = fileUpload; }
    */
 
-  public String processDeleteCancel()
+  public boolean getDisplayEvilTagMsg()
+  {
+	return displayEvilTagMsg;
+  }
+
+  public void setDisplayEvilTagMsg(boolean displayEvilTagMsg) 
+  {
+	this.displayEvilTagMsg = displayEvilTagMsg;
+  }
+
+  public String getEvilTagMsg() 
+  {
+	return evilTagMsg;
+  }
+
+  public void setEvilTagMsg(String evilTagMsg) 
+  {
+	this.evilTagMsg = evilTagMsg;
+  }
+
+public String processDeleteCancel()
   {
     logger.info(this + ".processDeleteCancel() in SyllabusTool.");
 
     entries.clear();
     entry = null;
     syllabusItem = null;
-
+  
     return "main_edit";
   }
 
@@ -505,8 +530,8 @@ public class SyllabusTool
     if (entry != null){
       syllabusManager.removeSyllabusDataObject(entry.getEntry());      
     }
-    
     displayTitleErroMsg = false;
+    displayEvilTagMsg=false;
     entries.clear();
     entry = null;
     syllabusItem = null;
@@ -520,6 +545,8 @@ public class SyllabusTool
 
     try
     {
+      displayTitleErroMsg = false;
+      displayEvilTagMsg=false;
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -535,15 +562,33 @@ public class SyllabusTool
         {
           displayTitleErroMsg = true;
           return "edit";
-        }        
+        }
+        if(entry.getEntry().getAsset()!=null)
+        {
+        	StringBuffer alertMsg = new StringBuffer();
+        	String errorMsg= null;
+    		try
+    		{
+    			errorMsg =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+    			if (alertMsg.length() > 0)
+    			{
+					evilTagMsg =alertMsg.toString();
+					displayEvilTagMsg=true;
+					return "edit";
+    			}
+    		 }
+    		catch (Exception e)
+    		{
+    			logger.warn(this + " " + errorMsg,e);
+    		}
+        }
         if (entry.justCreated == true)
         {
           syllabusManager.addSyllabusToSyllabusItem(syllabusItem, getEntry()
               .getEntry());
         }
       }
-
-      displayTitleErroMsg = false;
+ 
       entries.clear();
       entry = null;
       syllabusItem = null;
@@ -567,7 +612,9 @@ public class SyllabusTool
     logger.info(this + ".processEditPost() in SyllabusTool");
 
     try
-    {
+    { 
+      displayTitleErroMsg = false;
+      displayEvilTagMsg=false;
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -583,7 +630,26 @@ public class SyllabusTool
         {
           displayTitleErroMsg = true;
           return "edit";
-        }        
+        }
+        if(entry.getEntry().getAsset()!=null)
+        {
+        	StringBuffer alertMsg = new StringBuffer();
+        	String errorMsg= null;
+        	try
+    		{
+    			errorMsg =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+    			if (alertMsg.length() > 0)
+    			{
+					evilTagMsg =alertMsg.toString();
+					displayEvilTagMsg=true;
+					return "edit";
+    			}
+    		 }
+    		catch (Exception e)
+    		{
+    			logger.warn(this + " " + errorMsg,e);
+    		}
+        }
         if (entry.justCreated == true)
         {
           getEntry().getEntry().setStatus("Posted");
@@ -595,8 +661,6 @@ public class SyllabusTool
           entries.clear();
           entry = null;
           syllabusItem = null;
-          displayTitleErroMsg = false;
-          
           return "main_edit";
         }
       }
@@ -694,6 +758,7 @@ public class SyllabusTool
     logger.info(this + ".processReadCancel() in SyllabusTool");
 
     displayTitleErroMsg = false;
+    displayEvilTagMsg=false;
     entries.clear();
     entry = null;
     syllabusItem = null;
@@ -707,6 +772,8 @@ public class SyllabusTool
 
     try
     {
+      displayTitleErroMsg = false;
+      displayEvilTagMsg=false;	
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -716,20 +783,40 @@ public class SyllabusTool
         if(entry.getEntry().getTitle() == null)
         {
           displayTitleErroMsg = true;
+          
           return "read";          
         }
         else if(entry.getEntry().getTitle().trim().equals(""))
         {
           displayTitleErroMsg = true;
           return "read";
-        }        
+        }
+        if(entry.getEntry().getAsset()!=null)
+        {
+        	StringBuffer alertMsg = new StringBuffer();
+        	String errorMsg= null;
+        	try
+    		{
+    			errorMsg =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+    			if (alertMsg.length() > 0)
+    			{
+					evilTagMsg =alertMsg.toString();
+					displayEvilTagMsg=true;
+					return "edit";
+    			}
+    		 }
+    		catch (Exception e)
+    		{
+    			logger.warn(this + " " + errorMsg,e);
+    		}
+        }
         if (entry.justCreated == false)
         {
           getEntry().getEntry().setStatus("Draft");
           syllabusManager.saveSyllabus(getEntry().getEntry());
         }
       }
-      displayTitleErroMsg = false;
+      
       entries.clear();
       entry = null;
       syllabusItem = null;
@@ -754,6 +841,8 @@ public class SyllabusTool
 
     try
     {
+      displayTitleErroMsg = false;
+      displayEvilTagMsg=false;	
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -769,15 +858,33 @@ public class SyllabusTool
         {
           displayTitleErroMsg = true;
           return "read";
-        }        
+        }
+        if(entry.getEntry().getAsset()!=null)
+        {
+        	StringBuffer alertMsg = new StringBuffer();
+        	String errorMsg= null;
+        	try
+    		{
+    			errorMsg =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+    			if (alertMsg.length() > 0)
+    			{
+					evilTagMsg =alertMsg.toString();
+					displayEvilTagMsg=true;
+					return "edit";
+    			}
+    		 }
+    		catch (Exception e)
+    		{
+    			logger.warn(this + " " + errorMsg,e);
+    		}
+        }
         if (entry.justCreated == false)
         {
           getEntry().getEntry().setStatus("Posted");
           syllabusManager.saveSyllabus(getEntry().getEntry());
 
           syllabusService.postChangeSyllabus(getEntry().getEntry());
-          
-          displayTitleErroMsg = false;
+               
           entries.clear();
           entry = null;
           syllabusItem = null;
@@ -853,21 +960,39 @@ public class SyllabusTool
 
   public String processEditPreview()
   {
+	displayTitleErroMsg = false;
+    displayEvilTagMsg=false;
     if(entry.getEntry().getTitle() == null)
     {
       displayTitleErroMsg = true;
       return "edit";          
     }
-    else if(entry.getEntry().getTitle().trim().equals(""))
+    if(entry.getEntry().getTitle().trim().equals(""))
     {
       displayTitleErroMsg = true;
       return "edit";
     }
-    else
+    if(entry.getEntry().getAsset()!=null)
     {
-      displayTitleErroMsg = false;
+    	StringBuffer alertMsg = new StringBuffer();
+    	String errorMsg= null;
+    	try
+		{
+			errorMsg =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+			if (alertMsg.length() > 0)
+			{
+				evilTagMsg =alertMsg.toString();
+				displayEvilTagMsg=true;
+				return "edit";
+			}
+		 }
+		catch (Exception e)
+		{
+			logger.warn(this + " " + errorMsg,e);
+		}
+    } 
       return "preview";
-    }
+    
   }
 
   public String processEditPreviewBack()
@@ -877,21 +1002,39 @@ public class SyllabusTool
 
   public String processReadPreview()
   {
+	displayTitleErroMsg = false;
+    displayEvilTagMsg=false;  
     if(entry.getEntry().getTitle() == null)
     {
       displayTitleErroMsg = true;
       return "read";          
     }
-    else if(entry.getEntry().getTitle().trim().equals(""))
+    if(entry.getEntry().getTitle().trim().equals(""))
     {
       displayTitleErroMsg = true;
       return "read";
     }
-    else
+    if(entry.getEntry().getAsset()!=null)
     {
-      displayTitleErroMsg = false;
+    	StringBuffer alertMsg = new StringBuffer();
+    	String errorMsg= null;
+    	try
+		{
+			errorMsg =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+			if (alertMsg.length() > 0)
+			{
+				evilTagMsg =alertMsg.toString();
+				displayEvilTagMsg=true;
+				return "edit";
+			}
+		 }
+		catch (Exception e)
+		{
+			logger.warn(this + " " + errorMsg,e);
+		}
+    }      
       return "read_preview";
-    }
+    
   }
 
   public String processReadPreviewBack()
