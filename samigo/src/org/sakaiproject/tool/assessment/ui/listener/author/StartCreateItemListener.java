@@ -58,7 +58,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
   private String scalename;  // used for multiple choice Survey
 
 
-  // both actionListener and valueChangeListener methods are used, 
+  // both actionListener and valueChangeListener methods are used,
   // for authoring asseessments and qpools
 
   /**
@@ -125,7 +125,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 
     log.debug("lydiatest BEGIN STartCreateItem item type " + itemauthorbean.getItemType());
 
-  /* 
+  /*
     boolean update = false;
     String curritemid = null;
     // check if it is coming from Item Modify page.
@@ -143,11 +143,11 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
     {
       throw new RuntimeException("failed to startCreatItem.");
     }
-    
+
 /*
     if (update){
-	// if update, then update currentItem's itemId. 
-       curritem.setItemId(curritemid); 
+	// if update, then update currentItem's itemId.
+       curritem.setItemId(curritemid);
       log.debug("lydiatest after StartCreateItem, reset itemid to old item id for modify =" + curritem.getItemId());
     }
 */
@@ -195,8 +195,13 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
         itemauthorbean.setItemType("");
         itemauthorbean.setItemTypeString("");
         int itype=0; //
-        if (item.getItemType()!=null) {
-                itype = new Integer(item.getItemType()).intValue();
+        if (item.getItemType()!=null)
+        {
+          itype = new Integer(item.getItemType()).intValue();
+        }
+        else if ("".equals(item.getItemType()))
+        {
+          itype = 1; // we only appear to get here when when the mouse is clicked a lot.
         }
     log.debug("lydiatest selected which type : " + itype);
         switch (itype) {
