@@ -76,6 +76,9 @@ private String questionOrdering;
 private boolean hideRandom = false;
 private boolean hideOneByOne= false;
 
+private String outcome;
+
+
 
   public void setSection(SectionFacade section) {
     try {
@@ -551,6 +554,23 @@ private boolean hideOneByOne= false;
 
   }
 
+
+   /**
+   * get outcome 
+   */
+  public String getOutcome()
+  {
+    return outcome;
+  }
+
+  /**
+   * set outcome 
+   * @param param
+   */
+  public void setOutcome(String param)
+  {
+    this.outcome= param;
+  }
 
 
 }
