@@ -62,6 +62,7 @@ public class AssessmentBean
   private float totalScore=0;
   private String newQuestionTypeId;
   private String firstSectionId;
+  private boolean hasRandomDrawPart;
 
   /*
    * Creates a new AssessmentBean object.
@@ -85,9 +86,7 @@ public class AssessmentBean
       ArrayList sectionArray = assessment.getSectionArraySorted();
       for (int i=0; i<sectionArray.size(); i++){
         SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-        //System.out.println("** section = "+section);
         SectionContentsBean sectionBean = new SectionContentsBean(section);
-        //System.out.println("** sectionContentsBean = "+sectionBean);
         this.sections.add(sectionBean);
       }
       setPartNumbers();
@@ -142,16 +141,34 @@ public class AssessmentBean
   public void setQuestionSizeAndTotalScore() {
    this.questionSize = 0;
    this.totalScore = 0;
+   int randomPartCount = 0; 
    for(int i=0;i<this.sections.size();i++){
       SectionContentsBean sectionBean = (SectionContentsBean) sections.get(i);
       ArrayList items = sectionBean.getItemContents();
-      this.questionSize += items.size();
-      for (int j=0; j<items.size();j++){
-        ItemContentsBean item = (ItemContentsBean)items.get(j);
-        if (item.getItemData().getScore()!=null){
-          this.totalScore += item.getItemData().getScore().floatValue();
-        }
+
+      int itemsInThisSection =0;
+      if (sectionBean.getSectionAuthorType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)) {
+        // for random draw parts, add 
+   	randomPartCount++ ; 
+        itemsInThisSection = sectionBean.getNumberToBeDrawn().intValue();
       }
+      else {
+	itemsInThisSection = items.size();
+      }    
+
+      this.questionSize += itemsInThisSection;
+      for (int j=0; j<itemsInThisSection; j++){
+          ItemContentsBean item = (ItemContentsBean)items.get(j);
+          if (item.getItemData().getScore()!=null){
+            this.totalScore += item.getItemData().getScore().floatValue();
+          }
+      }    
+    }
+    if (randomPartCount >0) {
+	setHasRandomDrawPart(true);
+    } 
+    else {
+	setHasRandomDrawPart(false);
     }
   }
 
@@ -230,6 +247,14 @@ public class AssessmentBean
 
   public void setOtherSectionList(ArrayList list){
       this.otherSectionList = list; // list contains javax.faces.model.SelectItem
+  }
+
+  public boolean getHasRandomDrawPart() {
+    return this.hasRandomDrawPart;
+  }
+
+  public void setHasRandomDrawPart(boolean param) {
+    this.hasRandomDrawPart= param;
   }
 
 }
