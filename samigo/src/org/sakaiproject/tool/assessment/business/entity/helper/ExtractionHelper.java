@@ -397,9 +397,10 @@ public class ExtractionHelper
 
     log.debug("ASSESSMENT updating metadata information");
     // set meta data
-    List metadataList = (List) assessmentMap.get("metadata");
-    makeMetaDataDefaults(assessment);// first turn all default switches
-    addMetadata(metadataList, assessment);// get QTI metadata, if any
+    List metalist = (List) assessmentMap.get("metadata");
+    MetaDataList metadataList = new MetaDataList(metalist);
+    metadataList.setDefaults(assessment);
+    metadataList.addTo(assessment);
     createdBy = assessment.getAssessmentMetaDataByLabel("CREATOR");
 
     log.debug("ASSESSMENT updating basic information");
@@ -893,9 +894,10 @@ public class ExtractionHelper
     Long typeId = getType(itemType); // we use this later...
     item.setTypeId(typeId);
 
-    // meta data
-    List metadataList = (List) itemMap.get("metadata");
-    addMetadata(metadataList, item);
+    // set meta data
+    List metalist = (List) itemMap.get("metadata");
+    MetaDataList metadataList = new MetaDataList(metalist);
+    metadataList.addTo(item);
 
     // basic properties
     addItemProperties(item, itemMap);
@@ -1539,150 +1541,4 @@ public class ExtractionHelper
     this.overridePath = overridePath;
   }
 
-  /**
-   * Adds extraction-created list of "|" key value pairs
-   * to item metadata map, if there are any.
-   * Example:<br/>
-   * <p>á
-       * &lt; metadata type =" list " &gt; TEXT_FORMAT| HTML &lt;/ metadata &gt;<br/> á
-   * &lt; metadata type =" list " &gt; ITEM_OBJECTIVE| &lt/ metadata &gt;<br/>
-   * Becomes:<br/>
-   * TEXT_FORMAT=>HTML etc.
-   * </p>
-   * @param metadataList extraction-created list of "|" key value pairs
-   * @param item the item
-   */
-  private void addMetadata(List metadataList, ItemDataIfc item)
-  {
-    if (metadataList == null)
-    {
-      return; // no metadata found
-    }
-
-    for (int i = 0; i < metadataList.size(); i++)
-    {
-      String meta = (String) metadataList.get(i);
-      StringTokenizer st = new StringTokenizer(meta, "|");
-      String key = null;
-      String value = null;
-      if (st.hasMoreTokens())
-      {
-        key = st.nextToken().trim();
-      }
-      if (st.hasMoreTokens())
-      {
-        value = st.nextToken().trim();
-        item.addItemMetaData(key, value);
-      }
-    }
-  }
-
-  /**
-   * Adds extraction-created list of "|" key value pairs
-   * to assessment metadata map, if there are any.
-   * Example:<br/>
-   * <p>á
-   *
-   * &lt; metadata type =" list " &gt; FEEDBACK_SHOW_CORRECT_RESPONSE|True &lt;/ metadata &gt;<br/> á
-   * &lt; metadata type =" list " &gt; FEEDBACK_SHOW_STUDENT_SCORE|True &lt/ metadata &gt;<br/>
-   * Becomes:<br/>
-   * TEXT_FORMAT=>HTML etc.
-   * </p>
-   * @param metadataList extraction-created list of "|" key value pairs
-   * @param assessment the assessment
-   */
-  private void addMetadata(List metadataList, AssessmentFacade assessment)
-  {
-    if (metadataList == null)
-    {
-      return; // no metadata found
-    }
-
-    for (int i = 0; i < metadataList.size(); i++)
-    {
-      String meta = (String) metadataList.get(i);
-      StringTokenizer st = new StringTokenizer(meta, "|");
-      String key = null;
-      String value = null;
-      if (st.hasMoreTokens())
-      {
-        key = st.nextToken().trim();
-      }
-
-      // translate XML metadata strings to assessment metadata strings here
-      // key to patch up the difference between Daisy's and earlier labels
-      // that are compatible with the earlier beta version of Samigo
-      if ("AUTHORS".equals(key)) key = AssessmentMetaDataIfc.AUTHORS;
-      if ("ASSESSMENT_KEYWORDS".equals(key)) key = AssessmentMetaDataIfc.KEYWORDS;
-      if ("ASSESSMENT_OBJECTIVES".equals(key)) key = AssessmentMetaDataIfc.OBJECTIVES;
-      if ("ASSESSMENT_RUBRICS".equals(key)) key = AssessmentMetaDataIfc.RUBRICS;
-      if ("BGCOLOR".equals(key)) key = AssessmentMetaDataIfc.BGCOLOR;
-      if ("BGIMG".equals(key)) key = AssessmentMetaDataIfc.BGIMAGE;
-      if ("COLLECT_ITEM_METADATA".equals(key)) key = "hasMetaDataForQuestions";
-
-      if (st.hasMoreTokens())
-      {
-        value = st.nextToken().trim();
-        assessment.addAssessmentMetaData(key, value);
-      }
-    }
-  }
-
-  /**
-   * Turns on editability for everything (ecept template info),
-   * since we don't know if this  metadata is in the assessment or not,
-   * or may not want to follow it, even if it is.
-   *
-   * The importer of the assesment may also be different than the
-   * exporter, and may be on a different system or have different
-   * templates, or policies, even if using this softwware.
-   *
-   * @param assessment
-   */
-  private void makeMetaDataDefaults(AssessmentFacade assessment)
-  {
-    // turn this off specially, as template settings are meaningless on import
-    assessment.addAssessmentMetaData("templateInfo_isInstructorEditable", "false");
-
-    String[] editKeys = {
-        "assessmentAuthor_isInstructorEditable",
-        "assessmentCreator_isInstructorEditable",
-        "description_isInstructorEditable",
-        "dueDate_isInstructorEditable",
-        "retractDate_isInstructorEditable",
-        "anonymousRelease_isInstructorEditable",
-        "authenticatedRelease_isInstructorEditable",
-        "ipAccessType_isInstructorEditable",
-        "passwordRequired_isInstructorEditable",
-        "timedAssessment_isInstructorEditable",
-        "timedAssessmentAutoSubmit_isInstructorEditable",
-        "itemAccessType_isInstructorEditable",
-        "displayChunking_isInstructorEditable",
-        "displayNumbering_isInstructorEditable",
-        "submissionModel_isInstructorEditable",
-        "lateHandling_isInstructorEditable",
-        "autoSave_isInstructorEditable",
-        "submissionMessage_isInstructorEditable",
-        "finalPageURL_isInstructorEditable",
-        "feedbackType_isInstructorEditable",
-        "feedbackComponents_isInstructorEditable",
-        "testeeIdentity_isInstructorEditable",
-        "toGradebook_isInstructorEditable",
-        "recordedScore_isInstructorEditable",
-        "bgColor_isInstructorEditable",
-        "bgImage_isInstructorEditable",
-        "metadataAssess_isInstructorEditable",
-        "metadataParts_isInstructorEditable",
-        "metadataQuestions_isInstructorEditable",
-    };
-    for (int i = 0; i < editKeys.length; i++)
-    {
-      assessment.addAssessmentMetaData(editKeys[i], "true");
-    }
-
-
-  }
-
 }
-
-
