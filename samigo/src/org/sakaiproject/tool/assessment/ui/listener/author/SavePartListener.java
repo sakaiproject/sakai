@@ -27,7 +27,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
+
+import java.util.ResourceBundle;
 import javax.faces.context.FacesContext;
+import javax.faces.application.FacesMessage;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -98,19 +101,29 @@ public class SavePartListener
 
     boolean addItemsFromPool = false;
 
+    sectionBean.setOutcome("editAssessment");
 
     if (!("".equals(sectionBean.getType()))  && ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))) {
 
       addItemsFromPool = true;
 
+      if (validateItemsDrawn(sectionBean)) {
+      log.debug("**** lydiatest validated true" );
       // if the author type was random draw type,  and the new type is random draw , then we need to disassociate sectionid with each items. Cannot delete items, 'cuz these items are linked in the pool
 
-      if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+        if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
 
-        assessmentService.removeAllItems(sectionId);
+          assessmentService.removeAllItems(sectionId);
         // need to reload
-        section = assessmentService.getSection(sectionId);
+          section = assessmentService.getSection(sectionId);
+        }
       }
+      else {
+      log.debug("**** lydiatest validated false " );
+        sectionBean.setOutcome("editPart");
+        return;
+      }
+
     }
 
     log.debug("**** section title ="+section.getTitle());
@@ -189,5 +202,31 @@ public class SavePartListener
 			     assessmentId);
     return section;
   }
+
+
+
+  public boolean validateItemsDrawn(SectionBean sectionBean){
+     String numberDrawn = sectionBean.getNumberSelected();
+     int numberDrawnInt = (new Integer(numberDrawn)).intValue();
+
+     QuestionPoolService qpservice = new QuestionPoolService();
+
+     ArrayList itemlist = qpservice.getAllItems(new Long(sectionBean.getSelectedPool()) );
+     int itemcount = itemlist.size();
+
+     FacesContext context=FacesContext.getCurrentInstance();
+
+     ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
+     String err;
+      log.debug("lydiatest validate " + itemcount  + " and number drawn = " + numberDrawnInt);
+     if(itemcount< numberDrawnInt ) {
+         err=(String)rb.getObject("overdrawn_error");
+         context.addMessage("modifyPartForm:numSelected",new FacesMessage(err));
+            return false;
+     }
+     else {
+            return true;
+            }
+    }
 
 }
