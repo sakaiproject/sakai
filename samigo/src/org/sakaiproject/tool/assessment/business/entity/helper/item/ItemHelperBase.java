@@ -137,6 +137,11 @@ public abstract class ItemHelperBase
   {
     AuthoringXml ax = getAuthoringXml();
     InputStream is = null;
+    if (scaleName==null)
+    {
+      log.warn("missing survey scale name, set to: STRONGLY_AGREE");
+      scaleName = "STRONGLY_AGREE";
+    }
     String template = getTemplateFromScale(scaleName);
     is = ax.getTemplateInputStream(template,
                                    FacesContext.getCurrentInstance());
