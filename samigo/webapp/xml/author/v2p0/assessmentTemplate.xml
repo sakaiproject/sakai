@@ -24,7 +24,13 @@
       </qtimetadatafield>
       <!--Possible Values -->
       <!--#PCDATA -->
-
+      <qtimetadatafield>
+        <fieldlabel>SCALENAME</fieldlabel>
+        <fieldentry>STRONGLY_AGREE</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--    "YESNO", "AGREE", "UNDECIDED", "AVERAGE", "STRONGLY_AGREE",
+              "EXCELLENT", "SCALEFIVE",  "SCALETEN"  -->
       <qtimetadatafield>
         <fieldlabel>EDIT_AUTHORS</fieldlabel>
         <fieldentry>True</fieldentry>
@@ -106,7 +112,7 @@
      <!-- *********************************Assessment released to:**************************** -->
      <qtimetadatafield>
         <fieldlabel>ASSESSMENT_RELEASED_TO</fieldlabel>
-        <fieldentry></fieldentry>
+        <fieldentry>Anonymous Users</fieldentry>
       </qtimetadatafield>
       <!--Possible Values -->
       <!--#PCDATA-->
