@@ -29,6 +29,8 @@ import java.util.StringTokenizer;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
 
 /**
  * Contract: use List of special "|" delimited "KEY|VALUE" Strings!
@@ -36,6 +38,8 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
  */
 public class MetaDataList
 {
+  private static Log log = LogFactory.getLog(ExtractionHelper.class);
+
   /**
    * list of editable settings
    */
@@ -185,6 +189,16 @@ public class MetaDataList
         key = "hasMetaDataForQuestions";
 
       }
+
+      // for backwards compatibility with version 1.5 exports.
+      if ("ASSESSMENT_RELEASED_TO".equals(key) &&
+          value != null && value.indexOf("Authenticated Users") > -1)
+      {
+        log.info(
+          "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
+        value = "Anonymous Users";
+      }
+
       if (st.hasMoreTokens())
       {
         value = st.nextToken().trim();
