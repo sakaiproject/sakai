@@ -666,8 +666,17 @@ public class ExtractionHelper
     // don't know what site you will have in a new environment
     // but registered as a BUG in SAM-271 so turning it on.
 
-      String releasedTo = assessment.getAssessmentMetaDataByLabel(
-          "ASSESSMENT_RELEASED_TO");
+    String releasedTo = assessment.getAssessmentMetaDataByLabel(
+        "ASSESSMENT_RELEASED_TO");
+
+    // for backwards compatibility with version 1.5 exports.
+    if (releasedTo != null && releasedTo.indexOf("Authenticated Users") > -1)
+    {
+      log.info(
+          "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
+      releasedTo = "Anonymous Users";
+    }
+
       control.setReleaseTo(releasedTo);
 
     // Timed Assessment
