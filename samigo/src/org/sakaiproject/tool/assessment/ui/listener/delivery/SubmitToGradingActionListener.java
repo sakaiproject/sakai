@@ -257,7 +257,8 @@ public class SubmitToGradingActionListener implements ActionListener
     {
 	log.debug("**** Delivery time elapse="+delivery.getTimeElapse());
       String a = delivery.getTimeElapse();
-      a = a.substring(0, a.lastIndexOf("."));
+      if (a.lastIndexOf(".") > 0)
+        a = a.substring(0, a.lastIndexOf("."));
       adata.setTimeElapsed(new Integer(a));
       delivery.setTimeRunning(true);
     }
