@@ -38,11 +38,6 @@
       <material>
         <matimage imagtype="text/html" uri=""/>
       </material>
-      <response_str ident="FIB91" rcardinality="Single" rtiming="No">
-        <render_fib columns="80" fibtype="String" prompt="Box" rows="20">
-          <response_label ident="A"/>
-        </render_fib>
-      </response_str>
     </flow>
   </presentation>
   <resprocessing>
