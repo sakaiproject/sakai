@@ -313,11 +313,27 @@ public class TotalScoreListener
         results.setFinalScore(gdata.getFinalScore().toString());
         results.setComments(gdata.getComments());
 
-        if (dueDate == null || gdata.getSubmittedDate().before(dueDate))
-          results.setIsLate(new Boolean(false));
-        else
-          results.setIsLate(new Boolean(true));
+        int graded=0;
+        Iterator i3 = gdata.getItemGradingSet().iterator();
+          while (i3.hasNext())
+          {
+            ItemGradingData igd = (ItemGradingData) i3.next();
+            if (igd.getAutoScore() != null)
+		graded++;
+          }
 
+        if (dueDate == null || gdata.getSubmittedDate().before(dueDate)) {
+          results.setIsLate(new Boolean(false));
+          if (gdata.getItemGradingSet().size()==graded)
+              results.setStatus("All Graded");
+          else
+              results.setStatus("");
+        }
+        else {
+
+          results.setIsLate(new Boolean(true));
+          results.setStatus("Late");
+        }
         AgentFacade agent = new AgentFacade(gdata.getAgentId());
         //System.out.println("Rachel: agentid = " + gdata.getAgentId());
         results.setLastName(agent.getLastName());
