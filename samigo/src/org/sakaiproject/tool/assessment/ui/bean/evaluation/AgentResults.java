@@ -57,7 +57,7 @@ public class AgentResults
   private String finalScore; // final total score
   private String answer; // The text or link of the answer
   private String comments;
-  private Integer status;
+  private String status;
   private String gradedBy;
   private Date gradedDate;
   private Set itemGradingSet;
@@ -206,10 +206,10 @@ public class AgentResults
    * represent how well the student does overall. status = 1 means
    * this submitted assessment is selected.
    */
-  public Integer getStatus() {
+  public String getStatus() {
     return status;
   }
-  public void setStatus(Integer status) {
+  public void setStatus(String status) {
     this.status = status;
   }
 
