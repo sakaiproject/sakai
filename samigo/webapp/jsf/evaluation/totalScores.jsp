@@ -309,17 +309,14 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="status" />
         </h:commandLink>
       </f:facet>
-      <h:outputText styleClass="red" value="#{msg.all_late}" escape="false"
-        rendered="#{description.isLate}"/>
+      <h:outputText value="#{description.status}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='status'}">
       <f:facet name="header">
         <h:outputText value="#{msg.status}" />
       </f:facet>
-      <h:outputText value="#{totalScores.lateHandling}"/>
-      <h:outputText styleClass="red" value="#{msg.all_late}" escape="false"
-        rendered="#{description.isLate}"/>
+      <h:outputText value="#{description.status}"/>
     </h:column>
 
     <!-- TOTAL -->
