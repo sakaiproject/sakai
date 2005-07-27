@@ -82,7 +82,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     authoringXml = new AuthoringXml(getQtiVersion());
     allIdents = new ArrayList();
 
-    System.out.println("ItemHelper12Impl");
+    log.debug("ItemHelper12Impl");
   }
 
   protected AuthoringXml getAuthoringXml()

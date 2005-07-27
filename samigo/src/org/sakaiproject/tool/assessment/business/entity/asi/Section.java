@@ -291,7 +291,6 @@ public class Section extends ASIBaseClass
         if ( (type.MULTIPLE_CHOICE_SURVEY).equals(type.getTypeId()))
         {
           String scale = item.getItemMetaDataByLabel(ItemMetaDataIfc.SCALENAME);
-//          System.out.println("getting XML for survey type: " + scale);
           itemXml = itemHelper.readTypeSurveyItem(scale);
         }
         else

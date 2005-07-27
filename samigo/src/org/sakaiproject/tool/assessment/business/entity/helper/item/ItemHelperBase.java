@@ -193,8 +193,8 @@ public abstract class ItemHelperBase
       template = ax.SURVEY_10;
     }
 
-    System.out.println("scale: " + scaleName);
-    System.out.println("template: " + template);
+    log.info("scale: " + scaleName);
+    log.info("template: " + template);
 
     return template;
   }
@@ -252,8 +252,8 @@ public abstract class ItemHelperBase
       template = ax.ITEM_MATCHING;
     }
 
-    System.out.println("typeId: " + typeId);
-    System.out.println("template: " + template);
+    log.info("typeId: " + typeId);
+    log.info("template: " + template);
 
     return template;
   }

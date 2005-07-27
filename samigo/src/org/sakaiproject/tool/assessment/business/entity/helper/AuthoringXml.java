@@ -567,17 +567,14 @@ public class AuthoringXml
     catch (ParserConfigurationException e)
     {
       log.error(e.getMessage(), e);
-//      System.out.println("oops" + e);
     }
     catch (SAXException e)
     {
       log.error(e.getMessage(), e);
-//      System.out.println("oops" + e);
     }
     catch (IOException e)
     {
       log.error(e.getMessage(), e);
-//      System.out.println("oops" + e);
     }
 
     return document;
@@ -604,8 +601,6 @@ public class AuthoringXml
     catch (Exception any)
     {
       log.warn("Xml.readDocumentFromString: " + any.toString());
-      System.out.println("any=" + any);
-//                      any.printStackTrace();
       return null;
     }
 

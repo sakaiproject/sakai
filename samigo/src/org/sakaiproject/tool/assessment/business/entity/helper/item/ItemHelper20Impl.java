@@ -60,7 +60,7 @@ public class ItemHelper20Impl extends ItemHelperBase
   {
     super();
     authoringXml = new AuthoringXml(getQtiVersion());
-    System.out.println("ItemHelper20Impl");
+    log.debug("ItemHelper20Impl");
   }
 
   protected AuthoringXml getAuthoringXml()

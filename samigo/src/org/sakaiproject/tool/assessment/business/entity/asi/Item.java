@@ -104,10 +104,10 @@ public class Item extends ASIBaseClass
 
     QTIHelperFactory factory = new QTIHelperFactory();
     helper = factory.getItemHelperInstance(qtiVersion);
-    System.out.println("Item XML class.initVersion(int qtiVersion)");
-    System.out.println("qtiVersion="+qtiVersion);
-    System.out.println("basePath="+basePath);
-    System.out.println("identity="+identity);
+    log.debug("Item XML class.initVersion(int qtiVersion)");
+    log.debug("qtiVersion="+qtiVersion);
+    log.debug("basePath="+basePath);
+    log.debug("identity="+identity);
   }
 
   /**
@@ -193,7 +193,7 @@ public class Item extends ASIBaseClass
    */
   public void setAnswerTrueFalse(boolean isTrue)
   {
-    System.out.println("isTrue="+isTrue);
+    log.debug("isTrue="+isTrue);
     if (isTrue)
     {
       helper.addCorrectAnswer("A", this);

@@ -22,6 +22,9 @@
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.business.entity.helper.assessment;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
 
 /**
@@ -35,9 +38,11 @@ import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
 // Note assessment for QTI 1.2 and 2.0 are nearly identical
 public class AssessmentHelper12Impl extends AssessmentHelperBase
 {
+  private static Log log = LogFactory.getLog(AssessmentHelper12Impl.class);
+
   public AssessmentHelper12Impl()
   {
-//    System.out.println("AssessmentHelper12Impl");
+    log.debug("AssessmentHelper12Impl");
   }
 
   /**

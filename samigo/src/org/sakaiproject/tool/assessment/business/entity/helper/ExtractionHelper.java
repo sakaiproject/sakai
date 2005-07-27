@@ -686,7 +686,7 @@ public class ExtractionHelper
         releasedTo = "Anonymous Users";
       }
 
-      System.out.println("control.setReleaseTo(releasedTo)='"+releasedTo+"'.");
+      log.debug("control.setReleaseTo(releasedTo)='"+releasedTo+"'.");
       control.setReleaseTo(releasedTo);
 
     // Timed Assessment
@@ -714,9 +714,9 @@ public class ExtractionHelper
                                  DO_NOT_TIMED_ASSESSMENT);
     }
 
-    System.out.println(
+    log.debug(
         "Set: control.getTimeLimit()="+control.getTimeLimit());
-    System.out.println(
+    log.debug(
         "Set: control.getTimedAssessment()="+ control.getTimedAssessment());
 
     if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
@@ -794,8 +794,8 @@ public class ExtractionHelper
         control.setSubmissionsAllowed(new Integer("1"));
       }
     }
-    System.out.println("Set: control.getSubmissionsAllowed()="+control.getSubmissionsAllowed());
-    System.out.println("Set: control.getUnlimitedSubmissions()="+control.getUnlimitedSubmissions());
+    log.debug("Set: control.getSubmissionsAllowed()="+control.getSubmissionsAllowed());
+    log.debug("Set: control.getUnlimitedSubmissions()="+control.getUnlimitedSubmissions());
 
     // late submissions
     // I am puzzled as to why there is no ACCEPT_LATE_SUBMISSION, assuming it =T
@@ -1016,7 +1016,7 @@ public class ExtractionHelper
     {
       String key = (String) iter.next();
       Object o = itemMap.get(key);
-      System.out.println("itemMap: " + key + "=" + itemMap.get(key));
+      log.debug("itemMap: " + key + "=" + itemMap.get(key));
     }
 
     String correctItemFeedback = (String) itemMap.get("correctItemFeedback");
