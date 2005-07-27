@@ -213,7 +213,7 @@
   <!-- DEPENDENCY WARNING: syncs with type strings in AuthoringConstantStrings.java -->
   <xsl:for-each select="//item">
     <xsl:variable name="labels"><xsl:for-each select=".//response_label"><xsl:value-of select="@ident"/></xsl:for-each></xsl:variable>
-    <introSpect>
+    <itemIntrospect>
       <xsl:choose>
         <xsl:when test=".//render_choice and .//response_grp">Matching</xsl:when>
         <xsl:when test=".//resprocessing and .//render_fib">Fill In the Blank</xsl:when>
@@ -222,7 +222,7 @@
         <xsl:when test=".//render_choice">Multiple Choice</xsl:when>
         <xsl:otherwise>Short Answers/Essay</xsl:otherwise>
       </xsl:choose>
-    </introSpect>
+    </itemIntrospect>
   </xsl:for-each>
 
 </itemData>
