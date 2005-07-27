@@ -199,6 +199,15 @@
 <!--  </xsl:if> -->
   </itemMedia>
 
+  <xsl:for-each select="//itemmetadata/qtimetadata/qtimetadatafield">
+    <xsl:variable name="metadata">meta</xsl:variable>
+    <xsl:element name="metadata">
+     <xsl:attribute name="type">list</xsl:attribute>
+     <xsl:value-of select="fieldlabel"/>|<xsl:value-of select="fieldentry"/>
+    </xsl:element>
+  </xsl:for-each>
+
+
   <!-- if other methods of determining type don't work, attempt to determine from structure-->
   <!-- NOT guaranteed to be accurate, this is a fallback if none in metadata, title -->
   <!-- DEPENDENCY WARNING: syncs with type strings in AuthoringConstantStrings.java -->

@@ -29,6 +29,15 @@
   <itemText type="list"></itemText>
   <itemAnswer type="list"></itemAnswer>
   <itemFeedback type="list"></itemFeedback>
+  <xsl:for-each select="//itemmetadata/qtimetadata/qtimetadatafield">
+    <xsl:variable name="metadata">meta</xsl:variable>
+    <xsl:element name="metadata">
+     <xsl:attribute name="type">list</xsl:attribute>
+     <xsl:value-of select="fieldlabel"/>|<xsl:value-of select="fieldentry"/>
+    </xsl:element>
+  </xsl:for-each>
+
+
 </itemData>
 
 </xsl:template>
