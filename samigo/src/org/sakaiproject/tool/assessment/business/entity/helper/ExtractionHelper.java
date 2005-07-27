@@ -70,6 +70,7 @@ import org.sakaiproject.tool.assessment.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.util.XMLMapper;
 import org.sakaiproject.tool.assessment.util.XmlUtil;
+import org.sakaiproject.tool.assessment.business.entity.helper.item.ItemTypeExtractionStrategy;
 
 /**
  * <p>Has helper methods for data extraction (import) from QTI</p>
@@ -356,20 +357,20 @@ public class ExtractionHelper
             asi instanceof Item) ? true : false;
   }
 
-  /**
-   * Create assessment from the extracted properties.
-   * @param assessmentMap the extracted properties
-   * @return an assessment, which has been persisted
-   */
-  public AssessmentFacade createAssessment(Map assessmentMap)
-  {
-    String description = (String) assessmentMap.get("description");
-    String title = (String) assessmentMap.get("title");
-    AssessmentService assessmentService = new AssessmentService();
-    AssessmentFacade assessment = assessmentService.createAssessment(
-        title, description, null, null);
-    return assessment;
-  }
+//  /**
+//   * Create assessment from the extracted properties.
+//   * @param assessmentMap the extracted properties
+//   * @return an assessment, which has been persisted
+//   */
+//  public AssessmentFacade createAssessment(Map assessmentMap)
+//  {
+//    String description = (String) assessmentMap.get("description");
+//    String title = (String) assessmentMap.get("title");
+//    AssessmentService assessmentService = new AssessmentService();
+//    AssessmentFacade assessment = assessmentService.createAssessment(
+//        title, description, null, null);
+//    return assessment;
+//  }
 
   /**
    * Update assessment from the extracted properties.
@@ -662,7 +663,6 @@ public class ExtractionHelper
       log.debug("Cannot set feedbackDate.");
     }
 
-    // Released to (commented out)
     // don't know what site you will have in a new environment
     // but registered as a BUG in SAM-271 so turning it on.
 
@@ -677,6 +677,16 @@ public class ExtractionHelper
       releasedTo = "Anonymous Users";
     }
 
+
+      // for backwards compatibility with version 1.5 exports.
+      if (releasedTo != null && releasedTo.indexOf("Authenticated Users") > -1)
+      {
+        log.info(
+          "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
+        releasedTo = "Anonymous Users";
+      }
+
+      System.out.println("control.setReleaseTo(releasedTo)='"+releasedTo+"'.");
       control.setReleaseTo(releasedTo);
 
     // Timed Assessment
@@ -895,12 +905,9 @@ public class ExtractionHelper
     String title = (String) itemMap.get("title");
     item.setDescription(title);
     // type
-    // first, we will try to get item type from meta info
-    // but otherwise, we will use the other two
     String qmd = item.getItemMetaDataByLabel("qmd_itemtype");
     String itemIntrospect = (String) itemMap.get("itemIntrospect");
-    String itemType = calculateType(item, title, itemIntrospect, qmd);
-    Long typeId = getType(itemType); // we use this later...
+    Long typeId = ItemTypeExtractionStrategy.calculate(title, itemIntrospect, qmd);
     item.setTypeId(typeId);
 
     // set meta data
@@ -931,39 +938,6 @@ public class ExtractionHelper
 
   }
 
-  /**
-   *
-   * @param item
-   * @param title
-   * @param itemIntrospect
-   * @param qmdType
-   * @return
-   */
-  private String calculateType(ItemFacade item, String title,
-                               String itemIntrospect,
-                               String qmdType)
-  {
-    log.debug("qmdType: " + qmdType);
-    log.debug("title: " + title);
-    log.debug("itemIntrospect: " + itemIntrospect);
-
-    String itemType = qmdType;
-
-    if (itemType == null)
-    {
-      if (title != null) // it is also very common to put an item type in the title
-      {
-        itemType = getTypeFromTitle(title);
-      }
-      else // OK try to figure out from item structure
-      {
-        itemType = itemIntrospect;
-      }
-    }
-    log.debug("returning itemType: " + itemType);
-
-    return itemType;
-  }
 
   /**
    *
@@ -1429,96 +1403,6 @@ public class ExtractionHelper
     }
 
     item.setItemTextSet(itemTextSet);
-  }
-
-
-  /**
-   * Try to infer the type of imported question from title.
-   * @param title
-   * @return AuthoringConstantStrings.{type}
-   */
-  private String getTypeFromTitle(String title)
-  {
-    String itemType;
-    String lower = title.toLowerCase();
-    itemType = AuthoringConstantStrings.MCSC;
-    if (lower.indexOf("multiple") != -1 &&
-        lower.indexOf("response") != -1)
-    {
-      itemType = AuthoringConstantStrings.MCMC;
-    }
-    else if (lower.indexOf("true") != -1 ||
-             lower.indexOf("tf") != -1)
-    {
-      itemType = AuthoringConstantStrings.TF;
-    }
-    else if (lower.indexOf("survey") != -1 )
-    {
-      itemType = AuthoringConstantStrings.SURVEY;
-    }
-    else if (lower.indexOf("multiple") != -1 &&
-             lower.indexOf("correct") != -1)
-    {
-      itemType = AuthoringConstantStrings.MCMC;
-    }
-    else if (lower.indexOf("audio") != -1 ||
-             lower.indexOf("recording") != -1)
-    {
-      itemType = AuthoringConstantStrings.AUDIO;
-    }
-    else if (lower.indexOf("file") != -1 ||
-             lower.indexOf("upload") != -1)
-    {
-      itemType = AuthoringConstantStrings.FILE;
-    }
-    else if (lower.indexOf("match") != -1)
-    {
-      itemType = AuthoringConstantStrings.MATCHING;
-    }
-    else if (lower.indexOf("fib") != -1 ||
-             lower.indexOf("fill") != -1 ||
-             lower.indexOf("f.i.b.") != -1
-             )
-    {
-      itemType = AuthoringConstantStrings.FIB;
-    }
-    else if (lower.indexOf("essay") != -1 ||
-             lower.indexOf("short") != -1)
-    {
-      itemType = AuthoringConstantStrings.ESSAY;
-    }
-
-    return itemType;
-  }
-
-  /**
-   * We use the QTI qmd_itemtype in itemmetadata
-   * Note, this may be deprecated in favor of a vocabulary based approach.
-   * Need to investigate.  Anyway, this is the form that is backwardly compatible.
-   *
-   * @param metadataMap
-   * @return
-   */
-  private Long getType(String qmd_itemtype)
-  {
-    log.debug("getType() ");
-
-    String[] typeArray = AuthoringConstantStrings.itemTypes;
-    for (int i = 0; i < typeArray.length; i++)
-    {
-      log.debug("Testing type: Is '" + qmd_itemtype.trim() + "'='" +
-                typeArray[i] + "'?...");
-      if (qmd_itemtype.trim().equalsIgnoreCase(typeArray[i]))
-      {
-        log.debug("getType returns: " + i);
-
-        return new Long(i);
-      }
-    }
-
-    log.warn("Unable to set item type: '" + qmd_itemtype + "'.");
-    log.warn("guessing item type: '" + typeArray[2] + "'.");
-    return new Long(2);
   }
 
   /**
