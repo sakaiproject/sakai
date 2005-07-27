@@ -54,7 +54,7 @@ public class AssessmentGradingFacade
   private Float totalOverrideScore;
   private Float finalScore; // final total score
   private String comments;
-  private Integer status;
+  private String status;
   private String gradedBy;
   private Date gradedDate;
   private Set itemGradingSet;
@@ -220,11 +220,11 @@ public class AssessmentGradingFacade
    * represent how well the student does overall. status = 1 means
    * this submitted assessment is selected.
    */
-  public Integer getStatus() {
+  public String getStatus() {
     return status;
   }
 
-  public void setStatus(Integer status) {
+  public void setStatus(String status) {
     this.status = status;
   }
 
