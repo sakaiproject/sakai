@@ -904,16 +904,24 @@ public class ExtractionHelper
     // type and title
     String title = (String) itemMap.get("title");
     item.setDescription(title);
-    // type
-    String qmd = item.getItemMetaDataByLabel("qmd_itemtype");
-    String itemIntrospect = (String) itemMap.get("itemIntrospect");
-    Long typeId = ItemTypeExtractionStrategy.calculate(title, itemIntrospect, qmd);
-    item.setTypeId(typeId);
 
     // set meta data
     List metalist = (List) itemMap.get("metadata");
     MetaDataList metadataList = new MetaDataList(metalist);
     metadataList.addTo(item);
+
+    // type
+    log.debug("itemMap="+itemMap);
+    String qmd = item.getItemMetaDataByLabel("qmd_itemtype");
+    String itemIntrospect = (String) itemMap.get("itemIntrospect");
+    log.debug("Calling ItemTypeExtractionStrategy.calculate(");
+    log.debug("    title="+title);
+    log.debug("    , itemIntrospect="+itemIntrospect);
+    log.debug("    ,  qmd="+qmd);
+    log.debug(");");
+
+    Long typeId = ItemTypeExtractionStrategy.calculate(title, itemIntrospect, qmd);
+    item.setTypeId(typeId);
 
     // basic properties
     addItemProperties(item, itemMap);
