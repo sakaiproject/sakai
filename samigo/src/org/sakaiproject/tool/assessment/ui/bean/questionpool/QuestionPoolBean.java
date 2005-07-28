@@ -150,6 +150,9 @@ public class QuestionPoolBean
  	  tree.sortByProperty(this.getSortProperty(),this.getSortAscending());
 	//}
         Collection objects = tree.getSortedObjects();
+        if ((this.sortProperty!=null) && (this.sortProperty.equals("lastModified")))
+            this.sortQpoolsByProperty((ArrayList)objects,this.getSortProperty(),this.getSortAscending());
+           
         ListDataModel model = new ListDataModel((List) objects);
         QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
 	return qpDataModel;
@@ -212,6 +215,27 @@ public class QuestionPoolBean
 	    Collections.reverse(sortedList);
         }
 
+  }
+
+  public void sortQpoolsByProperty(ArrayList sortedList, String sortProperty, boolean sortAscending)
+  {
+        BeanSort sort = new BeanSort(sortedList, sortProperty);
+
+        if (sortProperty.equals("lastModified"))
+        {
+         sort.toDateSort();
+        }
+        else
+        {
+         sort.toStringSort();
+        }
+
+        sort.sort();
+
+        if (!sortAscending)
+	{
+	    Collections.reverse(sortedList);
+        }
   }
 
   public void setAllItems(ArrayList list) {
