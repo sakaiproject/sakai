@@ -206,6 +206,13 @@
      <xsl:value-of select="fieldlabel"/>|<xsl:value-of select="fieldentry"/>
     </xsl:element>
   </xsl:for-each>
+  <!-- Respondus -->
+  <xsl:for-each select="//itemmetadata/qmd_itemtype">
+    <xsl:element name="metadata">
+     <xsl:attribute name="type">list</xsl:attribute>qmd_itemtype|<xsl:value-of select="."/>
+    </xsl:element>
+  </xsl:for-each>
+
 
 
   <!-- if other methods of determining type don't work, attempt to determine from structure-->
