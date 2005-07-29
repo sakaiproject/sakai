@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.section">
+	<class name="org.sakaiproject.tool.section.CourseOfferingImpl" table="SEC_COURSE_OFFERING_T">
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">SEC_COURSE_OFFERING_S</param>
+			</generator>
+		</id>
+		<version name="version" type="integer" column="VERSION"/>
+		<property name="uuid" column="SECTION_UUID" type="string" unique="true" not-null="true"/>
+		<property name="title" column="TITLE" type="string" not-null="true"/>
+		<property name="context" column="CONTEXT" type="string"/>
+		<property name="selfRegistrationAllowed" column="SELF_REG" type="boolean"/>
+		<property name="sectionSwitchingAllowed" column="SELF_SWITCH" type="boolean"/>
+	</class>
+</hibernate-mapping>

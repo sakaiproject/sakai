@@ -2,12 +2,50 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<bean id="org.sakaiproject.api.sections.SampleManager"
-		class="org.sakaiproject.component.sections.SampleComponent">
+	<bean id="org.sakaiproject.api.section.SectionAwareness"
+		class="org.sakaiproject.component.section.SectionAwarenessHibernateImpl">
 		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+        <property name="sectionCategoryList">
+			<list>
+                <value>section.category.lecture</value>
+                <value>section.category.discussion</value>
+                <value>section.category.lab</value>
+			</list>
+        </property>		
 	</bean>
 
-	<!-- Authn service impl -->
-	<bean id="org.sakaiproject.api.sections.facades.Authn"
-		class="org.sakaiproject.component.sections.facades.impl.standalone.AuthnStandaloneImpl"/>
+	<bean id="org.sakaiproject.tool.section.manager.SectionManager"
+		class="org.sakaiproject.tool.section.manager.SectionManagerHibernateImpl">
+		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+		<property name="authn">
+			<ref bean="org.sakaiproject.api.section.facade.manager.Authn"/>
+		</property>
+		<property name="uuidManager">
+			<ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
+		</property>
+		<property name="sectionAwareness">
+			<ref bean="org.sakaiproject.api.section.SectionAwareness"/>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.tool.section.manager.CourseOfferingManager"
+		class="org.sakaiproject.tool.section.manager.CourseOfferingManagerHibernateImpl">
+		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+		<property name="authn">
+			<ref bean="org.sakaiproject.api.section.facade.manager.Authn"/>
+		</property>
+		<property name="uuidManager">
+			<ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.section.facade.manager.Authn"
+		class="org.sakaiproject.tool.section.facade.impl.standalone.AuthnStandaloneImpl"/>
+
+	<bean id="org.sakaiproject.api.section.facade.manager.Context"
+		class="org.sakaiproject.tool.section.facade.impl.standalone.ContextStandaloneImpl"/>
+
+	<bean id="org.sakaiproject.api.common.uuid.UuidManager"
+		class="org.sakaiproject.component.common.uuid.UuidManagerCommonsImpl"/>
+
 </beans>

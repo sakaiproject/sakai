@@ -4,17 +4,27 @@
 	<managed-bean>
 		<description>Sample Bean</description>
 		<managed-bean-name>sampleBean</managed-bean-name>
-		<managed-bean-class>org.sakaiproject.tool.sections.jsf.beans.SampleBean</managed-bean-class>
+		<managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.SampleBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 		<managed-property>
-			<description>Sample Manager</description>
-			<property-name>sampleManager</property-name>
-			<value>#{org_sakaiproject_api_sections_SampleManager}</value>
+			<description>Section Manager</description>
+			<property-name>sectionManager</property-name>
+			<value>#{org_sakaiproject_tool_section_manager_SectionManager}</value>
 		</managed-property>
 		<managed-property>
 			<description>Authn</description>
 			<property-name>authn</property-name>
-			<value>#{org_sakaiproject_api_sections_facades_Authn}</value>
+			<value>#{org_sakaiproject_api_section_facade_manager_Authn}</value>
+		</managed-property>
+		<managed-property>
+			<description>Context</description>
+			<property-name>context</property-name>
+			<value>#{org_sakaiproject_api_section_facade_manager_Context}</value>
+		</managed-property>
+		<managed-property>
+			<description>Course Offering Manager</description>
+			<property-name>courseOfferingManager</property-name>
+			<value>#{org_sakaiproject_tool_section_manager_CourseOfferingManager}</value>
 		</managed-property>
 	</managed-bean>
 </faces-config>

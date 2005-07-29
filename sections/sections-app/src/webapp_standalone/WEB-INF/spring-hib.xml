@@ -18,7 +18,8 @@
 		<property name="dataSource"><ref bean="sectionsDataSource"/></property>
 		<property name="mappingResources">
 		    <list>
-				<value>org/sakaiproject/tool/sections/CourseSectionImpl.hbm.xml</value>
+				<value>org/sakaiproject/tool/section/CourseOfferingImpl.hbm.xml</value>
+				<value>org/sakaiproject/tool/section/CourseSectionImpl.hbm.xml</value>
 			</list>
 		</property>
 		
@@ -42,7 +43,7 @@
 		</property>
 		<property name="beanNames">
 			<list>
-				<value>org.sakaiproject.api.sections.SampleManager</value>
+				<value>org.sakaiproject.tool.section.manager.SectionManager</value>
 			</list>
 		</property>
 	</bean>
@@ -61,6 +62,8 @@
 		class="org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource">
 		<property name="properties">
 			<props>
+	            <prop key="join*">PROPAGATION_REQUIRED</prop>
+	            <prop key="drop*">PROPAGATION_REQUIRED</prop>
 				<prop key="add*">PROPAGATION_REQUIRED</prop>
 				<prop key="create*">PROPAGATION_REQUIRED</prop>
 				<prop key="update*">PROPAGATION_REQUIRED</prop>

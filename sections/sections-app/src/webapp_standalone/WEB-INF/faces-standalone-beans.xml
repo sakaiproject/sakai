@@ -4,7 +4,7 @@
 	<managed-bean>
 		<description>Login Bean</description>
 		<managed-bean-name>loginBean</managed-bean-name>
-		<managed-bean-class>org.sakaiproject.tool.sections.jsf.beans.standalone.LoginBean</managed-bean-class>
+		<managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.standalone.LoginBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
 </faces-config>
