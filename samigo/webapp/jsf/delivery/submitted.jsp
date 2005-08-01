@@ -55,7 +55,7 @@
 <h:form id="submittedForm">
 <font color="red"><h:messages /></font>
 
-    <h:outputText value="#{msg.submission_confirmation_message_1}" />
+    <h:outputText value="#{msg.submission_confirmation_message_1}" /> <br />
     <h:outputText escape="false" value="#{delivery.submissionMessage}" />
 
   <f:verbatim><p/></f:verbatim>
