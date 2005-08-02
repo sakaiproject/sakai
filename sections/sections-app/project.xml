@@ -114,7 +114,7 @@
 		<dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>1.8.0.1</version>
+			<version>1.7.3.3</version>
 		</dependency>
 
 		<!-- Uncomment as necessary to run tests, or to generate new db schemas -->
@@ -278,7 +278,7 @@
 			<id>servletapi</id>
 			<version>2.4</version>
 			<properties>
-				<war.bundle>false</war.bundle>
+                <war.bundle>false</war.bundle>
 			</properties>
 		</dependency>
 

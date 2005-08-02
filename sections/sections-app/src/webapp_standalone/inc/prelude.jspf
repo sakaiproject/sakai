@@ -6,5 +6,11 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/xml; charset=UTF-8" />
 	<title>Sections</title>
+	<script
+		language="JavaScript"
+		type="text/javascript"
+		src="${pageContext.request.contextPath}/js/sections.js">
+	</script>
+
 </head>
-	<body>
+	<body onload="prepMemberForm()">

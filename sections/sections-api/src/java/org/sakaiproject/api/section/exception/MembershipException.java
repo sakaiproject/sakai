@@ -21,16 +21,15 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-package org.sakaiproject.api.sections;
+package org.sakaiproject.api.section.exception;
 
-import java.util.List;
+public class MembershipException extends RuntimeException {
 
-public interface SampleManager {
-    public List getSections();
-    public String createSection(String title);
-    public void disbandSection(String uuid);
+    private static final long serialVersionUID = -5188400025549893269L;
+
 }
 
 
-
-
+/**********************************************************************************
+ * $Id$
+ *********************************************************************************/

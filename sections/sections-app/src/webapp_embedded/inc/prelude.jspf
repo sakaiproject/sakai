@@ -11,5 +11,10 @@
 		<%= request.getAttribute("sakai.html.head.css.skin") %>
 		<%= request.getAttribute("sakai.html.head.js") %>
 		<!-- Insert local js here -->
+		<script
+			language="JavaScript"
+			type="text/javascript"
+			src="${pageContext.request.contextPath}/js/sections.js">
+		</script>
 	</head>
-	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>">
+	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>;prepMemberForm()">

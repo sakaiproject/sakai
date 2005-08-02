@@ -7,7 +7,7 @@
 
 	<preGoal name="war:webapp">
 		<attainGoal name="war:clean"/>
-
+        
 		<!-- Files common to both standalone and embedded builds -->
 		<ant:copy todir="${maven.war.webapp.dir}">
 			<ant:fileset dir="${maven.src.dir}/webapp_common" />
