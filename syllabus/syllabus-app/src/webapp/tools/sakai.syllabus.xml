@@ -9,6 +9,6 @@
 		<category name="course" />
 		<category name="project" />
 
-		<configuration name="help.id" value="syllabus_overview" />
+		<configuration name="help.id" value="arch" />
 	</tool>	
 </registration>
