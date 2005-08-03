@@ -13,7 +13,7 @@
 	</p>
 
 		<!-- Include this, since we don't have flowstate -->
-		<h:inputHidden value="#{sampleBean.courseOfferingUuid}"/>	
+		<h:inputHidden value="#{sampleBean.primarySectionUuid}"/>	
 
 	<p>
 		<h:outputLabel for="title" value="#{msgs.sample_create_section}"/>

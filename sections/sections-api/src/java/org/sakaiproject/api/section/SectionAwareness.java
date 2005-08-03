@@ -24,6 +24,7 @@
 package org.sakaiproject.api.section;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.sakaiproject.api.section.facade.Role;
 
@@ -52,7 +53,7 @@ public interface SectionAwareness {
      * @param contextId
      * @return
      */
-    public List getMembers(String contextId);
+    public List getSiteMembersInRole(String contextId, Role role);
 
     /**
      * Gets the site membership playing a given role for a given context.
@@ -128,9 +129,19 @@ public interface SectionAwareness {
      * Gets the name of a given category.
      * 
      * @param categoryId
+     * @param locale
      * @return
      */
-    public String getCategoryName(String categoryId);
+    public String getCategoryName(String categoryId, Locale locale);
+    
+    /**
+     * Determines whether the section is the "primary" section that is associated
+     * with the course offering.
+     * 
+     * @param sectionId
+     * @return
+     */
+    public boolean isSectionPrimary(String sectionId);
 }
 
 

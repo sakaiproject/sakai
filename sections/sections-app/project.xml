@@ -338,13 +338,14 @@
 				<resource>
 					<directory>${basedir}/src/webapp_standalone/WEB-INF/</directory>
 					<includes>
-						<include>spring-beans.xml</include>
+                        <include>spring-beans.xml</include>
 						<include>spring-db.xml</include>
 					</includes>
 				</resource>
 				<resource>
 					<directory>${basedir}/src/test/</directory>
 					<includes>
+                        <include>spring-context.xml</include>
 						<include>spring-db-mem.xml</include>
 						<include>spring-hib.xml</include>
 						<include>spring-beans-test.xml</include>

@@ -23,43 +23,25 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section;
 
-import java.io.Serializable;
-
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
-public class CourseSectionImpl extends AbstractPersistentObject implements CourseSection, Serializable {
+public abstract class CourseSectionImpl extends AbstractPersistentObject implements CourseSection {
 
-	private static final long serialVersionUID = -3444257885453999786L;
-
-	protected CourseOffering courseOffering;
+	protected String siteContext;
     protected String meetingTimes;
-    protected String category;    
 
-    public CourseOffering getCourseOffering() {
-        return courseOffering;
-    }
-
-    public void setCourseOffering(CourseOffering courseOffering) {
-        this.courseOffering = courseOffering;
-    }
-
-    public String getMeetingTimes() {
+    public String getSiteContext() {
+		return siteContext;
+	}
+	public void setSiteContext(String siteContext) {
+		this.siteContext = siteContext;
+	}
+	public String getMeetingTimes() {
         return meetingTimes;
     }
-
     public void setMeetingTimes(String meetingTimes) {
         this.meetingTimes = meetingTimes;
     }
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
 }
 
 

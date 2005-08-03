@@ -30,8 +30,7 @@ import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.tool.section.CourseOfferingImpl;
-import org.sakaiproject.tool.section.manager.CourseOfferingManager;
+import org.sakaiproject.api.section.facade.manager.Context;
 import org.sakaiproject.tool.section.manager.SectionManager;
 
 /**
@@ -45,27 +44,26 @@ import org.sakaiproject.tool.section.manager.SectionManager;
 public class SectionAwarenessTest extends SectionsTestBase{
 	private static final Log log = LogFactory.getLog(SectionAwarenessTest.class);
 	
-    private CourseOfferingManager com;
-	private SectionManager sm;
+	private Context context;
+	private SectionManager secMgr;
 
     protected void onSetUpInTransaction() throws Exception {
-    	com = (CourseOfferingManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.CourseOfferingManager");
-        sm = (SectionManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.SectionManager");
+    	context = (Context)applicationContext.getBean("org.sakaiproject.api.section.facade.manager.Context");
+        secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.SectionManager");
     }
 
     public void testGetSections() throws Exception {
-    	// Add a course offering to work from
-    	String context = "foo";
-    	CourseOfferingImpl newCourse = (CourseOfferingImpl)com.createCourseOffering(context, context, false, false);
+    	// Add a primary section to work from
+    	CourseSection priSec = secMgr.addSection(null, "foo", null, null, 100, null, null);
 
-    	// Assert that the course offering exists at this context
-    	Assert.assertTrue(com.getCourseOfferingUuid("foo").equals(newCourse.getUuid()));
+    	// Assert that the primary section exists at this context
+    	Assert.assertTrue(secMgr.getPrimarySection(context.getContext()).getUuid().equals(priSec.getUuid()));
     	
     	// Add a section to work from
-    	CourseSection newSection = sm.addSection(newCourse.getUuid(), context, context, context, 10, context, null);
+    	CourseSection newSection = secMgr.addSection(priSec.getUuid(), "Secondary Section", null, null, 10, null, null);
 
     	// Assert that section awareness can retrieve the new section
-    	List sections = sm.getSectionAwareness().getSections(context);
+    	List sections = secMgr.getSectionAwareness().getSections(context.getContext());
     	Assert.assertTrue(sections.size() == 1);
     	Assert.assertTrue(sections.contains(newSection));
     }

@@ -6,7 +6,6 @@
 		parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
 		<property name="mappingResources">
 		    <list>
-				<value>org/sakaiproject/tool/section/CourseOfferingImpl.hbm.xml</value>
 				<value>org/sakaiproject/tool/section/CourseSectionImpl.hbm.xml</value>
 			</list>
 		</property>
@@ -45,6 +44,9 @@
 				<property name="authn">
 					<ref bean="org.sakaiproject.api.section.facade.manager.Authn"/>
 				</property>
+                <property name="context">
+                    <ref bean="org.sakaiproject.api.section.facade.manager.Context"/>
+                </property>
 				<property name="uuidManager">
 					<ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
 				</property>
@@ -64,28 +66,6 @@
 			</props>
 		</property>
 	</bean>	
-
-	<bean id="org.sakaiproject.tool.section.manager.CourseOfferingManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager"><ref bean="sectionsTransactionManager"/></property>
-		<property name="target">
-			<bean class="org.sakaiproject.tool.section.manager.CourseOfferingManagerHibernateImpl">
-				<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
-				<property name="authn">
-					<ref bean="org.sakaiproject.api.section.facade.manager.Authn"/>
-				</property>
-				<property name="uuidManager">
-					<ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
-				</property>
-			</bean>
-		</property>
-		<property name="transactionAttributes">
-			<props>
-	            <prop key="create*">PROPAGATION_REQUIRED</prop>
-	            <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
-			</props>
-		</property>
-	</bean>	
-
 
 	<!-- Authn service impl -->
 	<bean id="org.sakaiproject.api.section.facade.manager.Authn"

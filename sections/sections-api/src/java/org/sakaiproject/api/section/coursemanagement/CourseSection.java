@@ -24,12 +24,11 @@
 package org.sakaiproject.api.section.coursemanagement;
 
 public interface CourseSection {
-    public CourseOffering getCourseOffering();
-    public String getUuid();
-    public String getTitle();
+	public String getUuid();
+	public String getTitle();
     public String getMeetingTimes();
     public String getCategory();
-    
+    public boolean isPrimary();
 }
 
 

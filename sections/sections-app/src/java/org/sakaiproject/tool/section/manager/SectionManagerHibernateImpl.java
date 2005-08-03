@@ -23,6 +23,9 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section.manager;
 
+import java.util.List;
+import java.util.Set;
+
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
@@ -31,12 +34,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
 import org.sakaiproject.api.section.SectionAwareness;
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.tool.section.CourseSectionImpl;
+import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.tool.section.PrimaryCourseSectionImpl;
+import org.sakaiproject.tool.section.SecondaryCourseSectionImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -45,9 +49,34 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 
 	private static final Log log = LogFactory.getLog(SectionManagerHibernateImpl.class);
 	
+	// Fields configured via dep. injection
 	protected UuidManager uuidManager;
 	protected SectionAwareness sectionAwareness;
     protected Authn authn;
+    protected Context context;
+    
+    // System defaults configured via dep. injection
+    protected boolean defaultSelfRegAllowed;
+    protected boolean defaultStudentSwitching;
+    
+	public CourseSection getPrimarySection(final String siteContext) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+                // Get the primary section
+            	Query q = session.createQuery("from PrimaryCourseSectionImpl as priSec where priSec.siteContext=:context");
+            	q.setParameter("context", siteContext);
+            	List list = q.list();
+            	if(list.size() == 0) {
+            		if(log.isInfoEnabled()) log.info("No primary section found in site context " + siteContext);
+            		return null;
+            	}
+            	CourseSection primarySection = (CourseSection)list.get(0);
+                return primarySection;
+            }
+        };
+        return (CourseSection)getHibernateTemplate().execute(hc);
+	}
+
     
     public void joinSection(String sectionId) {
         // TODO Auto-generated method stub
@@ -70,29 +99,53 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 
     }
 
+	public void setSectionMemberships(Set userIds, Role role, String sectionId) {
+		// TODO Auto-generated method stub
+	}
+
     public void dropSectionMembership(String userId, String sectionId) {
         // TODO Auto-generated method stub
 
     }
 
-    public CourseSection addSection(final String courseOfferingUuid, final String title,
+	public int getTotalEnrollments(String sectionId) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+    public CourseSection addSection(final String parentUuid, final String title,
             final String meetingTimes, final String sectionLeaderId, final int maxEnrollments,
             final String location, final String category) {
     	final String uuid = uuidManager.createUuid();
         if(log.isDebugEnabled()) log.debug("Creating section with uuid = " + uuid);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-                // Get the course offering from the context
-            	Query q = session.createQuery("from CourseOfferingImpl as course where course.uuid=:uuid");
-            	q.setParameter("uuid", courseOfferingUuid);
-            	CourseOffering course = (CourseOffering)q.list().get(0);
-            	CourseSectionImpl section = new CourseSectionImpl();
-            	section.setCourseOffering(course);
-                section.setTitle(title);
-                section.setCategory(category);
-                section.setUuid(uuid);
-                session.save(section);
-                return section;
+                if(parentUuid == null) {
+                	// We're adding a primary section
+                	PrimaryCourseSectionImpl section = new PrimaryCourseSectionImpl();
+                	section.setExternallyMaintained(false);
+                	section.setTitle(title);
+                	section.setMeetingTimes(meetingTimes);
+                	section.setSelfRegistrationAllowed(defaultSelfRegAllowed);
+                	section.setStudentSwitchingAllowed(defaultStudentSwitching);
+                	section.setSiteContext(context.getContext());
+                	section.setUuid(uuidManager.createUuid());
+                	session.save(section);
+                	return section;
+                } else {
+                	// Get the primary section
+                	Query q = session.createQuery("from PrimaryCourseSectionImpl as course where course.uuid=:uuid");
+                	q.setParameter("uuid", parentUuid);
+                	CourseSection primarySection = (CourseSection)q.list().get(0);
+                	SecondaryCourseSectionImpl section = new SecondaryCourseSectionImpl();
+                	section.setParent(primarySection);
+                    section.setTitle(title);
+                    section.setCategory(category);
+                	section.setSiteContext(context.getContext());
+                    section.setUuid(uuidManager.createUuid());
+                    session.save(section);
+                    return section;
+                }
             }
         };
             
@@ -105,7 +158,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     }
 
     public void disbandSection(final CourseSection section) {
-        if(log.isDebugEnabled()) log.debug("Disbanding UUID = " + section.getUuid());
+        if(log.isDebugEnabled()) log.debug("Disbanding " + section);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	session.delete(section);
@@ -136,6 +189,8 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 
     }
 
+	// Field accessors
+	
     public SectionAwareness getSectionAwareness() {
     	return sectionAwareness;
     }
@@ -152,6 +207,18 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	public void setUuidManager(UuidManager uuidManager) {
 		this.uuidManager = uuidManager;
 	}
+	
+	public void setContext(Context context) {
+		this.context = context;
+	}
+
+	public void setDefaultSelfRegAllowed(boolean defaultSelfRegAllowed) {
+    	this.defaultSelfRegAllowed = defaultSelfRegAllowed;
+    }
+
+    public void setDefaultStudentSwitching(boolean defaultStudentSwitching) {
+    	this.defaultStudentSwitching = defaultStudentSwitching;
+    }
 
 }
 

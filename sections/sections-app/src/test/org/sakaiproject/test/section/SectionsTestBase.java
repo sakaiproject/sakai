@@ -31,7 +31,7 @@ public class SectionsTestBase extends AbstractTransactionalSpringContextTests {
     private static Log log = LogFactory.getLog(SectionsTestBase.class);
     protected String[] getConfigLocations() {
         String mem = System.getProperty("mem");
-        String[] configLocations = {"", "spring-beans.xml", "spring-beans-test.xml", "spring-hib.xml"};
+        String[] configLocations = {"", "spring-beans.xml", "spring-beans-test.xml", "spring-hib.xml", "spring-context.xml"};
         if("false".equals(mem)) {
             log.debug("Using configured database for testing");
             configLocations[0] = "spring-db.xml";

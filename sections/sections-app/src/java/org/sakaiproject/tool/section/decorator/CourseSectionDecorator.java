@@ -24,7 +24,6 @@
 
 package org.sakaiproject.tool.section.decorator;
 
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
 /**
@@ -34,34 +33,36 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
  *
  */
 public class CourseSectionDecorator {
-	
-	public CourseSectionDecorator(CourseSection section) {
-		this.section = section;
-	}
-	
+
 	protected CourseSection section;
 	protected String categoryForDisplay;
 	
-	public String getCategory() {
-		return section.getCategory();
-	}
-	public CourseOffering getCourseOffering() {
-		return section.getCourseOffering();
-	}
-	public String getMeetingTimes() {
-		return section.getMeetingTimes();
-	}
-	public String getTitle() {
-		return section.getTitle();
-	}
-	public String getUuid() {
-		return section.getUuid();
-	}
 	public String getCategoryForDisplay() {
 		return categoryForDisplay;
 	}
 	public void setCategoryForDisplay(String categoryForDisplay) {
 		this.categoryForDisplay = categoryForDisplay;
+	}
+
+	
+	// Delegate methods
+	public String getCategory() {
+		return section.getCategory();
+	}
+	public String getMeetingTimes() {
+		return section.getMeetingTimes();
+	}
+	public boolean isPrimary() {
+		return section.isPrimary();
+	}
+	public CourseSectionDecorator(CourseSection section) {
+		this.section = section;
+	}
+	public String getUuid() {
+		return section.getUuid();
+	}
+	public String getTitle() {
+		return section.getTitle();
 	}
 	
 }

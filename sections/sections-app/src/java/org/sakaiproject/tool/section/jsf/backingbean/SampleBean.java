@@ -35,10 +35,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
-import org.sakaiproject.tool.section.manager.CourseOfferingManager;
 import org.sakaiproject.tool.section.manager.SectionManager;
 
 /**
@@ -48,12 +46,10 @@ import org.sakaiproject.tool.section.manager.SectionManager;
  */
 public class SampleBean extends InitializableBean implements Serializable {
 
-
 	private static final Log log = LogFactory.getLog(SampleBean.class);
     
     // TODO Centralize the local services in a base backing bean
     private SectionManager sectionManager;
-    private CourseOfferingManager courseOfferingManager;
     
     private Authn authn;
     private Context context;
@@ -62,14 +58,14 @@ public class SampleBean extends InitializableBean implements Serializable {
     private List sections;
     private String userName;
     private String siteContext;
-    private String courseOfferingUuid;
+    private String primarySectionUuid;
     private List categoryItems;
     
     // Fields for UI Components
     private String title;
     private String category;
 
-    /**
+	/**
      * Makes any queries necessary to initialize the state of this backing bean.
      * 
      * @see org.sakaiproject.tool.section.jsf.beans.InitializableBean#init()
@@ -82,12 +78,14 @@ public class SampleBean extends InitializableBean implements Serializable {
         userName = authn.getUserUid();
         siteContext = context.getContext();
 
-        // Get the course offering id, and create one if necessary
-        courseOfferingUuid = courseOfferingManager.getCourseOfferingUuid(siteContext);
-        if(courseOfferingUuid == null) {
-        	CourseOffering co = courseOfferingManager.createCourseOffering(siteContext, siteContext, false, false);
-        	courseOfferingUuid = co.getUuid();
-        	if(log.isInfoEnabled()) log.info("Creating course offering uuid=" + co.getUuid());
+        // Get the primary section id, and create one if necessary
+        CourseSection primarySection = sectionManager.getPrimarySection(siteContext);
+        if(primarySection == null) {
+        	CourseSection priSec = sectionManager.addSection(null, siteContext, null, null, 100, null, null);
+        	primarySectionUuid = priSec.getUuid();
+        	if(log.isInfoEnabled()) log.info("Creating primary section uuid=" + priSec.getUuid());
+        } else {
+        	primarySectionUuid = primarySection.getUuid();
         }
         
         // Decorate the sections
@@ -122,8 +120,8 @@ public class SampleBean extends InitializableBean implements Serializable {
     
     //// Action events
     public void processCreateSection(ActionEvent e) {
-        log.info("Creating section with title = " + title + " for course uuid=" + courseOfferingUuid);        
-        sectionManager.addSection(courseOfferingUuid, title, "M,W,F 9-10am", null,
+        if(log.isInfoEnabled()) log.info("Creating section with title = " + title);        
+        sectionManager.addSection(primarySectionUuid, title, "M,W,F 9-10am", null,
         		100, "117 Dwinelle", category);
     }
 
@@ -156,12 +154,13 @@ public class SampleBean extends InitializableBean implements Serializable {
 	public void setCategory(String category) {
 		this.category = category;
 	}
-	public String getCourseOfferingUuid() {
-		return courseOfferingUuid;
+	public String getPrimarySectionUuid() {
+		return primarySectionUuid;
 	}
-	public void setCourseOfferingUuid(String courseOfferingUuid) {
-		this.courseOfferingUuid = courseOfferingUuid;
+	public void setPrimarySectionUuid(String primarySectionUuid) {
+		this.primarySectionUuid = primarySectionUuid;
 	}
+
 
     
     //// Setters for dep. injection
@@ -175,10 +174,6 @@ public class SampleBean extends InitializableBean implements Serializable {
 
 	public void setContext(Context context) {
 		this.context = context;
-	}
-
-	public void setCourseOfferingManager(CourseOfferingManager courseOfferingManager) {
-		this.courseOfferingManager = courseOfferingManager;
 	}
 }
 

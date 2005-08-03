@@ -24,6 +24,7 @@
 package org.sakaiproject.component.section;
 
 import java.util.List;
+import java.util.Locale;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -51,7 +52,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + contextId);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-                Query q = session.createQuery("from CourseSectionImpl as section where section.courseOffering.context=:context");
+                Query q = session.createQuery("from SecondaryCourseSectionImpl as section where section.siteContext=:context");
                 q.setParameter("context", contextId);
                 return q.list();
             }
@@ -62,8 +63,13 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	public List getSectionCategories() {
 		return sectionCategoryList;
 	}
+	
+	public boolean isSectionPrimary(String sectionId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-	public List getMembers(String contextId) {
+	public List getSiteMembersInRole(String contextId, Role role) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -108,7 +114,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 		return null;
 	}
 
-	public String getCategoryName(String categoryId) {
+	public String getCategoryName(String categoryId, Locale locale) {
 		// TODO Auto-generated method stub
 		return null;
 	}

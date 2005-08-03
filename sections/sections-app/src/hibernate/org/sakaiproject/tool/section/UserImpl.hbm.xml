@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.section">
+	<class name="org.sakaiproject.tool.section.UserImpl" table="SEC_USER_T">
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">SEC_USER_S</param>
+			</generator>
+		</id>
+		<version name="version" type="integer" column="VERSION"/>
+		
+		<property name="userUid" column="USER_UID" type="string" unique="true" not-null="true" access="field"/>
+        <property name="sortName" column="SORT_NAME" access="field"/>
+        <property name="displayUid" column="DISPLAY_UID" access="field"/>
+        <property name="displayName" column="DISPLAY_NAME" access="field"/>
+	</class>
+</hibernate-mapping>

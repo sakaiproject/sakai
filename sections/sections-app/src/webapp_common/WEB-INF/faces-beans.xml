@@ -21,10 +21,5 @@
 			<property-name>context</property-name>
 			<value>#{org_sakaiproject_api_section_facade_manager_Context}</value>
 		</managed-property>
-		<managed-property>
-			<description>Course Offering Manager</description>
-			<property-name>courseOfferingManager</property-name>
-			<value>#{org_sakaiproject_tool_section_manager_CourseOfferingManager}</value>
-		</managed-property>
 	</managed-bean>
 </faces-config>
