@@ -63,7 +63,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	CourseSection newSection = secMgr.addSection(priSec.getUuid(), "Secondary Section", null, null, 10, null, null);
 
     	// Assert that section awareness can retrieve the new section
-    	List sections = secMgr.getSectionAwareness().getSections(context.getContext());
+    	List sections = secMgr.getSectionAwareness().getSecondarySections(context.getContext());
     	Assert.assertTrue(sections.size() == 1);
     	Assert.assertTrue(sections.contains(newSection));
     }

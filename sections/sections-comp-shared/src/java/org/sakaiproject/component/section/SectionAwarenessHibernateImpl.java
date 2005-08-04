@@ -33,6 +33,7 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.facade.Role;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -48,7 +49,12 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 */
 	protected List sectionCategoryList;
 	
-    public List getSections(final String contextId) {
+	public CourseSection getPrimarySection(String contextId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List getSecondarySections(final String contextId) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + contextId);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -74,7 +80,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 		return null;
 	}
 
-	public List getMembersInRoles(String contextId, Role role) {
+	public List findSiteMembersInRole(String contextId, Role role, String pattern) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -115,6 +121,11 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	}
 
 	public String getCategoryName(String categoryId, Locale locale) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List getUnsectionedMembers(String primarySectionId, String category, Role role) {
 		// TODO Auto-generated method stub
 		return null;
 	}

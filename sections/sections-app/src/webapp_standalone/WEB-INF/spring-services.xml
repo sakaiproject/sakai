@@ -3,5 +3,10 @@
 <beans>
     <bean id="org.sakaiproject.api.section.facade.manager.Context"
         class="org.sakaiproject.tool.section.facade.impl.standalone.ContextStandaloneImpl"/>
+    <bean id="org.sakaiproject.api.section.facade.manager.Authn"
+        class="org.sakaiproject.tool.section.facade.impl.standalone.AuthnStandaloneImpl"/>
+    <bean id="org.sakaiproject.api.common.uuid.UuidManager"
+        class="org.sakaiproject.component.common.uuid.UuidManagerCommonsImpl"/>
+
 </beans>
         

@@ -89,7 +89,7 @@ public class SampleBean extends InitializableBean implements Serializable {
         }
         
         // Decorate the sections
-        List dbSections = sectionManager.getSectionAwareness().getSections(context.getContext());
+        List dbSections = sectionManager.getSectionAwareness().getSecondarySections(context.getContext());
         sections = new ArrayList();
         for(Iterator iter = dbSections.iterator(); iter.hasNext();) {
         	CourseSectionDecorator section = new CourseSectionDecorator((CourseSection)iter.next());
