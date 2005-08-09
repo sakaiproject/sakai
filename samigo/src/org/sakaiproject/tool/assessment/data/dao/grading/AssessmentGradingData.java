@@ -53,7 +53,7 @@ public class AssessmentGradingData
   private Float totalOverrideScore;
   private Float finalScore; // final total score
   private String comments;
-  private String status;
+  private Integer status;
   private String gradedBy;
   private Date gradedDate;
   private Set itemGradingSet;
@@ -70,7 +70,7 @@ public class AssessmentGradingData
       Long publishedAssessmentId, String publishedAssessmentTitle, String agentId,
       Date submittedDate, Boolean isLate,
       Boolean forGrade, Float totalAutoScore, Float totalOverrideScore,
-      Float finalScore, String comments, String status, String gradedBy,
+      Float finalScore, String comments, Integer status, String gradedBy,
       Date gradedDate,  Date attemptDate, Integer timeElapsed
       ){
     this.assessmentGradingId = assessmentGradingId;
@@ -233,10 +233,10 @@ public class AssessmentGradingData
    * represent how well the student does overall. status = 1 means
    * this submitted assessment is selected.
    */
-  public String getStatus() {
+  public Integer getStatus() {
     return status;
   }
-  public void setStatus(String status) {
+  public void setStatus(Integer status) {
     this.status = status;
   }
 
