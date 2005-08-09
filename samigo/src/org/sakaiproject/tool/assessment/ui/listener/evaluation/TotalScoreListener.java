@@ -325,14 +325,14 @@ public class TotalScoreListener
         if (dueDate == null || gdata.getSubmittedDate().before(dueDate)) {
           results.setIsLate(new Boolean(false));
           if (gdata.getItemGradingSet().size()==graded)
-              results.setStatus("All Graded");
+              results.setStatus(new Integer(2));
           else
-              results.setStatus("");
+              results.setStatus(new Integer(3));
         }
         else {
 
           results.setIsLate(new Boolean(true));
-          results.setStatus("Late");
+          results.setStatus(new Integer(4));
         }
         AgentFacade agent = new AgentFacade(gdata.getAgentId());
         //System.out.println("Rachel: agentid = " + gdata.getAgentId());
