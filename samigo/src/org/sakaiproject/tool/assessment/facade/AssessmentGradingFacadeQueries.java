@@ -726,9 +726,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     else
       data.setIsLate(new Boolean(false));
     if (data.getForGrade().booleanValue())
-      data.setStatus("1");
+      data.setStatus(new Integer(1));
     else
-      data.setStatus("0");
+      data.setStatus(new Integer(0));
     data.setTotalOverrideScore(new Float(0));
   }
 
