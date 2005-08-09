@@ -309,7 +309,9 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="status" />
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{description.status}"/>
+      <h:outputText value="#{msg.all_graded}" rendered="#{description.status == 2}"/>
+      <h:outputText value=" " rendered="#{description.status == 3}"/>
+      <h:outputText value="#{msg.late}" rendered="#{description.status == 4}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='status'}">
