@@ -2,30 +2,20 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 <hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.section">
-    <class name="org.sakaiproject.tool.section.CourseSectionImpl" table="SEC_SECTION_T" discriminator-value="0">
+    <class name="org.sakaiproject.tool.section.CourseSectionImpl" table="SEC_SECTION_T">
         <id name="id" column="ID" type="long">
             <generator class="native">
                 <param name="sequence">SEC_SECTION_S</param>
             </generator>
         </id>
-        <discriminator column="DISCR" type="integer"/>
         <version name="version" type="integer" column="VERSION"/>
         
+        <many-to-one name="courseOffering" column="COURSE_OFFERING_ID" class="org.sakaiproject.tool.section.CourseOfferingImpl"/>
         <property name="uuid" column="SECTION_UUID" type="string" unique="true" not-null="true"/>
         <property name="title" column="TITLE" type="string" not-null="true"/>
         <property name="meetingTimes" column="MEETING_TIMES" type="string"/>
-        <property name="siteContext" column="SITE_CONTEXT" type="string" not-null="true"/>
-        
-        <subclass name="org.sakaiproject.tool.section.PrimaryCourseSectionImpl" extends="org.sakaiproject.tool.section.CourseSectionImpl" discriminator-value="1">
-            <property name="externallyMaintained" column="EXTERNAL_MAINT" type="boolean"/>
-            <property name="selfRegistrationAllowed" column="SELF_REG" type="boolean"/>
-            <property name="studentSwitchingAllowed" column="STUDENT_SWITCHING" type="boolean"/>
-        </subclass>
-        
-        <subclass name="org.sakaiproject.tool.section.SecondaryCourseSectionImpl" extends="org.sakaiproject.tool.section.CourseSectionImpl" discriminator-value="2">
-            <many-to-one name="parent" class="org.sakaiproject.tool.section.CourseSectionImpl" column="PARENT_SECTION"/>
-            <property name="category" column="CATEGORY"/>
-        </subclass>
+        <property name="location" column="LOCATION" type="string"/>
+        <property name="category" column="CATEGORY"/>
     </class>
 
     

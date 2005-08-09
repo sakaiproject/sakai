@@ -25,8 +25,9 @@ package org.sakaiproject.api.section;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.facade.Role;
 
 /**
@@ -39,32 +40,22 @@ import org.sakaiproject.api.section.facade.Role;
  * <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public interface SectionAwareness {
-    /**
-     * Gets the primary section (typically the main lecture for a course) associated
-     * with this site context.  Only one primary section is allowed per site.
-     * 
-     * @param contextId
-     * @return
-     */
-    public CourseSection getPrimarySection(String contextId);
 
+	/**
+	 * Gets the course offering associated with this site context.
+	 * 
+	 * @param siteContext The site context
+	 * @return The course offering
+	 */
+	public CourseOffering getCourseOffering(String siteContext);
+	
     /**
-     * Gets a list of secondary sections for a given site context.  These are
-     * sub-groupings of a course, typically labs or discussions.
+     * Gets the sections associated with this site context.
      * 
-     * @param contextId
-     * @return A List of CourseSections.
+	 * @param siteContext The site context
+     * @return The set of sections in this site
      */
-    public List getSecondarySections(String contextId);
-
-    /**
-     * Determines whether the section is the "primary" section that is associated
-     * with the course offering.
-     * 
-     * @param sectionId
-     * @return
-     */
-    public boolean isSectionPrimary(String sectionId);
+    public Set getSections(String siteContext);
 
     /**
      * Gets the list of section categories.  In sakai 2.1, there will be only a
@@ -76,10 +67,10 @@ public interface SectionAwareness {
     /**
      * Gets the site membership for a given context.
      * 
-     * @param contextId
+	 * @param siteContext The site context
      * @return
      */
-    public List getSiteMembersInRole(String contextId, Role role);
+    public List getSiteMembersInRole(String siteContext, Role role);
 
     /**
      * Finds site members in the given context and role with a matching name or
@@ -90,22 +81,22 @@ public interface SectionAwareness {
      * Sort Name = pattern*
      * Display Id (installation defined, either Email or enterprise id) = pattern*
      * 
-     * @param contextId
-     * @param role
-     * @param pattern
+	 * @param siteContext The site context
+     * @param role The role the user must play in this context
+     * @param pattern The pattern the user's name or id must match
      * @return
      */
-    public List findSiteMembersInRole(String contextId, Role role, String pattern);
+    public List findSiteMembersInRole(String siteContext, Role role, String pattern);
     
     /**
      * Checks whether a user plays a particular role in a given site context.
      * 
-     * @param contextId
-     * @param personId
-     * @param role
+	 * @param siteContext The site context
+     * @param personId The user's unique id
+     * @param role The role we're checking
      * @return
      */
-    public boolean isMemberInRole(String contextId, String personId, Role role);
+    public boolean isMemberInRole(String siteContext, String personId, Role role);
 
     /**
      * Gets the full membership of the given section.
@@ -137,10 +128,11 @@ public interface SectionAwareness {
     /**
      * Lists the sections in this context that are a member of the given category.
      * 
+	 * @param siteContext The site context
      * @param categoryId
      * @return A List of CourseSections
      */
-    public List getSectionsInCategory(String contextId, String categoryId);
+    public List getSectionsInCategory(String siteContext, String categoryId);
 
     /**
      * Gets the localized name of a given category.
@@ -155,9 +147,9 @@ public interface SectionAwareness {
      * The Section Manager tool could use more specific queries on membership,
      * such as this:  getting all students in a primary section that are not
      * enrolled in any secondary sections of a given type.  For instance, 'Who
-     * are the students who are not enrolled in a lab?'
+     * are the students who are not enrolled in any lab?'
      */
-    public List getUnsectionedMembers(String primarySectionId, String category, Role role);
+    public List getUnsectionedMembers(String siteContext, String category, Role role);
 }
 
 

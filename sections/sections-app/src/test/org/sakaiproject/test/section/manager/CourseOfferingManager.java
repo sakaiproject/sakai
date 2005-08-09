@@ -22,46 +22,12 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section;
+package org.sakaiproject.test.section.manager;
 
-import java.io.Serializable;
-
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-
-public class PrimaryCourseSectionImpl extends CourseSectionImpl implements Serializable {
-    protected boolean externallyMaintained;
-    protected boolean selfRegistrationAllowed;
-    protected boolean studentSwitchingAllowed;
-
-	public CourseSection getParent() {
-		return null;
-	}
-	public String getCategory() {
-		return null;
-	}
-	public boolean isPrimary() {
-		return true;
-	}
-	
-	public boolean isExternallyMaintained() {
-		return externallyMaintained;
-	}
-	public void setExternallyMaintained(boolean externallyMaintained) {
-		this.externallyMaintained = externallyMaintained;
-	}
-	public boolean isSelfRegistrationAllowed() {
-		return selfRegistrationAllowed;
-	}
-	public void setSelfRegistrationAllowed(boolean selfRegistrationAllowed) {
-		this.selfRegistrationAllowed = selfRegistrationAllowed;
-	}
-	public boolean isStudentSwitchingAllowed() {
-		return studentSwitchingAllowed;
-	}
-	public void setStudentSwitchingAllowed(boolean studentSwitchingAllowed) {
-		this.studentSwitchingAllowed = studentSwitchingAllowed;
-	}
-
+public interface CourseOfferingManager {
+	public void createCourseOffering(String siteContext, String title,
+			boolean selfRegAllowed, boolean selfSwitchingAllowed,
+			boolean externallyManaged);
 }
 
 

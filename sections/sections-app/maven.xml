@@ -59,5 +59,10 @@
 		</j:if>
 	</postGoal>
 
+    <goal name="loadData">
+        <ant:echo message="Remember to call this goal with -Dmem=false to load data into your configured db!"/>
+        <j:set var="testcase" value="org.sakaiproject.test.section.dataload.CourseOfferingLoadTest" />
+        <attainGoal name="test:single" />
+    </goal>
 
 </project>

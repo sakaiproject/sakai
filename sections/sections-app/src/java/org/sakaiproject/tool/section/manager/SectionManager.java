@@ -31,13 +31,6 @@ import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
 
 public interface SectionManager {
-	/**
-	 * Gets the primary section associated with this site's context.
-	 * 
-	 * @param siteContext
-	 * @return
-	 */
-    public CourseSection getPrimarySection(String siteContext);
 
     /**
      * Adds the current user to a section as a student.  This is a convenience
@@ -117,9 +110,8 @@ public interface SectionManager {
      * @param location
      * @return
      */
-    public CourseSection addSection(String parentSectionUuid, String title,
-    		String meetingTimes, String sectionLeaderId, int maxEnrollments,
-    		String location, String category);
+    public CourseSection addSection(String courseOfferingUuid, String title,
+    		String meetingTimes, int maxEnrollments, String location, String category);
 
     /**
      * Updates the persistent representation of the given CourseSection.

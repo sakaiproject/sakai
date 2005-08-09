@@ -327,6 +327,9 @@
 			<includes>
 				<include>**/*Test.java</include>
 			</includes>
+            <excludes>
+                <exclude>**/*LoadTest.java</exclude>
+            </excludes>
 			<resources>
 				<resource>
 					<directory>${basedir}/src/hibernate</directory>

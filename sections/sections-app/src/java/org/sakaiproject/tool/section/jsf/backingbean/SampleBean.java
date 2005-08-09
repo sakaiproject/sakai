@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
@@ -35,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.manager.SectionManager;
@@ -58,7 +60,7 @@ public class SampleBean extends InitializableBean implements Serializable {
     private List sections;
     private String userName;
     private String siteContext;
-    private String primarySectionUuid;
+    private String courseOfferingUuid;
     private List categoryItems;
     
     // Fields for UI Components
@@ -78,18 +80,12 @@ public class SampleBean extends InitializableBean implements Serializable {
         userName = authn.getUserUid();
         siteContext = context.getContext();
 
-        // Get the primary section id, and create one if necessary
-        CourseSection primarySection = sectionManager.getPrimarySection(siteContext);
-        if(primarySection == null) {
-        	CourseSection priSec = sectionManager.addSection(null, siteContext, null, null, 100, null, null);
-        	primarySectionUuid = priSec.getUuid();
-        	if(log.isInfoEnabled()) log.info("Creating primary section uuid=" + priSec.getUuid());
-        } else {
-        	primarySectionUuid = primarySection.getUuid();
-        }
+        // Get the course offering
+        CourseOffering course = sectionManager.getSectionAwareness().getCourseOffering(siteContext);
+    	courseOfferingUuid = course.getUuid();
         
         // Decorate the sections
-        List dbSections = sectionManager.getSectionAwareness().getSecondarySections(context.getContext());
+        Set dbSections = sectionManager.getSectionAwareness().getSections(siteContext);
         sections = new ArrayList();
         for(Iterator iter = dbSections.iterator(); iter.hasNext();) {
         	CourseSectionDecorator section = new CourseSectionDecorator((CourseSection)iter.next());
@@ -121,8 +117,8 @@ public class SampleBean extends InitializableBean implements Serializable {
     //// Action events
     public void processCreateSection(ActionEvent e) {
         if(log.isInfoEnabled()) log.info("Creating section with title = " + title);        
-        sectionManager.addSection(primarySectionUuid, title, "M,W,F 9-10am", null,
-        		100, "117 Dwinelle", category);
+        sectionManager.addSection(courseOfferingUuid, title, "M,W,F 9-10am", 100,
+        		"117 Dwinelle", category);
     }
 
     //// Bean getters / setters for UI
@@ -154,11 +150,11 @@ public class SampleBean extends InitializableBean implements Serializable {
 	public void setCategory(String category) {
 		this.category = category;
 	}
-	public String getPrimarySectionUuid() {
-		return primarySectionUuid;
+	public String getCourseOfferingUuid() {
+		return courseOfferingUuid;
 	}
-	public void setPrimarySectionUuid(String primarySectionUuid) {
-		this.primarySectionUuid = primarySectionUuid;
+	public void setCourseOfferingUuid(String courseOfferingUuid) {
+		this.courseOfferingUuid = courseOfferingUuid;
 	}
 
 

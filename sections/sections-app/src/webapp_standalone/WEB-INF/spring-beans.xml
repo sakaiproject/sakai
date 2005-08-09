@@ -11,7 +11,7 @@
                 <value>section.category.discussion</value>
                 <value>section.category.lab</value>
 			</list>
-        </property>		
+        </property>
 	</bean>
 
 	<bean id="org.sakaiproject.tool.section.manager.SectionManager"

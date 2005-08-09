@@ -23,25 +23,53 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section;
 
+import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
-public abstract class CourseSectionImpl extends AbstractPersistentObject implements CourseSection {
+public class CourseSectionImpl extends AbstractPersistentObject implements CourseSection {
 
-	protected String siteContext;
+	protected CourseOffering courseOffering;
+	protected String category;
     protected String meetingTimes;
+    protected String location;
 
-    public String getSiteContext() {
-		return siteContext;
+    public CourseSectionImpl() {
+    	// Default constructor needed by hibernate
+    }
+
+    public CourseSectionImpl(CourseOffering course, String title, String category, String meetingTimes, String location, String uuid) {
+		this.courseOffering = course;
+		this.title = title;
+		this.category = category;
+		this.meetingTimes = meetingTimes;
+		this.location = location;
+		this.uuid = uuid;
 	}
-	public void setSiteContext(String siteContext) {
-		this.siteContext = siteContext;
-	}
+
 	public String getMeetingTimes() {
         return meetingTimes;
     }
     public void setMeetingTimes(String meetingTimes) {
         this.meetingTimes = meetingTimes;
     }
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
+	}
+	public CourseOffering getCourseOffering() {
+		return courseOffering;
+	}
+	public void setCourseOffering(CourseOffering courseOffering) {
+		this.courseOffering = courseOffering;
+	}
+	public String getLocation() {
+		return location;
+	}
+	public void setLocation(String location) {
+		this.location = location;
+	}
 }
 
 

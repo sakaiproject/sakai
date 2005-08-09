@@ -21,54 +21,14 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-package org.sakaiproject.tool.section;
 
-import java.io.Serializable;
+package org.sakaiproject.api.section.coursemanagement;
 
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-
-public class SecondaryCourseSectionImpl extends CourseSectionImpl implements Serializable {
-
-	private static final long serialVersionUID = -3444257885453999786L;
-
-	protected CourseSection parent;
-    protected String category;
-
-    public String getSiteContext() {
-		return siteContext;
-	}
-
-	public void setSiteContext(String siteContext) {
-		this.siteContext = siteContext;
-	}
-
-	public CourseSection getParent() {
-		return parent;
-	}
-
-	public void setParent(CourseSection parent) {
-		this.parent = parent;
-	}
-
-	public String getMeetingTimes() {
-        return meetingTimes;
-    }
-
-    public void setMeetingTimes(String meetingTimes) {
-        this.meetingTimes = meetingTimes;
-    }
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	public boolean isPrimary() {
-		return false;
-	}
+public interface CourseOffering {
+    public String getUuid();
+    public String getTitle();
+	public boolean isSelfRegistrationAllowed();
+	public boolean isSelfSwitchingAllowed();
 }
 
 

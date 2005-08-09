@@ -23,8 +23,10 @@
 **********************************************************************************/
 package org.sakaiproject.component.section;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -33,7 +35,7 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.facade.Role;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -41,46 +43,54 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         implements SectionAwareness {
 	
-	private Log log = LogFactory.getLog(SectionAwarenessHibernateImpl.class);
+	private static final Log log = LogFactory.getLog(SectionAwarenessHibernateImpl.class);
 
+	
 	/**
 	 * A list (to be configured via dependency injection) containing category
 	 * name keys, which should be localized with a properties file by the UI.
 	 */
 	protected List sectionCategoryList;
 	
-	public CourseSection getPrimarySection(String contextId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List getSecondarySections(final String contextId) {
-    	if(log.isDebugEnabled()) log.debug("Getting sections for context " + contextId);
+	public CourseOffering getCourseOffering(final String siteContext) {
+    	if(log.isDebugEnabled()) log.debug("Getting course offering for context " + siteContext);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-                Query q = session.createQuery("from SecondaryCourseSectionImpl as section where section.siteContext=:context");
-                q.setParameter("context", contextId);
-                return q.list();
+                Query q = session.createQuery("from CourseOfferingImpl as co where co.siteContext=:context");
+                q.setParameter("context", siteContext);
+                List list = q.list();
+                if(list.size() == 0) {
+                	throw new IllegalArgumentException("There is no course offering associated with context " + siteContext);
+                } else {
+                	return list.get(0);
+                }
             }
         };
-        return (List)getHibernateTemplate().execute(hc);
+        return (CourseOffering)getHibernateTemplate().execute(hc);
+	}
+
+	public Set getSections(final String siteContext) {
+    	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+                Query q = session.createQuery("from CourseSectionImpl as section where section.courseOffering.siteContext=:context");
+                q.setParameter("context", siteContext);
+                return new HashSet(q.list());
+            }
+        };
+        return (Set)getHibernateTemplate().execute(hc);
     }
 
 	public List getSectionCategories() {
 		return sectionCategoryList;
 	}
-	
-	public boolean isSectionPrimary(String sectionId) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
-	public List getSiteMembersInRole(String contextId, Role role) {
+	public List getSiteMembersInRole(String siteContext, Role role) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List findSiteMembersInRole(String contextId, Role role, String pattern) {
+	public List findSiteMembersInRole(String siteContext, Role role, String pattern) {
 		// TODO Auto-generated method stub
 		return null;
 	}

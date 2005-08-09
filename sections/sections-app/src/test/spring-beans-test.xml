@@ -2,5 +2,11 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<!--  Data loader beans go here -->
+    <bean id="org.sakaiproject.test.section.manager.CourseOfferingManager"
+        class="org.sakaiproject.test.section.manager.CourseOfferingManagerHibernateImpl">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+        <property name="uuidManager">
+            <ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
+        </property>
+    </bean>
 </beans>

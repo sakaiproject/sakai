@@ -6,6 +6,7 @@
 		parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
 		<property name="mappingResources">
 		    <list>
+                <value>org/sakaiproject/tool/section/CourseOfferingImpl.hbm.xml</value>
 				<value>org/sakaiproject/tool/section/CourseSectionImpl.hbm.xml</value>
 			</list>
 		</property>

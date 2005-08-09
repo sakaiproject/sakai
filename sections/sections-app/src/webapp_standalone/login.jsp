@@ -7,7 +7,11 @@
 
 		<p>
 			<h:outputLabel for="context" value="Context:"/>
-			<h:inputText id="context" value="#{loginBean.context}"/>
+			<h:selectOneMenu id="context" value="#{loginBean.context}">
+                <f:selectItem itemValue="site1" itemLabel="Site 1"/>
+                <f:selectItem itemValue="site2" itemLabel="Site 2"/>
+                <f:selectItem itemValue="site3" itemLabel="Site 3"/>
+            </h:selectOneMenu>            
 		</p>
 		
 		<p>

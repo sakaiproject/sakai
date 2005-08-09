@@ -43,9 +43,17 @@ Sakai Sections Tool -- Building and Deploying
 		additional property '-Dmem=false'.  All of the tests roll back any
 		database modification performed, so your data should be in the same
 		state before and after the test suite is run.  That being said, it is
-		highly recommended that you run the tests on a clean (empty or records)
+		highly recommended that you run the tests on a clean (empty of records)
 		database to avoid possible data integrity violations (a test may attempt
 		to insert a value that already exists in another record, which may not
 		be allowed due to uniqueness constraints).
+		
+	Data loading
+		The sections tool expects the framework to provide the "course context".
+		Since the sections tool is not intended to manage course offerings, it
+		can not create new course contexts.  Therefore, we need to bootstrap
+		course information so when the app starts, it can find its course context.
+		
+		To load the initial course contexts, run 'maven -Dmem=false loadData'.
 		
 		
