@@ -87,9 +87,9 @@ public interface AssessmentGradingIfc
 
   void setGradedDate(Date GradedDate);
 
-  String getStatus();
+  Integer getStatus();
 
-  void setStatus(String status);
+  void setStatus(Integer status);
 
   Set getItemGradingSet();
 
