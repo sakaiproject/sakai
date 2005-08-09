@@ -103,6 +103,7 @@ public class StudentScoreListener
       DeliveryActionListener listener = new DeliveryActionListener();
       listener.processAction(null);
 
+      if (dbean.getAssessmentGrading() != null)
       bean.setComments(dbean.getAssessmentGrading().getComments());
 
       dbean.setForGrading(false);
