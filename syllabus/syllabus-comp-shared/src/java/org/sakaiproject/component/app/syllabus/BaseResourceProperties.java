@@ -774,6 +774,18 @@ public class BaseResourceProperties implements ResourceProperties
 		return TYPE_URL;
 	}
 
+	/**
+ 	* Get the static String of PROP_STRUCTOBJ_TYPE
+ 	* 
+ 	* @return The static String of PROP_STRUCTOBJ_TYPE
+ 	*/
+ 	public String getNamePropStructObjType()
+ 	{
+		// TODO Auto-generated method stub
+		return PROP_STRUCTOBJ_TYPE;
+		
+	}	// getNamePropStructObjType
+
 } // BaseResourceProperties
 
 
