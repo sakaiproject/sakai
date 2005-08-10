@@ -22,13 +22,27 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.api.section.coursemanagement;
+package org.sakaiproject.component.section.facade.impl.sakai;
 
-public interface CourseOffering extends LearningContext {
-	public boolean isExternallyManaged();
-	public boolean isSelfRegistrationAllowed();
-	public boolean isSelfSwitchingAllowed();
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.manager.UserDirectory;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.section.UserImpl;
+
+public class UserDirectorySakaiImpl implements UserDirectory {
+
+	public User getUser(String userUuid) {
+        try {
+            org.sakaiproject.service.legacy.user.User sakaiUser = UserDirectoryService.getUser(userUuid);
+            return new UserImpl(sakaiUser.getDisplayName(), sakaiUser.getId(), sakaiUser.getSortName(), sakaiUser.getId());
+        } catch (IdUnusedException e) {
+        	throw new IllegalArgumentException("No user with uuid=" + userUuid + " known.");
+        }
+	}
+
 }
+
 
 
 /**********************************************************************************

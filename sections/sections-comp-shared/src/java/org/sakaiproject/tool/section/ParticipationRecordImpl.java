@@ -24,41 +24,30 @@
 
 package org.sakaiproject.tool.section;
 
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.Role;
 
-public class ParticipationRecordImpl implements ParticipationRecord {
+public abstract class ParticipationRecordImpl extends AbstractPersistentObject
+	implements ParticipationRecord {
+	
 	protected User user;
-	protected CourseSection section;
-	protected Role role;
+	protected LearningContext learningContext;
 
-	public Role getRole() {
-		return role;
-	}
-	public void setRole(Role role) {
-		this.role = role;
-	}
 	public User getUser() {
 		return user;
 	}
 	public void setUser(User user) {
 		this.user = user;
 	}
-	public CourseSection getSection() {
-		return section;
+	public LearningContext getLearningContext() {
+		return learningContext;
 	}
-	public void setSection(CourseSection section) {
-		this.section = section;
+	public void setLearningContext(LearningContext learningContext) {
+		this.learningContext = learningContext;
 	}
 	
-	public boolean isEnrollment() {
-		return false;
-	}
 }
-
-
 
 /**********************************************************************************
  * $Id$

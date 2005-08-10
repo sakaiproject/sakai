@@ -22,13 +22,32 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.api.section.coursemanagement;
+package org.sakaiproject.tool.section;
 
-public interface CourseOffering extends LearningContext {
-	public boolean isExternallyManaged();
-	public boolean isSelfRegistrationAllowed();
-	public boolean isSelfSwitchingAllowed();
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
+
+public class TeachingAssistantRecordImpl extends ParticipationRecordImpl {
+
+	/**
+	 * No-arg constructor needed for hibernate
+	 */
+	public TeachingAssistantRecordImpl() {		
+	}
+	
+	public TeachingAssistantRecordImpl(CourseSection learningContext, User user) {
+		this.learningContext = learningContext;
+		this.user = user;
+	}
+
+	public Role getRole() {
+		return RoleImpl.TA;
+	}
+
 }
+
 
 
 /**********************************************************************************

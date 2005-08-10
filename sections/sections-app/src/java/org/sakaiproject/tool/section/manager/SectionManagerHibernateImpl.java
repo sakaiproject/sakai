@@ -36,11 +36,15 @@ import org.sakaiproject.api.common.uuid.UuidManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.api.section.facade.manager.UserDirectory;
 import org.sakaiproject.tool.section.CourseSectionImpl;
+import org.sakaiproject.tool.section.EnrollmentRecordImpl;
+import org.sakaiproject.tool.section.TeachingAssistantRecordImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -54,6 +58,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	protected SectionAwareness sectionAwareness;
     protected Authn authn;
     protected Context context;
+    protected UserDirectory userDirectory;
     
     public void joinSection(String sectionId) {
         // TODO Auto-generated method stub
@@ -72,9 +77,50 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 
     public void addSectionMembership(String userId, Role role, String sectionId)
             throws MembershipException {
-        // TODO Auto-generated method stub
-
+    	if(role.isInstructor()) {
+    		throw new IllegalArgumentException("You can not add an instructor to a section... add them to the course offering");
+    	} else if(role.isStudent()) {
+    		addSectionEnrollment(userId, sectionId);
+    	} else if(role.isTeachingAssistant()) {
+    		addSectionTeachingAssistant(userId, sectionId);
+    	} else {
+    		throw new IllegalArgumentException("You can not add a user to a section with a role of 'none'");
+    	}
     }
+
+	private void addSectionEnrollment(final String userId, final String sectionId) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	CourseSection section = sectionAwareness.getSection(sectionId);
+            	User user = userDirectory.getUser(userId);
+
+            	// TODO Make sure they are not already enrolled in this learning context
+
+            	// TODO Make sure they are not enrolled in another section of the same category
+            	
+            	EnrollmentRecordImpl enrollment = new EnrollmentRecordImpl(section, null, user);
+            	session.save(enrollment);
+            	return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+	}
+
+	private void addSectionTeachingAssistant(final String userId, final String sectionId) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	CourseSection section = sectionAwareness.getSection(sectionId);
+            	User user = userDirectory.getUser(userId);
+
+            	// TODO Make sure they are not already a TA in this section
+            	
+            	TeachingAssistantRecordImpl ta = new TeachingAssistantRecordImpl(section, user);
+            	session.save(ta);
+            	return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+	}
 
 	public void setSectionMemberships(Set userIds, Role role, String sectionId) {
 		// TODO Auto-generated method stub
@@ -174,6 +220,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		this.context = context;
 	}
 
+	public void setUserDirectory(UserDirectory userDirectory) {
+		this.userDirectory = userDirectory;
+	}
 }
 
 

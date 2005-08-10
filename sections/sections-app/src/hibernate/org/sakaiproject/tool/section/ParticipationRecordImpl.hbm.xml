@@ -2,23 +2,37 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 <hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.section">
-	<class name="org.sakaiproject.tool.section.ParticipationRecordImpl" table="SEC_PARTICIPATION_T">
+	<class name="org.sakaiproject.tool.section.ParticipationRecordImpl" table="SEC_PARTICIPATION_T" discriminator-value="0">
 		<id name="id" column="ID" type="long">
 			<generator class="native">
 				<param name="sequence">SEC_PARTICIPATION_S</param>
 			</generator>
 		</id>
+        <discriminator column="DISCR" type="int"/>
 		<version name="version" type="integer" column="VERSION"/>
-		
-		<many-to-one
+
+		<many-to-one 
 			name="learningContext"
 			class="org.sakaiproject.tool.section.LearningContextImpl"
-			column="COURSE_OFFERING_ID"
+			column="LEARNING_CONTEXT_ID"
 			not-null="true"/>
-		
+
+        <many-to-one
+            name="user"
+            column="USER_ID"
+            class="org.sakaiproject.tool.section.UserImpl"
+            not-null="true"/>
+
 		<property name="uuid" column="SECTION_UUID" type="string" unique="true" not-null="true"/>
-		<property name="title" column="TITLE" type="string" not-null="true"/>
-		<property name="meetingTimes" column="MEETING_TIMES" type="string"/>
-		<property name="category" column="CATEGORY"/>
-	</class>
+
+        <subclass name="org.sakaiproject.tool.section.EnrollmentRecordImpl" discriminator-value="1">
+            <property name="status" column="STATUS" type="string"/>
+        </subclass>
+
+        <subclass name="org.sakaiproject.tool.section.InstructorRecordImpl" discriminator-value="2">
+        </subclass>
+
+        <subclass name="org.sakaiproject.tool.section.TeachingAssistantRecordImpl" discriminator-value="3">
+        </subclass>
+    </class>
 </hibernate-mapping>

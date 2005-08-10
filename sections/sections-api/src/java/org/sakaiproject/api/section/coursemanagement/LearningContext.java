@@ -24,11 +24,22 @@
 
 package org.sakaiproject.api.section.coursemanagement;
 
-public interface CourseOffering extends LearningContext {
-	public boolean isExternallyManaged();
-	public boolean isSelfRegistrationAllowed();
-	public boolean isSelfSwitchingAllowed();
+/**
+ * A LearningContext is an abstract grouping of users in an academic environment.
+ * Examples include CourseOfferings, Sections, and could potentially include
+ * departments and colleges.  For Sakai 2.1, only CourseOfferings and CourseSections
+ * are LearningContexts.
+ * 
+ * A student can be enrolled in any learning context.
+ * 
+ * <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
+public interface LearningContext {
+	public String getUuid();
+	public String getTitle();
 }
+
 
 
 /**********************************************************************************

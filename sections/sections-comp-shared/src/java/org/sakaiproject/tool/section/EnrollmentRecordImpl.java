@@ -26,14 +26,13 @@ package org.sakaiproject.tool.section;
 
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 
-public class EnrollmentRecordImpl implements EnrollmentRecord {
-	protected User user;
-	protected Role role;
+public class EnrollmentRecordImpl extends ParticipationRecordImpl implements EnrollmentRecord {
 	protected String status;
-	protected CourseSection section;
 
 	/**
 	 * No-arg constructor needed for hibernate
@@ -41,20 +40,16 @@ public class EnrollmentRecordImpl implements EnrollmentRecord {
 	public EnrollmentRecordImpl() {		
 	}
 	
-
-	public EnrollmentRecordImpl(CourseSection section, Role role, String status, User user) {
-		this.section = section;
-		this.role = role;
+	public EnrollmentRecordImpl(CourseSection learningContext, String status, User user) {
+		this.learningContext = learningContext;
 		this.status = status;
 		this.user = user;
 	}
 
 	public Role getRole() {
-		return role;
+		return RoleImpl.STUDENT;
 	}
-	public void setRole(Role role) {
-		this.role = role;
-	}
+
 	public String getStatus() {
 		return status;
 	}
@@ -67,17 +62,11 @@ public class EnrollmentRecordImpl implements EnrollmentRecord {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	public CourseSection getSection() {
-		return section;
+	public LearningContext getLearningContext() {
+		return learningContext;
 	}
-
-	public void setSection(CourseSection section) {
-		this.section = section;
-	}
-
-
-	public boolean isEnrollment() {
-		return true;
+	public void setLearningContext(LearningContext learningContext) {
+		this.learningContext = learningContext;
 	}
 }
 

@@ -26,10 +26,10 @@ package org.sakaiproject.tool.section;
 
 import org.sakaiproject.api.section.coursemanagement.User;
 
-public class UserImpl implements User {
-	protected String userUid;
+public class UserImpl extends AbstractPersistentObject implements User {
+	protected String userUuid;
 	protected String sortName;
-	protected String displayUid;
+	protected String displayUuid;
 	protected String displayName;
 	
 	/**
@@ -38,24 +38,24 @@ public class UserImpl implements User {
 	public UserImpl() {		
 	}
 	
-	public UserImpl(String name, String uid, String name2, String uid2) {
-		displayName = name;
-		displayUid = uid;
-		sortName = name2;
-		userUid = uid2;
+	public UserImpl(String displayName, String displayUuid, String sortName, String userUuid) {
+		this.displayName = displayName;
+		this.displayUuid = displayUuid;
+		this.sortName = sortName;
+		this.userUuid = userUuid;
 	}
 	
 	public String getDisplayName() {
 		return displayName;
 	}
 	public String getDisplayUid() {
-		return displayUid;
+		return displayUuid;
 	}
 	public String getSortName() {
 		return sortName;
 	}
-	public String getUserUid() {
-		return userUid;
+	public String getUserUuid() {
+		return userUuid;
 	}
 }
 

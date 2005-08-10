@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.section">
+
+    <class name="org.sakaiproject.tool.section.LearningContextImpl"
+        table="SEC_LEARNING_CONTEXT_T">
+
+        <id name="id" column="ID" type="long">
+            <generator class="native">
+                <param name="sequence">SEC_COURSE_OFFERING_S</param>
+            </generator>
+        </id>
+
+        <version name="version" type="integer" column="VERSION"/>
+
+        <property name="uuid" column="LEARNING_CONTEXT_UUID" type="string" unique="true" not-null="true" />
+        <property name="title" column="TITLE" type="string" not-null="true" />
+
+        <joined-subclass name="org.sakaiproject.tool.section.CourseOfferingImpl" table="SEC_COURSE_OFFERING_T">
+            <key column="ID"/>
+            <property name="siteContext" column="SITE_CONTEXT" type="string" not-null="true" unique="true"/>
+            <property name="externallyManaged" column="EXTERNAL_MGMT" type="boolean"/>
+            <property name="selfRegistrationAllowed" column="SELF_REG" type="boolean" />
+            <property name="selfSwitchingAllowed" column="SELF_SWITCH" type="boolean" />
+        </joined-subclass>
+
+        <joined-subclass name="org.sakaiproject.tool.section.CourseSectionImpl" table="SEC_COURSE_SECTION_T">
+            <key column="ID"/>
+            <many-to-one name="courseOffering" column="COURSE_OFFERING_ID" class="org.sakaiproject.tool.section.CourseOfferingImpl"/>
+            <property name="meetingTimes" column="MEETING_TIMES" type="string"/>
+            <property name="location" column="LOCATION" type="string"/>
+            <property name="category" column="CATEGORY"/>
+        </joined-subclass>
+
+    </class>
+
+</hibernate-mapping>

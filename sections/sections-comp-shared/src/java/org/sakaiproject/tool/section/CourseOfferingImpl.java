@@ -26,7 +26,7 @@ package org.sakaiproject.tool.section;
 
 import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 
-public class CourseOfferingImpl extends AbstractPersistentObject implements CourseOffering {
+public class CourseOfferingImpl extends LearningContextImpl implements CourseOffering {
 
 	protected String siteContext;
 	protected boolean externallyManaged;

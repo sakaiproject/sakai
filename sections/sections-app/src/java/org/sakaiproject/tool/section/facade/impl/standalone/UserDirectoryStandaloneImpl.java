@@ -22,13 +22,38 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.api.section.coursemanagement;
+package org.sakaiproject.tool.section.facade.impl.standalone;
 
-public interface CourseOffering extends LearningContext {
-	public boolean isExternallyManaged();
-	public boolean isSelfRegistrationAllowed();
-	public boolean isSelfSwitchingAllowed();
+import java.util.List;
+
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.Session;
+
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.manager.UserDirectory;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+
+public class UserDirectoryStandaloneImpl extends HibernateDaoSupport implements UserDirectory {
+
+	public User getUser(final String userUuid) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	Query q = session.createQuery("from UserImpl as user where user.uuid=:uuid");
+            	List list = q.list();
+            	if(list.size() == 0) {
+            		throw new IllegalArgumentException("No user with uuid=" + userUuid);
+            	} else {
+            		return list.get(0);
+            	}
+            }
+        };
+        return (User)getHibernateTemplate().execute(hc);
+	}
+
 }
+
 
 
 /**********************************************************************************

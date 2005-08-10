@@ -26,7 +26,6 @@ package org.sakaiproject.test.section.dataload;
 
 import org.sakaiproject.test.section.SectionsTestBase;
 import org.sakaiproject.test.section.manager.CourseOfferingManager;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class CourseOfferingLoadTest extends SectionsTestBase {
     protected CourseOfferingManager courseManager;

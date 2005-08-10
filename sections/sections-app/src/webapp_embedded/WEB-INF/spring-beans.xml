@@ -6,8 +6,9 @@
 		parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
 		<property name="mappingResources">
 		    <list>
-                <value>org/sakaiproject/tool/section/CourseOfferingImpl.hbm.xml</value>
-				<value>org/sakaiproject/tool/section/CourseSectionImpl.hbm.xml</value>
+                <value>org/sakaiproject/tool/section/LearningContextImpl.hbm.xml</value>
+                <value>org/sakaiproject/tool/section/ParticipationRecordImpl.hbm.xml</value>
+                <value>org/sakaiproject/tool/section/UserImpl.hbm.xml</value>
 			</list>
 		</property>
 	</bean>
@@ -48,9 +49,12 @@
                 <property name="context">
                     <ref bean="org.sakaiproject.api.section.facade.manager.Context"/>
                 </property>
-				<property name="uuidManager">
-					<ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
-				</property>
+                <property name="uuidManager">
+                    <ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
+                </property>
+                <property name="userDirectory">
+                    <ref bean="org.sakaiproject.api.section.facade.manager.UserDirectory"/>
+                </property>
 				<property name="sectionAwareness">
 					<ref bean="org.sakaiproject.api.section.SectionAwareness"/>
 				</property>
@@ -66,13 +70,17 @@
 	            <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
 			</props>
 		</property>
-	</bean>	
+	</bean>
 
-	<!-- Authn service impl -->
 	<bean id="org.sakaiproject.api.section.facade.manager.Authn"
 		class="org.sakaiproject.component.section.facade.impl.sakai.AuthnSakaiImpl"/>
 
 	<bean id="org.sakaiproject.api.section.facade.manager.Context"
 		class="org.sakaiproject.component.section.facade.impl.sakai.ContextSakaiImpl"/>
+
+    <bean id="org.sakaiproject.api.section.facade.manager.UserDirectory"
+        class="org.sakaiproject.component.section.facade.impl.sakai.UserDirectorySakaiImpl">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+    </bean>
 
 </beans>

@@ -29,8 +29,7 @@ import org.sakaiproject.api.section.facade.Role;
 public interface ParticipationRecord {
 	public User getUser();
 	public Role getRole();
-	public boolean isEnrollment();
-	public CourseSection getSection();
+	public LearningContext getLearningContext();
 }
 
 

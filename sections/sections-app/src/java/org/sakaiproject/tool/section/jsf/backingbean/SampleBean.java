@@ -48,6 +48,8 @@ import org.sakaiproject.tool.section.manager.SectionManager;
  */
 public class SampleBean extends InitializableBean implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Log log = LogFactory.getLog(SampleBean.class);
     
     // TODO Centralize the local services in a base backing bean
@@ -77,7 +79,7 @@ public class SampleBean extends InitializableBean implements Serializable {
         if(log.isInfoEnabled()) log.info("SampleBean initializing...");
         
         // Get user and site context from facades
-        userName = authn.getUserUid();
+        userName = authn.getUserUuid();
         siteContext = context.getContext();
 
         // Get the course offering

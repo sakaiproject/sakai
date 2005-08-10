@@ -10,9 +10,9 @@
 		</id>
 		<version name="version" type="integer" column="VERSION"/>
 		
-		<property name="userUid" column="USER_UID" type="string" unique="true" not-null="true" access="field"/>
+		<property name="userUuid" column="USER_UUID" type="string" unique="true" not-null="true" access="field"/>
         <property name="sortName" column="SORT_NAME" access="field"/>
-        <property name="displayUid" column="DISPLAY_UID" access="field"/>
+        <property name="displayUuid" column="DISPLAY_UID" access="field"/>
         <property name="displayName" column="DISPLAY_NAME" access="field"/>
 	</class>
 </hibernate-mapping>

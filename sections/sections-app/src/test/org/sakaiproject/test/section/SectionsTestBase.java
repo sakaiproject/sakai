@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 public class SectionsTestBase extends AbstractTransactionalSpringContextTests {
-    private static Log log = LogFactory.getLog(SectionsTestBase.class);
+    private static final Log log = LogFactory.getLog(SectionsTestBase.class);
     protected String[] getConfigLocations() {
         String mem = System.getProperty("mem");
         String[] configLocations = {"", "spring-beans.xml", "spring-beans-test.xml", "spring-hib.xml", "spring-services.xml"};

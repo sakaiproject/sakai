@@ -36,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.CourseOffering;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.facade.Role;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -84,6 +85,24 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	public List getSectionCategories() {
 		return sectionCategoryList;
 	}
+	
+	public CourseSection getSection(final String sectionUuid) {
+    	if(log.isDebugEnabled()) log.debug("Getting section with uuid=" + sectionUuid);
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+                Query q = session.createQuery("from CourseSectionImpl as section where section.uuid=:uuid");
+                q.setParameter("uuid", sectionUuid);
+                List list = q.list();
+                if(list.size() == 0) {
+                	throw new IllegalArgumentException("No section exists with uuid=" + sectionUuid);
+                } else {
+                	return list.get(0);
+                }
+            }
+        };
+        return (CourseSection)getHibernateTemplate().execute(hc);
+	}
+
 
 	public List getSiteMembersInRole(String siteContext, Role role) {
 		// TODO Auto-generated method stub

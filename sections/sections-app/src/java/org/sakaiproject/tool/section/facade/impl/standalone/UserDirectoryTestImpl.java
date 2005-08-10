@@ -22,13 +22,24 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.api.section.coursemanagement;
+package org.sakaiproject.tool.section.facade.impl.standalone;
 
-public interface CourseOffering extends LearningContext {
-	public boolean isExternallyManaged();
-	public boolean isSelfRegistrationAllowed();
-	public boolean isSelfSwitchingAllowed();
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.manager.UserDirectory;
+import org.sakaiproject.tool.section.UserImpl;
+
+public class UserDirectoryTestImpl implements UserDirectory {
+
+	public User getUser(final String userUuid) {
+		if(userUuid.equals("josh")) {
+			return new UserImpl("Josh Holtzman", "jholtzman", "Holtzman, Josh", "jholtzman");
+		} else {
+			return new UserImpl("Mary Student", "mstudent", "Student, Mary", "mstudent");
+		}
+	}
+
 }
+
 
 
 /**********************************************************************************

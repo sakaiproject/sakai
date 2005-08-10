@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.sakaiproject.api.section.coursemanagement.CourseOffering;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.facade.Role;
 
 /**
@@ -63,6 +64,14 @@ public interface SectionAwareness {
      * or per-context bases.
      */
     public List getSectionCategories();
+    
+    /**
+     * Gets a course section by its uuid.
+     * 
+     * @param sectionUuid
+     * @return
+     */
+    public CourseSection getSection(String sectionUuid);
 
     /**
      * Gets the site membership for a given context.

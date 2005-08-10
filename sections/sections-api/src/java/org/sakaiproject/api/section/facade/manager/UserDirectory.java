@@ -22,13 +22,20 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.api.section.coursemanagement;
+package org.sakaiproject.api.section.facade.manager;
 
-public interface CourseOffering extends LearningContext {
-	public boolean isExternallyManaged();
-	public boolean isSelfRegistrationAllowed();
-	public boolean isSelfSwitchingAllowed();
+import org.sakaiproject.api.section.coursemanagement.User;
+
+public interface UserDirectory {
+	/**
+	 * Finds a User based on the user's unique id.
+	 * 
+	 * @param userUuid
+	 * @return
+	 */
+	public User getUser(String userUuid);
 }
+
 
 
 /**********************************************************************************

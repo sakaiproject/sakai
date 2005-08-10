@@ -39,7 +39,7 @@ public class AuthnSakaiImpl implements Authn {
     /**
      * @see org.sakaiproject.api.section.facade.managers.Authn#getUserUid()
      */
-    public String getUserUid() {
+    public String getUserUuid() {
         Session session = SessionManager.getCurrentSession();
         String userId = session.getUserId();
         if(log.isDebugEnabled()) log.debug("current user id is " + userId);

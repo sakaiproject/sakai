@@ -26,7 +26,7 @@ package org.sakaiproject.tool.section;
 import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
-public class CourseSectionImpl extends AbstractPersistentObject implements CourseSection {
+public class CourseSectionImpl extends LearningContextImpl implements CourseSection {
 
 	protected CourseOffering courseOffering;
 	protected String category;

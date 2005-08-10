@@ -38,7 +38,7 @@ public class AuthnStandaloneImpl implements Authn {
     /**
      * @see org.sakaiproject.api.section.facade.managers.Authn#getUserUid()
      */
-    public String getUserUid() {
+    public String getUserUuid() {
         HttpSession session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
         return (String)session.getAttribute(USER_NAME);
     }
