@@ -276,33 +276,6 @@ public class EmailNotification
 		return false;
 	}
 
-	protected List digestRecipients(List recipients, Notification notification, Event event)
-	{
-		List rv = new Vector();
-
-		int priority = event.getPriority();
-
-		if (priority == NotificationService.NOTI_REQUIRED)
-		{
-			return rv;
-		}
-
-		for (Iterator iUsers = recipients.iterator(); iUsers.hasNext();)
-		{
-			User user = (User) iUsers.next();
-
-			int option = getOption(user, notification, event);
-
-			if (option == NotificationService.PREF_DIGEST)
-			{
-				rv.add(user);
-			}
-		}
-
-		return rv;
-
-	}
-
 	protected int getOption(User user, Notification notification, Event event)
 	{
 	  if(event.getPriority() == NotificationService.NOTI_REQUIRED)
