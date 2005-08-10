@@ -39,7 +39,7 @@ public interface SyllabusService extends ResourceService
 	
 	public static final String REFERENCE_ROOT = Resource.SEPARATOR + "syllabus";
 	
-	public static final String SYLLABUS_SERVICE_NAME = "syllabus_service";
+	public static final String SYLLABUS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.SyllabusService";
 	
 	public void postNewSyllabus(SyllabusData data);
 	

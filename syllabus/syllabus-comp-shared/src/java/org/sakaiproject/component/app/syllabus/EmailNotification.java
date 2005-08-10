@@ -35,7 +35,6 @@ import org.sakaiproject.service.framework.config.cover.ServerConfigurationServic
 import org.sakaiproject.service.framework.email.cover.EmailService;
 import org.sakaiproject.service.legacy.digest.DigestMessage;
 import org.sakaiproject.service.legacy.digest.cover.DigestService;
-import org.sakaiproject.service.legacy.email.cover.MailArchiveService;
 import org.sakaiproject.service.legacy.event.Event;
 import org.sakaiproject.service.legacy.notification.Notification;
 import org.sakaiproject.service.legacy.notification.NotificationAction;
@@ -45,6 +44,10 @@ import org.sakaiproject.service.legacy.time.cover.TimeService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.util.java.StringUtil;
 import org.w3c.dom.Element;
+import org.sakaiproject.service.legacy.preference.Preferences;
+import org.sakaiproject.service.legacy.preference.PreferencesEdit;
+import org.sakaiproject.service.legacy.preference.cover.PreferencesService;
+import org.sakaiproject.service.legacy.resource.ResourceProperties;
 
 public class EmailNotification
 	implements NotificationAction
@@ -105,9 +108,7 @@ public class EmailNotification
 
 		List immediate = immediateRecipients(recipients, notification, event);
 
-		List digest = digestRecipients(recipients, notification, event);
-
-		if ((immediate.size() == 0) && (digest.size() == 0)) return;
+		if (immediate.size() == 0) return;
 
 		String message = getMessage(event);
 		String from = getFrom(event);
@@ -168,24 +169,6 @@ public class EmailNotification
 				}
 			}
 		}
-
-		if (digest.size() > 0)
-		{
-			String messageForDigest = "From: " + from + "\n"
-					+ "Date: " + TimeService.newTime().toStringLocalFullZ() + "\n"
-					+ "To: " + headerTo + "\n"
-					+ "Subject: " + subject + "\n"
-					+ "\n" + message;
-
-			for (Iterator iDigests = digest.iterator(); iDigests.hasNext();)
-			{
-				User user = (User) iDigests.next();
-
-				DigestMessage msg = new DigestMessage(user.getId(), subject, messageForDigest);
-				DigestService.digest(msg);
-			}
-		}
-
 	}
 
 	protected String getFrom(Event event)
@@ -260,6 +243,26 @@ public class EmailNotification
 			{
 				rv.add(user);
 			}
+			else if (option == NotificationService.PREF_NONE)
+			{
+			  Preferences prefs = (PreferencesEdit) PreferencesService.getPreferences(user.getId());
+			  
+			  ResourceProperties props = prefs.getProperties(NotificationService.PREFS_TYPE + "org.sakaiproject.api.app.syllabus.SyllabusService");
+			  
+			  String value = props.getProperty(new Integer(NotificationService.NOTI_OPTIONAL).toString());
+			  if (value != null)
+			  {
+			    if(value.equals("2"))
+			    {
+			      rv.add(user);
+			    }
+			  }
+			  else 
+			  {
+			    //default
+			    rv.add(user);
+			  }
+			}
 		}
 
 		return rv;
@@ -272,18 +275,7 @@ public class EmailNotification
 		{
 			return true;
 		}
-		else
-			if (option == NotificationService.PREF_NONE)
-			{
-				String type = new Reference(notification.getResourceFilter()).getType();
-				if (type != null)
-				{
-					if (type.equals(MailArchiveService.SERVICE_NAME))
-					{
-						return true;
-					}
-				}
-			}
+		
 		return false;
 	}
 
@@ -330,7 +322,7 @@ public class EmailNotification
 	  }
 	  else
 	  {
-	    return NotificationService.PREF_NONE;
+	    return NotificationService.PREF_IGNORE;
 	  }
 	}
 }
