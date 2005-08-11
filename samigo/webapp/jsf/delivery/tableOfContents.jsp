@@ -73,8 +73,7 @@ function saveTime()
 
 </script>
 
-<%-- <h:form onsubmit="saveTime()"> --%>
-
+<h:form>
 <h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished ne 'true'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
@@ -90,6 +89,9 @@ function saveTime()
      </h:commandButton>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
+</h:form>
+
+<%-- <h:form onsubmit="saveTime()"> --%>
 <%-- </h:form>  --%>
 
 <h3><h:outputText value="#{delivery.assessmentTitle} " /></h3>
