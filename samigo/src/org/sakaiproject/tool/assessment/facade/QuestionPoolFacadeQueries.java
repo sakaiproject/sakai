@@ -179,20 +179,21 @@ public class QuestionPoolFacadeQueries
 
   public List getAllItemFacadesOrderByItemText(Long questionPoolId,
                                                String orderBy) {
-    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi, ItemText t where ab.itemId=qpi.itemId and ab.itemId=t.item and qpi.questionPoolId = ? order by t." +
+    List list = getHibernateTemplate().find("select ab from ItemData as ab, QuestionPoolItemData as qpi  WHERE ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab." + 
                                             orderBy,
-                                            new Object[] {questionPoolId}
-                                            ,
+                                            new Object[] {questionPoolId},
                                             new net.sf.hibernate.type.Type[] {Hibernate.
                                             LONG});
-
+    
     ArrayList itemList = new ArrayList();
+   
     for (int i = 0; i < list.size(); i++) {
-      ItemData itemdata = (ItemData) list.get(i);
-      ItemFacade f = new ItemFacade(itemdata);
-      itemList.add(f);
+       ItemData itemdata = (ItemData) list.get(i);
+       ItemFacade f = new ItemFacade(itemdata);
+       itemList.add(f);	
     }
-    return itemList;
+    return itemList; 
+  
   }
 
   public List getAllItemFacadesOrderByItemType(Long questionPoolId,
