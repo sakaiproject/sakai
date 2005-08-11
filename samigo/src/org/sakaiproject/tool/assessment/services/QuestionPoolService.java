@@ -232,7 +232,7 @@ public class QuestionPoolService
     try {
       if ("text".equals(orderBy)) {
         results = (ArrayList) PersistenceService.getInstance().
-           getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemText(poolId, orderBy);
+           getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemText(poolId, "instruction");
       }
       else if ("keyword".equals(orderBy)) {
         results = (ArrayList) PersistenceService.getInstance().
