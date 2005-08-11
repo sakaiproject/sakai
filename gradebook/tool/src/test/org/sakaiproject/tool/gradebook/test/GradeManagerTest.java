@@ -4,20 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
+* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+*
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
 * understand, and will comply with the terms and conditions of the Educational Community License.
 * You may obtain a copy of the License at:
-* 
+*
 *      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
@@ -45,7 +44,7 @@ import org.sakaiproject.tool.gradebook.facades.standalone.UserStandalone;
 
 /**
  * Tests the grade manager.
- * 
+ *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class GradeManagerTest extends GradebookTestBase {
@@ -57,7 +56,7 @@ public class GradeManagerTest extends GradebookTestBase {
     /**
      * Save the gradebook.  This is a hack to get around hibernate
      * collections problems.
-     * 
+     *
      * @throws Exception
      */
     public void testCreateGradebookForTesting() throws Exception {
@@ -65,7 +64,7 @@ public class GradeManagerTest extends GradebookTestBase {
         gradebookService.addGradebook(className, className);
         setComplete();
     }
-    
+
     public void testGradeManager() throws Exception {
         Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
 
@@ -112,7 +111,7 @@ public class GradeManagerTest extends GradebookTestBase {
             gradeRecordSet.addGradeRecord(record);
         }
 
-        
+
         gradeManager.updateCourseGradeRecords(gradeRecordSet);
 
         GradeMapping gradeMapping = persistentGradebook.getSelectedGradeMapping();
@@ -183,16 +182,16 @@ public class GradeManagerTest extends GradebookTestBase {
         Assert.assertTrue(excessives.size() == 1);
         Assert.assertTrue(excessives.contains("excessiveStudent"));
 
-        
-        
-        
-        
+
+
+
+
         // We need to operate on whatever grade records already exist in the db
         Set studentIds = new HashSet();
         studentIds.add("normalStudent");
         studentIds.add("goodStudent");
         studentIds.add("excessiveStudent");
-        
+
         List persistentGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(asn, studentIds);
         gradeRecordSet = new GradeRecordSet(asn);
 
@@ -207,7 +206,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Only updates should be reported.
         excessives = gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
-        
+
         Assert.assertTrue(excessives.contains("goodStudent"));
         Assert.assertEquals(1, excessives.size());
     }
@@ -232,7 +231,7 @@ public class GradeManagerTest extends GradebookTestBase {
         students.add("entered1");
 
         List persistentGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(asn, students);
-        
+
         gradeRecordSet = new GradeRecordSet(asn);
         AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)persistentGradeRecords.get(0);
         gradeRecord.setPointsEarned(null);
@@ -262,7 +261,7 @@ public class GradeManagerTest extends GradebookTestBase {
         Set students = new HashSet();
         students.add(studentId);
         List persistentGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(assignment, students);
-        
+
         gradeRecordSet = new GradeRecordSet(assignment);
         AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)persistentGradeRecords.get(0);
         gradeRecord.setPointsEarned(new Double(10));
@@ -270,13 +269,13 @@ public class GradeManagerTest extends GradebookTestBase {
 
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
-        
+
 
         // Ensure that there are two grading events for this student
         GradingEvents events = gradeManager.getGradingEvents(assignment, enrollments);
         Assert.assertEquals(events.getEvents(studentId).size(), 2);
     }
-    
+
 }
 
 

@@ -4,20 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
+* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+*
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
 * understand, and will comply with the terms and conditions of the Educational Community License.
 * You may obtain a copy of the License at:
-* 
+*
 *      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
@@ -31,14 +30,14 @@ import java.util.Iterator;
 /**
  * A CourseGrade is a GradableObject that represents the overall course grade
  * in a gradebook.
- * 
+ *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
 public class CourseGrade extends GradableObject {
     private Double totalPoints;  // Not persisted
-    
+
     public static final String COURSE_GRADE_NAME = "Course Grade";
-    
+
     public static String SORT_BY_OVERRIDE_GRADE = "override";
     public static String SORT_BY_CALCULATED_GRADE = "autoCalc";
     public static String SORT_BY_POINTS_EARNED = "pointsEarned";
@@ -46,7 +45,7 @@ public class CourseGrade extends GradableObject {
     public CourseGrade() {
     	setName(COURSE_GRADE_NAME);
     }
-    
+
     /**
      * @see org.sakaiproject.tool.gradebook.GradableObject#isCourseGrade()
      */
@@ -58,9 +57,9 @@ public class CourseGrade extends GradableObject {
      * The course grade can not return the total number of points possible until
      * this value is set explicitly.  This should be done while gathering all of
      * the assignments from the database and calling calculateTotalPoints(Collection assignments).
-     * 
+     *
      * TODO Try to figure out a better approach
-     * 
+     *
      * @see org.sakaiproject.tool.gradebook.GradableObject#getPointsForDisplay()
      */
     public Double getPointsForDisplay() {
@@ -73,32 +72,32 @@ public class CourseGrade extends GradableObject {
 
     /**
      * A CourseGrade is never "due", so it will always return null.
-     * 
+     *
 	 * @see org.sakaiproject.tool.gradebook.GradableObject#getDateForDisplay()
 	 */
 	public Date getDateForDisplay() {
         return null;
 	}
-        
+
 	/**
      * Determines the auto-calculated value for an individual student's course
      * grade record, based on the given assignments and grade records.
-     * 
+     *
      * @param assignments The assignments in the gradebook that count toward the
      * course grade
 	 * @param gradeRecords  The collection of grade records that apply toward the
      * course grade.
-     * 
+     *
 	 * @return The calculated grade
 	 */
 	public Double calculateCourseGrade(String studentId, Collection assignments, Collection gradeRecords) {
         // Ensure that the total points field has been populated
 		calculateTotalPointsPossible(assignments);
-        
+
         // Determine the total points earned for all assignments
         double totalEarned = 0;
         // Loop through each assignment
-        
+
         for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {
             Assignment asn = (Assignment)asnIter.next();
             // Find the grade record for this assignment
@@ -115,13 +114,13 @@ public class CourseGrade extends GradableObject {
         }
         return new Double(totalEarned / this.totalPoints.doubleValue() * 100);
 	}
-    
+
     /**
      * Calculates the total points possible based on a collection of assignments
-     * 
+     *
      * Note:  This calculation assumes that the collection of assignments passed
      * is an accurate collection of the assignments in this course grade's gradebook.
-     * 
+     *
      * @param assignments The assignments in this gradebook
      */
     public void calculateTotalPointsPossible(Collection assignments) {
@@ -154,7 +153,7 @@ public class CourseGrade extends GradableObject {
 
 	/**
      * Calculate the mean for all enrollments, counting null grades as zero.
-     * 
+     *
 	 * @see org.sakaiproject.tool.gradebook.GradableObject#calculateMean(java.util.Collection, int)
 	 */
 	protected Double calculateMean(Collection grades, int numEnrollments) {

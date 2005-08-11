@@ -4,20 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
+* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+*
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
 * understand, and will comply with the terms and conditions of the Educational Community License.
 * You may obtain a copy of the License at:
-* 
+*
 *      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
@@ -45,7 +44,7 @@ import org.sakaiproject.tool.gradebook.facades.User;
 
 /**
  * Sakai2 implementation of the gradebook CourseManagement API
- * 
+ *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class CourseManagementSakai2Impl implements CourseManagement {
@@ -128,7 +127,7 @@ public class CourseManagementSakai2Impl implements CourseManagement {
 
         // Sort the enrollments by user uid (in this case, the user's email)
         Collections.sort(gbUsers);
-        
+
         // Return the sub list matching the start and range
         int max;
         max = gbUsers.size() > (startRange + rangeMaximum) ? startRange + rangeMaximum : gbUsers.size();
@@ -140,7 +139,7 @@ public class CourseManagementSakai2Impl implements CourseManagement {
 	 */
 	private List getSakaiUsers() {
         List access = SecurityService.unlockUsers(AuthzSakai2Impl.STUDENT_PERMISSION, getContext());
-        
+
         // Users with maintain permission should not be included in the list of student users
         List maintain = SecurityService.unlockUsers(AuthzSakai2Impl.INSTRUCTOR_PERMISSION, getContext());
         access.removeAll(maintain);
@@ -152,7 +151,7 @@ public class CourseManagementSakai2Impl implements CourseManagement {
      * @return The current sakai context
      */
     private String getContext() {
-        Placement placement = ToolManager.getCurrentPlacement();        
+        Placement placement = ToolManager.getCurrentPlacement();
         String context = placement.getContext();
         return "/gradebook/" + context + "/main";
     }

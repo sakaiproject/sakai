@@ -4,20 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
+* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+*
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
 * understand, and will comply with the terms and conditions of the Educational Community License.
 * You may obtain a copy of the License at:
-* 
+*
 *      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
@@ -54,13 +53,13 @@ import org.w3c.dom.Element;
 
 /**
  * <b>The gradebook archive service is currently not implemented for sakai2</b>
- * 
+ *
  * Archives gradebooks as xml and creates new gradebooks from xml.  This
  * implementation gets its data from (presumably) hibernate managed services.
  * Since the objects returned from hibernate are dynamic proxies, they are not
  * encoded and decoded from xml properly.  So, we take each collection and
  * "de-proxy" them before proceeding with the xml serialization.
- * 
+ *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveService, ResourceService {
@@ -70,14 +69,14 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
     private GradebookService gradebookService;
     private GradebookManager gradebookManager;
     private GradeManager gradeManager;
-    
+
 	/**
 	 * @see org.sakaiproject.service.legacy.resource.ResourceService#getLabel()
 	 */
 	public String getLabel() {
         return "gradebook";
 	}
-    
+
     /**
      * Registers this service with sakai so it will be called upon site import
      * and export.
@@ -100,7 +99,7 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
         if(archive == null) {
             return logMessages.toString();
         }
-    
+
         Element element = doc.createElement(GradebookArchiveService.class.getName());
         ((Element) stack.peek()).appendChild(element);
 
@@ -127,7 +126,7 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
         GradeMapping selectedGradeMapping;
         CourseGrade courseGrade;
         Collection concreteAssignments;
-        
+
         try {
             gradebook = gradebookManager.getGradebook(siteId);
         } catch (GradebookNotFoundException gbnfe) {
@@ -143,14 +142,14 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
             gradeMappings.add(mapping);
         }
         gradebook.setGradeMappings(gradeMappings);
-        
+
         selectedGradeMapping = gradebook.getSelectedGradeMapping();
         Map concreteMap = new HashMap(selectedGradeMapping.getGradeMap());
         selectedGradeMapping.setGradeMap(concreteMap);
 
-        
+
         courseGrade = gradeManager.getCourseGrade(gradebook.getId());
-        
+
         Collection assignments = gradeManager.getAssignments(gradebook.getId());
         concreteAssignments = new ArrayList();
         for(Iterator iter = assignments.iterator(); iter.hasNext();) {
@@ -166,13 +165,13 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
 	 */
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId,
             Map attachmentNames, HashMap userIdTrans, Set userListAllowImport) {
-        
+
         if(log.isDebugEnabled()) log.debug("merging gradebook into " + siteId);
 
         // Keep a log of messages relating to this archive attempt
         StringBuffer logMessages = new StringBuffer();
-    
-        // Get the gradebook for this context.  If it exists, then throw an error        
+
+        // Get the gradebook for this context.  If it exists, then throw an error
         if(gradebookService.gradebookExists(siteId)) {
             logMessages.append("A gradebook already exists in this site.");
             return logMessages.toString();
@@ -217,15 +216,15 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
 	 * @see org.sakaiproject.service.legacy.resource.ResourceService#importResources(java.lang.String, java.lang.String, java.util.List)
 	 */
 	public void importResources(String fromContext, String toContext, List resourceIds) {
-        
+
         if(log.isDebugEnabled()) log.debug("copying gradebook from " + fromContext + " to " + toContext + ".  This is not yet supported");
 
         // Get the gradebook for the "from" context
-        
+
         // Create a gradebook archive object
-        
+
         // Add all of the contents of the gradebook archive to a new gradebook in the "to" context
-        
+
         if(log.isDebugEnabled()) log.debug("finished copying gradebook from " + fromContext + " to " + toContext);
 	}
 
@@ -239,7 +238,7 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
         doc.appendChild(element);
         return archive(gradebookUid, doc, stack, null, null);
 	}
-    
+
     /**
      * @see org.sakaiproject.service.gradebook.shared.GradebookArchiveService#createGradebookFromArchive(java.lang.String, org.w3c.dom.Document)
      */

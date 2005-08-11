@@ -4,8 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
@@ -146,19 +145,19 @@ public interface GradeManager {
 
     /**
      * Gets the grading events for the enrollments on the given gradable object.
-     * 
+     *
      * @param gradableObject
      * @param enrollments
      * @return
      */
     public GradingEvents getGradingEvents(GradableObject gradableObject, Collection enrollments);
 
-    
+
     //////////////////////////////////////////////////
     // Consolidated from GradeManager.java //
     //////////////////////////////////////////////////
 
-    
+
     /**
      * Fetches a List of Assignments, but does not populate non-persistent
      * fields.
@@ -256,7 +255,7 @@ public interface GradeManager {
      * course grade records).
      *
      * @param gradebookId The gradebook id
-     * @param manuallyEnteredRecords Whether to update manually entered records or 
+     * @param manuallyEnteredRecords Whether to update manually entered records or
      */
     public void updateCourseGradeRecordSortValues(Long gradebookId, boolean manuallyEnteredRecords);
 

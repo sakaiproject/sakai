@@ -4,8 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
@@ -73,7 +72,7 @@ import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureExcept
  */
 public class GradeManagerHibernateImpl extends BaseHibernateManager implements GradeManager {
     private static final Log log = LogFactory.getLog(GradeManagerHibernateImpl.class);
-    
+
 	/**
 	 */
 	public List getPointsEarnedSortedGradeRecords(GradableObject go) {
@@ -200,20 +199,20 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
         final Collection gradeRecordsFromCall = gradeRecordSet.getAllGradeRecords();
         final Set studentIds = gradeRecordSet.getAllStudentIds();
-        
+
         // If no grade records are sent, don't bother doing anything with the db
         if(gradeRecordsFromCall.size() == 0) {
             log.debug("updateAssignmentGradeRecords called for zero grade records");
             return new HashSet();
         }
-        
+
         HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
                 // Evict the grade records from the session so we can check for point changes
                 for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
                     session.evict(iter.next());
                 }
-                
+
                 Assignment assignment = (Assignment)session.load(Assignment.class, gradeRecordSet.getGradableObject().getId());
 				Date now = new Date();
 				Gradebook gb = assignment.getGradebook();
@@ -227,7 +226,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 q.setParameter("go", assignment);
                 q.setParameterList("studentIds", studentIds);
 				List persistentGradeRecords = q.list();
-                
+
 				// Construct a map of student id to persistent grade record scores
                 Map scoreMap = new HashMap();
                 for(Iterator iter = persistentGradeRecords.iterator(); iter.hasNext();) {
@@ -243,7 +242,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                     if(scoreMap.containsKey(gradeRecordFromCall.getStudentId())) {
                         // The student already has a grade record, only perform an update if the grade has changed
                         Double pointsInDb = (Double)scoreMap.get(gradeRecordFromCall.getStudentId());
-                        
+
                         if( (pointsInDb != null && !pointsInDb.equals(gradeRecordFromCall.getPointsEarned())) ||
                                 (pointsInDb == null && gradeRecordFromCall.getPointsEarned() != null)) {
                             // The grade record's value has changed
@@ -289,7 +288,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 return studentsWithExcessiveScores;
 			}
 		};
-        
+
         return (Set)getHibernateTemplate().execute(hc);
     }
 
@@ -297,7 +296,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
      */
     public void updateCourseGradeRecords(final GradeRecordSet gradeRecordSet)
         throws StaleObjectModificationException {
-        
+
         if(gradeRecordSet.getAllGradeRecords().size() == 0) {
             log.debug("updateCourseGradeRecords called with zero grade records to update");
             return;
@@ -308,7 +307,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 for(Iterator iter = gradeRecordSet.getAllGradeRecords().iterator(); iter.hasNext();) {
                     session.evict(iter.next());
                 }
-                
+
 				CourseGrade courseGrade = (CourseGrade)gradeRecordSet.getGradableObject();
 				Date now = new Date();
 				Gradebook gb = courseGrade.getGradebook();
@@ -330,11 +329,11 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                     Object[] oa = (Object[])iter.next();
                     scoreMap.put(oa[0], oa[1]);
                 }
-                
+
                 for(Iterator iter = gradeRecordSet.getAllGradeRecords().iterator(); iter.hasNext();) {
                     // The possibly modified course grade record
                     CourseGradeRecord gradeRecordFromCall = (CourseGradeRecord)iter.next();
-                    
+
                     // The entered grade in the db for this grade record
                     String grade = (String)scoreMap.get(gradeRecordFromCall.getStudentId());
 
@@ -426,13 +425,13 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
      * @see org.sakaiproject.tool.gradebook.business.GradeManager#getGradingEvents(org.sakaiproject.tool.gradebook.Gradebook, java.util.Collection)
      */
     public GradingEvents getGradingEvents(final GradableObject gradableObject, final Collection enrollments) {
-        
+
         // Don't attempt to run the query if there are no enrollments
         if(enrollments == null || enrollments.size() == 0) {
             log.debug("No enrollments were specified.  Returning an empty GradingEvents object");
             return new GradingEvents();
         }
-        
+
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 // Construct a set of student ids from the enrollments
@@ -447,11 +446,11 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 return q.list();
             }
         };
-        
+
         List list = (List)getHibernateTemplate().execute(hc);
 
         GradingEvents events = new GradingEvents();
-        
+
         for(Iterator iter = list.iterator(); iter.hasNext();) {
             GradingEvent event = (GradingEvent)iter.next();
             events.addEvent(event);
@@ -463,12 +462,12 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
         this.authn = authn;
 	}
 
-    
+
     ///////////////////////////////////////////////////////////////
     // Consolidated from GradeManagerHibernateImpl.java //
     ///////////////////////////////////////////////////////////////
 
-    
+
     /**
      * @param courseManagement The courseManagement to set.
      */
@@ -624,10 +623,10 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 asn.setName(name);
                 asn.setPointsPossible(points);
                 asn.setDueDate(dueDate);
-                
+
                 // Save the new assignment
                 Long id = (Long)session.save(asn);
-                
+
                 // Recalculate the course grades
                 recalculateCourseGradeRecords(asn.getGradebook(), session);
 
@@ -674,11 +673,11 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
                 session.evict(asnFromDb);
                 session.update(assignment);
-                
+
                 // Flush the session before calling on the course grade updates (we want data contention to happen here, not there)
                 session.flush();
                 session.clear();
-                
+
                 if(pointsChanged) {
                     updateCourseGradeRecordSortValues(assignment.getGradebook().getId(), false);
                 }
@@ -762,7 +761,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
         }
         return totalPoints;
     }
-    
+
 }
 
 

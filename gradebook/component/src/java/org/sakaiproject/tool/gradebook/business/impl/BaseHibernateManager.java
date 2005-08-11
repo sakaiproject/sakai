@@ -4,20 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
+* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+*
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
 * understand, and will comply with the terms and conditions of the Educational Community License.
 * You may obtain a copy of the License at:
-* 
+*
 *      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
@@ -48,7 +47,7 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 /**
  * Base class for all gradebook managers.  Provides methods common to two or more
  * managers, thus eliminating (for now) a tangle of circular dependencies.
- * 
+ *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public abstract class BaseHibernateManager extends HibernateDaoSupport {
@@ -79,7 +78,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 "agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=?",
                 new Object[] {studentId, gradebookId}, new Type[] {Hibernate.STRING, Hibernate.LONG});
     }
-    
+
     /**
      */
     public CourseGrade getCourseGrade(Long gradebookId) {
@@ -113,14 +112,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      * This should be called any time the total number of points possible in a
      * gradebook is modified, either by editing, adding, or removing assignments
      * or external assessments.
-     * 
+     *
      * You must flush and clear the hibernate session prior to calling this method,
      * or you risk causing data contention here.  If data contention does occur
      * here, you will be unable to catch the exception (due to the spring proxy
      * mechanism).
-     * 
+     *
      * TODO Clean up optimistic locking difficulties in recalculate grades
-     * 
+     *
      * @param gradebook The gradebook containing the course grade records to update
      * @param studentIds The collection of student IDs
      * @param session The hibernate session
@@ -128,7 +127,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected void recalculateCourseGradeRecords(final Gradebook gradebook,
             final Collection studentIds, Session session) throws HibernateException {
         if(logger.isDebugEnabled()) logger.debug("Recalculating " + studentIds.size() + " course grade records");
-        
+
         List assignments = getAssignments(gradebook.getId(), session);
         String graderId = FacadeUtils.getUserUid(authn);
         for(Iterator studentIter = studentIds.iterator(); studentIter.hasNext();) {
@@ -161,7 +160,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      * This should be called any time the total number of points possible in a
      * gradebook is modified, either by editing, adding, or removing assignments
      * or external assessments.
-     * 
+     *
      * @param gradebook
      * @param session
      * @throws HibernateException
