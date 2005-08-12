@@ -1498,7 +1498,9 @@ public class DeliveryBean
     l2.processAction(null);
 
     // 9. do the timer thing
-    Integer timeLimit = adata.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit();
+    Integer timeLimit = null;
+    if (adata.getPublishedAssessment().getAssessmentAccessControl()!=null)
+       timeLimit = adata.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit();
     if (timeLimit!=null && timeLimit.intValue()>0){
       UpdateTimerListener l3 = new UpdateTimerListener();
       l3.processAction(null);
