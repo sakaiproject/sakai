@@ -33,6 +33,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -41,6 +42,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean;
 
 
 /**
@@ -71,6 +73,11 @@ public class TemplateLoadListener
     log.info("debugging ActionEvent: " + ae);
     log.info("debug requestParams: " + requestParams);
     log.info("debug reqMap: " + reqMap);
+    // need to know who is looking at the templates
+    BackingBean backingBean = (BackingBean) cu.lookupBean("backingbean");
+    backingBean.setProp1(AgentFacade.getAgentString());
+
+
     TemplateBean templateBean = lookupTemplateBean(context);
     log.info("id=" + cu.lookupParam("templateId"));
     String templateId = cu.lookupParam("templateId");
