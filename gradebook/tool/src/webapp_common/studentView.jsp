@@ -1,6 +1,6 @@
 <f:view>
 	<h:form id="gbForm">
-	  <gbx:flowState bean="#{studentViewBean}" />
+	  <sakai:flowState bean="#{studentViewBean}" />
 
 	  <div class="portletBody">
 		<h2>

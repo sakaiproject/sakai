@@ -5,7 +5,7 @@
 		<%@include file="/inc/appMenu.jspf"%>
 	  </x:aliasBean>
 
-	  <gbx:flowState bean="#{removeAssignmentBean}" />
+	  <sakai:flowState bean="#{removeAssignmentBean}" />
 	  <div class="portletBody">
 
 		<h2><h:outputText value="#{msgs.remove_assignment_page_title}"/></h2>

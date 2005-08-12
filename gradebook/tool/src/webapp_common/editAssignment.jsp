@@ -8,7 +8,7 @@
 		<%@include file="/inc/appMenu.jspf"%>
 	  </x:aliasBean>
 
-	  <gbx:flowState bean="#{editAssignmentBean}" />
+	  <sakai:flowState bean="#{editAssignmentBean}" />
 	  <div class="portletBody">
 
 		<h2><h:outputText value="#{msgs.appmenu_edit_assignment}"/></h2>

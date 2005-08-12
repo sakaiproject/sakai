@@ -4,7 +4,7 @@
 		<%@include file="/inc/appMenu.jspf"%>
 	  </x:aliasBean>
 
-	  <gbx:flowState bean="#{overviewBean}" />
+	  <sakai:flowState bean="#{overviewBean}" />
 
 	  <div class="portletBody">
 		<h2><h:outputText value="#{msgs.appmenu_overview}"/></h2>

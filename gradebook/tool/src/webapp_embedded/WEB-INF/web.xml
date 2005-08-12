@@ -67,7 +67,7 @@
 	</servlet>
 	<context-param>
     	<param-name>javax.faces.CONFIG_FILES</param-name>
-    	<param-value>/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml,/WEB-INF/faces-gb_jsf.xml</param-value>
+    	<param-value>/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml</param-value>
   	</context-param>
 
 	<servlet-mapping>

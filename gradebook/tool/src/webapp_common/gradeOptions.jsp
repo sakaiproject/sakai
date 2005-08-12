@@ -5,7 +5,7 @@
 		<%@include file="/inc/appMenu.jspf"%>
 	</x:aliasBean>
 
-	<gbx:flowState bean="#{feedbackOptionsBean}" />
+	<sakai:flowState bean="#{feedbackOptionsBean}" />
 
 	<div class="portletBody">
 		<h2><h:outputText value="#{msgs.feedback_options_page_title}"/></h2>

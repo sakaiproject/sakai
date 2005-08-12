@@ -25,7 +25,7 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.jsf.flowstate.PhaseAware;
+import org.sakaiproject.jsf.model.PhaseAware;
 
 public abstract class InitializableBean implements PhaseAware {
 	private static final Log logger = LogFactory.getLog(InitializableBean.class);

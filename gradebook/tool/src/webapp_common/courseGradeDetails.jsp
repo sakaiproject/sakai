@@ -6,7 +6,7 @@
 	  </x:aliasBean>
 
 	  <!-- Course Grade Summary -->
-	  <gbx:flowState bean="#{courseGradeDetailsBean}" />
+	  <sakai:flowState bean="#{courseGradeDetailsBean}" />
 
 	  <div class="portletBody">
 		<h2><h:outputText value="#{courseGradeDetailsBean.courseGrade.name}"/></h2>

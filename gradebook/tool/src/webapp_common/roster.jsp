@@ -5,7 +5,7 @@
 		<%@include file="/inc/appMenu.jspf"%>
 	  </x:aliasBean>
 
-	  <gbx:flowState bean="#{rosterBean}" />
+	  <sakai:flowState bean="#{rosterBean}" />
 
 	  <div class="portletBody">
 		<h2><h:outputText value="#{msgs.roster_page_title}"/></h2>
