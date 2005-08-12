@@ -50,7 +50,7 @@ Sakai Sections Tool -- Building and Deploying
 		
 	Data loading
 		The sections tool expects the framework to provide the "course context".
-		Since the sections tool is not intended to manage course offerings, it
+		Since the sections tool is not intended to manage courses, it
 		can not create new course contexts.  Therefore, we need to bootstrap
 		course information so when the app starts, it can find its course context.
 		

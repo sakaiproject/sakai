@@ -25,22 +25,22 @@
 package org.sakaiproject.test.section.dataload;
 
 import org.sakaiproject.test.section.SectionsTestBase;
-import org.sakaiproject.test.section.manager.CourseOfferingManager;
+import org.sakaiproject.test.section.manager.CourseManager;
 
-public class CourseOfferingLoadTest extends SectionsTestBase {
-    protected CourseOfferingManager courseManager;
+public class CourseLoadTest extends SectionsTestBase {
+    protected CourseManager courseManager;
     
 	protected void onSetUpInTransaction() throws Exception {
-		courseManager = (CourseOfferingManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseOfferingManager");
+		courseManager = (CourseManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseManager");
     }
 
 	public void testLoadCourseOfferings() {
 		// Don't roll this back
 		setComplete();
 
-		courseManager.createCourseOffering("site1", "A Course for Site #1", false, false, false);
-		courseManager.createCourseOffering("site2", "A Course for Site #2", false, false, false);
-		courseManager.createCourseOffering("site3", "A Course for Site #3", false, false, false);
+		courseManager.createCourse("site1", "A Course for Site #1", false, false, false);
+		courseManager.createCourse("site2", "A Course for Site #2", false, false, false);
+		courseManager.createCourse("site3", "A Course for Site #3", false, false, false);
 	}
 }
 

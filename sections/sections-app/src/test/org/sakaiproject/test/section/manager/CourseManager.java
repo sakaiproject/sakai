@@ -22,13 +22,14 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.api.section.coursemanagement;
+package org.sakaiproject.test.section.manager;
 
-public interface CourseOffering extends LearningContext {
-	public boolean isExternallyManaged();
-	public boolean isSelfRegistrationAllowed();
-	public boolean isSelfSwitchingAllowed();
+public interface CourseManager {
+	public void createCourse(String siteContext, String title,
+			boolean selfRegAllowed, boolean selfSwitchingAllowed,
+			boolean externallyManaged);
 }
+
 
 
 /**********************************************************************************

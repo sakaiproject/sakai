@@ -34,7 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
 import org.sakaiproject.api.section.SectionAwareness;
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
+import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
@@ -59,6 +59,24 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     protected Authn authn;
     protected Context context;
     protected UserDirectory userDirectory;
+    	
+	public Course getCourse(final String siteContext) {
+    	if(log.isDebugEnabled()) log.debug("Getting course for context " + siteContext);
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+                Query q = session.createQuery("from CourseImpl as course where course.siteContext=:context");
+                q.setParameter("context", siteContext);
+                List list = q.list();
+                if(list.size() == 0) {
+                	throw new IllegalArgumentException("There is no course associated with context " + siteContext);
+                } else {
+                	return list.get(0);
+                }
+            }
+        };
+        return (Course)getHibernateTemplate().execute(hc);
+	}
+
     
     public void joinSection(String sectionId) {
         // TODO Auto-generated method stub
@@ -78,7 +96,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     public void addSectionMembership(String userId, Role role, String sectionId)
             throws MembershipException {
     	if(role.isInstructor()) {
-    		throw new IllegalArgumentException("You can not add an instructor to a section... add them to the course offering");
+    		throw new IllegalArgumentException("You can not add an instructor to a section... please add them to the course");
     	} else if(role.isStudent()) {
     		addSectionEnrollment(userId, sectionId);
     	} else if(role.isTeachingAssistant()) {
@@ -136,20 +154,20 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		return 0;
 	}
 
-    public CourseSection addSection(final String courseOfferingUuid, final String title,
+    public CourseSection addSection(final String courseUuid, final String title,
             final String meetingTimes, final int maxEnrollments, final String location, final String category) {
     	final String uuid = uuidManager.createUuid();
         if(log.isDebugEnabled()) log.debug("Creating section with uuid = " + uuid);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
                     // Get the primary section
-                	Query q = session.createQuery("from CourseOfferingImpl as course where course.uuid=:uuid");
-                	q.setParameter("uuid", courseOfferingUuid);
+                	Query q = session.createQuery("from CourseImpl as course where course.uuid=:uuid");
+                	q.setParameter("uuid", courseUuid);
                 	List list = q.list();
                 	if(list.size() == 0) {
-                		throw new IllegalArgumentException("Course offering uuid = " + courseOfferingUuid + "does not exist");
+                		throw new IllegalArgumentException("Course uuid = " + courseUuid + "does not exist");
                 	}
-                	CourseOffering course = (CourseOffering)list.get(0);
+                	Course course = (Course)list.get(0);
                 	String uuid = uuidManager.createUuid();
                 	CourseSectionImpl section = new CourseSectionImpl(course, title, category, meetingTimes, location, uuid);
                     session.save(section);
@@ -176,12 +194,12 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
 
-    public boolean isSelfRegistrationAllowed(String courseOfferingId) {
+    public boolean isSelfRegistrationAllowed(String courseId) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public void setSelfRegistrationAllowed(String courseOfferingId,
+    public void setSelfRegistrationAllowed(String courseId,
             boolean allowed) {
         // TODO Auto-generated method stub
 
@@ -194,8 +212,14 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 
     public void setSectionSwitchingAllowed(String courseId, boolean allowed) {
         // TODO Auto-generated method stub
-
+    	
     }
+    
+	public List getUnsectionedStudents(String primarySectionId, String category) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 	// Field accessors
 	

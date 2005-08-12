@@ -24,7 +24,7 @@
 package org.sakaiproject.api.section.coursemanagement;
 
 public interface CourseSection extends LearningContext {
-	public CourseOffering getCourseOffering();
+	public Course getCourse();
     public String getMeetingTimes();
     public String getLocation();
     public String getCategory();

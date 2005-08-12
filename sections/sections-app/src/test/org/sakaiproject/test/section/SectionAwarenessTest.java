@@ -30,10 +30,10 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
+import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.test.section.manager.CourseOfferingManager;
+import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.tool.section.manager.SectionManager;
 
 /**
@@ -49,26 +49,26 @@ public class SectionAwarenessTest extends SectionsTestBase{
 	
 	private Context context;
 	private SectionManager secMgr;
-	private CourseOfferingManager courseMgr;
+	private CourseManager courseMgr;
 
     protected void onSetUpInTransaction() throws Exception {
     	context = (Context)applicationContext.getBean("org.sakaiproject.api.section.facade.manager.Context");
         secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.SectionManager");
-        courseMgr = (CourseOfferingManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseOfferingManager");
+        courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseManager");
     }
 
     public void testGetSections() throws Exception {
     	String siteContext = context.getContext();
     	List categories = secMgr.getSectionAwareness().getSectionCategories();
     	
-    	// Add a course offering to work from
-    	courseMgr.createCourseOffering(siteContext, "A course", false, false, false);
-    	CourseOffering course = secMgr.getSectionAwareness().getCourseOffering(siteContext);
+    	// Add a course to work from
+    	courseMgr.createCourse(siteContext, "A course", false, false, false);
+    	Course course = secMgr.getCourse(siteContext);
     	
     	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", "W,F 9-10AM", 100, "117 Dwinelle", (String)categories.get(0));
 
-    	// Assert that the course offering exists at this context
-    	Assert.assertTrue(secMgr.getSectionAwareness().getCourseOffering(siteContext).getUuid().equals(course.getUuid()));
+    	// Assert that the course exists at this context
+    	Assert.assertTrue(secMgr.getCourse(siteContext).getUuid().equals(course.getUuid()));
     	
     	// Assert that section awareness can retrieve the new section
     	Set sections = secMgr.getSectionAwareness().getSections(siteContext);

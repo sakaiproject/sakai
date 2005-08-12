@@ -27,34 +27,28 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.facade.Role;
 
 /**
+ * <p>
  * Provides section awareness to tools needing read-only access to section
  * information, such as section membership.
+ * </p>
  * 
- * Based loosely on Ray's section awareness requirements posted at
- * http://bugs.sakaiproject.org/confluence/display/SECT/Section+Awareness+API+Requirements
- * 
- * <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ * @author <a href="mailto:ray@media.berkeley.edu">Ray Davis</a>
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public interface SectionAwareness {
 
-	/**
-	 * Gets the course offering associated with this site context.
-	 * 
-	 * @param siteContext The site context
-	 * @return The course offering
-	 */
-	public CourseOffering getCourseOffering(String siteContext);
-	
     /**
      * Gets the sections associated with this site context.
      * 
 	 * @param siteContext The site context
-     * @return The set of sections in this site
+	 * 
+     * @return The Set of
+     * {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSections}
+     * associated with this site context.
      */
     public Set getSections(String siteContext);
 
@@ -62,13 +56,19 @@ public interface SectionAwareness {
      * Gets the list of section categories.  In sakai 2.1, there will be only a
      * single set of categories.  They will not be configurable on a per-course
      * or per-context bases.
+     * 
+     * @return A List of unique Strings that identify the available section
+     * categories.  These should be internationalized for display using
+     * {@link SectionAwareness#getCategoryName(String, Locale) getCategoryName}.
      */
     public List getSectionCategories();
     
     /**
-     * Gets a course section by its uuid.
+     * Gets a {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSection}
+     * by its uuid.
      * 
      * @param sectionUuid
+     * 
      * @return
      */
     public CourseSection getSection(String sectionUuid);
@@ -77,41 +77,58 @@ public interface SectionAwareness {
      * Gets the site membership for a given context.
      * 
 	 * @param siteContext The site context
-     * @return
+	 * 
+     * @return A {@link java.util.List List} of
+     * {@link org.sakaiproject.api.section.coursemanagement.ParticipationRecord
+     * ParticipationRecords} representing the users in the given site, playing
+     * the given {@link org.sakaiproject.api.section.facade.Role Role}.
+     * 
      */
     public List getSiteMembersInRole(String siteContext, Role role);
 
     /**
-     * Finds site members in the given context and role with a matching name or
-     * display id.  Pattern matching is TBD, but will probably match in any of
-     * the following cases:
+     * Finds site members in the given context and {@link org.sakaiproject.api.section.facade.Role Role}
+     * with a matching name or display id.  Pattern matching is TBD, but will
+     * probably match in any of the following cases:
      * 
-     * Display Name = pattern*
-     * Sort Name = pattern*
-     * Display Id (installation defined, either Email or enterprise id) = pattern*
+     * <ul>
+     * 	<li>Display Name = pattern*</li>
+     * 	<li>Sort Name = pattern*</li>
+     * 	<li>Display Id (installation defined, either Email or enterprise id) = pattern*</li>
+     * </ul>
      * 
 	 * @param siteContext The site context
      * @param role The role the user must play in this context
      * @param pattern The pattern the user's name or id must match
-     * @return
+     * 
+     * @return A {@link java.util.List List} of
+     * {@link org.sakaiproject.api.section.coursemanagement.ParticipationRecord
+     * ParticipationRecords} representing the users in the given site, playing
+     * the given role, that match the string pattern.
      */
     public List findSiteMembersInRole(String siteContext, Role role, String pattern);
     
     /**
-     * Checks whether a user plays a particular role in a given site context.
+     * Checks whether a user plays a particular {@link org.sakaiproject.api.section.facade.Role Role}
+     * in a given site context.
      * 
 	 * @param siteContext The site context
-     * @param personId The user's unique id
+     * @param userUuid The user's unique id
      * @param role The role we're checking
-     * @return
+     * 
+     * @return Whether this user plays this role in this context.
      */
-    public boolean isMemberInRole(String siteContext, String personId, Role role);
+    public boolean isMemberInRole(String siteContext, String userUuid, Role role);
 
     /**
      * Gets the full membership of the given section.
      * 
      * @param sectionId
-     * @return
+     * 
+     * @return A {@link java.util.List List} of
+     * {@link org.sakaiproject.api.section.coursemanagement.ParticipationRecord
+     * ParticipationRecords} representing the users in a
+     * {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSection}.
      */
     public List getSectionMembers(String sectionId);
 
@@ -120,17 +137,24 @@ public interface SectionAwareness {
      * 
      * @param sectionId
      * @param role
-     * @return
+     * 
+     * @return A {@link java.util.List List} of
+     * {@link org.sakaiproject.api.section.coursemanagement.ParticipationRecord
+     * ParticipationRecords} representing the users in a
+     * {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSection}
+     * that play a given {@link org.sakaiproject.api.section.facade.Role Role}.
      */
     public List getSectionMembersInRole(String sectionId, Role role);
 
     /**
-     * Checks whether a user plays a particular role in a section.
+     * Checks whether a user plays a particular {@link org.sakaiproject.api.section.facade.Role Role}
+     * in a section.
      * 
      * @param sectionId
      * @param personId
      * @param role
-     * @return
+     * 
+     * @return Whether the user plays a particular role in a section.
      */
     public boolean isSectionMemberInRole(String sectionId, String personId, Role role);
 
@@ -139,26 +163,22 @@ public interface SectionAwareness {
      * 
 	 * @param siteContext The site context
      * @param categoryId
-     * @return A List of CourseSections
+     * 
+     * @return A List of {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSections}
      */
     public List getSectionsInCategory(String siteContext, String categoryId);
 
     /**
      * Gets the localized name of a given category.
      * 
-     * @param categoryId
-     * @param locale
-     * @return
+     * @param categoryId A string identifying the category
+     * @param locale The locale of the client
+     * 
+     * @return An internationalized string to display for this category.
+     * 
      */
     public String getCategoryName(String categoryId, Locale locale);
     
-    /**
-     * The Section Manager tool could use more specific queries on membership,
-     * such as this:  getting all students in a primary section that are not
-     * enrolled in any secondary sections of a given type.  For instance, 'Who
-     * are the students who are not enrolled in any lab?'
-     */
-    public List getUnsectionedMembers(String siteContext, String category, Role role);
 }
 
 

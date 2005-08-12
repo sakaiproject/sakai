@@ -32,18 +32,18 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
-import org.sakaiproject.tool.section.CourseOfferingImpl;
+import org.sakaiproject.tool.section.CourseImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class CourseOfferingManagerHibernateImpl extends HibernateDaoSupport
-	implements CourseOfferingManager {
+public class CourseManagerHibernateImpl extends HibernateDaoSupport
+	implements CourseManager {
 
-	private static final Log log = LogFactory.getLog(CourseOfferingManagerHibernateImpl.class);
+	private static final Log log = LogFactory.getLog(CourseManagerHibernateImpl.class);
 
 	protected UuidManager uuidManager;
 
-	public void createCourseOffering(final String siteContext, final String title,
+	public void createCourse(final String siteContext, final String title,
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,
 			final boolean externallyManaged) {
 		
@@ -51,7 +51,7 @@ public class CourseOfferingManagerHibernateImpl extends HibernateDaoSupport
 
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				CourseOfferingImpl course = new CourseOfferingImpl();
+				CourseImpl course = new CourseImpl();
         		course.setExternallyManaged(false);
         		course.setSelfRegistrationAllowed(selfRegAllowed);
         		course.setSelfSwitchingAllowed(selfSwitchingAllowed);

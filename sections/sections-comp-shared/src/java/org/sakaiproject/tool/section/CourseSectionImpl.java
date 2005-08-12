@@ -23,12 +23,12 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section;
 
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
+import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
 public class CourseSectionImpl extends LearningContextImpl implements CourseSection {
 
-	protected CourseOffering courseOffering;
+	protected Course course;
 	protected String category;
     protected String meetingTimes;
     protected String location;
@@ -37,8 +37,8 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
     	// Default constructor needed by hibernate
     }
 
-    public CourseSectionImpl(CourseOffering course, String title, String category, String meetingTimes, String location, String uuid) {
-		this.courseOffering = course;
+    public CourseSectionImpl(Course course, String title, String category, String meetingTimes, String location, String uuid) {
+		this.course = course;
 		this.title = title;
 		this.category = category;
 		this.meetingTimes = meetingTimes;
@@ -58,11 +58,11 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	public void setCategory(String category) {
 		this.category = category;
 	}
-	public CourseOffering getCourseOffering() {
-		return courseOffering;
+	public Course getCourse() {
+		return course;
 	}
-	public void setCourseOffering(CourseOffering courseOffering) {
-		this.courseOffering = courseOffering;
+	public void setCourse(Course course) {
+		this.course = course;
 	}
 	public String getLocation() {
 		return location;

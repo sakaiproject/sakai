@@ -22,44 +22,13 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section;
+package org.sakaiproject.api.section.coursemanagement;
 
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
-
-public class CourseOfferingImpl extends LearningContextImpl implements CourseOffering {
-
-	protected String siteContext;
-	protected boolean externallyManaged;
-	protected boolean selfRegistrationAllowed;
-	protected boolean selfSwitchingAllowed;
-	
-	public boolean isSelfSwitchingAllowed() {
-		return selfSwitchingAllowed;
-	}
-	public void setSelfSwitchingAllowed(boolean selfSwitchingAllowed) {
-		this.selfSwitchingAllowed = selfSwitchingAllowed;
-	}
-	public boolean isSelfRegistrationAllowed() {
-		return selfRegistrationAllowed;
-	}
-	public void setSelfRegistrationAllowed(boolean selfRegistrationAllowed) {
-		this.selfRegistrationAllowed = selfRegistrationAllowed;
-	}
-	public String getSiteContext() {
-		return siteContext;
-	}
-	public void setSiteContext(String siteContext) {
-		this.siteContext = siteContext;
-	}
-	public boolean isExternallyManaged() {
-		return externallyManaged;
-	}
-	public void setExternallyManaged(boolean externallyManaged) {
-		this.externallyManaged = externallyManaged;
-	}
-	
+public interface Course extends LearningContext {
+	public boolean isExternallyManaged();
+	public boolean isSelfRegistrationAllowed();
+	public boolean isSelfSwitchingAllowed();
 }
-
 
 
 /**********************************************************************************

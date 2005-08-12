@@ -36,7 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
+import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.manager.SectionManager;
@@ -82,8 +82,8 @@ public class SampleBean extends InitializableBean implements Serializable {
         userName = authn.getUserUuid();
         siteContext = context.getContext();
 
-        // Get the course offering
-        CourseOffering course = sectionManager.getSectionAwareness().getCourseOffering(siteContext);
+        // Get the course
+        Course course = sectionManager.getCourse(siteContext);
     	courseOfferingUuid = course.getUuid();
         
         // Decorate the sections
@@ -122,7 +122,7 @@ public class SampleBean extends InitializableBean implements Serializable {
         sectionManager.addSection(courseOfferingUuid, title, "M,W,F 9-10am", 100,
         		"117 Dwinelle", category);
     }
-
+    
     //// Bean getters / setters for UI
 
     // Immutable

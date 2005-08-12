@@ -23,15 +23,25 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section.manager;
 
+import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
 
 public interface SectionManager {
 
+	/**
+	 * Gets the course (whatever that means) associated with this site context.
+	 * 
+	 * @param siteContext The site context
+	 * @return The course (whatever that means)
+	 */
+	public Course getCourse(String siteContext);
+	
     /**
      * Adds the current user to a section as a student.  This is a convenience
      * method for addSectionMembership(currentUserId, Role.STUDENT, sectionId).
@@ -161,6 +171,15 @@ public interface SectionManager {
      * @param allowed
      */
     public void setSectionSwitchingAllowed(String sectionUuid, boolean allowed);
+    
+    /**
+     * The Section Manager tool could use more specific queries on membership,
+     * such as this:  getting all students in a primary section that are not
+     * enrolled in any secondary sections of a given type.  For instance, 'Who
+     * are the students who are not enrolled in any lab?'
+     */
+    public List getUnsectionedStudents(String siteContext, String category);
+
     
     /**
      * @return The section awareness instance, which provides methods to read

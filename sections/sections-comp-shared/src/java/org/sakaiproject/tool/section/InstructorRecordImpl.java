@@ -24,7 +24,7 @@
 
 package org.sakaiproject.tool.section;
 
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
@@ -37,7 +37,7 @@ public class InstructorRecordImpl extends ParticipationRecordImpl {
 	public InstructorRecordImpl() {		
 	}
 	
-	public InstructorRecordImpl(CourseSection learningContext, User user) {
+	public InstructorRecordImpl(LearningContext learningContext, User user) {
 		this.learningContext = learningContext;
 		this.user = user;
 	}

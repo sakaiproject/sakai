@@ -24,7 +24,7 @@
 
 package org.sakaiproject.tool.section.decorator;
 
-import org.sakaiproject.api.section.coursemanagement.CourseOffering;
+import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
 /**
@@ -45,7 +45,6 @@ public class CourseSectionDecorator {
 		this.categoryForDisplay = categoryForDisplay;
 	}
 
-	
 	// Delegate methods
 	public String getCategory() {
 		return section.getCategory();
@@ -62,8 +61,8 @@ public class CourseSectionDecorator {
 	public String getTitle() {
 		return section.getTitle();
 	}
-	public CourseOffering getCourseOffering() {
-		return section.getCourseOffering();
+	public Course getCourse() {
+		return section.getCourse();
 	}
 	
 }

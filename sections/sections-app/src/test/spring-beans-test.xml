@@ -2,8 +2,8 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-    <bean id="org.sakaiproject.test.section.manager.CourseOfferingManager"
-        class="org.sakaiproject.test.section.manager.CourseOfferingManagerHibernateImpl">
+    <bean id="org.sakaiproject.test.section.manager.CourseManager"
+        class="org.sakaiproject.test.section.manager.CourseManagerHibernateImpl">
         <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
         <property name="uuidManager">
             <ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
