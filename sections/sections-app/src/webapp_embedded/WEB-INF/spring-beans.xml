@@ -79,8 +79,6 @@
 		class="org.sakaiproject.component.section.facade.impl.sakai.ContextSakaiImpl"/>
 
     <bean id="org.sakaiproject.api.section.facade.manager.UserDirectory"
-        class="org.sakaiproject.component.section.facade.impl.sakai.UserDirectorySakaiImpl">
-        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
-    </bean>
+        class="org.sakaiproject.component.section.facade.impl.sakai.UserDirectorySakaiImpl"/>
 
 </beans>
