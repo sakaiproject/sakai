@@ -1421,8 +1421,8 @@ public class DeliveryBean
     byte[] mediaByte = getMediaStream(mediaLocation);
 
     // 3. get the questionId (which is the PublishedItemData.itemId)
-    int assessmentIndex = mediaLocation.lastIndexOf("assessment");
-    int questionIndex = mediaLocation.lastIndexOf("question");
+    int assessmentIndex = mediaLocation.indexOf("assessment");
+    int questionIndex = mediaLocation.indexOf("question");
     int agentIndex = mediaLocation.indexOf("/", questionIndex+8);
     String pubAssessmentId = mediaLocation.substring(assessmentIndex+10,questionIndex-1);
     String questionId = mediaLocation.substring(questionIndex+8,agentIndex);
