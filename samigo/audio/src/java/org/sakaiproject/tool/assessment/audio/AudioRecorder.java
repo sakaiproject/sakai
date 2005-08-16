@@ -104,6 +104,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.filechooser.FileFilter;
 import java.util.ResourceBundle;
+import java.util.Locale;
 
 
 /**
@@ -120,7 +121,10 @@ public class AudioRecorder
   implements ActionListener, AudioControlContext
 {
 
-  static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.audio.AudioResources");
+  private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
+  private static final String RESOURCE_NAME = "AudioResources";
+  static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
+      RESOURCE_NAME, Locale.getDefault());
   final int bufSize = 16384;
 
   FormatControls formatControls = new FormatControls();

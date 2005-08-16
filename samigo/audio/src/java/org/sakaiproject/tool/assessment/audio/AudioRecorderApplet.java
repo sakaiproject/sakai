@@ -62,11 +62,15 @@ import javax.swing.JApplet;
 import javax.swing.JFrame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Locale;
 
 public class AudioRecorderApplet
   extends JApplet
 {
-  static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.audio.AudioResources");
+  private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
+  private static final String RESOURCE_NAME = "AudioResources";
+  static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
+      RESOURCE_NAME, Locale.getDefault());
   boolean isStandalone = false;
   //Get a parameter value
   public String getParameter(String key, String def)
