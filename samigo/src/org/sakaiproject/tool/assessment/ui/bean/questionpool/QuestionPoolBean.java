@@ -144,9 +144,7 @@ public class QuestionPoolBean
   {
 
 	buildTree();
-	//System.out.println("lydiatest inside getQpools, this.sortProperty = " + this.sortProperty);
         //if ((this.sortProperty!=null) && (!this.sortProperty.equals("lastModified"))) {
-	//System.out.println("lydiatest inside getQpools, not sort by lastModified, call tree.sortByProperty " );
  	  tree.sortByProperty(this.getSortProperty(),this.getSortAscending());
 	//}
         Collection objects = tree.getSortedObjects();
@@ -261,7 +259,6 @@ public class QuestionPoolBean
   // This builds the tree.
   public void buildTree()
   {
-//          System.out.println("lydiatest in buildTree: " );
     try
     {
       QuestionPoolService delegate = new QuestionPoolService();
@@ -279,7 +276,6 @@ public class QuestionPoolBean
         {
           QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
 	tree.setCurrentId(pool.getQuestionPoolId());
-	// System.out.println("lydiatest pool "  + pool.getDisplayName());
         }
         catch(Exception e)
         {
@@ -560,12 +556,7 @@ public class QuestionPoolBean
   {
 
 /*
-   System.out.println("lydiatest in QuestionPoolBean:getItemToPreview()");
-
    String result =  previewQuestion();
-   System.out.println("lydiatest in getItemToPreview preview is " + currentItem.getItemId());
-
-
 */
     return itemToPreview;
   }
@@ -1058,18 +1049,13 @@ public class QuestionPoolBean
 
 
   public String moveQuestion(){
-        //System.out.println("lydiatest in moveQuestion");
      String sourceId = "";
       String destId = "";
       sourceId = this.getCurrentPool().getId().toString();
       String sourceItemId = this.getCurrentItemId();
 
-        //System.out.println("lydiatest in movePool source pool id = "+ sourceId);
-        //System.out.println("lydiatest in movePool source item id = "+ sourceItemId);
-
         destId= ContextUtil.lookupParam("movePool:selectedRadioBtn");
 
-        //System.out.println("lydiatest in movePool 2  dest pool Id = "+ destId);
         if((sourceId != null) && (destId != null) && (sourceItemId !=null))
         {
           try
@@ -1086,22 +1072,18 @@ public class QuestionPoolBean
 
       buildTree();
 
-    //System.out.println("lydiatest END movepool");
         return "poolList";
 
   }
 
   public String copyQuestion(){
 
-    //System.out.println("lydiatest inside copyQuestion ");
       Long sourceId = new Long(0);
       String destId= "";
       String sourceItemId = this.getCurrentItemId();
 
         ArrayList destpools= ContextUtil.paramArrayValueLike("checkboxes");
         sourceId = this.getCurrentPool().getId();
-    //System.out.println("lydiatest inside copyPool  src = " + sourceId);
-    //System.out.println("lydiatest inside copyquestion srcitemid  = " + sourceItemId);
 
         Iterator iter = destpools.iterator();
       while(iter.hasNext())
@@ -1112,7 +1094,6 @@ public class QuestionPoolBean
           {
             try
             {
-    //System.out.println("lydiatest inside copyQuestion copy to dest : " + destId);
               QuestionPoolService delegate = new QuestionPoolService();
                 delegate.addItemToPool(sourceItemId, new Long(destId));
             }
@@ -1125,7 +1106,6 @@ public class QuestionPoolBean
         }
 
       buildTree();
-        //System.out.println("lydiatest DONE copyQuestion ");
       return "poolList";
 
 
@@ -1136,7 +1116,6 @@ public class QuestionPoolBean
 // use listener instead
 public String startRemoveQuestions(){
 // used by the editPool.jsp, to remove one or more items
-    //System.out.println("lydiatest in startRemoveQuestions");
       String itemId= "";
 
         ArrayList destItems= ContextUtil.paramArrayValueLike("removeCheckbox");
@@ -1172,7 +1151,6 @@ public String startRemoveQuestions(){
 
 
  public String removeQuestionsFromPool(){
-     //System.out.println("lydiatest in removeQuestionFromPool");
      String sourceId = this.getCurrentPool().getId().toString();
 
      List itemlist = this.getItemsToDelete();
@@ -1185,14 +1163,10 @@ public String startRemoveQuestions(){
        String itemid = itemfacade.getItemIdString();
        QuestionPoolService delegate = new QuestionPoolService();
        delegate.removeQuestionFromPool(itemid, new Long(sourceId));
-       //System.out.println("lydiatest removed " + itemid);
-
 
        // check to see if any pools are linked to this item
        ArrayList poollist = (ArrayList) delegate.getPoolIdsByItem(itemfacade.getItemIdString());
-       //System.out.println("lydiatest are there any other pool reference to this " + itemid);
        if (poollist.isEmpty()) {
-       //System.out.println("lydiatest NO  other pool reference to this " + itemid);
 
 	 if (itemfacade.getSection() == null) {
             // if no assessment refers to this pool then delete this item from db
@@ -1206,20 +1180,17 @@ public String startRemoveQuestions(){
 
 /*
 	    Set itemmetadataSet= itemfacade.getItemMetaDataSet();
-       	    //System.out.println("lydiatest Set count = " + itemmetadataSet.size());
        	    ItemMetaData metaTodelete= null;
             Iterator metaiter = itemmetadataSet.iterator();
      	      while (metaiter.hasNext()){
        		ItemMetaData meta= (ItemMetaData) metaiter.next();
        		if (meta.getLabel().equals(ItemMetaData.POOLID)){
-       		  //System.out.println("lydiatest found , deleting ");
        		  metaTodelete= meta;
         	}
               }
               if (metaTodelete!=null) {
                 itemmetadataSet.remove(metaTodelete);
               }
-       	    //System.out.println("lydiatest now after removing poolid Set count = " + itemmetadataSet.size());
 	    itemfacade.setItemMetaDataSet(itemmetadataSet);
 	    itemdelegate.saveItem(itemfacade);
 */
@@ -1300,7 +1271,6 @@ public String startRemoveQuestions(){
       pool.setLastModified(new Date());
 
       this.setCurrentPool(pool);
-    //System.out.println("lydiatest getchecked pool , pool id = " + this.getCurrentPool().getId());
     }
     catch(Exception e)
     {
@@ -1313,13 +1283,11 @@ public String startRemoveQuestions(){
 
   public String copyPool(){
 
-    //System.out.println("lydiatest inside copyPool ");
       Long sourceId = new Long(0);
       String destId= "";
 
 	ArrayList destpools= ContextUtil.paramArrayValueLike("checkboxes");
  	sourceId = this.getCurrentPool().getId();
-    //System.out.println("lydiatest inside copyPool  src = " + sourceId);
 
 	Iterator iter = destpools.iterator();
       while(iter.hasNext())
@@ -1330,7 +1298,6 @@ public String startRemoveQuestions(){
           {
             try
             {
-    //System.out.println("lydiatest inside copyPool  copy to dest : " + destId);
               QuestionPoolService delegate = new QuestionPoolService();
 		// TODO Uncomment the line below to test copyPool,
 		delegate.copyPool(tree, AgentFacade.getAgentString(),
@@ -1345,23 +1312,18 @@ public String startRemoveQuestions(){
         }
 
       buildTree();
-    	//System.out.println("lydiatest DONE copyPool");
       return "poolList";
 
   }
 
 
   public String movePool(){
-	//System.out.println("lydiatest in movePool");
      String sourceId = "";
       String destId = "";
       sourceId = this.getCurrentPool().getId().toString();
 
-	//System.out.println("lydiatest in movePool source id = "+ sourceId);
-
 	destId= ContextUtil.lookupParam("movePool:selectedRadioBtn");
 
-	//System.out.println("lydiatest in movePool 2  destId = "+ destId);
         if((sourceId != null) && (destId != null))
         {
           try
@@ -1380,12 +1342,10 @@ public String startRemoveQuestions(){
 
       buildTree();
 
-    //System.out.println("lydiatest END movepool");
 	return "poolList";
   }
 
   public String addPool(){
-    //System.out.println("lydiatest action addPool");
           String addsource = "poollist";
           addsource = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("addsource");
 	this.setAddPoolSource(addsource);
@@ -1397,7 +1357,6 @@ public String startRemoveQuestions(){
   public void startCreatePool()
   {
    try{
-    //System.out.println("lydiatest in startCreatePool");
      QuestionPoolDataBean pool = new QuestionPoolDataBean();
       int htmlIdLevel = 0;
 
@@ -1407,11 +1366,9 @@ public String startRemoveQuestions(){
 
 
           String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
-    //System.out.println("lydiatest qpid = " + qpid);
 	if((qpid != "0") && (qpid !=null))
 // qpid = 0 if creating a new pool at root level
           {
-    //System.out.println("lydiatest not null qpid = " + qpid);
             pool.setParentPoolId(new Long(qpid));
 
           }
@@ -1433,13 +1390,11 @@ public String startRemoveQuestions(){
 
   public String confirmRemovePool(){
 // used by the editpool.jsp to remove one subpool at a time
-    //System.out.println("lydiatest in confirm remove pool");
 	this.setDeletePoolSource("editpool");
 
 ItemAuthorBean itemauthorbean= (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 String poolId = ContextUtil.lookupParam("qpid");
 
-//System.out.println("lydiatest deleting.. "  + poolId);
 
 // we are add one element to the arrayList so we can reuse the deletePool() method. deletePool method expects an arrayList of pools to be deleted.  It is used by the poolList.jsp to delete multiple pools.
 
@@ -1455,7 +1410,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 
   public String startRemovePool(){
 // used by the poolList.jsp
-    //System.out.println("lydiatest in startRemovePool");
 	this.setDeletePoolSource("poollist");
       String poolId= "";
 
@@ -1467,7 +1421,6 @@ String poolId = ContextUtil.lookupParam("qpid");
       {
 
         poolId = (String) iter.next();
-//System.out.println("lydiatest deleting.. "  + poolId);
 
         QuestionPoolService delegate = new QuestionPoolService();
         QuestionPoolFacade qPool =
@@ -1481,7 +1434,6 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
   public String removePool(){
-    //System.out.println("lydiatest in removepool");
 
         QuestionPoolService delegate = new QuestionPoolService();
         List qpools = this.getPoolsToDelete();
@@ -1491,7 +1443,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 
         QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
 	Long poolId= pool.getQuestionPoolId();
-//System.out.println("lydiatest deleting.. "  + poolId);
 
         delegate.deletePool(poolId, AgentFacade.getAgentString(), tree);
         }
@@ -1540,7 +1491,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 // use the Listener instead, because for edit pool, i need to do savePool and remove subpool when 'update' button is clicked
   public String savePool(){
 // save newly created pool
-    //System.out.println("lydiatest action savePool");
 
     try
     {
@@ -1562,10 +1512,7 @@ String poolId = ContextUtil.lookupParam("qpid");
         new QuestionPoolFacade (beanid, parentid);
       questionpool.updateDisplayName(bean.getDisplayName());
       questionpool.updateDescription(bean.getDescription());
-//System.out.println("lydiatest orgname " + bean.getOrganizationName() );
       questionpool.setOrganizationName(bean.getOrganizationName());
-//System.out.println("lydiatest orgname " + bean.getObjectives() );
-//System.out.println("lydiatest orgname " + bean.getKeywords() );
       questionpool.setObjectives(bean.getObjectives());
       questionpool.setKeywords(bean.getKeywords());
 // need to set owner and accesstype
@@ -1586,11 +1533,6 @@ String poolId = ContextUtil.lookupParam("qpid");
     {
       throw new Error(e);
     }
-
-
-    //System.out.println("lydiatest savepool done");
-
-
 	return "poolList";
   }
 
@@ -1598,7 +1540,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 */
 
   public String editPool(){
-    //System.out.println("lydiatest action editPool");
  	startEditPool();
 	return "editPool";
   }
@@ -1607,7 +1548,6 @@ String poolId = ContextUtil.lookupParam("qpid");
   public void startEditPool()
   {
 	String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
-    //System.out.println("lydiatest qpid = " + qpid);
   	startEditPoolAgain(qpid);
   }
 
@@ -1615,14 +1555,12 @@ String poolId = ContextUtil.lookupParam("qpid");
   public void startEditPoolAgain(String qpid)
   {
    try{
-    //System.out.println("lydiatest in startEditPool Again");
 	QuestionPoolDataBean pool = new QuestionPoolDataBean();
 	int htmlIdLevel = 0;
 	ArrayList allparentPools = new ArrayList();
 
 /*
 	String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
-    //System.out.println("lydiatest qpid = " + qpid);
 */
 
           if(qpid != null)
@@ -1646,7 +1584,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 	 pool.setParentPools(allparentPools);
 	 pool.setParentPoolsArray(allparentPools);
-    //System.out.println("lydiatest pool.getparentpoolid = " + ppoolid);
           while(! ppoolid.toString().equals("0"))
           {
             QuestionPoolFacade ppool =
@@ -1665,7 +1602,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 		pool.setParentPoolsArray(allparentPools);
           }
 
-//System.out.println("lydiatest editpool parentppoolsize = " + allparentPools.size());
 	 this.setParentPoolSize(allparentPools.size());
           String htmlID = tree.getCurrentObjectHTMLId();
 
@@ -1674,11 +1610,8 @@ String poolId = ContextUtil.lookupParam("qpid");
           htmlIdLevel = result.length + 1;
 
           pool.setDisplayName(thepool.getDisplayName());
-    //System.out.println("lydiatest pool.title = " + pool.getDisplayName());
           pool.setParentPoolId(thepool.getParentPoolId());
-    //System.out.println("lydiatest pool.title = " + pool.getParentPoolId());
           pool.setDescription(thepool.getDescription());
-    //System.out.println("lydiatest pool.title = " + pool.getDescription());
           pool.setOwner(thepool.getOwnerId());
           pool.setObjectives(thepool.getObjectives());
           pool.setOrganizationName(thepool.getOrganizationName());
@@ -1690,8 +1623,6 @@ String poolId = ContextUtil.lookupParam("qpid");
           pool.setNumberOfSubpools(thepool.getSubPoolSize().toString());
           pool.setNumberOfQuestions(thepool.getQuestionSize().toString());
 
-    //System.out.println("lydiatest pool.numberofsubpool = " + pool.getNumberOfSubpools());
-    //System.out.println("lydiatest pool.quesitonsize = " + pool.getNumberOfQuestions());
 
           Collection objects = tree.getSortedObjects(thepool.getQuestionPoolId());
 	  this.setSortedSubqpools(objects);
@@ -1715,11 +1646,9 @@ String poolId = ContextUtil.lookupParam("qpid");
   public String selectQuestionType() {
     ItemAuthorBean itemauthorbean= (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 String poolid = ContextUtil.lookupParam("poolId");
-    //System.out.println("lydiatest lookup param poolId : " + poolid);
      if(poolid!=null) {
        itemauthorbean.setQpoolId(poolid);
        itemauthorbean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL);
-    //System.out.println("lydiatest we are adding to pool : " + itemauthorbean.getQpoolId());
 
       itemauthorbean.setItemType("");
       itemauthorbean.setItemTypeString("");
@@ -1731,12 +1660,10 @@ String poolid = ContextUtil.lookupParam("poolId");
   }
 
   public String sortByColumnHeader() {
-    //System.out.println("lydiatest in sortByColumnHeader : " );
     String sortString = ContextUtil.lookupParam("orderBy");
     String ascending = ContextUtil.lookupParam("ascending");
     this.setSortProperty(sortString);
     this.setSortAscending((Boolean.valueOf(ascending)).booleanValue());
-    //System.out.println("lydiatest we are sorting by column : " + this.getSortProperty());
     return "poolList";
   }
 
@@ -1775,29 +1702,23 @@ String poolid = ContextUtil.lookupParam("poolId");
   }
 
  public void previewQuestion(ActionEvent event){
-    //System.out.println("lydiatest in QuestionPoolBean:previewQuestion()");
 
         ItemService delegate = new ItemService();
         String itemId= ContextUtil.lookupParam("itemid");
-    //System.out.println("lydiatest itemId to preview is " + itemId);
 
         ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
         setCurrentItem(itemf);
-    //System.out.println("lydiatest itemf preview is " + itemf.getItemId());
 
   }
 
 
  public String previewQuestion(){
-    //System.out.println("lydiatest in QuestionPoolBean:previewQuestion()");
 
         ItemService delegate = new ItemService();
         String itemId= ContextUtil.lookupParam("itemid");
-    //System.out.println("lydiatest itemId to preview is " + itemId);
 
         ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
         setCurrentItem(itemf);
-    //System.out.println("lydiatest itemf preview is " + itemf.getItemId());
 
     return "previewItem";
   }

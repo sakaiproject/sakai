@@ -167,7 +167,6 @@ public class ItemBean
    */
   public void setItemScore(String score)
   {
-//System.out.println("lydiatest setting score = " + score);
     this.itemScore= score;
   }
 
@@ -896,7 +895,6 @@ public class ItemBean
 
 	FacesContext context = FacesContext.getCurrentInstance();
 	String type = (String) event.getNewValue();
-//System.out.println("lydiatest togglechoicetype =  " + type);
 	if ((type == null) || type.equals(TypeFacade.MULTIPLE_CHOICE.toString())) {
 	  setMultipleCorrect(false);
 	  setMultipleCorrectString(TypeFacade.MULTIPLE_CHOICE.toString());
@@ -907,16 +905,12 @@ public class ItemBean
 	  setMultipleCorrectString(TypeFacade.MULTIPLE_CORRECT.toString());
 	  setItemType(TypeFacade.MULTIPLE_CORRECT.toString());
 	}
-//System.out.println("lydiatest getMultiplecorrect =  " + getMultipleCorrect());
-//System.out.println("lydiatest setMulitpleCorrectString =  " + multipleCorrectString);
-//System.out.println("lydiatest toggle choice set bean.setitemtype =  " + getItemType());
 
   }
   public void addChoices(ValueChangeEvent event) {
         // build a default list of 4 choices, a, b, c, d,
 	FacesContext context = FacesContext.getCurrentInstance();
 	String newvalue = (String) event.getNewValue();
-//System.out.println("lydiatest in additonal choices " + newvalue);
 	ArrayList list = getMultipleChoiceAnswers(); // get existing list
 	if (list!=null) {
 		// add additional answer bean
@@ -934,9 +928,6 @@ public class ItemBean
 	setAdditionalChoices("0");
 
 
-//System.out.println("lydiatest setadditional choices " + additionalChoices);
-
-//System.out.println("lydiatest END addChoice(),  in new list size " + multipleChoiceAnswers.size());
 
   }
 
@@ -945,7 +936,6 @@ public class ItemBean
      //   FacesContext context = FacesContext.getCurrentInstance();
      //   String newvalue = (String) event.getNewValue();
           String newvalue = this.getAdditionalChoices();
-//System.out.println("lydiatest in additonal choices " + newvalue);
         ArrayList list = getMultipleChoiceAnswers(); // get existing list
         if (list!=null) {
                 // add additional answer bean
@@ -964,7 +954,6 @@ public class ItemBean
 
         // if mcmc, need to set corrAnswers 
        if (getMultipleCorrect()) {
-	//System.out.println("lydiatest getMultiplecorrect ()=  " + getMultipleCorrect());
           ArrayList corranswersList = ContextUtil.paramArrayValueLike("mccheckboxes");
           int corrsize = corranswersList.size();
           int counter = 0;
@@ -976,21 +965,15 @@ public class ItemBean
 	    corrchoices[counter]= currentcorrect; 
             counter++;
           }
-        //System.out.println("lydiatest corchoices are " + corrchoices.toString());
         this.setCorrAnswers(corrchoices);
        }
 
-
-//System.out.println("lydiatest setadditional choices " + additionalChoices);
-
-//System.out.println("lydiatest END addChoice(),  in new list size " + multipleChoiceAnswers.size());
 
         return "multipleChoiceItem";
   }
 
   public String removeChoices() {
 	String labelToRemove = ContextUtil.lookupParam("answerid");
-//System.out.println("lydiatest remove choice : " + labelToRemove);
         ArrayList list = getMultipleChoiceAnswers(); // get existing list
 	Iterator iter = list.iterator();
 	int currentindex = 0;
@@ -1013,7 +996,6 @@ public class ItemBean
         }
         setMultipleChoiceAnswers(list);
 
-//System.out.println("lydiatest END removeChoice(),  in new list size " + multipleChoiceAnswers.size());
 	return null;
 
   }
@@ -1043,17 +1025,13 @@ public boolean checkMatch(){
   public String addMatchPair() {
       if (checkMatch()){
 
-//System.out.println("lydiatest addMatchpair: " );
     // get existing list
     ArrayList list = getMatchItemBeanList();
-//System.out.println("lydiatest before adding we have how many pairs: " + this.getMatchItemBeanList().size());
 
     Iterator biter = this.getMatchItemBeanList().iterator();
     while(biter.hasNext())
     {
       MatchItemBean apair = (MatchItemBean) biter.next();
-//System.out.println("lydiatest we now have pair: " + apair.getSequence() + " " + apair.getChoice() + " " + apair.getMatch() );
-//System.out.println("lydiatest and : " + apair.getIsCorrect().toString() + " " + apair.getCorrMatchFeedback()  + " " + apair.getIncorrMatchFeedback());
     }
 
 
@@ -1068,8 +1046,6 @@ public boolean checkMatch(){
       newpair.setCorrMatchFeedback(currpair.getCorrMatchFeedback());
       newpair.setIncorrMatchFeedback(currpair.getIncorrMatchFeedback());
       newpair.setIsCorrect(Boolean.TRUE);
-//System.out.println("lydiatest we are modifying this pair: " + newpair.getSequence() + " " + newpair.getChoice() + " " + newpair.getMatch() );
-//System.out.println("lydiatest and : " + newpair.getIsCorrect().toString() + " " + newpair.getCorrMatchFeedback()  + " " + newpair.getIncorrMatchFeedback());
     }
     else {
       // for new pair
@@ -1081,8 +1057,6 @@ public boolean checkMatch(){
       newpair.setIsCorrect(Boolean.TRUE);
       newpair.setSequence(new Long(list.size()+1));
 
-//System.out.println("lydiatest we are adding this pair: " + newpair.getSequence() + " " + newpair.getChoice() + " " + newpair.getMatch() );
-//System.out.println("lydiatest and : " + newpair.getIsCorrect().toString() + " " + newpair.getCorrMatchFeedback()  + " " + newpair.getIncorrMatchFeedback());
     list.add(newpair);
     }
 
@@ -1092,13 +1066,10 @@ public boolean checkMatch(){
 
 
 //debugging
-//System.out.println("lydiatest we are total how many pairs: " + this.getMatchItemBeanList().size());
     Iterator iter = list.iterator();
     while(iter.hasNext())
     {
       MatchItemBean apair = (MatchItemBean) iter.next();
-//System.out.println("lydiatest we now have pair: " + apair.getSequence() + " " + apair.getChoice() + " " + apair.getMatch() );
-//System.out.println("lydiatest and : " + apair.getIsCorrect().toString() + " " + apair.getCorrMatchFeedback()  + " " + apair.getIncorrMatchFeedback());
     }
 
     MatchItemBean matchitem = new MatchItemBean();
@@ -1113,7 +1084,6 @@ public boolean checkMatch(){
 
 	String seqnostr = ContextUtil.lookupParam("sequence");
      int seqno = new Integer(seqnostr).intValue()-1;
-//System.out.println("lydiatest addMatchpair: " );
     // get currentmatchpair by sequence.
 
     MatchItemBean pairForEdit= (MatchItemBean) this.getMatchItemBeanList().get(seqno);
@@ -1127,12 +1097,10 @@ public boolean checkMatch(){
 
 	String seqnostr = ContextUtil.lookupParam("sequence");
      int seqno = new Integer(seqnostr).intValue()-1;
-//System.out.println("lydiatest addMatchpair: " );
     // get currentmatchpair by sequence.
 
     this.getMatchItemBeanList().remove(seqno);
     // shift seqno
-//System.out.println("lydiatest we are total how many pairs: " + this.getMatchItemBeanList().size());
     Iterator iter = this.getMatchItemBeanList().iterator();
     int i = 1;
     while(iter.hasNext())
@@ -1148,8 +1116,6 @@ public boolean checkMatch(){
     while(iter.hasNext())
     {
       MatchItemBean apair = (MatchItemBean) iter.next();
-//System.out.println("lydiatest we now have pair: " + apair.getSequence() + " " + apair.getChoice() + " " + apair.getMatch() );
-//System.out.println("lydiatest and : " + apair.getIsCorrect().toString() + " " + apair.getCorrMatchFeedback()  + " " + apair.getIncorrMatchFeedback());
     }
 
 

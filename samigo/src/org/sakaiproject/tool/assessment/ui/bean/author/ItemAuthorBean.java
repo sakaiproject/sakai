@@ -697,7 +697,6 @@ public class ItemAuthorBean
    */
   public ArrayList getPoolSelectList() {
 
-    //System.out.println("lydiatest in getPoolSelectList");
     poolListSelectItems = new ArrayList();
 
 
@@ -718,7 +717,6 @@ public class ItemAuthorBean
 		throw new Error(e);
     }
 
-    //System.out.println("lydiatest in getPoolSelectList total pool in the list = " + poolListSelectItems.size());
     return poolListSelectItems;
   }
 
@@ -799,13 +797,10 @@ public class ItemAuthorBean
   public String startCreateItem()
   {
    try{
-     //System.out.println("lydiatest in startCreateItem");
      ItemBean item = new ItemBean();
 
     // check to see if we arrived here from question pool
 
-    //System.out.println("lydiatest we are adding to : "+ this.getTarget() );
-    //System.out.println("lydiatest we are adding to : "+ this.getQpoolId() );
 
 // need to get assessmentid
 //  String assessmentId = ContextUtil.lookupParam("assessmentid");
@@ -820,14 +815,12 @@ public class ItemAuthorBean
         if (this.getItemType()!=null) {
 		itype = new Integer(this.getItemType()).intValue();
  	}
-    //System.out.println("lydiatest selected which type : " + itype);
 	switch (itype) {
 		case 1:
 			item.setMultipleCorrect(Boolean.FALSE.booleanValue());
 			item.setMultipleCorrectString(TypeFacade.MULTIPLE_CHOICE.toString());
 			this.setItemTypeString("Multiple Choice");  //  need to get it from properties file
 			nextpage = "multipleChoiceItem";
-    //System.out.println("lydiatest multplecorrctstring should be false : " + item.getMultipleCorrectString());
 			break;
 		case 2:
 // never really use this, put here for completeness
@@ -894,7 +887,6 @@ public class ItemAuthorBean
 
   public String doit() {
 	//  navigation for ItemModifyListener
-    //System.out.println("lydiatest calling doit() ");
 	return outcome;
   }
 
@@ -903,10 +895,8 @@ public class ItemAuthorBean
    * delete specified Item
    */
   public String deleteItem() {
-//System.out.println("lydiatest in deleteItem()  " );
 
 ItemService delegate = new ItemService();
-    //System.out.println("lydiatest item in deleteItem is " + this.getItemToDelete().getItemId());
 
         Long deleteId= this.getItemToDelete().getItemId();
 
@@ -933,16 +923,13 @@ ItemService delegate = new ItemService();
 
     SectionFacade sectfacade = assessdelegate.getSection(currSection.getSectionId().toString());
       Set itemset = sectfacade.getItemFacadeSet();
-    //System.out.println("lydiatest item itemset size is " + itemset.size());
 // should be size-1 now.
       Iterator iter = itemset.iterator();
       while (iter.hasNext()) {
         ItemFacade  itemfacade = (ItemFacade) iter.next();
         Integer itemfacadeseq = itemfacade.getSequence();
-    //System.out.println("lydiatest shifting orig seq = " + itemfacadeseq);
         if (itemfacadeseq.compareTo(currSeq) > 0 ){
           itemfacade.setSequence(new Integer(itemfacadeseq.intValue()-1) );
-    //System.out.println("lydiatest after the deleted item , shift to = " + itemfacade.getSequence());
 	  delegate.saveItem(itemfacade);
         }
       }
@@ -963,16 +950,12 @@ ItemService delegate = new ItemService();
 
 
  public String confirmDeleteItem(){
-    //System.out.println("lydiatest in confirm Delte Item ");
 
         ItemService delegate = new ItemService();
         String itemId= ContextUtil.lookupParam("itemid");
-    //System.out.println("lydiatest itemId in confirm is " + itemId);
 
         ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
         setItemToDelete(itemf);
-    //System.out.println("lydiatest itemf in confirm is " + itemf.getItemId());
-
 
         return "removeQuestion";
   }
@@ -982,9 +965,7 @@ ItemService delegate = new ItemService();
 
         FacesContext context = FacesContext.getCurrentInstance();
         String type = (String) event.getNewValue();
-//System.out.println("lydiatest new itemtype editAssessment  =  " + type);
           setItemType(type);
-//System.out.println("lydiatest toggle choice set bean.setitemtype =  " + getItemType());
 
   }
 
