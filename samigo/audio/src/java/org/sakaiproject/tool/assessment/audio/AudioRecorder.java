@@ -103,6 +103,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.filechooser.FileFilter;
+import java.util.ResourceBundle;
 
 
 /**
@@ -119,6 +120,7 @@ public class AudioRecorder
   implements ActionListener, AudioControlContext
 {
 
+  static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.audio.AudioResources");
   final int bufSize = 16384;
 
   FormatControls formatControls = new FormatControls();
@@ -132,7 +134,7 @@ public class AudioRecorder
   JButton auB, aiffB, waveB;
   JTextField textField;
 
-  String fileName = "untitled";
+  String fileName = res.getString("untitled");
   String errStr;
   double duration, seconds;
   File file;
@@ -182,16 +184,16 @@ public class AudioRecorder
   private JPanel makeSaveBPanel()
   {
     JPanel saveBpanel = new JPanel();
-    auB = addButton("Save AU", saveBpanel, false);
-    aiffB = addButton("Save AIFF", saveBpanel, false);
-    waveB = addButton("Save WAVE", saveBpanel, false);
+    auB = addButton(res.getString("Save_AU"), saveBpanel, false);
+    aiffB = addButton(res.getString("Save_AIFF"), saveBpanel, false);
+    waveB = addButton(res.getString("Save_WAVE"), saveBpanel, false);
     return saveBpanel;
   }
 
   private JPanel makeSaveTFPanel()
   {
     JPanel saveTFpanel = new JPanel();
-    saveTFpanel.add(new JLabel("File to save:  "));
+    saveTFpanel.add(new JLabel(res.getString("File_to_save_")));
     saveTFpanel.add(textField = new JTextField(fileName));
     textField.setPreferredSize(new Dimension(140, 25));
     return saveTFpanel;
@@ -210,10 +212,10 @@ public class AudioRecorder
   {
     JPanel buttonsPanel = new JPanel();
     buttonsPanel.setBorder(new EmptyBorder(10, 0, 5, 0));
-    playB = addButton("Play", buttonsPanel, false);
-    captB = addButton("Record", buttonsPanel, true);
-    pausB = addButton("Pause", buttonsPanel, false);
-    loadB = addButton("Load...", buttonsPanel, true);
+    playB = addButton(res.getString("Play"), buttonsPanel, false);
+    captB = addButton(res.getString("Record"), buttonsPanel, true);
+    pausB = addButton(res.getString("Pause"), buttonsPanel, false);
+    loadB = addButton(res.getString("Load_"), buttonsPanel, true);
     return buttonsPanel;
   }
 
@@ -258,13 +260,13 @@ public class AudioRecorder
     }
     else if (obj.equals(playB))
     {
-      if (playB.getText().startsWith("Play"))
+      if (playB.getText().startsWith(res.getString("Play")))
       {
         playback.start();
         samplingGraph.start();
         captB.setEnabled(false);
         pausB.setEnabled(true);
-        playB.setText("Stop");
+        playB.setText(res.getString(" playB_Text"));
       }
       else
       {
@@ -272,16 +274,16 @@ public class AudioRecorder
         samplingGraph.stop();
         captB.setEnabled(true);
         pausB.setEnabled(false);
-        playB.setText("Play");
+        playB.setText(res.getString("Play"));
       }
     }
     else if (obj.equals(captB))
     {
-      if (captB.getText().startsWith("Record"))
+      if (captB.getText().startsWith(res.getString("Record")))
       {
         file = null;
         capture.start();
-        fileName = "untitled";
+        fileName = res.getString("untitled");
         samplingGraph.start();
         loadB.setEnabled(false);
         playB.setEnabled(false);
@@ -289,7 +291,7 @@ public class AudioRecorder
         auB.setEnabled(false);
         aiffB.setEnabled(false);
         waveB.setEnabled(false);
-        captB.setText("Stop");
+        captB.setText(res.getString(" playB_Text"));
       }
       else
       {
@@ -302,12 +304,12 @@ public class AudioRecorder
         auB.setEnabled(true);
         aiffB.setEnabled(true);
         waveB.setEnabled(true);
-        captB.setText("Record");
+        captB.setText(res.getString("Record"));
       }
     }
     else if (obj.equals(pausB))
     {
-      if (pausB.getText().startsWith("Pause"))
+      if (pausB.getText().startsWith(res.getString("Pause")))
       {
         if (capture.thread != null)
         {
@@ -320,7 +322,7 @@ public class AudioRecorder
             playback.line.stop();
           }
         }
-        pausB.setText("Resume");
+        pausB.setText(res.getString(" pausB_Text"));
       }
       else
       {
@@ -335,14 +337,14 @@ public class AudioRecorder
             playback.line.start();
           }
         }
-        pausB.setText("Pause");
+        pausB.setText(res.getString("Pause"));
       }
     }
     else if (obj.equals(loadB))
     {
       try
       {
-        File file = new File(System.getProperty("user.dir"));
+        File file = new File(System.getProperty(res.getString("user_dir")));
         JFileChooser fc = new JFileChooser(file);
         fc.setFileFilter(new javax.swing.filechooser.FileFilter()
         {
@@ -353,8 +355,8 @@ public class AudioRecorder
               return true;
             }
             String name = f.getName();
-            if (name.endsWith(".au") || name.endsWith(".wav") ||
-                name.endsWith(".aiff") || name.endsWith(".aif"))
+            if (name.endsWith(res.getString("_au")) || name.endsWith(res.getString("_wav")) ||
+                name.endsWith(res.getString("_aiff")) || name.endsWith(res.getString("_aif")))
             {
               return true;
             }
@@ -363,7 +365,7 @@ public class AudioRecorder
 
           public String getDescription()
           {
-            return ".au, .wav, .aif";
+            return res.getString("_au_wav_aif");
           }
         });
 
@@ -415,7 +417,7 @@ public class AudioRecorder
     }
     else
     {
-      reportStatus("Audio file required.");
+      reportStatus(res.getString("Audio_file_required_"));
     }
   }
 
@@ -424,7 +426,7 @@ public class AudioRecorder
 
     if (audioInputStream == null)
     {
-      reportStatus("No loaded audio to save");
+      reportStatus(res.getString("No_loaded_audio_to"));
       return;
     }
     else if (file != null)
@@ -439,7 +441,7 @@ public class AudioRecorder
     }
     catch (Exception e)
     {
-      reportStatus("Unable to reset stream " + e);
+      reportStatus(res.getString("Unable_to_reset") + e);
       return;
     }
 
@@ -448,7 +450,7 @@ public class AudioRecorder
     {
       if (AudioSystem.write(audioInputStream, fileType, file) == -1)
       {
-        throw new IOException("Problems writing to file");
+        throw new IOException(res.getString("Problems_writing_to"));
       }
     }
     catch (Exception ex)
@@ -481,7 +483,7 @@ public class AudioRecorder
     {
       errStr = null;
       thread = new Thread(this);
-      thread.setName("Playback");
+      thread.setName(res.getString("thread_Name"));
       thread.start();
     }
 
@@ -503,7 +505,7 @@ public class AudioRecorder
         samplingGraph.stop();
         captB.setEnabled(true);
         pausB.setEnabled(false);
-        playB.setText("Play");
+        playB.setText(res.getString("Play"));
       }
     }
 
@@ -519,7 +521,7 @@ public class AudioRecorder
       // make sure we have something to play
       if (audioInputStream == null)
       {
-        shutDown("No loaded audio to play back");
+        shutDown(res.getString("No_loaded_audio_to1"));
         return;
       }
       // reset to the beginnning of the stream
@@ -529,7 +531,7 @@ public class AudioRecorder
       }
       catch (Exception e)
       {
-        shutDown("Unable to reset the stream\n" + e);
+        shutDown(res.getString("Unable_to_reset_the") + e);
         return;
       }
 
@@ -540,8 +542,8 @@ public class AudioRecorder
 
       if (playbackInputStream == null)
       {
-        shutDown("Unable to convert stream of format " + audioInputStream +
-                 " to format " + format);
+        shutDown(res.getString("Unable_to_convert") + audioInputStream +
+                 res.getString("to_format") + format);
         return;
       }
 
@@ -552,7 +554,7 @@ public class AudioRecorder
                                              format);
       if (!AudioSystem.isLineSupported(info))
       {
-        shutDown("Line matching " + info + " not supported.");
+        shutDown(res.getString("Line_matching") + info + res.getString("not_supported_"));
         return;
       }
 
@@ -565,7 +567,7 @@ public class AudioRecorder
       }
       catch (LineUnavailableException ex)
       {
-        shutDown("Unable to open the line: " + ex);
+        shutDown(res.getString("Unable_to_open_the") + ex);
         return;
       }
 
@@ -596,7 +598,7 @@ public class AudioRecorder
         }
         catch (Exception e)
         {
-          shutDown("Error during playback: " + e);
+          shutDown(res.getString("Error_during_playback") + e);
           break;
         }
       }
@@ -627,7 +629,7 @@ public class AudioRecorder
     {
       errStr = null;
       thread = new Thread(this);
-      thread.setName("Capture");
+      thread.setName(res.getString("thread_Name1"));
       thread.start();
     }
 
@@ -648,7 +650,7 @@ public class AudioRecorder
         auB.setEnabled(true);
         aiffB.setEnabled(true);
         waveB.setEnabled(true);
-        captB.setText("Record");
+        captB.setText(res.getString("Record"));
         System.err.println(errStr);
         samplingGraph.repaint();
       }
@@ -669,7 +671,7 @@ public class AudioRecorder
 
       if (!AudioSystem.isLineSupported(info))
       {
-        shutDown("Line matching " + info + " not supported.");
+        shutDown(res.getString("Line_matching") + info + res.getString("not_supported_"));
         return;
       }
 
@@ -682,7 +684,7 @@ public class AudioRecorder
       }
       catch (LineUnavailableException ex)
       {
-        shutDown("Unable to open the line: " + ex);
+        shutDown(res.getString("Unable_to_open_the") + ex);
         return;
       }
       catch (SecurityException ex)
@@ -779,9 +781,9 @@ public class AudioRecorder
       setBorder(new CompoundBorder(cb, new EmptyBorder(8, 5, 5, 5)));
       JPanel p1 = new JPanel();
       ButtonGroup encodingGroup = new ButtonGroup();
-      linrB = addToggleButton(p1, encodingGroup, "linear", true);
-      ulawB = addToggleButton(p1, encodingGroup, "ulaw", false);
-      alawB = addToggleButton(p1, encodingGroup, "alaw", false);
+      linrB = addToggleButton(p1, encodingGroup, res.getString("linear"), true);
+      ulawB = addToggleButton(p1, encodingGroup, res.getString("ulaw"), false);
+      alawB = addToggleButton(p1, encodingGroup, res.getString("alaw"), false);
       add(p1);
       groups.addElement(encodingGroup);
 
@@ -806,22 +808,22 @@ public class AudioRecorder
 
       JPanel p4 = new JPanel();
       ButtonGroup signGroup = new ButtonGroup();
-      signB = addToggleButton(p4, signGroup, "signed", true);
-      unsignB = addToggleButton(p4, signGroup, "unsigned", false);
+      signB = addToggleButton(p4, signGroup, res.getString("signed"), true);
+      unsignB = addToggleButton(p4, signGroup, res.getString("unsigned"), false);
       add(p4);
       groups.addElement(signGroup);
 
       JPanel p5 = new JPanel();
       ButtonGroup endianGroup = new ButtonGroup();
-      litB = addToggleButton(p5, endianGroup, "little endian", false);
-      bigB = addToggleButton(p5, endianGroup, "big endian", true);
+      litB = addToggleButton(p5, endianGroup, res.getString("little_endian"), false);
+      bigB = addToggleButton(p5, endianGroup, res.getString("big_endian"), true);
       add(p5);
       groups.addElement(endianGroup);
 
       JPanel p6 = new JPanel();
       ButtonGroup channelsGroup = new ButtonGroup();
-      monoB = addToggleButton(p6, channelsGroup, "mono", false);
-      sterB = addToggleButton(p6, channelsGroup, "stereo", true);
+      monoB = addToggleButton(p6, channelsGroup, res.getString("mono"), false);
+      sterB = addToggleButton(p6, channelsGroup, res.getString("stereo"), true);
       add(p6);
       groups.addElement(channelsGroup);
     }
@@ -858,12 +860,12 @@ public class AudioRecorder
       float rate = Float.valueOf( (String) v.get(1)).floatValue();
       int sampleSize = Integer.valueOf( (String) v.get(2)).intValue();
       String signedString = (String) v.get(3);
-      boolean bigEndian = ( (String) v.get(4)).startsWith("big");
-      int channels = ( (String) v.get(5)).equals("mono") ? 1 : 2;
+      boolean bigEndian = ( (String) v.get(4)).startsWith(res.getString("big"));
+      int channels = ( (String) v.get(5)).equals(res.getString("mono")) ? 1 : 2;
 
-      if (encString.equals("linear"))
+      if (encString.equals(res.getString("linear")))
       {
-        if (signedString.equals("signed"))
+        if (signedString.equals(res.getString("signed")))
         {
           encoding = AudioFormat.Encoding.PCM_SIGNED;
         }
@@ -872,7 +874,7 @@ public class AudioRecorder
           encoding = AudioFormat.Encoding.PCM_UNSIGNED;
         }
       }
-      else if (encString.equals("alaw"))
+      else if (encString.equals(res.getString("alaw")))
       {
         encoding = AudioFormat.Encoding.ALAW;
       }
@@ -1027,7 +1029,7 @@ public class AudioRecorder
       {
         int nlengthInSamples = audioBytes.length;
         audioData = new int[nlengthInSamples];
-        if (format.getEncoding().toString().startsWith("PCM_SIGN"))
+        if (format.getEncoding().toString().startsWith(res.getString("PCM_SIGN")))
         {
           for (int i = 0; i < audioBytes.length; i++)
           {
@@ -1083,8 +1085,8 @@ public class AudioRecorder
       if (errStr != null)
       {
         g2.setColor(jfcBlue);
-        g2.setFont(new Font("serif", Font.BOLD, 18));
-        g2.drawString("ERROR", 5, 20);
+        g2.setFont(new Font(res.getString(" g2_Font"), Font.BOLD, 18));
+        g2.drawString(res.getString("ERROR"), 5, 20);
         AttributedString as = new AttributedString(errStr);
         as.addAttribute(TextAttribute.FONT, font12, 0, errStr.length());
         AttributedCharacterIterator aci = as.getIterator();
@@ -1107,14 +1109,14 @@ public class AudioRecorder
       {
         g2.setColor(Color.black);
         g2.setFont(font12);
-        g2.drawString("Length: " + String.valueOf(seconds), 3, h - 4);
+        g2.drawString(res.getString("Length_") + String.valueOf(seconds), 3, h - 4);
       }
       else
       {
         g2.setColor(Color.black);
         g2.setFont(font12);
-        g2.drawString("File: " + fileName + "  Length: " +
-                      String.valueOf(duration) + "  Position: " +
+        g2.drawString(res.getString("File_") + fileName + res.getString("Length_1") +
+                      String.valueOf(duration) + res.getString("Position_") +
                       String.valueOf(seconds), 3, h - 4);
 
         if (audioInputStream != null)
@@ -1141,7 +1143,7 @@ public class AudioRecorder
     public void start()
     {
       thread = new Thread(this);
-      thread.setName("SamplingGraph");
+      thread.setName(res.getString("thread_Name2"));
       thread.start();
       seconds = 0;
     }
@@ -1208,7 +1210,7 @@ public class AudioRecorder
   {
     AudioRecorder capturePlayback = new AudioRecorder();
     capturePlayback.open();
-    JFrame f = new JFrame("Capture/Playback");
+    JFrame f = new JFrame(res.getString("Capture_Playback"));
     f.addWindowListener(new WindowAdapter()
     {
       public void windowClosing(WindowEvent e)
@@ -1216,7 +1218,7 @@ public class AudioRecorder
         System.exit(0);
       }
     });
-    f.getContentPane().add("Center", capturePlayback);
+    f.getContentPane().add(res.getString("Center"), capturePlayback);
     f.pack();
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     int w = 720;

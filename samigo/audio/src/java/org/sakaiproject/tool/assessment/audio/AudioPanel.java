@@ -73,6 +73,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.util.ResourceBundle;
 
 
 /**
@@ -85,6 +86,7 @@ public class AudioPanel
   extends JPanel
   implements ChangeListener, Runnable
 {
+  static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.audio.AudioResources");
   Vector demos = new Vector(4);
   JTabbedPane tabPane = new JTabbedPane();
   int width = 760, height = 500;
@@ -137,8 +139,8 @@ public class AudioPanel
    */
   private void configureHelpMenu(JMenuBar menuBar)
   {
-    JMenu options = (JMenu) menuBar.add(new JMenu("Help"));
-    JMenuItem item = (JMenuItem) options.add(new JMenuItem("Configuration"));
+    JMenu options = (JMenu) menuBar.add(new JMenu(res.getString("Help")));
+    JMenuItem item = (JMenuItem) options.add(new JMenuItem(res.getString("Configuration")));
     item.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
@@ -147,7 +149,7 @@ public class AudioPanel
         help.configHelp();
       }
     });
-    JMenuItem about = (JMenuItem) options.add(new JMenuItem("About"));
+    JMenuItem about = (JMenuItem) options.add(new JMenuItem(res.getString("About")));
     about.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
@@ -163,8 +165,8 @@ public class AudioPanel
    */
   private void configureFileMenu(JMenuBar menuBar)
   {
-    JMenu fileMenu = (JMenu) menuBar.add(new JMenu("File"));
-    JMenuItem item = (JMenuItem) fileMenu.add(new JMenuItem("Exit"));
+    JMenu fileMenu = (JMenu) menuBar.add(new JMenu(res.getString("File")));
+    JMenuItem item = (JMenuItem) fileMenu.add(new JMenuItem(res.getString("Exit")));
     item.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
@@ -214,7 +216,7 @@ public class AudioPanel
     AudioRecorder capturePlayback = new AudioRecorder();
     demos.add(capturePlayback);
     p.add(capturePlayback);
-    tabPane.addTab("Audio Recorder", p);
+    tabPane.addTab(res.getString("Audio_Recorder"), p);
   }
 
   /**
@@ -223,13 +225,13 @@ public class AudioPanel
    */
   public static void main(String[] args)
   {
-    String media = "./audio";
+    String media = res.getString("_audio");
     if (args.length > 0)
     {
       File file = new File(args[0]);
       if (file == null && !file.isDirectory())
       {
-        System.out.println("usage: java JavaSound audioDirectory");
+        System.out.println(res.getString("usage_java_JavaSound"));
       }
       else
       {
@@ -238,7 +240,7 @@ public class AudioPanel
     }
 
     final AudioPanel demo = new AudioPanel(media);
-    JFrame f = new JFrame("Audio Recorder");
+    JFrame f = new JFrame(res.getString("Audio_Recorder"));
     f.addWindowListener(new WindowAdapter()
     {
       public void windowClosing(WindowEvent e)
@@ -256,7 +258,7 @@ public class AudioPanel
         demo.close();
       }
     });
-    f.getContentPane().add("Center", demo);
+    f.getContentPane().add(res.getString("Center"), demo);
     f.pack();
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     f.setLocation(d.width / 2 - demo.width / 2, d.height / 2 - demo.height / 2);

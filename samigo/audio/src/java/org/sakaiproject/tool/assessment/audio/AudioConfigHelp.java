@@ -72,10 +72,12 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.util.ResourceBundle;
 
 public class AudioConfigHelp
   implements Serializable
 {
+  static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.audio.AudioResources");
   private static String message;
   private static String about;
   private boolean configHardware;
@@ -120,42 +122,42 @@ public class AudioConfigHelp
   {
     int number = 1;
 
-    String msg = "When running the Audio Recorder\n";
+    String msg = res.getString("When_running_the");
 
     if (!configHardware)
     {
       msg += "  " + number++ +
-        ") You must have a properly configured sound card and microphone.\n";
+        res.getString("_You_must_have_a");
     }
     if (!configApplet)
     {
       msg += "  " + number++ +
-        ") You must have a properly configured Java 1.5 plugin installed.\n";
+        res.getString("_You_must_have_a1");
     }
     if (!configRecord || !configPlayback || !configFileWrite)
     {
-      msg += "  " + number++ + ") Have these permissions added to the .java.policy file:\n\n";
-      msg += "    grant { \n";
+      msg += "  " + number++ + res.getString("_Have_these");
+      msg += res.getString("grant_");
 
       if (!configRecord )
       {
-        msg += "      permission javax.sound.sampled.AudioPermission \"record\"; \n";
+        msg += res.getString("permission_javax");
       }
       if (!configPlayback)
       {
         msg +=
-          "      permission java.util.PropertyPermission \"user.dir\", \"read\";\n";
+          res.getString("permission_java_util");
       }
       if (!!configFileWrite)
       {
         msg +=
-          "      permission java.io.FilePermission \"<<ALL FILES>>\", \"read, write\";\n";
+          res.getString("permission_java_io");
       }
 
       msg += "      }; \n\n";
     }
 
-    msg += "Please make sure you correct this first before using.\n\n";
+    msg += res.getString("Please_make_sure_you");
 
     // to make this work we use the trick of putting it in a static,
     // this is running in the user's JVM so shouldn't be a problem.
@@ -165,7 +167,7 @@ public class AudioConfigHelp
     {
       public void run()
       {
-        JOptionPane.showMessageDialog(null, message, "Configuration Help",
+        JOptionPane.showMessageDialog(null, message, res.getString("Configuration_Help"),
                                       JOptionPane.INFORMATION_MESSAGE);
       }
     }).start();
@@ -173,22 +175,22 @@ public class AudioConfigHelp
 
   public static void infoHelp()
   {
-    about = "ABOUT SAKAI AUDIO RECORDER\n\n" +
-    "Portions copyright (c) 2005 " +
-    "The Regents of the University of Michigan,\n" +
-    "Trustees of Indiana University, " +
-    "Board of Trustees of the Leland Stanford, Jr., University, " +
-    "and The MIT Corporation.\n\n" +
-    "Licensed under the Educational Community License Version 1.0, see \n" +
-    "        http://cvs.sakaiproject.org/licenses/license_1_0.html\n\n" +
-    "Portions Copyright (c) 1999 Sun Microsystems, Inc. All Rights Reserved.\n" +
-    "(non-exclusive, royalty free, license to use, modify and redistribute)";
+    about = res.getString("ABOUT_SAKAI_AUDIO") +
+    res.getString("Portions_copyright_c") +
+    res.getString("The_Regents_of_the") +
+    res.getString("Trustees_of_Indiana") +
+    res.getString("Board_of_Trustees_of") +
+    res.getString("and_The_MIT") +
+    res.getString("Licensed_under_the") +
+    res.getString("http_cvs_sakaiproject") +
+    res.getString("Portions_Copyright_c") +
+    res.getString("_non_exclusive");
 
     new Thread(new Runnable()
    {
      public void run()
       {
-        JOptionPane.showMessageDialog(null, about, "About the Audio Recorder",
+        JOptionPane.showMessageDialog(null, about, res.getString("About_the_Audio"),
                                       JOptionPane.INFORMATION_MESSAGE);
       }
     }).start();

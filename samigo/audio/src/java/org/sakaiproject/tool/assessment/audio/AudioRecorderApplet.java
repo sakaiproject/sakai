@@ -66,6 +66,7 @@ import java.awt.event.WindowEvent;
 public class AudioRecorderApplet
   extends JApplet
 {
+  static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.audio.AudioResources");
   boolean isStandalone = false;
   //Get a parameter value
   public String getParameter(String key, String def)
@@ -86,9 +87,9 @@ public class AudioRecorderApplet
   public void init()
   {
     applet = this;
-    String media = "./audio";
+    String media = res.getString("_audio");
     String param = null;
-    getContentPane().add("Center", demo = new AudioPanel(media));
+    getContentPane().add(res.getString("Center"), demo = new AudioPanel(media));
   }
 
   //Component initialization
@@ -115,7 +116,7 @@ public class AudioRecorderApplet
   //Get Applet information
   public String getAppletInfo()
   {
-    return ("Applet_Information");
+    return (res.getString("Applet_Information"));
   }
 
   //Get parameter info
@@ -132,7 +133,7 @@ public class AudioRecorderApplet
   {
     AudioRecorderApplet applet = new AudioRecorderApplet();
     applet.isStandalone = true;
-    JFrame f = new JFrame("Audio Recorder");
+    JFrame f = new JFrame(res.getString("Audio_Recorder"));
     f.addWindowListener(new WindowAdapter()
     {
       public void windowClosing(WindowEvent e)
@@ -140,7 +141,7 @@ public class AudioRecorderApplet
         System.exit(0);
       }
     });
-    f.getContentPane().add("Center", applet);
+    f.getContentPane().add(res.getString("Center"), applet);
     f.pack();
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 //	int w = 720;
