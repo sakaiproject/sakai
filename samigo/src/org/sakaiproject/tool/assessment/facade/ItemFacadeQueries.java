@@ -208,7 +208,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
 
   public void addItemMetaData(Long itemId, String label, String value) {
-      //System.out.println("lydiatest adding metadata " + itemId + " " + label );
     ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
       if (item != null) {
         printItem(item);
@@ -328,7 +327,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
 
  public ItemFacade saveItem(ItemFacade item) throws DataFacadeException {
-     //System.out.println("lydiatest in saveItem " + item.getScore());
     boolean insert = false;
     try{
       ItemData itemdata = (ItemData) item.getData();
@@ -336,7 +334,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       itemdata.setLastModifiedBy(AgentFacade.getAgentString());
       getHibernateTemplate().saveOrUpdate(itemdata);
 
-      //System.out.println("lydiatest DONE saveItem " + item.getScore());
       return item;
     }
     catch(Exception e){

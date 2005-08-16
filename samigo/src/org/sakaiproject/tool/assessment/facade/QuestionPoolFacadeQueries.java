@@ -142,8 +142,6 @@ public class QuestionPoolFacadeQueries
         "select new QuestionPoolData(a.questionPoolId, a.title)from QuestionPoolData a where a.ownerId= ? ",
         new Object[] {agentId}
         , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
-    //System.out.println("lydiatest getBasicInfoOfAllPolols list of qpdata=" +
-    //                   list.size());
     ArrayList poolList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       QuestionPoolData a = (QuestionPoolData) list.get(i);
@@ -151,9 +149,6 @@ public class QuestionPoolFacadeQueries
           a.getTitle());
       poolList.add(f);
     }
-    //System.out.println(
-    //    "lydiatest getBasicInfoOfAllPolols poolList of qpfacade size =" +
-    //    poolList.size());
     return poolList;
   }
 
@@ -590,18 +585,12 @@ public class QuestionPoolFacadeQueries
         "select qpi from QuestionPoolItemData as qpi where qpi.itemId= ?",
         new Object[] {itemId}
         , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
-    //System.out.println("lydiatest getPoolidsByItem qpilist.size(): " +
-    //                   qpiList.size());
     try {
       Iterator iter = qpiList.iterator();
       while (iter.hasNext()) {
         QuestionPoolItemData qpa = (QuestionPoolItemData) iter.next();
-        //System.out.println("lydiatest getPoolidsByItem : " +
-        //                   qpa.getQuestionPoolId());
         idList.add(qpa.getQuestionPoolId()); // return a list of poolId (java.lang.Long)
       }
-      //System.out.println("lydiatest getPoolidsByItem idList.size() : " +
-      //                 idList.size());
       return idList;
     }
     catch (Exception e) {

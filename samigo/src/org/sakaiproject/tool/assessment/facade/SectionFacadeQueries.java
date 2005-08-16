@@ -109,7 +109,6 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
   }
 
   public void addSectionMetaData(Long sectionId, String label, String value) {
-    System.out.println("lydiatest adding metadata " + sectionId + " " + label + " " + value );
     SectionData section = (SectionData)getHibernateTemplate().load(SectionData.class, sectionId);
     if (section != null) {
 
