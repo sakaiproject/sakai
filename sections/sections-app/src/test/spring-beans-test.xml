@@ -9,4 +9,10 @@
             <ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
         </property>
     </bean>
+
+    <bean id="org.sakaiproject.test.section.manager.UserManager"
+        class="org.sakaiproject.test.section.manager.UserManagerHibernateImpl">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+    </bean>
+
 </beans>

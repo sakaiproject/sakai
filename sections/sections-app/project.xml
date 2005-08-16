@@ -247,6 +247,27 @@
 			</properties>
 		</dependency>
 
+        <!-- Sakai tag library -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-jsf-widgets</artifactId>
+            <version>${pom.currentVersion}</version>
+            <url>http://sakaiproject.org/</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-jsf-widgets-myfaces</artifactId>
+            <version>${pom.currentVersion}</version>
+            <url>http://sakaiproject.org/</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>

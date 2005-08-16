@@ -30,8 +30,9 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.jsf.model.PhaseAware;
 
-public abstract class InitializableBean implements org.sakaiproject.tool.section.jsf.PhaseAware {
+public abstract class InitializableBean implements PhaseAware {
 	private static final Log logger = LogFactory.getLog(InitializableBean.class);
 
 	protected ResourceBundle messageBundle;

@@ -102,6 +102,10 @@ public final class RoleImpl implements Role, Serializable {
         return mValue;
     }
 
+	public String getDescription() {
+		return mName;
+	}
+
     /**
      * Returns a String description of this <code>Role</code>.
      *

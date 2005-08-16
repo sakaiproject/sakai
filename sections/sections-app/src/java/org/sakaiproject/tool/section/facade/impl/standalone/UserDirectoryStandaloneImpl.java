@@ -40,7 +40,8 @@ public class UserDirectoryStandaloneImpl extends HibernateDaoSupport implements 
 	public User getUser(final String userUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-            	Query q = session.createQuery("from UserImpl as user where user.uuid=:uuid");
+            	Query q = session.createQuery("from UserImpl as user where user.userUuid=:uuid");
+            	q.setParameter("uuid", userUuid);
             	List list = q.list();
             	if(list.size() == 0) {
             		throw new IllegalArgumentException("No user with uuid=" + userUuid);

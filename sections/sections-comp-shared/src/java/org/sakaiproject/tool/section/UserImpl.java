@@ -24,23 +24,29 @@
 
 package org.sakaiproject.tool.section;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.api.section.coursemanagement.User;
 
 public class UserImpl extends AbstractPersistentObject implements User {
 	protected String userUuid;
 	protected String sortName;
-	protected String displayUuid;
+	protected String displayId;
 	protected String displayName;
 	
-	/**
+    protected long id;
+    protected int version;
+
+    /**
 	 * No-arg constructor needed for hibernate
 	 */
 	public UserImpl() {		
 	}
 	
-	public UserImpl(String displayName, String displayUuid, String sortName, String userUuid) {
+	public UserImpl(String displayName, String displayId, String sortName, String userUuid) {
 		this.displayName = displayName;
-		this.displayUuid = displayUuid;
+		this.displayId = displayId;
 		this.sortName = sortName;
 		this.userUuid = userUuid;
 	}
@@ -48,14 +54,54 @@ public class UserImpl extends AbstractPersistentObject implements User {
 	public String getDisplayName() {
 		return displayName;
 	}
-	public String getDisplayUid() {
-		return displayUuid;
+	public String getDisplayId() {
+		return displayId;
 	}
 	public String getSortName() {
 		return sortName;
 	}
 	public String getUserUuid() {
 		return userUuid;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
+	}
+
+	public boolean equals(Object o) {
+		if(o == this) {
+			return true;
+		}
+		if(o instanceof UserImpl) {
+			UserImpl other = (UserImpl)o;
+			return new EqualsBuilder()
+				.append(userUuid, other.userUuid)
+				.isEquals();
+		}
+		return false;
+	}
+
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37)
+			.append(userUuid)
+			.toHashCode();
+	}
+	
+	public String toString() {
+		return new ToStringBuilder(this).append(displayName)
+		.append(userUuid).append(id).toString();
 	}
 }
 

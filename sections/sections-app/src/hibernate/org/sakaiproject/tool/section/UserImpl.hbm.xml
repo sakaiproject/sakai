@@ -12,7 +12,7 @@
 		
 		<property name="userUuid" column="USER_UUID" type="string" unique="true" not-null="true" access="field"/>
         <property name="sortName" column="SORT_NAME" access="field"/>
-        <property name="displayUuid" column="DISPLAY_UID" access="field"/>
+        <property name="displayId" column="DISPLAY_ID" access="field"/>
         <property name="displayName" column="DISPLAY_NAME" access="field"/>
 	</class>
 </hibernate-mapping>

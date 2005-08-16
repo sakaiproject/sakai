@@ -23,9 +23,13 @@
 **********************************************************************************/
 package org.sakaiproject.component.section;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import net.sf.hibernate.HibernateException;
@@ -35,7 +39,10 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -71,68 +78,224 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
     	if(log.isDebugEnabled()) log.debug("Getting section with uuid=" + sectionUuid);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-                Query q = session.createQuery("from CourseSectionImpl as section where section.uuid=:uuid");
-                q.setParameter("uuid", sectionUuid);
-                List list = q.list();
-                if(list.size() == 0) {
-                	throw new IllegalArgumentException("No section exists with uuid=" + sectionUuid);
-                } else {
-                	return list.get(0);
-                }
+            	return getSection(sectionUuid, session);
             }
         };
         return (CourseSection)getHibernateTemplate().execute(hc);
 	}
 
-
-	public List getSiteMembersInRole(String siteContext, Role role) {
-		// TODO Auto-generated method stub
-		return null;
+	public CourseSection getSection(final String sectionUuid, Session session) throws HibernateException {
+        Query q = session.createQuery("from CourseSectionImpl as section where section.uuid=:uuid");
+        q.setParameter("uuid", sectionUuid);
+        List list = q.list();
+        if(list.size() == 0) {
+        	throw new IllegalArgumentException("No section exists with uuid=" + sectionUuid);
+        } else {
+        	return (CourseSection)list.get(0);
+        }
 	}
 
-	public List findSiteMembersInRole(String siteContext, Role role, String pattern) {
-		// TODO Auto-generated method stub
-		return null;
+	public List getSiteMembersInRole(final String siteContext, final Role role) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	Course course = getCourse(siteContext, session);
+            	String hql;
+                if(role.isInstructor()) {
+        			hql = "from InstructorRecordImpl as participant where participant.learningContext=:course";
+        		} else if(role.isStudent()) {
+                    hql = "from EnrollmentRecordImpl as participant where participant.learningContext=:course";
+        		} else if(role.isTeachingAssistant()) {
+        			hql = "from TeachingAssistantRecordImpl as participant where participant.learningContext=:course";
+        		} else {
+        			throw new IllegalArgumentException("There are no users without a role in a site.");
+        		}
+                Query q = session.createQuery(hql);
+                q.setParameter("course", course);
+                return q.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(hc);
 	}
 
-	public boolean isMemberInRole(String contextId, String personId, Role role) {
-		// TODO Auto-generated method stub
-		return false;
+	private Course getCourse(String siteContext, Session session) throws HibernateException {
+        Query q = session.createQuery("from CourseImpl as course where course.siteContext=:siteContext");
+        q.setParameter("siteContext", siteContext);
+        List list = q.list();
+        if(list.size() == 0) {
+        	throw new IllegalArgumentException("No course exists in site = " + siteContext);
+        } else {
+        	return (Course)list.get(0);
+        }
+	}
+	
+	/**
+	 * The sakai implementation will not use the database to do this kind of searching,
+	 * so I'll skip doing optimizations here.
+	 */
+	public List findSiteMembersInRole(final String siteContext, final Role role, final String pattern) {
+		List fullList = getSiteMembersInRole(siteContext, role);
+		List filteredList = new ArrayList();
+		for(Iterator iter = fullList.iterator(); iter.hasNext();) {
+			ParticipationRecord record = (ParticipationRecord)iter.next();
+			User user = record.getUser();
+			if(user.getDisplayName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+			   user.getSortName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+			   user.getDisplayId().toLowerCase().startsWith(pattern.toLowerCase())) {
+				filteredList.add(record);
+			}
+		}
+		return filteredList;
 	}
 
-	public List getSectionMembers(String sectionId) {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean isSiteMemberInRole(final String siteContext, final String userUuid, final Role role) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	Course course = getCourse(siteContext, session);
+            	String hql = "from ParticipationRecordImpl as participant where participant.learningContext=:course and participant.user.userUuid=:userUuid";
+                Query q = session.createQuery(hql);
+                q.setParameter("course", course);
+                q.setParameter("userUuid", userUuid);
+                List list = q.list();
+                return checkRole(role, list);
+            }
+        };
+        return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
 	}
 
-	public List getSectionMembersInRole(String sectionId, Role role) {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * This code pops up a few places...
+	 * 
+	 * @param role The role to check
+	 * @param list A list of participant records returned by hibernate
+	 * @return Whether the list of participation record includes one record of
+	 * the specified role.
+	 */
+	private Boolean checkRole(final Role role, List list) {
+		if(list.size() == 1) {
+        	ParticipationRecord record = (ParticipationRecord)list.get(0);
+        	if(record.getRole().equals(role)) {
+        		if(log.isDebugEnabled()) log.debug("This user is in role " + role.getDescription());
+            	return new Boolean(true);
+        	} else {
+        		if(log.isDebugEnabled()) log.debug("This user is not in role " + role.getDescription());
+            	return new Boolean(false);
+        	}
+        } else if(list.size() == 0){
+    		if(log.isDebugEnabled()) log.debug("This user has no role in this learning context.");
+        	return new Boolean(false);
+        } else {
+        	throw new RuntimeException("There are multiple participation records for this user in this learning context.");
+        }
 	}
 
-	public boolean isSectionMemberInRole(String sectionId, String personId, Role role) {
-		// TODO Auto-generated method stub
-		return false;
+	public List getSectionMembers(final String sectionUuid) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	String hql = "from ParticipationRecordImpl as participant where participant.learningContext.uuid=:sectionUuid";
+                Query q = session.createQuery(hql);
+                q.setParameter("sectionUuid", sectionUuid);
+                return q.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(hc);
 	}
 
-	public String getSectionName(String sectionId) {
-		// TODO Auto-generated method stub
-		return null;
+	public List getSectionMembersInRole(final String sectionUuid, final Role role) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	CourseSection section = getSection(sectionUuid, session);
+            	String hql;
+                if(role.isInstructor()) {
+        			hql = "from InstructorRecordImpl as participant where participant.learningContext=:section";
+        		} else if(role.isStudent()) {
+                    hql = "from EnrollmentRecordImpl as participant where participant.learningContext=:section";
+        		} else if(role.isTeachingAssistant()) {
+        			hql = "from TeachingAssistantRecordImpl as participant where participant.learningContext=:section";
+        		} else {
+        			throw new IllegalArgumentException("There are no users without a role in a section.");
+        		}
+                Query q = session.createQuery(hql);
+                q.setParameter("section", section);
+                return q.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(hc);
 	}
 
-	public String getSectionCategory(String sectionId) {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean isSectionMemberInRole(final String sectionUuid, final String userUuid, final Role role) {
+        HibernateCallback hc = new HibernateCallback(){
+	        public Object doInHibernate(Session session) throws HibernateException {
+	        	CourseSection section = getSection(sectionUuid, session);
+	        	String hql = "from ParticipationRecordImpl as participant where participant.learningContext=:section and participant.user.userUuid=:userUuid";
+	            Query q = session.createQuery(hql);
+	            q.setParameter("section", section);
+	            q.setParameter("userUuid", userUuid);
+	            List list = q.list();
+	            return checkRole(role, list);
+        	}
+        };
+        return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
 	}
 
-	public List getSectionsInCategory(String contextId, String categoryId) {
-		// TODO Auto-generated method stub
-		return null;
+	public String getSectionName(final String sectionUuid) {
+        HibernateCallback hc = new HibernateCallback(){
+	        public Object doInHibernate(Session session) throws HibernateException {
+	        	String hql = "select section.title from CourseSectionImpl as section where section.uuid=:sectionUuid";
+	            Query q = session.createQuery(hql);
+	            q.setParameter("sectionUuid", sectionUuid);
+	            List list = q.list();
+	            if(list.size() == 1) {
+	            	return list.get(0);
+	            } else {
+	            	if(log.isDebugEnabled()) log.debug("Section " + sectionUuid + " does not exist.");
+	            	return null;
+	            }
+        	}
+        };
+        return (String)getHibernateTemplate().execute(hc);
+	}
+
+	public String getSectionCategory(final String sectionUuid) {
+        HibernateCallback hc = new HibernateCallback(){
+	        public Object doInHibernate(Session session) throws HibernateException {
+	        	String hql = "select section.category from CourseSectionImpl as section where section.uuid=:sectionUuid";
+	            Query q = session.createQuery(hql);
+	            q.setParameter("sectionUuid", sectionUuid);
+	            List list = q.list();
+	            if(list.size() == 1) {
+	            	return list.get(0);
+	            } else {
+	            	if(log.isDebugEnabled()) log.debug("Section " + sectionUuid + " does not exist.");
+	            	return null;
+	            }
+	        }
+        };
+        return (String)getHibernateTemplate().execute(hc);
+	}
+
+	public List getSectionsInCategory(final String siteContext, final String categoryId) {
+        HibernateCallback hc = new HibernateCallback(){
+	        public Object doInHibernate(Session session) throws HibernateException {
+	        	String hql = "from CourseSectionImpl as section where section.category=:categoryId and section.course.siteContext=:siteContext";
+	            Query q = session.createQuery(hql);
+	            q.setParameter("categoryId", categoryId);
+	            q.setParameter("siteContext", siteContext);
+	            return q.list();
+	        }
+        };
+        return getHibernateTemplate().executeFind(hc);
 	}
 
 	public String getCategoryName(String categoryId, Locale locale) {
-		// TODO Auto-generated method stub
-		return null;
+		ResourceBundle bundle = ResourceBundle.getBundle("org.sakaiproject.api.section.bundle.Messages", locale);
+		String name;
+		try {
+			name = bundle.getString(categoryId);
+		} catch(MissingResourceException mre) {
+			if(log.isInfoEnabled()) log.info("Could not find the name for category id = " + categoryId + " in locale " + locale.getDisplayName());
+			name = null;
+		}
+		return name;
 	}
 
 	// Dependency injection

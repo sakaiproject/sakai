@@ -24,6 +24,8 @@
 
 package org.sakaiproject.tool.section;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 
 /*
@@ -71,6 +73,26 @@ public class LearningContextImpl extends AbstractPersistentObject implements
 		// TODO Auto-generated method stub
 		super.setVersion(version);
 	}
+	
+	public boolean equals(Object o) {
+		if(o == this) {
+			return true;
+		}
+		if(o instanceof LearningContextImpl) {
+			LearningContextImpl other = (LearningContextImpl)o;
+			return new EqualsBuilder()
+				.append(uuid, other.uuid)
+				.isEquals();
+		}
+		return false;
+	}
+
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37)
+			.append(uuid)
+			.toHashCode();
+	}
+
 
 }
 

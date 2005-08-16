@@ -23,6 +23,8 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 public abstract class AbstractPersistentObject {
     protected long id;
     protected int version;
@@ -53,6 +55,11 @@ public abstract class AbstractPersistentObject {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public String toString() {
+		return new ToStringBuilder(this).append(title)
+		.append(uuid).toString();
+	}
 
 }
 

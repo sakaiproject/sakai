@@ -22,26 +22,30 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section.facade.impl.standalone;
+package org.sakaiproject.test.section.manager;
+
+import java.sql.SQLException;
+
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Session;
 
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.manager.UserDirectory;
 import org.sakaiproject.tool.section.UserImpl;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-/**
- * A simple test implementation of user directory.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
- *
- */
-public class UserDirectoryTestImpl implements UserDirectory {
+public class UserManagerHibernateImpl extends HibernateDaoSupport implements UserManager {
 
-	public User getUser(final String userUuid) {
-		if(userUuid.equals("josh")) {
-			return new UserImpl("Josh Holtzman", "jholtzman", "Holtzman, Josh", "jholtzman");
-		} else {
-			return new UserImpl("Test Student", "tstudent", "Student, Test", "tstudent");
-		}
+	public User createUser(final String userUuid, final String displayName,
+			final String sortName, final String displayId) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
+				UserImpl user = new UserImpl(displayName, displayId, sortName, userUuid);
+				session.save(user);
+				return user;
+			}
+		};
+		return (User)getHibernateTemplate().execute(hc);
 	}
 
 }

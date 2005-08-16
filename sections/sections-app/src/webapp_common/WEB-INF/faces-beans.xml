@@ -1,25 +1,43 @@
 <?xml version="1.0"?>
 <!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
 <faces-config>
+
+    <managed-bean>
+        <description>Course Bean</description>
+        <managed-bean-name>courseBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.CourseBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+            <description>Section Manager</description>
+            <property-name>sectionManager</property-name>
+            <value>#{org_sakaiproject_tool_section_manager_SectionManager}</value>
+        </managed-property>
+        <managed-property>
+            <description>Authn</description>
+            <property-name>authn</property-name>
+            <value>#{org_sakaiproject_api_section_facade_manager_Authn}</value>
+        </managed-property>
+        <managed-property>
+            <description>Context</description>
+            <property-name>context</property-name>
+            <value>#{org_sakaiproject_api_section_facade_manager_Context}</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Student View Bean</description>
+        <managed-bean-name>studentViewBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.StudentViewBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    
+    <!-- For testing only -->
 	<managed-bean>
 		<description>Sample Bean</description>
 		<managed-bean-name>sampleBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.SampleBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
-		<managed-property>
-			<description>Section Manager</description>
-			<property-name>sectionManager</property-name>
-			<value>#{org_sakaiproject_tool_section_manager_SectionManager}</value>
-		</managed-property>
-		<managed-property>
-			<description>Authn</description>
-			<property-name>authn</property-name>
-			<value>#{org_sakaiproject_api_section_facade_manager_Authn}</value>
-		</managed-property>
-		<managed-property>
-			<description>Context</description>
-			<property-name>context</property-name>
-			<value>#{org_sakaiproject_api_section_facade_manager_Context}</value>
-		</managed-property>
 	</managed-bean>
+
+
 </faces-config>

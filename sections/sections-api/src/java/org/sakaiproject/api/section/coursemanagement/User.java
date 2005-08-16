@@ -37,10 +37,10 @@ public interface User {
 	public String getSortName();
 
     /**
-	 * @return Returns the displayUid, AKA "campus ID", a human-meaningful UID for the user (for
+	 * @return Returns the displayId, AKA "campus ID", a human-meaningful UID for the user (for
 	 * example, a student ID number or an institutional email address)
 	 */
-	public String getDisplayUid();
+	public String getDisplayId();
 
 	/**
 	 * @return Returns the displayName, displayed when only this user is being referred to

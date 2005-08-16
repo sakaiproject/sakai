@@ -29,34 +29,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Context;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
-import org.sakaiproject.tool.section.manager.SectionManager;
 
 /**
  * A sample jsf backing bean.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class SampleBean extends InitializableBean implements Serializable {
+public class SampleBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final Log log = LogFactory.getLog(SampleBean.class);
     
-    // TODO Centralize the local services in a base backing bean
-    private SectionManager sectionManager;
-    
-    private Authn authn;
-    private Context context;
     
     // Fields for the UI (initialize these in init())
     private List sections;
@@ -79,31 +72,31 @@ public class SampleBean extends InitializableBean implements Serializable {
         if(log.isInfoEnabled()) log.info("SampleBean initializing...");
         
         // Get user and site context from facades
-        userName = authn.getUserUuid();
-        siteContext = context.getContext();
+        userName = super.getUserUuid();
+        siteContext = super.getSiteContext();
 
         // Get the course
-        Course course = sectionManager.getCourse(siteContext);
+        Course course = getCourse(siteContext);
     	courseOfferingUuid = course.getUuid();
         
         // Decorate the sections
-        Set dbSections = sectionManager.getSectionAwareness().getSections(siteContext);
+        Set dbSections = getSections(siteContext);
         sections = new ArrayList();
         for(Iterator iter = dbSections.iterator(); iter.hasNext();) {
-        	CourseSectionDecorator section = new CourseSectionDecorator((CourseSection)iter.next());
-        	String cat = section.getCategory();
-        	if(cat != null) {
-            	section.setCategoryForDisplay(messageBundle.getString(cat));
-        	}
-        	sections.add(section);
+        	CourseSection section = (CourseSection)iter.next();
+        	CourseSectionDecorator sectionForUi;
+        	String catId = section.getCategory();
+        	String catName = getCategoryName(catId, FacesContext.getCurrentInstance().getViewRoot().getLocale());
+        	sectionForUi = new CourseSectionDecorator(section, catName);
+        	sections.add(sectionForUi);
         }
-                
+
         // Get the category select items
         categoryItems = new ArrayList();
-        List categories = sectionManager.getSectionAwareness().getSectionCategories();
+        List categories = getSectionCategories();
         for(Iterator iter = categories.iterator(); iter.hasNext();) {
         	String category = (String)iter.next();
-        	String displayName = messageBundle.getString(category);
+        	String displayName = getSectionAwareness().getCategoryName(category, getLocale());
         	categoryItems.add(new SelectItem(category, displayName));
         }
     }
@@ -119,7 +112,7 @@ public class SampleBean extends InitializableBean implements Serializable {
     //// Action events
     public void processCreateSection(ActionEvent e) {
         if(log.isInfoEnabled()) log.info("Creating section with title = " + title);        
-        sectionManager.addSection(courseOfferingUuid, title, "M,W,F 9-10am", 100,
+        getSectionManager().addSection(courseOfferingUuid, title, "M,W,F 9-10am", 100,
         		"117 Dwinelle", category);
     }
     
@@ -157,21 +150,6 @@ public class SampleBean extends InitializableBean implements Serializable {
 	}
 	public void setCourseOfferingUuid(String courseOfferingUuid) {
 		this.courseOfferingUuid = courseOfferingUuid;
-	}
-
-
-    
-    //// Setters for dep. injection
-    public void setSectionManager(SectionManager sectionManager) {
-        this.sectionManager = sectionManager;
-    }
-    
-    public void setAuthn(Authn authn) {
-        this.authn = authn;
-    }
-
-	public void setContext(Context context) {
-		this.context = context;
 	}
 }
 

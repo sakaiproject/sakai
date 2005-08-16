@@ -30,7 +30,7 @@ import org.sakaiproject.api.section.facade.manager.Authn;
  * Authn implementation for testing.  Note that the userUuid can be set manually
  * if a test needs to change the authn credential.
  * 
- * <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
 public class AuthnTestImpl implements Authn {

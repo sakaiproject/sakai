@@ -24,6 +24,9 @@
 
 package org.sakaiproject.tool.section;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
@@ -46,7 +49,32 @@ public abstract class ParticipationRecordImpl extends AbstractPersistentObject
 	public void setLearningContext(LearningContext learningContext) {
 		this.learningContext = learningContext;
 	}
+
+	public boolean equals(Object o) {
+		if(o == this) {
+			return true;
+		}
+		if(o instanceof ParticipationRecordImpl) {
+			ParticipationRecordImpl other = (ParticipationRecordImpl)o;
+			return new EqualsBuilder()
+				.append(user, other.user)
+				.append(learningContext, other.learningContext)
+				.isEquals();
+		}
+		return false;
+	}
+
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37)
+			.append(user)
+			.append(learningContext)
+			.toHashCode();
+	}
 	
+	public String toString() {
+		return new ToStringBuilder(this).append(user)
+		.append(learningContext).toString();
+	}
 }
 
 /**********************************************************************************

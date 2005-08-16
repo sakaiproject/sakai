@@ -1,0 +1,80 @@
+<f:view>
+<h:form id="studentViewForm">
+
+    <x:dataTable cellpadding="0" cellspacing="0"
+        id="studentViewSectionsTable"
+        value="#{studentViewBean.sections}"
+        var="section"
+        sortColumn="#{studentViewBean.sortColumn}"
+        sortAscending="#{studentViewBean.sortAscending}"
+        styleClass="listHier narrowTable">
+
+        <h:column>
+            <f:facet name="header">
+                <x:commandSortHeader columnName="time" immediate="true" arrow="true">
+                    <h:outputText value="#{msgs.student_view_header_time}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <h:outputText value="#{section.meetingTimes}"/>
+        </h:column>
+        <h:column>
+            <f:facet name="header">
+                <x:commandSortHeader columnName="instructor" immediate="true" arrow="true">
+                    <h:outputText value="#{msgs.student_view_header_instructor}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <h:outputText value="#{section.instructorNames}"/>
+        </h:column>
+        <h:column>
+            <f:facet name="header">
+                <x:commandSortHeader columnName="title" immediate="true" arrow="true">
+                    <h:outputText value="#{msgs.student_view_header_title}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <h:outputText value="#{section.title}"/>
+        </h:column>
+        <h:column>
+            <f:facet name="header">
+                <x:commandSortHeader columnName="category" immediate="true" arrow="true">
+                    <h:outputText value="#{msgs.student_view_header_category}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <h:outputText value="#{section.categoryForDisplay}"/>
+        </h:column>
+        <h:column>
+            <f:facet name="header">
+                <x:commandSortHeader columnName="location" immediate="true" arrow="true">
+                    <h:outputText value="#{msgs.student_view_header_location}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <h:outputText value="#{section.location}"/>
+        </h:column>
+        <h:column>
+            <f:facet name="header">
+                <x:commandSortHeader columnName="max" immediate="true" arrow="true">
+                    <h:outputText value="#{msgs.student_view_header_max}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <h:outputText value="#{section.maxEnrollments}"/>
+        </h:column>
+        <h:column>
+            <f:facet name="header">
+                <x:commandSortHeader columnName="available" immediate="true" arrow="true">
+                    <h:outputText value="#{msgs.student_view_header_available}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <h:outputText value="#{section.spotsAvailable}"/>
+        </h:column>
+        <h:column>
+            <f:facet name="header">
+                <x:commandSortHeader columnName="change" immediate="true" arrow="true">
+                    <h:outputText value="#{msgs.student_view_header_change}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <h:outputText value="[Links go here]"/>
+        </h:column>
+
+    </x:dataTable>
+
+</h:form>
+</f:view>

@@ -23,7 +23,7 @@
             class="org.sakaiproject.tool.section.UserImpl"
             not-null="true"/>
 
-		<property name="uuid" column="SECTION_UUID" type="string" unique="true" not-null="true"/>
+		<property name="uuid" column="PARTICIPATION_UUID" type="string" unique="true" not-null="true"/>
 
         <subclass name="org.sakaiproject.tool.section.EnrollmentRecordImpl" discriminator-value="1">
             <property name="status" column="STATUS" type="string"/>

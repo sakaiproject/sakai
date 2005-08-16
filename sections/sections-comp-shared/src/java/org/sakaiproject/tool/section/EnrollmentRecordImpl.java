@@ -24,7 +24,6 @@
 
 package org.sakaiproject.tool.section;
 
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
@@ -40,7 +39,7 @@ public class EnrollmentRecordImpl extends ParticipationRecordImpl implements Enr
 	public EnrollmentRecordImpl() {		
 	}
 	
-	public EnrollmentRecordImpl(CourseSection learningContext, String status, User user) {
+	public EnrollmentRecordImpl(LearningContext learningContext, String status, User user) {
 		this.learningContext = learningContext;
 		this.status = status;
 		this.user = user;

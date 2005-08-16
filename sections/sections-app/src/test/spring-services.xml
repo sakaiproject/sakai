@@ -5,8 +5,16 @@
         class="org.sakaiproject.tool.section.facade.impl.standalone.ContextTestImpl"/>
     <bean id="org.sakaiproject.api.section.facade.manager.Authn"
         class="org.sakaiproject.tool.section.facade.impl.standalone.AuthnTestImpl"/>
+
     <bean id="org.sakaiproject.api.section.facade.manager.UserDirectory"
+        class="org.sakaiproject.tool.section.facade.impl.standalone.UserDirectoryStandaloneImpl">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+    </bean>
+
+<!--     <bean id="org.sakaiproject.api.section.facade.manager.UserDirectory"
         class="org.sakaiproject.tool.section.facade.impl.standalone.UserDirectoryTestImpl"/>
+-->
+
     <bean id="org.sakaiproject.api.common.uuid.UuidManager"
         class="org.sakaiproject.component.common.uuid.UuidManagerCommonsImpl"/>
 </beans>

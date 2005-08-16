@@ -22,28 +22,35 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section.facade.impl.standalone;
+package org.sakaiproject.tool.section.decorator;
 
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.manager.UserDirectory;
-import org.sakaiproject.tool.section.UserImpl;
+import java.io.Serializable;
 
-/**
- * A simple test implementation of user directory.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
- *
- */
-public class UserDirectoryTestImpl implements UserDirectory {
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
-	public User getUser(final String userUuid) {
-		if(userUuid.equals("josh")) {
-			return new UserImpl("Josh Holtzman", "jholtzman", "Holtzman, Josh", "jholtzman");
-		} else {
-			return new UserImpl("Test Student", "tstudent", "Student, Test", "tstudent");
-		}
+public class StudentSectionDecorator extends CourseSectionDecorator
+	implements Serializable, Comparable {
+
+	private static final long serialVersionUID = 1L;
+
+	protected String instructorNames;
+	protected int spotsAvailable;
+	public StudentSectionDecorator(CourseSection courseSection, String categoryForDisplay, String instructorNames, int totalEnrollments) {
+		super(courseSection, categoryForDisplay);
+		this.instructorNames = instructorNames;
+		int spots = courseSection.getMaxEnrollments() - totalEnrollments;
+		this.spotsAvailable = spots > 0 ? spots : 0;
 	}
-
+	public String getInstructorNames() {
+		return instructorNames;
+	}
+	public int getSpotsAvailable() {
+		return spotsAvailable;
+	}
+	
+	public int compareTo(Object o) {
+		return this.getTitle().compareTo(((StudentSectionDecorator)o).getTitle());
+	}
 }
 
 

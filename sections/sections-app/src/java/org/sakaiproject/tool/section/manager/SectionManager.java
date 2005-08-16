@@ -29,6 +29,7 @@ import java.util.Set;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
 
@@ -81,10 +82,10 @@ public interface SectionManager {
      * 
      * @param userId
      * @param role
-     * @param sectionId
+     * @param sectionUuid
      * @throws MembershipException A user can not be added to a section more than once, regardless of role.
      */
-    public void addSectionMembership(String userId, Role role, String sectionId)
+    public ParticipationRecord addSectionMembership(String userId, Role role, String sectionUuid)
         throws MembershipException;
     
     /**
@@ -180,6 +181,14 @@ public interface SectionManager {
      */
     public List getUnsectionedStudents(String siteContext, String category);
 
+	/**
+	 * Gets the list {@link org.sakaiproject.api.section.coursemanagement.User Users}
+	 * that are teaching assistants in a section.
+	 * 
+	 * @param sectionUuid
+	 * @return
+	 */
+    public List getTeachingAssistants(String sectionUuid);
     
     /**
      * @return The section awareness instance, which provides methods to read

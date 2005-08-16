@@ -30,19 +30,22 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 /**
  * Decorates CourseSections for display in the UI.
  * 
- * <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
 public class CourseSectionDecorator {
 
 	protected CourseSection section;
 	protected String categoryForDisplay;
-	
+
+	public CourseSectionDecorator(CourseSection section, String categoryForDisplay) {
+		this.section = section;
+		this.categoryForDisplay = categoryForDisplay;
+	}
+
+	// Decorator methods
 	public String getCategoryForDisplay() {
 		return categoryForDisplay;
-	}
-	public void setCategoryForDisplay(String categoryForDisplay) {
-		this.categoryForDisplay = categoryForDisplay;
 	}
 
 	// Delegate methods
@@ -51,9 +54,6 @@ public class CourseSectionDecorator {
 	}
 	public String getMeetingTimes() {
 		return section.getMeetingTimes();
-	}
-	public CourseSectionDecorator(CourseSection section) {
-		this.section = section;
 	}
 	public String getUuid() {
 		return section.getUuid();

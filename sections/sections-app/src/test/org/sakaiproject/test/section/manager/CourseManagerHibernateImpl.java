@@ -32,7 +32,13 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
+import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.tool.section.CourseImpl;
+import org.sakaiproject.tool.section.EnrollmentRecordImpl;
+import org.sakaiproject.tool.section.InstructorRecordImpl;
+import org.sakaiproject.tool.section.TeachingAssistantRecordImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -43,7 +49,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 
 	protected UuidManager uuidManager;
 
-	public void createCourse(final String siteContext, final String title,
+	public Course createCourse(final String siteContext, final String title,
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,
 			final boolean externallyManaged) {
 		
@@ -59,19 +65,54 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
         		course.setTitle(title);
         		course.setUuid(uuidManager.createUuid());
         		session.save(course);
-				return null;
+        		return course;
 			};
 		};
 
-		getHibernateTemplate().execute(hc);
+		return (Course)getHibernateTemplate().execute(hc);
 	}
 
+	public ParticipationRecord addInstructor(final User user, final Course course) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
+				InstructorRecordImpl pr = new InstructorRecordImpl(course, user);
+				pr.setUuid(uuidManager.createUuid());
+				session.save(pr);
+				return pr;
+			}
+		};
+		return (ParticipationRecord)getHibernateTemplate().execute(hc);
+	}
+
+	public ParticipationRecord addEnrollment(final User user, final Course course) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
+				EnrollmentRecordImpl enr = new EnrollmentRecordImpl(course, "enrolled", user);
+				enr.setUuid(uuidManager.createUuid());
+				session.save(enr);
+				return enr;
+			}
+		};
+		return (ParticipationRecord)getHibernateTemplate().execute(hc);
+	}
+
+	public ParticipationRecord addTA(final User user, final Course course) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
+				TeachingAssistantRecordImpl ta = new TeachingAssistantRecordImpl(course, user);
+				ta.setUuid(uuidManager.createUuid());
+				session.save(ta);
+				return ta;
+			}
+		};
+		return (ParticipationRecord)getHibernateTemplate().execute(hc);
+	}
+	
 	// Dependency injection
 
 	public void setUuidManager(UuidManager uuidManager) {
 		this.uuidManager = uuidManager;
 	}
-
 }
 
 

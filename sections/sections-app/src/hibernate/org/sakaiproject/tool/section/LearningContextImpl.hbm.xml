@@ -8,7 +8,7 @@
 
         <id name="id" column="ID" type="long">
             <generator class="native">
-                <param name="sequence">SEC_COURSE_OFFERING_S</param>
+                <param name="sequence">SEC_LEARNING_CONTEXT_S</param>
             </generator>
         </id>
 
@@ -30,7 +30,8 @@
             <many-to-one name="course" column="COURSE_ID" class="org.sakaiproject.tool.section.CourseImpl"/>
             <property name="meetingTimes" column="MEETING_TIMES" type="string"/>
             <property name="location" column="LOCATION" type="string"/>
-            <property name="category" column="CATEGORY"/>
+            <property name="category" column="CATEGORY" type="string"/>
+            <property name="maxEnrollments" column="MAX_ENROLLMENTS" type="int"/>
         </joined-subclass>
 
     </class>

@@ -32,18 +32,20 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	protected String category;
     protected String meetingTimes;
     protected String location;
+    protected int maxEnrollments;
 
     public CourseSectionImpl() {
     	// Default constructor needed by hibernate
     }
 
-    public CourseSectionImpl(Course course, String title, String category, String meetingTimes, String location, String uuid) {
+    public CourseSectionImpl(Course course, String title, String category, String meetingTimes, String location, String uuid, int maxEnrollments) {
 		this.course = course;
 		this.title = title;
 		this.category = category;
 		this.meetingTimes = meetingTimes;
 		this.location = location;
 		this.uuid = uuid;
+		this.maxEnrollments = maxEnrollments;
 	}
 
 	public String getMeetingTimes() {
@@ -69,6 +71,12 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	}
 	public void setLocation(String location) {
 		this.location = location;
+	}
+	public int getMaxEnrollments() {
+		return maxEnrollments;
+	}
+	public void setMaxEnrollments(int maxEnrollments) {
+		this.maxEnrollments = maxEnrollments;
 	}
 }
 

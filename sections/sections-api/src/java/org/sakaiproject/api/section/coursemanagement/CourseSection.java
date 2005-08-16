@@ -28,6 +28,7 @@ public interface CourseSection extends LearningContext {
     public String getMeetingTimes();
     public String getLocation();
     public String getCategory();
+    public int getMaxEnrollments();
 }
 
 

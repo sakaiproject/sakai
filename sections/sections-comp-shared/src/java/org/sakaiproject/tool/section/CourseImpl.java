@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.section;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.api.section.coursemanagement.Course;
 
 public class CourseImpl extends LearningContextImpl implements Course {
@@ -58,6 +59,13 @@ public class CourseImpl extends LearningContextImpl implements Course {
 		this.externallyManaged = externallyManaged;
 	}
 	
+	public String toString() {
+		return new ToStringBuilder(this)
+		.append(title)
+		.append(siteContext)
+		.append(uuid)
+		.toString();
+	}
 }
 
 

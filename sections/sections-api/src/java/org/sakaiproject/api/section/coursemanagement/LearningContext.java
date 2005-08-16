@@ -32,7 +32,7 @@ package org.sakaiproject.api.section.coursemanagement;
  * 
  * A student can be enrolled in any learning context.
  * 
- * <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
 public interface LearningContext {

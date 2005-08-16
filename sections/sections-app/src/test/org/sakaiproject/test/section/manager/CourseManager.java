@@ -24,10 +24,20 @@
 
 package org.sakaiproject.test.section.manager;
 
+import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.coursemanagement.User;
+
 public interface CourseManager {
-	public void createCourse(String siteContext, String title,
+	public Course createCourse(String siteContext, String title,
 			boolean selfRegAllowed, boolean selfSwitchingAllowed,
 			boolean externallyManaged);
+	
+	public ParticipationRecord addEnrollment(User user, Course course);
+	public ParticipationRecord addTA(User user, Course course);
+	public ParticipationRecord addInstructor(User user, Course course);
+	
+	
 }
 
 

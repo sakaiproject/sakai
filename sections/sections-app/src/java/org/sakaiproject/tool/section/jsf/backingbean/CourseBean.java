@@ -22,26 +22,38 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section.facade.impl.standalone;
+package org.sakaiproject.tool.section.jsf.backingbean;
 
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.manager.UserDirectory;
-import org.sakaiproject.tool.section.UserImpl;
+import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.facade.manager.Authn;
+import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.tool.section.manager.SectionManager;
 
-/**
- * A simple test implementation of user directory.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
- *
- */
-public class UserDirectoryTestImpl implements UserDirectory {
+public class CourseBean {
+	private String courseUuid;
 
-	public User getUser(final String userUuid) {
-		if(userUuid.equals("josh")) {
-			return new UserImpl("Josh Holtzman", "jholtzman", "Holtzman, Josh", "jholtzman");
-		} else {
-			return new UserImpl("Test Student", "tstudent", "Student, Test", "tstudent");
-		}
+	protected SectionManager sectionManager;
+    protected Authn authn;
+    protected Context context;
+
+	protected String getCourseUuid() {
+		// TODO Do we ever have a need to cache the course object? I don't think so, but keep an eye on this
+		Course course = sectionManager.getCourse(context.getContext());
+		courseUuid = course.getUuid();
+		return courseUuid;
+	}
+	    
+    //// Setters for dep. injection
+    public void setSectionManager(SectionManager sectionManager) {
+        this.sectionManager = sectionManager;
+    }
+    
+    public void setAuthn(Authn authn) {
+        this.authn = authn;
+    }
+
+	public void setContext(Context context) {
+		this.context = context;
 	}
 
 }

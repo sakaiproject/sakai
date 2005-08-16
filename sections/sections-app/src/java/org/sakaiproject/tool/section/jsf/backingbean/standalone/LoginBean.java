@@ -29,11 +29,12 @@ import javax.servlet.http.HttpSession;
 
 import org.sakaiproject.tool.section.facade.impl.standalone.AuthnStandaloneImpl;
 import org.sakaiproject.tool.section.facade.impl.standalone.ContextStandaloneImpl;
+import org.sakaiproject.tool.section.jsf.backingbean.CourseDependentBean;
 
 /**
  * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class LoginBean {
+public class LoginBean extends CourseDependentBean {
     private String userName;
     private String context;
 
