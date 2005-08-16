@@ -68,7 +68,6 @@ public class PoolSaveListener implements ActionListener
   }
 
   public boolean savePool(QuestionPoolBean qpbean) {
-      //System.out.println("lydiatest PoolSaveListener savePool");
 
     try
     {
@@ -90,10 +89,7 @@ public class PoolSaveListener implements ActionListener
         new QuestionPoolFacade (beanid, parentid);
       questionpool.updateDisplayName(bean.getDisplayName());
       questionpool.updateDescription(bean.getDescription());
-//System.out.println("lydiatest orgname " + bean.getOrganizationName() );
       questionpool.setOrganizationName(bean.getOrganizationName());
-//System.out.println("lydiatest orgname " + bean.getObjectives() );
-//System.out.println("lydiatest orgname " + bean.getKeywords() );
       questionpool.setObjectives(bean.getObjectives());
       questionpool.setKeywords(bean.getKeywords());
 // need to set owner and accesstype

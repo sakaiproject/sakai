@@ -72,7 +72,6 @@ public class StartRemoveItemsListener implements ActionListener
 
 public boolean startRemoveItems(QuestionPoolBean qpoolbean){
 // used by the editPool.jsp, to remove one or more items
-    //System.out.println("lydiatest in startRemoveQuestions");
 	try {
       String itemId= "";
 

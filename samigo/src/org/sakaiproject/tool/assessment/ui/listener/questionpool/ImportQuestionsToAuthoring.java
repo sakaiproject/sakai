@@ -69,7 +69,6 @@ public class ImportQuestionsToAuthoring implements ActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     log.info("ImportQuestionsToAuthoring:");
-    //System.out.println("lydiatest in ImportQuestionsToAuthoring");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     if (!importItems(qpoolbean))
     {
@@ -81,7 +80,6 @@ public class ImportQuestionsToAuthoring implements ActionListener
 
 
   public boolean importItems(QuestionPoolBean qpoolbean){
-    //System.out.println("lydiatest in importItems");
     try {
       AssessmentService assessdelegate = new AssessmentService();
       ItemService delegate = new ItemService();
@@ -92,46 +90,33 @@ public class ImportQuestionsToAuthoring implements ActionListener
       SectionFacade section = null;
       ItemFacade itemfacade = new ItemFacade();
 
-      //System.out.println("lydiatest before cloning itemfacade's  address for itemfacade = " + itemfacade);
       String itemId= "";
 
       ArrayList destItems= ContextUtil.paramArrayValueLike("importCheckbox");
 
       if (destItems.size() > 0) {
 
-      //System.out.println("lydiatest destItem.size() = " + destItems.size());
       List items= new ArrayList();
       Iterator iter = destItems.iterator();
       while(iter.hasNext())
       {
         itemId = (String) iter.next();
-        //System.out.println("lydiatest itemId = " + itemId);
         ItemFacade poolitemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-        //System.out.println("lydiatest poolitemfacade's itemId = " + itemId);
-        //System.out.println("lydiatest printing out address for poolitemfacade = " + poolitemfacade);
-        //System.out.println("lydiatest printing out address for poolitemfacade's itemtext = " + poolitemfacade.getItemTextSet());
 
         itemfacade = (ItemFacade) poolitemfacade.clone();
-        //System.out.println("lydiatest after cloning , itemfacade's itemId = " + itemfacade.getItemId());
-        //System.out.println("lydiatest after cloning printing out address for itemfacade = " + itemfacade);
-        //System.out.println("lydiatest printing out address for itemfacade's itemtext = " + itemfacade.getItemTextSet());
 
 
-    	//System.out.println("lydiatest  assessmment bean id " + assessmentBean.getAssessmentId() );
         AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
 	section = sectiondelegate.getSection(new Long(qpoolbean.getSelectedSection()), AgentFacade.getAgentString());
         if (section!=null) {
-    	  //System.out.println("lydiatest  section id != null" + section.getSectionId() );
           itemfacade.setSection(section);
 
 
           if ( (itemauthor.getInsertPosition() ==null) || ("".equals(itemauthor.getInsertPosition())) ) {
-//System.out.println("lydiatest add at the end "+  itemauthor.getInsertPosition()+ "." );
                 // if adding to the end
                 itemfacade.setSequence(new Integer(section.getItemSet().size()+1));
               }
               else {
-//System.out.println("lydiatest insert,needs shifting "+  itemauthor.getInsertPosition()+ "." );
                 // if inserting or a question
                 String insertPos = itemauthor.getInsertPosition();
                 ItemAddListener itemAddListener = new ItemAddListener();
@@ -143,7 +128,6 @@ public class ImportQuestionsToAuthoring implements ActionListener
 
 
           delegate.saveItem(itemfacade);
-        //System.out.println("lydiatest after saveItem , itemfacade's itemId = " + itemfacade.getItemId());
           // remove POOLID metadata if any,
           delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.POOLID, AgentFacade.getAgentString());
           delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID, AgentFacade.getAgentString());
@@ -155,7 +139,6 @@ public class ImportQuestionsToAuthoring implements ActionListener
 
         }
 	itempos= itempos+1;   // for next item in the destItem.
-    	//System.out.println("lydiatest  finished addItem" );
       }
 
       // reset InsertPosition
