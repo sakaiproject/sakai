@@ -325,9 +325,9 @@ public class HistogramListener
   {
     if (itemScores == null)
       itemScores = new ArrayList();
-    if (qbean.getQuestionType().equals("1") ||
+    if (qbean.getQuestionType().equals("1") ||  // mcsc
         qbean.getQuestionType().equals("2") ||  // mcmc
-        qbean.getQuestionType().equals("3") ||  // mcsc
+        qbean.getQuestionType().equals("3") ||  // mc survey 
         qbean.getQuestionType().equals("4") || // tf
         qbean.getQuestionType().equals("9") || // matching
         qbean.getQuestionType().equals("8")) // Fill in the blank
@@ -361,18 +361,182 @@ public class HistogramListener
       ItemTextIfc firstText = (ItemTextIfc) text.toArray()[0];
       answers = firstText.getAnswerArraySorted();
     }
-    if (qbean.getQuestionType().equals("1") ||
-        qbean.getQuestionType().equals("2"))
+    if (qbean.getQuestionType().equals("1")) 
       getTFMCScores(scores, qbean, answers);
+    else if (qbean.getQuestionType().equals("2"))
+      getFIBMCMCScores(scores, qbean, answers);
     else if (qbean.getQuestionType().equals("3"))
       getTFMCScores(scores, qbean, answers);
     else if (qbean.getQuestionType().equals("4"))
       getTFMCScores(scores, qbean, answers);
     else if (qbean.getQuestionType().equals("8"))
-      getTFMCScores(scores, qbean, answers);
+      getFIBMCMCScores(scores, qbean, answers);
     else if (qbean.getQuestionType().equals("9"))
       getMatchingScores(scores, qbean, text);
   }
+
+  public void getFIBMCMCScores(ArrayList scores,
+    HistogramQuestionScoresBean qbean, ArrayList answers)
+  {
+    HashMap texts = new HashMap();
+    Iterator iter = answers.iterator();
+    HashMap results = new HashMap();
+    HashMap numStudentRespondedMap= new HashMap();   // this is for fib, maybe also for mcmc , matching
+    while (iter.hasNext())
+    {
+      AnswerIfc answer = (AnswerIfc) iter.next();
+      texts.put(answer.getId(), answer);
+      results.put(answer.getId(), new Integer(0));
+    }
+    iter = scores.iterator();
+    // ArrayList studentResponseList= null;
+    while (iter.hasNext())
+    {
+      ItemGradingData data = (ItemGradingData) iter.next();
+      AnswerIfc answer = data.getPublishedAnswer();
+      if (answer != null)
+      {
+        //System.out.println("Rachel: looking for " + answer.getId());
+        // found a response
+        Integer num = null;     
+        // num is a counter
+        try {
+        // we found a response, now get existing count from the hashmap
+          num = (Integer) results.get(answer.getId());
+
+
+        } catch (Exception e) {
+          System.out.println("No results for " + answer.getId());
+        }
+        if (num == null)
+          num = new Integer(0);
+  // not right
+    	  ArrayList studentResponseList = (ArrayList)numStudentRespondedMap.get(data.getAssessmentGrading().getAssessmentGradingId());
+          if (studentResponseList==null) {
+    	    studentResponseList = new ArrayList();
+          }
+          studentResponseList.add(data);
+          numStudentRespondedMap.put(data.getAssessmentGrading().getAssessmentGradingId(), studentResponseList);
+        // we found a response, and got the  existing num , now update one
+        // check here for the other bug about non-autograded items having 1 even with no responses
+        results.put(answer.getId(), new Integer(num.intValue() + 1));
+      }
+    }
+    HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
+    int[] numarray = new int[results.keySet().size()];
+    iter = results.keySet().iterator();
+    int i = 0;
+    int responses = 0;
+    int correctresponses = 0;
+    while (iter.hasNext())
+    {
+      Long answerId = (Long) iter.next();
+      AnswerIfc answer = (AnswerIfc) texts.get(answerId);
+      int num = ((Integer) results.get(answerId)).intValue();
+      numarray[i] = num;
+      bars[i] = new HistogramBarBean();
+      bars[i].setLabel(answer.getText());
+
+      // this doens't not apply to fib , do not show checkmarks for FIB
+	if (!qbean.getQuestionType().equals("8"))
+      	{
+	  bars[i].setIsCorrect(answer.getIsCorrect());
+        }
+
+
+      if (num>1)
+          {
+              bars[i].setNumStudentsText(num + " Responses");
+          }
+      else
+          {
+              bars[i].setNumStudentsText(num + " Response");
+
+      }
+      bars[i].setNumStudents(num);
+// below doesnot work for FIB, MCMC or matching
+//      responses += num;   
+//      if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
+//        correctresponses += num;
+      i++;
+    }
+
+
+    responses = numStudentRespondedMap.size();
+    Iterator mapiter = numStudentRespondedMap.keySet().iterator();
+    while (mapiter.hasNext())
+    {
+      Long assessmentGradingId= (Long)mapiter.next(); 
+      ArrayList resultsForOneStudent = (ArrayList)numStudentRespondedMap.get(assessmentGradingId); 
+      boolean hasIncorrect = false;
+      Iterator listiter = resultsForOneStudent.iterator();
+      while (listiter.hasNext())
+      {
+        ItemGradingData item = (ItemGradingData)listiter.next();  
+	if (qbean.getQuestionType().equals("8"))
+	{
+          Float autoscore = item.getAutoScore(); 
+          if (autoscore.equals(new Float(0))) {
+            hasIncorrect = true;
+            break;
+          }
+        }
+	else if (qbean.getQuestionType().equals("2"))
+      	{
+
+	  // only answered choices are created in the ItemGradingData_T, so we need to check 
+	  // if # of checkboxes the student checked is >= the number of correct answers 
+	  // otherwise if a student only checked one of the multiple correct answers, 
+	  // it would count as a correct response
+
+	  // In delivery, an entry for each checkbox should be created in the 
+ 	  // ItemGradingData_T for mcmc. then we don't have to do a special check here 
+
+          try {
+	    // these 2 lines shouldn't throw nullptr exception, but check anyway
+	    ArrayList itemTextArray = item.getPublishedItem().getItemTextArraySorted();
+    	    ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted();
+
+            int corranswers = 0;
+            Iterator answeriter = answerArray.iterator();
+            while (answeriter.hasNext()){
+	      AnswerIfc answerchoice = (AnswerIfc) answeriter.next();
+              if (answerchoice.getIsCorrect().booleanValue()){	
+		corranswers++;
+	      }
+            }
+            if (resultsForOneStudent.size()< corranswers){
+              hasIncorrect = true;
+              break;
+            }
+          }
+          catch (Exception e) {
+            System.out.println("should not see this. ");
+	    e.printStackTrace();
+	  }
+
+	  AnswerIfc answer = item.getPublishedAnswer();
+	  if (answer.getIsCorrect() == null || (!answer.getIsCorrect().booleanValue()))
+  	  {
+            hasIncorrect = true;
+            break;
+ 	  }
+        }	
+      }
+      if (!hasIncorrect) {
+        correctresponses = correctresponses + 1;
+      }
+    }
+
+    int[] heights = calColumnHeight(numarray);
+    for (i=0; i<bars.length; i++)
+      bars[i].setColumnHeight(new Integer(heights[i]).toString());
+    qbean.setHistogramBars(bars);
+    qbean.setNumResponses(responses);
+    if (responses > 0)
+      qbean.setPercentCorrect(new Integer((int)(((float) correctresponses/(float) responses) * 100)).toString());
+  }
+
 
   public void getTFMCScores(ArrayList scores,
     HistogramQuestionScoresBean qbean, ArrayList answers)
@@ -394,14 +558,21 @@ public class HistogramListener
       if (answer != null)
       {
         //System.out.println("Rachel: looking for " + answer.getId());
+        // found a response
         Integer num = null;
-        try {
+	// num is a counter 
+	try {
+        // we found a response, now get existing count from the hashmap
           num = (Integer) results.get(answer.getId());
+
+
         } catch (Exception e) {
           System.out.println("No results for " + answer.getId());
         }
         if (num == null)
           num = new Integer(0);
+        // we found a response, and got the  existing num , now update one   
+        // check here for the other bug about non-autograded items having 1 even with no responses
         results.put(answer.getId(), new Integer(num.intValue() + 1));
       }
     }
