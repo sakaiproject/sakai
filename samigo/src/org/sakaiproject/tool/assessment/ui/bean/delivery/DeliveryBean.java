@@ -1401,6 +1401,12 @@ public class DeliveryBean
     String agent = AgentFacade.getAgentString();
     if (publishedAssessment.getAssessmentAccessControl().getReleaseTo().indexOf("Anonymous Users") > -1)
 	agent = AgentFacade.getAnonymousId();
+
+    // 0. submit other question 1st
+    SubmitToGradingActionListener listener =
+      new SubmitToGradingActionListener();
+    listener.processAction(null);
+
     // 1. create assessmentGrading if it is null
     if (this.adata == null)
     {
