@@ -124,44 +124,44 @@ public class AudioConfigHelp
    */
   public void configHelp()
   {
-    int number = 1;
 
-    String msg = res.getString("When_running_the");
+    String msg = res.getString("When_running_the") + "\n";
 
     if (!configHardware)
     {
-      msg += "  " + number++ +
-        res.getString("_You_must_have_a");
+      msg += " * " +
+        res.getString("_You_must_have_a") + "\n";
     }
     if (!configApplet)
     {
-      msg += "  " + number++ +
-        res.getString("_You_must_have_a1");
+      msg += " * " +
+        res.getString("_You_must_have_a1") + "\n";
     }
     if (!configRecord || !configPlayback || !configFileWrite)
     {
-      msg += "  " + number++ + res.getString("_Have_these");
-      msg += res.getString("grant_");
+      msg += " * " + res.getString("_Have_these") + "\n\n";
+      msg += res.getString("grant_") + "\n";
 
       if (!configRecord )
       {
-        msg += res.getString("permission_javax");
+        msg +=  "            " +
+          res.getString("permission_javax");
       }
       if (!configPlayback)
       {
-        msg +=
+        msg += "            " +
           res.getString("permission_java_util");
       }
       if (!!configFileWrite)
       {
-        msg +=
+        msg += "            " +
           res.getString("permission_java_io");
       }
 
       msg += "      }; \n\n";
     }
 
-    msg += res.getString("Please_make_sure_you");
+    msg += res.getString("Please_make_sure_you") + "\n";
 
     // to make this work we use the trick of putting it in a static,
     // this is running in the user's JVM so shouldn't be a problem.
