@@ -59,7 +59,11 @@ public class SyllabusIframeRender extends Renderer
     {
       if(!redirectUrl.startsWith("http://"))
       {
-        redirectUrl = "http://" + redirectUrl;
+        if((!redirectUrl.toLowerCase().endsWith(".doc")) && (!redirectUrl.toLowerCase().endsWith(".pdf"))
+            && (!redirectUrl.toLowerCase().startsWith("https://")))
+        {
+          redirectUrl = "http://" + redirectUrl;
+        }
       }
       writer.write("<iframe src=\"" + redirectUrl + "\"");
       writer.write(" width=\"" + widthIn + "\"");
