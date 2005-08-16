@@ -71,7 +71,6 @@ public class ItemModifyListener implements ActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     log.info("ItemModify LISTENER.");
-    //System.out.println("lydiatest BEGIN MOdify ");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
 
     String itemId= cu.lookupParam("itemid");
@@ -94,7 +93,6 @@ public class ItemModifyListener implements ActionListener
 
   public boolean populateItemBean(ItemAuthorBean itemauthorbean, String itemId) {
         String nextpage= null;
-      //System.out.println("lydiatest in ItemModifyListenr.  populateItemBean ");
       ItemBean bean = new ItemBean();
 
     try{
@@ -104,8 +102,6 @@ public class ItemModifyListener implements ActionListener
       ItemFacade itemfacade =  delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
 
 
-      log.info("lydiatest, we are modify itemid = " + itemId);
-      //System.out.println("lydiatest itemfacade.gettypeid() " + itemfacade.getTypeId());
       bean.setItemId(itemfacade.getItemId().toString());
       bean.setItemType(itemfacade.getTypeId().toString());
       itemauthorbean.setItemType(itemfacade.getTypeId().toString());
@@ -158,19 +154,16 @@ public class ItemModifyListener implements ActionListener
         if (itemauthorbean.getItemType()!=null) {
                 itype = new Integer(itemauthorbean.getItemType()).intValue();
         }
-    //System.out.println("lydiatest selected which type : " + itype);
         switch (itype) {
                 case 1:
                         bean.setMultipleCorrect(false);
                         bean.setMultipleCorrectString(TypeFacade.MULTIPLE_CHOICE.toString());
-    //System.out.println("lydiatest set multiplecorr string : " + bean.getMultipleCorrectString());
                         itemauthorbean.setItemTypeString("Multiple Choice");
                         nextpage = "multipleChoiceItem";
                         break;
                 case 2:
                         bean.setMultipleCorrect(true);
                         bean.setMultipleCorrectString(TypeFacade.MULTIPLE_CORRECT.toString());
-    //System.out.println("lydiatest set multiplecorr string : " + bean.getMultipleCorrectString());
                         itemauthorbean.setItemTypeString("Multiple Choice");
                         nextpage = "multipleChoiceItem";
                         break;
@@ -223,12 +216,10 @@ public class ItemModifyListener implements ActionListener
       AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean("assessmentBean");
       AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
       itemauthorbean.setShowMetadata(assessment.getHasMetaDataForQuestions());
-      //System.out.println("lydiatest showMetadata : " + itemauthorbean.getShowMetadata());
     }
     else {
      // for question pool , always show metadata as default
       itemauthorbean.setShowMetadata("true");
-      //System.out.println("lydiatest showMetadata : " + itemauthorbean.getShowMetadata());
     }
 
 
@@ -307,7 +298,6 @@ public class ItemModifyListener implements ActionListener
 	 Answer answerobj = (Answer) iter1.next();
          String answer = answerobj.getText();
          Long seq = answerobj.getSequence();
-//System.out.println(" lydiatest ....build array answer seq = " +seq + " answer " + answer);
          if ( (answerArray[seq.intValue()-1] == null ) || (answerArray[seq.intValue()-1].equals("")) ) {
            answerArray[seq.intValue()-1] = answer;
 	 }
@@ -315,15 +305,11 @@ public class ItemModifyListener implements ActionListener
            answerArray[seq.intValue()-1] = answerArray[seq.intValue()-1] + " | " + answer;
 	 }
 
-//System.out.println(" lydiatest ....answrarray [ " +( seq.intValue()-1) + "] = " + answer);
        }
        for (int i=0; i<answerArray.length; i++) {
 	 replaced = orig.replaceFirst("\\{\\}", "{"+answerArray[i]+"}");
          orig = replaced;
-//System.out.println(" lydiatest ....restore " + orig );
        }
-
-//System.out.println(" lydiatest ....restore " + orig );
 
        bean.setItemText(replaced);
 
@@ -388,7 +374,6 @@ public class ItemModifyListener implements ActionListener
 	    corrchoices[counter]=  ((AnswerBean)iter3.next()).getLabel();
 	    counter++;
         }
-	//System.out.println("lydiatest corchoices are " + corrchoices.toString());
 	bean.setCorrAnswers(corrchoices);
        }
 
@@ -409,7 +394,6 @@ public class ItemModifyListener implements ActionListener
 
  private void populateItemTextForMatching(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
 
-    //System.out.println("lydiatest in populateItemTextForMatching" );
     Set itemtextSet = itemfacade.getItemTextSet();
     Iterator iter = itemtextSet.iterator();
     ArrayList matchItemBeanList = new ArrayList();
@@ -420,7 +404,6 @@ public class ItemModifyListener implements ActionListener
        MatchItemBean choicebean =  new MatchItemBean();
        choicebean.setChoice(itemText.getText());
 
-     //System.out.println("lydiatest in populateItemTextForMatching , set choice = " + choicebean.getChoice());
        Set answerSet = itemText.getAnswerSet();
        Iterator iter1 = answerSet.iterator();
        while (iter1.hasNext()){
@@ -428,7 +411,6 @@ public class ItemModifyListener implements ActionListener
          if (answer.getIsCorrect() != null &&
              answer.getIsCorrect().booleanValue()){
            choicebean.setMatch(answer.getText());
-     //System.out.println("lydiatest in populateItemTextForMatching , set match() = " + choicebean.getMatch());
            choicebean.setSequence(answer.getSequence());
            choicebean.setIsCorrect(Boolean.TRUE);
            Set feedbackSet = answer.getAnswerFeedbackSet();
@@ -443,15 +425,12 @@ public class ItemModifyListener implements ActionListener
                choicebean.setIncorrMatchFeedback(feedback.getText());
              }
            }
-     //System.out.println("lydiatest in populateItemTextForMatching , set corrfeedback = " + choicebean.getCorrMatchFeedback());
-     //System.out.println("lydiatest in populateItemTextForMatching , set corrfeedback = " + choicebean.getIncorrMatchFeedback());
          }
        }
        matchItemBeanList.add(choicebean);
      }
 
      bean.setMatchItemBeanList(matchItemBeanList);
-     //System.out.println("lydiatest in populateItemTextForMatching , matchitembeanlist.size() = " +
      //	bean.getMatchItemBeanList().size()  );
 
 

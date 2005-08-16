@@ -69,15 +69,12 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
   {
     log.debug("StartCreateItemListener valueChangeLISTENER.");
-    log.debug("lydiatest BEGIN STartCreateItem processValueChange ");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
 
     FacesContext context = FacesContext.getCurrentInstance();
 
-    log.debug("lydiatest BEGIN STartCreateItem item type " + itemauthorbean.getItemType());
 
     String selectedvalue= (String) ae.getNewValue();
-    log.debug("lydiatest selectedvalue in StartCreateItemListener's process value change() =   " + selectedvalue);
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
       itemauthorbean.setItemType(selectedvalue);
 
@@ -88,10 +85,9 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
     if (curritem!=null) {
       curritemid = curritem.getItemId();
       update = true;
-      log.debug("lydiatest it is from modify , itemid  " + curritemid);
     }
     else {
-      log.debug("lydiatest it is not from modify , itemid  (shoudl be null) = " + curritemid);
+      log.debug("Not from modify , itemid  (should be null) = " + curritemid);
     }
 
     if (!startCreateItem(itemauthorbean))
@@ -102,7 +98,6 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
     if (update){
         // if update, then update currentItem's itemId.
        itemauthorbean.getCurrentItem().setItemId(curritemid);
-      log.debug("lydiatest after StartCreateItem, reset itemid to old item id for modify =" + curritem.getItemId());
     }
 
 
@@ -120,38 +115,12 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
   // used by question pool's selectQuestionType.jsp
   {
     log.debug("StartCreateItemListener actionLISTENER.");
-    log.debug("lydiatest BEGIN STartCreateItem processAction ");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
 
-    log.debug("lydiatest BEGIN STartCreateItem item type " + itemauthorbean.getItemType());
-
-  /*
-    boolean update = false;
-    String curritemid = null;
-    // check if it is coming from Item Modify page.
-    ItemBean curritem = itemauthorbean.getCurrentItem();
-    if (curritem!=null) {
-      curritemid = curritem.getItemId();
-      log.debug("lydiatest it is from modify" + itemauthorbean.getItemType());
-    }
-    else {
-      log.debug("lydiatest it is not from modify" + itemauthorbean.getItemType());
-    }
-
-*/
     if (!startCreateItem(itemauthorbean))
     {
       throw new RuntimeException("failed to startCreatItem.");
     }
-
-/*
-    if (update){
-	// if update, then update currentItem's itemId.
-       curritem.setItemId(curritemid);
-      log.debug("lydiatest after StartCreateItem, reset itemid to old item id for modify =" + curritem.getItemId());
-    }
-*/
-
 
   }
 
@@ -161,13 +130,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
    String nextpage= null;
    ItemBean item = new ItemBean();
    try{
-
-     log.debug("lydiatest in method startCreateItem()  ");
-
     // check to see if we arrived here from question pool
-
-    log.debug("lydiatest we are adding to : "+ itemauthorbean.getTarget() );
-    log.debug("lydiatest we are adding itemtype : "+ itemauthorbean.getItemType() );
 
 // need to get assessmentid
 //  String assessmentId = ContextUtil.lookupParam("assessmentid");
@@ -203,13 +166,11 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
         {
           itype = 1; // we only appear to get here when when the mouse is clicked a lot.
         }
-    log.debug("lydiatest selected which type : " + itype);
         switch (itype) {
                 case 1:
                         item.setMultipleCorrect(Boolean.FALSE.booleanValue());
                         item.setMultipleCorrectString(TypeFacade.MULTIPLE_CHOICE.toString());
                         nextpage = "multipleChoiceItem";
-    log.debug("lydiatest multplecorrctstring should be false : " + item.getMultipleCorrectString());
                         break;
                 case 2:
 // never really use this, put here for completeness
@@ -236,7 +197,6 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
                         nextpage = "fillInBlackItem";
                         break;
                 case 9:
-log.debug("lydiatest in Start creating a matching");
      			MatchItemBean matchitem = new MatchItemBean();
 
       			item.setCurrentMatchPair(matchitem);
@@ -244,7 +204,6 @@ log.debug("lydiatest in Start creating a matching");
                         nextpage = "matchingItem";
                         break;
                 case 10:
-log.debug("lydiatest in Start creating Import question from pool ");
     			QuestionPoolBean qpoolBean= (QuestionPoolBean) cu.lookupBean("questionpool");
 			qpoolBean.setImportToAuthoring(true);
                         nextpage = "poolList";
@@ -264,15 +223,12 @@ log.debug("lydiatest in Start creating Import question from pool ");
       AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
       itemauthorbean.setShowMetadata(assessment.getHasMetaDataForQuestions());
 
-      log.debug("lydiatest showMetadata : " + itemauthorbean.getShowMetadata());
       // set section
 
         if (itemauthorbean.getInsertToSection()!=null) {
        // for inserting an item, this should be sequence, e.g. 1, 2, ...etc
-      log.debug("lydiatest itemauthorbean.getInsertToSection not null : " + itemauthorbean.getInsertToSection());
 	  String sectionid= (assessment.getSection(new Long(itemauthorbean.getInsertToSection()))).getSectionId().toString();
           item.setSelectedSection(sectionid);
-      log.debug("lydiatest itemauthorbean.getInsertToSection not null : " + item.getSelectedSection());
         }
         else {
          // do not set section here, sections are set by the form
@@ -280,7 +236,6 @@ log.debug("lydiatest in Start creating Import question from pool ");
           //SectionDataIfc section = assessment.getDefaultSection();
           //String sectionid = section.getSectionId().toString();
           //item.setSelectedSection(sectionid);
-      log.debug("lydiatest itemauthorbean.getInsertToSection IS null : " + item.getSelectedSection());
         }
 
 	// reset insertToSection to null;
@@ -291,21 +246,17 @@ log.debug("lydiatest in Start creating Import question from pool ");
          // do not set section here, sections are set by the editPool form
     	  // QuestionPoolBean qpoolBean= (QuestionPoolBean) cu.lookupBean("questionpool");
 	  //qpoolBean.setSelectedSection(item.getSelectedSection());
-          //log.debug("lydiatest selecte section in pool : " + qpoolBean.getSelectedSection());
         }
-      log.debug("lydiatest selecte section : " + item.getSelectedSection());
 
     }
     else {
      // for question pool , always show metadata as default
       itemauthorbean.setShowMetadata("true");
-      log.debug("lydiatest showMetadata : " + itemauthorbean.getShowMetadata());
     }
 
 
     // set outcome for action
     itemauthorbean.setOutcome(nextpage);
-    log.debug("lydiatest selected next page : " + nextpage);
     return true;
 
   }

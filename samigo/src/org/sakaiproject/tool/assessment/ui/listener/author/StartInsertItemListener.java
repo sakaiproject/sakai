@@ -53,13 +53,10 @@ public class StartInsertItemListener implements ValueChangeListener
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
   {
     log.info("StartInsertItemListener valueChangeLISTENER.");
-    log.debug("lydiatest BEGIN StartInsertItemListener processValueChange ------  ");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     String olditemtype = (String) ae.getOldValue();
-    log.debug("lydiatest ae.getOldValue : " + olditemtype );
     String selectedvalue= (String) ae.getNewValue();
-    log.debug("lydiatest ae.getNewValue : " + selectedvalue);
     String newitemtype = null;
     String insertItemPosition = null;
     String insertToSection = null;
@@ -67,9 +64,6 @@ public class StartInsertItemListener implements ValueChangeListener
     // only set itemtype when the value has indeed changed.
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
       String[] strArray = selectedvalue.split(",");
-    log.debug("lydiatest ae.getNewValue [0] : " + strArray[0]);
-    log.debug("lydiatest ae.getNewValue [1] : " + strArray[1]);
-    log.debug("lydiatest ae.getNewValue [2] : " + strArray[2]);
       newitemtype = strArray[0].trim();
       insertToSection = strArray[1].trim();
       insertItemPosition= strArray[2].trim();
@@ -78,11 +72,6 @@ public class StartInsertItemListener implements ValueChangeListener
       itemauthorbean.setInsertPosition(insertItemPosition);
       itemauthorbean.setInsertType(newitemtype);
       itemauthorbean.setItemNo(String.valueOf(Integer.parseInt(insertItemPosition) +1));
-
-    log.debug("lydiatest StartInsertItem item type " + itemauthorbean.getItemType());
-    log.debug("lydiatest STartInsertItem param insertItemPosition " + insertItemPosition);
-    log.debug("lydiatest STartInsertItem param insert to Section " + insertToSection);
-
 
     StartCreateItemListener listener = new StartCreateItemListener();
 

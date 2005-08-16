@@ -65,7 +65,6 @@ public class ReorderQuestionsListener implements ValueChangeListener
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
   {
     log.info("ReorderQuestionsListener valueChangeLISTENER.");
-    //System.out.println("lydiatest BEGIN ReorderQuestionsListener processValueChange ------  ");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     FacesContext context = FacesContext.getCurrentInstance();
@@ -83,16 +82,12 @@ public class ReorderQuestionsListener implements ValueChangeListener
 
 
     String oldPos= ae.getOldValue().toString();
-    //System.out.println("lydiatest ae.getOldValue : " + oldPos);
     String newPos= ae.getNewValue().toString();
-    //System.out.println("lydiatest ae.getNewValue : " + newPos);
 
 //    String itemParam = String.valueOf( ((Integer)ae.getOldValue()).intValue()-1) + ":currItemId";
     String pulldownId  = ae.getComponent().getClientId(context);
     String itemParam = pulldownId.replaceFirst("number","currItemId");
-    //System.out.println("lydiatest itemParam =" + itemParam);
     String itemId= ContextUtil.lookupParam(itemParam);
-    //System.out.println("lydiatest itemid : " + itemId);
 
     if (itemId !=null) {
       // somehow ae.getOldValue() keeps the old value, thus we get itemId==null
@@ -129,25 +124,20 @@ public class ReorderQuestionsListener implements ValueChangeListener
 
     ItemService delegate = new ItemService();
     Set itemset = sectfacade.getItemFacadeSet();
-    //System.out.println("lydiatest item itemset size is " + itemset.size());
     Iterator iter = itemset.iterator();
     while (iter.hasNext()) {
       ItemFacade  itemfacade = (ItemFacade) iter.next();
       Integer itemfacadeseq = itemfacade.getSequence();
-      //System.out.println("lydiatest shifting orig seq = " + itemfacadeseq);
       if ( (oldPos.compareTo(newPos) < 0) &&  (itemfacadeseq.compareTo(oldPos) > 0) && (itemfacadeseq.compareTo(newPos) <= 0)  ){
         itemfacade.setSequence(new Integer(itemfacadeseq.intValue()-1) );
-        //System.out.println("lydiatest shift to = " + itemfacade.getSequence());
         delegate.saveItem(itemfacade);
       }
       if ( (oldPos.compareTo(newPos) > 0) &&  (itemfacadeseq.compareTo(newPos) >= 0) && (itemfacadeseq.compareTo(oldPos) < 0)  ){
         itemfacade.setSequence(new Integer(itemfacadeseq.intValue()+1) );
-        //System.out.println("lydiatest shift to = " + itemfacade.getSequence());
         delegate.saveItem(itemfacade);
       }
       if ( itemfacadeseq.compareTo(oldPos) == 0) {
         itemfacade.setSequence(newPos);
-        //System.out.println("lydiatest shift to = " + itemfacade.getSequence());
         delegate.saveItem(itemfacade);
       }
 

@@ -108,7 +108,6 @@ public class SavePartListener
       addItemsFromPool = true;
 
       if (validateItemsDrawn(sectionBean)) {
-      log.debug("**** lydiatest validated true" );
       // if the author type was random draw type,  and the new type is random draw , then we need to disassociate sectionid with each items. Cannot delete items, 'cuz these items are linked in the pool
 
         if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
@@ -119,7 +118,6 @@ public class SavePartListener
         }
       }
       else {
-      log.debug("**** lydiatest validated false " );
         sectionBean.setOutcome("editPart");
         return;
       }
@@ -218,7 +216,6 @@ public class SavePartListener
 
      ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
      String err;
-      log.debug("lydiatest validate " + itemcount  + " and number drawn = " + numberDrawnInt);
      if(itemcount< numberDrawnInt ) {
          err=(String)rb.getObject("overdrawn_error");
          context.addMessage("modifyPartForm:numSelected",new FacesMessage(err));

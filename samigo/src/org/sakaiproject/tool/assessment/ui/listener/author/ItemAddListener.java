@@ -77,10 +77,8 @@ public class ItemAddListener
   public void processAction(ActionEvent ae) throws AbortProcessingException {
       boolean correct=false;
     log.info("ItemAdd LISTENER.");
-    System.out.println("lydiatest BEGIN Add item");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
     ItemBean item =itemauthorbean.getCurrentItem();
-    log.debug("lydiatest item.id = " + item.getItemId());
     String answer=item.getCorrAnswer();
     String iType=item.getItemType();
     //if((!iType.equals("1"))&&(!iType.equals("2"))){
@@ -129,7 +127,6 @@ public class ItemAddListener
   }
 
   public boolean saveItem(ItemAuthorBean itemauthor) {
-    //System.out.println("lydiatest in saveItem()  ");
     boolean update = false;
     try {
       ItemBean bean = itemauthor.getCurrentItem();
@@ -139,7 +136,6 @@ public class ItemAddListener
       // update not working yet, delete, then add
       if ( (bean.getItemId() != null) && (!bean.getItemId().equals("0"))) {
         update = true;
-        log.debug("lydiatest in saveItem()  this is for MODIFY ");
         // if modify ,itemid shouldn't be null , or 0.
         Long oldId = new Long(bean.getItemId());
         delegate.deleteItemContent(oldId, AgentFacade.getAgentString());
@@ -150,13 +146,9 @@ public class ItemAddListener
       }
       item.setScore(new Float(bean.getItemScore()));
 
-      //System.out.println("lydiatest " + item.getScore());
       item.setStatus(ItemFacade.ACTIVE_STATUS);
 
-      //System.out.println("lydiatest in saveItem()  should be 1 === " +
-      //                   bean.getItemType());
       item.setTypeId(new Long(bean.getItemType()));
-      //System.out.println("lydiatest set typeid ()  " + item.getTypeId());
 
       item.setCreatedBy(AgentFacade.getAgentString());
       item.setCreatedDate(new Date());
@@ -177,34 +169,27 @@ public class ItemAddListener
 
       // update maxNumAttempts for audio
       if (bean.getNumAttempts() != null) {
-        //System.out.println("lydiatest numattempt " + bean.getNumAttempts());
         item.setTriesAllowed(new Integer(bean.getNumAttempts()));
       }
 
       // save timeallowed for audio recording
       if (bean.getTimeAllowed() != null) {
-        //System.out.println("lydiatest audio timeallowed " + bean.getTimeAllowed());
         item.setDuration(new Integer(bean.getTimeAllowed()));
       }
 
       if (update) {
 // reset item contents for modify
-        //System.out.println("lydiatest getitemid not 0 ,it is " + item.getItemId());
 
         item.setItemTextSet(new HashSet());
         item.setItemMetaDataSet(new HashSet());
-        //System.out.println(
-        //    "lydiatest getitemid not 0 ,setting itemtext metadata to be new hashset ");
       }
 
       // prepare itemText, including answers
       if (!item.getTypeId().equals(TypeFacade.MATCHING)) {
 
-	  //System.out.println("lydiatest item is not Matching " + item.getTypeId());
         item.setItemTextSet(prepareText(item, bean, itemauthor));
       }
       else {
-	  //System.out.println("lydiatest item IS Matching " + item.getTypeId());
         item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
       }
 
@@ -258,11 +243,7 @@ public class ItemAddListener
         // Came from Pool manager
 
         delegate.saveItem(item);
-        //System.out.println(
-        //    "lydiatest target=questionpool  adding item to qpool ");
         QuestionPoolService qpdelegate = new QuestionPoolService();
-        //System.out.println("lydiatest adding item to qpool : " +
-        //                   itemauthor.getQpoolId());
 
         if (!qpdelegate.hasItem(item.getItemIdString(),
                                 new Long(itemauthor.getQpoolId()))) {
@@ -289,10 +270,8 @@ public class ItemAddListener
         // Came from Assessment Authoring
 
         AssessmentService assessdelegate = new AssessmentService();
-        //System.out.println("lydiatest target=assessment ");
         // add the item to the specified part, otherwise add to default
         if (bean.getSelectedSection() != null) {
-	    //System.out.println("lydiatest section " + bean.getSelectedSection());
           SectionFacade section = assessdelegate.getSection(bean.
               getSelectedSection());
 
@@ -302,18 +281,14 @@ public class ItemAddListener
 	  // if Modify, need to reorder if assgned to different section '
             if ( (bean.getOrigSection() != null) &&
 		(!bean.getOrigSection().equals(bean.getSelectedSection()))) {
-		//System.out.println("lydiatest modified, assigned to new section " + bean.getOrigSection() + " to new section = " + bean.getSelectedSection() );
                 // if reassigned to different section
               Integer oldSeq = item.getSequence();
               item.setSequence(new Integer(section.getItemSet().size() + 1));
-              //System.out.println("lydiatest new sequence is " + item.getSequence());
 
               // reorder the sequences of items in the OrigSection
     	      SectionFacade origsect= assessdelegate.getSection(bean.getOrigSection());
-              //System.out.println("lydiatest reorder old items sequence in origSection ");
 	      shiftItemsInOrigSection(origsect, oldSeq);
 
-              //System.out.println("lydiatest DONE reorder old items sequence in origSection ");
 
             }
             else {
@@ -322,18 +297,12 @@ public class ItemAddListener
           }
 
           if (!update) {
-	      //System.out.println("lydiatest getInsertPositon() = :" +
-              //                 itemauthor.getInsertPosition() + ".");
             if ( (itemauthor.getInsertPosition() == null) ||
                 ("".equals(itemauthor.getInsertPosition()))) {
-		//System.out.println("lydiatest add at the end " +
-                //                 itemauthor.getInsertPosition() + ".");
               // if adding to the end
               item.setSequence(new Integer(section.getItemSet().size() + 1));
             }
             else {
-		//System.out.println("lydiatest insert,needs shifting " +
-                //                 itemauthor.getInsertPosition() + ".");
               // if inserting or a question
               String insertPos = itemauthor.getInsertPosition();
               shiftSequences(section, new Integer(insertPos));
@@ -361,7 +330,6 @@ public class ItemAddListener
 
         // if assign to pool, add the item to the pool
         if ( (!bean.getSelectedPool().equals("")) && (bean.getSelectedPool() != null)) {
-	    //System.out.println("lydiatest poolid  " + bean.getSelectedPool());
           qpdelegate.addItemToPool(item.getItemIdString(),
                                    new Long(bean.getSelectedPool()));
 
@@ -378,8 +346,6 @@ public class ItemAddListener
 
       }
 
-      //System.out.println(
-      //    "lydiatest SUCCESSFULLY saved Item !!!!!!!!!!!!!!!!!!!!!!!!!");
       return true;
     }
     catch (Exception e) {
@@ -391,7 +357,6 @@ public class ItemAddListener
   private HashSet prepareTextForMatching(ItemFacade item, ItemBean bean,
                                          ItemAuthorBean itemauthor) {
     // looping through matchItemBean
-    //System.out.println("lydiatest prepareTextForMatching:  BEGIN>>>>> ");
     ArrayList matchItemBeanList = bean.getMatchItemBeanList();
     HashSet textSet = new HashSet();
     Iterator choiceiter = matchItemBeanList.iterator();
@@ -402,22 +367,13 @@ public class ItemAddListener
       ItemText choicetext = new ItemText();
       choicetext.setItem(item.getData()); // all set to the same ItemFacade
       choicetext.setSequence(choicebean.getSequence());
-      //System.out.println(
-      //    "lydiatest prepareTextForMatching:  choicetext.setSequence " +
-      //    choicetext.getSequence());
 
-      //System.out.println("lydiatest getItemtext()  " + choicebean.getChoice());
       choicetext.setText(stripPtags(choicebean.getChoice()));
-      //System.out.println(
-      //    "lydiatest prepareTextForMatching:  this is first itemtext choicetext.setText" +
-      //    choicetext.getText());
 
       // need to loop through matches for in matchItemBean list
       // and add all possible matches to this choice
 
       //System.out.println(
-      //    "lydiatest prepareTextForMatching:  now loop through all answers for  " +
-      //    choicetext.getText());
       Iterator answeriter = matchItemBeanList.iterator();
       HashSet answerSet = new HashSet();
       Answer answer = null;
@@ -426,9 +382,6 @@ public class ItemAddListener
         MatchItemBean answerbean = (MatchItemBean) answeriter.next();
 
         if (answerbean.getSequence().equals(choicebean.getSequence())) {
-	    //  System.out.println(
-            //  "lydiatest prepareTextForMatching:  CORRECT answer :  " +
-            //  answerbean.getMatch());
           answer = new Answer(choicetext, stripPtags(answerbean.getMatch()),
                               answerbean.getSequence(),
 			      AnswerBean.choiceLabels[answerbean.getSequence().intValue()-1],
@@ -445,19 +398,10 @@ public class ItemAddListener
                                                  AnswerFeedbackIfc.
                                                  INCORRECT_FEEDBACK,
                                                  stripPtags(answerbean.getIncorrMatchFeedback())));
-        /*
-        System.out.println("lydiatest prepareTextForMatching:  feedback :  " +
-                           answerbean.getCorrMatchFeedback());
-        System.out.println("lydiatest prepareTextForMatching:  feedback :  " +
-                           answerbean.getIncorrMatchFeedback());
-	*/
         answer.setAnswerFeedbackSet(answerFeedbackSet);
 
         }
         else {
-	    //System.out.println(
-            //  "lydiatest prepareTextForMatching:  WRONG answer :  " +
-            //  answerbean.getMatch());
           answer = new Answer(choicetext, stripPtags(answerbean.getMatch()),
                               answerbean.getSequence(),
 			      AnswerBean.choiceLabels[answerbean.getSequence().intValue()-1],
@@ -475,10 +419,6 @@ public class ItemAddListener
                                                  AnswerFeedbackIfc.
                                                  INCORRECT_FEEDBACK,
                                                  stripPtags(answerbean.getIncorrMatchFeedback())));
-        System.out.println("lydiatest prepareTextForMatching:  feedback :  " +
-                           answerbean.getCorrMatchFeedback());
-        System.out.println("lydiatest prepareTextForMatching:  feedback :  " +
-                           answerbean.getIncorrMatchFeedback());
         answer.setAnswerFeedbackSet(answerFeedbackSet);
 
 //
@@ -489,7 +429,6 @@ public class ItemAddListener
       textSet.add(choicetext);
 
     }
-    //System.out.println("lydiatest prepareTextForMatching:  END >>>>> ");
     return textSet;
   }
 
@@ -505,7 +444,6 @@ public class ItemAddListener
     ItemText text1 = new ItemText();
     text1.setItem(item.getData());
     text1.setSequence(new Long(1));
-    //System.out.println("lydiatest getItemtext()  " + bean.getItemText());
     text1.setText(bean.getItemText());
 
 /////////////////////////////////////////////////////////////
@@ -513,10 +451,8 @@ public class ItemAddListener
 // 2. save Answers
 //
 /////////////////////////////////////////////////////////////
-    //System.out.println("lydiatest getItemType()  " + itemauthor.getItemType());
     if (item.getTypeId().equals(TypeFacade.TRUE_FALSE)) {
 
-	//System.out.println("lydiatest setting answers for true and false");
 
 // find correct answer
 
@@ -545,7 +481,6 @@ public class ItemAddListener
     }
     else if (item.getTypeId().equals(TypeFacade.ESSAY_QUESTION)) {
 
-	//System.out.println("lydiatest setting answers for short Answer item");
 // Storing the model answer essay as an Answer, and feedback in the Answerfeedback
 
       String theanswer = bean.getCorrAnswer();
@@ -571,7 +506,6 @@ public class ItemAddListener
     }
 
     else if (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE_SURVEY)) {
-	//System.out.println("lydiatest setting answers for survey");
 
       /*
          TODO: need to use property file for the survey choices, to be able to internationalize.
@@ -692,7 +626,6 @@ public class ItemAddListener
     else if ( (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE)) ||
              (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT))) {
 // this is for both single/multiple correct multiple choice types
-	//System.out.println("lydiatest multiple choice, ");
 
       // for single choice
       //String theanswer=bean.getCorrAnswer();
@@ -700,8 +633,6 @@ public class ItemAddListener
       Answer answer = null;
       while (iter.hasNext()) {
         AnswerBean answerbean = (AnswerBean) iter.next();
-        //System.out.println("lydiatest multiple choice,  answerbean.gettext " +
-        //                   answerbean.getText());
         if (isCorrectChoice(bean, answerbean.getLabel().trim())) {
           answer = new Answer(text1, stripPtags(answerbean.getText()),
                               answerbean.getSequence(), answerbean.getLabel(),
@@ -741,47 +672,39 @@ public class ItemAddListener
   }
 
   private HashSet prepareMetaData(ItemFacade item, ItemBean bean) {
-      //System.out.println("lydiatest in prepareMetaData()  ");
     HashSet set = new HashSet();
     if (bean.getKeyword() != null) {
-	//System.out.println("lydiatest keyword()  " + bean.getKeyword());
       set.add(new ItemMetaData(item.getData(), ItemMetaData.KEYWORD,
                                bean.getKeyword()));
     }
     if (bean.getRubric() != null) {
-	//System.out.println("lydiatest rubric()  " + bean.getRubric());
       set.add(new ItemMetaData(item.getData(), ItemMetaData.RUBRIC,
                                bean.getRubric()));
     }
     if (bean.getObjective() != null) {
-      System.out.println("lydiatest obj()  " + bean.getObjective());
       set.add(new ItemMetaData(item.getData(), ItemMetaData.OBJECTIVE,
                                bean.getObjective()));
     }
     // Randomize property got left out, added in  metadata
     if (bean.getRandomized() != null) {
-	//System.out.println("lydiatest randomize()  " + bean.getRandomized());
       set.add(new ItemMetaData(item.getData(), ItemMetaData.RANDOMIZE,
                                bean.getRandomized()));
     }
 
     // save ScaleName for survey if it's a survey item
     if (bean.getScaleName() != null) {
-	//System.out.println("lydiatest scalename()  " + bean.getScaleName());
       set.add(new ItemMetaData(item.getData(), ItemMetaData.SCALENAME,
                                bean.getScaleName()));
     }
 
     // save part id
     if (bean.getSelectedSection() != null) {
-	//System.out.println("lydiatest section " + bean.getSelectedSection());
       set.add(new ItemMetaData(item.getData(), ItemMetaData.PARTID,
                                bean.getSelectedSection()));
     }
 
     // save pool id
     if (bean.getSelectedPool() != null) {
-	//System.out.println("lydiatest poolid  " + bean.getSelectedPool());
       set.add(new ItemMetaData(item.getData(), ItemMetaData.POOLID,
                                bean.getSelectedPool()));
     }
@@ -790,7 +713,6 @@ public class ItemAddListener
     /*
         // save them in ItemFacade
         if (bean.getTimeAllowed()!=null){
-     System.out.println("lydiatest poolid  "+  bean.getTimeAllowed() );
         set.add(new ItemMetaData(item.getData(), ItemMetaData.TIMEALLOWED, bean.getTimeAllowed()));
             }
      */
@@ -798,7 +720,6 @@ public class ItemAddListener
     /*
         // save them in ItemFacade
         if (bean.getNumAttempts()!=null){
-     System.out.println("lydiatest poolid  "+  bean.getNumAttempts() );
         set.add(new ItemMetaData(item.getData(), ItemMetaData.NUMATTEMPTS, bean.getNumAttempts()));
             }
      */
@@ -809,7 +730,6 @@ public class ItemAddListener
   private static ArrayList getFIBanswers(String entiretext) {
     String[] tokens = entiretext.split("[\\}][^\\{]*[\\{]");
     ArrayList list = new ArrayList();
-    //System.out.println("lydiatest token.length " + tokens.length);
     if (tokens.length==1) {
         String[] afteropen= tokens[0].split("\\{");
         if (afteropen.length>1) {
@@ -848,10 +768,6 @@ public class ItemAddListener
   public boolean isCorrectChoice(ItemBean bean, String label) {
     boolean returnvalue = false;
     if (!bean.getMultipleCorrect()) {
-	//System.out.println(
-        //  "lydiatest saving answers :  bean.geMultipleCorrect() " +
-        //  bean.getMultipleCorrect());
-	//System.out.println("lydiatest saving answers :  label " + label);
       String corranswer = ContextUtil.lookupParam("itemForm:selectedRadioBtn");
       if (corranswer.equals(label)) {
         returnvalue = true;
@@ -888,16 +804,12 @@ public class ItemAddListener
 
     ItemService delegate = new ItemService();
     Set itemset = sectfacade.getItemFacadeSet();
-    //System.out.println("lydiatest item itemset size is " + itemset.size());
     Iterator iter = itemset.iterator();
     while (iter.hasNext()) {
       ItemFacade itemfacade = (ItemFacade) iter.next();
       Integer itemfacadeseq = itemfacade.getSequence();
-      //System.out.println("lydiatest shifting orig seq = " + itemfacadeseq);
       if (itemfacadeseq.compareTo(currSeq) > 0) {
         itemfacade.setSequence(new Integer(itemfacadeseq.intValue() + 1));
-        //System.out.println("lydiatest after the deleted item , shift to = " +
-        //                   itemfacade.getSequence());
         delegate.saveItem(itemfacade);
       }
     }
@@ -910,16 +822,13 @@ public class ItemAddListener
   public void shiftItemsInOrigSection(SectionFacade sectfacade, Integer currSeq){
     ItemService delegate = new ItemService();
     Set itemset = sectfacade.getItemFacadeSet();
-    //System.out.println("lydiatest in shiftItemsInOrigSection item itemset size is " + itemset.size());
 // should be size-1 now.
       Iterator iter = itemset.iterator();
       while (iter.hasNext()) {
         ItemFacade  itemfacade = (ItemFacade) iter.next();
         Integer itemfacadeseq = itemfacade.getSequence();
-	//System.out.println("lydiatest shifting orig seq = " + itemfacadeseq);
         if (itemfacadeseq.compareTo(currSeq) > 0 ){
           itemfacade.setSequence(new Integer(itemfacadeseq.intValue()-1) );
-	  //System.out.println("lydiatest after the deleted item , shift to = " + itemfacade.getSequence());
           delegate.saveItem(itemfacade);
         }
       }
