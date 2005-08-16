@@ -132,7 +132,6 @@ public class ItemData
 
 
   public Set copyItemTextSet(ItemData cloned, Set itemTextSet) {
-    //System.out.println("**lydiatest CLONING item text size = " + itemTextSet.size());
     HashSet h = new HashSet();
     Iterator k = itemTextSet.iterator();
     while (k.hasNext()) {
@@ -147,7 +146,6 @@ public class ItemData
   }
 
   public Set copyAnswerSet(ItemText newItemText, Set answerSet) {
-    //System.out.println("**lydiatest CLONING answer size = " + itemTextSet.size());
     HashSet h = new HashSet();
     Iterator l = answerSet.iterator();
     while (l.hasNext()) {

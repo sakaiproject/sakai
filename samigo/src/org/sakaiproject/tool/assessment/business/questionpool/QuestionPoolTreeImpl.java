@@ -584,7 +584,6 @@ public class QuestionPoolTreeImpl
 
   public void sortByProperty(String sortProperty, boolean sortAscending)
   {
-            //System.out.println("lydiatest inside tree.sortByProperty sortProperty = " + sortProperty);
       // Now sort the sibling lists.
       Iterator iter2 = poolFamilies.keySet().iterator();
       while(iter2.hasNext())

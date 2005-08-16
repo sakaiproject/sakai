@@ -131,7 +131,6 @@ public class QuestionPoolService
 	found = poollist.contains(poolId);
 	}
 	else {
-//System.out.println("lydiatest hasItem  poollist = null " );
 	found = false;
 	}
     }
@@ -227,7 +226,6 @@ public class QuestionPoolService
    */
   public ArrayList getAllItemsSorted(Long poolId, String orderBy)
   {
-//System.out.println("lydiatest getAllItemsSorted for pool " + poolId);
     ArrayList results = null;
     try {
       if ("text".equals(orderBy)) {
@@ -241,7 +239,6 @@ public class QuestionPoolService
     } catch (Exception e) {
       e.printStackTrace();
     }
-//System.out.println("lydiatest END getAllItemsSorted for pool " + poolId);
     return results;
   }
 
@@ -251,7 +248,6 @@ public class QuestionPoolService
    */
   public ArrayList getAllItems(Long poolId)
   {
-//System.out.println("lydiatest getAllItems for pool " + poolId);
     ArrayList results = null;
     try {
       results =
@@ -260,7 +256,6 @@ public class QuestionPoolService
     } catch (Exception e) {
       e.printStackTrace();
     }
-//System.out.println("lydiatest END getAllItems for pool " + poolId);
     return results;
   }
 
