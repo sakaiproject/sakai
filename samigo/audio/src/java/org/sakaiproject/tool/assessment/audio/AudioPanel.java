@@ -74,7 +74,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.sakaiproject.sound.applet.AudioConfigHelp;
 
 /**
  * The Java Sound Samples : MidiSynth, Juke, CapturePlayback, Groove.

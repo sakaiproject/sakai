@@ -104,7 +104,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.filechooser.FileFilter;
 
-import org.sakaiproject.sound.applet.AudioConfigHelp;
 
 /**
  *  Capture/Playback sample.  Record audio in different formats
