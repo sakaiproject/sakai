@@ -1,0 +1,10 @@
+[PropertyInfo]
+configHardware,boolean,false,false,configHardware,configHardware,true,<default>
+configRecord,boolean,false,false,configRecord,configRecord,true,<default>
+configPlayback,boolean,false,false,configPlayback,configPlayback,true,<default>
+configApplet,boolean,false,false,configApplet,configApplet,true,<default>
+[IconNames]
+
+
+
+
