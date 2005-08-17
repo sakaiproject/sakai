@@ -968,12 +968,14 @@ public class AudioRecorder
     private Thread thread;
     private Font font10 = new Font("serif", Font.PLAIN, 10);
     private Font font12 = new Font("serif", Font.PLAIN, 12);
-    Color jfcBlue = new Color(204, 204, 255);
-    Color pink = new Color(255, 175, 175);
+    Color graphColor = new Color(0, 180, 20);
+    Color currentPositionColor = new Color(64, 200, 20);
+    Color backgroundColor = new Color(0, 128, 20);
+    Color gridColor = new Color(0, 140, 20);
 
     public SamplingGraph()
     {
-      setBackground(new Color(20, 20, 20));
+      setBackground(backgroundColor);
     }
 
     public void createWaveForm(byte[] audioBytes)
@@ -1083,12 +1085,12 @@ public class AudioRecorder
       Graphics2D g2 = (Graphics2D) g;
       g2.setBackground(getBackground());
       g2.clearRect(0, 0, w, h);
-      g2.setColor(Color.white);
+      g2.setColor(Color.black);
       g2.fillRect(0, h - INFOPAD, w, INFOPAD);
 
       if (errStr != null)
       {
-        g2.setColor(jfcBlue);
+        g2.setColor(Color.red);
         g2.setFont(new Font(res.getString("g2_Font"), Font.BOLD, 18));
         g2.drawString(res.getString("ERROR"), 5, 20);
         AttributedString as = new AttributedString(errStr);
@@ -1111,22 +1113,22 @@ public class AudioRecorder
       }
       else if (capture.thread != null)
       {
-        g2.setColor(Color.black);
+        g2.setColor(graphColor);
         g2.setFont(font12);
         g2.drawString(res.getString("Length_") + String.valueOf(seconds), 3, h - 4);
       }
       else
       {
-        g2.setColor(Color.black);
+        g2.setColor(graphColor);
         g2.setFont(font12);
-        g2.drawString(res.getString("File_") + fileName + res.getString("Length_1") +
-                      String.valueOf(duration) + res.getString("Position_") +
+        g2.drawString(res.getString("File_") + fileName + "  " + res.getString("Length_1") +
+                      String.valueOf(duration) + "  " + res.getString("Position_") +
                       String.valueOf(seconds), 3, h - 4);
 
         if (audioInputStream != null)
         {
           // .. render sampling graph ..
-          g2.setColor(jfcBlue);
+          g2.setColor(graphColor);
           for (int i = 1; i < lines.size(); i++)
           {
             g2.draw( (Line2D) lines.get(i));
@@ -1136,7 +1138,7 @@ public class AudioRecorder
           if (seconds != 0)
           {
             double loc = seconds / duration * w;
-            g2.setColor(pink);
+            g2.setColor(currentPositionColor);
             g2.setStroke(new BasicStroke(3));
             g2.draw(new Line2D.Double(loc, 0, loc, h - INFOPAD - 2));
           }
