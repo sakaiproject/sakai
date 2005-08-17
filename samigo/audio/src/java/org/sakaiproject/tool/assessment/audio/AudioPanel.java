@@ -75,6 +75,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.util.ResourceBundle;
 import java.util.Locale;
+import javax.swing.Box;
+import java.awt.event.KeyEvent;
 
 
 /**
@@ -144,7 +146,13 @@ public class AudioPanel
    */
   private void configureHelpMenu(JMenuBar menuBar)
   {
+    // Move help menu to right side
+    menuBar.add(Box.createHorizontalGlue());
+
+    // Help Menu, F1, H - Mnemonic
     JMenu options = (JMenu) menuBar.add(new JMenu(res.getString("Help")));
+    options.setMnemonic(KeyEvent.VK_H);
+
     JMenuItem item = (JMenuItem) options.add(new JMenuItem(res.getString("Configuration")));
     item.addActionListener(new ActionListener()
     {
@@ -170,7 +178,10 @@ public class AudioPanel
    */
   private void configureFileMenu(JMenuBar menuBar)
   {
+    // File Menu, F - Mnemonic
     JMenu fileMenu = (JMenu) menuBar.add(new JMenu(res.getString("File")));
+    fileMenu.setMnemonic(KeyEvent.VK_F);
+
     JMenuItem item = (JMenuItem) fileMenu.add(new JMenuItem(res.getString("Exit")));
     item.addActionListener(new ActionListener()
     {
