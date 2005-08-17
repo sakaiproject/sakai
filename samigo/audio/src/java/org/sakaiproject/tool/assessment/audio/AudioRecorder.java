@@ -270,7 +270,7 @@ public class AudioRecorder
         samplingGraph.start();
         captB.setEnabled(false);
         pausB.setEnabled(true);
-        playB.setText(res.getString(" playB_Text"));
+        playB.setText(" " + res.getString("playB_Text"));
       }
       else
       {
@@ -295,7 +295,7 @@ public class AudioRecorder
         auB.setEnabled(false);
         aiffB.setEnabled(false);
         waveB.setEnabled(false);
-        captB.setText(res.getString(" playB_Text"));
+        captB.setText(" " + res.getString("playB_Text"));
       }
       else
       {
@@ -326,7 +326,7 @@ public class AudioRecorder
             playback.line.stop();
           }
         }
-        pausB.setText(res.getString(" pausB_Text"));
+        pausB.setText(" " + res.getString("pausB_Text"));
       }
       else
       {
@@ -1089,7 +1089,7 @@ public class AudioRecorder
       if (errStr != null)
       {
         g2.setColor(jfcBlue);
-        g2.setFont(new Font(res.getString(" g2_Font"), Font.BOLD, 18));
+        g2.setFont(new Font(res.getString("g2_Font"), Font.BOLD, 18));
         g2.drawString(res.getString("ERROR"), 5, 20);
         AttributedString as = new AttributedString(errStr);
         as.addAttribute(TextAttribute.FONT, font12, 0, errStr.length());
