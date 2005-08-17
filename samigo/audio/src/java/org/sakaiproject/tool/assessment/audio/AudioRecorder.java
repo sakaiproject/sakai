@@ -391,6 +391,11 @@ public class AudioRecorder
     }
   }
 
+  public JPanel getFormatControlsPanel()
+  {
+    return formatControls;
+  }
+
   public void createAudioInputStream(File file, boolean updateComponents)
   {
     if (file != null && file.isFile())
@@ -767,8 +772,7 @@ public class AudioRecorder
   /**
    * Controls for the AudioFormat.
    */
-  class FormatControls
-    extends JPanel
+  class FormatControls extends JPanel implements AudioControlContext
   {
 
     Vector groups = new Vector();
@@ -954,6 +958,23 @@ public class AudioRecorder
       {
         sterB.doClick();
       }
+    }
+
+    public void open()
+    {
+    }
+
+    public void close()
+    {
+      if (playback.thread != null)
+      {
+        playB.doClick(0);
+      }
+      if (capture.thread != null)
+      {
+        captB.doClick(0);
+      }
+
     }
   } // End class FormatControls
 

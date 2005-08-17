@@ -92,9 +92,9 @@ public class AudioPanel
   static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
       RESOURCE_NAME, Locale.getDefault());
 
-  Vector demos = new Vector(4);
+  Vector tabPanels = new Vector(4);
   JTabbedPane tabPane = new JTabbedPane();
-  int width = 760, height = 500;
+  int width = 500, height = 500;
   int index;
 
   /**
@@ -195,12 +195,12 @@ public class AudioPanel
 
   public void close()
   {
-    ( (AudioControlContext) demos.get(index)).close();
+    ( (AudioControlContext) tabPanels.get(index)).close();
   }
 
   public void open()
   {
-    ( (AudioControlContext) demos.get(index)).open();
+    ( (AudioControlContext) tabPanels.get(index)).open();
   }
 
   public Dimension getPreferredSize()
@@ -219,9 +219,17 @@ public class AudioPanel
     JPanel p = new JPanel(new BorderLayout());
     p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
     AudioRecorder capturePlayback = new AudioRecorder();
-    demos.add(capturePlayback);
+    tabPanels.add(capturePlayback);
     p.add(capturePlayback);
     tabPane.addTab(res.getString("Audio_Recorder"), p);
+
+    JPanel fp = new JPanel(new BorderLayout());
+    fp.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
+    JPanel format = capturePlayback.getFormatControlsPanel();
+    tabPanels.add(format);
+    fp.add(format);
+    tabPane.addTab(res.getString("Advanced_Settings"), fp);
+//    tabPane.addTab("", fp);
   }
 
   /**
@@ -244,7 +252,7 @@ public class AudioPanel
       }
     }
 
-    final AudioPanel demo = new AudioPanel(media);
+    final AudioPanel tabPanel = new AudioPanel(media);
     JFrame f = new JFrame(res.getString("Audio_Recorder"));
     f.addWindowListener(new WindowAdapter()
     {
@@ -255,19 +263,19 @@ public class AudioPanel
 
       public void windowDeiconified(WindowEvent e)
       {
-        demo.open();
+        tabPanel.open();
       }
 
       public void windowIconified(WindowEvent e)
       {
-        demo.close();
+        tabPanel.close();
       }
     });
-    f.getContentPane().add(res.getString("Center"), demo);
+    f.getContentPane().add(res.getString("Center"), tabPanel);
     f.pack();
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    f.setLocation(d.width / 2 - demo.width / 2, d.height / 2 - demo.height / 2);
-    f.setSize(new Dimension(demo.width, demo.height));
+    f.setLocation(d.width / 2 - tabPanel.width / 2, d.height / 2 - tabPanel.height / 2);
+    f.setSize(new Dimension(tabPanel.width, tabPanel.height));
     f.setVisible(true);
   }
 }
