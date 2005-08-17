@@ -77,6 +77,8 @@ import java.util.ResourceBundle;
 import java.util.Locale;
 import javax.swing.Box;
 import java.awt.event.KeyEvent;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 
 /**
@@ -96,7 +98,7 @@ public class AudioPanel
 
   Vector tabPanels = new Vector(4);
   JTabbedPane tabPane = new JTabbedPane();
-  int width = 500, height = 500;
+  int width = 450, height = 450;
   int index;
 
   /**
@@ -229,14 +231,14 @@ public class AudioPanel
     CompoundBorder cb = new CompoundBorder(eb, bb);
     JPanel p = new JPanel(new BorderLayout());
     p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
-    AudioRecorder capturePlayback = new AudioRecorder();
-    tabPanels.add(capturePlayback);
-    p.add(capturePlayback);
+    AudioRecorder recorder = new AudioRecorder();
+    tabPanels.add(recorder);
+    p.add(recorder);
     tabPane.addTab(res.getString("Audio_Recorder"), p);
 
     JPanel fp = new JPanel(new BorderLayout());
     fp.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
-    JPanel format = capturePlayback.getFormatControlsPanel();
+    JPanel format = recorder.getFormatControlsPanel();
     tabPanels.add(format);
     fp.add(format);
     tabPane.addTab(res.getString("Advanced_Settings"), fp);
