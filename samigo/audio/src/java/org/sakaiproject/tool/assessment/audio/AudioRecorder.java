@@ -60,6 +60,8 @@ import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.Enumeration;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -103,8 +105,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.filechooser.FileFilter;
-import java.util.ResourceBundle;
-import java.util.Locale;
 
 
 /**
