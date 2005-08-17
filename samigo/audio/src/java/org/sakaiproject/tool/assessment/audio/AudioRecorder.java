@@ -105,6 +105,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.border.Border;
 
 
 /**
@@ -149,6 +150,8 @@ public class AudioRecorder
     setLayout(new BorderLayout());
     EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
     SoftBevelBorder sbb = new SoftBevelBorder(SoftBevelBorder.LOWERED);
+    Border b = new CompoundBorder(eb, sbb);
+
     setBorder(new EmptyBorder(5, 5, 5, 5));
 
     JPanel p1 = new JPanel();
@@ -162,10 +165,10 @@ public class AudioRecorder
     JPanel buttonsPanel = makeAudioButtonPanel();
     p2.add(buttonsPanel);
 
-    JPanel samplingPanel = makeAudioSamplingPanel(eb, sbb);
+    JPanel samplingPanel = makeAudioSamplingPanel(b);
     p2.add(samplingPanel);
 
-    JPanel savePanel = new JPanel();
+    JPanel savePanel = makeColorBackgroundPanel();//new JPanel();
     savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
 
     /**
@@ -187,40 +190,58 @@ public class AudioRecorder
 
   private JPanel makeSaveBPanel()
   {
-    JPanel saveBpanel = new JPanel();
+    JPanel saveBpanel = makeColorBackgroundPanel(false);
     auB = addButton(res.getString("Save_AU"), saveBpanel, false);
     aiffB = addButton(res.getString("Save_AIFF"), saveBpanel, false);
     waveB = addButton(res.getString("Save_WAVE"), saveBpanel, false);
+
     return saveBpanel;
   }
 
   private JPanel makeSaveTFPanel()
   {
-    JPanel saveTFpanel = new JPanel();
+    JPanel saveTFpanel = makeColorBackgroundPanel(false);
     saveTFpanel.add(new JLabel(res.getString("File_to_save_")));
     saveTFpanel.add(textField = new JTextField(fileName));
-    textField.setPreferredSize(new Dimension(140, 25));
-    return saveTFpanel;
-  }
+    saveTFpanel.setPreferredSize(new Dimension(140, 25));
 
-  private JPanel makeAudioSamplingPanel(EmptyBorder eb, SoftBevelBorder sbb)
-  {
-    JPanel samplingPanel = new JPanel(new BorderLayout());
-    eb = new EmptyBorder(10, 20, 20, 20);
-    samplingPanel.setBorder(new CompoundBorder(eb, sbb));
-    samplingPanel.add(samplingGraph = new SamplingGraph());
-    return samplingPanel;
+    return saveTFpanel;
   }
 
   private JPanel makeAudioButtonPanel()
   {
-    JPanel buttonsPanel = new JPanel();
-    buttonsPanel.setBorder(new EmptyBorder(10, 0, 5, 0));
+    JPanel buttonsPanel = makeColorBackgroundPanel();
     playB = addButton(res.getString("Play"), buttonsPanel, false);
     captB = addButton(res.getString("Record"), buttonsPanel, true);
     pausB = addButton(res.getString("Pause"), buttonsPanel, false);
     loadB = addButton(res.getString("Load_"), buttonsPanel, true);
+
     return buttonsPanel;
+  }
+
+  private JPanel makeAudioSamplingPanel(Border b)
+  {
+    JPanel samplingPanel = new JPanel(new BorderLayout());
+    samplingPanel.setBorder(b);
+    samplingPanel.add(samplingGraph = new SamplingGraph());
+    return samplingPanel;
+  }
+
+  private JPanel makeColorBackgroundPanel()
+  {
+    return makeColorBackgroundPanel(true);
+  }
+
+  private JPanel makeColorBackgroundPanel(boolean beveled)
+  {
+    JPanel colorBackgroundPanel = new JPanel();
+    if (beveled)
+    {
+      colorBackgroundPanel.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
+
+    }
+    colorBackgroundPanel.setBackground(new Color(0x90,  0xa1, 0xc6));
+    return colorBackgroundPanel;
   }
 
   public void open()
@@ -787,7 +808,7 @@ public class AudioRecorder
       BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
       CompoundBorder cb = new CompoundBorder(eb, bb);
       setBorder(new CompoundBorder(cb, new EmptyBorder(8, 5, 5, 5)));
-      JPanel p1 = new JPanel();
+      JPanel p1 = makeColorBackgroundPanel(); //new JPanel();
       ButtonGroup encodingGroup = new ButtonGroup();
       linrB = addToggleButton(p1, encodingGroup, res.getString("linear"), true);
       ulawB = addToggleButton(p1, encodingGroup, res.getString("ulaw"), false);
@@ -795,8 +816,8 @@ public class AudioRecorder
       add(p1);
       groups.addElement(encodingGroup);
 
-      JPanel p2 = new JPanel();
-      JPanel p2b = new JPanel();
+      JPanel p2 = makeColorBackgroundPanel(); //new JPanel();
+      JPanel p2b = makeColorBackgroundPanel(); //new JPanel();
       ButtonGroup sampleRateGroup = new ButtonGroup();
       rate8B = addToggleButton(p2, sampleRateGroup, "8000", false);
       rate11B = addToggleButton(p2, sampleRateGroup, "11025", false);
@@ -807,28 +828,28 @@ public class AudioRecorder
       add(p2b);
       groups.addElement(sampleRateGroup);
 
-      JPanel p3 = new JPanel();
+      JPanel p3 = makeColorBackgroundPanel(); //new JPanel();
       ButtonGroup sampleSizeInBitsGroup = new ButtonGroup();
       size8B = addToggleButton(p3, sampleSizeInBitsGroup, "8", false);
       size16B = addToggleButton(p3, sampleSizeInBitsGroup, "16", true);
       add(p3);
       groups.addElement(sampleSizeInBitsGroup);
 
-      JPanel p4 = new JPanel();
+      JPanel p4 = makeColorBackgroundPanel(); //new JPanel();
       ButtonGroup signGroup = new ButtonGroup();
       signB = addToggleButton(p4, signGroup, res.getString("signed"), true);
       unsignB = addToggleButton(p4, signGroup, res.getString("unsigned"), false);
       add(p4);
       groups.addElement(signGroup);
 
-      JPanel p5 = new JPanel();
+      JPanel p5 = makeColorBackgroundPanel(); //new JPanel();
       ButtonGroup endianGroup = new ButtonGroup();
       litB = addToggleButton(p5, endianGroup, res.getString("little_endian"), false);
       bigB = addToggleButton(p5, endianGroup, res.getString("big_endian"), true);
       add(p5);
       groups.addElement(endianGroup);
 
-      JPanel p6 = new JPanel();
+      JPanel p6 = makeColorBackgroundPanel(); //new JPanel();
       ButtonGroup channelsGroup = new ButtonGroup();
       monoB = addToggleButton(p6, channelsGroup, res.getString("mono"), false);
       sterB = addToggleButton(p6, channelsGroup, res.getString("stereo"), true);
