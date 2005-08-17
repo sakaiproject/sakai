@@ -808,7 +808,7 @@ public class AudioRecorder
       BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
       CompoundBorder cb = new CompoundBorder(eb, bb);
       setBorder(new CompoundBorder(cb, new EmptyBorder(8, 5, 5, 5)));
-      JPanel p1 = makeColorBackgroundPanel(); //new JPanel();
+      JPanel p1 = makeColorBackgroundPanel(false);
       ButtonGroup encodingGroup = new ButtonGroup();
       linrB = addToggleButton(p1, encodingGroup, res.getString("linear"), true);
       ulawB = addToggleButton(p1, encodingGroup, res.getString("ulaw"), false);
@@ -816,8 +816,8 @@ public class AudioRecorder
       add(p1);
       groups.addElement(encodingGroup);
 
-      JPanel p2 = makeColorBackgroundPanel(); //new JPanel();
-      JPanel p2b = makeColorBackgroundPanel(); //new JPanel();
+      JPanel p2 = makeColorBackgroundPanel(false);
+      JPanel p2b = makeColorBackgroundPanel(false);
       ButtonGroup sampleRateGroup = new ButtonGroup();
       rate8B = addToggleButton(p2, sampleRateGroup, "8000", false);
       rate11B = addToggleButton(p2, sampleRateGroup, "11025", false);
@@ -828,28 +828,28 @@ public class AudioRecorder
       add(p2b);
       groups.addElement(sampleRateGroup);
 
-      JPanel p3 = makeColorBackgroundPanel(); //new JPanel();
+      JPanel p3 = makeColorBackgroundPanel(false);
       ButtonGroup sampleSizeInBitsGroup = new ButtonGroup();
       size8B = addToggleButton(p3, sampleSizeInBitsGroup, "8", false);
       size16B = addToggleButton(p3, sampleSizeInBitsGroup, "16", true);
       add(p3);
       groups.addElement(sampleSizeInBitsGroup);
 
-      JPanel p4 = makeColorBackgroundPanel(); //new JPanel();
+      JPanel p4 = makeColorBackgroundPanel(false);
       ButtonGroup signGroup = new ButtonGroup();
       signB = addToggleButton(p4, signGroup, res.getString("signed"), true);
       unsignB = addToggleButton(p4, signGroup, res.getString("unsigned"), false);
       add(p4);
       groups.addElement(signGroup);
 
-      JPanel p5 = makeColorBackgroundPanel(); //new JPanel();
+      JPanel p5 = makeColorBackgroundPanel(false);
       ButtonGroup endianGroup = new ButtonGroup();
       litB = addToggleButton(p5, endianGroup, res.getString("little_endian"), false);
       bigB = addToggleButton(p5, endianGroup, res.getString("big_endian"), true);
       add(p5);
       groups.addElement(endianGroup);
 
-      JPanel p6 = makeColorBackgroundPanel(); //new JPanel();
+      JPanel p6 = makeColorBackgroundPanel(false);
       ButtonGroup channelsGroup = new ButtonGroup();
       monoB = addToggleButton(p6, channelsGroup, res.getString("mono"), false);
       sterB = addToggleButton(p6, channelsGroup, res.getString("stereo"), true);
