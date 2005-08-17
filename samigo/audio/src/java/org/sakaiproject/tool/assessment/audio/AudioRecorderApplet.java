@@ -52,17 +52,15 @@
 
 package org.sakaiproject.tool.assessment.audio;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Toolkit;
-import javax.swing.JApplet;
-import javax.swing.JFrame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Locale;
+import javax.swing.JApplet;
+import javax.swing.JFrame;
 
 public class AudioRecorderApplet
   extends JApplet
@@ -148,10 +146,8 @@ public class AudioRecorderApplet
     f.getContentPane().add(res.getString("Center"), applet);
     f.pack();
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-//	int w = 720;
-//	int h = 340;
-    int w = 760;
-    int h = 500;
+    int w = 450;
+    int h = 450;
     f.setLocation(screenSize.width / 2 - w / 2, screenSize.height / 2 - h / 2);
     applet.init();
     applet.start();
