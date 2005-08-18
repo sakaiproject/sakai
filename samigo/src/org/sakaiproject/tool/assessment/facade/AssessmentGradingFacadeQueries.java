@@ -225,8 +225,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     try {
       HashMap map = new HashMap();
       AssessmentGradingData gdata = load(new Long(assessmentGradingId));
-      log.debug("****#6, gdata="+gdata); 
-      log.debug("****#7, item size="+gdata.getItemGradingSet().size()); 
+      log.debug("****#6, gdata="+gdata);
+      log.debug("****#7, item size="+gdata.getItemGradingSet().size());
       Iterator iter = gdata.getItemGradingSet().iterator();
       while (iter.hasNext())
       {
@@ -598,11 +598,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     Iterator iter = size.iterator();
     if (iter.hasNext()){
       int i = ((Integer)iter.next()).intValue();
-      //System.out.println("** Submission size = "+i);
       return i;
     }
     else{
-	//System.out.println("** no submission");
       return 0;
     }
   }
@@ -614,7 +612,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     Iterator iter = list.iterator();
     while (iter.hasNext()){
       PublishedAssessmentData o = (PublishedAssessmentData)iter.next();
-      //System.out.println("** assessment grading ="+o.getPublishedAssessmentId()+":"+o.getSubmissionSize());
       h.put(o.getPublishedAssessmentId(), new Integer(o.getSubmissionSize()));
     }
     return h;
@@ -745,7 +742,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     byte[] b = new byte[4000];
     Session session = null;
     try{
-      session = getSessionFactory().openSession(); 
+      session = getSessionFactory().openSession();
       Connection conn = session.connection();
       log.debug("****Connection="+conn);
       String query="select MEDIA from SAM_MEDIA_T where MEDIAID=?";

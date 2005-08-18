@@ -62,7 +62,6 @@ public class AgentFacade implements Serializable {
   public static String getAgentString(){
     String agentS = "admin";
     BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-    //System.out.println("Bean = " + bean.getProp1());
     if (bean != null && !bean.getProp1().equals("prop1"))
       agentS = bean.getProp1();
     return agentS;
@@ -72,7 +71,6 @@ public class AgentFacade implements Serializable {
     String agentS = "admin";
     BackingBean bean = (BackingBean) ContextUtil.lookupBeanFromExternalServlet(
         "backingbean", req, res);
-    //System.out.println("Bean = " + bean.getProp1());
     if (bean != null && !bean.getProp1().equals("prop1"))
       agentS = bean.getProp1();
     return agentS;
@@ -166,7 +164,6 @@ public class AgentFacade implements Serializable {
   public static String getAnonymousId(){
     String agentS = "";
     BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-    //System.out.println("Bean = " + bean.getProp1());
     if (bean != null && !bean.getProp1().equals("prop1"))
       agentS = bean.getProp1();
     return agentS;

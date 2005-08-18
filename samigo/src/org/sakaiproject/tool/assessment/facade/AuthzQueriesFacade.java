@@ -82,7 +82,7 @@ public class AuthzQueriesFacade
   public List getAuthorizationByAgentAndFunction(String agentId, String functionId) {
     String query = "select a from AuthorizationData a where a.agentIdString='"+ agentId +
         "' and a.functionId='"+functionId+"'";
-    System.out.println("query="+query);
+    log.debug("query="+query);
     return getHibernateTemplate().find(query);
   }
 

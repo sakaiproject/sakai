@@ -112,42 +112,32 @@ public class AssessmentFacadeQueries
     if (args[0].equals("addTemplate")) {
       Long assessmentTemplateId = instance.addTemplate();
       AssessmentTemplateData a = instance.loadTemplate(assessmentTemplateId);
-      //System.out.println("**print AssessmentTemplate");
       print(a);
-      //System.out.println("**print AssessmentTemplateFacade");
       AssessmentTemplateFacade af = new AssessmentTemplateFacade(a);
       printFacade(af);
     }
     if (args[0].equals("removeT")) {
       instance.removeTemplate(new Long(args[1]));
-      //System.out.println("**deletedId #");
     }
     if (args[0].equals("addA")) {
       Long assessmentId = instance.addAssessment(new Long(args[1]));
       AssessmentData a = instance.loadAssessment(assessmentId);
-      //System.out.println("**print Assessment");
       print(a);
     }
     if (args[0].equals("loadT")) {
       AssessmentTemplateData a = (AssessmentTemplateData) instance.load(new
           Long(args[1]));
-      //System.out.println("**print Assessment Template");
       print(a);
     }
     if (args[0].equals("loadA")) {
       AssessmentData a = (AssessmentData) instance.load(new Long(args[1]));
-      //System.out.println("**print Assessment");
       print(a);
     }
     System.exit(0);
   }
 
   public static void print(AssessmentBaseData a) {
-    //System.out.println("**assessmentId #" + a.getAssessmentBaseId());
-    //System.out.println("**assessment is template? " + a.getIsTemplate());
     if (a.getIsTemplate().equals(Boolean.FALSE)) {
-	//System.out.println("**assessmentTemplateId #" +
-        //                 ( (AssessmentData) a).getAssessmentTemplateId());
     }
     /*
     System.out.println("**assessment due date: " +
@@ -691,11 +681,9 @@ public class AssessmentFacadeQueries
     Iterator iter = size.iterator();
     if (iter.hasNext()) {
       int i = ( (Integer) iter.next()).intValue();
-      //System.out.println("** Question size = " + i);
       return i;
     }
     else {
-	//System.out.println("** no questions");
       return 0;
     }
   }
@@ -726,10 +714,10 @@ public class AssessmentFacadeQueries
         "from AssessmentMetaData a where a.assessment.assessmentBaseId = ?",
         new Object[] {template.getAssessmentTemplateId()}
         , new net.sf.hibernate.type.Type[] {Hibernate.LONG});
-    System.out.println("Rachel: metadata size = " + metadatas.size());
+    log.debug("Rachel: metadata size = " + metadatas.size());
     Iterator iter = metadatas.iterator();
     while (iter.hasNext()) {
-      System.out.println("Deleting metadata");
+      log.debug("Deleting metadata");
       getHibernateTemplate().delete( (AssessmentMetaData) iter.next());
     }
     getHibernateTemplate().saveOrUpdate(template);
@@ -876,7 +864,6 @@ public class AssessmentFacadeQueries
     }
     // need to reload the section again.
     section= loadSection(sourceSectionId);
-   System.out.println("Lydiatest section .getItemset().size " + section.getItemSet().size());
     //section.setItemSet(newItemSet);
     //getHibernateTemplate().update(section);
   }

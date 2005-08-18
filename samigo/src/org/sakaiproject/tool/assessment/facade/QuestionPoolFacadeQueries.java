@@ -88,14 +88,11 @@ public class QuestionPoolFacadeQueries
 
     // #1.
     List poolList = getAllPools(); // we initiate it when application restart already
-    //System.out.println("*** total pool in the DB =" + poolList.size());
     // #2. get all the QuestionPoolAccessData record belonging to the agent
     List questionPoolAccessList = getHibernateTemplate().find(
         "from QuestionPoolAccessData as qpa where qpa.agentId=?",
         new Object[] {agentId}
         , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
-    //System.out.println("*** all existing questionPoolAccess" +
-    //                   questionPoolAccessList.size());
     HashMap h = new HashMap(); // prepare a hashMap with (poolId, qpa)
     Iterator i = questionPoolAccessList.iterator();
     while (i.hasNext()) {
@@ -133,7 +130,6 @@ public class QuestionPoolFacadeQueries
     catch (Exception e) {
       log.warn(e.getMessage());
     }
-    //System.out.println("*****final pool size is =" + qpList.size());
     return new QuestionPoolIteratorFacade(qpList);
   }
 
@@ -174,21 +170,21 @@ public class QuestionPoolFacadeQueries
 
   public List getAllItemFacadesOrderByItemText(Long questionPoolId,
                                                String orderBy) {
-    List list = getHibernateTemplate().find("select ab from ItemData as ab, QuestionPoolItemData as qpi  WHERE ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab." + 
+    List list = getHibernateTemplate().find("select ab from ItemData as ab, QuestionPoolItemData as qpi  WHERE ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab." +
                                             orderBy,
                                             new Object[] {questionPoolId},
                                             new net.sf.hibernate.type.Type[] {Hibernate.
                                             LONG});
-    
+
     ArrayList itemList = new ArrayList();
-   
+
     for (int i = 0; i < list.size(); i++) {
        ItemData itemdata = (ItemData) list.get(i);
        ItemFacade f = new ItemFacade(itemdata);
-       itemList.add(f);	
+       itemList.add(f);
     }
-    return itemList; 
-  
+    return itemList;
+
   }
 
   public List getAllItemFacadesOrderByItemType(Long questionPoolId,
@@ -228,14 +224,10 @@ public class QuestionPoolFacadeQueries
   private void populateQuestionPoolItemDatas(QuestionPoolData qpp) {
     try {
       Set questionPoolItems = qpp.getQuestionPoolItems();
-      //System.out.println("**** 1. question size in pool according to pool = " +
-      //                   questionPoolItems.size());
       if (questionPoolItems != null) {
         // let's get all the items for the specified pool in one shot
         HashMap h = new HashMap();
         List itemList = getAllItems(qpp.getQuestionPoolId());
-        //System.out.println("**** 2. total questions in pool direct from DB = " +
-        //                   itemList.size());
 
         Iterator j = itemList.iterator();
         while (j.hasNext()) {
@@ -251,17 +243,11 @@ public class QuestionPoolFacadeQueries
           Iterator k = itemTextSet.iterator();
           while (k.hasNext()) {
             ItemText itemText = (ItemText) k.next();
-            //System.out.println("**** 4.question text = " + itemText.getText());
           }
           itemArrayList.add(itemData_0);
         }
         qpp.setQuestions(itemArrayList);
         qpp.setSubPoolSize(new Integer(getSubPoolSize(qpp.getQuestionPoolId())));
-        //System.out.println("****** questionpool id = " + qpp.getQuestionPoolId());
-        //System.out.println("****** questionpool question size = " +
-        //                   qpp.getQuestionSize());
-        //System.out.println("****** questionpool subpool size = " +
-        //                   qpp.getSubPoolSize());
       }
     }
     catch (Exception e) {
@@ -644,8 +630,6 @@ public class QuestionPoolFacadeQueries
 
         // Get the old questionpool Questions
         Collection questions = oldPool.getQuestions();
-        //System.out.println("****** old pool Id = " + oldPool.getQuestionPoolId());
-        //System.out.println("****** old pool question size = " + questions.size());
         Iterator iter = questions.iterator();
 
         // For each question ,
@@ -700,13 +684,9 @@ public class QuestionPoolFacadeQueries
         // For each question ,
         while (iter.hasNext()) {
           QuestionPoolItemData item = (QuestionPoolItemData) iter.next();
-          //System.out.println("**** plus one question here, id = " +
-          //                   item.getItemId());
           getHibernateTemplate().save(new QuestionPoolItemData(newPool.
               getQuestionPoolId(), item.getItemId()));
         }
-        //System.out.println("**** no. of question in the new pool" +
-        //                   newPool.getQuestionPoolItems().size());
 
         // Get the SubPools of oldPool
         Iterator citer = (tree.getChildList(sourceId))

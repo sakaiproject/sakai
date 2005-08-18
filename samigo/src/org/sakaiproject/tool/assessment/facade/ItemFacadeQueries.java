@@ -64,13 +64,13 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     // add an item
     if (args[0].equals("add")) {
       Long itemId = instance.add();
-      //System.out.println("**Item #" + itemId);
+      //log.debug("**Item #" + itemId);
       instance.show(itemId);
     }
     if (args[0].equals("f_add")) {
       Long itemId = new Long(-1);
       itemId = instance.facadeAdd();
-      //System.out.println("**Item #" + itemId);
+      //log.debug("**Item #" + itemId);
       instance.ifcShow(itemId);
     }
     if (args[0].equals("show")) {
@@ -90,7 +90,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       List items = instance.list();
       for (int i = 0; i < items.size(); i++) {
         ItemData item = (ItemData) items.get(i);
-        //System.out.println("Item #" + item.getItemId() + " has rationale= " +
+        //log.debug("Item #" + item.getItemId() + " has rationale= " +
         //                   item.getHasRationale());
       }
     }
@@ -98,7 +98,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       List items = instance.getQPItems(new Long(args[1])); // poolId
       for (int i = 0; i < items.size(); i++) {
         ItemData item = (ItemData) items.get(i);
-        //System.out.println("Item #" + item.getItemId() + " has rationale= " +
+        //log.debug("Item #" + item.getItemId() + " has rationale= " +
         //                   item.getHasRationale());
       }
     }
@@ -156,7 +156,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   public void listType() {
     TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().getTypeFacadeQueries();
     TypeFacade f = typeFacadeQueries.getTypeFacadeById(new Long(1));
-    //System.out.println("***facade: "+f.getAuthority());
+    //log.debug("***facade: "+f.getAuthority());
   }
 
 // DELETEME
@@ -185,7 +185,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
 
   public void deleteItemContent(Long itemId, String agent) {
-      //System.out.println("deleteing itemtext set for an item " + itemId);
       ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
       if (item != null) {
         printItem(item);
@@ -279,12 +278,12 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
   private void printItem(ItemData item) {
-    System.out.println("**Id = " + item.getItemId());
-    System.out.println("**score = " + item.getScore());
-    System.out.println("**grade = " + item.getGrade());
-    System.out.println("**CorrectFeedback is lazy = " +
+    log.debug("**Id = " + item.getItemId());
+    log.debug("**score = " + item.getScore());
+    log.debug("**grade = " + item.getGrade());
+    log.debug("**CorrectFeedback is lazy = " +
                        item.getCorrectItemFeedback());
-    System.out.println("**Objective not lazy = " +
+    log.debug("**Objective not lazy = " +
                        item.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
   }
 
@@ -345,29 +344,29 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
 
   private void printIfcItem(ItemDataIfc item) {
-    System.out.println("**Id = " + item.getItemId());
-    System.out.println("**score = " + item.getScore());
-    System.out.println("**grade = " + item.getGrade());
-    System.out.println("**CorrectFeedback is lazy = " +
+    log.debug("**Id = " + item.getItemId());
+    log.debug("**score = " + item.getScore());
+    log.debug("**grade = " + item.getGrade());
+    log.debug("**CorrectFeedback is lazy = " +
                        item.getCorrectItemFeedback());
-    System.out.println("**Objective not lazy = " +
+    log.debug("**Objective not lazy = " +
                        item.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
-    System.out.println("**createdDate = " +
+    log.debug("**createdDate = " +
                        item.getCreatedDate());
   }
 
   private void printFacadeItem(ItemDataIfc item) {
     ItemFacade f = new ItemFacade(item);
-    System.out.println("****Id = " + f.getItemId());
-    System.out.println("****score = " + f.getScore());
-    System.out.println("****grade = " + f.getGrade());
-    System.out.println("****CorrectFeedback is lazy = " +
+    log.debug("****Id = " + f.getItemId());
+    log.debug("****score = " + f.getScore());
+    log.debug("****grade = " + f.getGrade());
+    log.debug("****CorrectFeedback is lazy = " +
                        f.getCorrectItemFeedback());
-    System.out.println("****Objective not lazy = " +
+    log.debug("****Objective not lazy = " +
                        f.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
-    System.out.println("****createdDate = " +
+    log.debug("****createdDate = " +
                        f.getCreatedDate());
-    System.out.println("****ItemType = " +
+    log.debug("****ItemType = " +
                        f.getItemType().getKeyword());
   }
 
@@ -432,7 +431,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       itemfacadeMap.put(f.getItemIdString(),f);
     }
 
-    System.out.println("Search for keyword, found: " + itemfacadeMap.size());
+    log.debug("Search for keyword, found: " + itemfacadeMap.size());
     return itemfacadeMap;
 
   }

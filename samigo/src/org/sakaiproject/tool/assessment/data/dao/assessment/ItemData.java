@@ -110,23 +110,23 @@ public class ItemData
   }
 
   public Object clone() throws CloneNotSupportedException{
-        
+
     ItemData cloned= new ItemData(
-        this.getSection(),this.getSequence(), this.getDuration(), this.getInstruction(), 
+        this.getSection(),this.getSequence(), this.getDuration(), this.getInstruction(),
 	this.getDescription(),this.getTypeId(),this.getGrade(),this.getScore(),
 	this.getHint(),this.getHasRationale(),this.getStatus(),this.getCreatedBy(),
 	this.getCreatedDate(),this.getLastModifiedBy(),this.getLastModifiedDate(),
         null, null, null, this.getTriesAllowed());
 
-    // perform deep copy, set ItemTextSet, itemMetaDataSet and itemFeedbackSet 
+    // perform deep copy, set ItemTextSet, itemMetaDataSet and itemFeedbackSet
     Set newItemTextSet = copyItemTextSet(cloned, this.getItemTextSet());
     Set newItemMetaDataSet = copyItemMetaDataSet(cloned, this.getItemMetaDataSet());
-    Set newItemFeedbackSet = copyItemFeedbackSet(cloned, this.getItemFeedbackSet()); 
+    Set newItemFeedbackSet = copyItemFeedbackSet(cloned, this.getItemFeedbackSet());
     cloned.setItemTextSet(newItemTextSet);
     cloned.setItemMetaDataSet(newItemMetaDataSet);
     cloned.setItemFeedbackSet(newItemFeedbackSet);
 
-    return (Object)cloned; 
+    return (Object)cloned;
   }
 
 
@@ -136,7 +136,6 @@ public class ItemData
     Iterator k = itemTextSet.iterator();
     while (k.hasNext()) {
       ItemText itemText = (ItemText) k.next();
-      //System.out.println("**item text id =" + itemText.getId());
       ItemText newItemText = new ItemText(cloned, itemText.getSequence(), itemText.getText(), null);
       Set newAnswerSet = copyAnswerSet(newItemText, itemText.getAnswerSet());
       newItemText.setAnswerSet(newAnswerSet);
@@ -201,7 +200,7 @@ public class ItemData
 
 
 
- 
+
 
   public Long getItemId() {
     return this.itemId;
@@ -455,7 +454,6 @@ public class ItemData
   }
 
   public String getItemFeedback(String typeId) {
-    // System.out.println("**trying to get feeback = "+typeId);
     if (this.itemFeedbackMap == null)
       this.itemFeedbackMap = getItemFeedbackMap(this.itemFeedbackSet);
     return (String)this.itemFeedbackMap.get(typeId);
@@ -601,7 +599,7 @@ public class ItemData
        if ((Boolean.TRUE).equals(a.getIsCorrect())){
          String pair = (String)h.get(a.getLabel());
            if(!this.getTypeId().equals(TypeD.MATCHING))
-	       {  
+	       {
                    if(this.getTypeId().equals(TypeD.TRUE_FALSE))
 		       {
 			   answerKey=a.getText();
@@ -609,7 +607,7 @@ public class ItemData
                    else
 		       {
 			   if(("").equals(answerKey))
-			       { 
+			       {
 				   answerKey=a.getLabel();
 			       }
 			   else
@@ -620,7 +618,7 @@ public class ItemData
 	       }
 
            else{
-		  
+
 	       if (pair==null)
 		   {
 		       String s = a.getLabel() + ":" + text.getSequence();
@@ -648,13 +646,13 @@ public class ItemData
 		   if (k!=0)
 		       answerKey = answerKey+",  "+pair;
 		   else
-     
+
 		       answerKey = pair;
 	       }
        }
-  
 
- 
+
+
    return answerKey;
 
 

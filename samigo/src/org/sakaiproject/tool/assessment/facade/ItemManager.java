@@ -30,8 +30,11 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class ItemManager {
+  private static Log log = LogFactory.getLog(ItemManager.class);
 
   public ItemManager() {
   }
@@ -64,7 +67,7 @@ public class ItemManager {
       // prepare feedback
       item.setCorrectItemFeedback("well done!");
       item.setInCorrectItemFeedback("better luck next time!");
-      System.out.println("****item in ItemManager ="+item);
+      log.debug("****item in ItemManager ="+item);
       return item;
   }
 
@@ -128,41 +131,41 @@ public class ItemManager {
   }
 
   private void printItem(ItemData item) {
-    System.out.println("**Id = " + item.getItemId());
-    System.out.println("**score = " + item.getScore());
-    System.out.println("**grade = " + item.getGrade());
-    System.out.println("**CorrectFeedback is lazy = " +
+    log.debug("**Id = " + item.getItemId());
+    log.debug("**score = " + item.getScore());
+    log.debug("**grade = " + item.getGrade());
+    log.debug("**CorrectFeedback is lazy = " +
                        item.getCorrectItemFeedback());
-    System.out.println("**Objective not lazy = " +
+    log.debug("**Objective not lazy = " +
                        item.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
   }
 
 
 
   private void printIfcItem(ItemDataIfc item) {
-    System.out.println("**Id = " + item.getItemId());
-    System.out.println("**score = " + item.getScore());
-    System.out.println("**grade = " + item.getGrade());
-    System.out.println("**CorrectFeedback is lazy = " +
+    log.debug("**Id = " + item.getItemId());
+    log.debug("**score = " + item.getScore());
+    log.debug("**grade = " + item.getGrade());
+    log.debug("**CorrectFeedback is lazy = " +
                        item.getCorrectItemFeedback());
-    System.out.println("**Objective not lazy = " +
+    log.debug("**Objective not lazy = " +
                        item.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
-    System.out.println("**createdDate = " +
+    log.debug("**createdDate = " +
                        item.getCreatedDate());
   }
 
   private void printFacadeItem(ItemDataIfc item) {
     ItemFacade f = new ItemFacade(item);
-    System.out.println("****Id = " + f.getItemId());
-    System.out.println("****score = " + f.getScore());
-    System.out.println("****grade = " + f.getGrade());
-    System.out.println("****CorrectFeedback is lazy = " +
+    log.debug("****Id = " + f.getItemId());
+    log.debug("****score = " + f.getScore());
+    log.debug("****grade = " + f.getGrade());
+    log.debug("****CorrectFeedback is lazy = " +
                        f.getCorrectItemFeedback());
-    System.out.println("****Objective not lazy = " +
+    log.debug("****Objective not lazy = " +
                        f.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
-    System.out.println("****createdDate = " +
+    log.debug("****createdDate = " +
                        f.getCreatedDate());
-    System.out.println("****ItemType = " +
+    log.debug("****ItemType = " +
                        f.getItemType().getKeyword());
   }
 

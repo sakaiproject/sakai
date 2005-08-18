@@ -757,7 +757,6 @@ public class AssessmentBaseFacade
   public void addAssessmentMetaData(String label, String entry) {
     this.assessmentMetaDataMap = getAssessmentMetaDataMap();
     if (this.assessmentMetaDataMap.get(label)!=null){
-      //System.out.println("** updating ="+label+":"+entry);
       // just update
       Iterator iter = this.assessmentMetaDataSet.iterator();
       while (iter.hasNext()){
@@ -767,7 +766,6 @@ public class AssessmentBaseFacade
       }
     }
     else{ // add
-      //System.out.println("** adding ="+label+":"+entry);
       AssessmentMetaData metadata = null;
       if (entry!=null && !("").equals(entry)){
         metadata = new AssessmentMetaData(this.data, label, entry);
