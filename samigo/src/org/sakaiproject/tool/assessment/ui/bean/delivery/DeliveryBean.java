@@ -1297,6 +1297,20 @@ public class DeliveryBean
    }
   }
 
+  public String pvalidate() {
+   try {
+      if (getNavigation().equals
+	  (AssessmentAccessControl.RANDOM_ACCESS.toString()))
+        return "tableOfContents";
+      else
+        return "takeAssessment";
+   
+   } catch (Exception e) {
+     e.printStackTrace();
+     return "accessError";
+   }
+  }
+
   // Skipped paging methods
   public int getPartIndex()
   {
