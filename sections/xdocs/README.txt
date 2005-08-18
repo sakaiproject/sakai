@@ -30,7 +30,9 @@ Sakai Sections Tool -- Building and Deploying
 		/sections-app/project.properties.  Include the trailing slash.
 		
 		4.  Run "maven -Dstandalone=true cln bld" to clean and build the app.
-		This will also copy the war file into your tomcat webapps directory.
+		This will also copy the war file into your tomcat webapps directory.  If
+		you are using -Dmem=false (see below), make sure you include that when
+		running your build:  "maven -Dstandalone=true -Dmem=false cln bld".
 		
 	Other Settings
 		Each time the sections tool is built, it runs a suite of tests to ensure
