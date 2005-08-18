@@ -24,24 +24,35 @@
 
 package org.sakaiproject.tool.section.jsf.backingbean;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 
-public class StudentViewBean extends CourseDependentBean {
+public class StudentViewBean extends CourseDependentBean implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private static final Log log = LogFactory.getLog(StudentViewBean.class);
+	
 	private String sortColumn;
 	private boolean sortAscending;
 	
 	private List sections;
 	
 	public void init() {
-		Set sectionSet = getSections(getSiteContext());
+		Set sectionSet = getAllSiteSections();
+		
+		log.error("@@@@@@@@@@@@@@@@@ SectionSet = " + sectionSet);
+
 		sections = new ArrayList();
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
@@ -60,6 +71,8 @@ public class StudentViewBean extends CourseDependentBean {
 					section, catName, taNames.toString(), totalEnrollments);
 			sections.add(decoratedSection);
 		}
+		
+		log.error("############## Sections = " + sections);
 		
 		// TODO Sort the collection set properly
 		Collections.sort(sections);

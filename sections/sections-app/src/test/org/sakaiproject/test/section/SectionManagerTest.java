@@ -43,7 +43,6 @@ import org.sakaiproject.api.section.facade.manager.Context;
 import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.test.section.manager.UserManager;
-import org.sakaiproject.tool.section.CourseSectionImpl;
 import org.sakaiproject.tool.section.facade.impl.standalone.AuthnTestImpl;
 import org.sakaiproject.tool.section.manager.SectionManager;
 

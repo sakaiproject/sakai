@@ -64,6 +64,12 @@ public class CourseSectionDecorator {
 	public Course getCourse() {
 		return section.getCourse();
 	}
+	public String getLocation() {
+		return section.getLocation();
+	}
+	public int getMaxEnrollments() {
+		return section.getMaxEnrollments();
+	}
 	
 }
 

@@ -55,11 +55,11 @@ public class CourseDependentBean extends InitializableBean {
 		return getSectionManager().getTeachingAssistants(sectionUuid);
 	}
 	protected SectionManager getSectionManager() {
-		return getCourseBean().sectionManager;
+		return getCourseBean().getSectionManager();
 	}
 	
 	protected SectionAwareness getSectionAwareness() {
-		return getCourseBean().sectionManager.getSectionAwareness();
+		return getCourseBean().getSectionAwareness();
 	}
 
 	protected String getUserUuid() {
@@ -74,7 +74,8 @@ public class CourseDependentBean extends InitializableBean {
 		return getCourseBean().sectionManager.getCourse(siteContext);
 	}
 	
-	protected Set getSections(String siteContext) {
+	protected Set getAllSiteSections() {
+		String siteContext = getSiteContext();
 		return getCourseBean().sectionManager.getSectionAwareness().getSections(siteContext);
 	}
 	

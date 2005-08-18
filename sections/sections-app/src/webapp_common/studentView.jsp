@@ -1,6 +1,8 @@
 <f:view>
 <h:form id="studentViewForm">
 
+    <sakai:flowState bean="#{studentViewBean}"/>
+    
     <x:dataTable cellpadding="0" cellspacing="0"
         id="studentViewSectionsTable"
         value="#{studentViewBean.sections}"

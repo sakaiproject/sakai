@@ -3,9 +3,17 @@
 <faces-config>
 	<navigation-rule>
 		<from-view-id>*</from-view-id>
-		<navigation-case>
-			<from-outcome>sample</from-outcome>
-			<to-view-id>/sample.jsp</to-view-id>
-		</navigation-case>
+        <navigation-case>
+            <from-outcome>sample</from-outcome>
+            <to-view-id>/sample.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>studentView</from-outcome>
+            <to-view-id>/studentView.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>listDemo</from-outcome>
+            <to-view-id>/listDemo.jsp</to-view-id>
+        </navigation-case>
 	</navigation-rule>
 </faces-config>

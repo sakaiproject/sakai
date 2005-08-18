@@ -41,6 +41,14 @@
 			</h:column>
 		</h:dataTable>
 	</p>
+    
+    <p>
+        <h:commandLink action="studentView" value="Student View"/>
+    </p>
+
+    <p>
+        <h:commandLink action="listDemo" value="Bulk-Move Users (Demo)"/>
+    </p>
 	
 </h:form>
 </f:view>
