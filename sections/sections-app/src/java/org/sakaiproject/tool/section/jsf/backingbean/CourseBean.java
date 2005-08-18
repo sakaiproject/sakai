@@ -24,13 +24,18 @@
 
 package org.sakaiproject.tool.section.jsf.backingbean;
 
+import java.io.Serializable;
+
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Context;
 import org.sakaiproject.tool.section.manager.SectionManager;
 
-public class CourseBean {
+public class CourseBean implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	private String courseUuid;
 
 	protected SectionManager sectionManager;

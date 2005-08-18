@@ -192,7 +192,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		secMgr.dropSectionMembership(student1.getUserUuid(), sec2.getUuid());
 		List sec2Members = secAware.getSectionMembers(sec2.getUuid());
 		Assert.assertTrue( ! sec2Members.contains(sectionEnrollment1));
-		
+				
 		// Check whether the total enrollments in the course and in the sections is accurate
 		Assert.assertTrue(secMgr.getTotalEnrollments(course.getUuid()) == 3);
 		Assert.assertTrue(secMgr.getTotalEnrollments(sec1.getUuid()) == 2);
@@ -206,6 +206,16 @@ public class SectionManagerTest extends SectionsTestBase{
 		secMgr.disbandSection(sec4.getUuid());
 		Assert.assertTrue( ! secAware.getSections(siteContext).contains(sec4));
 		
+		
+		// Assert that the correct enrollment records are returned for a student in a course
+		ParticipationRecord enrollment1 = secMgr.addSectionMembership(student1.getUserUuid(), RoleImpl.STUDENT, sec1.getUuid());
+		ParticipationRecord enrollment2 = secMgr.addSectionMembership(student1.getUserUuid(), RoleImpl.STUDENT, sec3.getUuid());
+		Set myEnrollments = secMgr.getSectionEnrollments(student1.getUserUuid(), course.getUuid());
+		
+		Assert.assertTrue(myEnrollments.contains(enrollment1));
+		Assert.assertTrue(myEnrollments.contains(enrollment2));
+		Assert.assertTrue(myEnrollments.size() == 2);
+
 		// Change the self reg and self switching flags
 		secMgr.setSelfRegistrationAllowed(course.getUuid(), true);
 		Assert.assertTrue(secMgr.isSelfRegistrationAllowed(course.getUuid()));

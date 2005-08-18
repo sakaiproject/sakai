@@ -63,7 +63,8 @@
 		class="org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource">
 		<property name="properties">
 			<props>
-	            <prop key="join*">PROPAGATION_REQUIRED</prop>
+                <prop key="join*">PROPAGATION_REQUIRED</prop>
+                <prop key="switch*">PROPAGATION_REQUIRED</prop>
 	            <prop key="drop*">PROPAGATION_REQUIRED</prop>
 				<prop key="add*">PROPAGATION_REQUIRED</prop>
 				<prop key="create*">PROPAGATION_REQUIRED</prop>

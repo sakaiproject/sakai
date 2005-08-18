@@ -42,6 +42,10 @@ public class CourseSectionDecorator {
 		this.section = section;
 		this.categoryForDisplay = categoryForDisplay;
 	}
+	
+	public CourseSectionDecorator() {
+		// Needed for serialization
+	}
 
 	// Decorator methods
 	public String getCategoryForDisplay() {

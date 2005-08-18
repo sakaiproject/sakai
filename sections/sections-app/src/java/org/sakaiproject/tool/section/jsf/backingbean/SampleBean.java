@@ -112,7 +112,7 @@ public class SampleBean extends CourseDependentBean implements Serializable {
     //// Action events
     public void processCreateSection(ActionEvent e) {
         if(log.isInfoEnabled()) log.info("Creating section with title = " + title);        
-        getSectionManager().addSection(courseOfferingUuid, title, "M,W,F 9-10am", 100,
+        getSectionManager().addSection(courseOfferingUuid, title, "M,W,F 9-10am", 2,
         		"117 Dwinelle", category);
     }
     

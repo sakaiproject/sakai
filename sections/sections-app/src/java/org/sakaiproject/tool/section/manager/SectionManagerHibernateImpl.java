@@ -428,6 +428,19 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	public Set getSectionEnrollments(final String userUuid, final String courseUuid) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	String hql = "from EnrollmentRecordImpl as enr where enr.user.userUuid=:userUuid and enr.learningContext.id in (select section.id from CourseSectionImpl as section where section.course.uuid = :courseUuid )";
+            	Query q = session.createQuery(hql);
+            	q.setParameter("userUuid", userUuid);
+            	q.setParameter("courseUuid", courseUuid);
+            	return q.list();
+            }
+        };
+        return new HashSet(getHibernateTemplate().executeFind(hc));
+	}
+
 
 	// Field accessors
 	

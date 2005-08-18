@@ -73,7 +73,24 @@
                     <h:outputText value="#{msgs.student_view_header_change}" />
                 </x:commandSortHeader>
             </f:facet>
-            <h:outputText value="[Links go here]"/>
+            <h:commandLink
+                value="Join"
+                actionListener="#{studentViewBean.processJoinSection}"
+                rendered="#{section.joinable}">
+                <f:param name="sectionUuid" value="#{section.uuid}"/>
+            </h:commandLink>
+            <h:commandLink
+                value="Switch"
+                actionListener="#{studentViewBean.processSwitchSection}"
+                rendered="#{section.switchable}">
+                <f:param name="sectionUuid" value="#{section.uuid}"/>
+            </h:commandLink>
+            <h:outputText
+                value="Full"
+                rendered="#{section.full}"/>
+            <h:outputText
+                value="Member"
+                rendered="#{section.member}"/>
         </h:column>
 
     </x:dataTable>

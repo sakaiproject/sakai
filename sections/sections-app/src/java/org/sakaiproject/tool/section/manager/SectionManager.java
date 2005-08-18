@@ -182,6 +182,15 @@ public interface SectionManager {
      */
     public List getUnsectionedStudents(String courseUuid, String category);
 
+    /**
+     * Gets all of the section enrollments for a user in a course.
+     * 
+     * @param userUuid
+     * @param courseUuid
+     * @return
+     */
+    public Set getSectionEnrollments(String userUuid, String courseUuid);
+    
 	/**
 	 * Gets the list of {@link org.sakaiproject.api.section.coursemanagement.User Users}
 	 * that are teaching assistants in a section.

@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.section.jsf.backingbean;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -35,7 +36,10 @@ import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.tool.section.manager.SectionManager;
 
-public class CourseDependentBean extends InitializableBean {
+public class CourseDependentBean extends InitializableBean implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	private transient CourseBean courseBean;
 
 	private CourseBean getCourseBean() {
@@ -54,6 +58,7 @@ public class CourseDependentBean extends InitializableBean {
 	protected List getTeachingAssistants(String sectionUuid) {
 		return getSectionManager().getTeachingAssistants(sectionUuid);
 	}
+	
 	protected SectionManager getSectionManager() {
 		return getCourseBean().getSectionManager();
 	}
@@ -78,7 +83,12 @@ public class CourseDependentBean extends InitializableBean {
 		String siteContext = getSiteContext();
 		return getCourseBean().sectionManager.getSectionAwareness().getSections(siteContext);
 	}
-	
+
+	protected Set getEnrolledSections() {
+		String userUuid = getUserUuid();
+		Course course = getCourse(getSiteContext());
+		return getCourseBean().sectionManager.getSectionEnrollments(userUuid, course.getUuid());
+	}
 	protected String getCategoryName(String categoryId, Locale locale) {
 		return getCourseBean().sectionManager.getSectionAwareness().getCategoryName(categoryId, locale);
 	}

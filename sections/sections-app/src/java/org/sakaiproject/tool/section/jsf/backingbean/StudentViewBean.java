@@ -31,10 +31,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 
 public class StudentViewBean extends CourseDependentBean implements Serializable {
@@ -49,39 +53,78 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	private List sections;
 	
 	public void init() {
-		Set sectionSet = getAllSiteSections();
 		
-		log.error("@@@@@@@@@@@@@@@@@ SectionSet = " + sectionSet);
-
+		// Get all sections in the site
+		Set sectionSet = getAllSiteSections();
 		sections = new ArrayList();
+		
+		// Get the section enrollments for this student
+		Set enrolledSections = getEnrolledSections();
+
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			String catName = getCategoryName(section.getCategory(), getLocale());
+			
+			// Generate the string showing the TAs
 			List tas = getTeachingAssistants(section.getUuid());
 			StringBuffer taNames = new StringBuffer();
 			for(Iterator taIter = tas.iterator(); taIter.hasNext();) {
-				User ta = (User)taIter.next();
-				taNames.append(ta.getDisplayName());
+				ParticipationRecord ta = (ParticipationRecord)taIter.next();
+				taNames.append(ta.getUser().getDisplayName());
 				if(taIter.hasNext()) {
 					taNames.append(", ");
 				}
 			}
+
 			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
+			boolean member = isEnrolledInSection(enrolledSections, section);
+			boolean memberOtherSection = isEnrolledInOtherSection(enrolledSections, section);
+			
 			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(
-					section, catName, taNames.toString(), totalEnrollments);
+					section, catName, taNames.toString(), totalEnrollments, member, memberOtherSection);
 			sections.add(decoratedSection);
 		}
-		
-		log.error("############## Sections = " + sections);
 		
 		// TODO Sort the collection set properly
 		Collections.sort(sections);
 	}
 
+	private boolean isEnrolledInSection(Set enrolledSections, CourseSection section) {
+		for(Iterator iter = enrolledSections.iterator(); iter.hasNext();) {
+			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+			if(enr.getLearningContext().equals(section)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isEnrolledInOtherSection(Set enrolledSections, CourseSection section) {
+		String category = section.getCategory();
+		for(Iterator iter = enrolledSections.iterator(); iter.hasNext();) {
+			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+			if(((CourseSection)enr.getLearningContext()).getCategory().equals(category)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void processJoinSection(ActionEvent event) {
+		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
+		.getRequestParameterMap().get("sectionUuid");
+		getSectionManager().joinSection(sectionUuid);
+	}
+	
+	public void processSwitchSection(ActionEvent event) {
+		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
+		.getRequestParameterMap().get("sectionUuid");
+		getSectionManager().switchSection(sectionUuid);
+	}
+
 	public List getSections() {
 		return sections;
 	}
-	
 	public boolean isSortAscending() {
 		return sortAscending;
 	}
