@@ -64,7 +64,7 @@
 	<!-- External Authn Service -->
 
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
-		class="org.sakaiproject.tool.gradebook.facades.test.AuthnWebTestImpl">
+		class="org.sakaiproject.tool.gradebook.facades.standalone.AuthnStandaloneImpl">
 	</bean>
 
 	<!-- External Authz Service -->

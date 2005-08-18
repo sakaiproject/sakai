@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.gradebook.facades.test;
+package org.sakaiproject.tool.gradebook.facades.standalone;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
@@ -34,8 +34,8 @@ import org.sakaiproject.tool.gradebook.facades.Authn;
 /**
  * An implementation of the Authn facade to support demos and UI tests.
  */
-public class AuthnWebTestImpl implements Authn {
-	private static Log logger = LogFactory.getLog(AuthnWebTestImpl.class);
+public class AuthnStandaloneImpl implements Authn {
+	private static Log logger = LogFactory.getLog(AuthnStandaloneImpl.class);
 
 	private static String USER_ID_PARAMETER = "userUid";
 
