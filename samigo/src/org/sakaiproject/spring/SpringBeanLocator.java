@@ -45,7 +45,7 @@ public class SpringBeanLocator{
   }
 
   public Object getBean(String name){
-      System.out.println("** context in Loactor"+ctx);
+      log.debug("** context in Locator " + ctx);
     return ctx.getBean(name);
 
   }
