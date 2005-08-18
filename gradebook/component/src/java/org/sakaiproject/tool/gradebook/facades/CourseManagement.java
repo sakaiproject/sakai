@@ -134,6 +134,12 @@ public interface CourseManagement {
     /**
      * Looks up a user based on their uid.
      *
+     * TODO Eliminate this unnecessarily broad method. This is used only to obtain a grader's name based on their user UID.
+     * It should be restricted to people who have access to the gradebook.
+     * One potential issue: Administrators may have grading rights without an explicit participation record.
+     * The safest way to handle this is likely an Authn method like "getUser(Object whatToAuthn)" which returns
+     * the User object for the current user.
+     *
      * @param userUid
      * @return
      */
