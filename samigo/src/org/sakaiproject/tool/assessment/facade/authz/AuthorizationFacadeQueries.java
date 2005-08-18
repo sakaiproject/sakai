@@ -53,7 +53,6 @@ public class AuthorizationFacadeQueries
       QualifierFacade qf = new QualifierFacade(data);
       a.add(qf);
     }
-    //System.out.println("parent size = "+a.size());
     return new QualifierIteratorFacade(a);
   }
 
@@ -69,14 +68,12 @@ public class AuthorizationFacadeQueries
       QualifierFacade qf = new QualifierFacade(data);
       a.add(qf);
     }
-    //System.out.println("children size = "+a.size());
     return new QualifierIteratorFacade(a);
   }
 
   public void showQualifiers(QualifierIteratorFacade iter){
     while (iter.hasNextQualifier()){
       QualifierFacade q = (QualifierFacade)iter.nextQualifier();
-      //System.out.println(q.getDisplayName());
     }
   }
 

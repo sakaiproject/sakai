@@ -127,8 +127,6 @@ public class QuestionPoolTreeImpl
           QuestionPoolData next = null;
           try {
             next = (QuestionPoolData) siblings.next();
-            //System.out.println("Data ID = " + next.getQuestionPoolId());
-            //System.out.println("Added " + poolMap.get(next.getQuestionPoolId().toString()));
             // Add at 0 because we want a reverse list.
             if (sortString.equals("lastModified")){
               ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
@@ -138,7 +136,7 @@ public class QuestionPoolTreeImpl
               ids.add(((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
 	    }
           } catch (Exception e) {
-            System.out.println("Couldn't get ID " + next.getQuestionPoolId());
+            log.error("Couldn't get ID " + next.getQuestionPoolId());
           }
         }
 
@@ -580,8 +578,6 @@ public class QuestionPoolTreeImpl
   }
 
 
-/////////////////////
-
   public void sortByProperty(String sortProperty, boolean sortAscending)
   {
       // Now sort the sibling lists.
@@ -623,8 +619,6 @@ public class QuestionPoolTreeImpl
           QuestionPoolData next = null;
           try {
             next = (QuestionPoolData) siblings.next();
-            //System.out.println("Data ID = " + next.getQuestionPoolId());
-            //System.out.println("Added " + poolMap.get(next.getQuestionPoolId().toString()));
             // Add at 0 because we want a reverse list.
             if (sortProperty.equals("lastModified")){
               ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
@@ -634,7 +628,7 @@ public class QuestionPoolTreeImpl
               ids.add(((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
   	    }
           } catch (Exception e) {
-            System.out.println("Couldn't get ID " + next.getQuestionPoolId());
+            log.error("Couldn't get ID " + next.getQuestionPoolId());
           }
         }
 
@@ -643,7 +637,6 @@ public class QuestionPoolTreeImpl
 
 
   }
-//////////////////////
 
   /**
    * THis checks to see if given two pools have a common ancestor

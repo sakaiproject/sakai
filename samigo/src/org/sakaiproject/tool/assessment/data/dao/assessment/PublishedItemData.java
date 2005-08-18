@@ -558,7 +558,6 @@ public class PublishedItemData
     GradingService service = new GradingService();
     ItemGradingData i= service.getLastItemGradingDataByAgent(
         this.itemId.toString(), AgentFacade.getAgentString());
-    // System.out.println("*** checking: ItemGradingData="+ i);
     return i;
   }
 
@@ -566,7 +565,6 @@ public class PublishedItemData
     GradingService service = new GradingService();
     ItemGradingData i= service.getLastItemGradingDataByAgent(
         this.itemId.toString(), "jon");
-    // System.out.println("*** checking: ItemGradingData="+ i);
     return i;
   }
 }

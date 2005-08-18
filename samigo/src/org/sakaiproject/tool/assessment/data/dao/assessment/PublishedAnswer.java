@@ -179,7 +179,6 @@ public class PublishedAnswer
   }
 
   public String getAnswerFeedback(String typeId) {
-    // System.out.println("**trying to get feeback = "+typeId);
     if (this.answerFeedbackMap == null)
       this.answerFeedbackMap = getAnswerFeedbackMap();
     return (String)this.answerFeedbackMap.get(typeId);
@@ -190,7 +189,6 @@ public class PublishedAnswer
     if (this.answerFeedbackSet != null){
       for (Iterator i = this.answerFeedbackSet.iterator(); i.hasNext(); ) {
         Object obj = i.next();
-        // System.out.println("AnswerFeedback = " + obj);
         AnswerFeedbackIfc answerFeedback = (AnswerFeedbackIfc) obj;
         answerFeedbackMap.put(answerFeedback.getTypeId(), answerFeedback.getText());
       }

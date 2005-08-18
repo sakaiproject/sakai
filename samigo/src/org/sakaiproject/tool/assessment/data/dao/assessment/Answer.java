@@ -179,7 +179,6 @@ public class Answer
   }
 
   public String getAnswerFeedback(String typeId) {
-    //System.out.println("**trying to get feeback = "+typeId);
     if (this.answerFeedbackMap == null)
       this.answerFeedbackMap = getAnswerFeedbackMap();
     return (String)this.answerFeedbackMap.get(typeId);
