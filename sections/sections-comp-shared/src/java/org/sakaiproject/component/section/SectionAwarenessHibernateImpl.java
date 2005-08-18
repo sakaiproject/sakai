@@ -84,7 +84,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         return (CourseSection)getHibernateTemplate().execute(hc);
 	}
 
-	public CourseSection getSection(final String sectionUuid, Session session) throws HibernateException {
+	private CourseSection getSection(final String sectionUuid, Session session) throws HibernateException {
         Query q = session.createQuery("from CourseSectionImpl as section where section.uuid=:uuid");
         q.setParameter("uuid", sectionUuid);
         List list = q.list();

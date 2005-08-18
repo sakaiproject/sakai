@@ -29,6 +29,7 @@ import java.util.Set;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
@@ -46,46 +47,38 @@ public interface SectionManager {
     /**
      * Adds the current user to a section as a student.  This is a convenience
      * method for addSectionMembership(currentUserId, Role.STUDENT, sectionId).
-     * @param sectionId
+     * @param sectionUuid
      */
-    public void joinSection(String sectionId);
-    
-    /**
-     * Drops the current user's enrollment from a section.  This is a convenience
-     * method for dropSectionMembership(currentUserId, sectionId).
-     * 
-     * @param sectionId
-     */
-    public void dropSection(String sectionId);
-    
+    public EnrollmentRecord joinSection(String sectionUuid);
+        
     /**
      * Switches a student's currently assigned section.  If the student is enrolled
      * in another section of the same type, that enrollment will be dropped.
      * 
      * This is a convenience method to allow a drop/add (a switch) in a single transaction.
      * 
-     * @param newSectionId The new section id to which the student should be assigned
+     * @param newSectionUuid The new section uuid to which the student should be assigned
      */
-    public void switchSection(String newSectionId);
+    public void switchSection(String newSectionUuid);
     
     /**
-     * Returns the total number of students enrolled in a section.  Useful for
+     * Returns the total number of students enrolled in a learning context.  Useful for
      * comparing to the max number of enrollments allowed in a section.
      * 
-     * @param sectionId
+     * @param sectionUuid
      * @return
      */
-    public int getTotalEnrollments(String sectionId);
+    public int getTotalEnrollments(String learningContextUuid);
     
     /**
      * Adds a user to a section under the specified role.
      * 
-     * @param userId
+     * @param userUuid
      * @param role
      * @param sectionUuid
      * @throws MembershipException A user can not be added to a section more than once, regardless of role.
      */
-    public ParticipationRecord addSectionMembership(String userId, Role role, String sectionUuid)
+    public ParticipationRecord addSectionMembership(String userUuid, Role role, String sectionUuid)
         throws MembershipException;
     
     /**
@@ -93,18 +86,18 @@ public interface SectionManager {
      * a given role.  This is useful when doing bulk modifications of section
      * membership.
      * 
-     * @param userIds The set of userIds as strings
+     * @param userUuids The set of userUuids as strings
      * @param sectionId The sectionId
      */
-    public void setSectionMemberships(Set userIds, Role role, String sectionId);
+    public void setSectionMemberships(Set userUuids, Role role, String sectionId);
     
     /**
      * Removes a user from a section.
      * 
-     * @param userId
-     * @param sectionId
+     * @param userUuid
+     * @param sectionUuid
      */
-    public void dropSectionMembership(String userId, String sectionId);
+    public void dropSectionMembership(String userUuid, String sectionUuid);
     
     /**
      * Adds a CourseSection to a parent CourseSection.  This assumes that meeting times
@@ -116,7 +109,6 @@ public interface SectionManager {
      * @param parentSectionUuid
      * @param title
      * @param meetingTimes
-     * @param sectionLeaderId
      * @param maxEnrollments
      * @param location
      * @return
@@ -127,43 +119,49 @@ public interface SectionManager {
     /**
      * Updates the persistent representation of the given CourseSection.
      * 
-     * @param section
+     * @param sectionUuid The unique id of the section
+     * @param title The title of this section
+     * @param meetingTimes The section's meeting times
+     * @param location The section's location
+     * @param category The section's category id
+     * @param maxEnrollments The section's max enrollments
      */
-    public void updateSection(CourseSection section);
+    public void updateSection(String sectionUuid, String title, String meetingTimes,
+    		String location, String category, int maxEnrollments);
     
     /**
      * Disbands a course section.  This does not affect enrollment records for
      * the course.
      * 
-     * @param section
+     * @param sectionUuid
      */
-    public void disbandSection(CourseSection section);
+    public void disbandSection(String sectionUuid);
 
 
     /**
      * Determines whether students can enroll themselves in a section.
      * 
-     * @param sectionUuid
+     * @param courseUuid
      * @return
      */
-    public boolean isSelfRegistrationAllowed(String sectionUuid);
+    public boolean isSelfRegistrationAllowed(String courseUuid);
     
     /**
      * Sets the "self registration" status of a section.
      * 
-     * @param sectionUuid
+     * @param courseUuid
      * @param allowed
      */
-    public void setSelfRegistrationAllowed(String sectionUuid, boolean allowed);
+    public void setSelfRegistrationAllowed(String courseUuid, boolean allowed);
     
     /**
      * Determines whether students can switch sections once they are enrolled in
-     * a section.
+     * a section of a given category (for instance, swapping one lab for another).
      * 
-     * @param primarySectionUuid
+     * @param courseUuid
      * @return
      */
-    public boolean isSectionSwitchingAllowed(String primarySectionUuid);
+    public boolean isSelfSwitchingAllowed(String courseUuid);
     
     /**
      * Sets the "student switching" status of a primary section.
@@ -171,18 +169,21 @@ public interface SectionManager {
      * @param courseId
      * @param allowed
      */
-    public void setSectionSwitchingAllowed(String sectionUuid, boolean allowed);
+    public void setSelfSwitchingAllowed(String courseUuid, boolean allowed);
     
     /**
      * The Section Manager tool could use more specific queries on membership,
      * such as this:  getting all students in a primary section that are not
      * enrolled in any secondary sections of a given type.  For instance, 'Who
      * are the students who are not enrolled in any lab?'
+     * 
+     * @return A List of {@link org.sakaiproject.api.section.coursemanagement.User Users}
+     * who are not enrolled in a section of the given section category.
      */
-    public List getUnsectionedStudents(String siteContext, String category);
+    public List getUnsectionedStudents(String courseUuid, String category);
 
 	/**
-	 * Gets the list {@link org.sakaiproject.api.section.coursemanagement.User Users}
+	 * Gets the list of {@link org.sakaiproject.api.section.coursemanagement.User Users}
 	 * that are teaching assistants in a section.
 	 * 
 	 * @param sectionUuid

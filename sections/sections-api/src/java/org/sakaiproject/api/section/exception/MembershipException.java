@@ -27,6 +27,9 @@ public class MembershipException extends RuntimeException {
 
     private static final long serialVersionUID = -5188400025549893269L;
 
+    public MembershipException(String message) {
+    	super(message);
+    }
 }
 
 

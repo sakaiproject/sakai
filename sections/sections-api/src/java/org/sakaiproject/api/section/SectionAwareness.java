@@ -135,7 +135,7 @@ public interface SectionAwareness {
     /**
      * Gets the members of a given section that play a given role in the section.
      * 
-     * @param sectionId
+     * @param sectionUuid
      * @param role
      * 
      * @return A {@link java.util.List List} of
@@ -144,7 +144,7 @@ public interface SectionAwareness {
      * {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSection}
      * that play a given {@link org.sakaiproject.api.section.facade.Role Role}.
      */
-    public List getSectionMembersInRole(String sectionId, Role role);
+    public List getSectionMembersInRole(String sectionUuid, Role role);
 
     /**
      * Checks whether a user plays a particular {@link org.sakaiproject.api.section.facade.Role Role}
