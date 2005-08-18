@@ -168,7 +168,7 @@ public class AudioRecorder
     JPanel samplingPanel = makeAudioSamplingPanel(b);
     p2.add(samplingPanel);
 
-    JPanel savePanel = makeColorBackgroundPanel();//new JPanel();
+    JPanel savePanel = new ColorBackgroundPanel();//new JPanel();
     savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
 
     /**
@@ -190,7 +190,7 @@ public class AudioRecorder
 
   private JPanel makeSaveBPanel()
   {
-    JPanel saveBpanel = makeColorBackgroundPanel(false);
+    JPanel saveBpanel = new ColorBackgroundPanel(false);
     auB = addButton(res.getString("Save_AU"), saveBpanel, false);
     aiffB = addButton(res.getString("Save_AIFF"), saveBpanel, false);
     waveB = addButton(res.getString("Save_WAVE"), saveBpanel, false);
@@ -200,7 +200,7 @@ public class AudioRecorder
 
   private JPanel makeSaveTFPanel()
   {
-    JPanel saveTFpanel = makeColorBackgroundPanel(false);
+    JPanel saveTFpanel = new ColorBackgroundPanel(false);
     saveTFpanel.add(new JLabel(res.getString("File_to_save_")));
     saveTFpanel.add(textField = new JTextField(fileName));
     saveTFpanel.setPreferredSize(new Dimension(140, 25));
@@ -210,7 +210,7 @@ public class AudioRecorder
 
   private JPanel makeAudioButtonPanel()
   {
-    JPanel buttonsPanel = makeColorBackgroundPanel();
+    JPanel buttonsPanel = new ColorBackgroundPanel();
     playB = addButton(res.getString("Play"), buttonsPanel, false);
     captB = addButton(res.getString("Record"), buttonsPanel, true);
     pausB = addButton(res.getString("Pause"), buttonsPanel, false);
@@ -225,23 +225,6 @@ public class AudioRecorder
     samplingPanel.setBorder(b);
     samplingPanel.add(samplingGraph = new SamplingGraph());
     return samplingPanel;
-  }
-
-  private JPanel makeColorBackgroundPanel()
-  {
-    return makeColorBackgroundPanel(true);
-  }
-
-  private JPanel makeColorBackgroundPanel(boolean beveled)
-  {
-    JPanel colorBackgroundPanel = new JPanel();
-    if (beveled)
-    {
-      colorBackgroundPanel.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
-
-    }
-    colorBackgroundPanel.setBackground(new Color(0x90,  0xa1, 0xc6));
-    return colorBackgroundPanel;
   }
 
   public void open()
@@ -793,194 +776,8 @@ public class AudioRecorder
   /**
    * Controls for the AudioFormat.
    */
-  class FormatControls extends JPanel implements AudioControlContext
+  class FormatControls extends AudioFormatPanel implements AudioControlContext
   {
-
-    Vector groups = new Vector();
-    JToggleButton linrB, ulawB, alawB, rate8B, rate11B, rate16B, rate22B,
-      rate44B;
-    JToggleButton size8B, size16B, signB, unsignB, litB, bigB, monoB, sterB;
-
-    public FormatControls()
-    {
-      setLayout(new GridLayout(0, 1));
-      EmptyBorder eb = new EmptyBorder(0, 0, 0, 5);
-      BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
-      CompoundBorder cb = new CompoundBorder(eb, bb);
-      setBorder(new CompoundBorder(cb, new EmptyBorder(8, 5, 5, 5)));
-      JPanel p1 = makeColorBackgroundPanel(false);
-      ButtonGroup encodingGroup = new ButtonGroup();
-      linrB = addToggleButton(p1, encodingGroup, res.getString("linear"), true);
-      ulawB = addToggleButton(p1, encodingGroup, res.getString("ulaw"), false);
-      alawB = addToggleButton(p1, encodingGroup, res.getString("alaw"), false);
-      add(p1);
-      groups.addElement(encodingGroup);
-
-      JPanel p2 = makeColorBackgroundPanel(false);
-      JPanel p2b = makeColorBackgroundPanel(false);
-      ButtonGroup sampleRateGroup = new ButtonGroup();
-      rate8B = addToggleButton(p2, sampleRateGroup, "8000", false);
-      rate11B = addToggleButton(p2, sampleRateGroup, "11025", false);
-      rate16B = addToggleButton(p2b, sampleRateGroup, "16000", false);
-      rate22B = addToggleButton(p2b, sampleRateGroup, "22050", false);
-      rate44B = addToggleButton(p2b, sampleRateGroup, "44100", true);
-      add(p2);
-      add(p2b);
-      groups.addElement(sampleRateGroup);
-
-      JPanel p3 = makeColorBackgroundPanel(false);
-      ButtonGroup sampleSizeInBitsGroup = new ButtonGroup();
-      size8B = addToggleButton(p3, sampleSizeInBitsGroup, "8", false);
-      size16B = addToggleButton(p3, sampleSizeInBitsGroup, "16", true);
-      add(p3);
-      groups.addElement(sampleSizeInBitsGroup);
-
-      JPanel p4 = makeColorBackgroundPanel(false);
-      ButtonGroup signGroup = new ButtonGroup();
-      signB = addToggleButton(p4, signGroup, res.getString("signed"), true);
-      unsignB = addToggleButton(p4, signGroup, res.getString("unsigned"), false);
-      add(p4);
-      groups.addElement(signGroup);
-
-      JPanel p5 = makeColorBackgroundPanel(false);
-      ButtonGroup endianGroup = new ButtonGroup();
-      litB = addToggleButton(p5, endianGroup, res.getString("little_endian"), false);
-      bigB = addToggleButton(p5, endianGroup, res.getString("big_endian"), true);
-      add(p5);
-      groups.addElement(endianGroup);
-
-      JPanel p6 = makeColorBackgroundPanel(false);
-      ButtonGroup channelsGroup = new ButtonGroup();
-      monoB = addToggleButton(p6, channelsGroup, res.getString("mono"), false);
-      sterB = addToggleButton(p6, channelsGroup, res.getString("stereo"), true);
-      add(p6);
-      groups.addElement(channelsGroup);
-    }
-
-    private JToggleButton addToggleButton(JPanel p, ButtonGroup g,
-                                          String name, boolean state)
-    {
-      JToggleButton b = new JToggleButton(name, state);
-      p.add(b);
-      g.add(b);
-      return b;
-    }
-
-    public AudioFormat getFormat()
-    {
-
-      Vector v = new Vector(groups.size());
-      for (int i = 0; i < groups.size(); i++)
-      {
-        ButtonGroup g = (ButtonGroup) groups.get(i);
-        for (Enumeration e = g.getElements(); e.hasMoreElements(); )
-        {
-          AbstractButton b = (AbstractButton) e.nextElement();
-          if (b.isSelected())
-          {
-            v.add(b.getText());
-            break;
-          }
-        }
-      }
-
-      AudioFormat.Encoding encoding = AudioFormat.Encoding.ULAW;
-      String encString = (String) v.get(0);
-      float rate = Float.valueOf( (String) v.get(1)).floatValue();
-      int sampleSize = Integer.valueOf( (String) v.get(2)).intValue();
-      String signedString = (String) v.get(3);
-      boolean bigEndian = ( (String) v.get(4)).startsWith(res.getString("big"));
-      int channels = ( (String) v.get(5)).equals(res.getString("mono")) ? 1 : 2;
-
-      if (encString.equals(res.getString("linear")))
-      {
-        if (signedString.equals(res.getString("signed")))
-        {
-          encoding = AudioFormat.Encoding.PCM_SIGNED;
-        }
-        else
-        {
-          encoding = AudioFormat.Encoding.PCM_UNSIGNED;
-        }
-      }
-      else if (encString.equals(res.getString("alaw")))
-      {
-        encoding = AudioFormat.Encoding.ALAW;
-      }
-      return new AudioFormat(encoding, rate, sampleSize,
-                             channels, (sampleSize / 8) * channels, rate,
-                             bigEndian);
-    }
-
-    public void setFormat(AudioFormat format)
-    {
-      AudioFormat.Encoding type = format.getEncoding();
-      if (type == AudioFormat.Encoding.ULAW)
-      {
-        ulawB.doClick();
-      }
-      else if (type == AudioFormat.Encoding.ALAW)
-      {
-        alawB.doClick();
-      }
-      else if (type == AudioFormat.Encoding.PCM_SIGNED)
-      {
-        linrB.doClick();
-        signB.doClick();
-      }
-      else if (type == AudioFormat.Encoding.PCM_UNSIGNED)
-      {
-        linrB.doClick();
-        unsignB.doClick();
-      }
-      float rate = format.getFrameRate();
-      if (rate == 8000)
-      {
-        rate8B.doClick();
-      }
-      else if (rate == 11025)
-      {
-        rate11B.doClick();
-      }
-      else if (rate == 16000)
-      {
-        rate16B.doClick();
-      }
-      else if (rate == 22050)
-      {
-        rate22B.doClick();
-      }
-      else if (rate == 44100)
-      {
-        rate44B.doClick();
-      }
-      switch (format.getSampleSizeInBits())
-      {
-        case 8:
-          size8B.doClick();
-          break;
-        case 16:
-          size16B.doClick();
-          break;
-      }
-      if (format.isBigEndian())
-      {
-        bigB.doClick();
-      }
-      else
-      {
-        litB.doClick();
-      }
-      if (format.getChannels() == 1)
-      {
-        monoB.doClick();
-      }
-      else
-      {
-        sterB.doClick();
-      }
-    }
-
     public void open()
     {
     }
