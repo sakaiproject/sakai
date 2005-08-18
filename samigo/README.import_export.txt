@@ -1,4 +1,4 @@
-Notes on QTI Import and Export for version 2.01
+Notes on QTI Import and Export for version 2.1
 ===============================================
 
 Usage notes and Known issues:
@@ -8,14 +8,20 @@ Only assessment/section/item format may be imported.
 Object bank format is supported for web service inquiries via QTIService.
 
 2. Export in Firefox.
-Users requiring an XML (.xml) extension in Firefox browsers should
+   a. In some cases, JSF prepends extra lines, see 7, below.  When you 
+export, you will see "XML Parsing Error: xml processing instruction is not at 
+start of external entity."  This can be safely ignored.  If you want to see 
+the XML, you can do so with "view source".
+
+   b.Users requiring an XML (.xml) extension in Firefox browsers should
 "Save as Type:" "Web Page, HTML only" and specify the ".xml" extension,
 explicitly typing the desired file name and extension.  DO NOT save as
 "Text File", this will save only the text nodes of the XML document, and will
 cause errors on re-import.
 
-Note: Tests and Quizzes will accept files with any extension as long as they
+   c.  Tests and Quizzes will accept files with any extension as long as they
 are in correct format for importation.  (SAK-1203).
+
 
 3. Question format issues on export.
   a. Blank space lost in the question text for the file upload question.
@@ -66,13 +72,14 @@ For example:
 character data, and will then accept non-XHTML and even bad HTML.
 
 7. Fix for JSF corruption of XML export.
-   a. In some builds of the portal we are seeing the addition of one or more
+    a. In some builds of the portal we are seeing the addition of one or more
 blank lines on export by JSF itself. The XML spcification does not allow this.
 As of 2.01 have added a fix that any XML file with extra blank lines will have
 these trimmed on import so that exported files will always import.
     b. If you wish to import Sakai exports into other systems, or validating XML
 editors, you may need to remove blank lines before the XML declaration.
 (SAK-1499)
+    c. Export in Firefox.  If you wish to import Sakai exports in Firefox
 
 8. Respondus.
 Fixed in 2.01.  Respondus questions with missing score can be edited.
