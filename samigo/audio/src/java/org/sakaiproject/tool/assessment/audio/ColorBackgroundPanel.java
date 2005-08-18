@@ -35,14 +35,14 @@ public class ColorBackgroundPanel
     init(true);
   }
 
-  ColorBackgroundPanel(boolean bevelled)
+  ColorBackgroundPanel(boolean beveled)
   {
-    init(bevelled);
+    init(beveled);
   }
 
-  private void init(boolean bevelled)
+  private void init(boolean beveled)
   {
-    if (bevelled)
+    if (beveled)
     {
       setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
 
