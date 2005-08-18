@@ -146,9 +146,15 @@
  </div></div>
 <br/>
 <p class="act">
-  <h:commandButton value="#{msg.begin_assessment_}" action="#{delivery.validate}" type="submit" styleClass="active">
+
+ <h:commandButton value="#{msg.begin_assessment_}" action="#{delivery.validate}" type="submit" styleClass="active" rendered="#{delivery.previewAssessment ne 'true'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
+
+ <h:commandButton value="#{msg.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.previewAssessment eq 'true'}">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+  </h:commandButton>
+
   <h:commandButton value="#{msg.button_cancel}"  action="select" type="submit"
      rendered="#{!delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
