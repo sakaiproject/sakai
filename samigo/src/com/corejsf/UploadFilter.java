@@ -69,7 +69,6 @@ public class UploadFilter implements Filter {
          servletEx.initCause(ex);
          throw servletEx;
       }
-      //System.out.println("*** repositoryPath="+repositoryPath);
    }
 
    public void destroy() {
@@ -104,12 +103,9 @@ public class UploadFilter implements Filter {
             String str = item.getString();
             if (item.isFormField()){
               map.put(item.getFieldName(), new String[] {str});
-              //System.out.println("item is form field, field name= "+item.getFieldName()+":"+str);
             }
             else{
               httpRequest.setAttribute(item.getFieldName(), item);
-              //System.out.println("item is NOT form field, fieldname="+item.getFieldName()
-                                 // +"name="+item.getName()+":"+item);
             }
          }
 
@@ -120,18 +116,15 @@ public class UploadFilter implements Filter {
                }
                // busywork follows ... should have been part of the wrapper
                public String[] getParameterValues(String name) {
-                  //System.out.println("**#1."+name);
                   Map map = getParameterMap();
                   return (String[]) map.get(name);
                }
                public String getParameter(String name) {
-                 //System.out.println("**#2."+name);
                   String[] params = getParameterValues(name);
                   if (params == null) return null;
                   return params[0];
                }
                public Enumeration getParameterNames() {
-                  //System.out.println("**#3. keyset");
                   Map map = getParameterMap();
                   return Collections.enumeration(map.keySet());
                }
