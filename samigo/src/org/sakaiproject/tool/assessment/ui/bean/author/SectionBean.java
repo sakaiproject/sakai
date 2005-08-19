@@ -83,14 +83,12 @@ private String outcome;
   public void setSection(SectionFacade section) {
     try {
       this.section = section;
-      //System.out.println("** beginning of section bean " + section);
       this.assessment = section.getAssessment();
       this.assessmentId = assessment.getAssessmentId().toString();
       this.assessmentTitle = assessment.getTitle();
       this.sectionId = section.getSectionId().toString();
       this.sectionTitle = section.getTitle();
       this.sectionDescription = section.getDescription();
-      //System.out.println("** end of setting section bean "+section);
     }
     catch (Exception ex) {
     }

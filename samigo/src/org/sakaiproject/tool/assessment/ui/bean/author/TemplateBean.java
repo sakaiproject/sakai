@@ -330,7 +330,6 @@ public class TemplateBean implements Serializable
    */
   public String getDisplayChunking()
   {
-    //System.out.println("Display chunking set to " + displayChunking);
     if (displayChunking == null || displayChunking.trim().equals("")
         || displayChunking.equals("0"))
       return "1";

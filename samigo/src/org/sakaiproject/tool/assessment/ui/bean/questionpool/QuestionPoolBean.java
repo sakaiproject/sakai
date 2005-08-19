@@ -150,7 +150,7 @@ public class QuestionPoolBean
         Collection objects = tree.getSortedObjects();
         if ((this.sortProperty!=null) && (this.sortProperty.equals("lastModified")))
             this.sortQpoolsByProperty((ArrayList)objects,this.getSortProperty(),this.getSortAscending());
-           
+
         ListDataModel model = new ListDataModel((List) objects);
         QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
 	return qpDataModel;
@@ -1463,27 +1463,22 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
   public String importPool(){
-    //System.out.println("action importPool");
 	return "importPool";
   }
 
   public String importQuestion(){
-    //System.out.println("action importQuestion");
 	return "importQuestion";
   }
 
   public String exportPool(){
-    //System.out.println("action exportPool");
 	return "exportPool";
   }
 
   public String exportQuestion(){
-    //System.out.println("action exportQuestion");
 	return "exportQuestion";
   }
 
   public String returnToAuthoring(){
-    //System.out.println("action authoring");
 	return "author";
   }
 
@@ -1522,7 +1517,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 
       QuestionPoolService delegate = new QuestionPoolService();
-      //System.out.println("Saving pool");
       delegate.savePool(questionpool);
 
       // Rebuild the tree with the new pool

@@ -80,7 +80,7 @@ public class QuestionScoresBean
    */
   public QuestionScoresBean()
   {
-    System.out.println("RACHEL: Creating a new questionscoresbean");
+    log.debug("Creating a new QuestionScoresBean");
     resetFields();
   }
 

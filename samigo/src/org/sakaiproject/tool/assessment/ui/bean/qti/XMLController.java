@@ -29,6 +29,9 @@ import javax.faces.context.FacesContext;
 
 import org.w3c.dom.Document;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringXml;
@@ -43,9 +46,10 @@ import org.sakaiproject.tool.assessment.util.XmlUtil;
    * @version $Id$
  */
 
-public class XMLController
-  implements Serializable
+public class XMLController implements Serializable
 {
+  private static Log log = LogFactory.getLog(XMLController.class);
+
   private XMLDisplay xmlBean;
   private String documentType;
   private String id;
@@ -72,7 +76,7 @@ public class XMLController
    */
   public String displayAssessmentXml()
   {
-    System.out.println(
+    log.debug(
       "XMLController debug getQtiVersion(): " + this.getQtiVersion());
     documentType = getAuthoringXml().ASSESSMENT;
     return display();
@@ -113,7 +117,7 @@ public class XMLController
       }
       else if (ax.isItem(documentType))
       {
-        System.out.println("item type detected");
+        log.debug("item type detected");
         item();
       }
       else if (ax.isSurveyFragment(documentType))
@@ -132,7 +136,6 @@ public class XMLController
       xmlBean.setId("");
       ex.printStackTrace();
     }
-//    System.out.println("debug" +xmlBean.getXml());
 
     return "xmlDisplay";
 
@@ -162,12 +165,11 @@ public class XMLController
   {
     xmlBean.setId(id);
     xmlBean.setName(documentType);
-//    System.out.println("assessment() id=" + id);
 
     if (id != null && id.length() > 0) // return populated xml from template
     {
       QTIService qtiService = new QTIService();
-      System.out.println("XMLController.assessment() assessment " +
+      log.debug("XMLController.assessment() assessment " +
                          "qtiService.getExportedAssessment(id=" + id +
                          ", qtiVersion=" +
                          qtiVersion + ")");
@@ -221,7 +223,6 @@ public class XMLController
    */
   private void item()
   {
-//    System.out.println("got to item.");
     xmlBean.setId(id);
     if (id != null && id.length() > 0)
     {
@@ -268,7 +269,7 @@ public class XMLController
     }
     else
     {
-      System.out.println("object bank empty");
+      log.debug("object bank empty");
     }
   }
 
@@ -287,7 +288,6 @@ public class XMLController
 //   */
 //  public String getVersion()
 //  {
-//    System.out.println("xml controller getVersion():" + getQtiVersion());
 //    return "" + getQtiVersion();
 //  }
 
@@ -298,7 +298,6 @@ public class XMLController
 //   */
 //  public void setVersion(String version)
 //  {
-//    System.out.println("xml controller setVersion(" + version + ")");
 //
 //    try {
 //      int v = Integer.parseInt(version);
@@ -319,7 +318,7 @@ public class XMLController
     {
       qtiVersion = QTIVersion.VERSION_1_2; // default
     }
-    System.out.println("xml controller getQtiVersion()=" + qtiVersion);
+    log.debug("xml controller getQtiVersion()=" + qtiVersion);
     return qtiVersion;
   }
 
@@ -335,7 +334,7 @@ public class XMLController
     }
 
     this.qtiVersion = qtiVersion;
-    System.out.println("xml controller setQtiVersion()=" + qtiVersion);
+    log.debug("xml controller setQtiVersion()=" + qtiVersion);
   }
 
   public AuthoringXml getAuthoringXml()

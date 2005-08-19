@@ -76,7 +76,7 @@ public class SubmissionStatusBean
    */
   public SubmissionStatusBean()
   {
-    System.out.println("Qingru: Creating a new SubmissionStatusbean");
+    log.debug("Creating a new SubmissionStatusBean");
     resetFields();
   }
 

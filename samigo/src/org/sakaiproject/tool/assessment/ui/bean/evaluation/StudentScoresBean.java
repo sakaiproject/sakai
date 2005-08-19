@@ -24,6 +24,9 @@
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  * <p>Title: sakaiproject.org</p>
@@ -34,9 +37,10 @@ import java.io.Serializable;
  * @author Rachel Gollub
  * @version 1.0
  */
-public class StudentScoresBean
-  implements Serializable
+public class StudentScoresBean implements Serializable
 {
+  private static Log log = LogFactory.getLog(StudentScoresBean.class);
+
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
 
@@ -52,7 +56,7 @@ public class StudentScoresBean
    */
   public StudentScoresBean()
   {
-    System.out.println("RACHEL: Creating a new studentscoresbean");
+    log.debug("Creating a new StudentScoresBean");
   }
 
   public String getStudentName()

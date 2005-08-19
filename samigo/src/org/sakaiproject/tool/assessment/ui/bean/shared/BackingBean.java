@@ -29,6 +29,8 @@ import java.util.List;
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
 
 /**
  * <p> </p>
@@ -39,9 +41,10 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryAction
  * @version $id: $
  */
 
-public class BackingBean
-  implements Serializable
+public class BackingBean implements Serializable
 {
+  private static Log log = LogFactory.getLog(BackingBean.class);
+
   private String prop1;
   private String prop2;
   private String prop3;
@@ -52,7 +55,6 @@ public class BackingBean
 
   public BackingBean()
   {
-    System.out.println("Creating backing bean.");
     prop1 = "prop1";
     prop2 = "prop2";
     prop3 = "prop3";
@@ -135,7 +137,7 @@ public class BackingBean
 
   public String chooseAgentAdminGo()
   {
-    System.out.println("Choosing admin");
+    log.info("Choosing admin");
     prop1 = "admin";
 
     // Call listener before going on.
@@ -147,7 +149,7 @@ public class BackingBean
 
   public String chooseAgentRachelGo()
   {
-    System.out.println("Choosing rachel");
+    log.info("Choosing rachel");
     prop1 = "rachel";
 
     // Call listener before going on.
@@ -159,7 +161,7 @@ public class BackingBean
 
   public String chooseAgentMarithGo()
   {
-    System.out.println("Choosing marith");
+    log.info("Choosing marith");
     prop1 = "marith";
 
     // Call listener before going on.
@@ -171,7 +173,7 @@ public class BackingBean
 
   public String chooseAgentAdmin()
   {
-    System.out.println("Choosing admin");
+    log.info("Choosing admin");
     prop1 = "admin";
 
     // Call listener before going on.
@@ -183,7 +185,7 @@ public class BackingBean
 
   public String chooseAgentRachel()
   {
-    System.out.println("Choosing rachel");
+    log.info("Choosing rachel");
     prop1 = "rachel";
 
     // Call listener before going on.
@@ -195,7 +197,7 @@ public class BackingBean
 
   public String chooseAgentMarith()
   {
-    System.out.println("Choosing marith");
+    log.info("Choosing marith");
     prop1 = "marith";
 
     // Call listener before going on.
@@ -207,7 +209,7 @@ public class BackingBean
 
   public String chooseAgentAdminInstructor()
   {
-    System.out.println("Choosing admin instructor");
+    log.info("Choosing admin instructor");
     prop1 = "admin";
 
     // Call listener before going on.

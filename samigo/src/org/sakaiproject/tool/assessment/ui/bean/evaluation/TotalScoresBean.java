@@ -76,7 +76,7 @@ public class TotalScoresBean
    */
   public TotalScoresBean()
   {
-    System.out.println("RACHEL: Creating a new totalscoresbean");
+    log.debug("Creating a new TotalScoresBean");
     resetFields();
   }
 

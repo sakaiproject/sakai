@@ -65,13 +65,11 @@ public class XMLDisplay implements Serializable
 
   public String getXml()
   {
-//    System.out.println("debug: get XML=" + xml);
     return xml;
   }
 
   public void setXml(String xml)
   {
-//    System.out.println("debug: set XML=" + xml);
     this.xml = xml;
   }
 

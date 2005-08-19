@@ -142,7 +142,6 @@ public class PublishedAssessmentSettingsBean
   public void setAssessment(PublishedAssessmentFacade assessment) {
     try {
       this.assessment = assessment;
-      //System.out.println("** beginning of assessment"+assessment);
       // set the valueMap
       setValueMap(assessment.getAssessmentMetaDataMap());
       this.assessmentId = assessment.getPublishedAssessmentId();
@@ -166,7 +165,6 @@ public class PublishedAssessmentSettingsBean
       // these are properties in AssessmentAccessControl
       AssessmentAccessControlIfc accessControl = null;
       accessControl = assessment.getAssessmentAccessControl();
-      //System.out.println("**** beginning of access control="+accessControl);
       if (accessControl != null) {
         this.startDate = accessControl.getStartDate();
         this.dueDate = accessControl.getDueDate();
@@ -204,10 +202,6 @@ public class PublishedAssessmentSettingsBean
           this.unlimitedSubmissions=AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString();
           this.submissionsAllowed="";
         }
-        //System.out.println("**assessmentSettingBean, control unlimited submissin="+accessControl.getUnlimitedSubmissions());
-        //System.out.println("**assessmentSettingBean, unlimited submissions="+this.unlimitedSubmissions);
-        //System.out.println("**assessmentSettingBean, control submissionsAllowed="+accessControl.getSubmissionsAllowed());
-        //System.out.println("**assessmentSettingBean, submissionsAllowed="+this.submissionsAllowed);
 
         if (accessControl.getLateHandling() !=null)
           this.lateHandling = accessControl.getLateHandling().toString();
@@ -217,12 +211,10 @@ public class PublishedAssessmentSettingsBean
         this.username = accessControl.getUsername();
         this.password = accessControl.getPassword();
         this.finalPageUrl = accessControl.getFinalPageUrl();
-        //System.out.println("**** end of access control");
       }
 
       // properties of AssesmentFeedback
       AssessmentFeedbackIfc feedback = assessment.getAssessmentFeedback();
-      //System.out.println("** feeback ="+feedback);
       if (feedback != null) {
         if (feedback.getFeedbackDelivery()!=null);
           this.feedbackDelivery = feedback.getFeedbackDelivery().toString();
@@ -246,7 +238,6 @@ public class PublishedAssessmentSettingsBean
 
       // properties of EvaluationModel
       EvaluationModelIfc evaluation = assessment.getEvaluationModel();
-      //System.out.println("** Evaluation ="+evaluation);
       if (evaluation != null) {
         if (evaluation.getAnonymousGrading()!=null)
           this.anonymousGrading = evaluation.getAnonymousGrading().toString();
@@ -269,14 +260,11 @@ public class PublishedAssessmentSettingsBean
                        getRequest()).getRequestURL().toString();
       int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo/"
       server = server.substring(0, index);
-      //System.out.println("servletPath=" + server);
       String url = server + extContext.getRequestContextPath();
       this.publishedUrl = url + "/servlet/Login?id=" + this.alias;
-      //System.out.println("**publishedUrl =" + publishedUrl);
     }
     catch (Exception ex) {
     }
-    //System.out.println("** end of setting assessment"+assessment);
   }
 
   // properties from Assessment
@@ -687,7 +675,6 @@ public class PublishedAssessmentSettingsBean
       int day = c.get(Calendar.DAY_OF_MONTH);
       int year = c.get(Calendar.YEAR);
       String dateString = mon + "/" + day + "/" + year;
-      //System.out.println("** date is = " + dateString);
       return dateString;
     }
     else
@@ -695,13 +682,9 @@ public class PublishedAssessmentSettingsBean
   }
 
   public void setTimeLimitDisplay(int time){
-    //System.out.println("****the time is ="+time);
     this.timedHours=new Integer(time/60/60);
-    //System.out.println("****the timedHours is ="+time/3600);
     this.timedMinutes = new Integer((time/60)%60);
-    //System.out.println("****the timedMin is ="+(time/60)%60);
     this.timedSeconds = new Integer(time % 60);
-    //System.out.println("****the timedSec is ="+time %60);
   }
 
   // followings are set of SelectItem[] used in authorSettings.jsp
@@ -765,7 +748,6 @@ public class PublishedAssessmentSettingsBean
           this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
         }
       }
-      //System.out.println("**IPAddress ="+this.ipAddresses);
   }
 
   // the following methods are used to take the internal format from

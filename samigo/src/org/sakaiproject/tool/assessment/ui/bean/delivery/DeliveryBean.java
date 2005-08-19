@@ -1116,7 +1116,7 @@ public class DeliveryBean
   {
 
       FacesContext context = FacesContext.getCurrentInstance();
-      System.out.println("***DeliverBean.saveAndEXit face context ="+context);
+      log.debug("***DeliverBean.saveAndEXit face context ="+context);
 
     // If this was automatically triggered by running out of time,
     // check for autosubmit, and do it if so.
@@ -1144,11 +1144,11 @@ public class DeliveryBean
     }
 
     if (getAccessViaUrl()){ // if this is access via url, display quit message
-      System.out.println("**anonymous login, go to quit");
+      log.debug("**anonymous login, go to quit");
       return "anonymousQuit";
     }
     else{
-      System.out.println("**NOT anonymous login, go to select");
+      log.debug("**NOT anonymous login, go to select");
       return "select";
     }
   }
@@ -1304,7 +1304,7 @@ public class DeliveryBean
         return "tableOfContents";
       else
         return "takeAssessment";
-   
+
    } catch (Exception e) {
      e.printStackTrace();
      return "accessError";
