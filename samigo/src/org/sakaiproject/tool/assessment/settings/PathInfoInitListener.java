@@ -22,9 +22,11 @@
 **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.settings;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Initializes PathInfo at startup.
@@ -34,15 +36,14 @@ import javax.servlet.ServletContextListener;
 public class PathInfoInitListener
   implements ServletContextListener
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(PathInfoInitListener.class);
+  private static Log log = LogFactory.getLog(OjbConfigListener.class);
 
   /**
    * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
    */
   public void contextInitialized(ServletContextEvent sce)
   {
-    LOG.debug(
+    log.debug(
       "PathInfoInitListener.contextInitialized(ServletContextEvent " + sce +
       ")");
     String pathToSecurity = null;
@@ -52,7 +53,7 @@ public class PathInfoInitListener
       PathInfo pathInfo = PathInfo.getInstance();
       pathToSecurity =
         sce.getServletContext().getInitParameter("PathToSecurity");
-      LOG.debug("PathToSecurity=" + pathToSecurity);
+      log.debug("PathToSecurity=" + pathToSecurity);
       if((pathToSecurity == null) || (pathToSecurity.length() < 1))
       {
         throw new IllegalStateException("PathToSecurity is invalid!");
@@ -60,7 +61,7 @@ public class PathInfoInitListener
 
       pathToSettings =
         sce.getServletContext().getInitParameter("PathToSettings");
-      LOG.debug("PathToSettings=" + pathToSettings);
+      log.debug("PathToSettings=" + pathToSettings);
       if((pathToSettings == null) || (pathToSettings.length() < 1))
       {
         throw new IllegalStateException("PathToSettings is invalid!");
@@ -72,11 +73,11 @@ public class PathInfoInitListener
         pathInfo.setBasePathToSettings(pathToSettings);
       }
 
-      LOG.debug("PathInfoInitListener initialized successfully!");
+      log.debug("PathInfoInitListener initialized successfully!");
     }
     catch(Exception ex)
     {
-      LOG.error(ex);
+      log.error(ex);
       throw new Error(ex);
     }
   }

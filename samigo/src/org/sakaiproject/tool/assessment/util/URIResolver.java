@@ -25,10 +25,12 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -39,8 +41,7 @@ import javax.xml.transform.stream.StreamSource;
  */
 public class URIResolver implements javax.xml.transform.URIResolver
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(URIResolver.class);
+  private static Log log = LogFactory.getLog(URIResolver.class);
 
     public URIResolver()
     {
@@ -61,7 +62,7 @@ public class URIResolver implements javax.xml.transform.URIResolver
         }
         catch (URISyntaxException e)
         {
-            LOG.error(e); throw new Error(e);
+            log.error(e); throw new Error(e);
         }
 
         return source;

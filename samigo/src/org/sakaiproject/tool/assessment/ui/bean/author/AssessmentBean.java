@@ -25,8 +25,10 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.faces.model.SelectItem;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -43,10 +45,8 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
  *
  * Used to be org.navigoproject.ui.web.asi.author.assessment.AssessmentActionForm.java
  */
-public class AssessmentBean
-    implements Serializable {
-  private static final org.apache.log4j.Logger LOG =
-      org.apache.log4j.Logger.getLogger(AssessmentBean.class);
+public class AssessmentBean  implements Serializable {
+    private static Log log = LogFactory.getLog(AssessmentBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
@@ -218,7 +218,7 @@ public class AssessmentBean
       }
     }
     catch(Exception e){
-      LOG.warn(e.getMessage());
+      log.warn(e.getMessage());
     }
   }
 

@@ -26,10 +26,12 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -40,11 +42,9 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
  * Used to be org.navigoproject.ui.web.asi.author.section.SectionActionForm.java
  */
 
-public class SectionBean
-  implements Serializable
+public class SectionBean implements Serializable
 {
-private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(SectionBean.class);
+  private static Log log = LogFactory.getLog(SectionBean.class);
 
 /** Use serialVersionUID for interoperability. */
 private final static long serialVersionUID = 4216587136245498157L;
@@ -556,7 +556,7 @@ private String outcome;
 
 
    /**
-   * get outcome 
+   * get outcome
    */
   public String getOutcome()
   {
@@ -564,7 +564,7 @@ private String outcome;
   }
 
   /**
-   * set outcome 
+   * set outcome
    * @param param
    */
   public void setOutcome(String param)

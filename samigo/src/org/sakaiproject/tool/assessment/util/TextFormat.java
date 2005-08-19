@@ -24,12 +24,13 @@
 package org.sakaiproject.tool.assessment.util;
 
 import java.io.UnsupportedEncodingException;
-
 import java.net.URLEncoder;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>Copyright: Copyright (c) 2003-5</p>
@@ -40,8 +41,7 @@ import java.util.Vector;
  */
 public class TextFormat
 {
-  private static org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(TextFormat.class);
+  private static Log log = LogFactory.getLog(TextFormat.class);
   private static final String HTML;
   private static final String SMART;
   private static final String PLAIN;
@@ -77,9 +77,9 @@ public class TextFormat
    */
   public String formatText(String text, String texttype, String iconPath)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug(
+      log.debug(
         "formatText(String " + text + ", String " + texttype + ", String " +
         iconPath + ")");
     }
@@ -121,7 +121,7 @@ public class TextFormat
         }
 
         start = minimum(arrLst);
-        LOG.debug("start: " + String.valueOf(start));
+        log.debug("start: " + String.valueOf(start));
         if((start == -1) || vProtocols.isEmpty())
         {
           break;
@@ -137,11 +137,11 @@ public class TextFormat
         if(start != 0)
         {
           returnText.append(text.substring(0, start));
-          LOG.debug(
+          log.debug(
             "adding pre-resource text: " + text.substring(0, start));
         }
 
-        LOG.debug("end: " + String.valueOf(end));
+        log.debug("end: " + String.valueOf(end));
 
         resource = new StringBuffer();
         String upper = text.substring(start, end).toUpperCase();
@@ -152,7 +152,7 @@ public class TextFormat
             resource.append("https://");
             resource.append(
               URLEncoder.encode(text.substring(start + 8, end), "UTF-8"));
-            LOG.debug("hi" + resource);
+            log.debug("hi" + resource);
           }
           else if(
             upper.startsWith("HTTP://") || upper.startsWith("MAILTO:") ||
@@ -181,7 +181,7 @@ public class TextFormat
         }
         catch(UnsupportedEncodingException e)
         {
-          LOG.error(e.getMessage(), e);
+          log.error(e.getMessage(), e);
         }
 
         String temp = resource.toString();
@@ -190,7 +190,7 @@ public class TextFormat
 
         //stringParts.add(resource.toString());
         returnText.append(resource);
-        LOG.debug("add ing resource: " + resource.toString());
+        log.debug("add ing resource: " + resource.toString());
 
         // delete resource string
         text = text.substring(end);
@@ -278,9 +278,9 @@ public class TextFormat
    */
   public Integer indexOfIgnoreCase(String str, String searchString)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug(
+      log.debug(
         "indexOfIgnoreCase(String " + str + ", String " + searchString + ")");
     }
 
@@ -296,9 +296,9 @@ public class TextFormat
    */
   public int minimum(ArrayList a)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("minimum(ArrayList " + a + ")");
+      log.debug("minimum(ArrayList " + a + ")");
     }
 
     boolean firstNumber = true;
@@ -333,15 +333,15 @@ public class TextFormat
   public static void main(String[] args)
   {
     TextFormat tf = new TextFormat();
-    LOG.debug(
+    log.debug(
       tf.formatText(
         "www.cs.iupui.edu ui.edu dd dd dd:):-) ff telnet:dd dddddupui.edu",
         "SMART", ("http://oncourse.iu.edu/images/icons/")));
-    LOG.debug(
+    log.debug(
       tf.formatText(
         "http://www.iupui.edu:80 www.ui.edu :( ::-( ddd", "SMART",
         ("http://oncourse.iu.edu/images/icons/")));
 
-    LOG.debug(String.valueOf(System.identityHashCode(tf)));
+    log.debug(String.valueOf(System.identityHashCode(tf)));
   }
 }

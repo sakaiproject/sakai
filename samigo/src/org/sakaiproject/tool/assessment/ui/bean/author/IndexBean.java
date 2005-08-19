@@ -27,10 +27,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
 import javax.faces.context.FacesContext;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -41,8 +42,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * @author $author$
  * @version $Id$
  */
-public class IndexBean
-  implements Serializable
+public class IndexBean implements Serializable
 {
   private static BeanSort bs;
   private Collection templateList;
@@ -61,7 +61,7 @@ public class IndexBean
   private String templateOrderBy= "templateName";
   private boolean templateAscending= true;
 
-  static Logger LOG = Logger.getLogger(IndexBean.class.getName());
+  private static Log log = LogFactory.getLog(IndexBean.class);
 
   /**
    * Creates a new IndexBean object.
@@ -230,7 +230,7 @@ public class IndexBean
 //      }
 //      catch(Exception e)
 //      {
-//        LOG.warn("No Course ID specified.");
+//        log.warn("No Course ID specified.");
 //        aiter = delegate.getAssessments();
 //      }
 //
@@ -244,7 +244,7 @@ public class IndexBean
 //    }
 //    catch(Exception e)
 //    {
-//      LOG.error(e);
+//      log.error(e);
 //      if(assessmentList == null)
 //      {
 //        assessmentList = new ArrayList();
@@ -279,7 +279,7 @@ public class IndexBean
 //      }
 //      catch(Exception e)
 //      {
-//        LOG.warn("Either No Course ID or Agent ID or Both.");
+//        log.warn("Either No Course ID or Agent ID or Both.");
 //        coll = delegate.getStudentView(0, null);
 //      }
 //
@@ -287,7 +287,7 @@ public class IndexBean
 //    }
 //    catch(Exception e)
 //    {
-//      LOG.error(e);
+//      log.error(e);
 //      if(studentAssessmentList == null)
 //      {
 //        studentAssessmentList = new ArrayList();
@@ -374,7 +374,7 @@ public class IndexBean
    */
   public void setCourseId(String id)
   {
-    LOG.debug("Setting course id to " + id);
+    log.debug("Setting course id to " + id);
     course_id = id;
   }
 
@@ -395,7 +395,7 @@ public class IndexBean
    */
   public void setAgentId(String id)
   {
-    LOG.debug("Setting agent id to " + id);
+    log.debug("Setting agent id to " + id);
     agent_id = id;
   }
 

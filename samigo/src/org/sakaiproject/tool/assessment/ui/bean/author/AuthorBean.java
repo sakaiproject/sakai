@@ -22,14 +22,17 @@
 **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.bean.author;
-
 import java.io.Serializable;
 import java.util.ArrayList;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateIteratorFacade;
-import javax.faces.context.FacesContext;
 
 /**
  * General authoring information.
@@ -39,8 +42,7 @@ import javax.faces.context.FacesContext;
  */
 public class AuthorBean implements Serializable
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(AuthorBean.class);
+  private static Log log = LogFactory.getLog(AuthorBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 4216587136245498157L;
@@ -132,7 +134,7 @@ public class AuthorBean implements Serializable
       }
     }
     catch(Exception e){
-      LOG.warn(e.getMessage());
+      log.warn(e.getMessage());
     }
   }
 

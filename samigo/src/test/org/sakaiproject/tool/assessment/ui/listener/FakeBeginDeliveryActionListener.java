@@ -25,13 +25,13 @@ package test.org.sakaiproject.tool.assessment.ui.listener;
 
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -56,8 +56,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class FakeBeginDeliveryActionListener implements ActionListener
 {
-  static Logger LOG = Logger.getLogger(FakeBeginDeliveryActionListener.class.
-                      getName());
+  private static Log log = LogFactory.getLog(FakeBeginDeliveryActionListener.class);
 
   private static ContextUtil cu;
   private static String ID_TO_TEST = "3";

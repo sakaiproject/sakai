@@ -25,19 +25,18 @@ package org.sakaiproject.tool.assessment.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.ScrollableResults;
 import net.sf.hibernate.Session;
 
-import org.apache.log4j.Logger;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-
 public class PagingUtilQueries
     extends HibernateDaoSupport implements PagingUtilQueriesAPI{
-  private static Logger LOG =
-    Logger.getLogger(PagingUtilQueries.class.getName());
+    private static Log log = LogFactory.getLog(PagingUtilQueries.class);
 
   public PagingUtilQueries () {
   }

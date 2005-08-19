@@ -63,13 +63,16 @@
 package org.sakaiproject.tool.assessment.ui.web.filter;
 
 import java.io.IOException;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  * Example filter that unconditionally sets the character encoding to be used
@@ -84,11 +87,9 @@ import javax.servlet.ServletResponse;
  * @author Craig McClanahan
  * @version $Id$
  */
-public class SetCharacterEncodingFilter
-  implements Filter
+public class SetCharacterEncodingFilter  implements Filter
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(SetCharacterEncodingFilter.class);
+  private static Log log = LogFactory.getLog(SetCharacterEncodingFilter.class);
 
   // ----------------------------------------------------- Instance Variables
 
@@ -130,9 +131,9 @@ public class SetCharacterEncodingFilter
     ServletRequest request, ServletResponse response, FilterChain chain)
     throws IOException, ServletException
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug(
+      log.debug(
         "doFilter(ServletRequest request, ServletResponse response, FilterChain chain)");
     }
 
@@ -154,16 +155,16 @@ public class SetCharacterEncodingFilter
   public void init(FilterConfig filterConfig)
     throws ServletException
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("init(FilterConfig filterConfig)");
+      log.debug("init(FilterConfig filterConfig)");
     }
 
     this.filterConfig = filterConfig;
     this.encoding = filterConfig.getInitParameter("encoding");
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("encoding=" + encoding);
+      log.debug("encoding=" + encoding);
     }
   }
 

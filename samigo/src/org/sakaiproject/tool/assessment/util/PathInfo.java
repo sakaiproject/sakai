@@ -23,11 +23,8 @@
 
 package org.sakaiproject.tool.assessment.util;
 
-//import org.navigoproject.AbstractCompositeObject;
-
 import java.io.FileInputStream;
 import java.io.IOException;
-
 import java.util.Properties;
 
 /**
@@ -40,7 +37,7 @@ import java.util.Properties;
 public class PathInfo
     //extends AbstractCompositeObject
 {
-  private static final org.apache.log4j.Logger LOG =
+  private static final org.apache.log4j.Logger log =
     org.apache.log4j.Logger.getLogger(PathInfo.class);
   private static final String SETTINGS_DIR = "/org/sakaiproject/settings/sam";
   private static final String SECURITY_DIR = "/org/sakaiproject/security/sam";
@@ -57,7 +54,7 @@ public class PathInfo
    */
   public static PathInfo getInstance()
   {
-    LOG.debug("getInstance()");
+    log.debug("getInstance()");
 
     return _INSTANCE;
   }
@@ -67,7 +64,7 @@ public class PathInfo
    */
   private PathInfo()
   {
-    LOG.debug("new PathInfo()");
+    log.debug("new PathInfo()");
   }
 
   /**
@@ -82,9 +79,9 @@ public class PathInfo
   public Properties getSecurityProperties(String fileName)
     throws IOException
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("getSecurityProperties(String " + fileName + ")");
+      log.debug("getSecurityProperties(String " + fileName + ")");
     }
 
     Properties props = null;
@@ -106,9 +103,9 @@ public class PathInfo
   public Properties getSettingsProperties(String fileName)
     throws IOException
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("getSettingsProperties(String " + fileName + ")");
+      log.debug("getSettingsProperties(String " + fileName + ")");
     }
 
     Properties props = null;
@@ -125,7 +122,7 @@ public class PathInfo
    */
   public String getBasePathToSecurity()
   {
-    LOG.debug("getBasePathToSecurity()");
+    log.debug("getBasePathToSecurity()");
 
     return basePathToSecurity;
   }
@@ -140,9 +137,9 @@ public class PathInfo
   public void setBasePathToSecurity(String basePathToSecurity)
     throws IllegalArgumentException
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("setBasePathToSecurity(String " + basePathToSecurity + ")");
+      log.debug("setBasePathToSecurity(String " + basePathToSecurity + ")");
     }
 
     if(basePathToSecurity == null)
@@ -169,7 +166,7 @@ public class PathInfo
    */
   public String getBasePathToSettings()
   {
-    LOG.debug("getBasePathToSettings()");
+    log.debug("getBasePathToSettings()");
 
     return basePathToSettings;
   }
@@ -184,9 +181,9 @@ public class PathInfo
   public void setBasePathToSettings(String basePathToSettings)
     throws IllegalArgumentException
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("setBasePathToSettings(String " + basePathToSettings + ")");
+      log.debug("setBasePathToSettings(String " + basePathToSettings + ")");
     }
 
     if(basePathToSettings == null)

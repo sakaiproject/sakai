@@ -21,11 +21,13 @@
 *
 **********************************************************************************/
 package test.org.sakaiproject.tool.assessment.business.entity.helper;
-
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
 import org.sakaiproject.tool.assessment.business.entity.asi.Assessment;
 import org.sakaiproject.tool.assessment.business.entity.asi.Item;
 import org.sakaiproject.tool.assessment.business.entity.asi.Section;
@@ -38,7 +40,6 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.util.XmlUtil;
-import org.w3c.dom.Document;
 
 /**
  * <p> Test program</p>
@@ -49,8 +50,7 @@ import org.w3c.dom.Document;
  */
 
 public class AuthoringHelperTest {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(AuthoringHelperTest.class);
+  private static Log log = LogFactory.getLog(AuthoringHelperTest.class);
 
   private final static String xslPath =
         "C:\\Documents and Settings\\Ed Smiley\\jbproject\\sam\\webapp.war\\xml\\xsl\\dataTransform\\import\\v1p2";
@@ -125,10 +125,10 @@ public class AuthoringHelperTest {
    * @return a persisted assessment
    */
   public AssessmentFacade createImportedAssessment(Document document) {
-//    if(LOG.isDebugEnabled())
+//    if(log.isDebugEnabled())
 //    {
     System.out.println(
-//      LOG.debug(
+//      log.debug(
         document==null?
         "DOCUMENT IS NULL IN createPublishedAssessment(  Document)":
         "createPublishedAssessment(Document)");
@@ -161,21 +161,21 @@ public class AuthoringHelperTest {
 
       // process each section and each item within each section
       List sectionList = exHelper.getSectionXmlList(assessmentXml);
-//      LOG.debug("found: " + sectionList.size() + "sections");
-      LOG.debug("sections=" + sectionList.size());
+//      log.debug("found: " + sectionList.size() + "sections");
+      log.debug("sections=" + sectionList.size());
 
       for (int sec = 0; sec < sectionList.size(); sec++)// for each section...
       {
         Section sectionXml =(Section) sectionList.get(sec);
         Map sectionMap = exHelper.mapSection(sectionXml);
-        LOG.debug("SECTION MAP=" + sectionMap);
+        log.debug("SECTION MAP=" + sectionMap);
         // create the assessment section
         SectionFacade section =
             new SectionFacade();
 //            assessmentService.addSection("" + assessment.getAssessmentId());
         exHelper.updateSection(section, sectionMap);
         // make sure we are the creator
-        LOG.debug("section " + section.getTitle() +
+        log.debug("section " + section.getTitle() +
           "created by '" + me+ "'.");
         section.setCreatedBy(me);
         section.setCreatedDate(assessment.getCreatedDate());
@@ -193,10 +193,10 @@ public class AuthoringHelperTest {
         List itemList = exHelper.getItemXmlList(sectionXml);
         for (int itm = 0; itm < itemList.size(); itm++)// for each item
         {
-          LOG.debug("items=" + itemList.size());
+          log.debug("items=" + itemList.size());
           Item itemXml = (Item) itemList.get(itm);
           Map itemMap = exHelper.mapItem(itemXml);
-          LOG.debug("ITEM MAP=" + itemMap);
+          log.debug("ITEM MAP=" + itemMap);
 
           ItemFacade item = new ItemFacade();
           exHelper.updateItem(item, itemMap);
@@ -205,7 +205,7 @@ public class AuthoringHelperTest {
           item.setCreatedDate(assessment.getCreatedDate());
           item.setLastModifiedBy(me);
           item.setLastModifiedDate(assessment.getCreatedDate());
-          LOG.debug("ITEM TYPE IS: " +item.getTypeId());
+          log.debug("ITEM TYPE IS: " +item.getTypeId());
           item.setStatus(ItemDataIfc.ACTIVE_STATUS);
           // assign the next sequence number
           item.setSequence(new Integer(itm + 1));
@@ -216,50 +216,50 @@ public class AuthoringHelperTest {
           // debugging
 //          Set metaSet = item.getItemMetaDataSet();
 //          Iterator iter = metaSet.iterator();
-//          if (LOG.isDebugEnabled())
+//          if (log.isDebugEnabled())
 //          {
 //            while (iter.hasNext())
 //            {
 //              ItemMetaData meta = (ItemMetaData) iter.next();
-//              LOG.debug("ITEM DEBUG meta " + meta.getLabel() +
+//              log.debug("ITEM DEBUG meta " + meta.getLabel() +
 //                "=" + meta.getEntry());
 //            }
 //          }
-          LOG.debug("ITEM:  ans key" + item.getAnswerKey() );
-          LOG.debug("ITEM:  correct feed" + item.getCorrectItemFeedback() );
-          LOG.debug("ITEM:  incorrect feed " + item.getInCorrectItemFeedback() );
-          LOG.debug("ITEM:  by " + item.getCreatedBy() );
-          LOG.debug("ITEM:  date" + item.getCreatedDate() );
-          LOG.debug("ITEM:  desc " + item.getDescription() );
-          LOG.debug("ITEM:  duration" + item.getDuration() );
-          LOG.debug("ITEM:  general feed " + item.getGeneralItemFeedback() );
-          LOG.debug("ITEM:  incorrect " + item.getInCorrectItemFeedback() );
-          LOG.debug("ITEM:  is true " + item.getIsTrue() );
-          LOG.debug("ITEM DEBUG item text" + item.getText() );
-          LOG.debug("ITEM:  item text" + item.getText() );
+          log.debug("ITEM:  ans key" + item.getAnswerKey() );
+          log.debug("ITEM:  correct feed" + item.getCorrectItemFeedback() );
+          log.debug("ITEM:  incorrect feed " + item.getInCorrectItemFeedback() );
+          log.debug("ITEM:  by " + item.getCreatedBy() );
+          log.debug("ITEM:  date" + item.getCreatedDate() );
+          log.debug("ITEM:  desc " + item.getDescription() );
+          log.debug("ITEM:  duration" + item.getDuration() );
+          log.debug("ITEM:  general feed " + item.getGeneralItemFeedback() );
+          log.debug("ITEM:  incorrect " + item.getInCorrectItemFeedback() );
+          log.debug("ITEM:  is true " + item.getIsTrue() );
+          log.debug("ITEM DEBUG item text" + item.getText() );
+          log.debug("ITEM:  item text" + item.getText() );
         }// ... end for each item
       }// ... end for each section
 
-      LOG.debug("assessment created by '" + assessment.getCreatedBy() + "'.");
+      log.debug("assessment created by '" + assessment.getCreatedBy() + "'.");
 //      assessmentService.update(assessment);
       // debugging
-      LOG.debug("ASSESSMENT:  meta " + assessment.getAssessmentMetaDataMap());
-      LOG.debug("ASSESSMENT:  feed " + assessment.getAssessmentFeedback());
-      LOG.debug("ASSESSMENT:  comments  " + assessment.getComments());
-      LOG.debug("ASSESSMENT:  by " + assessment.getCreatedBy());
-      LOG.debug("ASSESSMENT:  by date " + assessment.getCreatedDate());
-      LOG.debug("ASSESSMENT:  desc" + assessment.getDescription());
-      LOG.debug("ASSESSMENT:  disp " + assessment.getDisplayName());
-      LOG.debug("ASSESSMENT:  last by " + assessment.getLastModifiedBy());
-      LOG.debug("ASSESSMENT:  last date" + assessment.getLastModifiedDate());
-      LOG.debug("ASSESSMENT:  mult " + assessment.getMultipartAllowed());
-      LOG.debug("ASSESSMENT:  title " + assessment.getTitle());
-      LOG.debug("ASSESSMENT DEBUG title " + assessment.getTitle());
+      log.debug("ASSESSMENT:  meta " + assessment.getAssessmentMetaDataMap());
+      log.debug("ASSESSMENT:  feed " + assessment.getAssessmentFeedback());
+      log.debug("ASSESSMENT:  comments  " + assessment.getComments());
+      log.debug("ASSESSMENT:  by " + assessment.getCreatedBy());
+      log.debug("ASSESSMENT:  by date " + assessment.getCreatedDate());
+      log.debug("ASSESSMENT:  desc" + assessment.getDescription());
+      log.debug("ASSESSMENT:  disp " + assessment.getDisplayName());
+      log.debug("ASSESSMENT:  last by " + assessment.getLastModifiedBy());
+      log.debug("ASSESSMENT:  last date" + assessment.getLastModifiedDate());
+      log.debug("ASSESSMENT:  mult " + assessment.getMultipartAllowed());
+      log.debug("ASSESSMENT:  title " + assessment.getTitle());
+      log.debug("ASSESSMENT DEBUG title " + assessment.getTitle());
 //      assessmentService.saveAssessment(assessment);
     }
     catch(Exception e)
     {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
 
@@ -274,7 +274,7 @@ public class AuthoringHelperTest {
    */
   public ItemFacade createImportedItem(Document document)
   {
-    LOG.debug(
+    log.debug(
         document==null?
         "DOCUMENT IS NULL IN createImportedItem(Document)":
         "createImportedItem(Document)");
@@ -288,7 +288,7 @@ public class AuthoringHelperTest {
       System.out.println("XSLT Path: " + exHelper.getTransformPath());
       Item itemXml = new Item(document, QTIVersion.VERSION_1_2);
       Map itemMap = exHelper.mapItem(itemXml);
-//      LOG.debug("ITEM MAP=" + itemMap);
+//      log.debug("ITEM MAP=" + itemMap);
       exHelper.updateItem(item, itemMap);
       ItemService itemService = new ItemService();
       System.out.println("updating item");
@@ -296,7 +296,7 @@ public class AuthoringHelperTest {
     }
     catch(Exception e)
     {
-//      LOG.error(e.getMessage(), e);
+//      log.error(e.getMessage(), e);
       e.printStackTrace();
     }
 

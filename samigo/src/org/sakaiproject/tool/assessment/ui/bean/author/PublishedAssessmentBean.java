@@ -24,8 +24,10 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
-
 import java.util.ArrayList;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author rshastri
@@ -35,11 +37,9 @@ import java.util.ArrayList;
  *
  * Used to be org.navigoproject.ui.web.asi.author.assessment.published.PublishedAssessmentActionForm.java
  */
-public class PublishedAssessmentBean
-  implements Serializable
+public class PublishedAssessmentBean implements Serializable
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(PublishedAssessmentBean.class);
+  private static Log log = LogFactory.getLog(PublishedAssessmentBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 206375673822116682L;

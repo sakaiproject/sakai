@@ -37,6 +37,9 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishingTarget;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -48,8 +51,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
 public class PublishedAssessmentSettingsBean
     implements Serializable {
-  private static final org.apache.log4j.Logger LOG =
-      org.apache.log4j.Logger.getLogger(PublishedAssessmentSettingsBean.class);
+    private static Log log = LogFactory.getLog(PublishedAssessmentSettingsBean.class);
     /**
      *  we use the calendar widget which uses 'MM-dd-yyyy hh:mm:ss a'
      *  used to take the internal format from calendar picker and move it
@@ -782,12 +784,12 @@ public class PublishedAssessmentSettingsBean
     }
 
     try {
-      LOG.warn("DATETIME=:" + date + ":");
+      log.warn("DATETIME=:" + date + ":");
       dateString = displayFormat.format(date);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
-      LOG.warn("Unable to format date.");
+      log.warn("Unable to format date.");
       ex.printStackTrace(System.out);
     }
     return dateString;
@@ -805,12 +807,12 @@ public class PublishedAssessmentSettingsBean
     }
 
     try {
-      LOG.warn("DATETIME=:" + dateString + ":");
+      log.warn("DATETIME=:" + dateString + ":");
       date = (Date) displayFormat.parse(dateString);
     }
     catch (Exception ex) {
       // we will leave it as a null date
-      LOG.warn("Unable to format date.");
+      log.warn("Unable to format date.");
       ex.printStackTrace(System.out);
     }
 
