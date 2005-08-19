@@ -65,7 +65,6 @@ public class PersistenceService{
           }
           else{
             SpringBeanLocator locator = SpringBeanLocator.getInstance();
-            System.out.println("***locator="+locator);
             return INSTANCE = (PersistenceService)locator.getBean("PersistenceService");
 	    //return INSTANCE = (PersistenceService) ApplicationContextLocator.getInstance().getBean("PersistenceService");
           }

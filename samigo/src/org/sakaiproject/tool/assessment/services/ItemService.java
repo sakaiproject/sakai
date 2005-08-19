@@ -56,7 +56,6 @@ public class ItemService
     ItemFacade item = null;
     try
     {
-	//System.out.println("***** itemId in delegate=" + itemId);
       item =
         PersistenceService.getInstance().getItemFacadeQueries().
           getItem(itemId, agentId);
@@ -79,7 +78,6 @@ public class ItemService
       ItemFacade item= PersistenceService.getInstance().
         getItemFacadeQueries().getItem(itemId, agentId);
 
-      //System.out.println("Ownerid = " + item.getData().getCreatedBy());
       // you are not allowed to delete item if you are not the owner
       if (!item.getData().getCreatedBy().equals(agentId))
         throw new Error(new Exception());
@@ -105,8 +103,6 @@ public class ItemService
 
       // you are not allowed to delete item if you are not the owner
 
-      //System.out.println("item.getdata()= " + item.getData());
-      //System.out.println("item.getdata().getCreatedBy= " + item.getData().getCreatedBy());
       if (!item.getData().getCreatedBy().equals(agentId))
         throw new Error(new Exception());
       PersistenceService.getInstance().getItemFacadeQueries().
@@ -177,8 +173,6 @@ public class ItemService
   {
     try
     {
-	//System.out.println("Ownerid = " + item.getData().getCreatedBy());
-	//System.out.println("Ownerid = " + item.getData().getScore());
       return PersistenceService.getInstance().getItemFacadeQueries().saveItem(item);
     }
     catch(Exception e)

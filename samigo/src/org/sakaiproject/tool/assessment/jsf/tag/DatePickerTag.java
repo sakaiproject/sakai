@@ -88,9 +88,7 @@ public class DatePickerTag extends UIComponentTag
     super.setProperties(component);
 
     FacesContext context = getFacesContext();
-    //System.out.println("value="+value);
     util.setString(component, "value", value);
-    //System.out.println("value="+value);
     util.setString(component, "size", size);
   }
 

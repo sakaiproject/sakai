@@ -176,7 +176,6 @@ public class AssessmentSettingsBean
         setNoTemplate(true);
       //2. set the assessment info
       this.assessment = assessment;
-      //System.out.println("****1. beginning of assessment"+assessment);
       // set the valueMap
       setValueMap(assessment.getAssessmentMetaDataMap());
       this.assessmentId = assessment.getAssessmentId();
@@ -200,22 +199,18 @@ public class AssessmentSettingsBean
       // these are properties in AssessmentAccessControl
       AssessmentAccessControlIfc accessControl = null;
       accessControl = assessment.getAssessmentAccessControl();
-      //System.out.println("****2. beginning of access control="+accessControl);
       if (accessControl != null) {
-        //System.out.println("****3. access control NOT NULL");
         this.startDate = accessControl.getStartDate();
         this.dueDate = accessControl.getDueDate();
         this.retractDate = accessControl.getRetractDate();
         this.feedbackDate = accessControl.getFeedbackDate();
 
-        //System.out.println("****3b. access control: relaeseTo");
         // deal with releaseTo
         this.releaseTo = accessControl.getReleaseTo(); // list of String
         this.publishingTargets = getPublishingTargets();
         this.targetSelected = getTargetSelected(releaseTo);
         this.firstTargetSelected = getFirstTargetSelected(releaseTo);
 
-        //System.out.println("****3c. access control: time limit");
         this.timeLimit = accessControl.getTimeLimit(); // in seconds
         if (timeLimit !=null && timeLimit.intValue()>0)
           setTimeLimitDisplay(timeLimit.intValue());
@@ -232,7 +227,6 @@ public class AssessmentSettingsBean
         if (accessControl.getSubmissionsSaved()!=null) // bad name, this is autoSaved
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
-        //System.out.println("****3d. access control: unliited submisison");
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions().booleanValue()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
@@ -242,12 +236,6 @@ public class AssessmentSettingsBean
           this.unlimitedSubmissions=AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString();
           this.submissionsAllowed="";
         }
-        //System.out.println("**** control unlimited submissin="+accessControl.getUnlimitedSubmissions());
-        //System.out.println("**** unlimited submissions="+this.unlimitedSubmissions);
-        //System.out.println("**** control submissionsAllowed="+accessControl.getSubmissionsAllowed());
-        //System.out.println("**** submissionsAllowed="+this.submissionsAllowed);
-
-        //System.out.println("****3e. access control: late handling");
         if (accessControl.getLateHandling() !=null)
           this.lateHandling = accessControl.getLateHandling().toString();
         if (accessControl.getSubmissionsSaved()!=null)
@@ -256,12 +244,10 @@ public class AssessmentSettingsBean
         this.username = accessControl.getUsername();
         this.password = accessControl.getPassword();
         this.finalPageUrl = accessControl.getFinalPageUrl();
-        //System.out.println("**** end of access control");
       }
 
       // properties of AssesmentFeedback
       AssessmentFeedbackIfc feedback = assessment.getAssessmentFeedback();
-      //System.out.println("****4. feeback ="+feedback);
       if (feedback != null) {
         if (feedback.getFeedbackDelivery()!=null);
           this.feedbackDelivery = feedback.getFeedbackDelivery().toString();

@@ -77,7 +77,6 @@ public class AssessmentBean
   public void setAssessment(AssessmentFacade assessment) {
     try {
       this.assessment = assessment;
-      //System.out.println("** beginning of assessment bean "+assessment);
       this.assessmentId = assessment.getAssessmentId().toString();
       this.title = assessment.getTitle();
 
@@ -95,7 +94,6 @@ public class AssessmentBean
     }
     catch (Exception ex) {
     }
-    //System.out.println("** end of setting assessment bean"+assessment);
   }
 
   // properties from Assessment
@@ -141,20 +139,20 @@ public class AssessmentBean
   public void setQuestionSizeAndTotalScore() {
    this.questionSize = 0;
    this.totalScore = 0;
-   int randomPartCount = 0; 
+   int randomPartCount = 0;
    for(int i=0;i<this.sections.size();i++){
       SectionContentsBean sectionBean = (SectionContentsBean) sections.get(i);
       ArrayList items = sectionBean.getItemContents();
 
       int itemsInThisSection =0;
       if (sectionBean.getSectionAuthorType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)) {
-        // for random draw parts, add 
-   	randomPartCount++ ; 
+        // for random draw parts, add
+   	randomPartCount++ ;
         itemsInThisSection = sectionBean.getNumberToBeDrawn().intValue();
       }
       else {
 	itemsInThisSection = items.size();
-      }    
+      }
 
       this.questionSize += itemsInThisSection;
       for (int j=0; j<itemsInThisSection; j++){
@@ -162,11 +160,11 @@ public class AssessmentBean
           if (item.getItemData().getScore()!=null){
             this.totalScore += item.getItemData().getScore().floatValue();
           }
-      }    
+      }
     }
     if (randomPartCount >0) {
 	setHasRandomDrawPart(true);
-    } 
+    }
     else {
 	setHasRandomDrawPart(false);
     }

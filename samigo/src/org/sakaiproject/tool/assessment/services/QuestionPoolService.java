@@ -86,7 +86,6 @@ public class QuestionPoolService
     QuestionPoolFacade pool = null;
     try
     {
-    //System.out.println("***** poolId in delegate=" + poolId);
       pool =
         PersistenceService.getInstance().getQuestionPoolFacadeQueries().
           getPool(poolId, agentId);
@@ -328,11 +327,11 @@ public class QuestionPoolService
           movePool(agentId, sourceId, destId);
         }
         else {
-          System.out.println("Illegal Move: Can not move a pool to itself." );
+          log.warn("Illegal Move: Can not move a pool to itself." );
         }
       }
       else {
-        System.out.println("Illegal Move: Can not move a pool to its descendant." );
+        log.warn("Illegal Move: Can not move a pool to its descendant." );
       }
     }
     catch(Exception e)
@@ -352,8 +351,6 @@ public class QuestionPoolService
       QuestionPoolFacade qp = PersistenceService.getInstance().
         getQuestionPoolFacadeQueries().getPool(poolId, agentId);
 
-      //System.out.println("Owner = " + qp.getOwner());
-      //System.out.println("Ownerid = " + qp.getOwnerId());
       // you are not allowed to delete pool if you are not the owner
       if (!qp.getOwnerId().equals(agentId))
         throw new Error(new Exception());
@@ -395,7 +392,7 @@ public class QuestionPoolService
         (tree, agentId, sourceId, destId);
       }
       else {
-        System.out.println("Illegal Copy: Can not copy a pool to its descendant!" );
+        log.warn("Illegal Copy: Can not copy a pool to its descendant!" );
       }
 
     }

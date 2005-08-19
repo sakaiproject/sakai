@@ -51,7 +51,6 @@ public class SectionService
     SectionFacade section = null;
     try
     {
-    System.out.println("***** section in delegate=" + secId);
       section = PersistenceService.getInstance().getSectionFacadeQueries().get(secId);
     }
     catch(Exception e)
