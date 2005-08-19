@@ -44,9 +44,13 @@ import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 public class UploadFilter implements Filter {
+  private static Log log = LogFactory.getLog(UploadFilter.class);
+
    private int sizeThreshold = -1;
    private long sizeMax = -1;
    private String repositoryPath;
@@ -130,7 +134,7 @@ public class UploadFilter implements Filter {
                }
             }, response);
       } catch (FileUploadException ex) {
-         System.out.println(ex.getMessage());
+         log.error(ex.getMessage());
          ServletException servletEx = new ServletException();
          servletEx.initCause(ex);
          throw servletEx;
