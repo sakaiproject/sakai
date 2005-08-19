@@ -23,7 +23,8 @@
 
 package org.sakaiproject.tool.assessment.settings;
 
-//import org.navigoproject.AbstractCompositeObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>Title: NavigoProject.org</p>
@@ -36,8 +37,7 @@ package org.sakaiproject.tool.assessment.settings;
 public class ApplicationEnvironment
     //  extends AbstractCompositeObject
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(ApplicationEnvironment.class);
+      private static Log log = LogFactory.getLog(ApplicationEnvironment.class);
   private static ApplicationEnvironment _INSTANCE =
     new ApplicationEnvironment();
   private boolean development = false;
@@ -54,7 +54,7 @@ public class ApplicationEnvironment
    */
   public static ApplicationEnvironment getInstance()
   {
-    LOG.debug("getInstance()");
+    log.debug("getInstance()");
 
     return _INSTANCE;
   }
@@ -64,12 +64,12 @@ public class ApplicationEnvironment
    */
   private ApplicationEnvironment()
   {
-    LOG.debug("new ApplicationEnvironment()");
+    log.debug("new ApplicationEnvironment()");
     PathInfo pathInfo = PathInfo.getInstance();
     String pathToSecurity = pathInfo.getBasePathToSecurity();
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("pathToSecurity=" + pathToSecurity);
+      log.debug("pathToSecurity=" + pathToSecurity);
     }
 
     if((pathToSecurity == null) || (pathToSecurity.length() < 1))
@@ -81,7 +81,7 @@ public class ApplicationEnvironment
     pathToSecurity = pathToSecurity.toUpperCase();
     if(pathToSecurity.endsWith("DEV"))
     {
-      LOG.debug("pathToSecurity.endsWith(\"DEV\")");
+      log.debug("pathToSecurity.endsWith(\"DEV\")");
       this.development = true;
       this.production = false;
 
@@ -90,7 +90,7 @@ public class ApplicationEnvironment
 
     if(pathToSecurity.endsWith("TST"))
     {
-      LOG.debug("pathToSecurity.endsWith(\"TST\")");
+      log.debug("pathToSecurity.endsWith(\"TST\")");
       this.testing = true;
       this.production = false;
 
@@ -99,7 +99,7 @@ public class ApplicationEnvironment
 
     if(pathToSecurity.endsWith("REG"))
     {
-      LOG.debug("pathToSecurity.endsWith(\"REG\")");
+      log.debug("pathToSecurity.endsWith(\"REG\")");
       this.regression = true;
       this.production = false;
 
@@ -108,7 +108,7 @@ public class ApplicationEnvironment
 
     if(pathToSecurity.endsWith("STG"))
     {
-      LOG.debug("pathToSecurity.endsWith(\"STG\")");
+      log.debug("pathToSecurity.endsWith(\"STG\")");
       this.staging = true;
       this.production = false;
 
@@ -117,7 +117,7 @@ public class ApplicationEnvironment
 
     if(pathToSecurity.endsWith("TRN"))
     {
-      LOG.debug("pathToSecurity.endsWith(\"TRN\")");
+      log.debug("pathToSecurity.endsWith(\"TRN\")");
       this.training = true;
       this.production = false;
 
@@ -126,7 +126,7 @@ public class ApplicationEnvironment
 
     if(pathToSecurity.endsWith("PRD"))
     {
-      LOG.debug("pathToSecurity.endsWith(\"PRD\")");
+      log.debug("pathToSecurity.endsWith(\"PRD\")");
       this.production = true;
 
       return;

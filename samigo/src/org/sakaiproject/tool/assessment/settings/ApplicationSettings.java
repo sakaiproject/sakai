@@ -29,6 +29,7 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.business.entity.Constants;
 
 /**
@@ -38,7 +39,7 @@ import org.sakaiproject.tool.assessment.business.entity.Constants;
  */
 public class ApplicationSettings
 {
-  private static final Log LOG = LogFactory.getLog(ApplicationSettings.class);
+  private static Log log = LogFactory.getLog(ApplicationSettings.class);
   private static boolean disableMultipleChoiceSingle = false;
   private static boolean disableMultipleChoiceMultiple = false;
   private static boolean disableMultipleChoiceSurvey = false;
@@ -71,70 +72,70 @@ public class ApplicationSettings
       b = new Boolean(p.getProperty("disableMultipleChoiceSingle", "false"));
       if (b.booleanValue())
       {
-        LOG.info("disableMultipleChoiceSingle = true");
+        log.info("disableMultipleChoiceSingle = true");
         disableMultipleChoiceSingle = true;
       }
       // disableMultipleChoiceMultiple
       b = new Boolean(p.getProperty("disableMultipleChoiceMultiple", "false"));
       if (b.booleanValue())
       {
-        LOG.info("disableMultipleChoiceMultiple = true");
+        log.info("disableMultipleChoiceMultiple = true");
         disableMultipleChoiceMultiple = true;
       }
       // disableMultipleChoiceSurvey
       b = new Boolean(p.getProperty("disableMultipleChoiceSurvey", "false"));
       if (b.booleanValue())
       {
-        LOG.info("disableMultipleChoiceSurvey = true");
+        log.info("disableMultipleChoiceSurvey = true");
         disableMultipleChoiceSurvey = true;
       }
       // disableShortAnswerEssay
       b = new Boolean(p.getProperty("disableShortAnswerEssay", "false"));
       if (b.booleanValue())
       {
-        LOG.info("disableShortAnswerEssay = true");
+        log.info("disableShortAnswerEssay = true");
         disableShortAnswerEssay = true;
       }
       // disableFillInTheBlank
       b = new Boolean(p.getProperty("disableFillInTheBlank", "false"));
       if (b.booleanValue())
       {
-        LOG.info("disableFillInTheBlank = true");
+        log.info("disableFillInTheBlank = true");
         disableFillInTheBlank = true;
       }
       // disableMatching
       b = new Boolean(p.getProperty("disableMatching", "false"));
       if (b.booleanValue())
       {
-        LOG.info("disableMatching = true");
+        log.info("disableMatching = true");
         disableMatching = true;
       }
       // disableTrueFalse
       b = new Boolean(p.getProperty("disableTrueFalse", "false"));
       if (b.booleanValue())
       {
-        LOG.info("disableTrueFalse = true");
+        log.info("disableTrueFalse = true");
         disableTrueFalse = true;
       }
       // disableAudioRecording
       b = new Boolean(p.getProperty("disableAudioRecording", "false"));
       if (b.booleanValue())
       {
-        LOG.info("disableAudioRecording = true");
+        log.info("disableAudioRecording = true");
         disableAudioRecording = true;
       }
       // disableFileUpload
       b = new Boolean(p.getProperty("disableFileUpload", "false"));
       if (b.booleanValue())
       {
-        LOG.info("disableFileUpload = true");
+        log.info("disableFileUpload = true");
         disableFileUpload = true;
       }
       // poolingUserAdminDisabled
       b = new Boolean(p.getProperty("poolingUserAdminDisabled", "false"));
       if (b.booleanValue())
       {
-        LOG.info("poolingUserAdminDisabled = true");
+        log.info("poolingUserAdminDisabled = true");
         poolingUserAdminDisabled = true;
       }
 
@@ -142,7 +143,7 @@ public class ApplicationSettings
       b = new Boolean(p.getProperty("enableAutoSaveForGrading", "false"));
       if (b.booleanValue())
       {
-        LOG.info("enableAutoSaveForGrading= true");
+        log.info("enableAutoSaveForGrading= true");
         enableAutoSaveForGrading = true;
       }
 
@@ -152,16 +153,16 @@ public class ApplicationSettings
       buildVersion = rb.getString("build.version");
       buildTime = rb.getString("build.time");
       buildTag = rb.getString("build.tag");
-      if (LOG.isInfoEnabled())
+      if (log.isInfoEnabled())
       {
-        LOG.info("buildVersion=" + buildVersion);
-        LOG.info("buildTime=" + buildTime);
-        LOG.info("buildTag=" + buildTag);
+        log.info("buildVersion=" + buildVersion);
+        log.info("buildTime=" + buildTime);
+        log.info("buildTag=" + buildTag);
       }
     }
     catch (IOException e)
     {
-      LOG.fatal(e);
+      log.fatal(e);
       throw new Error(e);
     }
   }

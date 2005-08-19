@@ -23,17 +23,18 @@
 package org.sakaiproject.tool.assessment.osid.assessment.impl;
 
 import java.util.Iterator;
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osid.assessment.AssessmentException;
 import org.osid.assessment.Section;
 
 public class SectionIteratorImpl
   implements org.osid.assessment.SectionIterator
 {
-  private final static org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(SectionIteratorImpl.class);
+  private static Log log = LogFactory.getLog(SectionIteratorImpl.class);
   private Iterator sectionIterator;
 
   private Iterator sectionIter;

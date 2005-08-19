@@ -26,12 +26,14 @@ package org.sakaiproject.tool.assessment.settings;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.sakaiproject.framework.Constants;
-import org.sakaiproject.framework.ThreadLocalMapProvider;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import osid.OsidException;
 import osid.OsidLoader;
 import osid.OsidOwner;
+
+import org.sakaiproject.framework.Constants;
+import org.sakaiproject.framework.ThreadLocalMapProvider;
 
 /**
  * Configures OKI OSID impl at startup.
@@ -41,20 +43,19 @@ import osid.OsidOwner;
 public class OkiOsidConfigListener
   implements ServletContextListener
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(OkiOsidConfigListener.class);
+  private static Log log = LogFactory.getLog(OkiOsidConfigListener.class);
 
   /**
    * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
    */
   public void contextInitialized(ServletContextEvent sce)
   {
-//    if(LOG.isDebugEnabled())
+//    if(log.isDebugEnabled())
 //    {
-//      LOG.debug("contextInitialized(ServletContextEvent " + sce + ")");
+//      log.debug("contextInitialized(ServletContextEvent " + sce + ")");
 //    }
 
-		LOG.debug(
+		log.debug(
 		"OkiOsidConfigListener.contextInitialized(ServletContextEvent " + sce + ")");
 
     try
@@ -64,21 +65,21 @@ public class OkiOsidConfigListener
       owner.addContext("PATH_TO_SECURITY", pathInfo.getBasePathToSecurity());
       owner.addContext("PATH_TO_SETTINGS", pathInfo.getBasePathToSettings());
 
-      LOG.debug("PATH_TO_SETTINGS = " + owner.getContext("PATH_TO_SETTINGS"));
-      LOG.debug(owner);
+      log.debug("PATH_TO_SETTINGS = " + owner.getContext("PATH_TO_SETTINGS"));
+      log.debug(owner);
       //SharedManager sm = OsidManagerFactory.createSharedManager(owner);
 
       // this code initializes the PathInfo IN THE OKI LAYER!! in an indirect manner (through the manager)
 			OsidLoader.getManager("osid.shared.SharedManager", "org.sakai.osid.shared.impl", owner);
 
 
-      LOG.info("OkiOsidConfigListener initialized successfully!");
+      log.info("OkiOsidConfigListener initialized successfully!");
 
 			ThreadLocalMapProvider.getMap().put(Constants.OSID_OWNER, owner);
     }
     catch(OsidException e)
     {
-      LOG.fatal(e.getMessage(), e);
+      log.fatal(e.getMessage(), e);
       throw new Error(e);
     }
 

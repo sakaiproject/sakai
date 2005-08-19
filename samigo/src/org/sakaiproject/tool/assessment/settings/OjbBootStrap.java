@@ -25,6 +25,8 @@ package org.sakaiproject.tool.assessment.settings;
 
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.ojb.broker.PBKey;
 import org.apache.ojb.broker.PersistenceBrokerFactory;
 import org.apache.ojb.broker.metadata.ConnectionPoolDescriptor;
@@ -43,17 +45,16 @@ import org.apache.ojb.broker.metadata.SequenceDescriptor;
  */
 public class OjbBootStrap
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(OjbBootStrap.class);
+  private static Log log = LogFactory.getLog(OjbBootStrap.class);
 
   /**
    * Creates a new OjbBootStrap object.
    */
   public OjbBootStrap()
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("new OjbBootStrap()");
+      log.debug("new OjbBootStrap()");
     }
   }
 
@@ -64,7 +65,7 @@ public class OjbBootStrap
    */
   public void bootstrap()
   {
-    LOG.debug("bootstrap()");
+    log.debug("bootstrap()");
     try
     {
       PathInfo path = PathInfo.getInstance();
@@ -74,7 +75,7 @@ public class OjbBootStrap
           (path.getPathToSecurity() == null) ||
           (path.getPathToSettings() == null))
       {
-        LOG.fatal("PathInfo not initialized properly");
+        log.fatal("PathInfo not initialized properly");
         throw new IllegalStateException("PathInfo not initialized properly");
       }
 
@@ -84,7 +85,7 @@ public class OjbBootStrap
         path.getSettingsProperties("SAM.properties");
       if((securityProperties == null) || (settingsProperties == null))
       {
-        LOG.fatal("Could not open Properties");
+        log.fatal("Could not open Properties");
         throw new IllegalStateException("Could not open Properties");
       }
 
@@ -92,7 +93,7 @@ public class OjbBootStrap
         ! securityProperties.containsKey("username") ||
           ! securityProperties.containsKey("password"))
       {
-        LOG.fatal("Properties do not contain username or password");
+        log.fatal("Properties do not contain username or password");
         throw new IllegalStateException(
           "Properties do not contain username or password");
       }
@@ -112,7 +113,7 @@ public class OjbBootStrap
           ! settingsProperties.containsKey("testOnBorrow") ||
           ! settingsProperties.containsKey("testWhileIdle"))
       {
-        LOG.fatal("Missing one or more required keys");
+        log.fatal("Missing one or more required keys");
         throw new IllegalStateException("Missing one or more required keys");
       }
 
@@ -169,7 +170,7 @@ public class OjbBootStrap
 			if (mm != null){
 			  ConnectionRepository connectionRepository =
 					mm.connectionRepository();
-					LOG.debug("connection repository object value: " + connectionRepository);
+					log.debug("connection repository object value: " + connectionRepository);
 					connectionRepository.addDescriptor(jdbcConnectionDescriptor);
 			}
 			else{
@@ -199,11 +200,11 @@ public class OjbBootStrap
           settingsProperties.getProperty("jcd-alias"),
           securityProperties.getProperty("username"),
           securityProperties.getProperty("password")));
-      LOG.info("started: " + settingsProperties.getProperty("jcd-alias"));
+      log.info("started: " + settingsProperties.getProperty("jcd-alias"));
     }
     catch(Exception e)
     {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       throw new IllegalStateException(e.getMessage());
     }
   }

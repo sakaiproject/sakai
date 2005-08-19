@@ -25,9 +25,11 @@ package org.sakaiproject.tool.assessment.settings;
 
 import java.io.IOException;
 import java.util.Properties;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.framework.ApplicationContextLocator;
 
@@ -39,16 +41,14 @@ import org.sakaiproject.framework.ApplicationContextLocator;
 public class ApplicationContextLocatorConfigListener
   implements ServletContextListener
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(
-      ApplicationContextLocatorConfigListener.class);
+  private static Log log = LogFactory.getLog(ApplicationContextLocatorConfigListener.class);
 
   /**
    * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
    */
   public void contextInitialized(ServletContextEvent sce)
   {
-    LOG.debug(
+    log.debug(
       "ApplicationContextLocatorConfigListener.contextInitialized(ServletContextEvent sce)");
 
     PathInfo path = PathInfo.getInstance();
@@ -61,7 +61,7 @@ public class ApplicationContextLocatorConfigListener
     }
     ApplicationContextLocator.init(p);
 
-    LOG.debug("ApplicationContextLocator initialized!");
+    log.debug("ApplicationContextLocator initialized!");
   }
 
   /**

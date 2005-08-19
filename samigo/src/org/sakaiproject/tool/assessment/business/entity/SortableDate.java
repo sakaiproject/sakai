@@ -24,8 +24,10 @@
 package org.sakaiproject.tool.assessment.business.entity;
 
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>
@@ -55,8 +57,7 @@ import java.util.Date;
  */
 public class SortableDate
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(SortableDate.class);
+  private static Log log = LogFactory.getLog(SortableDate.class);
 
   /**
    * standard date format string used in AAM
@@ -91,7 +92,7 @@ public class SortableDate
     }
     catch(Exception e)
     {
-      LOG.debug("Date Exception " + e);
+      log.debug("Date Exception " + e);
     }
 
     return "unknown date";
@@ -106,6 +107,6 @@ public class SortableDate
   {
     Date d = new Date();
     SortableDate sd = new SortableDate(d);
-    LOG.debug("debug: " + sd);
+    log.debug("debug: " + sd);
   }
 }

@@ -26,6 +26,10 @@ package org.sakaiproject.tool.assessment.settings;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
 /**
  * Initializes OJB at startup.
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
@@ -34,17 +38,16 @@ import javax.servlet.ServletContextListener;
 public class OjbConfigListener
   implements ServletContextListener
 {
-  private static final org.apache.log4j.Logger LOG =
-    org.apache.log4j.Logger.getLogger(OjbConfigListener.class);
+  private static Log log = LogFactory.getLog(OjbConfigListener.class);
 
   /**
    * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
    */
   public void contextInitialized(ServletContextEvent sce)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("contextInitialized(ServletContextEvent " + sce + ")");
+      log.debug("contextInitialized(ServletContextEvent " + sce + ")");
     }
 
     try
@@ -54,11 +57,11 @@ public class OjbConfigListener
     }
     catch(Exception e)
     {
-      LOG.fatal(e.getMessage(), e);
+      log.fatal(e.getMessage(), e);
       throw new Error(e);
     }
 
-    LOG.info("OjbConfigListener initialized successfully!");
+    log.info("OjbConfigListener initialized successfully!");
   }
 
   /**
