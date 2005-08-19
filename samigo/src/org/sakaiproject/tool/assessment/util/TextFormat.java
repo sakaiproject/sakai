@@ -333,11 +333,11 @@ public class TextFormat
   public static void main(String[] args)
   {
     TextFormat tf = new TextFormat();
-    log.debug(
+    log.info(
       tf.formatText(
         "www.cs.iupui.edu ui.edu dd dd dd:):-) ff telnet:dd dddddupui.edu",
         "SMART", ("http://oncourse.iu.edu/images/icons/")));
-    log.debug(
+    log.info(
       tf.formatText(
         "http://www.iupui.edu:80 www.ui.edu :( ::-( ddd", "SMART",
         ("http://oncourse.iu.edu/images/icons/")));
