@@ -34,6 +34,8 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author rshastri
@@ -45,8 +47,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
  */
 public class PublishedAssessmentBeanie
     implements Serializable {
-  private static final org.apache.log4j.Logger LOG =
-      org.apache.log4j.Logger.getLogger(PublishedAssessmentBean.class);
+    private static Log log = LogFactory.getLog(PublishedAssessmentBeanie.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
@@ -73,7 +74,6 @@ public class PublishedAssessmentBeanie
   public void setAssessment(PublishedAssessmentFacade assessment) {
     try {
       this.assessment = assessment;
-      //System.out.println("** beginning of assessment bean "+assessment);
       this.assessmentId = assessment.getAssessmentId().toString();
       this.title = assessment.getTitle();
 
@@ -82,9 +82,7 @@ public class PublishedAssessmentBeanie
       ArrayList sectionArray = assessment.getSectionArraySorted();
       for (int i=0; i<sectionArray.size(); i++){
         SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-        //System.out.println("** section = "+section);
         SectionContentsBean sectionBean = new SectionContentsBean(section);
-        //System.out.println("** sectionContentsBean = "+sectionBean);
         this.sections.add(sectionBean);
       }
       setPartNumbers();
@@ -92,7 +90,6 @@ public class PublishedAssessmentBeanie
     }
     catch (Exception ex) {
     }
-    //System.out.println("** end of setting assessment bean"+assessment);
   }
 
   // properties from Assessment

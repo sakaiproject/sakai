@@ -34,10 +34,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishingTarget;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -63,8 +65,7 @@ import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelpe
  */
 public class AssessmentSettingsBean
     implements Serializable {
-  private static final org.apache.log4j.Logger LOG =
-      org.apache.log4j.Logger.getLogger(AssessmentSettingsBean.class);
+    private static Log log = LogFactory.getLog(AssessmentSettingsBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
@@ -271,7 +272,6 @@ public class AssessmentSettingsBean
 
       // properties of EvaluationModel
       EvaluationModelIfc evaluation = assessment.getEvaluationModel();
-      //System.out.println("****5. Evaluation ="+evaluation);
       if (evaluation != null) {
         if (evaluation.getAnonymousGrading()!=null)
           this.anonymousGrading = evaluation.getAnonymousGrading().toString();
@@ -293,11 +293,9 @@ public class AssessmentSettingsBean
             this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
         }
       }
-      //System.out.println("**IPAddress ="+this.ipAddresses);
     }
     catch (Exception ex) {
     }
-    //System.out.println("** end of setting assessment"+assessment);
   }
 
   // properties from Assessment
@@ -693,8 +691,6 @@ public class AssessmentSettingsBean
   {
     Boolean returnValue = Boolean.FALSE;
     Object o = this.values.get(key);
-    //System.out.println("** VALUE key="+key+"="+key);
-    //System.out.println("** VALUE value="+(String)o);
 
     if (("true").equals((String)o))
        returnValue = Boolean.TRUE;
@@ -718,8 +714,6 @@ public class AssessmentSettingsBean
         (key.equals("ASSESSMENT_BGIMAGE")));
       else{
         h.put(key, o);
-        //System.out.println("set VALUE " + key + "=" + (String) newMap.get(key) +
-        //                   " : " + o);
       }
     }
     this.values = h ;
@@ -737,7 +731,6 @@ public class AssessmentSettingsBean
       int day = c.get(Calendar.DAY_OF_MONTH);
       int year = c.get(Calendar.YEAR);
       String dateString = mon + "/" + day + "/" + year;
-      //System.out.println("** date is = " + dateString);
       return dateString;
     }
     else
@@ -745,13 +738,9 @@ public class AssessmentSettingsBean
   }
 
   public void setTimeLimitDisplay(int time){
-    //System.out.println("****the time is ="+time);
     this.timedHours=new Integer(time/60/60);
-    //System.out.println("****the timedHours is ="+time/3600);
     this.timedMinutes = new Integer((time/60)%60);
-    //System.out.println("****the timedMin is ="+(time/60)%60);
     this.timedSeconds = new Integer(time % 60);
-    //System.out.println("****the timedSec is ="+time %60);
   }
 
   // followings are set of SelectItem[] used in authorSettings.jsp
@@ -825,12 +814,12 @@ public class AssessmentSettingsBean
     }
 
     try {
-      LOG.warn("DATETIME=:" + date + ":");
+      log.warn("DATETIME=:" + date + ":");
       dateString = displayFormat.format(date);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
-      LOG.warn("Unable to format date.");
+      log.warn("Unable to format date.");
       ex.printStackTrace(System.out);
     }
     return dateString;
@@ -848,12 +837,12 @@ public class AssessmentSettingsBean
     }
 
     try {
-      LOG.warn("DATETIME=:" + dateString + ":");
+      log.warn("DATETIME=:" + dateString + ":");
       date = (Date) displayFormat.parse(dateString);
     }
     catch (Exception ex) {
       // we will leave it as a null date
-      LOG.warn("Unable to format date.");
+      log.warn("Unable to format date.");
       error=true;
       ex.printStackTrace(System.out);
     }
@@ -945,7 +934,6 @@ public class AssessmentSettingsBean
     while (iter.hasNext()){
       for (int m = 0; m < e.size(); m++) {
         String t = (String)iter.next();
-	//System.out.println("target "+m+"="+t);
         titles[m] = t;
       }
     }
@@ -1025,7 +1013,7 @@ public class AssessmentSettingsBean
 	    {
 		err=(String)rb.getObject("deliveryDate_error");
 		context.addMessage(null,new FacesMessage(err));
-		System.out.println("START DATE ADD MESSAGE");
+		log.error("START DATE ADD MESSAGE");
 		return "deliveryDate_error";
 	    }
 	else

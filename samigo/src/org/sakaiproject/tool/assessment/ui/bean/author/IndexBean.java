@@ -87,7 +87,6 @@ public class IndexBean
       AssessmentService delegate = new AssessmentService();
       ArrayList list = delegate.getBasicInfoOfAllActiveAssessmentTemplates("title");
       //ArrayList list = delegate.getAllAssessmentTemplates();
-      //System.out.println("Got " + list.size() + " templates in front end");
       ArrayList templates = new ArrayList();
       Iterator iter = list.iterator();
       while (iter.hasNext())
@@ -129,7 +128,6 @@ public class IndexBean
       AssessmentService delegate = new AssessmentService();
       ArrayList list = delegate.getBasicInfoOfAllActiveAssessmentTemplates("title");
       //ArrayList list = delegate.getAllAssessmentTemplates();
-      //System.out.println("Got " + list.size() + " templates in front end");
       ArrayList templates = new ArrayList();
       Iterator iter = list.iterator();
       while (iter.hasNext())
