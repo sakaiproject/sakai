@@ -34,18 +34,18 @@ import java.util.Map;
 import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceException;
 import org.sakaiproject.tool.assessment.services.ItemService;
 
-// our API just uses our internal service. ItemFacade implements
-// ItemDataIfc.  If we want, we can always replace this internal
-// service and use its implementation as our own.
+// Our API just uses our internal service. If we want, we can always replace
+// this internal service and use its implementation as our own.
+// ItemFacade implements ItemDataIfc.
 
 public class ItemServiceImpl implements ItemServiceAPI
 {
  /**
  * Get a particular item from the backend, with all questions.
  *
- * @param itemId
- * @param agentId
- * @return
+ * @param itemId the item id
+ * @param agentId the agent id
+ * @return the item data interface
  */
   public ItemDataIfc getItem(Long itemId, String agentId)
   {
@@ -66,60 +66,85 @@ public class ItemServiceImpl implements ItemServiceAPI
   /**
    * Delete a item
    *
-   * @param itemId
-   * @param agentId
+   * @param itemId the item id
+   * @param agentId the agent id
    */
   public void deleteItem(Long itemId, String agentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getItem() not yet implemented.");
-
+    try
+    {
+      ItemService service = new ItemService();
+      service.deleteItem(itemId, agentId);
+    }
+    catch(Exception e)
+    {
+      throw new AssessmentServiceException(e);
+    }
   }
 
   /**
    * Delete itemtextset for an item, used for modify
    *
-   * @param itemId
-   * @param agentId
+   * @param itemId the item id
+   * @param agentId the agent id
    */
   public void deleteItemContent(Long itemId, String agentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getItem() not yet implemented.");
-
+    try
+    {
+      ItemService service = new ItemService();
+      service.deleteItemContent(itemId, agentId);
+    }
+    catch(Exception e)
+    {
+      throw new AssessmentServiceException(e);
+    }
   }
 
   /**
    * Delete metadata for an item, used for modify
    * param:  itemid, label, agentId
    *
-   * @param itemId
-   * @param label
-   * @param agentId
+   * @param itemId the item id
+   * @param label teh metadata label
+   * @param agentId the agent id
    */
   public void deleteItemMetaData(Long itemId, String label, String agentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getItem() not yet implemented.");
-
+    try
+    {
+      ItemService service = new ItemService();
+      service.deleteItemMetaData(itemId, label, agentId);
+    }
+    catch(Exception e)
+    {
+      throw new AssessmentServiceException(e);
+    }
   }
 
   /**
    * Add metadata for an item, used for modify
    * param:  itemid, label, value, agentId
    *
-   * @param itemId
-   * @param label
-   * @param value
-   * @param agentId
+   * @param itemId the item id
+   * @param label the metadata label
+   * @param value  the value for the label
+   * @param agentId the agent id
    */
   public void addItemMetaData(Long itemId, String label, String value,
                               String agentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getItem() not yet implemented.");
-
+    try
+    {
+      ItemService service = new ItemService();
+      service.addItemMetaData(itemId, label, value, agentId);
+    }
+    catch(Exception e)
+    {
+      throw new AssessmentServiceException(e);
+    }
   }
+
   /**
    * Save item.
    * @param item interface
@@ -127,30 +152,60 @@ public class ItemServiceImpl implements ItemServiceAPI
    */
   public ItemDataIfc saveItem(ItemDataIfc item)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method saveItem() not yet implemented.");
+    try
+    {
+      String itemId = item.getItemIdString();
+      ItemService service = new ItemService();
+      item = service.saveItem(service.getItem(itemId));
+    }
+    catch(Exception e)
+    {
+      throw new AssessmentServiceException(e);
+    }
+
+    return item;
   }
 
   /**
    * Get item.
-   * @param itemId
+   * @param itemId the item id
    * @return item interface
    */
   public ItemDataIfc getItem(String itemId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getItem() not yet implemented.");
+    ItemFacade item = null;
+    try
+    {
+      ItemService service = new ItemService();
+      item = service.getItem(itemId);
+    }
+    catch(Exception e)
+    {
+      throw new AssessmentServiceException(e);
+    }
+
+    return item;
   }
 
   /**
    * Search for items.
-   * @param keyword
+   * @param keyword the keyword to search by
    * @return Map of ItemDataIfcs with item idstrings as keys
    */
 
   public Map getItemsByKeyword(String keyword)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getItemsByKeyword() not yet implemented.");
+    Map itemKeywordMap = new HashMap();
+    try
+    {
+      ItemService service = new ItemService();
+      itemKeywordMap = service.getItemsByKeyword(keyword);
+    }
+    catch(Exception e)
+    {
+      throw new AssessmentServiceException(e);
+    }
+
+    return itemKeywordMap;
   }
 }
