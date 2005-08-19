@@ -29,21 +29,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 /**
- * <p>Title: sakaiproject.org</p>
- * <p>Description: AAM - class form for evaluating question scores</p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: Stanford University</p>
+ * <p>Description: class form for evaluating question scores</p>
  *
  * Used to be org.navigoproject.ui.web.form.evaluation.QuestionScoresForm
  *
  * @author Rachel Gollub
- * @version 1.0
  */
 public class QuestionScoresBean
   implements Serializable
@@ -76,7 +73,7 @@ public class QuestionScoresBean
   private String totalPeople;
   private String typeId;
   private HashMap scoresByItem;
-  static Logger logger = Logger.getLogger(QuestionScoresBean.class.getName());
+  private static Log log = LogFactory.getLog(QuestionScoresBean.class);
 
   /**
    * Creates a new QuestionScoresBean object.
@@ -431,7 +428,7 @@ public class QuestionScoresBean
    */
   public void setQuestionScoreComments(String pQuestionScoreComments)
   {
-    logger.debug("setting question score comments to "+pQuestionScoreComments);
+    log.debug("setting question score comments to "+pQuestionScoreComments);
     questionScoreComments = pQuestionScoreComments;
   }
 

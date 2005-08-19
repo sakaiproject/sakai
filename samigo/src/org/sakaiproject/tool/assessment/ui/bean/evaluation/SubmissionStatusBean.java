@@ -3,7 +3,7 @@
 * $Id: TotalScoresBean.java 202 2005-06-23 19:34:41Z esmiley@stanford.edu $
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -29,18 +29,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 /**
  * <p>Title: sakaiproject.org</p>
- * <p>Description: AAM - class form for evaluating submission status</p>
- * <p>Copyright: Copyright (c) 2003</p>
+ * <p>Description: class form for evaluating submission status</p>
  * <p>Company: Stanford University</p>
  *
- * 
+ *
  */
 public class SubmissionStatusBean
   implements Serializable
@@ -69,7 +69,7 @@ public class SubmissionStatusBean
   private String totalPeople;
   private String firstItem;
   private HashMap answeredItems;
-  static Logger logger = Logger.getLogger(SubmissionStatusBean.class.getName());
+  private static Log log = LogFactory.getLog(SubmissionStatusBean.class);
 
   /**
    * Creates a new SubmissionStatusBean object.
@@ -340,7 +340,7 @@ public class SubmissionStatusBean
    */
   public void setTotalScoreComments(String pTotalScoreComments)
   {
-    logger.debug("setting total score comments to " + pTotalScoreComments);
+    log.debug("setting total score comments to " + pTotalScoreComments);
     totalScoreComments = pTotalScoreComments;
   }
 

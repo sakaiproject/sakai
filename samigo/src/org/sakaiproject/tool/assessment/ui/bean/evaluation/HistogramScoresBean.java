@@ -26,7 +26,8 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.Serializable;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>$Id$</p>
@@ -84,7 +85,7 @@ public class HistogramScoresBean
 
   private boolean randomType;   // true = has at least one random draw part
 
-  static Logger logger = Logger.getLogger(HistogramScoresBean.class.getName());
+  private static Log log = LogFactory.getLog(HistogramScoresBean.class);
 
   /**
    * Creates a new HistogramScoresBean object.

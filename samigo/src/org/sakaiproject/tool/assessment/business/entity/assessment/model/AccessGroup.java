@@ -24,11 +24,11 @@
 package org.sakaiproject.tool.assessment.business.entity.assessment.model;
 
 import java.io.Serializable;
-
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * This contains assessment access data per group.  A collection of these in
@@ -38,8 +38,7 @@ import org.apache.log4j.Logger;
  * @author Rachel Gollub
  * @author Ed Smiley
  */
-public class AccessGroup
-  implements Serializable
+public class AccessGroup implements Serializable
 {
   private long id;
   private String name;
@@ -78,7 +77,7 @@ public class AccessGroup
   private String password;
   private FeedbackModel feedbackModel; // This is in the assessment for now
   private boolean isActive;
-  static Logger logger = Logger.getLogger(AccessGroup.class.getName());
+  private static Log log = LogFactory.getLog(AccessGroup.class);
 
   /**
    * DOCUMENTATION PENDING
@@ -177,7 +176,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -218,7 +217,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -259,7 +258,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -309,7 +308,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -347,7 +346,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -381,7 +380,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -546,7 +545,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -587,7 +586,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -628,7 +627,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -677,7 +676,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -714,7 +713,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -747,7 +746,7 @@ public class AccessGroup
     }
     catch(Exception e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -872,7 +871,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -913,7 +912,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -954,7 +953,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -1003,7 +1002,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -1040,7 +1039,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -1073,7 +1072,7 @@ public class AccessGroup
     }
     catch(NumberFormatException e)
     {
-      logger.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 

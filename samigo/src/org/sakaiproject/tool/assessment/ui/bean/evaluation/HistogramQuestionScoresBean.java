@@ -27,7 +27,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 /**
@@ -96,8 +98,7 @@ public class HistogramQuestionScoresBean
 
   private boolean randomType;   // this part is a random draw part
 
-  static Logger logger =
-    Logger.getLogger(HistogramQuestionScoresBean.class.getName());
+  private static Log log = LogFactory.getLog(HistogramQuestionScoresBean.class);
 
   /**
    * Creates a new HistogramQuestionScoresBean object.

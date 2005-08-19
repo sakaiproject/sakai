@@ -29,21 +29,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 /**
- * <p>Title: sakaiproject.org</p>
- * <p>Description: AAM - class form for evaluating total scores</p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: Stanford University</p>
+ * <p>Description: class form for evaluating total scores</p>
  *
  * Used to be org.navigoproject.ui.web.form.evaluation.TotalScoresForm
  *
  * @author Rachel Gollub
- * @version 1.0
  */
 public class TotalScoresBean
   implements Serializable
@@ -72,7 +69,7 @@ public class TotalScoresBean
   private String totalPeople;
   private String firstItem;
   private HashMap answeredItems;
-  static Logger logger = Logger.getLogger(TotalScoresBean.class.getName());
+  private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
   /**
    * Creates a new TotalScoresBean object.
@@ -343,7 +340,7 @@ public class TotalScoresBean
    */
   public void setTotalScoreComments(String pTotalScoreComments)
   {
-    logger.debug("setting total score comments to " + pTotalScoreComments);
+    log.debug("setting total score comments to " + pTotalScoreComments);
     totalScoreComments = pTotalScoreComments;
   }
 
