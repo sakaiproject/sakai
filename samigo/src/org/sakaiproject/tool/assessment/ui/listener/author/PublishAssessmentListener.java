@@ -69,9 +69,9 @@ public class PublishAssessmentListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
+    //log.info("debugging ActionEvent: " + ae);
+    //log.info("debug requestParams: " + requestParams);
+    //log.info("debug reqMap: " + reqMap);
 
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
@@ -120,7 +120,7 @@ public class PublishAssessmentListener
                        AssessmentSettingsBean assessmentSettings) {
     String publishAssessment = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("publishAssessment");
-    //System.out.println("***** PUBLISHING ***");
+    //log.info("***** PUBLISHING ***");
     PublishedAssessmentService publishedAssessmentService = new
         PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
@@ -152,7 +152,7 @@ public class PublishAssessmentListener
       Integer size = (Integer) map.get(p.getPublishedAssessmentId());
       if (size != null) {
         p.setSubmissionSize(size.intValue());
-        //System.out.println("*** submission size" + size.intValue());
+        //log.info("*** submission size" + size.intValue());
       }
     }
   }

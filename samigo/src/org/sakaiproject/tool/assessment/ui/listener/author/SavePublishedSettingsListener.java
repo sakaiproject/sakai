@@ -73,9 +73,9 @@ public class SavePublishedSettingsListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
+    //log.info("debugging ActionEvent: " + ae);
+    //log.info("debug requestParams: " + requestParams);
+    //log.info("debug reqMap: " + reqMap);
 
     PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) cu.lookupBean(
                          "publishedSettings");
@@ -83,11 +83,11 @@ public class SavePublishedSettingsListener
     // template selected
     // #1 - set Assessment
     Long assessmentId = assessmentSettings.getAssessmentId();
-    //System.out.println("**** save assessment assessmentId ="+assessmentId.toString());
+    //log.info("**** save assessment assessmentId ="+assessmentId.toString());
     PublishedAssessmentService assessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(
         assessmentId.toString());
-    //System.out.println("** assessment = "+assessment);
+    //log.info("** assessment = "+assessment);
 
     // #2 - update delivery dates in AssessmentAccessControl
     PublishedAccessControl control = (PublishedAccessControl)assessment.getAssessmentAccessControl();
@@ -170,7 +170,7 @@ public class SavePublishedSettingsListener
       Integer size = (Integer) map.get(p.getPublishedAssessmentId());
       if (size != null){
         p.setSubmissionSize(size.intValue());
-        //System.out.println("*** submission size" + size.intValue());
+        //log.info("*** submission size" + size.intValue());
       }
     }
   }

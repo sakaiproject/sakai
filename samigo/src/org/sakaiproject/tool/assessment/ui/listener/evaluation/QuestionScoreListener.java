@@ -142,7 +142,7 @@ public class QuestionScoreListener
           !cu.lookupParam("newItemId").trim().equals(""))
         itemId = cu.lookupParam("newItemId");
       String which = cu.lookupParam("allSubmissions");
-      //System.out.println("Rachel: publishedId = " + publishedId + ", itemId = " + itemId + ", allSubmissions = " + which);
+      //log.info("Rachel: publishedId = " + publishedId + ", itemId = " + itemId + ", allSubmissions = " + which);
       if (which == null)
         which = "false";
       bean.setAllSubmissions(which);
@@ -204,11 +204,11 @@ public class QuestionScoreListener
       bean.setScoresByItem(scoresByItem);
 
       iter = scores.iterator();
-      //System.out.println("Has this many agents: " + scores.size());
+      //log.info("Has this many agents: " + scores.size());
       if (!iter.hasNext())
         return false;
       Object next = iter.next();
-      //System.out.println("Next is: " + next);
+      //log.info("Next is: " + next);
 
       // Okay, here we get the first result set, which has a summary of
       // information and a pointer to the graded assessment we should be
@@ -230,20 +230,20 @@ public class QuestionScoreListener
         try {
           bean.setAnonymous((data.getAssessmentGrading().getPublishedAssessment().getEvaluationModel(). getAnonymousGrading().equals(EvaluationModel.ANONYMOUS_GRADING)?"true":"false"));
         } catch (Exception e) {
-          //System.out.println("No evaluation model.");
+          //log.info("No evaluation model.");
           bean.setAnonymous("false");
         }
         try {
           bean.setLateHandling(data.getAssessmentGrading().getPublishedAssessment().getAssessmentAccessControl().getLateHandling().toString());
         } catch (Exception e) {
-          //System.out.println("No access control model.");
+          //log.info("No access control model.");
           bean.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION.toString());
         }
         try {
           bean.setDueDate(data.getAssessmentGrading().getPublishedAssessment().getAssessmentAccessControl().getDueDate().toString());
           dueDate = data.getAssessmentGrading().getPublishedAssessment().getAssessmentAccessControl().getDueDate();
         } catch (Exception e) {
-          //System.out.println("No due date.");
+          //log.info("No due date.");
           bean.setDueDate(new Date().toString());
         }
         try {
@@ -304,7 +304,7 @@ public class QuestionScoreListener
       bean.setItemId(item.getItemId().toString());
       bean.setItemName("Section " + item.getSection().getSequence().toString()
         + ", Item " + item.getSequence().toString());
-      //System.out.println("Rachel: TYpe id = " + item.getTypeId().toString());
+      //log.info("Rachel: TYpe id = " + item.getTypeId().toString());
       item.setHint("***"); // Keyword to not show student answer
 
       ArrayList deliveryItems = new ArrayList(); // so we can use the var
@@ -425,7 +425,7 @@ public class QuestionScoreListener
               results.setIsLate(new Boolean(true));
 
             AgentFacade agent = new AgentFacade(gdata.getAgentId());
-            //System.out.println("Rachel: agentid = " + gdata.getAgentId());
+            //log.info("Rachel: agentid = " + gdata.getAgentId());
             results.setLastName(agent.getLastName());
             results.setFirstName(agent.getFirstName());
             if (results.getLastName() != null &&
@@ -443,7 +443,7 @@ public class QuestionScoreListener
         }
       }
 
-      //System.out.println("Sort type is " + bean.getSortType() + ".");
+      //log.info("Sort type is " + bean.getSortType() + ".");
       bs = new BeanSort(agents, bean.getSortType());
       if (
         (bean.getSortType()).equals("assessmentGradingId") ||
@@ -458,7 +458,7 @@ public class QuestionScoreListener
 
 
       bs.sort();
-      //System.out.println("Listing agents.");
+      //log.info("Listing agents.");
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
     }

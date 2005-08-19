@@ -98,7 +98,7 @@ public class PoolSaveListener implements ActionListener
       questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
 
       QuestionPoolService delegate = new QuestionPoolService();
-      //System.out.println("Saving pool");
+      //log.info("Saving pool");
       delegate.savePool(questionpool);
 
       // Rebuild the tree with the new pool

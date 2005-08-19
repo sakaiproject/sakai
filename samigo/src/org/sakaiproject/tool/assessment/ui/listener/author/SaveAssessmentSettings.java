@@ -59,11 +59,11 @@ public class SaveAssessmentSettings
     // template selected
     // #1 - set Assessment
     Long assessmentId = assessmentSettings.getAssessmentId();
-    //System.out.println("**** save assessment assessmentId ="+assessmentId.toString());
+    //log.info("**** save assessment assessmentId ="+assessmentId.toString());
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());
-    //System.out.println("** assessment = "+assessment);
+    //log.info("** assessment = "+assessment);
     assessment.setTitle(assessmentSettings.getTitle());
     assessment.setDescription(assessmentSettings.getDescription());
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, assessmentSettings.getAuthors());
@@ -81,11 +81,11 @@ public class SaveAssessmentSettings
     control.setRetractDate(assessmentSettings.getRetractDate());
     control.setFeedbackDate(assessmentSettings.getFeedbackDate());
     control.setReleaseTo(assessmentSettings.getReleaseTo());
-    //System.out.println("control RELEASETO ="+control.getReleaseTo());
-    //System.out.println("settings RELEASETO ="+assessmentSettings.getReleaseTo());
+    //log.info("control RELEASETO ="+control.getReleaseTo());
+    //log.info("settings RELEASETO ="+assessmentSettings.getReleaseTo());
 
     // b. set Timed Assessment
-    //System.out.println("** Time limit update to = "+assessmentSettings.getTimeLimit().intValue());
+    //log.info("** Time limit update to = "+assessmentSettings.getTimeLimit().intValue());
     control.setTimeLimit(assessmentSettings.getTimeLimit());
     if (assessmentSettings.getTimedAssessment())
       control.setTimedAssessment(AssessmentAccessControl.TIMED_ASSESSMENT);
@@ -121,8 +121,8 @@ public class SaveAssessmentSettings
         control.setSubmissionsAllowed(null);
       }
     }
-    //System.out.println("**unlimited submission="+assessmentSettings.getUnlimitedSubmissions());
-    //System.out.println("**allowed="+control.getSubmissionsAllowed());
+    //log.info("**unlimited submission="+assessmentSettings.getUnlimitedSubmissions());
+    //log.info("**allowed="+control.getSubmissionsAllowed());
 
     if (assessmentSettings.getLateHandling()!=null){
       control.setLateHandling(new Integer(assessmentSettings.
@@ -214,7 +214,7 @@ public class SaveAssessmentSettings
 
   private void updateMetaWithValueMap(AssessmentIfc assessment, HashMap map){
     HashMap metaMap = assessment.getAssessmentMetaDataMap();
-    //System.out.println("** map size ="+map.size());
+    //log.info("** map size ="+map.size());
     if (map!=null && map.keySet()!=null){
         Iterator iter = map.keySet().iterator();
         // loop through our valueMap "can edit" & "hasXXX" properties
@@ -224,7 +224,7 @@ public class SaveAssessmentSettings
           String value="";
           if (map.get(label)!=null){
             value = (String) map.get(label).toString();
-            //System.out.println("get Label: " + label + ", Value: " + value);
+            //log.info("get Label: " + label + ", Value: " + value);
           }
           assessment.updateAssessmentMetaData(label, value);
         }

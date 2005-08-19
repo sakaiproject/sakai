@@ -147,7 +147,7 @@ public class HistogramListener
 
       // Get all submissions, or just the last?
       String which = cu.lookupParam("allSubmissions");
-      //System.out.println("Rachel: allSubmissions = " + which);
+      //log.info("Rachel: allSubmissions = " + which);
       if (which == null)
         which = "false";
       bean.setAllSubmissions(which.equals("true")?true:false);
@@ -158,11 +158,11 @@ public class HistogramListener
       ArrayList scores = delegate.getTotalScores(publishedId, which);
       HashMap itemscores = delegate.getItemScores(new Long(publishedId),
         new Long(0), which);
-      //System.out.println("ItemScores size = " + itemscores.keySet().size());
+      //log.info("ItemScores size = " + itemscores.keySet().size());
       bean.setPublishedId(publishedId);
 
       Iterator iter = scores.iterator();
-      //System.out.println("Has this many agents: " + scores.size());
+      //log.info("Has this many agents: " + scores.size());
       if (!iter.hasNext())
         return false;
       Object next = iter.next();
@@ -266,7 +266,7 @@ public class HistogramListener
               (new Integer(bean.getColumnHeight()[i]).toString());
             bars[i].setNumStudents(bean.getNumStudentCollection()[i]);
             bars[i].setRangeInfo(bean.getRangeCollection()[i]);
-            //System.out.println("Set bar " + i + ": " + bean.getColumnHeight()[i] + ", " + bean.getNumStudentCollection()[i] + ", " + bean.getRangeCollection()[i]);
+            //log.info("Set bar " + i + ": " + bean.getColumnHeight()[i] + ", " + bean.getNumStudentCollection()[i] + ", " + bean.getRangeCollection()[i]);
           }
           bean.setHistogramBars(bars);
 
@@ -327,7 +327,7 @@ public class HistogramListener
       itemScores = new ArrayList();
     if (qbean.getQuestionType().equals("1") ||  // mcsc
         qbean.getQuestionType().equals("2") ||  // mcmc
-        qbean.getQuestionType().equals("3") ||  // mc survey 
+        qbean.getQuestionType().equals("3") ||  // mc survey
         qbean.getQuestionType().equals("4") || // tf
         qbean.getQuestionType().equals("9") || // matching
         qbean.getQuestionType().equals("8")) // Fill in the blank
@@ -361,7 +361,7 @@ public class HistogramListener
       ItemTextIfc firstText = (ItemTextIfc) text.toArray()[0];
       answers = firstText.getAnswerArraySorted();
     }
-    if (qbean.getQuestionType().equals("1")) 
+    if (qbean.getQuestionType().equals("1"))
       getTFMCScores(scores, qbean, answers);
     else if (qbean.getQuestionType().equals("2"))
       getFIBMCMCScores(scores, qbean, answers);
@@ -396,9 +396,9 @@ public class HistogramListener
       AnswerIfc answer = data.getPublishedAnswer();
       if (answer != null)
       {
-        //System.out.println("Rachel: looking for " + answer.getId());
+        //log.info("Rachel: looking for " + answer.getId());
         // found a response
-        Integer num = null;     
+        Integer num = null;
         // num is a counter
         try {
         // we found a response, now get existing count from the hashmap
@@ -406,7 +406,7 @@ public class HistogramListener
 
 
         } catch (Exception e) {
-          System.out.println("No results for " + answer.getId());
+          log.info("No results for " + answer.getId());
         }
         if (num == null)
           num = new Integer(0);
@@ -455,7 +455,7 @@ public class HistogramListener
       }
       bars[i].setNumStudents(num);
 // below doesnot work for FIB, MCMC or matching
-//      responses += num;   
+//      responses += num;
 //      if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
 //        correctresponses += num;
       i++;
@@ -466,16 +466,16 @@ public class HistogramListener
     Iterator mapiter = numStudentRespondedMap.keySet().iterator();
     while (mapiter.hasNext())
     {
-      Long assessmentGradingId= (Long)mapiter.next(); 
-      ArrayList resultsForOneStudent = (ArrayList)numStudentRespondedMap.get(assessmentGradingId); 
+      Long assessmentGradingId= (Long)mapiter.next();
+      ArrayList resultsForOneStudent = (ArrayList)numStudentRespondedMap.get(assessmentGradingId);
       boolean hasIncorrect = false;
       Iterator listiter = resultsForOneStudent.iterator();
       while (listiter.hasNext())
       {
-        ItemGradingData item = (ItemGradingData)listiter.next();  
+        ItemGradingData item = (ItemGradingData)listiter.next();
 	if (qbean.getQuestionType().equals("8"))
 	{
-          Float autoscore = item.getAutoScore(); 
+          Float autoscore = item.getAutoScore();
           if (autoscore.equals(new Float(0))) {
             hasIncorrect = true;
             break;
@@ -484,13 +484,13 @@ public class HistogramListener
 	else if (qbean.getQuestionType().equals("2"))
       	{
 
-	  // only answered choices are created in the ItemGradingData_T, so we need to check 
-	  // if # of checkboxes the student checked is >= the number of correct answers 
-	  // otherwise if a student only checked one of the multiple correct answers, 
+	  // only answered choices are created in the ItemGradingData_T, so we need to check
+	  // if # of checkboxes the student checked is >= the number of correct answers
+	  // otherwise if a student only checked one of the multiple correct answers,
 	  // it would count as a correct response
 
-	  // In delivery, an entry for each checkbox should be created in the 
- 	  // ItemGradingData_T for mcmc. then we don't have to do a special check here 
+	  // In delivery, an entry for each checkbox should be created in the
+ 	  // ItemGradingData_T for mcmc. then we don't have to do a special check here
 
           try {
 	    // these 2 lines shouldn't throw nullptr exception, but check anyway
@@ -501,7 +501,7 @@ public class HistogramListener
             Iterator answeriter = answerArray.iterator();
             while (answeriter.hasNext()){
 	      AnswerIfc answerchoice = (AnswerIfc) answeriter.next();
-              if (answerchoice.getIsCorrect().booleanValue()){	
+              if (answerchoice.getIsCorrect().booleanValue()){
 		corranswers++;
 	      }
             }
@@ -511,7 +511,7 @@ public class HistogramListener
             }
           }
           catch (Exception e) {
-            System.out.println("should not see this. ");
+            log.info("should not see this. ");
 	    e.printStackTrace();
 	  }
 
@@ -521,7 +521,7 @@ public class HistogramListener
             hasIncorrect = true;
             break;
  	  }
-        }	
+        }
       }
       if (!hasIncorrect) {
         correctresponses = correctresponses + 1;
@@ -557,21 +557,21 @@ public class HistogramListener
       AnswerIfc answer = data.getPublishedAnswer();
       if (answer != null)
       {
-        //System.out.println("Rachel: looking for " + answer.getId());
+        //log.info("Rachel: looking for " + answer.getId());
         // found a response
         Integer num = null;
-	// num is a counter 
+	// num is a counter
 	try {
         // we found a response, now get existing count from the hashmap
           num = (Integer) results.get(answer.getId());
 
 
         } catch (Exception e) {
-          System.out.println("No results for " + answer.getId());
+          log.info("No results for " + answer.getId());
         }
         if (num == null)
           num = new Integer(0);
-        // we found a response, and got the  existing num , now update one   
+        // we found a response, and got the  existing num , now update one
         // check here for the other bug about non-autograded items having 1 even with no responses
         results.put(answer.getId(), new Integer(num.intValue() + 1));
       }
@@ -1260,8 +1260,8 @@ public class HistogramListener
         n=""+number;
         indexOfDec=n.indexOf(".");
         index=indexOfDec+decimal+1;
-        //System.out.println("NUMBER : "+n);
-        //System.out.println("NUMBER LENGTH : "+n.length());
+        //log.info("NUMBER : "+n);
+        //log.info("NUMBER LENGTH : "+n.length());
         if(n.length()>index)
             {
         return n.substring(0,index);

@@ -108,7 +108,7 @@ public class QuestionScoreUpdateListener
         while (iter2.hasNext())
         {
           Object obj = iter2.next();
-          System.out.println("Data = " + obj);
+          log.info("Data = " + obj);
           ItemGradingData data = (ItemGradingData) obj;
           data.setAutoScore(new Float
            (new Float(ar.getTotalAutoScore()).floatValue() /

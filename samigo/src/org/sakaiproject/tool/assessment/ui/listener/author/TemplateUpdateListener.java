@@ -212,7 +212,7 @@ public class TemplateUpdateListener
       {
         String label = (String) iter.next();
         String value = (String) templateBean.getValueMap().get(label).toString();
-        //System.out.println("Label: " + label + ", Value: " + value);
+        //log.info("Label: " + label + ", Value: " + value);
         AssessmentMetaData data =
           new AssessmentMetaData(template, label, value);
         set.add(data);
@@ -220,7 +220,7 @@ public class TemplateUpdateListener
       template.setAssessmentMetaDataSet(set);
 
 
-      //System.out.println("templateId = " + templateIdString);
+      //log.info("templateId = " + templateIdString);
       if (templateIdString.equals("0")) // New template
       {
         template.setCreatedBy(AgentFacade.getAgentString());
@@ -230,7 +230,7 @@ public class TemplateUpdateListener
       {
         template.setCreatedBy(ContextUtil.lookupParam("createdBy"));
         SimpleDateFormat format = new SimpleDateFormat();
-        //System.out.println("Date is " + templateBean.getCreatedDate());
+        //log.info("Date is " + templateBean.getCreatedDate());
         template.setCreatedDate(format.parse
           (ContextUtil.lookupParam("createdDate")));
       }

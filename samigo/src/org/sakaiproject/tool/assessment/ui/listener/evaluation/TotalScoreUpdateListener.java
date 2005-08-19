@@ -107,7 +107,7 @@ public class TotalScoreUpdateListener
         data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
         data.setFinalScore(new Float(agentResults.getFinalScore()));
         data.setComments(agentResults.getComments());
-        System.out.println(
+        log.info(
           "SAVE: \ntotal score=" + data.getTotalAutoScore() +
           "\nadjustment=" + data.getTotalOverrideScore() +
           "\ngradingId=" + data.getAssessmentGradingId() +

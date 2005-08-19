@@ -43,14 +43,14 @@ public class SubstituteProperties
   public static void main(String[] args)
   {
     for (int i = 0; i < args.length; i++) {
-      //System.out.println("using argument " + i + ":" + args[i]);
+      //log.info("using argument " + i + ":" + args[i]);
     }
 
     propFileName = args[0];
     fileName = args[1];
     makeProp();
     makeMap();
-    //System.out.println("\n\n" + getReplaced());
+    //log.info("\n\n" + getReplaced());
 
 
   }
@@ -65,7 +65,7 @@ public class SubstituteProperties
       properties.load(new FileInputStream(propFileName));
     }
     catch (Exception ex) {
-      //System.out.println("oops " + propFileName);
+      //log.info("oops " + propFileName);
     }
   }
 
@@ -100,7 +100,7 @@ public class SubstituteProperties
       }
     }
     catch (Exception ex) {
-      //System.out.println("oops " + fileName);
+      //log.info("oops " + fileName);
     }
 
     Iterator iter = map.keySet().iterator();
@@ -116,7 +116,7 @@ public class SubstituteProperties
         contents = contents.replaceAll(toReplace, replaceWith);
       }
       catch (Exception ex) {
-        //System.out.println("**** UNABLE TO REPLACE ****: '" +toReplace+"'");
+        //log.info("**** UNABLE TO REPLACE ****: '" +toReplace+"'");
       }
     }
 

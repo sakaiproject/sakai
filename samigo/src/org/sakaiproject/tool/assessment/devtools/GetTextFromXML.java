@@ -50,7 +50,7 @@ public class GetTextFromXML
   {
     if (args.length == 0)
     {
-      //System.out.println("no argument!");
+      //log.info("no argument!");
       System.exit(0);
     }
     dirName = args[0];
@@ -85,7 +85,7 @@ public class GetTextFromXML
 
           if (displayToken && tok.length()>0)
             {
-              //System.out.println(getVarName(tok) + "=" + tok);
+              //log.info(getVarName(tok) + "=" + tok);
             }
         }
 
@@ -93,7 +93,7 @@ public class GetTextFromXML
 
     }
     catch (Exception ex) {
-      //System.out.println(ex);
+      //log.info(ex);
       System.exit(0);
     }
 
@@ -126,7 +126,7 @@ private static String getContents(File file)
     }
   }
   catch (Exception ex) {
-    //System.out.println("oops " + file.getName());
+    //log.info("oops " + file.getName());
   }
 
 

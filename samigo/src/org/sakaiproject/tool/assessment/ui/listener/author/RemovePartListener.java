@@ -61,9 +61,9 @@ public class RemovePartListener implements ActionListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
+    //log.info("debugging ActionEvent: " + ae);
+    //log.info("debug requestParams: " + requestParams);
+    //log.info("debug reqMap: " + reqMap);
 
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
         "assessmentBean");
@@ -78,7 +78,7 @@ public class RemovePartListener implements ActionListener
     // #2 - check if we are removing all question or we
     // need to move question to another part
     AssessmentService assessmentService = new AssessmentService();
-    //System.out.println("** removeAll Question="+removeAllQuestions);
+    //log.info("** removeAll Question="+removeAllQuestions);
     if (!removeAllQuestions.equals("1")){
       // move questions to destinated Section when removing a section
       if (destSectionId == null || ("").equals(destSectionId)){
@@ -89,7 +89,7 @@ public class RemovePartListener implements ActionListener
     assessmentService.removeSection(sectionId);
 
     // #2 - goto editAssessment.jsp, so reset assessmentBean
-    //System.out.println("** assessmentId in RemovePartListener ="+assessmentBean.getAssessmentId());
+    //log.info("** assessmentId in RemovePartListener ="+assessmentBean.getAssessmentId());
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentBean.getAssessmentId());
     assessmentBean.setAssessment(assessment);

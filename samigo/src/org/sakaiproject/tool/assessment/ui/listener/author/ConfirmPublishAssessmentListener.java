@@ -62,9 +62,9 @@ public class ConfirmPublishAssessmentListener
     ExternalContext extContext = context.getExternalContext();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
+    //log.info("debugging ActionEvent: " + ae);
+    //log.info("debug requestParams: " + requestParams);
+    //log.info("debug reqMap: " + reqMap);
 
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
@@ -79,12 +79,12 @@ public class ConfirmPublishAssessmentListener
       // generate an alias to the pub assessment
       String alias = AgentFacade.getAgentString() + (new Date()).getTime();
       assessmentSettings.setAlias(alias);
-      //System.out.println("servletPath=" + extContext.getRequestServletPath());
+      //log.info("servletPath=" + extContext.getRequestServletPath());
       String server = ( (javax.servlet.http.HttpServletRequest) extContext.
                        getRequest()).getRequestURL().toString();
       int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo/"
       server = server.substring(0, index);
-      //System.out.println("servletPath=" + server);
+      //log.info("servletPath=" + server);
       String url = server + extContext.getRequestContextPath();
       assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
     }

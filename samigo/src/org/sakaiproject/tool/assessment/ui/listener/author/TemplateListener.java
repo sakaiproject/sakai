@@ -67,9 +67,9 @@ public class TemplateListener extends TemplateBaseListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    System.out.println("debugging ActionEvent: " + ae);
-    System.out.println("debug requestParams: " + requestParams);
-    System.out.println("debug reqMap: " + reqMap);
+    log.info("debugging ActionEvent: " + ae);
+    log.info("debug requestParams: " + requestParams);
+    log.info("debug reqMap: " + reqMap);
 
     // get service and managed bean
     AssessmentService assessmentService = new AssessmentService();
@@ -86,7 +86,7 @@ public class TemplateListener extends TemplateBaseListener
 	getExternalContext().getSessionMap().
 	put("template", new TemplateBean());
 	ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessmentTemplates("title");
-        System.out.println("Qingru Got " + list.size() + " templates in front end");
+        log.info("Qingru Got " + list.size() + " templates in front end");
         Iterator iter = list.iterator();
         while (iter.hasNext())
         {
@@ -103,17 +103,17 @@ public class TemplateListener extends TemplateBaseListener
       }
 
       if (templates != null)
-      System.out.println("Qingru's test 1  templates' size is  " + templates.size());
+      log.info("Qingru's test 1  templates' size is  " + templates.size());
 
      String sortProperty = templateIndex.getTemplateOrderBy();
      boolean sortAscending = templateIndex.isTemplateAscending();
 
      bs = new BeanSort(templates, sortProperty);
      if (templates != null)
-     System.out.println("Qingru's test 2 templates' size is  " + templates.size());
+     log.info("Qingru's test 2 templates' size is  " + templates.size());
 
-     System.out.println("Qingru's test sortProperty is  " + sortProperty);
-     System.out.println("Qingru's test templateAscending is  " + templateIndex.isTemplateAscending());
+     log.info("Qingru's test sortProperty is  " + sortProperty);
+     log.info("Qingru's test templateAscending is  " + templateIndex.isTemplateAscending());
      if (sortProperty.equals("lastModified"))
      {
        bs.toDateSort();
@@ -131,8 +131,8 @@ public class TemplateListener extends TemplateBaseListener
 
      // get the managed bean, author and set the list
      templateIndex.setSortTemplateList(templates);
-     // System.out.println("Qingru's test: isTemplateAscending is  " + templateIndex.isTemplateAscending());
-   System.out.println("Qingru's test: templateIndex.getTemplateList is  " + templateIndex.getSortTemplateList());
+     // log.info("Qingru's test: isTemplateAscending is  " + templateIndex.isTemplateAscending());
+   log.info("Qingru's test: templateIndex.getTemplateList is  " + templateIndex.getSortTemplateList());
   }
 
 
@@ -146,20 +146,20 @@ public class TemplateListener extends TemplateBaseListener
 
     if (templateOrder != null && !templateOrder.trim().equals("")) {
       bean.setTemplateOrderBy(templateOrder);
- System.out.println("Qingru's 1 ");
+ log.info("Qingru's 1 ");
     }
 
     if (tempAscending != null && !tempAscending.trim().equals("")) {
       try {
         bean.setTemplateAscending((Boolean.valueOf(tempAscending)).booleanValue());
- System.out.println("Qingru's 2 ");
+ log.info("Qingru's 2 ");
       }
       catch (Exception ex) { //skip
       }
     }
     else
     {
- System.out.println("Qingru's 3  ");
+ log.info("Qingru's 3  ");
 	bean.setTemplateAscending(true);
     }
 

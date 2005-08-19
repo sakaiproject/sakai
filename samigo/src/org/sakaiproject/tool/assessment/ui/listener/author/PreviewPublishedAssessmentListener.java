@@ -61,9 +61,9 @@ public class PreviewPublishedAssessmentListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
+    //log.info("debugging ActionEvent: " + ae);
+    //log.info("debug requestParams: " + requestParams);
+    //log.info("debug reqMap: " + reqMap);
 
     PublishedAssessmentBeanie assessmentBean = (PublishedAssessmentBeanie) cu.lookupBean(
                                           "publishedAssessmentBean");
@@ -74,8 +74,8 @@ public class PreviewPublishedAssessmentListener
     PublishedAssessmentService assessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade publishedAssessment = assessmentService.getPublishedAssessment(
         publishedAssessmentId);
-    //System.out.println("** assessment = "+publishedAssessment);
-    //System.out.println("** assessment Bean= "+assessmentBean);
+    //log.info("** assessment = "+publishedAssessment);
+    //log.info("** assessment Bean= "+assessmentBean);
     assessmentBean.setAssessment(publishedAssessment);
 
   }

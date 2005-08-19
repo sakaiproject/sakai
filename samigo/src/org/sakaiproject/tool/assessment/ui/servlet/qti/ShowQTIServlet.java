@@ -81,8 +81,8 @@ public class ShowQTIServlet extends HttpServlet
     res.setHeader("Content-Disposition",
                   "inline" + ";filename=\"" + fileName + "\";");
     PrintWriter out = res.getWriter();
-    System.out.println("debug show qti:");
-    System.out.println("xml");
+    log.info("debug show qti:");
+    log.info("xml");
     out.print(xml);
   }
 

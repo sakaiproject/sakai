@@ -67,9 +67,6 @@ public class AuthorAssessmentListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
 
     AuthorBean author = (AuthorBean) cu.lookupBean(
                          "author");
@@ -84,18 +81,14 @@ public class AuthorAssessmentListener
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - read from form authorIndex.jsp
-    //System.out.println("*** 0. DEFAULT TEMPLATEID");
     String assessmentTitle = author.getAssessTitle();
     String description = author.getAssessmentDescription();
     String typeId = author.getAssessmentTypeId();
     String templateId = author.getAssessmentTemplateId();
 
-    //System.out.println("*** 1. DEFAULT TEMPLATEID"+templateId);
     if (templateId == null){
       templateId = AssessmentTemplateFacade.DEFAULTTEMPLATE.toString();;
-      //System.out.println("*** 2. DEFAULT TEMPLATE"+templateId);
     }
-    //System.out.println("*** 3. DEFAULT TEMPLATEID"+templateId);
 
     // #2 - got all the info, create now
     AssessmentFacade assessment = createAssessment(

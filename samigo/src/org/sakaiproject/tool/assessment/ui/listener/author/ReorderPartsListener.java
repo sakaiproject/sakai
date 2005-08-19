@@ -67,14 +67,14 @@ public class ReorderPartsListener
 
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
+    //log.info("debugging ActionEvent: " + ae);
+    //log.info("debug requestParams: " + requestParams);
+    //log.info("debug reqMap: " + reqMap);
 
     String oldPos= ae.getOldValue().toString();
-    //System.out.println("**** ae.getOldValue : " + oldPos);
+    //log.info("**** ae.getOldValue : " + oldPos);
     String newPos= ae.getNewValue().toString();
-    //System.out.println("**** ae.getNewValue : " + newPos);
+    //log.info("**** ae.getNewValue : " + newPos);
 
     // get sections with oldPos
     AssessmentFacade assessment = assessmentBean.getAssessment();

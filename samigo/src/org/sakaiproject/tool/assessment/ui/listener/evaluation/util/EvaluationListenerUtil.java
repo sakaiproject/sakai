@@ -56,7 +56,7 @@ public class EvaluationListenerUtil
     String capitalizedField = sortCommandId.substring(6);
     String field = (capitalizedField.substring(0,1).toLowerCase() +
                    capitalizedField.substring(1)).trim();
-    //System.out.println("Rachel: return field " + field);
+    //log.info("Rachel: return field " + field);
     return field;
   }
 

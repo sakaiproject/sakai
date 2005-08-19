@@ -93,7 +93,7 @@ public class ManagedBeanUtil
   {
     if (args.length>0) beanz = args;
     for (int i = 0; i < beanz.length; i++) {
-      //System.out.println(makeManagedBeanEntry(beanz[i]));
+      //log.info(makeManagedBeanEntry(beanz[i]));
     }
   }
 

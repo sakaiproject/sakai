@@ -67,9 +67,9 @@ public class EditPartListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
+    //log.info("debugging ActionEvent: " + ae);
+    //log.info("debug requestParams: " + requestParams);
+    //log.info("debug reqMap: " + reqMap);
 
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
                                                            "assessmentBean");
@@ -78,7 +78,7 @@ public class EditPartListener
     String sectionId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("sectionId");
 
-    //System.out.println("**SectionId = "+sectionId);
+    //log.info("**SectionId = "+sectionId);
     // #1a. prepare sectionBean
     AssessmentService assessmentService = new AssessmentService();
     SectionFacade section = assessmentService.getSection(sectionId);

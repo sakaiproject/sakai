@@ -24,6 +24,8 @@
 package org.sakaiproject.tool.assessment.util;
 
 import java.util.HashMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * In memory mime type lookup utility class.
@@ -33,6 +35,8 @@ import java.util.HashMap;
  * @version $Id$
  */
 public class MimeType {
+  private static Log log = LogFactory.getLog(MimeType.class);
+
   private static HashMap extensionMime = new HashMap();
   private static HashMap mimeExtension = new HashMap();
   private static boolean loaded = false;
@@ -44,12 +48,12 @@ public class MimeType {
    */
   public static void main(String[] args)
   {
-    System.out.println("mime for BMP= " + get("BMP"));
-    System.out.println("mime for .zip= " + get(".zip"));
-    System.out.println("mime for .HTM= " + get (".HTM"));
-    System.out.println("extension for application/x-tar= " +
+    log.info("mime for BMP= " + get("BMP"));
+    log.info("mime for .zip= " + get(".zip"));
+    log.info("mime for .HTM= " + get (".HTM"));
+    log.info("extension for application/x-tar= " +
                        getExtension("application/x-tar"));
-    System.out.println("extension for application/x-gzip= "+
+    log.info("extension for application/x-gzip= "+
                        getExtension("application/x-gzip"));
   }
 

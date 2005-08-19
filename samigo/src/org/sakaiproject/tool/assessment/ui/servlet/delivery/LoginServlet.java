@@ -97,7 +97,7 @@ public class LoginServlet
     String contextPath = req.getContextPath();
     String path = "/jsf/delivery/invalidAssessment.faces";
     boolean relativePath = true;
-    
+
     String agentIdString = "";
     boolean isAuthorized = false;
     boolean isAuthenticated = false;
@@ -120,7 +120,7 @@ public class LoginServlet
         if (isAuthenticated)
           isAuthorized = checkMembership(pub, req, res);
       }
- 
+
       // check if assessment is available
       // We are getting the total no. of submission (for grade) per assessment
       // by the given agent at the same time
@@ -129,7 +129,7 @@ public class LoginServlet
         if (!assessmentIsAvailable) {
           path = "/jsf/delivery/assessmentNotAvailable.faces";
         }
-        else { 
+        else {
           // if assessment is available, set it in delivery bean for display in deliverAssessment.jsp
           delivery.setPublishedAssessment(pub);
           BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
@@ -158,11 +158,11 @@ public class LoginServlet
       dispatcher.forward(req, res);
     }
     else{
-      System.out.println("** servlet path="+req.getRequestURL().toString());
+      log.info("** servlet path="+req.getRequestURL().toString());
       String url = req.getRequestURL().toString();
       String context = req.getContextPath();
       String finalUrl = url.substring(0,url.lastIndexOf(context))+path;
-      System.out.println("**** finalUrl = "+finalUrl);
+      log.info("**** finalUrl = "+finalUrl);
       res.sendRedirect(finalUrl);
     }
   }
@@ -222,7 +222,7 @@ public class LoginServlet
   }
 
   // check if assessment is available based on criteria like
-  // dueDate 
+  // dueDate
   public boolean assessmentIsAvailable(PublishedAssessmentService service,
       String agentIdString, PublishedAssessmentFacade pub){
     boolean assessmentIsAvailable = false;

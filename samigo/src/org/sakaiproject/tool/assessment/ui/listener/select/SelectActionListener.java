@@ -138,12 +138,12 @@ public class SelectActionListener
 
     HashMap authorizationHash = PersistenceService.getInstance().getAuthzQueriesFacade().
         getAuthorizationToViewAssessments(AgentFacade.getCurrentSiteId()) ;
-    //System.out.println("currentSiteId="+AgentFacade.getCurrentSiteId());
-    //System.out.println("currentAgentId="+AgentFacade.getAgentString());
+    //log.info("currentSiteId="+AgentFacade.getCurrentSiteId());
+    //log.info("currentAgentId="+AgentFacade.getAgentString());
     HashMap authenticatedHash = publishedAssessmentService.getAllAssessmentsReleasedToAuthenticatedUsers() ;
     HashMap publishedAssessmentHash = getPublishedAssessmentHash(publishedAssessmentList);
     ArrayList submittedAssessmentGradingList = new ArrayList();
-    //System.out.println("recentSubmittedList size="+recentSubmittedList.size());
+    //log.info("recentSubmittedList size="+recentSubmittedList.size());
     for (int k = 0; k < recentSubmittedList.size(); k++) {
       AssessmentGradingFacade g = (AssessmentGradingFacade)
           recentSubmittedList.get(k);
@@ -156,8 +156,8 @@ public class SelectActionListener
       boolean authorizedToSite= (authorizationHash.get(g.getPublishedAssessmentId().toString())!=null);
       boolean authorizedToAuthenticated = (authenticatedHash.get(g.getPublishedAssessmentId())!=null);
 
-      //System.out.println("authorizedToSite="+authorizedToSite);
-      //System.out.println("authorizedToAuthenticated="+authorizedToAuthenticated);
+      //log.info("authorizedToSite="+authorizedToSite);
+      //log.info("authorizedToAuthenticated="+authorizedToAuthenticated);
 
       if (authorizedToSite || authorizedToAuthenticated){
         DeliveryBean delivery = new DeliveryBean();
@@ -180,7 +180,7 @@ public class SelectActionListener
         if (g.getSubmittedDate() != null && g.getAttemptDate() != null) {
           long time = g.getSubmittedDate().getTime() -
               g.getAttemptDate().getTime();
-          //System.out.println("Time = " + time);
+          //log.info("Time = " + time);
           long hours = time / (1000 * 60 * 60);
           long remainder = time - (hours * 1000 * 60 * 60);
           long minutes = remainder / (1000 * 60);
@@ -423,9 +423,9 @@ public class SelectActionListener
     Date currentDate = new Date();
     PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
         get(a.getPublishedAssessmentId());
-    //System.out.println("****LOOG PublishedAssessmentFacade = "+a.getPublishedAssessmentId());
+    //log.info("****LOOG PublishedAssessmentFacade = "+a.getPublishedAssessmentId());
     if (p==null) {// published assessment may have been deleted
-      //System.out.println("*** pub has been deleted ="+a.getPublishedAssessmentId());
+      //log.info("*** pub has been deleted ="+a.getPublishedAssessmentId());
       return hasFeedback;
     }
 

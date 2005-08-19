@@ -62,9 +62,9 @@ public class EditAssessmentListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("debugging ActionEvent: " + ae);
-    //System.out.println("debug requestParams: " + requestParams);
-    //System.out.println("debug reqMap: " + reqMap);
+    //log.info("debugging ActionEvent: " + ae);
+    //log.info("debug requestParams: " + requestParams);
+    //log.info("debug reqMap: " + reqMap);
 
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
                                           "assessmentBean");
@@ -79,8 +79,8 @@ public class EditAssessmentListener
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId);
-    //System.out.println("** assessment = "+assessment);
-    //System.out.println("** assessment Bean= "+assessmentBean);
+    //log.info("** assessment = "+assessment);
+    //log.info("** assessment Bean= "+assessmentBean);
     assessmentBean.setAssessment(assessment);
     itemauthorBean.setTarget(itemauthorBean.FROM_ASSESSMENT); // save to assessment
     // initalize the itemtype

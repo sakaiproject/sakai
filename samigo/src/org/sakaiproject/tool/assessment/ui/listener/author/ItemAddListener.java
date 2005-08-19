@@ -100,7 +100,7 @@ public class ItemAddListener
 		}
 	}
 /*
-    // do not need to check for mcmc 
+    // do not need to check for mcmc
     else //Multiple choice,multiple correct
 	{
 	    Iterator iter = item.getMultipleChoiceAnswers().iterator();
@@ -199,12 +199,12 @@ public class ItemAddListener
 // FEEDBACK
 ///////////////////////////////////////////////
 /*
-      System.out.println("**** FEEDBACK ****");
-      System.out.println("**** bean.getCorrFeedback()=["
+      log.info("**** FEEDBACK ****");
+      log.info("**** bean.getCorrFeedback()=["
                          + bean.getCorrFeedback() + "] ***");
-      System.out.println("**** bean.getIncorrFeedback()=["
+      log.info("**** bean.getIncorrFeedback()=["
                          + bean.getIncorrFeedback() + "] ***");
-      System.out.println("**** bean.getGeneralFeedback()=["
+      log.info("**** bean.getGeneralFeedback()=["
                          + bean.getGeneralFeedback() + "] ***");
 */
 ///////////////////////////////////////////////
@@ -226,12 +226,12 @@ public class ItemAddListener
 // FEEDBACK
 ///////////////////////////////////////////////
 /*
-      System.out.println("**** FEEDBACK ****");
-      System.out.println("**** item.getCorrectItemFeedback()=["
+      log.info("**** FEEDBACK ****");
+      log.info("**** item.getCorrectItemFeedback()=["
                          + item.getCorrectItemFeedback() + "] ***");
-      System.out.println("**** item.getInCorrectItemFeedback()=["
+      log.info("**** item.getInCorrectItemFeedback()=["
                          + item.getInCorrectItemFeedback() + "] ***");
-      System.out.println("**** item.getGeneralItemFeedback()=["
+      log.info("**** item.getGeneralItemFeedback()=["
                          + item.getGeneralItemFeedback() + "] ***");
 */
 ///////////////////////////////////////////////
@@ -373,7 +373,7 @@ public class ItemAddListener
       // need to loop through matches for in matchItemBean list
       // and add all possible matches to this choice
 
-      //System.out.println(
+      //log.info(
       Iterator answeriter = matchItemBeanList.iterator();
       HashSet answerSet = new HashSet();
       Answer answer = null;
@@ -608,7 +608,7 @@ public class ItemAddListener
       String entiretext = bean.getItemText();
       String fibtext = entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
       text1.setText(fibtext);
-      //System.out.println(" new text without answer is = " + fibtext);
+      //log.info(" new text without answer is = " + fibtext);
       Object[] fibanswers = getFIBanswers(entiretext).toArray();
       for (int i = 0; i < fibanswers.length; i++) {
         String oneanswer = (String) fibanswers[i];

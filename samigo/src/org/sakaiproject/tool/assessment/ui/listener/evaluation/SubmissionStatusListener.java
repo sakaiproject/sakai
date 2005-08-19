@@ -88,15 +88,15 @@ public class SubmissionStatusListener
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().
                         getRequestParameterMap();
-    System.out.println("requestParams: " + requestParams);
-    System.out.println("reqMap: " + reqMap);
+    log.info("requestParams: " + requestParams);
+    log.info("reqMap: " + reqMap);
 
     log.info("Submission Status LISTENER.");
     SubmissionStatusBean bean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
-    System.out.println("Got publishedId " + publishedId);
+    log.info("Got publishedId " + publishedId);
 
     log.info("Calling totalScores.");
     if (!totalScores(publishedId, bean, false))
@@ -127,14 +127,14 @@ public class SubmissionStatusListener
           !cu.lookupParam("sortBy").trim().equals(""))
         bean.setSortType(cu.lookupParam("sortBy"));
       String which = cu.lookupParam("allSubmissions");
-      System.out.println("Rachel: allSubmissions = " + which);
+      log.info("Rachel: allSubmissions = " + which);
       if (which == null)
         which = "false";
       bean.setAllSubmissions(which);
       bean.setPublishedId(publishedId);
       ArrayList scores = delegate.getAllSubmissions(publishedId);
       Iterator iter = scores.iterator();
-      System.out.println("Has this many agents: " + scores.size());
+      log.info("Has this many agents: " + scores.size());
       if (!iter.hasNext())
         return false;
       Object next = iter.next();
@@ -193,27 +193,27 @@ public class SubmissionStatusListener
           }
         }
 
-        System.out.println("Rachel: Setting first item to " +
+        log.info("Rachel: Setting first item to " +
           bean.getFirstItem());
 
         try {
           bean.setAnonymous((data.getPublishedAssessment().getEvaluationModel().getAnonymousGrading().equals(EvaluationModel.ANONYMOUS_GRADING)?"true":"false"));
-          System.out.println("Set anonymous = " + bean.getAnonymous());
+          log.info("Set anonymous = " + bean.getAnonymous());
         } catch (Exception e) {
-          System.out.println("No evaluation model");
+          log.info("No evaluation model");
           bean.setAnonymous("false");
         }
         try {
           bean.setLateHandling(data.getPublishedAssessment().getAssessmentAccessControl().getLateHandling().toString());
         } catch (Exception e) {
-          System.out.println("No access control model.");
+          log.info("No access control model.");
           bean.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION.toString());
         }
         try {
           bean.setDueDate(data.getPublishedAssessment().getAssessmentAccessControl().getDueDate().toString());
           dueDate = data.getPublishedAssessment().getAssessmentAccessControl().getDueDate();
         } catch (Exception e) {
-          System.out.println("No due date.");
+          log.info("No due date.");
           bean.setDueDate("");
           dueDate = null;
         }
@@ -292,7 +292,7 @@ public class SubmissionStatusListener
           results.setIsLate(new Boolean(true));
 
         AgentFacade agent = new AgentFacade(gdata.getAgentId());
-        System.out.println("Rachel: agentid = " + gdata.getAgentId());
+        log.info("Rachel: agentid = " + gdata.getAgentId());
         results.setLastName(agent.getLastName());
         results.setFirstName(agent.getFirstName());
         if (results.getLastName() != null &&
@@ -308,7 +308,7 @@ public class SubmissionStatusListener
         agents.add(results);
       }
 
-      System.out.println("Sort type is " + bean.getSortType() + ".");
+      log.info("Sort type is " + bean.getSortType() + ".");
       bs = new BeanSort(agents, bean.getSortType());
       if (
         (bean.getSortType()).equals("assessmentGradingId") ||
@@ -323,7 +323,7 @@ public class SubmissionStatusListener
 
 
       bs.sort();
-      System.out.println("Listing agents.");
+      log.info("Listing agents.");
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
     }

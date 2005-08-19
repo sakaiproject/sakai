@@ -71,7 +71,7 @@ public class StudentScoreUpdateListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-      //System.out.println("Student Score Update LISTENER.");
+      //log.info("Student Score Update LISTENER.");
     StudentScoresBean bean = (StudentScoresBean) cu.lookupBean("studentScores");
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     log.info("Calling saveStudentScores.");
@@ -104,7 +104,7 @@ public class StudentScoreUpdateListener
         {
           ItemContentsBean question = (ItemContentsBean) iter2.next();
           ArrayList gradingarray = question.getItemGradingDataArray();
-          //System.out.println("Gradingarray length = " + gradingarray.size());
+          //log.info("Gradingarray length = " + gradingarray.size());
           // Create a new one if we need it.
           if (gradingarray.isEmpty() && (question.getPoints() > 0  ||
               (question.getGradingComment() != null &&
@@ -113,7 +113,7 @@ public class StudentScoreUpdateListener
             question.setReview(false); // This creates an itemgradingdata
             gradingarray = question.getItemGradingDataArray();
           }
-          //System.out.println("Gradingarray length2 = " + gradingarray.size());
+          //log.info("Gradingarray length2 = " + gradingarray.size());
           Iterator iter3 = gradingarray.iterator();
           while (iter3.hasNext())
           {
@@ -127,7 +127,7 @@ public class StudentScoreUpdateListener
               (new Float(question.getPoints()).floatValue()
                / (float) gradingarray.size()));
             data.setComments(question.getGradingComment());
-            //System.out.println("set points = " + question.getPoints() + ", comments to " + question.getGradingComment());
+            //log.info("set points = " + question.getPoints() + ", comments to " + question.getGradingComment());
             list.add(data);
 
             if (adata == null)
@@ -140,7 +140,7 @@ public class StudentScoreUpdateListener
         return true; // Nothing to save.
 
       adata.setComments(bean.getComments());
-      //System.out.println("Got total comments: " + adata.getComments());
+      //log.info("Got total comments: " + adata.getComments());
 
       // Some of the itemgradingdatas may be new.
       iter = list.iterator();

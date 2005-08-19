@@ -43,7 +43,7 @@ public class StoreApplicationContext extends HttpServlet{
     if (ctx == null){
       ctx = WebApplicationContextUtils
 	 .getRequiredWebApplicationContext(config.getServletContext());
-      System.out.println("***context="+ctx);
+      log.info("***context="+ctx);
       SpringBeanLocator locator = SpringBeanLocator.getInstance();
       locator.setApplicationContext(ctx);
 

@@ -61,9 +61,9 @@ public class EditPublishedSettingsListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //System.out.println("**debugging ActionEvent: " + ae);
-    //System.out.println("**debug requestParams: " + requestParams);
-    //System.out.println("**debug reqMap: " + reqMap);
+    //log.info("**debugging ActionEvent: " + ae);
+    //log.info("**debug requestParams: " + requestParams);
+    //log.info("**debug reqMap: " + reqMap);
 
     PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) cu.lookupBean(
                                           "publishedSettings");
@@ -73,7 +73,7 @@ public class EditPublishedSettingsListener
     PublishedAssessmentService assessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(
         assessmentId);
-    //System.out.println("** assessment = "+assessment);
+    //log.info("** assessment = "+assessment);
     assessmentSettings.setAssessment(assessment);
   }
 

@@ -122,7 +122,6 @@ public class AuthorActionListener
       Integer size = (Integer) map.get(p.getPublishedAssessmentId());
       if (size != null){
         p.setSubmissionSize(size.intValue());
-        //System.out.println("*** submission size" + size.intValue());
       }
     }
   }
