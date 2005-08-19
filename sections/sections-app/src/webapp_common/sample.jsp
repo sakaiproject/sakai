@@ -43,6 +43,10 @@
 	</p>
     
     <p>
+        <h:commandLink action="overview" value="Overview"/>
+    </p>
+
+    <p>
         <h:commandLink action="studentView" value="Student View"/>
     </p>
 

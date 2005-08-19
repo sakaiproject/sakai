@@ -31,30 +31,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.model.SelectItem;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
+import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
 
-public class StudentViewBean extends CourseDependentBean implements Serializable {
+public class OverviewBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Log log = LogFactory.getLog(StudentViewBean.class);
+	private static final Log log = LogFactory.getLog(OverviewBean.class);
 	
 	private String sortColumn;
 	private boolean sortAscending;
-	private String sectionFilter;
 	private boolean externallyManaged;
 	
 	private List sections;
-	private List sectionCategoryItems;
 	
 	public void init() {
 		// Determine whether this course is externally managed
@@ -64,9 +57,6 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		Set sectionSet = getAllSiteSections();
 		sections = new ArrayList();
 		
-		// Get the section enrollments for this student
-		Set enrolledSections = getEnrolledSections();
-
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			String catName = getCategoryName(section.getCategory(), getLocale());
@@ -83,73 +73,14 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			}
 
 			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
-			boolean member = isEnrolledInSection(enrolledSections, section);
-			boolean memberOtherSection = isEnrolledInOtherSection(enrolledSections, section);
 			
-			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(
-					section, catName, taNames.toString(), totalEnrollments, member, memberOtherSection);
+			InstructorSectionDecorator decoratedSection = new InstructorSectionDecorator(
+					section, catName, taNames.toString(), totalEnrollments);
 			sections.add(decoratedSection);
 		}
 		
 		// TODO Sort the collection set properly
 		Collections.sort(sections);
-		
-		// Generate the list of select items for the category filter
-		List categoryIds = getSectionCategories();
-		sectionCategoryItems = new ArrayList();
-		sectionCategoryItems.add(new SelectItem("", "All Sections"));
-		for(Iterator iter = categoryIds.iterator(); iter.hasNext();) {
-			String id = (String)iter.next();
-			String label = getCategoryName(id, getLocale());
-			sectionCategoryItems.add(new SelectItem(id, label));
-		}
-		
-		// Remove the sections that don't match the filter.  Since the display logic
-		// requires that we have all of the sections in memory to decide on the switch,
-		// join, and member flags, we can't filter until now.
-		if(sectionFilter != null &&  ! "".equals(sectionFilter)) {
-			List filteredSections = new ArrayList();
-			for(Iterator iter = sections.iterator(); iter.hasNext();) {
-				StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next();
-				if(decoratedSection.getCategory().equals(sectionFilter)) {
-					filteredSections.add(decoratedSection);
-				}
-			}
-			sections = filteredSections;
-		}
-	}
-
-	private boolean isEnrolledInSection(Set enrolledSections, CourseSection section) {
-		for(Iterator iter = enrolledSections.iterator(); iter.hasNext();) {
-			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-			if(enr.getLearningContext().equals(section)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isEnrolledInOtherSection(Set enrolledSections, CourseSection section) {
-		String category = section.getCategory();
-		for(Iterator iter = enrolledSections.iterator(); iter.hasNext();) {
-			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-			if(((CourseSection)enr.getLearningContext()).getCategory().equals(category)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public void processJoinSection(ActionEvent event) {
-		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
-		.getRequestParameterMap().get("sectionUuid");
-		getSectionManager().joinSection(sectionUuid);
-	}
-	
-	public void processSwitchSection(ActionEvent event) {
-		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
-		.getRequestParameterMap().get("sectionUuid");
-		getSectionManager().switchSection(sectionUuid);
 	}
 
 	public List getSections() {
@@ -167,16 +98,6 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	public void setSortColumn(String sortColumn) {
 		this.sortColumn = sortColumn;
 	}
-	public String getSectionFilter() {
-		return sectionFilter;
-	}
-	public void setSectionFilter(String sectionFilter) {
-		this.sectionFilter = sectionFilter;
-	}
-	public List getSectionCategoryItems() {
-		return sectionCategoryItems;
-	}
-
 	public boolean isExternallyManaged() {
 		return externallyManaged;
 	}

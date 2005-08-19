@@ -12,6 +12,14 @@
             <to-view-id>/studentView.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
+            <from-outcome>overview</from-outcome>
+            <to-view-id>/overview.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>editSection</from-outcome>
+            <to-view-id>/editSection.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>listDemo</from-outcome>
             <to-view-id>/listDemo.jsp</to-view-id>
         </navigation-case>

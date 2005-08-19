@@ -22,65 +22,56 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section.decorator;
+package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 
+import javax.faces.context.FacesContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
-public class StudentSectionDecorator extends InstructorSectionDecorator
-	implements Serializable, Comparable {
+public class EditSectionBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	protected boolean full;
-	protected boolean joinable;
-	protected boolean switchable;
-	protected boolean member;
+	private static final Log log = LogFactory.getLog(EditSectionBean.class);
 	
-	public StudentSectionDecorator(CourseSection courseSection, String categoryForDisplay,
-			String instructorNames, int totalEnrollments, boolean member,
-			boolean memberOtherSection) {
-		super(courseSection, categoryForDisplay, instructorNames, totalEnrollments);
-		this.member = member;
-		if( ! this.member && this.spotsAvailable == 0) {
-			this.full = true;
+	private String title;
+	private String sectionUuid;
+	private String category;
+	private int maxEnrollments;
+	
+	public void init() {
+		// Get the section to edit
+		String sectionUuidFromParam = (String)FacesContext.getCurrentInstance()
+			.getExternalContext().getRequestParameterMap().get("sectionUuid");
+		if(sectionUuidFromParam != null) {
+			sectionUuid = sectionUuidFromParam;
 		}
-		if( ! this.member && ! this.full) {
-			this.switchable = memberOtherSection;
-			this.joinable = ! memberOtherSection;
-		}
+		CourseSection section = getSectionAwareness().getSection(sectionUuid);
+		title = section.getTitle();
+		category = section.getCategory();
+		maxEnrollments = section.getMaxEnrollments();
+	}
+
+	public String update() {
+		getSectionManager().updateSection(sectionUuid, title, null, null, category, maxEnrollments);
+		return "overview";
 	}
 	
-	public StudentSectionDecorator() {
-		// Needed for serialization
+	public String getSectionUuid() {
+		return sectionUuid;
 	}
-	
-	public String getInstructorNames() {
-		return instructorNames;
+	public void setSectionUuid(String sectionUuid) {
+		this.sectionUuid = sectionUuid;
 	}
-	public int getSpotsAvailable() {
-		return spotsAvailable;
+	public String getTitle() {
+		return title;
 	}
-	
-	public int compareTo(Object o) {
-		return this.getTitle().compareTo(((StudentSectionDecorator)o).getTitle());
-	}
-
-	public boolean isFull() {
-		return full;
-	}
-
-	public boolean isJoinable() {
-		return joinable;
-	}
-
-	public boolean isMember() {
-		return member;
-	}
-
-	public boolean isSwitchable() {
-		return switchable;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }
 

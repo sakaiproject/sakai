@@ -76,7 +76,7 @@ public class SampleBean extends CourseDependentBean implements Serializable {
         siteContext = super.getSiteContext();
 
         // Get the course
-        Course course = getCourse(siteContext);
+        Course course = getCourse();
     	courseOfferingUuid = course.getUuid();
         
         // Decorate the sections

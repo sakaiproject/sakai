@@ -3,6 +3,10 @@
 
     <sakai:flowState bean="#{studentViewBean}"/>
     
+    <h:selectOneMenu value="#{studentViewBean.sectionFilter}" onchange="this.form.submit()">
+        <f:selectItems value="#{studentViewBean.sectionCategoryItems}"/>
+    </h:selectOneMenu>
+    
     <x:dataTable cellpadding="0" cellspacing="0"
         id="studentViewSectionsTable"
         value="#{studentViewBean.sections}"
@@ -67,7 +71,7 @@
             </f:facet>
             <h:outputText value="#{section.spotsAvailable}"/>
         </h:column>
-        <h:column>
+        <h:column rendered="#{!studentViewBean.externallyManaged}">
             <f:facet name="header">
                 <x:commandSortHeader columnName="change" immediate="true" arrow="true">
                     <h:outputText value="#{msgs.student_view_header_change}" />

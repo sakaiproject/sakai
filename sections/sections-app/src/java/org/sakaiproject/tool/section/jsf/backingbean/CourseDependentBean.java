@@ -75,7 +75,8 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().context.getContext();
 	}
 	
-	protected Course getCourse(String siteContext) {
+	protected Course getCourse() {
+		String siteContext = getSiteContext();
 		return getCourseBean().sectionManager.getCourse(siteContext);
 	}
 	
@@ -86,7 +87,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 
 	protected Set getEnrolledSections() {
 		String userUuid = getUserUuid();
-		Course course = getCourse(getSiteContext());
+		Course course = getCourse();
 		return getCourseBean().sectionManager.getSectionEnrollments(userUuid, course.getUuid());
 	}
 	protected String getCategoryName(String categoryId, Locale locale) {

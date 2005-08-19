@@ -120,15 +120,15 @@
 		<!-- Uncomment as necessary to run tests, or to generate new db schemas -->
 		<!-- 
 		<dependency>
-			<groupId>oracle</groupId>
-			<artifactId>oracle</artifactId>
-			<jar>ojdbc14.jar</jar>
-		</dependency>
-		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>3.0.10-stable-bin</version>
 		</dependency>
+        <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>oracle</artifactId>
+            <jar>ojdbc14.jar</jar>
+        </dependency>
 		-->
 	<!-- End database dependencies -->
 
