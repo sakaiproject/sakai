@@ -26,7 +26,6 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -60,6 +59,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	private List availableSectionItems;
 	
 	private String sectionUuid;
+	private String sectionTitle;
 	
 	public void init() {
 		// Get the section to edit
@@ -69,6 +69,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 			sectionUuid = sectionUuidFromParam;
 		}
 		CourseSection currentSection = getSectionAwareness().getSection(sectionUuid);
+		sectionTitle = currentSection.getTitle();
 		
 		// Get the current users
 		List enrollments = getSectionAwareness().getSectionMembersInRole(currentSection.getUuid(), RoleImpl.STUDENT);
@@ -166,6 +167,10 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 
 	public void setSectionUuid(String sectionUuid) {
 		this.sectionUuid = sectionUuid;
+	}
+
+	public String getSectionTitle() {
+		return sectionTitle;
 	}
 }
 

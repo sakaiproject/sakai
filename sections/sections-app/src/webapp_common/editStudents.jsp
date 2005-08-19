@@ -36,15 +36,25 @@
     		</f:verbatim>
     	</h:panelGroup>
     	
-    	<h:selectManyListbox id="selectedUsers" size="20">
-            <f:selectItems value="#{editStudentsBean.selectedUsers}"/>
-    	</h:selectManyListbox>
+        <h:panelGroup>
+            <h:outputText value="#{editStudentsBean.sectionTitle}"/>
+        
+            <f:verbatim>
+                <br/>
+            </f:verbatim>
+        
+        	<h:selectManyListbox id="selectedUsers" size="20">
+                <f:selectItems value="#{editStudentsBean.selectedUsers}"/>
+        	</h:selectManyListbox>
+        </h:panelGroup>
+
     </h:panelGrid>
     
     <h:commandButton
         action="#{editStudentsBean.update}"
         onclick="highlightSelectedUsers()"
         value="#{msgs.edit_student_update}"/>
-		
+
+
 </h:form>
 </f:view>
