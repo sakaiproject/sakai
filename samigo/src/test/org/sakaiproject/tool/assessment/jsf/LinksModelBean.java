@@ -56,7 +56,6 @@ public class LinksModelBean implements Serializable
     java.util.ArrayList list = bean.getLinkListList();
 
     for (int i = 0; i < list.size(); i++) {
-      System.out.println("\ndebug:" + list.get(i));
     }
   }
 

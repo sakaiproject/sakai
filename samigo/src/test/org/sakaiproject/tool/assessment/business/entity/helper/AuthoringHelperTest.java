@@ -89,16 +89,16 @@ public class AuthoringHelperTest {
     String sep = "\\";
     for (int i = 0; i < myDocs.length; i++) {
       String path = myPath + File.separator + myDocs[i];
-      System.out.println("Testing XML file:" + path);
+      log.info("Testing XML file:" + path);
       Document document =
           XmlUtil.readDocument(myPath + File.separator + myDocs[i]);
-      System.out.println("Created doc.");
+      log.info("Created doc.");
       AssessmentFacade a = ah.createImportedAssessment(document);
-      System.out.println("Created assessment title: " + a.getTitle());
-      System.out.println("Created assessment comments: " + a.getComments());
-      System.out.println("Created assessment desc: " + a.getDescription());
-      System.out.println("Created assessment mod: " + a.getLastModifiedBy());
-      System.out.println("Created assessment date: " + a.getLastModifiedDate());
+      log.info("Created assessment title: " + a.getTitle());
+      log.info("Created assessment comments: " + a.getComments());
+      log.info("Created assessment desc: " + a.getDescription());
+      log.info("Created assessment mod: " + a.getLastModifiedBy());
+      log.info("Created assessment date: " + a.getLastModifiedDate());
     }
   }
 
@@ -107,14 +107,14 @@ public class AuthoringHelperTest {
     String sep = "\\";
     for (int i = 0; i < myDocs.length; i++) {
       String path = myPath + File.separator + myDocs[i];
-      System.out.println("Testing XML file:" + path);
+      log.info("Testing XML file:" + path);
       Document document =
           XmlUtil.readDocument(myPath + File.separator + myDocs[i]);
-      if (document == null) System.out.println("DOCUMENT IS NULL");
-      if (document != null) System.out.println("DOCUMENT EXISTS.");
-      System.out.println("Created doc.");
+      if (document == null) log.info("DOCUMENT IS NULL");
+      if (document != null) log.info("DOCUMENT EXISTS.");
+      log.info("Created doc.");
       ItemFacade it = ah.createImportedItem(document);
-//      System.out.println("Created item: " + it.getItemTextArray());
+//      log.info("Created item: " + it.getItemTextArray());
     }
   }
 
@@ -127,7 +127,7 @@ public class AuthoringHelperTest {
   public AssessmentFacade createImportedAssessment(Document document) {
 //    if(log.isDebugEnabled())
 //    {
-    System.out.println(
+    log.info(
 //      log.debug(
         document==null?
         "DOCUMENT IS NULL IN createPublishedAssessment(  Document)":
@@ -285,13 +285,13 @@ public class AuthoringHelperTest {
       // create the item
       ExtractionHelper exHelper = new ExtractionHelper(QTIVersion.VERSION_1_2);
       exHelper.setOverridePath(xslPath);
-      System.out.println("XSLT Path: " + exHelper.getTransformPath());
+      log.info("XSLT Path: " + exHelper.getTransformPath());
       Item itemXml = new Item(document, QTIVersion.VERSION_1_2);
       Map itemMap = exHelper.mapItem(itemXml);
 //      log.debug("ITEM MAP=" + itemMap);
       exHelper.updateItem(item, itemMap);
       ItemService itemService = new ItemService();
-      System.out.println("updating item");
+      log.info("updating item");
 //      itemService.saveItem(item);
     }
     catch(Exception e)

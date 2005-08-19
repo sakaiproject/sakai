@@ -51,7 +51,6 @@ public class TestBackingBean
 
   public TestBackingBean()
   {
-    System.out.println("Creating backing bean.");
     prop1 = "prop1";
     prop2 = "prop2";
     prop3 = "prop3";
@@ -68,7 +67,6 @@ public class TestBackingBean
 
   public String chooseAgentAdminGo()
   {
-    System.out.println("Choosing admin");
     prop1 = "admin";
 
     // Call listener before going on.
@@ -80,7 +78,6 @@ public class TestBackingBean
 
   public String chooseAgentRachelGo()
   {
-    System.out.println("Choosing rachel");
     prop1 = "rachel";
 
     // Call listener before going on.
@@ -92,7 +89,6 @@ public class TestBackingBean
 
   public String chooseAgentMarithGo()
   {
-    System.out.println("Choosing marith");
     prop1 = "marith";
 
     // Call listener before going on.
@@ -104,7 +100,6 @@ public class TestBackingBean
 
   public String chooseAgentAdmin()
   {
-    System.out.println("Choosing admin");
     prop1 = "admin";
 
     // Call listener before going on.
@@ -116,7 +111,6 @@ public class TestBackingBean
 
   public String chooseAgentRachel()
   {
-    System.out.println("Choosing rachel");
     prop1 = "rachel";
 
     // Call listener before going on.
@@ -128,7 +122,6 @@ public class TestBackingBean
 
   public String chooseAgentMarith()
   {
-    System.out.println("Choosing marith");
     prop1 = "marith";
 
     // Call listener before going on.
@@ -140,7 +133,6 @@ public class TestBackingBean
 
   public String chooseAgentAdminInstructor()
   {
-    System.out.println("Choosing admin instructor");
     prop1 = "admin";
 
     // Call listener before going on.

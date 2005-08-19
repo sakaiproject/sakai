@@ -79,8 +79,8 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     // get assessment
     PublishedAssessmentFacade pub = null;
     pub = lookupPublishedAssessment(ID_TO_TEST, publishedAssessmentService);
-    System.out.println("** FakeBeginDeliveryActionListener, pub = "+pub);
-    System.out.println("** FakeBeginDeliveryActionListener, pub title = "+pub.getTitle());
+    log.info("** FakeBeginDeliveryActionListener, pub = "+pub);
+    log.info("** FakeBeginDeliveryActionListener, pub title = "+pub.getTitle());
 
     // populate backing bean from published assessment
     populateBeanFromPub(delivery, pub);
@@ -153,10 +153,10 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     PublishedAssessmentFacade pubAssessment)
   {
     // global information
-    System.out.println("** 1. FakeBeginDeliveryActionListener, deliveryBean = "+delivery);
-    System.out.println("** 2. FakeBeginDeliveryActionListener, pubAssessment = "+pubAssessment);
-    System.out.println("** 3. FakeBeginDeliveryActionListener, id= "+pubAssessment.getAssessmentId());
-    System.out.println("** 4. FakeBeginDeliveryActionListener, pubId= "+pubAssessment.getPublishedAssessmentId());
+    log.info("** 1. FakeBeginDeliveryActionListener, deliveryBean = "+delivery);
+    log.info("** 2. FakeBeginDeliveryActionListener, pubAssessment = "+pubAssessment);
+    log.info("** 3. FakeBeginDeliveryActionListener, id= "+pubAssessment.getAssessmentId());
+    log.info("** 4. FakeBeginDeliveryActionListener, pubId= "+pubAssessment.getPublishedAssessmentId());
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
     delivery.setAssessmentTitle(pubAssessment.getTitle());
     delivery.setInstructorMessage(pubAssessment.getDescription());
