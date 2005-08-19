@@ -27,6 +27,7 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -53,6 +54,12 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	
 	protected Locale getLocale() {
 		return FacesContext.getCurrentInstance().getViewRoot().getLocale();
+	}
+	
+	protected String getLocalizedMessage(String key) {
+        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+        ResourceBundle rb = ResourceBundle.getBundle(bundleName, getLocale());
+        return rb.getString(key);
 	}
 	
 	protected List getTeachingAssistants(String sectionUuid) {

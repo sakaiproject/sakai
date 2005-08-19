@@ -68,6 +68,7 @@
 	            <prop key="drop*">PROPAGATION_REQUIRED</prop>
 				<prop key="add*">PROPAGATION_REQUIRED</prop>
 				<prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="set*">PROPAGATION_REQUIRED</prop>
 				<prop key="update*">PROPAGATION_REQUIRED</prop>
 				<prop key="remove*">PROPAGATION_REQUIRED</prop>
 				<prop key="disband*">PROPAGATION_REQUIRED</prop>

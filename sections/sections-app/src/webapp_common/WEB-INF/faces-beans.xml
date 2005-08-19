@@ -45,6 +45,20 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
 
+    <managed-bean>
+        <description>Edit Students Bean</description>
+        <managed-bean-name>editStudentsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.EditStudentsBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Edit Managers Bean</description>
+        <managed-bean-name>editManagersBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.EditManagersBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
     <!-- For testing only -->
 	<managed-bean>
 		<description>Sample Bean</description>

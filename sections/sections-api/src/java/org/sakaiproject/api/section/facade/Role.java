@@ -30,7 +30,6 @@ public interface Role {
 	public boolean isTeachingAssistant();
 	public boolean isInstructor();
 	public String getDescription();
-	
 }
 
 

@@ -22,52 +22,28 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section;
+package org.sakaiproject.api.section.coursemanagement;
 
-import java.io.Serializable;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sakaiproject.api.section.coursemanagement.Course;
-
-public class CourseImpl extends LearningContextImpl implements Course, Serializable {
-
-	protected String siteContext;
-	protected boolean externallyManaged;
-	protected boolean selfRegistrationAllowed;
-	protected boolean selfSwitchingAllowed;
+/**
+ * Represents the schedule for a CourseSection.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
+public interface CourseSectionSchedule {
+	public boolean isMonday();
+	public boolean isTuesday();
+	public boolean isWednesday();
+	public boolean isThursday();
+	public boolean isFriday();
+	public boolean isSaturday();
+	public boolean isSunday();
 	
-	public boolean isSelfSwitchingAllowed() {
-		return selfSwitchingAllowed;
-	}
-	public void setSelfSwitchingAllowed(boolean selfSwitchingAllowed) {
-		this.selfSwitchingAllowed = selfSwitchingAllowed;
-	}
-	public boolean isSelfRegistrationAllowed() {
-		return selfRegistrationAllowed;
-	}
-	public void setSelfRegistrationAllowed(boolean selfRegistrationAllowed) {
-		this.selfRegistrationAllowed = selfRegistrationAllowed;
-	}
-	public String getSiteContext() {
-		return siteContext;
-	}
-	public void setSiteContext(String siteContext) {
-		this.siteContext = siteContext;
-	}
-	public boolean isExternallyManaged() {
-		return externallyManaged;
-	}
-	public void setExternallyManaged(boolean externallyManaged) {
-		this.externallyManaged = externallyManaged;
-	}
-	
-	public String toString() {
-		return new ToStringBuilder(this)
-		.append(title)
-		.append(siteContext)
-		.append(uuid)
-		.toString();
-	}
+	public String getStartTime();
+	public boolean isStartTimeAm();
+
+	public String getEndTime();
+	public boolean isEndTimeAm();
 }
 
 

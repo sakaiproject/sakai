@@ -19,10 +19,25 @@
             </f:facet>
             <h:outputText value="#{section.title}"/>
 
+            <f:verbatim>
+                <br/>&nbsp;&nbsp;&nbsp;&nbsp;
+            </f:verbatim>
+            
             <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
                 <f:param name="sectionUuid" value="#{section.uuid}"/>
             </h:commandLink>
             
+            <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
+
+            <h:commandLink action="editManagers" value="#{msgs.overview_link_managers}">
+                <f:param name="sectionUuid" value="#{section.uuid}"/>
+            </h:commandLink>
+            
+            <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
+            
+            <h:commandLink action="editStudents" value="#{msgs.overview_link_students}">
+                <f:param name="sectionUuid" value="#{section.uuid}"/>
+            </h:commandLink>
         </h:column>
         <h:column>
             <f:facet name="header">

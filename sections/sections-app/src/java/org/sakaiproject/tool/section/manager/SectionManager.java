@@ -177,10 +177,12 @@ public interface SectionManager {
      * enrolled in any secondary sections of a given type.  For instance, 'Who
      * are the students who are not enrolled in any lab?'
      * 
-     * @return A List of {@link org.sakaiproject.api.section.coursemanagement.User Users}
-     * who are not enrolled in a section of the given section category.
+     * @return A List of {@link
+     * org.sakaiproject.api.section.coursemanagement.EnrollmentRecord
+     * EnrollmentRecords} of students who are enrolled in the course but are
+     * not enrolled in a section of the given section category.
      */
-    public List getUnsectionedStudents(String courseUuid, String category);
+    public List getUnsectionedEnrollments(String courseUuid, String category);
 
     /**
      * Gets all of the section enrollments for a user in a course.

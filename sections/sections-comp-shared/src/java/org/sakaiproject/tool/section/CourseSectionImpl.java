@@ -23,11 +23,16 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section;
 
+import java.io.Serializable;
+
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.CourseSectionSchedule;
 
-public class CourseSectionImpl extends LearningContextImpl implements CourseSection {
+public class CourseSectionImpl extends LearningContextImpl implements CourseSection, Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	protected Course course;
 	protected String category;
     protected String meetingTimes;
@@ -77,6 +82,10 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	}
 	public void setMaxEnrollments(int maxEnrollments) {
 		this.maxEnrollments = maxEnrollments;
+	}
+
+	public CourseSectionSchedule getSchedule() {
+		return new CourseSectionScheduleImpl(meetingTimes);
 	}
 }
 

@@ -90,3 +90,10 @@ function selectNone(list1,list2){
     list1.selectedIndex = -1;
     list2.selectedIndex = -1;
 }
+
+function highlightSelectedUsers() {
+    var selectBox = document.getElementById("memberForm:selectedUsers");
+    for(var i = 0; i < selectBox.length; i++) {
+        selectBox.options[i].selected = true;
+    }
+}

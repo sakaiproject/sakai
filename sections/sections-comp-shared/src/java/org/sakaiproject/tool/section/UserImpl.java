@@ -24,12 +24,17 @@
 
 package org.sakaiproject.tool.section;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.api.section.coursemanagement.User;
 
-public class UserImpl extends AbstractPersistentObject implements User {
+public class UserImpl extends AbstractPersistentObject implements User, Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
 	protected String userUuid;
 	protected String sortName;
 	protected String displayId;

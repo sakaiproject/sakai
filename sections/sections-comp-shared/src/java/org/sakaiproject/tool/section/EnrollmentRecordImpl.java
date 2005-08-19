@@ -24,13 +24,18 @@
 
 package org.sakaiproject.tool.section;
 
+import java.io.Serializable;
+
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 
-public class EnrollmentRecordImpl extends ParticipationRecordImpl implements EnrollmentRecord {
+public class EnrollmentRecordImpl extends ParticipationRecordImpl implements EnrollmentRecord, Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
 	protected String status;
 
 	/**

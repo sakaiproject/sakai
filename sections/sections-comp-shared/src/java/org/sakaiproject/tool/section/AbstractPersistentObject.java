@@ -23,9 +23,12 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-public abstract class AbstractPersistentObject {
+public abstract class AbstractPersistentObject implements Serializable {
+	
     protected long id;
     protected int version;
     protected String uuid;

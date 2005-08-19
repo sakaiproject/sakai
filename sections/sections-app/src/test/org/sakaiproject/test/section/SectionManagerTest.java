@@ -23,6 +23,7 @@
 **********************************************************************************/
 package org.sakaiproject.test.section;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -158,8 +159,12 @@ public class SectionManagerTest extends SectionsTestBase{
 		secMgr.addSectionMembership(otherPerson.getUserUuid(), RoleImpl.STUDENT, sec4.getUuid());
 		
 		// Assert that the third category's unsectioned students returns the two students
-		List unsectionedStudents = secMgr.getUnsectionedStudents(course.getUuid(), thirdCategory);
-
+		List unsectionedEnrollments = secMgr.getUnsectionedEnrollments(course.getUuid(), thirdCategory);
+		List unsectionedStudents = new ArrayList();
+		for(Iterator iter = unsectionedEnrollments.iterator(); iter.hasNext();) {
+			unsectionedStudents.add(((ParticipationRecord)iter.next()).getUser());
+		}
+		
 		Assert.assertTrue(unsectionedStudents.contains(student1));
 		Assert.assertTrue(unsectionedStudents.contains(student2));
 		Assert.assertTrue(! unsectionedStudents.contains(otherPerson));

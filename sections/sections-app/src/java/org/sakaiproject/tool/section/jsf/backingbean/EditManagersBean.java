@@ -22,81 +22,43 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section;
+package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.util.List;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sakaiproject.api.section.coursemanagement.LearningContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
-/*
- * A base class for hibernate-managed learning context objects.
- */
-public class LearningContextImpl extends AbstractPersistentObject implements
-		LearningContext, Serializable {
+public class EditManagersBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public long getId() {
-		// TODO Auto-generated method stub
-		return super.getId();
-	}
-
-	public String getTitle() {
-		// TODO Auto-generated method stub
-		return super.getTitle();
-	}
-
-	public String getUuid() {
-		// TODO Auto-generated method stub
-		return super.getUuid();
-	}
-
-	public int getVersion() {
-		// TODO Auto-generated method stub
-		return super.getVersion();
-	}
-
-	public void setId(long id) {
-		// TODO Auto-generated method stub
-		super.setId(id);
-	}
-
-	public void setTitle(String title) {
-		// TODO Auto-generated method stub
-		super.setTitle(title);
-	}
-
-	public void setUuid(String uuid) {
-		// TODO Auto-generated method stub
-		super.setUuid(uuid);
-	}
-
-	public void setVersion(int version) {
-		// TODO Auto-generated method stub
-		super.setVersion(version);
-	}
+	private static final Log log = LogFactory.getLog(EditManagersBean.class);
 	
-	public boolean equals(Object o) {
-		if(o == this) {
-			return true;
-		}
-		if(o instanceof LearningContextImpl) {
-			LearningContextImpl other = (LearningContextImpl)o;
-			return new EqualsBuilder()
-				.append(uuid, other.uuid)
-				.isEquals();
-		}
-		return false;
-	}
+	private List selectedUsers;
+	private List availableUsers;
+	private CourseSection currentSection;
 
-	public int hashCode() {
-		return new HashCodeBuilder(17, 37)
-			.append(uuid)
-			.toHashCode();
+	public List getAvailableUsers() {
+		return availableUsers;
 	}
-
+	public void setAvailableUsers(List availableUsers) {
+		this.availableUsers = availableUsers;
+	}
+	public CourseSection getCurrentSection() {
+		return currentSection;
+	}
+	public void setCurrentSection(CourseSection currentSection) {
+		this.currentSection = currentSection;
+	}
+	public List getSelectedUsers() {
+		return selectedUsers;
+	}
+	public void setSelectedUsers(List selectedUsers) {
+		this.selectedUsers = selectedUsers;
+	}
 
 }
 

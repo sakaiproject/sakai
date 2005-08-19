@@ -67,6 +67,7 @@ public class DataLoadTest extends SectionsTestBase {
 		// Load students
 		User student1 = userManager.createUser("student1", "Joe Student", "Student, Joe", "jstudent");
 		User student2 = userManager.createUser("student2", "Jane Undergrad", "Undergrad, Jane", "jundergrad");
+		User student3 = userManager.createUser("student3", "Max Guest", "Guest, Max", "mguest");
 
 		// Load TAs
 		User ta1 = userManager.createUser("ta1", "Mike Grad", "Grad, Mike", "mgrad");
@@ -82,6 +83,7 @@ public class DataLoadTest extends SectionsTestBase {
 		// Load enrollments into the course
 		courseManager.addEnrollment(student1, course1);
 		courseManager.addEnrollment(student2, course1);
+		courseManager.addEnrollment(student3, course1);
 		
 		// Load enrollments into sections
 		sectionManager.addSectionMembership("student1", RoleImpl.STUDENT, lab1.getUuid());

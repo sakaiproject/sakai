@@ -21,53 +21,44 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
+package org.sakaiproject.test.section;
 
-package org.sakaiproject.tool.section;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
-import java.io.Serializable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.section.CourseSectionScheduleImpl;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sakaiproject.api.section.coursemanagement.Course;
-
-public class CourseImpl extends LearningContextImpl implements Course, Serializable {
-
-	protected String siteContext;
-	protected boolean externallyManaged;
-	protected boolean selfRegistrationAllowed;
-	protected boolean selfSwitchingAllowed;
+/**
+ * Tests the day/time parsing of CourseSectionScheduleImpl.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
+public class CourseSectionScheduleTest extends TestCase {
+	private static final Log log = LogFactory.getLog(CourseSectionScheduleTest.class);
 	
-	public boolean isSelfSwitchingAllowed() {
-		return selfSwitchingAllowed;
-	}
-	public void setSelfSwitchingAllowed(boolean selfSwitchingAllowed) {
-		this.selfSwitchingAllowed = selfSwitchingAllowed;
-	}
-	public boolean isSelfRegistrationAllowed() {
-		return selfRegistrationAllowed;
-	}
-	public void setSelfRegistrationAllowed(boolean selfRegistrationAllowed) {
-		this.selfRegistrationAllowed = selfRegistrationAllowed;
-	}
-	public String getSiteContext() {
-		return siteContext;
-	}
-	public void setSiteContext(String siteContext) {
-		this.siteContext = siteContext;
-	}
-	public boolean isExternallyManaged() {
-		return externallyManaged;
-	}
-	public void setExternallyManaged(boolean externallyManaged) {
-		this.externallyManaged = externallyManaged;
-	}
-	
-	public String toString() {
-		return new ToStringBuilder(this)
-		.append(title)
-		.append(siteContext)
-		.append(uuid)
-		.toString();
-	}
+
+    public void testParseMeetingTimes() throws Exception {
+    	String meetingTimes = "MON,WED,FRI@9:00am,5:00pm";
+    	CourseSectionScheduleImpl schedule = new CourseSectionScheduleImpl(meetingTimes);
+
+    	Assert.assertTrue(schedule.isMonday());
+    	Assert.assertTrue(schedule.isWednesday());
+    	Assert.assertTrue(schedule.isFriday());
+
+    	Assert.assertTrue( ! schedule.isTuesday());
+    	Assert.assertTrue( ! schedule.isThursday());
+    	Assert.assertTrue( ! schedule.isSaturday());
+    	Assert.assertTrue( ! schedule.isSunday());
+    	
+    	Assert.assertTrue(schedule.getStartTime().equals("9:00"));
+    	Assert.assertTrue(schedule.getEndTime().equals("5:00"));
+    	
+    	Assert.assertTrue(schedule.isStartTimeAm());
+    	Assert.assertTrue( ! schedule.isEndTimeAm());
+    }
 }
 
 
