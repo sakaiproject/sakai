@@ -48,25 +48,22 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
       Long assessmentId = new Long(args[1]);
       Long sectionId = instance.addSection(assessmentId);
       SectionFacade section = instance.get(sectionId);
-      //System.out.println("**print Sectoion");
       print(section);
     }
     if (args[0].equals("remove")) {
       instance.remove(new Long(args[1]));
-      //System.out.println("**deleted SectionId #");
     }
     if (args[0].equals("load")) {
       SectionFacade s = (SectionFacade)instance.get(new Long(args[1]));
-      //System.out.println("**print Section");
       print(s);
     }
     System.exit(0);
   }
 
   public static void print(SectionFacade section) {
-    //System.out.println("**sectionId #" + section.getId());
-    //System.out.println("**Section Title = " + section.getTitle());
-    //System.out.println("**Item = " + section.getItemSet());
+    //log.debug("**sectionId #" + section.getId());
+    //log.debug("**Section Title = " + section.getTitle());
+    //log.debug("**Item = " + section.getItemSet());
   }
 
   public Long addSection(Long assessmentId) {

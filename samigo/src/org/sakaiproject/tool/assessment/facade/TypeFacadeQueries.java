@@ -149,8 +149,6 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
 	    TypeD typeData = (TypeD) typeList.get(i);
 	    TypeFacade typeFacade = new TypeFacade(typeData);
 	    typeFacadeMap.put(typeData.getTypeId(), typeFacade);
-	    //System.out.println("Item #" + typeData.getTypeId() + " keyword= " +
-	    //			       typeData.getKeyword());
 	}
 	return typeFacadeMap;
     }
@@ -184,7 +182,6 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
 
     public List getFacadeItemTypes() {
       if (this.itemTypes == null){
-        //System.out.println("** item Types not null");
         this.itemTypes = getFacadeListByAuthorityDomain(TypeIfc.SITE_AUTHORITY, TypeIfc.DOMAIN_ASSESSMENT_ITEM);
       }
       return this.itemTypes;

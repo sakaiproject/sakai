@@ -121,7 +121,6 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     this.id = getId();
     this.description = getDescription();
     this.assessmentId= getAssessmentId();
-System.out.println("sectionfacade(sectiondata) constructor , assessmentid =" + this.assessmentId);
     this.sectionType = getSectionType();
     this.sequence = getSequence();
     this.duration = getDuration();
@@ -623,7 +622,7 @@ System.out.println("sectionfacade(sectiondata) constructor , assessmentid =" + t
 
 
   public ArrayList getItemArraySortedForGrading() {
-  // placeholder for now, need to have it 'cuz they are in ifc.       
+  // placeholder for now, need to have it 'cuz they are in ifc.
     ArrayList list = getItemArray();
     Collections.sort(list);
     return list;
@@ -636,7 +635,7 @@ System.out.println("sectionfacade(sectiondata) constructor , assessmentid =" + t
   }
 
   public ArrayList getItemArraySortedWithRandom(long seed) {
-  // placeholder for now, need to have it 'cuz they are in ifc.       
+  // placeholder for now, need to have it 'cuz they are in ifc.
     ArrayList list = getItemArray();
     Collections.sort(list);
     return list;

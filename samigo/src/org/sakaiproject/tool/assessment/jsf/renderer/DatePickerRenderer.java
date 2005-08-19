@@ -122,20 +122,16 @@ public class DatePickerRenderer extends Renderer
     if (component instanceof UIInput)
     {
       value = ( (UIInput) component).getSubmittedValue();
-      //System.out.println("renderer component is UIInput, value="+value);
     }
     if (value == null && component instanceof ValueHolder)
     {
       value = ( (ValueHolder) component).getValue();
-      //System.out.println("renderer component is ValueHolder, value="+value);
     }
     String valString = "";
     if (value != null)
     {
       valString = value.toString();
     }
-
-    //System.out.println("value set to=>"+valString);
 
     String type = "text";
     String size = (String) component.getAttributes().get("size");
