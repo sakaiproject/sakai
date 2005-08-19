@@ -859,7 +859,7 @@ public class PublishedAssessmentSettingsBean
     while (iter.hasNext()){
 	for (int m = 0; m < e.size(); m++) {
 	    String t = (String)iter.next();
-	    System.out.println("target "+m+"="+t);
+	    log.info("target "+m+"="+t);
 	    titles[m] = t;
 	}
     }
