@@ -172,8 +172,6 @@ public interface PublishedAssessmentFacadeQueriesAPI
    if (!data.getAgentId().equals(agentid)) {
    agentid = data.getAgentId();
    newlist.add(data);
-   //System.out.println("Added new submission " +
-   //                   data.getAssessmentGradingId());
    break;
    }
    }

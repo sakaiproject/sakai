@@ -710,14 +710,12 @@ public class QuestionPoolFacadeQueries
     // add an item
     if (args[0].equals("add")) {
       Long questionPoolId = instance.add();
-      //System.out.println("**QuestionPool #" + questionPoolId);
     }
     if (args[0].equals("getQPItems")) {
       List items = instance.getAllItems(new Long(args[1])); // poolId
       for (int i = 0; i < items.size(); i++) {
         ItemData item = (ItemData) items.get(i);
-        //System.out.println("Item #" + item.getItemId() + " has rationale= " +
-        //                   item.getHasRationale());
+
       }
     }
     System.exit(0);
@@ -736,11 +734,8 @@ public class QuestionPoolFacadeQueries
 
   public QuestionPoolFacade getPoolById(Long questionPoolId) {
     QuestionPoolFacade questionPoolFacade = null;
-    //System.out.println("** poolId = " + questionPoolId);
     try {
       if (!questionPoolId.equals(QuestionPoolFacade.ROOT_POOL)) {
-        //System.out.println("HT = " + getHibernateTemplate());
-        //System.out.println("class = " + QuestionPoolData.class);
         QuestionPoolData questionPool = (QuestionPoolData) getHibernateTemplate().
             load(QuestionPoolData.class, questionPoolId);
         if (questionPool != null) {
@@ -750,7 +745,6 @@ public class QuestionPoolFacadeQueries
     }
     catch (Exception e) {
       e.printStackTrace();
-      //System.out.println("Pool " + questionPoolId + " not found.");
     }
     return questionPoolFacade;
   }

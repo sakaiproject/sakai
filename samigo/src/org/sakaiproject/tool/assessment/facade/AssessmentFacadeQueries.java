@@ -140,27 +140,27 @@ public class AssessmentFacadeQueries
     if (a.getIsTemplate().equals(Boolean.FALSE)) {
     }
     /*
-    System.out.println("**assessment due date: " +
+    log.debug("**assessment due date: " +
                        a.getAssessmentAccessControl().getDueDate());
-    System.out.println("**assessment control #" +
+    log.debug("**assessment control #" +
                        a.getAssessmentAccessControl());
-    System.out.println("**assessment metadata" +
+    log.debug("**assessment metadata" +
                        a.getAssessmentMetaDataSet());
-    System.out.println("**Objective not lazy = " +
+    log.debug("**Objective not lazy = " +
                        a.getAssessmentMetaDataByLabel("ASSESSMENT_OBJECTIVES"));
     */
   }
 
   public static void printFacade(AssessmentTemplateFacade a) {
       /*
-    System.out.println("**assessmentId #" + a.getAssessmentTemplateId());
-    System.out.println("**assessment due date: " +
+    log.debug("**assessmentId #" + a.getAssessmentTemplateId());
+    log.debug("**assessment due date: " +
                        a.getAssessmentAccessControl().getDueDate());
-    System.out.println("**assessment control #" +
+    log.debug("**assessment control #" +
                        a.getAssessmentAccessControl());
-    System.out.println("**assessment metadata" +
+    log.debug("**assessment metadata" +
                        a.getAssessmentMetaDataSet());
-    System.out.println("**Objective not lazy = " +
+    log.debug("**Objective not lazy = " +
                        a.getAssessmentMetaDataByLabel("ASSESSMENT_OBJECTIVE"));
       */
   }
@@ -363,7 +363,7 @@ public class AssessmentFacadeQueries
     List count = getHibernateTemplate().find(
         "select count(p) from PublishedAssessmentData p where p.assessment=?",
         assessment);
-    //System.out.println("no. of pub Assessment =" + count.size());
+    //log.debug("no. of pub Assessment =" + count.size());
     Iterator iter = count.iterator();
     int i = ( (Integer) iter.next()).intValue();
     if (i > 0) {
@@ -382,7 +382,7 @@ public class AssessmentFacadeQueries
   }
 
   public AssessmentData cloneAssessmentFromTemplate(AssessmentTemplateData t) {
-      //System.out.println("**** DEFAULT templateId inside clone" +
+      //log.debug("**** DEFAULT templateId inside clone" +
       //                 t.getAssessmentTemplateId());
     AssessmentData assessment = new AssessmentData(
         t.getParentId(),
@@ -667,7 +667,7 @@ public class AssessmentFacadeQueries
     for (int i = 0; i < pageList.size(); i++) {
       AssessmentData a = (AssessmentData) pageList.get(i);
       AssessmentFacade f = new AssessmentFacade(a);
-      //System.out.println("**** assessment facade Id=" + f.getAssessmentId());
+      //log.debug("**** assessment facade Id=" + f.getAssessmentId());
       assessmentList.add(f);
     }
     return assessmentList;
@@ -697,7 +697,7 @@ public class AssessmentFacadeQueries
     if (ip != null) {
       Iterator iter = ip.iterator();
       while (iter.hasNext()) {
-        //System.out.println("Deleting ip");
+        //log.debug("Deleting ip");
         getHibernateTemplate().delete( (SecuredIPAddress) iter.next());
       }
     }
@@ -785,9 +785,9 @@ public class AssessmentFacadeQueries
       for (int i = 0; i < sections.size(); i++) {
         SectionData s = (SectionData) sections.get(i);
         /*
-        System.out.println("** s Section no: " + s.getSequence() + ":" +
+        log.debug("** s Section no: " + s.getSequence() + ":" +
                            s.getSectionId());
-        System.out.println("** section Section no: " + section.getSequence() +
+        log.debug("** section Section no: " + section.getSequence() +
                            ":" + section.getSectionId());
 	*/
         if (! (s.getSectionId()).equals(section.getSectionId())) {
@@ -854,7 +854,7 @@ public class AssessmentFacadeQueries
     Set itemSet = section.getItemSet();
     HashSet newItemSet = new HashSet();
     Iterator iter = itemSet.iterator();
-    //System.out.println("***itemSet before=" + itemSet.size());
+    //log.debug("***itemSet before=" + itemSet.size());
     while (iter.hasNext()) {
       ItemData item = (ItemData) iter.next();
         // item belongs to a pool, set section=null so
@@ -902,7 +902,7 @@ public class AssessmentFacadeQueries
     Set itemSet = section.getItemSet();
     HashSet newItemSet = new HashSet();
     Iterator iter = itemSet.iterator();
-    //System.out.println("***itemSet before=" + itemSet.size());
+    //log.debug("***itemSet before=" + itemSet.size());
     while (iter.hasNext()) {
       ItemData item = (ItemData) iter.next();
       if (qpItemHash.get(item.getItemId().toString()) != null) {
@@ -915,7 +915,7 @@ public class AssessmentFacadeQueries
         newItemSet.add(item);
       }
     }
-    //System.out.println("***itemSet after=" + newItemSet.size());
+    //log.debug("***itemSet after=" + newItemSet.size());
     section.setItemSet(newItemSet);
     getHibernateTemplate().update(section);
   }

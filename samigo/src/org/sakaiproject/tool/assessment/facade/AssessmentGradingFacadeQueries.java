@@ -305,7 +305,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           gdata.setItemGradingId(new Long(0));
         if (gdata.getPublishedItemText() == null)
         {
-          //System.out.println("Didn't save -- error in item.");
+          //log.debug("Didn't save -- error in item.");
         }
         else
         {
@@ -573,21 +573,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public static void print(AssessmentBaseIfc a) {
-    //System.out.println("**assessmentId #" + a.getAssessmentBaseId());
-    //System.out.println("**assessment is template? " + a.getIsTemplate());
+    //log.debug("**assessmentId #" + a.getAssessmentBaseId());
+    //log.debug("**assessment is template? " + a.getIsTemplate());
     if (a.getIsTemplate().equals(Boolean.FALSE)){
-      //System.out.println("**assessmentTemplateId #" + ((AssessmentData)a).getAssessmentTemplateId());
-      //System.out.println("**section: " +
+      //log.debug("**assessmentTemplateId #" + ((AssessmentData)a).getAssessmentTemplateId());
+      //log.debug("**section: " +
       //               ((AssessmentData)a).getSectionSet());
     }
     /**
-    System.out.println("**assessment due date: " +
+    log.debug("**assessment due date: " +
                      a.getAssessmentAccessControl().getDueDate());
-    System.out.println("**assessment control #" +
+    log.debug("**assessment control #" +
                        a.getAssessmentAccessControl());
-    System.out.println("**assessment metadata" +
+    log.debug("**assessment metadata" +
                        a.getAssessmentMetaDataSet());
-    System.out.println("**Objective not lazy = " +
+    log.debug("**Objective not lazy = " +
                    a.getAssessmentMetaDataByLabel("ASSESSMENT_OBJECTIVE"));
     */
   }

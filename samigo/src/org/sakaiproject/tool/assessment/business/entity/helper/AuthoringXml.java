@@ -196,7 +196,7 @@ public class AuthoringXml
     }
     catch (Exception e)
     {
-      logError(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     }
     else {
@@ -236,15 +236,15 @@ public class AuthoringXml
     }
     catch (FileNotFoundException e)
     {
-      logError(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     catch (IOException e1)
     {
-      logError(e1.getMessage(), e1);
+      log.error(e1.getMessage(), e1);
     }
     catch (Exception e)
     {
-      logError(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return is;
   }
@@ -274,24 +274,11 @@ public class AuthoringXml
     }
     catch (Exception e)
     {
-      logError(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
 
     return xmlString;
 
-  }
-
-  // this wraps log4j so that you can run standalone unit tests
-  private static void logError(Object o, Throwable t)
-  {
-    if (dumpLog)
-    {
-      System.out.println("ERROR: " + o + " " + t);
-    }
-    else
-    {
-      log.error(o, t);
-    }
   }
 
   public boolean isAssessment(String documentType)
