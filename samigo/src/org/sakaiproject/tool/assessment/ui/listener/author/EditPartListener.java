@@ -67,9 +67,6 @@ public class EditPartListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //log.info("debugging ActionEvent: " + ae);
-    //log.info("debug requestParams: " + requestParams);
-    //log.info("debug reqMap: " + reqMap);
 
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
                                                            "assessmentBean");

@@ -60,9 +60,6 @@ public class ConfirmRemoveAssessmentListener implements ActionListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //log.info("debugging ActionEvent: " + ae);
-    //log.info("debug requestParams: " + requestParams);
-    //log.info("debug reqMap: " + reqMap);
 
     // #1 - read the assessmentId from the form
     String assessmentId = (String) FacesContext.getCurrentInstance().
