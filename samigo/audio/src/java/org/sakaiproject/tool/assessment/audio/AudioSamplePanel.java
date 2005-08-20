@@ -78,7 +78,7 @@ import java.awt.LayoutManager;
 /**
  * Render a WaveForm.
  */
-public class AudioSamplePanel
+public class AudioSampleGraphPanel
   extends JPanel
 {
   private static final String RESOURCE_PACKAGE =
@@ -104,11 +104,10 @@ public class AudioSamplePanel
   private String fileName;
   private double duration;
 
-  public AudioSamplePanel(AudioSamplingData data)
+  public AudioSampleGraphPanel(AudioSamplingData data)
   {
     setBackground(backgroundColor);
     this.lines = data.getLine();
-    this.audioInputStream = data.getAudioInputStream();
     this.reportStatus = data.getReportStatus();
     this.errStr = data.getErrStr();
     this.capture = data.getCapture();
