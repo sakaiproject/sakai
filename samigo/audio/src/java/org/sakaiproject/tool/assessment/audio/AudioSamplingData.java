@@ -29,7 +29,6 @@ import javax.sound.sampled.AudioInputStream;
 public class AudioSamplingData
   implements Serializable
 {
-  private String reportStatus;
   private String errStr;
   private String fileName;
   private double seconds;
@@ -38,15 +37,7 @@ public class AudioSamplingData
   private Thread captureThread;
   private java.util.Vector line;
   private javax.sound.sampled.AudioInputStream audioInputStream;
-  public String getReportStatus()
-  {
-    return reportStatus;
-  }
 
-  public void setReportStatus(String reportStatus)
-  {
-    this.reportStatus = reportStatus;
-  }
 
   public String getErrStr()
   {

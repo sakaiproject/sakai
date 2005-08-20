@@ -94,35 +94,19 @@ public class AudioSampleGraphPanel
   private static final Color backgroundColor = new Color(0, 128, 20);
   private static final Color gridColor = new Color(0, 140, 20);
 
-  private Vector lines;
-  private AudioInputStream audioInputStream;
-  private String reportStatus;
-  private String errStr;
-  private Runnable capture;
-  private Thread captureThread;
-  private double seconds;
-  private String fileName;
-  private double duration;
 
-  public AudioSampleGraphPanel(AudioSamplingData data)
+  public AudioSampleGraphPanel()
   {
     setBackground(backgroundColor);
-    this.lines = data.getLine();
-    this.reportStatus = data.getReportStatus();
-    this.errStr = data.getErrStr();
-    this.capture = data.getCapture();
-    this.captureThread = data.getCaptureThread();
-    this.seconds = data.getSeconds();
-    this.fileName = data.getFileName();
-    this.duration = data.getDuration();
   }
 
-  public void reportStatus(String msg)
+  public void reportGraphStatus(String msg)
   {
     System.out.println("Status: " + msg);
   }
 
-  public void createWaveForm(byte[] audioBytes)
+  public void createWaveForm(
+    byte[] audioBytes, Vector lines, AudioInputStream audioInputStream)
   {
 
     lines.removeAllElements(); // clear the old vector
@@ -139,7 +123,7 @@ public class AudioSampleGraphPanel
       }
       catch (Exception ex)
       {
-        reportStatus(ex.toString());
+        reportGraphStatus(ex.toString());
         return;
       }
     }
@@ -218,8 +202,24 @@ public class AudioSampleGraphPanel
     repaint();
   }
 
-  public void paint(Graphics g)
+  public void paintData(Graphics g, AudioSamplingData data)
   {
+    Vector lines;
+    AudioInputStream audioInputStream = data.getAudioInputStream();
+    String errStr;
+    Runnable capture;
+    Thread captureThread;
+    double seconds;
+    String fileName;
+    double duration;
+    lines = data.getLine();
+    errStr = data.getErrStr();
+    capture = data.getCapture();
+    captureThread = data.getCaptureThread();
+    seconds = data.getSeconds();
+    fileName = data.getFileName();
+    duration = data.getDuration();
+
 
     Dimension d = getSize();
     int w = d.width;
