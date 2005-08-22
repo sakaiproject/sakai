@@ -109,7 +109,7 @@ import javax.swing.border.Border;
 
 
 /**
- *  Capture/Playback sample.  Record audio in different formats
+ *  Record audio in different formats
  *  and then playback the recorded audio.  The captured audio can
  *  be saved either as a WAVE, AU or AIFF.  Or load an audio file
  *  for streaming playback.
@@ -797,12 +797,6 @@ public class AudioRecorder
   class SamplingGraph extends AudioSampleGraphPanel implements Runnable
   {
     private Thread thread;
-    private Font font10 = new Font("serif", Font.PLAIN, 10);
-    private Font font12 = new Font("serif", Font.PLAIN, 12);
-    Color graphColor = new Color(0, 180, 20);
-    Color currentPositionColor = new Color(64, 200, 20);
-    Color backgroundColor = new Color(0, 128, 20);
-    Color gridColor = new Color(0, 140, 20);
 
     public void reportGraphStatus(String message)
     {
@@ -819,7 +813,6 @@ public class AudioRecorder
       data.setErrStr(errStr);
       data.setFileName(fileName);
       data.setLine(lines);
-//      data.setReportStatus(reportStatus);
       data.setSeconds(seconds);
 
       paintData(g, data);
