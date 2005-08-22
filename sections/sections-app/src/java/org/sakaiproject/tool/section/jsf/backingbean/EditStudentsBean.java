@@ -35,6 +35,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -85,7 +86,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 
 		// Build the list of items for the left-side box
 		List available;
-		if(availableSectionUuid == null || "".equals(availableSectionUuid)) {
+		if(StringUtils.trimToNull(availableSectionUuid) == null) {
 			available = getSectionManager().getUnsectionedEnrollments(currentSection.getCourse().getUuid(), currentSection.getCategory());
 		} else {
 			available = getSectionAwareness().getSectionMembersInRole(availableSectionUuid, RoleImpl.STUDENT);
@@ -117,20 +118,32 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	}
 	
 	public String update() {
+		Set userUuids = getHighlightedUsers("memberForm:selectedUsers");
+		getSectionManager().setSectionMemberships(userUuids, RoleImpl.STUDENT, sectionUuid);
+		
+		// If the "available" box is a section, update that section's members as well
+		if(StringUtils.trimToNull(availableSectionUuid) != null) {
+			userUuids = getHighlightedUsers("memberForm:availableUsers");
+			getSectionManager().setSectionMemberships(userUuids, RoleImpl.STUDENT, availableSectionUuid);
+		}
+		
+		return null;
+		
+		//return "overview";
+	}
+	
+	private Set getHighlightedUsers(String componentId) {
 		Set userUuids = new HashSet();
 		
 		String[] highlighted = (String[])FacesContext.getCurrentInstance()
-		.getExternalContext().getRequestParameterValuesMap().get("memberForm:selectedUsers");
+		.getExternalContext().getRequestParameterValuesMap().get(componentId);
 
 		if(highlighted != null) {
 			for(int i=0; i < highlighted.length; i++) {
 				userUuids.add(highlighted[i]);
 			}
 		}
-		getSectionManager().setSectionMemberships(userUuids, RoleImpl.STUDENT, sectionUuid);
-		return null;
-		
-		//return "overview";
+		return userUuids;
 	}
 	
 	public List getAvailableUsers() {

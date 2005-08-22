@@ -59,6 +59,13 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
 
+    <managed-bean>
+        <description>Options Bean</description>
+        <managed-bean-name>optionsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.OptionsBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
     <!-- For testing only -->
 	<managed-bean>
 		<description>Sample Bean</description>

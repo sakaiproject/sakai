@@ -22,60 +22,58 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section;
+package org.sakaiproject.tool.section.jsf.backingbean;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sakaiproject.api.section.coursemanagement.LearningContext;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.api.section.coursemanagement.User;
+import java.io.Serializable;
 
-public abstract class ParticipationRecordImpl extends AbstractPersistentObject
-	implements ParticipationRecord {
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.coursemanagement.Course;
+
+public class OptionsBean extends CourseDependentBean implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private static final Log log = LogFactory.getLog(OptionsBean.class);
 	
-	protected User user;
-	protected LearningContext learningContext;
-
-	public User getUser() {
-		return user;
-	}
-	public void setUser(User user) {
-		this.user = user;
-	}
-	public LearningContext getLearningContext() {
-		return learningContext;
-	}
-	public void setLearningContext(LearningContext learningContext) {
-		this.learningContext = learningContext;
+	private boolean selfRegister;
+	private boolean selfSwitch;
+	
+	public void init() {
+		Course course = getCourse();
+		selfRegister = course.isSelfRegistrationAllowed();
+		selfSwitch = course.isSelfSwitchingAllowed();
 	}
 
-	public boolean equals(Object o) {
-		if(o == this) {
-			return true;
-		}
-		if(o instanceof ParticipationRecord) {
-			ParticipationRecord other = (ParticipationRecord)o;
-			return new EqualsBuilder()
-				.append(user, other.getUser())
-				.append(learningContext, other.getLearningContext())
-				.isEquals();
-		}
-		return false;
-	}
+	public String update() {
+		Course course = getCourse();
+		getSectionManager().setSelfRegistrationAllowed(course.getUuid(), selfRegister);
+		getSectionManager().setSelfSwitchingAllowed(course.getUuid(), selfSwitch);
 
-	public int hashCode() {
-		return new HashCodeBuilder(17, 37)
-			.append(user)
-			.append(learningContext)
-			.toHashCode();
+		return "overview";
 	}
 	
-	public String toString() {
-		return new ToStringBuilder(this).append(user)
-		.append(learningContext).toString();
+	public boolean isSelfRegister() {
+		return selfRegister;
 	}
+
+	public void setSelfRegister(boolean selfRegister) {
+		this.selfRegister = selfRegister;
+	}
+
+	public boolean isSelfSwitch() {
+		return selfSwitch;
+	}
+
+	public void setSelfSwitch(boolean selfSwitch) {
+		this.selfSwitch = selfSwitch;
+	}
+	
+	
+
 }
+
+
 
 /**********************************************************************************
  * $Id$

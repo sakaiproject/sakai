@@ -25,11 +25,21 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 
 public class EditManagersBean extends CourseDependentBean implements Serializable {
 
@@ -37,29 +47,115 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 
 	private static final Log log = LogFactory.getLog(EditManagersBean.class);
 	
+	// For the right-side list box
 	private List selectedUsers;
+	
+	// For the left-side list box
 	private List availableUsers;
-	private CourseSection currentSection;
+	
+	private String sectionUuid;
+	private String sectionTitle;
+	private String courseTitle;
+	
+	public void init() {
+		// Get the section to edit
+		String sectionUuidFromParam = (String)FacesContext.getCurrentInstance()
+			.getExternalContext().getRequestParameterMap().get("sectionUuid");
+		if(sectionUuidFromParam != null) {
+			sectionUuid = sectionUuidFromParam;
+		}
+		CourseSection currentSection = getSectionAwareness().getSection(sectionUuid);
+		sectionTitle = currentSection.getTitle();
+		courseTitle = currentSection.getCourse().getTitle();
+		
+		// Get the current users in the manager role for this section
+		List selectedManagers = getSectionAwareness().getSectionMembersInRole(currentSection.getUuid(), RoleImpl.TA);
+		
+		// Build the list of items for the right-side list box
+		selectedUsers = new ArrayList();
+		for(Iterator iter = selectedManagers.iterator(); iter.hasNext();) {
+			ParticipationRecord manager = (ParticipationRecord)iter.next();
+			SelectItem item = new SelectItem(manager.getUser().getUserUuid(),
+					manager.getUser().getDisplayName());
+			selectedUsers.add(item);
+		}
 
+		// Build the list of items for the left-side box.  Since the selected (right-side)
+		// participation records are linked to a section, while the available records
+		// are linked to the course, we can not use collection manipulation on these
+		// objects.  So, generate a set of user uuids to filter out the currently
+		// selected users from the available (left side) list.
+		Set selectedUserUuids = new HashSet();
+		for(Iterator iter = selectedManagers.iterator(); iter.hasNext();) {
+			ParticipationRecord manager = (ParticipationRecord)iter.next();
+			selectedUserUuids.add(manager.getUser().getUserUuid());
+		}
+
+		List availableManagers = getSectionAwareness().getSiteMembersInRole(getSiteContext(), RoleImpl.STUDENT);
+
+		availableUsers = new ArrayList();
+		for(Iterator iter = availableManagers.iterator(); iter.hasNext();) {
+			User manager = ((ParticipationRecord)iter.next()).getUser();
+			if( ! selectedUserUuids.contains(manager.getUserUuid())) {
+				availableUsers.add(new SelectItem(manager.getUserUuid(), manager.getDisplayName()));
+			}
+		}
+	}
+	
+	public String update() {
+		Set userUuids = getHighlightedUsers("memberForm:selectedUsers");
+		getSectionManager().setSectionMemberships(userUuids, RoleImpl.TA, sectionUuid);
+
+		return null;
+		
+		//return "overview";
+	}
+	
+	private Set getHighlightedUsers(String componentId) {
+		Set userUuids = new HashSet();
+		
+		String[] highlighted = (String[])FacesContext.getCurrentInstance()
+		.getExternalContext().getRequestParameterValuesMap().get(componentId);
+
+		if(highlighted != null) {
+			for(int i=0; i < highlighted.length; i++) {
+				userUuids.add(highlighted[i]);
+			}
+		}
+		return userUuids;
+	}
+	
 	public List getAvailableUsers() {
 		return availableUsers;
 	}
+
 	public void setAvailableUsers(List availableUsers) {
 		this.availableUsers = availableUsers;
 	}
-	public CourseSection getCurrentSection() {
-		return currentSection;
-	}
-	public void setCurrentSection(CourseSection currentSection) {
-		this.currentSection = currentSection;
-	}
+
 	public List getSelectedUsers() {
 		return selectedUsers;
 	}
+
 	public void setSelectedUsers(List selectedUsers) {
 		this.selectedUsers = selectedUsers;
 	}
 
+	public String getSectionUuid() {
+		return sectionUuid;
+	}
+
+	public void setSectionUuid(String sectionUuid) {
+		this.sectionUuid = sectionUuid;
+	}
+
+	public String getSectionTitle() {
+		return sectionTitle;
+	}
+
+	public String getCourseTitle() {
+		return courseTitle;
+	}
 }
 
 

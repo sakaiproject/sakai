@@ -1,6 +1,10 @@
 <f:view>
 <h:form id="overviewForm">
 
+    <x:aliasBean alias="#{viewName}" value="overview">
+        <%@include file="/inc/navMenu.jspf"%>
+    </x:aliasBean>
+
     <sakai:flowState bean="#{overviewBean}"/>
     
     <x:dataTable cellpadding="0" cellspacing="0"

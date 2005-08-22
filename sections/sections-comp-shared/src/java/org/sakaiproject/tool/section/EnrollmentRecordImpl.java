@@ -60,18 +60,6 @@ public class EnrollmentRecordImpl extends ParticipationRecordImpl implements Enr
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	public User getUser() {
-		return user;
-	}
-	public void setUser(User user) {
-		this.user = user;
-	}
-	public LearningContext getLearningContext() {
-		return learningContext;
-	}
-	public void setLearningContext(LearningContext learningContext) {
-		this.learningContext = learningContext;
-	}
 }
 
 

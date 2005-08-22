@@ -91,8 +91,15 @@ function selectNone(list1,list2){
     list2.selectedIndex = -1;
 }
 
-function highlightSelectedUsers() {
+function highlightUsers() {
+    // Select all of the selected users, so they are sent in the form submit
     var selectBox = document.getElementById("memberForm:selectedUsers");
+    for(var i = 0; i < selectBox.length; i++) {
+        selectBox.options[i].selected = true;
+    }
+
+    // Select all of the available users, so they are sent in the form submit
+    var selectBox = document.getElementById("memberForm:availableUsers");
     for(var i = 0; i < selectBox.length; i++) {
         selectBox.options[i].selected = true;
     }

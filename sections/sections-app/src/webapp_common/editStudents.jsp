@@ -14,7 +14,7 @@
                 <br/>
             </f:verbatim>
             
-        	<h:selectManyListbox id="availableUsers" size="20">
+        	<h:selectManyListbox id="availableUsers" size="20" style="width:200px;">
         		<f:selectItems value="#{editStudentsBean.availableUsers}"/>
         	</h:selectManyListbox>
         </h:panelGroup>
@@ -43,7 +43,7 @@
                 <br/>
             </f:verbatim>
         
-        	<h:selectManyListbox id="selectedUsers" size="20">
+        	<h:selectManyListbox id="selectedUsers" size="20" style="width:200px;">
                 <f:selectItems value="#{editStudentsBean.selectedUsers}"/>
         	</h:selectManyListbox>
         </h:panelGroup>
@@ -52,7 +52,7 @@
     
     <h:commandButton
         action="#{editStudentsBean.update}"
-        onclick="highlightSelectedUsers()"
+        onclick="highlightUsers()"
         value="#{msgs.edit_student_update}"/>
 
 

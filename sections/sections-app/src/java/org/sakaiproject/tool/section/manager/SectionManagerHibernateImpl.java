@@ -73,7 +73,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     protected UserDirectory userDirectory;
     
 	private CourseSectionImpl getSection(final String sectionUuid, Session session) throws HibernateException {
-        Query q = session.createQuery("from CourseSectionImpl as section where section.uuid=:uuid");
+        Query q = session.getNamedQuery("loadSectionByUuid");
         q.setParameter("uuid", sectionUuid);
         CourseSectionImpl section = (CourseSectionImpl)q.uniqueResult();
         if(section == null) {
@@ -84,7 +84,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	}
 
 	private Course getCourseFromSiteContext(String siteContext, Session session) throws HibernateException {
-        Query q = session.createQuery("from CourseImpl as course where course.siteContext=:siteContext");
+        Query q = session.getNamedQuery("loadCourseBySiteContext");
         q.setParameter("siteContext", siteContext);
         Course course = (Course)q.uniqueResult();
         if(course == null) {
@@ -95,7 +95,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	}
 
 	private Course getCourseFromUuid(String courseUuid, Session session) throws HibernateException {
-        Query q = session.createQuery("from CourseImpl as course where course.uuid=:uuid");
+        Query q = session.getNamedQuery("loadCourseByUuid");
         q.setParameter("uuid", courseUuid);
         Course course = (Course)q.uniqueResult();
         if(course == null) {
@@ -120,14 +120,11 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	String userUuid = authn.getUserUuid();
-            	String hql = "from EnrollmentRecordImpl as enr where " +
-            		" enr.user.userUuid=:userUuid and " + 
-            		" enr.learningContext.uuid=:sectionUuid";
-                Query q = session.createQuery(hql);
+                Query q = session.getNamedQuery("findEnrollment");
                 q.setParameter("userUuid", userUuid);
                 q.setParameter("sectionUuid", sectionUuid);
-                List list = q.list();
-                if(list.size() == 0) {
+                Object enrollment = q.uniqueResult();
+                if(enrollment == null) {
                 	CourseSection section = sectionAwareness.getSection(sectionUuid);
                 	User user = userDirectory.getUser(userUuid);
                 	EnrollmentRecordImpl enr = new EnrollmentRecordImpl(section, "enrolled", user);
@@ -151,11 +148,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	String category = newSection.getCategory();
             	
             	// Find the existing section enrollment in this category, so we can drop it
-            	String hql = "from EnrollmentRecordImpl as enr where " +
-        		" enr.user.userUuid=:userUuid and enr.learningContext in ( " +
-        		" from CourseSectionImpl as section where section.course=:course and " +
-        		" section.category=:category )";
-                Query q = session.createQuery(hql);
+                Query q = session.getNamedQuery("findEnrollmentInCategory");
                 q.setParameter("userUuid", userUuid);
                 q.setParameter("course", course);
                 q.setParameter("category", category);
@@ -275,8 +268,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	}
 
     private void removeSectionEnrollments(Set newMemberUserUuids, CourseSection section, Session session) throws HibernateException {
-    	String hql = "from EnrollmentRecordImpl as enr where enr.learningContext in	(from CourseSectionImpl as section where section.course=:course and section.category=:category and section.uuid != :sectionUuid) and enr.user.userUuid in (:userUuids)";
-    	Query q = session.createQuery(hql);
+    	Query q = session.getNamedQuery("findOtherEnrollmentsInCategory");
     	q.setParameter("course", section.getCourse());
     	q.setParameter("category", section.getCategory());
     	q.setParameter("sectionUuid", section.getUuid());
@@ -309,8 +301,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
                 // Get the primary section
-        		String hql = "from ParticipationRecordImpl as participation where participation.learningContext.uuid=:sectionUuid and participation.user.userUuid=:userUuid";
-            	Query q = session.createQuery(hql);
+            	Query q = session.getNamedQuery("findParticipationRecord");
             	q.setParameter("sectionUuid", sectionUuid);
             	q.setParameter("userUuid", userUuid);
             	Object result = q.uniqueResult();
@@ -325,7 +316,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
                 // Get the primary section
-            	Query q = session.createQuery("select count(enr) from EnrollmentRecordImpl as enr where enr.learningContext.uuid=:learningContextUuid");
+            	Query q = session.getNamedQuery("countEnrollments");
             	q.setParameter("learningContextUuid", learningContextUuid);
             	return q.iterate().next();
             }
@@ -378,7 +369,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	CourseSection section = getSection(sectionUuid, session);
 
             	// Delete all of the memberships in the section
-            	Query q = session.createQuery("from ParticipationRecordImpl as record where record.learningContext.uuid=:sectionUuid");
+            	Query q = session.getNamedQuery("findParticipantsBySectionUuid");
             	q.setParameter("sectionUuid", sectionUuid);
             	for(Iterator iter = q.iterate();iter.hasNext();) {
             		session.delete(iter.next());
@@ -439,8 +430,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	public List getUnsectionedEnrollments(final String courseUuid, final String category) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-            	String hql = "select courseEnr from EnrollmentRecordImpl as courseEnr where courseEnr.learningContext.uuid=:courseUuid and courseEnr.user.userUuid not in ( select secEnr.user.userUuid from EnrollmentRecordImpl as secEnr where secEnr.learningContext in ( from CourseSectionImpl as section where section.course.uuid=:courseUuid and section.category=:category ))";
-            	Query q = session.createQuery(hql);
+            	Query q = session.getNamedQuery("findUnsectionedEnrollmentsInCategory");
             	q.setParameter("courseUuid", courseUuid);
             	q.setParameter("category", category);
             	return q.list();
@@ -452,8 +442,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	public Set getSectionEnrollments(final String userUuid, final String courseUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-            	String hql = "from EnrollmentRecordImpl as enr where enr.user.userUuid=:userUuid and enr.learningContext.id in (select section.id from CourseSectionImpl as section where section.course.uuid = :courseUuid )";
-            	Query q = session.createQuery(hql);
+            	Query q = session.getNamedQuery("findSingleStudentSectionEnrollmentsInCourse");
             	q.setParameter("userUuid", userUuid);
             	q.setParameter("courseUuid", courseUuid);
             	return q.list();

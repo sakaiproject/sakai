@@ -62,7 +62,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-                Query q = session.createQuery("from CourseSectionImpl as section where section.course.siteContext=:context");
+                Query q = session.getNamedQuery("findSectionsBySiteContext");
                 q.setParameter("context", siteContext);
                 return new HashSet(q.list());
             }
@@ -85,13 +85,13 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	}
 
 	private CourseSection getSection(final String sectionUuid, Session session) throws HibernateException {
-        Query q = session.createQuery("from CourseSectionImpl as section where section.uuid=:uuid");
+        Query q = session.getNamedQuery("loadSectionByUuid");
         q.setParameter("uuid", sectionUuid);
-        List list = q.list();
-        if(list.size() == 0) {
+        Object section = q.uniqueResult();
+        if(section == null) {
         	throw new IllegalArgumentException("No section exists with uuid=" + sectionUuid);
         } else {
-        	return (CourseSection)list.get(0);
+        	return (CourseSection)section;
         }
 	}
 
@@ -99,17 +99,16 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourse(siteContext, session);
-            	String hql;
+            	Query q;
                 if(role.isInstructor()) {
-        			hql = "from InstructorRecordImpl as participant where participant.learningContext=:course";
+        			q = session.getNamedQuery("findSiteInstructors");
         		} else if(role.isStudent()) {
-                    hql = "from EnrollmentRecordImpl as participant where participant.learningContext=:course";
+        			q = session.getNamedQuery("findSiteEnrollments");
         		} else if(role.isTeachingAssistant()) {
-        			hql = "from TeachingAssistantRecordImpl as participant where participant.learningContext=:course";
+        			q = session.getNamedQuery("findSiteTAs");
         		} else {
         			throw new IllegalArgumentException("There are no users without a role in a site.");
         		}
-                Query q = session.createQuery(hql);
                 q.setParameter("course", course);
                 return q.list();
             }
@@ -118,13 +117,13 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	}
 
 	private Course getCourse(String siteContext, Session session) throws HibernateException {
-        Query q = session.createQuery("from CourseImpl as course where course.siteContext=:siteContext");
+        Query q = session.getNamedQuery("loadCourseBySiteContext");
         q.setParameter("siteContext", siteContext);
-        List list = q.list();
-        if(list.size() == 0) {
+        Object course = q.uniqueResult();
+        if(course == null) {
         	throw new IllegalArgumentException("No course exists in site = " + siteContext);
         } else {
-        	return (Course)list.get(0);
+        	return (Course)course;
         }
 	}
 	
@@ -151,8 +150,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourse(siteContext, session);
-            	String hql = "from ParticipationRecordImpl as participant where participant.learningContext=:course and participant.user.userUuid=:userUuid";
-                Query q = session.createQuery(hql);
+                Query q = session.getNamedQuery("checkForSiteMembershipInRole");
                 q.setParameter("course", course);
                 q.setParameter("userUuid", userUuid);
                 List list = q.list();
@@ -191,8 +189,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	public List getSectionMembers(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-            	String hql = "from ParticipationRecordImpl as participant where participant.learningContext.uuid=:sectionUuid";
-                Query q = session.createQuery(hql);
+                Query q = session.getNamedQuery("findSectionMembers");
                 q.setParameter("sectionUuid", sectionUuid);
                 return q.list();
             }
@@ -204,17 +201,16 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
-            	String hql;
+            	Query q;
                 if(role.isInstructor()) {
-        			hql = "from InstructorRecordImpl as participant where participant.learningContext=:section";
+                	q = session.getNamedQuery("findSectionInstructors");
         		} else if(role.isStudent()) {
-                    hql = "from EnrollmentRecordImpl as participant where participant.learningContext=:section";
+                    q = session.getNamedQuery("findSectionStudents");
         		} else if(role.isTeachingAssistant()) {
-        			hql = "from TeachingAssistantRecordImpl as participant where participant.learningContext=:section";
+                    q = session.getNamedQuery("findSectionTAs");
         		} else {
         			throw new IllegalArgumentException("There are no users without a role in a section.");
         		}
-                Query q = session.createQuery(hql);
                 q.setParameter("section", section);
                 return q.list();
             }
@@ -226,8 +222,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
 	        	CourseSection section = getSection(sectionUuid, session);
-	        	String hql = "from ParticipationRecordImpl as participant where participant.learningContext=:section and participant.user.userUuid=:userUuid";
-	            Query q = session.createQuery(hql);
+	            Query q = session.getNamedQuery("checkForSectionMembershipInRole");
 	            q.setParameter("section", section);
 	            q.setParameter("userUuid", userUuid);
 	            List list = q.list();
@@ -240,16 +235,13 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	public String getSectionName(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
-	        	String hql = "select section.title from CourseSectionImpl as section where section.uuid=:sectionUuid";
-	            Query q = session.createQuery(hql);
+	            Query q = session.getNamedQuery("loadSectionName");
 	            q.setParameter("sectionUuid", sectionUuid);
-	            List list = q.list();
-	            if(list.size() == 1) {
-	            	return list.get(0);
-	            } else {
+	            Object name = q.uniqueResult();
+	            if(name != null) {
 	            	if(log.isDebugEnabled()) log.debug("Section " + sectionUuid + " does not exist.");
-	            	return null;
 	            }
+	            return name;
         	}
         };
         return (String)getHibernateTemplate().execute(hc);
@@ -258,16 +250,13 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	public String getSectionCategory(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
-	        	String hql = "select section.category from CourseSectionImpl as section where section.uuid=:sectionUuid";
-	            Query q = session.createQuery(hql);
+	            Query q = session.getNamedQuery("loadSectionCategory");
 	            q.setParameter("sectionUuid", sectionUuid);
-	            List list = q.list();
-	            if(list.size() == 1) {
-	            	return list.get(0);
-	            } else {
+	            Object category = q.uniqueResult();
+	            if(category == null) {
 	            	if(log.isDebugEnabled()) log.debug("Section " + sectionUuid + " does not exist.");
-	            	return null;
 	            }
+            	return category;
 	        }
         };
         return (String)getHibernateTemplate().execute(hc);
@@ -276,8 +265,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	public List getSectionsInCategory(final String siteContext, final String categoryId) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
-	        	String hql = "from CourseSectionImpl as section where section.category=:categoryId and section.course.siteContext=:siteContext";
-	            Query q = session.createQuery(hql);
+	            Query q = session.getNamedQuery("findSectionsByCategory");
 	            q.setParameter("categoryId", categoryId);
 	            q.setParameter("siteContext", siteContext);
 	            return q.list();

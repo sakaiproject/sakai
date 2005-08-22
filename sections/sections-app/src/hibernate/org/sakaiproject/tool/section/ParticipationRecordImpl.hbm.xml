@@ -35,4 +35,126 @@
         <subclass name="org.sakaiproject.tool.section.TeachingAssistantRecordImpl" discriminator-value="3">
         </subclass>
     </class>
+    
+    <query name="findSiteInstructors">
+        <![CDATA[
+        from InstructorRecordImpl as participant where participant.learningContext=:course
+        ]]>
+    </query>
+
+    <query name="findSiteEnrollments">
+        <![CDATA[
+        from EnrollmentRecordImpl as participant where participant.learningContext=:course
+        ]]>
+    </query>
+
+    <query name="findSiteTAs">
+        <![CDATA[
+        from TeachingAssistantRecordImpl as participant where participant.learningContext=:course
+        ]]>
+    </query>
+
+    <query name="checkForSiteMembershipInRole">
+        <![CDATA[
+        from ParticipationRecordImpl as participant where participant.learningContext=:course and
+            participant.user.userUuid=:userUuid
+        ]]>
+    </query>
+
+    <query name="findSectionMembers">
+        <![CDATA[
+        from ParticipationRecordImpl as participant where participant.learningContext.uuid=:sectionUuid
+        ]]>
+    </query>
+
+    <query name="findSectionInstructors">
+        <![CDATA[
+        from InstructorRecordImpl as participant where participant.learningContext=:section
+        ]]>
+    </query>
+
+    <query name="findSectionStudents">
+        <![CDATA[
+        from EnrollmentRecordImpl as participant where participant.learningContext=:section
+        ]]>
+    </query>
+    
+    <query name="findSectionTAs">
+        <![CDATA[
+        from TeachingAssistantRecordImpl as participant where participant.learningContext=:section
+        ]]>
+    </query>
+
+    <query name="checkForSectionMembershipInRole">
+        <![CDATA[
+        from ParticipationRecordImpl as participant where participant.learningContext=:section and
+            participant.user.userUuid=:userUuid
+        ]]>
+    </query>
+
+    <query name="findEnrollment">
+        <![CDATA[
+        from EnrollmentRecordImpl as enr where enr.user.userUuid=:userUuid and
+            enr.learningContext.uuid=:sectionUuid
+        ]]>
+    </query>
+    
+    <query name="findEnrollmentInCategory">
+        <![CDATA[
+        from EnrollmentRecordImpl as enr where enr.user.userUuid=:userUuid and enr.learningContext in
+            (from CourseSectionImpl as section where section.course=:course and section.category=:category )
+        ]]>
+    </query>
+
+    <query name="findOtherEnrollmentsInCategory">
+        <![CDATA[
+        from EnrollmentRecordImpl as enr where enr.user.userUuid in (:userUuids) and enr.learningContext in (
+            from CourseSectionImpl as section where section.course=:course and section.category=:category and
+            section.uuid != :sectionUuid )
+        ]]>
+    </query>
+
+    <query name="findParticipationRecord">
+        <![CDATA[
+        from ParticipationRecordImpl as participation where participation.learningContext.uuid=:sectionUuid and
+        participation.user.userUuid=:userUuid
+        ]]>
+    </query>
+
+    <query name="countEnrollments">
+        <![CDATA[
+        select count(enr) from EnrollmentRecordImpl as enr where enr.learningContext.uuid=:learningContextUuid
+        ]]>
+    </query>
+
+    <query name="findParticipantsBySectionUuid">
+        <![CDATA[
+        from ParticipationRecordImpl as record where record.learningContext.uuid=:sectionUuid
+        ]]>
+    </query>
+
+    <query name="findUnsectionedEnrollmentsInCategory">
+        <![CDATA[
+        select courseEnr from EnrollmentRecordImpl as courseEnr where
+        courseEnr.learningContext.uuid=:courseUuid and courseEnr.user.userUuid not in
+            (
+                select secEnr.user.userUuid from EnrollmentRecordImpl as secEnr where secEnr.learningContext in
+                (
+                    from CourseSectionImpl as section where section.course.uuid=:courseUuid and
+                    section.category=:category
+                )
+            )
+        ]]>
+    </query>
+
+    <query name="findSingleStudentSectionEnrollmentsInCourse">
+        <![CDATA[
+        from EnrollmentRecordImpl as enr where enr.user.userUuid=:userUuid and
+            enr.learningContext.id in
+            (
+                select section.id from CourseSectionImpl as section where section.course.uuid = :courseUuid
+            )
+        ]]>
+    </query>
+
 </hibernate-mapping>

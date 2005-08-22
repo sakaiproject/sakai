@@ -1,0 +1,15 @@
+
+<h:commandLink action="overview" immediate="true" rendered="#{viewName ne 'overview'}">
+    <h:outputText value="#{msgs.nav_overview}"/>
+</h:commandLink>
+<h:outputText value="#{msgs.nav_overview}" rendered="#{viewName eq 'overview'}" />
+
+<h:outputText value=" | "/>
+
+<h:commandLink action="options" immediate="true" rendered="#{viewName ne 'options'}">
+    <h:outputText value="#{msgs.nav_options}"/>
+</h:commandLink>
+<h:outputText value="#{msgs.nav_options}" rendered="#{viewName eq 'options'}" />
+
+<br/>
+<br/>

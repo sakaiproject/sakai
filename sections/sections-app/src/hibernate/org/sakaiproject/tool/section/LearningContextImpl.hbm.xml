@@ -35,5 +35,47 @@
         </joined-subclass>
 
     </class>
+    
+    <query name="findSectionsBySiteContext">
+        <![CDATA[
+        from CourseSectionImpl as section where section.course.siteContext=:context
+        ]]>
+    </query>
+
+    <query name="loadCourseBySiteContext">
+        <![CDATA[
+        from CourseImpl as course where course.siteContext=:siteContext
+        ]]>
+    </query>
+
+    <query name="loadCourseByUuid">
+        <![CDATA[
+        from CourseImpl as course where course.uuid=:uuid
+        ]]>
+    </query>
+
+    <query name="loadSectionByUuid">
+        <![CDATA[
+        from CourseSectionImpl as section where section.uuid=:uuid
+        ]]>
+    </query>
+
+    <query name="loadSectionName">
+        <![CDATA[
+        select section.title from CourseSectionImpl as section where section.uuid=:sectionUuid
+        ]]>
+    </query>
+    
+    <query name="loadSectionCategory">
+        <![CDATA[
+        select section.category from CourseSectionImpl as section where section.uuid=:sectionUuid
+        ]]>
+    </query>
+
+    <query name="findSectionsByCategory">
+        <![CDATA[
+        from CourseSectionImpl as section where section.category=:categoryId and section.course.siteContext=:siteContext
+        ]]>
+    </query>
 
 </hibernate-mapping>
