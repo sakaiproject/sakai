@@ -232,63 +232,104 @@ public class AudioSampleGraphPanel
     g2.setColor(Color.black);
     g2.fillRect(0, h - INFOPAD, w, INFOPAD);
 
+    int gridHeight = h - INFOPAD - 2;
+    drawGrid(g2, w, gridHeight);
+
     if (errStr != null)
     {
-      g2.setColor(Color.red);
-      g2.setFont(new Font(res.getString("g2_Font"), Font.BOLD, 18));
-      g2.drawString(res.getString("ERROR"), 5, 20);
-      AttributedString as = new AttributedString(errStr);
-      as.addAttribute(TextAttribute.FONT, font12, 0, errStr.length());
-      AttributedCharacterIterator aci = as.getIterator();
-      FontRenderContext frc = g2.getFontRenderContext();
-      LineBreakMeasurer lbm = new LineBreakMeasurer(aci, frc);
-      float x = 5, y = 25;
-      lbm.setPosition(0);
-      while (lbm.getPosition() < errStr.length())
-      {
-        TextLayout tl = lbm.nextLayout(w - x - 5);
-        if (!tl.isLeftToRight())
-        {
-          x = w - tl.getAdvance();
-        }
-        tl.draw(g2, x, y += tl.getAscent());
-        y += tl.getDescent() + tl.getLeading();
-      }
+      drawErrorText(errStr, w, g2);
     }
     else if (captureThread != null)
     {
-      g2.setColor(graphColor);
-      g2.setFont(font12);
-      g2.drawString(res.getString("Length_") + String.valueOf(seconds), 3,
-                    h - 4);
+      drawLengthText(seconds, h, g2);
     }
     else
     {
-      g2.setColor(graphColor);
-      g2.setFont(font12);
-      g2.drawString(res.getString("File_") + fileName + "  " +
-                    res.getString("Length_1") +
-                    String.valueOf(duration) + "  " + res.getString("Position_") +
-                    String.valueOf(seconds), 3, h - 4);
+      drawFileLengthText(seconds, fileName, duration, h, g2);
 
       if (audioInputStream != null)
       {
-        // .. render sampling graph ..
-        g2.setColor(graphColor);
-        for (int i = 1; i < lines.size(); i++)
-        {
-          g2.draw( (Line2D) lines.get(i));
-        }
+        drawSamplingGraph(lines, g2);
 
-        // .. draw current position ..
         if (seconds != 0)
         {
-          double loc = seconds / duration * w;
-          g2.setColor(currentPositionColor);
-          g2.setStroke(new BasicStroke(3));
-          g2.draw(new Line2D.Double(loc, 0, loc, h - INFOPAD - 2));
+          drawCurrentPosition(seconds, duration, w, h, INFOPAD, g2);
         }
       }
+    }
+  }
+
+  private void drawGrid(Graphics2D g2, int w, int h)
+  {
+    g2.setColor(gridColor);
+    for (int x = 0; x < w; x += 10)
+    {
+      g2.draw(new Line2D.Double(x, 0, x, h));
+    }
+    for (int y = 0; y < h; y += 10)
+    {
+      g2.draw(new Line2D.Double(0, y, w, y));
+    }
+  }
+
+  private void drawCurrentPosition(double seconds, double duration, int w,
+                                    int h, int INFOPAD, Graphics2D g2)
+  {
+    double loc = seconds / duration * w;
+    g2.setColor(currentPositionColor);
+    g2.setStroke(new BasicStroke(3));
+    g2.draw(new Line2D.Double(loc, 0, loc, h - INFOPAD - 2));
+  }
+
+  private void drawSamplingGraph(Vector lines, Graphics2D g2)
+  {
+    g2.setColor(graphColor);
+    for (int i = 1; i < lines.size(); i++)
+    {
+      g2.draw( (Line2D) lines.get(i));
+    }
+  }
+
+  private void drawFileLengthText(double seconds, String fileName, double duration,
+                               int h, Graphics2D g2)
+  {
+    g2.setColor(graphColor);
+    g2.setFont(font12);
+    g2.drawString(res.getString("File_") + fileName + "  " +
+                  res.getString("Length_1") +
+                  String.valueOf(duration) + "  " + res.getString("Position_") +
+                  String.valueOf(seconds), 3, h - 4);
+  }
+
+  private void drawLengthText(double seconds, int h, Graphics2D g2)
+  {
+    g2.setColor(graphColor);
+    g2.setFont(font12);
+    g2.drawString(res.getString("Length_") + String.valueOf(seconds), 3,
+                  h - 4);
+  }
+
+  private void drawErrorText(String errStr, int w, Graphics2D g2)
+  {
+    g2.setColor(Color.red);
+    g2.setFont(new Font(res.getString("g2_Font"), Font.BOLD, 20));
+    g2.drawString(res.getString("ERROR"), 5, 20);
+    AttributedString as = new AttributedString(errStr);
+    as.addAttribute(TextAttribute.FONT, font12, 0, errStr.length());
+    AttributedCharacterIterator aci = as.getIterator();
+    FontRenderContext frc = g2.getFontRenderContext();
+    LineBreakMeasurer lbm = new LineBreakMeasurer(aci, frc);
+    float x = 5, y = 25;
+    lbm.setPosition(0);
+    while (lbm.getPosition() < errStr.length())
+    {
+      TextLayout tl = lbm.nextLayout(w - x - 5);
+      if (!tl.isLeftToRight())
+      {
+        x = w - tl.getAdvance();
+      }
+      tl.draw(g2, x, y += tl.getAscent());
+      y += tl.getDescent() + tl.getLeading();
     }
   }
 
