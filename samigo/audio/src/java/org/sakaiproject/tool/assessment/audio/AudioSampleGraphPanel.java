@@ -86,13 +86,14 @@ public class AudioSampleGraphPanel
   private static final String RESOURCE_NAME = "AudioResources";
   static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
     RESOURCE_NAME, Locale.getDefault());
+  static ColorModel colorModel= new ColorModel();
 
   private static final Font font10 = new Font("serif", Font.PLAIN, 10);
   private static final Font font12 = new Font("serif", Font.PLAIN, 12);
-  private static final Color graphColor = new Color(0, 180, 20);
-  private static final Color currentPositionColor = new Color(64, 200, 20);
-  private static final Color backgroundColor = new Color(0, 128, 20);
-  private static final Color gridColor = new Color(0, 140, 20);
+  private static final Color graphColor = colorModel.getColor("graphColor");//new Color(0, 180, 20);
+  private static final Color currentPositionColor = colorModel.getColor("graphCurrentPositionColor");// Color(64, 200, 20);
+  private static final Color backgroundColor = colorModel.getColor("graphBackgroundColor");//new Color(0, 128, 20);
+  private static final Color gridColor = colorModel.getColor("graphGridColor");//  new Color(0, 140, 20);
 
 
   public AudioSampleGraphPanel()
@@ -229,7 +230,7 @@ public class AudioSampleGraphPanel
     Graphics2D g2 = (Graphics2D) g;
     g2.setBackground(getBackground());
     g2.clearRect(0, 0, w, h);
-    g2.setColor(Color.black);
+    g2.setColor(colorModel.getColor("darkColor"));
     g2.fillRect(0, h - INFOPAD, w, INFOPAD);
 
     int gridHeight = h - INFOPAD - 2;
@@ -311,7 +312,7 @@ public class AudioSampleGraphPanel
 
   private void drawErrorText(String errStr, int w, Graphics2D g2)
   {
-    g2.setColor(Color.red);
+    g2.setColor(colorModel.getColor("alertColor"));
     g2.setFont(new Font(res.getString("g2_Font"), Font.BOLD, 20));
     g2.drawString(res.getString("ERROR"), 5, 20);
     AttributedString as = new AttributedString(errStr);

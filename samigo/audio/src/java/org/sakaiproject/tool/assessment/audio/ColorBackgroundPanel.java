@@ -47,7 +47,8 @@ public class ColorBackgroundPanel
       setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED));
 
     }
-    setBackground(new Color(0x90, 0xa1, 0xc6));
+    ColorModel colorModel = new ColorModel();
+    setBackground(colorModel.getColor("insetColor"));// Color(0x90, 0xa1, 0xc6));//
   }
 
 }
