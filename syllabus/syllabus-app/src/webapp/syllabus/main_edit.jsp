@@ -29,7 +29,8 @@
 						</tr>
 					</table>
 					<syllabus:syllabus_table value="#{SyllabusTool.entries}" var="eachEntry">
-						<h:column rendered="#{!empty SyllabusTool.entries}">
+<%--						<h:column rendered="#{!empty SyllabusTool.entries}">--%>
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
 								<h:outputText value="Syllabus Item" />
 							</f:facet>
@@ -37,7 +38,7 @@
 								<h:outputText value="#{eachEntry.entry.title}"/>
 							</h:commandLink>
 						</h:column>
-						<h:column rendered="#{!empty SyllabusTool.entries}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
 								<h:outputText value="" />
 							</f:facet>
@@ -45,7 +46,7 @@
 								<h:outputText value="Move Up"/>
 							</h:commandLink>
 						</h:column>
-						<h:column rendered="#{!empty SyllabusTool.entries}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
 								<h:outputText value="" />
 							</f:facet>
@@ -53,13 +54,13 @@
 								<h:outputText value="Move Down"/>
 							</h:commandLink>
 						</h:column>
-						<h:column rendered="#{!empty SyllabusTool.entries}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
 								<h:outputText value="Status"/>
 							</f:facet>
 							<h:outputText value="#{eachEntry.entry.status}"/>
 						</h:column>
-						<h:column rendered="#{!empty SyllabusTool.entries}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
   							<h:outputText value="Remove"/>
 							</f:facet>
@@ -69,7 +70,7 @@
 					<h:commandButton 
 						  value="Update" 
 						  action="#{SyllabusTool.processListDelete}" 
-						  rendered="#{!empty SyllabusTool.entries}"/>
+						  rendered="#{! SyllabusTool.displayNoEntryMsg}"/>
 			</syllabus:syllabus_if>
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
   			<syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="750" height="500" />
