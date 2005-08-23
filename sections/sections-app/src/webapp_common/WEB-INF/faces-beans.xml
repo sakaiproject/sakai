@@ -66,6 +66,13 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
 
+    <managed-bean>
+        <description>Roster Bean</description>
+        <managed-bean-name>rosterBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.RosterBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
     <!-- For testing only -->
 	<managed-bean>
 		<description>Sample Bean</description>

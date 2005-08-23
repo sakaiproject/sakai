@@ -69,7 +69,7 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
-			String catName = getCategoryName(section.getCategory(), getLocale());
+			String catName = getCategoryName(section.getCategory());
 			
 			// Generate the string showing the TAs
 			List tas = getTeachingAssistants(section.getUuid());
@@ -100,7 +100,7 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		sectionCategoryItems.add(new SelectItem("", "All Sections"));
 		for(Iterator iter = categoryIds.iterator(); iter.hasNext();) {
 			String id = (String)iter.next();
-			String label = getCategoryName(id, getLocale());
+			String label = getCategoryName(id);
 			sectionCategoryItems.add(new SelectItem(id, label));
 		}
 		

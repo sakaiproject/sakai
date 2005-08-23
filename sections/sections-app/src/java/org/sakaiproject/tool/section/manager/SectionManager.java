@@ -31,6 +31,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
 
@@ -43,6 +44,17 @@ public interface SectionManager {
 	 * @return The course (whatever that means)
 	 */
 	public Course getCourse(String siteContext);
+	
+	
+	/**
+	 * Gets a SectionEnrollments data structure for the given students.
+	 * 
+	 * @param siteContext The site context
+	 * @param studentUuids The Set of userUuids to include in the SectionEnrollments
+	 * 
+	 * @return
+	 */
+	public SectionEnrollments getSectionEnrollments(String siteContext, Set studentUuids);
 	
     /**
      * Adds the current user to a section as a student.  This is a convenience

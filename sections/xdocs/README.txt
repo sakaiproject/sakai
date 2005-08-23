@@ -10,19 +10,12 @@ Sakai Sections Tool -- Building and Deploying
 		1.  Create a database for the application to use.  All tables and sequences
 		will be automatically generated when the app starts up.
 		
-		2.  Configure the database connection by doing one of the following:
-			a.  configure /sections-app/src/hibernate/hibernate.properties with
-				the settings for your local database configuration, or
-			b.  specify a different 'hibernate.properties.dir' property either
-				on the command line or in /sections-app/project.properties.  This
-				property should define the directory containing the custom
-				hibernate.properties file you'd like to use (copy the one
-				in /sections-app/src/hibernate to your custom location and edit
-				it there).  Be sure to include a trailing slash when defining
-				this property.
-		If you are planning to do development on the sections tool, please
-		utilize the latter method and refrain from editing the distributed
-		hibernate.properties file.
+		2.  Configure the database connection by specifying the
+		'hibernate.properties.dir' property either on the command line or in
+		$HOME/build.properties.  This property defines the directory containing
+		the custom hibernate.properties file you'd like to use (copy the one in
+		/sections-app/src/hibernate to your custom location and edit it there).
+		Be sure to include a trailing slash when defining this property.
 		
 		3.  Specify the location of your tomcat 5.5.9 webapps directory (not
 		your sakai tomcat -- you must use a different tomcat installation!) with

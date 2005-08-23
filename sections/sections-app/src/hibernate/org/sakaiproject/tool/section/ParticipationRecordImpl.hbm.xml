@@ -157,4 +157,12 @@
         ]]>
     </query>
 
+    <query name="findSectionEnrollments">
+        <![CDATA[
+        from EnrollmentRecordImpl as enr where enr.user.userUuid in (:studentUuids)
+            and enr.learningContext.id in
+            ( select section.id from CourseSectionImpl as section where section.course=:course )
+        ]]>
+    </query>
+
 </hibernate-mapping>

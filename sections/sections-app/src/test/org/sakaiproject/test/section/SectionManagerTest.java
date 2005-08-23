@@ -38,6 +38,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.manager.Context;
@@ -75,6 +76,9 @@ public class SectionManagerTest extends SectionsTestBase{
     }
 
     public void testSectionMembership() throws Exception {
+
+    	// TODO This test has become totally unruly.  Split it up, even though it will lead to a lot of duplication
+    	
     	String siteContext = context.getContext();
     	List categories = secAware.getSectionCategories();
     	
@@ -206,6 +210,8 @@ public class SectionManagerTest extends SectionsTestBase{
 		secMgr.updateSection(sec1.getUuid(), "New title", null, null, secondCategory, 10);
 		CourseSection updatedSec = secAware.getSection(sec1.getUuid());
 		Assert.assertTrue(updatedSec.getTitle().equals("New title"));
+		Assert.assertTrue(updatedSec.getCategory().equals(secondCategory));
+		sec1 = updatedSec;
 		
 		// Ensure that disbanding a section actually removes it from the course
 		secMgr.disbandSection(sec4.getUuid());
@@ -221,6 +227,25 @@ public class SectionManagerTest extends SectionsTestBase{
 		Assert.assertTrue(myEnrollments.contains(enrollment2));
 		Assert.assertTrue(myEnrollments.size() == 2);
 
+		// Assert that a valid SectionEnrollments object (just a convenient data structure) can be obtained
+		Set studentUuids = new HashSet();
+		studentUuids.add("student1");
+		studentUuids.add("student2");
+		studentUuids.add("other1");
+		SectionEnrollments secEnrollments = secMgr.getSectionEnrollments(siteContext, studentUuids);
+
+		// Student 1 is enrolled in section 3
+		Assert.assertTrue(secEnrollments.getSection("student1", firstCategory) == null);
+		Assert.assertTrue(secEnrollments.getSection("student1", secondCategory).equals(sec3));
+		
+		// Student 2 is enrolled in section 1
+		Assert.assertTrue(secEnrollments.getSection("student2", firstCategory) == null);
+		Assert.assertTrue(secEnrollments.getSection("student2", secondCategory).equals(sec1));
+
+		// Other person is enrolled in section 1
+		Assert.assertTrue(secEnrollments.getSection("other1", firstCategory) == null);
+		Assert.assertTrue(secEnrollments.getSection("other1", secondCategory).equals(sec1));
+		
 		// Change the self reg and self switching flags
 		secMgr.setSelfRegistrationAllowed(course.getUuid(), true);
 		Assert.assertTrue(secMgr.isSelfRegistrationAllowed(course.getUuid()));

@@ -23,6 +23,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section.manager;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
@@ -50,6 +52,7 @@ import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 import org.sakaiproject.tool.section.CourseImpl;
 import org.sakaiproject.tool.section.CourseSectionImpl;
 import org.sakaiproject.tool.section.EnrollmentRecordImpl;
+import org.sakaiproject.tool.section.SectionEnrollmentsImpl;
 import org.sakaiproject.tool.section.TeachingAssistantRecordImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -115,7 +118,23 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (Course)getHibernateTemplate().execute(hc);
 	}
 
-    
+	public SectionEnrollments getSectionEnrollments(final String siteContext, final Set studentUuids) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	Course course = getCourse(siteContext);
+            	Query q = session.getNamedQuery("findSectionEnrollments");
+            	q.setParameter("course", course);
+            	q.setParameterList("studentUuids", studentUuids);
+            	return q.list();
+            }
+        };
+		if(studentUuids == null || studentUuids.isEmpty()) {
+			if(log.isDebugEnabled()) log.debug("No student uuids were passed to getSectionEnrollments.");
+			return new SectionEnrollmentsImpl(new ArrayList());
+		}
+    	return new SectionEnrollmentsImpl(getHibernateTemplate().executeFind(hc));
+	}
+
     public EnrollmentRecord joinSection(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {

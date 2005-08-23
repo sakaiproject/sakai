@@ -86,7 +86,7 @@ public class SampleBean extends CourseDependentBean implements Serializable {
         	CourseSection section = (CourseSection)iter.next();
         	CourseSectionDecorator sectionForUi;
         	String catId = section.getCategory();
-        	String catName = getCategoryName(catId, FacesContext.getCurrentInstance().getViewRoot().getLocale());
+        	String catName = getCategoryName(catId);
         	sectionForUi = new CourseSectionDecorator(section, catName);
         	sections.add(sectionForUi);
         }

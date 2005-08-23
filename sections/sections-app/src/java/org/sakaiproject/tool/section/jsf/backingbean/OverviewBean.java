@@ -59,7 +59,7 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
-			String catName = getCategoryName(section.getCategory(), getLocale());
+			String catName = getCategoryName(section.getCategory());
 			
 			// Generate the string showing the TAs
 			List tas = getTeachingAssistants(section.getUuid());

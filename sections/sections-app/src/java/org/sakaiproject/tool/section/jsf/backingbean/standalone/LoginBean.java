@@ -49,6 +49,9 @@ public class LoginBean extends CourseDependentBean {
     }
     
     public String getUserName() {
+    	if(userName == null) {
+    		userName = "student1";
+    	}
         return userName;
     }
     public void setUserName(String userName) {

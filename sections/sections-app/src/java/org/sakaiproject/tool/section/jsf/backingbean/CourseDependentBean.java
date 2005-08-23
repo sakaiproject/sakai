@@ -97,8 +97,8 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		Course course = getCourse();
 		return getCourseBean().sectionManager.getSectionEnrollments(userUuid, course.getUuid());
 	}
-	protected String getCategoryName(String categoryId, Locale locale) {
-		return getCourseBean().sectionManager.getSectionAwareness().getCategoryName(categoryId, locale);
+	protected String getCategoryName(String categoryId) {
+		return getCourseBean().sectionManager.getSectionAwareness().getCategoryName(categoryId, getLocale());
 	}
 	
 	protected List getSectionCategories() {
