@@ -7,6 +7,17 @@
 
     <sakai:flowState bean="#{rosterBean}"/>
     
+    <x:div>
+        <h:inputText id="search" value="#{rosterBean.searchText}"
+            onfocus="clearIfDefaultString(this, '#{msgs.roster_search_text}')"/>
+        <h:commandButton value="#{msgs.roster_search_button}" actionListener="#{rosterBean.search}"/>
+        <h:commandButton value="#{msgs.roster_clear_button}" actionListener="#{rosterBean.clearSearch}"/>
+    </x:div>
+    
+    <x:div>
+        <sakai:pager id="pager" totalItems="#{rosterBean.enrollmentsSize}" firstItem="#{rosterBean.firstRow}" pageSize="#{rosterBean.maxDisplayedRows}" textStatus="#{msgs.roster_pager_status}" />
+    </x:div>
+    
     <x:dataTable cellpadding="0" cellspacing="0"
         id="sectionsTable"
         value="#{rosterBean.enrollments}"

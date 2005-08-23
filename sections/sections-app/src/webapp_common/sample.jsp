@@ -1,6 +1,10 @@
 <f:view>
 <h:form id="sampleForm">
 
+    <x:aliasBean alias="#{viewName}" value="sample">
+        <%@include file="/inc/navMenu.jspf"%>
+    </x:aliasBean>
+
 	<!-- Manually initialize the bean (replace this with flowstate) -->
 	<h:outputFormat value="#{sampleBean.configureBean}"/>
 

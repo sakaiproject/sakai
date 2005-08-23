@@ -24,6 +24,10 @@
 
 package org.sakaiproject.test.section.dataload;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -65,10 +69,15 @@ public class DataLoadTest extends SectionsTestBase {
 		CourseSection disc1 = sectionManager.addSection(course1.getUuid(), "Disc 1", "M,W,F 3-4pm", 30, "Sunny classroom #5", "section.category.discussion");
 		
 		// Load students
-		User student1 = userManager.createUser("student1", "Joe Student", "Student, Joe", "jstudent");
-		User student2 = userManager.createUser("student2", "Jane Undergrad", "Undergrad, Jane", "jundergrad");
-		User student3 = userManager.createUser("student3", "Max Guest", "Guest, Max", "mguest");
+		User studenta = userManager.createUser("studenta", "Joe Student", "Student, Joe", "jstudent");
+		User studentb = userManager.createUser("studentb", "Jane Undergrad", "Undergrad, Jane", "jundergrad");
+		User studentc = userManager.createUser("studentc", "Max Guest", "Guest, Max", "mguest");
 
+		List studentList = new ArrayList();
+		for(int i = 0; i < 100; i++) {
+			studentList.add(userManager.createUser("student" + i, "Test Student " + i, "Student, Test " + i, "tstudent" + i));
+		}
+		
 		// Load TAs
 		User ta1 = userManager.createUser("ta1", "Mike Grad", "Grad, Mike", "mgrad");
 		User ta2 = userManager.createUser("ta2", "Sara Postdoc", "Postdoc, Sara", "spostdoc");
@@ -81,14 +90,19 @@ public class DataLoadTest extends SectionsTestBase {
 		userManager.createUser("other1", "Other Person", "Person, Other", "operson");
 
 		// Load enrollments into the course
-		courseManager.addEnrollment(student1, course1);
-		courseManager.addEnrollment(student2, course1);
-		courseManager.addEnrollment(student3, course1);
+		courseManager.addEnrollment(studenta, course1);
+		courseManager.addEnrollment(studentb, course1);
+		courseManager.addEnrollment(studentc, course1);
+		
+		for(Iterator iter = studentList.iterator(); iter.hasNext();) {
+			User user = (User)iter.next();
+			courseManager.addEnrollment(user, course1);
+		}
 		
 		// Load enrollments into sections
-		sectionManager.addSectionMembership("student1", RoleImpl.STUDENT, lab1.getUuid());
-		sectionManager.addSectionMembership("student2", RoleImpl.STUDENT, lab2.getUuid());
-		sectionManager.addSectionMembership("student2", RoleImpl.STUDENT, disc1.getUuid());
+		sectionManager.addSectionMembership("studenta", RoleImpl.STUDENT, lab1.getUuid());
+		sectionManager.addSectionMembership("studentb", RoleImpl.STUDENT, lab2.getUuid());
+		sectionManager.addSectionMembership("studentc", RoleImpl.STUDENT, disc1.getUuid());
 		
 		// Load TAs into the course
 		courseManager.addTA(ta1, course1);

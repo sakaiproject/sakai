@@ -1,6 +1,10 @@
 <f:view>
 <h:form id="memberForm">
 
+    <x:aliasBean alias="#{viewName}" value="editStudents">
+        <%@include file="/inc/navMenu.jspf"%>
+    </x:aliasBean>
+
     <sakai:flowState bean="#{editStudentsBean}"/>
 
     <h:panelGrid columns="3">

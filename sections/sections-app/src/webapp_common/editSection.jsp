@@ -1,6 +1,10 @@
 <f:view>
 <h:form id="overviewForm">
 
+    <x:aliasBean alias="#{viewName}" value="editSection">
+        <%@include file="/inc/navMenu.jspf"%>
+    </x:aliasBean>
+
     <sakai:flowState bean="#{editSectionBean}"/>
     
     <h:panelGrid columns="2">

@@ -26,6 +26,7 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +43,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.NumberConverter;
 import javax.faces.event.ActionEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
@@ -61,19 +63,41 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 
 	private static final String CAT_COLUMN_PREFIX = "cat";
 	
+	private String searchText;
+	private int firstRow;
+	private int maxDisplayedRows;
+	private int enrollmentsSize;
 	private String sortColumn;
 	private boolean sortAscending;
 	private boolean externallyManaged;
-	
+
 	private List enrollments;
+	private Set sections;
+	private List categories;
+	
+	public RosterBean() {
+		maxDisplayedRows = 10;
+	}
 	
 	public void init() {
 		// Determine whether this course is externally managed
 		externallyManaged = getCourse().isExternallyManaged();
 
+		// Get the default search text
+		if(StringUtils.trimToNull(searchText) == null) {
+			searchText = getLocalizedMessage("roster_search_text");
+		}
+
+		// Get the sections
+		sections = getAllSiteSections();
+		
 		// Get the site enrollments
-		// TODO Limit this query to only what's needed in the UI filter / pager
-		List siteStudents = getSectionAwareness().getSiteMembersInRole(getSiteContext(), RoleImpl.STUDENT);
+		List siteStudents;
+		if(searchText.equals(getLocalizedMessage("roster_search_text"))) {
+			siteStudents = getSectionAwareness().getSiteMembersInRole(getSiteContext(), RoleImpl.STUDENT);
+		} else {
+			siteStudents = getSectionAwareness().findSiteMembersInRole(getSiteContext(), RoleImpl.STUDENT, searchText);
+		}
 		
 		// Get the section enrollments
 		Set studentUuids = new HashSet();
@@ -84,8 +108,8 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		SectionEnrollments sectionEnrollments = getSectionManager().getSectionEnrollments(getSiteContext(), studentUuids);
 		
 		// Construct the decorated enrollments for the UI
-		enrollments = new ArrayList();
-		List categories = getSectionAwareness().getSectionCategories();
+		List unpagedEnrollments = new ArrayList();
+		categories = getSectionAwareness().getSectionCategories();
 		
 		for(Iterator iter = siteStudents.iterator(); iter.hasNext();) {
 			EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
@@ -98,16 +122,47 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 				map.put(cat, section);
 			}
 			EnrollmentDecorator decorator = new EnrollmentDecorator(enrollment, map);
-			enrollments.add(decorator);
+			unpagedEnrollments.add(decorator);
 		}
+		
+		// TODO Not sure yet where sorting comes in... so implement the page filter last		
+		enrollments = new ArrayList();
+		int lastRow;
+		if(firstRow + maxDisplayedRows > unpagedEnrollments.size()) {
+			lastRow = unpagedEnrollments.size();
+		} else {
+			lastRow = firstRow + maxDisplayedRows;
+		}
+		enrollments.addAll(unpagedEnrollments.subList(firstRow, lastRow));
+		enrollmentsSize = unpagedEnrollments.size();
 	}
 
+	/**
+	 * Gets the categories that are currently being used in this site context.
+	 * 
+	 * TODO Should this be a method in SectionManager?
+	 * @param categories
+	 * @param sections
+	 * @return
+	 */
+	private List getUsedCategories(List categories, Collection sections) {
+		List used = new ArrayList();
+		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+			CourseSection section = (CourseSection)iter.next();
+			String cat = section.getCategory();
+			if(categories.contains(cat)) {
+				used.add(cat);
+			}
+		}
+		return used;
+	}
+	
 	public HtmlDataTable getRosterDataTable() {
 		return null;
 	}
 	
 	public void setRosterDataTable(HtmlDataTable rosterDataTable) {
-		List categories = getSectionCategories();
+		List usedCategories = getUsedCategories(categories, sections);
 		
 		if (rosterDataTable.findComponent(CAT_COLUMN_PREFIX + "0") == null) {
 			Application app = FacesContext.getCurrentInstance().getApplication();
@@ -115,7 +170,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			// Add columns for each category. Be sure to create unique IDs
 			// for all child components.
 			int colpos = 0;
-			for (Iterator iter = categories.iterator(); iter.hasNext(); colpos++) {
+			for (Iterator iter = usedCategories.iterator(); iter.hasNext(); colpos++) {
 				String category = (String)iter.next();
 				String categoryName = getCategoryName(category);
 
@@ -145,9 +200,20 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			}
 		}
 	}
+
+	public void search(ActionEvent event) {
+		firstRow = 0;
+	}
+
+	public void clearSearch(ActionEvent event) {
+		searchText = null;
+	}
 	
 	public List getEnrollments() {
 		return enrollments;
+	}
+	public int getEnrollmentsSize() {
+		return enrollmentsSize;
 	}
 	public boolean isSortAscending() {
 		return sortAscending;
@@ -163,6 +229,24 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 	public boolean isExternallyManaged() {
 		return externallyManaged;
+	}
+	public String getSearchText() {
+		return searchText;
+	}
+	public void setSearchText(String searchText) {
+		this.searchText = searchText;
+	}
+	public int getFirstRow() {
+		return firstRow;
+	}
+	public void setFirstRow(int firstRow) {
+		this.firstRow = firstRow;
+	}
+	public int getMaxDisplayedRows() {
+		return maxDisplayedRows;
+	}
+	public void setMaxDisplayedRows(int maxDisplayedRows) {
+		this.maxDisplayedRows = maxDisplayedRows;
 	}
 }
 

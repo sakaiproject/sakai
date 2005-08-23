@@ -1,3 +1,9 @@
+function clearIfDefaultString(formField, defaultString) {
+    if(formField.value == defaultString) {
+        formField.value = "";
+    }
+}
+
 /* Javascript for moving users between multi-select lists */
 
 var selectedUsers;
