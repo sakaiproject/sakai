@@ -182,7 +182,11 @@ function saveTime()
 </div></div>
 <p class="act">
   <h:commandButton type="submit" value="#{msg.button_submit_grading}"
-    action="#{delivery.submitForGrade}" styleClass="active"  disabled="#{delivery.previewAssessment eq 'true'}">
+    action="#{delivery.submitForGrade}" styleClass="active"  rendered="#{!delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
+  </h:commandButton>
+
+ <h:commandButton type="submit" value="#{msg.button_submit}"
+    action="#{delivery.submitForGrade}" styleClass="active"   rendered="#{delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>
 
   <h:commandButton type="submit" value="#{msg.button_save_x}"
