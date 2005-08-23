@@ -235,7 +235,15 @@ public class CourseGradeRecord extends AbstractGradeRecord {
             return new Double(pointsEarned.doubleValue() / totalPointsPossible * 100);
         }
     }
+
+	/**
+	 * For use by the Course Grade UI.
+	 */
+	public Double getNonNullAutoCalculatedGrade() {
+		Double percent = getAutoCalculatedGrade();
+		if (percent == null) {
+			percent = new Double(0);
+		}
+		return percent;
+	}
 }
-
-
-

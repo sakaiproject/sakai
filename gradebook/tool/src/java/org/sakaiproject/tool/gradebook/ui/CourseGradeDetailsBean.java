@@ -69,25 +69,20 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		public ScoreRow(Enrollment enrollment) {
             this.enrollment = enrollment;
 			courseGradeRecord = (CourseGradeRecord)gradeRecordSet.getGradeRecord(enrollment.getUser().getUserUid());
-            if(courseGradeRecord == null) {
-                courseGradeRecord = new CourseGradeRecord(courseGrade, enrollment.getUser().getUserUid(), null, null);
-                List availableGrades = getGradebook().getSelectedGradeMapping().getGrades();
-            }
+			if (courseGradeRecord == null) {
+				// Since we're using the domain object to transport UI input, we need
+				// to create it, even if we don't end up storing it in the database.
+				courseGradeRecord = new CourseGradeRecord(courseGrade, enrollment.getUser().getUserUid(), null, null);
+				gradeRecordSet.addGradeRecord(courseGradeRecord);
+			}
 		}
 
         public String getCalculatedLetterGrade() {
-            if(courseGradeRecord == null) {
-                return gradeMapping.getGrade(new Double(0));
-            }
-            Double val = new Double(courseGradeRecord.getPointsEarned().doubleValue() / totalPoints * 100);
-            return gradeMapping.getGrade(val);
+        	return gradeMapping.getGrade(courseGradeRecord.getNonNullAutoCalculatedGrade());
         }
 
         public Double getCalculatedPercentGrade() {
-            if(courseGradeRecord == null) {
-                return new Double(0);
-            }
-            return new Double(courseGradeRecord.getAutoCalculatedGrade().doubleValue() / totalPoints * 100);
+        	return courseGradeRecord.getNonNullAutoCalculatedGrade();
         }
 
         public CourseGradeRecord getCourseGradeRecord() {
@@ -172,7 +167,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 			workingEnrollments = finalizeSortingAndPaging(workingEnrollments);
 		}
-		    gradeRecordSet = new GradeRecordSet(courseGrade);
+		gradeRecordSet = new GradeRecordSet(courseGrade);
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 			CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
 			gradeRecordSet.addGradeRecord(gradeRecord);
