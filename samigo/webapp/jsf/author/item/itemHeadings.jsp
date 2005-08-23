@@ -26,6 +26,15 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
 --%>
 -->
 <h:form id="itemFormHeading">
+<%-- The following hidden fields echo some of the data in the item form
+     when this form posts a change in item type, the data is persisted.
+     We don't keep the answers--probably misleading for the new type.
+--%>
+<h:inputHidden value="#{itemauthor.currentItem.itemText}" />
+<h:inputHidden value="#{itemauthor.currentItem.corrFeedback}" />
+<h:inputHidden value="#{itemauthor.currentItem.incorrFeedback}" />
+<h:inputHidden value="#{itemauthor.currentItem.generalFeedback}" />
+<%-- --%>
 <p class="navIntraTool">
     <h:commandLink action="author" immediate="true">
       <h:outputText value="#{msg.global_nav_assessmt}" />
