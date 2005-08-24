@@ -96,7 +96,7 @@
        <h:outputText value="No Time Limit" />
     </h:panelGroup>
    </div>
-   <div class="shorttext">
+   <div class="longtext">
     <h:outputLabel value="#{msg.num_subs}" />
            <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
           rendered="#{!delivery.settings.unlimitedAttempts}"/>
@@ -104,7 +104,7 @@
           rendered="#{delivery.settings.unlimitedAttempts}"/>
    </div>
 
-   <div class="shorttext">
+   <div class="longtext"> 
     <h:outputLabel value="#{msg.auto_exp}" />
         <h:outputText value="#{msg.enabled_}"
           rendered="#{delivery.settings.autoSubmit}"/>
