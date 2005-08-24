@@ -1213,7 +1213,9 @@ public class ExtractionHelper
 
     // handle FIB with instructional text
     // sneak it into first text
-    if (!itemTList.isEmpty() && !(itemTextList.size()>1))
+    if (   !itemTList.isEmpty()
+        && !itemTextList.isEmpty()
+        && !(itemTextList.size()>1))
     {
       try
       {
@@ -1222,7 +1224,7 @@ public class ExtractionHelper
         if (firstFib.equals(firstText))
         {
           log.debug("Setting FIB instructional text.");
-          itemTextList.remove(0);
+//          itemTextList.remove(0);
           String newFirstFib
             = firstFib + "<br />" + itemTextList.get(0);
           itemTextList.set(0, newFirstFib);
@@ -1254,6 +1256,7 @@ public class ExtractionHelper
     itemText.setSequence(new Long(0));
     HashSet answerSet = new HashSet();
     char answerLabel = 'A';
+    System.out.println("itemTextString="+itemTextString);
 
     for (int a = 0; a < answerList.size(); a++)
     {
@@ -1268,6 +1271,7 @@ public class ExtractionHelper
         answer.setText(answerText);
         answer.setItemText(itemText);
         answer.setItem(item.getData());
+        System.out.println("answerText="+answerText);
         int sequence = a + 1;
         answer.setSequence(new Long(sequence));
         HashSet set = new HashSet();
