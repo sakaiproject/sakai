@@ -42,14 +42,9 @@
  </itemText>
   <!-- FIB -->
   <xsl:for-each select="//presentation//material/mattext">
-  <xsl:choose>
-    <xsl:when test="./*">
-      <itemFibText type="list"><xsl:copy-of select="./*"/></itemFibText>
-    </xsl:when>
-    <xsl:when test="string-length(.)">
-     <itemFibText type="list"><xsl:value-of select="."/></itemFibText>
-    </xsl:when>
-  </xsl:choose>
+    <itemFibText type="list">
+      <xsl:apply-templates mode="fill-in-the-blank" />
+    </itemFibText>
   </xsl:for-each>
   <!-- MATCHING -->
   <xsl:for-each select="//presentation//response_grp//material/mattext">
@@ -236,6 +231,14 @@
 
 
 
+</xsl:template>
+
+<xsl:template match="mattext" mode="fill-in-the-blank">
+  <xsl:apply-templates mode="fill-in-the-blank"/>
+</xsl:template>
+
+<xsl:template match="*" mode="fill-in-the-blank">
+  <xsl:copy-of select="." />
 </xsl:template>
 
 
