@@ -27,6 +27,7 @@ are in correct format for importation.  (SAK-1203).
   a. Blank space lost in the question text for the file upload question.
   b. A non-breaking space will be used to supply absent text between blanks in
 fill-in-the-blank questions.  (SAM-271).
+  c. Selection-level feedback is not retained for matching questions. (SAM-520)  
 
 4. Exporting model answers.
   Model Short Answer is not supported for exporting Short Answer/Essay question.
@@ -79,7 +80,6 @@ these trimmed on import so that exported files will always import.
     b. If you wish to import Sakai exports into other systems, or validating XML
 editors, you may need to remove blank lines before the XML declaration.
 (SAK-1499)
-    c. Export in Firefox.  If you wish to import Sakai exports in Firefox
 
 8. Respondus.
 Fixed in 2.01.  Respondus questions with missing score can be edited.
