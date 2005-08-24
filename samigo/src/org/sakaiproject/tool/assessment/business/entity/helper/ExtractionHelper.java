@@ -1121,6 +1121,12 @@ public class ExtractionHelper
         // these are not supposed to be empty
         if (notNullOrEmpty(answerText))
         {
+          // normalize all true/false questions
+          if (answerList.size()==2)
+          {
+            if (answerText.equalsIgnoreCase("true")) answerText = "true";
+            if (answerText.equalsIgnoreCase("false")) answerText = "false";
+          }
           String label = "" + answerLabel++;
           answer.setLabel(label); // up to 26, is this a problem?
           // if label matches correct answer it is correct
