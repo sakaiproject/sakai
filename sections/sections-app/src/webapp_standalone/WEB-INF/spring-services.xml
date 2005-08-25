@@ -5,6 +5,10 @@
         class="org.sakaiproject.tool.section.facade.impl.standalone.ContextStandaloneImpl"/>
     <bean id="org.sakaiproject.api.section.facade.manager.Authn"
         class="org.sakaiproject.tool.section.facade.impl.standalone.AuthnStandaloneImpl"/>
+    <bean id="org.sakaiproject.api.section.facade.manager.Authz"
+        class="org.sakaiproject.tool.section.facade.impl.standalone.AuthzStandaloneImpl">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+    </bean>
     <bean id="org.sakaiproject.api.section.facade.manager.UserDirectory"
         class="org.sakaiproject.tool.section.facade.impl.standalone.UserDirectoryStandaloneImpl">
         <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
@@ -13,4 +17,3 @@
         class="org.sakaiproject.component.common.uuid.UuidManagerCommonsImpl"/>
 
 </beans>
-        

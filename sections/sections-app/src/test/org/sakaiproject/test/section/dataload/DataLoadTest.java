@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
+import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.test.section.SectionsTestBase;
 import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.test.section.manager.UserManager;
@@ -64,9 +64,9 @@ public class DataLoadTest extends SectionsTestBase {
 		Course course3 = courseManager.createCourse("site3", "A Course for Site #3", false, false, false);
 
 		// Load sections
-		CourseSection lab1 = sectionManager.addSection(course1.getUuid(), "Lab 1", "M,W 9-12am", 20, "Dank basement lab #3", "section.category.lab");
-		CourseSection lab2 = sectionManager.addSection(course1.getUuid(), "Lab 2", "T,Th 9-12am", 20, "Dank basement lab #3", "section.category.lab");
-		CourseSection disc1 = sectionManager.addSection(course1.getUuid(), "Disc 1", "M,W,F 3-4pm", 30, "Sunny classroom #5", "section.category.discussion");
+    	CourseSection lab1 = sectionManager.addSection(course1.getUuid(), "Lab 1", "section.category.lab", 20, "Dank basement lab", "9:00", true, "12:00", false, true, false, true,  false, false, false, false);
+    	CourseSection lab2 = sectionManager.addSection(course1.getUuid(), "Lab 2", "section.category.lab", 20, "Dank basement lab", "9:00", true, "12:00", false, false, true, false, true, false, false, false);
+    	CourseSection disc1 = sectionManager.addSection(course1.getUuid(), "Disc 1", "section.category.discussion", 30, "Sunny classroom", "3:00", false, "4:00", false, true, false, true,  false, true, false, false);
 		
 		// Load students
 		User studenta = userManager.createUser("studenta", "Joe Student", "Student, Joe", "jstudent");
@@ -100,19 +100,19 @@ public class DataLoadTest extends SectionsTestBase {
 		}
 		
 		// Load enrollments into sections
-		sectionManager.addSectionMembership("studenta", RoleImpl.STUDENT, lab1.getUuid());
-		sectionManager.addSectionMembership("studentb", RoleImpl.STUDENT, lab2.getUuid());
-		sectionManager.addSectionMembership("studentc", RoleImpl.STUDENT, disc1.getUuid());
+		sectionManager.addSectionMembership("studenta", Role.STUDENT, lab1.getUuid());
+		sectionManager.addSectionMembership("studentb", Role.STUDENT, lab2.getUuid());
+		sectionManager.addSectionMembership("studentc", Role.STUDENT, disc1.getUuid());
 		
 		// Load TAs into the course
 		courseManager.addTA(ta1, course1);
 		courseManager.addTA(ta2, course1);
 		
 		// Load TAs into the sections
-		sectionManager.addSectionMembership("ta1", RoleImpl.TA, lab1.getUuid());
-		sectionManager.addSectionMembership("ta1", RoleImpl.TA, disc1.getUuid());
-		sectionManager.addSectionMembership("ta2", RoleImpl.TA, lab2.getUuid());
-		sectionManager.addSectionMembership("ta2", RoleImpl.TA, disc1.getUuid());
+		sectionManager.addSectionMembership("ta1", Role.TA, lab1.getUuid());
+		sectionManager.addSectionMembership("ta1", Role.TA, disc1.getUuid());
+		sectionManager.addSectionMembership("ta2", Role.TA, lab2.getUuid());
+		sectionManager.addSectionMembership("ta2", Role.TA, disc1.getUuid());
 		
 		// Load instructors into the courses
 		courseManager.addInstructor(instructor1, course1);

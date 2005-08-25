@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -57,7 +57,9 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	}
 
 	public String update() {
-		getSectionManager().updateSection(sectionUuid, title, null, null, category, maxEnrollments);
+		// TODO Add the required fields to support the section metadata
+		getSectionManager().updateSection(sectionUuid, title, category, maxEnrollments,
+				null, null, false, null, false, false, false, false, false, false, false, false);
 		return "overview";
 	}
 	

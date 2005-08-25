@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -34,6 +34,7 @@ import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.tool.section.CourseSectionImpl;
 
 public interface SectionManager {
 
@@ -118,28 +119,55 @@ public interface SectionManager {
      * month at 3pm) is currently out of scope, so meetingTimes is represented
      * as a simple string.
      * 
-     * @param parentSectionUuid
+     * @param courseUuid
      * @param title
-     * @param meetingTimes
+     * @param category
      * @param maxEnrollments
      * @param location
+     * @param startTime
+     * @param startTimeAm
+     * @param endTime
+     * @param endTimeAm
+     * @param monday
+     * @param tuesday
+     * @param wednesday
+     * @param thursday
+     * @param friday
+     * @param saturday
+     * @param sunday
      * @return
      */
-    public CourseSection addSection(String courseOfferingUuid, String title,
-    		String meetingTimes, int maxEnrollments, String location, String category);
-
+    public CourseSection addSection(String courseUuid, String title,
+    		String category, int maxEnrollments, String location, 
+    		String startTime, boolean startTimeAm, String endTime, boolean endTimeAm,
+    		boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
+    		boolean friday, boolean saturday, boolean sunday);
+	
     /**
      * Updates the persistent representation of the given CourseSection.
      * 
-     * @param sectionUuid The unique id of the section
-     * @param title The title of this section
-     * @param meetingTimes The section's meeting times
-     * @param location The section's location
-     * @param category The section's category id
-     * @param maxEnrollments The section's max enrollments
+     * @param sectionUuid
+     * @param title
+     * @param category
+     * @param maxEnrollments
+     * @param location
+     * @param startTime
+     * @param startTimeAm
+     * @param endTime
+     * @param endTimeAm
+     * @param monday
+     * @param tuesday
+     * @param wednesday
+     * @param thursday
+     * @param friday
+     * @param saturday
+     * @param sunday
      */
-    public void updateSection(String sectionUuid, String title, String meetingTimes,
-    		String location, String category, int maxEnrollments);
+    public void updateSection(String sectionUuid, String title,
+    		String category, int maxEnrollments, String location, 
+    		String startTime, boolean startTimeAm, String endTime, boolean endTimeAm,
+    		boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
+    		boolean friday, boolean saturday, boolean sunday);
     
     /**
      * Disbands a course section.  This does not affect enrollment records for

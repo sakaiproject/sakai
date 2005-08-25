@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
+import org.sakaiproject.api.section.facade.Role;
 
 public class EditManagersBean extends CourseDependentBean implements Serializable {
 
@@ -69,7 +69,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		courseTitle = currentSection.getCourse().getTitle();
 		
 		// Get the current users in the manager role for this section
-		List selectedManagers = getSectionAwareness().getSectionMembersInRole(currentSection.getUuid(), RoleImpl.TA);
+		List selectedManagers = getSectionAwareness().getSectionMembersInRole(currentSection.getUuid(), Role.TA);
 		
 		// Build the list of items for the right-side list box
 		selectedUsers = new ArrayList();
@@ -91,7 +91,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 			selectedUserUuids.add(manager.getUser().getUserUuid());
 		}
 
-		List availableManagers = getSectionAwareness().getSiteMembersInRole(getSiteContext(), RoleImpl.STUDENT);
+		List availableManagers = getSectionAwareness().getSiteMembersInRole(getSiteContext(), Role.TA);
 
 		availableUsers = new ArrayList();
 		for(Iterator iter = availableManagers.iterator(); iter.hasNext();) {
@@ -104,7 +104,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	
 	public String update() {
 		Set userUuids = getHighlightedUsers("memberForm:selectedUsers");
-		getSectionManager().setSectionMemberships(userUuids, RoleImpl.TA, sectionUuid);
+		getSectionManager().setSectionMemberships(userUuids, Role.TA, sectionUuid);
 
 		return null;
 		

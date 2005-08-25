@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -22,28 +22,23 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.api.section.coursemanagement;
+package org.sakaiproject.component.section.facade.impl.sakai;
 
-/**
- * Represents the schedule for a CourseSection.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
- *
- */
-public interface CourseSectionSchedule {
-	public boolean isMonday();
-	public boolean isTuesday();
-	public boolean isWednesday();
-	public boolean isThursday();
-	public boolean isFriday();
-	public boolean isSaturday();
-	public boolean isSunday();
-	
-	public String getStartTime();
-	public boolean isStartTimeAm();
+import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.api.section.facade.manager.Authz;
 
-	public String getEndTime();
-	public boolean isEndTimeAm();
+public class AuthzSakaiImpl implements Authz {
+
+	public Role getSiteRole(String userUuid, String siteContext) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Role getSectionRole(String userUuid, String sectionUuid) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
 
 

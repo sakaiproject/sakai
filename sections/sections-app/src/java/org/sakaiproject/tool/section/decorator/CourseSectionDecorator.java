@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -23,6 +23,10 @@
 **********************************************************************************/
 
 package org.sakaiproject.tool.section.decorator;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -51,28 +55,123 @@ public class CourseSectionDecorator {
 	public String getCategoryForDisplay() {
 		return categoryForDisplay;
 	}
+	
+	public String getMeetingTimes() {
+		// TODO Does this need to be internationalized?
+		
+		StringBuffer sb = new StringBuffer();
+		for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
+			String day = (String)iter.next();
+			sb.append(day);
+			if(iter.hasNext()) {
+				sb.append(",");
+			}
+		}
+		
+		sb.append(" ");
+		sb.append(section.getStartTime());
+		if(section.isStartTimeAm()) {
+			sb.append("am");
+		} else {
+			sb.append("pm");
+		}
+		sb.append("-");
+		sb.append(section.getEndTime());
+		if(section.isEndTimeAm()) {
+			sb.append("am");
+		} else {
+			sb.append("pm");
+		}
+		
+		return sb.toString();
+	}
 
+	private List getDayList() {
+		List list = new ArrayList();
+		if(section.isMonday())
+			list.add("M");
+		if(section.isTuesday())
+			list.add("T");
+		if(section.isWednesday())
+			list.add("W");
+		if(section.isThursday())
+			list.add("Th");
+		if(section.isFriday())
+			list.add("F");
+		if(section.isSaturday())
+			list.add("Sa");
+		if(section.isSunday())
+			list.add("Su");
+		return list;
+	}
+	
 	// Delegate methods
 	public String getCategory() {
 		return section.getCategory();
 	}
-	public String getMeetingTimes() {
-		return section.getMeetingTimes();
-	}
-	public String getUuid() {
-		return section.getUuid();
-	}
-	public String getTitle() {
-		return section.getTitle();
-	}
+
 	public Course getCourse() {
 		return section.getCourse();
 	}
+
+	public String getEndTime() {
+		return section.getEndTime();
+	}
+
 	public String getLocation() {
 		return section.getLocation();
 	}
+
 	public int getMaxEnrollments() {
 		return section.getMaxEnrollments();
+	}
+
+	public String getStartTime() {
+		return section.getStartTime();
+	}
+
+	public String getTitle() {
+		return section.getTitle();
+	}
+
+	public String getUuid() {
+		return section.getUuid();
+	}
+
+	public boolean isEndTimeAm() {
+		return section.isEndTimeAm();
+	}
+
+	public boolean isFriday() {
+		return section.isFriday();
+	}
+
+	public boolean isMonday() {
+		return section.isMonday();
+	}
+
+	public boolean isSaturday() {
+		return section.isSaturday();
+	}
+
+	public boolean isStartTimeAm() {
+		return section.isStartTimeAm();
+	}
+
+	public boolean isSunday() {
+		return section.isSunday();
+	}
+
+	public boolean isThursday() {
+		return section.isThursday();
+	}
+
+	public boolean isTuesday() {
+		return section.isTuesday();
+	}
+
+	public boolean isWednesday() {
+		return section.isWednesday();
 	}
 	
 }

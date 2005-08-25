@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -112,8 +112,8 @@ public class SampleBean extends CourseDependentBean implements Serializable {
     //// Action events
     public void processCreateSection(ActionEvent e) {
         if(log.isInfoEnabled()) log.info("Creating section with title = " + title);        
-        getSectionManager().addSection(courseOfferingUuid, title, "M,W,F 9-10am", 2,
-        		"117 Dwinelle", category);
+        getSectionManager().addSection(courseOfferingUuid, title, category, 2,
+        		"Someplace", "10:00", true, "12:00", false, true, false, true, false, false, false, false);
     }
     
     //// Bean getters / setters for UI

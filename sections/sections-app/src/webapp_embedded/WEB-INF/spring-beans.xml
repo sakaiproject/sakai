@@ -79,6 +79,9 @@
 	<bean id="org.sakaiproject.api.section.facade.manager.Authn"
 		class="org.sakaiproject.component.section.facade.impl.sakai.AuthnSakaiImpl"/>
 
+    <bean id="org.sakaiproject.api.section.facade.manager.Authz"
+        class="org.sakaiproject.component.section.facade.impl.sakai.AuthzSakaiImpl"/>
+
 	<bean id="org.sakaiproject.api.section.facade.manager.Context"
 		class="org.sakaiproject.component.section.facade.impl.sakai.ContextSakaiImpl"/>
 

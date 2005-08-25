@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -48,7 +48,6 @@ import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Context;
 import org.sakaiproject.api.section.facade.manager.UserDirectory;
-import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 import org.sakaiproject.tool.section.CourseImpl;
 import org.sakaiproject.tool.section.CourseSectionImpl;
 import org.sakaiproject.tool.section.EnrollmentRecordImpl;
@@ -243,7 +242,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	}
 	
 	public List getTeachingAssistants(String sectionUuid) {
-		return sectionAwareness.getSectionMembersInRole(sectionUuid, RoleImpl.TA);
+		return sectionAwareness.getSectionMembersInRole(sectionUuid, Role.TA);
 	}
 
 	public void setSectionMemberships(final Set userUuids, final Role role, final String sectionUuid) {
@@ -344,7 +343,11 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	}
 
     public CourseSection addSection(final String courseUuid, final String title,
-            final String meetingTimes, final int maxEnrollments, final String location, final String category) {
+    		final String category, final int maxEnrollments,
+    		final String location, final String startTime, final boolean startTimeAm,
+    		final String endTime, final boolean endTimeAm, final boolean monday,
+    		final boolean tuesday, final boolean wednesday, final boolean thursday,
+    		final boolean friday, final boolean saturday, final boolean sunday) {
     	final String uuid = uuidManager.createUuid();
         if(log.isDebugEnabled()) log.debug("Creating section with uuid = " + uuid);
         HibernateCallback hc = new HibernateCallback(){
@@ -354,7 +357,8 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             		throw new MembershipException("Course uuid = " + courseUuid + "does not exist");
             	}
             	String uuid = uuidManager.createUuid();
-            	CourseSectionImpl section = new CourseSectionImpl(course, title, category, meetingTimes, location, uuid, maxEnrollments);
+            	CourseSectionImpl section = new CourseSectionImpl(course, title, uuid, category, maxEnrollments, location, startTime, startTimeAm,
+            			endTime, endTimeAm, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
             	session.save(section);
                 return section;
             }
@@ -363,17 +367,31 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (CourseSection)getHibernateTemplate().execute(hc);
     }
 
-	public void updateSection(final String sectionUuid, final String title,
-			final String meetingTimes, final String location,
-			final String category, final int maxEnrollments) {
+    public void updateSection(final String sectionUuid, final String title,
+    		final String category, final int maxEnrollments,
+    		final String location, final String startTime, final boolean startTimeAm,
+    		final String endTime, final boolean endTimeAm, final boolean monday,
+    		final boolean tuesday, final boolean wednesday, final boolean thursday,
+    		final boolean friday, final boolean saturday, final boolean sunday) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSectionImpl section = getSection(sectionUuid, session);
             	section.setTitle(title);
-            	section.setMeetingTimes(meetingTimes);
-            	section.setLocation(location);
             	section.setCategory(category);
             	section.setMaxEnrollments(maxEnrollments);
+            	section.setLocation(location);
+            	section.setStartTime(startTime);
+            	section.setStartTimeAm(startTimeAm);
+            	section.setEndTime(endTime);
+            	section.setEndTimeAm(endTimeAm);
+            	section.setMonday(monday);
+            	section.setTuesday(tuesday);
+            	section.setWednesday(wednesday);
+            	section.setThursday(thursday);
+            	section.setFriday(friday);
+            	section.setSaturday(saturday);
+            	section.setSunday(sunday);
+            	
             	session.update(section);
             	return null;
             }

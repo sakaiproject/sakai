@@ -28,10 +28,20 @@
         <joined-subclass name="org.sakaiproject.tool.section.CourseSectionImpl" table="SEC_SECTION_T">
             <key column="ID"/>
             <many-to-one name="course" column="COURSE_ID" class="org.sakaiproject.tool.section.CourseImpl"/>
-            <property name="meetingTimes" column="MEETING_TIMES" type="string"/>
             <property name="location" column="LOCATION" type="string"/>
             <property name="category" column="CATEGORY" type="string"/>
             <property name="maxEnrollments" column="MAX_ENROLLMENTS" type="int"/>
+            <property name="monday" column="MONDAY" type="boolean"/>
+            <property name="tuesday" column="TUESDAY" type="boolean"/>
+            <property name="wednesday" column="WEDNESDAY" type="boolean"/>
+            <property name="thursday" column="THURSDAY" type="boolean"/>
+            <property name="friday" column="FRIDAY" type="boolean"/>
+            <property name="saturday" column="SATURDAY" type="boolean"/>
+            <property name="sunday" column="SUNDAY" type="boolean"/>
+            <property name="startTime" column="START_TIME" type="string"/>
+            <property name="startTimeAm" column="START_TIME_AM" type="boolean"/>
+            <property name="endTime" column="END_TIME" type="string"/>
+            <property name="endTimeAm" column="END_TIME_AM" type="boolean"/>
         </joined-subclass>
 
     </class>

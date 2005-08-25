@@ -22,32 +22,62 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.test.section.manager;
+package org.sakaiproject.tool.section.facade.impl.standalone;
 
 import java.sql.SQLException;
 
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.tool.section.UserImpl;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.api.section.facade.manager.Authz;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class UserManagerHibernateImpl extends HibernateDaoSupport implements UserManager {
+/**
+ * A standalone, hibernate-based implementation of the Authz facade.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
+public class AuthzStandaloneImpl extends HibernateDaoSupport implements Authz {
+	private static final Log log = LogFactory.getLog(AuthzStandaloneImpl.class);
 
-	public User createUser(final String userUuid, final String displayName,
-			final String sortName, final String displayId) {
+	public Role getSiteRole(final String userUuid, final String siteContext) {
 		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				UserImpl user = new UserImpl(displayName, displayId, sortName, userUuid);
-				session.save(user);
-				return user;
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery("loadSiteParticipation");
+				q.setParameter("userUuid", userUuid);
+				q.setParameter("siteContext", siteContext);
+				return q.uniqueResult();
 			}
 		};
-		return (User)getHibernateTemplate().execute(hc);
+		Object result = getHibernateTemplate().execute(hc);
+		if(result == null) {
+			return Role.NONE;
+		}
+		return((ParticipationRecord)result).getRole();
 	}
 
+	public Role getSectionRole(final String userUuid, final String sectionUuid) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery("loadSectionParticipation");
+				q.setParameter("userUuid", userUuid);
+				q.setParameter("sectionUuid", sectionUuid);
+				return q.uniqueResult();
+			}
+		};
+		ParticipationRecord record = (ParticipationRecord)getHibernateTemplate().execute(hc);
+		if(record == null) {
+			return Role.NONE;
+		}
+		return record.getRole();
+	}
 }
 
 

@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -30,7 +30,6 @@ import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 
 public class EnrollmentRecordImpl extends ParticipationRecordImpl implements EnrollmentRecord, Serializable {
 
@@ -51,7 +50,7 @@ public class EnrollmentRecordImpl extends ParticipationRecordImpl implements Enr
 	}
 
 	public Role getRole() {
-		return RoleImpl.STUDENT;
+		return Role.STUDENT;
 	}
 
 	public String getStatus() {

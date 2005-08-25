@@ -18,6 +18,7 @@ var availableUsers;
 function prepMemberForm() {
     if(document.getElementById("memberForm")) {
         populateLists();
+        unHighlightUsers();
     }
 }
 
@@ -108,5 +109,19 @@ function highlightUsers() {
     var selectBox = document.getElementById("memberForm:availableUsers");
     for(var i = 0; i < selectBox.length; i++) {
         selectBox.options[i].selected = true;
+    }
+}
+
+function unHighlightUsers() {
+    // Unselect all of the selected users, so they are clear on page load
+    var selectBox = document.getElementById("memberForm:selectedUsers");
+    for(var i = 0; i < selectBox.length; i++) {
+        selectBox.options[i].selected = false;
+    }
+
+    // Unselect all of the available users, so they are clear on page load
+    var selectBox = document.getElementById("memberForm:availableUsers");
+    for(var i = 0; i < selectBox.length; i++) {
+        selectBox.options[i].selected = false;
     }
 }

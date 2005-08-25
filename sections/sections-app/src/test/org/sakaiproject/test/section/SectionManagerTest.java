@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -41,8 +41,8 @@ import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
+import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.test.section.manager.UserManager;
 import org.sakaiproject.tool.section.facade.impl.standalone.AuthnTestImpl;
@@ -92,10 +92,10 @@ public class SectionManagerTest extends SectionsTestBase{
     	String firstCategory = (String)categories.get(0);
     	String secondCategory = (String)categories.get(1);
     	String thirdCategory = (String)categories.get(2);
-    	CourseSection sec1 = secMgr.addSection(course.getUuid(), "A section", "W,F 9-10AM", 100, "117 Dwinelle", firstCategory);
-    	CourseSection sec2 = secMgr.addSection(course.getUuid(), "Another section", "T,Th 9-10AM", 100, "117 Dwinelle", firstCategory);
-    	CourseSection sec3 = secMgr.addSection(course.getUuid(), "A different kind of section", "24/7", 100, "117 Dwinelle", secondCategory);
-    	CourseSection sec4 = secMgr.addSection(course.getUuid(), "Barely even a section", "never", 100, "117 Dwinelle", thirdCategory);
+    	CourseSection sec1 = secMgr.addSection(course.getUuid(), "A section", firstCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
+    	CourseSection sec2 = secMgr.addSection(course.getUuid(), "Another section", firstCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
+    	CourseSection sec3 = secMgr.addSection(course.getUuid(), "A different kind of section", secondCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
+    	CourseSection sec4 = secMgr.addSection(course.getUuid(), "Barely even a section", thirdCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
     	
 		// Load students
 		User student1 = userMgr.createUser("student1", "Joe Student", "Student, Joe", "jstudent");
@@ -118,16 +118,16 @@ public class SectionManagerTest extends SectionsTestBase{
 		ParticipationRecord siteEnrollment3 = courseMgr.addEnrollment(otherPerson, course);
 		
 		// Load enrollments into sections
-		ParticipationRecord sectionEnrollment1 = secMgr.addSectionMembership("student1", RoleImpl.STUDENT, sec1.getUuid());
-		ParticipationRecord sectionEnrollment2 = secMgr.addSectionMembership("student2", RoleImpl.STUDENT, sec1.getUuid());
+		ParticipationRecord sectionEnrollment1 = secMgr.addSectionMembership("student1", Role.STUDENT, sec1.getUuid());
+		ParticipationRecord sectionEnrollment2 = secMgr.addSectionMembership("student2", Role.STUDENT, sec1.getUuid());
 		
 		// Load TAs into the course
 		ParticipationRecord siteTaRecord1 = courseMgr.addTA(ta1, course);
 		ParticipationRecord siteTaRecord2 = courseMgr.addTA(ta2, course);
 		
 		// Load TAs into the sections
-		ParticipationRecord sectionTaRecord1 = secMgr.addSectionMembership("ta1", RoleImpl.TA, sec1.getUuid());
-		ParticipationRecord sectionTaRecord2 = secMgr.addSectionMembership("ta2", RoleImpl.TA, sec1.getUuid());
+		ParticipationRecord sectionTaRecord1 = secMgr.addSectionMembership("ta1", Role.TA, sec1.getUuid());
+		ParticipationRecord sectionTaRecord2 = secMgr.addSectionMembership("ta2", Role.TA, sec1.getUuid());
 		
 		// Load instructors into the courses
 		ParticipationRecord siteInstructorRecord1 = courseMgr.addInstructor(instructor1, course);
@@ -136,7 +136,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		authn.setUserUuid("other1");
 		EnrollmentRecord sectionEnrollment3 = secMgr.joinSection(sec1.getUuid());
 
-		List enrollments = secAware.getSectionMembersInRole(sec1.getUuid(), RoleImpl.STUDENT);
+		List enrollments = secAware.getSectionMembersInRole(sec1.getUuid(), Role.STUDENT);
 		Assert.assertTrue(enrollments.contains(sectionEnrollment3));
 		
 		// Assert that an enrolled student can not add themselves again
@@ -160,7 +160,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		Assert.assertTrue(switchingErrorThrown);
 		
 		// Add otherPerson to the section in the third category.  This is the only enrollment in this section or category.
-		secMgr.addSectionMembership(otherPerson.getUserUuid(), RoleImpl.STUDENT, sec4.getUuid());
+		secMgr.addSectionMembership(otherPerson.getUserUuid(), Role.STUDENT, sec4.getUuid());
 		
 		// Assert that the third category's unsectioned students returns the two students
 		List unsectionedEnrollments = secMgr.getUnsectionedEnrollments(course.getUuid(), thirdCategory);
@@ -176,7 +176,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		// Assert that an instructor can not be added to a section
 		boolean instructorErrorThrown = false;
 		try {
-			secMgr.addSectionMembership(instructor1.getUserUuid(), RoleImpl.INSTRUCTOR, sec1.getUuid());
+			secMgr.addSectionMembership(instructor1.getUserUuid(), Role.INSTRUCTOR, sec1.getUuid());
 		} catch (MembershipException me) {
 			instructorErrorThrown = true;
 		}
@@ -186,8 +186,8 @@ public class SectionManagerTest extends SectionsTestBase{
 		Set set = new HashSet();
 		set.add(student1.getUserUuid());
 		set.add(student2.getUserUuid());
-		secMgr.setSectionMemberships(set, RoleImpl.STUDENT, sec4.getUuid());
-		List sectionMemberships = secAware.getSectionMembersInRole(sec4.getUuid(), RoleImpl.STUDENT);
+		secMgr.setSectionMemberships(set, Role.STUDENT, sec4.getUuid());
+		List sectionMemberships = secAware.getSectionMembersInRole(sec4.getUuid(), Role.STUDENT);
 		Set sectionMembers = new HashSet();
 		for(Iterator iter = sectionMemberships.iterator(); iter.hasNext();) {
 			sectionMembers.add(((ParticipationRecord)iter.next()).getUser());
@@ -207,7 +207,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		Assert.assertTrue(secMgr.getTotalEnrollments(sec1.getUuid()) == 2);
 		
 		// Ensure that a section can be updated
-		secMgr.updateSection(sec1.getUuid(), "New title", null, null, secondCategory, 10);
+		secMgr.updateSection(sec1.getUuid(), "New title", secondCategory, 10, null, null, false, null, false, false, false, false, false, false, false, false);
 		CourseSection updatedSec = secAware.getSection(sec1.getUuid());
 		Assert.assertTrue(updatedSec.getTitle().equals("New title"));
 		Assert.assertTrue(updatedSec.getCategory().equals(secondCategory));
@@ -219,8 +219,8 @@ public class SectionManagerTest extends SectionsTestBase{
 		
 		
 		// Assert that the correct enrollment records are returned for a student in a course
-		ParticipationRecord enrollment1 = secMgr.addSectionMembership(student1.getUserUuid(), RoleImpl.STUDENT, sec1.getUuid());
-		ParticipationRecord enrollment2 = secMgr.addSectionMembership(student1.getUserUuid(), RoleImpl.STUDENT, sec3.getUuid());
+		ParticipationRecord enrollment1 = secMgr.addSectionMembership(student1.getUserUuid(), Role.STUDENT, sec1.getUuid());
+		ParticipationRecord enrollment2 = secMgr.addSectionMembership(student1.getUserUuid(), Role.STUDENT, sec3.getUuid());
 		Set myEnrollments = secMgr.getSectionEnrollments(student1.getUserUuid(), course.getUuid());
 		
 		Assert.assertTrue(myEnrollments.contains(enrollment1));

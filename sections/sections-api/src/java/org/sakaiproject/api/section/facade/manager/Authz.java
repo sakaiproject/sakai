@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -21,44 +21,21 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-package org.sakaiproject.test.section;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+package org.sakaiproject.api.section.facade.manager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.section.CourseSectionScheduleImpl;
+import org.sakaiproject.api.section.facade.Role;
 
 /**
- * Tests the day/time parsing of CourseSectionScheduleImpl.
+ * A facade that provides answers to the section manager's authorization questions.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class CourseSectionScheduleTest extends TestCase {
-	private static final Log log = LogFactory.getLog(CourseSectionScheduleTest.class);
+public interface Authz {
+	public Role getSiteRole(String userUuid, String siteContext);
 	
-
-    public void testParseMeetingTimes() throws Exception {
-    	String meetingTimes = "MON,WED,FRI@9:00am,5:00pm";
-    	CourseSectionScheduleImpl schedule = new CourseSectionScheduleImpl(meetingTimes);
-
-    	Assert.assertTrue(schedule.isMonday());
-    	Assert.assertTrue(schedule.isWednesday());
-    	Assert.assertTrue(schedule.isFriday());
-
-    	Assert.assertTrue( ! schedule.isTuesday());
-    	Assert.assertTrue( ! schedule.isThursday());
-    	Assert.assertTrue( ! schedule.isSaturday());
-    	Assert.assertTrue( ! schedule.isSunday());
-    	
-    	Assert.assertTrue(schedule.getStartTime().equals("9:00"));
-    	Assert.assertTrue(schedule.getEndTime().equals("5:00"));
-    	
-    	Assert.assertTrue(schedule.isStartTimeAm());
-    	Assert.assertTrue( ! schedule.isEndTimeAm());
-    }
+	public Role getSectionRole(String userUuid, String sectionUuid);
 }
 
 

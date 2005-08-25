@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -25,12 +25,23 @@ package org.sakaiproject.api.section.coursemanagement;
 
 public interface CourseSection extends LearningContext {
 	public Course getCourse();
-	public String getMeetingTimes();
     public String getLocation();
     public String getCategory();
     public int getMaxEnrollments();
     
-    public CourseSectionSchedule getSchedule();
+	public boolean isMonday();
+	public boolean isTuesday();
+	public boolean isWednesday();
+	public boolean isThursday();
+	public boolean isFriday();
+	public boolean isSaturday();
+	public boolean isSunday();
+	
+	public String getStartTime();
+	public boolean isStartTimeAm();
+
+	public String getEndTime();
+	public boolean isEndTimeAm();
 }
 
 

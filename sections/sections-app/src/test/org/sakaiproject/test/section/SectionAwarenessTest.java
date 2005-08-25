@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -36,8 +36,8 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.test.section.manager.UserManager;
 import org.sakaiproject.tool.section.manager.SectionManager;
@@ -76,7 +76,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	Course course = secMgr.getCourse(siteContext);
     	
     	String firstCategory = (String)categories.get(0);
-    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", "W,F 9-10AM", 100, "117 Dwinelle", firstCategory);
+    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
 
     	// Assert that the course exists at this context
     	Assert.assertTrue(secMgr.getCourse(siteContext).getUuid().equals(course.getUuid()));
@@ -106,7 +106,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	courseMgr.createCourse(siteContext, "A course", false, false, false);
     	Course course = secMgr.getCourse(siteContext);
     	String firstCategory = (String)categories.get(0);
-    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", "W,F 9-10AM", 100, "117 Dwinelle", firstCategory);
+    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
     	
 		// Load students
 		User student1 = userMgr.createUser("student1", "Joe Student", "Student, Joe", "jstudent");
@@ -128,34 +128,34 @@ public class SectionAwarenessTest extends SectionsTestBase{
 		ParticipationRecord siteEnrollment2 = courseMgr.addEnrollment(student2, course);
 		
 		// Load enrollments into sections
-		ParticipationRecord sectionEnrollment1 = secMgr.addSectionMembership("student1", RoleImpl.STUDENT, sec.getUuid());
-		ParticipationRecord sectionEnrollment2 = secMgr.addSectionMembership("student2", RoleImpl.STUDENT, sec.getUuid());
+		ParticipationRecord sectionEnrollment1 = secMgr.addSectionMembership("student1", Role.STUDENT, sec.getUuid());
+		ParticipationRecord sectionEnrollment2 = secMgr.addSectionMembership("student2", Role.STUDENT, sec.getUuid());
 		
 		// Load TAs into the course
 		ParticipationRecord siteTaRecord1 = courseMgr.addTA(ta1, course);
 		ParticipationRecord siteTaRecord2 = courseMgr.addTA(ta2, course);
 		
 		// Load TAs into the sections
-		ParticipationRecord sectionTaRecord1 = secMgr.addSectionMembership("ta1", RoleImpl.TA, sec.getUuid());
-		ParticipationRecord sectionTaRecord2 = secMgr.addSectionMembership("ta2", RoleImpl.TA, sec.getUuid());
+		ParticipationRecord sectionTaRecord1 = secMgr.addSectionMembership("ta1", Role.TA, sec.getUuid());
+		ParticipationRecord sectionTaRecord2 = secMgr.addSectionMembership("ta2", Role.TA, sec.getUuid());
 		
 		// Load instructors into the courses
 		ParticipationRecord siteInstructorRecord1 = courseMgr.addInstructor(instructor1, course);
     	
     	// Assert that section awareness can find site members for each role
-		List siteInstructors = secAware.getSiteMembersInRole(siteContext, RoleImpl.INSTRUCTOR);
+		List siteInstructors = secAware.getSiteMembersInRole(siteContext, Role.INSTRUCTOR);
     	Assert.assertTrue(siteInstructors.contains(siteInstructorRecord1));
     	
-		List siteEnrollments = secAware.getSiteMembersInRole(siteContext, RoleImpl.STUDENT);
+		List siteEnrollments = secAware.getSiteMembersInRole(siteContext, Role.STUDENT);
     	Assert.assertTrue(siteEnrollments.contains(siteEnrollment1));
     	Assert.assertTrue(siteEnrollments.contains(siteEnrollment2));
     	
-		List siteTAs = secAware.getSiteMembersInRole(siteContext, RoleImpl.TA);
+		List siteTAs = secAware.getSiteMembersInRole(siteContext, Role.TA);
     	Assert.assertTrue(siteTAs.contains(siteTaRecord1));
     	Assert.assertTrue(siteTAs.contains(siteTaRecord2));
     	
     	// Assert that section awareness can find site members matching a string pattern in a role
-    	List membersMatchingSearch = secAware.findSiteMembersInRole(siteContext, RoleImpl.STUDENT, "student");
+    	List membersMatchingSearch = secAware.findSiteMembersInRole(siteContext, Role.STUDENT, "student");
     	Assert.assertTrue(membersMatchingSearch.contains(siteEnrollment1));
     	Assert.assertTrue( ! membersMatchingSearch.contains(siteEnrollment2));
 
@@ -174,11 +174,11 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	Assert.assertTrue( ! allSectionMembers.contains(siteInstructorRecord1));
     	
     	// Assert that section awareness can find section members for each role
-    	List studentSectionRecords = secAware.getSectionMembersInRole(sec.getUuid(), RoleImpl.STUDENT);
+    	List studentSectionRecords = secAware.getSectionMembersInRole(sec.getUuid(), Role.STUDENT);
     	Assert.assertTrue(studentSectionRecords.contains(sectionEnrollment1));
     	Assert.assertTrue(studentSectionRecords.contains(sectionEnrollment2));
     	
-    	List taSectionRecords = secAware.getSectionMembersInRole(sec.getUuid(), RoleImpl.TA);
+    	List taSectionRecords = secAware.getSectionMembersInRole(sec.getUuid(), Role.TA);
     	Assert.assertTrue(taSectionRecords.contains(sectionTaRecord1));
     	Assert.assertTrue(taSectionRecords.contains(sectionTaRecord2));
     }

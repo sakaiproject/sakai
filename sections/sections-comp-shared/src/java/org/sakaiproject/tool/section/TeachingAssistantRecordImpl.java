@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -27,9 +27,10 @@ package org.sakaiproject.tool.section;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
 
 public class TeachingAssistantRecordImpl extends ParticipationRecordImpl {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * No-arg constructor needed for hibernate
@@ -43,7 +44,7 @@ public class TeachingAssistantRecordImpl extends ParticipationRecordImpl {
 	}
 
 	public Role getRole() {
-		return RoleImpl.TA;
+		return Role.TA;
 	}
 
 }

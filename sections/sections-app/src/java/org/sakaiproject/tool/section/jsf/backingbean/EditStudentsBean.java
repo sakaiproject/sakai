@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -41,7 +41,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.component.section.facade.impl.sakai.RoleImpl;
+import org.sakaiproject.api.section.facade.Role;
 
 public class EditStudentsBean extends CourseDependentBean implements Serializable {
 
@@ -73,7 +73,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		sectionTitle = currentSection.getTitle();
 		
 		// Get the current users
-		List enrollments = getSectionAwareness().getSectionMembersInRole(currentSection.getUuid(), RoleImpl.STUDENT);
+		List enrollments = getSectionAwareness().getSectionMembersInRole(currentSection.getUuid(), Role.STUDENT);
 		
 		// Build the list of items for the right-side list box
 		selectedUsers = new ArrayList();
@@ -89,7 +89,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		if(StringUtils.trimToNull(availableSectionUuid) == null) {
 			available = getSectionManager().getUnsectionedEnrollments(currentSection.getCourse().getUuid(), currentSection.getCategory());
 		} else {
-			available = getSectionAwareness().getSectionMembersInRole(availableSectionUuid, RoleImpl.STUDENT);
+			available = getSectionAwareness().getSectionMembersInRole(availableSectionUuid, Role.STUDENT);
 		}
 		availableUsers = new ArrayList();
 		for(Iterator iter = available.iterator(); iter.hasNext();) {
@@ -119,12 +119,12 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	
 	public String update() {
 		Set userUuids = getHighlightedUsers("memberForm:selectedUsers");
-		getSectionManager().setSectionMemberships(userUuids, RoleImpl.STUDENT, sectionUuid);
+		getSectionManager().setSectionMemberships(userUuids, Role.STUDENT, sectionUuid);
 		
 		// If the "available" box is a section, update that section's members as well
 		if(StringUtils.trimToNull(availableSectionUuid) != null) {
 			userUuids = getHighlightedUsers("memberForm:availableUsers");
-			getSectionManager().setSectionMemberships(userUuids, RoleImpl.STUDENT, availableSectionUuid);
+			getSectionManager().setSectionMemberships(userUuids, Role.STUDENT, availableSectionUuid);
 		}
 		
 		return null;

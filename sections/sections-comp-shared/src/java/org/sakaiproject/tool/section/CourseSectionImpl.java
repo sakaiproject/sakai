@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -24,10 +24,11 @@
 package org.sakaiproject.tool.section;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.CourseSectionSchedule;
 
 public class CourseSectionImpl extends LearningContextImpl implements CourseSection, Serializable {
 
@@ -35,30 +36,51 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	
 	protected Course course;
 	protected String category;
-    protected String meetingTimes;
     protected String location;
     protected int maxEnrollments;
+    
+    // TODO Replace this with a scheduling service
+	public boolean monday;
+	public boolean tuesday;
+	public boolean wednesday;
+	public boolean thursday;
+	public boolean friday;
+	public boolean saturday;
+	public boolean sunday;
+	public String startTime;
+	public boolean startTimeAm;
+	public String endTime;
+	public boolean endTimeAm;
 
     public CourseSectionImpl() {
     	// Default constructor needed by hibernate
     }
 
-    public CourseSectionImpl(Course course, String title, String category, String meetingTimes, String location, String uuid, int maxEnrollments) {
+
+    public CourseSectionImpl(Course course, String title, String uuid, String category,
+    		int maxEnrollments, String location, String startTime, boolean startTimeAm,
+    		String endTime, boolean endTimeAm, boolean monday, boolean tuesday,
+    		boolean wednesday, boolean thursday, boolean friday, boolean saturday,
+    		boolean sunday) {
 		this.course = course;
 		this.title = title;
-		this.category = category;
-		this.meetingTimes = meetingTimes;
-		this.location = location;
 		this.uuid = uuid;
+		this.category = category;
 		this.maxEnrollments = maxEnrollments;
+		this.location = location;
+		this.startTime = startTime;
+		this.startTimeAm = startTimeAm;
+		this.endTime = endTime;
+		this.endTimeAm = endTimeAm;
+		this.monday = monday;
+		this.tuesday = tuesday;
+		this.wednesday = wednesday;
+		this.thursday = thursday;
+		this.friday = friday;
+		this.saturday = saturday;
+		this.sunday = sunday;
 	}
 
-	public String getMeetingTimes() {
-        return meetingTimes;
-    }
-    public void setMeetingTimes(String meetingTimes) {
-        this.meetingTimes = meetingTimes;
-    }
 	public String getCategory() {
 		return category;
 	}
@@ -70,6 +92,24 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	}
 	public void setCourse(Course course) {
 		this.course = course;
+	}
+	public String getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+	public boolean isEndTimeAm() {
+		return endTimeAm;
+	}
+	public void setEndTimeAm(boolean endTimeAm) {
+		this.endTimeAm = endTimeAm;
+	}
+	public boolean isFriday() {
+		return friday;
+	}
+	public void setFriday(boolean friday) {
+		this.friday = friday;
 	}
 	public String getLocation() {
 		return location;
@@ -83,9 +123,53 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	public void setMaxEnrollments(int maxEnrollments) {
 		this.maxEnrollments = maxEnrollments;
 	}
-
-	public CourseSectionSchedule getSchedule() {
-		return new CourseSectionScheduleImpl(meetingTimes);
+	public boolean isMonday() {
+		return monday;
+	}
+	public void setMonday(boolean monday) {
+		this.monday = monday;
+	}
+	public boolean isSaturday() {
+		return saturday;
+	}
+	public void setSaturday(boolean saturday) {
+		this.saturday = saturday;
+	}
+	public String getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+	public boolean isStartTimeAm() {
+		return startTimeAm;
+	}
+	public void setStartTimeAm(boolean startTimeAm) {
+		this.startTimeAm = startTimeAm;
+	}
+	public boolean isSunday() {
+		return sunday;
+	}
+	public void setSunday(boolean sunday) {
+		this.sunday = sunday;
+	}
+	public boolean isThursday() {
+		return thursday;
+	}
+	public void setThursday(boolean thursday) {
+		this.thursday = thursday;
+	}
+	public boolean isTuesday() {
+		return tuesday;
+	}
+	public void setTuesday(boolean tuesday) {
+		this.tuesday = tuesday;
+	}
+	public boolean isWednesday() {
+		return wednesday;
+	}
+	public void setWednesday(boolean wednesday) {
+		this.wednesday = wednesday;
 	}
 }
 
