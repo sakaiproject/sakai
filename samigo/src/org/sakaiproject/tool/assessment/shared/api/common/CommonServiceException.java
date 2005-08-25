@@ -29,7 +29,7 @@ package org.sakaiproject.tool.assessment.shared.api.common;
  * <p> </p>
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * <p> </p>
- * @author Ed Smiley esmiley@stanford.edu
+ * @author Ed Smiley <esmiley@stanford.edu>
  */
 public class CommonServiceException extends RuntimeException
 {
