@@ -39,7 +39,7 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
     protected String location;
     protected int maxEnrollments;
     
-    // TODO Replace this with a scheduling service
+    // FIXME Replace this with a scheduling service
 	public boolean monday;
 	public boolean tuesday;
 	public boolean wednesday;

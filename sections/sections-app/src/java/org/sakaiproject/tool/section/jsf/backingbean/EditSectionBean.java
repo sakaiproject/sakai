@@ -38,10 +38,23 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 
 	private static final Log log = LogFactory.getLog(EditSectionBean.class);
 	
-	private String title;
 	private String sectionUuid;
+	private String title;
 	private String category;
+	private String location;
 	private int maxEnrollments;
+	private boolean monday;
+	private boolean tuesday;
+	private boolean wednesday;
+	private boolean thursday;
+	private boolean friday;
+	private boolean saturday;
+	private boolean sunday;
+	
+	private String startTime;
+	private String endTime;
+	private boolean startTimeAm;
+	private boolean endTimeAm;
 	
 	public void init() {
 		// Get the section to edit
@@ -50,16 +63,29 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		if(sectionUuidFromParam != null) {
 			sectionUuid = sectionUuidFromParam;
 		}
-		CourseSection section = getSectionAwareness().getSection(sectionUuid);
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+
 		title = section.getTitle();
 		category = section.getCategory();
+		location = section.getLocation();
 		maxEnrollments = section.getMaxEnrollments();
+		monday = section.isMonday();
+		tuesday = section.isTuesday();
+		wednesday = section.isWednesday();
+		thursday = section.isThursday();
+		friday = section.isFriday();
+		saturday = section.isSaturday();
+		sunday = section.isSunday();
+		startTime = section.getStartTime();
+		endTime = section.getEndTime();
+		startTimeAm = section.isStartTimeAm();
+		endTimeAm = section.isEndTimeAm();
 	}
 
 	public String update() {
-		// TODO Add the required fields to support the section metadata
 		getSectionManager().updateSection(sectionUuid, title, category, maxEnrollments,
-				null, null, false, null, false, false, false, false, false, false, false, false);
+				location, startTime, startTimeAm, endTime, endTimeAm, monday, tuesday,
+				wednesday, thursday, friday, saturday, sunday);
 		return "overview";
 	}
 	
@@ -74,6 +100,118 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	}
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+
+	public boolean isEndTimeAm() {
+		return endTimeAm;
+	}
+
+	public void setEndTimeAm(boolean endTimeAm) {
+		this.endTimeAm = endTimeAm;
+	}
+
+	public boolean isFriday() {
+		return friday;
+	}
+
+	public void setFriday(boolean friday) {
+		this.friday = friday;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public int getMaxEnrollments() {
+		return maxEnrollments;
+	}
+
+	public void setMaxEnrollments(int maxEnrollments) {
+		this.maxEnrollments = maxEnrollments;
+	}
+
+	public boolean isMonday() {
+		return monday;
+	}
+
+	public void setMonday(boolean monday) {
+		this.monday = monday;
+	}
+
+	public boolean isSaturday() {
+		return saturday;
+	}
+
+	public void setSaturday(boolean saturday) {
+		this.saturday = saturday;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	public boolean isStartTimeAm() {
+		return startTimeAm;
+	}
+
+	public void setStartTimeAm(boolean startTimeAm) {
+		this.startTimeAm = startTimeAm;
+	}
+
+	public boolean isSunday() {
+		return sunday;
+	}
+
+	public void setSunday(boolean sunday) {
+		this.sunday = sunday;
+	}
+
+	public boolean isThursday() {
+		return thursday;
+	}
+
+	public void setThursday(boolean thursday) {
+		this.thursday = thursday;
+	}
+
+	public boolean isTuesday() {
+		return tuesday;
+	}
+
+	public void setTuesday(boolean tuesday) {
+		this.tuesday = tuesday;
+	}
+
+	public boolean isWednesday() {
+		return wednesday;
+	}
+
+	public void setWednesday(boolean wednesday) {
+		this.wednesday = wednesday;
 	}
 }
 

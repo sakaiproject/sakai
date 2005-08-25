@@ -64,12 +64,12 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		if(sectionUuidFromParam != null) {
 			sectionUuid = sectionUuidFromParam;
 		}
-		CourseSection currentSection = getSectionAwareness().getSection(sectionUuid);
+		CourseSection currentSection = getSectionManager().getSection(sectionUuid);
 		sectionTitle = currentSection.getTitle();
 		courseTitle = currentSection.getCourse().getTitle();
 		
 		// Get the current users in the manager role for this section
-		List selectedManagers = getSectionAwareness().getSectionMembersInRole(currentSection.getUuid(), Role.TA);
+		List selectedManagers = getSectionManager().getSectionTeachingAssistants(currentSection.getUuid());
 		
 		// Build the list of items for the right-side list box
 		selectedUsers = new ArrayList();
@@ -91,7 +91,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 			selectedUserUuids.add(manager.getUser().getUserUuid());
 		}
 
-		List availableManagers = getSectionAwareness().getSiteMembersInRole(getSiteContext(), Role.TA);
+		List availableManagers = getSectionManager().getSiteTeachingAssistants(getSiteContext());
 
 		availableUsers = new ArrayList();
 		for(Iterator iter = availableManagers.iterator(); iter.hasNext();) {

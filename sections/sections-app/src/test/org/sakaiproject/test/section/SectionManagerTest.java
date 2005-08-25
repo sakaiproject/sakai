@@ -62,7 +62,6 @@ public class SectionManagerTest extends SectionsTestBase{
 	private AuthnTestImpl authn;
 	private Context context;
 	private SectionManager secMgr;
-	private SectionAwareness secAware;
 	private CourseManager courseMgr;
 	private UserManager userMgr;
 
@@ -72,15 +71,14 @@ public class SectionManagerTest extends SectionsTestBase{
         secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.SectionManager");
         courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseManager");
         userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.test.section.manager.UserManager");
-        secAware = secMgr.getSectionAwareness();
     }
 
     public void testSectionMembership() throws Exception {
 
-    	// TODO This test has become totally unruly.  Split it up, even though it will lead to a lot of duplication
+    	// FIXME This test has become totally unruly.  Split it up, even though it will lead to a lot of duplication
     	
     	String siteContext = context.getContext();
-    	List categories = secAware.getSectionCategories();
+    	List categories = secMgr.getSectionCategories();
     	
     	// Add a course and a section to work from
     	Course newCourse = courseMgr.createCourse(siteContext, "A course", false, false, false);
@@ -136,7 +134,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		authn.setUserUuid("other1");
 		EnrollmentRecord sectionEnrollment3 = secMgr.joinSection(sec1.getUuid());
 
-		List enrollments = secAware.getSectionMembersInRole(sec1.getUuid(), Role.STUDENT);
+		List enrollments = secMgr.getSectionEnrollments(sec1.getUuid());
 		Assert.assertTrue(enrollments.contains(sectionEnrollment3));
 		
 		// Assert that an enrolled student can not add themselves again
@@ -187,7 +185,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		set.add(student1.getUserUuid());
 		set.add(student2.getUserUuid());
 		secMgr.setSectionMemberships(set, Role.STUDENT, sec4.getUuid());
-		List sectionMemberships = secAware.getSectionMembersInRole(sec4.getUuid(), Role.STUDENT);
+		List sectionMemberships = secMgr.getSectionEnrollments(sec4.getUuid());
 		Set sectionMembers = new HashSet();
 		for(Iterator iter = sectionMemberships.iterator(); iter.hasNext();) {
 			sectionMembers.add(((ParticipationRecord)iter.next()).getUser());
@@ -199,7 +197,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		
 		// Drop a student from a section and ensure the enrollments reflect the drop (remember... student1 switched to sec2!)
 		secMgr.dropSectionMembership(student1.getUserUuid(), sec2.getUuid());
-		List sec2Members = secAware.getSectionMembers(sec2.getUuid());
+		List sec2Members = secMgr.getSectionEnrollments(sec2.getUuid());
 		Assert.assertTrue( ! sec2Members.contains(sectionEnrollment1));
 				
 		// Check whether the total enrollments in the course and in the sections is accurate
@@ -208,14 +206,14 @@ public class SectionManagerTest extends SectionsTestBase{
 		
 		// Ensure that a section can be updated
 		secMgr.updateSection(sec1.getUuid(), "New title", secondCategory, 10, null, null, false, null, false, false, false, false, false, false, false, false);
-		CourseSection updatedSec = secAware.getSection(sec1.getUuid());
+		CourseSection updatedSec = secMgr.getSection(sec1.getUuid());
 		Assert.assertTrue(updatedSec.getTitle().equals("New title"));
 		Assert.assertTrue(updatedSec.getCategory().equals(secondCategory));
 		sec1 = updatedSec;
 		
 		// Ensure that disbanding a section actually removes it from the course
 		secMgr.disbandSection(sec4.getUuid());
-		Assert.assertTrue( ! secAware.getSections(siteContext).contains(sec4));
+		Assert.assertTrue( ! secMgr.getSections(siteContext).contains(sec4));
 		
 		
 		// Assert that the correct enrollment records are returned for a student in a course
@@ -232,7 +230,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		studentUuids.add("student1");
 		studentUuids.add("student2");
 		studentUuids.add("other1");
-		SectionEnrollments secEnrollments = secMgr.getSectionEnrollments(siteContext, studentUuids);
+		SectionEnrollments secEnrollments = secMgr.getSectionEnrollmentsForStudents(siteContext, studentUuids);
 
 		// Student 1 is enrolled in section 3
 		Assert.assertTrue(secEnrollments.getSection("student1", firstCategory) == null);

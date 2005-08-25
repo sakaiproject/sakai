@@ -29,9 +29,13 @@
         <property name="userDirectory">
             <ref bean="org.sakaiproject.api.section.facade.manager.UserDirectory"/>
         </property>
-		<property name="sectionAwareness">
-			<ref bean="org.sakaiproject.api.section.SectionAwareness"/>
-		</property>
+        <property name="sectionCategoryList">
+            <list>
+                <value>section.category.lecture</value>
+                <value>section.category.discussion</value>
+                <value>section.category.lab</value>
+            </list>
+        </property>
 	</bean>
 
 </beans>

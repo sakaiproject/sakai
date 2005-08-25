@@ -42,6 +42,7 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class EditStudentsBean extends CourseDependentBean implements Serializable {
 
@@ -69,11 +70,11 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		if(sectionUuidFromParam != null) {
 			sectionUuid = sectionUuidFromParam;
 		}
-		CourseSection currentSection = getSectionAwareness().getSection(sectionUuid);
+		CourseSection currentSection = getSectionManager().getSection(sectionUuid);
 		sectionTitle = currentSection.getTitle();
 		
 		// Get the current users
-		List enrollments = getSectionAwareness().getSectionMembersInRole(currentSection.getUuid(), Role.STUDENT);
+		List enrollments = getSectionManager().getSectionEnrollments(currentSection.getUuid());
 		
 		// Build the list of items for the right-side list box
 		selectedUsers = new ArrayList();
@@ -89,7 +90,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		if(StringUtils.trimToNull(availableSectionUuid) == null) {
 			available = getSectionManager().getUnsectionedEnrollments(currentSection.getCourse().getUuid(), currentSection.getCategory());
 		} else {
-			available = getSectionAwareness().getSectionMembersInRole(availableSectionUuid, Role.STUDENT);
+			available = getSectionManager().getSectionEnrollments(availableSectionUuid);
 		}
 		availableUsers = new ArrayList();
 		for(Iterator iter = available.iterator(); iter.hasNext();) {
@@ -98,9 +99,9 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		}
 		
 		// Build the list of available sections
-		List sectionsInCategory = getSectionAwareness().getSectionsInCategory(getSiteContext(), currentSection.getCategory());
+		List sectionsInCategory = getSectionManager().getSectionsInCategory(getSiteContext(), currentSection.getCategory());
 		availableSectionItems = new ArrayList();
-		availableSectionItems.add(new SelectItem("", getLocalizedMessage("edit_student_unassigned")));
+		availableSectionItems.add(new SelectItem("", JsfUtil.getLocalizedMessage("edit_student_unassigned")));
 		for(Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
 			// Don't include the current section

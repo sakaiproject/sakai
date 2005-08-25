@@ -33,8 +33,8 @@ import java.util.Set;
 import javax.faces.context.FacesContext;
 import javax.faces.el.VariableResolver;
 
-import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.manager.SectionManager;
 
 public class CourseDependentBean extends InitializableBean implements Serializable {
@@ -52,28 +52,10 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return courseBean;
 	}
 	
-	protected Locale getLocale() {
-		return FacesContext.getCurrentInstance().getViewRoot().getLocale();
-	}
-	
-	protected String getLocalizedMessage(String key) {
-        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-        ResourceBundle rb = ResourceBundle.getBundle(bundleName, getLocale());
-        return rb.getString(key);
-	}
-	
-	protected List getTeachingAssistants(String sectionUuid) {
-		return getSectionManager().getTeachingAssistants(sectionUuid);
-	}
-	
 	protected SectionManager getSectionManager() {
 		return getCourseBean().getSectionManager();
 	}
 	
-	protected SectionAwareness getSectionAwareness() {
-		return getCourseBean().getSectionAwareness();
-	}
-
 	protected String getUserUuid() {
 		return getCourseBean().authn.getUserUuid();
 	}
@@ -83,26 +65,25 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 	
 	protected Course getCourse() {
-		String siteContext = getSiteContext();
-		return getCourseBean().sectionManager.getCourse(siteContext);
+		return getCourseBean().sectionManager.getCourse(getSiteContext());
 	}
 	
 	protected Set getAllSiteSections() {
-		String siteContext = getSiteContext();
-		return getCourseBean().sectionManager.getSectionAwareness().getSections(siteContext);
+		return getCourseBean().sectionManager.getSections(getSiteContext());
 	}
 
-	protected Set getEnrolledSections() {
+	protected Set getMyEnrolledSections() {
 		String userUuid = getUserUuid();
 		Course course = getCourse();
 		return getCourseBean().sectionManager.getSectionEnrollments(userUuid, course.getUuid());
 	}
+
 	protected String getCategoryName(String categoryId) {
-		return getCourseBean().sectionManager.getSectionAwareness().getCategoryName(categoryId, getLocale());
+		return getCourseBean().sectionManager.getCategoryName(categoryId, JsfUtil.getLocale());
 	}
 	
 	protected List getSectionCategories() {
-		return getCourseBean().sectionManager.getSectionAwareness().getSectionCategories();
+		return getCourseBean().sectionManager.getSectionCategories();
 	}
 }
 

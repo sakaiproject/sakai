@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
  * A sample jsf backing bean.
@@ -96,13 +97,12 @@ public class SampleBean extends CourseDependentBean implements Serializable {
         List categories = getSectionCategories();
         for(Iterator iter = categories.iterator(); iter.hasNext();) {
         	String category = (String)iter.next();
-        	String displayName = getSectionAwareness().getCategoryName(category, getLocale());
+        	String displayName = getSectionManager().getCategoryName(category, JsfUtil.getLocale());
         	categoryItems.add(new SelectItem(category, displayName));
         }
     }
     
     // Manually initialize the bean
-    // TODO Replace with flowState initialization
     public String getConfigureBean() {
         log.info("Manually configuring SampleBean");
         init();

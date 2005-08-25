@@ -54,7 +54,6 @@ public class AuthzTest extends SectionsTestBase{
 	private Authz authz;
 	private Context context;
 	private SectionManager secMgr;
-	private SectionAwareness secAware;
 	private CourseManager courseMgr;
 	private UserManager userMgr;
 
@@ -64,12 +63,11 @@ public class AuthzTest extends SectionsTestBase{
         secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.SectionManager");
         courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseManager");
         userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.test.section.manager.UserManager");
-        secAware = secMgr.getSectionAwareness();
     }
 
     public void testSectionMembership() throws Exception {
     	String siteContext = context.getContext();
-    	List categories = secAware.getSectionCategories();
+    	List categories = secMgr.getSectionCategories();
     	
     	// Add a course and a section to work from
     	Course course = courseMgr.createCourse(siteContext, "A course", false, false, false);

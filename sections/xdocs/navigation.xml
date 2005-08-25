@@ -11,7 +11,7 @@
 
     <menu name="Docs">
       <item name="Specs and Functional Requirements" href="/specs/index.html" />
-      <item name="Sectioning Tool Test Coverage" href="../sections-app/target/docs/jcoverage/index.html" />
+      <item name="Sectioning Tool Test Coverage" href="../../sections-app/target/docs/jcoverage/index.html" />
 	</menu>
 
   </body>

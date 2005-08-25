@@ -30,6 +30,7 @@ import java.util.List;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
  * Decorates CourseSections for display in the UI.
@@ -57,30 +58,38 @@ public class CourseSectionDecorator {
 	}
 	
 	public String getMeetingTimes() {
-		// TODO Does this need to be internationalized?
+		String am = JsfUtil.getLocalizedMessage("time_of_day_am");
+		String pm = JsfUtil.getLocalizedMessage("time_of_day_pm");
+		String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+		String timeSepChar = JsfUtil.getLocalizedMessage("time_sep_char");
 		
 		StringBuffer sb = new StringBuffer();
+		
+		// Days of the week
 		for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
 			String day = (String)iter.next();
-			sb.append(day);
+			sb.append(JsfUtil.getLocalizedMessage(day));
 			if(iter.hasNext()) {
-				sb.append(",");
+				sb.append(daySepChar);
 			}
 		}
-		
+
+		// Start time
 		sb.append(" ");
 		sb.append(section.getStartTime());
 		if(section.isStartTimeAm()) {
-			sb.append("am");
+			sb.append(am);
 		} else {
-			sb.append("pm");
+			sb.append(pm);
 		}
-		sb.append("-");
+
+		// End time
+		sb.append(timeSepChar);
 		sb.append(section.getEndTime());
 		if(section.isEndTimeAm()) {
-			sb.append("am");
+			sb.append(am);
 		} else {
-			sb.append("pm");
+			sb.append(pm);
 		}
 		
 		return sb.toString();
@@ -89,22 +98,22 @@ public class CourseSectionDecorator {
 	private List getDayList() {
 		List list = new ArrayList();
 		if(section.isMonday())
-			list.add("M");
+			list.add("day_of_week_monday_abbrev");
 		if(section.isTuesday())
-			list.add("T");
+			list.add("day_of_week_tuesday_abbrev");
 		if(section.isWednesday())
-			list.add("W");
+			list.add("day_of_week_wednesday_abbrev");
 		if(section.isThursday())
-			list.add("Th");
+			list.add("day_of_week_thursday_abbrev");
 		if(section.isFriday())
-			list.add("F");
+			list.add("day_of_week_friday_abbrev");
 		if(section.isSaturday())
-			list.add("Sa");
+			list.add("day_of_week_saturday_abbrev");
 		if(section.isSunday())
-			list.add("Su");
+			list.add("day_of_week_sunday_abbrev");
 		return list;
 	}
-	
+		
 	// Delegate methods
 	public String getCategory() {
 		return section.getCategory();

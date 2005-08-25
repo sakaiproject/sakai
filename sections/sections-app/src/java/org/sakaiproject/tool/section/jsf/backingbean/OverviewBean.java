@@ -70,7 +70,8 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 			String catName = getCategoryName(section.getCategory());
 			
 			// Generate the string showing the TAs
-			List tas = getTeachingAssistants(section.getUuid());
+			// FIXME Get this query out of the loop!
+			List tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
 			StringBuffer taNames = new StringBuffer();
 			for(Iterator taIter = tas.iterator(); taIter.hasNext();) {
 				ParticipationRecord ta = (ParticipationRecord)taIter.next();

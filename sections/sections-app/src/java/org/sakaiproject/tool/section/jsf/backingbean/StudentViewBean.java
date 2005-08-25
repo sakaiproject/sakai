@@ -65,14 +65,14 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		sections = new ArrayList();
 		
 		// Get the section enrollments for this student
-		Set enrolledSections = getEnrolledSections();
+		Set enrolledSections = getMyEnrolledSections();
 
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			String catName = getCategoryName(section.getCategory());
 			
 			// Generate the string showing the TAs
-			List tas = getTeachingAssistants(section.getUuid());
+			List tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
 			StringBuffer taNames = new StringBuffer();
 			for(Iterator taIter = tas.iterator(); taIter.hasNext();) {
 				ParticipationRecord ta = (ParticipationRecord)taIter.next();

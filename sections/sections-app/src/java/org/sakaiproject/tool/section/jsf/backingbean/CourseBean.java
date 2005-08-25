@@ -26,7 +26,6 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Context;
@@ -53,9 +52,6 @@ public class CourseBean implements Serializable {
 		return sectionManager;
 	}
 	
-	public SectionAwareness getSectionAwareness() {
-		return sectionManager.getSectionAwareness();
-	}
 	    
     //// Setters for dep. injection
     public void setSectionManager(SectionManager sectionManager) {

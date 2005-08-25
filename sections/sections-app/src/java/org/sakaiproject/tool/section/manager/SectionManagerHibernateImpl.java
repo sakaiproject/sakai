@@ -23,10 +23,14 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section.manager;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import net.sf.hibernate.HibernateException;
@@ -36,7 +40,6 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
-import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
@@ -69,10 +72,136 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	
 	// Fields configured via dep. injection
 	protected UuidManager uuidManager;
-	protected SectionAwareness sectionAwareness;
     protected Authn authn;
     protected Context context;
     protected UserDirectory userDirectory;
+
+	private List sectionCategoryList;
+    
+	public Set getSections(final String siteContext) {
+    	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+                Query q = session.getNamedQuery("findSectionsBySiteContext");
+                q.setParameter("context", siteContext);
+                return new HashSet(q.list());
+            }
+        };
+        return (Set)getHibernateTemplate().execute(hc);
+	}
+
+	public List getSectionsInCategory(final String siteContext, final String categoryId) {
+        HibernateCallback hc = new HibernateCallback(){
+	        public Object doInHibernate(Session session) throws HibernateException {
+	            Query q = session.getNamedQuery("findSectionsByCategory");
+	            q.setParameter("categoryId", categoryId);
+	            q.setParameter("siteContext", siteContext);
+	            return q.list();
+	        }
+        };
+        return getHibernateTemplate().executeFind(hc);
+	}
+
+	public CourseSection getSection(final String sectionUuid) {
+        HibernateCallback hc = new HibernateCallback(){
+	        public Object doInHibernate(Session session) throws HibernateException {
+	        	return getSection(sectionUuid, session);
+	        }
+        };
+        return (CourseSection)getHibernateTemplate().execute(hc);
+	}
+
+	public List getSiteInstructors(final String siteContext) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	Course course = getCourseFromSiteContext(siteContext, session);
+            	Query q = session.getNamedQuery("findSiteInstructors");
+                q.setParameter("course", course);
+                return q.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(hc);
+	}
+
+	public List getSiteTeachingAssistants(final String siteContext) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	Course course = getCourseFromSiteContext(siteContext, session);
+            	Query q = session.getNamedQuery("findSiteTAs");
+                q.setParameter("course", course);
+                return q.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(hc);
+	}
+	
+	public List getSiteEnrollments(final String siteContext) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	Course course = getCourseFromSiteContext(siteContext, session);
+            	Query q = session.getNamedQuery("findSiteEnrollments");
+                q.setParameter("course", course);
+                return q.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(hc);
+	}
+
+	public List getSectionTeachingAssistants(final String sectionUuid) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	CourseSection section = getSection(sectionUuid, session);
+            	Query q = session.getNamedQuery("findSectionTAs");
+                q.setParameter("section", section);
+                return q.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(hc);
+	}
+
+	public List getSectionEnrollments(final String sectionUuid) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	CourseSection section = getSection(sectionUuid, session);
+            	Query q = session.getNamedQuery("findSectionStudents");
+                q.setParameter("section", section);
+                return q.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(hc);
+	}
+
+	public List findSiteEnrollments(String siteContext, String pattern) {
+		List fullList = getSiteEnrollments(siteContext);
+		List filteredList = new ArrayList();
+		for(Iterator iter = fullList.iterator(); iter.hasNext();) {
+			ParticipationRecord record = (ParticipationRecord)iter.next();
+			User user = record.getUser();
+			if(user.getDisplayName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+			   user.getSortName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+			   user.getDisplayId().toLowerCase().startsWith(pattern.toLowerCase())) {
+				filteredList.add(record);
+			}
+		}
+		return filteredList;
+	}
+
+	public String getCategoryName(String categoryId, Locale locale) {
+		ResourceBundle bundle = ResourceBundle.getBundle("org.sakaiproject.api.section.bundle.Messages", locale);
+		String name;
+		try {
+			name = bundle.getString(categoryId);
+		} catch(MissingResourceException mre) {
+			if(log.isInfoEnabled()) log.info("Could not find the name for category id = " + categoryId + " in locale " + locale.getDisplayName());
+			name = null;
+		}
+		return name;
+	}
+
+	public List getSectionCategories() {
+		return sectionCategoryList;
+	}
+
     
 	private CourseSectionImpl getSection(final String sectionUuid, Session session) throws HibernateException {
         Query q = session.getNamedQuery("loadSectionByUuid");
@@ -117,7 +246,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (Course)getHibernateTemplate().execute(hc);
 	}
 
-	public SectionEnrollments getSectionEnrollments(final String siteContext, final Set studentUuids) {
+	public SectionEnrollments getSectionEnrollmentsForStudents(final String siteContext, final Set studentUuids) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourse(siteContext);
@@ -143,7 +272,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
                 q.setParameter("sectionUuid", sectionUuid);
                 Object enrollment = q.uniqueResult();
                 if(enrollment == null) {
-                	CourseSection section = sectionAwareness.getSection(sectionUuid);
+                	CourseSection section = getSection(sectionUuid, session);
                 	User user = userDirectory.getUser(userUuid);
                 	EnrollmentRecordImpl enr = new EnrollmentRecordImpl(section, "enrolled", user);
                 	enr.setUuid(uuidManager.createUuid());
@@ -208,7 +337,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	private EnrollmentRecordImpl addSectionEnrollment(final String userUuid, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-            	CourseSection section = sectionAwareness.getSection(sectionUuid);
+            	CourseSection section = getSection(sectionUuid, session);
             	User user = userDirectory.getUser(userUuid);
 
             	// TODO Make sure they are not already enrolled in this learning context
@@ -227,7 +356,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	private TeachingAssistantRecordImpl addSectionTeachingAssistant(final String userId, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-            	CourseSection section = sectionAwareness.getSection(sectionUuid);
+            	CourseSection section = getSection(sectionUuid, session);
             	User user = userDirectory.getUser(userId);
 
             	// TODO Make sure they are not already a TA in this section
@@ -241,14 +370,17 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (TeachingAssistantRecordImpl)getHibernateTemplate().execute(hc);
 	}
 	
-	public List getTeachingAssistants(String sectionUuid) {
-		return sectionAwareness.getSectionMembersInRole(sectionUuid, Role.TA);
-	}
-
 	public void setSectionMemberships(final Set userUuids, final Role role, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-        		List currentMembers = getSectionAwareness().getSectionMembersInRole(sectionUuid, role);
+        		List currentMembers;
+        		if(role.isTeachingAssistant()) {
+        			currentMembers = getSectionTeachingAssistants(sectionUuid);
+        		} else if(role.isStudent()) {
+        			currentMembers = getSectionEnrollments(sectionUuid);
+        		} else {
+        			throw new RuntimeException("You can not setSectionMemberships with role " + role.getDescription());
+        		}
         		Set currentUserUuids = new HashSet();
         		for(Iterator iter = currentMembers.iterator(); iter.hasNext();) {
         			ParticipationRecord membership = (ParticipationRecord)iter.next();
@@ -488,19 +620,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return new HashSet(getHibernateTemplate().executeFind(hc));
 	}
 
-
-	// Field accessors
-	
-    public SectionAwareness getSectionAwareness() {
-    	return sectionAwareness;
-    }
-
     // Dependency injection
-    public void setSectionAwareness(SectionAwareness sectionAwareness) {
-        this.sectionAwareness = sectionAwareness;
-    }
-    
-    public void setAuthn(Authn authn) {
+
+	public void setAuthn(Authn authn) {
         this.authn = authn;
     }
 
@@ -515,6 +637,11 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	public void setUserDirectory(UserDirectory userDirectory) {
 		this.userDirectory = userDirectory;
 	}
+
+	public void setSectionCategoryList(List sectionCategoryList) {
+		this.sectionCategoryList = sectionCategoryList;
+	}
+
 }
 
 

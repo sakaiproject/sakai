@@ -37,46 +37,6 @@ public class LearningContextImpl extends AbstractPersistentObject implements
 		LearningContext, Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	public long getId() {
-		// TODO Auto-generated method stub
-		return super.getId();
-	}
-
-	public String getTitle() {
-		// TODO Auto-generated method stub
-		return super.getTitle();
-	}
-
-	public String getUuid() {
-		// TODO Auto-generated method stub
-		return super.getUuid();
-	}
-
-	public int getVersion() {
-		// TODO Auto-generated method stub
-		return super.getVersion();
-	}
-
-	public void setId(long id) {
-		// TODO Auto-generated method stub
-		super.setId(id);
-	}
-
-	public void setTitle(String title) {
-		// TODO Auto-generated method stub
-		super.setTitle(title);
-	}
-
-	public void setUuid(String uuid) {
-		// TODO Auto-generated method stub
-		super.setUuid(uuid);
-	}
-
-	public void setVersion(int version) {
-		// TODO Auto-generated method stub
-		super.setVersion(version);
-	}
 	
 	public boolean equals(Object o) {
 		if(o == this) {

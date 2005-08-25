@@ -62,7 +62,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     protected void onSetUpInTransaction() throws Exception {
     	context = (Context)applicationContext.getBean("org.sakaiproject.api.section.facade.manager.Context");
         secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.SectionManager");
-        secAware = secMgr.getSectionAwareness();
+        secAware = (SectionAwareness)applicationContext.getBean("org.sakaiproject.api.section.SectionAwareness");
         courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseManager");
         userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.test.section.manager.UserManager");
     }

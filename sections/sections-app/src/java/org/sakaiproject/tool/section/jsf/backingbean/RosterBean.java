@@ -54,6 +54,7 @@ import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.decorator.EnrollmentDecorator;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class RosterBean extends CourseDependentBean implements Serializable {
 
@@ -85,7 +86,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 
 		// Get the default search text
 		if(StringUtils.trimToNull(searchText) == null) {
-			searchText = getLocalizedMessage("roster_search_text");
+			searchText = JsfUtil.getLocalizedMessage("roster_search_text");
 		}
 
 		// Get the sections
@@ -93,10 +94,10 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		
 		// Get the site enrollments
 		List siteStudents;
-		if(searchText.equals(getLocalizedMessage("roster_search_text"))) {
-			siteStudents = getSectionAwareness().getSiteMembersInRole(getSiteContext(), Role.STUDENT);
+		if(searchText.equals(JsfUtil.getLocalizedMessage("roster_search_text"))) {
+			siteStudents = getSectionManager().getSiteEnrollments(getSiteContext());
 		} else {
-			siteStudents = getSectionAwareness().findSiteMembersInRole(getSiteContext(), Role.STUDENT, searchText);
+			siteStudents = getSectionManager().findSiteEnrollments(getSiteContext(), searchText);
 		}
 		
 		// Get the section enrollments
@@ -105,11 +106,11 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			ParticipationRecord record = (ParticipationRecord)iter.next();
 			studentUuids.add(record.getUser().getUserUuid());
 		}
-		SectionEnrollments sectionEnrollments = getSectionManager().getSectionEnrollments(getSiteContext(), studentUuids);
+		SectionEnrollments sectionEnrollments = getSectionManager().getSectionEnrollmentsForStudents(getSiteContext(), studentUuids);
 		
 		// Construct the decorated enrollments for the UI
 		List unpagedEnrollments = new ArrayList();
-		categories = getSectionAwareness().getSectionCategories();
+		categories = getSectionManager().getSectionCategories();
 		
 		for(Iterator iter = siteStudents.iterator(); iter.hasNext();) {
 			EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
@@ -128,7 +129,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		// TODO Not sure yet where sorting comes in... so implement the page filter last		
 		enrollments = new ArrayList();
 		int lastRow;
-		if(firstRow + maxDisplayedRows > unpagedEnrollments.size()) {
+		if(maxDisplayedRows < 1 || firstRow + maxDisplayedRows > unpagedEnrollments.size()) {
 			lastRow = unpagedEnrollments.size();
 		} else {
 			lastRow = firstRow + maxDisplayedRows;
@@ -140,13 +141,12 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	/**
 	 * Gets the categories that are currently being used in this site context.
 	 * 
-	 * TODO Should this be a method in SectionManager?
 	 * @param categories
 	 * @param sections
 	 * @return
 	 */
-	private List getUsedCategories(List categories, Collection sections) {
-		List used = new ArrayList();
+	private Set getUsedCategories(List categories, Collection sections) {
+		Set used = new HashSet();
 		for(Iterator iter = sections.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
 			String cat = section.getCategory();
@@ -162,7 +162,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 	
 	public void setRosterDataTable(HtmlDataTable rosterDataTable) {
-		List usedCategories = getUsedCategories(categories, sections);
+		Set usedCategories = getUsedCategories(categories, sections);
 		
 		if (rosterDataTable.findComponent(CAT_COLUMN_PREFIX + "0") == null) {
 			Application app = FacesContext.getCurrentInstance().getApplication();

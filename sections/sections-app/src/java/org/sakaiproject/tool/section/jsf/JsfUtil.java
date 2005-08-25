@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
+* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -22,35 +22,23 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section.facade.impl.standalone;
+package org.sakaiproject.tool.section.jsf;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.manager.UserDirectory;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import javax.faces.context.FacesContext;
 
-public class UserDirectoryStandaloneImpl extends HibernateDaoSupport implements UserDirectory {
-
-	public User getUser(final String userUuid) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	Query q = session.createQuery("from UserImpl as user where user.userUuid=:uuid");
-            	q.setParameter("uuid", userUuid);
-            	Object result = q.uniqueResult();
-            	if(result == null) {
-            		throw new IllegalArgumentException("No user with uuid=" + userUuid);
-            	} else {
-            		return result;
-            	}
-            }
-        };
-        return (User)getHibernateTemplate().execute(hc);
+public class JsfUtil {
+	public static Locale getLocale() {
+		return FacesContext.getCurrentInstance().getViewRoot().getLocale();
 	}
-
+	
+	public static String getLocalizedMessage(String key) {
+        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+        ResourceBundle rb = ResourceBundle.getBundle(bundleName, getLocale());
+        return rb.getString(key);
+	}
 }
 
 

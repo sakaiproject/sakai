@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.section.manager;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.sakaiproject.api.section.SectionAwareness;
@@ -46,8 +47,95 @@ public interface SectionManager {
 	 */
 	public Course getCourse(String siteContext);
 	
+    /**
+     * Gets the sections associated with this site context.
+     * 
+	 * @param siteContext The site context
+	 * 
+     * @return The Set of
+     * {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSections}
+     * associated with this site context.
+     */
+    public Set getSections(String siteContext);
 	
-	/**
+    /**
+     * Lists the sections in this context that are a member of the given category.
+     * 
+	 * @param siteContext The site context
+     * @param categoryId
+     * 
+     * @return A List of {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSections}
+     */
+    public List getSectionsInCategory(String siteContext, String categoryId);
+
+    /**
+     * Gets a {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSection}
+     * by its uuid.
+     * 
+     * @param sectionUuid The uuid of a section
+     * 
+     * @return A section
+     */
+    public CourseSection getSection(String sectionUuid);
+
+    /**
+     * Gets a list of {@link org.sakaiproject.api.section.coursemanagement.ParticipationRecord
+     * ParticipationRecord}s for all instructors in the current site.
+     * 
+     * @param siteContext The current site context
+     * @return The instructors
+     */
+    public List getSiteInstructors(String siteContext);
+
+    /**
+     * Gets a list of {@link org.sakaiproject.api.section.coursemanagement.ParticipationRecord
+     * ParticipationRecord}s for all TAs in the current site.
+     * 
+     * @param siteContext The current site context
+     * @return The TAs
+     */
+    public List getSiteTeachingAssistants(String siteContext);
+
+    /**
+     * Gets a list of {@link org.sakaiproject.api.section.coursemanagement.ParticipationRecord
+     * ParticipationRecord}s for all TAs in a section.
+     * 
+     * @param sectionUuid The section uuid
+     * @return The TAs
+     */
+    public List getSectionTeachingAssistants(String sectionUuid);
+
+    /**
+     * Gets a list of {@link org.sakaiproject.api.section.coursemanagement.EnrollmentRecord
+     * EnrollmentRecord}s belonging to the current site.
+     * 
+     * @param siteContext The current site context
+     * @return The enrollments
+     */
+    public List getSiteEnrollments(String siteContext);
+
+    /**
+     * Gets a list of {@link org.sakaiproject.api.section.coursemanagement.EnrollmentRecord
+     * EnrollmentRecord}s belonging to a section.
+     * 
+     * @param sectionUuid The section uuid
+     * @return The enrollments
+     */
+    public List getSectionEnrollments(String sectionUuid);
+
+    /**
+     * Finds a list of {@link org.sakaiproject.api.section.coursemanagement.EnrollmentRecord
+     * EnrollmentRecord}s belonging to the current site and whose sort name, display name,
+     * or display id start with the given string pattern.
+     * 
+     * @param siteContext The current site context
+     * @param pattern The pattern to match students names or ids
+     * 
+     * @return The enrollments
+     */
+    public List findSiteEnrollments(String siteContext, String pattern);
+
+    /**
 	 * Gets a SectionEnrollments data structure for the given students.
 	 * 
 	 * @param siteContext The site context
@@ -55,7 +143,7 @@ public interface SectionManager {
 	 * 
 	 * @return
 	 */
-	public SectionEnrollments getSectionEnrollments(String siteContext, Set studentUuids);
+	public SectionEnrollments getSectionEnrollmentsForStudents(String siteContext, Set studentUuids);
 	
     /**
      * Adds the current user to a section as a student.  This is a convenience
@@ -225,28 +313,39 @@ public interface SectionManager {
     public List getUnsectionedEnrollments(String courseUuid, String category);
 
     /**
-     * Gets all of the section enrollments for a user in a course.
+     * Gets all of the section enrollments for a user in a course.  Useful for
+     * listing all of the sections in which a student is enrolled.
      * 
      * @param userUuid
      * @param courseUuid
-     * @return
+     * @return A Set of EnrollmentRecords
      */
     public Set getSectionEnrollments(String userUuid, String courseUuid);
-    
-	/**
-	 * Gets the list of {@link org.sakaiproject.api.section.coursemanagement.User Users}
-	 * that are teaching assistants in a section.
-	 * 
-	 * @param sectionUuid
-	 * @return
-	 */
-    public List getTeachingAssistants(String sectionUuid);
-    
+
+
     /**
-     * @return The section awareness instance, which provides methods to read
-     * section data.
+     * Gets the localized name of a given category.
+     * 
+     * @param categoryId A string identifying the category
+     * @param locale The locale of the client
+     * 
+     * @return An internationalized string to display for this category.
+     * 
      */
-    public SectionAwareness getSectionAwareness();
+    public String getCategoryName(String categoryId, Locale locale);
+   
+    /**
+     * Gets the list of section categories.  In sakai 2.1, there will be only a
+     * single set of categories.  They will not be configurable on a per-course
+     * or per-context bases.
+     * 
+     * @return A List of unique Strings that identify the available section
+     * categories.  These should be internationalized for display using
+     * {@link SectionAwareness#getCategoryName(String, Locale) getCategoryName}.
+     */
+    public List getSectionCategories();
+
+
 }
 
 
