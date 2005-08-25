@@ -281,7 +281,10 @@ public class Item extends ASIBaseClass
 
   public boolean  isEssay()
   {
-    return AuthoringConstantStrings.ESSAY.equals(this.getItemType()) ? true : false;
+    boolean essay =
+      AuthoringConstantStrings.ESSAY.equals(this.getItemType()) ||
+      AuthoringConstantStrings.ESSAY_ALT.equals(this.getItemType());
+    return essay ? true : false;
   }
 
   public boolean  isSurvey()

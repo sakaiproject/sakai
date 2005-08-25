@@ -975,9 +975,13 @@ public class ItemHelper12Impl extends ItemHelperBase
   public void setAnswers(ArrayList itemTextList, Item itemXml)
   {
 
+    //System.out.println("\n\n\nentered setAnswers()\n\n\n");
+    log.info("entered setAnswers()");
+    log.info("size=" + itemTextList.size());
     // other types either have no answer or include them in their template, or,
     // in matching, generate all in setItemTextMatching()
-    if (!itemXml.isFIB() && !itemXml.isMCSC() && !itemXml.isMCMC())
+    if (!itemXml.isFIB() && !itemXml.isMCSC()
+        && !itemXml.isMCMC() && !itemXml.isEssay())
     {
       return;
     }
@@ -998,6 +1002,8 @@ public class ItemHelper12Impl extends ItemHelperBase
     while (iter.hasNext())
     {
       answerSet = ( (ItemTextIfc) iter.next()).getAnswerSet();
+      log.info("answersize=" + answerSet.size());
+      //System.out.println("answersize=" + answerSet.size());
       Iterator aiter = answerSet.iterator();
       while (aiter.hasNext())
       {
@@ -1007,6 +1013,8 @@ public class ItemHelper12Impl extends ItemHelperBase
           this.addCorrectAnswer("" + label, itemXml);
         }
         String value = answer.getText();
+        log.info("\n\n***The answer is: " + value);
+        //System.out.println("\n\n***The answer is: " + value);
         // if and only if FIB we do special processing
         if (itemXml.isFIB())
         {
