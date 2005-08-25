@@ -174,21 +174,10 @@ public class SyllabusTool
           entries = new ArrayList();
         else
           entries.clear();
-        syllabusItem = syllabusManager.getSyllabusItemByContextId(siteId);
-        if (syllabusItem == null)
-        {
-          if (!this.checkAccess())
-          {
-            throw new PermissionException(UsageSessionService
-                .getSessionUserId(), "syllabus_access_athz", "");
-          }
-          else
-          {
-            syllabusItem = syllabusManager.createSyllabusItem(userId, siteId,
-                null);
-          }
-        }
-
+        
+                
+        syllabusItem = getSyllabusItem();            
+                        
         Set tempEntries = syllabusManager
             .getSyllabiForSyllabusItem(syllabusItem);
 
@@ -338,6 +327,12 @@ public class SyllabusTool
     String currentUserId = UserDirectoryService.getCurrentUser().getId();
     try
     {
+      if((syllabusItem != null) && (syllabusItem.getContextId().equals(currentSiteId))
+          && (syllabusItem.getUserId().equals(currentUserId)))
+      {
+        return syllabusItem;
+      }
+
       syllabusItem = syllabusManager.getSyllabusItemByContextId(currentSiteId);
 
       if (syllabusItem == null)
@@ -468,7 +463,6 @@ public String processDeleteCancel()
 
     entries.clear();
     entry = null;
-    syllabusItem = null;
   
     return "main_edit";
   }
@@ -503,7 +497,6 @@ public String processDeleteCancel()
       }
       entries.clear();
       entry = null;
-      syllabusItem = null;
 
       return "main_edit";
     }
@@ -518,7 +511,6 @@ public String processDeleteCancel()
 
     entries.clear();
     entry = null;
-    syllabusItem = null;
 
     return null;
   }
@@ -534,7 +526,6 @@ public String processDeleteCancel()
     displayEvilTagMsg=false;
     entries.clear();
     entry = null;
-    syllabusItem = null;
 
     return "main_edit";
   }
@@ -591,7 +582,6 @@ public String processDeleteCancel()
  
       entries.clear();
       entry = null;
-      syllabusItem = null;
 
       return "main_edit";
     }
@@ -660,7 +650,6 @@ public String processDeleteCancel()
           
           entries.clear();
           entry = null;
-          syllabusItem = null;
           return "main_edit";
         }
       }
@@ -761,7 +750,6 @@ public String processDeleteCancel()
     displayEvilTagMsg=false;
     entries.clear();
     entry = null;
-    syllabusItem = null;
 
     return "main_edit";
   }
@@ -819,7 +807,6 @@ public String processDeleteCancel()
       
       entries.clear();
       entry = null;
-      syllabusItem = null;
 
       return "main_edit";
     }
@@ -887,7 +874,6 @@ public String processDeleteCancel()
                
           entries.clear();
           entry = null;
-          syllabusItem = null;
 
           return "main_edit";
         }
@@ -927,7 +913,6 @@ public String processDeleteCancel()
 
     entries.clear();
     entry = null;
-    syllabusItem = null;
   }
 
   public void upOnePlace(SyllabusData en)
@@ -955,7 +940,6 @@ public String processDeleteCancel()
 
     entries.clear();
     entry = null;
-    syllabusItem = null;
   }
 
   public String processEditPreview()
@@ -1095,7 +1079,6 @@ public String processDeleteCancel()
 
     entries.clear();
     entry = null;
-    syllabusItem = null;
 
     return "main_edit";
   }
@@ -1116,7 +1099,6 @@ public String processDeleteCancel()
 
         entries.clear();
         entry = null;
-        syllabusItem = null;
       }
 
       return "main_edit";
@@ -1145,11 +1127,10 @@ public String processDeleteCancel()
       }
       else
       {
-        syllabusManager.saveSyllabusItem(syllabusItem);
+//      syllabusManager.saveSyllabusItem(syllabusItem);
 
         entries.clear();
         entry = null;
-        syllabusItem = null;
       }
 
       return "main_edit";
