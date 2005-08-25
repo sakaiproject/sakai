@@ -135,6 +135,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
 		response.setContentType("text/comma-separated-values");
 		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".csv");
+		protectAgainstInstantDeletion(response);
 		response.setContentLength(csvString.length());
 		OutputStream out = null;
 		try {
@@ -171,6 +172,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
 		response.setContentType("application/vnd.ms-excel ");
 		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xls");
+		protectAgainstInstantDeletion(response);
 
 		OutputStream out = null;
 		try {
@@ -357,6 +359,37 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		}
 		return sb;
 	}
+
+    /**
+     * Try to head off a problem with downloading files from a secure HTTPS
+     * connection to Internet Explorer.
+     *
+     * 1) By default, Apache-with-SSL prefixes its content with a bunch of
+     * HTTP headers saying "this document should expire immediately and not be cached."
+     *
+     * 2) When IE sees it's talking to a secure server, it decides to treat all hints
+     * or instructions about caching as strictly as possible. Immediately upon
+     * finishing the download, it throws the data away.
+     *
+     * 3) Unfortunately, the way IE sends a downloaded file on to a helper
+     * application is to use the cached copy. Having just deleted the file,
+     * it naturally isn't able to find it in the cache. Whereupon it delivers
+     * a very misleading error message like:
+     * "Internet Explorer cannot download roster from sakai.yoursite.edu.
+     * Internet Explorer was not able to open this Internet site. The requested
+     * site is either unavailable or cannot be found. Please try again later."
+     *
+     * There are several ways to turn caching off, and so to be safe we use
+     * several ways to turn it back on again.
+     *
+     * It's possible that we might also need to set an "Expires" header to
+     * explicitly expire the download in the future. By default, Apache-with-SSL
+     * sets "Expires" to be the same as "Last-Modified", which some
+     * hypersensitive browser might take to mean "delete this file at any
+     * time after the instant it was made".
+     */
+    public static void protectAgainstInstantDeletion(HttpServletResponse response) {
+    	response.setHeader("Pragma", "cache");	// Old-style cache control
+    	response.setHeader("Cache-Control", "public, must-revalidate, max-age=0");	// New-style
+    }
 }
-
-
