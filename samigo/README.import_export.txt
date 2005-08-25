@@ -29,17 +29,13 @@ are in correct format for importation.  (SAK-1203).
 fill-in-the-blank questions.  (SAM-271).
   c. Selection-level feedback is not retained for matching questions. (SAM-520)  
 
-4. Exporting model answers.
-  Model Short Answer is not supported for exporting Short Answer/Essay question.
-(SAM-271).
-
-5. Sakai specific metadata.  Sakai specific metadata is supported by embedding
+4. Sakai specific metadata.  Sakai specific metadata is supported by embedding
 assessment information in QTI format.  The following metadata elements are not
 yet supported:
     a. High Security IP address settings,
     b. Rich text in submission message. (SAM-271)
 
-6. Import and Export of Character Entities and Non-XHTML Data.
+5. Import and Export of Character Entities and Non-XHTML Data.
 As of 2.01 is should be possible to include characters such as '&' in titles and
 correctly export and import them.  Previously only rich text fields escaped them
 out properly.  The the well-known symbols, "&", "<" and ">" are always supported.
@@ -72,7 +68,7 @@ For example:
   Note that the XML parser will make no attempt to validate CDATA enclosed
 character data, and will then accept non-XHTML and even bad HTML.
 
-7. Fix for JSF corruption of XML export.
+6. Fix for JSF corruption of XML export.
     a. In some builds of the portal we are seeing the addition of one or more
 blank lines on export by JSF itself. The XML spcification does not allow this.
 As of 2.01 have added a fix that any XML file with extra blank lines will have
@@ -81,7 +77,7 @@ these trimmed on import so that exported files will always import.
 editors, you may need to remove blank lines before the XML declaration.
 (SAK-1499)
 
-8. Respondus.
+7. Respondus.
 Fixed in 2.01.  Respondus questions with missing score can be edited.
 Note: there are some non-Sakai QTI formatting issues in Respondus. We will be
 building alternate processing to handle these, realistically, to be taken care
