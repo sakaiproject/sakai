@@ -40,6 +40,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceException;
 
 /**
+ * @todo implement some of the methods
  * The QuestionPoolServiceAPI declares a shared interface to control question
  * pool information.
  * @author Ed Smiley <esmiley@stanford.edu>
@@ -54,7 +55,6 @@ public class QuestionPoolServiceImpl
    */
   public QuestionPoolServiceImpl()
   {
-
   }
 
   /**
