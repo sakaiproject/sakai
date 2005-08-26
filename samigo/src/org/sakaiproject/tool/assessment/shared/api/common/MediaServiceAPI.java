@@ -23,10 +23,6 @@
 
 package org.sakaiproject.tool.assessment.shared.api.common;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-
 /**
  * Declares a shared interface to control media information.
  * @author Ed Smiley <esmiley@stanford.edu>
