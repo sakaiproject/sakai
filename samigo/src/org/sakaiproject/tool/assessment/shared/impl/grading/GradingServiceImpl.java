@@ -26,18 +26,24 @@ package org.sakaiproject.tool.assessment.shared.impl.grading;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 
 /**
+ * @todo implement methods
  * The GradingServiceAPI implements the shared interface to get grading information.
  * @author Ed Smiley <esmiley@stanford.edu>
  */
 
 public class GradingServiceImpl implements GradingServiceAPI
 {
+  private static Log log = LogFactory.getLog(GradingServiceImpl.class);
+
   /**
    * Get all scores for a published assessment from the back end.
    * @return List of AssessmentGradingIfcIfs
