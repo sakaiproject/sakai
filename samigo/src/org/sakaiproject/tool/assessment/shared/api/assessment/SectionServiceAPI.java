@@ -24,6 +24,11 @@ package org.sakaiproject.tool.assessment.shared.api.assessment;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
+/**
+ * The SectionServiceAPI declares a shared interface to get assessment section
+ * information.
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
 public interface SectionServiceAPI
 {
   public SectionDataIfc getSection(Long secId, String agentId);

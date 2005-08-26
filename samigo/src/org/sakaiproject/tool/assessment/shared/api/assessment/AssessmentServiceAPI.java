@@ -30,7 +30,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
-
+/**
+ * The AssessmentServiceAPI declares a shared interface to get/set assessment
+ * information.
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
 public interface AssessmentServiceAPI
 {
   public AssessmentTemplateIfc getAssessmentTemplate(String assessmentTemplateId);

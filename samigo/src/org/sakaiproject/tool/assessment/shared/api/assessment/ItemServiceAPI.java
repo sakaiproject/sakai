@@ -22,9 +22,15 @@
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.shared.api.assessment;
 
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import java.util.Map;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+
+/**
+ * The ItemServiceAPI declares a shared interface to get/set item
+ * information.
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
 public interface ItemServiceAPI
 {
   /**

@@ -26,15 +26,17 @@ package org.sakaiproject.tool.assessment.shared.api.assessment;
 import java.util.List;
 import java.util.Map;
 
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 
-
+/**
+ * The PublishedAssessmentServiceAPI declares a shared interface to get/set assessment
+ * information for published assessments.
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
 public interface PublishedAssessmentServiceAPI {
 
   public List getBasicInfoOfAllPublishedAssessments(String agentId, String orderBy,
