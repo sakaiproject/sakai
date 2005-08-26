@@ -31,6 +31,7 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 
 public class EditSectionBean extends CourseDependentBean implements Serializable {
 
@@ -87,6 +88,17 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 				location, startTime, startTimeAm, endTime, endTimeAm, monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
 		return "overview";
+	}
+	
+	public String delete() {
+		getSectionManager().disbandSection(sectionUuid);
+		return "overview";
+	}
+	
+	public String getDays() {
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+		CourseSectionDecorator decorator = new CourseSectionDecorator(section, getCategoryName(category));
+		return decorator.getMeetingDays();
 	}
 	
 	public String getSectionUuid() {

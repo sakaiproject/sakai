@@ -20,6 +20,10 @@
             <to-view-id>/editSection.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
+            <from-outcome>deleteSection</from-outcome>
+            <to-view-id>/deleteSection.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>editManagers</from-outcome>
             <to-view-id>/editManagers.jsp</to-view-id>
         </navigation-case>

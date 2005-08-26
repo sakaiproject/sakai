@@ -32,6 +32,7 @@ import java.util.List;
 import javax.faces.application.Application;
 import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlDataTable;
+import javax.faces.component.html.HtmlInputText;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -89,26 +90,31 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		String newNum = (String)FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterMap().get("addSectionsForm:numToAdd");
 		numToAdd = new Integer(Integer.parseInt(newNum));
+		if(log.isDebugEnabled()) log.debug("setting number of sections to add to " + numToAdd);
 		
 		String newCat = (String)FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterMap().get("addSectionsForm:category");
 		category = newCat;
+		if(log.isDebugEnabled()) log.debug("setting category to " + category);
 
 		populateSections();
 	}
 	
 	private void populateSections() {
 		if(log.isDebugEnabled()) log.debug("populating sections");
-
-		// TODO Check for existing sections and use different title numbers if necessary
-		int offset = getSectionManager().getSectionsInCategory(getSiteContext(), category).size();
 		sections.clear();
+		int offset = getSectionManager().getSectionsInCategory(getSiteContext(), category).size();
 		for(int i=0; i<numToAdd.intValue(); i++) {
 			sections.add(new LocalSectionModel(getCategoryName(category) + (i+1+offset)));
 		}
 	}
 
 	public String addSections() {
+		String courseUuid = getCourse().getUuid();
+		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+			LocalSectionModel sectionModel = (LocalSectionModel)iter.next();
+			getSectionManager().addSection(courseUuid, sectionModel.getTitle(), category, 10, null, null, false, null, false, false, false, false, false, false, false, false);
+		}
 		return "overview";
 	}
 	
@@ -119,7 +125,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 			UIColumn col = new UIColumn();
 			col.setId(COL_ID);
 
-			HtmlOutputText contents = new HtmlOutputText();
+			HtmlInputText contents = new HtmlInputText();
 			contents.setId(SECTION_CELL_ID);
 			contents.setValueBinding("value",
 				app.createValueBinding("#{section.title}"));

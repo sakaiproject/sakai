@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -57,6 +58,20 @@ public class CourseSectionDecorator {
 		return categoryForDisplay;
 	}
 	
+	public String getMeetingDays() {
+		String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+
+		StringBuffer sb = new StringBuffer();
+		for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
+			String day = (String)iter.next();
+			sb.append(JsfUtil.getLocalizedMessage(day));
+			if(iter.hasNext()) {
+				sb.append(daySepChar);
+			}
+		}		
+		return sb.toString();
+	}
+	
 	public String getMeetingTimes() {
 		String am = JsfUtil.getLocalizedMessage("time_of_day_am");
 		String pm = JsfUtil.getLocalizedMessage("time_of_day_pm");
@@ -66,7 +81,7 @@ public class CourseSectionDecorator {
 		StringBuffer sb = new StringBuffer();
 		
 		// Days of the week
-		for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
+		for(Iterator iter = getAbbreviatedDayList().iterator(); iter.hasNext();) {
 			String day = (String)iter.next();
 			sb.append(JsfUtil.getLocalizedMessage(day));
 			if(iter.hasNext()) {
@@ -76,26 +91,34 @@ public class CourseSectionDecorator {
 
 		// Start time
 		sb.append(" ");
-		sb.append(section.getStartTime());
-		if(section.isStartTimeAm()) {
-			sb.append(am);
-		} else {
-			sb.append(pm);
+		if(StringUtils.trimToNull(section.getStartTime()) != null) {
+			sb.append(section.getStartTime());
+			if(section.isStartTimeAm()) {
+				sb.append(am);
+			} else {
+				sb.append(pm);
+			}
 		}
 
 		// End time
-		sb.append(timeSepChar);
-		sb.append(section.getEndTime());
-		if(section.isEndTimeAm()) {
-			sb.append(am);
-		} else {
-			sb.append(pm);
+		if(StringUtils.trimToNull(section.getStartTime()) != null &&
+				StringUtils.trimToNull(section.getEndTime()) != null) {
+			sb.append(timeSepChar);
+		}
+
+		if(StringUtils.trimToNull(section.getEndTime()) != null) {
+			sb.append(section.getEndTime());
+			if(section.isEndTimeAm()) {
+				sb.append(am);
+			} else {
+				sb.append(pm);
+			}
 		}
 		
 		return sb.toString();
 	}
 
-	private List getDayList() {
+	private List getAbbreviatedDayList() {
 		List list = new ArrayList();
 		if(section.isMonday())
 			list.add("day_of_week_monday_abbrev");
@@ -114,6 +137,25 @@ public class CourseSectionDecorator {
 		return list;
 	}
 		
+	private List getDayList() {
+		List list = new ArrayList();
+		if(section.isMonday())
+			list.add("day_of_week_monday");
+		if(section.isTuesday())
+			list.add("day_of_week_tuesday");
+		if(section.isWednesday())
+			list.add("day_of_week_wednesday");
+		if(section.isThursday())
+			list.add("day_of_week_thursday");
+		if(section.isFriday())
+			list.add("day_of_week_friday");
+		if(section.isSaturday())
+			list.add("day_of_week_saturday");
+		if(section.isSunday())
+			list.add("day_of_week_sunday");
+		return list;
+	}
+
 	// Delegate methods
 	public String getCategory() {
 		return section.getCategory();
