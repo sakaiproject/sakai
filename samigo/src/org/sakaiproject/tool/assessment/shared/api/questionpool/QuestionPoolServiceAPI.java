@@ -23,13 +23,10 @@
 
 package org.sakaiproject.tool.assessment.shared.api.questionpool;
 
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.business.AAMTree;
-import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 
 
@@ -40,16 +37,6 @@ import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIf
  */
 public interface QuestionPoolServiceAPI
 {
-//    private static Log log = LogFactory.getLog(QuestionPoolServiceAPI.class);
-
-//  /**
-//   * Creates a new QuestionPoolServiceAPI object.
-//   */
-//  public QuestionPoolServiceAPI()
-//  {
-//
-//  }
-
   /**
    * Get all pools from the back end.
    */
