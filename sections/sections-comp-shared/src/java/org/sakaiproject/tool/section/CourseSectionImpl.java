@@ -24,8 +24,6 @@
 package org.sakaiproject.tool.section;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -40,17 +38,17 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
     protected int maxEnrollments;
     
     // FIXME Replace this with a scheduling service
-	public boolean monday;
-	public boolean tuesday;
-	public boolean wednesday;
-	public boolean thursday;
-	public boolean friday;
-	public boolean saturday;
-	public boolean sunday;
-	public String startTime;
-	public boolean startTimeAm;
-	public String endTime;
-	public boolean endTimeAm;
+	private boolean monday;
+	private boolean tuesday;
+	private boolean wednesday;
+	private boolean thursday;
+	private boolean friday;
+	private boolean saturday;
+	private boolean sunday;
+	private String startTime;
+	private boolean startTimeAm;
+	private String endTime;
+	private boolean endTimeAm;
 
     public CourseSectionImpl() {
     	// Default constructor needed by hibernate

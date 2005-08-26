@@ -60,6 +60,13 @@
     </managed-bean>
 
     <managed-bean>
+        <description>Add Sections Bean</description>
+        <managed-bean-name>addSectionsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.AddSectionsBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
         <description>Options Bean</description>
         <managed-bean-name>optionsBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.OptionsBean</managed-bean-class>

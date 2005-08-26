@@ -6,6 +6,13 @@
     
     <h:outputText value=" | "/>
     
+    <h:commandLink action="addSections" immediate="true" rendered="#{viewName ne 'addSections'}">
+        <h:outputText value="#{msgs.nav_add_sections}"/>
+    </h:commandLink>
+    <h:outputText value="#{msgs.nav_add_sections}" rendered="#{viewName eq 'addSections'}" />
+    
+    <h:outputText value=" | "/>
+    
     <h:commandLink action="roster" immediate="true" rendered="#{viewName ne 'roster'}">
         <h:outputText value="#{msgs.nav_roster}"/>
     </h:commandLink>

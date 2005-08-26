@@ -32,6 +32,10 @@
             <to-view-id>/roster.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
+            <from-outcome>addSections</from-outcome>
+            <to-view-id>/addSections.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>options</from-outcome>
             <to-view-id>/options.jsp</to-view-id>
         </navigation-case>

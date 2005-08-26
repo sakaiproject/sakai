@@ -6,6 +6,9 @@
 		<variable-resolver>
 			org.sakaiproject.jsf.app.SakaiVariableResolver
 		</variable-resolver>
+        <navigation-handler>
+            org.sakaiproject.jsf.app.SakaiNavigationHandler
+        </navigation-handler>
 		<message-bundle>
 			org.sakaiproject.tool.section.bundle.Messages
 		</message-bundle>
@@ -17,4 +20,9 @@
 			<supported-locale>es</supported-locale>
 		</locale-config>
 	</application>
+    
+    <lifecycle>
+        <phase-listener>org.sakaiproject.jsf.app.SakaiPhaseListener</phase-listener>
+    </lifecycle>
+    
 </faces-config>

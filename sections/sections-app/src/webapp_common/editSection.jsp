@@ -1,5 +1,5 @@
 <f:view>
-<h:form id="overviewForm">
+<h:form id="editSectionForm">
 
     <x:aliasBean alias="#{viewName}" value="editSection">
         <%@include file="/inc/navMenu.jspf"%>

@@ -34,7 +34,7 @@
 				</j:forEach>
 
 				<!-- Standalone webapp resources -->
-				<!-- ant:copy file="${basedir}/log4j.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" / -->
+				<ant:copy file="${basedir}/log4j.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
 				<!-- ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" / -->
 
 			</j:when>
