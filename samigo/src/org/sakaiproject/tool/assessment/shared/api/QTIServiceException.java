@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.shared.api;
+package org.sakaiproject.tool.assessment.shared.api.qti;
 
 /**
  * <p>Isolates exceptions in the QTI service layer.</p>

@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.shared.api;
+package org.sakaiproject.tool.assessment.shared.api.qti;
 
 import org.w3c.dom.Document;
 
