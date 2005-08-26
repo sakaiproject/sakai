@@ -25,14 +25,24 @@ package org.sakaiproject.tool.assessment.shared.impl.qti;
 
 import org.w3c.dom.Document;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceException;
 
+/**
+ * QTIServiceImpl implements a shared interface to get/set assessment
+ * information.
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
 public class QTIServiceImpl implements QTIServiceAPI
 {
+  private static Log log = LogFactory.getLog(QTIServiceImpl.class);
+
   /**
  * Import an assessment XML document in QTI format, extract & persist the data.
  * @param document the assessment XML document in QTI format
@@ -51,6 +61,7 @@ public class QTIServiceImpl implements QTIServiceAPI
     {
        new QTIServiceException(ex);
     }
+    log.error("createImportedAssessment() returning null");
     return null;
   }
 
@@ -72,6 +83,7 @@ public class QTIServiceImpl implements QTIServiceAPI
     {
        new QTIServiceException(ex);
     }
+    log.error("createImportedItem() returning null");
     return null;
   }
 
@@ -96,6 +108,7 @@ public class QTIServiceImpl implements QTIServiceAPI
     {
        new QTIServiceException(ex);
     }
+    log.error("getExportedAssessment() returning null");
     return null;
   }
 
@@ -120,6 +133,7 @@ public class QTIServiceImpl implements QTIServiceAPI
     {
        new QTIServiceException(ex);
     }
+    log.error("getExportedItem() returning null");
     return null;
   }
 
@@ -144,6 +158,7 @@ public class QTIServiceImpl implements QTIServiceAPI
     {
        new QTIServiceException(ex);
     }
+    log.error("getExportedItemBank() returning null");
     return null;
   }
 
