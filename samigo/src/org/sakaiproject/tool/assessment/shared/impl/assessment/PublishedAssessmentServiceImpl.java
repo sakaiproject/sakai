@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -34,8 +35,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI;
 
-
-
+/** @todo implement methods
+ * PublishedAssessmentServiceImpl implements a shared interface to get/set
+ * published assessment information.
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
 public class PublishedAssessmentServiceImpl implements PublishedAssessmentServiceAPI
 {
   private static Log log = LogFactory.getLog(PublishedAssessmentServiceImpl.class);

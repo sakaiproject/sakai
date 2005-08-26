@@ -23,23 +23,30 @@
 package org.sakaiproject.tool.assessment.shared.impl.assessment;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
 
-import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import java.util.Map;
-import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceException;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceException;
+import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
 
+/**
+ * AssessmentServiceImpl implements a shared interface to get/set assessment
+ * information.
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
 // Our API just uses our internal service. If we want, we can always replace
 // this internal service and use its implementation as our own.
-// ItemFacade implements ItemDataIfc.
-
+// Note that ItemFacade implements ItemDataIfc.
 public class ItemServiceImpl implements ItemServiceAPI
 {
+
+  private static Log log = LogFactory.getLog(ItemServiceImpl.class);
+
  /**
  * Get a particular item from the backend, with all questions.
  *

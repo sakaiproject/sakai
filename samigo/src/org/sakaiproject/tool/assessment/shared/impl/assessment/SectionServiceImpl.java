@@ -22,17 +22,20 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.shared.impl.assessment;
 
-import org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.SectionService;
-import org.sakaiproject.tool.assessment.shared.api.assessment.*;
 import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceException;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI;
 
+/**
+ * SectionServiceImpl implements a shared interface to get/set section
+ * information.
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
 public class SectionServiceImpl implements SectionServiceAPI
 {
   private static Log log = LogFactory.getLog(SectionServiceImpl.class);
