@@ -69,7 +69,7 @@ public interface AssessmentServiceAPI
 
   public void update(AssessmentIfc assessment);
 
-  public void save(AssessmentTemplateData template);
+  public void save(AssessmentTemplateIfc template);
 
   public void saveAssessment(AssessmentIfc assessment);
 
