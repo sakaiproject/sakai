@@ -34,8 +34,17 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceException;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 
-/** @todo implement methods
+/**
  * PublishedAssessmentServiceImpl implements a shared interface to get/set
  * published assessment information.
  * @author Ed Smiley <esmiley@stanford.edu>
@@ -45,161 +54,468 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
   private static Log log = LogFactory.getLog(PublishedAssessmentServiceImpl.class);
 
   /**
-   * rachelgollub: So takeable is that you have *not* reached the number of
-   * submissions and you're either before the due date or (you're after the due
-   * date, you haven't submitted yet, and late handling is enabled).
-   * - quoted from IM on 1/31/05
-   * Marc said some of teh assessment do not have any due date, e.g. survey
-   *
-   * @param agentId
-   * @param orderBy
-   * @param ascending
-   * @return
-   */
-  public List getBasicInfoOfAllPublishedAssessments(String agentId, String orderBy, boolean ascending)
+  * Get list of all active published assessments with basic info populated.
+  * @param agentId teh agent takign the assessments
+  * @param orderBy sort order field.
+  * @return the list.
+  */
+// * rachelgollub: So takeable is that you have *not* reached the number of
+// * submissions and you're either before the due date or (you're after the due
+// * date, you haven't submitted yet, and late handling is enabled).
+// * - quoted from IM on 1/31/05
+// * Marc said some of teh assessment do not have any due date, e.g. survey
+// *
+  public List getBasicInfoOfAllPublishedAssessments(String agentId, String orderBy,
+    boolean ascending)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getBasicInfoOfAllPublishedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getBasicInfoOfAllPublishedAssessments(
+       agentId, orderBy, ascending);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get list of all active published assessments.
+   * @param orderBy sort order field.
+   * @return the list.
+   */
   public List getAllActivePublishedAssessments(String orderBy)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getAllActivePublishedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getAllActivePublishedAssessments(orderBy);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get list of all active published assessments.
+   * @param pageSize number in a page
+   * @param pageNumber number of the page
+   * @param orderBy sort order field.
+   * @return the list.
+   */
   public List getAllActivePublishedAssessments(int pageSize, int pageNumber, String orderBy)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getAllActivePublishedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getAllActivePublishedAssessments(pageSize, pageNumber, orderBy);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+  /**
+   * Get list of all inactive published assessments.
+   * @param orderBy sort order field.
+   * @return the list.
+   */
   public List getAllInActivePublishedAssessments(String orderBy)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getAllInActivePublishedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getAllInActivePublishedAssessments(orderBy);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+  /**
+   * Get list of all inactive published assessments.
+   * @param pageSize number in a page
+   * @param pageNumber number of the page
+   * @param orderBy sort order field.
+   * @return the list.
+   */
+
   public List getAllInActivePublishedAssessments(int pageSize, int pageNumber, String orderBy)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getAllInActivePublishedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getAllInActivePublishedAssessments(pageSize, pageNumber, orderBy);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+  /**
+   * Get list of all inactive published assessments.
+   * @param orderBy sort order field.
+   * @param status the status code
+   * @return the list.
+   */
+
   public List getAllPublishedAssessments(String orderBy, Integer status)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getAllPublishedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getAllPublishedAssessments(orderBy, status);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get list of all inactive published assessments.
+   * @param pageSize number in a page
+   * @param pageNumber number of the page
+   * @param orderBy sort order field.
+   * @param status the status
+   * @return the list.
+   */
   public List getAllPublishedAssessments(int pageSize, int pageNumber, String orderBy, Integer status)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getAllPublishedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getAllPublishedAssessments(pageSize, pageNumber,
+                                                orderBy, status);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get published assessment.
+   * @param assessmentId the published assessment id string
+   * @return teh published assessment.
+   */
   public PublishedAssessmentIfc getPublishedAssessment(String assessmentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getPublishedAssessment() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getPublishedAssessment(assessmentId);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
   public Long getPublishedAssessmentId(String assessmentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getPublishedAssessmentId() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getPublishedAssessmentId(assessmentId);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
   public PublishedAssessmentIfc publishAssessment(AssessmentIfc assessment)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method publishAssessment() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      AssessmentService assessmentService = new AssessmentService();
+      AssessmentFacade facade = assessmentService.getAssessment(
+        assessment.getAssessmentId().toString());
+      return service.publishAssessment(facade);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
   public PublishedAssessmentIfc publishPreviewAssessment(AssessmentIfc assessment)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method publishPreviewAssessment() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      AssessmentService assessmentService = new AssessmentService();
+      AssessmentFacade facade = assessmentService.getAssessment(
+        assessment.getAssessmentId().toString());
+      return service.publishPreviewAssessment(facade);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
   public void saveAssessment(PublishedAssessmentIfc assessment)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method saveAssessment() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      PublishedAssessmentFacade facade = service.getPublishedAssessment(
+        assessment.getAssessmentId().toString());
+      service.saveAssessment(facade);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
   public void removeAssessment(String assessmentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method removeAssessment() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      service.removeAssessment(assessmentId);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
 
   /**
- * return an array list of the last AssessmentGradingIfc per assessment that
- * a user has submitted for grade.
- * @param agentId
- * @param orderBy
- * @param ascending
- * @return
- */
+   * Get list of all active published assessments with only basic info populated.
+   * @param ascending true if ascending sort.
+   * @param orderBy sort order field.
+   * @return the list.
+   */
   public List getBasicInfoOfAllActivePublishedAssessments(String orderBy, boolean ascending)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getBasicInfoOfAllActivePublishedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getBasicInfoOfAllActivePublishedAssessments(orderBy, ascending);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get list of all inactive published assessments with only basic info populated.
+   * @param ascending true if ascending sort.
+   * @param orderBy sort order field.
+   * @return the list.
+   */
   public List getBasicInfoOfAllInActivePublishedAssessments(String orderBy, boolean ascending)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getBasicInfoOfAllInActivePublishedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getBasicInfoOfAllInActivePublishedAssessments(orderBy, ascending);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get setttings of published assessment.
+   * @param assessmentId teh published assessment id string
+   * @return teh published assessment
+   */
   public PublishedAssessmentIfc getSettingsOfPublishedAssessment(String assessmentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getSettingsOfPublishedAssessment() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getSettingsOfPublishedAssessment(assessmentId);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Load an item that has been published
+   * @param itemId
+   * @return
+   */
   public ItemDataIfc loadPublishedItem(String itemId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method loadPublishedItem() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.loadPublishedItem(itemId);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
   public ItemTextIfc loadPublishedItemText(String itemTextId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method loadPublishedItemText() not yet implemented.");
-  }
-  public List getBasicInfoOfLastSubmittedAssessments(String agentId, String orderBy, boolean ascending)
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getBasicInfoOfLastSubmittedAssessments() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.loadPublishedItemText(itemTextId);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
 
   /**
- *
- * @param agentId
- * @return Map (Long publishedAssessmentId, Integer totalSubmittedForGrade);
+   * Get list of all last submitterd published assessments with only basic info populated.
+   * @param agentId the agent taking the assessments.
+   * @param ascending true if ascending sort.
+   * @param orderBy sort order field.
+   * @return the list.
+   */
+  public List getBasicInfoOfLastSubmittedAssessments(String agentId, String orderBy, boolean ascending)
+  {
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getBasicInfoOfLastSubmittedAssessments(agentId, orderBy, ascending);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
+  }
+
+ /**
+ * Get teh number of total submissions per assignment.
+ * @param agentId teh agent making submissions
+ * @return Map by(Long publishedAssessmentId->Integer totalSubmittedForGrade)
  */
 
   public Map getTotalSubmissionPerAssessment(String agentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getTotalSubmissionPerAssessment() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getTotalSubmissionPerAssessment(agentId);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+  * Get teh number of total submissions for one assignment.
+  * @param agentId teh agent making submissions
+  * @param publishedAssessmentId teh published assessment id string
+  * @return the total
+  */
   public Integer getTotalSubmission(String agentId, String publishedAssessmentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getTotalSubmission() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getTotalSubmission(agentId, publishedAssessmentId);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get a published assessment using an alias
+   * @param alias teh alias
+   * @return teh published assessment
+   */
   public PublishedAssessmentIfc getPublishedAssessmentIdByAlias(String alias)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getPublishedAssessmentIdByAlias() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getPublishedAssessmentIdByAlias(alias);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * @todo check persistence of this method!
+   * @param meta
+   */
+  // because our service implementation cannot cast to
+  // the PublishedAssessmentService.saveOrUpdateMetaData()
+  // we get the item, update the metadata, and persist
   public void saveOrUpdateMetaData(ItemMetaDataIfc meta)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method saveOrUpdateMetaData() not yet implemented.");
+    try
+    {
+      ItemService itemService = new ItemService();
+      ItemDataIfc itemIfc = meta.getItem();
+      itemIfc.getItemMetaDataSet().add(meta);
+      ItemFacade facade = itemService.getItem(itemIfc.getItemIdString());
+      itemService.saveItem(facade);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get a map of the feedback
+   * @return the map
+   */
   public Map getFeedbackHash()
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getFeedbackHash() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getFeedbackHash();
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get list of all active published assessmentsreleased to authenticated users.
+   * @return the list.
+   */
   public Map getAllAssessmentsReleasedToAuthenticatedUsers()
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getAllAssessmentsReleasedToAuthenticatedUsers() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getAllAssessmentsReleasedToAuthenticatedUsers();
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
+
+  /**
+   * Get the owner.
+   * @param publishedAssessmentId
+   * @return teh owner string.
+   */
   public String getPublishedAssessmentOwner(Long publishedAssessmentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getPublishedAssessmentOwner() not yet implemented.");
+    try
+    {
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      return service.getPublishedAssessmentOwner(publishedAssessmentId);
+    }
+    catch (Exception ex)
+    {
+      throw new AssessmentServiceException(ex);
+    }
   }
 }
