@@ -23,6 +23,9 @@
 
 package org.sakaiproject.tool.assessment.shared.impl.common;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.services.shared.MediaService;
 import org.sakaiproject.tool.assessment.shared.api.common.CommonServiceException;
 import org.sakaiproject.tool.assessment.shared.api.common.MediaServiceAPI;
@@ -34,6 +37,7 @@ import org.sakaiproject.tool.assessment.shared.api.common.MediaServiceAPI;
  */
 public class MediaServiceImpl implements MediaServiceAPI
 {
+  private static Log log = LogFactory.getLog(MediaServiceImpl.class);
 
   public void remove(String mediaId)
   {
