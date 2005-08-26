@@ -90,6 +90,7 @@ public class GradebookServiceImpl implements GradebookServiceAPI
   }
 
   /**
+   * @todo fix
    * Update the assessment for the agent's grade.
    * @param ag the assessment grading data
    * @param agentIdString agent id
@@ -98,9 +99,9 @@ public class GradebookServiceImpl implements GradebookServiceAPI
   {
     try
     {
-      GradingService service = new GradingService();
-      AssessmentGradingData data = service.load(ag.getAssessmentGradingId().toString());
-      helper.updateExternalAssessment(data, agentIdString);
+//      GradingService service = new GradingService();
+//      AssessmentGradingData data = service.load(ag.getAssessmentGradingId().toString());
+//      helper.updateExternalAssessment(data, agentIdString);
     }
     catch (Exception ex)
     {
