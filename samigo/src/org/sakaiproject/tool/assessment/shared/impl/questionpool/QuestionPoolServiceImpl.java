@@ -24,23 +24,24 @@
 package org.sakaiproject.tool.assessment.shared.impl.questionpool;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osid.shared.SharedException;
 
 import org.sakaiproject.tool.assessment.business.AAMTree;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
-import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
-import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceException;
+import org.osid.agent.*;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 
 /**
- * @todo implement some of the methods
+ *
  * The QuestionPoolServiceAPI declares a shared interface to control question
  * pool information.
  * @author Ed Smiley <esmiley@stanford.edu>
@@ -89,11 +90,15 @@ public class QuestionPoolServiceImpl
    */
   public List getBasicInfoOfAllPools(String agentId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method getBasicInfoOfAllPools() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.getBasicInfoOfAllPools(agentId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -101,11 +106,15 @@ public class QuestionPoolServiceImpl
    */
   public QuestionPoolDataIfc getPool(Long poolId, String agentId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method getPool() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.getPool(poolId, agentId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -113,20 +122,28 @@ public class QuestionPoolServiceImpl
    */
   public List getPoolIdsByItem(String itemId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method getPoolIdsByItem  () not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.getPoolIdsByItem(itemId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   public boolean hasItem(String itemId, Long poolId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method hasItem() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.hasItem(itemId, poolId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -134,11 +151,15 @@ public class QuestionPoolServiceImpl
    */
   public List getPoolIdsByAgent(String agentId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method getPoolIdsByAgent() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.getPoolIdsByAgent(agentId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -146,11 +167,15 @@ public class QuestionPoolServiceImpl
    */
   public List getSubPools(Long poolId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method getSubPools() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.getSubPools(poolId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -158,11 +183,15 @@ public class QuestionPoolServiceImpl
    */
   public int getSubPoolSize(Long poolId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method getSubPoolSize() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.getSubPoolSize(poolId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -170,11 +199,15 @@ public class QuestionPoolServiceImpl
    */
   public boolean hasSubPools(Long poolId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method hasSubPools() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.hasSubPools(poolId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -182,11 +215,15 @@ public class QuestionPoolServiceImpl
    */
   public List getAllItemsSorted(Long poolId, String orderBy)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method getAllItemsSorted() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.getAllItemsSorted(poolId, orderBy);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -194,11 +231,15 @@ public class QuestionPoolServiceImpl
    */
   public List getAllItems(Long poolId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method getAllItems() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.getAllItems(poolId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -206,11 +247,15 @@ public class QuestionPoolServiceImpl
    */
   public void addItemToPool(String itemId, Long poolId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method addItemToPool() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      service.addItemToPool(itemId, poolId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -218,11 +263,15 @@ public class QuestionPoolServiceImpl
    */
   public void moveItemToPool(String itemId, Long sourceId, Long destId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method moveItemToPool() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      service.moveItemToPool(itemId, sourceId, destId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -230,11 +279,15 @@ public class QuestionPoolServiceImpl
    */
   public boolean isDescendantOf(Long poolA, Long poolB, String agentId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method isDescendantOf() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.isDescendantOf(poolA, poolB, agentId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -242,11 +295,15 @@ public class QuestionPoolServiceImpl
    */
   public void movePool(String agentId, Long sourceId, Long destId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method movePool() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      service.movePool(agentId, sourceId, destId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -254,11 +311,15 @@ public class QuestionPoolServiceImpl
    */
   public void deletePool(Long poolId, String agentId, AAMTree tree)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method deletePool() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      service.deletePool(poolId, agentId, tree);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -266,11 +327,15 @@ public class QuestionPoolServiceImpl
    */
   public void removeQuestionFromPool(String questionId, Long poolId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method removeQuestionFromPool() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      service.removeQuestionFromPool(questionId, poolId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -279,11 +344,15 @@ public class QuestionPoolServiceImpl
   public void copyPool(AAMTree tree, String agentId, Long sourceId,
                        Long destId)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method copyPool() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      service.copyPool(tree, agentId, sourceId, destId);
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
   /**
@@ -291,20 +360,40 @@ public class QuestionPoolServiceImpl
    */
   public QuestionPoolDataIfc savePool(QuestionPoolDataIfc pool)
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method savePool() not yet implemented.");
+  try
+  {
+    QuestionPoolService service = new QuestionPoolService();
+    Long poolId = pool.getQuestionPoolId();
+    String agentId = null;
+    try
+    {
+      agentId = pool.getOwner().getId().toString();
+    }
+    catch (AgentException ax)
+    {
+      throw new QuestionPoolServiceException(ax);
+    }
+    QuestionPoolFacade facade = service.getPool(poolId, agentId);
+
+    return service.savePool(facade);
+  }
+  catch (Exception ex)
+  {
+    throw new QuestionPoolServiceException(ex);
+  }
   }
 
   public Map getQuestionPoolItemMap()
   {
-    /**@todo Implement this
-     * org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI method
-     * */
-    throw new java.lang.UnsupportedOperationException(
-      "Method getQuestionPoolItemMap() not yet implemented.");
+    try
+    {
+      QuestionPoolService service = new QuestionPoolService();
+      return service.getQuestionPoolItemMap();
+    }
+    catch (Exception ex)
+    {
+      throw new QuestionPoolServiceException(ex);
+    }
   }
 
 }
