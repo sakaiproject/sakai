@@ -44,6 +44,14 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 
+// Note on takability:
+// * rachelgollub: So takeable is that you have *not* reached the number of
+// * submissions and you're either before the due date or (you're after the due
+// * date, you haven't submitted yet, and late handling is enabled).
+// * - quoted from IM on 1/31/05
+// * Marc said some of the assessment do not have any due date, e.g. survey
+// *
+
 /**
  * PublishedAssessmentServiceImpl implements a shared interface to get/set
  * published assessment information.
@@ -55,16 +63,10 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
 
   /**
   * Get list of all active published assessments with basic info populated.
-  * @param agentId teh agent takign the assessments
+  * @param agentId the agent takign the assessments
   * @param orderBy sort order field.
   * @return the list.
   */
-// * rachelgollub: So takeable is that you have *not* reached the number of
-// * submissions and you're either before the due date or (you're after the due
-// * date, you haven't submitted yet, and late handling is enabled).
-// * - quoted from IM on 1/31/05
-// * Marc said some of teh assessment do not have any due date, e.g. survey
-// *
   public List getBasicInfoOfAllPublishedAssessments(String agentId, String orderBy,
     boolean ascending)
   {
@@ -199,7 +201,7 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
   /**
    * Get published assessment.
    * @param assessmentId the published assessment id string
-   * @return teh published assessment.
+   * @return the published assessment.
    */
   public PublishedAssessmentIfc getPublishedAssessment(String assessmentId)
   {
@@ -213,6 +215,12 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
       throw new AssessmentServiceException(ex);
     }
   }
+
+  /**
+   * Get the published id form the assessment id.
+   * @param assessmentId the assessment id string.
+   * @return the published assessment id.
+   */
   public Long getPublishedAssessmentId(String assessmentId)
   {
     try
@@ -225,6 +233,12 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
       throw new AssessmentServiceException(ex);
     }
   }
+
+  /**
+   * Publish an assessment.
+   * @param assessment
+   * @return
+   */
   public PublishedAssessmentIfc publishAssessment(AssessmentIfc assessment)
   {
     try
@@ -240,6 +254,12 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
       throw new AssessmentServiceException(ex);
     }
   }
+
+  /**
+   * Preview a published assessment.
+   * @param assessment the assessment to preview.
+   * @return the published assessment "view" into the assessment.
+   */
   public PublishedAssessmentIfc publishPreviewAssessment(AssessmentIfc assessment)
   {
     try
@@ -255,6 +275,11 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
       throw new AssessmentServiceException(ex);
     }
   }
+
+  /**
+   * Save a published assessment.
+   * @param assessment the published assessment.
+   */
   public void saveAssessment(PublishedAssessmentIfc assessment)
   {
     try
@@ -269,6 +294,11 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
       throw new AssessmentServiceException(ex);
     }
   }
+
+  /**
+   * Remove the published assessment.
+   * @param assessmentId the published assessment id string.
+   */
   public void removeAssessment(String assessmentId)
   {
     try
@@ -322,8 +352,8 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
 
   /**
    * Get setttings of published assessment.
-   * @param assessmentId teh published assessment id string
-   * @return teh published assessment
+   * @param assessmentId the published assessment id string
+   * @return the published assessment
    */
   public PublishedAssessmentIfc getSettingsOfPublishedAssessment(String assessmentId)
   {
@@ -355,6 +385,12 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
       throw new AssessmentServiceException(ex);
     }
   }
+
+  /**
+   * Load published assessment item text.
+   * @param itemTextId the id string of the itemtext.
+   * @return the item.
+   */
   public ItemTextIfc loadPublishedItemText(String itemTextId)
   {
     try
@@ -389,8 +425,8 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
   }
 
  /**
- * Get teh number of total submissions per assignment.
- * @param agentId teh agent making submissions
+ * Get the number of total submissions per assignment.
+ * @param agentId the agent making submissions
  * @return Map by(Long publishedAssessmentId->Integer totalSubmittedForGrade)
  */
 
@@ -408,9 +444,9 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
   }
 
   /**
-  * Get teh number of total submissions for one assignment.
-  * @param agentId teh agent making submissions
-  * @param publishedAssessmentId teh published assessment id string
+  * Get the number of total submissions for one assignment.
+  * @param agentId the agent making submissions
+  * @param publishedAssessmentId the published assessment id string
   * @return the total
   */
   public Integer getTotalSubmission(String agentId, String publishedAssessmentId)
@@ -428,8 +464,8 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
 
   /**
    * Get a published assessment using an alias
-   * @param alias teh alias
-   * @return teh published assessment
+   * @param alias the alias
+   * @return the published assessment
    */
   public PublishedAssessmentIfc getPublishedAssessmentIdByAlias(String alias)
   {
@@ -448,13 +484,13 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
    * @todo check persistence of this method!
    * @param meta
    */
-  // because our service implementation cannot cast to
-  // the PublishedAssessmentService.saveOrUpdateMetaData()
-  // we get the item, update the metadata, and persist
   public void saveOrUpdateMetaData(ItemMetaDataIfc meta)
   {
     try
     {
+      // because our service implementation cannot cast to
+      // the PublishedAssessmentService.saveOrUpdateMetaData()
+      // we get the item, update the metadata, and persist
       ItemService itemService = new ItemService();
       ItemDataIfc itemIfc = meta.getItem();
       itemIfc.getItemMetaDataSet().add(meta);
@@ -504,7 +540,7 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
   /**
    * Get the owner.
    * @param publishedAssessmentId
-   * @return teh owner string.
+   * @return the owner string.
    */
   public String getPublishedAssessmentOwner(Long publishedAssessmentId)
   {

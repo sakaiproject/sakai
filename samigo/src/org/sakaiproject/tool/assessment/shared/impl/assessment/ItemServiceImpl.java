@@ -35,7 +35,7 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceE
 import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
 
 /**
- * AssessmentServiceImpl implements a shared interface to get/set assessment
+ * AssessmentServiceImpl implements a shared interface to get/set item
  * information.
  * @author Ed Smiley <esmiley@stanford.edu>
  */
@@ -48,7 +48,7 @@ public class ItemServiceImpl implements ItemServiceAPI
   private static Log log = LogFactory.getLog(ItemServiceImpl.class);
 
  /**
- * Get a particular item from the backend, with all questions.
+ * Get a particular item.
  *
  * @param itemId the item id
  * @param agentId the agent id
@@ -71,7 +71,7 @@ public class ItemServiceImpl implements ItemServiceAPI
   }
 
   /**
-   * Delete a item
+   * Delete a item.
    *
    * @param itemId the item id
    * @param agentId the agent id
@@ -109,11 +109,11 @@ public class ItemServiceImpl implements ItemServiceAPI
   }
 
   /**
-   * Delete metadata for an item, used for modify
+   * Delete metadata for an item, used for modify.
    * param:  itemid, label, agentId
    *
    * @param itemId the item id
-   * @param label teh metadata label
+   * @param label the metadata label
    * @param agentId the agent id
    */
   public void deleteItemMetaData(Long itemId, String label, String agentId)
@@ -196,8 +196,8 @@ public class ItemServiceImpl implements ItemServiceAPI
 
   /**
    * Search for items.
-   * @param keyword the keyword to search by
-   * @return Map of ItemDataIfcs with item idstrings as keys
+   * @param keyword the keyword to search by.
+   * @return Map of ItemDataIfcs with item id strings as keys.
    */
 
   public Map getItemsByKeyword(String keyword)

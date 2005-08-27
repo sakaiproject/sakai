@@ -47,7 +47,7 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
   private static Log log = LogFactory.getLog(AssessmentServiceImpl.class);
 
   /**
-   * Get assessment template from idstring.
+   * Get assessment template from id string.
    * @param assessmentTemplateId
    * @return the assessment template
    */
@@ -67,7 +67,7 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
   /**
    * Get assessment from id string.
    * @param assessmentId
-   * @return teh assessment
+   * @return the assessment
    */
   public AssessmentIfc getAssessment(String assessmentId)
   {
@@ -83,9 +83,9 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
   }
 
   /**
-   * Get an assessment with only basic info populated
-   * @param assessmentId
-   * @return an assessment with only basic info populated
+   * Get an assessment with only basic info populated..
+   * @param assessmentId teh assessment id string.
+   * @return an assessment with only basic info populated.
    */
   public AssessmentIfc getBasicInfoOfAnAssessment(String assessmentId)
   {
@@ -102,7 +102,7 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
 
   /**
    * Get a list of assessment templates.
-   * @return teh list.
+   * @return the list.
    */
   public List getAllAssessmentTemplates()
   {
@@ -119,7 +119,7 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
 
   /**
    * Get a list of all active assessment templates.
-   * @return teh list
+   * @return the list
    */
   public List getAllActiveAssessmentTemplates()
   {
@@ -136,7 +136,7 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
 
   /**
    * Get a list of all the assessment template titles.
-   * @return teh list.
+   * @return the list.
    */
   public List
     getTitleOfAllActiveAssessmentTemplates()
@@ -274,11 +274,11 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
 
   /**
    * Create an assessment.
-   * @param title teh title
-   * @param description teh description
+   * @param title the title
+   * @param description the description
    * @param typeId the type id
    * @param templateId the template's template id
-   * @return teh created assessment.
+   * @return the created assessment.
    */
   public AssessmentIfc createAssessment(String
                                         title, String description,
@@ -403,8 +403,8 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
 
   /**
    * Add a section to an assessment.
-   * @param assessmentId teh assessment id string.
-   * @return teh section.
+   * @param assessmentId the assessment id string.
+   * @return the section.
    */
   public SectionDataIfc addSection(String assessmentId)
   {
@@ -438,7 +438,7 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
 
   /**
    * Get a section.
-   * @param sectionId teh section id string.
+   * @param sectionId the section id string.
    * @return the section.
    */
   public SectionDataIfc getSection(String sectionId)
@@ -495,7 +495,7 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
 
   /**
    * Remove all items from a section.
-   * @param sourceSectionId teh section id string.
+   * @param sourceSectionId the section id string.
    */
   public void removeAllItems(String sourceSectionId)
   {
@@ -511,7 +511,7 @@ public class AssessmentServiceImpl implements AssessmentServiceAPI
   }
 
   /**
- * Get list of all active assessment templatess with only basic info populated.
+ * Get list of all active assessment templates with only basic info populated.
  * @param orderBy
  * @return the list.
  */

@@ -45,7 +45,7 @@ public class TypeServiceImpl implements TypeServiceAPI
   /**
    * Get type for id
    * @param typeId the id
-   * @return teh type
+   * @return the type
    */
   public TypeIfc getTypeById(String typeId)
   {
@@ -61,7 +61,7 @@ public class TypeServiceImpl implements TypeServiceAPI
   }
 
   /**
-   * Get list of types for authority/domain
+   * Get list of types for authority/domain.
    * @param authority the authority
    * @param domain the domain
    * @return list of TypeIfc
