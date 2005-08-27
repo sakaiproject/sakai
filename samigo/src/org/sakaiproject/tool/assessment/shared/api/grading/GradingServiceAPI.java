@@ -38,13 +38,13 @@ public interface GradingServiceAPI
 {
   /**
    * Get all scores for a published assessment from the back end.
-   * @return List of AssessmentGradingIfcIfs
+   * @return List of AssessmentGradingIfs
    */
   public List getTotalScores(String publishedId, String which);
 
  /**
   * Get all submissions for a published assessment from the back end.
-  * @return List of AssessmentGradingIfcIfs
+  * @return List of AssessmentGradingIfs
   */
   public List getAllSubmissions(String publishedId);
 
@@ -67,7 +67,7 @@ public interface GradingServiceAPI
   /**
    * Get the last set of ItemGradingIfc for a student per assessment
    */
-  public Map getLastItemGradingIfc(String publishedId, String agentId);
+  public Map getLastItemGrading(String publishedId, String agentId);
 
   /**
    * Get the grading data for a given submission
@@ -146,7 +146,7 @@ public interface GradingServiceAPI
    * @param agentId
    * @return
    */
-  public ItemGradingIfc getLastItemGradingIfcByAgent(String publishedItemId, String agentId);
+  public ItemGradingIfc getLastItemGradingByAgent(String publishedItemId, String agentId);
 
   /**
    *
@@ -154,7 +154,7 @@ public interface GradingServiceAPI
    * @param publishedItemId
    * @return
    */
-  public ItemGradingIfc getItemGradingIfc(String assessmentGradingId, String publishedItemId);
+  public ItemGradingIfc getItemGrading(String assessmentGradingId, String publishedItemId);
 
   /**
    * Load assessment grading information.

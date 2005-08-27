@@ -33,6 +33,10 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceException;
+import java.util.ArrayList;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 
 /**
  * @todo implement methods
@@ -50,8 +54,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public List getTotalScores(String publishedId, String which)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getTotalScores() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getTotalScores(publishedId, which);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -60,8 +71,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public List getAllSubmissions(String publishedId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getAllSubmissions() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getAllSubmissions(publishedId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -70,8 +88,16 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public void saveTotalScores(List data)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method saveTotalScores() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      ArrayList list = new ArrayList(data);
+      service.saveTotalScores(list);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -81,8 +107,16 @@ public class GradingServiceImpl implements GradingServiceAPI
 
   public void saveItemScores(List data)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method saveItemScores() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      ArrayList list = new ArrayList(data);
+      service.saveItemScores(list);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -90,17 +124,32 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public Map getItemScores(Long publishedId, Long itemId, String which)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getItemScores() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getItemScores(publishedId, itemId, which);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
    * Get the last set of ItemGradingIfc for a student per assessment
    */
-  public Map getLastItemGradingIfc(String publishedId, String agentId)
+  public Map getLastItemGrading(String publishedId, String agentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getLastItemGradingIfc() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      // note name change
+      return service.getLastItemGradingData(publishedId, agentId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -108,8 +157,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public Map getStudentGradingData(String assessmentGradingId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getStudentGradingData() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getStudentGradingData(assessmentGradingId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -117,8 +173,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public Map getSubmitData(String publishedId, String agentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getSubmitData() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getSubmitData(publishedId, agentId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -128,8 +191,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public String getTextForId(Long typeId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getTextForId() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getTextForId(typeId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -138,8 +208,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public void storeGrades(AssessmentGradingIfc data)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method storeGrades() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      service.storeGrades(data);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -149,8 +226,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public int getSubmissionSizeOfPublishedAssessment(String publishedAssessmentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getSubmissionSizeOfPublishedAssessment() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getSubmissionSizeOfPublishedAssessment(publishedAssessmentId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -159,8 +243,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public Map getSubmissionSizeOfAllPublishedAssessments()
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getSubmissionSizeOfAllPublishedAssessments() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getSubmissionSizeOfAllPublishedAssessments();
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -171,19 +262,34 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public Long saveMedia(byte[] media, String mimeType)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method saveMedia() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.saveMedia(media, mimeType);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
-   *
+   * Save media.
    * @param mediaData
    * @return
    */
   public Long saveMedia(MediaIfc mediaData)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method saveMedia() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.saveMedia(
+        service.getMedia(mediaData.getMediaId().toString()));
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -193,8 +299,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public MediaIfc getMedia(String mediaId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getMedia() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getMedia(mediaId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -204,8 +317,15 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public List getMediaArray(String itemGradingId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getMediaArray() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getMediaArray(itemGradingId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -213,10 +333,22 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param i
    * @return
    */
-  public List getMediaArray(ItemGradingIfc i)
+  public List getMediaArray(ItemGradingIfc itemGrading)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getMediaArray() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      String publishedItemId = itemGrading.getPublishedItem().getItemIdString();
+      String assessmentGradingId =
+        itemGrading.getAssessmentGrading().getAssessmentGradingId().toString();
+      ItemGradingData gradingData = service.getItemGradingData(
+        assessmentGradingId, publishedItemId);
+      return service.getMediaArray(gradingData);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -225,10 +357,17 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param agentId
    * @return
    */
-  public ItemGradingIfc getLastItemGradingIfcByAgent(String publishedItemId, String agentId)
+  public ItemGradingIfc getLastItemGradingByAgent(String publishedItemId, String agentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getLastItemGradingIfcByAgent() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getLastItemGradingDataByAgent(publishedItemId, agentId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -237,10 +376,19 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param publishedItemId
    * @return
    */
-  public ItemGradingIfc getItemGradingIfc(String assessmentGradingId, String publishedItemId)
+  public ItemGradingIfc getItemGrading(String assessmentGradingId, String publishedItemId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getItemGradingIfc() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      // note name change
+      return service.getItemGradingData(
+        assessmentGradingId, publishedItemId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
 /**
@@ -250,8 +398,15 @@ public class GradingServiceImpl implements GradingServiceAPI
  */
   public AssessmentGradingIfc load(String assessmentGradingId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method load() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.load(assessmentGradingId);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -262,8 +417,16 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public AssessmentGradingIfc getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getLastAssessmentGradingByAgentId() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      return service.getLastAssessmentGradingByAgentId(
+        publishedAssessmentId, agentIdString);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
@@ -272,17 +435,31 @@ public class GradingServiceImpl implements GradingServiceAPI
    */
   public void saveItemGrading(ItemGradingIfc item)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method saveItemGrading() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      service.saveItemGrading(item);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 
   /**
-   *
+   * Save assesment grading.
    * @param assessment
    */
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method saveOrUpdateAssessmentGrading() not yet implemented.");
+    try
+    {
+      GradingService service = new GradingService();
+      service.saveOrUpdateAssessmentGrading(assessment);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
   }
 }
