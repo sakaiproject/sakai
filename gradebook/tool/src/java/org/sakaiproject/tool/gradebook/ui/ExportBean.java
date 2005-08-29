@@ -389,7 +389,8 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
      * time after the instant it was made".
      */
     public static void protectAgainstInstantDeletion(HttpServletResponse response) {
-    	response.setHeader("Pragma", "cache");	// Old-style cache control
-    	response.setHeader("Cache-Control", "public, must-revalidate, max-age=0");	// New-style
+    	response.setHeader("Pragma", "cache");	// Override old-style cache control
+    	response.setHeader("Pragma", "public");	// Override old-style cache control
+    	response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
     }
 }
