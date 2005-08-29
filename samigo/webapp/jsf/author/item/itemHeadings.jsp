@@ -30,7 +30,13 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
      when this form posts a change in item type, the data is persisted.
      We don't keep the answers--probably misleading for the new type.
 --%>
+<%-- score --%>
+<h:inputHidden value="#{itemauthor.currentItem.itemScore}" />
+<%-- non-matching type questions --%>
 <h:inputHidden value="#{itemauthor.currentItem.itemText}" />
+<%-- matching questions --%>
+<h:inputHidden value="#{itemauthor.currentItem.instruction}" />
+<%-- feedback --%>
 <h:inputHidden value="#{itemauthor.currentItem.corrFeedback}" />
 <h:inputHidden value="#{itemauthor.currentItem.incorrFeedback}" />
 <h:inputHidden value="#{itemauthor.currentItem.generalFeedback}" />
