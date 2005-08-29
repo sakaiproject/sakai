@@ -73,20 +73,6 @@ public class TestStandaloneCourseManagement extends GradebookDbTestBase {
 		Assert.assertTrue(enrollments.size() == enrollmentSize);
 	}
 
-	public void testFindEnrollmentsByUserUid() throws Exception {
-		String[] userUids = {"stu_1", "stu_2"};
-		Set found = courseManagement.findEnrollmentsByUserUids(gradebookUid, Arrays.asList(userUids));
-		Map enrMap = new HashMap();
-		for (Iterator iter = found.iterator(); iter.hasNext(); ) {
-			Enrollment enr = (Enrollment)iter.next();
-			enrMap.put(enr.getUser().getUserUid(), enr);
-		}
-		Assert.assertTrue(enrMap.size() == 2);
-		for (int i = 0; i < userUids.length; i++) {
-			Assert.assertTrue(enrMap.get(userUids[i]) != null);
-		}
-	}
-
 	public void testSortNamePagedEnrollments() throws Exception {
 		List enrollments = new ArrayList(courseManagement.getEnrollments(gradebookUid));
 		Collections.sort(enrollments, FacadeUtils.ENROLLMENT_NAME_COMPARATOR);

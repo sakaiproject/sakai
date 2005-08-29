@@ -66,17 +66,6 @@ public class CourseManagementStandaloneImpl extends HibernateDaoSupport implemen
 		});
 	}
 
-	public Set findEnrollmentsByUserUids(final String gradebookUid, final Collection userUids) {
-		return (Set)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.createQuery("select enr from EnrollmentStandalone enr, Gradebook gb where gb.uid=:gbuid and enr.gradebook=gb and enr.user.userUid in (:userUids)");
-				q.setString("gbuid", gradebookUid);
-				q.setParameterList("userUids", userUids);
-				return new HashSet(q.list());
-			}
-		});
-	}
-
 	public int getEnrollmentsSize(final String gradebookUid) {
 		Integer size = (Integer)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -88,20 +77,6 @@ public class CourseManagementStandaloneImpl extends HibernateDaoSupport implemen
 			}
 		});
 		return size.intValue();
-	}
-
-    /**
-     */
-    public Set findEnrollmentsByStudentDisplayUid(final String gradebookUid, final String studentDisplayUid) {
-		return (Set)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				String hql = "select enr from EnrollmentStandalone enr, UserStandalone user, Gradebook gb where gb.uid=:gbuid and enr.gradebook=gb and enr.user=user and (user.displayName like :name or user.sortName like :name)";
-                Query q = session.createQuery(hql);
-                q.setString("gbuid", gradebookUid);
-                q.setString("name", "%" + studentDisplayUid + "%"); // Use % for the like query
-                return new HashSet(q.list());
-			}
-		});
 	}
 
     /**

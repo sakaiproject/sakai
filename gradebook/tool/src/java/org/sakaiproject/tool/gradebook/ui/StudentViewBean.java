@@ -36,6 +36,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -234,14 +236,13 @@ public class StudentViewBean extends EnrollmentTableBean implements Serializable
         Gradebook gradebook = getGradebook();
         GradeMapping gradeMapping = gradebook.getSelectedGradeMapping();
 
-        // Get this user's enrollment record
-        List studentCollection = new ArrayList();
-        studentCollection.add(getUserUid());
-        Set enrollments = getCourseManagementService().findEnrollmentsByUserUids(gradebook.getUid(), studentCollection);
-        Enrollment enr = (Enrollment)enrollments.iterator().next();
-
         // Set the display name
-        userDisplayName = enr.getUser().getDisplayName();
+        try {
+	        userDisplayName = getCourseManagementService().getUser(getUserUid()).getDisplayName();
+	    } catch (UnknownUserException e) {
+	    	logger.error("User " + getUserUid() + " is unknown but logged in as student in gradebook " + gradebook.getUid());
+	    	userDisplayName = "";
+	    }
         courseGradeReleased = gradebook.isCourseGradeDisplayed();
         assignmentsReleased = gradebook.isAssignmentsDisplayed();
 

@@ -74,15 +74,6 @@ public class CourseManagementTestImpl implements CourseManagement {
         return randomString.toString();
     }
 
-	public Set findEnrollmentsByUserUids(String gradebookUid, Collection userUids) {
-		Set users = new HashSet();
-		for (Iterator iter = userUids.iterator(); iter.hasNext(); ) {
-			String userUid = (String)iter.next();
-			users.add(new UserStandalone(userUid, userUid, userUid, userUid + "@campus.edu"));
-		}
-		return users;
-	}
-
     public int getEnrollmentsSize(String gradebookUid) {
     	return getEnrollments(gradebookUid).size();
     }
@@ -91,13 +82,6 @@ public class CourseManagementTestImpl implements CourseManagement {
 	 */
 	public Set findEnrollmentsByStudentNameOrDisplayUid(String gradebookUid, String studentNameQuery) {
         // TODO Auto-generated method stub
-		return new HashSet();
-	}
-	/**
-	 */
-	public Set findEnrollmentsByStudentDisplayUid(String gradebookUid,
-			String studentDisplayUid) {
-		// TODO Auto-generated method stub
 		return new HashSet();
 	}
 

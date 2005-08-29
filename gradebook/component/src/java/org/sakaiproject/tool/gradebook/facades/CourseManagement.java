@@ -47,19 +47,6 @@ public interface CourseManagement {
 	public Set getEnrollments(String gradebookUid);
 
 	/**
-	 * Obtain the set of users with the specific UIDs.
-	 * Called when displaying a page of grade records containing the given UIDs.
-	 *
-	 * Although not strictly needed to meet requirements, this gives implementors
-	 * a way to optimize a frequent operation.
-	 *
-	 * @param gradebookUid
-	 * @param userUids the String UIDs to match
-	 * @return a set of matching Enrollment objects
-	 */
-	 public Set findEnrollmentsByUserUids(String gradebookUid, Collection userUids);
-
-	/**
 	 * Obtain the number of students included in the specified gradebook.
 	 * This is the only CourseManagement information needed to calculate
 	 * the most frequently displayed gradebook statistics.

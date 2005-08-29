@@ -64,21 +64,6 @@ public class CourseManagementSakai2Impl implements CourseManagement {
 	}
 
 	/**
-	 * @see org.sakaiproject.tool.gradebook.facades.CourseManagement#findEnrollmentsByUserUids(java.lang.String, java.util.Collection)
-	 */
-	public Set findEnrollmentsByUserUids(String gradebookUid, Collection userUids) {
-        List sakaiUsers = getSakaiUsers();
-        Set gbUsers = new HashSet();
-        for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
-            org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
-            if(userUids.contains(sakaiUser.getId())) {
-                gbUsers.add(new UserSakai2Impl(sakaiUser));
-            }
-        }
-        return gbUsers;
-	}
-
-	/**
 	 * @see org.sakaiproject.tool.gradebook.facades.CourseManagement#getEnrollmentsSize(java.lang.String)
 	 */
 	public int getEnrollmentsSize(String gradebookUid) {
