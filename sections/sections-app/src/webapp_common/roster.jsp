@@ -32,7 +32,9 @@
                     <h:outputText value="#{msgs.roster_table_header_name}" />
                 </x:commandSortHeader>
             </f:facet>
-            <h:commandLink action="editStudentSections" value="#{enrollment.user.sortName}"/>
+            <h:commandLink action="editStudentSections" value="#{enrollment.user.sortName}">
+                <f:param name="studentUuid" value="#{enrollment.user.userUuid}"/>
+            </h:commandLink>
         </h:column>
         <h:column>
             <f:facet name="header">

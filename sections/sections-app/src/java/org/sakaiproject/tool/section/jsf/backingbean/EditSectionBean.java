@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class EditSectionBean extends CourseDependentBean implements Serializable {
 
@@ -59,8 +60,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	
 	public void init() {
 		// Get the section to edit
-		String sectionUuidFromParam = (String)FacesContext.getCurrentInstance()
-			.getExternalContext().getRequestParameterMap().get("sectionUuid");
+		String sectionUuidFromParam = JsfUtil.getStringFromParam("sectionUuid");
 		if(sectionUuidFromParam != null) {
 			sectionUuid = sectionUuidFromParam;
 		}
@@ -84,7 +84,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	}
 
 	public String update() {
-		getSectionManager().updateSection(sectionUuid, title, category, maxEnrollments,
+		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
 				location, startTime, startTimeAm, endTime, endTimeAm, monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
 		return "overview";

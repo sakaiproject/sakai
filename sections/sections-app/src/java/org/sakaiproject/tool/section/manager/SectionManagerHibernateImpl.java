@@ -192,7 +192,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		try {
 			name = bundle.getString(categoryId);
 		} catch(MissingResourceException mre) {
-			if(log.isInfoEnabled()) log.info("Could not find the name for category id = " + categoryId + " in locale " + locale.getDisplayName());
+			if(log.isDebugEnabled()) log.debug("Could not find the name for category id = " + categoryId + " in locale " + locale.getDisplayName());
 			name = null;
 		}
 		return name;
@@ -340,9 +340,25 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	CourseSection section = getSection(sectionUuid, session);
             	User user = userDirectory.getUser(userUuid);
 
-            	// TODO Make sure they are not already enrolled in this learning context
+            	Set currentEnrollments = getSectionEnrollments(userUuid, section.getCourse().getUuid());
+            	for(Iterator iter = currentEnrollments.iterator(); iter.hasNext();) {
+            		EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
+                	
+            		// Make sure they are not already enrolled in this learning context
+            		if(enrollment.getLearningContext().equals(section)) {
+            			if(log.isDebugEnabled()) log.debug("Not adding an enrollment for student "
+            					+ userUuid + " in section " + sectionUuid + "... already enrolled.");
+            			return null;
+            		}
 
-            	// TODO Make sure they are not enrolled in another section of the same category
+            		// Make sure any enrollment in another section of the same category is removed
+            		if(((CourseSection)enrollment.getLearningContext()).getCategory().equals(section.getCategory())) {
+            			if(log.isDebugEnabled()) log.debug("Removing enrollment for student"
+            					+ userUuid + " in section " + enrollment.getLearningContext().getUuid()
+            					+ "... enrolling in " + sectionUuid);
+            			session.delete(enrollment);
+            		}
+            	}
             	
             	EnrollmentRecordImpl enrollment = new EnrollmentRecordImpl(section, "enrolled", user);
             	enrollment.setUuid(uuidManager.createUuid());
@@ -360,7 +376,14 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	User user = userDirectory.getUser(userId);
 
             	// TODO Make sure they are not already a TA in this section
-            	
+            	List taRecords = getSectionTeachingAssistants(sectionUuid);
+            	for(Iterator iter = taRecords.iterator(); iter.hasNext();) {
+            		ParticipationRecord record = (ParticipationRecord)iter.next();
+            		if(record.getUser().getUserUuid().equals(userId)) {
+            			if(log.isDebugEnabled()) log.debug("Not adding a TA record for "
+            					+ userId + "... already a TA in section " + sectionUuid);
+            		}
+            	}
             	TeachingAssistantRecordImpl ta = new TeachingAssistantRecordImpl(section, user);
             	ta.setUuid(uuidManager.createUuid());
             	session.save(ta);
@@ -462,6 +485,24 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
 
+	public void dropEnrollmentFromCategory(final String studentUuid,
+			final String siteContext, final String category) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	Query q = session.getNamedQuery("findCategoryEnrollment");
+            	q.setParameter("studentUuid", studentUuid);
+            	q.setParameter("category", category);
+            	q.setParameter("siteContext", siteContext);
+            	Object result = q.uniqueResult();
+            	if(result != null) {
+                	session.delete(result);
+            	}
+            	return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+	}
+
 	public int getTotalEnrollments(final String learningContextUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -500,16 +541,15 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     }
 
     public void updateSection(final String sectionUuid, final String title,
-    		final String category, final int maxEnrollments,
-    		final String location, final String startTime, final boolean startTimeAm,
-    		final String endTime, final boolean endTimeAm, final boolean monday,
-    		final boolean tuesday, final boolean wednesday, final boolean thursday,
-    		final boolean friday, final boolean saturday, final boolean sunday) {
+    		final int maxEnrollments, final String location, final String startTime,
+    		final boolean startTimeAm, final String endTime, final boolean endTimeAm,
+    		final boolean monday, final boolean tuesday, final boolean wednesday,
+    		final boolean thursday, final boolean friday, final boolean saturday,
+    		final boolean sunday) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSectionImpl section = getSection(sectionUuid, session);
             	section.setTitle(title);
-            	section.setCategory(category);
             	section.setMaxEnrollments(maxEnrollments);
             	section.setLocation(location);
             	section.setStartTime(startTime);

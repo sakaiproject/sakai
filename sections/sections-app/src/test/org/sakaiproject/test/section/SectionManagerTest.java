@@ -195,27 +195,25 @@ public class SectionManagerTest extends SectionsTestBase{
 		// otherPerson was originally in the section, but wasn't included in the set operation
 		Assert.assertTrue( ! sectionMembers.contains(otherPerson));
 		
-		// Drop a student from a section and ensure the enrollments reflect the drop (remember... student1 switched to sec2!)
+		// Drop a student from a section and ensure the enrollments reflect the drop
 		secMgr.dropSectionMembership(student1.getUserUuid(), sec2.getUuid());
 		List sec2Members = secMgr.getSectionEnrollments(sec2.getUuid());
 		Assert.assertTrue( ! sec2Members.contains(sectionEnrollment1));
-				
+
 		// Check whether the total enrollments in the course and in the sections is accurate
 		Assert.assertTrue(secMgr.getTotalEnrollments(course.getUuid()) == 3);
 		Assert.assertTrue(secMgr.getTotalEnrollments(sec1.getUuid()) == 2);
 		
 		// Ensure that a section can be updated
-		secMgr.updateSection(sec1.getUuid(), "New title", secondCategory, 10, null, null, false, null, false, false, false, false, false, false, false, false);
+		secMgr.updateSection(sec1.getUuid(), "New title", 10, null, null, false, null, false, false, false, false, false, false, false, false);
 		CourseSection updatedSec = secMgr.getSection(sec1.getUuid());
 		Assert.assertTrue(updatedSec.getTitle().equals("New title"));
-		Assert.assertTrue(updatedSec.getCategory().equals(secondCategory));
 		sec1 = updatedSec;
 		
 		// Ensure that disbanding a section actually removes it from the course
 		secMgr.disbandSection(sec4.getUuid());
 		Assert.assertTrue( ! secMgr.getSections(siteContext).contains(sec4));
-		
-		
+
 		// Assert that the correct enrollment records are returned for a student in a course
 		ParticipationRecord enrollment1 = secMgr.addSectionMembership(student1.getUserUuid(), Role.STUDENT, sec1.getUuid());
 		ParticipationRecord enrollment2 = secMgr.addSectionMembership(student1.getUserUuid(), Role.STUDENT, sec3.getUuid());
@@ -232,17 +230,27 @@ public class SectionManagerTest extends SectionsTestBase{
 		studentUuids.add("other1");
 		SectionEnrollments secEnrollments = secMgr.getSectionEnrollmentsForStudents(siteContext, studentUuids);
 
-		// Student 1 is enrolled in section 3
-		Assert.assertTrue(secEnrollments.getSection("student1", firstCategory) == null);
+		// Student 1 is enrolled in section 1 and 3
+		Assert.assertTrue(secEnrollments.getSection("student1", firstCategory).equals(sec1));
 		Assert.assertTrue(secEnrollments.getSection("student1", secondCategory).equals(sec3));
 		
 		// Student 2 is enrolled in section 1
-		Assert.assertTrue(secEnrollments.getSection("student2", firstCategory) == null);
-		Assert.assertTrue(secEnrollments.getSection("student2", secondCategory).equals(sec1));
+		Assert.assertTrue(secEnrollments.getSection("student2", firstCategory).equals(sec1));
+		Assert.assertTrue(secEnrollments.getSection("student2", secondCategory) == null);
 
 		// Other person is enrolled in section 1
-		Assert.assertTrue(secEnrollments.getSection("other1", firstCategory) == null);
-		Assert.assertTrue(secEnrollments.getSection("other1", secondCategory).equals(sec1));
+		Assert.assertTrue(secEnrollments.getSection("other1", firstCategory).equals(sec1));
+		Assert.assertTrue(secEnrollments.getSection("other1", secondCategory) == null);
+		
+		// Remove an enrollment from a category
+		secMgr.dropEnrollmentFromCategory("student1", siteContext, firstCategory);
+		
+		// Assert that the student is no longer in sec1
+		Assert.assertTrue( ! secMgr.getSectionEnrollments("student1", course.getUuid()).contains(sec1));
+
+		// Remove the enrollment from the same category, which should do nothing,
+		// just to ensure that no error is thrown
+		secMgr.dropEnrollmentFromCategory("student1", siteContext, firstCategory);
 		
 		// Change the self reg and self switching flags
 		secMgr.setSelfRegistrationAllowed(course.getUuid(), true);

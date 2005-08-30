@@ -172,12 +172,17 @@ public interface SectionManager {
     public int getTotalEnrollments(String learningContextUuid);
     
     /**
-     * Adds a user to a section under the specified role.
+     * Adds a user to a section under the specified role.  If a student is added
+     * to a section, s/he will be automatically removed from any other section
+     * of the same category in this site.  So adding 'student1' to 'Lab1', for
+     * example, will automatically remove 'student1' from 'Lab2'.  TAs may be
+     * added to multiple sections in a site regardless of category.
      * 
      * @param userUuid
      * @param role
      * @param sectionUuid
-     * @throws MembershipException A user can not be added to a section more than once, regardless of role.
+     * @throws MembershipException Only students and TAs can be members of a
+     * section.  Instructor roles are assigned only at the course level.
      */
     public ParticipationRecord addSectionMembership(String userUuid, Role role, String sectionUuid)
         throws MembershipException;
@@ -200,6 +205,8 @@ public interface SectionManager {
      */
     public void dropSectionMembership(String userUuid, String sectionUuid);
     
+	public void dropEnrollmentFromCategory(String studentUuid, String siteContext, String category);
+
     /**
      * Adds a CourseSection to a parent CourseSection.  This assumes that meeting times
      * will not be handled by an external service.  The added functionality of
@@ -232,11 +239,11 @@ public interface SectionManager {
     		boolean friday, boolean saturday, boolean sunday);
 	
     /**
-     * Updates the persistent representation of the given CourseSection.
+     * Updates the persistent representation of the given CourseSection.  Once
+     * a section is created, its category is immutable.
      * 
      * @param sectionUuid
      * @param title
-     * @param category
      * @param maxEnrollments
      * @param location
      * @param startTime
@@ -251,11 +258,10 @@ public interface SectionManager {
      * @param saturday
      * @param sunday
      */
-    public void updateSection(String sectionUuid, String title,
-    		String category, int maxEnrollments, String location, 
-    		String startTime, boolean startTimeAm, String endTime, boolean endTimeAm,
-    		boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
-    		boolean friday, boolean saturday, boolean sunday);
+    public void updateSection(String sectionUuid, String title, int maxEnrollments,
+    		String location, String startTime, boolean startTimeAm, String endTime,
+    		boolean endTimeAm, boolean monday, boolean tuesday, boolean wednesday,
+    		boolean thursday, boolean friday, boolean saturday, boolean sunday);
     
     /**
      * Disbands a course section.  This does not affect enrollment records for
@@ -344,7 +350,6 @@ public interface SectionManager {
      * {@link SectionAwareness#getCategoryName(String, Locale) getCategoryName}.
      */
     public List getSectionCategories();
-
 
 }
 

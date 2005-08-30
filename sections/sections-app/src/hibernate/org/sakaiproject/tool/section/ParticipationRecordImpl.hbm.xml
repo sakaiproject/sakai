@@ -126,6 +126,15 @@
         ]]>
     </query>
 
+    <query name="findCategoryEnrollment">
+        <![CDATA[
+        from EnrollmentRecordImpl as enr where enr.user.userUuid=:studentUuid
+            and enr.learningContext in (
+                from CourseSectionImpl as section where section.course.siteContext=:siteContext
+                and section.category=:category )
+        ]]>
+    </query>
+
     <query name="countEnrollments">
         <![CDATA[
         select count(enr) from EnrollmentRecordImpl as enr where
