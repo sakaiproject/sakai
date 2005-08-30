@@ -85,16 +85,6 @@ public class CourseManagementTestImpl implements CourseManagement {
 		return new HashSet();
 	}
 
-	public List findEnrollmentsPagedBySortName(String gradebookUid, int startRange, int rangeMaximum, boolean isAscending) {
-		// TODO Implement this.
-		return new ArrayList();
-	}
-
-	public List findEnrollmentsPagedByDisplayUid(String gradebookUid, int startRange, int rangeMaximum, boolean isAscending) {
-		// TODO Implement this.
-		return new ArrayList();
-	}
-
     public User getUser(String userUid) throws UnknownUserException {
         return new UserStandalone(userUid, "User", "User", "User");
     }

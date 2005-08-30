@@ -90,36 +90,6 @@ public class CourseManagementSakai2Impl implements CourseManagement {
 	}
 
 	/**
-	 * @see org.sakaiproject.tool.gradebook.facades.CourseManagement#findEnrollmentsPagedBySortName(java.lang.String, int, int, boolean)
-	 */
-	public List findEnrollmentsPagedBySortName(String gradebookUid,
-			int startRange, int rangeMaximum, boolean isAscending) {
-        // This is currently not being used by the gradebook tool
-		return null;
-	}
-
-	/**
-	 * @see org.sakaiproject.tool.gradebook.facades.CourseManagement#findEnrollmentsPagedByDisplayUid(java.lang.String, int, int, boolean)
-	 */
-	public List findEnrollmentsPagedByDisplayUid(String gradebookUid,
-			int startRange, int rangeMaximum, boolean isAscending) {
-        List sakaiUsers = getSakaiUsers();
-        List gbUsers = new ArrayList();
-        for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
-            org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
-            gbUsers.add(new UserSakai2Impl(sakaiUser));
-        }
-
-        // Sort the enrollments by user uid (in this case, the user's email)
-        Collections.sort(gbUsers);
-
-        // Return the sub list matching the start and range
-        int max;
-        max = gbUsers.size() > (startRange + rangeMaximum) ? startRange + rangeMaximum : gbUsers.size();
-        return gbUsers.subList(startRange, max);
-	}
-
-	/**
 	 * @return The list of sakai users, or an empty list if it's unavailable
 	 */
 	private List getSakaiUsers() {

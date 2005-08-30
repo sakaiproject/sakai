@@ -79,8 +79,6 @@ public class CourseManagementStandaloneImpl extends HibernateDaoSupport implemen
 		return size.intValue();
 	}
 
-    /**
-     */
     public Set findEnrollmentsByStudentNameOrDisplayUid(final String gradebookUid, final String studentNameQuery) {
 		return (Set)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -96,6 +94,26 @@ public class CourseManagementStandaloneImpl extends HibernateDaoSupport implemen
 		});
 	}
 
+    /**
+	 * As a historical note, the Gradebook project began by trying to allow for as
+	 * much optimization as possible. When displaying paged sortable tables of enrollment data
+	 * which were sorted by an enrollment field, we could theoretically get a big performance boost
+	 * by relying on the enrollment database query to optimize the necessary searching, sorting,
+	 * and filtering. Therefore, we specified two (optional) methods to allow for that optimization.
+	 *
+	 * In actual fact, however, the Sakai 2.0 framework was unable to perform such
+	 * optimization, and it wasn't clear when it would be. We also began to wonder if it
+	 * was such a good idea to have performance profiles so radically change depending on what
+	 * sorting criterion the user selected.
+	 *
+	 * Since in effect, the methods only did us good while running standalone, we've dropped
+	 * them for Sakai 2.1. I'll leave these comments here until the next release, just in
+	 * case anyone wonders what happened.
+	 *
+	 * For more on how these would actually be used, see the Sakai 2.0 EnrollmentTableBean
+	 * and TestStandaloneCourseManagement classes.
+     */
+    /*
 	public List findEnrollmentsPagedBySortName(final String gradebookUid, final int startRange, final int rangeMaximum, final boolean isAscending) {
 		return (List)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -111,7 +129,6 @@ public class CourseManagementStandaloneImpl extends HibernateDaoSupport implemen
 			}
 		});
 	}
-
 	public List findEnrollmentsPagedByDisplayUid(final String gradebookUid, final int startRange, final int rangeMaximum, final boolean isAscending) {
 		return (List)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -127,6 +144,7 @@ public class CourseManagementStandaloneImpl extends HibernateDaoSupport implemen
 			}
 		});
 	}
+	*/
 
     /**
      * @see org.sakaiproject.tool.gradebook.facades.CourseManagement#getUser(java.lang.String)

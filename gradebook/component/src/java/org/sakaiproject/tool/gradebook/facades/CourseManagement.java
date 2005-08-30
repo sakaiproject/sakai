@@ -76,48 +76,6 @@ public interface CourseManagement {
 	 */
 	public Set findEnrollmentsByStudentNameOrDisplayUid(String gradebookUid, String studentNameQuery);
 
-	/**
-	 * DROPPED FROM THE SAKAI 2.0 GRADEBOOK FACADES.
-	 * In this version of the gradebook applications, all of the sortable pageable
-	 * tables which contain student data can also be sorted by grades or scores.
-	 * When that happens, all enrollments will need to be retrieved. Rather than
-	 * changing different performance profiles for the two types of sorting,
-	 * we'll hold
-	 We'll leave the comments around for a bit, though.
-	 *
-	 *
-	 *
-	 * Return a range of enrollments, assuming case-insensitive sorting by student
-	 * sortable name (typically "Last, First M." for European names).
-	 *
-	 * Although not strictly needed to meet requirements, this gives implementors
-	 * a way to optimize a frequent operation.
-	 *
-	 * @param gradebookUid
-	 * @param startRange the sorted position from which to start returning enrollments
-	 * @param rangeMaximum the maximum number to return (at the end of the sorted collection,
-	 *                     the real number returned will usually be less)
-	 * @param isAscending true if the sort should be done in ascending order; false for descending
-	 * @return list of enrollments, sorted by student name
-	 */
-	public List findEnrollmentsPagedBySortName(String gradebookUid, int startRange, int rangeMaximum, boolean isAscending);
-
-	/**
-	 * Return a range of enrollments, assuming case-insensitive sorting by student
-	 * display UID (typically a student number or an email address).
-	 *
-	 * Although not strictly needed to meet requirements, this gives implementors
-	 * a way to optimize a frequent operation.
-	 *
-	 * @param gradebookUid
-	 * @param startRange the sorted position from which to start returning enrollments
-	 * @param rangeMaximum the maximum number to return (at the end of the sorted collection,
-	 *                     the real number returned will usually be less)
-	 * @param isAscending true if the sort should be done in ascending order; false for descending
-	 * @return list of enrollments, sorted by student display UID
-	 */
-	public List findEnrollmentsPagedByDisplayUid(String gradebookUid, int startRange, int rangeMaximum, boolean isAscending);
-
     /**
      * Looks up a user based on their uid.
      *

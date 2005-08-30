@@ -120,56 +120,26 @@ public abstract class EnrollmentTableBean
         return !defaultSearchString.equals(searchString);
 	}
 
-	private List findEnrollmentsPagedByService() {
-		List enrollments = null;	// Return null if the service can't help us
-
-		if (!isFilteredSearch() && maxDisplayedScoreRows != 0) {
-			// If we're sorting by an enrollment field, we can get paged enrollments and
-			// enrollment size in two small queries instead of getting all enrollments in
-			// a single large query.
-			//
-			// As an undocumented tidbit, if the facade implementors don't get around to
-			// implementing these methods, they can let us know by returning null,
-			// and we'll drop down to in-memory sorting and paging.
-			String sortColumn = getSortColumn();
-			if (sortColumn.equals(PreferencesBean.SORT_BY_NAME)) {
-				enrollments = getCourseManagementService().findEnrollmentsPagedBySortName(getGradebookUid(), firstScoreRow, maxDisplayedScoreRows, isSortAscending());
-			} else if (sortColumn.equals(PreferencesBean.SORT_BY_UID)) {
-				enrollments = getCourseManagementService().findEnrollmentsPagedByDisplayUid(getGradebookUid(), firstScoreRow, maxDisplayedScoreRows, isSortAscending());
-			}
-		}
-
-		return enrollments;
-	}
-
-
 	protected Map getOrderedEnrollmentMap() {
         Map enrollmentMap;
 		Collection enrollments = null;
 
-		// Let the service help if it can.
-		if (isEnrollmentSort()) {
-			enrollments = findEnrollmentsPagedByService();
-			if (enrollments != null) {
-				scoreDataRows = getCourseManagementService().getEnrollmentsSize(getGradebookUid());
-			}
-		}
+		// This is where we used to allow for optimized queries. A lost cause for the forseeable
+		// future....
 
-		if (enrollments == null) {
-			if (isFilteredSearch()) {
-				enrollments = getCourseManagementService().findEnrollmentsByStudentNameOrDisplayUid(getGradebookUid(), searchString);
-			} else {
-				// For lack of anything more focused, retrieve all active enrollments.
-				enrollments = getCourseManagementService().getEnrollments(getGradebookUid());
-			}
-			scoreDataRows = enrollments.size();
-			if (isEnrollmentSort()) {
-				// Handle sorting and paging in memory, since the service facades
-				// didn't do it.
-				List enrollmentList = new ArrayList(enrollments);
-				Collections.sort(enrollmentList, (Comparator)columnSortMap.get(getSortColumn()));
-				enrollments = finalizeSortingAndPaging(enrollmentList);
-			}
+		if (isFilteredSearch()) {
+			enrollments = getCourseManagementService().findEnrollmentsByStudentNameOrDisplayUid(getGradebookUid(), searchString);
+		} else {
+			// For lack of anything more focused, retrieve all active enrollments.
+			enrollments = getCourseManagementService().getEnrollments(getGradebookUid());
+		}
+		scoreDataRows = enrollments.size();
+		if (isEnrollmentSort()) {
+			// Handle sorting and paging in memory, since the service facades
+			// didn't do it.
+			List enrollmentList = new ArrayList(enrollments);
+			Collections.sort(enrollmentList, (Comparator)columnSortMap.get(getSortColumn()));
+			enrollments = finalizeSortingAndPaging(enrollmentList);
 		}
 
 		emptyEnrollments = enrollments.isEmpty();
@@ -208,6 +178,3 @@ public abstract class EnrollmentTableBean
 		return (sortColumn.equals(PreferencesBean.SORT_BY_NAME) || sortColumn.equals(PreferencesBean.SORT_BY_UID));
 	}
 }
-
-
-
