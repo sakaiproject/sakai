@@ -52,11 +52,11 @@ public interface SectionManager {
      * 
 	 * @param siteContext The site context
 	 * 
-     * @return The Set of
+     * @return The List of
      * {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSections}
      * associated with this site context.
      */
-    public Set getSections(String siteContext);
+    public List getSections(String siteContext);
 	
     /**
      * Lists the sections in this context that are a member of the given category.

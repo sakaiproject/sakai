@@ -78,16 +78,16 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 
 	private List sectionCategoryList;
     
-	public Set getSections(final String siteContext) {
+	public List getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
                 Query q = session.getNamedQuery("findSectionsBySiteContext");
                 q.setParameter("context", siteContext);
-                return new HashSet(q.list());
+                return q.list();
             }
         };
-        return (Set)getHibernateTemplate().execute(hc);
+        return getHibernateTemplate().executeFind(hc);
 	}
 
 	public List getSectionsInCategory(final String siteContext, final String categoryId) {

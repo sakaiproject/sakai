@@ -6,18 +6,25 @@
         <navigation-case>
             <from-outcome>sample</from-outcome>
             <to-view-id>/sample.jsp</to-view-id>
+            <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>studentView</from-outcome>
             <to-view-id>/studentView.jsp</to-view-id>
+            <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>overview</from-outcome>
             <to-view-id>/overview.jsp</to-view-id>
+            <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>editSection</from-outcome>
             <to-view-id>/editSection.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>editStudentSections</from-outcome>
+            <to-view-id>/editStudentSections.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
             <from-outcome>deleteSection</from-outcome>
@@ -34,18 +41,22 @@
         <navigation-case>
             <from-outcome>roster</from-outcome>
             <to-view-id>/roster.jsp</to-view-id>
+            <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>addSections</from-outcome>
             <to-view-id>/addSections.jsp</to-view-id>
+            <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>options</from-outcome>
             <to-view-id>/options.jsp</to-view-id>
+            <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>listDemo</from-outcome>
             <to-view-id>/listDemo.jsp</to-view-id>
+            <redirect/>
         </navigation-case>
 	</navigation-rule>
 </faces-config>

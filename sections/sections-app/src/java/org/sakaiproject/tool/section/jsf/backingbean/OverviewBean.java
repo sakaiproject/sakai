@@ -62,7 +62,7 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		externallyManaged = getCourse().isExternallyManaged();
 
 		// Get all sections in the site
-		Set sectionSet = getAllSiteSections();
+		List sectionSet = getAllSiteSections();
 		sections = new ArrayList();
 		
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {

@@ -22,6 +22,11 @@
             <property-name>context</property-name>
             <value>#{org_sakaiproject_api_section_facade_manager_Context}</value>
         </managed-property>
+        <managed-property>
+            <description>User Directory</description>
+            <property-name>userDirectory</property-name>
+            <value>#{org_sakaiproject_api_section_facade_manager_UserDirectory}</value>
+        </managed-property>
     </managed-bean>
 
     <managed-bean>
@@ -63,6 +68,13 @@
         <description>Add Sections Bean</description>
         <managed-bean-name>addSectionsBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.AddSectionsBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Edit Student Sections Bean</description>
+        <managed-bean-name>editStudentSectionsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.EditStudentSectionsBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
 

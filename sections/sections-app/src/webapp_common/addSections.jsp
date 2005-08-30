@@ -12,6 +12,7 @@
         value="#{addSectionsBean.numToAdd}"
         valueChangeListener="#{addSectionsBean.processChangeSections}"
         onchange="this.form.submit()">
+        <f:selectItem itemLabel="#{msgs.add_sections_select_one}" itemValue="0"/>
         <f:selectItem itemValue="1"/>
         <f:selectItem itemValue="2"/>
         <f:selectItem itemValue="3"/>

@@ -25,6 +25,9 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -34,6 +37,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.el.VariableResolver;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.manager.SectionManager;
 
@@ -52,6 +57,25 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return courseBean;
 	}
 	
+	/**
+	 * Gets the categories that are currently being used in this site context.
+	 * 
+	 * @param categories
+	 * @param sections
+	 * @return
+	 */
+	protected Set getUsedCategories(List categories, Collection sections) {
+		Set used = new HashSet();
+		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+			CourseSection section = (CourseSection)iter.next();
+			String cat = section.getCategory();
+			if(categories.contains(cat)) {
+				used.add(cat);
+			}
+		}
+		return used;
+	}
+
 	protected SectionManager getSectionManager() {
 		return getCourseBean().getSectionManager();
 	}
@@ -59,6 +83,10 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	protected String getUserUuid() {
 		return getCourseBean().authn.getUserUuid();
 	}
+	
+	protected User getUser(String userUuid) {
+		return getCourseBean().userDirectory.getUser(userUuid);
+	}	
 	
 	protected String getSiteContext() {
 		return getCourseBean().context.getContext();
@@ -68,7 +96,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().sectionManager.getCourse(getSiteContext());
 	}
 	
-	protected Set getAllSiteSections() {
+	protected List getAllSiteSections() {
 		return getCourseBean().sectionManager.getSections(getSiteContext());
 	}
 

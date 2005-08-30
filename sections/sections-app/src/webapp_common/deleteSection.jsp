@@ -22,22 +22,22 @@
     </h:panelGrid>
 
     <h:panelGrid columns="2">
-        <h:outputText value="#{msgs.edit_section_title}"/>
+        <h:outputText value="#{msgs.section_title}"/>
         <h:outputText value="#{editSectionBean.title}"/>
         
-        <h:outputText value="#{msgs.edit_section_days}"/>
+        <h:outputText value="#{msgs.section_days}"/>
         <h:outputText value="#{editSectionBean.days}"/>
 
-        <h:outputText value="#{msgs.edit_section_start_time}"/>
+        <h:outputText value="#{msgs.section_start_time}"/>
         <h:outputText value="#{editSectionBean.startTime}"/>
 
-        <h:outputText value="#{msgs.edit_section_end_time}"/>
+        <h:outputText value="#{msgs.section_end_time}"/>
         <h:outputText value="#{editSectionBean.endTime}"/>
 
-        <h:outputText value="#{msgs.edit_section_max_size}"/>
+        <h:outputText value="#{msgs.section_max_size}"/>
         <h:outputText value="#{editSectionBean.maxEnrollments}"/>
 
-        <h:outputText value="#{msgs.edit_section_location}"/>
+        <h:outputText value="#{msgs.section_location}"/>
         <h:outputText value="#{editSectionBean.location}"/>
     </h:panelGrid>
 

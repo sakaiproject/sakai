@@ -28,8 +28,8 @@ import java.util.Set;
 
 /**
  * Encapsulates the section enrollments in a course for a set of students.  This
- * is an attempt to avoid passing complex data structures between the back-end
- * managers and the UI.
+ * interface is an attempt to avoid using out of band agreements to send complex
+ * maps or other data structures between the back-end managers and the UI.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *

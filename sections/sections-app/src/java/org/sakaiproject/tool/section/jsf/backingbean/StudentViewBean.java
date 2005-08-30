@@ -61,7 +61,7 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		externallyManaged = getCourse().isExternallyManaged();
 
 		// Get all sections in the site
-		Set sectionSet = getAllSiteSections();
+		List sectionSet = getAllSiteSections();
 		sections = new ArrayList();
 		
 		// Get the section enrollments for this student

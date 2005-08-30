@@ -73,7 +73,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	private boolean externallyManaged;
 
 	private List enrollments;
-	private Set sections;
+	private List sections;
 	private List categories;
 	
 	public RosterBean() {
@@ -136,25 +136,6 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		}
 		enrollments.addAll(unpagedEnrollments.subList(firstRow, lastRow));
 		enrollmentsSize = unpagedEnrollments.size();
-	}
-
-	/**
-	 * Gets the categories that are currently being used in this site context.
-	 * 
-	 * @param categories
-	 * @param sections
-	 * @return
-	 */
-	private Set getUsedCategories(List categories, Collection sections) {
-		Set used = new HashSet();
-		for(Iterator iter = sections.iterator(); iter.hasNext();) {
-			CourseSection section = (CourseSection)iter.next();
-			String cat = section.getCategory();
-			if(categories.contains(cat)) {
-				used.add(cat);
-			}
-		}
-		return used;
 	}
 	
 	public HtmlDataTable getRosterDataTable() {

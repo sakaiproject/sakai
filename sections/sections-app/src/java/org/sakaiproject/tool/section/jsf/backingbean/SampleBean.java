@@ -81,7 +81,7 @@ public class SampleBean extends CourseDependentBean implements Serializable {
     	courseOfferingUuid = course.getUuid();
         
         // Decorate the sections
-        Set dbSections = getAllSiteSections();
+        List dbSections = getAllSiteSections();
         sections = new ArrayList();
         for(Iterator iter = dbSections.iterator(); iter.hasNext();) {
         	CourseSection section = (CourseSection)iter.next();

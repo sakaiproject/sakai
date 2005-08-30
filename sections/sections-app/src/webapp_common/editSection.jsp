@@ -8,10 +8,10 @@
     <sakai:flowState bean="#{editSectionBean}"/>
     
     <h:panelGrid columns="2">
-        <h:outputText value="#{msgs.edit_section_title}"/>
+        <h:outputText value="#{msgs.section_title}"/>
         <h:inputText value="#{editSectionBean.title}"/>
         
-        <h:outputText value="#{msgs.edit_section_days}"/>
+        <h:outputText value="#{msgs.section_days}"/>
         <h:panelGroup>
             <h:selectBooleanCheckbox id="monday" value="#{editSectionBean.monday}"/>
             <h:outputLabel for="monday" value="#{msgs.day_of_week_monday}"/>
@@ -35,7 +35,7 @@
             <h:outputLabel for="sunday" value="#{msgs.day_of_week_sunday}"/>
         </h:panelGroup>
 
-        <h:outputText value="#{msgs.edit_section_start_time}"/>
+        <h:outputText value="#{msgs.section_start_time}"/>
         <h:panelGroup>
             <h:inputText value="#{editSectionBean.startTime}"/>
             <h:selectOneRadio value="#{editSectionBean.startTimeAm}">
@@ -44,7 +44,7 @@
             </h:selectOneRadio>
         </h:panelGroup>
 
-        <h:outputText value="#{msgs.edit_section_end_time}"/>
+        <h:outputText value="#{msgs.section_end_time}"/>
         <h:panelGroup>
             <h:inputText value="#{editSectionBean.endTime}"/>
             <h:selectOneRadio value="#{editSectionBean.endTimeAm}">
@@ -53,10 +53,10 @@
             </h:selectOneRadio>
         </h:panelGroup>
 
-        <h:outputText value="#{msgs.edit_section_max_size}"/>
+        <h:outputText value="#{msgs.section_max_size}"/>
         <h:inputText value="#{editSectionBean.maxEnrollments}"/>
 
-        <h:outputText value="#{msgs.edit_section_location}"/>
+        <h:outputText value="#{msgs.section_location}"/>
         <h:inputText value="#{editSectionBean.location}"/>
     </h:panelGrid>
 
