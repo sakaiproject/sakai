@@ -1,6 +1,6 @@
 // Timer Bar - Version 1.0
 // Based on Script by Brian Gosselin of http://scriptasylum.com
-
+// Modifications copyright Sakai Project 2005
 
 //*****************************************************//
 //**********  DO NOT EDIT BEYOND THIS POINT  **********//
@@ -42,24 +42,46 @@ txt+='</div>';
 
 document.write(txt);
 
+// sentinels to make sure that timer bar is running continuously
+var epoch_milliseconds = new Date().getTime();
+var last_epoch_milliseconds = new Date().getTime();
+var max_suspense_milliseconds = 10000;//10 seconds....
+var payback = 1.5;
+
 function incrCount(){
+  // make sure that timer bar running, JavaScript enabled
+  epoch_milliseconds = new Date().getTime();
+  var suspense = epoch_milliseconds - last_epoch_milliseconds;
+
+  // if some wise guy turned off JavaScript more than max_suspense_milliseconds
+  if (suspense > max_suspense_milliseconds)
+  {
+    // add in suspense time in 1/10 seconds
+    loaded += Math.floor(suspense/100);
+    loaded *= payback; //  apply penalty.
+    if (loaded > waitTime * 10)
+      loaded = waitTime * 10;
+    startTimer(); // crank up timer with new value
+    alert("JavaScript must be enabled!");
+  }
+  last_epoch_milliseconds = epoch_milliseconds;
 
   window.status="Loaded....";
-if(waitTime>300){
- warnTime=10*(waitTime-300);
-  if (loaded==warnTime){ 
+  if(waitTime>300){
+     warnTime=10*(waitTime-300);
+  if (loaded==warnTime){
      alert('You have 5 minutes left');
      if(ns4){
       document.tbar.bgColor="red";
-    }
-     else{ 
+     }
+     else{
       if(ie4){
        document.all.tbar.style.backgroundColor="red";
       }
       else{
       document.getElementById("tbar").style.backgroundColor="red";
       }
-   }
+    }
   }
 }
 
@@ -146,10 +168,10 @@ function showCountDown(){
   var presentH=present.getHours();
   var presentM=present.getMinutes();
   var presentS=present.getSeconds();
- 
+
   if((endH==presentH)&&(endM==presentM)&&(endS==presentS)){
     stopTimer();
- 
+
   }else{
     var theTime=((endH*3600)+(endM*60)+endS) -((presentH*3600)+(presentM*60)+presentS);
     var remainH=Math.floor(theTime/3600);
