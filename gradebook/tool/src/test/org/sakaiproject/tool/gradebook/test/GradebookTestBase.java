@@ -30,6 +30,7 @@ import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
+import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 /**
@@ -53,6 +54,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
     protected GradeManager gradeManager;
     protected GradebookService gradebookService;
     protected CourseManagement courseManagement;
+    protected UserDirectoryService userDirectoryService;
 
     protected void onSetUpInTransaction() throws Exception {
         authn = (Authn)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_Authn");
@@ -61,6 +63,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         gradebookManager = (GradebookManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradebookManager");
         gradeManager = (GradeManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradeManager");
         courseManagement = (CourseManagement)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_CourseManagement");
+        userDirectoryService = (UserDirectoryService)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_UserDirectoryService");
     }
 
     /**
@@ -81,7 +84,3 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         return configLocations;
     }
 }
-
-
-
-

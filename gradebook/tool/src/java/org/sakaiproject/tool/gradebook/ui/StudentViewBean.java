@@ -238,7 +238,7 @@ public class StudentViewBean extends EnrollmentTableBean implements Serializable
 
         // Set the display name
         try {
-	        userDisplayName = getCourseManagementService().getUser(getUserUid()).getDisplayName();
+	        userDisplayName = getUserDirectoryService().getUserDisplayName(getUserUid());
 	    } catch (UnknownUserException e) {
 	    	logger.error("User " + getUserUid() + " is unknown but logged in as student in gradebook " + gradebook.getUid());
 	    	userDisplayName = "";

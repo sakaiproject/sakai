@@ -85,11 +85,6 @@ public class CourseManagementTestImpl implements CourseManagement {
 		return new HashSet();
 	}
 
-    public User getUser(String userUid) throws UnknownUserException {
-        return new UserStandalone(userUid, "User", "User", "User");
-    }
-
-
 }
 
 

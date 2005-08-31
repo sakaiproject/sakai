@@ -84,7 +84,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 GradingEvent gradingEvent = (GradingEvent)iter.next();
                 String graderName;
                 try {
-                    graderName = getCourseManagementService().getUser(gradingEvent.getGraderId()).getDisplayName();
+                    graderName = getUserDirectoryService().getUserDisplayName(gradingEvent.getGraderId());
                 } catch (UnknownUserException e) {
                     logger.warn("Unable to find user with uid=" + gradingEvent.getGraderId());
                     graderName = gradingEvent.getGraderId();

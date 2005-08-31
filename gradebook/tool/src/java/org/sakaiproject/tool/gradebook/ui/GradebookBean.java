@@ -37,6 +37,7 @@ import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
+import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 
 /**
  * Provide a UI handle to the selected gradebook.
@@ -61,6 +62,7 @@ public class GradebookBean extends InitializableBean {
 	private GradebookManager gradebookManager;
 	private GradeManager gradeManager;
 	private CourseManagement courseManagementService;
+	private UserDirectoryService userDirectoryService;
 	private Authn authnService;
 	private ContextManagement contextManagementService;
 
@@ -149,10 +151,23 @@ public class GradebookBean extends InitializableBean {
 	/**
 	 * @param courseManagementService The courseManagementService to set.
 	 */
-	public void setCourseManagementService(
-			CourseManagement courseManagementService) {
+	public void setCourseManagementService(CourseManagement courseManagementService) {
 		this.courseManagementService = courseManagementService;
 	}
+
+	/**
+	 * @return Returns the userDirectoryService.
+	 */
+	public UserDirectoryService getUserDirectoryService() {
+		return userDirectoryService;
+	}
+	/**
+	 * @param userDirectoryService The userDirectoryService to set.
+	 */
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
 	/**
 	 * @return Returns the gradeManager.
 	 */

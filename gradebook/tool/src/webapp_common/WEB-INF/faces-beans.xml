@@ -22,6 +22,11 @@
 			<value>#{org_sakaiproject_tool_gradebook_facades_CourseManagement}</value>
 		</managed-property>
 		<managed-property>
+			<description>User Directory Service</description>
+			<property-name>userDirectoryService</property-name>
+			<value>#{org_sakaiproject_tool_gradebook_facades_UserDirectoryService}</value>
+		</managed-property>
+		<managed-property>
 			<description>Authn Service</description>
 			<property-name>authnService</property-name>
 			<value>#{org_sakaiproject_tool_gradebook_facades_Authn}</value>

@@ -73,10 +73,8 @@ public class TestStandaloneCourseManagement extends GradebookDbTestBase {
 		Assert.assertTrue(enrollments.size() == enrollmentSize);
 	}
 
-    public void testFindUser() throws Exception {
+    public void testFindUserDisplayName() throws Exception {
         // This throws an exception if this fails, so just make the call
-        User user = courseManagement.getUser(UserLoader.AUTHID_TEACHER_ALL);
+        String user = userDirectoryService.getUserDisplayName(UserLoader.AUTHID_TEACHER_ALL);
     }
 }
-
-

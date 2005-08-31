@@ -35,6 +35,7 @@ import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
+import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public abstract class GradebookDependentBean extends InitializableBean {
@@ -108,6 +109,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 
 	public CourseManagement getCourseManagementService() {
 		return getGradebookBean().getCourseManagementService();
+	}
+
+	public UserDirectoryService getUserDirectoryService() {
+		return getGradebookBean().getUserDirectoryService();
 	}
 
 	public GradeManager getGradeManager() {

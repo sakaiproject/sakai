@@ -27,8 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.sakaiproject.service.gradebook.shared.UnknownUserException;
-
 /**
  * Facade to external course and group services.
  *
@@ -75,22 +73,6 @@ public interface CourseManagement {
 	 * @return a set of matching enrollments or the empty set
 	 */
 	public Set findEnrollmentsByStudentNameOrDisplayUid(String gradebookUid, String studentNameQuery);
-
-    /**
-     * Looks up a user based on their uid.
-     *
-     * TODO Decide what to do with this dangerously broad method. This is used only in two places:
-     *
-     * 1) When displaying a grade history log, it's used to obtain a grader's name based on their user UID.
-     *    In this case, it couldn't be replaced by checking just people who play an explict part in the
-     *    gradebook, since Authz may have let administrators change scores, or the grader may no longer play
-     *    an active part. The only workaround is to pick up the currently authorized user's name and then
-     *    store it as an additional field in the grade history log.
-     * 2) It's used to display the student's name in the student view. This case could be taken care of either
-     *    by supporting a CourseManagement getEnrollmentForUserUid() method or an Authn
-     *    getCurrentUserDisplayName() method.
-     */
-    public User getUser(String userUid) throws UnknownUserException;
 }
 
 

@@ -116,7 +116,7 @@
 	</bean>
 
 	<!--  Archive Service -->
-<!-- 
+<!--
 	<bean id="org.sakaiproject.service.gradebook.shared.GradebookArchiveService"
 		class="org.sakaiproject.component.gradebook.GradebookArchiveServiceSakaiLegacyImpl"
 		init-method="init">
@@ -137,6 +137,11 @@
 		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.CourseManagementSakai2Impl">
 	</bean>
 
+	<!-- External User Directory Service -->
+	<bean id="org_sakaiproject_tool_gradebook_facades_UserDirectoryService"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.UserDirectoryServiceSakai2Impl">
+	</bean>
+
 	<!-- External Authn Service -->
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
 		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthnSakai2Impl">
@@ -154,7 +159,7 @@
 
 <!-- TODO Replace the redundand transaction proxies with the following interceptor -->
 
-<!-- 
+<!--
 	<bean id="autoProxyCreator"
 		class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
 		<property name="interceptorNames">

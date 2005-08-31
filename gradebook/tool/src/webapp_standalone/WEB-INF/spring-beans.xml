@@ -61,6 +61,13 @@
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
 	</bean>
 
+	<!-- External User Directory Service -->
+
+	<bean id="org_sakaiproject_tool_gradebook_facades_UserDirectoryService"
+		class="org.sakaiproject.tool.gradebook.facades.standalone.UserDirectoryServiceStandaloneImpl">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+	</bean>
+
 	<!-- External Authn Service -->
 
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
