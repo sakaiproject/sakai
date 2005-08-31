@@ -23,7 +23,6 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section.manager;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -322,14 +321,14 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
 
-    public ParticipationRecord addSectionMembership(String userId, Role role, String sectionUuid)
+    public ParticipationRecord addSectionMembership(String userUuid, Role role, String sectionUuid)
             throws MembershipException {
     	if(role.isInstructor()) {
     		throw new MembershipException("You can not add an instructor to a section... please add them to the course");
     	} else if(role.isStudent()) {
-    		return addSectionEnrollment(userId, sectionUuid);
+    		return addSectionEnrollment(userUuid, sectionUuid);
     	} else if(role.isTeachingAssistant()) {
-    		return addSectionTeachingAssistant(userId, sectionUuid);
+    		return addSectionTeachingAssistant(userUuid, sectionUuid);
     	} else {
     		throw new MembershipException("You can not add a user to a section with a role of 'none'");
     	}
@@ -339,7 +338,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
-            	String siteContext = context.getContext(null);
+            	String siteContext = ((CourseImpl)section.getCourse()).getSiteContext();
             	User user = getUserFromSiteParticipation(siteContext, userUuid, session);
 
             	Set currentEnrollments = getSectionEnrollments(userUuid, section.getCourse().getUuid());
@@ -375,7 +374,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
-            	String siteContext = context.getContext(null);
+            	String siteContext = ((CourseImpl)section.getCourse()).getSiteContext();
             	User user = getUserFromSiteParticipation(siteContext, userUuid, session);
 
             	// Make sure they are not already a TA in this section
@@ -678,7 +677,8 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		Query q = session.getNamedQuery("findUserFromSiteParticipation");
 		q.setParameter("userUuid", userUuid);
 		q.setParameter("siteContext", siteContext);
-		return (User)q.uniqueResult();
+		User result = (User)q.uniqueResult();
+		return result;
 	}
 	
 

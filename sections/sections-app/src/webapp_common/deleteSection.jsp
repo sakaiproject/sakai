@@ -9,7 +9,7 @@
     
     <h:panelGrid columns="1">
         <h:panelGroup>
-            <h:graphicImage value="images/asterisk.gif"/>
+            <h:graphicImage value="images/validation.gif"/>
             <h:outputFormat value="#{msgs.delete_section_confirmation}">
                 <f:param value="#{editSectionBean.title}"/>
             </h:outputFormat>

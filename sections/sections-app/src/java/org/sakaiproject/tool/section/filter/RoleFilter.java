@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -32,6 +32,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
@@ -75,7 +76,10 @@ public class RoleFilter implements Filter {
 		if (siteRole.getName().equals(roleParam)) {
 				chain.doFilter(request, response);
 		} else {
-			log.error("AUTHORIZATION FAILURE: User " + userUuid + " in role " + siteRole + " for site " + siteContext);
+			if(log.isInfoEnabled()) log.info("PAGE VIEW AUTHZ FAILURE: User "
+					+ userUuid + " in role "
+					+ siteRole + " for site " + siteContext + " on page "
+					+ ((HttpServletRequest)request).getServletPath());
 			((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 	}

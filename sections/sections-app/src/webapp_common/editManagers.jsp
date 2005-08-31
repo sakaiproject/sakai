@@ -1,11 +1,13 @@
 <f:view>
 <h:form id="memberForm">
 
-    <x:aliasBean alias="#{viewName}" value="editManagers">
-        <%@include file="/inc/navMenu.jspf"%>
-    </x:aliasBean>
-
     <sakai:flowState bean="#{editManagersBean}"/>
+
+    <h:panelGroup rendered="#{ ! editManagersBean.externallyManaged}">
+        <x:aliasBean alias="#{viewName}" value="editManagers">
+            <%@include file="/inc/navMenu.jspf"%>
+        </x:aliasBean>
+    </h:panelGroup>
 
     <h:panelGrid columns="3">
     
@@ -23,22 +25,7 @@
             </h:selectManyListbox>
         </h:panelGroup>
     
-        <h:panelGroup>
-            <f:verbatim>
-                <p>
-                    <input type="button" onclick="addAll();" value="&gt;&gt;&gt;" />
-                </p>
-                <p>
-                    <input type="button" onclick="addUser();" value="&gt;"/>
-                </p>
-                <p>
-                    <input type="button" onclick="removeUser();" value="&lt;"/>
-                </p>
-                <p>
-                    <input type="button" onclick="removeAll();" value="&lt;&lt;&lt;"/>
-                </p>
-            </f:verbatim>
-        </h:panelGroup>
+        <%@include file="/inc/transferButtons.jspf"%>
         
         <h:panelGroup>
             <h:outputFormat value="#{msgs.edit_manager_selected_label}">
@@ -61,6 +48,9 @@
         onclick="highlightUsers()"
         value="#{msgs.edit_manager_update}"/>
 
+    <h:commandButton
+        action="#{editManagersBean.cancel}"
+        value="#{msgs.edit_manager_cancel}"/>
 
 </h:form>
 </f:view>

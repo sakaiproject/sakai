@@ -127,10 +127,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 			userUuids = getHighlightedUsers("memberForm:availableUsers");
 			getSectionManager().setSectionMemberships(userUuids, Role.STUDENT, availableSectionUuid);
 		}
-		
-		return null;
-		
-		//return "overview";
+		return "overview";
 	}
 	
 	private Set getHighlightedUsers(String componentId) {

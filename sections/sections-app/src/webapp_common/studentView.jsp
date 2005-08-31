@@ -80,13 +80,13 @@
             <h:commandLink
                 value="Join"
                 actionListener="#{studentViewBean.processJoinSection}"
-                rendered="#{section.joinable}">
+                rendered="#{section.joinable && studentViewBean.joinAllowed}">
                 <f:param name="sectionUuid" value="#{section.uuid}"/>
             </h:commandLink>
             <h:commandLink
                 value="Switch"
                 actionListener="#{studentViewBean.processSwitchSection}"
-                rendered="#{section.switchable}">
+                rendered="#{section.switchable && studentViewBean.switchAllowed}">
                 <f:param name="sectionUuid" value="#{section.uuid}"/>
             </h:commandLink>
             <h:outputText

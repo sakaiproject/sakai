@@ -1,11 +1,13 @@
 <f:view>
 <h:form id="overviewForm">
 
-    <x:aliasBean alias="#{viewName}" value="overview">
-        <%@include file="/inc/navMenu.jspf"%>
-    </x:aliasBean>
-
     <sakai:flowState bean="#{overviewBean}"/>
+
+    <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
+        <x:aliasBean alias="#{viewName}" value="overview">
+            <%@include file="/inc/navMenu.jspf"%>
+        </x:aliasBean>
+    </h:panelGroup>
     
     <x:dataTable cellpadding="0" cellspacing="0"
         id="sectionsTable"
@@ -27,21 +29,25 @@
                 <br/>&nbsp;&nbsp;&nbsp;&nbsp;
             </f:verbatim>
             
-            <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
-                <f:param name="sectionUuid" value="#{section.uuid}"/>
-            </h:commandLink>
-            
-            <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
+            <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
+                <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
+                    <f:param name="sectionUuid" value="#{section.uuid}"/>
+                </h:commandLink>
+                
+                <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
+            </h:panelGroup>
 
             <h:commandLink action="editManagers" value="#{msgs.overview_link_managers}">
                 <f:param name="sectionUuid" value="#{section.uuid}"/>
             </h:commandLink>
             
-            <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
-            
-            <h:commandLink action="editStudents" value="#{msgs.overview_link_students}">
-                <f:param name="sectionUuid" value="#{section.uuid}"/>
-            </h:commandLink>
+            <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
+                <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
+                
+                <h:commandLink action="editStudents" value="#{msgs.overview_link_students}">
+                    <f:param name="sectionUuid" value="#{section.uuid}"/>
+                </h:commandLink>
+            </h:panelGroup>
         </h:column>
         <h:column>
             <f:facet name="header">

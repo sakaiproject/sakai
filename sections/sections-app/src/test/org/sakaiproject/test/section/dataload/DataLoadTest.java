@@ -61,7 +61,7 @@ public class DataLoadTest extends SectionsTestBase {
 		// Load courses
 		Course course1 = courseManager.createCourse("site1", "A Course for Site #1", false, false, false);
 		Course course2 = courseManager.createCourse("site2", "A Course for Site #2", false, false, false);
-		Course course3 = courseManager.createCourse("site3", "A Course for Site #3", false, false, false);
+		Course course3 = courseManager.createCourse("site3", "A Course for Site #3", false, false, true);
 
 		// Load sections
     	CourseSection lab1 = sectionManager.addSection(course1.getUuid(), "Lab 1", "section.category.lab", 20, "Dank basement lab", "9:00", true, "12:00", false, true, false, true,  false, false, false, false);
@@ -89,14 +89,24 @@ public class DataLoadTest extends SectionsTestBase {
 		// Load other people
 		userManager.createUser("other1", "Other Person", "Person, Other", "operson");
 
-		// Load enrollments into the course
+		// Load enrollments into the courses
 		courseManager.addEnrollment(studenta, course1);
+		courseManager.addEnrollment(studenta, course2);
+		courseManager.addEnrollment(studenta, course3);
+
 		courseManager.addEnrollment(studentb, course1);
+		courseManager.addEnrollment(studentb, course2);
+		courseManager.addEnrollment(studentb, course3);
+
 		courseManager.addEnrollment(studentc, course1);
+		courseManager.addEnrollment(studentc, course2);
+		courseManager.addEnrollment(studentc, course3);
 		
 		for(Iterator iter = studentList.iterator(); iter.hasNext();) {
 			User user = (User)iter.next();
 			courseManager.addEnrollment(user, course1);
+			courseManager.addEnrollment(user, course2);
+			courseManager.addEnrollment(user, course3);
 		}
 		
 		// Load enrollments into sections
@@ -106,7 +116,12 @@ public class DataLoadTest extends SectionsTestBase {
 		
 		// Load TAs into the course
 		courseManager.addTA(ta1, course1);
+		courseManager.addTA(ta1, course2);
+		courseManager.addTA(ta1, course3);
+
 		courseManager.addTA(ta2, course1);
+		courseManager.addTA(ta2, course2);
+		courseManager.addTA(ta2, course3);
 		
 		// Load TAs into the sections
 		sectionManager.addSectionMembership("ta1", Role.TA, lab1.getUuid());

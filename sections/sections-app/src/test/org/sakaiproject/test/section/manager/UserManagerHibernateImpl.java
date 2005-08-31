@@ -29,15 +29,21 @@ import java.sql.SQLException;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.tool.section.UserImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class UserManagerHibernateImpl extends HibernateDaoSupport implements UserManager {
-
+	private static Log log = LogFactory.getLog(UserManagerHibernateImpl.class);
+	
 	public User createUser(final String userUuid, final String displayName,
 			final String sortName, final String displayId) {
+		
+		if(log.isDebugEnabled()) log.debug("Creating a user named " + displayName + " with uuid=" + userUuid);
+
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
 				UserImpl user = new UserImpl(displayName, displayId, sortName, userUuid);

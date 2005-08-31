@@ -21,7 +21,7 @@
 	<context-param>
 		<param-name>javax.faces.CONFIG_FILES</param-name>
 		<param-value>
-			/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml,/WEB-INF/faces-standalone-beans.xml
+			/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml,/WEB-INF/faces-standalone-navigation.xml,/WEB-INF/faces-standalone-beans.xml
 		</param-value>
 	</context-param>
 
@@ -50,7 +50,6 @@
 		<url-pattern>*.jsf</url-pattern>
 	</servlet-mapping>
 
-<!-- 
     <filter>
         <filter-name>AuthnFilter</filter-name>
         <filter-class>org.sakaiproject.tool.section.filter.AuthnFilter</filter-class>
@@ -67,7 +66,6 @@
         <filter-name>AuthnFilter</filter-name>
         <url-pattern>*.jsf</url-pattern>
     </filter-mapping>
--->
 
     <filter>
         <filter-name>InstructorRoleFilter</filter-name>

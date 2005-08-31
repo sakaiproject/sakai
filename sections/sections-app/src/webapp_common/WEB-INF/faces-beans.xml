@@ -18,6 +18,11 @@
             <value>#{org_sakaiproject_api_section_facade_manager_Authn}</value>
         </managed-property>
         <managed-property>
+            <description>Authz</description>
+            <property-name>authz</property-name>
+            <value>#{org_sakaiproject_api_section_facade_manager_Authz}</value>
+        </managed-property>
+        <managed-property>
             <description>Context</description>
             <property-name>context</property-name>
             <value>#{org_sakaiproject_api_section_facade_manager_Context}</value>
@@ -87,13 +92,11 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
 
-    <!-- For testing only -->
-	<managed-bean>
-		<description>Sample Bean</description>
-		<managed-bean-name>sampleBean</managed-bean-name>
-		<managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.SampleBean</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-
+    <managed-bean>
+        <description>Messaging bean for redirect-safe messages across pages</description>
+        <managed-bean-name>messagingBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.MessagingBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
 
 </faces-config>

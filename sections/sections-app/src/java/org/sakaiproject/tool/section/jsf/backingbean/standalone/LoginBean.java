@@ -24,18 +24,28 @@
 
 package org.sakaiproject.tool.section.jsf.backingbean.standalone;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.facade.impl.standalone.AuthnStandaloneImpl;
 import org.sakaiproject.tool.section.facade.impl.standalone.ContextStandaloneImpl;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.jsf.backingbean.CourseDependentBean;
 
 /**
  * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class LoginBean extends CourseDependentBean {
-    private String userName;
+
+	private static final Log log = LogFactory.getLog(LoginBean.class);
+	
+	private static final long serialVersionUID = 1L;
+
+	private String userName;
     private String context;
 
     public String processSetUserNameAndContext() {
@@ -43,9 +53,23 @@ public class LoginBean extends CourseDependentBean {
         HttpSession session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
         session.setAttribute(AuthnStandaloneImpl.USER_NAME, userName);
         session.setAttribute(ContextStandaloneImpl.CONTEXT, context);
+
+        Role siteRole = getSiteRole();
         
-        // Send the user to the sample page
-        return "sample";
+        if(siteRole.isStudent()) {
+        	return "studentView";
+        }
+        if(siteRole.isInstructor() || siteRole.isTeachingAssistant()) {
+        	return "overview";
+        }
+
+        if(log.isDebugEnabled()) log.debug(userName + " does not have a role in site " + context);
+
+        JsfUtil.addRedirectSafeMessage("You have no role in this site. " +
+        				"Please choose another site or another user, or both.");
+        
+        // Keep the user on the login page, and exercise the redirect to test messaging
+        return "login";
     }
     
     public String getUserName() {

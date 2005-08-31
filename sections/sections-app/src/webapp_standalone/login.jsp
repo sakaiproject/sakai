@@ -1,5 +1,8 @@
 <f:view>
 	<h:form id="loginForm">
+    
+        <h:messages globalOnly="true"/>
+        
 		<p>
 			<h:outputLabel for="userName" value="Username:"/>
 			<h:inputText id="userName" value="#{loginBean.userName}"/>

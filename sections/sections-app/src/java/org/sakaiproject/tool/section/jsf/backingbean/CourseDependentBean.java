@@ -39,6 +39,7 @@ import javax.faces.el.VariableResolver;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.manager.SectionManager;
 
@@ -84,10 +85,9 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().authn.getUserUuid(FacesContext.getCurrentInstance().getExternalContext().getRequest());
 	}
 	
-//	protected User getUser(String userUuid) {
-//		return getCourseBean().userDirectory.getUser(userUuid);
-//	}	
-	
+	protected Role getSiteRole() {
+		return getCourseBean().authz.getSiteRole(getUserUuid(), getSiteContext());
+	}
 	protected String getSiteContext() {
 		return getCourseBean().context.getContext(null);
 	}

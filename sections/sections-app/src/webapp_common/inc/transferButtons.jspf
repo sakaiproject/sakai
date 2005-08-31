@@ -1,0 +1,21 @@
+        <h:panelGroup>
+            <f:verbatim>
+                <p>
+                    <input type="button" onclick="addUser();" value="</f:verbatim><h:outputFormat value="#{msgs.transfer_membership_add_one}"/><f:verbatim>" />
+                </p>
+                <p>
+                    <input type="button" onclick="addAll();" value="</f:verbatim><h:outputFormat value="#{msgs.transfer_membership_add_all}"/><f:verbatim>"/>
+                </p>
+                
+                <p>
+                    &nbsp;
+                </p>
+                
+                <p>
+                    <input type="button" onclick="removeUser();" value="</f:verbatim><h:outputFormat value="#{msgs.transfer_membership_remove_one}"/><f:verbatim>"/>
+                </p>
+                <p>
+                    <input type="button" onclick="removeAll();" value="</f:verbatim><h:outputFormat value="#{msgs.transfer_membership_remove_all}"/><f:verbatim>"/>
+                </p>
+            </f:verbatim>
+        </h:panelGroup>

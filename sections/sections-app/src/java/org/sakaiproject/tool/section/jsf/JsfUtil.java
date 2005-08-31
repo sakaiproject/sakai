@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
+* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
@@ -27,7 +27,10 @@ package org.sakaiproject.tool.section.jsf;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+
+import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
 
 public class JsfUtil {
 	
@@ -35,6 +38,33 @@ public class JsfUtil {
 		return FacesContext.getCurrentInstance().getViewRoot().getLocale();
 	}
 	
+	/**
+	 * To cut down on configuration noise, allow access to request-scoped beans from
+	 * session-scoped beans, and so on, this method lets the caller try to find
+	 * anything anywhere that Faces can look for it.
+	 *
+	 * WARNING: If what you're looking for is a managed bean and it isn't found,
+	 * it will be created as a result of this call.
+	 */
+	public static final Object resolveVariable(String name) {
+		FacesContext context = FacesContext.getCurrentInstance();
+		return context.getApplication().getVariableResolver().resolveVariable(context, name);
+	}
+
+	public static void addErrorMessage(String message) {
+		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+	}
+
+    public static void addInfoMessage(String message) {
+		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
+	}
+
+    public static void addRedirectSafeMessage(String message) {
+        MessagingBean mb = (MessagingBean)resolveVariable("messagingBean");
+        // We only send informational messages across pages.
+        mb.addMessage(new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
+    }
+
 	public static String getLocalizedMessage(String key) {
         String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
         ResourceBundle rb = ResourceBundle.getBundle(bundleName, getLocale());

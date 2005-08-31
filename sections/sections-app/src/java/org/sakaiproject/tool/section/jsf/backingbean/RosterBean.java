@@ -78,6 +78,8 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	
 	public RosterBean() {
 		maxDisplayedRows = 10;
+		sortColumn="name";
+		sortAscending = true;
 	}
 	
 	public void init() {

@@ -57,7 +57,12 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	private String sectionTitle;
 	private String courseTitle;
 	
+	private boolean externallyManaged;
+	
 	public void init() {
+		// Determine whether this course is externally managed
+		externallyManaged = getCourse().isExternallyManaged();
+		
 		// Get the section to edit
 		String sectionUuidFromParam = (String)FacesContext.getCurrentInstance()
 			.getExternalContext().getRequestParameterMap().get("sectionUuid");
@@ -105,12 +110,13 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	public String update() {
 		Set userUuids = getHighlightedUsers("memberForm:selectedUsers");
 		getSectionManager().setSectionMemberships(userUuids, Role.TA, sectionUuid);
-
-		return null;
-		
-		//return "overview";
+		return "overview";
 	}
-	
+
+	public String cancel() {
+		return "overview";
+	}
+
 	private Set getHighlightedUsers(String componentId) {
 		Set userUuids = new HashSet();
 		
@@ -155,6 +161,10 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 
 	public String getCourseTitle() {
 		return courseTitle;
+	}
+
+	public boolean isExternallyManaged() {
+		return externallyManaged;
 	}
 }
 

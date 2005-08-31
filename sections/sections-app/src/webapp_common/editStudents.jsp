@@ -23,22 +23,7 @@
         	</h:selectManyListbox>
         </h:panelGroup>
     
-    	<h:panelGroup>
-    		<f:verbatim>
-    			<p>
-    				<input type="button" onclick="addAll();" value="&gt;&gt;&gt;" />
-    			</p>
-    			<p>
-    				<input type="button" onclick="addUser();" value="&gt;"/>
-    			</p>
-    			<p>
-    				<input type="button" onclick="removeUser();" value="&lt;"/>
-    			</p>
-    			<p>
-    				<input type="button" onclick="removeAll();" value="&lt;&lt;&lt;"/>
-    			</p>
-    		</f:verbatim>
-    	</h:panelGroup>
+        <%@include file="/inc/transferButtons.jspf"%>
     	
         <h:panelGroup>
             <h:outputText value="#{editStudentsBean.sectionTitle}"/>
@@ -59,6 +44,9 @@
         onclick="highlightUsers()"
         value="#{msgs.edit_student_update}"/>
 
+    <h:commandButton
+        action="#{overview}"
+        value="#{msgs.edit_student_cancel}"/>
 
 </h:form>
 </f:view>

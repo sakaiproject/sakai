@@ -37,6 +37,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
@@ -52,13 +53,26 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	private boolean sortAscending;
 	private String sectionFilter;
 	private boolean externallyManaged;
+	private boolean joinAllowed;
+	private boolean switchAllowed;
 	
 	private List sections;
 	private List sectionCategoryItems;
 	
+	public StudentViewBean() {
+		sortColumn = "time";
+		sortAscending = true;
+	}
+	
 	public void init() {
+		Course course = getCourse();
+
 		// Determine whether this course is externally managed
-		externallyManaged = getCourse().isExternallyManaged();
+		externallyManaged = course.isExternallyManaged();
+		
+		// Determine whether the sections are joinable and/or switchable
+		joinAllowed = course.isSelfRegistrationAllowed();
+		switchAllowed = course.isSelfSwitchingAllowed();
 
 		// Get all sections in the site
 		List sectionSet = getAllSiteSections();
@@ -179,6 +193,14 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 
 	public boolean isExternallyManaged() {
 		return externallyManaged;
+	}
+
+	public boolean isJoinAllowed() {
+		return joinAllowed;
+	}
+
+	public boolean isSwitchAllowed() {
+		return switchAllowed;
 	}
 }
 

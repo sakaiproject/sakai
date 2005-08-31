@@ -58,7 +58,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
 				CourseImpl course = new CourseImpl();
-        		course.setExternallyManaged(false);
+        		course.setExternallyManaged(externallyManaged);
         		course.setSelfRegistrationAllowed(selfRegAllowed);
         		course.setSelfSwitchingAllowed(selfSwitchingAllowed);
         		course.setSiteContext(siteContext);

@@ -24,56 +24,37 @@
 
 package org.sakaiproject.tool.section.jsf.backingbean;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Authz;
-import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.tool.section.manager.SectionManager;
+import javax.faces.application.FacesMessage;
 
-public class CourseBean implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	private String courseUuid;
-
-	protected SectionManager sectionManager;
-    protected Authn authn;
-    protected Authz authz;
-    protected Context context;
-    //protected UserDirectory userDirectory;
-
-	protected String getCourseUuid() {
-		// TODO Do we ever have a need to cache the course object? I don't think so, but keep an eye on this
-		Course course = sectionManager.getCourse(context.getContext(null));
-		courseUuid = course.getUuid();
-		return courseUuid;
-	}
+/**
+ * A session-scoped bean to handle jsf messages across redirects.
+ *
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ */
+public class MessagingBean {
+	private List messages;
 	
-	public SectionManager getSectionManager() {
-		return sectionManager;
+	public MessagingBean() {
+		messages = new ArrayList();
 	}
-	
-    //// Setters for dep. injection
-    public void setSectionManager(SectionManager sectionManager) {
-        this.sectionManager = sectionManager;
-    }
-    
-    public void setAuthn(Authn authn) {
-        this.authn = authn;
+
+    public boolean hasMessages() {
+        return messages.size() > 0;
     }
 
-    public void setAuthz(Authz authz) {
-        this.authz = authz;
+    public List getMessagesAndClear() {
+        List list = new ArrayList(messages);
+        messages.clear();
+        return list;
     }
 
-	public void setContext(Context context) {
-		this.context = context;
-	}
-	
+    public void addMessage(FacesMessage message) {
+        messages.add(message);
+    }
 }
-
 
 
 /**********************************************************************************
