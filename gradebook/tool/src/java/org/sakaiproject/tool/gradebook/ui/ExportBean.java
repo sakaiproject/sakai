@@ -133,9 +133,9 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 	private void writeAsCsv(String csvString, String fileName) {
 		FacesContext faces = FacesContext.getCurrentInstance();
 		HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
+		protectAgainstInstantDeletion(response);
 		response.setContentType("text/comma-separated-values");
 		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".csv");
-		protectAgainstInstantDeletion(response);
 		response.setContentLength(csvString.length());
 		OutputStream out = null;
 		try {
@@ -170,9 +170,9 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
     private void writeAsExcel(HSSFWorkbook wb, String fileName) {
 		FacesContext faces = FacesContext.getCurrentInstance();
 		HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
+		protectAgainstInstantDeletion(response);
 		response.setContentType("application/vnd.ms-excel ");
 		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xls");
-		protectAgainstInstantDeletion(response);
 
 		OutputStream out = null;
 		try {
@@ -389,7 +389,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
      * time after the instant it was made".
      */
     public static void protectAgainstInstantDeletion(HttpServletResponse response) {
-    	response.setHeader("Pragma", "cache");	// Override old-style cache control
+    	response.reset();	// Eliminate the added-on stuff
     	response.setHeader("Pragma", "public");	// Override old-style cache control
     	response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
     }
