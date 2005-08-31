@@ -68,7 +68,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     }
 
     public void testSectionsAndCategories() throws Exception {
-    	String siteContext = context.getContext();
+    	String siteContext = context.getContext(null);
     	List categories = secAware.getSectionCategories();
     	
     	// Add a course and a section to work from
@@ -99,7 +99,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     }
     
     public void testSectionMembership() throws Exception {
-    	String siteContext = context.getContext();
+    	String siteContext = context.getContext(null);
     	List categories = secAware.getSectionCategories();
     	
     	// Add a course and a section to work from

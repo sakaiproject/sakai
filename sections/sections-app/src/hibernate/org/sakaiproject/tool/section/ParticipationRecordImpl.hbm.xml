@@ -48,6 +48,14 @@
         ]]>
     </query>
 
+    <query name="findUserFromSiteParticipation">
+        <![CDATA[
+        select record.user from ParticipationRecordImpl as record where record.user.userUuid=:userUuid
+            and record.learningContext in
+                ( from CourseImpl as course where course.siteContext=:siteContext )
+        ]]>
+    </query>
+
     <query name="findSiteTAs">
         <![CDATA[
         from TeachingAssistantRecordImpl as participant where participant.learningContext=:course

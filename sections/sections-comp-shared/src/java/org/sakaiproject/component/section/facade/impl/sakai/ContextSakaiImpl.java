@@ -32,7 +32,7 @@ import org.sakaiproject.api.section.facade.manager.Context;
 
 public class ContextSakaiImpl implements Context {
 	private static final Log log = LogFactory.getLog(ContextSakaiImpl.class);
-	public String getContext() {
+	public String getContext(Object request) {
         Placement placement = ToolManager.getCurrentPlacement();        
         if(placement == null) {
             log.error("Placement is null");

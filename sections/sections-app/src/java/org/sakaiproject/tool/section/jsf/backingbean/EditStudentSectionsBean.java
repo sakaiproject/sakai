@@ -66,7 +66,8 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		if(studentUuidFromParam != null) {
 			studentUuid = studentUuidFromParam;
 		}
-		User student = getUser(studentUuid);
+		
+		User student = getSectionManager().getSiteEnrollment(getSiteContext(), studentUuid);
 		studentName = student.getDisplayName();
 		
 		// Get the site course and sections

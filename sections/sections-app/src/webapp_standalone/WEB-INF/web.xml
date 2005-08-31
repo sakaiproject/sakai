@@ -50,6 +50,107 @@
 		<url-pattern>*.jsf</url-pattern>
 	</servlet-mapping>
 
+<!-- 
+    <filter>
+        <filter-name>AuthnFilter</filter-name>
+        <filter-class>org.sakaiproject.tool.section.filter.AuthnFilter</filter-class>
+        <init-param>
+            <param-name>authnRedirect</param-name>
+            <param-value>/sakai-sections-tool/login.jsf</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authnBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Authn</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthnFilter</filter-name>
+        <url-pattern>*.jsf</url-pattern>
+    </filter-mapping>
+-->
+
+    <filter>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <filter-class>org.sakaiproject.tool.section.filter.RoleFilter</filter-class>
+        <init-param>
+            <param-name>role</param-name>
+            <param-value>instructor</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authnBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Authn</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authzBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>contextBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Context</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/addSections.jsf</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/deleteSection.jsf</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/editManagers.jsf</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/editSection.jsf</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/editStudents.jsf</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/editStudentSections.jsf</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/options.jsf</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/overview.jsf</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/roster.jsf</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>StudentRoleFilter</filter-name>
+        <filter-class>org.sakaiproject.tool.section.filter.RoleFilter</filter-class>
+        <init-param>
+            <param-name>role</param-name>
+            <param-value>student</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authnBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Authn</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authzBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>contextBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Context</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>StudentRoleFilter</filter-name>
+        <url-pattern>/studentView.jsf</url-pattern>
+    </filter-mapping>
+
 	<jsp-config>
 		<jsp-property-group>
 			<url-pattern>*.jsp</url-pattern>

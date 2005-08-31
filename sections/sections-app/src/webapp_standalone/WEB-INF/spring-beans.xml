@@ -26,9 +26,6 @@
 		<property name="uuidManager">
 			<ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
 		</property>
-        <property name="userDirectory">
-            <ref bean="org.sakaiproject.api.section.facade.manager.UserDirectory"/>
-        </property>
         <property name="sectionCategoryList">
             <list>
                 <value>section.category.lecture</value>

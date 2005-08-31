@@ -77,7 +77,7 @@ public class SectionManagerTest extends SectionsTestBase{
 
     	// FIXME This test has become totally unruly.  Split it up, even though it will lead to a lot of duplication
     	
-    	String siteContext = context.getContext();
+    	String siteContext = context.getContext(null);
     	List categories = secMgr.getSectionCategories();
     	
     	// Add a course and a section to work from

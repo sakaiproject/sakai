@@ -52,9 +52,6 @@
                 <property name="uuidManager">
                     <ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
                 </property>
-                <property name="userDirectory">
-                    <ref bean="org.sakaiproject.api.section.facade.manager.UserDirectory"/>
-                </property>
                 <property name="sectionCategoryList">
                     <list>
                         <value>section.category.lecture</value>
@@ -88,8 +85,5 @@
 
 	<bean id="org.sakaiproject.api.section.facade.manager.Context"
 		class="org.sakaiproject.component.section.facade.impl.sakai.ContextSakaiImpl"/>
-
-    <bean id="org.sakaiproject.api.section.facade.manager.UserDirectory"
-        class="org.sakaiproject.component.section.facade.impl.sakai.UserDirectorySakaiImpl"/>
 
 </beans>

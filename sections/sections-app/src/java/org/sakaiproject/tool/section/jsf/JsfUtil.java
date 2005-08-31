@@ -28,10 +28,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpSession;
 
 public class JsfUtil {
-	private static final String SESSION_ATTR = "org.sakaiproject.tool.section.jsf.JsfUtil";
 	
 	public static Locale getLocale() {
 		return FacesContext.getCurrentInstance().getViewRoot().getLocale();
@@ -47,29 +45,6 @@ public class JsfUtil {
 		return (String)FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterMap().get(string);
 	}
-	
-	/**
-	 * Keeps a string value in the session so it can be retrieved across redirects.
-	 * 
-	 * @param value The string to maintain across http redirects
-	 * @param facesContext The current FacesContext instance
-	 */
-//	public static void storeRedirectSafeAttribute(String value, FacesContext facesContext) {
-//		((HttpSession)facesContext.getExternalContext().getSession(true)).setAttribute(SESSION_ATTR, value);
-//	}
-
-	/**
-	 * Retrieves the string value stored across a redirect, then clears the value from the session.
-	 * 
-	 * @param facesContext The current FacesContext instance
-	 * @return The string value, or null if there is nothing stored in the session
-	 */
-//	public static String getRedirectSafeAttribute(FacesContext facesContext) {
-//		HttpSession session = (HttpSession)facesContext.getExternalContext().getSession(true);
-//		String value = (String)session.getAttribute(SESSION_ATTR);
-//		session.removeAttribute(SESSION_ATTR);
-//		return value;
-//	}
 }
 
 

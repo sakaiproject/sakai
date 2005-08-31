@@ -33,6 +33,7 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
+import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.CourseSectionImpl;
@@ -350,6 +351,15 @@ public interface SectionManager {
      * {@link SectionAwareness#getCategoryName(String, Locale) getCategoryName}.
      */
     public List getSectionCategories();
+
+	/**
+	 * Gets a single enrollment record for a student in a site.
+	 * 
+	 * @param siteContext
+	 * @param studentUuid
+	 * @return The enrollment record linking this student to this site/course
+	 */
+    public User getSiteEnrollment(String siteContext, String studentUuid);
 
 }
 

@@ -36,7 +36,7 @@ import org.sakaiproject.api.section.facade.manager.Authn;
 public class AuthnTestImpl implements Authn {
 	private String userUuid;
 
-	public String getUserUuid() {
+	public String getUserUuid(Object request) {
 		return userUuid;
 	}
 

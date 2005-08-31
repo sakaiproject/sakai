@@ -187,6 +187,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 
 	public void clearSearch(ActionEvent event) {
+		firstRow = 0;
 		searchText = null;
 	}
 	

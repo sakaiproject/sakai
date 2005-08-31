@@ -28,7 +28,7 @@ import org.sakaiproject.api.section.facade.manager.Context;
 
 public class ContextTestImpl implements Context {
 
-	public String getContext() {
+	public String getContext(Object request) {
         return "test context";
 	}
 	

@@ -25,6 +25,7 @@
 package org.sakaiproject.tool.section.facade.impl.standalone;
 
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.sakaiproject.api.section.facade.manager.Context;
@@ -33,8 +34,13 @@ public class ContextStandaloneImpl implements Context {
 
 	public static final String CONTEXT = "context";
 
-	public String getContext() {
-        HttpSession session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
+	public String getContext(Object request) {
+    	HttpSession session = null;
+    	if(request == null) {
+            session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
+    	} else {
+    		session = ((HttpServletRequest)request).getSession();
+    	}
         return (String)session.getAttribute(CONTEXT);
 	}
 	

@@ -25,6 +25,7 @@
 package org.sakaiproject.tool.section.facade.impl.standalone;
 
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.sakaiproject.api.section.facade.manager.Authn;
@@ -38,8 +39,13 @@ public class AuthnStandaloneImpl implements Authn {
     /**
      * @see org.sakaiproject.api.section.facade.managers.Authn#getUserUid()
      */
-    public String getUserUuid() {
-        HttpSession session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
+    public String getUserUuid(Object request) {
+    	HttpSession session = null;
+    	if(request == null) {
+            session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
+    	} else {
+    		session = ((HttpServletRequest)request).getSession();
+    	}
         return (String)session.getAttribute(USER_NAME);
     }
 

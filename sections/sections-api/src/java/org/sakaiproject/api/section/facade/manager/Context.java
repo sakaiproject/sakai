@@ -25,7 +25,7 @@
 package org.sakaiproject.api.section.facade.manager;
 
 public interface Context {
-	public String getContext();
+	public String getContext(Object request);
 }
 
 

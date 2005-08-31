@@ -29,7 +29,6 @@ import java.io.Serializable;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.api.section.facade.manager.UserDirectory;
 import org.sakaiproject.tool.section.manager.SectionManager;
 
 public class CourseBean implements Serializable {
@@ -41,11 +40,11 @@ public class CourseBean implements Serializable {
 	protected SectionManager sectionManager;
     protected Authn authn;
     protected Context context;
-    protected UserDirectory userDirectory;
+    //protected UserDirectory userDirectory;
 
 	protected String getCourseUuid() {
 		// TODO Do we ever have a need to cache the course object? I don't think so, but keep an eye on this
-		Course course = sectionManager.getCourse(context.getContext());
+		Course course = sectionManager.getCourse(context.getContext(null));
 		courseUuid = course.getUuid();
 		return courseUuid;
 	}
@@ -54,7 +53,6 @@ public class CourseBean implements Serializable {
 		return sectionManager;
 	}
 	
-	    
     //// Setters for dep. injection
     public void setSectionManager(SectionManager sectionManager) {
         this.sectionManager = sectionManager;
@@ -67,11 +65,6 @@ public class CourseBean implements Serializable {
 	public void setContext(Context context) {
 		this.context = context;
 	}
-
-	public void setUserDirectory(UserDirectory userDirectory) {
-		this.userDirectory = userDirectory;
-	}
-
 }
 
 

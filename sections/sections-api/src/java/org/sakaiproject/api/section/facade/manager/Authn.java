@@ -28,7 +28,7 @@ package org.sakaiproject.api.section.facade.manager;
  * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public interface Authn {
-    public String getUserUuid();
+    public String getUserUuid(Object request);
 }
 
 

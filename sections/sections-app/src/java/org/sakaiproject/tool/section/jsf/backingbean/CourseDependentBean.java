@@ -81,15 +81,15 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 	
 	protected String getUserUuid() {
-		return getCourseBean().authn.getUserUuid();
+		return getCourseBean().authn.getUserUuid(FacesContext.getCurrentInstance().getExternalContext().getRequest());
 	}
 	
-	protected User getUser(String userUuid) {
-		return getCourseBean().userDirectory.getUser(userUuid);
-	}	
+//	protected User getUser(String userUuid) {
+//		return getCourseBean().userDirectory.getUser(userUuid);
+//	}	
 	
 	protected String getSiteContext() {
-		return getCourseBean().context.getContext();
+		return getCourseBean().context.getContext(null);
 	}
 	
 	protected Course getCourse() {
