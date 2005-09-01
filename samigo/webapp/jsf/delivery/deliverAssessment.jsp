@@ -47,6 +47,8 @@
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
 
+<h:inputText id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
+
 <script language="javascript">
 function checkRadio()
 {
@@ -73,6 +75,13 @@ function saveTime()
   pauseTiming = 'true';
   document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded/10;
  }
+ if( (typeof (document.forms[0].elements['takeAssessmentForm:wninFpevcgRanoyrqPurpx']))!=undefined
+  && (document.forms[0].elements['takeAssessmentForm:wninFpevcgRanoyrqPurpx'])!=null ){
+  document.forms[0].elements['takeAssessmentForm:wninFpevcgRanoyrqPurpx'].value='true';
+  }
+//alert("document.forms[0].elements['takeAssessmentForm:wninFpevcgRanoyrqPurpx'].value=" +
+//document.forms[0].elements['takeAssessmentForm:wninFpevcgRanoyrqPurpx'].value);
+
 }
 
 </script>
@@ -211,7 +220,7 @@ function saveTime()
 
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
-    rendered="#{delivery.accessViaUrl}" 
+    rendered="#{delivery.accessViaUrl}"
     onclick="pauseTiming='true'">
   </h:commandButton>
 

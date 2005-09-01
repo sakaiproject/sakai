@@ -65,15 +65,25 @@ return!(window.event && window.event.keyCode == 13);
 
 function saveTime()
 {
-  if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){
+  if((typeof (document.forms[0].elements['takeAssessmentFormTOC:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentFormTOC:elapsed'])!=null) ){
   pauseTiming = 'true';
-  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded;
+  document.forms[0].elements['takeAssessmentFormTOC:elapsed'].value=loaded;
  }
+ if( (typeof (document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx']))!=undefined
+  && (document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'])!=null ){
+  document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'].value='true';
+
+  }
+//alert("document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'].value=" +
+//document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'].value);
+
 }
 
 </script>
 
-<h:form>
+<h:form id="takeAssessmentFormTOCTop">
+
+
 <h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished ne 'true'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
@@ -105,7 +115,7 @@ function saveTime()
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     expireMessage="Your session has expired."
-    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; document.forms[0].elements['takeAssessmentForm:saveAndExit'].click();" />
+    expireScript="document.forms[0].elements['takeAssessmentFormTOC:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentFormTOC:outoftime'].value='true'; document.forms[0].elements['takeAssessmentForm:saveAndExit'].click();" />
 
 <f:verbatim>  </span></f:verbatim>
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="Hide/Show Time Remaining" />
@@ -144,6 +154,8 @@ function saveTime()
   <h:outputText value="#{msg.q_marked}" />
 
 <h:form id="tableOfContentsForm" onsubmit="saveTime()">
+
+<h:inputHidden id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
 
 <font color="red"><h:messages/></font>
 
