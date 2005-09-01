@@ -2,7 +2,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <name>Sakai Samigo Components</name>
-  <shortDescription>Samigo (Test and Quizzes) exportable implementation.</shortDescription>
+  <shortDescription>Samigo (Test and Quizzes) implementation.</shortDescription>
   <groupId>sakaiproject</groupId>
   <id>sakai-samigo-component</id>
   <currentVersion>2.1.0</currentVersion>
