@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.xerces.impl.dv.util.Base64;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
@@ -52,6 +53,8 @@ import org.sakaiproject.service.legacy.resource.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.time.cover.TimeService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.util.java.StringUtil;
+import org.sakaiproject.util.xml.Xml;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -230,9 +233,17 @@ public class SyllabusServiceImpl implements SyllabusService
                               .getEmailNotification());
                       Element asset = doc.createElement(SYLLABUS_DATA_ASSET);
 
-                      Node assetNode = doc.createTextNode(syllabusData
-                          .getAsset());
-                      asset.appendChild(assetNode);
+                      try
+                      {
+                        String encoded = Base64.encode(syllabusData.getAsset().getBytes());
+                        asset.setAttribute("syllabus_body-html", encoded);
+                      }
+                      catch(Exception e)
+                      {
+                        logger.warn("Encode Syllabus - " + e);
+                      }
+                      
+                      
                       syllabus_data.appendChild(asset);
                       syllabus.appendChild(syllabus_data);
 
@@ -389,6 +400,30 @@ public class SyllabusServiceImpl implements SyllabusService
                                     if (assetEle.getTagName().equals(
                                         SYLLABUS_DATA_ASSET))
                                     {
+                                      String charset = trimToNull(assetEle.getAttribute("charset"));
+                                      if (charset == null) charset = "UTF-8";
+                                      
+                                      String body = trimToNull(assetEle.getAttribute("syllabus_body-html"));
+                                      if (body != null)
+                                      {
+                                        try
+                                        {
+                                          byte[] decoded = Base64.decode(body);
+                                          body = new String(decoded, charset);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                          logger.warn("Decode Syllabus: " + e);
+                                        }
+                                      }
+                                      
+                                      if (body == null) body = "";
+                                      
+                                      String ret;
+                                      ret = trimToNull(body);
+                                      
+                                      syData.setAsset(ret);
+/*decode
                                       NodeList assetStringNodes = assetEle
                                           .getChildNodes();
                                       int lengthAssetNodes = assetStringNodes
@@ -401,7 +436,7 @@ public class SyllabusServiceImpl implements SyllabusService
                                           Text textNode = (Text) child4;
                                           syData.setAsset(textNode.getData());
                                         }
-                                      }
+                                      }*/
                                     }
                                   }
                                 }
@@ -887,6 +922,15 @@ public class SyllabusServiceImpl implements SyllabusService
 		
 		EventTrackingService.post(event);
 	}
+	
+	public String trimToNull(String value)
+	{
+		if (value == null) return null;
+		value = value.trim();
+		if (value.length() == 0) return null;
+		return value;
+
+	} 
 }
 
 
