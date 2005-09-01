@@ -48,6 +48,11 @@ public class LoginBean extends CourseDependentBean {
 	private String userName;
     private String context;
 
+    public LoginBean() {
+    	// Default for testing
+		userName = "instructor1";
+    }
+
     public String processSetUserNameAndContext() {
         // We store the username and context as a session attribute in standalone mode
         HttpSession session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
@@ -73,9 +78,6 @@ public class LoginBean extends CourseDependentBean {
     }
     
     public String getUserName() {
-    	if(userName == null) {
-    		userName = "student1";
-    	}
         return userName;
     }
     public void setUserName(String userName) {

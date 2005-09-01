@@ -46,6 +46,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.tree2.UITreeData;
@@ -70,9 +71,6 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	public void init() {
 		if(log.isDebugEnabled()) log.debug("initializing add sections bean");
 		List categories = getSectionCategories();
-		if(category == null) {
-			category = (String)categories.get(0);
-		}		
 		populateSections();
 		categoryItems = new ArrayList();
 		for(Iterator iter = categories.iterator(); iter.hasNext();) {
@@ -87,11 +85,13 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	}
 	
 	private void populateSections() {
-		if(log.isDebugEnabled()) log.debug("populating sections");
 		sections = new ArrayList();
-		int offset = getSectionManager().getSectionsInCategory(getSiteContext(), category).size();
-		for(int i=0; i<numToAdd; i++) {
-			sections.add(new LocalSectionModel(getCategoryName(category) + (i+1+offset)));
+		if(StringUtils.trimToNull(category) != null) {
+			if(log.isDebugEnabled()) log.debug("populating sections");
+			int offset = getSectionManager().getSectionsInCategory(getSiteContext(), category).size();
+			for(int i=0; i<numToAdd; i++) {
+				sections.add(new LocalSectionModel(getCategoryName(category) + (i+1+offset)));
+			}
 		}
 	}
 	
