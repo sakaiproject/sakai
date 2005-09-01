@@ -364,14 +364,11 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
      * Try to head off a problem with downloading files from a secure HTTPS
      * connection to Internet Explorer.
      *
-     * 1) By default, Apache-with-SSL prefixes its content with a bunch of
-     * HTTP headers saying "this document should expire immediately and not be cached."
-     *
-     * 2) When IE sees it's talking to a secure server, it decides to treat all hints
+     * When IE sees it's talking to a secure server, it decides to treat all hints
      * or instructions about caching as strictly as possible. Immediately upon
      * finishing the download, it throws the data away.
      *
-     * 3) Unfortunately, the way IE sends a downloaded file on to a helper
+     * Unfortunately, the way IE sends a downloaded file on to a helper
      * application is to use the cached copy. Having just deleted the file,
      * it naturally isn't able to find it in the cache. Whereupon it delivers
      * a very misleading error message like:
@@ -382,11 +379,11 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
      * There are several ways to turn caching off, and so to be safe we use
      * several ways to turn it back on again.
      *
-     * It's possible that we might also need to set an "Expires" header to
-     * explicitly expire the download in the future. By default, Apache-with-SSL
-     * sets "Expires" to be the same as "Last-Modified", which some
-     * hypersensitive browser might take to mean "delete this file at any
-     * time after the instant it was made".
+     * This current workaround should let IE users save the files to disk.
+     * Unfortunately, errors may still occur if a user attempts to open the
+     * file directly in a helper application from a secure web server.
+     *
+     * TODO Keep checking on the status of this.
      */
     public static void protectAgainstInstantDeletion(HttpServletResponse response) {
     	response.reset();	// Eliminate the added-on stuff
