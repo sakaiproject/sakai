@@ -39,7 +39,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
-import org.sakaiproject.tool.assessment.business.AAMTree;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -120,7 +120,7 @@ public class QuestionPoolBean
 
 
   // for JSF
-  private AAMTree tree;
+  private Tree tree;
   private Collection qpools;
   private Collection copyQpools;
   private Collection moveQpools;
@@ -383,7 +383,7 @@ public class QuestionPoolBean
    *
    * @return DOCUMENTATION PENDING
    */
-  public AAMTree getTree()
+  public Tree getTree()
   {
     return tree;
   }
@@ -393,7 +393,7 @@ public class QuestionPoolBean
    *
    * @param newPools DOCUMENTATION PENDING
    */
-  public void setTree(AAMTree newtree)
+  public void setTree(Tree newtree)
   {
     tree = newtree;
   }

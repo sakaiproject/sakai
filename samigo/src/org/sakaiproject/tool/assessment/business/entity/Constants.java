@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/business/entity/AAMTree.java $
-* $Id: AAMTree.java 199 2005-06-23 18:51:52Z esmiley@stanford.edu $
+* $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/business/entity/Tree.java $
+* $Id: Tree.java 199 2005-06-23 18:51:52Z esmiley@stanford.edu $
 ***********************************************************************************
 *
 * Copyright (c) 2003-2005 The Regents of the University of Michigan, Trustees of Indiana University,

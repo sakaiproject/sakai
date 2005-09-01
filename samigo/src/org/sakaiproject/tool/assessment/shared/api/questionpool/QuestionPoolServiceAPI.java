@@ -26,7 +26,7 @@ package org.sakaiproject.tool.assessment.shared.api.questionpool;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.tool.assessment.business.AAMTree;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 
 
@@ -114,7 +114,7 @@ public interface QuestionPoolServiceAPI
   /**
    * Delete a pool
    */
-  public void deletePool(Long poolId, String agentId, AAMTree tree);
+  public void deletePool(Long poolId, String agentId, Tree tree);
 
   /**
    * removes a Question from the question pool. This does not  *delete* the question itself
@@ -124,7 +124,7 @@ public interface QuestionPoolServiceAPI
   /**
    * Copy a subpool to a pool.
    */
-  public void copyPool(AAMTree tree, String agentId, Long sourceId,
+  public void copyPool(Tree tree, String agentId, Long sourceId,
     Long destId);
 
 

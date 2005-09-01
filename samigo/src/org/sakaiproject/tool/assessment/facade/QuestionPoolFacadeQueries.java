@@ -36,7 +36,7 @@ import net.sf.hibernate.Hibernate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osid.OsidException;
-import org.sakaiproject.tool.assessment.business.AAMTree;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
@@ -341,7 +341,7 @@ public class QuestionPoolFacadeQueries
    * @param itemId DOCUMENTATION PENDING
    * @param poolId DOCUMENTATION PENDING
    */
-  public void deletePool(Long poolId, String agent, AAMTree tree) {
+  public void deletePool(Long poolId, String agent, Tree tree) {
     try {
       // I decided not to load the questionpool and delete things that associate with it
       // because question is associated with it as ItemImpl not AssetBeanie. To delete
@@ -588,7 +588,7 @@ public class QuestionPoolFacadeQueries
   /**
    * Copy a pool to a new location.
    */
-  public void copyPool(AAMTree tree, String agentId, Long sourceId,
+  public void copyPool(Tree tree, String agentId, Long sourceId,
                        Long destId) {
     try {
       boolean haveCommonRoot = false;

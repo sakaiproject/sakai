@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.business.AAMTree;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
@@ -344,7 +344,7 @@ public class QuestionPoolService
   /**
    * Delete a pool
    */
-  public void deletePool(Long poolId, String agentId, AAMTree tree)
+  public void deletePool(Long poolId, String agentId, Tree tree)
   {
     try
     {
@@ -382,7 +382,7 @@ public class QuestionPoolService
   /**
    * Copy a subpool to a pool.
    */
-  public void copyPool(AAMTree tree, String agentId, Long sourceId,
+  public void copyPool(Tree tree, String agentId, Long sourceId,
     Long destId)
   {
     try

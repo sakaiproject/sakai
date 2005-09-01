@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL$
-* $Id$
+* $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/src/org/sakaiproject/tool/assessment/business/Tree.java $
+* $Id: Tree.java 632 2005-07-14 21:22:50Z janderse@umich.edu $
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -20,57 +20,52 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-
-package org.sakaiproject.tool.assessment.business.entity;
+package org.sakaiproject.tool.assessment.data.model;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import osid.shared.Id;
-
 /**
- * DOCUMENTATION PENDING
- *
- * @author $author$
- * @version $Id$
+ * originally Tree.java
+ * @author esmiley@stanford.edu
+ * @version $Id: Tree.java 632 2005-07-14 21:22:50Z janderse@umich.edu $
  */
-public interface AAMTree
-  extends Serializable
+public interface Tree extends Serializable
 {
   /**
-   * DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   *
+   * @return
    */
-  public Id getCurrentId();
+  public Long getCurrentId();
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @param id DOCUMENTATION PENDING
+   *
+   * @param id
    */
-  public void setCurrentId(Id id);
+  public void setCurrentId(Long id);
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   *
+   * @return
    */
   public boolean currentObjectIsParent();
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   *
+   * @return
    */
   public Object getCurrentObject();
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   *
+   * @return
    */
   public Object getParent();
 
@@ -117,9 +112,9 @@ public interface AAMTree
   public void setPropertyMethods(String[] methods);
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   *
+   * @return
    */
   public Map getAllObjects();
 
@@ -130,44 +125,44 @@ public interface AAMTree
   /**
    * A collection of objects in proper sorted order for a subpool tree.
    */
-  public Collection getSortedObjects(Id parentId);
+  public Collection getSortedObjects(Long parentId);
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @param parentID DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   * @param parentID
+   *
+   * @return
    */
-  public Map getChildren(Id parentID);
+  public Map getChildren(Long parentID);
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   *
+   * @return
    */
   public Map getChildren();
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @param parentID DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   * @param parentID
+   *
+   * @return
    */
-  public List getChildList(Id parentID);
+  public List getChildList(Long parentID);
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   *
+   * @return
    */
   public List getChildList();
 
   /**
-   * DOCUMENTATION PENDING
    *
-   * @return DOCUMENTATION PENDING
+   *
+   * @return
    */
   public List getRootNodeList();
 
@@ -181,21 +176,26 @@ public interface AAMTree
    */
   public void setSortProperty(String sortBy);
 
+  /**
+   * This sorts the tree by the property .
+   */
+  public void sortByProperty(String sortProperty,boolean sortAscending);
+
  /**
    * THis checks to see if given two pools have a common ancestor
    */
-  public boolean haveCommonRoot(Id poolIdA,Id poolIdB);
+  public boolean haveCommonRoot(Long poolIdA,Long  poolIdB);
 
  /**
    * Is a pool a descendant of the other?
    */
-  public boolean isDescendantOf(Id poolA,Id poolB);
+  public boolean isDescendantOf(Long poolA,Long poolB);
 
 
  /**
    * This returns the level of the pool inside a pool tree, Root being 0.
    */
-  public int poolLevel(Id poolId);
+  public int poolLevel(Long poolId);
 
 
 }

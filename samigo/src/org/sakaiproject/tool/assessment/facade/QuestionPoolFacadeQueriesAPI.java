@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.sakaiproject.tool.assessment.business.AAMTree;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
@@ -115,7 +115,7 @@ public interface QuestionPoolFacadeQueriesAPI
    * @param itemId DOCUMENTATION PENDING
    * @param poolId DOCUMENTATION PENDING
    */
-  public void deletePool(Long poolId, String agent, AAMTree tree);
+  public void deletePool(Long poolId, String agent, Tree tree);
 
   /**
    * Move pool under another pool. The dest pool must not be the
@@ -194,7 +194,7 @@ public interface QuestionPoolFacadeQueriesAPI
   /**
    * Copy a pool to a new location.
    */
-  public void copyPool(AAMTree tree, String agentId, Long sourceId, Long destId);
+  public void copyPool(Tree tree, String agentId, Long sourceId, Long destId);
 
   public Long add();
 

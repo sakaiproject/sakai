@@ -26,7 +26,7 @@ package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 import javax.faces.model.DataModel;
 import javax.faces.model.DataModelListener;
 
-import org.sakaiproject.tool.assessment.business.AAMTree;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 
 
@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 public class QuestionPoolDataModel extends DataModel
 {
           // for JSF
-  private AAMTree tree;
+  private Tree tree;
   private DataModel model;
 
 
@@ -47,7 +47,7 @@ public class QuestionPoolDataModel extends DataModel
   /**
    * Creates a new QuestionPoolDatModel object.
    */
-  public QuestionPoolDataModel(AAMTree tree, DataModel model)
+  public QuestionPoolDataModel(Tree tree, DataModel model)
   {
      this.model = model;
      this.tree=tree;
