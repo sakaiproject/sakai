@@ -361,7 +361,8 @@ public class HistogramListener
       ItemTextIfc firstText = (ItemTextIfc) text.toArray()[0];
       answers = firstText.getAnswerArraySorted();
     }
-    if (qbean.getQuestionType().equals("1"))
+   
+    if (qbean.getQuestionType().equals("1")) 
       getTFMCScores(scores, qbean, answers);
     else if (qbean.getQuestionType().equals("2"))
       getFIBMCMCScores(scores, qbean, answers);
@@ -418,7 +419,7 @@ public class HistogramListener
           studentResponseList.add(data);
           numStudentRespondedMap.put(data.getAssessmentGrading().getAssessmentGradingId(), studentResponseList);
         // we found a response, and got the  existing num , now update one
-        // check here for the other bug about non-autograded items having 1 even with no responses
+        // check here for sam-443 about non-autograded items having 1 even with no responses
         results.put(answer.getId(), new Integer(num.intValue() + 1));
       }
     }
@@ -555,6 +556,7 @@ public class HistogramListener
     {
       ItemGradingData data = (ItemGradingData) iter.next();
       AnswerIfc answer = data.getPublishedAnswer();
+
       if (answer != null)
       {
         //log.info("Rachel: looking for " + answer.getId());
@@ -571,7 +573,8 @@ public class HistogramListener
         }
         if (num == null)
           num = new Integer(0);
-        // we found a response, and got the  existing num , now update one
+
+        // we found a response, and got the  existing num , now update one   
         // check here for the other bug about non-autograded items having 1 even with no responses
         results.put(answer.getId(), new Integer(num.intValue() + 1));
       }
@@ -587,19 +590,12 @@ public class HistogramListener
       Long answerId = (Long) iter.next();
       AnswerIfc answer = (AnswerIfc) texts.get(answerId);
       int num =	((Integer) results.get(answerId)).intValue();
+      // set i to be the sequence, so that the answer choices will be in the right order on Statistics page , see Bug SAM-440
+      i=answer.getSequence().intValue()-1;
+
       numarray[i] = num;
       bars[i] = new HistogramBarBean();
-      if (!qbean.getQuestionType().equals("8"))
-      {
-          bars[i].setLabel(answer.getText());
-      }
-      else
-      {
-          ItemDataIfc item = ((ItemGradingData) scores.toArray()[0])
-          .getPublishedItem();
-          bars[i].setLabel(item.getCorrectItemFeedback());
-      }
-
+      bars[i].setLabel(answer.getText());
       bars[i].setIsCorrect(answer.getIsCorrect());
       if (num>1)
 	  {
@@ -614,7 +610,7 @@ public class HistogramListener
       responses += num;
       if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
         correctresponses += num;
-      i++;
+      //i++;
     }
     int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
