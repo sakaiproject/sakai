@@ -97,8 +97,15 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	
 	public String addSections() {
 		String courseUuid = getCourse().getUuid();
+		StringBuffer titles = new StringBuffer();
+		String sepChar = JsfUtil.getLocalizedMessage("section_separator");
 		for(Iterator iter = sections.iterator(); iter.hasNext();) {
 			LocalSectionModel sectionModel = (LocalSectionModel)iter.next();
+			titles.append(sectionModel.getTitle());
+			if(iter.hasNext()) {
+				titles.append(sepChar);
+				titles.append(" ");
+			}
 			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
 					category, sectionModel.getMaxEnrollments(), sectionModel.getLocation(), sectionModel.getStartTime(),
 					sectionModel.isStartTimeAm(), sectionModel.getEndTime(), sectionModel.isEndTimeAm(),
@@ -106,6 +113,16 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 					sectionModel.isThursday(), sectionModel.isFriday(), sectionModel.isSaturday(),
 					sectionModel.isSunday());
 		}
+		String[] params = new String[3];
+		params[0] = titles.toString();
+		if(sections.size() == 1) {
+			params[1] = JsfUtil.getLocalizedMessage("add_section_successful_singular");
+			params[2] = JsfUtil.getLocalizedMessage("section_singular");
+		} else {
+			params[1] = JsfUtil.getLocalizedMessage("add_section_successful_plural");
+			params[2] = JsfUtil.getLocalizedMessage("section_plural");
+		}
+		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage("add_section_successful", params));
 		return "overview";
 	}
 	

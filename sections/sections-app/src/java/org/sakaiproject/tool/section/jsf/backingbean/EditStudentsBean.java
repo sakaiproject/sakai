@@ -58,6 +58,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	
 	// For the "View" selectbox
 	private String availableSectionUuid;
+	private String availableSectionTitle;
 	private List availableSectionItems;
 	
 	private String sectionUuid;
@@ -104,6 +105,9 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		availableSectionItems.add(new SelectItem("", JsfUtil.getLocalizedMessage("edit_student_unassigned")));
 		for(Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
+			if(section.getUuid().equals(availableSectionUuid)) {
+				availableSectionTitle = section.getTitle();
+			}
 			// Don't include the current section
 			if(section.equals(currentSection)) {
 				continue;
@@ -127,6 +131,17 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 			userUuids = getHighlightedUsers("memberForm:availableUsers");
 			getSectionManager().setSectionMemberships(userUuids, Role.STUDENT, availableSectionUuid);
 		}
+		StringBuffer titles = new StringBuffer();
+		titles.append(sectionTitle);
+		if(StringUtils.trimToNull(availableSectionUuid) != null) {
+			titles.append(" ");
+			titles.append(JsfUtil.getLocalizedMessage("and"));
+			titles.append(" ");
+			titles.append(availableSectionTitle);
+		}
+		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(
+				"edit_student_successful", new String[] {titles.toString()}));
+
 		return "overview";
 	}
 	

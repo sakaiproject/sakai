@@ -9,6 +9,8 @@
         </x:aliasBean>
     </h:panelGroup>
     
+    <h:messages globalOnly="true"/>
+    
     <x:dataTable cellpadding="0" cellspacing="0"
         id="sectionsTable"
         value="#{overviewBean.sections}"

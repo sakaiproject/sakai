@@ -87,6 +87,8 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
 				location, startTime, startTimeAm, endTime, endTimeAm, monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
+		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(
+				"section_update_successful", new String[] {title}));
 		return "overview";
 	}
 	

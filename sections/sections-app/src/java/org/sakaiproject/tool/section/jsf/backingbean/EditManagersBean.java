@@ -40,6 +40,7 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class EditManagersBean extends CourseDependentBean implements Serializable {
 
@@ -110,6 +111,10 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	public String update() {
 		Set userUuids = getHighlightedUsers("memberForm:selectedUsers");
 		getSectionManager().setSectionMemberships(userUuids, Role.TA, sectionUuid);
+		
+		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(
+				"edit_manager_successful", new String[] {sectionTitle}));
+		
 		return "overview";
 	}
 

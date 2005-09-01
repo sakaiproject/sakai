@@ -29,6 +29,7 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class OptionsBean extends CourseDependentBean implements Serializable {
 
@@ -49,7 +50,8 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 		Course course = getCourse();
 		getSectionManager().setSelfRegistrationAllowed(course.getUuid(), selfRegister);
 		getSectionManager().setSelfSwitchingAllowed(course.getUuid(), selfSwitch);
-
+		
+		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage("options_update_successful"));
 		return "overview";
 	}
 	

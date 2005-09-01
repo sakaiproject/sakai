@@ -7,6 +7,8 @@
 
     <sakai:flowState bean="#{rosterBean}"/>
     
+    <h:messages globalOnly="true"/>
+    
     <x:div>
         <h:inputText id="search" value="#{rosterBean.searchText}"
             onfocus="clearIfDefaultString(this, '#{msgs.roster_search_text}')"/>

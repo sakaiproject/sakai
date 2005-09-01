@@ -23,6 +23,12 @@
             <h:selectManyListbox id="availableUsers" size="20" style="width:200px;">
                 <f:selectItems value="#{editManagersBean.availableUsers}"/>
             </h:selectManyListbox>
+            
+            <f:verbatim>
+                <br/>
+            </f:verbatim>
+            
+            <h:outputText value="#{msgs.edit_manager_ta_note}"/>
         </h:panelGroup>
     
         <%@include file="/inc/transferButtons.jspf"%>

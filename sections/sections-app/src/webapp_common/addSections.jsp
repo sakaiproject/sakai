@@ -39,7 +39,10 @@
         var="section"
         binding="#{addSectionsBean.sectionTable}"/>
 
-    <h:commandButton action="#{addSectionsBean.addSections}" value="#{msgs.add_sections_add}"/>
+    <h:commandButton
+        action="#{addSectionsBean.addSections}"
+        disabled="#{addSectionsBean.numToAdd == 0}"
+        value="#{msgs.add_sections_add}"/>
     
     <h:commandButton action="overview" value="#{msgs.add_sections_cancel}"/>
     

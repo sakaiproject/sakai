@@ -124,6 +124,8 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 				getSectionManager().addSectionMembership(studentUuid, Role.STUDENT, sectionUuid);
 			}
 		}
+		String[] params = {studentName};
+		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage("edit_student_sections_successful", params));
 		return "roster";
 	}
 	

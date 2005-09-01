@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.section.jsf;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -70,6 +71,13 @@ public class JsfUtil {
         ResourceBundle rb = ResourceBundle.getBundle(bundleName, getLocale());
         return rb.getString(key);
 	}
+	
+    public static String getLocalizedMessage(String key, String[] params) {
+    	String rawString = getLocalizedMessage(key);
+        MessageFormat format = new MessageFormat(rawString);
+        return format.format(params);
+    }
+
 
 	public static String getStringFromParam(String string) {
 		return (String)FacesContext.getCurrentInstance()
