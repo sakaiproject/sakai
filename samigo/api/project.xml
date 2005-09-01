@@ -2,10 +2,10 @@
 <project>
   <pomVersion>3</pomVersion>
   <name>Sakai Samigo API</name>
-  <shortDescription>Exportable interfaces for Samigo (Test and Quizzes)</shortDescription>
+  <shortDescription>Samigo (Test and Quizzes) exportable interfaces.</shortDescription>
   <groupId>sakaiproject</groupId>
   <id>sakai-samigo-api</id>
-  <currentVersion>2.0.0</currentVersion>
+  <currentVersion>2.1.0</currentVersion>
 
   <organization>
       <name>Sakai Project</name>
@@ -18,14 +18,6 @@
     <deploy.type>jar</deploy.type>
     <deploy.target>shared</deploy.target>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-legacy-service</artifactId>
-      <version>${pom.currentVersion}</version>
-    </dependency>
-  </dependencies>
 
   <build>
     <sourceDirectory>src/java</sourceDirectory>

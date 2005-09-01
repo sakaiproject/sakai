@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <pomVersion>3</pomVersion>
-  <name>Sakai Samigo API</name>
-  <shortDescription>Samigo (Test and Quizzes) exportable interfaces.</shortDescription>
+  <name>Sakai Samigo Components</name>
+  <shortDescription>Samigo (Test and Quizzes) exportable implementation.</shortDescription>
   <groupId>sakaiproject</groupId>
-  <id>sakai-samigo-api</id>
-  <currentVersion>2.0.0</currentVersion>
+  <id>sakai-samigo-component</id>
+  <currentVersion>2.1.0</currentVersion>
 
   <organization>
       <name>Sakai Project</name>
@@ -22,7 +22,7 @@
   <dependencies>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-legacy-service</artifactId>
+      <artifactId>sakai-samigo-api</artifactId>
       <version>${pom.currentVersion}</version>
     </dependency>
   </dependencies>
