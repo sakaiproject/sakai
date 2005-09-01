@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 
 /**
  * <p>Title: Samigo</p>
@@ -90,7 +91,16 @@ public class SubmitToGradingActionListener implements ActionListener
         publishedAssessment =
           publishedAssessmentService.getPublishedAssessment(delivery.getAssessmentId());
 
-       AssessmentGradingData adata = submitToGradingService( publishedAssessment,delivery);
+      AssessmentGradingData adata = null;
+      try
+      {
+        adata = submitToGradingService(publishedAssessment, delivery);
+      }
+      catch (IllegalAccessException ex)
+      {
+        log.error(ex);
+        return;
+      }
 
       // set url & confirmation after saving the record for grade
       if (adata !=null && delivery.getForGrade())
@@ -179,13 +189,15 @@ public class SubmitToGradingActionListener implements ActionListener
   }
 
   /**
-   * Invoke submission and
+   * Invoke submission and return the grading data
    * @param publishedAssessment
    * @param delivery
+   * @return
+   * @throws java.lang.IllegalAccessException !getJavaScriptEnabledCheck
    */
   private synchronized AssessmentGradingData submitToGradingService(
     PublishedAssessmentFacade publishedAssessment,
-    DeliveryBean delivery)
+    DeliveryBean delivery) throws IllegalAccessException
   {
     String submissionId = "";
     HashSet itemData = new HashSet();
@@ -223,6 +235,8 @@ public class SubmitToGradingActionListener implements ActionListener
       }
     }
 
+
+
     if (adata == null && delivery.getAssessmentGrading() != null)
       adata = delivery.getAssessmentGrading();
 
@@ -241,6 +255,14 @@ public class SubmitToGradingActionListener implements ActionListener
       adata.getItemGradingSet().removeAll(removes);
       adata.getItemGradingSet().addAll(adds);
       adata.setForGrade(new Boolean(delivery.getForGrade()));
+    }
+
+    log.info("delivery.getJavaScriptEnabledCheck()="+delivery.getJavaScriptEnabledCheck());
+    if (Boolean.TRUE.equals(adata.getForGrade()) &&
+        !"true".equals(delivery.getJavaScriptEnabledCheck()))
+    {
+      String msg = "The agent has not successfully set the JavaScript flag.";
+      throw new IllegalAccessException(msg);
     }
 
     log.debug("Before time elapsed " + adata.getTimeElapsed());

@@ -1,65 +1,60 @@
 /*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-*
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-*
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-/*
- * Created on Aug 6, 2003
+ * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
  *
+   * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ *
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
-
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
-
+import java.util.Set;
 import javax.faces.context.FacesContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
-import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
-
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
-import java.io.FileInputStream;
-import java.io.File;
-import java.io.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 
 /**
  *
- * @author casong To change the template for this generated type comment go to
+ * @author casong
  * $Id$
  *
  * Used to be org.navigoproject.ui.web.asi.delivery.XmlDeliveryForm.java
@@ -167,11 +162,14 @@ public class DeliveryBean
   private boolean showStudentScore;
 
   // lydial added for allowing studentScore view for random draw parts
-  private boolean forGrading;  // to reuse deliveryActionListener for grading pages
+  private boolean forGrading; // to reuse deliveryActionListener for grading pages
 
   // SAM-387
   // esmiley added to track if timer has been started in timed assessments
   private boolean timeRunning;
+  // SAM-535
+  // esmiley added to track JavaScript
+  private String javaScriptEnabledCheck;
 
   /**
    * Creates a new DeliveryBean object.
@@ -570,7 +568,6 @@ public class DeliveryBean
     this.reviewBlank = reviewBlank;
   }
 
-
   /**
    *
    *
@@ -727,7 +724,7 @@ public class DeliveryBean
     this.feedback = feedback;
   }
 
-/**
+  /**
    *
    *
    * @return
@@ -863,36 +860,53 @@ public class DeliveryBean
   {
     creatorName = string;
   }
+
   public java.util.Date getDueDate()
   {
     return dueDate;
   }
+
   public void setDueDate(java.util.Date dueDate)
   {
     this.dueDate = dueDate;
   }
-  public boolean isStatsAvailable() {
+
+  public boolean isStatsAvailable()
+  {
     return statsAvailable;
   }
-  public void setStatsAvailable(boolean statsAvailable) {
+
+  public void setStatsAvailable(boolean statsAvailable)
+  {
     this.statsAvailable = statsAvailable;
   }
-  public boolean isSubmitted() {
+
+  public boolean isSubmitted()
+  {
     return submitted;
   }
-  public void setSubmitted(boolean submitted) {
+
+  public void setSubmitted(boolean submitted)
+  {
     this.submitted = submitted;
   }
-  public boolean isGraded() {
+
+  public boolean isGraded()
+  {
     return graded;
   }
-  public void setGraded(boolean graded) {
+
+  public void setGraded(boolean graded)
+  {
     this.graded = graded;
   }
 
-  public String getGraderComment() {
+  public String getGraderComment()
+  {
     if (graderComment == null)
+    {
       return "";
+    }
     return graderComment;
   }
 
@@ -901,70 +915,113 @@ public class DeliveryBean
     graderComment = newComment;
   }
 
-  public String getRawScore() {
+  public String getRawScore()
+  {
     return rawScore;
   }
-  public void setRawScore(String rawScore) {
+
+  public void setRawScore(String rawScore)
+  {
     this.rawScore = rawScore;
   }
-  public long getRaw() {
+
+  public long getRaw()
+  {
     return raw;
   }
-  public void setRaw(long raw) {
+
+  public void setRaw(long raw)
+  {
     this.raw = raw;
   }
-  public String getGrade() {
+
+  public String getGrade()
+  {
     return grade;
   }
-  public void setGrade(String grade) {
+
+  public void setGrade(String grade)
+  {
     this.grade = grade;
   }
-  public java.util.Date getSubmissionDate() {
+
+  public java.util.Date getSubmissionDate()
+  {
     return submissionDate;
   }
-  public void setSubmissionDate(java.util.Date submissionDate) {
+
+  public void setSubmissionDate(java.util.Date submissionDate)
+  {
     this.submissionDate = submissionDate;
   }
-  public String getImage() {
+
+  public String getImage()
+  {
     return image;
   }
-  public void setImage(String image) {
+
+  public void setImage(String image)
+  {
     this.image = image;
   }
-  public boolean isHasImage() {
+
+  public boolean isHasImage()
+  {
     return hasImage;
   }
-  public void setHasImage(boolean hasImage) {
+
+  public void setHasImage(boolean hasImage)
+  {
     this.hasImage = hasImage;
   }
-  public String getInstructorMessage() {
+
+  public String getInstructorMessage()
+  {
     return instructorMessage;
   }
-  public void setInstructorMessage(String instructorMessage) {
+
+  public void setInstructorMessage(String instructorMessage)
+  {
     this.instructorMessage = instructorMessage;
   }
-  public String getCourseName() {
+
+  public String getCourseName()
+  {
     return courseName;
   }
-  public void setCourseName(String courseName) {
+
+  public void setCourseName(String courseName)
+  {
     this.courseName = courseName;
   }
-  public String getTimeLimit() {
+
+  public String getTimeLimit()
+  {
     return timeLimit;
   }
-  public void setTimeLimit(String timeLimit) {
+
+  public void setTimeLimit(String timeLimit)
+  {
     this.timeLimit = timeLimit;
   }
-  public int getTimeLimit_hour() {
+
+  public int getTimeLimit_hour()
+  {
     return timeLimit_hour;
   }
-  public void setTimeLimit_hour(int timeLimit_hour) {
+
+  public void setTimeLimit_hour(int timeLimit_hour)
+  {
     this.timeLimit_hour = timeLimit_hour;
   }
-  public int getTimeLimit_minute() {
+
+  public int getTimeLimit_minute()
+  {
     return timeLimit_minute;
   }
-  public void setTimeLimit_minute(int timeLimit_minute) {
+
+  public void setTimeLimit_minute(int timeLimit_minute)
+  {
     this.timeLimit_minute = timeLimit_minute;
   }
 
@@ -974,7 +1031,8 @@ public class DeliveryBean
    * which in  turn has a list of all the item contents.
    * @return table of contents
    */
-  public ContentsDeliveryBean getTableOfContents() {
+  public ContentsDeliveryBean getTableOfContents()
+  {
     return tableOfContents;
   }
 
@@ -984,9 +1042,11 @@ public class DeliveryBean
    * which in  turn has a list of all the item contents.
    * @param tableOfContents table of contents
    */
-  public void setTableOfContents(ContentsDeliveryBean tableOfContents) {
+  public void setTableOfContents(ContentsDeliveryBean tableOfContents)
+  {
     this.tableOfContents = tableOfContents;
   }
+
   /**
    * Bean with a list of all the sections in the current page
    * which in turn has a list of all the item contents for the page.
@@ -1006,7 +1066,8 @@ public class DeliveryBean
    *
    * @return ContentsDeliveryBean
    */
-  public ContentsDeliveryBean getPageContents() {
+  public ContentsDeliveryBean getPageContents()
+  {
     return pageContents;
   }
 
@@ -1026,17 +1087,18 @@ public class DeliveryBean
    *
    * @param pageContents ContentsDeliveryBean
    */
-  public void setPageContents(ContentsDeliveryBean pageContents) {
+  public void setPageContents(ContentsDeliveryBean pageContents)
+  {
     this.pageContents = pageContents;
   }
-
 
   /**
    * track whether delivery is "live" with update of database allowed and
    * whether the Ui components are disabled.
    * @return true if preview only
    */
-  public String getPreviewMode() {
+  public String getPreviewMode()
+  {
     return Validator.check(previewMode, "false");
   }
 
@@ -1045,52 +1107,78 @@ public class DeliveryBean
    * whether the UI components are disabled.
    * @param previewMode true if preview only
    */
-  public void setPreviewMode(boolean previewMode) {
+  public void setPreviewMode(boolean previewMode)
+  {
     this.previewMode = new Boolean(previewMode).toString();
   }
 
- public String getPreviewAssessment() {
+  public String getPreviewAssessment()
+  {
     return previewAssessment;
   }
-  public void setPreviewAssessment(String previewAssessment) {
+
+  public void setPreviewAssessment(String previewAssessment)
+  {
     this.previewAssessment = previewAssessment;
   }
 
-  public String getNotPublished() {
+  public String getNotPublished()
+  {
     return notPublished;
   }
-  public void setNotPublished(String notPublished) {
+
+  public void setNotPublished(String notPublished)
+  {
     this.notPublished = notPublished;
   }
 
-  public String getSubmissionId() {
+  public String getSubmissionId()
+  {
     return submissionId;
   }
-  public void setSubmissionId(String submissionId) {
+
+  public void setSubmissionId(String submissionId)
+  {
     this.submissionId = submissionId;
   }
-  public String getSubmissionMessage() {
+
+  public String getSubmissionMessage()
+  {
     return submissionMessage;
   }
-  public void setSubmissionMessage(String submissionMessage) {
+
+  public void setSubmissionMessage(String submissionMessage)
+  {
     this.submissionMessage = submissionMessage;
   }
-  public int getSubmissionsRemaining() {
+
+  public int getSubmissionsRemaining()
+  {
     return submissionsRemaining;
   }
-  public void setSubmissionsRemaining(int submissionsRemaining) {
+
+  public void setSubmissionsRemaining(int submissionsRemaining)
+  {
     this.submissionsRemaining = submissionsRemaining;
   }
-  public String getInstructorName() {
+
+  public String getInstructorName()
+  {
     return instructorName;
   }
-  public void setInstructorName(String instructorName) {
+
+  public void setInstructorName(String instructorName)
+  {
     this.instructorName = instructorName;
   }
-  public boolean getForGrade() {
+
+  public boolean getForGrade()
+  {
     return forGrade;
   }
-  public void setForGrade(boolean newfor) {
+
+  public void setForGrade(boolean newfor)
+  {
     forGrade = newfor;
   }
 
@@ -1107,16 +1195,20 @@ public class DeliveryBean
     reload = true;
 
     if (getAccessViaUrl()) // this is for accessing via published url
+    {
       return "anonymousThankYou";
+    }
     else
+    {
       return "submitAssessment";
+    }
   }
 
   public String saveAndExit()
   {
 
-      FacesContext context = FacesContext.getCurrentInstance();
-      log.debug("***DeliverBean.saveAndEXit face context ="+context);
+    FacesContext context = FacesContext.getCurrentInstance();
+    log.debug("***DeliverBean.saveAndEXit face context =" + context);
 
     // If this was automatically triggered by running out of time,
     // check for autosubmit, and do it if so.
@@ -1143,11 +1235,13 @@ public class DeliveryBean
       return "timeout";
     }
 
-    if (getAccessViaUrl()){ // if this is access via url, display quit message
+    if (getAccessViaUrl())
+    { // if this is access via url, display quit message
       log.debug("**anonymous login, go to quit");
       return "anonymousQuit";
     }
-    else{
+    else
+    {
       log.debug("**NOT anonymous login, go to select");
       return "select";
     }
@@ -1156,17 +1250,21 @@ public class DeliveryBean
   public String next_page()
   {
     if (getSettings().isFormatByPart())
+    {
       partIndex++;
+    }
     if (getSettings().isFormatByQuestion())
+    {
       questionIndex++;
 
+    }
     forGrade = false;
 
-    if (!("true").equals(previewAssessment))
+    if (! ("true").equals(previewAssessment))
     {
-    SubmitToGradingActionListener listener =
-     new SubmitToGradingActionListener();
-    listener.processAction(null);
+      SubmitToGradingActionListener listener =
+        new SubmitToGradingActionListener();
+      listener.processAction(null);
     }
 
     DeliveryActionListener l2 = new DeliveryActionListener();
@@ -1179,17 +1277,21 @@ public class DeliveryBean
   public String previous()
   {
     if (getSettings().isFormatByPart())
+    {
       partIndex--;
+    }
     if (getSettings().isFormatByQuestion())
+    {
       questionIndex--;
 
+    }
     forGrade = false;
 
-    if (!("true").equals(previewAssessment))
+    if (! ("true").equals(previewAssessment))
     {
-    SubmitToGradingActionListener listener =
-     new SubmitToGradingActionListener();
-    listener.processAction(null);
+      SubmitToGradingActionListener listener =
+        new SubmitToGradingActionListener();
+      listener.processAction(null);
     }
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
@@ -1199,18 +1301,24 @@ public class DeliveryBean
   }
 
   // this is the PublishedAccessControl.finalPageUrl
-  public String getUrl() {
+  public String getUrl()
+  {
     return url;
   }
-  public void setUrl(String url) {
-    this.url= url;
+
+  public void setUrl(String url)
+  {
+    this.url = url;
   }
 
-  public String getConfirmation() {
+  public String getConfirmation()
+  {
     return confirmation;
   }
-  public void setConfirmation(String confirmation) {
-    this.confirmation= confirmation;
+
+  public void setConfirmation(String confirmation)
+  {
+    this.confirmation = confirmation;
   }
 
   /**
@@ -1231,84 +1339,122 @@ public class DeliveryBean
     password = string;
   }
 
-  public String validatePassword() {
-      log.debug("**** username="+username);
-      log.debug("**** password="+password);
-      log.debug("**** setting username="+getSettings().getUsername());
-      log.debug("**** setting password="+getSettings().getPassword());
+  public String validatePassword()
+  {
+    log.debug("**** username=" + username);
+    log.debug("**** password=" + password);
+    log.debug("**** setting username=" + getSettings().getUsername());
+    log.debug("**** setting password=" + getSettings().getPassword());
     if (password == null || username == null)
+    {
       return "passwordAccessError";
+    }
     if (password.equals(getSettings().getPassword()) &&
         username.equals(getSettings().getUsername()))
     {
       if (getNavigation().equals
-        (AssessmentAccessControl.RANDOM_ACCESS.toString()))
+          (AssessmentAccessControl.RANDOM_ACCESS.toString()))
+      {
         return "tableOfContents";
+      }
       else
+      {
         return "takeAssessment";
+      }
     }
     else
+    {
       return "passwordAccessError";
+    }
   }
 
-  public String validateIP() {
-    String thisIp = ((javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+  public String validateIP()
+  {
+    String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.
+                     getCurrentInstance().getExternalContext().getRequest()).
+      getRemoteAddr();
     Iterator addresses = getSettings().getIpAddresses().iterator();
     while (addresses.hasNext())
     {
-      String next = ((PublishedSecuredIPAddress) addresses.next()).
+      String next = ( (PublishedSecuredIPAddress) addresses.next()).
         getIpAddress();
       if (next != null && next.indexOf("*") > -1)
+      {
         next = next.substring(0, next.indexOf("*"));
+      }
       if (next == null || next.trim().equals("") ||
-        thisIp.trim().startsWith(next.trim()))
+          thisIp.trim().startsWith(next.trim()))
       {
         if (getNavigation().equals
-          (AssessmentAccessControl.RANDOM_ACCESS.toString()))
+            (AssessmentAccessControl.RANDOM_ACCESS.toString()))
+        {
           return "tableOfContents";
+        }
         else
+        {
           return "takeAssessment";
+        }
       }
     }
     return "ipAccessError";
   }
 
-  public String validate() {
-   try {
-    String results = "";
-    if (!getSettings().getUsername().equals(""))
-      results = validatePassword();
-    if (!results.equals("passwordAccessError") &&
-      getSettings().getIpAddresses() != null &&
-      !getSettings().getIpAddresses().isEmpty())
-      results = validateIP();
-    if (results.equals(""))
+  public String validate()
+  {
+    try
     {
-      if (getNavigation().equals
-        (AssessmentAccessControl.RANDOM_ACCESS.toString()))
-        return "tableOfContents";
-      else
-        return "takeAssessment";
+      String results = "";
+      if (!getSettings().getUsername().equals(""))
+      {
+        results = validatePassword();
+      }
+      if (!results.equals("passwordAccessError") &&
+          getSettings().getIpAddresses() != null &&
+          !getSettings().getIpAddresses().isEmpty())
+      {
+        results = validateIP();
+      }
+      if (results.equals(""))
+      {
+        if (getNavigation().equals
+            (AssessmentAccessControl.RANDOM_ACCESS.toString()))
+        {
+          return "tableOfContents";
+        }
+        else
+        {
+          return "takeAssessment";
+        }
+      }
+      return results;
     }
-    return results;
-   } catch (Exception e) {
-     e.printStackTrace();
-     return "accessError";
-   }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+      return "accessError";
+    }
   }
 
-  public String pvalidate() {
-   try {
+  public String pvalidate()
+  {
+    try
+    {
       if (getNavigation().equals
-	  (AssessmentAccessControl.RANDOM_ACCESS.toString()))
+          (AssessmentAccessControl.RANDOM_ACCESS.toString()))
+      {
         return "tableOfContents";
+      }
       else
+      {
         return "takeAssessment";
+      }
 
-   } catch (Exception e) {
-     e.printStackTrace();
-     return "accessError";
-   }
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+      return "accessError";
+    }
   }
 
   // Skipped paging methods
@@ -1363,19 +1509,22 @@ public class DeliveryBean
     adata = newdata;
   }
 
-
-  private byte[] getMediaStream(String mediaLocation){
-    FileInputStream mediaStream=null;
-    FileInputStream mediaStream2=null;
+  private byte[] getMediaStream(String mediaLocation)
+  {
+    FileInputStream mediaStream = null;
+    FileInputStream mediaStream2 = null;
     byte[] mediaByte = new byte[0];
-    try {
+    try
+    {
       int i = 0;
       int size = 0;
       mediaStream = new FileInputStream(mediaLocation);
-      if (mediaStream != null){
-        while((i = mediaStream.read()) != -1){
-	   size++;
-	}
+      if (mediaStream != null)
+      {
+        while ( (i = mediaStream.read()) != -1)
+        {
+          size++;
+        }
       }
       mediaStream2 = new FileInputStream(mediaLocation);
       mediaByte = new byte[size];
@@ -1384,17 +1533,22 @@ public class DeliveryBean
       FileOutputStream out = new FileOutputStream("/tmp/test.txt");
       out.write(mediaByte);
     }
-    catch (FileNotFoundException ex) {
-      log.debug("file not found="+ex.getMessage());
+    catch (FileNotFoundException ex)
+    {
+      log.debug("file not found=" + ex.getMessage());
     }
-    catch (IOException ex) {
-      log.debug("io exception="+ex.getMessage());
+    catch (IOException ex)
+    {
+      log.debug("io exception=" + ex.getMessage());
     }
-    finally{
-      try {
+    finally
+    {
+      try
+      {
         mediaStream.close();
       }
-      catch (IOException ex1) {
+      catch (IOException ex1)
+      {
       }
     }
     return mediaByte;
@@ -1410,13 +1564,18 @@ public class DeliveryBean
   public String addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
   {
     GradingService gradingService = new GradingService();
-    PublishedAssessmentService publishedService = new PublishedAssessmentService();
-    PublishedAssessmentFacade publishedAssessment = publishedService.getPublishedAssessment(assessmentId);
+    PublishedAssessmentService publishedService = new
+      PublishedAssessmentService();
+    PublishedAssessmentFacade publishedAssessment = publishedService.
+      getPublishedAssessment(assessmentId);
     String agent = AgentFacade.getAgentString();
-    if (publishedAssessment.getAssessmentAccessControl().getReleaseTo().indexOf("Anonymous Users") > -1)
-	agent = AgentFacade.getAnonymousId();
+    if (publishedAssessment.getAssessmentAccessControl().getReleaseTo().indexOf(
+      "Anonymous Users") > -1)
+    {
+      agent = AgentFacade.getAnonymousId();
 
-    // 0. submit other question 1st
+      // 0. submit other question 1st
+    }
     SubmitToGradingActionListener listener =
       new SubmitToGradingActionListener();
     listener.processAction(null);
@@ -1427,37 +1586,42 @@ public class DeliveryBean
       adata = new AssessmentGradingData();
       adata.setAgentId(agent);
       adata.setPublishedAssessment(publishedAssessment.getData());
-      log.debug("***1a. addMediaToItemGrading, getForGrade()="+getForGrade());
+      log.debug("***1a. addMediaToItemGrading, getForGrade()=" + getForGrade());
       adata.setForGrade(new Boolean(getForGrade()));
       adata.setAttemptDate(getBeginTime());
       gradingService.saveOrUpdateAssessmentGrading(adata);
     }
-    log.debug("***1b. addMediaToItemGrading, adata="+adata);
+    log.debug("***1b. addMediaToItemGrading, adata=" + adata);
 
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
     String mediaLocation = (String) e.getNewValue();
-    log.debug("***2a. addMediaToItemGrading, new value ="+mediaLocation);
+    log.debug("***2a. addMediaToItemGrading, new value =" + mediaLocation);
     File media = new File(mediaLocation);
     byte[] mediaByte = getMediaStream(mediaLocation);
 
     // 3. get the questionId (which is the PublishedItemData.itemId)
     int assessmentIndex = mediaLocation.indexOf("assessment");
     int questionIndex = mediaLocation.indexOf("question");
-    int agentIndex = mediaLocation.indexOf("/", questionIndex+8);
-    String pubAssessmentId = mediaLocation.substring(assessmentIndex+10,questionIndex-1);
-    String questionId = mediaLocation.substring(questionIndex+8,agentIndex);
-    log.debug("***3a. addMediaToItemGrading, questionId ="+questionId);
-    log.debug("***3b. addMediaToItemGrading, assessmentId ="+assessmentId);
+    int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
+    String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10,
+      questionIndex - 1);
+    String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
+    log.debug("***3a. addMediaToItemGrading, questionId =" + questionId);
+    log.debug("***3b. addMediaToItemGrading, assessmentId =" + assessmentId);
 
     // 4. prepare itemGradingData and attach it to assessmentGarding
     PublishedItemData item = publishedService.loadPublishedItem(questionId);
-    log.debug("***4a. addMediaToItemGrading, item ="+item);
-    log.debug("***4b. addMediaToItemGrading, itemTextArray ="+item.getItemTextArray());
-    log.debug("***4c. addMediaToItemGrading, itemText(0) ="+item.getItemTextArray().get(0));
+    log.debug("***4a. addMediaToItemGrading, item =" + item);
+    log.debug("***4b. addMediaToItemGrading, itemTextArray =" +
+              item.getItemTextArray());
+    log.debug("***4c. addMediaToItemGrading, itemText(0) =" +
+              item.getItemTextArray().get(0));
     // there is only one text in audio question
-    PublishedItemText itemText = (PublishedItemText) item.getItemTextArraySorted().get(0);
-    ItemGradingData  itemGradingData = getItemGradingData(questionId);
-    if (itemGradingData == null){
+    PublishedItemText itemText = (PublishedItemText) item.
+      getItemTextArraySorted().get(0);
+    ItemGradingData itemGradingData = getItemGradingData(questionId);
+    if (itemGradingData == null)
+    {
       itemGradingData = new ItemGradingData();
       itemGradingData.setAssessmentGrading(adata);
       itemGradingData.setPublishedItem(item);
@@ -1470,23 +1634,29 @@ public class DeliveryBean
 
     // 5. save AssessmentGardingData with ItemGardingData
     Set itemDataSet = adata.getItemGradingSet();
-    log.debug("***5a. addMediaToItemGrading, itemDataSet="+itemDataSet);
+    log.debug("***5a. addMediaToItemGrading, itemDataSet=" + itemDataSet);
     if (itemDataSet == null)
+    {
       itemDataSet = new HashSet();
+    }
     itemDataSet.add(itemGradingData);
     adata.setItemGradingSet(itemDataSet);
     gradingService.saveOrUpdateAssessmentGrading(adata);
-    log.debug("***5b. addMediaToItemGrading, saved="+adata);
+    log.debug("***5b. addMediaToItemGrading, saved=" + adata);
 
     // 6. create a media record
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
     boolean SAVETODB = MediaData.saveToDB();
-    log.debug("**** SAVETODB="+SAVETODB);
-    MediaData mediaData=null;
-    log.debug("***6a. addMediaToItemGrading, itemGradinDataId="+itemGradingData.getItemGradingId());
-    log.debug("***6b. addMediaToItemGrading, publishedItemId="+((PublishedItemData)itemGradingData.getPublishedItem()).getItemId());
+    log.debug("**** SAVETODB=" + SAVETODB);
+    MediaData mediaData = null;
+    log.debug("***6a. addMediaToItemGrading, itemGradinDataId=" +
+              itemGradingData.getItemGradingId());
+    log.debug("***6b. addMediaToItemGrading, publishedItemId=" +
+              ( (PublishedItemData) itemGradingData.getPublishedItem()).
+              getItemId());
 
-    if (SAVETODB){ // put the byte[] in
+    if (SAVETODB)
+    { // put the byte[] in
       mediaData = new MediaData(itemGradingData, mediaByte,
                                 new Long(mediaByte.length + ""),
                                 mimeType, "description", null,
@@ -1494,7 +1664,8 @@ public class DeliveryBean
                                 agent, new Date(),
                                 agent, new Date());
     }
-    else{ // put the location in
+    else
+    { // put the location in
       mediaData = new MediaData(itemGradingData, null,
                                 new Long(mediaByte.length + ""),
                                 mimeType, "description", mediaLocation,
@@ -1504,13 +1675,15 @@ public class DeliveryBean
 
     }
     Long mediaId = gradingService.saveMedia(mediaData);
-    log.debug("mediaId="+mediaId);
-    log.debug("***6c. addMediaToItemGrading, media.itemGradinDataId="+((ItemGradingData)mediaData.getItemGradingData()).getItemGradingId());
-    log.debug("***6d. addMediaToItemGrading, mediaId="+mediaData.getMediaId());
+    log.debug("mediaId=" + mediaId);
+    log.debug("***6c. addMediaToItemGrading, media.itemGradinDataId=" +
+              ( (ItemGradingData) mediaData.getItemGradingData()).
+              getItemGradingId());
+    log.debug("***6d. addMediaToItemGrading, mediaId=" + mediaData.getMediaId());
 
     // 7. store mediaId in itemGradingRecord.answerText
-    log.debug("***7. addMediaToItemGrading, adata="+adata);
-    itemGradingData.setAnswerText(mediaId+"");
+    log.debug("***7. addMediaToItemGrading, adata=" + adata);
+    itemGradingData.setAnswerText(mediaId + "");
     gradingService.saveItemGrading(itemGradingData);
 
     // 8. do whatever need doing
@@ -1519,10 +1692,14 @@ public class DeliveryBean
 
     // 9. do the timer thing
     Integer timeLimit = null;
-    if (adata!=null && adata.getPublishedAssessment()!=null
-	&& adata.getPublishedAssessment().getAssessmentAccessControl()!=null)
-	timeLimit = adata.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit();
-    if (timeLimit!=null && timeLimit.intValue()>0){
+    if (adata != null && adata.getPublishedAssessment() != null
+        && adata.getPublishedAssessment().getAssessmentAccessControl() != null)
+    {
+      timeLimit = adata.getPublishedAssessment().getAssessmentAccessControl().
+        getTimeLimit();
+    }
+    if (timeLimit != null && timeLimit.intValue() > 0)
+    {
       UpdateTimerListener l3 = new UpdateTimerListener();
       l3.processAction(null);
     }
@@ -1532,22 +1709,28 @@ public class DeliveryBean
 
   }
 
-  public boolean getNotTakeable() {
+  public boolean getNotTakeable()
+  {
     return notTakeable;
   }
 
-  public void setNotTakeable(boolean notTakeable) {
+  public void setNotTakeable(boolean notTakeable)
+  {
     this.notTakeable = notTakeable;
   }
 
-  public boolean getPastDue() {
+  public boolean getPastDue()
+  {
     return pastDue;
   }
-  public void setPastDue(boolean pastDue) {
+
+  public void setPastDue(boolean pastDue)
+  {
     this.pastDue = pastDue;
   }
 
-  public long getSubTime() {
+  public long getSubTime()
+  {
     return subTime;
   }
 
@@ -1556,7 +1739,8 @@ public class DeliveryBean
     subTime = newSubTime;
   }
 
-  public String getSubmissionHours() {
+  public String getSubmissionHours()
+  {
     return takenHours;
   }
 
@@ -1565,7 +1749,8 @@ public class DeliveryBean
     takenHours = newHours;
   }
 
-  public String getSubmissionMinutes() {
+  public String getSubmissionMinutes()
+  {
     return takenMinutes;
   }
 
@@ -1574,19 +1759,24 @@ public class DeliveryBean
     takenMinutes = newMinutes;
   }
 
-  public PublishedAssessmentFacade getPublishedAssessment() {
+  public PublishedAssessmentFacade getPublishedAssessment()
+  {
     return publishedAssessment;
   }
 
-  public void setPublishedAssessment(PublishedAssessmentFacade publishedAssessment)
+  public void setPublishedAssessment(PublishedAssessmentFacade
+                                     publishedAssessment)
   {
     this.publishedAssessment = publishedAssessment;
   }
 
-  public java.util.Date getFeedbackDate() {
+  public java.util.Date getFeedbackDate()
+  {
     return feedbackDate;
   }
-  public void setFeedbackDate(java.util.Date feedbackDate) {
+
+  public void setFeedbackDate(java.util.Date feedbackDate)
+  {
     this.feedbackDate = feedbackDate;
   }
 
@@ -1600,10 +1790,13 @@ public class DeliveryBean
     this.showScore = showScore;
   }
 
-  public boolean getHasTimeLimit() {
+  public boolean getHasTimeLimit()
+  {
     return hasTimeLimit;
   }
-  public void setHasTimeLimit(boolean hasTimeLimit) {
+
+  public void setHasTimeLimit(boolean hasTimeLimit)
+  {
     this.hasTimeLimit = hasTimeLimit;
   }
 
@@ -1617,91 +1810,135 @@ public class DeliveryBean
     this.outcome = outcome;
   }
 
-  public String doit(){
+  public String doit()
+  {
     return outcome;
   }
 
-/*
-  public ItemGradingData getItemGradingData(String publishedItemId){
-    ItemGradingData itemGradingData = new ItemGradingData();
-    if (adata != null){
-      GradingService service = new GradingService();
-      itemGradingData = service.getItemGradingData(adata.getAssessmentGradingId().toString(), publishedItemId);
-      if (itemGradingData == null)
-        itemGradingData = new ItemGradingData();
+  /*
+    public ItemGradingData getItemGradingData(String publishedItemId){
+      ItemGradingData itemGradingData = new ItemGradingData();
+      if (adata != null){
+        GradingService service = new GradingService();
+        itemGradingData = service.getItemGradingData(adata.getAssessmentGradingId().toString(), publishedItemId);
+        if (itemGradingData == null)
+          itemGradingData = new ItemGradingData();
+      }
+      return itemGradingData;
     }
-    return itemGradingData;
-  }
-*/
+   */
 
-  public boolean getAnonymousLogin() {
+  public boolean getAnonymousLogin()
+  {
     return anonymousLogin;
   }
-  public void setAnonymousLogin(boolean anonymousLogin) {
+
+  public void setAnonymousLogin(boolean anonymousLogin)
+  {
     this.anonymousLogin = anonymousLogin;
   }
 
-  public boolean getAccessViaUrl() {
+  public boolean getAccessViaUrl()
+  {
     return accessViaUrl;
   }
-  public void setAccessViaUrl(boolean accessViaUrl) {
+
+  public void setAccessViaUrl(boolean accessViaUrl)
+  {
     this.accessViaUrl = accessViaUrl;
   }
 
-  public ItemGradingData getItemGradingData(String publishedItemId){
+  public ItemGradingData getItemGradingData(String publishedItemId)
+  {
     ItemGradingData selected = null;
-    if (adata != null){
+    if (adata != null)
+    {
       Set items = adata.getItemGradingSet();
-      if (items!=null){
+      if (items != null)
+      {
         Iterator iter = items.iterator();
-        while (iter.hasNext()){
-          ItemGradingData itemGradingData = (ItemGradingData)iter.next();
-          String itemPublishedId = itemGradingData.getPublishedItem().getItemId().toString();
-          if ((publishedItemId).equals(itemPublishedId)){
+        while (iter.hasNext())
+        {
+          ItemGradingData itemGradingData = (ItemGradingData) iter.next();
+          String itemPublishedId = itemGradingData.getPublishedItem().getItemId().
+            toString();
+          if ( (publishedItemId).equals(itemPublishedId))
+          {
             log.debug("*** addMediaToItemGrading, same : found it");
             selected = itemGradingData;
-	  }
-          else{
+          }
+          else
+          {
             log.debug("*** addMediaToItemGrading, not the same");
-	  }
+          }
         }
-        log.debug("*** addMediaToItemGrading, publishedItemId ="+publishedItemId);
-        if (selected!=null)
-          log.debug("*** addMediaToItemGrading, itemGradingData.publishedItemId ="+selected.getPublishedItem().getItemId().toString());
+        log.debug("*** addMediaToItemGrading, publishedItemId =" +
+                  publishedItemId);
+        if (selected != null)
+        {
+          log.debug(
+            "*** addMediaToItemGrading, itemGradingData.publishedItemId =" +
+            selected.getPublishedItem().getItemId().toString());
+        }
       }
     }
     return selected;
   }
 
-  public String getContextPath() {
+  public String getContextPath()
+  {
     return contextPath;
   }
-  public void setContextPath(String contextPath) {
+
+  public void setContextPath(String contextPath)
+  {
     this.contextPath = contextPath;
   }
-    public boolean isShowStudentScore()
-    {
-	return showStudentScore;
-    }
-    public void setShowStudentScore(boolean showStudentScore)
-    {
-	this.showStudentScore = showStudentScore;
-    }
 
-    public boolean getForGrading()
-    {
-	return forGrading;
-    }
-    public void setForGrading(boolean param)
-    {
-	this.forGrading= param;
-    }
+  public boolean isShowStudentScore()
+  {
+    return showStudentScore;
+  }
+
+  public void setShowStudentScore(boolean showStudentScore)
+  {
+    this.showStudentScore = showStudentScore;
+  }
+
+  public boolean getForGrading()
+  {
+    return forGrading;
+  }
+
+  public void setForGrading(boolean param)
+  {
+    this.forGrading = param;
+  }
+
   public boolean isTimeRunning()
   {
     return timeRunning;
   }
+
   public void setTimeRunning(boolean timeRunning)
   {
     this.timeRunning = timeRunning;
   }
+
+  /**
+   * Used for a JavaScript enable check.
+   */
+  public String getJavaScriptEnabledCheck()
+  {
+    return this.javaScriptEnabledCheck;
+  }
+
+  /**
+   * Used for a JavaScript enable check.
+   */
+  public void setJavaScriptEnabledCheck(String javaScriptEnabledCheck)
+  {
+    this.javaScriptEnabledCheck = javaScriptEnabledCheck;
+  }
+
 }

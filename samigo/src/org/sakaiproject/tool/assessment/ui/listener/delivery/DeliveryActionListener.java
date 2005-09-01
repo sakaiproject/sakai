@@ -94,6 +94,9 @@ public class DeliveryActionListener
       // get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
 
+      // this is to be reset to true on the saveTime() JavaScript when submitted
+      delivery.setJavaScriptEnabledCheck("false");
+
       // Clear elapsed time, set not timed out
       if (!delivery.isTimeRunning())
       {
