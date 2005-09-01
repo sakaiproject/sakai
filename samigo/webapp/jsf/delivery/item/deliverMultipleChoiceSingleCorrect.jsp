@@ -63,8 +63,12 @@ should be included in file importing DeliveryMessages
      <h:outputText value=" #{selection.answer.text}" escape="false" />
     </h:column>
     <h:column>
-      <h:outputText value=" <b>Feedback:</b> #{selection.feedback}"
-        rendered="#{selection.feedback ne ''}" escape="false" />
+      <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
+       delivery.feedbackComponent.showSelectionLevel}" >
+       <f:verbatim><br /></f:verbatim>
+       <h:outputText value="#{msg.feedback}: " />
+       <h:outputText value="#{selection.feedback}" escape="false" />
+      </h:panelGroup>
     </h:column>
   </h:dataTable>
 
