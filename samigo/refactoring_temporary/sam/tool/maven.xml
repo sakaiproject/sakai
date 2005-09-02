@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project 
+  default="deploy" 
+  xmlns:ant="jelly:ant" 
+  xmlns:j="jelly:core">
+
+	<!--  Make sure a flag variable is set when building inside Sakai -->
+	<goal name="sakai:sakai.clean">
+		<j:set var="sakaiDeployIntegrated" value="true" />
+		<attainGoal name="clean:clean" />
+		<attainGoal name="delete-patched-src" />
+		
+	</goal>
+
+	<goal name="sakai:sakai.build">
+		<j:set var="sakaiDeployIntegrated" value="true" />
+		<!--  Make sure the Samigo source is patched (if necessary) before building -->
+		<attainGoal name="patch-samigo-src" />
+		<attainGoal name="move-main-samigo-src" />
+		<attainGoal name="war:install" />
+		<attainGoal name="delete-patched-src" />
+		<attainGoal name="moveback-main-samigo-src" />
+	</goal>
+
+	<goal name="patch-samigo-src">
+		<!--  Have to COPY OVER the *.java files for compiling - since we need to overwrite
+			some of them for the integrated Samigo build -->
+		<attainGoal name="delete-patched-src" />
+		<mkdir dir="patched-src" />
+		<copy todir="patched-src" includeemptydirs="false"
+			verbose="false" overwrite="true">
+			<fileset dir="src/java">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+
+		<j:if test="${sakaiDeployIntegrated}">
+			<!--  Copy the Sakai-Samigo itegration files over for building -->
+			<copy todir="patched-src" includeemptydirs="false"
+				verbose="false" overwrite="true">
+				<fileset dir="sakai-samigo/src">
+					<include name="**/*" />
+				</fileset>
+			</copy>
+		</j:if>
+	</goal>
+
+	<goal name="move-main-samigo-src">
+        <ant:echo>moving unpatched source out of compilation path</ant:echo>
+        <ant:move todir="src/java-temp">
+          <ant:fileset dir="src/java"/>
+        </ant:move>
+	</goal>
+
+	<goal name="moveback-main-samigo-src">
+        <ant:echo>moving back unpatched source to original path</ant:echo>
+        <ant:move todir="src/java">
+          <ant:fileset dir="src/java-temp"/>
+        </ant:move>
+	</goal>
+
+	<postGoal name="war:webapp">
+		<!-- this include any *.hbm.xml, *.properties, *.xml which lives among the code -->
+		<copy todir="target/samigo/WEB-INF/classes" includeemptydirs="false"
+			verbose="false">
+			<fileset dir="src/java">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+		<j:if test="${sakaiDeployIntegrated}">
+			<!-- this include any *.hbm.xml, *.properties, *.xml which lives among the code -->
+			<copy todir="target/samigo/WEB-INF/classes" includeemptydirs="false"
+				verbose="false" overwrite="true">
+				<fileset dir="sakai-samigo/src">
+					<exclude name="**/*.java" />
+				</fileset>
+			</copy>
+			<!--  Copy the Sakai-Samigo webapp itegration files  -->
+			<copy todir="target/samigo" includeemptydirs="false"
+				verbose="false" overwrite="true">
+				<fileset dir="sakai-samigo/webapp">
+					<include name="**/*" />
+				</fileset>
+			</copy>
+		</j:if>
+
+		<!--  Copy dependencies into the webapp based on the deploy.type of the dependency -->
+		<j:choose>
+			<j:when test="${sakaiDeployIntegrated}">
+				<j:set var="deployType" value="integrated" />
+			</j:when>
+			<j:otherwise>
+				<j:set var="deployType" value="standalone" />
+			</j:otherwise>
+		</j:choose>
+		<j:forEach var="lib" items="${pom.artifacts}">
+			<j:set var="dep" value="${lib.dependency}" />
+			<j:if test="${dep.getProperty('war.bundle')==deployType}">
+				<ant:copy todir="${maven.war.webapp.dir}/WEB-INF/lib"
+					file="${lib.path}" overwrite="true" verbose="true" />
+			</j:if>
+		</j:forEach>
+	</postGoal>
+
+	<preGoal name="clean">
+		<j:if test="${sakaiDeployIntegrated != true}">
+			<attainGoal name="undeploy" />
+		</j:if>
+	</preGoal>
+
+	<goal name="undeploy">
+		<!--  Delete Samigo from tomcat's webapps directory -->
+		<delete dir="${maven.tomcat.home}/webapps/samigo" />
+		<delete>
+			<fileset dir="${maven.tomcat.home}/webapps">
+				<include name="samigo.war" />
+			</fileset>
+		</delete>
+		<attainGoal name="delete-patched-src" />
+		
+	</goal>
+
+	<goal name="deploy">
+		<ant:echo>deploy - SAMIGO STANDALONE</ant:echo>
+		<attainGoal name="clean" />
+		<attainGoal name="patch-samigo-src" />
+		<attainGoal name="move-main-samigo-src" />
+		<attainGoal name="war:install" />
+
+		<!--  Copy Samigo to tomcat's webapps directory -->
+		<copy todir="${maven.tomcat.home}/webapps" filtering="false"
+			preservelastmodified="true" overwrite="true">
+			<fileset dir="target">
+				<include name="samigo.war" />
+			</fileset>
+		</copy>
+		
+		<attainGoal name="delete-patched-src" />
+		<attainGoal name="moveback-main-samigo-src" />
+	</goal>
+	
+	<goal name="delete-patched-src">
+		<delete>
+			<fileset dir="patched-src">
+				<exclude name=".cvsignore" />
+			</fileset>
+		</delete>
+	</goal>
+
+	<!--  Not necessary in Sakai 1.5.1 -->
+	<!-- 
+		<goal name="reg">
+		<copy todir="/usr/local/sakai/reg/" filtering="false"
+		preservelastmodified="true" overwrite="true">
+		<fileset dir="src/reg">
+		<include name="*.xml" />
+		</fileset>
+		</copy>
+		</goal>
+	-->
+
+
+</project>
