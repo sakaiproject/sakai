@@ -29,8 +29,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -38,7 +36,6 @@ import javax.faces.el.VariableResolver;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.manager.SectionManager;

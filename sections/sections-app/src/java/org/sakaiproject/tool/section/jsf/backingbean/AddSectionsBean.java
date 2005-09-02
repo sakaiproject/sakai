@@ -31,8 +31,6 @@ import java.util.List;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIColumn;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
 import javax.faces.component.UISelectItems;
 import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlInputText;
@@ -49,7 +47,6 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.myfaces.custom.tree2.UITreeData;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class AddSectionsBean extends CourseDependentBean implements Serializable {

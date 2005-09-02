@@ -36,7 +36,6 @@ import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.tool.section.CourseSectionImpl;
 
 public interface SectionManager {
 

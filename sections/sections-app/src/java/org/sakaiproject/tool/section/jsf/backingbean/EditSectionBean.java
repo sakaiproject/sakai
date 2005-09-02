@@ -26,8 +26,6 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 
-import javax.faces.context.FacesContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;

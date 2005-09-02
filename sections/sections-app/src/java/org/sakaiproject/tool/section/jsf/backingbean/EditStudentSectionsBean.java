@@ -33,10 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -44,7 +42,6 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class EditStudentSectionsBean extends CourseDependentBean implements Serializable {

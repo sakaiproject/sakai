@@ -26,8 +26,6 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,7 +38,6 @@ import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
-import javax.faces.convert.NumberConverter;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
@@ -51,9 +48,7 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
-import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.decorator.EnrollmentDecorator;
-import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class RosterBean extends CourseDependentBean implements Serializable {
