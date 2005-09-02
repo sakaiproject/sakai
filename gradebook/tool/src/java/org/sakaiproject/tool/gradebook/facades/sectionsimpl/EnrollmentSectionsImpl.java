@@ -22,12 +22,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.facades.sectionsimpl;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
-
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
 import org.sakaiproject.tool.gradebook.facades.User;
 

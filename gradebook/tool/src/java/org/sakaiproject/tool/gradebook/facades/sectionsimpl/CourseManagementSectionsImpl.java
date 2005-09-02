@@ -23,18 +23,16 @@
 
 package org.sakaiproject.tool.gradebook.facades.sectionsimpl;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
-
-import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
-import org.sakaiproject.tool.gradebook.facades.User;
 
 /**
  * A SectionAwareness implementation of CourseManagement.

@@ -25,9 +25,6 @@ package org.sakaiproject.tool.gradebook.facades.sectionsimpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.api.section.SectionAwareness;
-
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.Role;
 

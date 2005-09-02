@@ -23,8 +23,6 @@
 
 package org.sakaiproject.tool.gradebook.facades.standalone;
 
-import java.sql.SQLException;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,11 +35,9 @@ import net.sf.hibernate.type.Type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 
 /**
  * A Standalone implementation of CourseManagement.

@@ -23,22 +23,12 @@
 
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
-import org.sakaiproject.tool.gradebook.facades.User;
 import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
 
 /**

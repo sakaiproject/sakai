@@ -23,9 +23,6 @@
 
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +34,6 @@ import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
-import org.sakaiproject.tool.gradebook.facades.User;
 
 /**
  * Sakai2 implementation of the gradebook CourseManagement API
