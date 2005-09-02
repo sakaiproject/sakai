@@ -49,10 +49,24 @@ public class SyllabusShowAreaRender extends Renderer
 //      while ((pos = value.indexOf('?')) != -1){
 //         value = value.substring(0,pos) + " " + value.substring(pos+1);
 //      }
-
+//      writer.write("<div>");
       value = value.replaceAll("<strong>", "<b>");
       value = value.replaceAll("</strong>", "</b>");
+//      writer.write("<table width=\"100%\"><tbody><tr><td>");
+/*      int blocks = value.length() % 200 ;
+      for (int i=0; i<blocks; i++)
+      {
+        writer.write(value.substring(i*200, ((i+1)*200-1)));
+        writer.flush();
+      }
+      writer.write(value.substring(blocks*200, (value.length()-1)));
+      writer.flush();
+*/
+      value = value.replaceAll("<a href=", "<a title=\"Open a new window\" target=\"_new\" href=");
       writer.write(value);
+      
+//      writer.write("</td></tr></tbody></table>");
+//      writer.write("</div>");
     }
   }
   
