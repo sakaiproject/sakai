@@ -16,20 +16,19 @@
 		<deploy.type>war</deploy.type>
 	</properties>
 	<dependencies>
+<!-- comment out for now -->
     <!-- Samigo API -->
-    <dependency>
+<!--    <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-samigo-api</artifactId>
-<!--  <version>${pom.currentVersion}</version> -->
       <version>2.1.0</version>
-    </dependency>
+    </dependency> -->
     <!-- Samigo IMPL -->
-    <dependency>
+<!--    <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-samigo-component</artifactId>
-<!--  <version>${pom.currentVersion}</version> -->
       <version>2.1.0</version>
-    </dependency>
+    </dependency> -->
 
 		<!-- Sakai plugin for building inside Sakai -->
 		<dependency>
