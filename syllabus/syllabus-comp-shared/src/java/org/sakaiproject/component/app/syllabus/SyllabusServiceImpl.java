@@ -53,14 +53,11 @@ import org.sakaiproject.service.legacy.resource.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.time.cover.TimeService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.util.java.StringUtil;
-import org.sakaiproject.util.xml.Xml;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
 /**
  * @author rshastri TODO To change the template for this generated type comment go to Window -
