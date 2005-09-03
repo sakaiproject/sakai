@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <pomVersion>3</pomVersion>
+  <name>Sakai Samigo Audio Recorder</name>
+  <shortDescription>Samigo (Test and Quizzes) recorder applet.</shortDescription>
+  <groupId>sakaiproject</groupId>
+  <id>sakai-samigo-audio</id>
+  <currentVersion>2.1.0</currentVersion>
+
+  <organization>
+      <name>Sakai Project</name>
+      <url>http://sakaiproject.org/</url>
+  </organization>
+
+  <inceptionYear>2005</inceptionYear>
+
+  <properties>
+    <deploy.type>jar</deploy.type>
+    <deploy.target>shared</deploy.target>
+  </properties>
+
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+  </build>
+</project>
