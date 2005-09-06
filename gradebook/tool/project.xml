@@ -136,7 +136,7 @@
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle</artifactId>
-			<jar>ojdbc14.jar</jar>
+			<jar>ojdbc-14.jar</jar>
 		</dependency>
 
 		<dependency>
