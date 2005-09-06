@@ -99,6 +99,13 @@ public class SubmitToGradingActionListener implements ActionListener
       catch (IllegalAccessException ex)
       {
         log.error(ex);
+        // if student has violated a security constraint (e.g. JavaScript)
+        // flag the assessment as taken
+        if (isForGrade(adata) && !isUnlimited(publishedAssessment))
+        {
+          delivery.setSubmissionsRemaining(
+              delivery.getSubmissionsRemaining() - 1);
+        }
         return;
       }
 
