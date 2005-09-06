@@ -45,6 +45,8 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 
 /**
  * <p>Title: Samigo</p>
@@ -98,7 +100,9 @@ public class SubmitToGradingActionListener implements ActionListener
       }
       catch (IllegalAccessException ex)
       {
+        //log the security constraint violation
         log.error(ex);
+
         // if student has violated a security constraint (e.g. JavaScript)
         // flag the assessment as taken
         if (isForGrade(adata) && !isUnlimited(publishedAssessment))
@@ -106,6 +110,16 @@ public class SubmitToGradingActionListener implements ActionListener
           delivery.setSubmissionsRemaining(
               delivery.getSubmissionsRemaining() - 1);
         }
+
+        // add this to the messages for the submission confirmation page
+        FacesMessage message = new FacesMessage(
+          "There was a SECURITY ERROR submitting this assessment.  " +
+          "Please contact your system administrator for more information.  " +
+          "Error details: " + ex
+          );
+        FacesContext.getCurrentInstance().addMessage(null, message);
+
+        // early exit without submitting assessment.
         return;
       }
 
