@@ -139,48 +139,6 @@
 			gradebook@collab.sakaiproject.org
 		</nagEmailAddress>
 		<sourceDirectory>src/java</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>${basedir}/src/hibernate</directory>
-				<includes>
-					<include>ehcache.xml</include>
-					<include>**/*.hbm.xml</include>
-				</includes>
-			</resource>
-		</resources>
-		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-		<unitTest>
-			<includes>
-				<include>**/*Test.java</include>
-			</includes>
-			<resources>
-				<resource>
-					<directory>${basedir}/src/hibernate</directory>
-					<includes>
-						<include>ehcache.xml</include>
-						<include>**/*.hbm.xml</include>
-					</includes>
-				</resource>
-				<resource>
-					<directory>${basedir}/../tool/src/webapp/WEB-INF/</directory>
-					<includes>
-						<include>components.xml</include>
-					</includes>
-				</resource>
-				<resource>
-					<directory>${basedir}/../tool/src/test/</directory>
-					<includes>
-						<include>components-test.xml</include>
-					</includes>
-				</resource>
-				<resource>
-					<directory>${hibernate.properties.dir}</directory>
-					<includes>
-						<include>hibernate.properties</include>
-					</includes>
-				</resource>
-			</resources>
-		</unitTest>
 	</build>
 </project>
 
