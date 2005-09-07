@@ -195,6 +195,7 @@ document.links[newindex].onclick();
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
         </h:commandLink>
       </h:panelGroup>
+        <h:outputText value="#{partBean.description}" />
         <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_msg}" />
     </h:panelGrid>
 <f:verbatim></h4><div class="indnt2"></f:verbatim>
