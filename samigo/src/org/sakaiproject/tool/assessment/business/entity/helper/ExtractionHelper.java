@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import javax.faces.context.FacesContext;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -47,8 +46,8 @@ import org.sakaiproject.tool.assessment.business.entity.asi.ASIBaseClass;
 import org.sakaiproject.tool.assessment.business.entity.asi.Assessment;
 import org.sakaiproject.tool.assessment.business.entity.asi.Item;
 import org.sakaiproject.tool.assessment.business.entity.asi.Section;
-import org.sakaiproject.tool.assessment.business.entity.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.business.entity.helper.item.ItemTypeExtractionStrategy;
 import org.sakaiproject.tool.assessment.business.exception.Iso8601FormatException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -59,18 +58,15 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.util.XMLMapper;
 import org.sakaiproject.tool.assessment.util.XmlUtil;
-import org.sakaiproject.tool.assessment.business.entity.helper.item.ItemTypeExtractionStrategy;
 
 /**
  * <p>Has helper methods for data extraction (import) from QTI</p>
@@ -1129,15 +1125,27 @@ public class ExtractionHelper
           }
           String label = "" + answerLabel++;
           answer.setLabel(label); // up to 26, is this a problem?
+
+          // correct answer and score
+          float score = 0;
           // if label matches correct answer it is correct
           if (isCorrectLabel(label, correctLabels))
           {
-            answer.setIsCorrect(new Boolean(true));
+            answer.setIsCorrect(Boolean.TRUE);
+            // manual authoring disregards correctness
+            // commented out: what we'd have if we looked at correctness
+//            score = getCorrectScore(item, 1);
           }
           else
           {
-            answer.setIsCorrect(new Boolean(false));
+            answer.setIsCorrect(Boolean.FALSE);
           }
+          // manual authoring disregards correctness
+          // so we will do the same.
+          score = getCorrectScore(item, 1);
+          log.info("setting answer" + label + " score to:" + score);
+          answer.setScore(new Float(score));
+
           answer.setText(answerText);
           answer.setItemText(itemText);
           answer.setItem(item.getData());
@@ -1168,6 +1176,16 @@ public class ExtractionHelper
       itemTextSet.add(itemText);
     }
     item.setItemTextSet(itemTextSet);
+  }
+
+  private float getCorrectScore(ItemDataIfc item, int answerSize)
+  {
+    float score =0;
+    if (answerSize>0 && item!=null && item.getScore()!=null)
+    {
+      score = item.getScore().floatValue()/answerSize;
+    }
+    return score;
   }
 
   /**
@@ -1267,9 +1285,19 @@ public class ExtractionHelper
       {
         String label = "" + answerLabel++;
         answer.setLabel(label); // up to 26, is this a problem?
-        answer.setIsCorrect(new Boolean(true));
         answer.setText(answerText);
         answer.setItemText(itemText);
+
+        // correct answer and score
+        answer.setIsCorrect(Boolean.TRUE);
+        // manual authoring disregards the number of partial answers
+        // so we will do the same.
+        float score = getCorrectScore(item, 1);
+//        float score = getCorrectScore(item, answerList.size());
+
+        log.info("setting answer " + label + " score to:" + score);
+        answer.setScore(new Float(score));
+
         answer.setItem(item.getData());
         System.out.println("answerText="+answerText);
         int sequence = a + 1;
@@ -1389,12 +1417,26 @@ public class ExtractionHelper
         target.setItem(item.getData());
         target.setSequence(new Long(a + 1));
 
+        // correct answer and score
+        // manual authoring disregards the number of partial answers
+        // or whether the answer is correct so we will do the same.
+//        float score = 0;
+        float score = getCorrectScore(item, 1);
+
         // if this answer is the indexed one, flag as correct
         if (a + 1 == targetIndex)
         {
           target.setIsCorrect(Boolean.TRUE);
+//          score = getCorrectScore(item, targetList.size());
           log.debug("source: " + sourceText + " matches target: " + targetString);
         }
+        else
+        {
+          target.setIsCorrect(Boolean.FALSE);
+        }
+        log.info("setting answer " + a + " score to:" + score);
+        target.setScore(new Float(score));
+
         if (answerFeedbackList != null)
         {
           Set targetFeedbackSet = new HashSet();
