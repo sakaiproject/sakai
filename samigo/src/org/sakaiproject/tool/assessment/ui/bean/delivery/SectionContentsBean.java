@@ -328,6 +328,7 @@ public class SectionContentsBean
       this.itemContents = new ArrayList();
       setSectionId(section.getSectionId().toString());
       setTitle(section.getTitle());
+      setDescription(section.getDescription());
       Integer sequence = section.getSequence();
       if (sequence != null)
       {
