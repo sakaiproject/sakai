@@ -16,7 +16,7 @@ gradebook depends. Start at the top sakai directory and run "maven sakai".
 2) Make sure that the sakaigb database (or whatever you want to called it in
 your hibernate.properties file) has been created.
 
-3) Running 'maven -Dstandalone=true' from the top level project directory
+3) Running 'maven -Dstandalone=true cln bld' from the top level project directory
 (currently /sakai/gradebook/ in svn) will clean, compile, run the tests, and
 deploy the webapp.
 

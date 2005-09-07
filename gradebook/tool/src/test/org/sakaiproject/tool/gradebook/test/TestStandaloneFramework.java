@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
 import org.sakaiproject.tool.gradebook.standalone.FrameworkManager;
 
-public class TestStandaloneFramework extends GradebookDbTestBase {
+public class TestStandaloneFramework extends GradebookTestBase {
 	private static final Log log = LogFactory.getLog(TestStandaloneFramework.class);
 	FrameworkManager frameworkManager;
 

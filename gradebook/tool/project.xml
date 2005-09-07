@@ -380,6 +380,7 @@
 			</includes>
 			<resources>
 				<resource>
+
 					<directory>${basedir}/src/hibernate</directory>
 					<includes>
 						<include>ehcache.xml</include>
@@ -402,12 +403,11 @@
 						<include>spring-archive.xml</include>
 					</includes>
 				</resource>
-				<resource>
-					<directory>${hibernate.properties.dir}</directory>
-					<includes>
-						<include>hibernate.properties</include>
-					</includes>
-				</resource>
+				<!--
+					The hibernate.properties file to be used by testing will be
+					copied to the resource area based on runtime properties.
+					That logic is currently in maven.xml.
+				-->
 				<resource>
 					<directory>${basedir}</directory>
 					<includes>

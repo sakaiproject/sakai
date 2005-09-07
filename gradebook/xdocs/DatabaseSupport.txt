@@ -9,9 +9,14 @@ ORACLE
 ======
 
 1) Since we can't package the Oracle JDBC library in the application archive, make sure that your server has it in its default classpath (e.g., "/jakarta-tomcat-5.0.28/shared/lib/ojdbc-14.jar").
-2) Create a "hibernate.properties" file for your DB setup. A sample is below.
-3) Update your build.properties to use the new hibernate.properties file.
-4) Run maven, cd tool, maven test-managers load-full
+
+2) Create a "hibernate.properties" file for your DB setup. A sample is below. Make sure you've created the database it points to.
+
+3) Set the "hibernate.properties.dir" Java property to the directory containing that "hibernate.properties" file. You can do that either by editing your local "build.properties" file, or by specifying it on each maven command line when you build:
+
+  maven -Dhibernate.properties.dir=C:/java/sakaisettings/oracle-standalone -Dstandalone=true
+
+4) Run maven -Dstandalone=true cln bld, cd tool, maven load-full test-standalone
 
 ---- hibernate.properties ----
 
@@ -26,7 +31,6 @@ hibernate.dialect=net.sf.hibernate.dialect.OracleDialect
 
 hibernate.show_sql=false
 # hibernate.hbm2ddl.auto=update
-
 hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
 
 
@@ -41,10 +45,13 @@ MYSQL
 			<version>3.0.10-stable-bin</version>
 		</dependency>
 
-2) Create a "hibernate.properties" file for your DB setup. A sample is below.
-3) Update your build.properties to use the new hibernate.properties file.
-4) Make sure your MySQL server is running. Create your target database (named "sakaigb" in the sample below) if it's not there already.
-4) Run maven, cd tool, maven test-managers load-full
+2) Create a "hibernate.properties" file for your DB setup. A sample is below. Make sure you've created the database and users it points to.
+
+3) Set the "hibernate.properties.dir" Java property to the directory containing that "hibernate.properties" file. You can do that either by editing your local "build.properties" file, or by specifying it on each maven command line when you build:
+
+  maven -Dhibernate.properties.dir=C:/java/sakaisettings/mysql-standalone -Dstandalone=true
+
+4) Run maven -Dstandalone=true cln bld, cd tool, maven load-full test-standalone
 
 ---- hibernate.properties ----
 
@@ -55,8 +62,9 @@ hibernate.connection.username=root
 hibernate.connection.password=root
 
 hibernate.dialect=net.sf.hibernate.dialect.MySQLDialect
-hibernate.show_sql=false
 
+hibernate.show_sql=false
+hibernate.hbm2ddl.auto=update
 hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
 
 
@@ -64,12 +72,22 @@ HSQLDB
 ======
 
 1) Download hsqldb and unzip it somewhere
+
 2) Copy hsqldb.jar to tomcat's common/lib (the jdbc driver is in the jar along with the db server and everything else!)
+
 3) Put the attached hibernate.properties somewhere
-4) Update your build.properties to use the new hibernate.properties file
+
 5) Put the attached startup.bat and server.properties into your unzipped hsqldb directory (you'll probably need to update some path names)
-6) Run startup.sh and make sure the messages look good
-7) Run maven, maven test-managers load-full
+
+6) Run startup.bat and make sure the messages look good
+
+7) Create a "hibernate.properties" file for your DB setup. A sample is below. Make sure you've created the database and users it points to.
+
+8) Set the "hibernate.properties.dir" Java property to the directory containing that "hibernate.properties" file. You can do that either by editing your local "build.properties" file, or by specifying it on each maven command line when you build:
+
+  maven -Dhibernate.properties.dir=C:/java/sakaisettings/hsqldb-standalone -Dstandalone=true
+
+9) Run maven -Dstandalone=true cln bld, cd tool, maven load-full test-standalone
 
 ---- hibernate.properties ----
 
@@ -81,11 +99,8 @@ hibernate.connection.password=
 
 hibernate.dialect=net.sf.hibernate.dialect.HSQLDialect
 
-#hibernate.show_sql=true
 hibernate.show_sql=false
-
-# hibernate.hbm2ddl.auto=update
-
+hibernate.hbm2ddl.auto=update
 hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
 
 

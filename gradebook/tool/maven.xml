@@ -36,6 +36,7 @@
 
 				<!-- Standalone webapp resources -->
 				<ant:copy file="${basedir}/log4j.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+				<ant:echo message="Copying ${hibernate.properties.dir}/hibernate.properties to ${maven.war.webapp.dir}/WEB-INF/classes"/>
 				<ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
 
 			</j:when>
@@ -58,6 +59,22 @@
 			<ant:echo message="Copying standalone webapp to deployment directory '${standalone.deploy.dir}'"/>
 			<ant:copy file="${maven.build.dir}/${maven.war.final.name}" todir="${standalone.deploy.dir}"/>
 		</j:if>
+	</postGoal>
+
+	<!-- Allow different Hibernate setups for testing. -->
+	<postGoal name="test:test-resources">
+		<j:choose>
+			<j:when test="${mem.equals('false')}">
+				<!-- Use the main build's Hibernate settings. -->
+				<j:set var="maven.test.hibernate.properties.dir" value="${hibernate.properties.dir}"/>
+			</j:when>
+			<j:otherwise>
+				<!-- Use the default in-memory Hibernate settings. -->
+				<j:set var="maven.test.hibernate.properties.dir" value="${basedir}/src/test"/>
+			</j:otherwise>
+		</j:choose>
+		<ant:echo message="Copying ${maven.test.hibernate.properties.dir}/hibernate.properties to ${maven.test.dest}"/>
+		<ant:copy file="${maven.test.hibernate.properties.dir}/hibernate.properties" todir="${maven.test.dest}" overwrite="true"/>
 	</postGoal>
 
 	<goal name="schema">
@@ -85,6 +102,9 @@
 	<goal name="load-full">
 		<!-- Skip the tests -->
 		<j:set var="maven.test.skip" value="true" />
+		<!-- Don't use the in-memory DB usually used for tests, since it wouldn't work anyway. -->
+		<j:set var="mem" value="false" />
+
 		<attainGoal name="schema" />
 		<attainGoal name="load-gradebooks" />
 		<attainGoal name="load-users" />
@@ -95,7 +115,7 @@
 	<goal name="test-standalone">
 		<!-- Skip the tests -->
 		<j:set var="maven.test.skip" value="true" />
-		
+
 		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneFramework" />
 		<attainGoal name="test:single" />
 		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneCourseManagement" />

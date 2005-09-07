@@ -34,7 +34,7 @@ import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class TestUserEnrollmentTeacherLoader extends GradebookDbTestBase {
+public class TestUserEnrollmentTeacherLoader extends GradebookTestBase {
     Log log = LogFactory.getLog(TestUserEnrollmentTeacherLoader.class);
 
     UserLoader userLoader;
