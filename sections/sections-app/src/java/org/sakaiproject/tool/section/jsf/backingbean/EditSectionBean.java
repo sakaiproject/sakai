@@ -25,6 +25,7 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,7 +43,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	private String title;
 	private String category;
 	private String location;
-	private int maxEnrollments;
+	private Integer maxEnrollments;
 	private boolean monday;
 	private boolean tuesday;
 	private boolean wednesday;
@@ -57,37 +58,60 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	private boolean endTimeAm;
 	
 	public void init() {
-		// Get the section to edit
-		String sectionUuidFromParam = JsfUtil.getStringFromParam("sectionUuid");
-		if(sectionUuidFromParam != null) {
-			sectionUuid = sectionUuidFromParam;
-		}
-		CourseSection section = getSectionManager().getSection(sectionUuid);
+		if(sectionUuid == null || isNotValidated()) {
+			String sectionUuidFromParam = JsfUtil.getStringFromParam("sectionUuid");
+			if(sectionUuidFromParam != null) {
+				sectionUuid = sectionUuidFromParam;
+			}
+			CourseSection section = getSectionManager().getSection(sectionUuid);
 
-		title = section.getTitle();
-		category = section.getCategory();
-		location = section.getLocation();
-		maxEnrollments = section.getMaxEnrollments();
-		monday = section.isMonday();
-		tuesday = section.isTuesday();
-		wednesday = section.isWednesday();
-		thursday = section.isThursday();
-		friday = section.isFriday();
-		saturday = section.isSaturday();
-		sunday = section.isSunday();
-		startTime = section.getStartTime();
-		endTime = section.getEndTime();
-		startTimeAm = section.isStartTimeAm();
-		endTimeAm = section.isEndTimeAm();
+			title = section.getTitle();
+			category = section.getCategory();
+			location = section.getLocation();
+			maxEnrollments = new Integer(section.getMaxEnrollments());
+			monday = section.isMonday();
+			tuesday = section.isTuesday();
+			wednesday = section.isWednesday();
+			thursday = section.isThursday();
+			friday = section.isFriday();
+			saturday = section.isSaturday();
+			sunday = section.isSunday();
+			startTime = section.getStartTime();
+			endTime = section.getEndTime();
+			startTimeAm = section.isStartTimeAm();
+			endTimeAm = section.isEndTimeAm();
+		}
+		// Get the section to edit
 	}
 
 	public String update() {
-		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
+		if(isDuplicateSectionTitle()) {
+			if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + title);
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+					"section_update_failure_duplicate_title", new String[] {title}), "editSectionForm:titleInput");
+			return "failure";
+		}
+		getSectionManager().updateSection(sectionUuid, title, maxEnrollments.intValue(),
 				location, startTime, startTimeAm, endTime, endTimeAm, monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
 		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(
 				"section_update_successful", new String[] {title}));
 		return "overview";
+	}
+	
+	private boolean isDuplicateSectionTitle() {
+		for(Iterator iter = getAllSiteSections().iterator(); iter.hasNext();) {
+			CourseSection section = (CourseSection)iter.next();
+			// Skip this section, since it is OK for it to keep the same title
+			if(section.getUuid().equals(sectionUuid)) {
+				continue;
+			}
+			if(section.getTitle().equals(title)) {
+				if(log.isDebugEnabled()) log.debug("Conflicting section name found.");
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public String delete() {
@@ -154,11 +178,11 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		this.location = location;
 	}
 
-	public int getMaxEnrollments() {
+	public Integer getMaxEnrollments() {
 		return maxEnrollments;
 	}
 
-	public void setMaxEnrollments(int maxEnrollments) {
+	public void setMaxEnrollments(Integer maxEnrollments) {
 		this.maxEnrollments = maxEnrollments;
 	}
 

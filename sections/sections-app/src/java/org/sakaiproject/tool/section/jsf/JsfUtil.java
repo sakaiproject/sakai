@@ -56,7 +56,11 @@ public class JsfUtil {
 		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 	}
 
-    public static void addInfoMessage(String message) {
+	public static void addErrorMessage(String message, String componentId) {
+		FacesContext.getCurrentInstance().addMessage(componentId, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+	}
+
+	public static void addInfoMessage(String message) {
 		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
 	}
 

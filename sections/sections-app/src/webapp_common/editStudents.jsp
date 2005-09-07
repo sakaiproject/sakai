@@ -26,11 +26,12 @@
         <%@include file="/inc/transferButtons.jspf"%>
     	
         <h:panelGroup>
-            <h:outputText value="#{editStudentsBean.sectionTitle}"/>
-        
-            <f:verbatim>
-                <br/>
-            </f:verbatim>
+            <h:outputFormat value="#{editStudentsBean.sectionTitle}"/>
+            <x:div id="max">
+                <h:outputFormat value="#{msgs.edit_student_selected_title}">
+                    <f:param value="#{editStudentsBean.sectionMax}"/>
+                </h:outputFormat>
+            </x:div>
         
         	<h:selectManyListbox id="selectedUsers" size="20" style="width:200px;">
                 <f:selectItems value="#{editStudentsBean.selectedUsers}"/>
@@ -45,7 +46,7 @@
         value="#{msgs.edit_student_update}"/>
 
     <h:commandButton
-        action="#{overview}"
+        action="overview"
         value="#{msgs.edit_student_cancel}"/>
 
 </h:form>

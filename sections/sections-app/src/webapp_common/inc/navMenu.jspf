@@ -6,22 +6,27 @@
     
     <h:outputText value=" | "/>
     
-    <h:commandLink action="addSections" immediate="true" rendered="#{viewName ne 'addSections'}">
-        <h:outputText value="#{msgs.nav_add_sections}"/>
-    </h:commandLink>
-    <h:outputText value="#{msgs.nav_add_sections}" rendered="#{viewName eq 'addSections'}" />
-    
-    <h:outputText value=" | "/>
+    <h:panelGroup rendered="#{navMenuBean.instructorFeaturesEnabled}">
+        <h:commandLink action="addSections" immediate="true" rendered="#{viewName ne 'addSections'}">
+            <h:outputText value="#{msgs.nav_add_sections}"/>
+        </h:commandLink>
+        <h:outputText value="#{msgs.nav_add_sections}" rendered="#{viewName eq 'addSections'}" />
+        
+        <h:outputText value=" | "/>
+    </h:panelGroup>
     
     <h:commandLink action="roster" immediate="true" rendered="#{viewName ne 'roster'}">
         <h:outputText value="#{msgs.nav_roster}"/>
     </h:commandLink>
     <h:outputText value="#{msgs.nav_roster}" rendered="#{viewName eq 'roster'}" />
     
-    <h:outputText value=" | "/>
     
-    <h:commandLink action="options" immediate="true" rendered="#{viewName ne 'options'}">
-        <h:outputText value="#{msgs.nav_options}"/>
-    </h:commandLink>
-    <h:outputText value="#{msgs.nav_options}" rendered="#{viewName eq 'options'}" />
+    <h:panelGroup rendered="#{navMenuBean.instructorFeaturesEnabled}">
+        <h:outputText value=" | "/>
+
+        <h:commandLink action="options" immediate="true" rendered="#{viewName ne 'options'}">
+            <h:outputText value="#{msgs.nav_options}"/>
+        </h:commandLink>
+        <h:outputText value="#{msgs.nav_options}" rendered="#{viewName eq 'options'}" />
+    </h:panelGroup>
 </x:div>

@@ -32,7 +32,7 @@ public class Role implements Serializable {
     public static final Role NONE = new Role("", 0);
     public static final Role INSTRUCTOR = new Role("instructor", 1);
     public static final Role STUDENT = new Role("student", 2);
-    public static final Role TA = new Role("teaching assistant", 3);
+    public static final Role TA = new Role("ta", 3);
 
     private final String mName;
     private final int mValue;

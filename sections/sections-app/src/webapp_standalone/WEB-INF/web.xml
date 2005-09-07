@@ -105,22 +105,43 @@
     </filter-mapping>
     <filter-mapping>
         <filter-name>InstructorRoleFilter</filter-name>
+        <url-pattern>/options.jsf</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>TaRoleFilter</filter-name>
+        <filter-class>org.sakaiproject.tool.section.filter.RoleFilter</filter-class>
+        <init-param>
+            <param-name>role</param-name>
+            <param-value>instructor,ta</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authnBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Authn</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authzBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>contextBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Context</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>TaRoleFilter</filter-name>
         <url-pattern>/editStudents.jsf</url-pattern>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>InstructorRoleFilter</filter-name>
+        <filter-name>TaRoleFilter</filter-name>
         <url-pattern>/editStudentSections.jsf</url-pattern>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>InstructorRoleFilter</filter-name>
-        <url-pattern>/options.jsf</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>InstructorRoleFilter</filter-name>
+        <filter-name>TaRoleFilter</filter-name>
         <url-pattern>/overview.jsf</url-pattern>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>InstructorRoleFilter</filter-name>
+        <filter-name>TaRoleFilter</filter-name>
         <url-pattern>/roster.jsf</url-pattern>
     </filter-mapping>
 

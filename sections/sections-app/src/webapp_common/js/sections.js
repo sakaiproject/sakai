@@ -19,6 +19,15 @@ function prepMemberForm() {
     if(document.getElementById("memberForm")) {
         populateLists();
         unHighlightUsers();
+        updateTotalMembers();
+    }
+}
+
+function updateTotalMembers() {
+    if(document.getElementById("memberForm:max")) {
+	    var currentNum = document.getElementById("memberForm:selectedUsers").length;
+	    htmlToKeep = document.getElementById("memberForm:max").innerHTML.split("/")[1];
+        document.getElementById("memberForm:max").innerHTML = currentNum + "/" + htmlToKeep;
     }
 }
 
@@ -28,69 +37,73 @@ function populateLists(){
 }
 
 function removeUser(){
-   var count = 0;
-   var selectedArray = new Array();
-   for (var i=0; i<selectedUsers.options.length; i++) {
-    if (selectedUsers.options[i].selected) {
-     selectedArray[count++] = selectedUsers.options[i];
+    var count = 0;
+    var selectedArray = new Array();
+    for (var i=0; i<selectedUsers.options.length; i++) {
+        if (selectedUsers.options[i].selected) {
+            selectedArray[count++] = selectedUsers.options[i];
+        }
     }
-   }
 
-   for (var i=0; i<selectedArray.length; i++) {
-    availableUsers.appendChild(selectedArray[i]);
-    selectNone(selectedUsers,availableUsers);
-   }
+    for (var i=0; i<selectedArray.length; i++) {
+        availableUsers.appendChild(selectedArray[i]);
+        selectNone(selectedUsers,availableUsers);
+    }
+    updateTotalMembers()
 }
 
 function addUser(){
-   var count = 0;
-   var selectedArray = new Array();
-   for (var i=0; i<availableUsers.options.length; i++) {
-    if (availableUsers.options[i].selected) {
-     selectedArray[count++] = availableUsers.options[i];
+    var count = 0;
+    var selectedArray = new Array();
+    for (var i=0; i<availableUsers.options.length; i++) {
+        if (availableUsers.options[i].selected) {
+            selectedArray[count++] = availableUsers.options[i];
+        }
     }
-   }
 
-   for (var i=0; i<selectedArray.length; i++) {
-    selectedUsers.appendChild(selectedArray[i]);
-    selectNone(selectedUsers,availableUsers);
-   }
+    for (var i=0; i<selectedArray.length; i++) {
+        selectedUsers.appendChild(selectedArray[i]);
+        selectNone(selectedUsers,availableUsers);
+    }
+    updateTotalMembers()
 }
 
 function removeAll(){
-   var len = selectedUsers.length;
-   var removeArray = new Array();
-   
-   // Generate an array of all options (don't use the options availableUsers
-   // object due to concurrent modification).
-   for(i=0; i<len; i++){
-      removeArray[i] = selectedUsers.options.item(i);
-   }
-   
-   // Add the items to the available list
-   for(i=0;i<removeArray.length;i++) {
-      availableUsers.appendChild(removeArray[i]);
-   }
+    var len = selectedUsers.length;
+    var removeArray = new Array();
 
-   selectNone(selectedUsers,availableUsers);
+    // Generate an array of all options (don't use the options availableUsers
+    // object due to concurrent modification).
+    for(i=0; i<len; i++){
+        removeArray[i] = selectedUsers.options.item(i);
+    }
+   
+    // Add the items to the available list
+    for(i=0;i<removeArray.length;i++) {
+        availableUsers.appendChild(removeArray[i]);
+    }
+
+    selectNone(selectedUsers,availableUsers);
+    updateTotalMembers()
 }
 
 function addAll(){
-   var len = availableUsers.length;
-   var addArray = new Array();
-   
-   // Generate an array of all options (don't use the options availableUsers
-   // object due to concurrent modification).
-   for(i=0; i<len; i++){
-      addArray[i] = availableUsers.options.item(i);
-   }
-   
-   // Add the items to the selected list
-   for(i=0;i<addArray.length;i++) {
-      selectedUsers.appendChild(addArray[i]);
-   }
+    var len = availableUsers.length;
+    var addArray = new Array();
 
-   selectNone(selectedUsers,availableUsers);
+    // Generate an array of all options (don't use the options availableUsers
+    // object due to concurrent modification).
+    for(i=0; i<len; i++){
+        addArray[i] = availableUsers.options.item(i);
+    }
+   
+    // Add the items to the selected list
+    for(i=0;i<addArray.length;i++) {
+        selectedUsers.appendChild(addArray[i]);
+    }
+
+    selectNone(selectedUsers,availableUsers);
+    updateTotalMembers()
 }
 
 function selectNone(list1,list2){

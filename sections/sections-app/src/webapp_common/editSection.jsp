@@ -7,9 +7,14 @@
 
     <sakai:flowState bean="#{editSectionBean}"/>
     
+    <h:messages globalOnly="true"/>
+    
     <h:panelGrid columns="2">
         <h:outputText value="#{msgs.section_title}"/>
-        <h:inputText value="#{editSectionBean.title}"/>
+        <h:panelGroup>
+            <h:inputText id="titleInput" required="true" value="#{editSectionBean.title}"/>
+            <h:message for="titleInput"/>
+        </h:panelGroup>
         
         <h:outputText value="#{msgs.section_days}"/>
         <h:panelGroup>
@@ -54,7 +59,15 @@
         </h:panelGroup>
 
         <h:outputText value="#{msgs.section_max_size}"/>
-        <h:inputText value="#{editSectionBean.maxEnrollments}"/>
+        <h:panelGroup>
+            <h:inputText
+                id="maxEnrollmentInput"
+                required="true"
+                value="#{editSectionBean.maxEnrollments}">
+                <f:validateLongRange minimum="0" />
+            </h:inputText>
+            <h:message for="maxEnrollmentInput"/>
+        </h:panelGroup>
 
         <h:outputText value="#{msgs.section_location}"/>
         <h:inputText value="#{editSectionBean.location}"/>
@@ -66,7 +79,7 @@
         <f:param name="sectionUuid" value="#{editSectionBean.sectionUuid}"/>
     </h:commandButton>
     
-    <h:commandButton action="overview" value="Cancel"/>
+    <h:commandButton action="overview" value="Cancel" immediate="true" />
     
 </h:form>
 </f:view>

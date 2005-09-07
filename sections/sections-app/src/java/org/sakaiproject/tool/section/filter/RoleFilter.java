@@ -49,7 +49,7 @@ public class RoleFilter implements Filter {
 	private String authnBeanName;
 	private String authzBeanName;
 	private String contextBeanName;
-	private String roleParam;
+	private String[] roleParam;
 
 	private static final Log log = LogFactory.getLog(RoleFilter.class);
 	
@@ -59,7 +59,7 @@ public class RoleFilter implements Filter {
         authnBeanName = filterConfig.getInitParameter("authnBean");
 		authzBeanName = filterConfig.getInitParameter("authzBean");
 		contextBeanName = filterConfig.getInitParameter("contextBean");
-		roleParam = filterConfig.getInitParameter("role");
+		roleParam = filterConfig.getInitParameter("role").split(",");
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -73,15 +73,24 @@ public class RoleFilter implements Filter {
         String siteContext = context.getContext(request);
         Role siteRole = authz.getSiteRole(userUuid, siteContext);
 
-		if (siteRole.getName().equals(roleParam)) {
-				chain.doFilter(request, response);
-		} else {
-			if(log.isInfoEnabled()) log.info("PAGE VIEW AUTHZ FAILURE: User "
-					+ userUuid + " in role "
-					+ siteRole + " for site " + siteContext + " on page "
-					+ ((HttpServletRequest)request).getServletPath());
-			((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        boolean roleAllowed = false;
+        for(int i=0; i<roleParam.length; i++) {
+			String roleName = roleParam[i];
+	        if (siteRole.getName().equals(roleName)) {
+	        	roleAllowed = true;
+	        	break;
+	        }
 		}
+
+        if(roleAllowed) {
+			chain.doFilter(request, response);
+        } else {
+    		if(log.isInfoEnabled()) log.info("PAGE VIEW AUTHZ FAILURE: User "
+    				+ userUuid + " in role "
+    				+ siteRole + " for site " + siteContext + " on page "
+    				+ ((HttpServletRequest)request).getServletPath());
+    		((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        }
 	}
 
 	public void destroy() {

@@ -63,6 +63,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	
 	private String sectionUuid;
 	private String sectionTitle;
+	private int sectionMax;
 	
 	public void init() {
 		// Get the section to edit
@@ -73,6 +74,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		}
 		CourseSection currentSection = getSectionManager().getSection(sectionUuid);
 		sectionTitle = currentSection.getTitle();
+		sectionMax = currentSection.getMaxEnrollments();
 		
 		// Get the current users
 		List enrollments = getSectionManager().getSectionEnrollments(currentSection.getUuid());
@@ -197,6 +199,14 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 
 	public String getSectionTitle() {
 		return sectionTitle;
+	}
+
+	public int getSectionMax() {
+		return sectionMax;
+	}
+
+	public void setSectionMax(int sectionMax) {
+		this.sectionMax = sectionMax;
 	}
 }
 

@@ -30,6 +30,13 @@
     </managed-bean>
 
     <managed-bean>
+        <description>Navigation Menu Bean</description>
+        <managed-bean-name>navMenuBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.NavMenuBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
         <description>Student View Bean</description>
         <managed-bean-name>studentViewBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.StudentViewBean</managed-bean-class>
