@@ -4,7 +4,7 @@
 	<tool
 			id="sakai.syllabus"
 			title="Syllabus"
-			description="Syllabus tool.">
+			description="For posting a summary outline and/or requirements for a site.">
 			
 		<category name="course" />
 		<category name="project" />
