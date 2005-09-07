@@ -34,7 +34,9 @@ import junit.framework.Assert;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.facades.standalone.EnrollmentStandalone;
 import org.sakaiproject.tool.gradebook.facades.standalone.UserStandalone;
@@ -147,18 +149,23 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         Long id3 = gradeManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date());
 
         List assignments = gradeManager.getAssignments(gradebook.getId());
-        Assignment asn = null;
+        Assignment asn = (Assignment)gradeManager.getGradableObjectWithStats(id1);
 
-        // Get the assignment to delete
-        for(Iterator iter = assignments.iterator(); iter.hasNext();) {
-            Assignment tmp = (Assignment)iter.next();
-            if(tmp.getName().equals(ASN1_NAME)) {
-                asn = tmp;
-                break;
-            }
-        }
+        Set enrollments = new HashSet();
+        enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid1", null, null, null), gradebook));
+        enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid2", null, null, null), gradebook));
+        enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid3", null, null, null), gradebook));
 
-        // Remove the assignment
+		// Add some scores to the interesting assignment, leaving one student unscored.
+		GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
+		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "testStudentUserUid1", "teacher1", new Double(8)));
+		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "testStudentUserUid2", "teacher1", new Double(9)));
+		gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
+
+        // Remove the assignments.
+        // (We remove all of them to make sure that the calculated course grade can be emptied.)
+        gradebookManager.removeAssignment(id2);
+        gradebookManager.removeAssignment(id3);
         gradebookManager.removeAssignment(id1);
 
         // Get the list of assignments again, and make sure it's missing the removed assignment
@@ -171,10 +178,6 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
         // Get the grade records for this gradebook, and make sure none of them
         // belong to a removed assignment
-        Set enrollments = new HashSet();
-        enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid1", null, null, null), gradebook));
-        enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid2", null, null, null), gradebook));
-        enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid3", null, null, null), gradebook));
         List gradeRecords = gradeManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId(), FacadeUtils.getStudentUids(enrollments));
         assertNoneFromRemovedAssignments(gradeRecords);
 

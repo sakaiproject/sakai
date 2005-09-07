@@ -76,15 +76,8 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 	/**
 	 */
 	public List getPointsEarnedSortedGradeRecords(GradableObject go) {
-        // If this is a removed assignment, don't look for any grade records (this should never happen)
-        if(go.isRemoved()) {
-            log.warn(FacadeUtils.getUserUid(authn) + " attemped to get grade records for a removed assignment: " +
-                    go + ".  Returning an empty list.");
-            return new ArrayList();
-        }
-
         List records = getHibernateTemplate().find(
-            "from AbstractGradeRecord as agr where agr.gradableObject.id=? order by agr.pointsEarned",
+            "from AbstractGradeRecord as agr where agr.gradableObject.removed=false and agr.gradableObject.id=? order by agr.pointsEarned",
             go.getId(), Hibernate.LONG);
         // If this is a course grade, calculate the point totals for the grade records
         if(go.isCourseGrade()) {
@@ -106,19 +99,12 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 	public List getPointsEarnedSortedGradeRecords(final GradableObject go, final Collection studentUids) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-				// If this is a removed assignment, don't look for any grade records (this should never happen)
-				if(go.isRemoved()) {
-					log.warn(FacadeUtils.getUserUid(authn) + " attemped to get grade records for a removed assignment: " +
-							go + ".  Returning an empty list.");
-					return new ArrayList();
-				}
-
                 if(studentUids == null || studentUids.size() == 0) {
                     if(logger.isInfoEnabled()) logger.info("Returning no grade records for an empty collection of student UIDs");
                     return new ArrayList();
                 }
 
-				Query q = session.createQuery("from AbstractGradeRecord as agr where agr.gradableObject.id=:gradableObjectId and agr.studentId in (:studentUids) order by agr.pointsEarned");
+				Query q = session.createQuery("from AbstractGradeRecord as agr where agr.gradableObject.removed=false and agr.gradableObject.id=:gradableObjectId and agr.studentId in (:studentUids) order by agr.pointsEarned");
 				q.setLong("gradableObjectId", go.getId().longValue());
 				q.setParameterList("studentUids", studentUids);
 				List records = q.list();
