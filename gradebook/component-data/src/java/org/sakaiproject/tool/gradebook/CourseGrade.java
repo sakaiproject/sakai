@@ -114,11 +114,11 @@ public class CourseGrade extends GradableObject {
             Assignment asn = (Assignment)asnIter.next();
             // Find the grade record for this assignment
             for(Iterator gradeRecordIter = gradeRecords.iterator(); gradeRecordIter.hasNext();) {
-                AbstractGradeRecord gr = (AbstractGradeRecord)gradeRecordIter.next();
+                AssignmentGradeRecord gr = (AssignmentGradeRecord)gradeRecordIter.next();
                 // Apply this grade record only if it is for this assignment and for the given student
                 if(gr.getGradableObject().equals(asn) && gr.getStudentId().equals(studentId)) {
-                    if(((AssignmentGradeRecord)gr).getPointsEarned() != null) {
-                        totalEarned += ((AssignmentGradeRecord)gr).getPointsEarned().doubleValue();
+                    if(gr.getPointsEarned() != null) {
+                        totalEarned += gr.getPointsEarned().doubleValue();
                     }
                     break;
                 }

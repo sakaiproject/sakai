@@ -74,8 +74,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      * @throws HibernateException
      */
     protected List getStudentGradeRecords(Long gradebookId, String studentId, Session session) throws HibernateException {
-        return session.find("from AbstractGradeRecord as agr where agr.studentId=? and " +
-                "agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=?",
+        return session.find("from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=?",
                 new Object[] {studentId, gradebookId}, new Type[] {Hibernate.STRING, Hibernate.LONG});
     }
 
@@ -151,6 +150,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             } else {
                 cgr.setSortGrade(gradebook.getSelectedGradeMapping().getValue(cgr.getEnteredGrade()));
             }
+
             session.saveOrUpdate(cgr);
         }
     }
@@ -166,6 +166,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      * @throws HibernateException
      */
     protected void recalculateCourseGradeRecords(Gradebook gradebook, Session session) throws HibernateException {
+		// Need to fix any data contention before calling the recalculation.
+		session.flush();
+		session.clear();
+
         Set enrollments = courseManagement.getEnrollments(gradebook.getUid());
         Set studentIds = new HashSet();
         for(Iterator iter = enrollments.iterator(); iter.hasNext();) {

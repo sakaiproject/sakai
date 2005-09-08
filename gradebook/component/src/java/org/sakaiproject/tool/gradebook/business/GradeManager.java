@@ -129,7 +129,8 @@ public interface GradeManager {
         throws StaleObjectModificationException;
 
     /**
-     * Gets all grade records for a single student in a single gradebook
+     * Gets all grade records for a single student in a single gradebook,
+     * not including the course grade.
      *
      * @param gradebookId The gradebook id
      * @param studentId The unique student identifier

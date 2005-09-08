@@ -272,29 +272,24 @@ public class StudentViewBean extends EnrollmentTableBean implements Serializable
             }
 
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
-                AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
-                if(agr.isCourseGradeRecord()) {
-                    continue;
-                } else {
-                    AssignmentGradeRecord asnGr = (AssignmentGradeRecord)agr;
-                    if(asnGr.getPointsEarned() != null) {
-                        if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
-                        totalPointsEarned += asnGr.getPointsEarned().doubleValue();
-                        if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getAssignment().getPointsPossible() + " to totalPointsPossible");
-                        totalPointsScored += asnGr.getAssignment().getPointsPossible().doubleValue();
-                    }
+                AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
+				if(asnGr.getPointsEarned() != null) {
+					if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
+					totalPointsEarned += asnGr.getPointsEarned().doubleValue();
+					if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getAssignment().getPointsPossible() + " to totalPointsPossible");
+					totalPointsScored += asnGr.getAssignment().getPointsPossible().doubleValue();
+				}
 
-                    // Put the letter grade into the grade record
-                    asnGr.setDisplayGrade(gradeMapping.getGrade(agr.getGradeAsPercentage()));
+				// Put the letter grade into the grade record
+				asnGr.setDisplayGrade(gradeMapping.getGrade(asnGr.getGradeAsPercentage()));
 
-                    // Update the AssignmentGradeRow in the map
-                    AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
-                    Double pointsEarned = asnGr.getPointsEarned();
-                    if(pointsEarned != null) {
-                        asnGradeRow.setPointsEarned(new Double(pointsEarned.doubleValue() / asnGr.getAssignment().getPointsPossible().doubleValue()));
-                    }
-                    asnGradeRow.setGrade(asnGr.getDisplayGrade());
-                }
+				// Update the AssignmentGradeRow in the map
+				AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
+				Double pointsEarned = asnGr.getPointsEarned();
+				if(pointsEarned != null) {
+					asnGradeRow.setPointsEarned(new Double(pointsEarned.doubleValue() / asnGr.getAssignment().getPointsPossible().doubleValue()));
+				}
+				asnGradeRow.setGrade(asnGr.getDisplayGrade());
             }
 
             assignmentGradeRows = new ArrayList(asnMap.values());

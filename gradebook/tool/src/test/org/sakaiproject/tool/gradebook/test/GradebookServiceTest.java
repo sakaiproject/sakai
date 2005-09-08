@@ -154,16 +154,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.updateExternalAssessmentScore(gb.getUid(), EXT_ID_1, "student1", new Double(5));
 
         // Ensure that the course grade record for student1 has been updated
-        // TODO Get course grade record directly.
-        List grades = gradeManager.getStudentGradeRecords(gb.getId(), "student1");
-        CourseGradeRecord cgr = null;
-        for(Iterator iter = grades.iterator(); iter.hasNext();) {
-            AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
-            if(agr.isCourseGradeRecord()) {
-                cgr = (CourseGradeRecord)agr;
-                break;
-            }
-        }
+        CourseGradeRecord cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(15))); // 10 points on internal, 5 points on external
     }
 
@@ -176,16 +167,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.updateExternalAssessmentScore(gb.getUid(), EXT_ID_1, "student1", new Double(2));
 
         // Ensure that the course grade record for student1 has been updated
-        // TODO Get course grade record directly.
-        List grades = gradeManager.getStudentGradeRecords(gb.getId(), "student1");
-        CourseGradeRecord cgr = null;
-        for(Iterator iter = grades.iterator(); iter.hasNext();) {
-            AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
-            if(agr.isCourseGradeRecord()) {
-                cgr = (CourseGradeRecord)agr;
-                break;
-            }
-        }
+        CourseGradeRecord cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(12))); // 10 points on internal, 2 points on external
     }
 
@@ -198,16 +180,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.removeExternalAssessment(gb.getUid(), EXT_ID_1);
 
         // Ensure that the course grade record for student1 has been updated
-        // TODO Get course grade record directly.
-        List grades = gradeManager.getStudentGradeRecords(gb.getId(), "student1");
-        CourseGradeRecord cgr = null;
-        for(Iterator iter = grades.iterator(); iter.hasNext();) {
-            AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
-            if(agr.isCourseGradeRecord()) {
-                cgr = (CourseGradeRecord)agr;
-                break;
-            }
-        }
+        CourseGradeRecord cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(10)));// 10 points on internal, 0 points on external
     }
 }

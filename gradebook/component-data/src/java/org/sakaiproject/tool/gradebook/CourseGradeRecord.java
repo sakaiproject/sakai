@@ -130,10 +130,9 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     public void calculateTotalPointsEarned(Collection gradeRecords) {
         double total = 0;
         for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
-            AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
-            // Skip this if it's a course grade record (which should be this, actually)
-            // and skip it if it doesn't have any points earned
-            if(agr.isCourseGradeRecord() || agr.getPointsEarned() == null) {
+            AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
+            // Skip this if it doesn't have any points earned
+            if(agr.getPointsEarned() == null) {
                 continue;
             }
             total += agr.getPointsEarned().doubleValue();
