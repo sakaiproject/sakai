@@ -35,8 +35,8 @@
 
 				<!-- Standalone webapp resources -->
 				<ant:copy file="${basedir}/log4j.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
-				<!-- ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" / -->
-
+				<ant:echo message="Copying ${hibernate.properties.dir}/hibernate.properties to ${maven.war.webapp.dir}/WEB-INF/classes"/>
+				<ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
 			</j:when>
 			<j:otherwise>
 				<ant:echo message="Copying sakai-dependent resources into webapp"/>
@@ -58,6 +58,23 @@
 			<ant:copy file="${maven.build.dir}/${maven.war.final.name}" todir="${standalone.deploy.dir}"/>
 		</j:if>
 	</postGoal>
+
+	<!-- Allow different Hibernate setups for testing. -->
+	<postGoal name="test:test-resources">
+		<j:choose>
+			<j:when test="${mem.equals('false')}">
+				<!-- Use the main build's Hibernate settings. -->
+				<j:set var="maven.test.hibernate.properties.dir" value="${hibernate.properties.dir}"/>
+			</j:when>
+			<j:otherwise>
+				<!-- Use the default in-memory Hibernate settings. -->
+				<j:set var="maven.test.hibernate.properties.dir" value="${basedir}/src/test"/>
+			</j:otherwise>
+		</j:choose>
+		<ant:echo message="Copying ${maven.test.hibernate.properties.dir}/hibernate.properties to ${maven.test.dest}"/>
+		<ant:copy file="${maven.test.hibernate.properties.dir}/hibernate.properties" todir="${maven.test.dest}" overwrite="true"/>
+	</postGoal>
+
 
     <goal name="loadData">
         <ant:echo message="Remember to call this goal with -Dmem=false to load data into your configured db!"/>

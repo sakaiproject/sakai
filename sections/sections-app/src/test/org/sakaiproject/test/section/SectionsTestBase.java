@@ -30,15 +30,7 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
 public class SectionsTestBase extends AbstractTransactionalSpringContextTests {
     private static final Log log = LogFactory.getLog(SectionsTestBase.class);
     protected String[] getConfigLocations() {
-        String mem = System.getProperty("mem");
-        String[] configLocations = {"", "spring-beans.xml", "spring-beans-test.xml", "spring-hib.xml", "spring-services.xml"};
-        if("false".equals(mem)) {
-            log.debug("Using configured database for testing");
-            configLocations[0] = "spring-db.xml";
-        } else {
-            log.debug("Using in-memory database for testing");
-            configLocations[0] = "spring-db-mem.xml";
-        }
+        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-beans-test.xml", "spring-hib.xml", "spring-services.xml"};
         return configLocations;
     }
 
