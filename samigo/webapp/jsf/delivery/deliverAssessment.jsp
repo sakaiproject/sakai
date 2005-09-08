@@ -47,7 +47,7 @@
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
 
-<h:inputText id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
+<h:inputHidden id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
 
 <script language="javascript">
 function checkRadio()
