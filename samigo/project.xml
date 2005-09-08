@@ -159,6 +159,11 @@
 			</properties>
 		</dependency>
 		<dependency>
+		  <groupId>xalan</groupId>
+		  <artifactId>xalan</artifactId>
+		  <version>2.6.0</version>
+		</dependency>
+		<dependency>
 			<groupId>aopalliance</groupId>
 			<artifactId>aopalliance</artifactId>
 			<version>1.0</version>
@@ -594,4 +599,5 @@
 			</unitTest>
 		-->
 	</build>
-</project>
+</project
+>
