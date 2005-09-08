@@ -154,6 +154,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.updateExternalAssessmentScore(gb.getUid(), EXT_ID_1, "student1", new Double(5));
 
         // Ensure that the course grade record for student1 has been updated
+        // TODO Get course grade record directly.
         List grades = gradeManager.getStudentGradeRecords(gb.getId(), "student1");
         CourseGradeRecord cgr = null;
         for(Iterator iter = grades.iterator(); iter.hasNext();) {
@@ -175,6 +176,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.updateExternalAssessmentScore(gb.getUid(), EXT_ID_1, "student1", new Double(2));
 
         // Ensure that the course grade record for student1 has been updated
+        // TODO Get course grade record directly.
         List grades = gradeManager.getStudentGradeRecords(gb.getId(), "student1");
         CourseGradeRecord cgr = null;
         for(Iterator iter = grades.iterator(); iter.hasNext();) {
@@ -196,6 +198,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.removeExternalAssessment(gb.getUid(), EXT_ID_1);
 
         // Ensure that the course grade record for student1 has been updated
+        // TODO Get course grade record directly.
         List grades = gradeManager.getStudentGradeRecords(gb.getId(), "student1");
         CourseGradeRecord cgr = null;
         for(Iterator iter = grades.iterator(); iter.hasNext();) {

@@ -35,6 +35,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
@@ -58,10 +59,11 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
         // Create a gradebook to work with
         String className = this.getClass().getName();
-        gradebookService.addGradebook(className, className);
+        String gradebookName = className + (new Date()).getTime();
+        gradebookService.addGradebook(gradebookName, gradebookName);
 
         // Grab the gradebook for use in the tests
-        gradebook = gradebookManager.getGradebook(className);
+        gradebook = gradebookManager.getGradebook(gradebookName);
     }
 
     public void testCreateAndUpdateAssignment() throws Exception {
@@ -161,6 +163,10 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "testStudentUserUid1", "teacher1", new Double(8)));
 		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "testStudentUserUid2", "teacher1", new Double(9)));
 		gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
+
+		// Do what the Overview page does.
+		assignments = gradeManager.getAssignmentsWithStats(gradebook.getId(), Assignment.SORT_BY_NAME, true);
+		CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId());
 
         // Remove the assignments.
         // (We remove all of them to make sure that the calculated course grade can be emptied.)

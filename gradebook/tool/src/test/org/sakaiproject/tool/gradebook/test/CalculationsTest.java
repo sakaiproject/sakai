@@ -135,7 +135,11 @@ public class CalculationsTest extends TestCase {
 
         // The grade records should total 90%
         Double autoCalc = courseGrade.calculateCourseGrade("studentId", assignments, studentGradeRecords);
-        Assert.assertEquals(autoCalc, new Double(90));
+        Assert.assertEquals(new Double(90), autoCalc);
+
+		// Test for an empty list of assignments.
+		autoCalc = courseGrade.calculateCourseGrade("studentId", new HashSet(), new ArrayList());
+        Assert.assertEquals(new Double(0), autoCalc);
     }
 
     /**
