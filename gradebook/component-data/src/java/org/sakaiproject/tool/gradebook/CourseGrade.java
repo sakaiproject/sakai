@@ -27,6 +27,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * A CourseGrade is a GradableObject that represents the overall course grade
  * in a gradebook.
@@ -34,6 +37,8 @@ import java.util.Iterator;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
 public class CourseGrade extends GradableObject {
+    private static final Log log = LogFactory.getLog(CourseGrade.class);
+
     private Double totalPoints;  // Not persisted
 
     public static final String COURSE_GRADE_NAME = "Course Grade";
@@ -93,9 +98,16 @@ public class CourseGrade extends GradableObject {
 	public Double calculateCourseGrade(String studentId, Collection assignments, Collection gradeRecords) {
         // Ensure that the total points field has been populated
 		calculateTotalPointsPossible(assignments);
+		double totalPointsValue = this.totalPoints.doubleValue();
+
+		// The default value is 0.0, not null.
+		if (totalPointsValue == 0.0) {
+			return new Double(0.0);
+		}
 
         // Determine the total points earned for all assignments
         double totalEarned = 0;
+
         // Loop through each assignment
 
         for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {
@@ -112,6 +124,7 @@ public class CourseGrade extends GradableObject {
                 }
             }
         }
+
         return new Double(totalEarned / this.totalPoints.doubleValue() * 100);
 	}
 
