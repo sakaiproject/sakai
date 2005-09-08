@@ -335,7 +335,6 @@ public class HistogramListener
     if (qbean.getQuestionType().equals("5") || // essay
         qbean.getQuestionType().equals("6") || // file upload
         qbean.getQuestionType().equals("7")) // audio recording
-        // qbean.getQuestionType().equals("8")) // Fill in the blank
       doScoreStatistics(qbean, itemScores);
 
   }
@@ -376,13 +375,14 @@ public class HistogramListener
       getMatchingScores(scores, qbean, text);
   }
 
+
   public void getFIBMCMCScores(ArrayList scores,
     HistogramQuestionScoresBean qbean, ArrayList answers)
   {
     HashMap texts = new HashMap();
     Iterator iter = answers.iterator();
     HashMap results = new HashMap();
-    HashMap numStudentRespondedMap= new HashMap();   // this is for fib, maybe also for mcmc , matching
+    HashMap numStudentRespondedMap= new HashMap();   
     while (iter.hasNext())
     {
       AnswerIfc answer = (AnswerIfc) iter.next();
@@ -390,7 +390,6 @@ public class HistogramListener
       results.put(answer.getId(), new Integer(0));
     }
     iter = scores.iterator();
-    // ArrayList studentResponseList= null;
     while (iter.hasNext())
     {
       ItemGradingData data = (ItemGradingData) iter.next();
@@ -411,7 +410,7 @@ public class HistogramListener
         }
         if (num == null)
           num = new Integer(0);
-  // not right
+
     	  ArrayList studentResponseList = (ArrayList)numStudentRespondedMap.get(data.getAssessmentGrading().getAssessmentGradingId());
           if (studentResponseList==null) {
     	    studentResponseList = new ArrayList();
@@ -455,10 +454,6 @@ public class HistogramListener
 
       }
       bars[i].setNumStudents(num);
-// below doesnot work for FIB, MCMC or matching
-//      responses += num;
-//      if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
-//        correctresponses += num;
       i++;
     }
 
@@ -486,15 +481,11 @@ public class HistogramListener
       	{
 
 	  // only answered choices are created in the ItemGradingData_T, so we need to check
-	  // if # of checkboxes the student checked is >= the number of correct answers
+	  // if # of checkboxes the student checked is == the number of correct answers
 	  // otherwise if a student only checked one of the multiple correct answers,
 	  // it would count as a correct response
 
-	  // In delivery, an entry for each checkbox should be created in the
- 	  // ItemGradingData_T for mcmc. then we don't have to do a special check here
-
           try {
-	    // these 2 lines shouldn't throw nullptr exception, but check anyway
 	    ArrayList itemTextArray = item.getPublishedItem().getItemTextArraySorted();
     	    ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted();
 
@@ -506,15 +497,17 @@ public class HistogramListener
 		corranswers++;
 	      }
             }
-            if (resultsForOneStudent.size()< corranswers){
+            if (resultsForOneStudent.size() !=  corranswers){
               hasIncorrect = true;
               break;
             }
           }
           catch (Exception e) {
-            log.info("should not see this. ");
 	    e.printStackTrace();
+            throw new RuntimeException("error calculating mcmc question.");
 	  }
+
+          // now check each answer in MCMC 
 
 	  AnswerIfc answer = item.getPublishedAnswer();
 	  if (answer.getIsCorrect() == null || (!answer.getIsCorrect().booleanValue()))
@@ -621,12 +614,16 @@ public class HistogramListener
       qbean.setPercentCorrect(new Integer((int)(((float) correctresponses/(float) responses) * 100)).toString());
   }
 
+
+
+
   public void getMatchingScores(ArrayList scores,
     HistogramQuestionScoresBean qbean, ArrayList labels)
   {
     HashMap texts = new HashMap();
     Iterator iter = labels.iterator();
     HashMap results = new HashMap();
+    HashMap numStudentRespondedMap= new HashMap();
     while (iter.hasNext())
     {
       ItemTextIfc label = (ItemTextIfc) iter.next();
@@ -634,7 +631,8 @@ public class HistogramListener
       results.put(label.getId(), new Integer(0));
     }
     iter = scores.iterator();
-    int responses = 0;
+
+
     while (iter.hasNext())
     {
       ItemGradingData data = (ItemGradingData) iter.next();
@@ -645,15 +643,24 @@ public class HistogramListener
         Integer num = (Integer) results.get(text.getId());
         if (num == null)
           num = new Integer(0);
+
+
+        ArrayList studentResponseList = (ArrayList)numStudentRespondedMap.get(data.getAssessmentGrading().getAssessmentGradingId());
+        if (studentResponseList==null) {
+            studentResponseList = new ArrayList();
+        }
+        studentResponseList.add(data);
+        numStudentRespondedMap.put(data.getAssessmentGrading().getAssessmentGradingId(), studentResponseList);
+
         results.put(text.getId(), new Integer(num.intValue() + 1));
       }
-      else
-        responses += 1;
     }
+
     HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
     int[] numarray = new int[results.keySet().size()];
     iter = results.keySet().iterator();
     int i = 0;
+    int responses = 0;
     int correctresponses = 0;
     while (iter.hasNext())
     {
@@ -673,11 +680,46 @@ public class HistogramListener
 	      bars[i].setNumStudentsText(num + " Correct Response");
 
       }
-      // bars[i].setNumStudentsText(num + " Correct Responses");
-      correctresponses += num;
-      responses += num;
+
       i++;
     }
+
+
+    // now calculate responses and correctresponses
+    // correctresponses = # of students who got all answers correct, 
+
+//lydia: i need another map of maps for this . maybe need to modify above logic
+    responses = numStudentRespondedMap.size();
+    Iterator mapiter = numStudentRespondedMap.keySet().iterator();
+    while (mapiter.hasNext())
+    {
+      Long assessmentGradingId= (Long)mapiter.next();
+      ArrayList resultsForOneStudent = (ArrayList)numStudentRespondedMap.get(assessmentGradingId);
+      boolean hasIncorrect = false;
+      Iterator listiter = resultsForOneStudent.iterator();
+
+      // numStudentRespondedMap only stores correct answers, so now we need to 
+      // check to see if # of  rows in itemgradingdata_t == labels.size() 
+      // otherwise if a student only answered one correct answer and 
+      // skipped the rest, it would count as a correct response
+
+      while (listiter.hasNext())
+      {
+        ItemGradingData item = (ItemGradingData)listiter.next();
+        if (resultsForOneStudent.size()!= labels.size()){
+          hasIncorrect = true;
+          break;
+        }
+      }
+      if (!hasIncorrect) {
+        correctresponses = correctresponses + 1;
+      }
+    }
+
+
+
+
+
     int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
       bars[i].setColumnHeight(new Integer(heights[i]).toString());
@@ -686,6 +728,9 @@ public class HistogramListener
     if (responses > 0)
       qbean.setPercentCorrect(new Integer((int)(((float) correctresponses/(float) responses) * 100)).toString());
   }
+
+
+
 
   public void doScoreStatistics(HistogramQuestionScoresBean qbean,
     ArrayList scores)
