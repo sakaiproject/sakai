@@ -62,7 +62,6 @@
         <h:panelGroup>
             <h:inputText
                 id="maxEnrollmentInput"
-                required="true"
                 value="#{editSectionBean.maxEnrollments}">
                 <f:validateLongRange minimum="0" />
             </h:inputText>

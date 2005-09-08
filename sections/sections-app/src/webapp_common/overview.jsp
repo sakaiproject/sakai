@@ -17,7 +17,7 @@
         var="section"
         sortColumn="#{overviewBean.sortColumn}"
         sortAscending="#{overviewBean.sortAscending}"
-        styleClass="listHier narrowTable">
+        rowClasses="#{overviewBean.rowClasses}">
 
         <h:column>
             <f:facet name="header">

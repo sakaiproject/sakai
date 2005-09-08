@@ -26,6 +26,7 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -63,7 +64,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	
 	private String sectionUuid;
 	private String sectionTitle;
-	private int sectionMax;
+	private Integer sectionMax;
 	
 	public void init() {
 		// Get the section to edit
@@ -78,13 +79,14 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		
 		// Get the current users
 		List enrollments = getSectionManager().getSectionEnrollments(currentSection.getUuid());
-		
+		Collections.sort(enrollments, EditManagersBean.sortNameComparator);
+
 		// Build the list of items for the right-side list box
 		selectedUsers = new ArrayList();
 		for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
 			ParticipationRecord enrollment = (ParticipationRecord)iter.next();
 			SelectItem item = new SelectItem(enrollment.getUser().getUserUuid(),
-					enrollment.getUser().getDisplayName());
+					enrollment.getUser().getSortName());
 			selectedUsers.add(item);
 		}
 
@@ -95,10 +97,12 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		} else {
 			available = getSectionManager().getSectionEnrollments(availableSectionUuid);
 		}
+		Collections.sort(available, EditManagersBean.sortNameComparator);
+
 		availableUsers = new ArrayList();
 		for(Iterator iter = available.iterator(); iter.hasNext();) {
 			User student = ((ParticipationRecord)iter.next()).getUser();
-			availableUsers.add(new SelectItem(student.getUserUuid(), student.getDisplayName()));
+			availableUsers.add(new SelectItem(student.getUserUuid(), student.getSortName()));
 		}
 		
 		// Build the list of available sections
@@ -201,11 +205,11 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		return sectionTitle;
 	}
 
-	public int getSectionMax() {
+	public Integer getSectionMax() {
 		return sectionMax;
 	}
 
-	public void setSectionMax(int sectionMax) {
+	public void setSectionMax(Integer sectionMax) {
 		this.sectionMax = sectionMax;
 	}
 }

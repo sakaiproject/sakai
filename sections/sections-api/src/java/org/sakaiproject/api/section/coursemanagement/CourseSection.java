@@ -27,7 +27,7 @@ public interface CourseSection extends LearningContext {
 	public Course getCourse();
     public String getLocation();
     public String getCategory();
-    public int getMaxEnrollments();
+    public Integer getMaxEnrollments();
     
 	public boolean isMonday();
 	public boolean isTuesday();

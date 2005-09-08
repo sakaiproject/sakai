@@ -58,6 +58,7 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	
 	private List sections;
 	private List sectionCategoryItems;
+	private String rowClasses;
 	
 	public StudentViewBean() {
 		sortColumn = "time";
@@ -131,6 +132,37 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			}
 			sections = filteredSections;
 		}
+		
+		// Add the row css classes
+		StringBuffer sb = new StringBuffer();
+		int index = 0;
+		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+			StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next();
+			if(iter.hasNext()) {
+				StudentSectionDecorator nextSection = (StudentSectionDecorator)sections.get(++index);
+				if(nextSection.getCategory().equals(decoratedSection.getCategory())) {
+					if(decoratedSection.isMember()) {
+						sb.append("member");
+					} else {
+						sb.append("nonmember");
+					}
+				} else {
+					if(decoratedSection.isMember()) {
+						sb.append("memberPadRow");
+					} else {
+						sb.append("nonmemberPadRow");
+					}
+				}
+				sb.append(",");
+			} else {
+				if(decoratedSection.isMember()) {
+					sb.append("member");
+				} else {
+					sb.append("nonmember");
+				}
+			}
+		}
+		rowClasses = sb.toString();
 	}
 
 	private boolean isEnrolledInSection(Set enrolledSections, CourseSection section) {
@@ -169,6 +201,11 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	public List getSections() {
 		return sections;
 	}
+	
+	public String getRowClasses() {
+		return rowClasses;
+	}
+	
 	public boolean isSortAscending() {
 		return sortAscending;
 	}

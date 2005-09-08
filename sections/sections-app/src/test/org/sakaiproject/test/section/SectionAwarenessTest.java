@@ -76,7 +76,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	Course course = secMgr.getCourse(siteContext);
     	
     	String firstCategory = (String)categories.get(0);
-    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
+    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, new Integer(10), null, null, false, null, false, false,  false, false,  false, false, false, false);
 
     	// Assert that the course exists at this context
     	Assert.assertTrue(secMgr.getCourse(siteContext).getUuid().equals(course.getUuid()));
@@ -106,7 +106,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	courseMgr.createCourse(siteContext, "A course", false, false, false);
     	Course course = secMgr.getCourse(siteContext);
     	String firstCategory = (String)categories.get(0);
-    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
+    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, new Integer(10), null, null, false, null, false, false,  false, false,  false, false, false, false);
     	
 		// Load students
 		User student1 = userMgr.createUser("student1", "Joe Student", "Student, Joe", "jstudent");

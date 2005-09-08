@@ -233,7 +233,7 @@ public interface SectionManager {
      * @return
      */
     public CourseSection addSection(String courseUuid, String title,
-    		String category, int maxEnrollments, String location, 
+    		String category, Integer maxEnrollments, String location, 
     		String startTime, boolean startTimeAm, String endTime, boolean endTimeAm,
     		boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
     		boolean friday, boolean saturday, boolean sunday);
@@ -258,7 +258,7 @@ public interface SectionManager {
      * @param saturday
      * @param sunday
      */
-    public void updateSection(String sectionUuid, String title, int maxEnrollments,
+    public void updateSection(String sectionUuid, String title, Integer maxEnrollments,
     		String location, String startTime, boolean startTimeAm, String endTime,
     		boolean endTimeAm, boolean monday, boolean tuesday, boolean wednesday,
     		boolean thursday, boolean friday, boolean saturday, boolean sunday);

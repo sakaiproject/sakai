@@ -27,6 +27,7 @@ package org.sakaiproject.tool.section.decorator;
 import java.io.Serializable;
 
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class InstructorSectionDecorator extends CourseSectionDecorator
 	implements Serializable, Comparable {
@@ -34,14 +35,22 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	private static final long serialVersionUID = 1L;
 
 	protected String instructorNames;
-	protected int spotsAvailable;
+	protected String spotsAvailable;
 	
 	public InstructorSectionDecorator(CourseSection courseSection, String categoryForDisplay,
 			String instructorNames, int totalEnrollments) {
 		super(courseSection, categoryForDisplay);
 		this.instructorNames = instructorNames;
-		int spots = courseSection.getMaxEnrollments() - totalEnrollments;
-		this.spotsAvailable = spots > 0 ? spots : 0;
+		if(courseSection.getMaxEnrollments() == null) {
+			spotsAvailable = JsfUtil.getLocalizedMessage("section_max_size_unlimited");
+		} else {
+			int spots = courseSection.getMaxEnrollments().intValue() - totalEnrollments;
+			if(spots < 0) {
+				spotsAvailable = "0";
+			} else {
+				spotsAvailable = Integer.toString(spots);
+			}
+		}
 	}
 	
 	public InstructorSectionDecorator() {
@@ -51,7 +60,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	public String getInstructorNames() {
 		return instructorNames;
 	}
-	public int getSpotsAvailable() {
+	public String getSpotsAvailable() {
 		return spotsAvailable;
 	}
 	

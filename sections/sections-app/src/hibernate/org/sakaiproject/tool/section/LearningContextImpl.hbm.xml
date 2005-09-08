@@ -30,7 +30,7 @@
             <many-to-one name="course" column="COURSE_ID" class="org.sakaiproject.tool.section.CourseImpl"/>
             <property name="location" column="LOCATION" type="string"/>
             <property name="category" column="CATEGORY" type="string"/>
-            <property name="maxEnrollments" column="MAX_ENROLLMENTS" type="int"/>
+            <property name="maxEnrollments" column="MAX_ENROLLMENTS" type="java.lang.Integer"/>
             <property name="monday" column="MONDAY" type="boolean"/>
             <property name="tuesday" column="TUESDAY" type="boolean"/>
             <property name="wednesday" column="WEDNESDAY" type="boolean"/>

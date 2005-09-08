@@ -173,7 +173,7 @@ public class CourseSectionDecorator {
 		return section.getLocation();
 	}
 
-	public int getMaxEnrollments() {
+	public Integer getMaxEnrollments() {
 		return section.getMaxEnrollments();
 	}
 

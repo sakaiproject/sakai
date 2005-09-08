@@ -89,10 +89,10 @@ public class SectionManagerTest extends SectionsTestBase{
     	String firstCategory = (String)categories.get(0);
     	String secondCategory = (String)categories.get(1);
     	String thirdCategory = (String)categories.get(2);
-    	CourseSection sec1 = secMgr.addSection(course.getUuid(), "A section", firstCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
-    	CourseSection sec2 = secMgr.addSection(course.getUuid(), "Another section", firstCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
-    	CourseSection sec3 = secMgr.addSection(course.getUuid(), "A different kind of section", secondCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
-    	CourseSection sec4 = secMgr.addSection(course.getUuid(), "Barely even a section", thirdCategory, 10, null, null, false, null, false, false,  false, false,  false, false, false, false);
+    	CourseSection sec1 = secMgr.addSection(course.getUuid(), "A section", firstCategory, new Integer(10), null, null, false, null, false, false,  false, false,  false, false, false, false);
+    	CourseSection sec2 = secMgr.addSection(course.getUuid(), "Another section", firstCategory, new Integer(10), null, null, false, null, false, false,  false, false,  false, false, false, false);
+    	CourseSection sec3 = secMgr.addSection(course.getUuid(), "A different kind of section", secondCategory, new Integer(10), null, null, false, null, false, false,  false, false,  false, false, false, false);
+    	CourseSection sec4 = secMgr.addSection(course.getUuid(), "Barely even a section", thirdCategory, new Integer(10), null, null, false, null, false, false,  false, false,  false, false, false, false);
     	
 		// Load students
 		User student1 = userMgr.createUser("student1", "Joe Student", "Student, Joe", "jstudent");
@@ -204,7 +204,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		Assert.assertTrue(secMgr.getTotalEnrollments(sec1.getUuid()) == 2);
 		
 		// Ensure that a section can be updated
-		secMgr.updateSection(sec1.getUuid(), "New title", 10, null, null, false, null, false, false, false, false, false, false, false, false);
+		secMgr.updateSection(sec1.getUuid(), "New title", new Integer(10), null, null, false, null, false, false, false, false, false, false, false, false);
 		CourseSection updatedSec = secMgr.getSection(sec1.getUuid());
 		Assert.assertTrue(updatedSec.getTitle().equals("New title"));
 		sec1 = updatedSec;

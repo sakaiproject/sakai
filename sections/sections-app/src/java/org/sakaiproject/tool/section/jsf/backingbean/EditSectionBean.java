@@ -68,7 +68,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			title = section.getTitle();
 			category = section.getCategory();
 			location = section.getLocation();
-			maxEnrollments = new Integer(section.getMaxEnrollments());
+			maxEnrollments = section.getMaxEnrollments();
 			monday = section.isMonday();
 			tuesday = section.isTuesday();
 			wednesday = section.isWednesday();
@@ -91,7 +91,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 					"section_update_failure_duplicate_title", new String[] {title}), "editSectionForm:titleInput");
 			return "failure";
 		}
-		getSectionManager().updateSection(sectionUuid, title, maxEnrollments.intValue(),
+		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
 				location, startTime, startTimeAm, endTime, endTimeAm, monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
 		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(

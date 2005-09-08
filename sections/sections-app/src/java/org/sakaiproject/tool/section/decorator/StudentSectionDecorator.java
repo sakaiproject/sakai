@@ -43,7 +43,7 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 			boolean memberOtherSection) {
 		super(courseSection, categoryForDisplay, instructorNames, totalEnrollments);
 		this.member = member;
-		if( ! this.member && this.spotsAvailable == 0) {
+		if( ! this.member && this.spotsAvailable.equals("0")) {
 			this.full = true;
 		}
 		if( ! this.member && ! this.full) {
@@ -59,7 +59,7 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 	public String getInstructorNames() {
 		return instructorNames;
 	}
-	public int getSpotsAvailable() {
+	public String getSpotsAvailable() {
 		return spotsAvailable;
 	}
 	

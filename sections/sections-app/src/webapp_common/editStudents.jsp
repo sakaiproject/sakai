@@ -26,8 +26,10 @@
         <%@include file="/inc/transferButtons.jspf"%>
     	
         <h:panelGroup>
-            <h:outputFormat value="#{editStudentsBean.sectionTitle}"/>
-            <x:div id="max">
+            <x:div>
+                <h:outputFormat value="#{editStudentsBean.sectionTitle}"/>
+            </x:div>
+            <x:div id="max" rendered="#{editStudentsBean.sectionMax != null}">
                 <h:outputFormat value="#{msgs.edit_student_selected_title}">
                     <f:param value="#{editStudentsBean.sectionMax}"/>
                 </h:outputFormat>

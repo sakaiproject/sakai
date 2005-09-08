@@ -13,7 +13,7 @@
         var="section"
         sortColumn="#{studentViewBean.sortColumn}"
         sortAscending="#{studentViewBean.sortAscending}"
-        styleClass="listHier narrowTable">
+        rowClasses="#{studentViewBean.rowClasses}">
 
         <h:column>
             <f:facet name="header">

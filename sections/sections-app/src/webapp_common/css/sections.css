@@ -1,0 +1,28 @@
+/* Section Manager specific CSS definitions. */
+
+tr.member td {font-weight:bold;}
+tr.memberPadRow td {font-weight:bold; padding-bottom:1em !important;}
+tr.nonmember td {font-weight:normal;}
+tr.nonmemberPadRow td {font-weight:normal; padding-bottom:1em !important;}
+
+tr.sectionPadRow td {padding-bottom:1em !important;}
+
+/* Most but not all tables are shown 100% width in the spec. */
+table.wideTable {
+	width:100%;
+}
+
+table.narrowTable {
+	width:auto;
+}
+/*
+	It would be better to use margin-right in a div or to apply this to specific
+	columns, but JSF can't manage either of those.
+*/
+table.narrowTable tr th {
+	padding-right:5em;
+}
+
+.allowWrap {
+	white-space:normal;
+}

@@ -519,7 +519,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	}
 
     public CourseSection addSection(final String courseUuid, final String title,
-    		final String category, final int maxEnrollments,
+    		final String category, final Integer maxEnrollments,
     		final String location, final String startTime, final boolean startTimeAm,
     		final String endTime, final boolean endTimeAm, final boolean monday,
     		final boolean tuesday, final boolean wednesday, final boolean thursday,
@@ -544,7 +544,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     }
 
     public void updateSection(final String sectionUuid, final String title,
-    		final int maxEnrollments, final String location, final String startTime,
+    		final Integer maxEnrollments, final String location, final String startTime,
     		final boolean startTimeAm, final String endTime, final boolean endTimeAm,
     		final boolean monday, final boolean tuesday, final boolean wednesday,
     		final boolean thursday, final boolean friday, final boolean saturday,

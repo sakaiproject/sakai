@@ -26,6 +26,8 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -59,7 +61,18 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	private String courseTitle;
 	
 	private boolean externallyManaged;
-	
+
+	/**
+	 * Compares ParticipationRecords by users' sortNames.
+	 */
+	static Comparator sortNameComparator = new Comparator() {
+		public int compare(Object o1, Object o2) {
+			ParticipationRecord manager1 = (ParticipationRecord)o1;
+			ParticipationRecord manager2 = (ParticipationRecord)o2;
+			return manager1.getUser().getSortName().compareTo(manager2.getUser().getSortName());
+		}
+	};
+
 	public void init() {
 		// Determine whether this course is externally managed
 		externallyManaged = getCourse().isExternallyManaged();
@@ -76,13 +89,14 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		
 		// Get the current users in the manager role for this section
 		List selectedManagers = getSectionManager().getSectionTeachingAssistants(currentSection.getUuid());
+		Collections.sort(selectedManagers, sortNameComparator);
 		
 		// Build the list of items for the right-side list box
 		selectedUsers = new ArrayList();
 		for(Iterator iter = selectedManagers.iterator(); iter.hasNext();) {
 			ParticipationRecord manager = (ParticipationRecord)iter.next();
 			SelectItem item = new SelectItem(manager.getUser().getUserUuid(),
-					manager.getUser().getDisplayName());
+					manager.getUser().getSortName());
 			selectedUsers.add(item);
 		}
 
@@ -98,12 +112,13 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		}
 
 		List availableManagers = getSectionManager().getSiteTeachingAssistants(getSiteContext());
-
+		Collections.sort(availableManagers, sortNameComparator);
+		
 		availableUsers = new ArrayList();
 		for(Iterator iter = availableManagers.iterator(); iter.hasNext();) {
 			User manager = ((ParticipationRecord)iter.next()).getUser();
 			if( ! selectedUserUuids.contains(manager.getUserUuid())) {
-				availableUsers.add(new SelectItem(manager.getUserUuid(), manager.getDisplayName()));
+				availableUsers.add(new SelectItem(manager.getUserUuid(), manager.getSortName()));
 			}
 		}
 	}

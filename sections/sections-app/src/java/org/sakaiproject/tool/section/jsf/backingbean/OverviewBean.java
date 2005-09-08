@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
+import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 
 public class OverviewBean extends CourseDependentBean implements Serializable {
 
@@ -46,6 +47,7 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	private String sortColumn;
 	private boolean sortAscending;
 	private boolean externallyManaged;
+	private String rowClasses;
 	
 	private List sections;
 	private List categoryIds;
@@ -99,6 +101,25 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		
 		// Sort the collection set
 		Collections.sort(sections, getComparator());
+		
+		// Add the row css classes
+		StringBuffer sb = new StringBuffer();
+		int index = 0;
+		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+			InstructorSectionDecorator decoratedSection = (InstructorSectionDecorator)iter.next();
+			if(iter.hasNext()) {
+				InstructorSectionDecorator nextSection = (InstructorSectionDecorator)sections.get(++index);
+				if(nextSection.getCategory().equals(decoratedSection.getCategory())) {
+					sb.append("section");
+				} else {
+					sb.append("sectionPadRow");
+				}
+				sb.append(",");
+			} else {
+				sb.append("section");
+			}
+		}
+		rowClasses = sb.toString();
 	}
 	
 	private Comparator getComparator() {
@@ -195,6 +216,9 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	}
 	public boolean isExternallyManaged() {
 		return externallyManaged;
+	}
+	public String getRowClasses() {
+		return rowClasses;
 	}
 }
 

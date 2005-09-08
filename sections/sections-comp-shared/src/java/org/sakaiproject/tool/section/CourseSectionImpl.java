@@ -35,7 +35,7 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	protected Course course;
 	protected String category;
     protected String location;
-    protected int maxEnrollments;
+    protected Integer maxEnrollments;
     
     // FIXME Replace this with a scheduling service
 	private boolean monday;
@@ -56,7 +56,7 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 
 
     public CourseSectionImpl(Course course, String title, String uuid, String category,
-    		int maxEnrollments, String location, String startTime, boolean startTimeAm,
+    		Integer maxEnrollments, String location, String startTime, boolean startTimeAm,
     		String endTime, boolean endTimeAm, boolean monday, boolean tuesday,
     		boolean wednesday, boolean thursday, boolean friday, boolean saturday,
     		boolean sunday) {
@@ -115,10 +115,10 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	public int getMaxEnrollments() {
+	public Integer getMaxEnrollments() {
 		return maxEnrollments;
 	}
-	public void setMaxEnrollments(int maxEnrollments) {
+	public void setMaxEnrollments(Integer maxEnrollments) {
 		this.maxEnrollments = maxEnrollments;
 	}
 	public boolean isMonday() {
