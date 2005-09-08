@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<xsl:output method="html"/>
+<xsl:output method="xml"/>
 
     <xsl:template match="document">
     <html>
@@ -17,8 +17,25 @@
       </body>
     </xsl:template>
     
+        
     <xsl:template match="a">
       <xsl:copy-of select="." />
+    </xsl:template>
+    
+    <xsl:template match="a">
+      <xsl:if test="@name">     
+        <xsl:element name="a">
+          <xsl:attribute name="name">
+            <xsl:value-of select="@name"/>
+          </xsl:attribute>
+          <!--  force end tag -->
+          <xsl:text> </xsl:text>          
+        </xsl:element>        
+        
+      </xsl:if>
+      <xsl:if test="not(@name)">
+        <xsl:copy-of select="." />
+      </xsl:if>
     </xsl:template>
     
     <xsl:template match="hr">
