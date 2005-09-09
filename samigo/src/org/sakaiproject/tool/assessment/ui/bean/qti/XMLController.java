@@ -50,6 +50,9 @@ public class XMLController implements Serializable
 {
   private static Log log = LogFactory.getLog(XMLController.class);
 
+  private static final String XML_DECL =
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + "\n";
+
   private XMLDisplay xmlBean;
   private String documentType;
   private String id;
@@ -127,8 +130,7 @@ public class XMLController implements Serializable
     }
     catch (Exception ex)
     {
-      xmlBean.setXml("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + "\n" +
-                     "<error-report>" + "\n" +
+      setUpXmlNoDecl("<error-report>" + "\n" +
                      ex.toString() + "\n" +
                      "</error-report>" + "\n");
       xmlBean.setDescription(ex.toString());
@@ -177,7 +179,7 @@ public class XMLController implements Serializable
       xmlBean.setDescription(
         "Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
       xmlBean.setName("assessment " + id);
-      xmlBean.setXml(XmlUtil.getDOMString(doc));
+      setUpXmlNoDecl(XmlUtil.getDOMString(doc));
     }
     else // return  xml template, for testing
     {
@@ -189,8 +191,55 @@ public class XMLController implements Serializable
         ax.getTemplateAsString(
         ax.getTemplateInputStream(ax.ASSESSMENT,
                                   FacesContext.getCurrentInstance()));
-      xmlBean.setXml(xml);
+      setUpXmlNoDecl(xml);
     }
+  }
+
+
+  /**
+   * A utility method to set xml string in xml bean.
+   * @param xml the XML string
+   */
+  private void setUpXmlNoDecl(String xml)
+  {
+    setUpXml(xml, false);
+  }
+
+  /**
+   * Logic for set xml string in xml bean with or without xml declaration.
+   * @param xml the XML string
+   * @param includeXmlDecl include "<?xml version... ? true or false?
+   */
+  private void setUpXml(String xml, boolean includeXmlDecl)
+  {
+    boolean hasXmlDecl = false;
+    String startDecl = "<?xml version";
+    String endDecl = "?>";
+    int endDeclLength = endDecl.length();
+
+    if (xml.startsWith(startDecl))
+    {
+      hasXmlDecl = true;
+    }
+
+    // if we want a decl add it if it doesn't have one
+    // if we don't want decl remove it if it is there
+    if (includeXmlDecl)
+    {
+      if (!hasXmlDecl)
+      {
+        xml = XML_DECL + xml;
+      }
+    }
+    else
+    {
+      if (hasXmlDecl)
+      {
+        int declEndIndex = xml.indexOf(endDecl);
+        xml = xml.substring(declEndIndex + endDeclLength);
+      }
+    }
+    xmlBean.setXml(xml);
   }
 
   /**
@@ -206,7 +255,7 @@ public class XMLController implements Serializable
       xmlBean.setName(documentType); // get from document later
       InputStream is = ax.getTemplateInputStream(ax.SECTION,
                                                  FacesContext.getCurrentInstance());
-      xmlBean.setXml(ax.getTemplateAsString(is));
+      setUpXmlNoDecl(ax.getTemplateAsString(is));
     }
     else
     {
@@ -214,7 +263,7 @@ public class XMLController implements Serializable
       xmlBean.setName(documentType); // get from document later
       InputStream is = ax.getTemplateInputStream(ax.SECTION,
                                                  FacesContext.getCurrentInstance());
-      xmlBean.setXml(ax.getTemplateAsString(is));
+      setUpXmlNoDecl(ax.getTemplateAsString(is));
     }
   }
 
@@ -231,7 +280,7 @@ public class XMLController implements Serializable
       xmlBean.setDescription(
         "Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
       xmlBean.setName("item " + id); // get from document later
-      xmlBean.setXml(XmlUtil.getDOMString(doc));
+      setUpXmlNoDecl(XmlUtil.getDOMString(doc));
     }
     else // for testing
     {
@@ -241,7 +290,7 @@ public class XMLController implements Serializable
       xmlBean.setName(documentType); // get from document later
       InputStream is = ax.getTemplateInputStream(documentType,
                                                  FacesContext.getCurrentInstance());
-      xmlBean.setXml(ax.getTemplateAsString(is));
+      setUpXmlNoDecl(ax.getTemplateAsString(is));
     }
   }
 
@@ -265,7 +314,7 @@ public class XMLController implements Serializable
       xmlBean.setDescription(
         "Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
       xmlBean.setName("object bank for items " + id); // get from document later
-      xmlBean.setXml(XmlUtil.getDOMString(doc));
+      setUpXmlNoDecl(XmlUtil.getDOMString(doc));
     }
     else
     {
@@ -279,7 +328,7 @@ public class XMLController implements Serializable
     xmlBean.setName(documentType); // get from document later
     InputStream is = getAuthoringXml().getTemplateInputStream(documentType,
       FacesContext.getCurrentInstance());
-    xmlBean.setXml(getAuthoringXml().getTemplateAsString(is));
+    setUpXmlNoDecl(getAuthoringXml().getTemplateAsString(is));
   }
 
 //  /**
