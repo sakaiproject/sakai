@@ -59,9 +59,9 @@ public class DataLoadTest extends SectionsTestBase {
 
 	public void testLoadData() {
 		// Load courses
-		Course course1 = courseManager.createCourse("site1", "A Course for Site #1", false, false, false);
+		Course course1 = courseManager.createCourse("site1", "A Course for Site #1", false, false, true);
 		Course course2 = courseManager.createCourse("site2", "A Course for Site #2", false, false, false);
-		Course course3 = courseManager.createCourse("site3", "A Course for Site #3", false, false, true);
+		Course course3 = courseManager.createCourse("site3", "A Course for Site #3", false, false, false);
 
 		// Load sections
     	CourseSection lab1 = sectionManager.addSection(course1.getUuid(), "Lab 1", "section.category.lab", new Integer(20), "Dank basement lab", "9:00", true, "12:00", false, true, false, true,  false, false, false, false);

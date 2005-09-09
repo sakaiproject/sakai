@@ -39,15 +39,16 @@
                 <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{overviewBean.instructorFeaturesEnabled}">
-                <h:commandLink action="editManagers" value="#{msgs.overview_link_managers}">
+            <h:commandLink
+                action="editManagers"
+                value="#{msgs.overview_link_managers}"
+                rendered="#{overviewBean.instructorFeaturesEnabled}">
                     <f:param name="sectionUuid" value="#{section.uuid}"/>
-                </h:commandLink>
-
-                <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
-            </h:panelGroup>
+            </h:commandLink>
             
             <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
+                <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
+
                 <h:commandLink action="editStudents" value="#{msgs.overview_link_students}">
                     <f:param name="sectionUuid" value="#{section.uuid}"/>
                 </h:commandLink>

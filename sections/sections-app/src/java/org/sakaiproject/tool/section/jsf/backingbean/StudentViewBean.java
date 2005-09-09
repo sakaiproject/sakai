@@ -57,7 +57,6 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	private boolean switchAllowed;
 	
 	private List sections;
-	private List sectionCategoryItems;
 	private String rowClasses;
 	
 	public StudentViewBean() {
@@ -109,31 +108,29 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		// TODO Sort the collection set properly
 		Collections.sort(sections);
 		
-		// Generate the list of select items for the category filter
-		List categoryIds = getSectionCategories();
-		sectionCategoryItems = new ArrayList();
-		sectionCategoryItems.add(new SelectItem("", "All Sections"));
-		for(Iterator iter = categoryIds.iterator(); iter.hasNext();) {
-			String id = (String)iter.next();
-			String label = getCategoryName(id);
-			sectionCategoryItems.add(new SelectItem(id, label));
-		}
-		
 		// Remove the sections that don't match the filter.  Since the display logic
 		// requires that we have all of the sections in memory to decide on the switch,
 		// join, and member flags, we can't filter until now.
-		if(sectionFilter != null &&  ! "".equals(sectionFilter)) {
+		filterSections();
+		
+		// Add the row css classes
+		buildRowClasses();
+	}
+
+	private void filterSections() {
+		if("MY".equals(sectionFilter)) {
 			List filteredSections = new ArrayList();
 			for(Iterator iter = sections.iterator(); iter.hasNext();) {
 				StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next();
-				if(decoratedSection.getCategory().equals(sectionFilter)) {
+				if(decoratedSection.isMember()) {
 					filteredSections.add(decoratedSection);
 				}
 			}
 			sections = filteredSections;
 		}
-		
-		// Add the row css classes
+	}
+
+	private void buildRowClasses() {
 		StringBuffer sb = new StringBuffer();
 		int index = 0;
 		for(Iterator iter = sections.iterator(); iter.hasNext();) {
@@ -223,9 +220,6 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	}
 	public void setSectionFilter(String sectionFilter) {
 		this.sectionFilter = sectionFilter;
-	}
-	public List getSectionCategoryItems() {
-		return sectionCategoryItems;
 	}
 
 	public boolean isExternallyManaged() {

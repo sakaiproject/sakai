@@ -10,17 +10,16 @@
     <h:panelGrid columns="3">
     
         <h:panelGroup>
-            <h:selectOneMenu value="#{editStudentsBean.availableSectionUuid}" valueChangeListener="#{editStudentsBean.processChangeSection}" onchange="this.form.submit()">
-                <f:selectItems value="#{editStudentsBean.availableSectionItems}"/>
-            </h:selectOneMenu>
-            
-            <f:verbatim>
-                <br/>
-            </f:verbatim>
-            
-        	<h:selectManyListbox id="availableUsers" size="20" style="width:200px;">
-        		<f:selectItems value="#{editStudentsBean.availableUsers}"/>
-        	</h:selectManyListbox>
+            <x:div>
+                <h:selectOneMenu value="#{editStudentsBean.availableSectionUuid}" valueChangeListener="#{editStudentsBean.processChangeSection}" onchange="this.form.submit()">
+                    <f:selectItems value="#{editStudentsBean.availableSectionItems}"/>
+                </h:selectOneMenu>
+            </x:div>
+            <x:div>
+            	<h:selectManyListbox id="availableUsers" size="20" style="width:200px;">
+            		<f:selectItems value="#{editStudentsBean.availableUsers}"/>
+            	</h:selectManyListbox>
+            </x:div>
         </h:panelGroup>
     
         <%@include file="/inc/transferButtons.jspf"%>

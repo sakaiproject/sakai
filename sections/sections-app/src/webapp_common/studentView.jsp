@@ -4,7 +4,8 @@
     <sakai:flowState bean="#{studentViewBean}"/>
     
     <h:selectOneMenu value="#{studentViewBean.sectionFilter}" onchange="this.form.submit()">
-        <f:selectItems value="#{studentViewBean.sectionCategoryItems}"/>
+        <f:selectItem itemLabel="#{msgs.student_view_all}" itemValue="ALL"/>
+        <f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
     </h:selectOneMenu>
     
     <x:dataTable cellpadding="0" cellspacing="0"
