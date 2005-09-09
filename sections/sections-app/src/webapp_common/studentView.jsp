@@ -84,22 +84,22 @@
                 </x:commandSortHeader>
             </f:facet>
             <h:commandLink
-                value="Join"
+                value="#{msgs.student_view_join}"
                 actionListener="#{studentViewBean.processJoinSection}"
                 rendered="#{section.joinable && studentViewBean.joinAllowed}">
                 <f:param name="sectionUuid" value="#{section.uuid}"/>
             </h:commandLink>
             <h:commandLink
-                value="Switch"
+                value="#{msgs.student_view_switch}"
                 actionListener="#{studentViewBean.processSwitchSection}"
                 rendered="#{section.switchable && studentViewBean.switchAllowed}">
                 <f:param name="sectionUuid" value="#{section.uuid}"/>
             </h:commandLink>
             <h:outputText
-                value="Full"
+                value="#{msgs.student_view_full}"
                 rendered="#{section.full}"/>
             <h:outputText
-                value="Member"
+                value="#{msgs.student_view_member}"
                 rendered="#{section.member}"/>
         </h:column>
 

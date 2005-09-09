@@ -27,6 +27,7 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +42,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 
 public class StudentViewBean extends CourseDependentBean implements Serializable {
@@ -59,6 +61,9 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	private List sections;
 	private String rowClasses;
 	
+	private List categoryIds;
+	private List categoryNames; // Must be ordered exactly like the category ids
+
 	public StudentViewBean() {
 		sortColumn = "time";
 		sortAscending = true;
@@ -78,6 +83,16 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		List sectionSet = getAllSiteSections();
 		sections = new ArrayList();
 		
+		// Get the category ids
+		categoryIds = getSectionCategories();
+		
+		// Get category names, ordered just like the category ids
+		categoryNames = new ArrayList();
+		for(Iterator iter = categoryIds.iterator(); iter.hasNext();) {
+			String catId = (String)iter.next();
+			categoryNames.add(getCategoryName(catId));
+		}
+
 		// Get the section enrollments for this student
 		Set enrolledSections = getMyEnrolledSections();
 
@@ -105,8 +120,7 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			sections.add(decoratedSection);
 		}
 		
-		// TODO Sort the collection set properly
-		Collections.sort(sections);
+		Collections.sort(sections, getComparator());
 		
 		// Remove the sections that don't match the filter.  Since the display logic
 		// requires that we have all of the sections in memory to decide on the switch,
@@ -181,6 +195,46 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			}
 		}
 		return false;
+	}
+
+	private Comparator getComparator() {
+		// TODO Clean up comparators (using BeanUtils?) and add remaining comparators
+		
+		if(sortColumn.equals("title")) {
+			return InstructorSectionDecorator.getTitleComparator(sortAscending, categoryNames, categoryIds);
+		}
+
+		// These are already sorted by category, so just sort by title
+		if(sortColumn.equals("category")) {
+			return InstructorSectionDecorator.getTitleComparator(sortAscending, categoryNames, categoryIds);
+		}
+
+		if(sortColumn.equals("time")) {
+			return InstructorSectionDecorator.getTimeComparator(sortAscending, categoryNames, categoryIds); 
+		}
+
+		if(sortColumn.equals("location")) {
+			return InstructorSectionDecorator.getLocationComparator(sortAscending, categoryNames, categoryIds); 
+		}
+
+		if(sortColumn.equals("max")) {
+			return InstructorSectionDecorator.getMaxEnrollmentsComparator(sortAscending, categoryNames, categoryIds); 
+		}
+
+		if(sortColumn.equals("available")) {
+			return InstructorSectionDecorator.getAvailableEnrollmentsComparator(sortAscending, categoryNames, categoryIds); 
+		}
+
+		if(sortColumn.equals("change")) {
+			return StudentSectionDecorator.getChangeComparator(sortAscending, categoryNames, categoryIds, joinAllowed, switchAllowed);
+		}
+
+		if(log.isInfoEnabled()) log.info("The sort column is not set properly (sortColumn= " + sortColumn + ")");
+		return new Comparator() {
+			public int compare(Object o1, Object o2) {
+				return 0;
+			}
+		};
 	}
 
 	public void processJoinSection(ActionEvent event) {

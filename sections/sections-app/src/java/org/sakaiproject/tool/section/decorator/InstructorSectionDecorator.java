@@ -250,7 +250,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	private static final int categoryNameComparison(InstructorSectionDecorator section1,
+	protected static final int categoryNameComparison(InstructorSectionDecorator section1,
 			InstructorSectionDecorator section2, List categoryNames, List categoryIds) {
 		String section1Name = (String)categoryNames.get(categoryIds.indexOf(section1.getCategory()));
 		String section2Name = (String)categoryNames.get(categoryIds.indexOf(section2.getCategory()));
