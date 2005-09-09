@@ -3,6 +3,11 @@
 
     <sakai:flowState bean="#{studentViewBean}"/>
     
+    <x:div>
+        <h:outputText value="#{msgs.student_view_change_sections_message_external}"
+            rendered="#{studentViewBean.externallyManaged}"/>
+    </x:div>
+    
     <h:selectOneMenu value="#{studentViewBean.sectionFilter}" onchange="this.form.submit()">
         <f:selectItem itemLabel="#{msgs.student_view_all}" itemValue="ALL"/>
         <f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>

@@ -126,62 +126,23 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		// TODO Clean up comparators (using BeanUtils?) and add remaining comparators
 		
 		if(sortColumn.equals("title")) {
-			return 	new Comparator() {
-				public int compare(Object o1, Object o2) {
-					if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
-						InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
-						InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
-
-						// First compare the category name, then compare the title
-						int categoryNameComparison = categoryNameComparison(section1, section2);
-						if(categoryNameComparison == 0) {
-							// These are in the same category, so compare by title
-							int titleComparison = section1.getTitle().compareTo(section2.getTitle());
-							return sortAscending ? titleComparison : (-1 * titleComparison);
-						}
-						// These are in different categories, so sort them by category name
-						return categoryNameComparison;
-					}
-					if(log.isDebugEnabled()) log.debug("One of these is not an InstructorSectionDecorator: "
-							+ o1 + "," + o2);
-					return 0;
-				}
-			};
+			return InstructorSectionDecorator.getTitleComparator(sortAscending, categoryNames, categoryIds);
 		}
 		
 		if(sortColumn.equals("time")) {
-			return new Comparator() {
-				public int compare(Object o1, Object o2) {
-					if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
-						InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
-						InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
+			return InstructorSectionDecorator.getTimeComparator(sortAscending, categoryNames, categoryIds); 
+		}
 
-						// First compare the category name, then compare the time
-						int categoryNameComparison = categoryNameComparison(section1, section2);
-						if(categoryNameComparison == 0) {
-							// These are in the same category, so compare by time
-							String meetingTimes1 = section1.getMeetingTimes();
-							String meetingTimes2 = section2.getMeetingTimes();
-							if(meetingTimes1 == null && meetingTimes2 != null) {
-								return -1;
-							}
-							if(meetingTimes2 == null && meetingTimes1 != null) {
-								return 1;
-							}
-							if(meetingTimes1 == null && meetingTimes2 == null) {
-								return 0;
-							}
-							int timeComparison = meetingTimes1.compareTo(meetingTimes2);
-							return sortAscending ? timeComparison : (-1 * timeComparison);
-						}
-						// These are in different categories, so sort them by category name
-						return categoryNameComparison;
-					}
-					if(log.isDebugEnabled()) log.debug("One of these is not an InstructorSectionDecorator: "
-							+ o1 + "," + o2);
-					return 0;
-				}
-			};
+		if(sortColumn.equals("location")) {
+			return InstructorSectionDecorator.getLocationComparator(sortAscending, categoryNames, categoryIds); 
+		}
+
+		if(sortColumn.equals("max")) {
+			return InstructorSectionDecorator.getMaxEnrollmentsComparator(sortAscending, categoryNames, categoryIds); 
+		}
+
+		if(sortColumn.equals("available")) {
+			return InstructorSectionDecorator.getAvailableEnrollmentsComparator(sortAscending, categoryNames, categoryIds); 
 		}
 
 		if(log.isInfoEnabled()) log.info("The sort column is not set properly (sortColumn= " + sortColumn + ")");
@@ -192,13 +153,6 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		};
 	}
 	
-
-	private int categoryNameComparison(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
-		String section1Name = (String)categoryNames.get(categoryIds.indexOf(section1.getCategory()));
-		String section2Name = (String)categoryNames.get(categoryIds.indexOf(section2.getCategory()));
-		return section1Name.compareTo(section2Name);
-	}
-
 	public List getSections() {
 		return sections;
 	}
