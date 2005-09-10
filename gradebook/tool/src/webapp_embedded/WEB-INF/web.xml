@@ -11,7 +11,11 @@
 	<context-param>
 		<param-name>contextSharedLocation</param-name>
 		<param-value>
-			/WEB-INF/components.xml
+			/WEB-INF/spring-beans.xml
+			/WEB-INF/spring-db.xml
+			/WEB-INF/spring-facades.xml
+			/WEB-INF/spring-hib.xml
+			/WEB-INF/spring-service.xml
 		</param-value>
 	</context-param>
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!--
+		This Spring configuration file sets up the shared business logic of the application.
+
+	-->
+
+	<!-- Gradebook Manager -->
+	<bean id="org_sakaiproject_tool_gradebook_business_GradebookManager" parent="gradebookTxTemplate">
+		<property name="target">
+			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradebookManagerHibernateImpl">
+				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+				<property name="courseManagement">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
+				</property>
+				<property name="authn">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+				</property>
+				<property name="gradeManager">
+					<ref bean="org_sakaiproject_tool_gradebook_business_GradeManager" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Grade Manager -->
+	<bean id="org_sakaiproject_tool_gradebook_business_GradeManager" parent="gradebookTxTemplate">
+		<property name="target">
+			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradeManagerHibernateImpl">
+				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+				<property name="courseManagement">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
+				</property>
+				<property name="authn">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+</beans>

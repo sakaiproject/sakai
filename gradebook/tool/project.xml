@@ -160,7 +160,7 @@
 			<version>1.1.5</version>
 		</dependency>
 
-		<dependency>
+ 		<dependency>
 			<groupId>aopalliance</groupId>
 			<artifactId>aopalliance</artifactId>
 			<version>1.0</version>
@@ -365,8 +365,12 @@
 		<unitTest>
 			<includes>
 				<include>**/*Test.java</include>
-
-
+<!--
+	With this setup, there's no way to restrict ourselves to a single
+	test on the command line. Instead, this file must be edited. For example,
+	the above line might be replaced with something like:
+				<include>**/GradableObjectManagerTest.java</include>
+-->
 <!--
 	Include the following if you want to run the jcoverage goal.  Otherwise,
 	all of the database testing will be missed by the coverage tool.  The
@@ -380,27 +384,24 @@
 			</includes>
 			<resources>
 				<resource>
-
-					<directory>${basedir}/src/hibernate</directory>
+					<directory>${basedir}/src/webapp_common/WEB-INF/</directory>
 					<includes>
-						<include>ehcache.xml</include>
-						<include>**/*.hbm.xml</include>
+						<include>spring-beans.xml</include>
 					</includes>
 				</resource>
 				<resource>
 					<directory>${basedir}/src/webapp_standalone/WEB-INF/</directory>
 					<includes>
-						<include>spring-beans.xml</include>
 						<include>spring-db.xml</include>
+						<include>spring-facades.xml</include>
+						<include>spring-service.xml</include>
 					</includes>
 				</resource>
 				<resource>
 					<directory>${basedir}/src/test/</directory>
 					<includes>
-						<include>spring-db-mem.xml</include>
-						<include>spring-hib.xml</include>
+						<include>spring-hib-test.xml</include>
 						<include>spring-beans-test.xml</include>
-						<include>spring-archive.xml</include>
 					</includes>
 				</resource>
 				<!--

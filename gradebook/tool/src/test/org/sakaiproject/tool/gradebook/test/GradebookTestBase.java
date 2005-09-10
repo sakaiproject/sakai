@@ -67,7 +67,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
-        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-beans-test.xml", "spring-hib.xml"};
+        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-facades.xml", "spring-service.xml", "spring-beans-test.xml", "spring-hib-test.xml"};
         return configLocations;
     }
 }

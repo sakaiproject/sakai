@@ -3,56 +3,9 @@
 
 <beans>
 
-	<!-- Gradebook Service -->
-
-	<bean id="org_sakaiproject_service_gradebook_GradebookService"
-		class="org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl">
-		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
-		<property name="gradebookManager">
-			<ref bean="org_sakaiproject_tool_gradebook_business_GradebookManager" />
-		</property>
-		<property name="gradeManager">
-			<ref bean="org_sakaiproject_tool_gradebook_business_GradeManager" />
-		</property>
-		<property name="courseManagement">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
-		</property>
-		<property name="authn">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
-		</property>
-		<property name="authz">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
-		</property>
-	</bean>
-
-	<!-- Gradebook Manager -->
-
-	<bean id="org_sakaiproject_tool_gradebook_business_GradebookManager"
-		class="org.sakaiproject.tool.gradebook.business.impl.GradebookManagerHibernateImpl">
-		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
-		<property name="courseManagement">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
-		</property>
-		<property name="authn">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
-		</property>
-		<property name="gradeManager">
-			<ref bean="org_sakaiproject_tool_gradebook_business_GradeManager" />
-		</property>
-	</bean>
-
-	<!-- Grade Manager -->
-
-	<bean id="org_sakaiproject_tool_gradebook_business_GradeManager"
-		class="org.sakaiproject.tool.gradebook.business.impl.GradeManagerHibernateImpl">
-		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
-		<property name="courseManagement">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
-		</property>
-		<property name="authn">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
-		</property>
-	</bean>
+	<!--
+		This Spring configuration file specifies a standalone implementation of the facades.
+	-->
 
 	<!-- External Course Management Service -->
 

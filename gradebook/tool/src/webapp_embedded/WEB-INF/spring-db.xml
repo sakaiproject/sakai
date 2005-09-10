@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!--
+		This Spring configuration file sets up implementation-specific Hibernate database
+		properties.
+	-->
+
+	<bean id="gradebookSessionFactory" parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+
+		<property name="mappingLocations">
+		    <value>classpath*:org/sakaiproject/tool/gradebook/*.hbm.xml</value>
+		</property>
+
+<!-- This doesn't work; we get a FileNotFoundException:
+		<property name="mappingJarLocations">
+			<list>
+				<value>WEB-INF/lib/sakai-gradebook-component-data-2.0.0.jar</value>
+			</list>
+		</property>
+-->
+<!-- This works:
+		<property name="mappingLocations">
+		    <value>classpath*:org/sakaiproject/tool/gradebook/*.hbm.xml</value>
+		</property>
+-->
+<!-- This works:
+		<property name="mappingResources">
+		    <list>
+				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradableObject.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
+			</list>
+		</property>
+-->
+	</bean>
+
+</beans>
