@@ -138,7 +138,9 @@ function saveTime()
         <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering} : #{question.maxPoints} #{msg.pt}"/>
 
           <f:verbatim></h4><div class="indnt3"></f:verbatim>
+<%--
           <h:outputText value="#{question.itemData.description}" escape="false"/>
+--%>
           <h:panelGroup rendered="#{question.itemData.typeId == 7}">
            <f:subview id="deliverAudioRecording">
            <%@ include file="/jsf/delivery/item/deliverAudioRecording.jsp" %>
