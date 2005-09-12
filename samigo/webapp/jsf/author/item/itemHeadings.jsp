@@ -25,6 +25,23 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
 **********************************************************************************/
 --%>
 -->
+<script language="javascript" style="text/JavaScript">
+<!--
+function changeTypeLink(field){
+
+var newindex = 0;
+for (i=0; i<document.links.length; i++) {
+  if ( document.links[i].id.indexOf("hiddenlink") >=0){
+    newindex = i;
+    break;
+  }
+}
+
+document.links[newindex].onclick();
+}
+
+//-->
+</script>
 <h:form id="itemFormHeading">
 <%-- The following hidden fields echo some of the data in the item form
      when this form posts a change in item type, the data is persisted.
@@ -95,7 +112,7 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
 <div class="indnt1">
 <div class=" shorttext"><h:outputLabel value="#{msg.change_q_type}"/>
 
-<h:selectOneMenu rendered="#{questionpool.importToAuthoring == 'true'}" onchange="document.links[5].onclick();"
+<h:selectOneMenu rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || itemauthor.target == 'questionpool'}" onchange="changeTypeLink(this);"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType1">
   <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
@@ -114,7 +131,7 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
 </h:selectOneMenu>
 
 <!-- if not from qpool , show the last option: copy from question pool-->
-<h:selectOneMenu onchange="document.links[5].onclick();" rendered="#{questionpool.importToAuthoring == 'false'}"
+<h:selectOneMenu onchange="changeTypeLink(this);" rendered="#{itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'false'}"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2">
   <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
@@ -133,11 +150,12 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
 
+
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
 </h:commandLink>
 
-<h:message rendered="#{questionpool.importToAuthoring == 'true'}" for="changeQType1" styleClass="validate"/>
-<h:message rendered="#{questionpool.importToAuthoring == 'false'}" for="changeQType2" styleClass="validate"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'true' && itemauthor.target == 'assessment'}" for="changeQType1" styleClass="validate"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'false' && itemauthor.target == 'assessment'}" for="changeQType2" styleClass="validate"/>
 </div>
 <!-- SUBHEADING -->
 <p class="navModeAction">
