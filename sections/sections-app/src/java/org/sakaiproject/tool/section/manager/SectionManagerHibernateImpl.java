@@ -23,6 +23,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section.manager;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -520,8 +521,8 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 
     public CourseSection addSection(final String courseUuid, final String title,
     		final String category, final Integer maxEnrollments,
-    		final String location, final String startTime, final boolean startTimeAm,
-    		final String endTime, final boolean endTimeAm, final boolean monday,
+    		final String location, final Time startTime,
+    		final Time endTime, final boolean monday,
     		final boolean tuesday, final boolean wednesday, final boolean thursday,
     		final boolean friday, final boolean saturday, final boolean sunday) {
     	final String uuid = uuidManager.createUuid();
@@ -533,8 +534,8 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             		throw new MembershipException("Course uuid = " + courseUuid + "does not exist");
             	}
             	String uuid = uuidManager.createUuid();
-            	CourseSectionImpl section = new CourseSectionImpl(course, title, uuid, category, maxEnrollments, location, startTime, startTimeAm,
-            			endTime, endTimeAm, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
+            	CourseSectionImpl section = new CourseSectionImpl(course, title, uuid, category, maxEnrollments, location, startTime,
+            			endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
             	session.save(section);
                 return section;
             }
@@ -544,11 +545,10 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     }
 
     public void updateSection(final String sectionUuid, final String title,
-    		final Integer maxEnrollments, final String location, final String startTime,
-    		final boolean startTimeAm, final String endTime, final boolean endTimeAm,
-    		final boolean monday, final boolean tuesday, final boolean wednesday,
-    		final boolean thursday, final boolean friday, final boolean saturday,
-    		final boolean sunday) {
+    		final Integer maxEnrollments, final String location, final Time startTime,
+    		final Time endTime, final boolean monday, final boolean tuesday,
+    		final boolean wednesday, final boolean thursday, final boolean friday,
+    		final boolean saturday, final boolean sunday) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSectionImpl section = getSection(sectionUuid, session);
@@ -556,9 +556,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	section.setMaxEnrollments(maxEnrollments);
             	section.setLocation(location);
             	section.setStartTime(startTime);
-            	section.setStartTimeAm(startTimeAm);
             	section.setEndTime(endTime);
-            	section.setEndTimeAm(endTimeAm);
             	section.setMonday(monday);
             	section.setTuesday(tuesday);
             	section.setWednesday(wednesday);

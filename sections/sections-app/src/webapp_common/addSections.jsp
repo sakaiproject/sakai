@@ -78,7 +78,9 @@
         
                 <h:outputText value="#{msgs.section_start_time}"/>
                 <h:panelGroup>
-                    <h:inputText value="#{section.startTime}"/>
+                    <h:inputText value="#{section.startTime}">
+                        <f:convertDateTime type="time" pattern="h:mm"/>
+                    </h:inputText>
                     <h:selectOneRadio value="#{section.startTimeAm}">
                         <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                         <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
@@ -87,7 +89,9 @@
         
                 <h:outputText value="#{msgs.section_end_time}"/>
                 <h:panelGroup>
-                    <h:inputText value="#{section.endTime}"/>
+                    <h:inputText value="#{section.endTime}">
+                        <f:convertDateTime type="time" pattern="h:mm"/>
+                    </h:inputText>
                     <h:selectOneRadio value="#{section.endTimeAm}">
                         <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                         <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>

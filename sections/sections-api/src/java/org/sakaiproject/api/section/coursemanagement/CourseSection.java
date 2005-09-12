@@ -23,6 +23,8 @@
 **********************************************************************************/
 package org.sakaiproject.api.section.coursemanagement;
 
+import java.sql.Time;
+
 public interface CourseSection extends LearningContext {
 	public Course getCourse();
     public String getLocation();
@@ -37,11 +39,8 @@ public interface CourseSection extends LearningContext {
 	public boolean isSaturday();
 	public boolean isSunday();
 	
-	public String getStartTime();
-	public boolean isStartTimeAm();
-
-	public String getEndTime();
-	public boolean isEndTimeAm();
+	public Time getStartTime();
+	public Time getEndTime();
 }
 
 

@@ -38,10 +38,8 @@
             <property name="friday" column="FRIDAY" type="boolean"/>
             <property name="saturday" column="SATURDAY" type="boolean"/>
             <property name="sunday" column="SUNDAY" type="boolean"/>
-            <property name="startTime" column="START_TIME" type="string"/>
-            <property name="startTimeAm" column="START_TIME_AM" type="boolean"/>
-            <property name="endTime" column="END_TIME" type="string"/>
-            <property name="endTimeAm" column="END_TIME_AM" type="boolean"/>
+            <property name="startTime" column="START_TIME" type="time"/>
+            <property name="endTime" column="END_TIME" type="time"/>
         </joined-subclass>
 
     </class>

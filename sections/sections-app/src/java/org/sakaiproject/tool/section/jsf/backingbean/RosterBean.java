@@ -26,6 +26,8 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -73,7 +75,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	
 	public RosterBean() {
 		maxDisplayedRows = 10;
-		sortColumn="name";
+		sortColumn="studentName";
 		sortAscending = true;
 	}
 	
@@ -122,8 +124,11 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			EnrollmentDecorator decorator = new EnrollmentDecorator(enrollment, map);
 			unpagedEnrollments.add(decorator);
 		}
+
+		// Sort the list
+		Collections.sort(unpagedEnrollments, getComparator());
 		
-		// TODO Not sure yet where sorting comes in... so implement the page filter last		
+		// Filter the list
 		enrollments = new ArrayList();
 		int lastRow;
 		if(maxDisplayedRows < 1 || firstRow + maxDisplayedRows > unpagedEnrollments.size()) {
@@ -133,6 +138,16 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		}
 		enrollments.addAll(unpagedEnrollments.subList(firstRow, lastRow));
 		enrollmentsSize = unpagedEnrollments.size();
+	}
+	
+	private Comparator getComparator() {
+		if(sortColumn.equals("studentName")) {
+			return EnrollmentDecorator.getNameComparator(sortAscending);
+		} else if(sortColumn.equals("displayId")) {
+			return EnrollmentDecorator.getDisplayIdComparator(sortAscending);
+		} else {
+			return EnrollmentDecorator.getCategoryComparator(sortColumn, sortAscending);
+		}
 	}
 	
 	public HtmlDataTable getRosterDataTable() {

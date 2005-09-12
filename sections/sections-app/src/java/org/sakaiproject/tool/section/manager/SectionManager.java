@@ -23,6 +23,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.section.manager;
 
+import java.sql.Time;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -234,7 +235,7 @@ public interface SectionManager {
      */
     public CourseSection addSection(String courseUuid, String title,
     		String category, Integer maxEnrollments, String location, 
-    		String startTime, boolean startTimeAm, String endTime, boolean endTimeAm,
+    		Time startTime, Time endTime,
     		boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
     		boolean friday, boolean saturday, boolean sunday);
 	
@@ -259,8 +260,8 @@ public interface SectionManager {
      * @param sunday
      */
     public void updateSection(String sectionUuid, String title, Integer maxEnrollments,
-    		String location, String startTime, boolean startTimeAm, String endTime,
-    		boolean endTimeAm, boolean monday, boolean tuesday, boolean wednesday,
+    		String location, Time startTime, Time endTime,
+    		boolean monday, boolean tuesday, boolean wednesday,
     		boolean thursday, boolean friday, boolean saturday, boolean sunday);
     
     /**

@@ -25,8 +25,12 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -114,6 +118,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		String courseUuid = getCourse().getUuid();
 		StringBuffer titles = new StringBuffer();
 		String sepChar = JsfUtil.getLocalizedMessage("section_separator");
+		
 		for(Iterator iter = sections.iterator(); iter.hasNext();) {
 			LocalSectionModel sectionModel = (LocalSectionModel)iter.next();
 			titles.append(sectionModel.getTitle());
@@ -122,8 +127,8 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 				titles.append(" ");
 			}
 			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
-					category, sectionModel.getMaxEnrollments(), sectionModel.getLocation(), sectionModel.getStartTime(),
-					sectionModel.isStartTimeAm(), sectionModel.getEndTime(), sectionModel.isEndTimeAm(),
+					category, sectionModel.getMaxEnrollments(), sectionModel.getLocation(),
+					getTime(sectionModel, true), getTime(sectionModel, false),
 					sectionModel.isMonday(), sectionModel.isTuesday(), sectionModel.isWednesday(),
 					sectionModel.isThursday(), sectionModel.isFriday(), sectionModel.isSaturday(),
 					sectionModel.isSunday());
@@ -141,6 +146,32 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		return "overview";
 	}
 	
+	private Time getTime(LocalSectionModel section, boolean useStartTime) {
+		if(useStartTime) {
+			if(section.getStartTime() == null) {
+				return null;
+			}
+			if(!section.isStartTimeAm()) {
+				Date date = section.getStartTime();
+				date.setHours(date.getHours() + 12);
+				return new Time(date.getTime());
+			} else {
+				return new Time(section.getStartTime().getTime());
+			}
+		} else {
+			if(section.getEndTime() == null) {
+				return null;
+			}
+			if(!section.isEndTimeAm()) {
+				Date date = section.getEndTime();
+				date.setHours(date.getHours() + 12);
+				return new Time(section.getEndTime().getTime());
+			} else {
+				return new Time(section.getEndTime().getTime());
+			}
+		}
+	}
+
 	public String getCategory() {
 		return category;
 	}
@@ -171,13 +202,13 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	    private String location;
 	    private Integer maxEnrollments;
 		private boolean monday, tuesday, wednesday, thursday, friday, saturday, sunday;
-		private String startTime, endTime;
+		private Date startTime, endTime;
 		private boolean startTimeAm, endTimeAm;
 
-		public String getEndTime() {
+		public Date getEndTime() {
 			return endTime;
 		}
-		public void setEndTime(String endTime) {
+		public void setEndTime(Date endTime) {
 			this.endTime = endTime;
 		}
 		public boolean isEndTimeAm() {
@@ -216,10 +247,10 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		public void setSaturday(boolean saturday) {
 			this.saturday = saturday;
 		}
-		public String getStartTime() {
+		public Date getStartTime() {
 			return startTime;
 		}
-		public void setStartTime(String startTime) {
+		public void setStartTime(Date startTime) {
 			this.startTime = startTime;
 		}
 		public boolean isStartTimeAm() {

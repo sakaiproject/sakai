@@ -2,36 +2,43 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<bean id="org.sakaiproject.api.section.SectionAwareness"
-		class="org.sakaiproject.component.section.SectionAwarenessHibernateImpl">
-		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
-        <property name="sectionCategoryList">
-			<list>
-                <value>section.category.lecture</value>
-                <value>section.category.discussion</value>
-                <value>section.category.lab</value>
-			</list>
+	<bean id="org.sakaiproject.api.section.SectionAwareness" parent="sectionsTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.component.section.SectionAwarenessHibernateImpl">
+        		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+                <property name="sectionCategoryList">
+        			<list>
+                        <value>section.category.lecture</value>
+                        <value>section.category.discussion</value>
+                        <value>section.category.lab</value>
+        			</list>
+                </property>
+            </bean>
         </property>
 	</bean>
 
 	<bean id="org.sakaiproject.tool.section.manager.SectionManager"
-		class="org.sakaiproject.tool.section.manager.SectionManagerHibernateImpl">
-		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
-        <property name="authn">
-            <ref bean="org.sakaiproject.api.section.facade.manager.Authn"/>
-        </property>
-        <property name="context">
-            <ref bean="org.sakaiproject.api.section.facade.manager.Context"/>
-        </property>
-		<property name="uuidManager">
-			<ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
-		</property>
-        <property name="sectionCategoryList">
-            <list>
-                <value>section.category.lecture</value>
-                <value>section.category.discussion</value>
-                <value>section.category.lab</value>
-            </list>
+        parent="sectionsTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.tool.section.manager.SectionManagerHibernateImpl">
+        		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+                <property name="authn">
+                    <ref bean="org.sakaiproject.api.section.facade.manager.Authn"/>
+                </property>
+                <property name="context">
+                    <ref bean="org.sakaiproject.api.section.facade.manager.Context"/>
+                </property>
+        		<property name="uuidManager">
+        			<ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
+        		</property>
+                <property name="sectionCategoryList">
+                    <list>
+                        <value>section.category.lecture</value>
+                        <value>section.category.discussion</value>
+                        <value>section.category.lab</value>
+                    </list>
+                </property>
+            </bean>
         </property>
 	</bean>
 

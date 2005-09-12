@@ -24,6 +24,7 @@
 
 package org.sakaiproject.tool.section.decorator;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -91,9 +92,9 @@ public class CourseSectionDecorator {
 
 		// Start time
 		sb.append(" ");
-		if(StringUtils.trimToNull(section.getStartTime()) != null) {
+		if(section.getStartTime() != null) {
 			sb.append(section.getStartTime());
-			if(section.isStartTimeAm()) {
+			if(section.getStartTime().getHours() < 11) {
 				sb.append(am);
 			} else {
 				sb.append(pm);
@@ -101,14 +102,14 @@ public class CourseSectionDecorator {
 		}
 
 		// End time
-		if(StringUtils.trimToNull(section.getStartTime()) != null &&
-				StringUtils.trimToNull(section.getEndTime()) != null) {
+		if(section.getStartTime() != null &&
+				section.getEndTime() != null) {
 			sb.append(timeSepChar);
 		}
 
-		if(StringUtils.trimToNull(section.getEndTime()) != null) {
+		if(section.getEndTime() != null) {
 			sb.append(section.getEndTime());
-			if(section.isEndTimeAm()) {
+			if(section.getEndTime().getHours() < 11) {
 				sb.append(am);
 			} else {
 				sb.append(pm);
@@ -157,6 +158,7 @@ public class CourseSectionDecorator {
 	}
 
 	// Delegate methods
+
 	public String getCategory() {
 		return section.getCategory();
 	}
@@ -165,7 +167,7 @@ public class CourseSectionDecorator {
 		return section.getCourse();
 	}
 
-	public String getEndTime() {
+	public Time getEndTime() {
 		return section.getEndTime();
 	}
 
@@ -177,7 +179,7 @@ public class CourseSectionDecorator {
 		return section.getMaxEnrollments();
 	}
 
-	public String getStartTime() {
+	public Time getStartTime() {
 		return section.getStartTime();
 	}
 
@@ -187,10 +189,6 @@ public class CourseSectionDecorator {
 
 	public String getUuid() {
 		return section.getUuid();
-	}
-
-	public boolean isEndTimeAm() {
-		return section.isEndTimeAm();
 	}
 
 	public boolean isFriday() {
@@ -203,10 +201,6 @@ public class CourseSectionDecorator {
 
 	public boolean isSaturday() {
 		return section.isSaturday();
-	}
-
-	public boolean isStartTimeAm() {
-		return section.isStartTimeAm();
 	}
 
 	public boolean isSunday() {
@@ -223,8 +217,7 @@ public class CourseSectionDecorator {
 
 	public boolean isWednesday() {
 		return section.isWednesday();
-	}
-	
+	}	
 }
 
 

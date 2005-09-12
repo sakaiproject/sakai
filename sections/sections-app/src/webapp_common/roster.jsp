@@ -40,7 +40,7 @@
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="studentId" immediate="true" arrow="true">
+                <x:commandSortHeader columnName="displayId" immediate="true" arrow="true">
                     <h:outputText value="#{msgs.roster_table_header_id}" />
                 </x:commandSortHeader>
             </f:facet>

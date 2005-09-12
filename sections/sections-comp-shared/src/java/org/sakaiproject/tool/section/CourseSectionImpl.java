@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.section;
 
 import java.io.Serializable;
+import java.sql.Time;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -45,10 +46,8 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	private boolean friday;
 	private boolean saturday;
 	private boolean sunday;
-	private String startTime;
-	private boolean startTimeAm;
-	private String endTime;
-	private boolean endTimeAm;
+	private Time startTime;
+	private Time endTime;
 
     public CourseSectionImpl() {
     	// Default constructor needed by hibernate
@@ -56,8 +55,8 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 
 
     public CourseSectionImpl(Course course, String title, String uuid, String category,
-    		Integer maxEnrollments, String location, String startTime, boolean startTimeAm,
-    		String endTime, boolean endTimeAm, boolean monday, boolean tuesday,
+    		Integer maxEnrollments, String location, Time startTime,
+    		Time endTime, boolean monday, boolean tuesday,
     		boolean wednesday, boolean thursday, boolean friday, boolean saturday,
     		boolean sunday) {
 		this.course = course;
@@ -67,9 +66,7 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 		this.maxEnrollments = maxEnrollments;
 		this.location = location;
 		this.startTime = startTime;
-		this.startTimeAm = startTimeAm;
 		this.endTime = endTime;
-		this.endTimeAm = endTimeAm;
 		this.monday = monday;
 		this.tuesday = tuesday;
 		this.wednesday = wednesday;
@@ -91,17 +88,11 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	public void setCourse(Course course) {
 		this.course = course;
 	}
-	public String getEndTime() {
+	public Time getEndTime() {
 		return endTime;
 	}
-	public void setEndTime(String endTime) {
+	public void setEndTime(Time endTime) {
 		this.endTime = endTime;
-	}
-	public boolean isEndTimeAm() {
-		return endTimeAm;
-	}
-	public void setEndTimeAm(boolean endTimeAm) {
-		this.endTimeAm = endTimeAm;
 	}
 	public boolean isFriday() {
 		return friday;
@@ -133,17 +124,11 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	public void setSaturday(boolean saturday) {
 		this.saturday = saturday;
 	}
-	public String getStartTime() {
+	public Time getStartTime() {
 		return startTime;
 	}
-	public void setStartTime(String startTime) {
+	public void setStartTime(Time startTime) {
 		this.startTime = startTime;
-	}
-	public boolean isStartTimeAm() {
-		return startTimeAm;
-	}
-	public void setStartTimeAm(boolean startTimeAm) {
-		this.startTimeAm = startTimeAm;
 	}
 	public boolean isSunday() {
 		return sunday;

@@ -368,26 +368,18 @@
 				<resource>
 					<directory>${basedir}/src/webapp_standalone/WEB-INF/</directory>
 					<includes>
-                        			<include>spring-beans.xml</include>
+            			<include>spring-beans.xml</include>
 						<include>spring-db.xml</include>
 					</includes>
 				</resource>
 				<resource>
 					<directory>${basedir}/src/test/</directory>
 					<includes>
-                        <include>spring-services.xml</include>
-						<include>spring-hib.xml</include>
+                        <include>spring-services-test.xml</include>
+						<include>spring-hib-test.xml</include>
 						<include>spring-beans-test.xml</include>
 					</includes>
 				</resource>
-<!--
-				<resource>
-					<directory>${hibernate.properties.dir}</directory>
-					<includes>
-						<include>hibernate.properties</include>
-					</includes>
-				</resource>
--->
 				<resource>
 					<directory>${basedir}</directory>
 					<includes>

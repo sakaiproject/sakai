@@ -25,6 +25,8 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.sql.Time;
+import java.util.Date;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -52,8 +54,8 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	private boolean saturday;
 	private boolean sunday;
 	
-	private String startTime;
-	private String endTime;
+	private Date startTime;
+	private Date endTime;
 	private boolean startTimeAm;
 	private boolean endTimeAm;
 	
@@ -78,10 +80,13 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			sunday = section.isSunday();
 			startTime = section.getStartTime();
 			endTime = section.getEndTime();
-			startTimeAm = section.isStartTimeAm();
-			endTimeAm = section.isEndTimeAm();
+			if(section.getStartTime() != null) {
+				startTimeAm = section.getStartTime().getHours() < 11;
+			}
+			if(section.getEndTime() != null) {
+				endTimeAm = section.getEndTime().getHours() < 11;
+			}
 		}
-		// Get the section to edit
 	}
 
 	public String update() {
@@ -92,13 +97,52 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			return "failure";
 		}
 		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
-				location, startTime, startTimeAm, endTime, endTimeAm, monday, tuesday,
+				location, getDateAsTime(true), getDateAsTime(false), monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
 		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(
 				"section_update_successful", new String[] {title}));
 		return "overview";
 	}
 	
+	/**
+	 * The JSF DateTimeConverter can not convert into java.sql.Time.  So we do
+	 * the conversion manually from a java.util.Date.
+	 * 
+	 * @param useStartTime Whether to get the Time for the startTime field.
+	 * @return
+	 */
+	private Time getDateAsTime(boolean useStartTime) {
+		if(useStartTime) {
+			if(startTime == null) {
+				return null;
+			}
+			if(startTimeAm) {
+				// Check to make sure that the hours are indeed am hours
+				if(startTime.getHours() > 11) {
+					startTime.setHours(startTime.getHours() - 12);
+				}
+			} else {
+				if(startTime.getHours() < 11) {
+					startTime.setHours(startTime.getHours() + 12);
+				}
+			}
+			return new Time(startTime.getTime());
+		} else {
+			if(endTime == null) {
+				return null;
+			}
+			if(endTimeAm) {
+				// Check to make sure that the hours are indeed am hours
+				if(endTime.getHours() > 11) {
+					endTime.setHours(endTime.getHours() - 12);
+				}
+			} else {
+				endTime.setHours(endTime.getHours() + 12);
+			}
+			return new Time(endTime.getTime());
+		}
+	}
+
 	private boolean isDuplicateSectionTitle() {
 		for(Iterator iter = getAllSiteSections().iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
@@ -146,11 +190,11 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		this.category = category;
 	}
 
-	public String getEndTime() {
+	public Date getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(String endTime) {
+	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
 
@@ -202,11 +246,11 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		this.saturday = saturday;
 	}
 
-	public String getStartTime() {
+	public Date getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(String startTime) {
+	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 

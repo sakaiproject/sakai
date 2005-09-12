@@ -30,7 +30,7 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
 public class SectionsTestBase extends AbstractTransactionalSpringContextTests {
     private static final Log log = LogFactory.getLog(SectionsTestBase.class);
     protected String[] getConfigLocations() {
-        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-beans-test.xml", "spring-hib.xml", "spring-services.xml"};
+        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-beans-test.xml", "spring-hib-test.xml", "spring-services-test.xml"};
         return configLocations;
     }
 
