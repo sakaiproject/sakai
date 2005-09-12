@@ -423,7 +423,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{msg.cancel}" action="totalScores" immediate="true"/>
+   <h:commandButton value="#{msg.cancel}" action="author" immediate="true"/>
 
 </p>
 </h:form>
