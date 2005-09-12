@@ -22,55 +22,52 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section.jsf.backingbean;
+package org.sakaiproject.component.section;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.SectionManager;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Authz;
-import org.sakaiproject.api.section.facade.manager.Context;
 
-public class CourseBean implements Serializable {
+public class CourseImpl extends LearningContextImpl implements Course, Serializable {
 
-	private static final long serialVersionUID = 1L;
-
-	private String courseUuid;
-
-	protected SectionManager sectionManager;
-    protected Authn authn;
-    protected Authz authz;
-    protected Context context;
-
-	protected String getCourseUuid() {
-		// TODO Do we ever have a need to cache the course object? I don't think so, but keep an eye on this
-		Course course = sectionManager.getCourse(context.getContext(null));
-		courseUuid = course.getUuid();
-		return courseUuid;
+	protected String siteContext;
+	protected boolean externallyManaged;
+	protected boolean selfRegistrationAllowed;
+	protected boolean selfSwitchingAllowed;
+	
+	public boolean isSelfSwitchingAllowed() {
+		return selfSwitchingAllowed;
+	}
+	public void setSelfSwitchingAllowed(boolean selfSwitchingAllowed) {
+		this.selfSwitchingAllowed = selfSwitchingAllowed;
+	}
+	public boolean isSelfRegistrationAllowed() {
+		return selfRegistrationAllowed;
+	}
+	public void setSelfRegistrationAllowed(boolean selfRegistrationAllowed) {
+		this.selfRegistrationAllowed = selfRegistrationAllowed;
+	}
+	public String getSiteContext() {
+		return siteContext;
+	}
+	public void setSiteContext(String siteContext) {
+		this.siteContext = siteContext;
+	}
+	public boolean isExternallyManaged() {
+		return externallyManaged;
+	}
+	public void setExternallyManaged(boolean externallyManaged) {
+		this.externallyManaged = externallyManaged;
 	}
 	
-	protected SectionManager getSectionManager() {
-		return sectionManager;
+	public String toString() {
+		return new ToStringBuilder(this)
+		.append(title)
+		.append(siteContext)
+		.append(uuid)
+		.toString();
 	}
-	
-    //// Setters for dep. injection
-    public void setSectionManager(SectionManager sectionManager) {
-        this.sectionManager = sectionManager;
-    }
-    
-    public void setAuthn(Authn authn) {
-        this.authn = authn;
-    }
-
-    public void setAuthz(Authz authz) {
-        this.authz = authz;
-    }
-
-	public void setContext(Context context) {
-		this.context = context;
-	}
-	
 }
 
 

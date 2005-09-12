@@ -35,10 +35,10 @@ import org.sakaiproject.api.common.uuid.UuidManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.tool.section.CourseImpl;
-import org.sakaiproject.tool.section.EnrollmentRecordImpl;
-import org.sakaiproject.tool.section.InstructorRecordImpl;
-import org.sakaiproject.tool.section.TeachingAssistantRecordImpl;
+import org.sakaiproject.component.section.CourseImpl;
+import org.sakaiproject.component.section.EnrollmentRecordImpl;
+import org.sakaiproject.component.section.InstructorRecordImpl;
+import org.sakaiproject.component.section.TeachingAssistantRecordImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 

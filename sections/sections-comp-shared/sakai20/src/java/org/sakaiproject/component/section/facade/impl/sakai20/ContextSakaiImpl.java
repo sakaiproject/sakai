@@ -22,58 +22,24 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section.jsf.backingbean;
+package org.sakaiproject.component.section.facade.impl.sakai20;
 
-import java.io.Serializable;
-
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Authz;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.kernel.tool.Placement;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.section.facade.manager.Context;
 
-public class CourseBean implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	private String courseUuid;
-
-	protected SectionManager sectionManager;
-    protected Authn authn;
-    protected Authz authz;
-    protected Context context;
-
-	protected String getCourseUuid() {
-		// TODO Do we ever have a need to cache the course object? I don't think so, but keep an eye on this
-		Course course = sectionManager.getCourse(context.getContext(null));
-		courseUuid = course.getUuid();
-		return courseUuid;
+public class ContextSakaiImpl implements Context {
+	private static final Log log = LogFactory.getLog(ContextSakaiImpl.class);
+	public String getContext(Object request) {
+        Placement placement = ToolManager.getCurrentPlacement();        
+        if(placement == null) {
+            log.error("Placement is null");
+        }
+        return placement.getContext();
 	}
-	
-	protected SectionManager getSectionManager() {
-		return sectionManager;
-	}
-	
-    //// Setters for dep. injection
-    public void setSectionManager(SectionManager sectionManager) {
-        this.sectionManager = sectionManager;
-    }
-    
-    public void setAuthn(Authn authn) {
-        this.authn = authn;
-    }
-
-    public void setAuthz(Authz authz) {
-        this.authz = authz;
-    }
-
-	public void setContext(Context context) {
-		this.context = context;
-	}
-	
 }
-
-
 
 /**********************************************************************************
  * $Id$

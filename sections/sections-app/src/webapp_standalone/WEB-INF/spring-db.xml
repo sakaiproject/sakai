@@ -21,9 +21,9 @@
         <property name="dataSource"><ref bean="sectionsDataSource"/></property>
         <property name="mappingResources">
             <list>
-                <value>org/sakaiproject/tool/section/LearningContextImpl.hbm.xml</value>
-                <value>org/sakaiproject/tool/section/ParticipationRecordImpl.hbm.xml</value>
-                <value>org/sakaiproject/tool/section/UserImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/section/LearningContextImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/section/ParticipationRecordImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/section/UserImpl.hbm.xml</value>
             </list>
         </property>
         

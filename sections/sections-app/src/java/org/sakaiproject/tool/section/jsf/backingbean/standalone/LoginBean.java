@@ -30,8 +30,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.tool.section.facade.impl.standalone.AuthnStandaloneImpl;
-import org.sakaiproject.tool.section.facade.impl.standalone.ContextStandaloneImpl;
+import org.sakaiproject.component.section.facade.impl.standalone.AuthnStandaloneImpl;
+import org.sakaiproject.component.section.facade.impl.standalone.ContextStandaloneImpl;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.jsf.backingbean.CourseDependentBean;
 

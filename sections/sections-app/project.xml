@@ -27,61 +27,53 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-sections-comp-shared</artifactId>
+			<artifactId>sakai-sections-comp-shared-standalone</artifactId>
 			<version>${pom.currentVersion}</version>
-			<!-- Bundle the service impl for now -->
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
+            <!-- Bundle the standalone impl for now -->
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
 		</dependency>
 
-	<!-- Sakai2 Dependencies -->
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${pom.currentVersion}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
-			<version>${pom.currentVersion}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session-component</artifactId>
-			<version>${pom.currentVersion}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool</artifactId>
-			<version>${pom.currentVersion}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-jsf-tool</artifactId>
-			<version>${pom.currentVersion}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-jsf-app</artifactId>
-			<version>${pom.currentVersion}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-web</artifactId>
-			<version>${pom.currentVersion}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-sakai20</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-tool</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-jsf-tool</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-jsf-app</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-util-web</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
 
 		<!-- Uuid generator -->
 		<dependency>
@@ -332,13 +324,6 @@
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
 					<include>**/*.properties</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>${basedir}/src/hibernate</directory>
-				<includes>
-					<include>ehcache.xml</include>
-					<include>**/*.hbm.xml</include>
 				</includes>
 			</resource>
 			<resource>

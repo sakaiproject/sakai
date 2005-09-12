@@ -21,58 +21,50 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-
-package org.sakaiproject.tool.section.jsf.backingbean;
+package org.sakaiproject.component.section;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Authz;
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
-public class CourseBean implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	private String courseUuid;
-
-	protected SectionManager sectionManager;
-    protected Authn authn;
-    protected Authz authz;
-    protected Context context;
-
-	protected String getCourseUuid() {
-		// TODO Do we ever have a need to cache the course object? I don't think so, but keep an eye on this
-		Course course = sectionManager.getCourse(context.getContext(null));
-		courseUuid = course.getUuid();
-		return courseUuid;
-	}
+public abstract class AbstractPersistentObject implements Serializable {
 	
-	protected SectionManager getSectionManager() {
-		return sectionManager;
-	}
-	
-    //// Setters for dep. injection
-    public void setSectionManager(SectionManager sectionManager) {
-        this.sectionManager = sectionManager;
-    }
+    protected long id;
+    protected int version;
+    protected String uuid;
+    protected String title;
     
-    public void setAuthn(Authn authn) {
-        this.authn = authn;
+    public long getId() {
+        return id;
+    }
+    public void setId(long id) {
+        this.id = id;
+    }
+    public int getVersion() {
+        return version;
+    }
+    public void setVersion(int version) {
+        this.version = version;
+    }
+    public String getUuid() {
+        return uuid;
+    }
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public void setAuthz(Authz authz) {
-        this.authz = authz;
-    }
-
-	public void setContext(Context context) {
-		this.context = context;
+    public String toString() {
+		return new ToStringBuilder(this).append(title)
+		.append(uuid).toString();
 	}
-	
-}
 
+}
 
 
 /**********************************************************************************

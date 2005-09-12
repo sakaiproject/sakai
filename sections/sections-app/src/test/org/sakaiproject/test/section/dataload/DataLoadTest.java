@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.User;
@@ -39,7 +40,6 @@ import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.test.section.SectionsTestBase;
 import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.test.section.manager.UserManager;
-import org.sakaiproject.tool.section.manager.SectionManager;
 
 public class DataLoadTest extends SectionsTestBase {
 	private static Log log = LogFactory.getLog(DataLoadTest.class);

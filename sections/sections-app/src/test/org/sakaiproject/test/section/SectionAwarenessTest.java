@@ -32,6 +32,7 @@ import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
@@ -40,7 +41,6 @@ import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Context;
 import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.test.section.manager.UserManager;
-import org.sakaiproject.tool.section.manager.SectionManager;
 
 /**
  * Each test method is isolated in its own transaction, which is rolled back when

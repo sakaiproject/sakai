@@ -20,7 +20,7 @@
 	<bean id="org.sakaiproject.tool.section.manager.SectionManager"
         parent="sectionsTxTemplate">
         <property name="target">
-            <bean class="org.sakaiproject.tool.section.manager.SectionManagerHibernateImpl">
+            <bean class="org.sakaiproject.component.section.SectionManagerHibernateImpl">
         		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
                 <property name="authn">
                     <ref bean="org.sakaiproject.api.section.facade.manager.Authn"/>

@@ -2,12 +2,12 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="org.sakaiproject.api.section.facade.manager.Context"
-        class="org.sakaiproject.tool.section.facade.impl.standalone.ContextTestImpl"/>
+        class="org.sakaiproject.component.section.facade.impl.standalone.ContextTestImpl"/>
     <bean id="org.sakaiproject.api.section.facade.manager.Authn"
-        class="org.sakaiproject.tool.section.facade.impl.standalone.AuthnTestImpl"/>
+        class="org.sakaiproject.component.section.facade.impl.standalone.AuthnTestImpl"/>
 
     <bean id="org.sakaiproject.api.section.facade.manager.Authz"
-        class="org.sakaiproject.tool.section.facade.impl.standalone.AuthzStandaloneImpl">
+        class="org.sakaiproject.component.section.facade.impl.standalone.AuthzStandaloneImpl">
         <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
     </bean>
 

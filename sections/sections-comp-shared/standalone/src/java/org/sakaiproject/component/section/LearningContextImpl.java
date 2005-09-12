@@ -22,55 +22,42 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.section.jsf.backingbean;
+package org.sakaiproject.component.section;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Authz;
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sakaiproject.api.section.coursemanagement.LearningContext;
 
-public class CourseBean implements Serializable {
+/*
+ * A base class for hibernate-managed learning context objects.
+ */
+public class LearningContextImpl extends AbstractPersistentObject implements
+		LearningContext, Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	private String courseUuid;
-
-	protected SectionManager sectionManager;
-    protected Authn authn;
-    protected Authz authz;
-    protected Context context;
-
-	protected String getCourseUuid() {
-		// TODO Do we ever have a need to cache the course object? I don't think so, but keep an eye on this
-		Course course = sectionManager.getCourse(context.getContext(null));
-		courseUuid = course.getUuid();
-		return courseUuid;
-	}
 	
-	protected SectionManager getSectionManager() {
-		return sectionManager;
+	public boolean equals(Object o) {
+		if(o == this) {
+			return true;
+		}
+		if(o instanceof LearningContextImpl) {
+			LearningContextImpl other = (LearningContextImpl)o;
+			return new EqualsBuilder()
+				.append(uuid, other.uuid)
+				.isEquals();
+		}
+		return false;
 	}
-	
-    //// Setters for dep. injection
-    public void setSectionManager(SectionManager sectionManager) {
-        this.sectionManager = sectionManager;
-    }
-    
-    public void setAuthn(Authn authn) {
-        this.authn = authn;
-    }
 
-    public void setAuthz(Authz authz) {
-        this.authz = authz;
-    }
-
-	public void setContext(Context context) {
-		this.context = context;
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37)
+			.append(uuid)
+			.toHashCode();
 	}
-	
+
+
 }
 
 

@@ -34,11 +34,11 @@ import java.util.Set;
 import javax.faces.context.FacesContext;
 import javax.faces.el.VariableResolver;
 
+import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
-import org.sakaiproject.tool.section.manager.SectionManager;
 
 public class CourseDependentBean extends InitializableBean implements Serializable {
 
