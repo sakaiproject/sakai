@@ -38,15 +38,19 @@
   <status></status>
   <!-- item text -->
  <itemText type="list">
-  <xsl:value-of select="//presentation//material/mattext" />
+  <xsl:for-each select="//presentation//material/mattext">
+   <xsl:if test="position()=1">
+      <xsl:apply-templates mode="itemRichText" />
+   </xsl:if>
+  </xsl:for-each>
  </itemText>
-  <!-- FIB -->
+  <!-- FIB item text-->
   <xsl:for-each select="//presentation//material/mattext">
     <itemFibText type="list">
-      <xsl:apply-templates mode="fill-in-the-blank" />
+      <xsl:apply-templates mode="itemRichText" />
     </itemFibText>
   </xsl:for-each>
-  <!-- MATCHING -->
+  <!-- MATCHING item text, answers-->
   <xsl:for-each select="//presentation//response_grp//material/mattext">
     <xsl:choose>
       <xsl:when test="../../@match_group">
@@ -208,8 +212,6 @@
     </xsl:element>
   </xsl:for-each>
 
-
-
   <!-- if other methods of determining type don't work, attempt to determine from structure-->
   <!-- NOT guaranteed to be accurate, this is a fallback if none in metadata, title -->
   <!-- DEPENDENCY WARNING: syncs with type strings in AuthoringConstantStrings.java -->
@@ -226,18 +228,15 @@
       </xsl:choose>
     </itemIntrospect>
   </xsl:for-each>
-
 </itemData>
-
-
-
 </xsl:template>
 
-<xsl:template match="mattext" mode="fill-in-the-blank">
-  <xsl:apply-templates mode="fill-in-the-blank"/>
+<!-- these templates match a rich text mattext and render the whole tree -->
+<xsl:template match="mattext" mode="itemRichText">
+  <xsl:apply-templates mode="itemRichText"/>
 </xsl:template>
 
-<xsl:template match="*" mode="fill-in-the-blank">
+<xsl:template match="*" mode="itemRichText">
   <xsl:copy-of select="." />
 </xsl:template>
 
