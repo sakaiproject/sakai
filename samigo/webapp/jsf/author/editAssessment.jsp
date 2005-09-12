@@ -195,12 +195,12 @@ document.links[newindex].onclick();
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
         </h:commandLink>
       </h:panelGroup>
-        <h:outputText value="#{partBean.description}" />
-        <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_msg}" />
+        <h:outputText escape="false" value="#{partBean.description}" />
     </h:panelGrid>
 <f:verbatim></h4><div class="indnt2"></f:verbatim>
 
 
+        <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_msg}" />
 
 <!-- this insert should only show up when there are no questions in this part -->
 <h:panelGroup rendered="#{partBean.itemContentsSize eq '0'}">
