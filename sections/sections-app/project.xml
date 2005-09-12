@@ -332,6 +332,12 @@
 					<include>hibernate.properties</include>
 				</includes>
 			</resource>
+            <resource>
+                <directory>${basedir}/src/bundle</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
 		</resources>
 
 		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
@@ -343,13 +349,6 @@
                 <exclude>**/*LoadTest.java</exclude>
             </excludes>
 			<resources>
-				<resource>
-					<directory>${basedir}/src/hibernate</directory>
-					<includes>
-						<include>ehcache.xml</include>
-						<include>**/*.hbm.xml</include>
-					</includes>
-				</resource>
 				<resource>
 					<directory>${basedir}/src/webapp_standalone/WEB-INF/</directory>
 					<includes>

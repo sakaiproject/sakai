@@ -77,8 +77,6 @@ public class CourseSectionDecorator {
 	}
 	
 	public String getMeetingTimes() {
-		String am = JsfUtil.getLocalizedMessage("time_of_day_am");
-		String pm = JsfUtil.getLocalizedMessage("time_of_day_pm");
 		String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
 		String timeSepChar = JsfUtil.getLocalizedMessage("time_sep_char");
 		
@@ -94,15 +92,10 @@ public class CourseSectionDecorator {
 		}
 
 		// Start time
-		DateFormat df = new SimpleDateFormat("h:mm");
+		DateFormat df = new SimpleDateFormat("h:mm a");
 		sb.append(" ");
 		if(section.getStartTime() != null) {
-			sb.append(df.format(new Date(section.getStartTime().getTime())));
-			if(section.getStartTime().getHours() < 11) {
-				sb.append(am);
-			} else {
-				sb.append(pm);
-			}
+			sb.append(df.format(new Date(section.getStartTime().getTime())).toLowerCase());
 		}
 
 		// End time
@@ -112,12 +105,7 @@ public class CourseSectionDecorator {
 		}
 
 		if(section.getEndTime() != null) {
-			sb.append(df.format(new Date(section.getEndTime().getTime())));
-			if(section.getEndTime().getHours() < 11) {
-				sb.append(am);
-			} else {
-				sb.append(pm);
-			}
+			sb.append(df.format(new Date(section.getEndTime().getTime())).toLowerCase());
 		}
 		
 		return sb.toString();

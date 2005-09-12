@@ -34,9 +34,16 @@
 				</j:forEach>
 
 				<!-- Standalone webapp resources -->
+                <ant:echo message="Copying ${basedir}/log4j.properties to ${maven.war.webapp.dir}/WEB-INF/classes"/>
 				<ant:copy file="${basedir}/log4j.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+
+                <ant:echo message="Copying ${basedir}/ehcache.xml to ${maven.war.webapp.dir}/WEB-INF/classes"/>
+                <ant:copy file="${basedir}/ehcache.xml" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+
 				<ant:echo message="Copying ${hibernate.properties.dir}/hibernate.properties to ${maven.war.webapp.dir}/WEB-INF/classes"/>
 				<ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+
+                
 			</j:when>
 			<j:otherwise>
 				<ant:echo message="Copying sakai-dependent resources into webapp"/>
