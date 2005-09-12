@@ -30,6 +30,12 @@
 			<version>${pom.currentVersion}</version>
 		</dependency>
 
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-tool</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
         <!-- Uuid generator -->
         <dependency>
             <groupId>sakaiproject</groupId>
