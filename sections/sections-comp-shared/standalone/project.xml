@@ -2,8 +2,20 @@
 
 <project>
     <extend>${basedir}/../project.xml</extend>
+    <pomVersion>3</pomVersion>
     <name>Sakai Sections Shared Components: Standalone</name>
+    <groupId>sakaiproject</groupId>
     <id>sakai-sections-comp-shared-standalone</id>
+    <currentVersion>2.0.0</currentVersion>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2005</inceptionYear>
+
+    <properties>
+        <deploy.type>jar</deploy.type>
+    </properties>
 
     <dependencies>
         <!-- Standalone authn, authz, and context use faces context and http session -->
