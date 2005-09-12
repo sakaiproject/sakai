@@ -90,7 +90,14 @@
         <j:set var="hibernate.hbm2ddl.auto" value="create" />
         <j:set var="maven.hibernate.delimiter" value=";" />
         <j:set var="maven.hibernate.quiet" value="false" />
-        <j:set var="maven.hibernate.input.dir" value="${basedir}/src/hibernate" />
+        <j:choose>
+            <j:when test="${standalone.equals('true')}">
+                <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/standalone/src/hibernate" />
+            </j:when>
+            <j:otherwise>
+                <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/sakai20/src/hibernate" />
+            </j:otherwise>
+        </j:choose>
         <j:set var="maven.hibernate.input.includes" value="**/*.hbm.xml" />
         <attainGoal name="hibernate:schema-export" />
     </goal>

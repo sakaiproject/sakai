@@ -25,7 +25,10 @@
 package org.sakaiproject.tool.section.decorator;
 
 import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -91,9 +94,10 @@ public class CourseSectionDecorator {
 		}
 
 		// Start time
+		DateFormat df = new SimpleDateFormat("h:mm");
 		sb.append(" ");
 		if(section.getStartTime() != null) {
-			sb.append(section.getStartTime());
+			sb.append(df.format(new Date(section.getStartTime().getTime())));
 			if(section.getStartTime().getHours() < 11) {
 				sb.append(am);
 			} else {
@@ -108,7 +112,7 @@ public class CourseSectionDecorator {
 		}
 
 		if(section.getEndTime() != null) {
-			sb.append(section.getEndTime());
+			sb.append(df.format(new Date(section.getEndTime().getTime())));
 			if(section.getEndTime().getHours() < 11) {
 				sb.append(am);
 			} else {
