@@ -25,7 +25,9 @@
 package org.sakaiproject.component.legacy.user;
 
 // imports
+import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -168,6 +170,22 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider
 		return true;
 
 	} // getUser
+
+	/**
+	 * Access a collection of UserEdit objects; if the user is found, update the information, otherwise remove the UserEdit object from the collection.
+	 * @param users The UserEdit objects (with id set) to fill in or remove.
+	 */
+	public void getUsers(Collection users)
+	{
+		for (Iterator i = users.iterator(); i.hasNext();)
+		{
+			UserEdit user = (UserEdit) i.next();
+			if (!getUser(user))
+			{
+				i.remove();
+			}
+		}
+	}
 
 	/**
 	 * Find a user object who has this email address. Update the object with the information found.

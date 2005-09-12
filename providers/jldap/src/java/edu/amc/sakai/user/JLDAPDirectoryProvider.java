@@ -34,7 +34,9 @@
 
 package edu.amc.sakai.user;
 
+import java.util.Collection;
 import java.util.Hashtable;import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -323,6 +325,23 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider {
 		}	
 	}
 	
+	/**
+	 * Access a collection of UserEdit objects; if the user is found, update the information, otherwise remove the UserEdit object from the collection.
+	 * @param users The UserEdit objects (with id set) to fill in or remove.
+	 */
+	public void getUsers(Collection users)
+	{
+		// TODO: is there a more efficient multi-user LDAP call to use instead of this iteration?
+		for (Iterator i = users.iterator(); i.hasNext();)
+		{
+			UserEdit user = (UserEdit) i.next();
+			if (!getUser(user))
+			{
+				i.remove();
+			}
+		}
+	}
+
 	public boolean updateUserAfterAuthentication() {
 		return false;
 	}
