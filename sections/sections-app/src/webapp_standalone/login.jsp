@@ -7,7 +7,7 @@
 			<h:outputLabel for="userName" value="Username:"/>
             <h:selectOneMenu id="userName" value="#{loginBean.userName}">
                 <f:selectItem itemValue="instructor1" itemLabel="Instructor 1 (Site 1)"/>
-                <f:selectItem itemValue="instructor2" itemLabel="Instructor 2 (Sites 1, 2, and 3)"/>
+                <f:selectItem itemValue="instructor2" itemLabel="Instructor 2 (Sites 2, and 3)"/>
                 <f:selectItem itemValue="ta1" itemLabel="TA 1"/>
                 <f:selectItem itemValue="ta2" itemLabel="TA 2"/>
                 <f:selectItem itemValue="studenta" itemLabel="Joe Student"/>
