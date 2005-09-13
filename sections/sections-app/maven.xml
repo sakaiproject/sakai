@@ -85,6 +85,7 @@
 
     <goal name="loadData">
         <ant:echo message="Remember to call this goal with -Dmem=false to load data into your configured db!"/>
+        <ant:echo message="Remember to call this goal with -Dstandalone=true to load standalone data!"/>
 
         <attainGoal name="schema"/>
 
@@ -94,6 +95,7 @@
 
     <goal name="loadGradebookData">
         <ant:echo message="Remember to call this goal with -Dmem=false to load data into your configured db!"/>
+        <ant:echo message="Remember to call this goal with -Dstandalone=true to load standalone data!"/>
 
         <attainGoal name="schema"/>
 
