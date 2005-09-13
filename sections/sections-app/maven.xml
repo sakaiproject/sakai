@@ -7,7 +7,7 @@
 
 	<preGoal name="war:webapp">
 		<attainGoal name="war:clean"/>
-        
+
 		<!-- Files common to both standalone and embedded builds -->
 		<ant:copy todir="${maven.war.webapp.dir}">
 			<ant:fileset dir="${maven.src.dir}/webapp_common" />
@@ -57,7 +57,7 @@
 		</j:choose>
 
 	</preGoal>
-	
+
 		<!-- Copy the war into the tomcat webapps dir -->
 	<postGoal name="war:war">
 		<j:if test="${standalone.equals('true')}">
@@ -85,15 +85,24 @@
 
     <goal name="loadData">
         <ant:echo message="Remember to call this goal with -Dmem=false to load data into your configured db!"/>
-        
+
         <attainGoal name="schema"/>
-        
+
         <j:set var="testcase" value="org.sakaiproject.test.section.dataload.DataLoadTest" />
         <attainGoal name="test:single" />
     </goal>
-    
+
+    <goal name="loadGradebookData">
+        <ant:echo message="Remember to call this goal with -Dmem=false to load data into your configured db!"/>
+
+        <attainGoal name="schema"/>
+
+        <j:set var="testcase" value="org.sakaiproject.test.section.dataload.GradebookDataLoader" />
+        <attainGoal name="test:single" />
+    </goal>
+
     <goal name="schema">
-        <j:set var="maven.hibernate.properties" value="${hibernate.properties.dir}/hibernate.properties" />        
+        <j:set var="maven.hibernate.properties" value="${hibernate.properties.dir}/hibernate.properties" />
         <j:set var="hibernate.hbm2ddl.auto" value="create" />
         <j:set var="maven.hibernate.delimiter" value=";" />
         <j:set var="maven.hibernate.quiet" value="false" />
