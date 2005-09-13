@@ -55,9 +55,12 @@ Sakai Sections Tool -- Building and Deploying
 		Standalone dataload
 		maven -Dstandalone=true -Dmem=false loadData
 		
+		Standalone gradebook dataload (for running the standalone gradebook on
+		top of section awareness)
+		maven -Dstandalone=true -Dmem=false loadGradebookData
+
 		Sakai 2.0 dataload
 		maven -Dmem=false loadData
 		
 		Sakai 2.1 dataload
 		(not yet available)
-		
