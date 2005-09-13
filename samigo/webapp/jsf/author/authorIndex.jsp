@@ -96,10 +96,10 @@
     <h:commandButton value="#{msg.button_import}" immediate="true" type="submit"
       action="importAssessment">
     </h:commandButton>
-
+</div></div>
 
 	<!-- CORE ASSESSMENTS-->
-<div class="indnt1">
+
   <h4><h:outputText value="#{msg.assessment_core}" /></h4>
 <div class="indnt2">
   <h:dataTable styleClass="listHier" id="coreAssessments" value="#{author.assessments}" var="coreAssessment">
@@ -183,10 +183,10 @@
     </h:column>
   </h:dataTable>
 </div>
-</div>
+
 
 	<!-- PUBLISHED ASSESSMENTS-->
-<div class="indnt1">
+
   <h4><h:outputText value="#{msg.assessment_pub}" /></h4>
   <!-- active -->
 <!--
@@ -479,7 +479,8 @@
 
     </h:column>
   </h:dataTable>
-</div></div>
+</div>
+</div>
 
 </h:form>
 <!-- end content -->
