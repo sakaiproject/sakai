@@ -22,7 +22,7 @@
         <dependency>
             <groupId>myfaces</groupId>
             <artifactId>myfaces</artifactId>
-            <version>1.0.9rc3</version>
+            <version>1.0.9</version>
         </dependency>
         <dependency>
             <id>servletapi</id>

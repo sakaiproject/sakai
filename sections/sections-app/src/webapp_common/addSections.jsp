@@ -39,16 +39,14 @@
             <f:selectItem itemLabel="#{msgs.add_sections_select_one}" itemValue=""/>
             <f:selectItems value="#{addSectionsBean.categoryItems}"/>
         </h:selectOneMenu>
-        
-        <!--x:dataTable
-            id="sectionsTable"
+    
+        <x:dataTable
+            id="sectionTable"
             value="#{addSectionsBean.sections}"
             var="section"
-            binding="#{addSectionsBean.sectionTable}"/-->
-    
-        <x:dataTable id="sectionTable" value="#{addSectionsBean.sections}" var="section">
+            rowClasses="#{addSectionsBean.rowStyleClasses}">
             <h:column>
-                <h:panelGrid columns="2">
+                <h:panelGrid columns="2" rowClasses="sectionRow">
                     <h:outputText value="#{msgs.section_title}"/>
                     <h:panelGroup>
                         <h:inputText id="titleInput" required="true" value="#{section.title}"/>

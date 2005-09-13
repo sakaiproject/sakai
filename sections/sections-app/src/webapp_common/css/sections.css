@@ -6,6 +6,7 @@ tr.nonmember td {font-weight:normal;}
 tr.nonmemberPadRow td {font-weight:normal; padding-bottom:1em !important;}
 
 tr.sectionPadRow td {padding-bottom:1em !important;}
+tr.sectionRow td {padding-bottom:0em !important;}
 
 /* Item property editing. THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.itemSummary td.itemName {

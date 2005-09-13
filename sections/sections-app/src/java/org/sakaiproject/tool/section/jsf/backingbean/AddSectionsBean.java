@@ -51,6 +51,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	private String category;
 	private List categoryItems;
 	private List sections;
+	private String rowStyleClasses;
 	
 	private transient boolean sectionsChanged;
 	
@@ -74,12 +75,18 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	
 	private void populateSections() {
 		sections = new ArrayList();
+		StringBuffer rowClasses = new StringBuffer();
 		if(StringUtils.trimToNull(category) != null) {
 			if(log.isDebugEnabled()) log.debug("populating sections");
 			int offset = getSectionManager().getSectionsInCategory(getSiteContext(), category).size();
 			for(int i=0; i<numToAdd; i++) {
 				sections.add(new LocalSectionModel(getCategoryName(category) + (i+1+offset)));
+				rowClasses.append("sectionPadRow");
+				if(i+1<numToAdd) {
+					rowClasses.append(",");
+				}
 			}
+			rowStyleClasses = rowClasses.toString();
 		}
 	}
 	
@@ -293,6 +300,10 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 
 	public List getSections() {
 		return sections;
+	}
+
+	public String getRowStyleClasses() {
+		return rowStyleClasses;
 	}
 }
 
