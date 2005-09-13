@@ -45,6 +45,7 @@
 <!-- content... -->
  <!-- this should probably be a widget -->
  <!-- div class="heading"><h:outputText value="#{msg.index_heading}"/></div -->
+<div class="portletBody">
   <h:form id="templateEditorForm">
    <p class="navIntraTool">
    <h:commandLink action="author" id="authorlink" immediate="true">
@@ -60,19 +61,19 @@
     </h:commandLink>
    </p>
 
- <f:verbatim><h3></f:verbatim>
+<h3>
    <h:outputText value="#{msg.index_templates}"/>
- <f:verbatim></h3></f:verbatim>
+ </h3>
 
  <div class="indnt1">
- <f:verbatim><h4></f:verbatim>
+   <h4>
    <h:outputText value="#{msg.index_new}"/>
- <f:verbatim></h4></f:verbatim>
+   </h4>
 <div class="indnt2">
- <f:verbatim><h5 class="plain"></f:verbatim>
+  <h5 class="plain">
    <h:outputText value="#{msg.index_create_new}"/>
- <f:verbatim></h5></f:verbatim>
-      <div class="shorttext">
+  </h5>
+    <div class="shorttext">
       <h:outputLabel for="newName" value="#{msg.index_templates_title}"/>
       <!--h:outputText value="#{msg.index_templates_title}" /-->
 
@@ -92,10 +93,9 @@
 </h:form>
  <h:form>
  <div class="indnt1">
- <f:verbatim><h4></f:verbatim>
+ <h4>
    <h:outputText value="#{msg.index_saved}"/>
- <f:verbatim></h4></f:verbatim>
-
+ </h4>
  <div class="indnt2">
 
   <!-- controller buttons for invisible pager control -->
@@ -187,7 +187,7 @@
  <p align="center">&#160;</p>
  <p align="center">&#160;</p>
 <!-- end content -->
-
+</div>
       </body>
     </html>
   </f:view>

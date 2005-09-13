@@ -40,7 +40,7 @@
       </head>
       <body onload="javascript:hideUnhideAllDivsWithWysiwyg('none');;<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
-
+ <div class="portletBody">
   <h:form id="templateEditorForm">
    <p class="navIntraTool" >
    <h:commandLink action="author" id="authorLink" immediate="true">
@@ -592,7 +592,7 @@
   </p>
 </h:form>
 <!-- end content -->
-
+</div>
       </body>
     </html>
   </f:view>

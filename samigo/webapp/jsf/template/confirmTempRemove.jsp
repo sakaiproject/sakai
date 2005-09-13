@@ -40,6 +40,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
   <!-- content... -->
+ <div class="portletBody">
   <h3><h:outputText value="#{msg.remove_conf}"/></h3>
  <h:form id="removeTemplateForm">
    <h:inputHidden id="templateId" value="#{template.idString}"/>
@@ -63,6 +64,7 @@
 
  </h:form>
   <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>
