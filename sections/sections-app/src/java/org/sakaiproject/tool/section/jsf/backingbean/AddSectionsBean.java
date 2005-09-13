@@ -25,9 +25,6 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
-import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -135,7 +132,8 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 			}
 			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
 					category, sectionModel.getMaxEnrollments(), sectionModel.getLocation(),
-					getTime(sectionModel, true), getTime(sectionModel, false),
+					JsfUtil.convertDateToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm()),
+					JsfUtil.convertDateToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm()),
 					sectionModel.isMonday(), sectionModel.isTuesday(), sectionModel.isWednesday(),
 					sectionModel.isThursday(), sectionModel.isFriday(), sectionModel.isSaturday(),
 					sectionModel.isSunday());
@@ -153,31 +151,18 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		return "overview";
 	}
 	
-	private Time getTime(LocalSectionModel section, boolean useStartTime) {
-		if(useStartTime) {
-			if(section.getStartTime() == null) {
-				return null;
-			}
-			if(!section.isStartTimeAm()) {
-				Date date = section.getStartTime();
-				date.setHours(date.getHours() + 12);
-				return new Time(date.getTime());
-			} else {
-				return new Time(section.getStartTime().getTime());
-			}
-		} else {
-			if(section.getEndTime() == null) {
-				return null;
-			}
-			if(!section.isEndTimeAm()) {
-				Date date = section.getEndTime();
-				date.setHours(date.getHours() + 12);
-				return new Time(section.getEndTime().getTime());
-			} else {
-				return new Time(section.getEndTime().getTime());
-			}
-		}
-	}
+//	private Time getTime(LocalSectionModel section, boolean useStartTime) {
+//		Date startTime = section.getStartTime();
+//		Date endTime = section.getEndTime();
+//		boolean startTimeAm = section.isStartTimeAm();
+//		boolean endTimeAm = section.isEndTimeAm();
+//		
+//		if(useStartTime) {
+//			return JsfUtil.convertDateToTime(startTime, startTimeAm);
+//		} else {
+//			return JsfUtil.convertDateToTime(endTime, endTimeAm);
+//		}
+//	}
 
 	public String getCategory() {
 		return category;

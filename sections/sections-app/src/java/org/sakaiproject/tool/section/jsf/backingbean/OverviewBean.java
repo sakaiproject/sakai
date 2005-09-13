@@ -36,7 +36,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
-import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 
 public class OverviewBean extends CourseDependentBean implements Serializable {
 

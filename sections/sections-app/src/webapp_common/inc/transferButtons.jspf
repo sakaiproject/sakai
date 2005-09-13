@@ -1,21 +1,17 @@
-        <h:panelGroup>
+        <h:panelGrid columns="1" columnClasses="transferButtonTable">
+            <h:outputText value="#{msgs.transfer_membership_move_selected}"/>
             <f:verbatim>
-                <p>
-                    <input type="button" onclick="addUser();" value="</f:verbatim><h:outputFormat value="#{msgs.transfer_membership_add_one}"/><f:verbatim>" />
-                </p>
-                <p>
-                    <input type="button" onclick="addAll();" value="</f:verbatim><h:outputFormat value="#{msgs.transfer_membership_add_all}"/><f:verbatim>"/>
-                </p>
-                
-                <p>
-                    &nbsp;
-                </p>
-                
-                <p>
-                    <input type="button" onclick="removeUser();" value="</f:verbatim><h:outputFormat value="#{msgs.transfer_membership_remove_one}"/><f:verbatim>"/>
-                </p>
-                <p>
-                    <input type="button" onclick="removeAll();" value="</f:verbatim><h:outputFormat value="#{msgs.transfer_membership_remove_all}"/><f:verbatim>"/>
-                </p>
+                <input type="button" onclick="addUser();" value="&gt;" />
             </f:verbatim>
-        </h:panelGroup>
+            <f:verbatim>
+                <input type="button" onclick="removeUser();" value="&lt;"/>
+            </f:verbatim>
+
+            <h:outputText value="#{msgs.transfer_membership_move_all}"/>
+            <f:verbatim>
+                <input type="button" onclick="addAll();" value="&gt;&gt;"/>
+            </f:verbatim>
+            <f:verbatim>
+                <input type="button" onclick="removeAll();" value="&lt;&lt;"/>
+            </f:verbatim>
+        </h:panelGrid>

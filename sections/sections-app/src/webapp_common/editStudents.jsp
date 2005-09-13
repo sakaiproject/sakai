@@ -12,7 +12,7 @@
         
         <%@include file="/inc/globalMessages.jspf"%>
 
-        <h:panelGrid columns="3">
+        <h:panelGrid columns="3" columnClasses="available,transferButtons,selected">
         
             <h:panelGroup>
                 <x:div>
@@ -26,18 +26,20 @@
                 	</h:selectManyListbox>
                 </x:div>
             </h:panelGroup>
-        
+
             <%@include file="/inc/transferButtons.jspf"%>
-        	
+            
             <h:panelGroup>
-                <x:div>
-                    <h:outputFormat value="#{editStudentsBean.sectionTitle}"/>
-                </x:div>
-                <x:div id="max" rendered="#{editStudentsBean.sectionMax != null}">
-                    <h:outputFormat value="#{msgs.edit_student_selected_title}">
-                        <f:param value="#{editStudentsBean.sectionMax}"/>
-                    </h:outputFormat>
-                </x:div>
+                <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">
+                    <x:div>
+                        <h:outputFormat value="#{editStudentsBean.sectionTitle}"/>
+                    </x:div>
+                    <x:div id="max" rendered="#{editStudentsBean.sectionMax != null}">
+                        <h:outputFormat value="#{msgs.edit_student_selected_title}">
+                            <f:param value="#{editStudentsBean.sectionMax}"/>
+                        </h:outputFormat>
+                    </x:div>
+                </h:panelGrid>
             
             	<h:selectManyListbox id="selectedUsers" size="20" style="width:200px;">
                     <f:selectItems value="#{editStudentsBean.selectedUsers}"/>

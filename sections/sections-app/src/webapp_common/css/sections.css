@@ -8,6 +8,14 @@ tr.nonmemberPadRow td {font-weight:normal; padding-bottom:1em !important;}
 tr.sectionPadRow td {padding-bottom:1em !important;}
 tr.sectionRow td {padding-bottom:0em !important;}
 
+label.formLabel {font-weight:bold;}
+
+.available {width:210px; text-align:left; vertical-align:top;}
+.transferButtons {width:100px; text-align:center; vertical-align:middle;}
+.selected {width:210px; text-align:right; vertical-align:top;}
+
+.transferButtonTable {text-align:center;}
+
 /* Item property editing. THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.itemSummary td.itemName {
 	font-weight:bold;

@@ -31,6 +31,8 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 
 public class CourseImpl extends LearningContextImpl implements Course, Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	protected String siteContext;
 	protected boolean externallyManaged;
 	protected boolean selfRegistrationAllowed;

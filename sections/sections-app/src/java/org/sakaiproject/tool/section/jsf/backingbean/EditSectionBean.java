@@ -25,8 +25,9 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
-import java.sql.Time;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -81,10 +82,14 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			startTime = section.getStartTime();
 			endTime = section.getEndTime();
 			if(section.getStartTime() != null) {
-				startTimeAm = section.getStartTime().getHours() < 11;
+				Calendar cal = new GregorianCalendar();
+				cal.setTime(startTime);
+				startTimeAm = cal.get(Calendar.HOUR_OF_DAY) < 11;
 			}
 			if(section.getEndTime() != null) {
-				endTimeAm = section.getEndTime().getHours() < 11;
+				Calendar cal = new GregorianCalendar();
+				cal.setTime(endTime);
+				endTimeAm = cal.get(Calendar.HOUR_OF_DAY) < 11;
 			}
 		}
 	}
@@ -97,52 +102,14 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			return "failure";
 		}
 		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
-				location, getDateAsTime(true), getDateAsTime(false), monday, tuesday,
+				location, JsfUtil.convertDateToTime(startTime, startTimeAm),
+				JsfUtil.convertDateToTime(endTime, endTimeAm), monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
 		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(
 				"section_update_successful", new String[] {title}));
 		return "overview";
 	}
 	
-	/**
-	 * The JSF DateTimeConverter can not convert into java.sql.Time.  So we do
-	 * the conversion manually from a java.util.Date.
-	 * 
-	 * @param useStartTime Whether to get the Time for the startTime field.
-	 * @return
-	 */
-	private Time getDateAsTime(boolean useStartTime) {
-		if(useStartTime) {
-			if(startTime == null) {
-				return null;
-			}
-			if(startTimeAm) {
-				// Check to make sure that the hours are indeed am hours
-				if(startTime.getHours() > 11) {
-					startTime.setHours(startTime.getHours() - 12);
-				}
-			} else {
-				if(startTime.getHours() < 11) {
-					startTime.setHours(startTime.getHours() + 12);
-				}
-			}
-			return new Time(startTime.getTime());
-		} else {
-			if(endTime == null) {
-				return null;
-			}
-			if(endTimeAm) {
-				// Check to make sure that the hours are indeed am hours
-				if(endTime.getHours() > 11) {
-					endTime.setHours(endTime.getHours() - 12);
-				}
-			} else {
-				endTime.setHours(endTime.getHours() + 12);
-			}
-			return new Time(endTime.getTime());
-		}
-	}
-
 	private boolean isDuplicateSectionTitle() {
 		for(Iterator iter = getAllSiteSections().iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();

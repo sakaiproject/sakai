@@ -47,13 +47,13 @@
             rowClasses="#{addSectionsBean.rowStyleClasses}">
             <h:column>
                 <h:panelGrid columns="2" rowClasses="sectionRow">
-                    <h:outputText value="#{msgs.section_title}"/>
+                    <h:outputLabel for="titleInput" value="#{msgs.section_title}" styleClass="formLabel"/>
                     <h:panelGroup>
                         <h:inputText id="titleInput" required="true" value="#{section.title}"/>
-                        <h:message for="titleInput"/>
+                        <h:message for="titleInput" styleClass="validationEmbedded"/>
                     </h:panelGroup>
                     
-                    <h:outputText value="#{msgs.section_days}"/>
+                    <h:outputLabel for="monday" value="#{msgs.section_days}" styleClass="formLabel"/>
                     <h:panelGroup>
                         <h:selectBooleanCheckbox id="monday" value="#{section.monday}"/>
                         <h:outputLabel for="monday" value="#{msgs.day_of_week_monday}"/>
@@ -77,40 +77,46 @@
                         <h:outputLabel for="sunday" value="#{msgs.day_of_week_sunday}"/>
                     </h:panelGroup>
             
-                    <h:outputText value="#{msgs.section_start_time}"/>
-                    <h:panelGroup>
-                        <h:inputText value="#{section.startTime}">
-                            <f:convertDateTime type="time" pattern="h:mm"/>
-                        </h:inputText>
+                    <h:outputLabel for="startTime" value="#{msgs.section_start_time}" styleClass="formLabel"/>
+                    <h:panelGrid columns="2">
+                        <h:panelGroup>
+                            <h:inputText id="startTime" value="#{section.startTime}">
+                                <f:convertDateTime type="time" pattern="h:mm"/>
+                            </h:inputText>
+                            <h:message for="startTime" styleClass="validationEmbedded"/>
+                        </h:panelGroup>
                         <h:selectOneRadio value="#{section.startTimeAm}">
                             <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                             <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
                         </h:selectOneRadio>
-                    </h:panelGroup>
+                    </h:panelGrid>
             
-                    <h:outputText value="#{msgs.section_end_time}"/>
-                    <h:panelGroup>
-                        <h:inputText value="#{section.endTime}">
-                            <f:convertDateTime type="time" pattern="h:mm"/>
-                        </h:inputText>
+                    <h:outputLabel for="endTime" value="#{msgs.section_end_time}" styleClass="formLabel"/>
+                    <h:panelGrid columns="2">
+                        <h:panelGroup>
+                            <h:inputText id="endTime" value="#{section.endTime}">
+                                <f:convertDateTime type="time" pattern="h:mm"/>
+                            </h:inputText>
+                            <h:message for="endTime" styleClass="validationEmbedded"/>
+                        </h:panelGroup>
                         <h:selectOneRadio value="#{section.endTimeAm}">
                             <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                             <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
                         </h:selectOneRadio>
-                    </h:panelGroup>
+                    </h:panelGrid>
             
-                    <h:outputText value="#{msgs.section_max_size}"/>
+                    <h:outputLabel for="maxEnrollmentInput" value="#{msgs.section_max_size}" styleClass="formLabel"/>
                     <h:panelGroup>
                         <h:inputText
                             id="maxEnrollmentInput"
                             value="#{section.maxEnrollments}">
                             <f:validateLongRange minimum="0" />
                         </h:inputText>
-                        <h:message for="maxEnrollmentInput"/>
+                        <h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
                     </h:panelGroup>
             
-                    <h:outputText value="#{msgs.section_location}"/>
-                    <h:inputText value="#{section.location}"/>
+                    <h:outputLabel for="location" value="#{msgs.section_location}" styleClass="formLabel"/>
+                    <h:inputText id="location" value="#{section.location}"/>
                 </h:panelGrid>
             </h:column>
         </x:dataTable>
@@ -120,7 +126,7 @@
             disabled="#{addSectionsBean.category == null}"
             value="#{msgs.add_sections_add}"/>
         
-        <h:commandButton action="overview" value="#{msgs.add_sections_cancel}"/>
+        <h:commandButton action="overview" immediate="true" value="#{msgs.add_sections_cancel}"/>
     </x:div>        
 </h:form>
 </f:view>
