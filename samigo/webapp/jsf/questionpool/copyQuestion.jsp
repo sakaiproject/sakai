@@ -39,7 +39,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
-
+<div class="portletBody">
 <div class="heading">Copy Question</div>
 
 
@@ -72,7 +72,7 @@
     action="cancelEditPool"/>
 
   </center>
-
+</div>
 </body>
 </html>
 </f:view>

@@ -38,6 +38,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
+<div class="portletBody">
 <div class="heading"><h:outputText value="#{msg.add_q}"></div>
  <f:verbatim><br /></f:verbatim>
  <h:form id="questionpool">
@@ -79,6 +80,7 @@
   </center></f:verbatim>
  </h:form>
 <!-- end content -->
+</div>
       </body>
     </html>
   </f:view>

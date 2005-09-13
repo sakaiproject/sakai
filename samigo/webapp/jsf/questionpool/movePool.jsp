@@ -47,7 +47,7 @@
 <body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
 
 <!-- content... -->
-
+ <div class="portletBody">
 <h:form id="movePool">
 <h3>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{msg.mv_p}"/>
@@ -95,6 +95,7 @@
 </p>
 
 </h:form>
+</div>
 </body>
 </html>
 </f:view>

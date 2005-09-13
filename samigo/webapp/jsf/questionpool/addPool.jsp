@@ -39,7 +39,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
-
+ <div class="portletBody">
 <h3 class="insColor insBak insBor">
 <h:outputText value="#{msg.add_p}"/>
 </h3>
@@ -88,6 +88,7 @@
 
 </p>
  </h:form>
+</div>
 <!-- end content -->
       </body>
     </html>

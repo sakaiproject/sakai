@@ -39,6 +39,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
+ <div class="portletBody">
  <h:form id="removePoolForm">
       <h3 style="insColor insBak"> <h:outputText  value="#{msg.rm_p_confirm}" /> </h3>
    <h:panelGrid cellpadding="5" cellspacing="3">
@@ -67,7 +68,7 @@
 
  </h:form>
  <!-- end content -->
-
+</div>
 
 </body>
 </html>

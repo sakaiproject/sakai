@@ -50,7 +50,7 @@
 </script>
       </head>
 <f:verbatim><body onload="collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();"></f:verbatim>
-
+ <div class="portletBody">
 <h:form id="editform">
 
 <h:messages />
@@ -210,6 +210,7 @@
  </div>
 
 </h:form>
+</div>
 </body>
 </html>
 </f:view>

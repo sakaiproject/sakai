@@ -45,7 +45,7 @@
       </head>
 <body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
-
+ <div class="portletBody">
 <h:form id="copyPool">
 
 <h3>
@@ -93,6 +93,7 @@
 
 </p>
 </h:form>
+</div>
 </body>
 </html>
 </f:view>

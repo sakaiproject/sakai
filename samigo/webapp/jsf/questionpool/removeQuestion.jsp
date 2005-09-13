@@ -39,6 +39,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
+<div class="portletBody">
  <h:form id="removePoolForm">
    <h:panelGrid cellpadding="5" cellspacing="3">
      <h:panelGroup>
@@ -68,7 +69,7 @@
  <!-- end content -->
 
 
-
+</div>
 
 </body>
 </html>
