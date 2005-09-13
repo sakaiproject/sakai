@@ -129,7 +129,8 @@ public class AgentFacade implements Serializable {
     {
       Realm siteRealm = RealmService.getRealm(realmName);
       Role currentUserRole = siteRealm.getUserRole(agentString);
-      role = currentUserRole.getId();
+      if (currentUserRole != null)
+        role = currentUserRole.getId();
       log.debug(realmName + ":" + role);
     }
     catch(Exception e)
