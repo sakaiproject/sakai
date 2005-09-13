@@ -72,7 +72,15 @@
                         <h:outputText value="#{msgs.overview_table_header_managers}" />
                     </x:commandSortHeader>
                 </f:facet>
-                <h:outputText value="#{section.instructorNames}"/>
+               <x:dataList id="instructorName"
+                   var="instructorName"
+                   value="#{section.instructorNames}"
+                   layout="simple">
+                   <x:div>
+                       <h:outputText value="#{instructorName}" />
+                   </x:div>
+               </x:dataList>
+
             </h:column>
             <h:column>
                 <f:facet name="header">

@@ -38,12 +38,12 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(InstructorSectionDecorator.class);
 
-	protected String instructorNames;
+	protected List instructorNames;
 	protected int totalEnrollments;
 	protected String spotsAvailable;
 	
 	public InstructorSectionDecorator(CourseSection courseSection, String categoryForDisplay,
-			String instructorNames, int totalEnrollments) {
+			List instructorNames, int totalEnrollments) {
 		super(courseSection, categoryForDisplay);
 		this.instructorNames = instructorNames;
 		this.totalEnrollments = totalEnrollments;
@@ -63,7 +63,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		// Needed for serialization
 	}
 	
-	public String getInstructorNames() {
+	public List getInstructorNames() {
 		return instructorNames;
 	}
 	public String getSpotsAvailable() {
@@ -126,6 +126,43 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 						}
 						int timeComparison = meetingTimes1.compareTo(meetingTimes2);
 						return sortAscending ? timeComparison : (-1 * timeComparison);
+					}
+					// These are in different categories, so sort them by category name
+					return categoryNameComparison;
+				}
+				if(log.isDebugEnabled()) log.debug("One of these is not an InstructorSectionDecorator: "
+						+ o1 + "," + o2);
+				return 0;
+			}
+		};
+	}
+
+	public static final Comparator getManagersComparator(final boolean sortAscending,
+			final List categoryNames, final List categoryIds) {
+		return new Comparator() {
+			public int compare(Object o1, Object o2) {
+				if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
+					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
+					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
+
+					// First compare the category name, then compare the time
+					int categoryNameComparison = categoryNameComparison(section1,
+							section2, categoryNames, categoryIds);
+					if(categoryNameComparison == 0) {
+						// These are in the same category, so compare by the list of managers
+						List managers1 = section1.getInstructorNames();
+						List managers2 = section2.getInstructorNames();
+						if(managers1.isEmpty() && ! managers2.isEmpty()) {
+							return sortAscending? -1 : 1 ;
+						}
+						if(managers2.isEmpty() && ! managers1.isEmpty()) {
+							return sortAscending? 1 : -1 ;
+						}
+						if(managers1.isEmpty() && managers2.isEmpty()) {
+							return 0;
+						}
+						int managersComparison = managers1.get(0).toString().compareTo(managers2.get(0));
+						return sortAscending ? managersComparison : (-1 * managersComparison);
 					}
 					// These are in different categories, so sort them by category name
 					return categoryNameComparison;

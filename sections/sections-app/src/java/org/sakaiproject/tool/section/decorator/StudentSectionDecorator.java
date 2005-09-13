@@ -45,7 +45,7 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 	protected boolean member;
 	
 	public StudentSectionDecorator(CourseSection courseSection, String categoryForDisplay,
-			String instructorNames, int totalEnrollments, boolean member,
+			List instructorNames, int totalEnrollments, boolean member,
 			boolean memberOtherSection) {
 		super(courseSection, categoryForDisplay, instructorNames, totalEnrollments);
 		this.member = member;
@@ -62,7 +62,7 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 		// Needed for serialization
 	}
 	
-	public String getInstructorNames() {
+	public List getInstructorNames() {
 		return instructorNames;
 	}
 	

@@ -34,7 +34,6 @@ import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -102,21 +101,20 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			
 			// Generate the string showing the TAs
 			List tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
-			StringBuffer taNames = new StringBuffer();
+			List taNames = new ArrayList();
 			for(Iterator taIter = tas.iterator(); taIter.hasNext();) {
 				ParticipationRecord ta = (ParticipationRecord)taIter.next();
-				taNames.append(ta.getUser().getDisplayName());
-				if(taIter.hasNext()) {
-					taNames.append(", ");
-				}
+				taNames.add(ta.getUser().getSortName());
 			}
+
+			Collections.sort(taNames);
 
 			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
 			boolean member = isEnrolledInSection(enrolledSections, section);
 			boolean memberOtherSection = isEnrolledInOtherSection(enrolledSections, section);
 			
 			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(
-					section, catName, taNames.toString(), totalEnrollments, member, memberOtherSection);
+					section, catName, taNames, totalEnrollments, member, memberOtherSection);
 			sections.add(decoratedSection);
 		}
 		
@@ -204,6 +202,10 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			return InstructorSectionDecorator.getTitleComparator(sortAscending, categoryNames, categoryIds);
 		}
 
+		if(sortColumn.equals("instructor")) {
+			return InstructorSectionDecorator.getManagersComparator(sortAscending, categoryNames, categoryIds); 
+		}
+		
 		// These are already sorted by category, so just sort by title
 		if(sortColumn.equals("category")) {
 			return InstructorSectionDecorator.getTitleComparator(sortAscending, categoryNames, categoryIds);

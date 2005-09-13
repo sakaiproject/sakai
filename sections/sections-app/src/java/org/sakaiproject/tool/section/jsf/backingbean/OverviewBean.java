@@ -72,19 +72,18 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 			// Generate the string showing the TAs
 			// FIXME Get this query out of the loop!
 			List tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
-			StringBuffer taNames = new StringBuffer();
+			List taNames = new ArrayList();
 			for(Iterator taIter = tas.iterator(); taIter.hasNext();) {
 				ParticipationRecord ta = (ParticipationRecord)taIter.next();
-				taNames.append(ta.getUser().getDisplayName());
-				if(taIter.hasNext()) {
-					taNames.append(", ");
-				}
+				taNames.add(ta.getUser().getSortName());
 			}
+			
+			Collections.sort(taNames);
 
 			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
 			
 			InstructorSectionDecorator decoratedSection = new InstructorSectionDecorator(
-					section, catName, taNames.toString(), totalEnrollments);
+					section, catName, taNames, totalEnrollments);
 			sections.add(decoratedSection);
 		}
 		
@@ -130,6 +129,10 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		
 		if(sortColumn.equals("time")) {
 			return InstructorSectionDecorator.getTimeComparator(sortAscending, categoryNames, categoryIds); 
+		}
+
+		if(sortColumn.equals("managers")) {
+			return InstructorSectionDecorator.getManagersComparator(sortAscending, categoryNames, categoryIds); 
 		}
 
 		if(sortColumn.equals("location")) {
