@@ -49,5 +49,15 @@ Sakai Sections Tool -- Building and Deploying
 		can not create new course contexts.  Therefore, we need to bootstrap
 		course information so when the app starts, it can find its course context.
 
-		To load the initial course contexts, run 'maven -Dmem=false loadData'
+		To load the initial course contexts, run one of the following commands
 		from the 'sections-app' subdirectory.
+		
+		Standalone dataload
+		maven -Dstandalone=true -Dmem=false loadData
+		
+		Sakai 2.0 dataload
+		maven -Dmem=false loadData
+		
+		Sakai 2.1 dataload
+		(not yet available)
+		

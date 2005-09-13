@@ -102,7 +102,16 @@
     </goal>
 
     <goal name="schema">
-        <j:set var="maven.hibernate.properties" value="${hibernate.properties.dir}/hibernate.properties" />
+        <j:choose>
+            <j:when test="${mem.equals('false')}">
+                <!-- Use the main build's Hibernate settings. -->
+                <j:set var="maven.hibernate.properties" value="${hibernate.properties.dir}/hibernate.properties"/>
+            </j:when>
+            <j:otherwise>
+                <!-- Use the default in-memory Hibernate settings. -->
+                <j:set var="maven.hibernate.properties" value="${basedir}/src/test/hibernate.properties"/>
+            </j:otherwise>
+        </j:choose>
         <j:set var="hibernate.hbm2ddl.auto" value="create" />
         <j:set var="maven.hibernate.delimiter" value=";" />
         <j:set var="maven.hibernate.quiet" value="false" />
