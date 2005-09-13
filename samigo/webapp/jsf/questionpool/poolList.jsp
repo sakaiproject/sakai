@@ -46,7 +46,7 @@
 </script>
       </head>
 <body onload="collapseAllRows();flagRows();;<%= request.getAttribute("html.body.onload") %>">
-
+ <div class="portletBody">
 <!-- content... -->
 <h:form id="questionpool">
 
@@ -110,6 +110,7 @@
 
 
 </h:form>
+</div>
       </body>
     </html>
   </f:view>
