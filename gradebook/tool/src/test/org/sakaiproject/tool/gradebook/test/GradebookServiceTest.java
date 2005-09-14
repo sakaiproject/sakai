@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
-import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
