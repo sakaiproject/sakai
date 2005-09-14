@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.util;
+package org.sakaiproject.tool.assessment.qti.util;
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.tool.assessment.business.exception.Iso8601FormatException;
+import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 
 /**
  * Based on ISO8601 Specification.

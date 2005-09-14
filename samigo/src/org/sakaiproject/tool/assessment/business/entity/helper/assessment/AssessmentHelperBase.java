@@ -44,8 +44,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.util.Iso8601DateFormat;
-import org.sakaiproject.tool.assessment.util.Iso8601TimeInterval;
+import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
+import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 
 /**
  * <p>Copyright: Copyright (c) 2005/p>

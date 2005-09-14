@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.exception;
+package org.sakaiproject.tool.assessment.qti.exception;
 
 
 /**
