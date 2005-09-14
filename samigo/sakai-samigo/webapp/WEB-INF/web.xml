@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 <!-- $Id: web.xml,v 1.8 2005/06/08 03:06:41 daisyf.stanford.edu Exp $ -->
   <display-name>SAM</display-name>
@@ -53,7 +53,7 @@
 
   <!--** Important: This SetCharacterEncodingFilter must be the 1st one in the list of fillter **-->
   <!-- Let Sakai handle setting the character encoding (through the Sakai request filter) -->
-  <!-- 
+  <!--
   <filter>
     <filter-name>Set Character Encoding</filter-name>
     <filter-class>org.sakaiproject.tool.assessment.ui.web.filter.SetCharacterEncodingFilter</filter-class>
@@ -71,7 +71,7 @@
       <param-name>remote.user</param-name>
       <param-value>true</param-value>
     </init-param>
-    <!-- 
+    <!--
          Don't use Sakai's built-in upload handling.
          Samigo has its own upload filter below.
     -->
@@ -80,7 +80,7 @@
       <param-value>false</param-value>
     </init-param>
   </filter>
- 
+
   <filter>
     <filter-name>Upload Filter</filter-name>
     <filter-class>com.corejsf.UploadFilter</filter-class>
@@ -146,7 +146,7 @@
 
   <!-- Spring Locator -->
   <!--  Don't use Spring's, use Sakai's!  This allows sharing of Spring across webapps -->
-<!-- 
+<!--
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
@@ -260,6 +260,11 @@
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>/faces/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.xml</url-pattern>
     </servlet-mapping>
 
   <!-- for anonymous requests (not caught by security filter) -->
