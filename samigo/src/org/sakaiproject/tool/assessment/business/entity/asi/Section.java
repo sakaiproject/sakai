@@ -37,8 +37,8 @@ import org.w3c.dom.Element;
 
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIConstantStrings;
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.business.entity.helper.QTIHelperFactory;
-import org.sakaiproject.tool.assessment.business.entity.helper.item.ItemHelperIfc;
+import org.sakaiproject.tool.assessment.qti.helper.QTIHelperFactory;
+import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;

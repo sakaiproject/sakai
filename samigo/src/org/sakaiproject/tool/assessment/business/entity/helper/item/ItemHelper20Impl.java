@@ -21,7 +21,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.helper.item;
+package org.sakaiproject.tool.assessment.qti.helper.item;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,7 +38,7 @@ import org.sakaiproject.tool.assessment.business.entity.asi.Item;
 import org.sakaiproject.tool.assessment.business.entity.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIConstantStrings;
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringXml;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 

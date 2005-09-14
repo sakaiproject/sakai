@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.helper;
+package org.sakaiproject.tool.assessment.qti.helper;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;

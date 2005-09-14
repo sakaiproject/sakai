@@ -21,7 +21,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.helper.item;
+package org.sakaiproject.tool.assessment.qti.helper.item;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,8 +38,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.business.entity.asi.Item;
-import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringHelper;
-import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringXml;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 public abstract class ItemHelperBase

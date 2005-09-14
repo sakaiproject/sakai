@@ -21,7 +21,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.helper;
+package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,9 +49,9 @@ import org.sakaiproject.tool.assessment.business.entity.asi.Assessment;
 import org.sakaiproject.tool.assessment.business.entity.asi.Item;
 import org.sakaiproject.tool.assessment.business.entity.asi.Section;
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.business.entity.helper.assessment.AssessmentHelperIfc;
-import org.sakaiproject.tool.assessment.business.entity.helper.item.ItemHelperIfc;
-import org.sakaiproject.tool.assessment.business.entity.helper.section.SectionHelperIfc;
+import org.sakaiproject.tool.assessment.qti.helper.assessment.AssessmentHelperIfc;
+import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
+import org.sakaiproject.tool.assessment.qti.helper.section.SectionHelperIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;

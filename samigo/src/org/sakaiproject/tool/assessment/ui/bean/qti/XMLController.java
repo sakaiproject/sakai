@@ -33,8 +33,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringHelper;
-import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringXml;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.util.XmlUtil;
 

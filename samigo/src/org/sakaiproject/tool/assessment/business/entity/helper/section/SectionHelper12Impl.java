@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.helper.section;
+package org.sakaiproject.tool.assessment.qti.helper.section;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

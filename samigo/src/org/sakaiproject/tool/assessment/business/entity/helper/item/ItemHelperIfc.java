@@ -21,7 +21,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.helper.item;
+package org.sakaiproject.tool.assessment.qti.helper.item;
 
 import java.io.InputStream;
 import java.util.ArrayList;

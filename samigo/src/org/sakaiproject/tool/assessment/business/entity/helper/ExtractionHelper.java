@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.helper;
+package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.business.entity.asi.Assessment;
 import org.sakaiproject.tool.assessment.business.entity.asi.Item;
 import org.sakaiproject.tool.assessment.business.entity.asi.Section;
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.business.entity.helper.item.ItemTypeExtractionStrategy;
+import org.sakaiproject.tool.assessment.qti.helper.item.ItemTypeExtractionStrategy;
 import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;

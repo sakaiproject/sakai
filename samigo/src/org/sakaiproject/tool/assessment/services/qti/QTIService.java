@@ -26,7 +26,7 @@ package org.sakaiproject.tool.assessment.services.qti;
 import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringHelper;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.apache.commons.logging.Log;

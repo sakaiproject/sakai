@@ -21,7 +21,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.helper;
+package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.util.List;
 import java.util.StringTokenizer;

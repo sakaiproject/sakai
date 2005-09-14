@@ -20,7 +20,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  **********************************************************************************/
-package org.sakaiproject.tool.assessment.business.entity.helper.item;
+package org.sakaiproject.tool.assessment.qti.helper.item;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -22,7 +22,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.helper.assessment;
+package org.sakaiproject.tool.assessment.qti.helper.assessment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.business.entity.asi.Assessment;
 import org.sakaiproject.tool.assessment.business.entity.asi.Section;
-import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringHelper;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
