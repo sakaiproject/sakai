@@ -25,22 +25,16 @@ package org.sakaiproject.tool.assessment.qti.helper.section;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xerces.dom.ElementImpl;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
-import org.sakaiproject.tool.assessment.qti.helper.QTIHelperFactory;
-import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
 
 /**
  * Sections are pretty version-independent, base class does most of the work.

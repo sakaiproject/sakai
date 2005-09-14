@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.assessment.qti.helper.section;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 
 import org.sakaiproject.tool.assessment.qti.asi.Section;
 

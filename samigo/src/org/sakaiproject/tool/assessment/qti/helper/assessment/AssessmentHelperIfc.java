@@ -25,11 +25,11 @@ package org.sakaiproject.tool.assessment.qti.helper.assessment;
 
 import java.io.InputStream;
 
-import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 
 /**
  * Interface for QTI-versioned assessment helper implementation.

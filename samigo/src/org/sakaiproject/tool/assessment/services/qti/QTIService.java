@@ -23,14 +23,14 @@
 
 package org.sakaiproject.tool.assessment.services.qti;
 
-import org.w3c.dom.Document;
-
-import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
+
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 
 /**
  * <p>This service provides translation between database and QTI representations.

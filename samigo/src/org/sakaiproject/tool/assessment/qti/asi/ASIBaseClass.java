@@ -47,8 +47,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-import org.sakaiproject.tool.assessment.qti.util.XmlStringBuffer;
 import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
+import org.sakaiproject.tool.assessment.qti.util.XmlStringBuffer;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>

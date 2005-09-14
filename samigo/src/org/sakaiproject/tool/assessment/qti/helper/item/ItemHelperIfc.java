@@ -26,8 +26,8 @@ package org.sakaiproject.tool.assessment.qti.helper.item;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.qti.asi.Item;
 
 /**
  * Interface for QTI-versioned item helper implementation.
