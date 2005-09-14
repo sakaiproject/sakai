@@ -30,8 +30,8 @@ import javax.faces.context.FacesContext;
 import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringHelper;
-import org.sakaiproject.tool.assessment.business.entity.helper.AuthoringXml;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.XmlUtil;

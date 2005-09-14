@@ -32,7 +32,7 @@ import org.sakaiproject.tool.assessment.business.entity.asi.Assessment;
 import org.sakaiproject.tool.assessment.business.entity.asi.Item;
 import org.sakaiproject.tool.assessment.business.entity.asi.Section;
 import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.business.entity.helper.ExtractionHelper;
+import org.sakaiproject.tool.assessment.qti.helper.ExtractionHelper;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
