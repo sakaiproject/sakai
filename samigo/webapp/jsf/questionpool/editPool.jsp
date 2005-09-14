@@ -200,7 +200,7 @@
 <!-- for importing questions from pool to authoring -->
 
   <h:commandButton id="import"   rendered="#{questionpool.importToAuthoring == 'true'}" action="#{questionpool.doit}"
-        value="#{msg.import}">
+        value="#{msg.copy}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
 
