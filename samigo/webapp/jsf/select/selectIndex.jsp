@@ -42,6 +42,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
   <!-- content... -->
+<div class="portletBody">
   <h:form id="selectIndexForm">
   <h3>
     <h:outputText value="#{msg.page_heading}"/>
@@ -475,6 +476,7 @@ sorting actions for table:
   </h:dataTable>
   </div></div>
   </h:form>
+</div>
   <!-- end content -->
       </body>
     </html>
