@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.asi;
+package org.sakaiproject.tool.assessment.qti.asi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +35,8 @@ import org.apache.xerces.dom.ElementImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIConstantStrings;
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.QTIHelperFactory;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;

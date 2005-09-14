@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.qti.helper.item;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.tool.assessment.business.entity.constants.AuthoringConstantStrings;
+import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 
 /**

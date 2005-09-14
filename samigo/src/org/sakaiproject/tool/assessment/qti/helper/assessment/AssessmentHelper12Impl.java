@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.qti.helper.assessment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>

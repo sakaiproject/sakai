@@ -42,11 +42,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import org.sakaiproject.tool.assessment.business.entity.asi.ASIBaseClass;
-import org.sakaiproject.tool.assessment.business.entity.asi.Assessment;
-import org.sakaiproject.tool.assessment.business.entity.asi.Item;
-import org.sakaiproject.tool.assessment.business.entity.asi.Section;
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.asi.ASIBaseClass;
+import org.sakaiproject.tool.assessment.qti.asi.Assessment;
+import org.sakaiproject.tool.assessment.qti.asi.Item;
+import org.sakaiproject.tool.assessment.qti.asi.Section;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemTypeExtractionStrategy;
 import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;

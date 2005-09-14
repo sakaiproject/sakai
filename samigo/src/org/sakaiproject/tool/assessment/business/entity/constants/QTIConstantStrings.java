@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.constants;
+package org.sakaiproject.tool.assessment.qti.constants;
 
 /**
  * <p>This class contains all qti tag names and attribute names  frequently used

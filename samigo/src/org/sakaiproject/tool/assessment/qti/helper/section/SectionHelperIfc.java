@@ -26,7 +26,7 @@ package org.sakaiproject.tool.assessment.qti.helper.section;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import org.sakaiproject.tool.assessment.business.entity.asi.Section;
+import org.sakaiproject.tool.assessment.qti.asi.Section;
 
 /**
  * Interface for QTI-versioned section helper implementation.

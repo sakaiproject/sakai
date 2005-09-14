@@ -37,7 +37,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import org.sakaiproject.tool.assessment.business.entity.asi.Section;
+import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.helper.QTIHelperFactory;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;

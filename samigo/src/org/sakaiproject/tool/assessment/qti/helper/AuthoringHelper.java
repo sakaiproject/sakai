@@ -44,11 +44,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import org.sakaiproject.tool.assessment.business.entity.XmlStringBuffer;
-import org.sakaiproject.tool.assessment.business.entity.asi.Assessment;
-import org.sakaiproject.tool.assessment.business.entity.asi.Item;
-import org.sakaiproject.tool.assessment.business.entity.asi.Section;
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.util.XmlStringBuffer;
+import org.sakaiproject.tool.assessment.qti.asi.Assessment;
+import org.sakaiproject.tool.assessment.qti.asi.Item;
+import org.sakaiproject.tool.assessment.qti.asi.Section;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.assessment.AssessmentHelperIfc;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
 import org.sakaiproject.tool.assessment.qti.helper.section.SectionHelperIfc;

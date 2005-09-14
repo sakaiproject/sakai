@@ -30,7 +30,7 @@ import javax.faces.event.ValueChangeEvent;
 
 import org.w3c.dom.Document;
 
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;

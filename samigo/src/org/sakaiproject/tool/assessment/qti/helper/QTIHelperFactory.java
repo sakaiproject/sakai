@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.io.Serializable;
 
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.assessment.AssessmentHelperIfc;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
 import org.sakaiproject.tool.assessment.qti.helper.section.SectionHelperIfc;

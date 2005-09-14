@@ -26,7 +26,7 @@ package org.sakaiproject.tool.assessment.qti.helper.item;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import org.sakaiproject.tool.assessment.business.entity.asi.Item;
+import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 /**

@@ -20,7 +20,7 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-package org.sakaiproject.tool.assessment.business.entity.constants;
+package org.sakaiproject.tool.assessment.qti.constants;
 
 /**
  * A set of strings for QTI XML item characteristics

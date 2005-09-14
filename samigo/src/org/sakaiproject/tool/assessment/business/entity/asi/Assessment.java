@@ -22,7 +22,7 @@
 **********************************************************************************/
 
 
-package org.sakaiproject.tool.assessment.business.entity.asi;
+package org.sakaiproject.tool.assessment.qti.asi;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +37,7 @@ import org.apache.xerces.dom.ElementImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIConstantStrings;
+import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
 
 /**
  * <p>Copyright: Copyright (c) 2003-5</p>

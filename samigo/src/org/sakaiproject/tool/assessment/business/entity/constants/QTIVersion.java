@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity.constants;
+package org.sakaiproject.tool.assessment.qti.constants;
 
 /**
  * <p>Supported QTI Versions.</p>

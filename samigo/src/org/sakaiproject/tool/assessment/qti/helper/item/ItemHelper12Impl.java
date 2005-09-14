@@ -39,10 +39,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import org.sakaiproject.tool.assessment.business.entity.asi.Item;
-import org.sakaiproject.tool.assessment.business.entity.constants.
+import org.sakaiproject.tool.assessment.qti.asi.Item;
+import org.sakaiproject.tool.assessment.qti.constants.
   AuthoringConstantStrings;
-import org.sakaiproject.tool.assessment.business.entity.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
