@@ -35,19 +35,21 @@ package es.udl.asic.user;
 
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
+import javax.naming.AuthenticationException;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
 import org.sakaiproject.service.legacy.user.UserEdit;
-
-//Necessary for OpenLdap
-
-import javax.naming.*;
-import javax.naming.directory.*;
 
 public class OpenLdapDirectoryProvider implements UserDirectoryProvider {
 	

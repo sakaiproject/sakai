@@ -25,6 +25,7 @@
 package org.sakaiproject.component.kerberos.user;
 
 // imports
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -38,7 +39,6 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
 import org.sakaiproject.service.legacy.user.UserEdit;

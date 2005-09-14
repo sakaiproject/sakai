@@ -25,25 +25,18 @@
 package org.sakaiproject.component.imsent.user;
 
 // imports
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.framework.sql.SqlReader;
 import org.sakaiproject.service.framework.sql.SqlService;
-import org.sakaiproject.service.legacy.resource.ResourceProperties;
 import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
 import org.sakaiproject.service.legacy.user.UserEdit;
-
-// For unit tests
-import org.sakaiproject.service.legacy.coursemanagement.CourseManagementProvider;
-import org.sakaiproject.service.legacy.realm.RealmProvider;
 
 /**
  * <p>
