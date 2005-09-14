@@ -42,6 +42,7 @@
 **********************************************************************************/
 --%>
 -->
+ <div class="portletBody">
 <!-- content... -->
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
@@ -427,7 +428,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
 </p>
 </h:form>
-
+</div>
   <!-- end content -->
       </body>
     </html>

@@ -41,6 +41,7 @@ $Id$
 --%>
 -->
 <!-- content... -->
+ <div class="portletBody">
 <h:form id="histogram">
 
   <h:inputHidden id="publishedId" value="#{histogramScores.publishedId}" />
@@ -231,6 +232,7 @@ $Id$
 <h:commandButton value="#{msg.return}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
 
 </h:form>
+</div>
   <!-- end content -->
       </body>
     </html>

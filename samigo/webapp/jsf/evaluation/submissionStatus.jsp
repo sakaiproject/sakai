@@ -44,6 +44,7 @@ $Id$
 --%>
 -->
 <!-- content... -->
+ <div class="portletBody">
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
   <h:inputHidden id="itemId" value="#{totalScores.firstItem}" />
@@ -225,7 +226,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
   </h:dataTable>
 
 </h:form>
-
+</div>
   <!-- end content -->
       </body>
     </html>

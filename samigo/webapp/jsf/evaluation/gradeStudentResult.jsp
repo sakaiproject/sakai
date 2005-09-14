@@ -49,6 +49,7 @@ $Id$
     <body onload="hideUnhideAllDivs('none');;<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
 <!-- content... -->
+ <div class="portletBody">
 <h:form id="editStudentResults">
   <h:inputHidden id="publishedIdd" value="#{studentScores.publishedId}" />
   <h:inputHidden id="publishedId" value="#{studentScores.publishedId}" />
@@ -232,7 +233,7 @@ $Id$
    </h:commandButton>
 </p>
 </h:form>
-
+</div>
   <!-- end content -->
       </body>
     </html>

@@ -44,6 +44,7 @@ $Id$
 --%>
 -->
 <!-- content... -->
+ <div class="portletBody">
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{questionScores.publishedId}" />
   <h:inputHidden id="itemId" value="#{questionScores.itemId}" />
@@ -496,7 +497,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <h:commandButton value="#{msg.cancel}" action="totalScores" immediate="true"/>
 </p>
 </h:form>
-
+</div>
   <!-- end content -->
       </body>
     </html>
