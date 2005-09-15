@@ -30,8 +30,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
+import javax.faces.application.FacesMessage;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
@@ -1060,8 +1062,13 @@ public class QuestionPoolBean
         {
           try
           {
+	    if (hasItemInDestPool(sourceItemId, destId)) {
+                return "movePool";
+            }
+	    else {		
             QuestionPoolService delegate = new QuestionPoolService();
             delegate.moveItemToPool(sourceItemId, new Long(sourceId), new Long(destId));
+	    }
           }
           catch(Exception e)
           {
@@ -1075,6 +1082,26 @@ public class QuestionPoolBean
         return "poolList";
 
   }
+
+  public boolean hasItemInDestPool(String sourceItemId, String destId){
+  
+              QuestionPoolService delegate = new QuestionPoolService();
+              // check if the item already exists in the destPool
+              if (delegate.hasItem(sourceItemId, new Long(destId))){
+                // we do not want to add duplicated items, show message
+
+                FacesContext context=FacesContext.getCurrentInstance();
+                ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages", context.getViewRoot().getLocale());
+                String err;
+                err=(String)rb.getObject("copy_duplicate_error");
+                context.addMessage(null,new FacesMessage(err));
+                return true;
+              }
+  	      else {	
+                return false;
+ 	      } 
+  }
+
 
   public String copyQuestion(){
 
@@ -1092,10 +1119,16 @@ public class QuestionPoolBean
           destId = (String) iter.next();
           if((sourceItemId != null) && (destId != null))
           {
+                 
             try
             {
-              QuestionPoolService delegate = new QuestionPoolService();
+	      if (hasItemInDestPool(sourceItemId, destId)) {
+      		return "copyPool";
+              }
+              else {
+                QuestionPoolService delegate = new QuestionPoolService();
                 delegate.addItemToPool(sourceItemId, new Long(destId));
+              }
             }
             catch(Exception e)
             {
@@ -1202,7 +1235,6 @@ public String startRemoveQuestions(){
      this.startEditPoolAgain(sourceId);  // return to edit pool
      return "editPool";
   }
-
 
   public void getCheckedQuestion()
   {
