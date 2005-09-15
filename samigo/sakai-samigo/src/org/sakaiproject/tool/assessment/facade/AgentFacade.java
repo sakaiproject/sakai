@@ -18,6 +18,8 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.api.kernel.tool.Placement;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 
 /**
  *
@@ -120,7 +122,7 @@ public class AgentFacade implements Serializable {
   public String getRole()
   {
     String role = "anonymous_access";
-    String thisSiteId = PortalService.getCurrentSiteId();
+    String thisSiteId = ToolManager.getCurrentPlacement().getContext();
     String realmName = "/site/" + thisSiteId;
     if (thisSiteId == null)
       return role;
@@ -144,7 +146,7 @@ public class AgentFacade implements Serializable {
   public static String getRole(String agentIdString)
   {
     String role = "anonymous_access";
-    String thisSiteId = PortalService.getCurrentSiteId();
+    String thisSiteId = ToolManager.getCurrentPlacement().getContext();
     String realmName = "/site/" + thisSiteId;
     Role userRole=null;
     if (thisSiteId == null)
@@ -177,8 +179,9 @@ public class AgentFacade implements Serializable {
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     if (delivery !=null){
       delivery = (DeliveryBean) delivery;
-      if (!delivery.getAccessViaUrl())
-        currentSiteId = org.sakaiproject.service.framework.portal.cover.PortalService.getCurrentSiteId();
+      if (!delivery.getAccessViaUrl()){
+        currentSiteId = ToolManager.getCurrentPlacement().getContext();
+      }
     }
     return currentSiteId;
   }
@@ -189,8 +192,7 @@ public class AgentFacade implements Serializable {
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery",req, res);
     if (delivery !=null){
       delivery = (DeliveryBean) delivery;
-      currentSiteId = org.sakaiproject.service.framework.portal.cover.PortalService.getCurrentSiteId();
-      log.debug("****current siteId= "+currentSiteId);
+      currentSiteId = ToolManager.getCurrentPlacement().getContext();
     }
     return currentSiteId;
   }
