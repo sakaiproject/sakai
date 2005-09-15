@@ -21,7 +21,7 @@
 		<property name="dataSource"><ref bean="gradebookDataSource"/></property>
 
 		<property name="mappingLocations">
-		    <value>classpath*:org/sakaiproject/tool/gradebook/**/*.hbm.xml</value>
+		    <value>classpath*:org/sakaiproject/**/*.hbm.xml</value>
 		</property>
 
 <!-- This doesn't work, because it can't look into JARs.

@@ -35,7 +35,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  *
  */
-public class TestGradebookLoader extends GradebookTestBase {
+public class TestGradebookLoader extends GradebookLoaderBase {
 	private static final Log log = LogFactory.getLog(TestGradebookLoader.class);
 
     public static final String[] GRADEBOOK_UIDS = {

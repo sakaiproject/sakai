@@ -14,7 +14,7 @@
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
 	</bean>
 
-	<bean id="gradebookTxTemplate" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+	<bean id="gradebookTxTemplate" lazy-init="true" abstract="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager"><ref bean="gradebookTransactionManager"/></property>
 		<property name="transactionAttributes">
 			<props>

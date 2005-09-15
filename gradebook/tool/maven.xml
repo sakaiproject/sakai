@@ -111,6 +111,24 @@
 		<attainGoal name="load-grades" />
 	</goal>
 
+	<goal name="load-gradebook-data">
+		<!-- Skip the tests -->
+		<j:set var="maven.test.skip" value="true" />
+		<!-- Don't use the in-memory DB usually used for tests, since it wouldn't work anyway. -->
+		<j:set var="mem" value="false" />
+
+		<attainGoal name="schema" />
+		<attainGoal name="load-gradebooks" />
+		<attainGoal name="load-grades" />
+	</goal>
+	<goal name="test-standalone-sections">
+		<!-- Skip the tests -->
+		<j:set var="maven.test.skip" value="true" />
+
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneSectionAwareness" />
+		<attainGoal name="test:single" />
+	</goal>
+
 	<!-- load-full must be run before these tests will succeed. -->
 	<goal name="test-standalone">
 		<!-- Skip the tests -->

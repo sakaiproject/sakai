@@ -17,6 +17,15 @@
 			/WEB-INF/spring-hib.xml
 			/WEB-INF/spring-service.xml
 		</param-value>
+		<!--
+		<param-value>
+			/WEB-INF/spring-beans.xml
+			/WEB-INF/spring-db.xml
+			/WEB-INF/spring-facades-sections.xml
+			/WEB-INF/spring-hib.xml
+			/WEB-INF/spring-service.xml
+		</param-value>
+		-->
 	</context-param>
 
     <listener>

@@ -52,7 +52,7 @@
 		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-sections-comp-shared</artifactId>
+			<artifactId>sakai-sections-comp-shared-standalone</artifactId>
 			<version>${pom.currentVersion}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -151,12 +151,14 @@
  		<dependency>
 			<groupId>springframework</groupId>
 			<artifactId>spring</artifactId>
+			<!-- <version>1.2.4</version> -->
 			<version>1.1.5</version>
 		</dependency>
 
  		<dependency>
 			<groupId>springframework</groupId>
 			<artifactId>spring-mock</artifactId>
+			<!-- <version>1.2.4</version> -->
 			<version>1.1.5</version>
 		</dependency>
 
@@ -394,6 +396,13 @@
 					<includes>
 						<include>spring-db.xml</include>
 						<include>spring-facades.xml</include>
+						<!--
+							The current unit tests aren't set up to play
+							nicely with integration testing, since we need some
+							way to create new courses, users, and enrollments.
+							TODO Figure out some approach to integration testing.
+						-->
+						<include>spring-facades-sections.xml</include>
 						<include>spring-service.xml</include>
 					</includes>
 				</resource>
