@@ -121,13 +121,6 @@
 		<attainGoal name="load-gradebooks" />
 		<attainGoal name="load-grades" />
 	</goal>
-	<goal name="test-standalone-sections">
-		<!-- Skip the tests -->
-		<j:set var="maven.test.skip" value="true" />
-
-		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestStandaloneSectionAwareness" />
-		<attainGoal name="test:single" />
-	</goal>
 
 	<!-- load-full must be run before these tests will succeed. -->
 	<goal name="test-standalone">
