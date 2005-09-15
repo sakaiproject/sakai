@@ -469,7 +469,7 @@ function validateUrl0(){
 <f:verbatim></div></f:verbatim>
     </h:panelGroup>
 
-<%-- SAK-1988 *** hide this until different grading scheme is available ***
+<%-- SAK-1998 *** hide this until different grading scheme is available ***
     <!-- RECORDED SCORE AND MULTIPLES -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}">
    <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel value="#{msg.recorded_score}" /><f:verbatim></div> <div class="indnt3"> </f:verbatim>
