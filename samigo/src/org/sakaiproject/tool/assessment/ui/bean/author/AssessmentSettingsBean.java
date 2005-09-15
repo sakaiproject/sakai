@@ -211,6 +211,13 @@ public class AssessmentSettingsBean
         this.publishingTargets = getPublishingTargets();
         this.targetSelected = getTargetSelected(releaseTo);
         this.firstTargetSelected = getFirstTargetSelected(releaseTo);
+        // SAK-1850 - when importing assessment forget to set releaseTo, we will catch it
+        // and set it to host site
+        if (!validateTarget(firstTargetSelected)){
+          releaseTo = AgentFacade.getCurrentSiteName();
+          firstTargetSelected = AgentFacade.getCurrentSiteName();
+          targetSelected = getTargetSelected(releaseTo);
+        }
 
         this.timeLimit = accessControl.getTimeLimit(); // in seconds
         if (timeLimit !=null && timeLimit.intValue()>0)
@@ -922,6 +929,15 @@ public class AssessmentSettingsBean
 
   public void setNoTemplate(boolean noTemplate) {
     this.noTemplate = noTemplate;
+  }
+
+  public boolean validateTarget(String firstTarget){
+    PublishingTarget publishingTarget = new PublishingTarget();
+    HashMap targets = publishingTarget.getTargets();
+    if (targets.get(firstTarget) != null)
+      return true;
+    else
+      return false;
   }
 
   public SelectItem[] getPublishingTargets(){
