@@ -119,10 +119,22 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 			} else {
 				if(log.isDebugEnabled()) log.debug("Assigning " + studentUuid + " to section " + sectionUuid);
 				getSectionManager().addSectionMembership(studentUuid, Role.STUDENT, sectionUuid);
+
+				// Add a warning if max enrollments has been exceeded
+				CourseSection section = getSectionManager().getSection(sectionUuid);
+				Integer maxEnrollments = section.getMaxEnrollments();
+				int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
+				if(maxEnrollments != null && totalEnrollments > maxEnrollments.intValue()) {
+					JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
+							"edit_student_over_max_warning", new String[] {
+									section.getTitle(),
+									Integer.toString(++totalEnrollments),
+									Integer.toString(totalEnrollments - maxEnrollments.intValue()) }));
+				}
 			}
 		}
 		String[] params = {studentName};
-		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage("edit_student_sections_successful", params));
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("edit_student_sections_successful", params));
 		return "roster";
 	}
 	

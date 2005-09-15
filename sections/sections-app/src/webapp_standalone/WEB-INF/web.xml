@@ -103,10 +103,6 @@
         <filter-name>InstructorRoleFilter</filter-name>
         <url-pattern>/editSection.jsf</url-pattern>
     </filter-mapping>
-    <filter-mapping>
-        <filter-name>InstructorRoleFilter</filter-name>
-        <url-pattern>/options.jsf</url-pattern>
-    </filter-mapping>
 
     <filter>
         <filter-name>TaRoleFilter</filter-name>
@@ -143,6 +139,10 @@
     <filter-mapping>
         <filter-name>TaRoleFilter</filter-name>
         <url-pattern>/roster.jsf</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>TaRoleFilter</filter-name>
+        <url-pattern>/options.jsf</url-pattern>
     </filter-mapping>
 
     <filter>

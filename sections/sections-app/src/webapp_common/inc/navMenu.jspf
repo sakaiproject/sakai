@@ -21,12 +21,10 @@
     <h:outputText value="#{msgs.nav_roster}" rendered="#{viewName eq 'roster'}" styleClass="currentView" />
     
     
-    <h:panelGroup rendered="#{navMenuBean.instructorFeaturesEnabled}">
-        <h:outputText value=" | "/>
+    <h:outputText value=" | "/>
 
-        <h:commandLink action="options" immediate="true" rendered="#{viewName ne 'options'}">
-            <h:outputText value="#{msgs.nav_options}"/>
-        </h:commandLink>
-        <h:outputText value="#{msgs.nav_options}" rendered="#{viewName eq 'options'}" styleClass="currentView" />
-    </h:panelGroup>
+    <h:commandLink action="options" immediate="true" rendered="#{viewName ne 'options'}">
+        <h:outputText value="#{msgs.nav_options}"/>
+    </h:commandLink>
+    <h:outputText value="#{msgs.nav_options}" rendered="#{viewName eq 'options'}" styleClass="currentView" />
 </x:div>

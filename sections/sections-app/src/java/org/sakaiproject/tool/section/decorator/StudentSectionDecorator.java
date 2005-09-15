@@ -58,6 +58,24 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 		}
 	}
 	
+	/**
+	 * Overrides the behavior of the superclass.  Students should not see a
+	 * negative number of available spots.
+	 */
+	protected void populateSpotsAvailable(CourseSection courseSection) {
+		if(courseSection.getMaxEnrollments() == null) {
+			spotsAvailable = JsfUtil.getLocalizedMessage("section_max_size_unlimited");
+		} else {
+			// Do not allow negative values to be displayed
+			int spots = courseSection.getMaxEnrollments().intValue() - totalEnrollments;
+			if(spots < 0) {
+				spotsAvailable = "0";
+			} else {
+				spotsAvailable = Integer.toString(spots);
+			}
+		}
+	}
+
 	public StudentSectionDecorator() {
 		// Needed for serialization
 	}
@@ -91,7 +109,7 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 						
 						// If these are the same, sort by title
 						if(member1 && member2 || full1 && full2 || switch1 && switch2 || join1 && join2) {
-							return getTitleComparator(sortAscending, categoryNames, categoryIds).compare(o1, o2);
+							return getFieldComparator("title", sortAscending, categoryNames, categoryIds).compare(o1, o2);
 						}
 
 						String section1ChangeLabel = getChangeLabel(section1, joinAllowed, switchAllowed);

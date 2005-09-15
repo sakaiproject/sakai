@@ -39,19 +39,27 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	
 	private boolean selfRegister;
 	private boolean selfSwitch;
+
+	private boolean ta;
 	
 	public void init() {
 		Course course = getCourse();
 		selfRegister = course.isSelfRegistrationAllowed();
 		selfSwitch = course.isSelfSwitchingAllowed();
+		
+		ta = getSiteRole().isTeachingAssistant();
 	}
 
 	public String update() {
+		if(ta) {
+			// This should never happen
+			return "overview";
+		}
 		Course course = getCourse();
 		getSectionManager().setSelfRegistrationAllowed(course.getUuid(), selfRegister);
 		getSectionManager().setSelfSwitchingAllowed(course.getUuid(), selfSwitch);
 		
-		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage("options_update_successful"));
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("options_update_successful"));
 		return "overview";
 	}
 	
@@ -71,7 +79,13 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 		this.selfSwitch = selfSwitch;
 	}
 	
-	
+	/**
+	 * Whether the current user is a ta.  If true, this disallows updates.
+	 * @return
+	 */
+	public boolean isTa() {
+		return ta;
+	}
 
 }
 

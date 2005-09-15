@@ -105,7 +105,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 				location, JsfUtil.convertDateToTime(startTime, startTimeAm),
 				JsfUtil.convertDateToTime(endTime, endTimeAm), monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
-		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
 				"section_update_successful", new String[] {title}));
 		return "overview";
 	}
@@ -127,6 +127,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	
 	public String delete() {
 		getSectionManager().disbandSection(sectionUuid);
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("delete_section_success"));
 		return "overview";
 	}
 	

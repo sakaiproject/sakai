@@ -5,7 +5,9 @@ tr.memberPadRow td {font-weight:bold; padding-bottom:1em !important;}
 tr.nonmember td {font-weight:normal;}
 tr.nonmemberPadRow td {font-weight:normal; padding-bottom:1em !important;}
 
+tr.sectionPadRowHighlighted td {background-color:#FFC; padding-bottom:1em !important;}
 tr.sectionPadRow td {padding-bottom:1em !important;}
+tr.sectionRowHighlighted td {background-color:#FFC; padding-bottom:0em !important;}
 tr.sectionRow td {padding-bottom:0em !important;}
 
 label.formLabel {font-weight:bold;}
@@ -15,6 +17,7 @@ label.formLabel {font-weight:bold;}
 .selected {width:210px; text-align:right; vertical-align:top;}
 
 .transferButtonTable {text-align:center;}
+.instructions {padding-bottom:1em;}
 
 /* Item property editing. THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.itemSummary td.itemName {

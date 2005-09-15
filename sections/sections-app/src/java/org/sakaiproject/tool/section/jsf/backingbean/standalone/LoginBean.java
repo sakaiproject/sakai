@@ -69,7 +69,7 @@ public class LoginBean extends CourseDependentBean {
 
         if(log.isDebugEnabled()) log.debug(userName + " does not have a role in site " + context);
 
-        JsfUtil.addRedirectSafeMessage("You have no role in this site. " +
+        JsfUtil.addRedirectSafeInfoMessage("You have no role in this site. " +
         				"Please choose another site or another user, or both.");
         
         // Keep the user on the login page, and exercise the redirect to test messaging

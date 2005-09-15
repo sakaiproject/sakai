@@ -60,6 +60,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	// For the "View" selectbox
 	private String availableSectionUuid;
 	private String availableSectionTitle;
+	private Integer availableSectionMax;
 	private List availableSectionItems;
 	
 	private String sectionUuid;
@@ -113,6 +114,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 			CourseSection section = (CourseSection)iter.next();
 			if(section.getUuid().equals(availableSectionUuid)) {
 				availableSectionTitle = section.getTitle();
+				availableSectionMax = section.getMaxEnrollments();
 			}
 			// Don't include the current section
 			if(section.equals(currentSection)) {
@@ -129,13 +131,14 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	}
 	
 	public String update() {
-		Set userUuids = getHighlightedUsers("memberForm:selectedUsers");
-		getSectionManager().setSectionMemberships(userUuids, Role.STUDENT, sectionUuid);
+		Set selectedUserUuids = getHighlightedUsers("memberForm:selectedUsers");
+		getSectionManager().setSectionMemberships(selectedUserUuids, Role.STUDENT, sectionUuid);
 		
 		// If the "available" box is a section, update that section's members as well
+		Set availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
 		if(StringUtils.trimToNull(availableSectionUuid) != null) {
-			userUuids = getHighlightedUsers("memberForm:availableUsers");
-			getSectionManager().setSectionMemberships(userUuids, Role.STUDENT, availableSectionUuid);
+			availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
+			getSectionManager().setSectionMemberships(availableUserUuids, Role.STUDENT, availableSectionUuid);
 		}
 		StringBuffer titles = new StringBuffer();
 		titles.append(sectionTitle);
@@ -145,7 +148,26 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 			titles.append(" ");
 			titles.append(availableSectionTitle);
 		}
-		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(
+		
+		// If the selected section is now overenrolled, let the user know
+		if(sectionMax != null && selectedUserUuids.size() > sectionMax.intValue()) {
+			JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
+					"edit_student_over_max_warning", new String[] {
+							sectionTitle,
+							Integer.toString(selectedUserUuids.size()),
+							Integer.toString(selectedUserUuids.size() - sectionMax.intValue()) }));
+		}
+
+		// If the available section is now overenrolled, let the user know
+		if(availableSectionMax != null && availableUserUuids.size() > availableSectionMax.intValue()) {
+			JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
+					"edit_student_over_max_warning", new String[] {
+							availableSectionTitle,
+							Integer.toString(availableUserUuids.size()),
+							Integer.toString(availableUserUuids.size() - availableSectionMax.intValue()) }));
+		}
+		
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
 				"edit_student_successful", new String[] {titles.toString()}));
 
 		return "overview";

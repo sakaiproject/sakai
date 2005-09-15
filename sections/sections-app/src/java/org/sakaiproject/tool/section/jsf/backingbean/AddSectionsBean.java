@@ -147,7 +147,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 			params[1] = JsfUtil.getLocalizedMessage("add_section_successful_plural");
 			params[2] = JsfUtil.getLocalizedMessage("section_plural");
 		}
-		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage("add_section_successful", params));
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("add_section_successful", params));
 		return "overview";
 	}
 	

@@ -68,13 +68,17 @@ public class JsfUtil {
 		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
 	}
 
-    public static void addRedirectSafeMessage(String message) {
+    public static void addRedirectSafeInfoMessage(String message) {
         MessagingBean mb = (MessagingBean)resolveVariable("messagingBean");
-        // We only send informational messages across pages.
         mb.addMessage(new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
     }
 
-	public static String getLocalizedMessage(String key) {
+    public static void addRedirectSafeWarnMessage(String message) {
+        MessagingBean mb = (MessagingBean)resolveVariable("messagingBean");
+        mb.addMessage(new FacesMessage(FacesMessage.SEVERITY_WARN, message, null));
+    }
+
+    public static String getLocalizedMessage(String key) {
         String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
         ResourceBundle rb = ResourceBundle.getBundle(bundleName, getLocale());
         return rb.getString(key);

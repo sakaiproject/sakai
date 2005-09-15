@@ -24,39 +24,39 @@
             rowClasses="#{overviewBean.rowClasses}">
     
             <h:column>
-                <f:facet name="header">
-                    <x:commandSortHeader columnName="title" immediate="true" arrow="true">
-                        <h:outputText value="#{msgs.overview_table_header_name}" />
-                    </x:commandSortHeader>
-                </f:facet>
-                <h:outputText value="#{section.title}"/>
+                <x:div>
+                    <f:facet name="header">
+                        <x:commandSortHeader columnName="title" immediate="true" arrow="true">
+                            <h:outputText value="#{msgs.overview_table_header_name}" />
+                        </x:commandSortHeader>
+                    </f:facet>
+                    <h:outputText value="#{section.title}"/>
+                </x:div>
     
-                <f:verbatim>
-                    <br/>&nbsp;&nbsp;&nbsp;&nbsp;
-                </f:verbatim>
-                
-                <h:panelGroup rendered="#{ ! overviewBean.externallyManaged && overviewBean.instructorFeaturesEnabled}">
-                    <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
-                        <f:param name="sectionUuid" value="#{section.uuid}"/>
+                <x:div styleClass="itemAction">
+                    <h:panelGroup rendered="#{ ! overviewBean.externallyManaged && overviewBean.instructorFeaturesEnabled}">
+                        <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
+                            <f:param name="sectionUuid" value="#{section.uuid}"/>
+                        </h:commandLink>
+                        
+                        <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
+                    </h:panelGroup>
+    
+                    <h:commandLink
+                        action="editManagers"
+                        value="#{msgs.overview_link_managers}"
+                        rendered="#{overviewBean.instructorFeaturesEnabled}">
+                            <f:param name="sectionUuid" value="#{section.uuid}"/>
                     </h:commandLink>
                     
-                    <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
-                </h:panelGroup>
-    
-                <h:commandLink
-                    action="editManagers"
-                    value="#{msgs.overview_link_managers}"
-                    rendered="#{overviewBean.instructorFeaturesEnabled}">
-                        <f:param name="sectionUuid" value="#{section.uuid}"/>
-                </h:commandLink>
-                
-                <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
-                    <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
-    
-                    <h:commandLink action="editStudents" value="#{msgs.overview_link_students}">
-                        <f:param name="sectionUuid" value="#{section.uuid}"/>
-                    </h:commandLink>
-                </h:panelGroup>
+                    <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
+                        <h:outputFormat value="#{msgs.overview_link_sep_char}" rendered="#{overviewBean.instructorFeaturesEnabled}"/>
+        
+                        <h:commandLink action="editStudents" value="#{msgs.overview_link_students}">
+                            <f:param name="sectionUuid" value="#{section.uuid}"/>
+                        </h:commandLink>
+                    </h:panelGroup>
+                </x:div>
             </h:column>
             <h:column>
                 <f:facet name="header">

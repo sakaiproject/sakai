@@ -121,38 +121,13 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	}
 	
 	private Comparator getComparator() {
-		// TODO Clean up comparators (using BeanUtils?) and add remaining comparators
-		
-		if(sortColumn.equals("title")) {
-			return InstructorSectionDecorator.getTitleComparator(sortAscending, categoryNames, categoryIds);
-		}
-		
-		if(sortColumn.equals("time")) {
-			return InstructorSectionDecorator.getTimeComparator(sortAscending, categoryNames, categoryIds); 
-		}
-
 		if(sortColumn.equals("managers")) {
 			return InstructorSectionDecorator.getManagersComparator(sortAscending, categoryNames, categoryIds); 
-		}
-
-		if(sortColumn.equals("location")) {
-			return InstructorSectionDecorator.getLocationComparator(sortAscending, categoryNames, categoryIds); 
-		}
-
-		if(sortColumn.equals("max")) {
-			return InstructorSectionDecorator.getMaxEnrollmentsComparator(sortAscending, categoryNames, categoryIds); 
-		}
-
-		if(sortColumn.equals("available")) {
+		} else if(sortColumn.equals("available")) {
 			return InstructorSectionDecorator.getAvailableEnrollmentsComparator(sortAscending, categoryNames, categoryIds); 
+		} else {
+			return InstructorSectionDecorator.getFieldComparator(sortColumn, sortAscending, categoryNames, categoryIds);
 		}
-
-		if(log.isInfoEnabled()) log.info("The sort column is not set properly (sortColumn= " + sortColumn + ")");
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return 0;
-			}
-		};
 	}
 	
 	public List getSections() {

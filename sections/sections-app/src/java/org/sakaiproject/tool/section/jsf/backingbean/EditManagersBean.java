@@ -127,7 +127,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		Set userUuids = getHighlightedUsers("memberForm:selectedUsers");
 		getSectionManager().setSectionMemberships(userUuids, Role.TA, sectionUuid);
 		
-		JsfUtil.addRedirectSafeMessage(JsfUtil.getLocalizedMessage(
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
 				"edit_manager_successful", new String[] {sectionTitle}));
 		
 		return "overview";

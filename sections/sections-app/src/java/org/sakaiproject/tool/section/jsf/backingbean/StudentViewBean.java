@@ -64,7 +64,7 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	private List categoryNames; // Must be ordered exactly like the category ids
 
 	public StudentViewBean() {
-		sortColumn = "time";
+		sortColumn = "meetingTimes";
 		sortAscending = true;
 	}
 	
@@ -196,47 +196,18 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	}
 
 	private Comparator getComparator() {
-		// TODO Clean up comparators (using BeanUtils?) and add remaining comparators
-		
-		if(sortColumn.equals("title")) {
-			return InstructorSectionDecorator.getTitleComparator(sortAscending, categoryNames, categoryIds);
-		}
-
 		if(sortColumn.equals("instructor")) {
 			return InstructorSectionDecorator.getManagersComparator(sortAscending, categoryNames, categoryIds); 
-		}
-		
-		// These are already sorted by category, so just sort by title
-		if(sortColumn.equals("category")) {
-			return InstructorSectionDecorator.getTitleComparator(sortAscending, categoryNames, categoryIds);
-		}
-
-		if(sortColumn.equals("time")) {
-			return InstructorSectionDecorator.getTimeComparator(sortAscending, categoryNames, categoryIds); 
-		}
-
-		if(sortColumn.equals("location")) {
-			return InstructorSectionDecorator.getLocationComparator(sortAscending, categoryNames, categoryIds); 
-		}
-
-		if(sortColumn.equals("max")) {
-			return InstructorSectionDecorator.getMaxEnrollmentsComparator(sortAscending, categoryNames, categoryIds); 
-		}
-
-		if(sortColumn.equals("available")) {
+		} else if(sortColumn.equals("category")) {
+			// These are already sorted by category, so just sort by title
+			return InstructorSectionDecorator.getFieldComparator("title", sortAscending, categoryNames, categoryIds);
+		} else if(sortColumn.equals("available")) {
 			return InstructorSectionDecorator.getAvailableEnrollmentsComparator(sortAscending, categoryNames, categoryIds); 
-		}
-
-		if(sortColumn.equals("change")) {
+		} else if(sortColumn.equals("change")) {
 			return StudentSectionDecorator.getChangeComparator(sortAscending, categoryNames, categoryIds, joinAllowed, switchAllowed);
+		} else {
+			return InstructorSectionDecorator.getFieldComparator(sortColumn, sortAscending, categoryNames, categoryIds); 
 		}
-
-		if(log.isInfoEnabled()) log.info("The sort column is not set properly (sortColumn= " + sortColumn + ")");
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return 0;
-			}
-		};
 	}
 
 	public void processJoinSection(ActionEvent event) {

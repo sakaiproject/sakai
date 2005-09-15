@@ -44,14 +44,14 @@
             </h:panelGroup>
     
             <h:outputLabel for="startTime" value="#{msgs.section_start_time}" styleClass="formLabel"/>
-            <h:panelGrid columns="2">
+            <h:panelGrid columns="3">
                 <h:panelGroup>
                     <h:inputText id="startTime" value="#{editSectionBean.startTime}">
                         <f:convertDateTime type="time" pattern="h:mm"/>
                     </h:inputText>
                     <h:message for="startTime" styleClass="validationEmbedded"/>
                 </h:panelGroup>
-
+                <h:outputText value="#{msgs.section_start_time_example}"/>
                 <h:selectOneRadio value="#{editSectionBean.startTimeAm}">
                     <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                     <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
@@ -59,14 +59,14 @@
             </h:panelGrid>
     
             <h:outputLabel for="endTime" value="#{msgs.section_end_time}" styleClass="formLabel"/>
-            <h:panelGrid columns="2">
+            <h:panelGrid columns="3">
                 <h:panelGroup>
                     <h:inputText id="endTime" value="#{editSectionBean.endTime}">
                         <f:convertDateTime type="time" pattern="h:mm"/>
                     </h:inputText>
                     <h:message for="endTime" styleClass="validationEmbedded"/>
                 </h:panelGroup>
-
+                <h:outputText value="#{msgs.section_end_time_example}"/>
                 <h:selectOneRadio value="#{editSectionBean.endTimeAm}">
                     <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                     <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
