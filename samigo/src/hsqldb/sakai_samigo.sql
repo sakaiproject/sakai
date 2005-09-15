@@ -207,7 +207,7 @@ INSERT INTO SAM_ASSESSACCESSCONTROL_T ("ASSESSMENTID" ,
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(1, 1, 'finalPageURL_isInstructorEditable', 'false')
+    VALUES(1, 1, 'finalPageURL_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
@@ -223,19 +223,19 @@ INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL"
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(5, 1, 'metadataQuestions_isInstructorEditable', 'false')
+    VALUES(5, 1, 'metadataQuestions_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(6, 1, 'bgImage_isInstructorEditable', 'false')
+    VALUES(6, 1, 'bgImage_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(7, 1, 'feedbackComponents_isInstructorEditable', 'false')
+    VALUES(7, 1, 'feedbackComponents_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(8, 1, 'retractDate_isInstructorEditable', 'false')
+    VALUES(8, 1, 'retractDate_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
@@ -243,19 +243,19 @@ INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL"
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(10, 1, 'timedAssessmentAutoSubmit_isInstructorEditable', 'false')
+    VALUES(10, 1, 'timedAssessmentAutoSubmit_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(11, 1, 'toGradebook_isInstructorEditablee', 'false')
+    VALUES(11, 1, 'toGradebook_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(12, 1, 'displayChunking_isInstructorEditable', 'false')
+    VALUES(12, 1, 'displayChunking_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(13, 1, 'recordedScore_isInstructorEditable', 'false')
+    VALUES(13, 1, 'recordedScore_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
@@ -263,11 +263,11 @@ INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL"
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(15, 1, 'displayNumbering_isInstructorEditable', 'false')
+    VALUES(15, 1, 'displayNumbering_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(16, 1, 'submissionMessage_isInstructorEditable', 'false')
+    VALUES(16, 1, 'submissionMessage_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
@@ -279,7 +279,7 @@ INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL"
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(19, 1, 'passwordRequired_isInstructorEditable', 'false')
+    VALUES(19, 1, 'passwordRequired_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
@@ -287,35 +287,35 @@ INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL"
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(21, 1, 'submissionModel_isInstructorEditable', 'false')
+    VALUES(21, 1, 'submissionModel_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(22, 1, 'ipAccessType_isInstructorEditable', 'false')
+    VALUES(22, 1, 'ipAccessType_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(23, 1, 'timedAssessment_isInstructorEditable', 'false')
+    VALUES(23, 1, 'timedAssessment_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(24, 1, 'metadataAssess_isInstructorEditable', 'false')
+    VALUES(24, 1, 'metadataAssess_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(25, 1, 'bgColor_isInstructorEditable', 'false')
+    VALUES(25, 1, 'bgColor_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(26, 1, 'testeeIdentity_isInstructorEditable', 'false')
+    VALUES(26, 1, 'testeeIdentity_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(27, 1, 'templateInfo_isInstructorEditable', 'false')
+    VALUES(27, 1, 'templateInfo_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(28, 1, 'itemAccessType_isInstructorEditable', 'false')
+    VALUES(28, 1, 'itemAccessType_isInstructorEditable', 'true')
 ;
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
