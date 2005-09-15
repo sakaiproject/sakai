@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.gradebook.facades.sectionsimpl;
+package org.sakaiproject.tool.gradebook.facades.sections;
 
 import java.util.HashSet;
 import java.util.Iterator;

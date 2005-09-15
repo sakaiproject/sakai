@@ -20,7 +20,7 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-package org.sakaiproject.tool.gradebook.facades.sectionsimpl;
+package org.sakaiproject.tool.gradebook.facades.sections;
 
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
