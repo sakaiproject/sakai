@@ -158,6 +158,26 @@ public class QuestionPoolFacadeQueries
     }
   }
 
+  public List getAllItemsInThisPoolOnly(Long questionPoolId) {
+  // return items that belong to this pool and this pool only.   
+    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
+                                            new Object[] {questionPoolId}
+                                            ,
+                                            new net.sf.hibernate.type.Type[] {Hibernate.
+                                            LONG});
+    ArrayList newlist = new ArrayList();
+    for (int i = 0; i < list.size(); i++) {
+      ItemData itemdata = (ItemData) list.get(i);
+      String itemId = itemdata.getItemId().toString();
+     if (getPoolIdsByItem(itemId).isEmpty()) {
+       newlist.add(itemdata);
+     }
+     else {
+       // this item still links to other pool(s)
+     } 
+    }
+    return newlist;
+  }
   public List getAllItems(Long questionPoolId) {
     List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
                                             new Object[] {questionPoolId}
@@ -350,7 +370,8 @@ public class QuestionPoolFacadeQueries
 
       // #1. delete all questions which mean AssetBeanie (not ItemImpl) 'cos AssetBeanie
       // is the one that is associated with the DB
-      List itemList = getAllItems(poolId);
+      //List itemList = getAllItems(poolId);
+      List itemList = getAllItemsInThisPoolOnly(poolId);
       getHibernateTemplate().deleteAll(itemList); // delete all AssetBeanie
 
       // #2. delete question and questionpool map.
