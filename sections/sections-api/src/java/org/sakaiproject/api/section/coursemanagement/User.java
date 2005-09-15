@@ -24,6 +24,12 @@
 
 package org.sakaiproject.api.section.coursemanagement;
 
+/**
+ * Models a User for use in the Section Awareness API and the Section Manager Tool.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public interface User {
 	/**
 	 * @return Returns the userUuid, the unique ID returned by the authentication facade.

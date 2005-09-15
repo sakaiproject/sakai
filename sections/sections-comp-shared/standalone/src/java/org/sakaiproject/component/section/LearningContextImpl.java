@@ -30,8 +30,11 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 
-/*
- * A base class for hibernate-managed learning context objects.
+/**
+ * A base class of LearningContexts for detachable persistent storage.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
  */
 public class LearningContextImpl extends AbstractPersistentObject implements
 		LearningContext, Serializable {

@@ -38,6 +38,16 @@ import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
 
+/**
+ * An internal service interface for the Section Manager Tool (AKA "Section Info")
+ * to provide for the creation, modification, and removal of CourseSections, along
+ * with the membership of of these sections.
+ * 
+ * This service is not to be used outside of the Section Manager Tool.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public interface SectionManager {
 
 	/**

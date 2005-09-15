@@ -26,10 +26,15 @@ package org.sakaiproject.component.section.facade.impl.standalone;
 
 import org.sakaiproject.api.section.facade.manager.Context;
 
+/**
+ * Testing implementation of Context, which always returns TEST_CONTEXT_ID.
+ * 
+ * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
+ */
 public class ContextTestImpl implements Context {
-
+	private static final String TEST_CONTEXT_ID = "test context";
 	public String getContext(Object request) {
-        return "test context";
+        return TEST_CONTEXT_ID;
 	}
 	
 }

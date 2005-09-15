@@ -44,6 +44,12 @@ import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 
+/**
+ * Controls the student view page.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class StudentViewBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -37,6 +37,12 @@ import javax.faces.context.FacesContext;
 
 import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
 
+/**
+ * A utility to help deal with common tasks in JSF.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class JsfUtil {
 	
 	public static Locale getLocale() {

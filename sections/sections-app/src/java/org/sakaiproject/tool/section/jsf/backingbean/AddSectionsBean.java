@@ -40,6 +40,12 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
+/**
+ * Controls the add sections page.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class AddSectionsBean extends CourseDependentBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(AddSectionsBean.class);

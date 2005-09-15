@@ -31,6 +31,8 @@ import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.section.facade.manager.Authn;
 
 /**
+ * Uses Sakai's SessionManager to determine the current user's uuid.
+ * 
  * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class AuthnSakaiImpl implements Authn {

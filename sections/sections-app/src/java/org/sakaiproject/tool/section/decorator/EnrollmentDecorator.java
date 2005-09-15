@@ -34,6 +34,12 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 
+/**
+ * Decorates an EnrollmentRecord for display in the UI.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class EnrollmentDecorator implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(EnrollmentDecorator.class);

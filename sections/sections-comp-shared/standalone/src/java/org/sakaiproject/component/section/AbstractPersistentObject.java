@@ -27,6 +27,12 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+/**
+ * Base class for most of the hibernate-persisted classes in this implementation.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public abstract class AbstractPersistentObject implements Serializable {
 	
     protected long id;

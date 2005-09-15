@@ -22,7 +22,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.test.section.manager;
+package org.sakaiproject.component.section;
 
 import java.sql.SQLException;
 
@@ -32,16 +32,19 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
+import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.component.section.CourseImpl;
-import org.sakaiproject.component.section.EnrollmentRecordImpl;
-import org.sakaiproject.component.section.InstructorRecordImpl;
-import org.sakaiproject.component.section.TeachingAssistantRecordImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
+/**
+ * Hibernate implementation of CourseManager.  Useful for loading data in standalone mode.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class CourseManagerHibernateImpl extends HibernateDaoSupport
 	implements CourseManager {
 

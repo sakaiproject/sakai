@@ -24,7 +24,23 @@
 
 package org.sakaiproject.api.section.facade.manager;
 
+/**
+ * Gets the context for the current request.  This corresponds to the Site context
+ * in Sakai.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public interface Context {
+	/**
+	 * Gets the site context.
+	 * 
+	 * @param request The object containing the context information.  This will
+	 * usually be something like a HttpServletRequest.  In Sakai, the object
+	 * can be null.
+	 * 
+	 * @return
+	 */
 	public String getContext(Object request);
 }
 

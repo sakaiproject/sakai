@@ -44,6 +44,12 @@ import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
+/**
+ * Controls the edit student sections page (where a single student is assigned to sections).
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class EditStudentSectionsBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;

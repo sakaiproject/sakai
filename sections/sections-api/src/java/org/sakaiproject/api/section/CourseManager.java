@@ -22,12 +22,24 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.test.section.manager;
+package org.sakaiproject.api.section;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 
+/**
+ * Provides methods for adding a top-level course object, to which CourseSections
+ * can be associated, and for associating users with the course.
+ * 
+ * The membership-related methods are intended for use in standalone mode only.
+ * In sakai, we will need an external interface that allows for Course creation,
+ * but does not alter membership in the course, since Course (or site) membership
+ * will be controlled by other services.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public interface CourseManager {
 	public Course createCourse(String siteContext, String title,
 			boolean selfRegAllowed, boolean selfSwitchingAllowed,

@@ -24,7 +24,19 @@
 
 package org.sakaiproject.api.section.coursemanagement;
 
+/**
+ * A record associating a student to a LearningContext, with a status indicating
+ * how the student is enrolled (waitlisted, for instance).
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public interface EnrollmentRecord extends ParticipationRecord {
+	/**
+	 * Gets the status of the enrollment.
+	 * 
+	 * @return
+	 */
 	public String getStatus();
 }
 

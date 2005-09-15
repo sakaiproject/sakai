@@ -25,21 +25,105 @@ package org.sakaiproject.api.section.coursemanagement;
 
 import java.sql.Time;
 
+/**
+ * A subset of a Course that may meet at specific times during the week.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public interface CourseSection extends LearningContext {
+	/**
+	 * Gets the Course that this CourseSection belongs to
+	 * 
+	 * @return
+	 */
 	public Course getCourse();
+
+	/**
+	 * Gets the location where this CourseSection meets.
+	 * @return
+	 */
     public String getLocation();
+    
+    /**
+     * Gets the category ID of this CourseSection.  Students may be enrolled in
+     * only one section of a given category per Course.
+     * 
+     * @return
+     */
     public String getCategory();
+    
+    /**
+     * Gets the maximum number of enrollments allowed in this CourseSection.
+     * Instructors and TAs may assign more than the maximum number of enrollments,
+     * but students may not self enroll in a section at or above the maximum
+     * number of enrollments.
+     * 
+     * @return
+     */
     public Integer getMaxEnrollments();
     
-	public boolean isMonday();
-	public boolean isTuesday();
+	/**
+	 * Whether the CourseSection meets on Mondays.
+	 * 
+	 * @return
+	 */
+    public boolean isMonday();
+
+	/**
+	 * Whether the CourseSection meets on Tuesdays.
+	 * 
+	 * @return
+	 */
+    public boolean isTuesday();
+    
+	/**
+	 * Whether the CourseSection meets on Wednesdays.
+	 * 
+	 * @return
+	 */
 	public boolean isWednesday();
+
+	/**
+	 * Whether the CourseSection meets on Thursdays.
+	 * 
+	 * @return
+	 */
 	public boolean isThursday();
+
+	/**
+	 * Whether the CourseSection meets on Fridays.
+	 * 
+	 * @return
+	 */
 	public boolean isFriday();
+
+	/**
+	 * Whether the CourseSection meets on Saturdays.
+	 * 
+	 * @return
+	 */
 	public boolean isSaturday();
+
+	/**
+	 * Whether the CourseSection meets on Sundays.
+	 * 
+	 * @return
+	 */
 	public boolean isSunday();
 	
+	/**
+	 * Gets the time of day that this CourseSection's meeting(s) start.
+	 * 
+	 * @return
+	 */
 	public Time getStartTime();
+
+	/**
+	 * Gets the time of day that this CourseSection's meeting(s) end.
+	 * 
+	 * @return
+	 */
 	public Time getEndTime();
 }
 

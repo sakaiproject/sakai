@@ -47,6 +47,12 @@ import org.sakaiproject.api.section.facade.Role;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
+/**
+ * Hibernate based implementation of SectionAwareness.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         implements SectionAwareness {
 	

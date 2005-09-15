@@ -31,6 +31,12 @@ import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 
+/**
+ * A detachable EnrollmentRecord for persistent storage.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class EnrollmentRecordImpl extends ParticipationRecordImpl implements EnrollmentRecord, Serializable {
 
 	private static final long serialVersionUID = 1L;

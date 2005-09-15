@@ -31,6 +31,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.api.section.coursemanagement.User;
 
+/**
+ * A detachable User for persistent storage.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class UserImpl extends AbstractPersistentObject implements User, Serializable {
 
 	private static final long serialVersionUID = 1L;

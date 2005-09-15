@@ -31,6 +31,12 @@ import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 
+/**
+ * A base class of ParticipationRecords for detachable persistent storage.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public abstract class ParticipationRecordImpl extends AbstractPersistentObject
 	implements ParticipationRecord {
 	

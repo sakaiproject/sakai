@@ -29,11 +29,11 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.test.section.SectionsTestBase;
-import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.test.section.manager.UserManager;
 
 public class GradebookDataLoader extends SectionsTestBase {
@@ -93,8 +93,8 @@ public class GradebookDataLoader extends SectionsTestBase {
     protected UserManager userManager;
 
 	protected void onSetUpInTransaction() throws Exception {
-		courseManager = (CourseManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseManager");
-		sectionManager = (SectionManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.SectionManager");
+		courseManager = (CourseManager)applicationContext.getBean("org.sakaiproject.api.section.CourseManager");
+		sectionManager = (SectionManager)applicationContext.getBean("org.sakaiproject.api.section.SectionManager");
 		userManager = (UserManager)applicationContext.getBean("org.sakaiproject.test.section.manager.UserManager");
     }
 

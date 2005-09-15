@@ -33,6 +33,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -44,7 +45,6 @@ import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Context;
 import org.sakaiproject.component.section.facade.impl.standalone.AuthnTestImpl;
-import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.test.section.manager.UserManager;
 
 /**
@@ -67,8 +67,8 @@ public class SectionManagerTest extends SectionsTestBase{
     protected void onSetUpInTransaction() throws Exception {
     	authn = (AuthnTestImpl)applicationContext.getBean("org.sakaiproject.api.section.facade.manager.Authn");
     	context = (Context)applicationContext.getBean("org.sakaiproject.api.section.facade.manager.Context");
-        secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.SectionManager");
-        courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseManager");
+        secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.api.section.SectionManager");
+        courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.api.section.CourseManager");
         userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.test.section.manager.UserManager");
     }
 

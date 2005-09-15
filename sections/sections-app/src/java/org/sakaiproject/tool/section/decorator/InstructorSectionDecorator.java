@@ -34,6 +34,12 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
+/**
+ * Decorates a CourseSection for use in the instructor's (and TA's) page views.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class InstructorSectionDecorator extends CourseSectionDecorator
 	implements Serializable, Comparable {
 	private static final long serialVersionUID = 1L;

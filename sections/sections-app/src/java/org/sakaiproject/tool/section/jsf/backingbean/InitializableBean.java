@@ -32,6 +32,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.jsf.model.PhaseAware;
 
+/**
+ * Base class for JSF backing beans wishing to be initialized on page load.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public abstract class InitializableBean implements PhaseAware {
 	private static final Log logger = LogFactory.getLog(InitializableBean.class);
 

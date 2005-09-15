@@ -36,6 +36,12 @@ import javax.faces.render.Renderer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * Base class for custom message renderers.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public abstract class DivMessageRendererBase extends Renderer {
 	private static final Log logger = LogFactory.getLog(DivMessageRendererBase.class);
 

@@ -25,9 +25,20 @@
 package org.sakaiproject.api.section.facade.manager;
 
 /**
+ * The service interface for the authentication mechanism.
+ * 
  * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public interface Authn {
+	/**
+	 * Gets the current user's uuid.
+	 * 
+	 * @param request The object containing the context information.  This will
+	 * usually be something like a HttpServletRequest.  In Sakai, the object
+	 * can be null.
+	 * 
+	 * @return
+	 */
     public String getUserUuid(Object request);
 }
 

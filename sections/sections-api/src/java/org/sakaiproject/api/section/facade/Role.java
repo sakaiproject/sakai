@@ -26,6 +26,12 @@ package org.sakaiproject.api.section.facade;
 
 import java.io.Serializable;
 
+/**
+ * A type-safe enumeration of the roles a user can play in a LearningContext.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class Role implements Serializable {
 	private static final long serialVersionUID = 1L;
 

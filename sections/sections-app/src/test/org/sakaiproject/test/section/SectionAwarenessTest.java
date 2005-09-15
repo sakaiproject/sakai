@@ -31,6 +31,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -39,7 +40,6 @@ import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.test.section.manager.CourseManager;
 import org.sakaiproject.test.section.manager.UserManager;
 
 /**
@@ -61,9 +61,9 @@ public class SectionAwarenessTest extends SectionsTestBase{
 
     protected void onSetUpInTransaction() throws Exception {
     	context = (Context)applicationContext.getBean("org.sakaiproject.api.section.facade.manager.Context");
-        secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.tool.section.manager.SectionManager");
+        secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.api.section.SectionManager");
         secAware = (SectionAwareness)applicationContext.getBean("org.sakaiproject.api.section.SectionAwareness");
-        courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.test.section.manager.CourseManager");
+        courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.api.section.CourseManager");
         userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.test.section.manager.UserManager");
     }
 

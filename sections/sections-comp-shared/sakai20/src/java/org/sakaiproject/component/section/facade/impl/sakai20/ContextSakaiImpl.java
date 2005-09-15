@@ -30,8 +30,18 @@ import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.section.facade.manager.Context;
 
+/**
+ * Uses Sakai's ToolManager to determine the current context.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class ContextSakaiImpl implements Context {
 	private static final Log log = LogFactory.getLog(ContextSakaiImpl.class);
+
+	/**
+	 * @inheritDoc
+	 */
 	public String getContext(Object request) {
         Placement placement = ToolManager.getCurrentPlacement();        
         if(placement == null) {

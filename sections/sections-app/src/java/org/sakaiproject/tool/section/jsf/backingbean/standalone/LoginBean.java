@@ -36,6 +36,9 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.jsf.backingbean.CourseDependentBean;
 
 /**
+ * Controls the login page for the standalone webapp, which allows a person to
+ * choose the current user and site context.
+ * 
  * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class LoginBean extends CourseDependentBean {

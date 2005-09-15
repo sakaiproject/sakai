@@ -26,9 +26,32 @@ package org.sakaiproject.api.section.coursemanagement;
 
 import org.sakaiproject.api.section.facade.Role;
 
+/**
+ * Associates a user with a Learning Context.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public interface ParticipationRecord {
+	/**
+	 * Gets the user.
+	 * 
+	 * @return
+	 */
 	public User getUser();
+	
+	/**
+	 * Gets the Role for this user in this LearningContext.
+	 * 
+	 * @return
+	 */
 	public Role getRole();
+	
+	/**
+	 * Gets the LearningContext.
+	 * 
+	 * @return
+	 */
 	public LearningContext getLearningContext();
 }
 

@@ -32,6 +32,13 @@ import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Authz;
 import org.sakaiproject.api.section.facade.manager.Context;
 
+/**
+ * Provides the current course uuid for a given user session.  This is also the
+ * integration point for JSF backing beans and Spring-manages services.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class CourseBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -44,7 +51,6 @@ public class CourseBean implements Serializable {
     protected Context context;
 
 	protected String getCourseUuid() {
-		// TODO Do we ever have a need to cache the course object? I don't think so, but keep an eye on this
 		Course course = sectionManager.getCourse(context.getContext(null));
 		courseUuid = course.getUuid();
 		return courseUuid;

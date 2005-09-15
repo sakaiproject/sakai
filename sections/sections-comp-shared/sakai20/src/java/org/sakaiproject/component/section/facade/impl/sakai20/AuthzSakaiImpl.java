@@ -27,13 +27,26 @@ package org.sakaiproject.component.section.facade.impl.sakai20;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authz;
 
+/**
+ * Uses Sakai's SecurityService to determine the current user's site role, or
+ * consults the CourseSection membership to determine section role.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class AuthzSakaiImpl implements Authz {
 
+	/**
+	 * @inheritDoc
+	 */
 	public Role getSiteRole(String userUuid, String siteContext) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public Role getSectionRole(String userUuid, String sectionUuid) {
 		// TODO Auto-generated method stub
 		return null;

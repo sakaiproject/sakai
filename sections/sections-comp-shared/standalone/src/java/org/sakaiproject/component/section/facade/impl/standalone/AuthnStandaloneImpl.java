@@ -31,6 +31,9 @@ import javax.servlet.http.HttpSession;
 import org.sakaiproject.api.section.facade.manager.Authn;
 
 /**
+ * Standalone implementation of Authn, using the HttpSession to store current
+ * authentication credentials.
+ * 
  * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class AuthnStandaloneImpl implements Authn {

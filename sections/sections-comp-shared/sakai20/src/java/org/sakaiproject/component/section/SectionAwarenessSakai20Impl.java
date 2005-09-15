@@ -47,6 +47,13 @@ import org.sakaiproject.api.section.facade.Role;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
+/**
+ * An implementation of SectionAwareness that utilizes the Sakai legacy services
+ * to provide site membership, but maintains all other data in its own tables.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class SectionAwarenessSakai20Impl extends HibernateDaoSupport
         implements SectionAwareness {
 	

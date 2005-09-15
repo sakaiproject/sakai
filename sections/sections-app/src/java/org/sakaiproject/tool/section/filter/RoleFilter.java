@@ -44,6 +44,13 @@ import org.sakaiproject.api.section.facade.manager.Context;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
+/**
+ * An authorization filter to keep users out of pages they are not authorized
+ * to access.
+ *  
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class RoleFilter implements Filter {
 	private ApplicationContext ac;
 	private String authnBeanName;

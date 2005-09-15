@@ -24,6 +24,15 @@
 
 package org.sakaiproject.api.section.coursemanagement;
 
+/**
+ * Models a sectionable "class" in higher education.  What a Course actually represents
+ * is intentionally ambiguous.  In Sakai 2.1, where multiple sections from a
+ * variety of courses may be associated with a site, a Course simply represents the
+ * site along with the metadata needed by the Section Manager Tool.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public interface Course extends LearningContext {
 	public boolean isExternallyManaged();
 	public boolean isSelfRegistrationAllowed();

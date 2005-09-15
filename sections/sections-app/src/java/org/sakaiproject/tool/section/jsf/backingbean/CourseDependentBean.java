@@ -40,6 +40,13 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
+/**
+ * Base class for all JSF backing beans relying on knowledge of the current
+ * course context.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class CourseDependentBean extends InitializableBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -33,8 +33,24 @@ import org.sakaiproject.api.section.facade.Role;
  *
  */
 public interface Authz {
+	/**
+	 * Gets the role for a given user in a given site.
+	 * 
+	 * @param userUuid The user's uuid
+	 * @param siteContext The site id
+	 * 
+	 * @return
+	 */
 	public Role getSiteRole(String userUuid, String siteContext);
 	
+	/**
+	 * Gets the role for a given user in a given CourseSection.
+	 * 
+	 * @param userUuid The user's uuid
+	 * @param sectionUuid The uuid of a CourseSection
+	 * 
+	 * @return
+	 */
 	public Role getSectionRole(String userUuid, String sectionUuid);
 }
 

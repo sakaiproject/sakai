@@ -29,6 +29,12 @@ import java.sql.Time;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 
+/**
+ * A detachable CourseSection for persistent storage.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class CourseSectionImpl extends LearningContextImpl implements CourseSection, Serializable {
 
 	private static final long serialVersionUID = 1L;

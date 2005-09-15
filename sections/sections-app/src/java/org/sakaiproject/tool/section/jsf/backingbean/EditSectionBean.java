@@ -36,6 +36,12 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
+/**
+ * Controls the edit and delete sections pages.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class EditSectionBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;

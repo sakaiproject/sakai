@@ -25,7 +25,8 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 /**
- * Caches whether the instructor features are enabled for the current user.
+ * Caches whether the instructor features are enabled for the current user in
+ * the current request.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *

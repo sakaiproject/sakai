@@ -30,6 +30,12 @@ import javax.servlet.http.HttpSession;
 
 import org.sakaiproject.api.section.facade.manager.Context;
 
+/**
+ * Standalone implementation of Context, using the HttpSession to store current
+ * context.
+ * 
+ * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
+ */
 public class ContextStandaloneImpl implements Context {
 
 	public static final String CONTEXT = "context";
