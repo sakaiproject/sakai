@@ -375,6 +375,8 @@ public class AssessmentFacadeQueries
       QuestionPoolService qpService = new QuestionPoolService();
       HashMap h = qpService.getQuestionPoolItemMap();
       checkForQuestionPoolItem(assessment, h);
+      Set sectionSet = getSectionSetForAssessment(assessment);
+      assessment.setSectionSet(sectionSet);
       getHibernateTemplate().delete(assessment);
       PersistenceService.getInstance().getAuthzQueriesFacade().
           removeAuthorizationByQualifier(assessment.getAssessmentId().toString());
