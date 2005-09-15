@@ -63,6 +63,35 @@ function validateUrl0(){
   alert("hello"+finalPageUrl.value);
   window.open(finalPageUrl.value,'validateUrl');
 }
+// By convention we start all feedback JSF ids with "feedback".
+var feedbackIdFlag = "assessmentSettingsAction:feedback";
+var noFeedback = "3";
+
+// If we select "No Feedback will be displayed to the student"
+// it will disable feedback, otherwise leave it alone.
+function disableAllFeedbackCheck(feedbackType)
+{
+  if (feedbackType != noFeedback) return;
+
+  var feedbacks = document.getElementsByTagName('INPUT');
+  for (i=0; i<feedbacks.length; i++)
+  {
+    if (feedbacks[i].name.indexOf(feedbackIdFlag)==0)
+    {
+      // type is referenced as a lowercase value
+      if (feedbacks[i].type == 'checkbox')
+      {
+        feedbacks[i].checked = false;
+      }
+      else if (feedbacks[i].type == 'text')
+      {
+        feedbacks[i].value = "";
+      }
+    }
+  }
+}
+
+
 //-->
 </script>
 
@@ -385,7 +414,7 @@ function validateUrl0(){
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
       <h:panelGrid border="0" columns="1"  >
         <h:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}"
-           layout="pageDirection">
+           layout="pageDirection" onclick="disableAllFeedbackCheck(this.value);">
           <f:selectItem itemValue="1" itemLabel="#{msg.immediate_feedback}"/>
           <f:selectItem itemValue="3" itemLabel="#{msg.no_feedback}"/>
           <f:selectItem itemValue="2" itemLabel="#{msg.feedback_by_date}"/>
@@ -404,31 +433,31 @@ function validateUrl0(){
      <f:verbatim> <div class="longtext"> </f:verbatim>  <h:outputLabel value="#{msg.feedback_components}" /> <f:verbatim> </div> <div class="indnt3"></f:verbatim>
       <h:panelGrid columns="2"  >
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionText}" disabled="true" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionText}" disabled="true" id="disabledCheckbox1" />
           <h:outputText value="#{msg.question_text}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}"/>
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2" />
           <h:outputText value="#{msg.question_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}"/>
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox3" />
           <h:outputText value="#{msg.student_response}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}"/>
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4" />
           <h:outputText value="#{msg.selection_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}"/>
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox5" />
           <h:outputText value="#{msg.correct_response}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}"/>
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox6" />
           <h:outputText value="#{msg.student_score}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}"/>
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox7" />
           <h:outputText value="#{msg.grader_comments}" />
         </h:panelGroup>
 
