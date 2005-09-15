@@ -169,7 +169,7 @@ public class QuestionPoolFacadeQueries
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
       String itemId = itemdata.getItemId().toString();
-     if (getPoolIdsByItem(itemId).isEmpty()) {
+     if (getPoolIdsByItem(itemId).size() == 1) {
        newlist.add(itemdata);
      }
      else {
