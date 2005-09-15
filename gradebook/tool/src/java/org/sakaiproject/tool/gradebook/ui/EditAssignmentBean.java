@@ -42,7 +42,7 @@ public class EditAssignmentBean extends GradebookDependentBean implements Serial
 		if (logger.isDebugEnabled()) logger.debug("init assignment=" + assignment);
 
 		if (assignment == null) {
-			assignment = (Assignment)getGradeManager().getGradableObjectWithStats(assignmentId);
+			assignment = (Assignment)getGradeManager().getGradableObject(assignmentId);
 			if (assignment == null) {
 				// The assignment might have been removed since this link was set up.
 				if (logger.isWarnEnabled()) logger.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());

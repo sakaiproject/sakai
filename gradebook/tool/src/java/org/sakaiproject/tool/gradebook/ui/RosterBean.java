@@ -174,7 +174,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         }
 
 		List gradableObjects = getGradeManager().getAssignments(getGradebookId());
-		CourseGrade courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId());
+		CourseGrade courseGrade = getGradeManager().getCourseGrade(getGradebookId());
 		gradableObjectColumns = new ArrayList();
 		for (Iterator iter = gradableObjects.iterator(); iter.hasNext(); ) {
 			gradableObjectColumns.add(new GradableObjectColumn((GradableObject)iter.next()));

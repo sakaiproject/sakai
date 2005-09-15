@@ -46,7 +46,7 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
 
     protected void init() {
         if (assignmentId != null) {
-            assignment = (Assignment)getGradeManager().getGradableObjectWithStats(assignmentId);
+            assignment = (Assignment)getGradeManager().getGradableObject(assignmentId);
             if (assignment == null) {
                 // The assignment might have been removed since this link was set up.
                 if (logger.isWarnEnabled()) logger.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());
