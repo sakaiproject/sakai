@@ -49,6 +49,7 @@
 <!-- content... -->
  <div class="portletBody">
 <h:form id="movePool">
+<h:messages layout="table" style="color:red"/>
 <h3>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{msg.mv_p}"/>
 <h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{msg.mv_q}"/>
