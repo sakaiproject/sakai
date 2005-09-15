@@ -502,6 +502,9 @@
       </h:panelGroup>
      </h:panelGrid>
     </div>
+
+<%-- *** SAK-1998 hide this setting until we implement different grading scheme ***
+
     <!-- RECORDED SCORE AND MULTIPLES -->
     <div class="longtext"> <h:outputLabel for="recorded_score" value="#{msg.record_score_if_multi}"/></div>
       <div class="indnt3">
@@ -521,7 +524,11 @@
     </h:selectOneRadio>
       </h:panelGroup>
     </h:panelGrid>
-    </div></div>
+    </div>
+--%>
+
+
+</div>
   </samigo:hideDivision>
 
   <!-- *** COLORS AND GRAPHICS	*** -->
