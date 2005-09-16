@@ -24,6 +24,7 @@
 
 package org.sakaiproject.component.section.sakai20;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +48,8 @@ import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class SectionEnrollmentsImpl implements SectionEnrollments {
+public class SectionEnrollmentsImpl implements SectionEnrollments, Serializable {
+	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(SectionEnrollmentsImpl.class);
 	
 	protected Map studentToMap;

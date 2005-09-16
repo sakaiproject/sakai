@@ -24,6 +24,8 @@
 
 package org.sakaiproject.component.section.sakai20;
 
+import java.io.Serializable;
+
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
@@ -34,7 +36,7 @@ import org.sakaiproject.api.section.facade.Role;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class InstructorRecordImpl extends ParticipationRecordImpl {
+public class InstructorRecordImpl extends ParticipationRecordImpl implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

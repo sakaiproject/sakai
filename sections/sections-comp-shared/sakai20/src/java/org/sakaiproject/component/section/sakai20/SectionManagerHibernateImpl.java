@@ -141,6 +141,8 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	
 	public List getSiteEnrollments(final String siteContext) {
         List sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.STUDENT_PERMISSION, SakaiUtil.getSiteReference());
+        sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, SakaiUtil.getSiteReference()));
+        sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, SakaiUtil.getSiteReference()));
         List membersList = new ArrayList();
 
         Course course = getCourse(siteContext);

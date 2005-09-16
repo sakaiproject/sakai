@@ -33,6 +33,7 @@ import net.sf.hibernate.Session;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authz;
+import org.sakaiproject.component.section.sakai20.SakaiUtil;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -54,9 +55,10 @@ public class AuthzSakaiImpl extends HibernateDaoSupport implements Authz {
 	 * @inheritDoc
 	 */
 	public Role getSiteRole(String userUuid, String siteContext) {
-        boolean isInstructor = SecurityService.unlock(INSTRUCTOR_PERMISSION, siteContext);
-        boolean isTa = SecurityService.unlock(TA_PERMISSION, siteContext);
-        boolean isStudent = SecurityService.unlock(STUDENT_PERMISSION, siteContext);
+		String siteAuthzRef = SakaiUtil.getSiteReference();
+        boolean isInstructor = SecurityService.unlock(INSTRUCTOR_PERMISSION, siteAuthzRef);
+        boolean isTa = SecurityService.unlock(TA_PERMISSION, siteAuthzRef);
+        boolean isStudent = SecurityService.unlock(STUDENT_PERMISSION, siteAuthzRef);
 
         if(isInstructor) {
            return Role.INSTRUCTOR;

@@ -39,8 +39,6 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -108,15 +106,19 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	}
 
 	public List getSiteMembersInRole(final String siteContext, final Role role) {
-        String authString = null;
+		List sakaiMembers;
         if(role.isInstructor()) {
-        	authString = AuthzSakaiImpl.INSTRUCTOR_PERMISSION;
+            sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, SakaiUtil.getSiteReference());
         } else if(role.isTeachingAssistant()) {
-        	authString = AuthzSakaiImpl.TA_PERMISSION;
+            sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, SakaiUtil.getSiteReference());
         } else if(role.isStudent()) {
-        	authString = AuthzSakaiImpl.STUDENT_PERMISSION;
+            sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.STUDENT_PERMISSION, SakaiUtil.getSiteReference());
+            sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, SakaiUtil.getSiteReference()));
+            sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, SakaiUtil.getSiteReference()));
+        } else {
+        	// Role.NONE should throw an error
+        	throw new RuntimeException("Can not get site members in role " + role.getDescription());
         }
-        List sakaiMembers = SecurityService.unlockUsers(authString, SakaiUtil.getSiteReference());
         List membersList = new ArrayList();
 
         // Get the course object associated with this site

@@ -24,6 +24,8 @@
 
 package org.sakaiproject.component.section.sakai20;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -42,7 +44,7 @@ import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
  *
  */
 public abstract class ParticipationRecordImpl extends AbstractPersistentObject
-	implements ParticipationRecord {
+	implements ParticipationRecord, Serializable {
 
 	protected User user;
 	protected String userUuid;

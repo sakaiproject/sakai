@@ -24,9 +24,13 @@
 
 package org.sakaiproject.component.section.sakai20;
 
+import java.io.Serializable;
+
 import org.sakaiproject.api.section.coursemanagement.User;
 
-public class UserImpl implements User {
+public class UserImpl implements User, Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private String userUuid;
 	private String displayId;
 	private String sortName;

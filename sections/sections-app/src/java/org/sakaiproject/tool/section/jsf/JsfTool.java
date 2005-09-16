@@ -72,7 +72,8 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
             target = "/studentView";
         } else {
             // The role filter has not been invoked yet, so this could happen here
-            throw new RuntimeException("User " + userUuid + " attempted to access sections in site " + siteContext + " without any role");
+            throw new RuntimeException("User " + userUuid + " attempted to access sections in site " +
+            		siteContext + " without any role");
         }
         if(log.isDebugEnabled()) log.info("target = " + target);
         return target;
