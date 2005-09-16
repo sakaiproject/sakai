@@ -94,17 +94,17 @@
 							<h:outputText value="#{eachAttach.lastModifiedBy}"/>
 						</h:column>
 					</syllabus:syllabus_table>
-				</sakai:group_box>
 
-				<h:panelGroup>
-					<h:outputText value="#{msgs.email_notify}"/>
-					<h:outputText value="      "/>
-					<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.entry.entry.emailNotification}">
-						<f:selectItem itemLabel="#{msgs.notifyNone}" itemValue="none"/>
-						<f:selectItem itemLabel="#{msgs.notifyHigh}" itemValue="high"/>
-						<f:selectItem itemLabel="#{msgs.notifyLow}" itemValue="low"/>
-					</h:selectOneListbox>
-				</h:panelGroup>
+					<h:panelGroup>
+						<h:outputText value="#{msgs.email_notify}"/>
+						<h:outputText value="      "/>
+						<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.entry.entry.emailNotification}">
+							<f:selectItem itemLabel="#{msgs.notifyNone}" itemValue="none"/>
+							<f:selectItem itemLabel="#{msgs.notifyHigh}" itemValue="high"/>
+							<f:selectItem itemLabel="#{msgs.notifyLow}" itemValue="low"/>
+						</h:selectOneListbox>
+					</h:panelGroup>
+				</sakai:group_box>
 
 				<sakai:button_bar>
 					<sakai:button_bar_item
