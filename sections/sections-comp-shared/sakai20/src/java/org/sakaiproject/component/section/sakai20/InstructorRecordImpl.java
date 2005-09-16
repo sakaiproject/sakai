@@ -22,48 +22,39 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.component.section.facade.impl.sakai20;
+package org.sakaiproject.component.section.sakai20;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.api.section.coursemanagement.LearningContext;
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
 
 /**
- * Uses Sakai's ToolManager to determine the current context.
+ * A detachable InstructorRecord for persistent storage.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class ContextSakaiImpl implements Context {
-	private static final Log log = LogFactory.getLog(ContextSakaiImpl.class);
+public class InstructorRecordImpl extends ParticipationRecordImpl {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
-	 * @inheritDoc
+	 * No-arg constructor needed for hibernate
 	 */
-	public String getContext(Object request) {
-        Placement placement = ToolManager.getCurrentPlacement();        
-        if(placement == null) {
-            log.error("Placement is null");
-        }
-        return placement.getContext();
+	public InstructorRecordImpl() {		
+	}
+	
+	public InstructorRecordImpl(LearningContext learningContext, User user) {
+		this.learningContext = learningContext;
+		this.userUuid = user.getUserUuid();
 	}
 
-	public String getContextTitle(Object request) {
-		String siteContext = getContext(null);
-		String siteTitle = null;
-		try {
-			siteTitle = SiteService.getSite(siteContext).getTitle();
-		} catch (IdUnusedException e) {
-			log.error("Unable to get site for context " + siteContext);
-			siteTitle = siteContext; // Better than nothing???
-		}
-		return siteTitle;
+	public Role getRole() {
+		return Role.INSTRUCTOR;
 	}
 }
+
+
 
 /**********************************************************************************
  * $Id$

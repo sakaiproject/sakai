@@ -363,11 +363,11 @@ public interface SectionManager {
     public List getSectionCategories();
 
 	/**
-	 * Gets a single enrollment record for a student in a site.
+	 * Gets a single User object for a student in a site.
 	 * 
-	 * @param siteContext
+	 * @param siteContext Needed by the standalone implementation to find the user
 	 * @param studentUuid
-	 * @return The enrollment record linking this student to this site/course
+	 * @return The User representing this student
 	 */
     public User getSiteEnrollment(String siteContext, String studentUuid);
 

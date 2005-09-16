@@ -24,8 +24,18 @@
 
 package org.sakaiproject.component.section.facade.impl.sakai20;
 
+import java.sql.SQLException;
+
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.Session;
+
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authz;
+import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * Uses Sakai's SecurityService to determine the current user's site role, or
@@ -34,24 +44,49 @@ import org.sakaiproject.api.section.facade.manager.Authz;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class AuthzSakaiImpl implements Authz {
+public class AuthzSakaiImpl extends HibernateDaoSupport implements Authz {
+    public static final String INSTRUCTOR_PERMISSION = "site.upd";
+    // TODO Determine the permission that defines a TA
+    public static final String TA_PERMISSION = "site.ta";
+    public static final String STUDENT_PERMISSION = "site.visit";
 
 	/**
 	 * @inheritDoc
 	 */
 	public Role getSiteRole(String userUuid, String siteContext) {
-		// TODO Auto-generated method stub
-		return null;
+        boolean isInstructor = SecurityService.unlock(INSTRUCTOR_PERMISSION, siteContext);
+        boolean isTa = SecurityService.unlock(TA_PERMISSION, siteContext);
+        boolean isStudent = SecurityService.unlock(STUDENT_PERMISSION, siteContext);
+
+        if(isInstructor) {
+           return Role.INSTRUCTOR;
+        } else if(isTa) {
+            return Role.TA;
+        } else if(isStudent) {
+           return Role.STUDENT;
+        } else {
+           return Role.NONE;
+        }
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public Role getSectionRole(String userUuid, String sectionUuid) {
-		// TODO Auto-generated method stub
-		return null;
+	public Role getSectionRole(final String userUuid, final String sectionUuid) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery("loadSectionParticipation");
+				q.setParameter("userUuid", userUuid);
+				q.setParameter("sectionUuid", sectionUuid);
+				return q.uniqueResult();
+			}
+		};
+		ParticipationRecord record = (ParticipationRecord)getHibernateTemplate().execute(hc);
+		if(record == null) {
+			return Role.NONE;
+		}
+		return record.getRole();
 	}
-
 }
 
 

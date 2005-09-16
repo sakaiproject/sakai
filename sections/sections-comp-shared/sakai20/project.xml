@@ -41,5 +41,14 @@
 
     <build>
         <sourceDirectory>src/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/hibernate</directory>
+                <includes>
+                    <include>ehcache.xml</include>
+                    <include>**/*.hbm.xml</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 </project>

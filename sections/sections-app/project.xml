@@ -32,16 +32,15 @@
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-sections-comp-shared-standalone</artifactId>
 			<version>${pom.currentVersion}</version>
-            <!-- Bundle the standalone impl for now -->
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
 		</dependency>
 
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-comp-shared-sakai20</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
         </dependency>
 
         <dependency>

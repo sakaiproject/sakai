@@ -16,7 +16,8 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			/WEB-INF/spring-beans.xml
+            /WEB-INF/spring-hib.xml
+            /WEB-INF/spring-beans.xml
 		</param-value>
 	</context-param>
 
@@ -32,10 +33,10 @@
 
     <servlet>
         <servlet-name>sakai.sections</servlet-name>
-        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <servlet-class>org.sakaiproject.tool.section.jsf.JsfTool</servlet-class>
         <init-param>
             <param-name>default</param-name>
-            <param-value>sample</param-value>
+            <param-value>overview</param-value>
         </init-param>
         <init-param>
             <param-name>path</param-name>

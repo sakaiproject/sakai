@@ -33,8 +33,13 @@ import org.sakaiproject.api.section.facade.manager.Context;
  */
 public class ContextTestImpl implements Context {
 	private static final String TEST_CONTEXT_ID = "test context";
+	private static final String TEST_CONTEXT_TITLE = "The Test Context Title";
 	public String getContext(Object request) {
         return TEST_CONTEXT_ID;
+	}
+	
+	public String getContextTitle(Object request) {
+		return TEST_CONTEXT_TITLE;
 	}
 	
 }

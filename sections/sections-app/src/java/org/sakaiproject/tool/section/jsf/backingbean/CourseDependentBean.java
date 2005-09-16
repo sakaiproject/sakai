@@ -34,6 +34,8 @@ import java.util.Set;
 import javax.faces.context.FacesContext;
 import javax.faces.el.VariableResolver;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -50,14 +52,14 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public class CourseDependentBean extends InitializableBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final Log log = LogFactory.getLog(CourseDependentBean.class);
 
 	private transient CourseBean courseBean;
 
 	private CourseBean getCourseBean() {
 		if(courseBean == null) {
-			FacesContext context = FacesContext.getCurrentInstance();
-			VariableResolver resolver = context.getApplication().getVariableResolver();
-			courseBean = (CourseBean)resolver.resolveVariable(context, "courseBean");
+			courseBean = (CourseBean)JsfUtil.resolveVariable("courseBean");
+			if(log.isDebugEnabled()) log.debug("resolved course bean = " + courseBean);
 		}
 		return courseBean;
 	}

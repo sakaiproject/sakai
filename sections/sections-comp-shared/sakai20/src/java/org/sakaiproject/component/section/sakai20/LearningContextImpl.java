@@ -22,48 +22,48 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.component.section.facade.impl.sakai20;
+package org.sakaiproject.component.section.sakai20;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import java.io.Serializable;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sakaiproject.api.section.coursemanagement.LearningContext;
 
 /**
- * Uses Sakai's ToolManager to determine the current context.
+ * A base class of LearningContexts for detachable persistent storage.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class ContextSakaiImpl implements Context {
-	private static final Log log = LogFactory.getLog(ContextSakaiImpl.class);
+public class LearningContextImpl extends AbstractPersistentObject implements
+		LearningContext, Serializable {
 
-	/**
-	 * @inheritDoc
-	 */
-	public String getContext(Object request) {
-        Placement placement = ToolManager.getCurrentPlacement();        
-        if(placement == null) {
-            log.error("Placement is null");
-        }
-        return placement.getContext();
-	}
-
-	public String getContextTitle(Object request) {
-		String siteContext = getContext(null);
-		String siteTitle = null;
-		try {
-			siteTitle = SiteService.getSite(siteContext).getTitle();
-		} catch (IdUnusedException e) {
-			log.error("Unable to get site for context " + siteContext);
-			siteTitle = siteContext; // Better than nothing???
+	private static final long serialVersionUID = 1L;
+	
+	public boolean equals(Object o) {
+		if(o == this) {
+			return true;
 		}
-		return siteTitle;
+		if(o instanceof LearningContextImpl) {
+			LearningContextImpl other = (LearningContextImpl)o;
+			return new EqualsBuilder()
+				.append(uuid, other.uuid)
+				.isEquals();
+		}
+		return false;
 	}
+
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37)
+			.append(uuid)
+			.toHashCode();
+	}
+
+
 }
+
+
 
 /**********************************************************************************
  * $Id$

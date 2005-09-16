@@ -42,6 +42,11 @@ public interface Context {
 	 * @return
 	 */
 	public String getContext(Object request);
+	
+	/**
+	 * Gets the label or title for this context.
+	 */
+	public String getContextTitle(Object request);
 }
 
 

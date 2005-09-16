@@ -22,48 +22,41 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.component.section.facade.impl.sakai20;
+package org.sakaiproject.component.section.sakai20;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.api.section.coursemanagement.User;
 
-/**
- * Uses Sakai's ToolManager to determine the current context.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
- *
- */
-public class ContextSakaiImpl implements Context {
-	private static final Log log = LogFactory.getLog(ContextSakaiImpl.class);
-
-	/**
-	 * @inheritDoc
-	 */
-	public String getContext(Object request) {
-        Placement placement = ToolManager.getCurrentPlacement();        
-        if(placement == null) {
-            log.error("Placement is null");
-        }
-        return placement.getContext();
+public class UserImpl implements User {
+	private String userUuid;
+	private String displayId;
+	private String sortName;
+	private String displayName;
+	
+	public UserImpl(String displayId, String displayName, String sortName, String uuid) {
+		this.displayId = displayId;
+		this.displayName = displayName;
+		this.sortName = sortName;
+		this.userUuid = uuid;
 	}
 
-	public String getContextTitle(Object request) {
-		String siteContext = getContext(null);
-		String siteTitle = null;
-		try {
-			siteTitle = SiteService.getSite(siteContext).getTitle();
-		} catch (IdUnusedException e) {
-			log.error("Unable to get site for context " + siteContext);
-			siteTitle = siteContext; // Better than nothing???
-		}
-		return siteTitle;
+	public String getUserUuid() {
+		return userUuid;
+	}
+
+	public String getSortName() {
+		return sortName;
+	}
+
+	public String getDisplayId() {
+		return displayId;
+	}
+
+	public String getDisplayName() {
+		return displayName;
 	}
 }
+
+
 
 /**********************************************************************************
  * $Id$

@@ -10,7 +10,7 @@
         <managed-property>
             <description>Section Manager</description>
             <property-name>sectionManager</property-name>
-            <value>#{org_sakaiproject_tool_section_manager_SectionManager}</value>
+            <value>#{org_sakaiproject_api_section_SectionManager}</value>
         </managed-property>
         <managed-property>
             <description>Authn</description>

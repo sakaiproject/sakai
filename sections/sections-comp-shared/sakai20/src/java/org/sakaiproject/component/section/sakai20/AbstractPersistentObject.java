@@ -21,49 +21,57 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
+package org.sakaiproject.component.section.sakai20;
 
-package org.sakaiproject.component.section.facade.impl.sakai20;
+import java.io.Serializable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Uses Sakai's ToolManager to determine the current context.
+ * Base class for most of the hibernate-persisted classes in this implementation.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class ContextSakaiImpl implements Context {
-	private static final Log log = LogFactory.getLog(ContextSakaiImpl.class);
+public abstract class AbstractPersistentObject implements Serializable {
+	
+    protected long id;
+    protected int version;
+    protected String uuid;
+    protected String title;
+    
+    public long getId() {
+        return id;
+    }
+    public void setId(long id) {
+        this.id = id;
+    }
+    public int getVersion() {
+        return version;
+    }
+    public void setVersion(int version) {
+        this.version = version;
+    }
+    public String getUuid() {
+        return uuid;
+    }
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public String getContext(Object request) {
-        Placement placement = ToolManager.getCurrentPlacement();        
-        if(placement == null) {
-            log.error("Placement is null");
-        }
-        return placement.getContext();
+    public String toString() {
+		return new ToStringBuilder(this).append(title)
+		.append(uuid).toString();
 	}
 
-	public String getContextTitle(Object request) {
-		String siteContext = getContext(null);
-		String siteTitle = null;
-		try {
-			siteTitle = SiteService.getSite(siteContext).getTitle();
-		} catch (IdUnusedException e) {
-			log.error("Unable to get site for context " + siteContext);
-			siteTitle = siteContext; // Better than nothing???
-		}
-		return siteTitle;
-	}
 }
+
 
 /**********************************************************************************
  * $Id$

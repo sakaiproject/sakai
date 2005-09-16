@@ -22,7 +22,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.component.section;
+package org.sakaiproject.component.section.sakai20;
 
 import java.sql.SQLException;
 
@@ -32,7 +32,6 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.common.uuid.UuidManager;
 import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
@@ -41,7 +40,8 @@ import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
- * Hibernate implementation of CourseManager.  Useful for loading data in standalone mode.
+ * Hibernate implementation of CourseManager.  Supports adding a Course, but not
+ * adding members.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
@@ -50,8 +50,6 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 	implements CourseManager {
 
 	private static final Log log = LogFactory.getLog(CourseManagerHibernateImpl.class);
-
-	protected UuidManager uuidManager;
 
 	public Course createCourse(final String siteContext, final String title,
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,
@@ -67,7 +65,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
         		course.setSelfSwitchingAllowed(selfSwitchingAllowed);
         		course.setSiteContext(siteContext);
         		course.setTitle(title);
-        		course.setUuid(uuidManager.createUuid());
+        		course.setUuid(siteContext);
         		session.save(course);
         		return course;
 			};
@@ -75,60 +73,32 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 
 		return (Course)getHibernateTemplate().execute(hc);
 	}
-
+	
 	public boolean courseExists(final String siteContext) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
 				Query q = session.getNamedQuery("loadCourseBySiteContext");
 				q.setParameter("siteContext", siteContext);
-				return q.uniqueResult();
+				Object result = q.uniqueResult();
+				return result;
 			};
 		};
 
 		return getHibernateTemplate().execute(hc) != null;
 	}
 
+
 	public ParticipationRecord addInstructor(final User user, final Course course) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				InstructorRecordImpl pr = new InstructorRecordImpl(course, user);
-				pr.setUuid(uuidManager.createUuid());
-				session.save(pr);
-				return pr;
-			}
-		};
-		return (ParticipationRecord)getHibernateTemplate().execute(hc);
+		throw new RuntimeException("This method is not available outside of the section manager application");
 	}
 
 	public ParticipationRecord addEnrollment(final User user, final Course course) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				EnrollmentRecordImpl enr = new EnrollmentRecordImpl(course, "enrolled", user);
-				enr.setUuid(uuidManager.createUuid());
-				session.save(enr);
-				return enr;
-			}
-		};
-		return (ParticipationRecord)getHibernateTemplate().execute(hc);
+		throw new RuntimeException("This method is not available outside of the section manager application");
 	}
 
 	public ParticipationRecord addTA(final User user, final Course course) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				TeachingAssistantRecordImpl ta = new TeachingAssistantRecordImpl(course, user);
-				ta.setUuid(uuidManager.createUuid());
-				session.save(ta);
-				return ta;
-			}
-		};
-		return (ParticipationRecord)getHibernateTemplate().execute(hc);
-	}
-	
-	// Dependency injection
-
-	public void setUuidManager(UuidManager uuidManager) {
-		this.uuidManager = uuidManager;
-	}
+		throw new RuntimeException("This method is not available outside of the section manager application");
+	}	
 }
 
 

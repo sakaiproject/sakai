@@ -49,6 +49,10 @@ public class ContextStandaloneImpl implements Context {
     	}
         return (String)session.getAttribute(CONTEXT);
 	}
+
+	public String getContextTitle(Object request) {
+		return getContext(request);
+	}	
 	
 }
 

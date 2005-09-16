@@ -22,48 +22,62 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.component.section.facade.impl.sakai20;
+package org.sakaiproject.component.section.sakai20;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import java.io.Serializable;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.sakaiproject.api.section.coursemanagement.Course;
 
 /**
- * Uses Sakai's ToolManager to determine the current context.
+ * A detachable Course for persistent storage.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
- */
-public class ContextSakaiImpl implements Context {
-	private static final Log log = LogFactory.getLog(ContextSakaiImpl.class);
+ */public class CourseImpl extends LearningContextImpl implements Course, Serializable {
 
-	/**
-	 * @inheritDoc
-	 */
-	public String getContext(Object request) {
-        Placement placement = ToolManager.getCurrentPlacement();        
-        if(placement == null) {
-            log.error("Placement is null");
-        }
-        return placement.getContext();
+	private static final long serialVersionUID = 1L;
+	
+	protected String siteContext;
+	protected boolean externallyManaged;
+	protected boolean selfRegistrationAllowed;
+	protected boolean selfSwitchingAllowed;
+	
+	public boolean isSelfSwitchingAllowed() {
+		return selfSwitchingAllowed;
 	}
-
-	public String getContextTitle(Object request) {
-		String siteContext = getContext(null);
-		String siteTitle = null;
-		try {
-			siteTitle = SiteService.getSite(siteContext).getTitle();
-		} catch (IdUnusedException e) {
-			log.error("Unable to get site for context " + siteContext);
-			siteTitle = siteContext; // Better than nothing???
-		}
-		return siteTitle;
+	public void setSelfSwitchingAllowed(boolean selfSwitchingAllowed) {
+		this.selfSwitchingAllowed = selfSwitchingAllowed;
+	}
+	public boolean isSelfRegistrationAllowed() {
+		return selfRegistrationAllowed;
+	}
+	public void setSelfRegistrationAllowed(boolean selfRegistrationAllowed) {
+		this.selfRegistrationAllowed = selfRegistrationAllowed;
+	}
+	public String getSiteContext() {
+		return siteContext;
+	}
+	public void setSiteContext(String siteContext) {
+		this.siteContext = siteContext;
+	}
+	public boolean isExternallyManaged() {
+		return externallyManaged;
+	}
+	public void setExternallyManaged(boolean externallyManaged) {
+		this.externallyManaged = externallyManaged;
+	}
+	
+	public String toString() {
+		return new ToStringBuilder(this)
+		.append(title)
+		.append(siteContext)
+		.append(uuid)
+		.toString();
 	}
 }
+
+
 
 /**********************************************************************************
  * $Id$
