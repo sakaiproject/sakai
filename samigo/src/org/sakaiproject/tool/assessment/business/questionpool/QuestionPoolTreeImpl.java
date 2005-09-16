@@ -675,7 +675,7 @@ public class QuestionPoolTreeImpl
   }
 
   /**
-   * Is a pool a descendant of the other?
+   * Is a pool (pool A) a descendant of the other (Pool B)?
    */
   public boolean isDescendantOf(Long poolA,Long poolB)
   {
