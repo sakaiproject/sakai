@@ -24,12 +24,7 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIData;
@@ -43,6 +38,7 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
+import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
@@ -116,7 +112,8 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		// Clear view state.
 		scoreRows = new ArrayList();
 
-		courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId());
+		Set allEnrollments = getCourseManagementService().getEnrollments(getGradebookUid());
+		courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(allEnrollments));
 
         gradeMapping = getGradebook().getSelectedGradeMapping();
         totalPoints = getGradeManager().getTotalPoints(getGradebookId());
@@ -128,7 +125,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         }
 
 		// Set up score rows.
-		Map enrollmentMap = getOrderedEnrollmentMap();
+		Map enrollmentMap = getOrderedEnrollmentMap(allEnrollments);
 
 		List gradeRecords;
 		if (isFilteredSearch() || isEnrollmentSort()) {

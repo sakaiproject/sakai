@@ -24,15 +24,13 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -60,12 +58,14 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 	}
 
 	protected void init() {
+		Set enrollmentUids = FacadeUtils.getStudentUids(getCourseManagementService().getEnrollments(getGradebookUid()));
+
 		// Get the list of assignments for this gradebook, sorted as defined in the overview page.
-        gradableObjects = getGradeManager().getAssignmentsWithStats(getGradebookId(),
+        gradableObjects = getGradeManager().getAssignmentsWithStats(getGradebookId(), enrollmentUids,
         		getAssignmentSortColumn(), isAssignmentSortAscending());
 
 		// Always put the course grade last.
-		gradableObjects.add(getGradeManager().getCourseGradeWithStats(getGradebookId()));
+		gradableObjects.add(getGradeManager().getCourseGradeWithStats(getGradebookId(), enrollmentUids));
 	}
 
     // Delegated sort methods

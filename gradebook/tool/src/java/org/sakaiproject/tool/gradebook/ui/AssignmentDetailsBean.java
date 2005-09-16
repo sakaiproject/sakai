@@ -25,12 +25,7 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -45,6 +40,7 @@ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
+import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
@@ -124,8 +120,13 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         nextAssignment = null;
 		scoreRows = new ArrayList();
 
+		// We'll need a full enrollment list to filter dropped students out
+		// of the statistics.
+
 		if (assignmentId != null) {
-			assignment = (Assignment)getGradeManager().getGradableObjectWithStats(assignmentId);
+			Set allEnrollments = getCourseManagementService().getEnrollments(getGradebookUid());
+			Set enrollmentUids = FacadeUtils.getStudentUids(allEnrollments);
+			assignment = (Assignment)getGradeManager().getGradableObjectWithStats(assignmentId, enrollmentUids);
 			if (assignment != null) {
                 scores = new GradeRecordSet(assignment);
 
@@ -133,7 +134,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 // need to fetch the assignment statistics as well.
 				List assignments;
                 if(Assignment.SORT_BY_MEAN.equals(getAssignmentSortColumn())) {
-                    assignments = getGradeManager().getAssignmentsWithStats(getGradebookId(),
+                    assignments = getGradeManager().getAssignmentsWithStats(getGradebookId(), enrollmentUids,
                             getAssignmentSortColumn(), isAssignmentSortAscending());
                 } else {
                     assignments = getGradeManager().getAssignments(getGradebookId(),
@@ -150,7 +151,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				}
 
 				// Set up score rows.
-				Map enrollmentMap = getOrderedEnrollmentMap();
+				// TODO Avoid another DB query by passing all enrollments in.
+				Map enrollmentMap = getOrderedEnrollmentMap(allEnrollments);
 
 				List gradeRecords;
 

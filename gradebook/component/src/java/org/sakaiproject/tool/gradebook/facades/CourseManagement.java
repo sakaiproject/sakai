@@ -43,19 +43,6 @@ public interface CourseManagement {
 	public Set getEnrollments(String gradebookUid);
 
 	/**
-	 * Obtain the number of students included in the specified gradebook.
-	 * This is the only CourseManagement information needed to calculate
-	 * the most frequently displayed gradebook statistics.
-	 *
-	 * Although not strictly needed to meet requirements, this gives implementors
-	 * a way to optimize a frequent operation.
-	 *
-	 * @param gradebookUid
-	 * @return the number of enrollments
-	 */
-	public int getEnrollmentsSize(String gradebookUid);
-
-	/**
 	 * Search for enrollments whose students have names or display uids that
      * match the specified criteria. For the V2.0 Baseline Gradebook, we've said
      * the input query will be split on space-or-comma and used for an implied

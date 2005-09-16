@@ -32,6 +32,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
@@ -54,8 +55,9 @@ public class TestGradebookTool {
      * @return A List of all assignments in the currently selected gradebook
      */
     public List getAssignments() {
-        List gradableObjects = gradeManager.getAssignmentsWithStats(selectedGradebook.getId());
-        gradableObjects.add(gradeManager.getCourseGradeWithStats(selectedGradebook.getId()));
+    	Set enrollmentUids = FacadeUtils.getStudentUids(getCourseManagementService().getEnrollments(selectedGradebook.getUid()));
+        List gradableObjects = gradeManager.getAssignmentsWithStats(selectedGradebook.getId(), enrollmentUids);
+        gradableObjects.add(gradeManager.getCourseGradeWithStats(selectedGradebook.getId(), enrollmentUids));
         return gradableObjects;
     }
 

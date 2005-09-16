@@ -182,17 +182,19 @@ public interface GradeManager {
      * object.
      *
      * @param gradebookId The gradebook ID
+     * @param studentUids The current enrollment list to filter dropped students
+     *        from the calculation
      * @param sortBy The field by which to sort the list.
      * @return A list of Assignments with their statistics fields populated
      */
-    public List getAssignmentsWithStats(Long gradebookId, String sortBy, boolean ascending);
+    public List getAssignmentsWithStats(Long gradebookId, Collection studentUids, String sortBy, boolean ascending);
 
     /**
      * Convenience method to get assignments with statistics in the default sort order
      *
      * @param gradebookId The gradebook ID
      */
-    public List getAssignmentsWithStats(Long gradebookId);
+    public List getAssignmentsWithStats(Long gradebookId, Collection studentUids);
 
     /**
      * Fetches a GradableObject
@@ -207,9 +209,11 @@ public interface GradeManager {
      * fields.
      *
      * @param gradableObjectId The gradable object ID
+     * @param studentUids The current enrollment list to filter dropped students
+     *        from the calculation
      * @return The GradableObject with all statistics fields populated
      */
-    public GradableObject getGradableObjectWithStats(Long gradableObjectId);
+    public GradableObject getGradableObjectWithStats(Long gradableObjectId, Collection studentUids);
 
     /**
      * Add a new assignment to a gradebook
@@ -245,7 +249,7 @@ public interface GradeManager {
      * @param gradebookId The gradebook id
      * @return The course grade
      */
-    public CourseGrade getCourseGradeWithStats(Long gradebookId);
+    public CourseGrade getCourseGradeWithStats(Long gradebookId, Collection studentUids);
 
     /**
      * Updates the values used for sorting on any course grade record where a letter

@@ -73,7 +73,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         gradeManager.updateAssignment(asn);
 
         // Fetch the updated assignment with statistics
-        Assignment persistentAssignment = (Assignment)gradeManager.getGradableObjectWithStats(asnId);
+        Assignment persistentAssignment = (Assignment)gradeManager.getGradableObjectWithStats(asnId, new HashSet());
         // Ensure the DB update was successful
         Assert.assertEquals(persistentAssignment.getPointsPossible(), new Double(20));
 
@@ -151,12 +151,13 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         Long id3 = gradeManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date());
 
         List assignments = gradeManager.getAssignments(gradebook.getId());
-        Assignment asn = (Assignment)gradeManager.getGradableObjectWithStats(id1);
-
         Set enrollments = new HashSet();
+        Assignment asn = (Assignment)gradeManager.getGradableObjectWithStats(id1, enrollments);
+
         enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid1", null, null, null), gradebook));
         enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid2", null, null, null), gradebook));
         enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid3", null, null, null), gradebook));
+        Set studentUids = FacadeUtils.getStudentUids(enrollments);
 
 		// Add some scores to the interesting assignment, leaving one student unscored.
 		GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
@@ -165,8 +166,8 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 		gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
 		// Do what the Overview page does.
-		assignments = gradeManager.getAssignmentsWithStats(gradebook.getId(), Assignment.SORT_BY_NAME, true);
-		CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId());
+		assignments = gradeManager.getAssignmentsWithStats(gradebook.getId(), studentUids, Assignment.SORT_BY_NAME, true);
+		CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId(), studentUids);
 
         // Remove the assignments.
         // (We remove all of them to make sure that the calculated course grade can be emptied.)
@@ -179,12 +180,12 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         Assert.assertTrue(!assignments.contains(asn));
 
         // And again, this time calculating statistics
-        assignments = gradeManager.getAssignmentsWithStats(gradebook.getId());
+        assignments = gradeManager.getAssignmentsWithStats(gradebook.getId(), studentUids);
         Assert.assertTrue(!assignments.contains(asn));
 
         // Get the grade records for this gradebook, and make sure none of them
         // belong to a removed assignment
-        List gradeRecords = gradeManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId(), FacadeUtils.getStudentUids(enrollments));
+        List gradeRecords = gradeManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId(), studentUids);
         assertNoneFromRemovedAssignments(gradeRecords);
 
         // Get the grade records for this assignment.  None should be returned, since

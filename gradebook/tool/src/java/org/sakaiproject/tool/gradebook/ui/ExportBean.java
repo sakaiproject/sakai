@@ -87,7 +87,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 
 	private List getCourseGradeAsList() {
         List list = new ArrayList();
-        list.add(getGradeManager().getCourseGradeWithStats(getGradebookId()));
+        list.add(getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(enrollments)));
 
         List gradeRecords = getGradeManager().getAllGradeRecords(getGradebookId());
 
@@ -112,7 +112,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 	private List getRosterGradableObjects() {
 		Gradebook gradebook = getGradebook();
 		List gradableObjects = getGradeManager().getAssignments(getGradebookId());
-		CourseGrade courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId());
+		CourseGrade courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(enrollments));
 		gradableObjects.add(courseGrade);
 		List gradeRecords = getGradeManager().getAllGradeRecords(getGradebookId());
 

@@ -72,7 +72,7 @@ public class GradeManagerTest extends GradebookTestBase {
         Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
         gradeManager.createAssignment(persistentGradebook.getId(), "Assignment #1", new Double(20), new Date());
         Assignment persistentAssignment = (Assignment)gradeManager.
-            getAssignmentsWithStats(persistentGradebook.getId()).get(0);
+            getAssignmentsWithStats(persistentGradebook.getId(), new HashSet()).get(0);
 
         GradeRecordSet gradeRecordSet = new GradeRecordSet(persistentAssignment);
         gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid1", "teacher1", new Double(18)));
@@ -95,7 +95,7 @@ public class GradeManagerTest extends GradebookTestBase {
         }
 
         // Add overrides to the course grades
-        CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(persistentGradebook.getId());
+        CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(persistentGradebook.getId(), students);
         records = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade);
 
         gradeRecordSet = new GradeRecordSet(courseGrade);
@@ -169,8 +169,15 @@ public class GradeManagerTest extends GradebookTestBase {
 
     public void testNewExcessiveScores() throws Exception {
         Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
+
+        // We need to operate on whatever grade records already exist in the db
+        Set studentIds = new HashSet();
+        studentIds.add("normalStudent");
+        studentIds.add("goodStudent");
+        studentIds.add("excessiveStudent");
+
         Long asgId = gradeManager.createAssignment(gradebook.getId(), "Excessive Test", new Double(10), new Date());
-        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId()).get(0);
+        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId(), studentIds).get(0);
 
         // Create a grade record set
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
@@ -181,16 +188,6 @@ public class GradeManagerTest extends GradebookTestBase {
         Set excessives = gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
         Assert.assertTrue(excessives.size() == 1);
         Assert.assertTrue(excessives.contains("excessiveStudent"));
-
-
-
-
-
-        // We need to operate on whatever grade records already exist in the db
-        Set studentIds = new HashSet();
-        studentIds.add("normalStudent");
-        studentIds.add("goodStudent");
-        studentIds.add("excessiveStudent");
 
         List persistentGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(asn, studentIds);
         gradeRecordSet = new GradeRecordSet(asn);
@@ -213,8 +210,12 @@ public class GradeManagerTest extends GradebookTestBase {
 
     public void testAssignmentScoresEntered() throws Exception {
         Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
+
+        Set students = new HashSet();
+        students.add("entered1");
+
         Long asgId = gradeManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date());
-        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId()).get(0);
+        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId(), students).get(0);
 
         Set enrollments = new HashSet();
         enrollments.add(new EnrollmentStandalone(new UserStandalone("entered1", null, null, null), gradebook));
@@ -226,9 +227,6 @@ public class GradeManagerTest extends GradebookTestBase {
 
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
         Assert.assertTrue(gradeManager.isEnteredAssignmentScores(asgId));
-
-        Set students = new HashSet();
-        students.add("entered1");
 
         List persistentGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(asn, students);
 
@@ -269,15 +267,41 @@ public class GradeManagerTest extends GradebookTestBase {
 
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
-
-
         // Ensure that there are two grading events for this student
         GradingEvents events = gradeManager.getGradingEvents(assignment, enrollments);
         Assert.assertEquals(events.getEvents(studentId).size(), 2);
     }
 
+    public void testDroppedStudents() throws Exception {
+        Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
+        Long asgId = gradeManager.createAssignment(gradebook.getId(), "Dropped Students Test", new Double(10), new Date());
+        Assignment asn = (Assignment)gradeManager.getGradableObject(asgId);
+
+        // Create a grade record set
+        GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "realStudent1", "testId", new Double(10)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "realStudent2", "testId", new Double(10)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "droppedStudent", "testId", new Double(1)));
+
+        gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
+
+        // We need to operate on whatever grade records already exist in the db
+        Set studentIds = new HashSet();
+        studentIds.add("realStudent1");
+        studentIds.add("realStudent2");
+
+        asn = (Assignment)gradeManager.getGradableObjectWithStats(asgId, studentIds);
+        System.out.println ("asn.getMean()=" + asn.getMean());
+
+        // Make sure the dropped student wasn't included in the average.
+        Assert.assertTrue(asn.getMean().doubleValue() == 100.0);
+
+        studentIds.add("droppedStudent");
+        asn = (Assignment)gradeManager.getGradableObjectWithStats(asgId, studentIds);
+        System.out.println ("asn.getMean()=" + asn.getMean());
+        Assert.assertTrue(asn.getMean().doubleValue() < 100.0);
+
+
+    }
+
 }
-
-
-
-

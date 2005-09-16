@@ -57,13 +57,6 @@ public class CourseManagementSakai2Impl implements CourseManagement {
 	}
 
 	/**
-	 * @see org.sakaiproject.tool.gradebook.facades.CourseManagement#getEnrollmentsSize(java.lang.String)
-	 */
-	public int getEnrollmentsSize(String gradebookUid) {
-        return getSakaiUsers().size();
-    }
-
-	/**
 	 * @see org.sakaiproject.tool.gradebook.facades.CourseManagement#findEnrollmentsByStudentNameOrDisplayUid(java.lang.String, java.lang.String)
 	 */
 	public Set findEnrollmentsByStudentNameOrDisplayUid(String gradebookUid,

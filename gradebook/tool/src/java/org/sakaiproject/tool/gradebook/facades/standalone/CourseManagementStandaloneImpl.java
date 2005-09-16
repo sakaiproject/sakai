@@ -62,19 +62,6 @@ public class CourseManagementStandaloneImpl extends HibernateDaoSupport implemen
 		});
 	}
 
-	public int getEnrollmentsSize(final String gradebookUid) {
-		Integer size = (Integer)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				List list = session.find(
-					"select count(enr) from EnrollmentStandalone enr, Gradebook gb where gb.uid=? and enr.gradebook=gb",
-					new Object[] {gradebookUid},
-					new Type[] {Hibernate.STRING});
-				return (Integer)list.get(0);
-			}
-		});
-		return size.intValue();
-	}
-
     public Set findEnrollmentsByStudentNameOrDisplayUid(final String gradebookUid, final String studentNameQuery) {
 		return (Set)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {

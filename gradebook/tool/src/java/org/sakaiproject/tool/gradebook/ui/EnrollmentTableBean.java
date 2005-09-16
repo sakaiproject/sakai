@@ -24,15 +24,7 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.faces.event.ActionEvent;
 
@@ -120,19 +112,16 @@ public abstract class EnrollmentTableBean
         return !defaultSearchString.equals(searchString);
 	}
 
-	protected Map getOrderedEnrollmentMap() {
+	protected Map getOrderedEnrollmentMap(Collection enrollments) {
         Map enrollmentMap;
-		Collection enrollments = null;
 
 		// This is where we used to allow for optimized queries. A lost cause for the forseeable
 		// future....
 
 		if (isFilteredSearch()) {
 			enrollments = getCourseManagementService().findEnrollmentsByStudentNameOrDisplayUid(getGradebookUid(), searchString);
-		} else {
-			// For lack of anything more focused, retrieve all active enrollments.
-			enrollments = getCourseManagementService().getEnrollments(getGradebookUid());
 		}
+
 		scoreDataRows = enrollments.size();
 		if (isEnrollmentSort()) {
 			// Handle sorting and paging in memory, since the service facades

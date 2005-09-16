@@ -58,11 +58,6 @@ public class CourseManagementSectionsImpl extends AbstractSectionsImpl implement
 		return enrollments;
 	}
 
-	public int getEnrollmentsSize(String gradebookUid) {
-		List participationRecords = getSectionAwareness().getSiteMembersInRole(gradebookUid, Role.STUDENT);
-		return participationRecords.size();
-	}
-
     public Set findEnrollmentsByStudentNameOrDisplayUid(String gradebookUid, String studentPattern) {
     	List participationRecords = getSectionAwareness().findSiteMembersInRole(gradebookUid, Role.STUDENT, studentPattern);
 		return convertParticipationRecordListToEnrollmentSet(participationRecords);

@@ -23,10 +23,7 @@
 
 package org.sakaiproject.tool.gradebook.business;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,10 +81,10 @@ public class FacadeUtils {
     };
 
     /**
-     * Temporary relocation for paging/sorting refactoring.
+     * A convenience method for UID-based filtering.
      */
-    public static Collection getStudentUids(Collection enrollments) {
-		Collection studentUids = new HashSet();
+    public static Set getStudentUids(Collection enrollments) {
+		Set studentUids = new HashSet();
 		for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
 			Enrollment enr = (Enrollment)iter.next();
 			studentUids.add(enr.getUser().getUserUid());

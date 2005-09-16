@@ -68,10 +68,6 @@ public class CourseManagementTestImpl implements CourseManagement {
         return randomString.toString();
     }
 
-    public int getEnrollmentsSize(String gradebookUid) {
-    	return getEnrollments(gradebookUid).size();
-    }
-
 	/**
 	 */
 	public Set findEnrollmentsByStudentNameOrDisplayUid(String gradebookUid, String studentNameQuery) {
