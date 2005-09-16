@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This is a sample metadata repository for the ObJectBridge System.
+     Use this file as a template for building your own mappings-->
+
+<!-- defining entities for include-files -->
+<!DOCTYPE descriptor-repository SYSTEM "repository.dtd">
+
+<descriptor-repository version="1.0"
+        isolation-level="read-uncommitted">
+  <!--
+  <class-descriptor
+    class="org.navigoproject.data.imsglobal.qti.QtiSettingsDataBean"
+    table="ONC.QTI_SETTINGS"
+  >    
+    <field-descriptor
+      name="id"
+      column="ID"
+      jdbc-type="VARCHAR"
+      primarykey="true"
+    />
+    <field-descriptor
+      name="maxAttempts"
+      column="MAX_ATTEMPTS"
+      jdbc-type="INTEGER"
+    />
+    <field-descriptor
+      name="autoSubmit"
+      column="AUTO_SUBMIT"
+      jdbc-type="VARCHAR"
+    />
+    <field-descriptor
+      name="testDisabled"
+      column="TEST_DISABLED"
+      jdbc-type="VARCHAR"
+    />
+    <field-descriptor
+      name="startDate"
+      column="START_DATE"
+      jdbc-type="TIMESTAMP"
+    />
+    <field-descriptor
+      name="endDate"
+      column="END_DATE"
+      jdbc-type="TIMESTAMP"
+    />
+  </class-descriptor>
+  
+  <class-descriptor
+    class="org.navigoproject.data.imsglobal.qti.QtiIpAddressDataBean"
+    table="ONC.QTI_ASSESSMENT_IPS"
+  >    
+    <field-descriptor
+      name="id"
+      column="ID"
+      jdbc-type="VARCHAR"
+      primarykey="true"
+    />
+    <field-descriptor
+      name="startIp"
+      column="START_IP"
+      jdbc-type="VARCHAR"
+      primarykey="true"
+    />
+    <field-descriptor
+      name="endIp"
+      column="END_IP"
+      jdbc-type="VARCHAR"
+      primarykey="true"
+    />
+  </class-descriptor>
+  
+  
+ <class-descriptor
+      class="org.navigoproject.data.ItemResultBean"
+      table="ONC.ITEM_RESULT"
+  >
+    <field-descriptor
+         name="assessmentId"
+         column="ASSESSMENT_ID"
+         jdbc-type="VARCHAR"
+         primarykey="true"
+      />
+      
+    <field-descriptor
+         name="itemId"
+         column="ITEM_ID"
+         jdbc-type="VARCHAR"
+         primarykey="true"
+      />
+
+     <field-descriptor
+         name="elementId"
+         column="ELEMENT_ID"
+         jdbc-type="VARCHAR"
+      />
+  </class-descriptor>
+     
+  <class-descriptor
+      class="org.navigoproject.data.RealizationBean"
+      table="QTI_ASSESSMENT_TAKEN"
+  >
+    <field-descriptor
+         name="assessmentTakenId"
+         column="ASSESSMENT_TAKEN_ID"
+         jdbc-type="VARCHAR"
+         primarykey="true"
+      />
+      
+    <field-descriptor
+         name="assessmentPublishedId"
+         column="ASSESSMENT_PUB_ID"
+         jdbc-type="VARCHAR"
+         primarykey="true"
+      />
+
+     <field-descriptor
+         name="submissionTime"
+         column="SUBMISSION_TIME"
+         jdbc-type="TIMESTAMP"
+      />
+      
+     <field-descriptor
+         name="beginTime"
+         column="BEGIN_TIME"
+         jdbc-type="TIMESTAMP"
+      />
+      
+      <field-descriptor
+         name="endTime"
+         column="END_TIME"
+         jdbc-type="TIMESTAMP"
+      />
+      
+      <field-descriptor
+         name="submitted"
+         column="SUBMITTED"
+         jdbc-type="INTEGER"
+      />
+      
+     <field-descriptor
+         name="lateSubmission"
+         column="LATE_SUBMISSION"
+         jdbc-type="INTEGER"
+      />
+  </class-descriptor>
+  -->
+
+</descriptor-repository>

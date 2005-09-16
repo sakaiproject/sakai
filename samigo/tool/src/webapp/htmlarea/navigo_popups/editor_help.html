@@ -1,0 +1,77 @@
+<html>
+   <head>
+      <title>Help</title>
+   </head>
+   <body>
+<h1>Help</h1>
+<h2>Here is a description of the various functions available on the toolbar.
+<hr color="black" noshade></h2>
+<p>
+<img src="../images/toolbar.gif"  alt="toolbar" width="700">
+<ol>
+<li> Use the first drop-down to set the font style.<br>
+Just select the text you wish to change, the select the font family from the drop-down.
+<li> The second drop-down will change thw font size of the selected text.
+<li> The third drop-down has predetermined values assigned that will change the font<br>
+size, family, and color of the selected text.
+<li> <img src="../images/ed_format_bold.gif" alt="Bold text"> Applies the <b>BOLD</b> attribute to selected text.
+<li> <img src="../images/ed_format_italic.gif" alt="Italic text"> Applies the <i>Italic</i> attribute to selected text.
+<li> <img src="../images/ed_format_underline.gif" alt="underlined text"> Applies the <u>underlined</u> attribute to selected text.
+<li> <img src="../images/ed_format_strike.gif" alt="Striked text"> Applies the <strike>Striked</strike> attribute to selected text.
+<li> <img src="../images/ed_format_sub.gif" alt="Subscript text"> Applies the <sub>subscript</sub> attribute to selected text.
+<li> <img src="../images/ed_format_sup.gif" alt="Super Script text"> Applies the <sup>super script</sup> attribute to selected text.
+<li> <img src="../images/ed_align_left.gif" alt="align text left"> Sets alignment of content to the left.
+<li> <img src="../images/ed_align_center.gif" alt="align text center"> Sets alignment of content to the center.
+<li> <img src="../images/ed_align_right.gif" alt="align text right"> Sets alignment of content to the right.
+<li> <img src="../images/ed_list_num.gif" alt="numbered list"> Inserts a numbered list.
+<li> <img src="../images/ed_list_bullet.gif" alt="bulleted list"> Inserts a bulleted list.
+<li> <img src="../images/ed_indent_less.gif" alt="indent less"> Decreases line indent.
+<li> <img src="../images/ed_indent_more.gif" alt="indent more"> Increases line indent.
+<li> <img src="../images/ed_color_fg.gif" alt="foreground color"> Use to change the color of selected text.
+<li> <img src="../images/ed_color_bg.gif" alt="background color"> Use to change the background color of a selected area.
+<li> <img src="../images/ed_hr.gif" alt="horizontal rule"> Inserts a "horizontal rule (line) where the cursor is located.
+<li> <img src="../images/ed_link.gif" alt="insert link"> Insert a hyper link.
+<li> <img src="../images/ed_image.gif" alt="insert image"> Insert a image (graphic).
+<li> <img src="../images/insert_table.gif" alt="insert table"> Insert a table.
+<li> <img src="../images/ed_html.gif" alt="view HTML source code"> Click on this button to view the HTML source code.<br>Click on it a second time and you are returned to original textarea.
+<li> <img src="../images/recordresponse.gif" width="18" height="18" alt="record a response">Record a response.
+<li> <img src="../images/ed_about.gif" alt="about editor"> Information about editor.
+<li> <img src="../images/ed_help.gif" alt="editor help"> Editor Help (this page).
+<li> <img src="../images/fullscreen_maximize.gif" alt="enlarge editor"> Enlarge Editor, opens a new window.
+</ol>
+<p>
+These are the form buttons at the bottom of the textarea.
+<p>
+<h5>Other stuff</h5>
+<h5>How to set up and Verify Audio Recording.</h5>
+<h6>Audio response questions can only be taken using a PC running Windows</h6>
+<img src="../images/recording.gif" alt="recording applet">
+<ol>
+<li>First, determine if your Windows machine has the Java(TM)Plug-in 1.3 installed already. The simplest way to find out is to start doing the assignment with the audio response questions. If you can successfully record and play back the recording, your machine is set up correctly. You shall skip the following instructions and do the assignment. 
+
+</li>
+<li>Look for "Java Plug-in" in the Control Panel. If you don't find it, that means no Java plug-in has been installed, jump to step 3 now. Otherwise, double click the "Java Plug-in" control panel to open it and check the plug-in version by clicking at the "About" tab. If the version is 1.3, your machine has the correct version installed. Now, click at the "Basic" tab and make sure that both "Enable Java Plug-in" and "Cache JARs in memory" are checked. Then skip to step 4. 
+
+</li>
+<li>If the machine does not have Java(TM)Plug-in 1.3 installed, download the installer at http://java.sun.com/j2se/1.3/jre/download-windows.html. Installation involves double clicking the installer, agreeing the term of user policy and deciding where you want to put the folder - no tricks. If you have successfully installed the plug-in, a folder called "JavaSoft" would be created. In my case, I have installed it in c:\ProgramFiles\JavaSoft\JRE\1.3.1_07\ 
+
+</li>
+<li>Locate the file called "java.policy" resides in the folder "JavaSoft\JRE\1.3\lib\security". 
+
+</li>
+<li>Open java.policy with Wordpad and add the following line at the end of the file just before the "};" 
+permission javax.sound.sample.AudioPermission "record"; 
+
+</li>
+<li>Quit and restart your browser 
+
+<li>install Quick Time for Java, QTJava.zip
+You can download it at http://www.apple.com/quicktime/download/ and put it in the lib\ folder of your JavaSoft folder. In my case, I install it in c:\ProgramFiles\JavaSoft\JRE\1.3.1_07\lib\ext\. Check that your CLASSPATH include path to QTJava.zip. 
+
+</li>
+</ol>
+<h5>Supported browsers</h5>
+<p>This application has been verified to work on the latest Mozilla on the Mac, Netscape 7.1 on the Mac, (excluding audio on the Mac), Netscape 7.1 on Windows XP and IE 6.0 on Windows 2000.   It does not work on IE 5.2 on the Mac, or Netscape 7.02 on the Mac, neither of which have the up to date Gecko rendering engine.  The documentation states:
+This application requires <a href="http://www.microsoft.com/ie">Internet Explorer >= 5.5 (Windows only)</a>, or <a href="http://mozilla.org">Mozilla >= 1.3-Beta</a> on any platform. Any browser based on <a href="http://mozilla.org/newlayout">Gecko<a> will also work, provided that Gecko version is at least the one included in Mozilla-1.3-Beta (for example, <a href="http://galeon.sf.net">Galeon-1.2.8</a>). However, it is backwards compatible with other browsers. They will get a regular textarea field instead of a WYSIWYG editor.</p>
+ </body>
+</html>

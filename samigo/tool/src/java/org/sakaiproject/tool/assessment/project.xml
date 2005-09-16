@@ -1,0 +1,40 @@
+<project>
+  <groupId>samigo</groupId>
+  <id>samigo-pojo</id>
+  <name>Sakai SAMigo Tool Assessment</name>
+  <package>org.sakaiproject.tool.assessment.data.*</package>
+  <currentVersion>2.0.0</currentVersion>
+  <description>Samigo POJO</description>
+  <dependencies>
+                <dependency>
+                        <groupId>OKI</groupId>
+                        <artifactId>OkiOSID</artifactId>
+                        <version>2.0</version>
+                        <properties>
+                                <war.bundle>false</war.bundle>
+                        </properties>
+                </dependency>
+                <dependency>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                        <version>1.0.4</version>
+                        <properties>
+                                <war.bundle>false</war.bundle>
+                        </properties>
+                </dependency>
+                <dependency>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                        <version>1.2.8</version>
+                        <properties>
+                                <war.bundle>false</war.bundle>
+                        </properties>
+                </dependency>
+  </dependencies>
+  
+  <build>
+      <sourceDirectory>data</sourceDirectory>
+      <resources/>
+  </build>
+
+</project>

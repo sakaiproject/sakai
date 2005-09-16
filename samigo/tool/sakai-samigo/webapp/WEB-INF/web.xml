@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<!-- $Id: web.xml,v 1.8 2005/06/08 03:06:41 daisyf.stanford.edu Exp $ -->
+  <display-name>SAM</display-name>
+  <description>Sakai Assessment Manager</description>
+
+  <!-- Context Params -->
+  <context-param>
+    <param-name>PathToSecurity</param-name>
+    <param-value>/opt/sa_forms/java/dev</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>PathToSettings</param-name>
+    <param-value>/opt/j2ee/dev</param-value>
+  </context-param>
+
+  <context-param>
+     <param-name>contextConfigLocation</param-name>
+     <param-value>WEB-INF/classes/org/sakaiproject/spring/applicationContext.xml,
+                  WEB-INF/classes/org/sakaiproject/spring/BeanDefinitions.xml</param-value>
+  </context-param>
+
+  <!-- BEGIN SAMIGO JSF CONTEXT PARAM-->
+    <context-param>
+        <param-name>com.sun.faces.validateXml</param-name>
+        <param-value>false</param-value>
+        <description>
+            Set this flag to true if you want the JavaServer Faces
+            Reference Implementation to validate the XML in your
+            faces-config.xml resources against the DTD.  Default
+            value is false.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>com.sun.faces.verifyObjects</param-name>
+        <param-value>false</param-value>
+        <description>
+            Set this flag to true if you want the JavaServer Faces
+            Reference Implementation to verify that all of the application
+            objects you have configured (components, converters,
+            renderers, and validators) can be successfully created.
+            Default value is false.
+        </description>
+    </context-param>
+  <!-- END SAMIGO JSF CONTEXT PARAM-->
+
+
+  <!-- Filters  -->
+
+  <!--** Important: This SetCharacterEncodingFilter must be the 1st one in the list of fillter **-->
+  <!-- Let Sakai handle setting the character encoding (through the Sakai request filter) -->
+  <!--
+  <filter>
+    <filter-name>Set Character Encoding</filter-name>
+    <filter-class>org.sakaiproject.tool.assessment.ui.web.filter.SetCharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+  -->
+
+  <filter>
+    <filter-name>sakai.request</filter-name>
+    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    <init-param>
+      <param-name>remote.user</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <!--
+         Don't use Sakai's built-in upload handling.
+         Samigo has its own upload filter below.
+    -->
+    <init-param>
+      <param-name>upload.enabled</param-name>
+      <param-value>false</param-value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>Upload Filter</filter-name>
+    <filter-class>com.corejsf.UploadFilter</filter-class>
+    <init-param>
+      <param-name>com.corejsf.UploadFilter.repositoryPath</param-name>
+      <param-value>/tmp/</param-value>
+    </init-param>
+    <init-param>
+      <param-name>com.corejsf.UploadFilter.sizeThreshold</param-name>
+      <param-value>1024</param-value>
+    </init-param>
+    <init-param>
+      <param-name>com.corejsf.UploadFilter.sizeMax</param-name>
+      <param-value>40960</param-value>
+    </init-param>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>sakai.request</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>Upload Filter</filter-name>
+    <url-pattern>/jsf/delivery/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>Upload Filter</filter-name>
+    <url-pattern>/jsf/qti/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+
+<!--
+  <filter-mapping>
+    <filter-name>Set Character Encoding</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+-->
+  <!-- *******************************************************************  -->
+
+  <!-- Listeners are used to bootstrap application runtime configuration -->
+  <!-- Register Samigo with Sakai2 -->
+  <listener>
+    <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+  </listener>
+
+  <!-- PathInfo -->
+  <listener>
+    <listener-class>org.sakaiproject.tool.assessment.settings.PathInfoInitListener</listener-class>
+  </listener>
+
+  <!-- Spring Locator -->
+  <!--  Don't use Spring's, use Sakai's!  This allows sharing of Spring across webapps -->
+<!--
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+-->
+    <listener>
+        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    </listener>
+
+  <!-- OKI OSID -->
+  <listener>
+    <listener-class>org.sakaiproject.tool.assessment.settings.OkiOsidConfigListener</listener-class>
+  </listener>
+
+  <!-- *******************************************************************  -->
+<!--
+  <servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+      <param-name>stxxInit</param-name>
+      <param-value>/stxx.properties</param-value>
+    </init-param>
+    <init-param>
+      <param-name>config</param-name>
+      <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+-->
+
+  <servlet>
+    <servlet-name>sakai.samigo</servlet-name>
+    <servlet-class>org.sakaiproject.jsf.util.SamigoJsfTool</servlet-class>
+    <init-param>
+      <param-name>default</param-name>
+      <param-value>jsf/index/mainIndex</param-value>
+    </init-param>
+    <init-param>
+      <param-name>path</param-name>
+      <param-value>/</param-value>
+    </init-param>
+    <init-param>
+      <param-name>default.last.view</param-name>
+      <param-value>false</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>LoginServlet</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.LoginServlet</servlet-class>
+    <display-name>Login</display-name>
+    <description>This is the description of my J2EE component</description>
+  </servlet>
+
+  <servlet>
+    <servlet-name>ShowMediaServlet</servlet-name>
+    <display-name>Show Media</display-name>
+    <description>This is the description of my J2EE component</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.ShowMediaServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>PDFServlet</servlet-name>
+    <display-name>PDF Servlet</display-name>
+    <description>This is the description of my J2EE component</description>
+    <servlet-class>org.navigoproject.ui.web.asi.delivery.fop.PDFServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>storeApplicationContext</servlet-name>
+    <description>This servlet load the Type and all QuestionPool into a HashMap in memory</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.StoreApplicationContext</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>initAction</servlet-name>
+    <description>This servlet load the Type and all QuestionPool into a HashMap in memory</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.web.action.InitAction</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>initMimeTypes</servlet-name>
+    <description>This servlet load the Type and all QuestionPool into a HashMap in memory</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.InitMimeTypes</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+
+
+    <!-- Faces Servlet -->
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup> 1 </load-on-startup>
+    </servlet>
+
+
+    <!-- Faces Servlet Mapping -->
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.faces</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>/faces/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.xml</url-pattern>
+    </servlet-mapping>
+
+  <!-- for anonymous requests (not caught by security filter) -->
+<!--
+  <servlet-mapping>
+    <servlet-name>action</servlet-name>
+    <url-pattern>*.deliver</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>action</servlet-name>
+    <url-pattern>*.xml</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>action</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+-->
+
+  <servlet-mapping>
+    <servlet-name>PDFServlet</servlet-name>
+    <url-pattern>/servlet/PDFServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ShowMediaServlet</servlet-name>
+    <url-pattern>/servlet/ShowMedia</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>LoginServlet</servlet-name>
+    <url-pattern>/servlet/Login</url-pattern>
+  </servlet-mapping>
+
+
+  <!-- BEGIN APACHE AXIS SECTION-->
+
+  <servlet>
+    <servlet-name>AxisServlet</servlet-name>
+    <display-name>Apache-Axis Servlet</display-name>
+    <servlet-class>
+        org.apache.axis.transport.http.AxisServlet
+    </servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>AdminServlet</servlet-name>
+    <display-name>Axis Admin Servlet</display-name>
+    <servlet-class>
+        org.apache.axis.transport.http.AdminServlet
+    </servlet-class>
+    <load-on-startup>100</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>SOAPMonitorService</servlet-name>
+    <display-name>SOAPMonitorService</display-name>
+    <servlet-class>
+        org.apache.axis.monitor.SOAPMonitorService
+    </servlet-class>
+    <init-param>
+      <param-name>SOAPMonitorPort</param-name>
+      <param-value>5001</param-value>
+    </init-param>
+    <load-on-startup>100</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/servlet/AxisServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>*.jws</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/services/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>SOAPMonitorService</servlet-name>
+    <url-pattern>/SOAPMonitor</url-pattern>
+  </servlet-mapping>
+
+  <!-- BEGIN SAMIGO JSF SECTION-->
+
+
+  <!-- JSF TAGLIBS -->
+  <jsp-config>
+    <jsp-property-group>
+      <url-pattern>*.jsp</url-pattern>
+      <include-prelude>/include/header.inc</include-prelude>
+      <!-- <include-coda>/include/footer.inc</include-coda> -->
+    </jsp-property-group>
+  <taglib>
+    <taglib-uri>http://www.sakaiproject.org/samigo</taglib-uri>
+    <taglib-location>/WEB-INF/samigo.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>http://java.sun.com/jsf/core</taglib-uri>
+    <taglib-location>/WEB-INF/jsf_core.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>http://java.sun.com/jsf/html</taglib-uri>
+    <taglib-location>/WEB-INF/html_basic.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>http://java.sun.com/upload</taglib-uri>
+    <taglib-location>/WEB-INF/upload.tld</taglib-location>
+  </taglib>
+  </jsp-config>
+<!-- END SAMIGO JSF -->
+<!--
+  <taglib>
+    <taglib-uri>/WEB-INF/asi.tld</taglib-uri>
+    <taglib-location>/WEB-INF/asi.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-bean.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-bean.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-html.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-html.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-logic.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-logic.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-nested.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-nested.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-template.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-template.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-tiles.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-tiles.tld</taglib-location>
+  </taglib>
+-->
+</web-app>
