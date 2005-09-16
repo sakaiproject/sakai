@@ -1757,4 +1757,22 @@ String poolid = ContextUtil.lookupParam("poolId");
 
   }
 
+  public boolean getSelfOrDescendant(){
+  // check if currentPool is ancester of tree.getCurrentObject
+    boolean isDescendant  = false;
+    boolean isSelf= false;
+
+    isDescendant = tree.isDescendantOf(tree.getCurrentId(), this.getCurrentPool().getId());
+    if (tree.getCurrentId().equals(this.getCurrentPool().getId())){
+      isSelf= true;
+    }
+    if (isSelf || isDescendant) {
+      return true ;
+    }
+    else {
+      return false;
+    }
+
+  }
+
 }
