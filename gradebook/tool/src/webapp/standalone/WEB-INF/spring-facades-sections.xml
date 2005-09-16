@@ -8,15 +8,19 @@
 	-->
 
 	<!-- This bean definition should ideally be included from the component JAR instead. -->
-	<bean id="org.sakaiproject.api.section.SectionAwarenessImpl"
+	<bean id="org.sakaiproject.api.section.SectionAwareness"
 		class="org.sakaiproject.component.section.SectionAwarenessHibernateImpl">
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
 		<property name="sectionCategoryList">
-			<list>
-				<value>section.category.lecture</value>
-				<value>section.category.discussion</value>
-				<value>section.category.lab</value>
-			</list>
+			<bean id="org.sakaiproject.component.section.CategoryListImpl" class="org.sakaiproject.component.section.CategoryListImpl">
+				<property name="categoryIds">
+					<list>
+						<value>section.category.lecture</value>
+						<value>section.category.discussion</value>
+						<value>section.category.lab</value>
+					</list>
+				</property>
+			</bean>
 		</property>
 	</bean>
 
@@ -24,7 +28,7 @@
 
 	<bean id="org_sakaiproject_tool_gradebook_facades_CourseManagement"
 		class="org.sakaiproject.tool.gradebook.facades.sections.CourseManagementSectionsImpl">
-		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwarenessImpl"/></property>
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
 	</bean>
 
 	<!-- External User Directory Service -->
@@ -44,7 +48,7 @@
 
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
 		class="org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl">
-		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwarenessImpl"/></property>
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
 	</bean>
 
 	<!-- External ContextManagement Service -->

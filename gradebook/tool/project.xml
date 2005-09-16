@@ -386,13 +386,13 @@
 			</includes>
 			<resources>
 				<resource>
-					<directory>${basedir}/src/webapp_common/WEB-INF/</directory>
+					<directory>${basedir}/src/webapp/common/WEB-INF/</directory>
 					<includes>
 						<include>spring-beans.xml</include>
 					</includes>
 				</resource>
 				<resource>
-					<directory>${basedir}/src/webapp_standalone/WEB-INF/</directory>
+					<directory>${basedir}/src/webapp/standalone/WEB-INF/</directory>
 					<includes>
 						<include>spring-db.xml</include>
 						<include>spring-facades.xml</include>

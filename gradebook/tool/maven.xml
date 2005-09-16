@@ -11,7 +11,7 @@
 
 		<!-- Files common to both standalone and embedded builds -->
 		<ant:copy todir="${maven.war.webapp.dir}">
-			<ant:fileset dir="${maven.src.dir}/webapp_common" />
+			<ant:fileset dir="${maven.src.dir}/webapp/common" />
 		</ant:copy>
 
 		<!-- Copy build specific files -->
@@ -21,7 +21,7 @@
 
 				<!-- Standalone webapp files -->
 				<ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
-					<ant:fileset dir="${maven.src.dir}/webapp_standalone/">
+					<ant:fileset dir="${maven.src.dir}/webapp/standalone/">
 						<ant:include name="**/*"/>
 					</ant:fileset>
 				</ant:copy>
@@ -44,7 +44,7 @@
 				<ant:echo message="Copying sakai-dependent resources into webapp"/>
 
 				<ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
-					<ant:fileset dir="${maven.src.dir}/webapp_embedded/">
+					<ant:fileset dir="${maven.src.dir}/webapp/sakai20/">
 						<ant:include name="**/*"/>
 					</ant:fileset>
 				</ant:copy>
