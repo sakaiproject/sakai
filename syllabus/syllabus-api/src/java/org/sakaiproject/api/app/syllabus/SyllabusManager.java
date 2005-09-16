@@ -24,7 +24,6 @@ package org.sakaiproject.api.app.syllabus;
 
 import java.util.Set;
 
-
 public interface SyllabusManager
 {
   /**
@@ -58,7 +57,20 @@ public interface SyllabusManager
   public SyllabusItem getSyllabusItemByContextId(final String contextId);
   
   public SyllabusData getSyllabusData(final String dataId);
+  
+  public SyllabusAttachment createSyllabusAttachmentObject(String attachId, String name);      
+
+  public void saveSyllabusAttachment(SyllabusAttachment attach);
+
+  public void addSyllabusAttachToSyllabusData(final SyllabusData syllabusData, final SyllabusAttachment syllabusAttach);
+
+  public void removeSyllabusAttachmentObject(SyllabusAttachment o);
+
+  public void removeSyllabusAttachSyllabusData(final SyllabusData syllabusData, final SyllabusAttachment syllabusAttach);
+
+  public Set getSyllabusAttachmentsForSyllabusData(final SyllabusData syllabusData);
+
+  public SyllabusAttachment getSyllabusAttachment(final String syllabusAttachId);
+  
+  //public SyllabusAttachment creatSyllabusAttachmentResource(String attachId, String name);
 }
-
-
-

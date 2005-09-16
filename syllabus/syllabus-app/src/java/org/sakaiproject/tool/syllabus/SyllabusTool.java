@@ -22,27 +22,45 @@
 **********************************************************************************/
 package org.sakaiproject.tool.syllabus;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.event.PhaseId;
+import javax.faces.event.ValueChangeEvent;
 
+import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
+import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
 import org.sakaiproject.service.framework.session.cover.UsageSessionService;
+import org.sakaiproject.service.legacy.resource.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 
 import com.sun.faces.util.MessageFactory;
+
+import org.sakaiproject.service.legacy.content.ContentResource;
+import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
+import org.sakaiproject.api.kernel.session.ToolSession;
+import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.service.legacy.resource.ReferenceVector;
+import org.sakaiproject.service.legacy.resource.Reference;
+
+import javax.faces.context.ExternalContext;
+import java.util.Map;
 
 //sakai2 - no need to import org.sakaiproject.jsf.ToolBean here as sakai does.
 
@@ -60,6 +78,8 @@ public class SyllabusTool
     protected boolean selected = false;
 
     protected boolean justCreated = false;
+    
+    protected ArrayList attachmentList = new ArrayList();
 
     public DecoratedSyllabusEntry(SyllabusData en)
     {
@@ -94,7 +114,24 @@ public class SyllabusTool
     public String processListRead()
     {
       logger.info(this + ".processListRead() in SyllabusTool.");
+      
+      attachments.clear();
 
+      SyllabusData sd = syllabusManager.getSyllabusData(in_entry.getSyllabusId().toString());
+      Set tempAttach = syllabusManager.getSyllabusAttachmentsForSyllabusData(sd);
+      
+      Iterator iter = tempAttach.iterator();
+      while(iter.hasNext())
+      {
+        oldAttachments.add((SyllabusAttachment)iter.next());
+      }
+      
+      allAttachments.clear();
+      for(int i=0; i<oldAttachments.size(); i++)
+      {
+        allAttachments.add((SyllabusAttachment)oldAttachments.get(i));
+      }
+      
       entry = this;
 
       entries.clear();
@@ -112,6 +149,25 @@ public class SyllabusTool
     {
       upOnePlace(this.getEntry());
       return "main_edit";
+    }
+    
+    public ArrayList getAttachmentList()
+    {
+      Set tempList = syllabusManager.getSyllabusAttachmentsForSyllabusData(in_entry);
+
+      Iterator iter = tempList.iterator();
+      while(iter.hasNext())
+      {
+        SyllabusAttachment sa = (SyllabusAttachment)iter.next();
+        attachmentList.add(sa);
+      }
+      
+      return attachmentList;
+    }
+    
+    public void setAttachmentList(ArrayList attachmentList)
+    {
+      this.attachmentList = attachmentList;
     }
   }
 
@@ -144,7 +200,19 @@ public class SyllabusTool
   private String evilTagMsg=null;
   
   private SyllabusService syllabusService;
-
+  
+  private ArrayList attachments = new ArrayList();
+  
+  private boolean attachCaneled = false;
+  
+  private String removeAttachId = null;
+  
+  private ArrayList oldAttachments = new ArrayList();
+  
+  private ArrayList allAttachments = new ArrayList();
+  
+  private ArrayList prepareRemoveAttach = new ArrayList();
+  
   public SyllabusTool()
   {
   }
@@ -491,6 +559,17 @@ public String processDeleteCancel()
             syllabusService.deletePostedSyllabus(den.getEntry());
           }
           
+          Set syllabusAttachments = den.getEntry().getAttachments();
+          Iterator iter = syllabusAttachments.iterator();
+          while(iter.hasNext())
+          {
+            SyllabusAttachment attach = (SyllabusAttachment)iter.next();
+            String id = attach.getAttachmentId();
+            
+            syllabusManager.removeSyllabusAttachSyllabusData(den.getEntry(), attach);  
+            if(id.toLowerCase().startsWith("/attachment"))
+              ContentHostingService.removeResource(id);
+          }
           syllabusManager.removeSyllabusFromSyllabusItem(syllabusItem, den
               .getEntry());
         }
@@ -519,13 +598,30 @@ public String processDeleteCancel()
   {
     logger.info(this + ".processEditCancel() in SyllabusTool ");
 
-    if (entry != null){
-      syllabusManager.removeSyllabusDataObject(entry.getEntry());      
+    try
+    {
+      if (entry != null)
+      {
+        for(int i=0; i <attachments.size(); i++)
+        {
+          String id = ((SyllabusAttachment)attachments.get(i)).getAttachmentId();
+          syllabusManager.removeSyllabusAttachmentObject((SyllabusAttachment)attachments.get(i));
+          if(id.toLowerCase().startsWith("/attachment"))
+            ContentHostingService.removeResource(id);
+        }
+        syllabusManager.removeSyllabusDataObject(entry.getEntry());
+      }
+    }
+    catch(Exception e)
+    {
+      logger.error(this + ".processEditCancel - " + e);
+      e.printStackTrace();
     }
     displayTitleErroMsg = false;
     displayEvilTagMsg=false;
     entries.clear();
     entry = null;
+    attachments.clear();
 
     return "main_edit";
   }
@@ -563,9 +659,9 @@ public String processDeleteCancel()
     			errorMsg =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
     			if (alertMsg.length() > 0)
     			{
-					evilTagMsg =alertMsg.toString();
-					displayEvilTagMsg=true;
-					return "edit";
+    			  evilTagMsg =alertMsg.toString();
+    			  displayEvilTagMsg=true;
+    			  return "edit";
     			}
     		 }
     		catch (Exception e)
@@ -577,11 +673,17 @@ public String processDeleteCancel()
         {
           syllabusManager.addSyllabusToSyllabusItem(syllabusItem, getEntry()
               .getEntry());
+          for(int i=0; i<attachments.size(); i++)
+          {
+            syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
+                (SyllabusAttachment)attachments.get(i));            
+          }
         }
       }
  
       entries.clear();
       entry = null;
+      attachments.clear();
 
       return "main_edit";
     }
@@ -646,10 +748,18 @@ public String processDeleteCancel()
           syllabusManager.addSyllabusToSyllabusItem(syllabusItem, getEntry()
               .getEntry());
           //syllabusManager.saveSyllabusItem(syllabusItem);
+          for(int i=0; i<attachments.size(); i++)
+          {
+            syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
+                (SyllabusAttachment)attachments.get(i));            
+          }
+          
           syllabusService.postNewSyllabus(getEntry().getEntry());
           
           entries.clear();
           entry = null;
+          attachments.clear();
+
           return "main_edit";
         }
       }
@@ -746,10 +856,28 @@ public String processDeleteCancel()
   {
     logger.info(this + ".processReadCancel() in SyllabusTool");
 
+    try
+    {
+      for(int i=0; i <attachments.size(); i++)
+      {
+        String id = ((SyllabusAttachment)attachments.get(i)).getAttachmentId();
+        syllabusManager.removeSyllabusAttachmentObject((SyllabusAttachment)attachments.get(i));
+        if(id.toLowerCase().startsWith("/attachment"))
+          ContentHostingService.removeResource(id);
+      }
+    }
+    catch(Exception e)
+    {
+      logger.error(this + ".processReadCancel - " + e);
+      e.printStackTrace();
+    }
+    
     displayTitleErroMsg = false;
     displayEvilTagMsg=false;
     entries.clear();
     entry = null;
+    attachments.clear();
+    oldAttachments.clear();
 
     return "main_edit";
   }
@@ -802,11 +930,19 @@ public String processDeleteCancel()
         {
           getEntry().getEntry().setStatus("Draft");
           syllabusManager.saveSyllabus(getEntry().getEntry());
+          
+          for(int i=0; i<attachments.size(); i++)
+          {
+            syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
+                (SyllabusAttachment)attachments.get(i));            
+          }
         }
       }
       
       entries.clear();
       entry = null;
+      attachments.clear();
+      oldAttachments.clear();
 
       return "main_edit";
     }
@@ -871,9 +1007,17 @@ public String processDeleteCancel()
           syllabusManager.saveSyllabus(getEntry().getEntry());
 
           syllabusService.postChangeSyllabus(getEntry().getEntry());
+          
+          for(int i=0; i<attachments.size(); i++)
+          {
+            syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
+                (SyllabusAttachment)attachments.get(i));            
+          }
                
           entries.clear();
           entry = null;
+          attachments.clear();
+          oldAttachments.clear();
 
           return "main_edit";
         }
@@ -1131,6 +1275,8 @@ public String processDeleteCancel()
 
         entries.clear();
         entry = null;
+        attachments.clear();
+        oldAttachments.clear();
       }
 
       return "main_edit";
@@ -1159,7 +1305,7 @@ public String processDeleteCancel()
 		boolean allowOrNot = SiteService.allowUpdateSite(currentSiteId);
 		return SiteService.allowUpdateSite(currentSiteId);
   }
-
+  
   public String getTitle()
   {
     return SiteService.findTool(PortalService.getCurrentToolId()).getTitle();
@@ -1217,7 +1363,381 @@ public String processDeleteCancel()
   {
     this.syllabusService = syllabusService;
   }
+  
+  public String processAddAttRead()
+  {
+    if(entry.getEntry().getTitle() == null)
+    {
+      displayTitleErroMsg = true;
+      return "edit";          
+    }
+    else if(entry.getEntry().getTitle().trim().equals(""))
+    {
+      displayTitleErroMsg = true;
+      return "edit";
+    }
+    else
+    {
+      displayTitleErroMsg = false;
+      return "add_attach";
+    }
+  }
+
+  public String processUpload(ValueChangeEvent event)
+  {
+    if(attachCaneled == false)
+    {
+      UIComponent component = event.getComponent();
+      Object newValue = event.getNewValue();
+      Object oldValue = event.getOldValue();
+      PhaseId phaseId = event.getPhaseId();
+      Object source = event.getSource();
+      
+      if (newValue instanceof String) return "";
+      if (newValue == null) return "";
+      
+      try
+      {
+        FileItem item = (FileItem) event.getNewValue();
+        String fieldName = item.getFieldName();
+        String fileName = item.getName();
+        long fileSize = item.getSize();
+        
+        logger.info(this + ".processUpload in SyllabusTool - " + fileName);
+        
+        InputStream fileAsStream = item.getInputStream();
+        
+        byte[] fileContents = item.get();
+        
+        ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
+        
+        String tempS = fileName;
+        logger.info(tempS);
+        int lastSlash = tempS.lastIndexOf("/") > tempS.lastIndexOf("\\") ? 
+            tempS.lastIndexOf("/") : tempS.lastIndexOf("\\");
+        if(lastSlash > 0)
+          fileName = tempS.substring(lastSlash+1);
+            
+        ContentResource thisAttach = ContentHostingService.addAttachmentResource(fileName, item.getContentType(), fileContents, props);
+        
+        SyllabusAttachment attachObj = syllabusManager.createSyllabusAttachmentObject(thisAttach.getId(), fileName);
+        ////////revise        syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), attachObj);
+        attachments.add(attachObj);
+        
+        String ss = thisAttach.getUrl();
+        String fileWithWholePath = thisAttach.getUrl();
+        
+        ContentResource getAttach = ContentHostingService.getResource(thisAttach.getId());
+        
+        String s = ss;
+        
+        if(entry.justCreated != true)
+        {
+          allAttachments.add(attachObj);
+        }
+      }
+      catch (Exception e)
+      {
+        logger.error(this + ".processUpload() in SyllabusTool " + e);
+        e.printStackTrace();
+      }
+      if(entry.justCreated == true)
+      {
+        return "edit";
+      }
+      else
+      {
+        return "read";
+      }
+    }
+    return null;
+  }
+  
+  public String processUploadConfirm()
+  {
+    //attachCaneled = false;
+    if(this.entry.justCreated == true)
+      return "edit";
+    else
+    {
+      return "read";
+    }
+  }
+  
+  public String processUploadCancel()
+  {
+    //attachCaneled = true;
+    if(this.entry.justCreated == true)
+      return "edit";
+    else
+      return "read";
+  }  
+  
+  public ArrayList getAttachments()
+  {
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
+        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
+    {
+      ReferenceVector refs = (ReferenceVector)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      Reference ref = (Reference)refs.get(0);
+      
+      for(int i=0; i<refs.size(); i++)
+      {
+        ref = (Reference) refs.get(i);
+        SyllabusAttachment thisAttach = syllabusManager.createSyllabusAttachmentObject(
+            ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+        
+        attachments.add(thisAttach);
+        
+        if(entry.justCreated != true)
+        {
+          allAttachments.add(thisAttach);
+        }
+      }
+    }
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+    
+    return attachments;
+  }
+  
+  public void setAttachments(ArrayList attachments)
+  {
+    this.attachments = attachments;
+  }
+  
+  public boolean getAttachCaneled()
+  {
+    return attachCaneled;
+  }
+  
+  public void setAttachCaneled(boolean attachCaneled)
+  {
+    this.attachCaneled = attachCaneled;
+  }
+  
+  public String processDeleteAttach()
+  {
+    ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+    String attachId = null;
+    
+    Map paramMap = context.getRequestParameterMap();
+    Iterator itr = paramMap.keySet().iterator();
+    while(itr.hasNext())
+    {
+      Object key = itr.next();
+      if( key instanceof String)
+      {
+        String name =  (String)key;
+        int pos = name.lastIndexOf("syllabus_current_attach");
+        
+        if(pos>=0 && name.length()==pos+"syllabus_current_attach".length())
+        {
+          attachId = (String)paramMap.get(key);
+          break;
+        }
+      }
+    }
+    
+    removeAttachId = attachId;
+    
+    if((removeAttachId != null) && (!removeAttachId.equals("")))
+      return "remove_attach_confirm";
+    else
+      return null;
+  }
+  
+  public String processRemoveAttach()
+  {
+    if(entry.justCreated == true)
+    {
+      try
+      {
+        SyllabusAttachment sa = syllabusManager.getSyllabusAttachment(removeAttachId);
+        String id = sa.getAttachmentId();
+        
+        for(int i=0; i<attachments.size(); i++)
+        {
+          SyllabusAttachment thisAttach = (SyllabusAttachment)attachments.get(i);
+          if(((Long)thisAttach.getSyllabusAttachId()).toString().equals(removeAttachId))
+          {
+            attachments.remove(i);
+            break;
+          }
+        }
+        
+        ContentResource cr = ContentHostingService.getResource(id);
+        syllabusManager.removeSyllabusAttachmentObject(sa);
+        if(id.toLowerCase().startsWith("/attachment"))
+          ContentHostingService.removeResource(id);
+      }
+      catch(Exception e)
+      {
+        logger.error(this + ".processRemoveAttach() - " + e);
+        e.printStackTrace();
+      }
+      
+      removeAttachId = null;
+      prepareRemoveAttach.clear();
+      return "edit";
+    }
+    else
+    {
+      try
+      {
+        SyllabusAttachment sa = syllabusManager.getSyllabusAttachment(removeAttachId);
+        String id = sa.getAttachmentId();
+        boolean deleted = false;
+        
+        for(int i=0; i<attachments.size(); i++)
+        {
+          SyllabusAttachment thisAttach = (SyllabusAttachment)attachments.get(i);
+          if(((Long)thisAttach.getSyllabusAttachId()).toString().equals(removeAttachId))
+          {
+            attachments.remove(i);
+            deleted = true;
+            break;
+          }
+        }
+        if(deleted == false)
+        {
+          for(int i=0; i<oldAttachments.size(); i++)
+          {
+            SyllabusAttachment thisAttach = (SyllabusAttachment)oldAttachments.get(i);
+            if(((Long)thisAttach.getSyllabusAttachId()).toString().equals(removeAttachId))
+            {
+              oldAttachments.remove(i);
+              break;
+            }
+          }
+        }
+        
+        ContentResource cr = ContentHostingService.getResource(id);
+        syllabusManager.removeSyllabusAttachmentObject(sa);
+        if(id.toLowerCase().startsWith("/attachment"))
+          ContentHostingService.removeResource(id);
+        
+        allAttachments.clear();
+        for(int i=0; i<attachments.size(); i++)
+        {
+          allAttachments.add((SyllabusAttachment)attachments.get(i));
+        }
+        for(int i=0; i<oldAttachments.size(); i++)
+        {
+          allAttachments.add((SyllabusAttachment)oldAttachments.get(i));
+        }
+        
+
+      }
+      catch(Exception e)
+      {
+        logger.error(this + ".processRemoveAttach() - " + e);
+        e.printStackTrace();
+      }
+      return "read";
+    }
+  }
+  
+  public String processRemoveAttachCancel()
+  {
+    removeAttachId = null;
+    prepareRemoveAttach.clear();
+    if(entry.justCreated == true)
+    {
+      return "edit";
+    }
+    else
+    {
+      return "read";
+    }
+  }
+
+  public String getRemoveAttachId()
+  {
+    return removeAttachId;
+  }
+
+  public final void setRemoveAttachId(String removeAttachId)
+  {
+    this.removeAttachId = removeAttachId;
+  }
+
+  public final ArrayList getOldAttachments()
+  {
+    return oldAttachments;
+  }
+
+  public final void setOldAttachments(ArrayList oldAttachments)
+  {
+    this.oldAttachments = oldAttachments;
+  }
+  
+  public String processAddAttWithOldItem()
+  {
+    if(entry.getEntry().getTitle() == null)
+    {
+      displayTitleErroMsg = true;
+      return "read";          
+    }
+    else if(entry.getEntry().getTitle().trim().equals(""))
+    {
+      displayTitleErroMsg = true;
+      return "read";
+    }
+    else
+    {
+      displayTitleErroMsg = false;
+      return "add_attach";
+    }
+  }
+
+  public final ArrayList getAllAttachments()
+  {
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
+        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
+    {
+      ReferenceVector refs = (ReferenceVector)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      Reference ref = (Reference)refs.get(0);
+      
+      for(int i=0; i<refs.size(); i++)
+      {
+        ref = (Reference) refs.get(i);
+        SyllabusAttachment thisAttach = syllabusManager.createSyllabusAttachmentObject(
+            ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+        
+        attachments.add(thisAttach);
+        
+        if(entry.justCreated != true)
+        {
+          allAttachments.add(thisAttach);
+        }
+      }
+    }
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+
+    return allAttachments;
+  }
+
+  public final void setAllAttachments(ArrayList allAttachments)
+  {
+    this.allAttachments = allAttachments;
+  }
+
+  public ArrayList getPrepareRemoveAttach()
+  {
+    if((removeAttachId != null) && (!removeAttachId.equals("")))
+    {
+      prepareRemoveAttach.add(syllabusManager.getSyllabusAttachment(removeAttachId));
+    }
+    
+    return prepareRemoveAttach;
+  }
+
+  public final void setPrepareRemoveAttach(ArrayList prepareRemoveAttach)
+  {
+    this.prepareRemoveAttach = prepareRemoveAttach;
+  }
 }
-
-
-

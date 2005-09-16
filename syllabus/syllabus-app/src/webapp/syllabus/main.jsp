@@ -24,8 +24,7 @@
 				</tr>
 			</table>
 
-			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
-				<h:dataTable value="#{SyllabusTool.entries}" var="eachEntry">
+				<h:dataTable value="#{SyllabusTool.entries}" var="eachEntry" rendered="#{! SyllabusTool.syllabusItem.redirectURL}">
 					<h:column>
 						<sakai:panel_edit>
 							<sakai:doc_section>
@@ -38,11 +37,26 @@
 								<h:outputText/>
 							</sakai:doc_section>
 							<syllabus:syllabus_htmlShowArea value="#{eachEntry.entry.asset}" />
+							
+							<sakai:doc_section>
+								<h:outputText/>
+							</sakai:doc_section>
+							<sakai:group_box>
+								<h:dataTable value="#{eachEntry.attachmentList}" var="eachAttach">
+								  <h:column>
+										<f:facet name="header">
+											<h:outputText value="" />
+										</f:facet>
+										<h:outputLink value="#{eachAttach.url}" target="_new_window">
+											<h:outputText value="#{eachAttach.name}"/>
+										</h:outputLink>
+									</h:column>
+								</h:dataTable>
+							</sakai:group_box>
 						</sakai:panel_edit>
 					</h:column>
 				</h:dataTable>
 				<h:outputText value="#{msgs.syllabus_noEntry}" style="font-size:10px;font-weight:bold" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
-			</syllabus:syllabus_if>
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
   			<syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="750" height="500" />
 			</syllabus:syllabus_ifnot>

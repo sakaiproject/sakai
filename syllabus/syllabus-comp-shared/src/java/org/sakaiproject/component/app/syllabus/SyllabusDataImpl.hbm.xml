@@ -10,7 +10,7 @@
         table="SAKAI_SYLLABUS_DATA" optimistic-lock="version">
         
         <!-- A 36 hex character is our surrogate key.  -->
-        <id name="syllabusId" type="long">
+        <id name="syllabusId" type="long" unsaved-value="0">
             <column name="id" not-null="true" length="19" />
             <generator class="native">
                 <param name="sequence">SyllabusDataImpl_SEQ</param>
@@ -43,6 +43,11 @@
             <column name="emailNotification" length="128" not-null="false"/>
         </property>                        
         
+        <set name="attachments" lazy="true" sort="natural"
+             cascade="all-delete-orphan">
+            <key column="syllabusId"/>                        
+            <one-to-many class="org.sakaiproject.component.app.syllabus.SyllabusAttachmentImpl"/>            
+        </set>                
         
         <many-to-one name="syllabusItem"        
                      column="surrogateKey"                     

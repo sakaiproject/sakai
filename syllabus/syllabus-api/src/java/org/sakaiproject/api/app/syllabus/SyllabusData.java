@@ -22,6 +22,9 @@
 **********************************************************************************/
 package org.sakaiproject.api.app.syllabus;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 public interface SyllabusData
 {
   /**
@@ -103,6 +106,10 @@ public interface SyllabusData
    * @param syllabusItem The syllabusItem to set.
    */
   public void setSyllabusItem(SyllabusItem syllabusItem);
+  
+  public Set getAttachments();
+  
+  public void setAttachments(Set attachments);
 }
 
 

@@ -26,6 +26,20 @@
 						</tr>
 					</table>
 				</sakai:group_box>
+				
+				<sakai:group_box>
+					<h:dataTable value="#{SyllabusTool.attachments}" var="eachAttach">
+					  <h:column>
+							<f:facet name="header">
+								<h:outputText value="" />
+							</f:facet>
+							<h:outputLink value="#{eachAttach.url}" target="_new_window">
+								<h:outputText value="#{eachAttach.name}"/>
+							</h:outputLink>
+						</h:column>
+					</h:dataTable>
+				</sakai:group_box>
+				
 
 				<sakai:button_bar>
 					<sakai:button_bar_item

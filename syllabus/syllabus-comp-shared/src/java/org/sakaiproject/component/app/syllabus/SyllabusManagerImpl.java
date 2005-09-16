@@ -38,9 +38,12 @@ import net.sf.hibernate.expression.Expression;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.sakaiproject.service.legacy.content.ContentResource;
+import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 
 /**
  * SyllabusManagerImpl provides convenience functions to query the database
@@ -61,6 +64,8 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   private static final String FOREIGN_KEY = "foreignKey";
   private static final String QUERY_BY_SYLLABUSDATAID = "findSyllabusDataByDataIds";
   private static final String DATA_KEY = "syllabusId";
+  private static final String SYLLABUS_DATA_ID = "syllabusId";
+  private static final String ATTACHMENTS = "attachments";
   
   /**
    * createSyllabusItem creates a new SyllabusItem
@@ -391,6 +396,157 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
 
   }  
+
+  public SyllabusAttachment createSyllabusAttachmentObject(String attachId, String name)      
+  {
+    try
+    {
+      SyllabusAttachment attach = new SyllabusAttachmentImpl();
+      
+      attach.setAttachmentId(attachId);
+      
+      attach.setName(name);
+
+      ContentResource cr = ContentHostingService.getResource(attachId);
+      attach.setSize((new Integer(cr.getContentLength())).toString());
+      attach.setCreatedBy(cr.getProperties().getProperty(cr.getProperties().getNamePropCreator()));
+      attach.setLastModifiedBy(cr.getProperties().getProperty(cr.getProperties().getNamePropModifiedBy()));
+      attach.setType(cr.getContentType());
+      attach.setUrl(cr.getUrl());
+
+      saveSyllabusAttachment(attach);
+      
+      return attach;
+    }
+    catch(Exception e)
+    {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public void saveSyllabusAttachment(SyllabusAttachment attach)
+  {
+    getHibernateTemplate().saveOrUpdate(attach);
+  }
+  
+  public void addSyllabusAttachToSyllabusData(final SyllabusData syllabusData, final SyllabusAttachment syllabusAttach)
+  {
+             
+    if (syllabusData == null || syllabusAttach == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }      
+           
+    HibernateCallback hcb = new HibernateCallback()
+    {
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException
+      {
+        SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
+        if (returnedData != null){
+          returnedData.getAttachments().add(syllabusAttach);
+          session.save(returnedData);                              
+        }           
+        return null;
+      }
+    }; 
+    getHibernateTemplate().execute(hcb);
+  }  
+
+
+  public void removeSyllabusAttachmentObject(SyllabusAttachment o)
+  {
+    getHibernateTemplate().delete(o);
+  }
+  
+  public void removeSyllabusAttachSyllabusData(final SyllabusData syllabusData, final SyllabusAttachment syllabusAttach)
+  {
+            
+    if (syllabusData == null || syllabusAttach == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }      
+           
+    HibernateCallback hcb = new HibernateCallback()
+    {
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException
+      {
+        SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
+        if (returnedData != null){                    
+          returnedData.getAttachments().remove(syllabusAttach);          
+          session.saveOrUpdate(returnedData);          
+        }           
+        return null;
+      }
+    }; 
+    getHibernateTemplate().execute(hcb);
+  }  
+
+  public Set getSyllabusAttachmentsForSyllabusData(final SyllabusData syllabusData)
+  {
+    if (syllabusData == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }
+    else
+    {                 
+      HibernateCallback hcb = new HibernateCallback()
+      {                
+        public Object doInHibernate(Session session) throws HibernateException,
+            SQLException
+        {            
+          Criteria crit = session.createCriteria(SyllabusDataImpl.class)
+                      .add(Expression.eq(SYLLABUS_DATA_ID, syllabusData.getSyllabusId()))
+                      .setFetchMode(ATTACHMENTS, FetchMode.EAGER);
+                      
+          
+          SyllabusData syllabusData = (SyllabusData) crit.uniqueResult();
+          
+          if (syllabusData != null){            
+            return syllabusData.getAttachments();                                           
+          }     
+          return new TreeSet();
+        }
+      };             
+      return (Set) getHibernateTemplate().execute(hcb);     
+    }
+  }  
+
+  public SyllabusAttachment getSyllabusAttachment(final String syllabusAttachId)
+  {
+    if (syllabusAttachId == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }
+    else
+    {                 
+      HibernateCallback hcb = new HibernateCallback()
+      {
+        public Object doInHibernate(Session session) throws HibernateException,
+            SQLException
+        {
+          Long longObj = new Long(syllabusAttachId);
+          SyllabusAttachment returnedAttach = (SyllabusAttachment) session.get(SyllabusAttachmentImpl.class, longObj);
+          return returnedAttach;
+        }
+      }; 
+      return (SyllabusAttachment) getHibernateTemplate().execute(hcb);
+    }
+
+  }
+  
+/*  public SyllabusAttachment creatSyllabusAttachmentResource(String attachId, String name)
+  {
+    SyllabusAttachment attach = new SyllabusAttachmentImpl();
+    
+    attach.setAttachmentId(attachId);
+    
+    attach.setName(name);
+    
+    return attach;
+  }*/
 }
 
 

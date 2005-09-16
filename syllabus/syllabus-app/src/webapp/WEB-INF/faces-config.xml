@@ -220,6 +220,16 @@
       <to-view-id>/syllabus/edit.jsp</to-view-id>
       <redirect/>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>add_attach</from-outcome>
+      <to-view-id>/syllabus/add_attach.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>remove_attach_confirm</from-outcome>
+      <to-view-id>/syllabus/remove_attach_confirm.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>  
   </navigation-rule>
 
   <navigation-rule>
@@ -244,6 +254,16 @@
       <to-view-id>/syllabus/read.jsp</to-view-id>
       <redirect/>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>add_attach</from-outcome>
+      <to-view-id>/syllabus/add_attach.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>remove_attach_confirm</from-outcome>
+      <to-view-id>/syllabus/remove_attach_confirm.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>  
   </navigation-rule>
 
   <navigation-rule>
@@ -265,6 +285,34 @@
     <navigation-case>
       <from-outcome>read_preview</from-outcome>
       <to-view-id>/syllabus/read_preview.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>read</from-outcome>
+      <to-view-id>/syllabus/read.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/syllabus/add_attach.jsp</from-view-id>
+    <navigation-case>
+      <from-outcome>edit</from-outcome>
+      <to-view-id>/syllabus/edit.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>read</from-outcome>
+      <to-view-id>/syllabus/read.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/syllabus/remove_attach_confirm.jsp</from-view-id>
+    <navigation-case>
+      <from-outcome>edit</from-outcome>
+      <to-view-id>/syllabus/edit.jsp</to-view-id>
       <redirect/>
     </navigation-case>
     <navigation-case>

@@ -11,6 +11,9 @@
 				<value>
 					org/sakaiproject/component/app/syllabus/SyllabusDataImpl.hbm.xml
 				</value>
+				<value>
+					org/sakaiproject/component/app/syllabus/SyllabusAttachment.hbm.xml
+				</value>
 			</list>
 		</property>
 	</bean>

@@ -25,6 +25,11 @@ package org.sakaiproject.component.app.syllabus;
 
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
+import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * A syllabus item contains information relating to a syllabus and an order
@@ -46,6 +51,7 @@ public class SyllabusDataImpl implements SyllabusData, Comparable
   private String view;
   private String status;
   private String emailNotification;
+  private Set attachments = new TreeSet();
   
   /**
    * @return Returns the emailNotification.
@@ -177,6 +183,16 @@ public class SyllabusDataImpl implements SyllabusData, Comparable
     this.syllabusItem = syllabusItem;
   }  
   
+  
+  public Set getAttachments()
+  {
+    return attachments;
+  }
+  
+  public void setAttachments(Set attachments)
+  {
+    this.attachments = attachments;
+  }
     
   /**
    * @see java.lang.Object#toString()
@@ -236,8 +252,4 @@ public class SyllabusDataImpl implements SyllabusData, Comparable
   {
     return this.position.compareTo(((SyllabusData) obj).getPosition());  
   }
-
 }
-
-
-
