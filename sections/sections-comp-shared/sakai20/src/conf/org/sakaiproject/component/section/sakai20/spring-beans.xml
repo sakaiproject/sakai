@@ -63,18 +63,4 @@
         </property>
     </bean>
 
-	<bean id="org.sakaiproject.api.section.facade.manager.Authn"
-		class="org.sakaiproject.component.section.facade.impl.sakai20.AuthnSakaiImpl"/>
-
-    <bean id="org.sakaiproject.api.section.facade.manager.Authz" parent="sectionsTxTemplate">
-        <property name="target">
-            <bean class="org.sakaiproject.component.section.facade.impl.sakai20.AuthzSakaiImpl">
-                    <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
-            </bean>
-        </property>
-    </bean>
-
-	<bean id="org.sakaiproject.api.section.facade.manager.Context"
-		class="org.sakaiproject.component.section.facade.impl.sakai20.ContextSakaiImpl"/>
-
 </beans>

@@ -7,11 +7,7 @@
             <bean class="org.sakaiproject.component.section.SectionAwarenessHibernateImpl">
         		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
                 <property name="sectionCategoryList">
-        			<list>
-                        <value>section.category.lecture</value>
-                        <value>section.category.discussion</value>
-                        <value>section.category.lab</value>
-        			</list>
+                    <ref bean="org.sakaiproject.component.section.CategoryListImpl"/>
                 </property>
             </bean>
         </property>

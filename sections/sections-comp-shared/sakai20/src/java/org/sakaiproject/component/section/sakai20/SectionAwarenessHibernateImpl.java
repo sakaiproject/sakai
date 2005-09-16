@@ -107,14 +107,15 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 
 	public List getSiteMembersInRole(final String siteContext, final Role role) {
 		List sakaiMembers;
+		String siteRef = SakaiUtil.getSiteReference();
         if(role.isInstructor()) {
-            sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, SakaiUtil.getSiteReference());
+            sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, siteRef);
         } else if(role.isTeachingAssistant()) {
-            sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, SakaiUtil.getSiteReference());
+            sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, siteRef);
         } else if(role.isStudent()) {
-            sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.STUDENT_PERMISSION, SakaiUtil.getSiteReference());
-            sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, SakaiUtil.getSiteReference()));
-            sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, SakaiUtil.getSiteReference()));
+            sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.STUDENT_PERMISSION, siteRef);
+            sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, siteRef));
+            sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, siteRef));
         } else {
         	// Role.NONE should throw an error
         	throw new RuntimeException("Can not get site members in role " + role.getDescription());
@@ -142,7 +143,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         	}
         	if(role.isStudent()) {
         		// TODO Where do we get the enrollment status?
-        		EnrollmentRecordImpl record = new EnrollmentRecordImpl(course, user.getUserUuid(), null);
+        		EnrollmentRecordImpl record = new EnrollmentRecordImpl(course, null, user);
         		membersList.add(record);
         	}
         }

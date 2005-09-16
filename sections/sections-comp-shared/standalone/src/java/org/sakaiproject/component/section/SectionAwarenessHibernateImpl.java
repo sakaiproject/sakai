@@ -294,8 +294,8 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 
 	// Dependency injection
 
-	public void setSectionCategoryList(List sectionCategoryList) {
-		this.sectionCategoryList = sectionCategoryList;
+	public void setSectionCategoryList(CategoryListImpl categoryListImpl) {
+		this.sectionCategoryList = categoryListImpl.getCategoryIds();
 	}
 
 }

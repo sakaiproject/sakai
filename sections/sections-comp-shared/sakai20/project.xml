@@ -43,6 +43,12 @@
         <sourceDirectory>src/java</sourceDirectory>
         <resources>
             <resource>
+                <directory>${basedir}/src/conf</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>${basedir}/src/hibernate</directory>
                 <includes>
                     <include>ehcache.xml</include>

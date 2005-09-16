@@ -16,8 +16,9 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-            /WEB-INF/spring-hib.xml
-            /WEB-INF/spring-beans.xml
+            classpath:/org/sakaiproject/component/section/sakai20/spring-hib.xml
+            classpath:/org/sakaiproject/component/section/sakai20/spring-beans.xml
+            classpath:/org/sakaiproject/component/section/sakai20/spring-services.xml
 		</param-value>
 	</context-param>
 

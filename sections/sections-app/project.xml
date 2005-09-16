@@ -348,8 +348,14 @@
                 <exclude>**/*LoadTest.java</exclude>
             </excludes>
 			<resources>
+                <resource>
+                    <directory>${basedir}/../sections-comp-shared/standalone/src/conf/org/sakaiproject/component/section/</directory>
+                    <includes>
+                        <include>spring-sectionAwareness.xml</include>
+                    </includes>
+                </resource>
 				<resource>
-					<directory>${basedir}/src/webapp_standalone/WEB-INF/</directory>
+                    <directory>${basedir}/../sections-comp-shared/standalone/src/conf/org/sakaiproject/component/section/</directory>
 					<includes>
             			<include>spring-beans.xml</include>
 						<include>spring-db.xml</include>
@@ -363,6 +369,18 @@
 						<include>spring-beans-test.xml</include>
 					</includes>
 				</resource>
+                <resource>
+                    <directory>${basedir}/../sections-comp-shared/standalone/src/hibernate/</directory>
+                    <includes>
+                        <include>**/*.hbm.xml</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/../sections-comp-shared/sakai20/src/hibernate/</directory>
+                    <includes>
+                        <include>**/*.hbm.xml</include>
+                    </includes>
+                </resource>
 				<resource>
 					<directory>${basedir}</directory>
 					<includes>
