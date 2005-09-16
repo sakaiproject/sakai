@@ -30,14 +30,11 @@
 	<h:outputText value="#{msg.q_mgr}"/>
 </h:panelGrid>
 
-
-
-
 <h:dataTable id="TreeTable" value="#{questionpool.moveQpools}"
    var="pool"  width="100%" styleClass="listHier" >
 
 
-    <h:column  id="radiocol">
+    <h:column  id="radiocol" rendered="#{!questionpool.selfOrDescendant}">
 <h:selectOneRadio onclick="uncheckOthers(this);" id="radiobtn" layout="pageDirection"
 		value="#{questionpool.destPool}">
                 <f:selectItem itemValue="#{pool.questionPoolId}" itemLabel=""/>
@@ -68,7 +65,11 @@
      </f:facet>
 
 
+<h:panelGroup rendered="#{!questionpool.selfOrDescendant}" styleClass="treetier#{questionpool.tree.currentLevel}"  id="firstcolumn">
+
+<%--
 <h:panelGroup styleClass="treetier#{questionpool.tree.currentLevel}"  id="firstcolumn">
+--%>
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
 
 <h:outputLink id="parenttogglelink"  onclick="toggleRowsForSelectList(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
@@ -106,7 +107,7 @@
       </h:commandLink>
      </h:panelGroup>
      </f:facet>
-     <h:panelGroup id="secondcolumn">
+     <h:panelGroup id="secondcolumn" rendered="#{!questionpool.selfOrDescendant}">
         <h:outputText value="#{pool.ownerId}"/>
      </h:panelGroup>
     </h:column>
@@ -132,7 +133,7 @@
       </h:commandLink>
      </h:panelGroup>
      </f:facet>
-     <h:panelGroup id="thirdcolumn">
+     <h:panelGroup id="thirdcolumn" rendered="#{!questionpool.selfOrDescendant}">
         <h:outputText value="#{pool.lastModified}">
           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
         </h:outputText>
@@ -160,7 +161,7 @@
       </h:commandLink>
      </h:panelGroup>
      </f:facet>
-     <h:panelGroup id="fourthcolumn">
+     <h:panelGroup id="fourthcolumn" rendered="#{!questionpool.selfOrDescendant}">
         <h:outputText value="#{pool.questionSize}"/>
      </h:panelGroup>
     </h:column>
@@ -187,7 +188,7 @@
       </h:commandLink>
       </h:panelGroup>
      </f:facet>
-     <h:panelGroup id="fifthcolumn">
+     <h:panelGroup id="fifthcolumn" rendered="#{!questionpool.selfOrDescendant}">
         <h:outputText value="#{pool.subPoolSize}"/>
      </h:panelGroup>
     </h:column>
