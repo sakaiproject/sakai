@@ -45,6 +45,15 @@
 
         <dependency>
             <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-standalone-integrationsupport</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <war.bundle>false</war.bundle>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
             <artifactId>sakai-tool</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -348,25 +357,25 @@
                 <exclude>**/*LoadTest.java</exclude>
             </excludes>
 			<resources>
-                <resource>
-                    <directory>${basedir}/../sections-comp-shared/standalone/src/conf/org/sakaiproject/component/section/</directory>
-                    <includes>
-                        <include>spring-sectionAwareness.xml</include>
-                    </includes>
-                </resource>
 				<resource>
                     <directory>${basedir}/../sections-comp-shared/standalone/src/conf/org/sakaiproject/component/section/</directory>
 					<includes>
             			<include>spring-beans.xml</include>
 						<include>spring-db.xml</include>
+                        <include>spring-sectionAwareness.xml</include>
 					</includes>
 				</resource>
+                <resource>
+                    <directory>${basedir}/../sections-comp-shared/integration-support/src/conf/org/sakaiproject/component/section/support/</directory>
+                    <includes>
+                        <include>spring-integrationSupport.xml</include>
+                    </includes>
+                </resource>
 				<resource>
 					<directory>${basedir}/src/test/</directory>
 					<includes>
                         <include>spring-services-test.xml</include>
 						<include>spring-hib-test.xml</include>
-						<include>spring-beans-test.xml</include>
 					</includes>
 				</resource>
                 <resource>

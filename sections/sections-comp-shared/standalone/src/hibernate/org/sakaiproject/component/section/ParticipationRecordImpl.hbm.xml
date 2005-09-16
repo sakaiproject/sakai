@@ -205,4 +205,11 @@
         ]]>
     </query>
 
+    <query name="getUsersSiteMemberships">
+        <![CDATA[
+        from ParticipationRecordImpl as membership
+            where membership.user.userUuid=:userUuid and membership.learningContext in
+                (from CourseImpl as course)
+        ]]>
+    </query>
 </hibernate-mapping>

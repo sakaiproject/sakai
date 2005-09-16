@@ -23,14 +23,17 @@
 **********************************************************************************/
 package org.sakaiproject.test.section;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 public class SectionsTestBase extends AbstractTransactionalSpringContextTests {
-    private static final Log log = LogFactory.getLog(SectionsTestBase.class);
     protected String[] getConfigLocations() {
-        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-sectionAwareness.xml", "spring-beans-test.xml", "spring-hib-test.xml", "spring-services-test.xml"};
+        String[] configLocations = {"spring-db.xml",
+        							"spring-hib-test.xml",
+        							"spring-beans.xml",
+        							"spring-services-test.xml",
+        							"spring-sectionAwareness.xml",
+        							"spring-integrationSupport.xml"
+        							};
         return configLocations;
     }
 

@@ -15,4 +15,11 @@
         <property name="displayId" column="DISPLAY_ID" access="field"/>
         <property name="displayName" column="DISPLAY_NAME" access="field"/>
 	</class>
+
+    <query name="findUser">
+        <![CDATA[
+        from UserImpl as user where user.userUuid=:userUuid
+        ]]>
+    </query>
+
 </hibernate-mapping>

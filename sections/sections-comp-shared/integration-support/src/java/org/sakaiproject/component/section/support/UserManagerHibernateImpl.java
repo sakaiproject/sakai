@@ -22,11 +22,12 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.test.section.manager;
+package org.sakaiproject.component.section.support;
 
 import java.sql.SQLException;
 
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
@@ -49,6 +50,17 @@ public class UserManagerHibernateImpl extends HibernateDaoSupport implements Use
 				UserImpl user = new UserImpl(displayName, displayId, sortName, userUuid);
 				session.save(user);
 				return user;
+			}
+		};
+		return (User)getHibernateTemplate().execute(hc);
+	}
+	
+	public User findUser(final String userUuid) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
+				Query q = session.getNamedQuery("findUser");
+				q.setParameter("userUuid", userUuid);
+				return q.uniqueResult();
 			}
 		};
 		return (User)getHibernateTemplate().execute(hc);

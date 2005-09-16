@@ -1,0 +1,158 @@
+package org.sakaiproject.component.section.support;
+
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Set;
+
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.Session;
+
+import org.sakaiproject.api.common.uuid.UuidManager;
+import org.sakaiproject.api.section.CourseManager;
+import org.sakaiproject.api.section.SectionManager;
+import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.component.section.EnrollmentRecordImpl;
+import org.sakaiproject.component.section.InstructorRecordImpl;
+import org.sakaiproject.component.section.TeachingAssistantRecordImpl;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+
+/**********************************************************************************
+ *
+ * $Id$
+ *
+ ***********************************************************************************
+ *
+ * Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * 
+ * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ * 
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
+
+/**
+ * Provides integration support using the standalone hibernate implementation.
+ */
+public class IntegrationSupportImpl extends HibernateDaoSupport implements IntegrationSupport {
+	private CourseManager courseManager;
+	private SectionManager sectionManager;
+	private UserManager userManager;
+	private UuidManager uuidManager;
+	
+	public Course createCourse(String siteContext, String title, boolean externallyManaged,
+			boolean selfRegistrationAllowed, boolean selfSwitchingAllowed) {
+		return courseManager.createCourse(siteContext, title, selfRegistrationAllowed,
+				selfSwitchingAllowed, externallyManaged);
+	}
+
+	public User createUser(String userUuid, String displayName, String sortName, String displayId) {
+		return userManager.createUser(userUuid, displayName, sortName, displayId);
+	}
+
+	public User findUser(final String userUuid) {
+		return userManager.findUser(userUuid);
+	}
+
+	public List getAllSiteMemberships(final String userUuid) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery("getUsersSiteMemberships");
+				q.setParameter("userUuid", userUuid);
+				return q.list();
+			}
+		};
+		return getHibernateTemplate().executeFind(hc);
+	}
+
+	public Set getAllSectionMemberships(String userUuid, String siteContext) {
+		Course course = sectionManager.getCourse(siteContext);
+		return sectionManager.getSectionEnrollments(userUuid, course.getUuid());
+	}
+
+	public ParticipationRecord addSiteMembership(String userUuid, String siteContext, Role role) {
+		User user = findUser(userUuid);
+		Course course = sectionManager.getCourse(siteContext);
+		
+		ParticipationRecord record = null;
+		if(role.isInstructor()) {
+			InstructorRecordImpl ir = new InstructorRecordImpl(course, user);
+			ir.setUuid(uuidManager.createUuid());
+			getHibernateTemplate().save(ir);
+			record = ir;
+		} else if(role.isTeachingAssistant()) {
+			TeachingAssistantRecordImpl tar = new TeachingAssistantRecordImpl(course, user);
+			tar.setUuid(uuidManager.createUuid());
+			getHibernateTemplate().save(tar);
+			record = tar;
+		} else if(role.isStudent()) {
+			EnrollmentRecordImpl sr = new EnrollmentRecordImpl(course, null, user);
+			sr.setUuid(uuidManager.createUuid());
+			getHibernateTemplate().save(sr);
+			record = sr;
+		} else {
+			throw new RuntimeException("You can not add a user without a role");
+		}
+		return record;
+	}
+
+	public void removeSiteMembership(final String userUuid, final String siteContext) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery("loadSiteParticipation");
+				q.setParameter("userUuid", userUuid);
+				q.setParameter("siteContext", siteContext);
+				return q.list();
+			}
+		};
+		ParticipationRecord record = (ParticipationRecord)getHibernateTemplate().execute(hc);
+		getHibernateTemplate().delete(record);
+	}
+
+	public ParticipationRecord addSectionMembership(String userUuid, String sectionUuid, Role role) {
+		return sectionManager.addSectionMembership(userUuid, role, sectionUuid);
+	}
+
+	public void removeSectionMembership(String userUuid, String sectionUuid) {
+		sectionManager.dropSectionMembership(userUuid, sectionUuid);
+	}
+
+	// Dependency Injection
+	
+	public void setSectionManager(SectionManager sectionManager) {
+		this.sectionManager = sectionManager;
+	}
+
+	public void setCourseManager(CourseManager courseManager) {
+		this.courseManager = courseManager;
+	}
+
+	public void setUserManager(UserManager userManager) {
+		this.userManager = userManager;
+	}
+
+	public void setUuidManager(UuidManager uuidManager) {
+		this.uuidManager = uuidManager;
+	}
+}
+
+
+
+
+/**********************************************************************************
+ * $Id$
+ *********************************************************************************/

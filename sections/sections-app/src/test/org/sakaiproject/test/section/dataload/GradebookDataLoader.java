@@ -33,8 +33,8 @@ import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.test.section.SectionsTestBase;
-import org.sakaiproject.test.section.manager.UserManager;
 
 public class GradebookDataLoader extends SectionsTestBase {
 	private static Log log = LogFactory.getLog(GradebookDataLoader.class);
@@ -95,7 +95,7 @@ public class GradebookDataLoader extends SectionsTestBase {
 	protected void onSetUpInTransaction() throws Exception {
 		courseManager = (CourseManager)applicationContext.getBean("org.sakaiproject.api.section.CourseManager");
 		sectionManager = (SectionManager)applicationContext.getBean("org.sakaiproject.api.section.SectionManager");
-		userManager = (UserManager)applicationContext.getBean("org.sakaiproject.test.section.manager.UserManager");
+		userManager = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
     }
 
 	public void testLoadData() {

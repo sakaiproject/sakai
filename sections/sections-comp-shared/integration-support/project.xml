@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+    <extend>${basedir}/../project.xml</extend>
+    <pomVersion>3</pomVersion>
+    <name>Sakai Sections Shared Components: Standalone Test Support</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-sections-comp-shared-standalone-integrationsupport</id>
+    <currentVersion>2.0.0</currentVersion>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2005</inceptionYear>
+
+    <properties>
+        <deploy.type>jar</deploy.type>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-api</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-standalone</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+<!-- 
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-sakai20</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+-->
+
+
+    <!-- Database dependencies -->
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>1.7.3.3</version>
+        </dependency>
+
+        <!-- Uncomment as necessary to run tests -->
+        <!-- 
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>3.0.10-stable-bin</version>
+            </dependency>
+            <dependency>
+                <groupId>oracle</groupId>
+                <artifactId>oracle</artifactId>
+                <jar>ojdbc14.jar</jar>
+            </dependency>
+        -->
+    <!-- End database dependencies -->
+
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring</artifactId>
+            <version>1.1.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring-mock</artifactId>
+            <version>1.1.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>aopalliance</groupId>
+            <artifactId>aopalliance</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jta</groupId>
+            <artifactId>jta</artifactId>
+            <version>h2.1.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+            <version>2.1.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>odmg</groupId>
+            <artifactId>odmg</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.0</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>1.6</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.7.0</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>plugin</type>
+        </dependency>
+    </dependencies>
+    <reports/>
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/conf/</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <resources>
+                <resource>
+                    <directory>${hibernate.properties.dir}</directory>
+                    <includes>
+                        <include>hibernate.properties</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/../standalone/src/conf/org/sakaiproject/component/section/</directory>
+                    <includes>
+                        <include>spring-beans.xml</include>
+                        <include>spring-db.xml</include>
+                        <include>spring-sectionAwareness.xml</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/src/conf/org/sakaiproject/component/section/support/</directory>
+                    <includes>
+                        <include>spring-integrationSupport.xml</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/../../sections-app/src/test/</directory>
+                    <includes>
+                        <include>spring-services-test.xml</include>
+                        <include>spring-hib-test.xml</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/../standalone/src/hibernate/</directory>
+                    <includes>
+                        <include>**/*.hbm.xml</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/../sakai20/src/hibernate/</directory>
+                    <includes>
+                        <include>**/*.hbm.xml</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/../../sections-app/</directory>
+                    <includes>
+                        <include>log4j.properties</include>
+                    </includes>
+                </resource>
+            </resources>
+        </unitTest>
+
+    </build>
+    
+</project>

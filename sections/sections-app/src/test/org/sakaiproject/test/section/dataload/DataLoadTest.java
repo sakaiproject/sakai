@@ -38,8 +38,8 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.test.section.SectionsTestBase;
-import org.sakaiproject.test.section.manager.UserManager;
 
 public class DataLoadTest extends SectionsTestBase {
 	private static Log log = LogFactory.getLog(DataLoadTest.class);
@@ -56,7 +56,7 @@ public class DataLoadTest extends SectionsTestBase {
 	protected void onSetUpInTransaction() throws Exception {
 		courseManager = (CourseManager)applicationContext.getBean("org.sakaiproject.api.section.CourseManager");
 		sectionManager = (SectionManager)applicationContext.getBean("org.sakaiproject.api.section.SectionManager");
-		userManager = (UserManager)applicationContext.getBean("org.sakaiproject.test.section.manager.UserManager");
+		userManager = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
     }
 
 	public void testLoadData() {

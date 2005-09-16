@@ -40,7 +40,7 @@ import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.test.section.manager.UserManager;
+import org.sakaiproject.component.section.support.UserManager;
 
 /**
  * Each test method is isolated in its own transaction, which is rolled back when
@@ -64,7 +64,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
         secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.api.section.SectionManager");
         secAware = (SectionAwareness)applicationContext.getBean("org.sakaiproject.api.section.SectionAwareness");
         courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.api.section.CourseManager");
-        userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.test.section.manager.UserManager");
+        userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
     }
 
     public void testSectionsAndCategories() throws Exception {
