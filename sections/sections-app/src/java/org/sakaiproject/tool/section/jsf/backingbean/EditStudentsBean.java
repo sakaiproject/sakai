@@ -155,6 +155,10 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 			titles.append(availableSectionTitle);
 		}
 		
+		// Add the success message first, before any caveats (see below)
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
+				"edit_student_successful", new String[] {titles.toString()}));
+
 		// If the selected section is now overenrolled, let the user know
 		if(sectionMax != null && selectedUserUuids.size() > sectionMax.intValue()) {
 			JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
@@ -173,9 +177,6 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 							Integer.toString(availableUserUuids.size() - availableSectionMax.intValue()) }));
 		}
 		
-		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
-				"edit_student_successful", new String[] {titles.toString()}));
-
 		return "overview";
 	}
 	

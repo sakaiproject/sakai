@@ -1,12 +1,12 @@
 /* Section Manager specific CSS definitions. */
 
 tr.member td {font-weight:bold;}
-tr.memberPadRow td {font-weight:bold; padding-bottom:1em !important;}
+tr.memberPadRow td {font-weight:bold; padding-bottom:2em !important;}
 tr.nonmember td {font-weight:normal;}
-tr.nonmemberPadRow td {font-weight:normal; padding-bottom:1em !important;}
+tr.nonmemberPadRow td {font-weight:normal; padding-bottom:2em !important;}
 
-tr.sectionPadRowHighlighted td {background-color:#FFC; padding-bottom:1em !important;}
-tr.sectionPadRow td {padding-bottom:1em !important;}
+tr.sectionPadRowHighlighted td {background-color:#FFC; padding-bottom:2em !important;}
+tr.sectionPadRow td {padding-bottom:2em !important;}
 tr.sectionRowHighlighted td {background-color:#FFC; padding-bottom:0em !important;}
 tr.sectionRow td {padding-bottom:0em !important;}
 

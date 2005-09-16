@@ -114,6 +114,10 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 	}
 
 	public String update() {
+		// Add the success message first, before any caveats (see below)
+		String[] params = {studentName};
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("edit_student_sections_successful", params));
+
 		String siteContext = getSiteContext();
 		for(Iterator iter = sectionEnrollment.keySet().iterator(); iter.hasNext();) {
 			String category = (String)iter.next();
@@ -139,8 +143,6 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 				}
 			}
 		}
-		String[] params = {studentName};
-		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("edit_student_sections_successful", params));
 		return "roster";
 	}
 	
