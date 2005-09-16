@@ -335,6 +335,9 @@ public class DeliveryActionListener
         {
           delivery.setBeginTime(delivery.getAssessmentGrading()
                                 .getAttemptDate());
+          // add the following line to fix SAK-1781
+          delivery.setTimeElapse(delivery.getAssessmentGrading()
+                                .getTimeElapsed().toString());
         }
         else
         {
@@ -342,8 +345,8 @@ public class DeliveryActionListener
         }
       }
 
-      log.debug("Set begin time " + delivery.getBeginTime());
-      log.debug("Set elapsed time " + delivery.getTimeElapse());
+      log.debug("****Set begin time " + delivery.getBeginTime());
+      log.debug("****Set elapsed time " + delivery.getTimeElapse());
       // get table of contents
       delivery.setTableOfContents(getContents(publishedAssessment, itemData,
                                               delivery));
