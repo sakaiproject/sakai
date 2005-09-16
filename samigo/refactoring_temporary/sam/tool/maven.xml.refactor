@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project 
-  default="deploy" 
-  xmlns:ant="jelly:ant" 
+<project
+  default="deploy"
+  xmlns:ant="jelly:ant"
   xmlns:j="jelly:core">
 
 	<!--  Make sure a flag variable is set when building inside Sakai -->
@@ -10,7 +10,7 @@
 		<j:set var="sakaiDeployIntegrated" value="true" />
 		<attainGoal name="clean:clean" />
 		<attainGoal name="delete-patched-src" />
-		
+
 	</goal>
 
 	<goal name="sakai:sakai.build">
@@ -49,7 +49,9 @@
 	<goal name="move-main-samigo-src">
         <ant:echo>moving unpatched source out of compilation path</ant:echo>
         <ant:move todir="src/java-temp">
-          <ant:fileset dir="src/java"/>
+			    <ant:fileset dir="src/java">
+				    <ant:include name="**/*.java" />
+		    	</ant:fileset>
         </ant:move>
 	</goal>
 
@@ -118,7 +120,7 @@
 			</fileset>
 		</delete>
 		<attainGoal name="delete-patched-src" />
-		
+
 	</goal>
 
 	<goal name="deploy">
@@ -135,11 +137,11 @@
 				<include name="samigo.war" />
 			</fileset>
 		</copy>
-		
+
 		<attainGoal name="delete-patched-src" />
 		<attainGoal name="moveback-main-samigo-src" />
 	</goal>
-	
+
 	<goal name="delete-patched-src">
 		<delete>
 			<fileset dir="patched-src">
@@ -149,7 +151,7 @@
 	</goal>
 
 	<!--  Not necessary in Sakai 1.5.1 -->
-	<!-- 
+	<!--
 		<goal name="reg">
 		<copy todir="/usr/local/sakai/reg/" filtering="false"
 		preservelastmodified="true" overwrite="true">
