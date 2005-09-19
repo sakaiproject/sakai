@@ -1,5 +1,5 @@
 Welcome to Samigo, the Sakai Assessment Manager.  This is a full-featured
-assessment module, that works as the "Test & Quizes" module in the Sakai2.0 management system.
+assessment module, that works as the "Test & Quizes" module in the Sakai 2.1 management system.
 
 
 ***** To build and run Samigo as an integrated module in Sakai2.0: *****
@@ -113,4 +113,5 @@ assessment module, that works as the "Test & Quizes" module in the Sakai2.0 mana
 Get Help: If you have any questions about the installation, please feel free to
 email navigo-dev@lists.stanford.edu. We will be glad to help.
 
+Additional documentation will be found in the docs subdirectory.
 
