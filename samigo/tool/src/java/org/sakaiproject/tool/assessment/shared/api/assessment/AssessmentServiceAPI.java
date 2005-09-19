@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.shared.api.assessment;
 
 import java.util.List;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
