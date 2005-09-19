@@ -22,6 +22,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
+import java.io.Serializable;
 
 public class AnswerBean implements Serializable{
 
