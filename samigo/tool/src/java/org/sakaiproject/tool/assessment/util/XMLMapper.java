@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.util;
+package org.sakaiproject.tool.assessment.qti.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,6 +36,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.sakaiproject.tool.assessment.util.XmlUtil;
+
 /**
  * Utility class.  Maps  XML elements and attribute under a given node
  * to a Map, or populates bean.
@@ -45,9 +47,9 @@ import org.w3c.dom.NodeList;
  * @author @author Ed Smiley
  * @version $Id$
  */
-public class XMLMapper
+public class XmlMapper
 {
-  private static Log log = LogFactory.getLog(XMLMapper.class);
+  private static Log log = LogFactory.getLog(XmlMapper.class);
 
   public static final String ATTRIBUTE_PREFIX = "attribute_";
 

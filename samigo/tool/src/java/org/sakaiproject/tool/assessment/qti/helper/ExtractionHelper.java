@@ -65,7 +65,7 @@ import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemTypeExtractionStrategy;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
-import org.sakaiproject.tool.assessment.util.XMLMapper;
+import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.util.XmlUtil;
 
 /**
@@ -235,7 +235,7 @@ public class ExtractionHelper
       Document transform = getTransformDocument(transformType);
       Document xml = asi.getDocument();
       Document model = XmlUtil.transformDocument(xml, transform);
-      map = XMLMapper.map(model);
+      map = XmlMapper.map(model);
     }
     catch (IOException ex)
     {
