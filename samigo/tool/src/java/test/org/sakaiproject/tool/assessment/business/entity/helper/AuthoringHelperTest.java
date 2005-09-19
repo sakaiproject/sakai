@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.ExtractionHelper;
 import org.sakaiproject.tool.assessment.services.ItemService;
-import org.sakaiproject.tool.assessment.util.XmlUtil;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
  * <p> Test program</p>

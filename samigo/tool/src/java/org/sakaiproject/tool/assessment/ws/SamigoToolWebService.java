@@ -34,7 +34,7 @@ import java.util.Iterator;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
-import org.sakaiproject.tool.assessment.util.XmlUtil;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.w3c.dom.Document;
 
 

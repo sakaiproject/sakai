@@ -32,7 +32,7 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.util.XmlUtil;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
  * <p>Test bed for QTI utilities.</p>
