@@ -23,7 +23,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 
-public class AnswerBean {
+public class AnswerBean implements Serializable{
 
   private static final long serialVersionUID = 7526471155622776147L;
 
