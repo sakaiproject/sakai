@@ -48,7 +48,7 @@
 											<h:outputText value="" />
 										</f:facet>
 										<h:outputLink value="#{eachAttach.url}" target="_new_window">
-											<h:outputText value="#{eachAttach.name}"/>
+											<h:outputText value="#{eachAttach.name}"  style="text-decoration:underline;"/>
 										</h:outputLink>
 									</h:column>
 								</h:dataTable>

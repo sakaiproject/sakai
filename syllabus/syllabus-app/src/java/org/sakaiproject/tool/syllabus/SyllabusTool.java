@@ -1740,4 +1740,20 @@ public String processDeleteCancel()
   {
     this.prepareRemoveAttach = prepareRemoveAttach;
   }
+  
+  public String processAddAttachRedirect()
+  {
+    try
+    {
+      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+      context.redirect("sakai.filepicker.helper/tool");
+      return null;
+    }
+    catch(Exception e)
+    {
+      logger.error(this + ".processAddAttachRedirect - " + e);
+      e.printStackTrace();
+      return null;
+    }
+  }
 }
