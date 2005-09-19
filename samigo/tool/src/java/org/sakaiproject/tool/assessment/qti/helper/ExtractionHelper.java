@@ -66,7 +66,7 @@ import org.sakaiproject.tool.assessment.qti.helper.item.ItemTypeExtractionStrate
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
-import org.sakaiproject.tool.assessment.util.XmlUtil;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
  * <p>Has helper methods for data extraction (import) from QTI</p>

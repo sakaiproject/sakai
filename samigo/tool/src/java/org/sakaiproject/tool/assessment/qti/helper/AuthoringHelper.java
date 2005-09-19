@@ -66,7 +66,7 @@ import org.sakaiproject.tool.assessment.qti.helper.section.SectionHelperIfc;
 import org.sakaiproject.tool.assessment.qti.util.XmlStringBuffer;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.util.XmlUtil;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
