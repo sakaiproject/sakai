@@ -1,6 +1,7 @@
 package org.sakaiproject.component.section.support;
 
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.List;
 import java.util.Set;
 
@@ -8,10 +9,13 @@ import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
 import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
@@ -49,6 +53,8 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  * Provides integration support using the standalone hibernate implementation.
  */
 public class IntegrationSupportImpl extends HibernateDaoSupport implements IntegrationSupport {
+	private static final Log log = LogFactory.getLog(IntegrationSupportImpl.class);
+	
 	private CourseManager courseManager;
 	private SectionManager sectionManager;
 	private UserManager userManager;
@@ -58,6 +64,14 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 			boolean selfRegistrationAllowed, boolean selfSwitchingAllowed) {
 		return courseManager.createCourse(siteContext, title, selfRegistrationAllowed,
 				selfSwitchingAllowed, externallyManaged);
+	}
+
+	public CourseSection createSection(String courseUuid, String title, String category, Integer maxEnrollments,
+			String location, Time startTime, Time endTime, boolean monday, boolean tuesday,
+			boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
+		return sectionManager.addSection(courseUuid, title, category, maxEnrollments, location,
+				startTime, endTime, monday, tuesday, wednesday, thursday, friday,
+				saturday, sunday);
 	}
 
 	public User createUser(String userUuid, String displayName, String sortName, String displayId) {
@@ -113,14 +127,19 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 	public void removeSiteMembership(final String userUuid, final String siteContext) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				log.info("getting query object");
 				Query q = session.getNamedQuery("loadSiteParticipation");
+				log.info("query = " + q);
 				q.setParameter("userUuid", userUuid);
 				q.setParameter("siteContext", siteContext);
-				return q.list();
+				return q.uniqueResult();
 			}
 		};
 		ParticipationRecord record = (ParticipationRecord)getHibernateTemplate().execute(hc);
-		getHibernateTemplate().delete(record);
+		if(record != null) {
+			log.info("Preparing to delete record " + record);
+			getHibernateTemplate().delete(record);
+		}
 	}
 
 	public ParticipationRecord addSectionMembership(String userUuid, String sectionUuid, Role role) {

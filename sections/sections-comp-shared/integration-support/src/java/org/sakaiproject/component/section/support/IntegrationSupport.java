@@ -24,10 +24,12 @@
 
 package org.sakaiproject.component.section.support;
 
+import java.sql.Time;
 import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
@@ -55,6 +57,28 @@ public interface IntegrationSupport {
 			boolean selfRegistrationAllowed, boolean selfSwitchingAllowed);
 	
 	/**
+	 * Creates a new section.
+	 * 
+	 * @param courseUuid
+	 * @param title
+	 * @param category
+	 * @param maxEnrollments
+	 * @param location
+	 * @param startTime
+	 * @param endTime
+	 * @param monday
+	 * @param tuesday
+	 * @param wednesday
+	 * @param thursday
+	 * @param friday
+	 * @param saturday
+	 * @param sunday
+	 * @return
+	 */public CourseSection createSection(String courseUuid, String title, String category, Integer maxEnrollments,
+			String location, Time startTime, Time endTime, boolean monday, boolean tuesday,
+			boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday);
+	
+	/**
 	 * Creates a new user.
 	 * 
 	 * @param userUuid
@@ -65,6 +89,12 @@ public interface IntegrationSupport {
 	 */
 	public User createUser(String userUuid, String displayName, String sortName, String displayId);
 	
+	/**
+	 * Finds a user by their uuid.
+	 * 
+	 * @param userUuid
+	 * @return
+	 */
 	public User findUser(String userUuid);
 
 	/**

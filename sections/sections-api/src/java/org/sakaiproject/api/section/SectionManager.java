@@ -223,7 +223,8 @@ public interface SectionManager {
      * will not be handled by an external service.  The added functionality of
      * linking course sections to repeating events (meet every 2nd Tuesday of the
      * month at 3pm) is currently out of scope, so meetingTimes is represented
-     * as a simple string.
+     * as a start time, end time, and seven booleans representing the days that
+     * the section meets.
      * 
      * @param courseUuid
      * @param title
