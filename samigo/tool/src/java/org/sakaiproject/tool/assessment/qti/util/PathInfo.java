@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL$
-* $Id$
+* $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/tool/src/java/org/sakaiproject/tool/assessment/util/PathInfo.java $
+* $Id: PathInfo.java 1288 2005-08-19 02:58:02Z esmiley@stanford.edu $
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -21,24 +21,25 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.util;
+package org.sakaiproject.tool.assessment.qti.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Utility class used for accessing settings and security directories
  * (and associated Properties).
  *
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id$
+ * @version $Id: PathInfo.java 1288 2005-08-19 02:58:02Z esmiley@stanford.edu $
  */
 public class PathInfo
-    //extends AbstractCompositeObject
 {
-  private static final org.apache.log4j.Logger log =
-    org.apache.log4j.Logger.getLogger(PathInfo.class);
+  private static Log log = LogFactory.getLog(PathInfo.class);
   private static final String SETTINGS_DIR = "/org/sakaiproject/settings/sam";
   private static final String SECURITY_DIR = "/org/sakaiproject/security/sam";
   private static PathInfo _INSTANCE = new PathInfo();
@@ -92,13 +93,13 @@ public class PathInfo
   }
 
   /**
-   * DOCUMENTATION PENDING
+   * Load properties from a file.
    *
-   * @param fileName DOCUMENTATION PENDING
+   * @param fileName file name
    *
-   * @return DOCUMENTATION PENDING
+   * @return Properties object
    *
-   * @throws IOException DOCUMENTATION PENDING
+   * @throws IOException in reading file
    */
   public Properties getSettingsProperties(String fileName)
     throws IOException
@@ -116,9 +117,9 @@ public class PathInfo
   }
 
   /**
-   * DOCUMENTATION PENDING
+   * Get base path string to security.
    *
-   * @return DOCUMENTATION PENDING
+   * @return the path
    */
   public String getBasePathToSecurity()
   {
@@ -128,11 +129,11 @@ public class PathInfo
   }
 
   /**
-   * DOCUMENTATION PENDING
+   * Set base path to security.
    *
-   * @param basePathToSecurity DOCUMENTATION PENDING
+   * @param basePathToSettings DOCUMENTATION PENDING
    *
-   * @throws IllegalArgumentException DOCUMENTATION PENDING
+   * @throws IllegalArgumentException if this is invalid path.
    */
   public void setBasePathToSecurity(String basePathToSecurity)
     throws IllegalArgumentException
@@ -160,9 +161,9 @@ public class PathInfo
   }
 
   /**
-   * DOCUMENTATION PENDING
+   * Get base path string to settings.
    *
-   * @return DOCUMENTATION PENDING
+   * @return the path
    */
   public String getBasePathToSettings()
   {
@@ -172,11 +173,11 @@ public class PathInfo
   }
 
   /**
-   * DOCUMENTATION PENDING
+   * Set base path to settings.
    *
    * @param basePathToSettings DOCUMENTATION PENDING
    *
-   * @throws IllegalArgumentException DOCUMENTATION PENDING
+   * @throws IllegalArgumentException if this is invalid path.
    */
   public void setBasePathToSettings(String basePathToSettings)
     throws IllegalArgumentException
@@ -204,9 +205,9 @@ public class PathInfo
   }
 
   /**
-   * DOCUMENT ME!
+   * Get base path string to security.
    *
-   * @return
+   * @return the path
    */
   public String getPathToSecurity()
   {
@@ -214,9 +215,9 @@ public class PathInfo
   }
 
   /**
-   * DOCUMENT ME!
+   * Get base path string to settings.
    *
-   * @return
+   * @return the path
    */
   public String getPathToSettings()
   {

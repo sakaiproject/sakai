@@ -57,7 +57,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.settings.PathInfo;
+import org.sakaiproject.tool.assessment.qti.util.PathInfo;
 
 
 /**
@@ -72,8 +72,6 @@ import org.sakaiproject.tool.assessment.settings.PathInfo;
 public class AuthoringXml
 {
   private static Log log = LogFactory.getLog(AuthoringXml.class);
-  private static boolean dumpLog = false; // use log4j for errors
-//  private static boolean dumpLog = true;// bypass log4j
 
   public static final String SETTINGS_FILE = "SAM.properties";
   // paths
