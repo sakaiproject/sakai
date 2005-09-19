@@ -27,13 +27,14 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 public class SectionsTestBase extends AbstractTransactionalSpringContextTests {
     protected String[] getConfigLocations() {
-        String[] configLocations = {"spring-db.xml",
-        							"spring-hib-test.xml",
-        							"spring-beans.xml",
-        							"spring-services-test.xml",
-        							"spring-sectionAwareness.xml",
-        							"spring-integrationSupport.xml"
-        							};
+        String[] configLocations = {
+			"org/sakaiproject/component/section/spring-beans.xml",
+			"org/sakaiproject/component/section/spring-db.xml",
+			"org/sakaiproject/component/section/spring-sectionAwareness.xml",
+			"org/sakaiproject/component/section/support/spring-hib-test.xml",
+			"org/sakaiproject/component/section/support/spring-services-test.xml",
+			"org/sakaiproject/component/section/support/spring-integrationSupport.xml"
+        };
         return configLocations;
     }
 

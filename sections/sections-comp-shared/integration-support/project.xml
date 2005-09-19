@@ -21,6 +21,13 @@
 
         <dependency>
             <groupId>sakaiproject</groupId>
+            <artifactId>sakai</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>plugin</type>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-api</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -31,13 +38,24 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
-<!-- 
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-sections-comp-shared-sakai20</artifactId>
+            <artifactId>sakai-common-uuid-component</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
--->
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-uuid-api</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>commons-id</groupId>
+          <artifactId>commons-id</artifactId>
+          <version>0.1-dev</version>
+          <url>http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/</url>
+        </dependency>
 
 
     <!-- Database dependencies -->
@@ -179,12 +197,6 @@
             <version>2.6.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai</artifactId>
-            <version>${pom.currentVersion}</version>
-            <type>plugin</type>
-        </dependency>
     </dependencies>
     <reports/>
 
@@ -195,6 +207,7 @@
                 <directory>${basedir}/src/conf/</directory>
                 <includes>
                     <include>**/*.xml</include>
+                    <include>**/*.properties</include>
                 </includes>
             </resource>
         </resources>
@@ -206,45 +219,6 @@
                 <include>**/*Test.java</include>
             </includes>
             <resources>
-                <resource>
-                    <directory>${hibernate.properties.dir}</directory>
-                    <includes>
-                        <include>hibernate.properties</include>
-                    </includes>
-                </resource>
-                <resource>
-                    <directory>${basedir}/../standalone/src/conf/org/sakaiproject/component/section/</directory>
-                    <includes>
-                        <include>spring-beans.xml</include>
-                        <include>spring-db.xml</include>
-                        <include>spring-sectionAwareness.xml</include>
-                    </includes>
-                </resource>
-                <resource>
-                    <directory>${basedir}/src/conf/org/sakaiproject/component/section/support/</directory>
-                    <includes>
-                        <include>spring-integrationSupport.xml</include>
-                    </includes>
-                </resource>
-                <resource>
-                    <directory>${basedir}/../../sections-app/src/test/</directory>
-                    <includes>
-                        <include>spring-services-test.xml</include>
-                        <include>spring-hib-test.xml</include>
-                    </includes>
-                </resource>
-                <resource>
-                    <directory>${basedir}/../standalone/src/hibernate/</directory>
-                    <includes>
-                        <include>**/*.hbm.xml</include>
-                    </includes>
-                </resource>
-                <resource>
-                    <directory>${basedir}/../sakai20/src/hibernate/</directory>
-                    <includes>
-                        <include>**/*.hbm.xml</include>
-                    </includes>
-                </resource>
                 <resource>
                     <directory>${basedir}/../../sections-app/</directory>
                     <includes>
