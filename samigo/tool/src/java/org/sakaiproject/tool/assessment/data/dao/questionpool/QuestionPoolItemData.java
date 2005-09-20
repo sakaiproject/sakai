@@ -25,13 +25,14 @@ package org.sakaiproject.tool.assessment.data.dao.questionpool;
 import java.io.Serializable;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 /**
  *
  * @author $author$
  * @version $Id$
  */
 public class QuestionPoolItemData
-  implements Serializable
+  implements Serializable, QuestionPoolItemIfc
 {
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 9180085666292824370L;

@@ -22,7 +22,6 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.shared.impl.questionpool;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,14 +30,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osid.shared.SharedException;
 
-import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
+import org.sakaiproject.tool.assessment.data.model.Tree;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceException;
-import org.osid.agent.*;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 
 /**
  *
@@ -367,9 +365,9 @@ public class QuestionPoolServiceImpl
     String agentId = null;
     try
     {
-      agentId = pool.getOwner().getId().toString();
+      agentId = pool.getOwner().getIdString();
     }
-    catch (AgentException ax)
+    catch (Exception ax)
     {
       throw new QuestionPoolServiceException(ax);
     }

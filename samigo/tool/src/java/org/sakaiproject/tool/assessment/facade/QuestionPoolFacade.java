@@ -27,14 +27,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import org.osid.agent.Agent;
 import org.osid.shared.Id;
 import org.osid.shared.SharedException;
+
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPool;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolException;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
-import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.questionpool.impl.QuestionPoolImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -69,12 +70,12 @@ public class QuestionPoolFacade
   private Long questionPoolId;
   private Long parentPoolId;
   private String ownerId;
-  private Agent owner;
+  private AgentDataIfc owner;
   private String title; // same as displayName
   private Date dateCreated;
   private Date lastModified;
   private String lastModifiedById;
-  private Agent lastModifiedBy;
+  private AgentDataIfc lastModifiedBy;
   private Long accessTypeId;
   private TypeIfc accessType;
   private String objectives;
@@ -485,7 +486,7 @@ public class QuestionPoolFacade
     this.data.setOwnerId(ownerId);
   }
 
-  public Agent getOwner() {
+  public AgentDataIfc getOwner() {
     try {
       this.data = (QuestionPoolDataIfc) questionPool.getData();
     }
@@ -495,7 +496,7 @@ public class QuestionPoolFacade
     return this.data.getOwner();
   }
 
-  public void setOwner(Agent owner) {
+  public void setOwner(AgentDataIfc owner) {
     this.owner = owner;
     this.data.setOwner(owner);
   }
@@ -546,7 +547,7 @@ public class QuestionPoolFacade
     this.data.setLastModifiedById(lastModifiedById);
   }
 
-  public Agent getLastModifiedBy() {
+  public AgentDataIfc getLastModifiedBy() {
     try {
       this.data = (QuestionPoolDataIfc) questionPool.getData();
     }
@@ -556,7 +557,7 @@ public class QuestionPoolFacade
     return this.data.getLastModifiedBy();
   }
 
-  public void setLastModifiedBy(Agent lastModifiedBy) {
+  public void setLastModifiedBy(AgentDataIfc lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
     this.data.setLastModifiedBy(lastModifiedBy);
   }
@@ -716,7 +717,7 @@ public class QuestionPoolFacade
     this.data.setQuestions(questionPoolItems);
   }
 
-  public void addQuestionPoolItem(QuestionPoolItemData queestionPoolItem){
+  public void addQuestionPoolItem(QuestionPoolItemIfc queestionPoolItem){
     Set questionPoolItemSet = getQuestionPoolItems();
     questionPoolItemSet.add(queestionPoolItem);
     setQuestionPoolItems(questionPoolItemSet);

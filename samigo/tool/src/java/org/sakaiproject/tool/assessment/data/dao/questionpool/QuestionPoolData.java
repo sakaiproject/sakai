@@ -28,8 +28,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import org.osid.agent.Agent;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 /**
@@ -58,11 +59,11 @@ public class QuestionPoolData
   private Long parentPoolId = ROOT_POOL;
 
   private String ownerId = null;
-  private Agent owner;
+  private AgentDataIfc owner;
   private Date dateCreated;
   private Date lastModified;
   private String lastModifiedById;
-  private Agent lastModifiedBy;
+  private AgentDataIfc lastModifiedBy;
   private Long accessTypeId = null;
   private TypeIfc accessType;
   private String objectives;
@@ -147,13 +148,13 @@ public class QuestionPoolData
     this.ownerId = ownerId;
   }
 
-  public Agent getOwner()
+  public AgentDataIfc getOwner()
   {
     return owner;
   }
 
   // added to faciliate Hibernate POJO requirement - daisyf on 8/25/04
-  public void setOwner(Agent owner)
+  public void setOwner(AgentDataIfc owner)
   {
     this.owner = owner;
   }
@@ -209,12 +210,12 @@ public class QuestionPoolData
     this.lastModifiedById = lastModifiedById;
   }
 
-  public Agent getLastModifiedBy()
+  public AgentDataIfc getLastModifiedBy()
   {
     return lastModifiedBy;
   }
 
-  public void setLastModifiedBy(Agent lastModifiedBy)
+  public void setLastModifiedBy(AgentDataIfc lastModifiedBy)
   {
     this.lastModifiedBy = lastModifiedBy;
   }
@@ -390,7 +391,7 @@ public class QuestionPoolData
     this.questionPoolItems = questionPoolItems;
   }
 
-  public void addQuestionPoolItem(QuestionPoolItemData questionPoolItem){
+  public void addQuestionPoolItem(QuestionPoolItemIfc questionPoolItem){
     questionPoolItems.add(questionPoolItem);
   }
 

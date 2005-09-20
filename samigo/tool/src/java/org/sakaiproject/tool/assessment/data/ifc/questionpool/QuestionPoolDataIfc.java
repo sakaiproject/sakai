@@ -26,14 +26,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import org.osid.agent.Agent;
-import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
+import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 /**
- * DOCUMENTATION PENDING
- *
- * @author $author$
  * @version $Id$
  */
 public interface QuestionPoolDataIfc
@@ -59,9 +55,9 @@ public interface QuestionPoolDataIfc
 
   void setOwnerId(String ownerId);
 
-  Agent getOwner();
+  AgentDataIfc getOwner();
 
-  void setOwner(Agent owner);
+  void setOwner(AgentDataIfc owner);
 
   Date getDateCreated();
 
@@ -75,9 +71,9 @@ public interface QuestionPoolDataIfc
 
   void setLastModifiedById(String lastModifiedById);
 
-  Agent getLastModifiedBy();
+  AgentDataIfc getLastModifiedBy();
 
-  void setLastModifiedBy(Agent lastModifiedBy);
+  void setLastModifiedBy(AgentDataIfc lastModifiedBy);
 
   Long getAccessTypeId();
 
@@ -119,7 +115,7 @@ public interface QuestionPoolDataIfc
 
   void setQuestionPoolItems(Set questionPoolItems);
 
-  void addQuestionPoolItem(QuestionPoolItemData questionPoolItem);
+  void addQuestionPoolItem(QuestionPoolItemIfc questionPoolItem);
 
   Collection getQuestions();
 
