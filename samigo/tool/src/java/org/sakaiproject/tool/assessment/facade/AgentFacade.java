@@ -22,12 +22,13 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 import java.io.Serializable;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean;
@@ -35,14 +36,10 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  *
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Company: </p>
- * SectionFacade implements SectionDataIfc that encapsulates our out of bound (OOB)
- * agreement.
+ * Facade for agent.
+ *
  */
-public class AgentFacade implements Serializable {
+public class AgentFacade implements Serializable, AgentDataIfc{
 
   private static Log log = LogFactory.getLog(AgentFacade.class);
   AgentImpl agent;
@@ -169,4 +166,8 @@ public class AgentFacade implements Serializable {
     return agentS;
   }
 
- }
+  public void setIdString(String idString)
+  {
+    agentString = idString;
+  }
+}
