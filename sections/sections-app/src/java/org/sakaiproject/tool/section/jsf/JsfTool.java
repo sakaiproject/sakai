@@ -30,15 +30,24 @@ import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Authz;
 import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.component.section.cover.CourseManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
+/**
+ * Extension to the Sakai JsfTool servlet, computing the default page view
+ * depending on the user's role (permissions).
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
 
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(JsfTool.class);
 	
+	/**
+	 * @inheritDoc
+	 */
 	protected String computeDefaultTarget() {
         if(log.isDebugEnabled()) log.debug("Entering sections tool... determining role appropriate view");
 
@@ -53,17 +62,6 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
 
         String target;
         if(siteRole.isInstructor() || siteRole.isTeachingAssistant()) {
-//        	// Create the course if it doesn't exist
-//        	if(!CourseManager.courseExists(siteContext)) {
-//        		String title = siteContext; // Can't be null in the db, so use this if need be
-//        		try {
-//            		title = contextService.getContextTitle(null);
-//        		} catch (Exception e) {
-//        			log.error("Unable to find site title in context " + siteContext);
-//        		}
-//        		if(log.isInfoEnabled()) log.info("Creating a new Course in site " + siteContext);
-//        		CourseManager.createCourse(siteContext, title, false, false, false);
-//        	}
             if(log.isDebugEnabled()) log.debug("Sending user to the overview page");
             target = "/overview";
         } else if (siteRole.isStudent()) {

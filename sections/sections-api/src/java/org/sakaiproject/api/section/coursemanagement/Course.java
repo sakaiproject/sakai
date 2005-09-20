@@ -34,8 +34,33 @@ package org.sakaiproject.api.section.coursemanagement;
  *
  */
 public interface Course extends LearningContext {
+	/**
+	 * The site associated with this course.
+	 * 
+	 * @return
+	 */
+	public String getSiteContext();
+	
+	/**
+	 * Whether the course is externally managed by the enterprise and should be
+	 * read-only within the LMS.
+	 * 
+	 * @return
+	 */
 	public boolean isExternallyManaged();
+	
+	/**
+	 * Whether students are allowed to register for sections themselves.
+	 * 
+	 * @return
+	 */
 	public boolean isSelfRegistrationAllowed();
+	
+	/**
+	 * Whether students are allowed to switch sections themselves.
+	 * 
+	 * @return
+	 */
 	public boolean isSelfSwitchingAllowed();
 }
 

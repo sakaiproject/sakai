@@ -47,8 +47,7 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  */
 public class AuthzSakaiImpl extends HibernateDaoSupport implements Authz {
     public static final String INSTRUCTOR_PERMISSION = "site.upd";
-    // TODO Determine the permission that defines a TA
-    public static final String TA_PERMISSION = "site.ta";
+    public static final String TA_PERMISSION = "section.ta";
     public static final String STUDENT_PERMISSION = "site.visit";
 
 	/**
