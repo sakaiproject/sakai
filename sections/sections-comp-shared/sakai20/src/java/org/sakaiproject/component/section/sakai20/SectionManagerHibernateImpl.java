@@ -125,9 +125,11 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	}
 
 	public List getSiteTeachingAssistants(final String siteContext) {
-        List sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, SakaiUtil.getSiteReference());
-        List membersList = new ArrayList();
+		String siteRef = SakaiUtil.getSiteReference();
+        List sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, siteRef);
+        sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, siteRef));
 
+        List membersList = new ArrayList();
         Course course = getCourse(siteContext);
         
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {

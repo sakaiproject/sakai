@@ -1,6 +1,17 @@
-Sakai Sections Tool -- Building and Deploying
-	The sections tool can be built as either a standalone web application, or as
-	a tool to be embedded in a sakai portal.
+-------------------------
+Sakai Section Info Tool
+
+This document consists the following sections:
+
+I.  Building and deploying the application and its shared services
+II. Available service implementations
+
+-------------------------
+
+I.  Building and deploying the application and its shared services
+
+	The section info tool can be built as either a standalone web application,
+	or as a tool to be embedded in a sakai portal.
 
 	Sakai Embedded
 		Just run 'maven sakai', or build a default (as of Sakai 2.1) sakai
@@ -60,7 +71,46 @@ Sakai Sections Tool -- Building and Deploying
 		maven -Dstandalone=true -Dmem=false loadGradebookData
 
 		Sakai 2.0 dataload
-		maven -Dmem=false loadData
-		
+		(not yet available)
+
 		Sakai 2.1 dataload
 		(not yet available)
+
+	II. Available service implementations
+
+		The following service implementations are available to support the
+		Section Info tool and its shared services.
+		
+		1) Standalone:  This is appropriate for supporting the standalone webapp,
+		it is not capable of functioning inside the sakai framework.
+		
+		2) Sakai 2.0:  This implementation relies solely on the framework services
+		available as of Sakai 2.0.  Legacy services provide for user authentication
+		and permission checking.  In this implementation, the following
+		site-scoped permissions are used to determine user roles.  These services
+		use an internal concept of roles, which are not related to Sakai's roles.
+
+		In the Section Info tool, as in the SectionAwareness service, there are
+		four roles that describe how a user is associated with a site.  These
+		include:
+			Instructor	--	Capable of manipulating all non enterprise-managed
+							sections, section leadership, and section enrollments.
+
+							Users with the sakai permission "site.upd" are
+							considered to be instructors.
+
+			TA			--	Capable of manipulating all non enterprise-managed
+							section enrollments.
+							
+							Users with the sakai permission "section.ta" but not
+							"site.upd" are considered to be TAs.
+			
+			Student		--	Capable of enrolling or switching sections within a
+							self-joinable or self-switchable course/site.
+							
+							Users with the sakai permission "site.visit" but not
+							"site.upd" or "section.ta" are considered to be
+							students.
+
+		3) Sakai 2.1:  TBD... will probably be based on the new groups framework.
+		
