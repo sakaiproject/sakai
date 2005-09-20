@@ -10,7 +10,7 @@
         table="SAKAI_SYLLABUS_ATTACH" optimistic-lock="version">
         
         <id name="syllabusAttachId" type="long">
-            <column name="id" not-null="true" length="19" />
+            <column name="syllabusAttachId" not-null="true" length="19" />
             <generator class="native">
                 <param name="sequence">SyllabusAttachImpl_SEQ</param>
             </generator>
@@ -23,15 +23,15 @@
         </property>
         
         <property name="name">
-            <column name="name" length="256" not-null="true"/>
+            <column name="syllabusAttachName" length="256" not-null="true"/>
         </property>
         
         <property name="size">
-            <column name="size" length="256" not-null="false"/>
+            <column name="syllabusAttachSize" length="256" not-null="false"/>
         </property>
 
         <property name="type">
-            <column name="type" length="256" not-null="false"/>
+            <column name="syllabusAttachType" length="256" not-null="false"/>
         </property>
 
         <property name="createdBy">
@@ -39,7 +39,7 @@
         </property>
         
         <property name="url">
-        	<column name="url" length="256" not-null="true"/>
+        	<column name="syllabusAttachUrl" length="256" not-null="true"/>
         </property>
 
         <property name="lastModifiedBy">
