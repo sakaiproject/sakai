@@ -559,7 +559,9 @@ public String processDeleteCancel()
             syllabusService.deletePostedSyllabus(den.getEntry());
           }
           
-          Set syllabusAttachments = den.getEntry().getAttachments();
+          //Set syllabusAttachments = den.getEntry().getAttachments();
+          Set syllabusAttachments = syllabusManager.getSyllabusAttachmentsForSyllabusData(den.getEntry());
+          //den.getEntry().getAttachments();
           Iterator iter = syllabusAttachments.iterator();
           while(iter.hasNext())
           {
