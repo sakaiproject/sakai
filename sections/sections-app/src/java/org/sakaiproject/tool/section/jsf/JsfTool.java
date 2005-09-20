@@ -53,28 +53,27 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
 
         String target;
         if(siteRole.isInstructor() || siteRole.isTeachingAssistant()) {
-        	// Create the course if it doesn't exist
-        	if(!CourseManager.courseExists(siteContext)) {
-        		String title = siteContext; // Can't be null in the db, so use this if need be
-        		try {
-            		title = contextService.getContextTitle(null);
-        		} catch (Exception e) {
-        			log.error("Unable to find site title in context " + siteContext);
-        		}
-        		if(log.isInfoEnabled()) log.info("Creating a new Course in site " + siteContext);
-        		CourseManager.createCourse(siteContext, title, false, false, false);
-        	}
-            if(log.isInfoEnabled()) log.info("Sending user to the overview page");
+//        	// Create the course if it doesn't exist
+//        	if(!CourseManager.courseExists(siteContext)) {
+//        		String title = siteContext; // Can't be null in the db, so use this if need be
+//        		try {
+//            		title = contextService.getContextTitle(null);
+//        		} catch (Exception e) {
+//        			log.error("Unable to find site title in context " + siteContext);
+//        		}
+//        		if(log.isInfoEnabled()) log.info("Creating a new Course in site " + siteContext);
+//        		CourseManager.createCourse(siteContext, title, false, false, false);
+//        	}
+            if(log.isDebugEnabled()) log.debug("Sending user to the overview page");
             target = "/overview";
         } else if (siteRole.isStudent()) {
-            if(log.isInfoEnabled()) log.info("Sending user to the student view page");
+            if(log.isDebugEnabled()) log.debug("Sending user to the student view page");
             target = "/studentView";
         } else {
             // The role filter has not been invoked yet, so this could happen here
             throw new RuntimeException("User " + userUuid + " attempted to access sections in site " +
             		siteContext + " without any role");
         }
-        if(log.isDebugEnabled()) log.info("target = " + target);
         return target;
     }
 }

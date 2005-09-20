@@ -43,47 +43,47 @@ public class SectionAwareness {
 		return instance;
 	}
 	
-	public static List findSiteMembersInRole(String siteContext, Role role, String pattern) {
+	public static final List findSiteMembersInRole(String siteContext, Role role, String pattern) {
 		return getInstance().findSiteMembersInRole(siteContext, role, pattern);
 	}
 
-	public static String getCategoryName(String categoryId, Locale locale) {
+	public static final String getCategoryName(String categoryId, Locale locale) {
 		return getInstance().getCategoryName(categoryId, locale);
 	}
 
-	public static CourseSection getSection(String sectionUuid) {
+	public static final CourseSection getSection(String sectionUuid) {
 		return getInstance().getSection(sectionUuid);
 	}
 
-	public static List getSectionCategories() {
+	public static final List getSectionCategories() {
 		return getInstance().getSectionCategories();
 	}
 
-	public static List getSectionMembers(String sectionUuid) {
+	public static final List getSectionMembers(String sectionUuid) {
 		return getInstance().getSectionMembers(sectionUuid);
 	}
 
-	public static List getSectionMembersInRole(String sectionUuid, Role role) {
+	public static final List getSectionMembersInRole(String sectionUuid, Role role) {
 		return getInstance().getSectionMembersInRole(sectionUuid, role);
 	}
 
-	public static Set getSections(String siteContext) {
+	public static final Set getSections(String siteContext) {
 		return getInstance().getSections(siteContext);
 	}
 
-	public static List getSectionsInCategory(String siteContext, String categoryId) {
+	public static final List getSectionsInCategory(String siteContext, String categoryId) {
 		return getInstance().getSectionsInCategory(siteContext, categoryId);
 	}
 
-	public static List getSiteMembersInRole(String siteContext, Role role) {
+	public static final List getSiteMembersInRole(String siteContext, Role role) {
 		return getInstance().getSiteMembersInRole(siteContext, role);
 	}
 
-	public static boolean isSectionMemberInRole(String sectionUuid, String userUuid, Role role) {
+	public static final boolean isSectionMemberInRole(String sectionUuid, String userUuid, Role role) {
 		return getInstance().isSectionMemberInRole(sectionUuid, userUuid, role);
 	}
 
-	public static boolean isSiteMemberInRole(String siteContext, String userUuid, Role role) {
+	public static final boolean isSiteMemberInRole(String siteContext, String userUuid, Role role) {
 		return getInstance().isSiteMemberInRole(siteContext, userUuid, role);
 	}
 	

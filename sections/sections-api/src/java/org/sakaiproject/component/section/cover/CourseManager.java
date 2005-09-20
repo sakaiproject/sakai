@@ -41,11 +41,11 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 public class CourseManager {
 	private static org.sakaiproject.api.section.CourseManager instance;
 
-	public static boolean courseExists(String siteContext) {
+	public static final boolean courseExists(String siteContext) {
 		return getInstance().courseExists(siteContext);
 	}
 	
-	public static Course createCourse(String siteContext, String title, boolean selfRegAllowed, boolean selfSwitchingAllowed, boolean externallyManaged) {
+	public static final Course createCourse(String siteContext, String title, boolean selfRegAllowed, boolean selfSwitchingAllowed, boolean externallyManaged) {
 		return getInstance().createCourse(siteContext, title, selfRegAllowed, selfSwitchingAllowed, externallyManaged);
 	}
 
