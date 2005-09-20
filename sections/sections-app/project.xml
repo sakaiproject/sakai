@@ -22,10 +22,6 @@
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-sections-api</artifactId>
 			<version>${pom.currentVersion}</version>
-			<!-- Bundle the service api for now -->
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>

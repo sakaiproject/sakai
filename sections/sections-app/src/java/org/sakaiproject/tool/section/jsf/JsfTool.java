@@ -26,11 +26,11 @@ package org.sakaiproject.tool.section.jsf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Authz;
 import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.component.section.cover.CourseManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -46,7 +46,6 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
         Authn authnService = (Authn)ac.getBean("org.sakaiproject.api.section.facade.manager.Authn");
         Authz authzService = (Authz)ac.getBean("org.sakaiproject.api.section.facade.manager.Authz");
         Context contextService = (Context)ac.getBean("org.sakaiproject.api.section.facade.manager.Context");
-        CourseManager courseManager = (CourseManager)ac.getBean("org.sakaiproject.api.section.CourseManager");
 
         String userUuid = authnService.getUserUuid(null);
         String siteContext = contextService.getContext(null);
@@ -55,7 +54,7 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
         String target;
         if(siteRole.isInstructor() || siteRole.isTeachingAssistant()) {
         	// Create the course if it doesn't exist
-        	if(!courseManager.courseExists(siteContext)) {
+        	if(!CourseManager.courseExists(siteContext)) {
         		String title = siteContext; // Can't be null in the db, so use this if need be
         		try {
             		title = contextService.getContextTitle(null);
@@ -63,7 +62,7 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
         			log.error("Unable to find site title in context " + siteContext);
         		}
         		if(log.isInfoEnabled()) log.info("Creating a new Course in site " + siteContext);
-        		courseManager.createCourse(siteContext, title, false, false, false);
+        		CourseManager.createCourse(siteContext, title, false, false, false);
         	}
             if(log.isInfoEnabled()) log.info("Sending user to the overview page");
             target = "/overview";

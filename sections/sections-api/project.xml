@@ -14,7 +14,7 @@
 
    	<properties>
 		<deploy.type>jar</deploy.type>
-	    <!-- deploy.target>shared</deploy.target -->
+	    <deploy.target>shared</deploy.target>
 	</properties>
 
 	<dependencies>
@@ -24,6 +24,11 @@
 			<version>${pom.currentVersion}</version>
 			<type>plugin</type>
 		</dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-component</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 	</dependencies>
 
 	<reports/>

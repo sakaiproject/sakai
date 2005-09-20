@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <registration>
-	<tool id="sakai.sections" title="Sections" description="For managing sections within a site">
+	<tool id="sakai.sections" title="Section Info" description="For managing sections within a site">
 		<!-- TODO Remove this tool from project sites after testing is complete -->
 		<category name="course" />
 		<category name="project" />

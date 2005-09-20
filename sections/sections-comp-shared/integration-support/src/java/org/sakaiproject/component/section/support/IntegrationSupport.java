@@ -74,7 +74,8 @@ public interface IntegrationSupport {
 	 * @param saturday
 	 * @param sunday
 	 * @return
-	 */public CourseSection createSection(String courseUuid, String title, String category, Integer maxEnrollments,
+	 */
+	public CourseSection createSection(String courseUuid, String title, String category, Integer maxEnrollments,
 			String location, Time startTime, Time endTime, boolean monday, boolean tuesday,
 			boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday);
 	
@@ -104,7 +105,8 @@ public interface IntegrationSupport {
 	 * 
 	 * @param userUuid
 	 * @return
-	 */public List getAllSiteMemberships(String userUuid);
+	 */
+	public List getAllSiteMemberships(String userUuid);
 	
 	/**
 	 * Gets all of the section-scoped ParticipationRecords for a user in a

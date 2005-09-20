@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,11 +73,11 @@ public class IntegrationSupportTest extends AbstractTransactionalSpringContextTe
     	String INSTRUCTOR_UUID_1 = "integration_instructor1";
     	
     	log.info("Creating course...");
-    	Course course = integrationSupport.createCourse(SITE_CONTEXT_1, "Site 1",
+    	integrationSupport.createCourse(SITE_CONTEXT_1, "Site 1",
     			false, false, false);
 
     	log.info("Creating user...");
-    	User instructor1 = integrationSupport.createUser(INSTRUCTOR_UUID_1, "Instructor One",
+    	integrationSupport.createUser(INSTRUCTOR_UUID_1, "Instructor One",
     			"One, Instructor", "inst1");
 
     	log.info("Creating instructor membership...");
@@ -117,7 +116,7 @@ public class IntegrationSupportTest extends AbstractTransactionalSpringContextTe
 			false, false, false, false, false, false);
     	
     	log.info("Adding site membership");
-    	ParticipationRecord siteMembership = integrationSupport.addSiteMembership(
+    	integrationSupport.addSiteMembership(
     			user1.getUserUuid(), SITE_CONTEXT_1, Role.STUDENT);
 
     	log.info("Adding section membership");

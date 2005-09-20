@@ -65,8 +65,31 @@ public interface CourseManager {
 	 */
 	public boolean courseExists(String siteContext);
 	
+	/**
+	 * Adds a student to a course.  Useful for dataloading in standalone mode.
+	 * 
+	 * @param user
+	 * @param course
+	 * @return
+	 */
 	public ParticipationRecord addEnrollment(User user, Course course);
+
+	/**
+	 * Adds a TA to a course.  Useful for dataloading in standalone mode.
+	 * 
+	 * @param user
+	 * @param course
+	 * @return
+	 */
 	public ParticipationRecord addTA(User user, Course course);
+
+	/**
+	 * Adds an instructor to a course.  Useful for dataloading in standalone mode.
+	 * 
+	 * @param user
+	 * @param course
+	 * @return
+	 */
 	public ParticipationRecord addInstructor(User user, Course course);
 	
 	

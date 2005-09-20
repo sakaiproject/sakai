@@ -15,21 +15,6 @@
 	<bean id="sectionsTransactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager">
 		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
 	</bean>
-
-    <bean id="org.sakaiproject.api.section.SectionAwareness" parent="sectionsTxTemplate">
-        <property name="target">
-            <bean class="org.sakaiproject.component.section.sakai20.SectionAwarenessHibernateImpl">
-                <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
-                <property name="sectionCategoryList">
-                    <list>
-                        <value>section.category.lecture</value>
-                        <value>section.category.discussion</value>
-                        <value>section.category.lab</value>
-                    </list>
-                </property>
-            </bean>
-        </property>
-    </bean>
 	
     <bean id="org.sakaiproject.api.section.SectionManager" parent="sectionsTxTemplate">
         <property name="target">
@@ -51,14 +36,6 @@
                         <value>section.category.lab</value>
                     </list>
                 </property>
-            </bean>
-        </property>
-    </bean>
-
-    <bean id="org.sakaiproject.api.section.CourseManager" parent="sectionsTxTemplate">
-        <property name="target">
-            <bean class="org.sakaiproject.component.section.sakai20.CourseManagerHibernateImpl">
-                <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
             </bean>
         </property>
     </bean>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.sections.testservice" title="Sections Test Service" description="For testing section services from another webapp">
+        <category name="sakai.sample" />
+	</tool>
+</registration>

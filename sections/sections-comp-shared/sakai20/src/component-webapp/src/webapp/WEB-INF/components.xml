@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+    <bean id="sectionsTxTemplate" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"><ref bean="sectionsTransactionManager"/></property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="join*">PROPAGATION_REQUIRED</prop>
+                <prop key="switch*">PROPAGATION_REQUIRED</prop>
+                <prop key="drop*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="set*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="remove*">PROPAGATION_REQUIRED</prop>
+                <prop key="disband*">PROPAGATION_REQUIRED</prop>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="sectionsSessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean"
+        parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/component/section/sakai20/LearningContextImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/section/sakai20/ParticipationRecordImpl.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="sectionsTransactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+    </bean>
+
+
+
+        <bean id="org.sakaiproject.api.section.SectionAwareness"
+            class="org.sakaiproject.component.section.sakai20.SectionAwarenessHibernateImpl">
+            <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+            <property name="sectionCategoryList">
+                <list>
+                    <value>section.category.lecture</value>
+                    <value>section.category.discussion</value>
+                    <value>section.category.lab</value>
+                </list>
+            </property>
+        </bean>
+
+        <bean id="org.sakaiproject.api.section.CourseManager"
+            class="org.sakaiproject.component.section.sakai20.CourseManagerHibernateImpl">
+            <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+        </bean>
+
+
+<!-- 
+    <bean id="org.sakaiproject.api.section.SectionAwareness" parent="sectionsTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.component.section.sakai20.SectionAwarenessHibernateImpl">
+                <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+                <property name="sectionCategoryList">
+                    <list>
+                        <value>section.category.lecture</value>
+                        <value>section.category.discussion</value>
+                        <value>section.category.lab</value>
+                    </list>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    
+    <bean id="org.sakaiproject.api.section.CourseManager" parent="sectionsTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.component.section.sakai20.CourseManagerHibernateImpl">
+                <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+            </bean>
+        </property>
+    </bean>
+-->
+</beans>

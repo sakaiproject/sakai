@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+    <pomVersion>3</pomVersion>
+    <name>Sakai Sections Components</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-sections-comp-shared-sakai20-web-package</id>
+	<currentVersion>2.0.0</currentVersion>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2005</inceptionYear>
+
+	<properties>
+		<deploy.type>components</deploy.type>
+	</properties>
+
+    <dependencies>
+    	<dependency>
+        	<groupId>sakaiproject</groupId>
+	        <artifactId>sakai-sections-comp-shared-sakai20</artifactId>
+			<version>${pom.currentVersion}</version>
+<!--
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+-->
+    	</dependency>
+    </dependencies>
+
+    <build/>
+
+</project>
