@@ -1,38 +1,54 @@
+/**********************************************************************************
+* $URL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
-import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import java.io.Serializable;
 import javax.faces.context.FacesContext;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-//import test.org.sakaiproject.tool.assessment.jsf.TestBackingBean;
-import org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean;
-import org.sakaiproject.service.legacy.realm.Realm;
-import org.sakaiproject.service.legacy.realm.Role;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.service.legacy.realm.cover.RealmService;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.service.framework.portal.cover.PortalService;
+import org.sakaiproject.service.legacy.realm.Realm;
+import org.sakaiproject.service.legacy.realm.Role;
+import org.sakaiproject.service.legacy.realm.cover.RealmService;
+import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
+import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
+import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  *
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Company: </p>
- * SectionFacade implements SectionDataIfc that encapsulates our out of bound (OOB)
- * agreement.
- * @author not attributable
- * @version 1.0
+ * Facade for agent.  Integrated version.
  */
-public class AgentFacade implements Serializable {
+public class AgentFacade implements Serializable, AgentDataIfc {
 
   AgentImpl agent;
   String agentString;
@@ -85,7 +101,7 @@ public class AgentFacade implements Serializable {
   }
 
   public String getDisplayName(){
-    String s="";   
+    String s="";
     try{
       s=UserDirectoryService.getUser(this.agentString).getDisplayName();
     }
@@ -97,7 +113,7 @@ public class AgentFacade implements Serializable {
 
   public String getFirstName()
   {
-    String s="";   
+    String s="";
     try{
       s=UserDirectoryService.getUser(this.agentString).getFirstName();
     }
@@ -109,7 +125,7 @@ public class AgentFacade implements Serializable {
 
   public String getLastName()
   {
-    String s="";   
+    String s="";
     try{
       s=UserDirectoryService.getUser(this.agentString).getLastName();
     }
@@ -211,7 +227,7 @@ public class AgentFacade implements Serializable {
     String currentSiteName = null;
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     if (!delivery.getAccessViaUrl()){
-      try{ 
+      try{
         currentSiteName = SiteService.getSite(getCurrentSiteId()).getTitle();
       }
       catch (Exception e){
@@ -223,7 +239,7 @@ public class AgentFacade implements Serializable {
 
   public static String getSiteName(String siteId){
    String siteName=null;
-   try{ 
+   try{
       siteName = SiteService.getSite(siteId).getTitle();
       log.debug("**** siteName="+siteName);
     }
@@ -251,6 +267,11 @@ public class AgentFacade implements Serializable {
 
   public static boolean isIntegratedEnvironment(){
     return !isStandaloneEnvironment();
+  }
+
+  public void setIdString(String idString)
+  {
+    agentString = idString;
   }
 
   public static String getAnonymousId(){
