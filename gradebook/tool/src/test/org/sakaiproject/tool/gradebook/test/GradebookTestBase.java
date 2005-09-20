@@ -24,6 +24,10 @@ package org.sakaiproject.tool.gradebook.test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.transaction.PlatformTransactionManager;
+
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
@@ -31,7 +35,6 @@ import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 /**
  * Base class for gradebook test classes that provides the spring application
@@ -67,7 +70,22 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
-        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-facades.xml", "spring-service.xml", "spring-beans-test.xml", "spring-hib-test.xml"};
+        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-facades.xml", "spring-service.xml", "spring-hib.xml",
+        	"spring-beans-test.xml",
+        	"spring-hib-test.xml",
+        	/* SectionAwareness integration support. */
+        	"classpath*:org/sakaiproject/component/section/support/spring-integrationSupport.xml",
+			/*
+				We could just go with
+					"classpath*:org/sakaiproject/component/section/spring-*.xml"
+				except that for now we need to strip away a transactionManager defined
+				in section/spring-hib.xml.
+			*/
+			"classpath*:org/sakaiproject/component/section/spring-beans.xml",
+			"classpath*:org/sakaiproject/component/section/spring-sectionAwareness.xml",
+			"classpath*:org/sakaiproject/component/section/spring-services.xml",
+        };
         return configLocations;
     }
+
 }

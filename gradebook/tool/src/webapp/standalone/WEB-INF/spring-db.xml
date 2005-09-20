@@ -17,7 +17,7 @@
 		<property name="password"><value>${hibernate.connection.password}</value></property>
 	</bean>
 
-	<bean id="gradebookSessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
+	<bean id="gradebookSessionFactory" name="sectionsSessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
 		<property name="dataSource"><ref bean="gradebookDataSource"/></property>
 
 		<property name="mappingLocations">

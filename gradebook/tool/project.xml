@@ -58,6 +58,12 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
+		<!-- Used only for test data. -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-sections-comp-shared-standalone-integrationsupport</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
 
 <!-- Sakai2 Dependencies -->
 		<dependency>
@@ -117,6 +123,29 @@
 			<version>${pom.currentVersion}</version>
 			<type>plugin</type>
 		</dependency>
+
+		<!--
+			The Gradebook itself has no need of a Uuid generator.
+			The following is included as a dependency of the standalone Sections
+			integration support JAR.
+		-->
+		<!-- Uuid generator -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-common-uuid-component</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-common-uuid-api</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+	    <dependency>
+	      <groupId>commons-id</groupId>
+	      <artifactId>commons-id</artifactId>
+	      <version>0.1-dev</version>
+	      <url>http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/</url>
+	    </dependency>
 
 <!-- End Sakai2 Dependencies -->
 
@@ -379,7 +408,6 @@
 	TestManagers test assumes that the database is empty, so make sure you run
 	the schema goal before attempting to run jcoverage.
 -->
-
 <!--
 				<include>**/TestManagers.java</include>
 -->
@@ -388,7 +416,7 @@
 				<resource>
 					<directory>${basedir}/src/webapp/common/WEB-INF/</directory>
 					<includes>
-						<include>spring-beans.xml</include>
+						<include>spring-*.xml</include>
 					</includes>
 				</resource>
 				<resource>
