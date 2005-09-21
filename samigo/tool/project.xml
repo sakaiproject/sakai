@@ -16,14 +16,14 @@
 		<deploy.type>war</deploy.type>
 	</properties>
 	<dependencies>
-<!-- comment out for now -->
     <!-- Samigo API -->
-<!--    <dependency>
+    <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-samigo-api</artifactId>
       <version>2.1.0</version>
-    </dependency> -->
+    </dependency>
     <!-- Samigo IMPL -->
+<!-- comment out for now -->
 <!--    <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-samigo-component</artifactId>
