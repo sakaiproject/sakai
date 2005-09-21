@@ -140,14 +140,6 @@
         ]]>
     </query>
 
-
-
-
-
-
-
-
-
     <query name="findSectionedStudentsInCategory">
         <![CDATA[
         select enr.userUuid from EnrollmentRecordImpl as enr where enr.learningContext in
@@ -158,16 +150,6 @@
         ]]>
     </query>
 
-
-
-
-
-
-
-
-
-
-
     <query name="findSingleStudentSectionEnrollmentsInCourse">
         <![CDATA[
         from EnrollmentRecordImpl as enr where enr.userUuid=:userUuid and
@@ -175,6 +157,17 @@
             (
                 select section.id from CourseSectionImpl as section where
                     section.course.uuid = :courseUuid
+            )
+        ]]>
+    </query>
+
+    <query name="findUserSectionMembershipsInSite">
+        <![CDATA[
+        from ParticipationRecordImpl as member where member.userUuid=:userUuid and
+            member.learningContext.id in
+            (
+                select section.id from CourseSectionImpl as section where
+                    section.course.siteContext = :siteContext
             )
         ]]>
     </query>

@@ -212,4 +212,17 @@
                 (from CourseImpl as course)
         ]]>
     </query>
+
+    <query name="findUserSectionMembershipsInSite">
+        <![CDATA[
+        from ParticipationRecordImpl as member where member.user.userUuid=:userUuid and
+            member.learningContext.id in
+            (
+                select section.id from CourseSectionImpl as section where
+                    section.course.siteContext = :siteContext
+            )
+        ]]>
+    </query>
+
+
 </hibernate-mapping>

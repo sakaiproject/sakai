@@ -129,7 +129,12 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         		return getCourse(siteContext, session);
         	}
         };
+        
         Course course = (Course)getHibernateTemplate().execute(hc);
+    	if(course == null) {
+    		if(log.isInfoEnabled()) log.info("No course founf for siteContext " + siteContext);
+    		return new ArrayList();
+    	}
         
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
@@ -155,11 +160,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         Query q = session.getNamedQuery("loadCourseBySiteContext");
         q.setParameter("siteContext", siteContext);
         Object course = q.uniqueResult();
-        if(course == null) {
-        	throw new IllegalArgumentException("No course exists in site = " + siteContext);
-        } else {
-        	return (Course)course;
-        }
+    	return (Course)course;
 	}
 	
 	/**

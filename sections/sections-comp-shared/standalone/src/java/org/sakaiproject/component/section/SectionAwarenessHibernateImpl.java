@@ -105,6 +105,10 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourse(siteContext, session);
+            	if(course == null) {
+            		if(log.isInfoEnabled()) log.info("No course founf for siteContext " + siteContext);
+            		return new ArrayList();
+            	}
             	Query q;
                 if(role.isInstructor()) {
         			q = session.getNamedQuery("findSiteInstructors");
@@ -126,11 +130,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         Query q = session.getNamedQuery("loadCourseBySiteContext");
         q.setParameter("siteContext", siteContext);
         Object course = q.uniqueResult();
-        if(course == null) {
-        	throw new IllegalArgumentException("No course exists in site = " + siteContext);
-        } else {
-        	return (Course)course;
-        }
+    	return (Course)course;
 	}
 	
 	/**
@@ -156,6 +156,10 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourse(siteContext, session);
+            	if(course == null) {
+            		if(log.isInfoEnabled()) log.info("No course founf for siteContext " + siteContext);
+            		return new Boolean(false);
+            	}
                 Query q = session.getNamedQuery("checkForSiteMembershipInRole");
                 q.setParameter("course", course);
                 q.setParameter("userUuid", userUuid);

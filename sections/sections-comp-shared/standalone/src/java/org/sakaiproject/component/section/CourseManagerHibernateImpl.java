@@ -25,6 +25,8 @@
 package org.sakaiproject.component.section;
 
 import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.List;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -87,6 +89,26 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 
 		return getHibernateTemplate().execute(hc) != null;
 	}
+
+	public void removeUserFromAllSections(final String userUuid, final String siteContext) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
+				Query q = session.getNamedQuery("findUserSectionMembershipsInSite");
+				q.setParameter("userUuid", userUuid);
+				q.setParameter("siteContext", siteContext);
+				List results = q.list();
+				for(Iterator iter = results.iterator(); iter.hasNext();) {
+					ParticipationRecord record = (ParticipationRecord) iter.next();
+					if(log.isInfoEnabled()) log.info("User " + userUuid +
+							" removed from the site... removing user from section " +
+							record.getLearningContext().getTitle());
+					session.delete(record);
+				}
+				return null;
+			};
+		};
+		getHibernateTemplate().execute(hc);
+	}	
 
 	public ParticipationRecord addInstructor(final User user, final Course course) {
 		HibernateCallback hc = new HibernateCallback() {

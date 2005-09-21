@@ -49,6 +49,10 @@ public class CourseManager {
 		return getInstance().createCourse(siteContext, title, selfRegAllowed, selfSwitchingAllowed, externallyManaged);
 	}
 
+	public void removeUserFromAllSections(String userUuid, String siteContext) {
+		getInstance().removeUserFromAllSections(userUuid, siteContext);
+	}
+
 	private static org.sakaiproject.api.section.CourseManager getInstance() {
 		if(instance == null) {
 			instance = (org.sakaiproject.api.section.CourseManager)ComponentManager.get(

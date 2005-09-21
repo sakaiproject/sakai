@@ -66,6 +66,14 @@ public interface CourseManager {
 	public boolean courseExists(String siteContext);
 	
 	/**
+	 * When a user is removed from a site, the course manager must be notified
+	 * so it can remove the user from all section memberships in the site.
+	 * 
+	 * @param userUuid
+	 */
+	public void removeUserFromAllSections(String userUuid, String siteContext);
+	
+	/**
 	 * Adds a student to a course.  Useful for dataloading in standalone mode.
 	 * 
 	 * @param user

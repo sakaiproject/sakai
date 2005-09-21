@@ -116,7 +116,7 @@ public class IntegrationSupportTest extends AbstractTransactionalSpringContextTe
 			false, false, false, false, false, false);
     	
     	log.info("Adding site membership");
-    	integrationSupport.addSiteMembership(
+    	ParticipationRecord siteMembership = integrationSupport.addSiteMembership(
     			user1.getUserUuid(), SITE_CONTEXT_1, Role.STUDENT);
 
     	log.info("Adding section membership");
@@ -133,6 +133,11 @@ public class IntegrationSupportTest extends AbstractTransactionalSpringContextTe
     	integrationSupport.removeSectionMembership(user1.getUserUuid(), section1.getUuid());
     	foundSectionMemberhsips = integrationSupport.getAllSectionMemberships(user1.getUserUuid(), SITE_CONTEXT_1);
     	Assert.assertEquals(foundSectionMemberhsips.size(), 0);
+    	
+    	// Ensure that we know which site the user belongs to
+    	List siteMemberships = integrationSupport.getAllSiteMemberships(user1.getUserUuid());
+    	Assert.assertTrue(siteMemberships.contains(siteMembership));
+    	
     }
 
 }
