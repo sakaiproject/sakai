@@ -342,6 +342,7 @@ public class DeliveryActionListener
         else
         {
           delivery.setBeginTime(new Date());
+          delivery.setTimeElapse("0");  // fix SAK-1781
         }
       }
 
@@ -380,14 +381,21 @@ public class DeliveryActionListener
         keys.next())).toArray()[0];
       AssessmentGradingData agd =
         (AssessmentGradingData) igd.getAssessmentGrading();
-      delivery.setAssessmentGrading(agd);
-      log.debug("setAssessmentGradingFromItemData agd.getTimeElapsed(): " + agd.getTimeElapsed());
-      log.debug("setAssessmentGradingFromItemData delivery.getTimeElapse(): " + delivery.getTimeElapse());
+      if (!agd.getForGrade().booleanValue()){
+        delivery.setAssessmentGrading(agd);
+        log.debug("setAssessmentGradingFromItemData agd.getTimeElapsed(): " + agd.getTimeElapsed());
+        log.debug("setAssessmentGradingFromItemData delivery.getTimeElapse(): " + delivery.getTimeElapse());
+      }
+      else{ // if assessmentGradingData has been submitted for grade, then
+	  // we need to reset delivery.assessmentGrading - a problem review from fixing SAK-1781
+        if (setNullOK) delivery.setAssessmentGrading(null);
+      }
     }
     else
     {
       if (setNullOK) delivery.setAssessmentGrading(null);
     }
+    log.info("**** delivery grdaing"+delivery.getAssessmentGrading());
   }
 
   /**
