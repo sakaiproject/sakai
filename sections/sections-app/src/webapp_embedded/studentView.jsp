@@ -108,6 +108,9 @@
             </h:column>
     
         </x:dataTable>
+
+        <h:outputText value="#{msgs.no_sections_available}" rendered="#{empty studentViewBean.sections}"/>
+
     </x:div>
 
 </h:form>
