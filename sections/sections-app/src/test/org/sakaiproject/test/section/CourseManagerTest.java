@@ -75,9 +75,37 @@ public class CourseManagerTest extends SectionsTestBase {
 
     	enrollments = sectionManager.getSectionEnrollments(student1.getUserUuid(), course.getUuid());
     	Assert.assertTrue(enrollments.size() == 0);
-    	
     }
 
+    public void testRemoveTaFromCourse() throws Exception {
+    	Course course = courseManager.createCourse("site", "course title", false, false, false);
+    	User ta1 = userManager.createUser("userUuid", "foo", "bar", "baz");
+    	CourseSection section1 = sectionManager.addSection(course.getUuid(), "a section", "a category",
+    			null, null, null, null, false, false, false, false, false, false, false);
+    	CourseSection section2 = sectionManager.addSection(course.getUuid(), "another section", "another category",
+    			null, null, null, null, false, false, false, false, false, false, false);
+
+    	// Enroll the user in the course
+    	courseManager.addTA(ta1, course);
+
+    	// Enroll the user as a student in both sections
+    	sectionManager.addSectionMembership(ta1.getUserUuid(), Role.TA, section1.getUuid());
+    	sectionManager.addSectionMembership(ta1.getUserUuid(), Role.TA, section2.getUuid());
+    	
+    	// Make sure the user is a member of two sections
+    	Collection memberships1 = sectionManager.getSectionTeachingAssistants(section1.getUuid());
+    	Collection memberships2 = sectionManager.getSectionTeachingAssistants(section2.getUuid());
+    	Assert.assertTrue(memberships1.size() == 1);
+    	Assert.assertTrue(memberships2.size() == 1);
+    	
+    	// Remove the user from the course, and ensure that they are no longer in any sections
+    	courseManager.removeUserFromAllSections(ta1.getUserUuid(), course.getSiteContext());
+
+    	memberships1 = sectionManager.getSectionTeachingAssistants(section1.getUuid());
+    	memberships2 = sectionManager.getSectionTeachingAssistants(section2.getUuid());
+    	Assert.assertTrue(memberships1.size() == 0);
+    	Assert.assertTrue(memberships2.size() == 0);
+    }
 }
 
 
