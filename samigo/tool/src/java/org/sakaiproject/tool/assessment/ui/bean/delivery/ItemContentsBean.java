@@ -201,7 +201,7 @@ public class ItemContentsBean
       ItemGradingData data = (ItemGradingData) iter.next();
       if (getItemData().getTypeId().toString().equals("8")) // fix for bug sam-330
       {
-        if (data.getAnswerText() != null)
+        if (data.getAnswerText() != null && !data.getAnswerText().equals(""))
         {
           return false;
         }
