@@ -101,18 +101,17 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 
     }
     /**
+     * The graderId and dateRecorded properties will be set explicitly by the
+     * grade manager before the database is updated.
 	 * @param courseGrade
 	 * @param studentId
-	 * @param graderId
 	 * @param grade
 	 */
-	public CourseGradeRecord(CourseGrade courseGrade, String studentId, String graderId, String grade) {
+	public CourseGradeRecord(CourseGrade courseGrade, String studentId, String grade) {
         this.gradableObject = courseGrade;
         this.studentId = studentId;
-        this.graderId = graderId;
         this.enteredGrade = grade;
         this.sortGrade = courseGrade.getGradebook().getSelectedGradeMapping().getValue(grade);
-        this.dateRecorded = new Date();
 	}
 
     /**

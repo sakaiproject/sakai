@@ -298,16 +298,20 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
+                Date now = new Date();
+                String graderId = FacadeUtils.getUserUid(authn);
                 String grHql = "from AssignmentGradeRecord as agr where agr.gradableObject=? and agr.studentId=?";
                 List list = session.find(grHql, new Object[] {asn, studentId},
                         new Type[] {Hibernate.entity(GradableObject.class), Hibernate.STRING});
                 if(list.size() == 0) {
-                    AssignmentGradeRecord agr = new AssignmentGradeRecord(asn, studentId, FacadeUtils.getUserUid(authn), points);
+                    AssignmentGradeRecord agr = new AssignmentGradeRecord(asn, studentId, points);
+                    agr.setDateRecorded(now);
+                    agr.setGraderId(graderId);
                     session.save(agr);
                 } else {
                     AssignmentGradeRecord agr = (AssignmentGradeRecord)list.get(0);
-                    agr.setDateRecorded(new Date());
-                    agr.setGraderId(FacadeUtils.getUserUid(authn));
+                    agr.setDateRecorded(now);
+                    agr.setGraderId(graderId);
                     agr.setPointsEarned(points);
                     session.update(agr);
                 }

@@ -69,7 +69,8 @@ public class TestGradeLoader extends GradebookLoaderBase {
                     if(asn.isExternallyMaintained()) {
                         gradebookService.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);
                     } else {
-                        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, enr.getUser().getUserUid(), "testId", grade));
+                    	AssignmentGradeRecord agr = new AssignmentGradeRecord(asn, enr.getUser().getUserUid(), grade);
+                        gradeRecordSet.addGradeRecord(agr);
                     }
                 }
 			}

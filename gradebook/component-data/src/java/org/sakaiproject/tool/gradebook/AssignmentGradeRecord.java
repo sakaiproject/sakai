@@ -39,18 +39,17 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     }
 
     /**
+     * The graderId and dateRecorded properties will be set explicitly by the
+     * grade manager before the database is updated.
 	 * @param assignment The assignment this grade record is associated with
      * @param studentId The student id for whom this grade record belongs
-     * @param graderId The id of the user submitting this grade record
 	 * @param grade The grade, or points earned
 	 */
-	public AssignmentGradeRecord(Assignment assignment, String studentId, String graderId, Double grade) {
+	public AssignmentGradeRecord(Assignment assignment, String studentId, Double grade) {
         super();
         this.gradableObject = assignment;
         this.studentId = studentId;
-        this.graderId = graderId;
         this.pointsEarned = grade;
-        this.dateRecorded = new Date();
 	}
 
     /**

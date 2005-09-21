@@ -75,9 +75,9 @@ public class GradeManagerTest extends GradebookTestBase {
             getAssignmentsWithStats(persistentGradebook.getId(), new HashSet()).get(0);
 
         GradeRecordSet gradeRecordSet = new GradeRecordSet(persistentAssignment);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid1", "teacher1", new Double(18)));
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid2", "teacher1", new Double(19)));
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid3", "teacher1", new Double(20)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid1", new Double(18)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid2", new Double(19)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid3", new Double(20)));
 
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
@@ -181,9 +181,9 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Create a grade record set
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "normalStudent", "testId", new Double(9)));
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "goodStudent", "testId", new Double(10)));
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "excessiveStudent", "testId", new Double(11)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "normalStudent", new Double(9)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "goodStudent", new Double(10)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "excessiveStudent", new Double(11)));
 
         Set excessives = gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
         Assert.assertTrue(excessives.size() == 1);
@@ -223,7 +223,7 @@ public class GradeManagerTest extends GradebookTestBase {
         Assert.assertTrue(!gradeManager.isEnteredAssignmentScores(asgId));
 
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "entered1", "testId", new Double(9)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "entered1", new Double(9)));
 
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
         Assert.assertTrue(gradeManager.isEnteredAssignmentScores(asgId));
@@ -250,7 +250,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Create a map of studentUserUids to grades
         GradeRecordSet gradeRecordSet = new GradeRecordSet(assignment);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(assignment, studentId, "teacherId", new Double(9)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(assignment, studentId, new Double(9)));
 
         // Save the grades
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
@@ -279,9 +279,9 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Create a grade record set
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "realStudent1", "testId", new Double(10)));
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "realStudent2", "testId", new Double(10)));
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "droppedStudent", "testId", new Double(1)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "realStudent1", new Double(10)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "realStudent2", new Double(10)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "droppedStudent", new Double(1)));
 
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 

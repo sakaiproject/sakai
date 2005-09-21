@@ -22,11 +22,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.business.impl;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
@@ -129,6 +125,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
         List assignments = getAssignments(gradebook.getId(), session);
         String graderId = FacadeUtils.getUserUid(authn);
+        Date now = new Date();
         for(Iterator studentIter = studentIds.iterator(); studentIter.hasNext();) {
             String studentId = (String)studentIter.next();
 
@@ -140,7 +137,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             // Find the course grade record, if it exists
             CourseGradeRecord cgr = getCourseGradeRecord(gradebook, studentId, session);
             if(cgr == null) {
-                cgr = new CourseGradeRecord(cg, studentId, graderId, null);
+                cgr = new CourseGradeRecord(cg, studentId, null);
+                cgr.setGraderId(graderId);
+                cgr.setDateRecorded(now);
             }
 
             // Calculate and update the total points and sort grade fields
@@ -185,7 +184,3 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         this.courseManagement = courseManagement;
     }
 }
-
-
-
-

@@ -24,7 +24,7 @@
 
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
 		class="org.sakaiproject.tool.gradebook.facades.test.AuthnTestImpl">
-		<property name="userUid"><value>testId</value></property>
+		<property name="userUid"><value>authid_teacher</value></property>
 	</bean>
 
 </beans>

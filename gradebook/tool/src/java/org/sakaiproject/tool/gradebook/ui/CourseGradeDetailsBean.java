@@ -68,7 +68,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 			if (courseGradeRecord == null) {
 				// Since we're using the domain object to transport UI input, we need
 				// to create it, even if we don't end up storing it in the database.
-				courseGradeRecord = new CourseGradeRecord(courseGrade, enrollment.getUser().getUserUid(), null, null);
+				courseGradeRecord = new CourseGradeRecord(courseGrade, enrollment.getUser().getUserUid(), null);
 				gradeRecordSet.addGradeRecord(courseGradeRecord);
 			}
 		}

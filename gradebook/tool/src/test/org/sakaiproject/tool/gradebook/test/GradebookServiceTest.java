@@ -78,7 +78,7 @@ public class GradebookServiceTest extends GradebookTestBase {
             }
         }
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "student1", "teacher1", new Double(10)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "student1", new Double(10)));
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
         // Make sure this doesn't roll back

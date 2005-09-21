@@ -129,9 +129,9 @@ public class CalculationsTest extends TestCase {
         //CourseGrade cg = gradebook.getCourseGrade();
 
         List studentGradeRecords = new ArrayList();
-        studentGradeRecords.add(new AssignmentGradeRecord(homework1, "studentId", null, new Double(110)));
-        studentGradeRecords.add(new AssignmentGradeRecord(homework2, "studentId", null, new Double(300)));
-        studentGradeRecords.add(new AssignmentGradeRecord(homework3, "studentId", null, new Double(400)));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1, "studentId", new Double(110)));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2, "studentId", new Double(300)));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3, "studentId", new Double(400)));
 
         // The grade records should total 90%
         Double autoCalc = courseGrade.calculateCourseGrade("studentId", assignments, studentGradeRecords);

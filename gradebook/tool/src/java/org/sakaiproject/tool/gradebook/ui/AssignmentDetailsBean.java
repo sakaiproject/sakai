@@ -69,7 +69,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
             Collections.sort(gradingEvents);
             this.enrollment = enrollment;
             if(gradeRecord == null) {
-                this.gradeRecord = new AssignmentGradeRecord(assignment, enrollment.getUser().getUserUid(), null, null);
+                this.gradeRecord = new AssignmentGradeRecord(assignment, enrollment.getUser().getUserUid(), null);
                 scores.addGradeRecord(this.gradeRecord);
             } else {
                 this.gradeRecord = gradeRecord;
