@@ -17,11 +17,6 @@
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
 	</bean>
 
-	<bean id="org_sakaiproject_tool_gradebook_standalone_FrameworkManager"
-		class="org.sakaiproject.tool.gradebook.standalone.impl.FrameworkManagerImpl">
-		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
-	</bean>
-
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
 		class="org.sakaiproject.tool.gradebook.facades.test.AuthnTestImpl">
 		<property name="userUid"><value>authid_teacher</value></property>
