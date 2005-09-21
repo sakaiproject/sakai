@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<!-- this file holds the behavior-helper classes for the standalone version -->
+<bean name="integrationContextFactory"
+    class="org.sakaiproject.integration.context.IntegrationContextFactory"
+    singleton="true">
+   <property name="integrated">
+        <value>false</value>
+   </property>
+
+   <property name="agentHelper">
+     <ref bean="agentHelper"/>
+   </property>
+
+   <property name="authzHelper">
+     <ref bean="authzHelper"/>
+   </property>
+
+   <property name="gradebookHelper">
+     <ref bean="gradebookHelper"/>
+   </property>
+
+   <property name="publishingTargetHelper">
+     <ref bean="publishingTargetHelper"/>
+   </property>
+
+   <property name="gradebookServiceHelper">
+     <ref bean="gradebookServiceHelper"/>
+   </property>
+</bean>
+
+<!-- context-sensitive agent behavior -->
+<bean name="agentHelper"
+     class="org.sakaiproject.integration.helper.standalone.AgentHelper">
+</bean>
+
+<!-- context-sensitive authz behavior -->
+<bean name="authzHelper"
+     class="org.sakaiproject.integration.helper.standalone.AuthzHelper">
+</bean>
+
+<!-- context-sensitive gradebook behavior -->
+<bean name="gradebookHelper"
+     class="org.sakaiproject.integration.helper.standalone.GradebookHelper">
+</bean>
+
+<!-- context-sensitive publishing target behavior -->
+<bean name="publishingTargetHelper"
+     class="org.sakaiproject.integration.helper.standalone.PublishingTargetHelper">
+</bean>
+
+<!-- context-sensitive gradebook service behavior -->
+<bean name="gradebookServiceHelper"
+     class="org.sakaiproject.integration.helper.standalone.GradebookServiceHelper">
+</bean>
+
+
+</beans>
+
+
+
