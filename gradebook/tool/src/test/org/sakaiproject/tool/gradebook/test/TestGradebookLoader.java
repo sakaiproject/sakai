@@ -29,41 +29,21 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
+
+import org.sakaiproject.component.section.support.IntegrationSupport;
+import org.sakaiproject.component.section.support.UserManager;
+
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
- *
+ * Create a Gradebook for each site context in the database.
  */
 public class TestGradebookLoader extends GradebookLoaderBase {
 	private static final Log log = LogFactory.getLog(TestGradebookLoader.class);
-
-    public static final String[] GRADEBOOK_UIDS = {
-			"QA_1",
-
-            "QA_2",
-            "QA_3",
-            "QA_4",
-
-            "QA_5",
-            "QA_6",
-
-            "QA_7",
-            "QA_8",
-    };
-    public static final String[] GRADEBOOK_NAMES = {
-			"QA Gradebook #1 [no students, no assignments, no grades]",
-
-            "QA Gradebook #2 [10 students, no assignments, no grades]",
-            "QA Gradebook #3 [10 students, no assignments, no grades]",
-            "QA Gradebook #4 [10 students, no assignments, no grades]",
-
-            "QA Gradebook #5 [50 students, no assignments, no grades]",
-            "QA Gradebook #6 [50 students, 10 assignments, 500 grades]",
-
-            "QA Gradebook #7 [150 students, no assignments, no grades]",
-            "QA Gradebook #8 [400 students, no assignments, no grades]",
-    };
 
     public static String GRADEBOOK_WITH_GRADES = "QA_6";
 
@@ -72,19 +52,34 @@ public class TestGradebookLoader extends GradebookLoaderBase {
     static String EXTERNAL_ASN_NAME2 = "External Assessment #2";
     static String ASN_NO_DUE_DATE_NAME = "Fl\u00F8ating Assignment (Due Whenever)";
 
+	protected IntegrationSupport integrationSupport;
+	protected UserManager userManager;
+
+	public TestGradebookLoader() {
+    	// Don't roll these tests back, since they are intended to load data
+		setDefaultRollback(false);
+	}
+
+	public IntegrationSupport getIntegrationSupport() {
+		return integrationSupport;
+	}
+	public void setIntegrationSupport(IntegrationSupport integrationSupport) {
+		this.integrationSupport = integrationSupport;
+	}
+
 	public void testLoadGradebooks() throws Exception {
         List gradebooks = new ArrayList();
         List gradebookUids = new ArrayList();
 
         // Create some gradebooks
-        for(int i=0; i<GRADEBOOK_UIDS.length; i++) {
-        	String gradebookUid = GRADEBOOK_UIDS[i];
-        	gradebookService.addGradebook(gradebookUid, GRADEBOOK_NAMES[i]);
+        for(int i = 0; i < StandaloneSectionsDataLoader.SITE_UIDS.length; i++) {
+        	String gradebookUid = StandaloneSectionsDataLoader.SITE_UIDS[i];
+        	gradebookService.addGradebook(gradebookUid, StandaloneSectionsDataLoader.SITE_NAMES[i]);
             gradebookUids.add(gradebookUid);
         }
 
         // Fetch the gradebooks
-        for(int i=0; i < GRADEBOOK_UIDS.length; i++) {
+        for(int i=0; i < StandaloneSectionsDataLoader.SITE_UIDS.length; i++) {
             gradebooks.add(gradebookManager.getGradebook((String)gradebookUids.get(i)));
         }
 

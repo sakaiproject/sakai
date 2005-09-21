@@ -111,6 +111,16 @@
 		<attainGoal name="load-grades" />
 	</goal>
 
+	<goal name="load-sections">
+		<!-- Skip the tests -->
+		<j:set var="maven.test.skip" value="true" />
+		<!-- Don't use the in-memory DB usually used for tests, since it wouldn't work anyway. -->
+		<j:set var="mem" value="false" />
+
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.StandaloneSectionsDataLoader" />
+		<attainGoal name="test:single" />
+	</goal>
+
 	<goal name="load-gradebook-data">
 		<!-- Skip the tests -->
 		<j:set var="maven.test.skip" value="true" />

@@ -34,9 +34,21 @@ public abstract class GradebookLoaderBase extends GradebookTestBase {
 	private static Log log = LogFactory.getLog(GradebookLoaderBase.class);
 
     protected String[] getConfigLocations() {
-    	String facadesSuffix = System.getProperty("facades", "");
-
-        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-facades" + facadesSuffix + ".xml", "spring-service.xml", "spring-beans-test.xml", "spring-hib-test.xml"};
+        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-facades-sections.xml", "spring-service.xml", "spring-hib.xml",
+        	"spring-beans-test.xml",
+        	"spring-hib-test.xml",
+        	/* SectionAwareness integration support. */
+        	"classpath*:org/sakaiproject/component/section/support/spring-integrationSupport.xml",
+			/*
+				We could just go with
+					"classpath*:org/sakaiproject/component/section/spring-*.xml"
+				except that for now we need to strip away a transactionManager defined
+				in section/spring-hib.xml.
+			*/
+			"classpath*:org/sakaiproject/component/section/spring-beans.xml",
+			"classpath*:org/sakaiproject/component/section/spring-sectionAwareness.xml",
+			"classpath*:org/sakaiproject/component/section/spring-services.xml",
+        };
         return configLocations;
     }
 }

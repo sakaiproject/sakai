@@ -8,6 +8,7 @@
 	-->
 
 	<!-- This bean definition should ideally be included from the component JAR instead. -->
+<!--
 	<bean id="org.sakaiproject.api.section.SectionAwareness"
 		class="org.sakaiproject.component.section.SectionAwarenessHibernateImpl">
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
@@ -23,6 +24,7 @@
 			</bean>
 		</property>
 	</bean>
+-->
 
 	<!-- External Course Management Service -->
 
@@ -56,6 +58,11 @@
 		class="org.sakaiproject.tool.gradebook.facades.standalone.ContextManagementStandaloneImpl">
 	</bean>
 
-	<!-- No Framework Manager for SectionAwareness integration -->
+	<!-- Framework Manager when running standalone -->
+	<bean id="org_sakaiproject_tool_gradebook_standalone_FrameworkManager"
+		class="org.sakaiproject.tool.gradebook.facades.sections.FrameworkManagerSectionsImpl">
+		<property name="integrationSupport"><ref bean="org.sakaiproject.component.section.support.IntegrationSupport"/></property>
+		<property name="gradebookManager"><ref bean="org_sakaiproject_tool_gradebook_business_GradebookManager"/></property>
+	</bean>
 
 </beans>

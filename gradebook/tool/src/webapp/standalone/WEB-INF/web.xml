@@ -11,9 +11,11 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
+			classpath*:org/sakaiproject/component/section/support/spring-integrationSupport.xml
+			classpath*:org/sakaiproject/component/section/spring-*.xml
 			/WEB-INF/spring-beans.xml
 			/WEB-INF/spring-db.xml
-			/WEB-INF/spring-facades.xml
+			/WEB-INF/spring-facades-sections.xml
 			/WEB-INF/spring-hib.xml
 			/WEB-INF/spring-service.xml
 		</param-value>
@@ -21,7 +23,7 @@
 		<param-value>
 			/WEB-INF/spring-beans.xml
 			/WEB-INF/spring-db.xml
-			/WEB-INF/spring-facades-sections.xml
+			/WEB-INF/spring-facades.xml
 			/WEB-INF/spring-hib.xml
 			/WEB-INF/spring-service.xml
 		</param-value>
