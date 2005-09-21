@@ -23,15 +23,14 @@
 
 package org.sakaiproject.tool.gradebook.facades.sections;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
+
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 
 /**
@@ -59,7 +58,7 @@ public class CourseManagementSectionsImpl extends AbstractSectionsImpl implement
 	}
 
     public Set findEnrollmentsByStudentNameOrDisplayUid(String gradebookUid, String studentPattern) {
-    	List participationRecords = getSectionAwareness().findSiteMembersInRole(gradebookUid, Role.STUDENT, studentPattern);
+		List participationRecords = getSectionAwareness().findSiteMembersInRole(gradebookUid, Role.STUDENT, studentPattern);
 		return convertParticipationRecordListToEnrollmentSet(participationRecords);
 	}
 }

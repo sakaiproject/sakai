@@ -34,7 +34,7 @@ public abstract class GradebookLoaderBase extends GradebookTestBase {
 	private static Log log = LogFactory.getLog(GradebookLoaderBase.class);
 
     protected String[] getConfigLocations() {
-        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-facades-sections.xml", "spring-service.xml", "spring-hib.xml",
+        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-facades.xml", "spring-service.xml", "spring-hib.xml",
         	"spring-beans-test.xml",
         	"spring-hib-test.xml",
         	/* SectionAwareness integration support. */

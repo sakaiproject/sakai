@@ -56,9 +56,7 @@ public class GradebookServiceTest extends GradebookTestBase {
      */
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-    }
 
-    public void testCreateGradebook() throws Exception {
         // Use this test class name as the ID for the gradebook
         String className = this.getClass().getName();
         gradebookService.addGradebook(className, className);
@@ -80,9 +78,6 @@ public class GradebookServiceTest extends GradebookTestBase {
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
         gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "student1", new Double(10)));
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
-
-        // Make sure this doesn't roll back
-        setComplete();
     }
 
     /**

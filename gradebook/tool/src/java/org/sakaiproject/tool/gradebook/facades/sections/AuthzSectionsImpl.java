@@ -40,19 +40,21 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 	 * @see org.sakaiproject.tool.gradebook.facades.Authz#getGradebookRole(java.lang.String, java.lang.String)
 	 */
 	public Role getGradebookRole(final String gradebookUid, final String userUid) {
+		Role role;
+
 		// TODO Either re-do Gradebook logic to more efficiently deal with lack of a Role object, or
 		// request that SectionAwareness add a "getRole(context, user)" method.
 
 		if (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, org.sakaiproject.api.section.facade.Role.INSTRUCTOR)) {
-			return Role.INSTRUCTOR;
+			role = Role.INSTRUCTOR;
 		} else if (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, org.sakaiproject.api.section.facade.Role.STUDENT)) {
-			return Role.STUDENT;
+			role = Role.STUDENT;
 		} else {
 			// No TAs yet.
-			return Role.NONE;
+			role = Role.NONE;
 		}
+		return role;
 	}
-
 }
 
 

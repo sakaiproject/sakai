@@ -424,13 +424,6 @@
 					<includes>
 						<include>spring-db.xml</include>
 						<include>spring-facades.xml</include>
-						<!--
-							The current unit tests aren't set up to play
-							nicely with integration testing, since we need some
-							way to create new courses, users, and enrollments.
-							TODO Figure out some approach to integration testing.
-						-->
-						<include>spring-facades-sections.xml</include>
 						<include>spring-service.xml</include>
 					</includes>
 				</resource>

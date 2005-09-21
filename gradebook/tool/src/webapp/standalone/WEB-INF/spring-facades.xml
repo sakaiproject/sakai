@@ -7,17 +7,36 @@
 		This Spring configuration file specifies a standalone implementation of the facades.
 	-->
 
+	<!-- This bean definition should ideally be included from the component JAR instead. -->
+<!--
+	<bean id="org.sakaiproject.api.section.SectionAwareness"
+		class="org.sakaiproject.component.section.SectionAwarenessHibernateImpl">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+		<property name="sectionCategoryList">
+			<bean id="org.sakaiproject.component.section.CategoryListImpl" class="org.sakaiproject.component.section.CategoryListImpl">
+				<property name="categoryIds">
+					<list>
+						<value>section.category.lecture</value>
+						<value>section.category.discussion</value>
+						<value>section.category.lab</value>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+-->
+
 	<!-- External Course Management Service -->
 
 	<bean id="org_sakaiproject_tool_gradebook_facades_CourseManagement"
-		class="org.sakaiproject.tool.gradebook.facades.standalone.CourseManagementStandaloneImpl">
-		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+		class="org.sakaiproject.tool.gradebook.facades.sections.CourseManagementSectionsImpl">
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
 	</bean>
 
 	<!-- External User Directory Service -->
 
 	<bean id="org_sakaiproject_tool_gradebook_facades_UserDirectoryService"
-		class="org.sakaiproject.tool.gradebook.facades.standalone.UserDirectoryServiceStandaloneImpl">
+		class="org.sakaiproject.tool.gradebook.facades.sections.UserDirectoryServiceStandaloneSectionsImpl">
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
 	</bean>
 
@@ -30,25 +49,20 @@
 	<!-- External Authz Service -->
 
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
-		class="org.sakaiproject.tool.gradebook.facades.standalone.AuthzHibernateImpl">
-
-		<!-- This makes the test user an instructor in the test implementation -->
-		<!-- The AuthzTest class depends on this value -->
-		<!-- Remove this property once a "real" implementation is available -->
-		<!-- property name="instructor"><value>true</value></property -->
-		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+		class="org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl">
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
 	</bean>
 
 	<!-- External ContextManagement Service -->
-
 	<bean id="org_sakaiproject_tool_gradebook_facades_ContextManagement"
 		class="org.sakaiproject.tool.gradebook.facades.standalone.ContextManagementStandaloneImpl">
 	</bean>
 
 	<!-- Framework Manager when running standalone -->
 	<bean id="org_sakaiproject_tool_gradebook_standalone_FrameworkManager"
-		class="org.sakaiproject.tool.gradebook.standalone.impl.FrameworkManagerImpl">
-		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+		class="org.sakaiproject.tool.gradebook.facades.sections.FrameworkManagerSectionsImpl">
+		<property name="integrationSupport"><ref bean="org.sakaiproject.component.section.support.IntegrationSupport"/></property>
+		<property name="gradebookManager"><ref bean="org_sakaiproject_tool_gradebook_business_GradebookManager"/></property>
 	</bean>
 
 </beans>
