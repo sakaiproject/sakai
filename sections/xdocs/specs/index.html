@@ -53,12 +53,11 @@ p.draft {
 <div id="page">
 <img width="200" height="115" src="images/spec_clip_image002.jpg">
 <p class="draft">&nbsp;</p>
-<h3>User and Sectioning Tool Project Statement and Functional Requirements</h3>
+<h3>Section Info Tool: Project Statement, Functional Requirements and Specification </h3>
 <h3><strong> (DRAFT -- SUBJECT TO EXTENSIVE REVISION. )</strong></h3>
-<p><a name="home"></a><a href="#def">Definitions</a>| <a href="#scope">Scope statement</a>| <a href="#out">Out of scope</a>| <a href="#dep">Dependencies</a>| <a href="#roles">Roles</a>| <a href="#reqs">Functional Requirements</a></p>
+<p><a name="home"></a><a href="#def">Definitions</a>| <a href="#scope">Scope statement</a>| <a href="#out">Out of scope</a>| <a href="#dep">Dependencies</a>| <a href="#roles">Roles</a>| <a href="#reqs">Functional Requirements</a> |<a href="#specs">Specification with Wireframes</a></p>
 <h3>I. Definitions<a name="def"></a></h3>
-Because a user and group/section management tool is related to a wide range of administrative functionality and reliant on multiple framework services, there is significant room for misinterpretation and misunderstanding of key concepts. To help reduce potential confusion, the  following terms and definitions should be kept in mind while reading this document:
-<p>&nbsp;</p>
+Because a section management tool is related to a wide range of administrative functionality and reliant on multiple framework services, there is significant room for misinterpretation and misunderstanding of key concepts. To help reduce potential confusion, the  following terms and definitions should be kept in mind while reading this document:
 <p><strong>Courses</strong></p>
 <ul>
   <li><strong>Course</strong> -- An instance of a canonical course, e.g., Math 16B Fall 2005 and the associated roster of students, instructors and section leaders. Class might be a more precise and distinctive term, but course seems to have wider usage in this context. Course is also preferred to the more general &quot;worksite&quot; here, although they should be considered equivalent to each other for purposes of this document.<br />
@@ -69,8 +68,7 @@ Because a user and group/section management tool is related to a wide range of a
       <li><strong>Externally defined, externally controlled formal sections</strong> -- Section metadata and memberships  are defined and maintained in enterprise systems outside of Sakai.</li>
       <li><strong>Externally initialized, internally manged and negotiated formal sections</strong> -- Section metadata and memberships are defined wholly or in part in enterprise systems outside of Sakai, but can be managed and modified inside of Sakai [This type will <strong>not be supported</strong> in 2.1] </li>
       <li><strong>Internally defined, internally controlled formal sections</strong> -- Section metadata and memberships are defined and managed in Sakai, but are usually aligned in some respects with &quot;official&quot; sections, e.g., the meeting location.</li>
-      <li><strong>Internally defined, internally controlled informal sections</strong> -- An ad hoc <strong>group</strong> or subset of students in a course. This group may have one of a variety of functions: study groups, project team, etc. The group may or may not have a section leader. [This type will <strong>not be directly supported</strong> in the sectioning tool. However, the boundary between a formal and informal Internally defined, internally controlled section is largely related to workflow. In other words, the ability to create formal sections should allow many instructors to meet their needs for ad hoc groups.] <br />
-      </li>
+      <li><strong>Internally defined, internally controlled informal sections</strong> -- An ad hoc <strong>group</strong> or subset of students in a course. This group may have one of a variety of functions: study groups, project team, etc. The group may or may not have a section leader. [This type will <strong>not be directly supported</strong> in the sectioning tool. However, the boundary between a formal and informal Internally defined, internally controlled section is largely related to workflow. In other words, the ability to create formal sections should allow many instructors to meet their needs for ad hoc groups.]      </li>
     </ol>
   </li>
   </ul>
@@ -78,28 +76,30 @@ Because a user and group/section management tool is related to a wide range of a
 <ul>
   <li><strong>Section awareness</strong> -- Essentially, the ability to restrict or expand selectively what the members of a section, in terms of their roles, can do within the context of a course site. Role permissions vis a vis sections might be defined at the system level.<br />
   </li>
-  <li><strong>Hierarchy</strong> -- A term that came to  cover what has subsequently been broken out into the services that support, among other things, section management and awareness, and, by extension, came to represent sectioning itself. <br />
+  <li><strong>Hierarchy</strong> -- A term that came to  cover, in Sakai parlance, what has subsequently been broken out into the services that support, among other things, section management and awareness, and, by extension, came to represent sectioning itself. <br />
   </li>
   <li><strong>SuperStructure</strong> -- 
 
 
  The new Sakai common services that support site hierarchies, context, and authorization across the framework.<br />
   </li>
-  <li><strong>AuthZ</strong> -- Controls who can do what where. For example, Sarah is the Section Leader for sections 1 and 3. Sarah can view and grade only the students in her sections. Superstructure,  by providing the who and where,  helps enable these controls.<br />
+  <li><strong>AuthZ</strong> -- Controls who can do what where. For example, Sarah is the Section Leader for sections 1 and 3. Sarah can view and grade only the students in her sections. Superstructure,  by also providing the who and where,  helps enable these controls.<br />
   </li>
-  <li><strong>Course Management API</strong> -- Provides the course data -- name, course id, course roster, section names, section leaders, students in a section etc. -- to the various Sakai tools that use that information. This information can be entered  into the system manually or it can be transferred into the system from other enterprise applications. How Course Management works with AuthZ and Superstructure  is an open question.</li>
+  <li><strong>CourseManagementProvider</strong> -- The standard Sakai interface for consuming enterprise course data. The current provider does not support course hierarchies, that is, it has no notion of Sections. <br />
+  </li>
+  <li><strong>Course Management API</strong> -- Provides the course data -- name, course id, course roster, section names, section leaders, students in a section etc. -- to the various Sakai tools that use that information. This information can be entered  into the system manually or it can be transferred into the system from other enterprise applications through customized solutions, e.g., Web Services. The current CourseManagementProvider does not support section data. How Course Management works with AuthZ and Superstructure  is an open question.</li>
 </ul>
-<p><a href="#home">Back</a></p>
+<p><a href="#home">Back to top</a></p>
 <h3>II. Scope statement<a name="scope"></a></h3>
 <p>The primary deliverable for this subproject is a a new Sakai administrative tool that allows authorized users to create course sections/groups and/or manage section/group metadata and memberships. The tool will be available to authorized users for each course site from the standard toolbar.  Tool design, development, integration and final QA will be completed by 10/29/05.</p>
-<p><a href="#home">Back</a></p>
+<p><a href="#home">Back to top</a></p>
 <h3>III. Out of scope<a name="out" id="out"></a></h3>
 <p>The sectioning tool represents a fundamental shift in Sakai's administrative capabilities. The introduction of sectioning into the overall Sakai administrative workflow is a major change to the application that should entail a review and redesign of the administrative tools in My Workspace and Admin Workspace in addition to any changes made at the course site level within Site Info. Instead, the twin constraints of time and resources demand that the subproject keep the outside impact of the new tool to a minimum.</p>
 <ol>
   <li>Any required changes to  administrative areas outside of the existing functionality within the Site Info area that is subsumed by the new sectioning tool are out of scope. Resources outside of the subproject team must be allocated to fully identify any impacts and to do the contingent design and development work. See dependencies.</li>
   <li>The incorporation of &quot;section awareness&quot; in other Sakai Tools is out of scope. Resources outside of the subproject must be allocated to do any design and development. See dependencies.</li>
 </ol>
-<p><a href="#home">Back</a></p>
+<p><a href="#home">Back to top</a></p>
 <h3><strong>IV. Dependencies<a name="dep"></a></strong></h3>
 <p>1. In order to complete the sectioning tool by the October delivery date, the following framework services should be implemented, integrated and tested at a point early enough for the developers to build the tool on those services. Schedule TBD. This work must be closely coordinated with the subproject's technical lead. </p>
 <ul>
@@ -116,18 +116,16 @@ Because a user and group/section management tool is related to a wide range of a
 <p>UI elements and other code developed for the sectioning tool should be re-usable for other section aware tools.</p>
 <p>3. There must be a new OOTB generic Sakai role that parallels Maintain and Access, but which is scoped at the section level. Without it, OOTB pieces of Sectioning Tool functionality will be rendered superfluous. Put another way, without this new generic role, anyone who deploys Sakai would first have to create a role for managing sections before using the Sectioning Tool OOTB in a fully meaningful way. Please see Section V below. </p>
 <p>4. Any other required changes to My Workspace and Admin workspace. TBD.</p>
-<p><a href="#home">Back</a></p>
+<p><a href="#home">Back to top</a></p>
 <h3>V. Roles <a name="roles" id="roles"></a></h3>
 <p>Three roles will be supported :</p>
 <ul>
   <li><strong>Instructor</strong> -- Usually a professor, lecturer or teaching assistant who is a member of a course and who has fulll administrative control of the course site and sections/groups. S/he has access to all sections/groups.<br />
   </li>
-  <li><strong>Section Manager</strong> -- A teaching assistant, graduate student instructor or faculty member with limited administrative access to and control of sections within the section aware tools. Within the Sectioning Tool itself, the Section Managers will be able to:
-    <ul>
-      <li> edit section metadata (except for section category) for  their sections</li>
-      <li> view and manage student memberships in all sections<br />
+  <li><strong>Teaching Assistant (TA) </strong> -- A graduate student instructor or faculty member with limited administrative access to and control of sections within the section aware tools. Within the Section Info itself, the TAs will be able to:<ul><li> View section metadata for all sections</li>
+      <li>View and manage student memberships in all sections<br />
       </li>
-      </ul>
+  </ul>
   </li>
   <li><strong>Student</strong> -- A member of a course and possibly of a section(s) and/or group, but not in an administrative or instructional capacity for sections. Within the Sectioning Tool itself, the Students will be able to:
     <ul>
@@ -136,74 +134,287 @@ Because a user and group/section management tool is related to a wide range of a
     </ul>
   </li>
   </ul>
-<p><a href="#home">Back</a></p>
+<p><a href="#home">Back to top</a></p>
 <h3>VI. Functional Requirements<a name="reqs"></a></h3>
-<p><strong>A. Instructors </strong>can perform all the following actions, <strong> Section Managers </strong>a limited number of them. </p>
-<p>1.<u>Creating and editing sections and section types</u> </p>
+<h4>Without Enterprise Section Data<strong>/Manual Section Creation</strong></h4>
+<p><strong>A. Instructor Requirements</strong>. The numbered sections correspond to Instructor views in the Section Info Tool.</p>
+<ol type="1">
+  <li><a href="#INoverview">Overview</a><a name="FuncOver" id="FuncOver"></a>    
+      <ol type="a">
+        <li>View and sort on a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, section category).</li>
+        <li>Open views to edit section properties, assign TAs and assign students for each individual section. See VI.? - VI.?.</li>
+      </ol>
+  </li>
+  <li type="1"><a href="#INAddSections">Add Sections</a><a name="FuncAddSect" id="FuncAddSect"></a>
 <ol type="a">
-  <li>Instructors can create a new section type (e.g., discussion, lab, project)</li>
-  <li>Instructors can create new sections for a course and specify the type (e.g., discussion, lab, project) and the number of sections of a particular type to be created.</li>
-  <li>Instructors can give a name to a section that is either its type in a sequence or is different from its type</li>
-  <li>Instructors can set the locations and times of section meetings, and set the maximum number of students in a section.</li>
-  <li>Instructors can edit the locations and times of meetings, and  the maximum number of students in a section.</li>
-  <li>Section Managers can edit the locations and times of meetings, and the maximum number of students in their assigned sections</li>
-  <li>Instructors can disband sections. </li>
-</ol>
-<p>2. <u>Managing memberships</u></p>
-<ol type="a">
-  <li>Instructors can assign zero or more section leaders to one or more sections by selecting from current members of the course in the Section Manager role.</li>
-  <li>Instructors and Section Managers can add one or more student(s) to one or more section categories by selecting from current members of the course in the student role.</li>
-  <li>Instructors can re-assign one or more section leaders to sections</li>
-  <li>Instructors can remove one or more section leaders from sections</li>
-  <li>Instructors and Section Managers can switch one or more students among sections</li>
-  <li>Instructors and Section Managers can remove one or more student(s) from sections</li>
-  <li>Instructors can authorize students to sign up for and/or switch among all sections</li>
-  <li>Instructors and Section Managers can add students to a section in a batch.</li>
+  <li type="a">Create new sections for a course and specify the category (e.g., discussion, lab, project) and the number of sections of a particular category to be created.</li>
+      <li type="a">Give a distinct title  to  each section in a category. By default the section titles are the category names, with each section uniquely identified by a number in a sequence that ends with the total number of sections created within a category (lab 1, lab 2, lab 3 . . . lab 21). </li>
+      <li type="a">Set the locations and times of section meetings, and set the maximum number of students in a section.</li>
+      </ol>
+  </li>
+  <li><a href="#InRoster">Roster</a><a name="FuncRoster" id="FuncRoster"></a>
+    <ol type="a">
+      <li> View and sort on student name, IDs, section(s), enrollment status columns.</li>
+      <li>Filter  by student name or id.</li>
+      <li>Set the number of students to view per page.</li>
+      <li>Page through all students based on the number of students to view per page.</li>
+      </ol>
+  </li>
+  <li><a href="#InOptions">Options</a><a name="FuncOptions" id="FuncOptions"></a>
+    <ol type="a">
+      <li>Authorize students to sign up for and/or switch among all sections.<br />
+      </li>
+      </ol>
+  </li>
+  <li><a href="#INEditSectionProperties">Edit Section Properties</a><a name="FuncEditSectProp" id="FuncEditSectProp"></a>    <ol type="a">
+      <li>Edit the locations and times of meetings, and  the maximum number of students in a section.</li>
+      <li>Disband sections.<br />
+      </li>
+    </ol>
+  </li>
+  <li><a href="#INAssignTeachingAssistants">Assign Teaching Assistants</a><a name="funcAssignTAs" id="funcAssignTAs"></a>
+      <ol type="a">
+        <li>Assign, re-assign zero or more TAs to one  section at a time by selecting from current members of the course in the TA role. A TA may be unassigned to any section. </li>
+      </ol>
+  </li>
+  <li><a href="#InAssignStudents">Assign Students</a><a name="FuncAssignStud" id="FuncAssignStud"></a> 
+    <ol type="a">
+      <li>Assign, re-assign one or more student(s) to one section at a time by selecting from current members of the course in the student role. A student may be added to no more than one section within any section category. A student may be unassigned to any sections. </li>
+      </ol>
+    <br />
+    <strong>B. TA Requirements</strong>. The numbered sections correspond to TA views in the Section Info Tool.</li>
   </ol>
-<p>3. <u>Managing permissions</u></p>
-<ol type="a">
-  <li>Permissions are mapped to known roles for all of the 2.1 section aware tools, including the Sectioning Tool. </li>
+<ol type="1">
+  <li><a href="#TAOverview">Overview</a><a name="FuncTAOverview" id="FuncTAOverview"></a>
+      <ol type="a">
+        <li>View and sort on a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, section category).</li>
+        <li>Open views to assign students for each individual section. See VI.? - VI.?.</li>
+      </ol>
+  </li>
+  <li><a href="#TARoster">Roster</a><a name="TAfuncRoster" id="TAfuncRoster"></a>
+      <ol type="a">
+        <li> View and sort on student name, IDs, section(s), enrollment status columns.</li>
+        <li>Filter by student name or id.</li>
+        <li>Set the number of students to view per page.</li>
+        <li>Page through all students based on the number of students to view per page.</li>
+      </ol>
+    </li>
+  <li><a href="#TAAssignStudents">Assign Students</a><a name="TAfuncAssignStud" id="TAfuncAssignStud"></a>
+      <ol type="a">
+        <li>Assign, re-assign one or more student(s) to one section at a time by selecting from current members of the course in the student role. A student may be added to no more than one section within any section category. A student may be unassigned to any sections. </li>
+      </ol>
+  </li>
+  <li><a href="#TAoptions">Options</a><a name="TAfuncOptions" id="TAfuncOptions"></a>
+    <ol type="a">
+      <li>View student authorizations to sign up for and/or switch among all sections.</li>
+    </ol>
+  </li>
 </ol>
-<p>4. <u>Viewing and manipulating section data </u></p>
-<ol type="a">
-  <li>Authorized users can view a list of per-section specific info (days, time, assigned section manager, room, current enrollment, available slots, max enrollment, section category) and sort by the information columns.</li>
-  </ol>
-<p><strong>B. Student Requirements</strong></p>
-<p>Note: Ben added &quot;Student creates a new group&quot; to the use case goals. This begs the question &quot;When does a student join the ranks of the 'Authorized Users' above? which of the above functional requirements are transferable?&quot; I have left this use case out for the time being. </p>
-<p>1. <u>Viewing and manipulating section data </u></p>
-<ol type="a">
-      <li>Students can view a list of per-section specific info (days, time, assigned section manager, room, current enrollment, available slots, max enrollment, 
+<p><strong>C. Student Requirements. </strong>The numbered sections correspond to Student views in the Section Info Tool.</p>
+<ol type="1">
+  <li><a href="#StudSections">Sections</a><a name="StudFuncSections" id="StudFuncSections"></a>
+    <ol type="a">
+      <li>Students can view a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, 
+          
 
-
- whether they are member or not,
-
+           whether they are member or not,
+          
 etc.) and sort by the information columns.</li>
-</ol>
-  
-
-<p>2. <u>Managing memberships</u></p>
-<ol type="a">
-  <li>Authorized students can join and /or switch among all or selected sections. </li>
+      <li>Authorized students can join and /or switch among all or selected sections. </li>
+    </ol>
+  </li>
   </ol>
-<p><strong>C. Sakai Requirements</strong></p>
-<p><strong>Note: “ </strong>Sakai ” here is defined as the combination of services - course management, superstructure, authorization - and application specific business logic that will enable the system to automate and control section-related administrative tasks. </p>
-<p>1.<u>Creating and editing sections and section types</u> </p>
-<ol type="a">
-  <li>Sakai can create one or more types of sections based on course management data</li>
-  <li>Sakai can bar the disbanding of any section officially defined through an  enterprise system outside Sakai</li>
+<p><strong>D. Sakai Requirements. </strong>
+  </p>
+<ol>
+  <li><a href="#SakManagingmemberships">Managing memberships</a><a name="SakFuncmangingMemberships" id="SakFuncmangingMemberships"></a>
+      <ol type="a">
+        <li>Provide a list of all students associated with a site </li>
+        <li>Provide a list of all TA's associated with a site</li>
+        <li>Prohibit any student from membership in more than one section per section category within a course </li>
+      </ol>
+  </li>
+</ol>
+<p>&nbsp;</p>
+<h4>With Enterprise Section Data<strong>/</strong>Automated Section Creation </h4>
+<p>[IMPORANT NOTE: The services and modifications to other administrative tools necessary to support enterprise section data will not be in place for the fall 2005 2.1 delivery. The section tool UI, however, will still support the views on enterprise managed sections as defined by the below requirements.]</p>
+<p><strong>E. Instructor Requirements</strong>. The numbered sections correspond to Instructor views in the Section Info Tool.</p>
+<ol type="1">
+  <li><a href="#EntINOverview">Overview</a><a name="EntFuncOverview" id="EntFuncOverview"></a>
+      <ol type="a">
+        <li>View and sort on a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, section category).</li>
+        <li>Open view to assign TAs</li>
+      </ol>
+  </li>
+  <li><a href="#EntINRoster">Roster</a><a name="EntFuncRoster" id="EntFuncRoster"></a>
+      <ol type="a">
+        <li> View and sort on student name, IDs, section(s), enrollment status columns.</li>
+        <li>Filter by student name or id.</li>
+        <li>Set the number of students to view per page.</li>
+        <li>Page through all students based on the number of students to view per page.</li>
+      </ol>
+    </li>
+  <li><a href="#EntINAssignTeachingAssistants">Assign Teaching Assistants</a><a name="EntFuncAssignTAs" id="EntFuncAssignTAs"></a>
+    <ol type="a">
+      <li>Assign, re-assign zero or more TAs to one section at a time by selecting from current members of the course in the TA role. A TA may be unassigned to any section.          <br />
+        </li>
+    </ol>
+ </ol>
+  <p><strong>F. TA Requirements</strong>. The numbered sections correspond to TA views in the Section Info Tool.</p>
+  <ol type="1">
+    <li><a href="#EntTAOverview">Overview</a><a name="EntTAFuncOver" id="EntTAFuncOver"></a>
+        <ol type="a">
+          <li>View and sort on a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, section category).</li>
+        </ol>
+    </li>
+    <li><a href="#EntTARoster">Roster</a><a name="EntTAFuncRoster" id="EntTAFuncRoster"></a>
+        <ol type="a">
+          <li> View and sort on student name, IDs, section(s), enrollment status columns.</li>
+          <li>Filter by student name or id.</li>
+          <li>Set the number of students to view per page.</li>
+          <li>Page through all students based on the number of students to view per page.</li>
+        </ol>
+    </li>
   </ol>
-<p>2. <u>Managing memberships</u></p>
-<ol type="a">
-  <li>Sakai can associate enterprise defined students in a course with their sections </li>
-  <li> Sakai can associate enterprise defined Section Managers in a course with their sections </li>
-  <li>Sakai can bar or restrict the membership management of sections officially defined  through an  enterprise system outside Sakai</li>
-  <li>Sakai will permit students to be members of only one section per section category in a course </li>
+  <p><strong>G. Student Requirements. </strong>The numbered sections correspond to Student views in the Section Info Tool.</p>
+  <ol type="1">
+  <li><a href="#EntStudSections">Sections</a><a name="EntStudFuncSect" id="EntStudFuncSect"></a>
+      <ol type="a">
+        <li>Students can view a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, whether they are member or not, etc.) and sort by the information columns.</li>
+      </ol>
+  </li>
 </ol>
-<p>3. <u>Managing permissions</u></p>
-<ol type="a">
-  <li>Permissions are mapped to known roles for all of the 2.1 section aware tools, including the Sectioning Tool.</li>
+<p><strong>H. Sakai Requirements</strong></p>
+<p><strong>Note: </strong>Sakai  here is defined as the combination of services - course management, superstructure, authorization - and application specific business logic that will enable the system to automate and control section-related administrative tasks. The staus of explicit OOTB support for this functionality is uncertain at this time. </p>
+<ol>
+  <li><a href="#EntSAKCreatingandeditingsectionsandsectiontypes">Creating and editing sections and section types</a><a name="EntSakfuncCreate" id="EntSakfuncCreate"></a> 
+    <ol type="a">
+      <li>Create one or more types of sections based on course management data</li>
+      <li>Prohibit the disbanding of any section officially defined through an  enterprise system outside Sakai<br />
+      </li>
+    </ol>
+  </li>
+  <li><a href="#EntSAKManagingmemberships">Managing memberships</a><a name="EntSakFuncManage" id="EntSakFuncManage"></a>
+    <ol type="a">
+      <li>Associate enterprise defined students in a course with their sections</li>
+      <li> Associate enterprise defined TAs in a course with their sections</li>
+      <li>Provide a list of all TA's associated with a site</li>
+      <li>Prohibit or restrict the membership management of sections officially defined  through an  enterprise system outside Sakai</li>
+      </ol>
+  </li>
+  </ol>
+<p><a href="#home">Back to top</a></p>
+<h3>VI. Specification with Wireframes <a name="specs" id="specs"></a></h3>
+<h4>Without Enterprise Section Data<strong>/Manual Section Creation</strong></h4>
+<p><strong>A. Instructor Requirements</strong>.</p>
+<ol type="1">
+  <li><u><a href="#FuncOver">Overview</a><a name="INoverview" id="overview"></a><br />
+    <br />
+    <img src="images/OverviewInst.jpg" width="574" height="584" />      </u></li>
+  <li type="1"><u><a href="#FuncAddSect">Add Sections</a><a name="INAddSections" id="AddSections"></a><br />
+    <br />
+    <img src="images/AddSections.jpg" width="568" height="612" />  </u></li>
+  <li><u><a href="#FuncRoster">Roster</a><a name="InRoster" id="InRoster"></a><br />
+    <br />
+    <img src="images/Roster.jpg" width="567" height="364" />  </u></li>
+  <li><a href="#FuncOptions">Options</a><a name="InOptions" id="InOptions"></a><br />
+    <br />
+    <img src="images/InOptions.jpg" width="580" height="205" /> </li>
+  <li><a href="#FuncEditSectProp">Edit Section Properties</a><a name="INEditSectionProperties" id="INEditSectionProperties"></a> <br />
+    <br />
+    <img src="images/EditSection.jpg" width="568" height="346" />  </li>
+  <li><u><a href="#funcAssignTAs">Assign Teaching Assistants</a><a name="INAssignTeachingAssistants" id="INAssignTeachingAssistants"></a><br />
+    <br />
+    <img src="images/AssignTA.jpg" width="568" height="487" />  </u></li>
+  <li><u><a href="#FuncAssignStud">Assign Students</a><a name="InAssignStudents" id="InAssignStudents"></a></u><br />
+    <br />
+    <br />
+    <img src="images/AssignStudents.jpg" width="570" height="486" />
 </ol>
-<p><a href="#home">Back</a></p>
+<p></p><strong>B. TA Requirements</strong>. 
+<ol type="1">
+  <li><u><a href="#FuncTAOverview">Overview</a><a name="TAOverview" id="TAOverview"></a><br />
+    <br />
+    <img src="images/OverviewTA.jpg" width="602" height="526" /> <br />
+    <br />
+  </u></li>
+  <li><u><a href="#TAfuncRoster">Roster</a><a name="TARoster" id="TARoster"></a><br />
+    <br />
+     </u>Please see <a href="#InRoster">Section VI.A.3</a> for specification details <br />
+    </li>
+  <li><u><a href="#TAfuncAssignStud">Assign Students</a><a name="TAAssignStudents" id="TAAssignStudents"></a><br />
+    <br />
+    </u>Please see <a href="#InAssignStudents">Section VI.A.7</a> view for specification details<br />
+  </li>
+  <li> <a href="#TAfuncOptions">Options</a><a name="TAoptions" id="TAoptions"></a> <br />
+    <br />
+    <img src="images/TAOptions.jpg" width="576" height="206" />  </li>
+</ol>
+<p><strong>C. Student Requirements. </strong></p>
+<ol type="1">
+  <li><u><a href="#StudFuncSections">Sections</a><a name="StudSections" id="StudSections"></a><br />
+    <br />
+    <img src="images/Sections.jpg" width="568" height="333" /> </u></li>
+</ol>
+<p><strong>D. Sakai Requirements. </strong> </p>
+<ol>
+  <li><u><a href="#SakFuncmangingMemberships">Managing memberships</a><a name="SakManagingmemberships" id="StudManagingmemberships"></a></u></li>
+</ol>
+<p>See  <a href="#INAssignTeachingAssistants">Section VI.A.6</a> and <a href="#InAssignStudents">Section VI.A.7</a> above for specification details. </p>
+<h4>With Enterprise Section Data<strong>/</strong>Automated Section Creation </h4>
+<p>[IMPORANT NOTE: The services and modifcations to other administrative tools necessary to support enterprise section data will not be in place for the fall 2005 2.1 delivery. The section tool UI, however, will still support the views on enterprise managed sections as defined by the below requirements.]</p>
+<p><strong>E. Instructor Requirements</strong>. The numbered sections correspond to Instructor views in the Section Info Tool.</p>
+<ol type="1">
+  <li><u><a href="#EntFuncOverview">Overview</a><a name="EntINOverview" id="EntINOverview"></a><br />
+    <br />
+    <img src="images/OverviewSIS.jpg" width="569" height="489" />  </u></li>
+  <li><u><a href="#EntFuncRoster">Roster</a><a name="EntINRoster" id="EntINRoster"></a><br />
+    <br />
+    </u>See <a href="#InRoster">Section VI.A.3</a> above for specification details <br />
+  </li>
+  <li><a href="#EntFuncAssignTAs">Assign Teaching Assistants</a>
+    <a name="EntINAssignTeachingAssistants" id="EntINAssignTeachingAssistants"></a> <br />
+    <br />
+    See <a href="#INAssignTeachingAssistants">Section VI.A.6</a> above for specification details </li>
+</ol>
+<p><strong>F. TA Requirements</strong>. The numbered sections correspond to TA views in the Section Info Tool.</p>
+<ol type="1">
+  <li><u><a href="#EntTAFuncOver">Overview</a><a name="EntTAOverview" id="EntTAOverview"></a><br />
+    <br />
+    <img src="images/OverviewTASIS.jpg" width="576" height="364" />      </u></li>
+  <li><u><a href="#EntTAFuncRoster">Roster</a><a name="EntTARoster" id="EntTARoster"></a><br />
+    <br />
+    </u>See <a href="#InRoster">Section VI.A.3</a> above for specification details </li>
+</ol>
+<p><strong>G. Student Requirements. </strong>The numbered sections correspond to Student views in the Section Info Tool.</p>
+<ol type="1">
+  <li><u><a href="#EntStudFuncSect">Sections</a><a name="EntStudSections" id="EntStudSections"></a><br />
+    <br />
+    <img src="images/MySectionsSIS.jpg" width="568" height="377" />  </u></li>
+</ol>
+<p><strong>H. Sakai Requirements</strong></p>
+<ol>
+  <li><u><a href="#EntSakfuncCreate">Creating and editing sections and section types</a><a name="EntSAKCreatingandeditingsectionsandsectiontypes" id="EntSAKCreatingandeditingsectionsandsectiontypes"></a></u>
+    <ol type="a">
+      <li>The section categories created by the enterprise are represented in the Roster. There is no capability for manually creating section categories. See  <a href="#InRoster">Section VI.A.3</a>. </li>
+      <li>The column to remove a section is not present in the Overview. See <a href="#EntINOverview">Section VI.E.1</a><br />
+          <br />
+      </li>
+      </ol>
+  </li>
+  <li><u><a href="#EntSakFuncManage">Managing memberships</a><a name="EntSAKManagingmemberships" id="EntSAKManagingmemberships"></a></u>
+    <ol type="a">
+      <li>Students and the sections they've been assigned to via the enterprise are represented in the Roster and the students' Section views. See <a href="#InRoster">Section VI.A.3</a>. and <a href="#EntStudSections">Section VI.G.1</a>.</li>
+      <li>TA's and the sections they've been assigned to via the enterprise are represented in the Overview. </li>
+      <li>If Instructors are permitted to assign and re-assign TAs, the list of TAs who are members of a site will be available in the Assign TAs view. See <a href="#INAssignTeachingAssistants">Section VI.A.6</a> </li>
+      <li>Depending on institutional deployment choices, the link to the Assign TAs view may or may not be made available to instructors in the Overview. See <a href="#EntINOverview">Section VI.E.1</a><br />
+          <br />
+      </li>
+    </ol>
+  </li>
+  </ol>
+<p><a href="#home">Back to top</a></p>
+<p>&nbsp;</p>
 </div>
 </body>
 </html>
