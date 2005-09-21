@@ -45,7 +45,7 @@ h4 {
 /*action links for list items, use with <a> tag*/
 .itemAction  { 
     font-size:.8em; 
-    margin-left:3em 
+    margin-left:3em;
 }
 
 /* Indicate the default buttons. */

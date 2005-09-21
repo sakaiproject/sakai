@@ -24,12 +24,13 @@
             rowClasses="#{overviewBean.rowClasses}">
     
             <h:column>
+                <f:facet name="header">
+                    <x:commandSortHeader columnName="title" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.overview_table_header_name}" />
+                    </x:commandSortHeader>
+                </f:facet>
+
                 <x:div>
-                    <f:facet name="header">
-                        <x:commandSortHeader columnName="title" immediate="true" arrow="true">
-                            <h:outputText value="#{msgs.overview_table_header_name}" />
-                        </x:commandSortHeader>
-                    </f:facet>
                     <h:outputText value="#{section.title}"/>
                 </x:div>
     
@@ -108,7 +109,7 @@
             </h:column>
         </x:dataTable>
 
-        <h:outputText value="#{msgs.no_sections_available}" rendered="#{empty studentViewBean.sections}"/>
+        <h:outputText value="#{msgs.no_sections_available}" rendered="#{empty overviewBean.sections}"/>
 
     </x:div>
 

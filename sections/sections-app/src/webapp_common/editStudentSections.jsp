@@ -16,7 +16,6 @@
         
         <%@include file="/inc/globalMessages.jspf"%>
     
-    
         <h:dataTable
             value="#{editStudentSectionsBean.usedCategories}"
             var="category"

@@ -35,13 +35,16 @@ import java.util.Set;
 
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -63,7 +66,16 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 	private Map sectionItems;
 	private Map sectionEnrollment;
 	
+	private String nameSeparator;
+	private String sectionDescriptionSepChar;
+	private String fullIndicator;
+	
 	public void init() {
+		// Get the description separator character
+		sectionDescriptionSepChar = JsfUtil.getLocalizedMessage("edit_student_sections_description_sep_char");
+		nameSeparator = JsfUtil.getLocalizedMessage("name_list_separator");
+		fullIndicator = JsfUtil.getLocalizedMessage("edit_student_sections_full");
+		
 		// Get the student's name
 		String studentUuidFromParam = JsfUtil.getStringFromParam("studentUuid");
 		if(studentUuidFromParam != null) {
@@ -97,7 +109,9 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 			} else {
 				sectionsInCat = (List)sectionItems.get(cat);
 			}
-			sectionsInCat.add(new SelectItem(section.getUuid(), section.getTitle()));
+			List taRecords = getSectionManager().getSectionTeachingAssistants(section.getUuid());
+			int numEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
+			sectionsInCat.add(new SelectItem(section.getUuid(), getSectionLabel(section, taRecords, numEnrollments)));
 			sectionItems.put(cat, sectionsInCat);
 			
 			// Ensure that each used category has at least an entry in the sectionEnrollment map
@@ -113,6 +127,53 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		}
 	}
 
+	/**
+	 * Builds the section description for the UI.
+	 * 
+	 * @param section
+	 * @param taRecords
+	 * @param numEnrollments
+	 * @return
+	 */
+	private String getSectionLabel(CourseSection section, List taRecords, int numEnrollments) {
+		CourseSectionDecorator sec = new CourseSectionDecorator(section, null); // We dont't need the category
+		StringBuffer sb = new StringBuffer(section.getTitle());
+
+		
+		if(taRecords != null && taRecords.size() > 0) {
+			sb.append(" ");
+			sb.append(sectionDescriptionSepChar);
+			sb.append(" ");
+			
+			for(Iterator iter = taRecords.iterator(); iter.hasNext();) {
+				ParticipationRecord record = (ParticipationRecord)iter.next();
+				sb.append(record.getUser().getDisplayName());
+				if(iter.hasNext()) {
+					sb.append(nameSeparator);
+					sb.append(" ");
+				}
+			}
+		}
+		
+		String meetingTimes = sec.getMeetingTimes();
+		if(StringUtils.trimToNull(meetingTimes) != null) {
+			sb.append(" ");
+			sb.append(sectionDescriptionSepChar);
+			sb.append(" ");
+			
+			sb.append(meetingTimes);
+		}
+		
+		if(section.getMaxEnrollments() != null && numEnrollments >= section.getMaxEnrollments().intValue()) {
+			sb.append(" ");
+			sb.append(sectionDescriptionSepChar);
+			sb.append(" ");
+			sb.append(fullIndicator);
+		}
+		
+		return sb.toString();
+	}
+	
 	public String update() {
 		// Add the success message first, before any caveats (see below)
 		String[] params = {studentName};
@@ -138,7 +199,7 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 					JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
 							"edit_student_over_max_warning", new String[] {
 									section.getTitle(),
-									Integer.toString(++totalEnrollments),
+									Integer.toString(totalEnrollments),
 									Integer.toString(totalEnrollments - maxEnrollments.intValue()) }));
 				}
 			}
