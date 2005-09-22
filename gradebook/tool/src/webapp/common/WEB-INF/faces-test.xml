@@ -13,7 +13,7 @@
 		<managed-bean-scope>request</managed-bean-scope>
 		<managed-property>
 			<property-name>frameworkManager</property-name>
-			<value>#{org_sakaiproject_tool_gradebook_standalone_FrameworkManager}</value>
+			<value>#{org_sakaiproject_tool_gradebook_facades_standalone_FrameworkManager}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>authnService</property-name>
@@ -25,10 +25,6 @@
 		<managed-bean-name>loginAsBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.test.LoginAsBean</managed-bean-class>
 		<managed-bean-scope>application</managed-bean-scope>
-		<managed-property>
-			<property-name>frameworkManager</property-name>
-			<value>#{org_sakaiproject_tool_gradebook_standalone_FrameworkManager}</value>
-		</managed-property>
 		<managed-property>
 			<property-name>configured</property-name>
 			<value>true</value>

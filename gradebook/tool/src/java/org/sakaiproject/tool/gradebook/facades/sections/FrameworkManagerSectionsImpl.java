@@ -36,7 +36,7 @@ import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.sakaiproject.tool.gradebook.standalone.FrameworkManager;
+import org.sakaiproject.tool.gradebook.facades.standalone.FrameworkManager;
 
 public class FrameworkManagerSectionsImpl extends AbstractSectionsImpl implements FrameworkManager {
 	private static Log log = LogFactory.getLog(FrameworkManagerSectionsImpl.class);

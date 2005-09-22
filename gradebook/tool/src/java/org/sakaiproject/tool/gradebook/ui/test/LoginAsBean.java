@@ -30,13 +30,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.standalone.FrameworkManager;
 import org.sakaiproject.tool.gradebook.ui.InitializableBean;
 
 public class LoginAsBean extends InitializableBean {
 	private static final Log logger = LogFactory.getLog(LoginAsBean.class);
 
-	private FrameworkManager frameworkManager;
 	private List loginChoices;
 
 	public class WhoAndWhat {
@@ -88,13 +86,6 @@ public class LoginAsBean extends InitializableBean {
 
 	public List getLoginChoices() {
 		return loginChoices;
-	}
-
-	public FrameworkManager getFrameworkManager() {
-		return frameworkManager;
-	}
-	public void setFrameworkManager(FrameworkManager frameworkManager) {
-		this.frameworkManager = frameworkManager;
 	}
 }
 

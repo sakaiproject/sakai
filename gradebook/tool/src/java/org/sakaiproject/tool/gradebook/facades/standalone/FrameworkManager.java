@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.gradebook.standalone;
+package org.sakaiproject.tool.gradebook.facades.standalone;
 
 import java.util.List;
 
