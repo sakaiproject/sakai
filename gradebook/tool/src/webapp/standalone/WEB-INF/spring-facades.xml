@@ -37,7 +37,7 @@
 
 	<bean id="org_sakaiproject_tool_gradebook_facades_UserDirectoryService"
 		class="org.sakaiproject.tool.gradebook.facades.sections.UserDirectoryServiceStandaloneSectionsImpl">
-		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+		<property name="userManager"><ref bean="org.sakaiproject.component.section.support.UserManager"/></property>
 	</bean>
 
 	<!-- External Authn Service -->

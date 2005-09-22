@@ -29,38 +29,28 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
-
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.component.section.UserImpl;
+import org.sakaiproject.component.section.support.UserManager;
 
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 
-public class UserDirectoryServiceStandaloneSectionsImpl extends HibernateDaoSupport implements UserDirectoryService {
+public class UserDirectoryServiceStandaloneSectionsImpl implements UserDirectoryService {
     private static final Log log = LogFactory.getLog(UserDirectoryServiceStandaloneSectionsImpl.class);
+	private UserManager userManager;
 
     public String getUserDisplayName(final String userUid) throws UnknownUserException {
-        HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
-                Query q = session.createQuery("from UserImpl as user where user.userUuid=:uid");
-                q.setString("uid", userUid);
-                return q.list();
-            }
-        };
-
-        List list = (List)getHibernateTemplate().execute(hc);
-
-        if(list.size() == 0) {
-            throw new UnknownUserException("Unknown uid: " + userUid);
-        }
-
-        return ((User)list.get(0)).getDisplayName();
+    	User user = userManager.findUser(userUid);
+    	if (user == null) {
+    		throw new UnknownUserException("Unknown uid: " + userUid);
+    	}
+    	return user.getDisplayName();
     }
+
+	public UserManager getUserManager() {
+		return userManager;
+	}
+	public void setUserManager(UserManager userManager) {
+		this.userManager = userManager;
+	}
 }
