@@ -39,6 +39,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
@@ -553,6 +554,40 @@ public class PublishedAssessmentFacade
   public String getOwnerSiteId(){
     PublishedAssessmentService service = new PublishedAssessmentService();
     return service.getPublishedAssessmentOwner(this.publishedAssessmentId);
+  }
+
+  public Float getTotalScore(){
+    float total = 0;
+    Iterator iter = this.publishedSectionSet.iterator();
+    while (iter.hasNext()){
+      SectionDataIfc s = (SectionDataIfc) iter.next();
+      ArrayList list = s.getItemArray();
+      Iterator iter2 = null;
+      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE
+).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())))
+{
+        ArrayList randomsample = new ArrayList();
+        Integer numberToBeDrawn= null;
+        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+          numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+        }
+
+        int samplesize = numberToBeDrawn.intValue();
+        for (int i=0; i<samplesize; i++){
+          randomsample.add(list.get(i));
+        }
+        iter2 = randomsample.iterator();
+      }
+      else {
+        iter2 = list.iterator();
+      }
+
+      while (iter2.hasNext()){
+        ItemDataIfc item = (ItemDataIfc)iter2.next();
+        total= total + item.getScore().floatValue();
+      }
+    }
+    return new Float(total);
   }
 
 }
