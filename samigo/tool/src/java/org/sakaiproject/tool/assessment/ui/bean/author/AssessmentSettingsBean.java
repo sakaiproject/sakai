@@ -1039,4 +1039,37 @@ public class AssessmentSettingsBean
 
     }
 
+
+    public String saveSettingCheck(){
+	return checkTime(true);
+
+    }
+    public String publishCheck(){
+        return checkTime(false);
+    }
+
+    public String checkTime(boolean saveSetting){
+         FacesContext context=FacesContext.getCurrentInstance();
+	 ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", context.getViewRoot().getLocale());
+	
+	 String err;
+	 String time=(String)(getValueMap().get("hasTimeAssessment"));
+		if((time.equals("true"))&&(this.timeLimit.intValue()==0))
+	  {
+              err=(String)rb.getObject("timeSelect_error");
+		     context.addMessage(null,new FacesMessage(err));
+		
+		return "editAssessmentSettings";
+	   }
+	else
+            {
+             if (saveSetting)
+	   
+		return "saveSettings";
+	     else
+                return "saveSettingsAndConfirmPublish";
+
+	    }
+
+ }
 }
