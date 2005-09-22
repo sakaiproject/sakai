@@ -244,22 +244,11 @@ public class TotalScoreListener
           bean.setDueDate("");
           dueDate = null;
         }
+// need to change for random draw parts
         try {
           bean.setMaxScore(data.getPublishedAssessment().getEvaluationModel().getFixedTotalScore().toString());
         } catch (Exception e) {
-          float score = (float) 0.0;
-          Iterator iter2 = data.getPublishedAssessment().getSectionArraySorted().iterator();
-          while (iter2.hasNext())
-          {
-            SectionDataIfc sdata = (SectionDataIfc) iter2.next();
-            Iterator iter3 = sdata.getItemArraySortedForGrading().iterator();
-            while (iter3.hasNext())
-            {
-              ItemDataIfc idata = (ItemDataIfc) iter3.next();
-              score += idata.getScore().floatValue();
-            }
-          }
-          bean.setMaxScore(new Float(score).toString());
+          bean.setMaxScore(data.getPublishedAssessment().getTotalScore().toString());
         }
       }
 
