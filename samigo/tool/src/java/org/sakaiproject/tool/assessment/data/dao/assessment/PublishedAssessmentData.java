@@ -541,9 +541,28 @@ public class PublishedAssessmentData
     Iterator iter = this.sectionSet.iterator();
     while (iter.hasNext()){
       PublishedSectionData s = (PublishedSectionData) iter.next();
-      Iterator i = s.getItemSet().iterator();
-      while (i.hasNext()){
-        PublishedItemData item = (PublishedItemData)i.next();
+      ArrayList list = s.getItemArray();
+      Iterator iter2 = null;
+      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())))
+{
+        ArrayList randomsample = new ArrayList();
+        Integer numberToBeDrawn= null;
+        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+          numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+        }
+
+        int samplesize = numberToBeDrawn.intValue();
+        for (int i=0; i<samplesize; i++){
+          randomsample.add(list.get(i));
+        }
+        iter2 = randomsample.iterator();
+      }
+      else {
+        iter2 = list.iterator();
+      }
+
+      while (iter2.hasNext()){
+        PublishedItemData item = (PublishedItemData)iter2.next();
         total= total + item.getScore().floatValue();
       }
     }
