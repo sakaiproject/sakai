@@ -4,12 +4,13 @@
 <beans>
 
 	<!--
-		This Spring configuration file specifies a Sakai 2.0 implementation of the facades.
+		This Spring configuration file specifies a Sakai 2.0 / SectionAwareness implementation of the facades.
 	-->
 
 	<!-- External Course Management Service -->
 	<bean id="org_sakaiproject_tool_gradebook_facades_CourseManagement"
-		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.CourseManagementSakai2Impl">
+		class="org.sakaiproject.tool.gradebook.facades.sections.CourseManagementSectionsImpl">
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
 	</bean>
 
 	<!-- External User Directory Service -->
@@ -24,7 +25,8 @@
 
 	<!-- External Authz Service -->
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
-		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthzSakai2Impl">
+		class="org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl">
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
 	</bean>
 
 	<!-- External Context Management Service -->

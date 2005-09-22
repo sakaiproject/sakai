@@ -23,7 +23,6 @@
 
 package org.sakaiproject.tool.gradebook.facades.sections;
 
-import java.sql.SQLException;
 import java.util.*;
 
 import org.apache.commons.logging.Log;
