@@ -140,6 +140,11 @@ public class GradableObjectManagerTest extends GradebookTestBase {
     }
 
     public void testDeletedAssignments() throws Exception {
+    	// Make sure nothing awful happens when we ask for CourseGrade
+    	// total points for an empty Gradebook
+		CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId(), new HashSet());
+		Assert.assertTrue(courseGrade.getPointsForDisplay().doubleValue() == 0.0);
+
 		List studentUidsList = Arrays.asList(new String[] {
 			"testStudentUserUid1",
 			"testStudentUserUid2",
@@ -163,7 +168,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
 		// Do what the Overview page does.
 		assignments = gradeManager.getAssignmentsWithStats(gradebook.getId(), studentUids, Assignment.SORT_BY_NAME, true);
-		CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId(), studentUids);
+		courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId(), studentUids);
 
         // Remove the assignments.
         // (We remove all of them to make sure that the calculated course grade can be emptied.)
