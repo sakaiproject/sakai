@@ -369,6 +369,10 @@
       <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+    <navigation-case>
+      <from-outcome>timeError</from-outcome>
+      <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+    </navigation-case>
       <from-outcome>editPublishedAssessmentSettings</from-outcome>
       <to-view-id>/jsf/author/publishedSettings.jsp</to-view-id>
     </navigation-case>
@@ -658,6 +662,26 @@
     <navigation-case>
       <from-outcome>MCPoolAddFailure</from-outcome>
       <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+<navigation-rule>
+    <from-view-id>/jsf/author/item/fillInTheBlank.jsp</from-view-id>
+    <navigation-case>
+      <from-outcome>FIBSuccess</from-outcome>
+      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>FIBFailure</from-outcome>
+      <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
+    </navigation-case>
+     <navigation-case>
+      <from-outcome>FIBPoolSuccess</from-outcome>
+      <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>FIBPoolFailure</from-outcome>
+      <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
     </navigation-case>
   </navigation-rule>
 
