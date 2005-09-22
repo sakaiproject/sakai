@@ -91,14 +91,30 @@ function disableAllFeedbackCheck(feedbackType)
   }
 }
 
+function checkTimeSelect(){
+  var inputList= document.getElementsByTagName("INPUT");
+  for (i = 0; i <inputList.length; i++) {
+    if(inputList[i].type=='checkbox'){
+      if(inputList[i].id.indexOf("selTimeAssess")>=0)
+        timedAssessmentId= inputList[i].id;
+      if(inputList[i].id.indexOf("automatic")>=0)
+        autoSubmitId=inputList[i].id;
+    }
+  }
+  if(!document.getElementById(timedAssessmentId).checked)
+    document.getElementById(autoSubmitId).disabled=true;
+  else
+    document.getElementById(autoSubmitId).disabled=false;
 
+}
+           
 //-->
 </script>
 
 
 
       </head>
-    <body onload="hideUnhideAllDivsWithWysiwyg('none');;<%= request.getAttribute("html.body.onload") %>">
+    <body onload="hideUnhideAllDivsWithWysiwyg('none');checkTimeSelect();<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 
@@ -264,7 +280,7 @@ function disableAllFeedbackCheck(feedbackType)
     <h:panelGrid
         summary="#{summary_msg.timed_assmt_sec}">
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}">
-        <h:selectBooleanCheckbox
+        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkTimeSelect();"
          value="#{assessmentSettings.valueMap.hasTimeAssessment}"/>
         <h:outputText value="#{msg.timed_assessment}" />
         <h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}">
@@ -279,11 +295,12 @@ function disableAllFeedbackCheck(feedbackType)
     </h:panelGrid>
     <h:panelGrid  >
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessmentAutoSubmit_isInstructorEditable==true}">
-       <h:selectBooleanCheckbox
+       <h:selectBooleanCheckbox id="automatic"
          value="#{assessmentSettings.autoSubmit}"/>
         <h:outputText value="#{msg.auto_submit}" />
      </h:panelGroup>
     </h:panelGrid>
+       <h:outputText value="#{msg.autoSummit_warning}" />
  <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
 </h:panelGroup>
