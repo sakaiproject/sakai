@@ -72,6 +72,15 @@ public class QuestionPoolFacadeQueries
     return getHibernateTemplate().find("from QuestionPoolData");
   }
 
+
+  public List getAllPoolsByAgent(String agentId) {
+    List list = getHibernateTemplate().find(
+        "from QuestionPoolData a where a.ownerId= ? ",
+        new Object[] {agentId}
+        , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+    return list;
+
+  }
   /**
        * Get all the pools that the agent has access to. The easiest way seems to be
    * #1. get all the existing pool
@@ -87,7 +96,11 @@ public class QuestionPoolFacadeQueries
     ArrayList qpList = new ArrayList();
 
     // #1.
-    List poolList = getAllPools(); // we initiate it when application restart already
+    // lydial: 9/22/05 we are not really using QuestionPoolAccessData, so filter by ownerid 
+    //List poolList = getAllPools(); 
+    List poolList = getAllPoolsByAgent(agentId); 
+
+/*
     // #2. get all the QuestionPoolAccessData record belonging to the agent
     List questionPoolAccessList = getHibernateTemplate().find(
         "from QuestionPoolAccessData as qpa where qpa.agentId=?",
@@ -102,6 +115,8 @@ public class QuestionPoolFacadeQueries
 
     // #3. We need to go through the existing QuestionPool and the QuestionPoolAccessData record
     // to determine the access type
+*/
+
     try {
       Iterator j = poolList.iterator();
       while (j.hasNext()) {
@@ -111,6 +126,8 @@ public class QuestionPoolFacadeQueries
         // - daisy, 10/04/04
         populateQuestionPoolItemDatas(qpp);
 
+        qpList.add(getQuestionPool(qpp));
+/*
         QuestionPoolAccessData qpa = (QuestionPoolAccessData) h.get(qpp.
             getQuestionPoolId());
         if (qpa == null) {
@@ -125,6 +142,7 @@ public class QuestionPoolFacadeQueries
             qpList.add(getQuestionPool(qpp));
           }
         }
+*/
       }
     }
     catch (Exception e) {
