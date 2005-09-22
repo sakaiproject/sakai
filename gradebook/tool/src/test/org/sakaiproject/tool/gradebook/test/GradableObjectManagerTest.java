@@ -22,14 +22,11 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import junit.framework.Assert;
+
+import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
@@ -38,14 +35,8 @@ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
-import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.facades.standalone.EnrollmentStandalone;
-import org.sakaiproject.tool.gradebook.facades.standalone.UserStandalone;
 
 /**
- * TODO Document org.sakaiproject.tool.gradebook.test.GradeManagerTest
- *
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class GradableObjectManagerTest extends GradebookTestBase {
     protected static final String ASN1_NAME = "Assignment #1";
@@ -61,6 +52,9 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         String className = this.getClass().getName();
         String gradebookName = className + (new Date()).getTime();
         gradebookService.addGradebook(gradebookName, gradebookName);
+
+        // Set up a holder for enrollments, teaching assignments, and sections.
+        integrationSupport.createCourse(gradebookName, gradebookName, false, false, false);
 
         // Grab the gradebook for use in the tests
         gradebook = gradebookManager.getGradebook(gradebookName);
@@ -146,23 +140,25 @@ public class GradableObjectManagerTest extends GradebookTestBase {
     }
 
     public void testDeletedAssignments() throws Exception {
+		List studentUidsList = Arrays.asList(new String[] {
+			"testStudentUserUid1",
+			"testStudentUserUid2",
+			"testStudentUserUid3",
+		});
+		addUsersEnrollments(gradebook, studentUidsList);
+		Set studentUids = new HashSet(studentUidsList);
+
         Long id1 = gradeManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), null);
         Long id2 = gradeManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(20), new Date(10));
         Long id3 = gradeManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date());
 
         List assignments = gradeManager.getAssignments(gradebook.getId());
-        Set enrollments = new HashSet();
-        Assignment asn = (Assignment)gradeManager.getGradableObjectWithStats(id1, enrollments);
-
-        enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid1", null, null, null), gradebook));
-        enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid2", null, null, null), gradebook));
-        enrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid3", null, null, null), gradebook));
-        Set studentUids = FacadeUtils.getStudentUids(enrollments);
+        Assignment asn = (Assignment)gradeManager.getGradableObjectWithStats(id1, studentUids);
 
 		// Add some scores to the interesting assignment, leaving one student unscored.
 		GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
-		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "testStudentUserUid1", new Double(8)));
-		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "testStudentUserUid2", new Double(9)));
+		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, (String)studentUidsList.get(0), new Double(8)));
+		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, (String)studentUidsList.get(1), new Double(9)));
 		gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
 		// Do what the Overview page does.
@@ -236,7 +232,3 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         Assert.assertTrue(totalPointsPossible == 100);
     }
 }
-
-
-
-

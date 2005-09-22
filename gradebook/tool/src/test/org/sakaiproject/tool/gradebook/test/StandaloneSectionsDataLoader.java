@@ -33,9 +33,6 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 
-import org.sakaiproject.component.section.support.IntegrationSupport;
-import org.sakaiproject.component.section.support.UserManager;
-
 public class StandaloneSectionsDataLoader extends GradebookTestBase {
 	private static Log log = LogFactory.getLog(StandaloneSectionsDataLoader.class);
 
@@ -78,37 +75,17 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
     public final static String AUTHID_STUDENT_ALL = "stu_0";
     public final static String AUTHID_NO_SITE = "authid_nowhere";
     public final static String AUTHID_STUDENT_PREFIX = "stu_";
+    public static final String AUTHID_WITHOUT_GRADES_1 = "stu_16";
+    public static final String AUTHID_WITHOUT_GRADES_2 = "stu_17";
 
 	/** Special sites */
 	public static int SITE_AMBIGUOUS_TEACHER = 2;
 	public static int SITE_AMBIGUOUS_STUDENT = 6;
 
-	protected IntegrationSupport integrationSupport;
-	protected UserManager userManager;
-
 	public StandaloneSectionsDataLoader() {
     	// Don't roll these tests back, since they are intended to load data
 		setDefaultRollback(false);
 	}
-
-	public IntegrationSupport getIntegrationSupport() {
-		return integrationSupport;
-	}
-	public void setIntegrationSupport(IntegrationSupport integrationSupport) {
-		this.integrationSupport = integrationSupport;
-	}
-	public UserManager getUserManager() {
-		return userManager;
-	}
-	public void setUserManager(UserManager userManager) {
-		this.userManager = userManager;
-	}
-
-    protected void onSetUpInTransaction() throws Exception {
-    	super.onSetUpInTransaction();
-        integrationSupport = (IntegrationSupport)applicationContext.getBean("org.sakaiproject.component.section.support.IntegrationSupport");
-        userManager = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
-    }
 
 	public void testLoadData() {
 		// Load courses. (No sections yet!)

@@ -22,13 +22,11 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import junit.framework.Assert;
+
+import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -39,45 +37,44 @@ import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.facades.standalone.EnrollmentStandalone;
-import org.sakaiproject.tool.gradebook.facades.standalone.UserStandalone;
 
 /**
  * Tests the grade manager.
  *
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class GradeManagerTest extends GradebookTestBase {
 
+    protected Gradebook gradebook;
+
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-    }
 
-    /**
-     * Save the gradebook.  This is a hack to get around hibernate
-     * collections problems.
-     *
-     * @throws Exception
-     */
-    public void testCreateGradebookForTesting() throws Exception {
-        String className = this.getClass().getName();
-        gradebookService.addGradebook(className, className);
-        setComplete();
+        String gradebookName = this.getClass().getName();
+        gradebookService.addGradebook(gradebookName, gradebookName);
+
+        // Set up a holder for enrollments, teaching assignments, and sections.
+        integrationSupport.createCourse(gradebookName, gradebookName, false, false, false);
+
+        // Grab the gradebook for use in the tests
+        gradebook = gradebookManager.getGradebook(gradebookName);
     }
 
     public void testGradeManager() throws Exception {
-        Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
+		List studentUidsList = Arrays.asList(new String[] {
+			"testStudentUserUid1",
+			"testStudentUserUid2",
+			"testStudentUserUid3",
+		});
+		addUsersEnrollments(gradebook, studentUidsList);
 
-        // Get a gradebook and an assignment
-        Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-        gradeManager.createAssignment(persistentGradebook.getId(), "Assignment #1", new Double(20), new Date());
+        gradeManager.createAssignment(gradebook.getId(), "Assignment #1", new Double(20), new Date());
         Assignment persistentAssignment = (Assignment)gradeManager.
-            getAssignmentsWithStats(persistentGradebook.getId(), new HashSet()).get(0);
+            getAssignmentsWithStats(gradebook.getId(), new HashSet()).get(0);
 
         GradeRecordSet gradeRecordSet = new GradeRecordSet(persistentAssignment);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid1", new Double(18)));
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid2", new Double(19)));
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, "testStudentUserUid3", new Double(20)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(0), new Double(18)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(1), new Double(19)));
+        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(2), new Double(20)));
 
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
@@ -95,26 +92,25 @@ public class GradeManagerTest extends GradebookTestBase {
         }
 
         // Add overrides to the course grades
-        CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(persistentGradebook.getId(), students);
+        CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId(), students);
         records = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade);
 
         gradeRecordSet = new GradeRecordSet(courseGrade);
         for(Iterator iter = records.iterator(); iter.hasNext();) {
             CourseGradeRecord record = (CourseGradeRecord)iter.next();
-            if(record.getStudentId().equals("testStudentUserUid1")) {
+            if(record.getStudentId().equals(studentUidsList.get(0))) {
                 record.setEnteredGrade("C-");
-            } else if(record.getStudentId().equals("testStudentUserUid2")) {
+            } else if(record.getStudentId().equals(studentUidsList.get(1))) {
                 record.setEnteredGrade("D+");
-            } else if(record.getStudentId().equals("testStudentUserUid3")) {
+            } else if(record.getStudentId().equals(studentUidsList.get(2))) {
                 record.setEnteredGrade("F");
             }
             gradeRecordSet.addGradeRecord(record);
         }
 
-
         gradeManager.updateCourseGradeRecords(gradeRecordSet);
 
-        GradeMapping gradeMapping = persistentGradebook.getSelectedGradeMapping();
+        GradeMapping gradeMapping = gradebook.getSelectedGradeMapping();
 
         // Ensure that the sort grades have been updated to reflect the overridden grades
         List courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade);
@@ -139,7 +135,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Ensure that the sort grades have been updated
         courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade);
-        double totalPoints = gradeManager.getTotalPoints(persistentGradebook.getId());
+        double totalPoints = gradeManager.getTotalPoints(gradebook.getId());
 
         for(Iterator iter = courseGradeRecords.iterator(); iter.hasNext();) {
             CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
@@ -149,32 +145,32 @@ public class GradeManagerTest extends GradebookTestBase {
             Assert.assertTrue(sortGrade.doubleValue() - percent.doubleValue() < .001);
         }
 
-        List allGradeRecords = gradeManager.getPointsEarnedSortedAllGradeRecords(persistentGradebook.getId());
+        List allGradeRecords = gradeManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId());
         // There should be six grade records for these students
         Assert.assertTrue(allGradeRecords.size() == 6);
 
         // Create a new, smaller set of enrollments and ensure the smaller set of grade records are selected correctly
-        Set filteredEnrollments = new HashSet();
-        filteredEnrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid1", null, null, null), persistentGradebook));
-        filteredEnrollments.add(new EnrollmentStandalone(new UserStandalone("testStudentUserUid2", null, null, null), persistentGradebook));
-        List filteredGradeRecords = gradeManager.getPointsEarnedSortedAllGradeRecords(persistentGradebook.getId(), FacadeUtils.getStudentUids(filteredEnrollments));
+        Set filteredStudentUids = new HashSet();
+        filteredStudentUids.add(studentUidsList.get(0));
+        filteredStudentUids.add(studentUidsList.get(1));
+        List filteredGradeRecords = gradeManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId(), filteredStudentUids);
 
         // There should be four grade records for these students
         Assert.assertTrue(filteredGradeRecords.size() == 4);
 
         // There should be two grade records for these students and for this assignment
-        filteredGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(persistentAssignment, FacadeUtils.getStudentUids(filteredEnrollments));
+        filteredGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(persistentAssignment, filteredStudentUids);
         Assert.assertTrue(filteredGradeRecords.size() == 2);
     }
 
     public void testNewExcessiveScores() throws Exception {
-        Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
-
-        // We need to operate on whatever grade records already exist in the db
-        Set studentIds = new HashSet();
-        studentIds.add("normalStudent");
-        studentIds.add("goodStudent");
-        studentIds.add("excessiveStudent");
+		List studentUidsList = Arrays.asList(new String[] {
+			"normalStudent",
+			"goodStudent",
+			"excessiveStudent",
+		});
+		addUsersEnrollments(gradebook, studentUidsList);
+        Set studentIds = new HashSet(studentUidsList);
 
         Long asgId = gradeManager.createAssignment(gradebook.getId(), "Excessive Test", new Double(10), new Date());
         Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId(), studentIds).get(0);
@@ -209,16 +205,11 @@ public class GradeManagerTest extends GradebookTestBase {
     }
 
     public void testAssignmentScoresEntered() throws Exception {
-        Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
-
         Set students = new HashSet();
         students.add("entered1");
 
         Long asgId = gradeManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date());
         Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId(), students).get(0);
-
-        Set enrollments = new HashSet();
-        enrollments.add(new EnrollmentStandalone(new UserStandalone("entered1", null, null, null), gradebook));
 
         Assert.assertTrue(!gradeManager.isEnteredAssignmentScores(asgId));
 
@@ -240,13 +231,16 @@ public class GradeManagerTest extends GradebookTestBase {
     }
 
     public void testGradeEvents() throws Exception {
-        Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
+        String studentId = "student1";
+		List studentUidsList = Arrays.asList(new String[] {
+			studentId,
+		});
+		List enrollments = addUsersEnrollments(gradebook, studentUidsList);
+        Set studentIds = new HashSet(studentUidsList);
+
+
         Long asgId = gradeManager.createAssignment(gradebook.getId(), "GradingEvent Test", new Double(10), new Date());
         Assignment assignment = (Assignment)gradeManager.getAssignments(gradebook.getId()).get(0);
-
-        String studentId = "student1";
-        Set enrollments = new HashSet();
-        enrollments.add(new EnrollmentStandalone(new UserStandalone(studentId, null, null, null), gradebook));
 
         // Create a map of studentUserUids to grades
         GradeRecordSet gradeRecordSet = new GradeRecordSet(assignment);

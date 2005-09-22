@@ -22,19 +22,30 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
+import java.util.*;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import org.sakaiproject.component.section.support.IntegrationSupport;
+import org.sakaiproject.component.section.support.UserManager;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.facade.Role;
+
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
+
+// TODO Remove after full switch.
+import org.sakaiproject.tool.gradebook.facades.sections.EnrollmentSectionsImpl;
 
 /**
  * Base class for gradebook test classes that provides the spring application
@@ -55,6 +66,8 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
     protected GradebookService gradebookService;
     protected CourseManagement courseManagement;
     protected UserDirectoryService userDirectoryService;
+	protected IntegrationSupport integrationSupport;
+	protected UserManager userManager;
 
     protected void onSetUpInTransaction() throws Exception {
         authn = (Authn)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_Authn");
@@ -64,6 +77,8 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         gradeManager = (GradeManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradeManager");
         courseManagement = (CourseManagement)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_CourseManagement");
         userDirectoryService = (UserDirectoryService)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_UserDirectoryService");
+        integrationSupport = (IntegrationSupport)applicationContext.getBean("org.sakaiproject.component.section.support.IntegrationSupport");
+        userManager = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
     }
 
     /**
@@ -88,4 +103,27 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         return configLocations;
     }
 
+	protected List addUsersEnrollments(Gradebook gradebook, Collection studentUids) {
+		List enrollments = new ArrayList();
+		for (Iterator iter = studentUids.iterator(); iter.hasNext(); ) {
+			String studentUid = (String)iter.next();
+			userManager.createUser(studentUid, null, null, null);
+			EnrollmentRecord sectionEnrollment = (EnrollmentRecord)integrationSupport.addSiteMembership(studentUid, gradebook.getUid(), Role.STUDENT);
+			enrollments.add(new EnrollmentSectionsImpl(sectionEnrollment));
+		}
+		return enrollments;
+	}
+
+	public IntegrationSupport getIntegrationSupport() {
+		return integrationSupport;
+	}
+	public void setIntegrationSupport(IntegrationSupport integrationSupport) {
+		this.integrationSupport = integrationSupport;
+	}
+	public UserManager getUserManager() {
+		return userManager;
+	}
+	public void setUserManager(UserManager userManager) {
+		this.userManager = userManager;
+	}
 }

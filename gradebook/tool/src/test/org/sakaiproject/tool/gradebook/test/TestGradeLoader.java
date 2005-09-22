@@ -23,27 +23,21 @@
 
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.facades.Enrollment;
-import org.sakaiproject.tool.gradebook.facades.standalone.dataload.UserLoader;
 
 /**
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  *
  */
 public class TestGradeLoader extends GradebookLoaderBase {
 
 	public void testPopulate() throws Exception {
         List gradebooks = new ArrayList();
-
 
         // Fetch the first gradebook.
         Gradebook gb = gradebookManager.getGradebook(TestGradebookLoader.GRADEBOOK_WITH_GRADES);
@@ -63,8 +57,8 @@ public class TestGradeLoader extends GradebookLoaderBase {
 			for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
 				Enrollment enr = (Enrollment)enrIter.next();
                 // Don't add grades for those no good lazy students
-                if(!enr.getUser().getUserUid().equals(UserLoader.AUTHID_WITHOUT_GRADES_1) &&
-                        !enr.getUser().getUserUid().equals(UserLoader.AUTHID_WITHOUT_GRADES_2)) {
+                if(!enr.getUser().getUserUid().equals(StandaloneSectionsDataLoader.AUTHID_WITHOUT_GRADES_1) &&
+                        !enr.getUser().getUserUid().equals(StandaloneSectionsDataLoader.AUTHID_WITHOUT_GRADES_2)) {
                     Double grade = new Double(Math.ceil(asn.getPointsPossible().doubleValue() * Math.random()));
                     if(asn.isExternallyMaintained()) {
                         gradebookService.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);
