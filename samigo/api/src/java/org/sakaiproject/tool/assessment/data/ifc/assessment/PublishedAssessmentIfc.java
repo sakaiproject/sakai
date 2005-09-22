@@ -45,4 +45,5 @@ public interface PublishedAssessmentIfc
 
   String getOwnerSiteId();
 
+  Float getTotalScore();
 }
