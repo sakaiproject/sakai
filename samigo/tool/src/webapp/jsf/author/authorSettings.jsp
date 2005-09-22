@@ -120,9 +120,6 @@ function checkTimeSelect(){
 
 <!-- content... -->
 <h:form id="assessmentSettingsAction">
-<f:verbatim><font color="red"></f:verbatim>
-  <h:messages />
-<f:verbatim></font></f:verbatim>
 
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
 
@@ -146,6 +143,12 @@ function checkTimeSelect(){
      <h:outputText value=" - " />
      <h:outputText value="#{assessmentSettings.title}" />
     </h3>
+<p>
+<f:verbatim><font color="red"></f:verbatim>
+  <h:messages />
+<f:verbatim></font></f:verbatim>
+
+</p>
 
 <div class="indnt1">
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
