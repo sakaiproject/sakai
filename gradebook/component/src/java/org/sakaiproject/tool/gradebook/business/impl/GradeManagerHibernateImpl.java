@@ -551,40 +551,40 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
     /**
      */
     public GradableObject getGradableObjectWithStats(final Long gradableObjectId, final Collection studentUids) {
-		GradableObject gradableObject;
-    	if (studentUids.isEmpty()) {
-    		// Hibernate 2.1.8 generates invalid SQL if an empty collection is used
-    		// as a parameter list.
-    		gradableObject = getGradableObject(gradableObjectId);
-    	} else {
-    		gradableObject = (GradableObject)getHibernateTemplate().execute(new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException {
+		GradableObject gradableObject = (GradableObject)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				List gradeRecords;
+				if (studentUids.isEmpty()) {
+					// Hibernate 2.1.8 generates invalid SQL if an empty collection is used
+					// as a parameter list.
+					gradeRecords = new ArrayList();
+				} else {
 					Query q = session.createQuery(
 						"from AbstractGradeRecord as gr where gr.gradableObject.id=:gradableObjectId and gr.gradableObject.removed=false and gr.studentId in (:studentUids)");
 					q.setLong("gradableObjectId", gradableObjectId.longValue());
 					q.setParameterList("studentUids", studentUids);
-					List gradeRecords = q.list();
+					gradeRecords = q.list();
+				}
 
-					// Calculate the total points possible, along with the auto-calculated grade percentage for each grade record
-					GradableObject go = (GradableObject)session.load(GradableObject.class, gradableObjectId);
-					if(go.isCourseGrade()) {
-						CourseGrade cg = (CourseGrade)go;
-						cg.calculateTotalPointsPossible(getAssignments(go.getGradebook().getId()));
-						for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
-							CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
-							if(cgr.getPointsEarned() != null) {
-								Double autoCalc = new Double(cgr.getPointsEarned().doubleValue() /
-										cg.getTotalPoints().doubleValue() * 100);
-								cgr.setAutoCalculatedGrade(autoCalc);
-							}
+				// Calculate the total points possible, along with the auto-calculated grade percentage for each grade record
+				GradableObject go = (GradableObject)session.load(GradableObject.class, gradableObjectId);
+				if(go.isCourseGrade()) {
+					CourseGrade cg = (CourseGrade)go;
+					cg.calculateTotalPointsPossible(getAssignments(go.getGradebook().getId()));
+					for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
+						CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
+						if(cgr.getPointsEarned() != null) {
+							Double autoCalc = new Double(cgr.getPointsEarned().doubleValue() /
+									cg.getTotalPoints().doubleValue() * 100);
+							cgr.setAutoCalculatedGrade(autoCalc);
 						}
 					}
-
-					go.calculateStatistics(gradeRecords, studentUids.size());
-					return go;
 				}
-			});
-		}
+
+				go.calculateStatistics(gradeRecords, studentUids.size());
+				return go;
+			}
+		});
 		return gradableObject;
     }
 
