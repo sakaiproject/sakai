@@ -34,7 +34,7 @@
 						</sakai:doc_section>
 
 						<h:outputText value="#{msgs.syllabus_content}"/>
-						<sakai:rich_text_area value="#{SyllabusTool.entry.entry.asset}"   rows="17" columns="65" javascriptLibrary="/library/htmlarea"/>
+						<sakai:rich_text_area value="#{SyllabusTool.entry.entry.asset}"   rows="17" columns="70"/>
 					</sakai:panel_edit>
 				</sakai:group_box>
 						
