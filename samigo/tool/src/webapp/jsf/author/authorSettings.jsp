@@ -588,7 +588,7 @@ function checkTimeSelect(){
 </div>
  <p class="act">
   <h:commandButton  value="#{msg.button_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
-      action="saveSettingsAndConfirmPublish" disabled="#{not assessmentSettings.hasQuestions}">
+      action="#{assessmentSettings.publishCheck}" disabled="#{not assessmentSettings.hasQuestions}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
   </h:commandButton>
 <h:commandButton  value="#{msg.button_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
