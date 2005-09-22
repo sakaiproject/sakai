@@ -73,7 +73,7 @@ public class AuthzQueriesFacade
     if(currentSiteId == null)
 	return false; // user don't login via any site if they are using published url
 
-    System.out.println("**** currentSiteId"+currentSiteId);
+    //System.out.println("**** currentSiteId"+currentSiteId);
     String currentAgentId = UserDirectoryService.getCurrentUser().getId();
     for (int i=0; i<authorizationList.size(); i++){
       AuthorizationData a = (AuthorizationData) authorizationList.get(i);
