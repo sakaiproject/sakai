@@ -24,6 +24,7 @@
 				</tr>
 			</table>
 
+			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 				<h:dataTable value="#{SyllabusTool.entries}" var="eachEntry" rendered="#{! SyllabusTool.syllabusItem.redirectURL}">
 					<h:column>
 						<sakai:panel_edit>
@@ -64,6 +65,7 @@
 					</h:column>
 				</h:dataTable>
 				<h:outputText value="#{msgs.syllabus_noEntry}" style="font-size:10px;font-weight:bold" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
+			</syllabus:syllabus_if>				
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
   			<syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="750" height="500" />
 			</syllabus:syllabus_ifnot>
