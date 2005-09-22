@@ -291,16 +291,20 @@
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-  <h:commandButton rendered="#{itemauthor.target=='assessment' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="editAssessment"  styleClass="active">
+ 
+
+ <h:commandButton rendered="#{itemauthor.target=='assessment' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.checkAnswer}"  styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
+
 
   <h:commandButton rendered="#{itemauthor.target=='questionpool' && !itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.checkPoolAnswer}"  styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-  <h:commandButton rendered="#{itemauthor.target=='questionpool' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="editPool" styleClass="active">
+
+  <h:commandButton rendered="#{itemauthor.target=='questionpool' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.checkPoolAnswer}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
