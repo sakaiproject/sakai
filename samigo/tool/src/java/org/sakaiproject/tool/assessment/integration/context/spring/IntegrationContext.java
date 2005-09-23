@@ -31,6 +31,12 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
+/**
+ * IntegrationContext is an internal implementation of IntegrationContextFactory.
+ * It is the implementation class actually used by Spring and returned by it's
+ * abstract superclasses' (IntegrationContextFactory) getInstance method.
+ * @author Ed Smiley
+ */
 public class IntegrationContext extends IntegrationContextFactory
 {
   private static Log log = LogFactory.getLog(IntegrationContext.class);
@@ -42,6 +48,10 @@ public class IntegrationContext extends IntegrationContextFactory
   private GradebookServiceHelper gradeBookServiceHelper;
   private PublishingTargetHelper publishingTargetHelper;
 
+  // plain old Java bean properties, nothing mysterious here
+  // just that we add mutators for Spring to hook, these are not
+  // part of the factory api, so IntegrationContextFactory doesn't have
+  // the setXXX() methods.
   public boolean isIntegrated()
   {
     return integrated;
@@ -91,6 +101,12 @@ public class IntegrationContext extends IntegrationContextFactory
     this.publishingTargetHelper = publishingTargetHelper;
   }
 
+  /**
+   * This is a unit test that verifies that the factory and bean property
+   * singletons have been properly created.  Examine output to verify
+   * interface instances are NOT null, and that they are of the right impl type.
+   * @param args ignored here
+   */
   public static void main(String[] args)
   {
     System.out.print("Getting factory 1st time. ");
@@ -98,11 +114,11 @@ public class IntegrationContext extends IntegrationContextFactory
     System.out.print("Getting factory is this a singleton? ");
     System.out.println("getInstance();="+getInstance());
     System.out.println("getInstance().isIntegrated()="+getInstance().isIntegrated());
-//    System.out.println("getInstance().getPublishingTargetHelper()="+getInstance().getPublishingTargetHelper());
+    System.out.println("getInstance().getAgentHelper()="+getInstance().getAgentHelper());
+    System.out.println("getInstance().getAuthzHelper()="+getInstance().getAuthzHelper());
+    System.out.println("getInstance().getPublishingTargetHelper()="+getInstance().getPublishingTargetHelper());
+    System.out.println("getInstance().getGradebookHelper()="+getInstance().getGradebookHelper());
 //    System.out.println("getInstance().getGradeBookServiceHelper()="+getInstance().getGradeBookServiceHelper());
-//    System.out.println("getInstance().getGradebookHelper()="+getInstance().getGradebookHelper());
-//    System.out.println("getInstance().getAuthzHelper()="+getInstance().getAuthzHelper());
-//    System.out.println("getInstance().getAgentHelper()="+getInstance().getAgentHelper());
   }
 
 }
