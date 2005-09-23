@@ -25,11 +25,12 @@ package org.sakaiproject.tool.gradebook.test;
 
 import java.util.*;
 
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
 
 /**
  *
@@ -55,7 +56,7 @@ public class TestGradeLoader extends GradebookLoaderBase {
 
             GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
 			for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
-				Enrollment enr = (Enrollment)enrIter.next();
+				EnrollmentRecord enr = (EnrollmentRecord)enrIter.next();
                 // Don't add grades for those no good lazy students
                 if(!enr.getUser().getUserUid().equals(StandaloneSectionsDataLoader.AUTHID_WITHOUT_GRADES_1) &&
                         !enr.getUser().getUserUid().equals(StandaloneSectionsDataLoader.AUTHID_WITHOUT_GRADES_2)) {

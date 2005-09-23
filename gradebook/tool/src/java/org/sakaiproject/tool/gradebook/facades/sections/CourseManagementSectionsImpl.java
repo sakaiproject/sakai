@@ -50,10 +50,7 @@ public class CourseManagementSectionsImpl extends AbstractSectionsImpl implement
 	}
 
 	private Set convertParticipationRecordListToEnrollmentSet(List participationRecords) {
-		Set enrollments = new HashSet(participationRecords.size());
-		for (Iterator iter = participationRecords.iterator(); iter.hasNext(); ) {
-			enrollments.add(new EnrollmentSectionsImpl((EnrollmentRecord)iter.next()));
-		}
+		Set enrollments = new HashSet(participationRecords);
 		return enrollments;
 	}
 

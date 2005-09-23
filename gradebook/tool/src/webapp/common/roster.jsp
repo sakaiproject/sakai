@@ -32,11 +32,11 @@
 			</h:column>
 			<h:column id="studentIdData">
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="studentDisplayUid" immediate="true" arrow="true" actionListener="#{rosterBean.sort}">
+		            <x:commandSortHeader columnName="studentDisplayId" immediate="true" arrow="true" actionListener="#{rosterBean.sort}">
 		                <h:outputText value="#{msgs.roster_student_id}"/>
 		            </x:commandSortHeader>
 		        </f:facet>
-				<h:outputText value="#{row.displayUid}"/>
+				<h:outputText value="#{row.displayId}"/>
 			</h:column>
 			<%/* Assignment columns will be dynamically appended, starting here. */%>
 		</x:dataTable>

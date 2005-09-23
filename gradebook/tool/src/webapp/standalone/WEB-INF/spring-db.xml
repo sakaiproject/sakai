@@ -20,41 +20,65 @@
 	<bean id="gradebookSessionFactory" name="sectionsSessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
 		<property name="dataSource"><ref bean="gradebookDataSource"/></property>
 
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradableObject.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
+				<value>org/sakaiproject/component/section/LearningContextImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/section/ParticipationRecordImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/section/UserImpl.hbm.xml</value>
+			</list>
+		</property>
+
+	<!--
+	  This works, so long as you can keep the classpath clean. It's how SectionAwareness
+	  integration used to happen before moving to the Sakai component scheme forced conflicts into
+	  the dependencies.
 		<property name="mappingLocations">
 		    <value>classpath*:org/sakaiproject/**/*.hbm.xml</value>
 		</property>
+	-->
 
-<!-- This doesn't work, because it can't look into JARs.
+	<!--
+	  This doesn't work, because it can't look into JARs.
 		<property name="mappingDirectoryLocations">
 			<list>
 				<value>classpath:org/sakaiproject/tool/gradebook</value>
 			</list>
 		</property>
--->
-<!-- This doesn't work, only because the standalone facade mappings aren't in a JAR. If they were, it would:
+	-->
+	<!--
+	  This doesn't work, only because the standalone facade mappings aren't in a JAR. If they were, it would:
 		<property name="mappingJarLocations">
 			<list>
 				<value>WEB-INF/lib/sakai-gradebook-component-data-2.0.0.jar</value>
 			</list>
 		</property>
--->
+	-->
 
-<!-- This works:
+	<!--
+	  This works, so long as the mappingLocation directories are limited.
 		<property name="mappingLocations">
 		    <value>classpath*:org/sakaiproject/tool/gradebook/**/*.hbm.xml</value>
 		</property>
--->
+	-->
 
-<!-- This doesn't work, because lists aren't allowed in Spring mappingLocations:
+	<!--
+	  This doesn't work, because lists aren't allowed in Spring mappingLocations.
+	  TODO Move to this approach when Spring closes SPR-1297.
 		<property name="mappingLocations">
 			<list>
 			    <value>classpath*:org/sakaiproject/tool/gradebook/*.hbm.xml</value>
 			    <value>classpath*:org/sakaiproject/tool/gradebook/facades/standalone/*.hbm.xml</value>
 			</list>
 		</property>
--->
+	-->
 
-<!-- This works:
+	<!--
+	  This works:
 		<property name="mappingResources">
 		    <list>
 				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
@@ -62,10 +86,6 @@
 				<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
 				<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
 				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
-
-				<value>org/sakaiproject/tool/gradebook/facades/standalone/EnrollmentStandalone.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/facades/standalone/TeachingAssignmentStandalone.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/facades/standalone/UserStandalone.hbm.xml</value>
 			</list>
 		</property>
 -->

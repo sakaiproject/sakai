@@ -53,7 +53,28 @@
 			<artifactId>sakai-sections-comp-shared-standalone</artifactId>
 			<version>${pom.currentVersion}</version>
 		</dependency>
-		<!-- Sakai 2.0-based component will be injected. -->
+
+        <!--
+        	Needed due to limitations in the current Sakai component scheme.
+        	Unfortunately, it results in conflicting Hibernate mapping files
+        	showing up in the classpath for standalone and test.
+        	TODO Come up with a way to make the dependencies deployment-sensitive.
+        	TODO Remove when/if the Sakai component scheme fixes Hibernate support.
+        -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-data-sakai20</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-sakai20</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
 		<!-- Used only for test data. -->
 		<dependency>
 			<groupId>sakaiproject</groupId>

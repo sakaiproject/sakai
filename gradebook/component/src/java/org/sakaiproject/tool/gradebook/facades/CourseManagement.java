@@ -38,7 +38,7 @@ public interface CourseManagement {
 	 * @param gradebookUid
 	 *            the UID of the given gradebook instance; typically used to
 	 *            reference the equivalent course offering
-	 * @return the matching Enrollment records
+	 * @return the matching EnrollmentRecord records
 	 */
 	public Set getEnrollments(String gradebookUid);
 

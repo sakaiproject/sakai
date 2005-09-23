@@ -41,10 +41,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
+
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -93,11 +95,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	private transient Map scoresMap;
 
 	public class StudentRow implements Serializable {
-        private Enrollment enrollment;
+        private EnrollmentRecord enrollment;
 
 		public StudentRow() {
 		}
-		public StudentRow(Enrollment enrollment) {
+		public StudentRow(EnrollmentRecord enrollment) {
             this.enrollment = enrollment;
 		}
 
@@ -107,8 +109,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		public String getSortName() {
 			return enrollment.getUser().getSortName();
 		}
-		public String getDisplayUid() {
-			return enrollment.getUser().getDisplayUid();
+		public String getDisplayId() {
+			return enrollment.getUser().getDisplayId();
 		}
 
 		public Map getScores() {
@@ -169,7 +171,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 		studentRows = new ArrayList(workingEnrollments.size());
         for (Iterator iter = workingEnrollments.iterator(); iter.hasNext(); ) {
-            Enrollment enrollment = (Enrollment)iter.next();
+            EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
             studentRows.add(new StudentRow(enrollment));
         }
 

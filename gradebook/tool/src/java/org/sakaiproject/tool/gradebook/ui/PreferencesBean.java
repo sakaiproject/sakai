@@ -34,7 +34,7 @@ import org.sakaiproject.tool.gradebook.Assignment;
 public class PreferencesBean {
 
     public static final String SORT_BY_NAME = "studentSortName";
-    public static final String SORT_BY_UID = "studentDisplayUid";
+    public static final String SORT_BY_UID = "studentDisplayId";
 
     private String assignmentSortColumn;
     private boolean assignmentSortAscending;

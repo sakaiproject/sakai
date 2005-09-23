@@ -76,7 +76,7 @@
 			<f:facet name="header">
 				<h:outputText value="Display UID"/>
 			</f:facet>
-			<h:outputText value="#{student.displayUid}" />
+			<h:outputText value="#{student.displayId}" />
 		</h:column>
 		<h:column>
 			<f:facet name="header">

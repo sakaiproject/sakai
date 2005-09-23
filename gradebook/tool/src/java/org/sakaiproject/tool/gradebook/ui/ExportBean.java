@@ -48,13 +48,15 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
 
 /**
  * Backing bean to export gradebook data. Currently we support two export
@@ -236,11 +238,11 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
         enrollments = new ArrayList(enrollmentSet);
         Collections.sort(enrollments, FacadeUtils.ENROLLMENT_NAME_COMPARATOR);
 		for(Iterator enrollmentIter = enrollments.iterator(); enrollmentIter.hasNext();) {
-			Enrollment enr = (Enrollment)enrollmentIter.next();
+			EnrollmentRecord enr = (EnrollmentRecord)enrollmentIter.next();
 			Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
 			HSSFRow row = sheet.createRow(sheet.getLastRowNum() + 1);
 			row.createCell((short)0).setCellValue(enr.getUser().getSortName());
-			row.createCell((short)1).setCellValue(enr.getUser().getDisplayUid());
+			row.createCell((short)1).setCellValue(enr.getUser().getDisplayId());
 			for(short j=0; j < gradableObjects.size(); j++) {
 				GradableObject go = (GradableObject)gradableObjects.get(j);
 				HSSFCell cell = row.createCell((short)(j+2));
@@ -301,7 +303,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
         Collections.sort(enrollments, FacadeUtils.ENROLLMENT_NAME_COMPARATOR);
 
 		for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
-			Enrollment enr = (Enrollment)enrIter.next();
+			EnrollmentRecord enr = (EnrollmentRecord)enrIter.next();
 			Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
 			if (studentMap == null) {
 				studentMap = new HashMap();
@@ -309,7 +311,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 
 			appendQuoted(sb, enr.getUser().getSortName());
 			sb.append(",");
-			appendQuoted(sb, enr.getUser().getDisplayUid());
+			appendQuoted(sb, enr.getUser().getDisplayId());
 			sb.append(",");
 
 			for(Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {

@@ -42,9 +42,14 @@ import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.StaleObjectStateException;
 import net.sf.hibernate.type.Type;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -61,9 +66,6 @@ import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
 
 /**
  * Manages GradeRecord and GradableObject persistence via hibernate.
@@ -423,7 +425,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 // Construct a set of student ids from the enrollments
                 Set studentIds = new HashSet();
                 for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-                    studentIds.add(((Enrollment)iter.next()).getUser().getUserUid());
+                    studentIds.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
                 }
 
                 Query q = session.createQuery("from GradingEvent as ge where ge.gradableObject=:go and ge.studentId in (:students)");

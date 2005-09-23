@@ -31,8 +31,10 @@ import javax.faces.event.ActionEvent;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
 
 /**
  * This is an abstract base class for gradebook dependent backing
@@ -140,7 +142,7 @@ public abstract class EnrollmentTableBean
         }
 
         for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
-        	Enrollment enr = (Enrollment)iter.next();
+        	EnrollmentRecord enr = (EnrollmentRecord)iter.next();
         	enrollmentMap.put(enr.getUser().getUserUid(), enr);
         }
 

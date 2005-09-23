@@ -28,7 +28,7 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.facades.Authn;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 
 /**
  * The facades to external services are defined as interfaces which could be
@@ -54,7 +54,7 @@ public class FacadeUtils {
      */
     public static final Comparator ENROLLMENT_NAME_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
-            return ((Enrollment)o1).getUser().getSortName().compareToIgnoreCase(((Enrollment)o2).getUser().getSortName());
+            return ((EnrollmentRecord)o1).getUser().getSortName().compareToIgnoreCase(((EnrollmentRecord)o2).getUser().getSortName());
 		}
 	};
 
@@ -64,7 +64,7 @@ public class FacadeUtils {
      */
     public static final Comparator ENROLLMENT_DISPLAY_UID_COMPARATOR = new Comparator() {
         public int compare(Object o1, Object o2) {
-            return ((Enrollment)o1).getUser().getDisplayUid().compareToIgnoreCase(((Enrollment)o2).getUser().getDisplayUid());
+            return ((EnrollmentRecord)o1).getUser().getDisplayId().compareToIgnoreCase(((EnrollmentRecord)o2).getUser().getDisplayId());
         }
     };
 
@@ -74,9 +74,9 @@ public class FacadeUtils {
      */
     public static final Comparator ENROLLMENT_DISPLAY_UID_NUMERIC_COMPARATOR = new Comparator() {
         public int compare(Object o1, Object o2) {
-            long user1DisplayUid = Long.parseLong(((Enrollment)o1).getUser().getDisplayUid());
-            long user2DisplayUid = Long.parseLong(((Enrollment)o2).getUser().getDisplayUid());
-            return (int)(user1DisplayUid - user2DisplayUid);
+            long user1DisplayId = Long.parseLong(((EnrollmentRecord)o1).getUser().getDisplayId());
+            long user2DisplayId = Long.parseLong(((EnrollmentRecord)o2).getUser().getDisplayId());
+            return (int)(user1DisplayId - user2DisplayId);
         }
     };
 
@@ -86,7 +86,7 @@ public class FacadeUtils {
     public static Set getStudentUids(Collection enrollments) {
 		Set studentUids = new HashSet();
 		for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-			Enrollment enr = (Enrollment)iter.next();
+			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
 			studentUids.add(enr.getUser().getUserUid());
 		}
 		return studentUids;

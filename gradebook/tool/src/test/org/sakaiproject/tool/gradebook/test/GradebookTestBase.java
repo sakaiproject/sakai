@@ -44,9 +44,6 @@ import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 
-// TODO Remove after full switch.
-import org.sakaiproject.tool.gradebook.facades.sections.EnrollmentSectionsImpl;
-
 /**
  * Base class for gradebook test classes that provides the spring application
  * context.  The database used is an in-memory hsqldb by default, but this can
@@ -109,7 +106,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
 			String studentUid = (String)iter.next();
 			userManager.createUser(studentUid, null, null, null);
 			EnrollmentRecord sectionEnrollment = (EnrollmentRecord)integrationSupport.addSiteMembership(studentUid, gradebook.getUid(), Role.STUDENT);
-			enrollments.add(new EnrollmentSectionsImpl(sectionEnrollment));
+			enrollments.add(sectionEnrollment);
 		}
 		return enrollments;
 	}

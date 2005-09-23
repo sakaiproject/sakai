@@ -28,17 +28,19 @@ import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.type.Type;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.CourseManagement;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * Base class for all gradebook managers.  Provides methods common to two or more
@@ -172,7 +174,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         Set enrollments = courseManagement.getEnrollments(gradebook.getUid());
         Set studentIds = new HashSet();
         for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-            studentIds.add(((Enrollment)iter.next()).getUser().getUserUid());
+            studentIds.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
         }
         recalculateCourseGradeRecords(gradebook, studentIds, session);
     }

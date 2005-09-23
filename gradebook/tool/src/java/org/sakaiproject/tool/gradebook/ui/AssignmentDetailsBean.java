@@ -32,6 +32,9 @@ import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
@@ -41,7 +44,6 @@ import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public class AssignmentDetailsBean extends EnrollmentTableBean {
@@ -59,13 +61,13 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	public class ScoreRow implements Serializable {
         private AssignmentGradeRecord gradeRecord;
-        private Enrollment enrollment;
+        private EnrollmentRecord enrollment;
         private StringBuffer eventsString;
         private static final char EVENT_SEP_CHAR = '|';
 
 		public ScoreRow() {
 		}
-		public ScoreRow(Enrollment enrollment, AssignmentGradeRecord gradeRecord, List gradingEvents) {
+		public ScoreRow(EnrollmentRecord enrollment, AssignmentGradeRecord gradeRecord, List gradingEvents) {
             Collections.sort(gradingEvents);
             this.enrollment = enrollment;
             if(gradeRecord == null) {
@@ -102,7 +104,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		public void setScore(Double score) {
             gradeRecord.setPointsEarned(score);
 		}
-        public Enrollment getEnrollment() {
+        public EnrollmentRecord getEnrollment() {
             return enrollment;
         }
         public String getEventsString() {
@@ -189,7 +191,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 					scores.addGradeRecord(gradeRecord);
 				}
 				for (Iterator iter = workingEnrollments.iterator(); iter.hasNext(); ) {
-					Enrollment enrollment = (Enrollment)iter.next();
+					EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
                     AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)scores.getGradeRecord(enrollment.getUser().getUserUid());
 					scoreRows.add(new ScoreRow(enrollment, gradeRecord, allEvents.getEvents(enrollment.getUser().getUserUid())));
 				}

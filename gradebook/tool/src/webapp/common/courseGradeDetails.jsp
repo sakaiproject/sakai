@@ -56,11 +56,11 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="studentDisplayUid" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <x:commandSortHeader columnName="studentDisplayId" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_student_id}"/>
 		            </x:commandSortHeader>
 				</f:facet>
-				<h:outputText value="#{scoreRow.enrollment.user.displayUid}"/>
+				<h:outputText value="#{scoreRow.enrollment.user.displayId}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">

@@ -33,13 +33,15 @@ import javax.faces.event.ActionEvent;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
-import org.sakaiproject.tool.gradebook.facades.Enrollment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public class CourseGradeDetailsBean extends EnrollmentTableBean {
@@ -57,12 +59,12 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     private double totalPoints;
 
 	public class ScoreRow implements Serializable {
-        private Enrollment enrollment;
+        private EnrollmentRecord enrollment;
         private CourseGradeRecord courseGradeRecord;
 
 		public ScoreRow() {
 		}
-		public ScoreRow(Enrollment enrollment) {
+		public ScoreRow(EnrollmentRecord enrollment) {
             this.enrollment = enrollment;
 			courseGradeRecord = (CourseGradeRecord)gradeRecordSet.getGradeRecord(enrollment.getUser().getUserUid());
 			if (courseGradeRecord == null) {
@@ -87,7 +89,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         public void setCourseGradeRecord(CourseGradeRecord courseGradeRecord) {
             this.courseGradeRecord = courseGradeRecord;
         }
-        public Enrollment getEnrollment() {
+        public EnrollmentRecord getEnrollment() {
             return enrollment;
         }
 	}
@@ -170,7 +172,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 			gradeRecordSet.addGradeRecord(gradeRecord);
 		}
 		for (Iterator iter = workingEnrollments.iterator(); iter.hasNext(); ) {
-			Enrollment enrollment = (Enrollment)iter.next();
+			EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
             scoreRows.add(new ScoreRow(enrollment));
 		}
 
