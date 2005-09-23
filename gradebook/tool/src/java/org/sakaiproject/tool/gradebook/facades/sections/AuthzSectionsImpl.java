@@ -25,8 +25,10 @@ package org.sakaiproject.tool.gradebook.facades.sections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.facade.Role;
+
 import org.sakaiproject.tool.gradebook.facades.Authz;
-import org.sakaiproject.tool.gradebook.facades.Role;
 
 
 /**
@@ -45,9 +47,9 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 		// TODO Either re-do Gradebook logic to more efficiently deal with lack of a Role object, or
 		// request that SectionAwareness add a "getRole(context, user)" method.
 
-		if (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, org.sakaiproject.api.section.facade.Role.INSTRUCTOR)) {
+		if (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR)) {
 			role = Role.INSTRUCTOR;
-		} else if (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, org.sakaiproject.api.section.facade.Role.STUDENT)) {
+		} else if (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.STUDENT)) {
 			role = Role.STUDENT;
 		} else {
 			// No TAs yet.

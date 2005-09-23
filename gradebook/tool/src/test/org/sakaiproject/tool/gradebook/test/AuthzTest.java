@@ -26,7 +26,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.facades.Role;
+import org.sakaiproject.api.section.facade.Role;
 
 /**
  * Tests standalone authz

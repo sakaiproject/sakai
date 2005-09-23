@@ -35,6 +35,13 @@
 			<version>${pom.currentVersion}</version>
 		</dependency>
 
+		<!-- Section Awareness -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-sections-api</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
