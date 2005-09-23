@@ -185,23 +185,23 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
 		// Load enrollments into the courses.
 		for (int i = 0; i < students.size(); i++) {
 			// Everyone is added to Site 8.
-			integrationSupport.addSiteMembership(((User)students.get(i)).getUserUuid(), SITE_UIDS[7], Role.STUDENT);
+			integrationSupport.addSiteMembership(((User)students.get(i)).getUserUid(), SITE_UIDS[7], Role.STUDENT);
 
 			// The first 150 students are added to Site 7.
 			if (i < 150) {
-				integrationSupport.addSiteMembership(((User)students.get(i)).getUserUuid(), SITE_UIDS[6], Role.STUDENT);
+				integrationSupport.addSiteMembership(((User)students.get(i)).getUserUid(), SITE_UIDS[6], Role.STUDENT);
 
 				// The first 50 students are added to Site 5 and 6, but 6 contains a special student....
 				if (i < 50) {
-					integrationSupport.addSiteMembership(((User)students.get(i)).getUserUuid(), SITE_UIDS[4], Role.STUDENT);
+					integrationSupport.addSiteMembership(((User)students.get(i)).getUserUid(), SITE_UIDS[4], Role.STUDENT);
 					if (i < 49) {
-						integrationSupport.addSiteMembership(((User)students.get(i)).getUserUuid(), SITE_UIDS[5], Role.STUDENT);
+						integrationSupport.addSiteMembership(((User)students.get(i)).getUserUid(), SITE_UIDS[5], Role.STUDENT);
 
 						// The first 10 students are added to Site 2, 3, and 4.
 						if (i < 10) {
-							integrationSupport.addSiteMembership(((User)students.get(i)).getUserUuid(), SITE_UIDS[3], Role.STUDENT);
-							integrationSupport.addSiteMembership(((User)students.get(i)).getUserUuid(), SITE_UIDS[2], Role.STUDENT);
-							integrationSupport.addSiteMembership(((User)students.get(i)).getUserUuid(), SITE_UIDS[1], Role.STUDENT);
+							integrationSupport.addSiteMembership(((User)students.get(i)).getUserUid(), SITE_UIDS[3], Role.STUDENT);
+							integrationSupport.addSiteMembership(((User)students.get(i)).getUserUid(), SITE_UIDS[2], Role.STUDENT);
+							integrationSupport.addSiteMembership(((User)students.get(i)).getUserUid(), SITE_UIDS[1], Role.STUDENT);
 						}
 					}
 				}
@@ -210,12 +210,12 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
 
 		// Load instructors into the courses.
 		for (int i = 0; i < SITE_UIDS.length; i++) {
-			integrationSupport.addSiteMembership(teacherAll.getUserUuid(), SITE_UIDS[i], Role.INSTRUCTOR);
+			integrationSupport.addSiteMembership(teacherAll.getUserUid(), SITE_UIDS[i], Role.INSTRUCTOR);
 		}
 
 		// Load the ambiguous one.
-		integrationSupport.addSiteMembership(teacherStudent.getUserUuid(), SITE_UIDS[SITE_AMBIGUOUS_TEACHER], Role.INSTRUCTOR);
-		integrationSupport.addSiteMembership(teacherStudent.getUserUuid(), SITE_UIDS[SITE_AMBIGUOUS_STUDENT], Role.STUDENT);
+		integrationSupport.addSiteMembership(teacherStudent.getUserUid(), SITE_UIDS[SITE_AMBIGUOUS_TEACHER], Role.INSTRUCTOR);
+		integrationSupport.addSiteMembership(teacherStudent.getUserUid(), SITE_UIDS[SITE_AMBIGUOUS_STUDENT], Role.STUDENT);
 	}
 
 }

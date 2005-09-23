@@ -48,7 +48,7 @@ public class UserSectionsImpl implements User {
 	 * @return Returns the userUid.
 	 */
 	public String getUserUid() {
-		return sectionsUser.getUserUuid();
+		return sectionsUser.getUserUid();
 	}
 	/**
 	 * @return Returns the sortName.
