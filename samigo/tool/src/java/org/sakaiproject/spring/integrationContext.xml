@@ -29,10 +29,11 @@
    <property name="publishingTargetHelper">
      <ref bean="publishingTargetHelper"/>
    </property>
-
+<!--
    <property name="gradebookServiceHelper">
      <ref bean="gradebookServiceHelper"/>
    </property>
+-->
 </bean>
 
 <!-- context-sensitive agent behavior -->
@@ -56,10 +57,11 @@
 </bean>
 
 <!-- context-sensitive gradebook service behavior -->
+<!--
 <bean name="gradebookServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.standalone.GradebookServiceHelperImpl">
 </bean>
-
+-->
 
 </beans>
 
