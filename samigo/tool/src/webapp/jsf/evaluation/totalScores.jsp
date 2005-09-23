@@ -102,11 +102,12 @@
   <span class="indnt1">
      <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
      <h:outputText value="#{totalScores.maxScore}" style="instruction"/></span>
-     <f:verbatim><br /></f:verbatim>
-<span class="indnt1">
+     <f:verbatim><br /></f:verbatim> </span>
+
+  <span class="indnt1">
      <h:outputText value="#{msg.view}" />
-     <h:outputText value=": " /></span>
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissions"
+     <h:outputText value=": " />
+     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsT"
         required="true" onchange="document.forms[0].submit();" >
       <f:selectItem itemValue="false" itemLabel="#{msg.last_sub}" />
       <f:selectItem itemValue="true" itemLabel="#{msg.all_sub}" />
