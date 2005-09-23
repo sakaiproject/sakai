@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;

@@ -29,13 +29,9 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 
 /**
  * A base class of ParticipationRecords for detachable persistent storage.

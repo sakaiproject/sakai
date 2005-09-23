@@ -57,7 +57,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,
 			final boolean externallyManaged) {
 		
-		if(log.isDebugEnabled()) log.debug("Creating a new course offering named " + title);
+		if(log.isDebugEnabled()) log.debug("Creating a new section container named " + title);
 
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {

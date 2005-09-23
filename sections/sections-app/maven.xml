@@ -114,6 +114,12 @@
                 <j:set var="maven.hibernate.properties" value="${basedir}/src/test/hibernate.properties"/>
             </j:otherwise>
         </j:choose>
+        
+        <!--  Just output to a text file? -->
+        <j:if test="${text.equals('true')}">
+            <j:set var="maven.hibernate.text" value="on"/>
+        </j:if>
+        
         <j:set var="hibernate.hbm2ddl.auto" value="create" />
         <j:set var="maven.hibernate.delimiter" value=";" />
         <j:set var="maven.hibernate.quiet" value="false" />
@@ -122,7 +128,7 @@
                 <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/standalone/src/hibernate" />
             </j:when>
             <j:otherwise>
-                <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/sakai20/src/hibernate" />
+                <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/sakai20/data-components/src/hibernate/org/sakaiproject/component/section/sakai20" />
             </j:otherwise>
         </j:choose>
         <j:set var="maven.hibernate.input.includes" value="**/*.hbm.xml" />
