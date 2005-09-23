@@ -599,14 +599,19 @@ function checkTimeSelect(){
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
   </h:commandButton>
 
-<h:commandButton type="submit" value="#{msg.button_save_settings}" action="saveSettings" rendered="#{not assessmentSettings.hasQuestions}" styleClass="active">
+<h:commandButton type="submit" value="#{msg.button_save_settings}" action="editAssessment" rendered="#{not assessmentSettings.hasQuestions}" styleClass="active">
+      <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener" />
   </h:commandButton>
 
-  <h:commandButton type="submit" value="#{msg.button_save_settings}" action="saveSettings" rendered="#{assessmentSettings.hasQuestions}">
+  <h:commandButton type="submit" value="#{msg.button_save_settings}" action="editAssessment" rendered="#{assessmentSettings.hasQuestions}">
+      <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener" />
   </h:commandButton>
-  <h:commandButton value="#{msg.button_cancel}" type="submit" action="author" />
+  <h:commandButton value="#{msg.button_cancel}" type="submit" action="editAssessment" >
+      <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
+  </h:commandButton>
 </p>
 </h:form>
 <!-- end content -->

@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -73,6 +74,12 @@ public class EditAssessmentListener
     // goto editAssessment.jsp
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("assessmentId");
+    if (assessmentId == null){
+	AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
+	    lookupBean("assessmentSettings");
+        assessmentId = assessmentSettings.getAssessmentId().toString();
+    }
+
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId);
