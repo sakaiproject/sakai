@@ -39,48 +39,49 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import org.sakaiproject.tool.assessment.integration.context.spring.FactoryUtil;
 
+/**
+ * This is an abstract class.  It defines the public methods available for
+ * the properties that it furnishes.
+ *
+ * @author Ed Smiley
+ */
 public abstract class IntegrationContextFactory
 {
   private static Log log = LogFactory.getLog(IntegrationContextFactory.class);
 
   private static final String FS = File.separator;
   private static final String CONFIGURATION =
-    "org" + FS + "sakaiproject" + "FS" + "spring" + FS + "integrationContext.xml";
-//  "C:\\cygwin\\home\\esmiley\\svn\\trunk\\sakai\\sam\\tool\\src\\java\\org\\sakaiproject\\spring\\"
-//    + "integrationContext.xml";
+    "org" + FS + "sakaiproject" + FS + "spring" + FS + "integrationContext.xml";
   private static IntegrationContextFactory instance;
-  private boolean integrated;
-  private AgentHelper agentHelper;
-  private AuthzHelper authzHelper;
-  private GradebookHelper gradebookHelper;
-  private GradebookServiceHelper gradeBookServiceHelper;
-  private PublishingTargetHelper publishingTargetHelper;
 
-  // the instance is provided by Spring-injection
-  static
-  {
-    try
-    {
-      Resource res = new ClassPathResource(CONFIGURATION);
-      BeanFactory factory = new XmlBeanFactory(res);
-//      InputStream is = new FileInputStream(CONFIGURATION);
-//      BeanFactory factory = new XmlBeanFactory(is);
-      instance =
-        (IntegrationContextFactory) factory.getBean("integrationContextFactory");
-    }
-    catch (Exception ex)
-    {
-      log.error("Unable to read integration context'" +
-                CONFIGURATION + "': " + ex);
-    }
-  }
-
+  /**
+   * Static method returning an implementation instance of this factory.
+   * @return the factory singleton
+   */
   public static IntegrationContextFactory getInstance()
   {
+    if (instance==null)
+    {
+      try
+      {
+        // the instance is provided by Spring-injection
+//        Resource res = new ClassPathResource(CONFIGURATION);
+//        BeanFactory factory = new XmlBeanFactory(res);
+        instance = FactoryUtil.lookup();
+//          (IntegrationContextFactory) factory.getBean("integrationContextFactory");
+      }
+      catch (Exception ex)
+      {
+        log.error("Unable to read integration context'" +
+                  CONFIGURATION + "': " + ex);
+      }
+    }
     return instance;
   }
 
+  // the factory api
   public abstract boolean isIntegrated();
   public abstract AgentHelper getAgentHelper();
   public abstract AuthzHelper getAuthzHelper();
