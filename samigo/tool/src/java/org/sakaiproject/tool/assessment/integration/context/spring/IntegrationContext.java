@@ -33,7 +33,7 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 
 /**
  * IntegrationContext is an internal implementation of IntegrationContextFactory.
- * It is the implementation class actually used by Spring and returned by it's
+ * It is the implementation class actually used by Spring and returned by its
  * abstract superclasses' (IntegrationContextFactory) getInstance method.
  * @author Ed Smiley
  */
