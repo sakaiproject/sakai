@@ -68,8 +68,7 @@ public class SaveAssessmentSettingsListener
     SaveAssessmentSettings s= new SaveAssessmentSettings();
     s.save(assessmentSettings);
 
-    /*
-    // reset the core listing
+    // reset the core listing in case assessment title changes
     AuthorBean author = (AuthorBean) cu.lookupBean(
                        "author");
     AssessmentService assessmentService = new AssessmentService();
@@ -77,7 +76,6 @@ public class SaveAssessmentSettingsListener
          author.getCoreAssessmentOrderBy(),author.isCoreAscending());
     // get the managed bean, author and set the list
     author.setAssessments(assessmentList);
-    */
 
     // goto Question Authoring page
     EditAssessmentListener editA= new EditAssessmentListener();

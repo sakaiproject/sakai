@@ -1054,7 +1054,7 @@ public class AssessmentSettingsBean
 	
 	 String err;
 	 String time=(String)(getValueMap().get("hasTimeAssessment"));
-		if((time.equals("true"))&&(this.timeLimit.intValue()==0))
+		if(time!=null && (time.equals("true"))&&(this.timeLimit.intValue()==0))
 	  {
               err=(String)rb.getObject("timeSelect_error");
 		     context.addMessage(null,new FacesMessage(err));
