@@ -251,6 +251,7 @@
         <h:outputText value="Scores" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="publishedId" value="#{publishedAssessment.publishedAssessmentId}" />
+        <f:param name="allSubmissionsT" value="true"/>
       </h:commandLink>
  <f:verbatim></span></f:verbatim>
     </h:column>
