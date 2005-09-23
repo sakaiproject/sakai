@@ -2,12 +2,14 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
   "http://www.springframework.org/dtd/spring-beans.dtd">
 
+<!-- this file holds the behavior-helper classes for the standalone version -->
 <beans>
 
-<!-- this file holds the behavior-helper classes for the standalone version -->
+<!-- behavior-helper factory implementation injected for the standalone version -->
 <bean name="integrationContextFactory"
-    class="org.sakaiproject.integration.context.IntegrationContextFactory"
+    class="org.sakaiproject.tool.assessment.integration.context.spring.IntegrationContext"
     singleton="true">
+
    <property name="integrated">
         <value>false</value>
    </property>
@@ -35,27 +37,27 @@
 
 <!-- context-sensitive agent behavior -->
 <bean name="agentHelper"
-     class="org.sakaiproject.integration.helper.standalone.AgentHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.AgentHelperImpl">
 </bean>
 
 <!-- context-sensitive authz behavior -->
 <bean name="authzHelper"
-     class="org.sakaiproject.integration.helper.standalone.AuthzHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.AuthzHelperImpl">
 </bean>
 
 <!-- context-sensitive gradebook behavior -->
 <bean name="gradebookHelper"
-     class="org.sakaiproject.integration.helper.standalone.GradebookHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.GradebookHelperImpl">
 </bean>
 
 <!-- context-sensitive publishing target behavior -->
 <bean name="publishingTargetHelper"
-     class="org.sakaiproject.integration.helper.standalone.PublishingTargetHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.PublishingTargetHelperImpl">
 </bean>
 
 <!-- context-sensitive gradebook service behavior -->
 <bean name="gradebookServiceHelper"
-     class="org.sakaiproject.integration.helper.standalone.GradebookServiceHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.GradebookServiceHelperImpl">
 </bean>
 
 

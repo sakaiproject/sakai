@@ -2,11 +2,12 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
   "http://www.springframework.org/dtd/spring-beans.dtd">
 
+<!-- this file holds the behavior-helper classes for the integrated version -->
 <beans>
 
-<!-- this file holds the behavior-helper classes for the integrated version -->
+<!-- behavior-helper factory implementation injected for the integrated version -->
 <bean name="integrationContextFactory"
-    class="org.sakaiproject.integration.context.IntegrationContextFactory"
+    class="org.sakaiproject.tool.assessment.integration.context.spring.IntegrationContext"
     singleton="true">
    <property name="integrated">
         <value>true</value>
@@ -35,27 +36,27 @@
 
 <!-- context-sensitive agent behavior -->
 <bean name="agentHelper"
-     class="org.sakaiproject.integration.helper.integrated.AgentHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl">
 </bean>
 
 <!-- context-sensitive authz behavior -->
 <bean name="authzHelper"
-     class="org.sakaiproject.integration.helper.integrated.AuthzHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.AuthzHelperImpl">
 </bean>
 
 <!-- context-sensitive gradebook behavior -->
 <bean name="gradebookHelper"
-     class="org.sakaiproject.integration.helper.integrated.GradebookHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookHelperImpl">
 </bean>
 
 <!-- context-sensitive publishing target behavior -->
 <bean name="publishingTargetHelper"
-     class="org.sakaiproject.integration.helper.integrated.PublishingTargetHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.PublishingTargetHelperImpl">
 </bean>
 
 <!-- context-sensitive gradebook service behavior -->
 <bean name="gradebookServiceHelper"
-     class="org.sakaiproject.integration.helper.integrated.GradebookServiceHelper">
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookServiceHelperImpl">
 </bean>
 
 
