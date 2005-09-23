@@ -41,7 +41,7 @@ public class UserImpl extends AbstractPersistentObject implements User, Serializ
 
 	private static final long serialVersionUID = 1L;
 	
-	protected String userUuid;
+	protected String userUid;
 	protected String sortName;
 	protected String displayId;
 	protected String displayName;
@@ -55,11 +55,11 @@ public class UserImpl extends AbstractPersistentObject implements User, Serializ
 	public UserImpl() {		
 	}
 	
-	public UserImpl(String displayName, String displayId, String sortName, String userUuid) {
+	public UserImpl(String displayName, String displayId, String sortName, String userUid) {
 		this.displayName = displayName;
 		this.displayId = displayId;
 		this.sortName = sortName;
-		this.userUuid = userUuid;
+		this.userUid = userUid;
 	}
 	
 	public String getDisplayName() {
@@ -71,8 +71,8 @@ public class UserImpl extends AbstractPersistentObject implements User, Serializ
 	public String getSortName() {
 		return sortName;
 	}
-	public String getUserUuid() {
-		return userUuid;
+	public String getUserUid() {
+		return userUid;
 	}
 
 	public long getId() {
@@ -98,7 +98,7 @@ public class UserImpl extends AbstractPersistentObject implements User, Serializ
 		if(o instanceof UserImpl) {
 			UserImpl other = (UserImpl)o;
 			return new EqualsBuilder()
-				.append(userUuid, other.userUuid)
+				.append(userUid, other.userUid)
 				.isEquals();
 		}
 		return false;
@@ -106,13 +106,13 @@ public class UserImpl extends AbstractPersistentObject implements User, Serializ
 
 	public int hashCode() {
 		return new HashCodeBuilder(17, 37)
-			.append(userUuid)
+			.append(userUid)
 			.toHashCode();
 	}
 	
 	public String toString() {
 		return new ToStringBuilder(this).append(displayName)
-		.append(userUuid).append(id).toString();
+		.append(userUid).append(id).toString();
 	}
 }
 

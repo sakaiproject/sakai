@@ -79,12 +79,12 @@ public class SectionAwareness {
 		return getInstance().getSiteMembersInRole(siteContext, role);
 	}
 
-	public static final boolean isSectionMemberInRole(String sectionUuid, String userUuid, Role role) {
-		return getInstance().isSectionMemberInRole(sectionUuid, userUuid, role);
+	public static final boolean isSectionMemberInRole(String sectionUuid, String userUid, Role role) {
+		return getInstance().isSectionMemberInRole(sectionUuid, userUid, role);
 	}
 
-	public static final boolean isSiteMemberInRole(String siteContext, String userUuid, Role role) {
-		return getInstance().isSiteMemberInRole(siteContext, userUuid, role);
+	public static final boolean isSiteMemberInRole(String siteContext, String userUid, Role role) {
+		return getInstance().isSiteMemberInRole(siteContext, userUid, role);
 	}
 	
 }

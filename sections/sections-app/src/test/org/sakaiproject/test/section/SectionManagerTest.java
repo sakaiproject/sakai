@@ -157,7 +157,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		Assert.assertTrue(switchingErrorThrown);
 		
 		// Add otherPerson to the section in the third category.  This is the only enrollment in this section or category.
-		secMgr.addSectionMembership(otherPerson.getUserUuid(), Role.STUDENT, sec4.getUuid());
+		secMgr.addSectionMembership(otherPerson.getUserUid(), Role.STUDENT, sec4.getUuid());
 		
 		// Assert that the third category's unsectioned students returns the two students
 		List unsectionedEnrollments = secMgr.getUnsectionedEnrollments(course.getUuid(), thirdCategory);
@@ -173,7 +173,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		// Assert that an instructor can not be added to a section
 		boolean instructorErrorThrown = false;
 		try {
-			secMgr.addSectionMembership(instructor1.getUserUuid(), Role.INSTRUCTOR, sec1.getUuid());
+			secMgr.addSectionMembership(instructor1.getUserUid(), Role.INSTRUCTOR, sec1.getUuid());
 		} catch (MembershipException me) {
 			instructorErrorThrown = true;
 		}
@@ -181,8 +181,8 @@ public class SectionManagerTest extends SectionsTestBase{
 
 		// Assert that setting the entire membership of a section is successful
 		Set set = new HashSet();
-		set.add(student1.getUserUuid());
-		set.add(student2.getUserUuid());
+		set.add(student1.getUserUid());
+		set.add(student2.getUserUid());
 		secMgr.setSectionMemberships(set, Role.STUDENT, sec4.getUuid());
 		List sectionMemberships = secMgr.getSectionEnrollments(sec4.getUuid());
 		Set sectionMembers = new HashSet();
@@ -195,7 +195,7 @@ public class SectionManagerTest extends SectionsTestBase{
 		Assert.assertTrue( ! sectionMembers.contains(otherPerson));
 		
 		// Drop a student from a section and ensure the enrollments reflect the drop
-		secMgr.dropSectionMembership(student1.getUserUuid(), sec2.getUuid());
+		secMgr.dropSectionMembership(student1.getUserUid(), sec2.getUuid());
 		List sec2Members = secMgr.getSectionEnrollments(sec2.getUuid());
 		Assert.assertTrue( ! sec2Members.contains(sectionEnrollment1));
 
@@ -214,20 +214,20 @@ public class SectionManagerTest extends SectionsTestBase{
 		Assert.assertTrue( ! secMgr.getSections(siteContext).contains(sec4));
 
 		// Assert that the correct enrollment records are returned for a student in a course
-		ParticipationRecord enrollment1 = secMgr.addSectionMembership(student1.getUserUuid(), Role.STUDENT, sec1.getUuid());
-		ParticipationRecord enrollment2 = secMgr.addSectionMembership(student1.getUserUuid(), Role.STUDENT, sec3.getUuid());
-		Set myEnrollments = secMgr.getSectionEnrollments(student1.getUserUuid(), course.getUuid());
+		ParticipationRecord enrollment1 = secMgr.addSectionMembership(student1.getUserUid(), Role.STUDENT, sec1.getUuid());
+		ParticipationRecord enrollment2 = secMgr.addSectionMembership(student1.getUserUid(), Role.STUDENT, sec3.getUuid());
+		Set myEnrollments = secMgr.getSectionEnrollments(student1.getUserUid(), course.getUuid());
 		
 		Assert.assertTrue(myEnrollments.contains(enrollment1));
 		Assert.assertTrue(myEnrollments.contains(enrollment2));
 		Assert.assertTrue(myEnrollments.size() == 2);
 
 		// Assert that a valid SectionEnrollments object (just a convenient data structure) can be obtained
-		Set studentUuids = new HashSet();
-		studentUuids.add("student1");
-		studentUuids.add("student2");
-		studentUuids.add("other1");
-		SectionEnrollments secEnrollments = secMgr.getSectionEnrollmentsForStudents(siteContext, studentUuids);
+		Set studentUids = new HashSet();
+		studentUids.add("student1");
+		studentUids.add("student2");
+		studentUids.add("other1");
+		SectionEnrollments secEnrollments = secMgr.getSectionEnrollmentsForStudents(siteContext, studentUids);
 
 		// Student 1 is enrolled in section 1 and 3
 		Assert.assertTrue(secEnrollments.getSection("student1", firstCategory).equals(sec1));

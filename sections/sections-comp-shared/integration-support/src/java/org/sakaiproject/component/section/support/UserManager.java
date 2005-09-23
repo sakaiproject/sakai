@@ -27,8 +27,8 @@ package org.sakaiproject.component.section.support;
 import org.sakaiproject.api.section.coursemanagement.User;
 
 public interface UserManager {
-	public User createUser(String userUuid, String displayName, String sortName, String displayUid);
-	public User findUser(String userUuid);
+	public User createUser(String userUid, String displayName, String sortName, String displayUid);
+	public User findUser(String userUid);
 }
 
 

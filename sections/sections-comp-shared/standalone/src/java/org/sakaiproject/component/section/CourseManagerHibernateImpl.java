@@ -94,7 +94,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
 				Query q = session.getNamedQuery("findUserSectionMembershipsInSite");
-				q.setParameter("userUuid", userUuid);
+				q.setParameter("userUid", userUuid);
 				q.setParameter("siteContext", siteContext);
 				List results = q.list();
 				for(Iterator iter = results.iterator(); iter.hasNext();) {

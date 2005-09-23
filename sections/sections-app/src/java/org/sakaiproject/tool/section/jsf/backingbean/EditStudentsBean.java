@@ -92,7 +92,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		selectedUsers = new ArrayList();
 		for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
 			ParticipationRecord enrollment = (ParticipationRecord)iter.next();
-			SelectItem item = new SelectItem(enrollment.getUser().getUserUuid(),
+			SelectItem item = new SelectItem(enrollment.getUser().getUserUid(),
 					enrollment.getUser().getSortName());
 			selectedUsers.add(item);
 		}
@@ -109,7 +109,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		availableUsers = new ArrayList();
 		for(Iterator iter = available.iterator(); iter.hasNext();) {
 			User student = ((ParticipationRecord)iter.next()).getUser();
-			availableUsers.add(new SelectItem(student.getUserUuid(), student.getSortName()));
+			availableUsers.add(new SelectItem(student.getUserUid(), student.getSortName()));
 		}
 		
 		// Build the list of available sections
@@ -181,17 +181,17 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	}
 	
 	private Set getHighlightedUsers(String componentId) {
-		Set userUuids = new HashSet();
+		Set userUids = new HashSet();
 		
 		String[] highlighted = (String[])FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterValuesMap().get(componentId);
 
 		if(highlighted != null) {
 			for(int i=0; i < highlighted.length; i++) {
-				userUuids.add(highlighted[i]);
+				userUids.add(highlighted[i]);
 			}
 		}
-		return userUuids;
+		return userUids;
 	}
 	
 	public List getAvailableUsers() {

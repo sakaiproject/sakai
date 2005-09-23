@@ -58,14 +58,14 @@ public class AuthnFilter implements Filter {
 		throws IOException, ServletException {
 		HttpSession session = ((HttpServletRequest)request).getSession(true);
 		Authn authnService = (Authn)WebApplicationContextUtils.getWebApplicationContext(session.getServletContext()).getBean(authnBean);
-		String userUuid = null;
+		String userUid = null;
 		try {
-			userUuid = authnService.getUserUuid(request);
+			userUid = authnService.getUserUid(request);
 		} catch (Exception e) {
 			if(log.isDebugEnabled()) log.debug("Could not get user uuid from authn service.");
 		}
-		if (log.isDebugEnabled()) log.debug("userUid=" + userUuid);
-		if (userUuid == null) {
+		if (log.isDebugEnabled()) log.debug("userUid=" + userUid);
+		if (userUid == null) {
 			if (authnRedirect != null) {
 				if (authnRedirect.equals(((HttpServletRequest)request).getRequestURI())) {
 					// Don't redirect to the same spot.

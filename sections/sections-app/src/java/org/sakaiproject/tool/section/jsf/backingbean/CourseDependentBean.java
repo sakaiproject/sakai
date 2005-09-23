@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
-import javax.faces.el.VariableResolver;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -87,12 +86,12 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().getSectionManager();
 	}
 	
-	protected String getUserUuid() {
-		return getCourseBean().authn.getUserUuid(FacesContext.getCurrentInstance().getExternalContext().getRequest());
+	protected String getUserUid() {
+		return getCourseBean().authn.getUserUid(FacesContext.getCurrentInstance().getExternalContext().getRequest());
 	}
 	
 	protected Role getSiteRole() {
-		return getCourseBean().authz.getSiteRole(getUserUuid(), getSiteContext());
+		return getCourseBean().authz.getSiteRole(getUserUid(), getSiteContext());
 	}
 	protected String getSiteContext() {
 		return getCourseBean().context.getContext(null);
@@ -107,9 +106,9 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 
 	protected Set getMyEnrolledSections() {
-		String userUuid = getUserUuid();
+		String userUid = getUserUid();
 		Course course = getCourse();
-		return getCourseBean().sectionManager.getSectionEnrollments(userUuid, course.getUuid());
+		return getCourseBean().sectionManager.getSectionEnrollments(userUid, course.getUuid());
 	}
 
 	protected String getCategoryName(String categoryId) {

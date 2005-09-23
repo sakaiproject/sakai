@@ -101,7 +101,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		selectedUsers = new ArrayList();
 		for(Iterator iter = selectedManagers.iterator(); iter.hasNext();) {
 			ParticipationRecord manager = (ParticipationRecord)iter.next();
-			SelectItem item = new SelectItem(manager.getUser().getUserUuid(),
+			SelectItem item = new SelectItem(manager.getUser().getUserUid(),
 					manager.getUser().getSortName());
 			selectedUsers.add(item);
 		}
@@ -114,7 +114,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		Set selectedUserUuids = new HashSet();
 		for(Iterator iter = selectedManagers.iterator(); iter.hasNext();) {
 			ParticipationRecord manager = (ParticipationRecord)iter.next();
-			selectedUserUuids.add(manager.getUser().getUserUuid());
+			selectedUserUuids.add(manager.getUser().getUserUid());
 		}
 
 		List availableManagers = getSectionManager().getSiteTeachingAssistants(getSiteContext());
@@ -123,15 +123,15 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		availableUsers = new ArrayList();
 		for(Iterator iter = availableManagers.iterator(); iter.hasNext();) {
 			User manager = ((ParticipationRecord)iter.next()).getUser();
-			if( ! selectedUserUuids.contains(manager.getUserUuid())) {
-				availableUsers.add(new SelectItem(manager.getUserUuid(), manager.getSortName()));
+			if( ! selectedUserUuids.contains(manager.getUserUid())) {
+				availableUsers.add(new SelectItem(manager.getUserUid(), manager.getSortName()));
 			}
 		}
 	}
 	
 	public String update() {
-		Set userUuids = getHighlightedUsers("memberForm:selectedUsers");
-		getSectionManager().setSectionMemberships(userUuids, Role.TA, sectionUuid);
+		Set userUids = getHighlightedUsers("memberForm:selectedUsers");
+		getSectionManager().setSectionMemberships(userUids, Role.TA, sectionUuid);
 		
 		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
 				"edit_manager_successful", new String[] {sectionTitle}));
@@ -144,17 +144,17 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	}
 
 	private Set getHighlightedUsers(String componentId) {
-		Set userUuids = new HashSet();
+		Set userUids = new HashSet();
 		
 		String[] highlighted = (String[])FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterValuesMap().get(componentId);
 
 		if(highlighted != null) {
 			for(int i=0; i < highlighted.length; i++) {
-				userUuids.add(highlighted[i]);
+				userUids.add(highlighted[i]);
 			}
 		}
-		return userUuids;
+		return userUids;
 	}
 	
 	public List getAvailableUsers() {

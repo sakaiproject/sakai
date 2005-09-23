@@ -89,16 +89,16 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 		return getHibernateTemplate().execute(hc) != null;
 	}
 
-	public void removeUserFromAllSections(final String userUuid, final String siteContext) {
+	public void removeUserFromAllSections(final String userUid, final String siteContext) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
 				Query q = session.getNamedQuery("findUserSectionMembershipsInSite");
-				q.setParameter("userUuid", userUuid);
+				q.setParameter("userUid", userUid);
 				q.setParameter("siteContext", siteContext);
 				List results = q.list();
 				for(Iterator iter = results.iterator(); iter.hasNext();) {
 					ParticipationRecord record = (ParticipationRecord) iter.next();
-					if(log.isInfoEnabled()) log.info("User " + userUuid +
+					if(log.isInfoEnabled()) log.info("User " + userUid +
 							" removed from the site... removing user from section " +
 							record.getLearningContext().getTitle());
 					session.delete(record);

@@ -27,21 +27,21 @@ package org.sakaiproject.component.section.facade.impl.standalone;
 import org.sakaiproject.api.section.facade.manager.Authn;
 
 /**
- * Authn implementation for testing.  Note that the userUuid can be set manually
+ * Authn implementation for testing.  Note that the userUid can be set manually
  * if a test needs to change the authn credential.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
 public class AuthnTestImpl implements Authn {
-	private String userUuid;
+	private String userUid;
 
-	public String getUserUuid(Object request) {
-		return userUuid;
+	public String getUserUid(Object request) {
+		return userUid;
 	}
 
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
+	public void setUserUuid(String userUid) {
+		this.userUid = userUid;
 	}
 	
 }

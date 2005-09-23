@@ -56,9 +56,9 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
         Authz authzService = (Authz)ac.getBean("org.sakaiproject.api.section.facade.manager.Authz");
         Context contextService = (Context)ac.getBean("org.sakaiproject.api.section.facade.manager.Context");
 
-        String userUuid = authnService.getUserUuid(null);
+        String userUid = authnService.getUserUid(null);
         String siteContext = contextService.getContext(null);
-        Role siteRole = authzService.getSiteRole(userUuid, siteContext);
+        Role siteRole = authzService.getSiteRole(userUid, siteContext);
 
         String target;
         if(siteRole.isInstructor() || siteRole.isTeachingAssistant()) {
@@ -69,7 +69,7 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
             target = "/studentView";
         } else {
             // The role filter has not been invoked yet, so this could happen here
-            throw new RuntimeException("User " + userUuid + " attempted to access sections in site " +
+            throw new RuntimeException("User " + userUid + " attempted to access sections in site " +
             		siteContext + " without any role");
         }
         return target;

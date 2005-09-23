@@ -150,11 +150,11 @@ public interface SectionManager {
 	 * Gets a SectionEnrollments data structure for the given students.
 	 * 
 	 * @param siteContext The site context
-	 * @param studentUuids The Set of userUuids to include in the SectionEnrollments
+	 * @param studentUids The Set of userUids to include in the SectionEnrollments
 	 * 
 	 * @return
 	 */
-	public SectionEnrollments getSectionEnrollmentsForStudents(String siteContext, Set studentUuids);
+	public SectionEnrollments getSectionEnrollmentsForStudents(String siteContext, Set studentUids);
 	
     /**
      * Adds the current user to a section as a student.  This is a convenience
@@ -189,13 +189,13 @@ public interface SectionManager {
      * example, will automatically remove 'student1' from 'Lab2'.  TAs may be
      * added to multiple sections in a site regardless of category.
      * 
-     * @param userUuid
+     * @param userUid
      * @param role
      * @param sectionUuid
      * @throws MembershipException Only students and TAs can be members of a
      * section.  Instructor roles are assigned only at the course level.
      */
-    public ParticipationRecord addSectionMembership(String userUuid, Role role, String sectionUuid)
+    public ParticipationRecord addSectionMembership(String userUid, Role role, String sectionUuid)
         throws MembershipException;
     
     /**
@@ -203,20 +203,20 @@ public interface SectionManager {
      * a given role.  This is useful when doing bulk modifications of section
      * membership.
      * 
-     * @param userUuids The set of userUuids as strings
+     * @param userUids The set of userUids as strings
      * @param sectionId The sectionId
      */
-    public void setSectionMemberships(Set userUuids, Role role, String sectionId);
+    public void setSectionMemberships(Set userUids, Role role, String sectionId);
     
     /**
      * Removes a user from a section.
      * 
-     * @param userUuid
+     * @param userUid
      * @param sectionUuid
      */
-    public void dropSectionMembership(String userUuid, String sectionUuid);
+    public void dropSectionMembership(String userUid, String sectionUuid);
     
-	public void dropEnrollmentFromCategory(String studentUuid, String siteContext, String category);
+	public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category);
 
     /**
      * Adds a CourseSection to a parent CourseSection.  This assumes that meeting times
@@ -334,11 +334,11 @@ public interface SectionManager {
      * Gets all of the section enrollments for a user in a course.  Useful for
      * listing all of the sections in which a student is enrolled.
      * 
-     * @param userUuid
+     * @param userUid
      * @param courseUuid
      * @return A Set of EnrollmentRecords
      */
-    public Set getSectionEnrollments(String userUuid, String courseUuid);
+    public Set getSectionEnrollments(String userUid, String courseUuid);
 
 
     /**
@@ -367,10 +367,10 @@ public interface SectionManager {
 	 * Gets a single User object for a student in a site.
 	 * 
 	 * @param siteContext Needed by the standalone implementation to find the user
-	 * @param studentUuid
+	 * @param studentUid
 	 * @return The User representing this student
 	 */
-    public User getSiteEnrollment(String siteContext, String studentUuid);
+    public User getSiteEnrollment(String siteContext, String studentUid);
 
 }
 

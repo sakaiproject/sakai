@@ -35,7 +35,7 @@ import java.util.Set;
  *
  */
 public interface SectionEnrollments {
-	public CourseSection getSection(String studentUuid, String categoryId);
+	public CourseSection getSection(String studentUid, String categoryId);
 	
 	public Set getStudentUuids();
 }

@@ -106,12 +106,12 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		}
 		
 		// Get the section enrollments
-		Set studentUuids = new HashSet();
+		Set studentUids = new HashSet();
 		for(Iterator iter = siteStudents.iterator(); iter.hasNext();) {
 			ParticipationRecord record = (ParticipationRecord)iter.next();
-			studentUuids.add(record.getUser().getUserUuid());
+			studentUids.add(record.getUser().getUserUid());
 		}
-		SectionEnrollments sectionEnrollments = getSectionManager().getSectionEnrollmentsForStudents(getSiteContext(), studentUuids);
+		SectionEnrollments sectionEnrollments = getSectionManager().getSectionEnrollmentsForStudents(getSiteContext(), studentUids);
 		
 		// Construct the decorated enrollments for the UI
 		List unpagedEnrollments = new ArrayList();
@@ -124,7 +124,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			Map map = new HashMap();
 			for(Iterator catIter = categories.iterator(); catIter.hasNext();) {
 				String cat = (String)catIter.next();
-				CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUuid(), cat);
+				CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), cat);
 				map.put(cat, section);
 			}
 			EnrollmentDecorator decorator = new EnrollmentDecorator(enrollment, map);

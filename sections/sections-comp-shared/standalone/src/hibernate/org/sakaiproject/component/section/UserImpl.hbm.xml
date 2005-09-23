@@ -10,7 +10,7 @@
 		</id>
 		<version name="version" type="integer" column="VERSION"/>
 		
-		<property name="userUuid" column="USER_UUID" type="string" unique="true" not-null="true" access="field"/>
+		<property name="userUid" column="USER_UID" type="string" unique="true" not-null="true" access="field"/>
         <property name="sortName" column="SORT_NAME" access="field"/>
         <property name="displayId" column="DISPLAY_ID" access="field"/>
         <property name="displayName" column="DISPLAY_NAME" access="field"/>
@@ -18,7 +18,7 @@
 
     <query name="findUser">
         <![CDATA[
-        from UserImpl as user where user.userUuid=:userUuid
+        from UserImpl as user where user.userUid=:userUid
         ]]>
     </query>
 

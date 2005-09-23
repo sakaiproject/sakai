@@ -26,37 +26,45 @@ package org.sakaiproject.component.section.sakai20;
 
 import java.io.Serializable;
 
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
 
-public class UserImpl implements User, Serializable {
+/**
+ * A detachable EnrollmentRecord for persistent storage.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
+public class EnrollmentRecordImpl extends ParticipationRecordImpl implements EnrollmentRecord, Serializable {
+
 	private static final long serialVersionUID = 1L;
 	
-	private String userUuid;
-	private String displayId;
-	private String sortName;
-	private String displayName;
+	protected String status;
+
+	/**
+	 * No-arg constructor needed for hibernate
+	 */
+	public EnrollmentRecordImpl() {		
+	}
 	
-	public UserImpl(String displayId, String displayName, String sortName, String uuid) {
-		this.displayId = displayId;
-		this.displayName = displayName;
-		this.sortName = sortName;
-		this.userUuid = uuid;
+	public EnrollmentRecordImpl(LearningContext learningContext, String status, User user) {
+		this.learningContext = learningContext;
+		this.status = status;
+		this.user = user;
+		this.userUid = user.getUserUid();
 	}
 
-	public String getUserUuid() {
-		return userUuid;
+	public Role getRole() {
+		return Role.STUDENT;
 	}
 
-	public String getSortName() {
-		return sortName;
+	public String getStatus() {
+		return status;
 	}
-
-	public String getDisplayId() {
-		return displayId;
-	}
-
-	public String getDisplayName() {
-		return displayName;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }
 

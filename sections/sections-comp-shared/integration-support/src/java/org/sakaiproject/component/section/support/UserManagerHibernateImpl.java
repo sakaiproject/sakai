@@ -40,14 +40,14 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class UserManagerHibernateImpl extends HibernateDaoSupport implements UserManager {
 	private static Log log = LogFactory.getLog(UserManagerHibernateImpl.class);
 	
-	public User createUser(final String userUuid, final String displayName,
+	public User createUser(final String userUid, final String displayName,
 			final String sortName, final String displayId) {
 		
-		if(log.isDebugEnabled()) log.debug("Creating a user named " + displayName + " with uuid=" + userUuid);
+		if(log.isDebugEnabled()) log.debug("Creating a user named " + displayName + " with uid=" + userUid);
 
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				UserImpl user = new UserImpl(displayName, displayId, sortName, userUuid);
+				UserImpl user = new UserImpl(displayName, displayId, sortName, userUid);
 				session.save(user);
 				return user;
 			}
@@ -55,11 +55,11 @@ public class UserManagerHibernateImpl extends HibernateDaoSupport implements Use
 		return (User)getHibernateTemplate().execute(hc);
 	}
 	
-	public User findUser(final String userUuid) {
+	public User findUser(final String userUid) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
 				Query q = session.getNamedQuery("findUser");
-				q.setParameter("userUuid", userUuid);
+				q.setParameter("userUid", userUid);
 				return q.uniqueResult();
 			}
 		};

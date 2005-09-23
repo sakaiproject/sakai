@@ -82,31 +82,31 @@ public interface IntegrationSupport {
 	/**
 	 * Creates a new user.
 	 * 
-	 * @param userUuid
+	 * @param userUid
 	 * @param displayName
 	 * @param sortName
 	 * @param displayId
 	 * @return
 	 */
-	public User createUser(String userUuid, String displayName, String sortName, String displayId);
+	public User createUser(String userUid, String displayName, String sortName, String displayId);
 	
 	/**
 	 * Finds a user by their uuid.
 	 * 
-	 * @param userUuid
+	 * @param userUid
 	 * @return
 	 */
-	public User findUser(String userUuid);
+	public User findUser(String userUid);
 
 	/**
 	 * Gets all of the site-scoped ParticipationRecords for a user.  This can be
 	 * a mix of enrollments and instructor or TA records, since a user can play
 	 * different roles in different sites.
 	 * 
-	 * @param userUuid
+	 * @param userUid
 	 * @return
 	 */
-	public List getAllSiteMemberships(String userUuid);
+	public List getAllSiteMemberships(String userUid);
 	
 	/**
 	 * Gets all of the section-scoped ParticipationRecords for a user in a
@@ -114,47 +114,47 @@ public interface IntegrationSupport {
 	 * or TA records, since a user can not play different roles in the sections
 	 * belonging to a single site.
 	 * 
-	 * @param userUuid
+	 * @param userUid
 	 * @param siteContext
 	 * @return
 	 */
-	 public Set getAllSectionMemberships(String userUuid, String siteContext);
+	 public Set getAllSectionMemberships(String userUid, String siteContext);
 
 	/**
 	 * Adds a user to a site (or "Course").
 	 * 
-	 * @param userUuid
+	 * @param userUid
 	 * @param siteContext
 	 * @param role
 	 * @return
 	 */
-	public ParticipationRecord addSiteMembership(String userUuid, String siteContext, Role role);
+	public ParticipationRecord addSiteMembership(String userUid, String siteContext, Role role);
 	
 	/**
 	 * Removes a user from a site (or "Course").
 	 * 
-	 * @param userUuid
+	 * @param userUid
 	 * @param siteContext
 	 */
-	public void removeSiteMembership(String userUuid, String siteContext);
+	public void removeSiteMembership(String userUid, String siteContext);
 
 	/**
 	 * Adds a user to a section under the given role.
 	 * 
-	 * @param userUuid
+	 * @param userUid
 	 * @param sectionUuid
 	 * @param role
 	 * @return
 	 */
-	public ParticipationRecord addSectionMembership(String userUuid, String sectionUuid, Role role);
+	public ParticipationRecord addSectionMembership(String userUid, String sectionUuid, Role role);
 
 	/**
 	 * Removes a user from membership in a section.
 	 * 
-	 * @param userUuid
+	 * @param userUid
 	 * @param sectionUuid
 	 */
-	public void removeSectionMembership(String userUuid, String sectionUuid);
+	public void removeSectionMembership(String userUid, String sectionUuid);
 
 }
 

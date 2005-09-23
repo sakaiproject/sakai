@@ -60,7 +60,7 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 
 	private static final Log log = LogFactory.getLog(EditStudentSectionsBean.class);
 	
-	private String studentUuid;
+	private String studentUid;
 	private String studentName;
 	private List usedCategories;
 	private Map sectionItems;
@@ -77,12 +77,12 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		fullIndicator = JsfUtil.getLocalizedMessage("edit_student_sections_full");
 		
 		// Get the student's name
-		String studentUuidFromParam = JsfUtil.getStringFromParam("studentUuid");
-		if(studentUuidFromParam != null) {
-			studentUuid = studentUuidFromParam;
+		String studentUidFromParam = JsfUtil.getStringFromParam("studentUid");
+		if(studentUidFromParam != null) {
+			studentUid = studentUidFromParam;
 		}
 		
-		User student = getSectionManager().getSiteEnrollment(getSiteContext(), studentUuid);
+		User student = getSectionManager().getSiteEnrollment(getSiteContext(), studentUid);
 		studentName = student.getDisplayName();
 		
 		// Get the site course and sections
@@ -119,7 +119,7 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		}
 
 		// Build the map of categories to the section uuids for the student's current enrollments
-		Set studentEnrollments = getSectionManager().getSectionEnrollments(studentUuid, course.getUuid());
+		Set studentEnrollments = getSectionManager().getSectionEnrollments(studentUid, course.getUuid());
 		for(Iterator iter = studentEnrollments.iterator(); iter.hasNext();) {
 			EnrollmentRecord record = (EnrollmentRecord)iter.next();
 			CourseSection section = (CourseSection)record.getLearningContext();
@@ -185,11 +185,11 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 			String sectionUuid = (String)sectionEnrollment.get(category);
 			if(sectionUuid.equals(UNASSIGNED)) {
 				// Remove any existing section enrollment for this category
-				if(log.isDebugEnabled()) log.debug("Unassigning " + studentUuid + " from category " + category);
-				getSectionManager().dropEnrollmentFromCategory(studentUuid, siteContext, category);
+				if(log.isDebugEnabled()) log.debug("Unassigning " + studentUid + " from category " + category);
+				getSectionManager().dropEnrollmentFromCategory(studentUid, siteContext, category);
 			} else {
-				if(log.isDebugEnabled()) log.debug("Assigning " + studentUuid + " to section " + sectionUuid);
-				getSectionManager().addSectionMembership(studentUuid, Role.STUDENT, sectionUuid);
+				if(log.isDebugEnabled()) log.debug("Assigning " + studentUid + " to section " + sectionUuid);
+				getSectionManager().addSectionMembership(studentUid, Role.STUDENT, sectionUuid);
 
 				// Add a warning if max enrollments has been exceeded
 				CourseSection section = getSectionManager().getSection(sectionUuid);
@@ -207,8 +207,8 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		return "roster";
 	}
 	
-	public void setStudentUuid(String studentUuid) {
-		this.studentUuid = studentUuid;
+	public void setStudentUid(String studentUuid) {
+		this.studentUid = studentUuid;
 	}
 	
 	public String getStudentName() {

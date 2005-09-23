@@ -26,49 +26,78 @@ package org.sakaiproject.component.section.sakai20;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 
 /**
- * A detachable EnrollmentRecord for persistent storage.
+ * A base class of ParticipationRecords for detachable persistent storage.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class EnrollmentRecordImpl extends ParticipationRecordImpl implements EnrollmentRecord, Serializable {
+public abstract class ParticipationRecordImpl extends AbstractPersistentObject
+	implements ParticipationRecord, Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	protected String status;
+	protected User user;
+	protected String userUid;
+	protected LearningContext learningContext;
 
-	/**
-	 * No-arg constructor needed for hibernate
-	 */
-	public EnrollmentRecordImpl() {		
+	public User getUser() {
+		if(user == null) {
+			user = SakaiUtil.getUserFromSakai(userUid);
+		}
+		return user;
 	}
 	
-	public EnrollmentRecordImpl(LearningContext learningContext, String status, User user) {
+	public String getUserUid() {
+		return userUid;
+	}
+
+	public void setUserUid(String userUid) {
+		this.userUid = userUid;
+	}
+
+	public LearningContext getLearningContext() {
+		return learningContext;
+	}
+	public void setLearningContext(LearningContext learningContext) {
 		this.learningContext = learningContext;
-		this.status = status;
-		this.user = user;
-		this.userUuid = user.getUserUuid();
 	}
 
-	public Role getRole() {
-		return Role.STUDENT;
+	public boolean equals(Object o) {
+		if(o == this) {
+			return true;
+		}
+		if(o instanceof ParticipationRecord) {
+			ParticipationRecordImpl other = (ParticipationRecordImpl)o;
+			return new EqualsBuilder()
+				.append(userUid, other.getUserUid())
+				.append(learningContext, other.getLearningContext())
+				.isEquals();
+		}
+		return false;
 	}
 
-	public String getStatus() {
-		return status;
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37)
+			.append(userUid)
+			.append(learningContext)
+			.toHashCode();
 	}
-	public void setStatus(String status) {
-		this.status = status;
+	
+	public String toString() {
+		return new ToStringBuilder(this).append(userUid)
+		.append(learningContext).toString();
 	}
 }
-
-
 
 /**********************************************************************************
  * $Id$

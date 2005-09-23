@@ -39,7 +39,7 @@ public interface Authn {
 	 * 
 	 * @return
 	 */
-    public String getUserUuid(Object request);
+    public String getUserUid(Object request);
 }
 
 

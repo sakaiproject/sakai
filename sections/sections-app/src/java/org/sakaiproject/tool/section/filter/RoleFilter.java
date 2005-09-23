@@ -73,12 +73,12 @@ public class RoleFilter implements Filter {
 		Authn authn = (Authn)ac.getBean(authnBeanName);
 		Authz authz = (Authz)ac.getBean(authzBeanName);
 		Context context = (Context)ac.getBean(contextBeanName);
-		String userUuid = authn.getUserUuid(request);
+		String userUid = authn.getUserUid(request);
 
-        if(log.isDebugEnabled()) log.debug("Filtering request for user " + userUuid);
+        if(log.isDebugEnabled()) log.debug("Filtering request for user " + userUid);
 
         String siteContext = context.getContext(request);
-        Role siteRole = authz.getSiteRole(userUuid, siteContext);
+        Role siteRole = authz.getSiteRole(userUid, siteContext);
 
         boolean roleAllowed = false;
         for(int i=0; i<roleParam.length; i++) {
@@ -93,7 +93,7 @@ public class RoleFilter implements Filter {
 			chain.doFilter(request, response);
         } else {
     		if(log.isInfoEnabled()) log.info("PAGE VIEW AUTHZ FAILURE: User "
-    				+ userUuid + " in role "
+    				+ userUid + " in role "
     				+ siteRole + " for site " + siteContext + " on page "
     				+ ((HttpServletRequest)request).getServletPath());
     		((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);

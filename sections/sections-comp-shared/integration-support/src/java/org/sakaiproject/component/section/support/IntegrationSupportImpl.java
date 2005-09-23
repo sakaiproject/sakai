@@ -74,32 +74,32 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 				saturday, sunday);
 	}
 
-	public User createUser(String userUuid, String displayName, String sortName, String displayId) {
-		return userManager.createUser(userUuid, displayName, sortName, displayId);
+	public User createUser(String userUid, String displayName, String sortName, String displayId) {
+		return userManager.createUser(userUid, displayName, sortName, displayId);
 	}
 
-	public User findUser(final String userUuid) {
-		return userManager.findUser(userUuid);
+	public User findUser(final String userUid) {
+		return userManager.findUser(userUid);
 	}
 
-	public List getAllSiteMemberships(final String userUuid) {
+	public List getAllSiteMemberships(final String userUid) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query q = session.getNamedQuery("getUsersSiteMemberships");
-				q.setParameter("userUuid", userUuid);
+				q.setParameter("userUid", userUid);
 				return q.list();
 			}
 		};
 		return getHibernateTemplate().executeFind(hc);
 	}
 
-	public Set getAllSectionMemberships(String userUuid, String siteContext) {
+	public Set getAllSectionMemberships(String userUid, String siteContext) {
 		Course course = sectionManager.getCourse(siteContext);
-		return sectionManager.getSectionEnrollments(userUuid, course.getUuid());
+		return sectionManager.getSectionEnrollments(userUid, course.getUuid());
 	}
 
-	public ParticipationRecord addSiteMembership(String userUuid, String siteContext, Role role) {
-		User user = findUser(userUuid);
+	public ParticipationRecord addSiteMembership(String userUid, String siteContext, Role role) {
+		User user = findUser(userUid);
 		Course course = sectionManager.getCourse(siteContext);
 		
 		ParticipationRecord record = null;
@@ -124,13 +124,13 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 		return record;
 	}
 
-	public void removeSiteMembership(final String userUuid, final String siteContext) {
+	public void removeSiteMembership(final String userUid, final String siteContext) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				log.info("getting query object");
 				Query q = session.getNamedQuery("loadSiteParticipation");
 				log.info("query = " + q);
-				q.setParameter("userUuid", userUuid);
+				q.setParameter("userUid", userUid);
 				q.setParameter("siteContext", siteContext);
 				return q.uniqueResult();
 			}
@@ -142,12 +142,12 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 		}
 	}
 
-	public ParticipationRecord addSectionMembership(String userUuid, String sectionUuid, Role role) {
-		return sectionManager.addSectionMembership(userUuid, role, sectionUuid);
+	public ParticipationRecord addSectionMembership(String userUid, String sectionUuid, Role role) {
+		return sectionManager.addSectionMembership(userUid, role, sectionUuid);
 	}
 
-	public void removeSectionMembership(String userUuid, String sectionUuid) {
-		sectionManager.dropSectionMembership(userUuid, sectionUuid);
+	public void removeSectionMembership(String userUid, String sectionUuid) {
+		sectionManager.dropSectionMembership(userUid, sectionUuid);
 	}
 
 	// Dependency Injection

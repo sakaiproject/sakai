@@ -56,29 +56,29 @@ public class SectionEnrollmentsImpl implements SectionEnrollments {
 		studentToMap = new HashMap();
 		for(Iterator iter = enrollmentRecords.iterator(); iter.hasNext();) {
 			EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
-			String userUuid = enrollment.getUser().getUserUuid();
+			String userUid = enrollment.getUser().getUserUid();
 			CourseSection section = (CourseSection)enrollment.getLearningContext();
 			Map sectionMap;
-			if(studentToMap.get(userUuid) == null) {
+			if(studentToMap.get(userUid) == null) {
 				// Insert a new entry into the map
 				sectionMap = new HashMap();
-				studentToMap.put(userUuid, sectionMap);
+				studentToMap.put(userUid, sectionMap);
 			} else {
-				sectionMap = (Map)studentToMap.get(userUuid);
+				sectionMap = (Map)studentToMap.get(userUid);
 			}
 			sectionMap.put(section.getCategory(), section);
 		}
 	}
 	
-	public CourseSection getSection(String studentUuid, String categoryId) {
-		Map sectionMap = (Map)studentToMap.get(studentUuid);
+	public CourseSection getSection(String studentUid, String categoryId) {
+		Map sectionMap = (Map)studentToMap.get(studentUid);
 		if(sectionMap == null) {
-			if(log.isDebugEnabled()) log.debug("Student " + studentUuid + " is not represented in this SectionEnrollments data structure");
+			if(log.isDebugEnabled()) log.debug("Student " + studentUid + " is not represented in this SectionEnrollments data structure");
 			return null;
 		}
 		CourseSection section = (CourseSection)sectionMap.get(categoryId);
 		if(section == null) {
-			if(log.isDebugEnabled()) log.debug("Student " + studentUuid + " is not enrolled in a " + categoryId);
+			if(log.isDebugEnabled()) log.debug("Student " + studentUid + " is not enrolled in a " + categoryId);
 		}
 		return section;
 	}

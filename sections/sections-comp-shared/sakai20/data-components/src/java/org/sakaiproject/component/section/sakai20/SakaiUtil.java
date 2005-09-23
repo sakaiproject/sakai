@@ -24,80 +24,63 @@
 
 package org.sakaiproject.component.section.sakai20;
 
-import java.io.Serializable;
-
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.LearningContext;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.kernel.tool.Placement;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 
-/**
- * A base class of ParticipationRecords for detachable persistent storage.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
- *
- */
-public abstract class ParticipationRecordImpl extends AbstractPersistentObject
-	implements ParticipationRecord, Serializable {
+public class SakaiUtil {
+	private static final Log log = LogFactory.getLog(SakaiUtil.class);
 
-	protected User user;
-	protected String userUuid;
-	protected LearningContext learningContext;
-
-	public User getUser() {
-		if(user == null) {
-			user = SakaiUtil.getUserFromSakai(userUuid);
+	/**
+	 * Gets a User from Sakai's UserDirectory (legacy) service.
+	 * 
+	 * @param userUid The user uuid
+	 * @return
+	 */
+	public static final User getUserFromSakai(String userUid) {
+		final org.sakaiproject.service.legacy.user.User sakaiUser;
+		try {
+			sakaiUser = UserDirectoryService.getUser(userUid);
+		} catch (IdUnusedException e) {
+			log.error("User not found: " + userUid);
+			e.printStackTrace();
+			return null;
 		}
+		return convertUser(sakaiUser);
+	}
+
+	/**
+	 * Converts a sakai user object into a user object suitable for use in the section
+	 * manager tool and in section awareness.
+	 * 
+	 * @param sakaiUser The sakai user, as returned by Sakai's legacy SecurityService.
+	 * 
+	 * @return
+	 */
+	public static final User convertUser(final org.sakaiproject.service.legacy.user.User sakaiUser) {
+		UserImpl user = new UserImpl(sakaiUser.getDisplayName(), sakaiUser.getId(),
+				sakaiUser.getSortName(), sakaiUser.getId());
 		return user;
 	}
 	
-	public String getUserUuid() {
-		return userUuid;
-	}
+    /**
+     * @return The current sakai authz reference
+     */
+    public static final String getSiteReference() {
+        Placement placement = ToolManager.getCurrentPlacement();
+        String context = placement.getContext();
+        return SiteService.siteReference(context);
+    }
 
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
-	}
 
-	public LearningContext getLearningContext() {
-		return learningContext;
-	}
-	public void setLearningContext(LearningContext learningContext) {
-		this.learningContext = learningContext;
-	}
-
-	public boolean equals(Object o) {
-		if(o == this) {
-			return true;
-		}
-		if(o instanceof ParticipationRecord) {
-			ParticipationRecordImpl other = (ParticipationRecordImpl)o;
-			return new EqualsBuilder()
-				.append(userUuid, other.getUserUuid())
-				.append(learningContext, other.getLearningContext())
-				.isEquals();
-		}
-		return false;
-	}
-
-	public int hashCode() {
-		return new HashCodeBuilder(17, 37)
-			.append(userUuid)
-			.append(learningContext)
-			.toHashCode();
-	}
-	
-	public String toString() {
-		return new ToStringBuilder(this).append(userUuid)
-		.append(learningContext).toString();
-	}
 }
+
+
 
 /**********************************************************************************
  * $Id$

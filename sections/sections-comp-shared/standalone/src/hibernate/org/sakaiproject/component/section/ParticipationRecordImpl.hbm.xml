@@ -50,7 +50,7 @@
 
     <query name="findUserFromSiteParticipation">
         <![CDATA[
-        select record.user from ParticipationRecordImpl as record where record.user.userUuid=:userUuid
+        select record.user from ParticipationRecordImpl as record where record.user.userUid=:userUid
             and record.learningContext in
                 ( from CourseImpl as course where course.siteContext=:siteContext )
         ]]>
@@ -65,7 +65,7 @@
     <query name="checkForSiteMembershipInRole">
         <![CDATA[
         from ParticipationRecordImpl as participant where participant.learningContext=:course and
-            participant.user.userUuid=:userUuid
+            participant.user.userUid=:userUid
         ]]>
     </query>
 
@@ -96,20 +96,20 @@
     <query name="checkForSectionMembershipInRole">
         <![CDATA[
         from ParticipationRecordImpl as participant where participant.learningContext=:section and
-            participant.user.userUuid=:userUuid
+            participant.user.userUid=:userUid
         ]]>
     </query>
 
     <query name="findEnrollment">
         <![CDATA[
-        from EnrollmentRecordImpl as enr where enr.user.userUuid=:userUuid and
+        from EnrollmentRecordImpl as enr where enr.user.userUid=:userUid and
             enr.learningContext.uuid=:sectionUuid
         ]]>
     </query>
     
     <query name="findEnrollmentInCategory">
         <![CDATA[
-        from EnrollmentRecordImpl as enr where enr.user.userUuid=:userUuid and
+        from EnrollmentRecordImpl as enr where enr.user.userUid=:userUid and
             enr.learningContext in
                 ( from CourseSectionImpl as section where section.course=:course
                 and section.category=:category )
@@ -118,7 +118,7 @@
 
     <query name="findOtherEnrollmentsInCategory">
         <![CDATA[
-        from EnrollmentRecordImpl as enr where enr.user.userUuid in (:userUuids)
+        from EnrollmentRecordImpl as enr where enr.user.userUid in (:userUids)
             and enr.learningContext in (
                 from CourseSectionImpl as section where section.course=:course
                 and section.category=:category and
@@ -130,13 +130,13 @@
         <![CDATA[
         from ParticipationRecordImpl as participation where
             participation.learningContext.uuid=:sectionUuid and
-            participation.user.userUuid=:userUuid
+            participation.user.userUid=:userUid
         ]]>
     </query>
 
     <query name="findCategoryEnrollment">
         <![CDATA[
-        from EnrollmentRecordImpl as enr where enr.user.userUuid=:studentUuid
+        from EnrollmentRecordImpl as enr where enr.user.userUid=:studentUid
             and enr.learningContext in (
                 from CourseSectionImpl as section where section.course.siteContext=:siteContext
                 and section.category=:category )
@@ -159,9 +159,9 @@
     <query name="findUnsectionedEnrollmentsInCategory">
         <![CDATA[
         select courseEnr from EnrollmentRecordImpl as courseEnr where
-        courseEnr.learningContext.uuid=:courseUuid and courseEnr.user.userUuid not in
+        courseEnr.learningContext.uuid=:courseUuid and courseEnr.user.userUid not in
             (
-                select secEnr.user.userUuid from EnrollmentRecordImpl as secEnr where
+                select secEnr.user.userUid from EnrollmentRecordImpl as secEnr where
                     secEnr.learningContext in
                 (
                     from CourseSectionImpl as section where section.course.uuid=:courseUuid and
@@ -173,7 +173,7 @@
 
     <query name="findSingleStudentSectionEnrollmentsInCourse">
         <![CDATA[
-        from EnrollmentRecordImpl as enr where enr.user.userUuid=:userUuid and
+        from EnrollmentRecordImpl as enr where enr.user.userUid=:userUid and
             enr.learningContext.id in
             (
                 select section.id from CourseSectionImpl as section where
@@ -184,7 +184,7 @@
 
     <query name="findSectionEnrollments">
         <![CDATA[
-        from EnrollmentRecordImpl as enr where enr.user.userUuid in (:studentUuids)
+        from EnrollmentRecordImpl as enr where enr.user.userUid in (:studentUids)
             and enr.learningContext.id in
             ( select section.id from CourseSectionImpl as section where section.course=:course )
         ]]>
@@ -192,7 +192,7 @@
 
     <query name="loadSiteParticipation">
         <![CDATA[
-        from ParticipationRecordImpl as record where record.user.userUuid=:userUuid
+        from ParticipationRecordImpl as record where record.user.userUid=:userUid
             and record.learningContext in
             ( from CourseImpl as course where course.siteContext=:siteContext )
         ]]>
@@ -200,7 +200,7 @@
 
     <query name="loadSectionParticipation">
         <![CDATA[
-        from ParticipationRecordImpl as record where record.user.userUuid=:userUuid
+        from ParticipationRecordImpl as record where record.user.userUid=:userUid
             and record.learningContext.uuid=:sectionUuid
         ]]>
     </query>
@@ -208,14 +208,14 @@
     <query name="getUsersSiteMemberships">
         <![CDATA[
         from ParticipationRecordImpl as membership
-            where membership.user.userUuid=:userUuid and membership.learningContext in
+            where membership.user.userUid=:userUid and membership.learningContext in
                 (from CourseImpl as course)
         ]]>
     </query>
 
     <query name="findUserSectionMembershipsInSite">
         <![CDATA[
-        from ParticipationRecordImpl as member where member.user.userUuid=:userUuid and
+        from ParticipationRecordImpl as member where member.user.userUid=:userUid and
             member.learningContext.id in
             (
                 select section.id from CourseSectionImpl as section where

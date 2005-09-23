@@ -15,30 +15,21 @@
 
     <properties>
         <deploy.type>jar</deploy.type>
-
-        <!--
-        Once the sakai component manager can handle hibernate mappings correctly,
-        remove this from shared/lib and deploy with the components package.
-        -->
-
-        <deploy.target>shared</deploy.target>
     </properties>
 
 
     <dependencies>
-
-        <!--
-        Once the sakai component manager can handle hibernate mappings correctly,
-        remove this from shared/lib and deploy with the components package.
-        -->
         
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>2.0</version>
-            <properties>
-                <deploy.target>shared</deploy.target>
-            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-data-sakai20</artifactId>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <!-- Sakai2 Dependencies -->
@@ -68,13 +59,6 @@
                 <directory>${basedir}/src/conf</directory>
                 <includes>
                     <include>**/*.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/hibernate</directory>
-                <includes>
-                    <include>ehcache.xml</include>
-                    <include>**/*.hbm.xml</include>
                 </includes>
             </resource>
         </resources>

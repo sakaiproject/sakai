@@ -53,7 +53,7 @@ public class AuthzSakaiImpl extends HibernateDaoSupport implements Authz {
 	/**
 	 * @inheritDoc
 	 */
-	public Role getSiteRole(String userUuid, String siteContext) {
+	public Role getSiteRole(String userUid, String siteContext) {
 		String siteAuthzRef = SakaiUtil.getSiteReference();
         boolean isInstructor = SecurityService.unlock(INSTRUCTOR_PERMISSION, siteAuthzRef);
         boolean isTa = SecurityService.unlock(TA_PERMISSION, siteAuthzRef);
@@ -73,11 +73,11 @@ public class AuthzSakaiImpl extends HibernateDaoSupport implements Authz {
 	/**
 	 * @inheritDoc
 	 */
-	public Role getSectionRole(final String userUuid, final String sectionUuid) {
+	public Role getSectionRole(final String userUid, final String sectionUuid) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query q = session.getNamedQuery("loadSectionParticipation");
-				q.setParameter("userUuid", userUuid);
+				q.setParameter("userUid", userUid);
 				q.setParameter("sectionUuid", sectionUuid);
 				return q.uniqueResult();
 			}

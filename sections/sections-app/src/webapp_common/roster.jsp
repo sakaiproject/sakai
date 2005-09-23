@@ -40,7 +40,7 @@
                     </x:commandSortHeader>
                 </f:facet>
                 <h:commandLink action="editStudentSections" value="#{enrollment.user.sortName}">
-                    <f:param name="studentUuid" value="#{enrollment.user.userUuid}"/>
+                    <f:param name="studentUid" value="#{enrollment.user.userUid}"/>
                 </h:commandLink>
             </h:column>
             <h:column>

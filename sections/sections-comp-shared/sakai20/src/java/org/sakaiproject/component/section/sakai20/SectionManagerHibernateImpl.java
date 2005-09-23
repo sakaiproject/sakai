@@ -260,17 +260,17 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (Course)getHibernateTemplate().execute(hc);
 	}
 
-	public SectionEnrollments getSectionEnrollmentsForStudents(final String siteContext, final Set studentUuids) {
+	public SectionEnrollments getSectionEnrollmentsForStudents(final String siteContext, final Set studentUids) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourse(siteContext);
             	Query q = session.getNamedQuery("findSectionEnrollments");
             	q.setParameter("course", course);
-            	q.setParameterList("studentUuids", studentUuids);
+            	q.setParameterList("studentUids", studentUids);
             	return q.list();
             }
         };
-		if(studentUuids == null || studentUuids.isEmpty()) {
+		if(studentUids == null || studentUids.isEmpty()) {
 			if(log.isDebugEnabled()) log.debug("No student uuids were passed to getSectionEnrollments.");
 			return new SectionEnrollmentsImpl(new ArrayList());
 		}
@@ -280,20 +280,20 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     public EnrollmentRecord joinSection(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-            	String userUuid = authn.getUserUuid(null);
+            	String userUid = authn.getUserUid(null);
                 Query q = session.getNamedQuery("findEnrollment");
-                q.setParameter("userUuid", userUuid);
+                q.setParameter("userUid", userUid);
                 q.setParameter("sectionUuid", sectionUuid);
                 Object enrollment = q.uniqueResult();
                 if(enrollment == null) {
-                	User user = SakaiUtil.getUserFromSakai(userUuid);
+                	User user = SakaiUtil.getUserFromSakai(userUid);
                 	CourseSection section = getSection(sectionUuid, session);
                 	EnrollmentRecordImpl enr = new EnrollmentRecordImpl(section, null, user);
                 	enr.setUuid(uuidManager.createUuid());
                 	session.save(enr);
                 	return enr;
                 } else {
-                	throw new MembershipException(userUuid + " is already a student in this section");
+                	throw new MembershipException(userUid + " is already a student in this section");
                 }
             }
         };
@@ -303,24 +303,24 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     public void switchSection(final String newSectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-            	String userUuid = authn.getUserUuid(null);
+            	String userUid = authn.getUserUid(null);
             	CourseSection newSection = getSection(newSectionUuid, session);
             	Course course = newSection.getCourse();
             	String category = newSection.getCategory();
             	
             	// Find the existing section enrollment in this category, so we can drop it
                 Query q = session.getNamedQuery("findEnrollmentInCategory");
-                q.setParameter("userUuid", userUuid);
+                q.setParameter("userUid", userUid);
                 q.setParameter("course", course);
                 q.setParameter("category", category);
                 Object result = q.uniqueResult();
                 if(result == null) {
-                	throw new MembershipException(userUuid +
+                	throw new MembershipException(userUid +
                 			" is not enrolled in any " + category +
                 			" section, so s/he can not switch sections");
                 } else {
                 	// Add the new enrollment
-                	User user = SakaiUtil.getUserFromSakai(userUuid);
+                	User user = SakaiUtil.getUserFromSakai(userUid);
                 	EnrollmentRecordImpl enr = new EnrollmentRecordImpl(newSection, null, user);
                 	enr.setUuid(uuidManager.createUuid());
                 	session.save(enr);
@@ -334,43 +334,43 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
 
-    public ParticipationRecord addSectionMembership(String userUuid, Role role, String sectionUuid)
+    public ParticipationRecord addSectionMembership(String userUid, Role role, String sectionUuid)
             throws MembershipException {
     	if(role.isInstructor()) {
     		throw new MembershipException("You can not add an instructor to a section... please add them to the course");
     	} else if(role.isStudent()) {
-    		return addSectionEnrollment(userUuid, sectionUuid);
+    		return addSectionEnrollment(userUid, sectionUuid);
     	} else if(role.isTeachingAssistant()) {
-    		return addSectionTeachingAssistant(userUuid, sectionUuid);
+    		return addSectionTeachingAssistant(userUid, sectionUuid);
     	} else {
     		throw new MembershipException("You can not add a user to a section with a role of 'none'");
     	}
     }
 
-	private EnrollmentRecordImpl addSectionEnrollment(final String userUuid, final String sectionUuid) {
+	private EnrollmentRecordImpl addSectionEnrollment(final String userUid, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
-            	Set currentEnrollments = getSectionEnrollments(userUuid, section.getCourse().getUuid());
+            	Set currentEnrollments = getSectionEnrollments(userUid, section.getCourse().getUuid());
             	for(Iterator iter = currentEnrollments.iterator(); iter.hasNext();) {
             		EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
                 	
             		// Make sure they are not already enrolled in this learning context
             		if(enrollment.getLearningContext().equals(section)) {
             			if(log.isDebugEnabled()) log.debug("Not adding an enrollment for student "
-            					+ userUuid + " in section " + sectionUuid + "... already enrolled.");
+            					+ userUid + " in section " + sectionUuid + "... already enrolled.");
             			return null;
             		}
 
             		// Make sure any enrollment in another section of the same category is removed
             		if(((CourseSection)enrollment.getLearningContext()).getCategory().equals(section.getCategory())) {
             			if(log.isDebugEnabled()) log.debug("Removing enrollment for student"
-            					+ userUuid + " in section " + enrollment.getLearningContext().getUuid()
+            					+ userUid + " in section " + enrollment.getLearningContext().getUuid()
             					+ "... enrolling in " + sectionUuid);
             			session.delete(enrollment);
             		}
             	}
-            	User user = SakaiUtil.getUserFromSakai(userUuid);
+            	User user = SakaiUtil.getUserFromSakai(userUid);
             	EnrollmentRecordImpl enrollment = new EnrollmentRecordImpl(section, null, user);
             	enrollment.setUuid(uuidManager.createUuid());
             	session.save(enrollment);
@@ -380,7 +380,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (EnrollmentRecordImpl)getHibernateTemplate().execute(hc);
 	}
 
-	private TeachingAssistantRecordImpl addSectionTeachingAssistant(final String userUuid, final String sectionUuid) {
+	private TeachingAssistantRecordImpl addSectionTeachingAssistant(final String userUid, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
@@ -389,12 +389,12 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	List taRecords = getSectionTeachingAssistants(sectionUuid);
             	for(Iterator iter = taRecords.iterator(); iter.hasNext();) {
             		ParticipationRecord record = (ParticipationRecord)iter.next();
-            		if(record.getUser().getUserUuid().equals(userUuid)) {
+            		if(record.getUser().getUserUid().equals(userUid)) {
             			if(log.isDebugEnabled()) log.debug("Not adding a TA record for "
-            					+ userUuid + "... already a TA in section " + sectionUuid);
+            					+ userUid + "... already a TA in section " + sectionUuid);
             		}
             	}
-            	User user = SakaiUtil.getUserFromSakai(userUuid);
+            	User user = SakaiUtil.getUserFromSakai(userUid);
             	TeachingAssistantRecordImpl ta = new TeachingAssistantRecordImpl(section, user);
             	ta.setUuid(uuidManager.createUuid());
             	session.save(ta);
@@ -404,7 +404,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (TeachingAssistantRecordImpl)getHibernateTemplate().execute(hc);
 	}
 	
-	public void setSectionMemberships(final Set userUuids, final Role role, final String sectionUuid) {
+	public void setSectionMemberships(final Set userUids, final Role role, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
         		List currentMembers;
@@ -415,32 +415,32 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         		} else {
         			throw new RuntimeException("You can not setSectionMemberships with role " + role.getDescription());
         		}
-        		Set currentUserUuids = new HashSet();
+        		Set currentuserUids = new HashSet();
         		for(Iterator iter = currentMembers.iterator(); iter.hasNext();) {
         			ParticipationRecord membership = (ParticipationRecord)iter.next();
-        			// Keep a set of all current userUuids
-        			currentUserUuids.add(membership.getUser().getUserUuid());
+        			// Keep a set of all current userUids
+        			currentuserUids.add(membership.getUser().getUserUid());
         			// If this current member is not in the new set of users, drop them
-        			if(! userUuids.contains(membership.getUser().getUserUuid())) {
+        			if(! userUids.contains(membership.getUser().getUserUid())) {
         				session.delete(membership);
         			}
         		}
 
-        		// Generate a set of new member userUuids
-        		Set newMemberUserUuids = new HashSet(userUuids);
-        		newMemberUserUuids.removeAll(currentUserUuids);
+        		// Generate a set of new member userUids
+        		Set newMemberuserUids = new HashSet(userUids);
+        		newMemberuserUids.removeAll(currentuserUids);
         		
         		// Get the section
         		CourseSection section = getSection(sectionUuid, session);
         		
         		// Add the new members to the section
-        		for(Iterator iter = newMemberUserUuids.iterator(); iter.hasNext();) {
+        		for(Iterator iter = newMemberuserUids.iterator(); iter.hasNext();) {
         			addMembership((String)iter.next(), section, role, session);
         		}
 
         		// Remove the new members from other sections in this category
-        		if(!newMemberUserUuids.isEmpty()) {
-            		removeSectionEnrollments(newMemberUserUuids, section, session);
+        		if(!newMemberuserUids.isEmpty()) {
+            		removeSectionEnrollments(newMemberuserUids, section, session);
         		}
         		
         		return null;
@@ -449,13 +449,13 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
 	}
 
-    private void removeSectionEnrollments(Set newMemberUserUuids, CourseSection section, Session session) throws HibernateException {
+    private void removeSectionEnrollments(Set newMemberuserUids, CourseSection section, Session session) throws HibernateException {
     	Query q = session.getNamedQuery("findOtherEnrollmentsInCategory");
     	q.setParameter("course", section.getCourse());
     	q.setParameter("category", section.getCategory());
     	q.setParameter("sectionUuid", section.getUuid());
     	q.setParameter("course", section.getCourse());
-    	q.setParameterList("userUuids", newMemberUserUuids);
+    	q.setParameterList("userUids", newMemberuserUids);
     	List enrollmentsToDelete = q.list();
     	for(Iterator iter = enrollmentsToDelete.iterator(); iter.hasNext();) {
     		EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
@@ -464,9 +464,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     	
 	}
 
-	private void addMembership(String userUuid, CourseSection section, Role role, Session session)
+	private void addMembership(String userUid, CourseSection section, Role role, Session session)
     	throws HibernateException {
-    	User user = SakaiUtil.getUserFromSakai(userUuid);
+    	User user = SakaiUtil.getUserFromSakai(userUid);
     	if(role.isTeachingAssistant()) {
     		TeachingAssistantRecordImpl membership = new TeachingAssistantRecordImpl(section, user);
     		membership.setUuid(uuidManager.createUuid());
@@ -480,13 +480,13 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     	}
 	}
 
-	public void dropSectionMembership(final String userUuid, final String sectionUuid) {
+	public void dropSectionMembership(final String userUid, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
                 // Get the primary section
             	Query q = session.getNamedQuery("findParticipationRecord");
             	q.setParameter("sectionUuid", sectionUuid);
-            	q.setParameter("userUuid", userUuid);
+            	q.setParameter("userUid", userUid);
             	Object result = q.uniqueResult();
             	session.delete(result);
             	return null;
@@ -495,12 +495,12 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
 
-	public void dropEnrollmentFromCategory(final String studentUuid,
+	public void dropEnrollmentFromCategory(final String studentUid,
 			final String siteContext, final String category) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Query q = session.getNamedQuery("findCategoryEnrollment");
-            	q.setParameter("studentUuid", studentUuid);
+            	q.setParameter("studentUid", studentUid);
             	q.setParameter("category", category);
             	q.setParameter("siteContext", siteContext);
             	Object result = q.uniqueResult();
@@ -665,18 +665,18 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         List unSectionedEnrollments = new ArrayList();
         for(Iterator iter = siteEnrollmentRecords.iterator(); iter.hasNext();) {
         	EnrollmentRecordImpl enr = (EnrollmentRecordImpl)iter.next();
-        	if( ! sectionedStudentIds.contains(enr.getUserUuid())) {
+        	if( ! sectionedStudentIds.contains(enr.getUserUid())) {
         		unSectionedEnrollments.add(enr);
         	}
         }
         return unSectionedEnrollments;
 	}
 
-	public Set getSectionEnrollments(final String userUuid, final String courseUuid) {
+	public Set getSectionEnrollments(final String userUid, final String courseUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Query q = session.getNamedQuery("findSingleStudentSectionEnrollmentsInCourse");
-            	q.setParameter("userUuid", userUuid);
+            	q.setParameter("userUid", userUid);
             	q.setParameter("courseUuid", courseUuid);
             	return q.list();
             }
@@ -684,8 +684,8 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return new HashSet(getHibernateTemplate().executeFind(hc));
 	}
 
-	public User getSiteEnrollment(final String siteContext, final String studentUuid) {
-		return SakaiUtil.getUserFromSakai(studentUuid);
+	public User getSiteEnrollment(final String siteContext, final String studentUid) {
+		return SakaiUtil.getUserFromSakai(studentUid);
 	}
 
     // Dependency injection

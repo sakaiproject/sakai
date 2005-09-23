@@ -113,12 +113,12 @@ public interface SectionAwareness {
      * in a given site context.
      * 
 	 * @param siteContext The site context
-     * @param userUuid The user's unique id
+     * @param userUid The user's unique id
      * @param role The role we're checking
      * 
      * @return Whether this user plays this role in this context.
      */
-    public boolean isSiteMemberInRole(String siteContext, String userUuid, Role role);
+    public boolean isSiteMemberInRole(String siteContext, String userUid, Role role);
 
     /**
      * Gets the full membership of the given section.

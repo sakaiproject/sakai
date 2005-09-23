@@ -152,7 +152,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 		return filteredList;
 	}
 
-	public boolean isSiteMemberInRole(final String siteContext, final String userUuid, final Role role) {
+	public boolean isSiteMemberInRole(final String siteContext, final String userUid, final Role role) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourse(siteContext, session);
@@ -162,7 +162,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
             	}
                 Query q = session.getNamedQuery("checkForSiteMembershipInRole");
                 q.setParameter("course", course);
-                q.setParameter("userUuid", userUuid);
+                q.setParameter("userUid", userUid);
                 List list = q.list();
                 return checkRole(role, list);
             }
@@ -228,13 +228,13 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         return getHibernateTemplate().executeFind(hc);
 	}
 
-	public boolean isSectionMemberInRole(final String sectionUuid, final String userUuid, final Role role) {
+	public boolean isSectionMemberInRole(final String sectionUuid, final String userUid, final Role role) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
 	        	CourseSection section = getSection(sectionUuid, session);
 	            Query q = session.getNamedQuery("checkForSectionMembershipInRole");
 	            q.setParameter("section", section);
-	            q.setParameter("userUuid", userUuid);
+	            q.setParameter("userUid", userUid);
 	            List list = q.list();
 	            return checkRole(role, list);
         	}

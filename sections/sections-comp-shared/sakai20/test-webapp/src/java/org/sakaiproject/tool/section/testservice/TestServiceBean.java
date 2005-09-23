@@ -22,41 +22,53 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.component.section.sakai20;
+package org.sakaiproject.tool.section.testservice;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.sakaiproject.api.section.coursemanagement.LearningContext;
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.api.section.CourseManager;
+import org.sakaiproject.api.section.SectionAwareness;
 
 /**
- * A detachable InstructorRecord for persistent storage.
+ * Tests whether the services exposed by the Section Info tool can be utilized
+ * in another web application.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class InstructorRecordImpl extends ParticipationRecordImpl implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * No-arg constructor needed for hibernate
-	 */
-	public InstructorRecordImpl() {		
+public class TestServiceBean {
+	private SectionAwareness sectionAwareness;
+	private CourseManager courseManager;
+	
+	public boolean isCourseExists() {
+		return courseManager.courseExists(ToolManager.getCurrentPlacement().getContext());
 	}
 	
-	public InstructorRecordImpl(LearningContext learningContext, User user) {
-		this.learningContext = learningContext;
-		this.userUuid = user.getUserUuid();
+	public boolean isCourseExistsFromCover() {
+		String siteContext = ToolManager.getCurrentPlacement().getContext();;
+		return org.sakaiproject.component.section.cover.CourseManager.courseExists(siteContext);
 	}
 
-	public Role getRole() {
-		return Role.INSTRUCTOR;
+	public List getSections() {
+		return new ArrayList(sectionAwareness.getSections(ToolManager.getCurrentPlacement().getContext()));
+	}
+	
+	public List getSectionsFromCover() {
+		String siteContext = ToolManager.getCurrentPlacement().getContext();;
+		return new ArrayList(org.sakaiproject.component.section.cover.SectionAwareness.getSections(siteContext));
+	}
+	
+	// Dependency Injection
+	
+	public void setCourseManager(CourseManager courseManager) {
+		this.courseManager = courseManager;
+	}
+	public void setSectionAwareness(SectionAwareness sectionAwareness) {
+		this.sectionAwareness = sectionAwareness;
 	}
 }
-
-
 
 /**********************************************************************************
  * $Id$

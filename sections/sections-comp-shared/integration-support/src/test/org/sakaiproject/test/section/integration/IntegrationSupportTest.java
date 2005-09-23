@@ -117,25 +117,25 @@ public class IntegrationSupportTest extends AbstractTransactionalSpringContextTe
     	
     	log.info("Adding site membership");
     	ParticipationRecord siteMembership = integrationSupport.addSiteMembership(
-    			user1.getUserUuid(), SITE_CONTEXT_1, Role.STUDENT);
+    			user1.getUserUid(), SITE_CONTEXT_1, Role.STUDENT);
 
     	log.info("Adding section membership");
     	ParticipationRecord sectionMembership = integrationSupport.addSectionMembership(
-    			user1.getUserUuid(), section1.getUuid(), Role.STUDENT);
+    			user1.getUserUid(), section1.getUuid(), Role.STUDENT);
     	
     	// Ensure that we can find the set of sections for this user
-    	Set foundSectionMemberhsips = integrationSupport.getAllSectionMemberships(user1.getUserUuid(), SITE_CONTEXT_1);
+    	Set foundSectionMemberhsips = integrationSupport.getAllSectionMemberships(user1.getUserUid(), SITE_CONTEXT_1);
     	Assert.assertEquals(foundSectionMemberhsips.size(), 1);
     	Assert.assertTrue(foundSectionMemberhsips.contains(sectionMembership));
     	
     	// Remove the user from the section, and ensure that the query no longer returns the enrollment
     	log.info("Remove section membership");
-    	integrationSupport.removeSectionMembership(user1.getUserUuid(), section1.getUuid());
-    	foundSectionMemberhsips = integrationSupport.getAllSectionMemberships(user1.getUserUuid(), SITE_CONTEXT_1);
+    	integrationSupport.removeSectionMembership(user1.getUserUid(), section1.getUuid());
+    	foundSectionMemberhsips = integrationSupport.getAllSectionMemberships(user1.getUserUid(), SITE_CONTEXT_1);
     	Assert.assertEquals(foundSectionMemberhsips.size(), 0);
     	
     	// Ensure that we know which site the user belongs to
-    	List siteMemberships = integrationSupport.getAllSiteMemberships(user1.getUserUuid());
+    	List siteMemberships = integrationSupport.getAllSiteMemberships(user1.getUserUid());
     	Assert.assertTrue(siteMemberships.contains(siteMembership));
     	
     }

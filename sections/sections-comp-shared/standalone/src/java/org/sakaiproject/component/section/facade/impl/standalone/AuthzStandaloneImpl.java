@@ -47,28 +47,28 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class AuthzStandaloneImpl extends HibernateDaoSupport implements Authz {
 	private static final Log log = LogFactory.getLog(AuthzStandaloneImpl.class);
 
-	public Role getSiteRole(final String userUuid, final String siteContext) {
+	public Role getSiteRole(final String userUid, final String siteContext) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query q = session.getNamedQuery("loadSiteParticipation");
-				q.setParameter("userUuid", userUuid);
+				q.setParameter("userUid", userUid);
 				q.setParameter("siteContext", siteContext);
 				return q.uniqueResult();
 			}
 		};
 		Object result = getHibernateTemplate().execute(hc);
 		if(result == null) {
-			if(log.isDebugEnabled()) log.debug(userUuid + " is not a member of the course at site context " + siteContext);
+			if(log.isDebugEnabled()) log.debug(userUid + " is not a member of the course at site context " + siteContext);
 			return Role.NONE;
 		}
 		return((ParticipationRecord)result).getRole();
 	}
 
-	public Role getSectionRole(final String userUuid, final String sectionUuid) {
+	public Role getSectionRole(final String userUid, final String sectionUuid) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query q = session.getNamedQuery("loadSectionParticipation");
-				q.setParameter("userUuid", userUuid);
+				q.setParameter("userUid", userUid);
 				q.setParameter("sectionUuid", sectionUuid);
 				return q.uniqueResult();
 			}

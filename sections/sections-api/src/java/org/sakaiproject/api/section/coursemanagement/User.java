@@ -32,9 +32,9 @@ package org.sakaiproject.api.section.coursemanagement;
  */
 public interface User {
 	/**
-	 * @return Returns the userUuid, the unique ID returned by the authentication facade.
+	 * @return Returns the userUid, the unique ID returned by the authentication facade.
 	 */
-	public String getUserUuid();
+	public String getUserUid();
 
 	/**
 	 * @return Returns the sortName, displayed when users are listed in order (for example,
