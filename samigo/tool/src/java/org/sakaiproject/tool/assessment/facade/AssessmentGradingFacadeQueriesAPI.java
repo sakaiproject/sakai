@@ -128,6 +128,9 @@ public interface AssessmentGradingFacadeQueriesAPI
   public AssessmentGradingData getLastAssessmentGradingByAgentId(
       Long publishedAssessmentId, String agentIdString);
 
+  public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(
+      Long publishedAssessmentId, String agentIdString);
+
   public void saveItemGrading(ItemGradingIfc item);
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment);

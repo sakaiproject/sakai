@@ -263,6 +263,17 @@ public class GradingService
     }
   }
 
+  public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
+    try{
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+          getLastSavedAssessmentGradingByAgentId(new Long(publishedAssessmentId), agentIdString);
+    }
+    catch(Exception e)
+    {
+      log.error(e); throw new Error(e);
+    }
+  }
+
   public void saveItemGrading(ItemGradingIfc item)
   {
     try {

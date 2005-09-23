@@ -216,6 +216,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
+
+
   /**
    * This returns a hashmap of all the submitted items, keyed by
    * item id for easy retrieval.
@@ -694,15 +696,26 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return (AssessmentGradingData) getHibernateTemplate().load(AssessmentGradingData.class, id);
   }
 
+  public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString) {
+      List assessmentGradings = getHibernateTemplate().find(
+        "from AssessmentGradingData a where a.publishedAssessment.assessmentBaseId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc",
+         new Object[] { publishedAssessmentId, agentIdString, Boolean.FALSE },
+         new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING, Hibernate.BOOLEAN });
+      if (assessmentGradings.size() == 0)
+	  return null;
+      return (AssessmentGradingData) assessmentGradings.get(0);
+  }
+
   public AssessmentGradingData getLastAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString) {
       List assessmentGradings = getHibernateTemplate().find(
-        "from AssessmentGradingData a where a.publishedAssessment.assessmentBaseId=? and a.agentId=?",
+        "from AssessmentGradingData a where a.publishedAssessment.assessmentBaseId=? and a.agentId=? order by a.submittedDate desc",
          new Object[] { publishedAssessmentId, agentIdString },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
       if (assessmentGradings.size() == 0)
 	  return null;
       return (AssessmentGradingData) assessmentGradings.get(0);
   }
+
 
   public void saveItemGrading(ItemGradingIfc item) {
     try {
