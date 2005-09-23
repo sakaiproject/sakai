@@ -85,12 +85,6 @@ public class TotalScoreListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().
-                        getRequestParameterMap();
-    //log.info("requestParams: " + requestParams);
-    //log.info("reqMap: " + reqMap);
 
     log.info("TotalScore LISTENER.");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
@@ -112,12 +106,6 @@ public class TotalScoreListener
    */
   public void processValueChange(ValueChangeEvent event)
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().
-                        getRequestParameterMap();
-    //log.info("requestParams: " + requestParams);
-    //log.info("reqMap: " + reqMap);
 
     log.info("TotalScore CHANGE LISTENER.");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
@@ -153,8 +141,8 @@ public class TotalScoreListener
       if (cu.lookupParam("sortBy") != null &&
           !cu.lookupParam("sortBy").trim().equals(""))
         bean.setSortType(cu.lookupParam("sortBy"));
-      String which = cu.lookupParam("allSubmissions");
-      //log.info("Rachel: allSubmissions = " + which);
+      String which = cu.lookupParam("allSubmissionsT");
+      //log.info("Rachel: allSubmissionsT = " + which);
       if (which == null)
         which = "false";
       bean.setAllSubmissions(which);
