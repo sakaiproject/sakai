@@ -1192,17 +1192,6 @@ public class DeliveryActionListener
       // round the points to the nearest tenth
 
     }
-    float alignment = itemBean.getMaxPoints();
-    // Round to the nearest 1/10th.
-    int tmp = Math.round(alignment * 10.0f);
-    alignment = (float) tmp / 10.0f;
-    itemBean.setMaxPoints(alignment);
-
-    alignment = itemBean.getPoints();
-    // Round to the nearest 1/10th.
-    tmp = Math.round(alignment * 10.0f);
-    alignment = (float) tmp / 10.0f;
-    itemBean.setPoints(alignment);
 
     return itemBean;
   }
