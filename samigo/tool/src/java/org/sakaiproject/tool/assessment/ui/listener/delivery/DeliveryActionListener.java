@@ -345,8 +345,13 @@ public class DeliveryActionListener
           delivery.setBeginTime(delivery.getAssessmentGrading()
                                 .getAttemptDate());
           // add the following line to fix SAK-1781
-          delivery.setTimeElapse(delivery.getAssessmentGrading()
+          if (delivery.getAssessmentGrading().getTimeElapsed() != null){
+            delivery.setTimeElapse(delivery.getAssessmentGrading()
                                 .getTimeElapsed().toString());
+	  }
+          else{
+            delivery.setTimeElapse("0");
+	  }
         }
         else
         {
