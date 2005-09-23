@@ -698,7 +698,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString) {
       List assessmentGradings = getHibernateTemplate().find(
-        "from AssessmentGradingData a where a.publishedAssessment.assessmentBaseId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc",
+        "from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc",
          new Object[] { publishedAssessmentId, agentIdString, Boolean.FALSE },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING, Hibernate.BOOLEAN });
       if (assessmentGradings.size() == 0)
@@ -708,7 +708,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public AssessmentGradingData getLastAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString) {
       List assessmentGradings = getHibernateTemplate().find(
-        "from AssessmentGradingData a where a.publishedAssessment.assessmentBaseId=? and a.agentId=? order by a.submittedDate desc",
+        "from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.agentId=? order by a.submittedDate desc",
          new Object[] { publishedAssessmentId, agentIdString },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
       if (assessmentGradings.size() == 0)

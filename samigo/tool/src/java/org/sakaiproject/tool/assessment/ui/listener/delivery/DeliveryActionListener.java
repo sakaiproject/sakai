@@ -227,10 +227,19 @@ public class DeliveryActionListener
 
         // Otherwise, get them if they exist.
       }
-      else
+      else  // taking assessment
       {
-        itemData = service.getLastItemGradingData(id, agent);
-        setAssessmentGradingFromItemData(delivery, itemData, true);
+	  itemData = service.getLastItemGradingData(id, agent);
+          if (itemData!=null && itemData.size()>0)
+            setAssessmentGradingFromItemData(delivery, itemData, true);
+          else{
+            AssessmentGradingData ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
+            delivery.setAssessmentGrading(ag);
+            if (ag!=null){
+              log.debug("**** assessment grading id ="+ag.getAssessmentGradingId());
+              log.debug("**** assessment forGrade ="+ag.getForGrade());
+	    }
+	  }
       }
       if (delivery.getTimeElapse() == null)
       {
