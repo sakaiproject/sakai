@@ -41,7 +41,7 @@ public interface UserDirectoryService {
      *    an active part. The only workaround is to pick up the currently authorized user's name and then
      *    store it as an additional field in the grade history log.
      * 2) In the student view, it's currently used to display the student's name. This case could be
-     *    handled by supporting either a CourseManagement getEnrollmentForUserUid() method or an Authn
+     *    handled by supporting either a SectionAwareness getEnrollmentForUserUid() method or an Authn
      *    getCurrentUserDisplayName() method.
      */
     public String getUserDisplayName(String userUid) throws UnknownUserException;

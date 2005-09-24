@@ -31,13 +31,14 @@ import java.util.Set;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
+import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 
 /**
  * @author josh
@@ -50,13 +51,13 @@ public class TestGradebookTool {
     // Services
     private GradebookManager gradebookManager;
     private GradeManager gradeManager;
-    private CourseManagement courseManagementService;
+	private SectionAwareness sectionAwareness;
 
     /**
      * @return A List of all assignments in the currently selected gradebook
      */
     public List getAssignments() {
-    	Set enrollmentUids = FacadeUtils.getStudentUids(getCourseManagementService().getEnrollments(selectedGradebook.getUid()));
+    	Set enrollmentUids = FacadeUtils.getStudentUids(sectionAwareness.getSiteMembersInRole(selectedGradebook.getUid(), Role.STUDENT));
         List gradableObjects = gradeManager.getAssignmentsWithStats(selectedGradebook.getId(), enrollmentUids);
         gradableObjects.add(gradeManager.getCourseGradeWithStats(selectedGradebook.getId(), enrollmentUids));
         return gradableObjects;
@@ -67,7 +68,7 @@ public class TestGradebookTool {
      */
     public Set getStudents() {
         Set students = new HashSet();
-        Set enrollments = courseManagementService.getEnrollments(selectedGradebook.getUid());
+        List enrollments = sectionAwareness.getSiteMembersInRole(selectedGradebook.getUid(), Role.STUDENT);
         for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
             students.add(((EnrollmentRecord)enrIter.next()).getUser());
         }
@@ -108,19 +109,14 @@ public class TestGradebookTool {
 	public void setGradeManager(GradeManager gradeManager) {
 		this.gradeManager = gradeManager;
 	}
-	/**
-	 * @return Returns the courseManagementService.
-	 */
-	public CourseManagement getCourseManagementService() {
-		return courseManagementService;
+
+	public SectionAwareness getSectionAwareness() {
+		return sectionAwareness;
 	}
-	/**
-	 * @param courseManagementService The courseManagementService to set.
-	 */
-	public void setCourseManagementService(
-			CourseManagement courseManagementService) {
-		this.courseManagementService = courseManagementService;
+	public void setSectionAwareness(SectionAwareness sectionAwareness) {
+		this.sectionAwareness = sectionAwareness;
 	}
+
 	/**
 	 * @return Returns the gradebookManager.
 	 */

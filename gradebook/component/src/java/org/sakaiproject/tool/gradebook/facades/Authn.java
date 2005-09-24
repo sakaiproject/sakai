@@ -34,8 +34,8 @@ public interface Authn {
 	 * @param whatToAuthn the javax.servlet.http.HttpServletRequest or
 	 *     javax.portlet.PortletRequest for which authentication should be checked. Since
 	 *     they don't share an interface, a generic object is passed.
-	 * @return an ID uniquely identifying the currently authenticated user in a CourseManagement
-	 *     service, or null if the user has not been authenticated.
+	 * @return an ID uniquely identifying the currently authenticated user in a
+	 *     site, or null if the user has not been authenticated.
 	 */
 	public String getUserUid(Object whatToAuthn);
 }

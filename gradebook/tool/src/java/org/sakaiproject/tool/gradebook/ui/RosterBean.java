@@ -119,7 +119,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	}
 
 	protected void init() {
-        Map enrollmentMap = getOrderedEnrollmentMap(getCourseManagementService().getEnrollments(getGradebookUid()));
+        Map enrollmentMap = getOrderedEnrollmentMap(getEnrollments());
 
 		List gradeRecords;
 

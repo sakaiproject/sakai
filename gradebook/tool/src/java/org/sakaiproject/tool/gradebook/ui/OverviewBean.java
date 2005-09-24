@@ -58,7 +58,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 	}
 
 	protected void init() {
-		Set enrollmentUids = FacadeUtils.getStudentUids(getCourseManagementService().getEnrollments(getGradebookUid()));
+		Set enrollmentUids = FacadeUtils.getStudentUids(getEnrollments());
 
 		// Get the list of assignments for this gradebook, sorted as defined in the overview page.
         gradableObjects = getGradeManager().getAssignmentsWithStats(getGradebookId(), enrollmentUids,

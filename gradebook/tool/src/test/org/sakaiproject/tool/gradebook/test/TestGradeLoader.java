@@ -25,7 +25,9 @@ package org.sakaiproject.tool.gradebook.test;
 
 import java.util.*;
 
+import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -43,7 +45,7 @@ public class TestGradeLoader extends GradebookLoaderBase {
         // Fetch the first gradebook.
         Gradebook gb = gradebookManager.getGradebook(TestGradebookLoader.GRADEBOOK_WITH_GRADES);
 
-		Set enrollments = courseManagement.getEnrollments(gb.getUid());
+		List enrollments = sectionAwareness.getSiteMembersInRole(gb.getUid(), Role.STUDENT);
 		List assignments = gradeManager.getAssignments(gb.getId());
 
 		for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {

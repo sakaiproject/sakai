@@ -20,25 +20,14 @@
 	<bean id="gradebookSessionFactory" name="sectionsSessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
 		<property name="dataSource"><ref bean="gradebookDataSource"/></property>
 
-		<property name="mappingResources">
-			<list>
-				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradableObject.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
-				<value>org/sakaiproject/component/section/LearningContextImpl.hbm.xml</value>
-				<value>org/sakaiproject/component/section/ParticipationRecordImpl.hbm.xml</value>
-				<value>org/sakaiproject/component/section/UserImpl.hbm.xml</value>
-			</list>
-		</property>
+	<property name="mappingLocations">
+		<value>classpath*:org/sakaiproject/**/*.hbm.xml</value>
+	</property>
 
 	<!--
-	  This works, so long as you can keep the classpath clean. It's how SectionAwareness
-	  integration used to happen before moving to the Sakai component scheme forced conflicts into
-	  the dependencies.
+	  This works, so long as you can keep the classpath clean.
 		<property name="mappingLocations">
-		    <value>classpath*:org/sakaiproject/**/*.hbm.xml</value>
+			<value>classpath*:org/sakaiproject/**/*.hbm.xml</value>
 		</property>
 	-->
 
@@ -80,15 +69,18 @@
 	<!--
 	  This works:
 		<property name="mappingResources">
-		    <list>
+			<list>
 				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
 				<value>org/sakaiproject/tool/gradebook/GradableObject.hbm.xml</value>
 				<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
 				<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
 				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
+				<value>org/sakaiproject/component/section/LearningContextImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/section/ParticipationRecordImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/section/UserImpl.hbm.xml</value>
 			</list>
 		</property>
--->
+	-->
 
 		<property name="hibernateProperties">
 		  <props>

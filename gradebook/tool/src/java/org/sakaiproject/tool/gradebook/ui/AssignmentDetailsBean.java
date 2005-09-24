@@ -126,7 +126,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		// of the statistics.
 
 		if (assignmentId != null) {
-			Set allEnrollments = getCourseManagementService().getEnrollments(getGradebookUid());
+			List allEnrollments = getEnrollments();
 			Set enrollmentUids = FacadeUtils.getStudentUids(allEnrollments);
 			assignment = (Assignment)getGradeManager().getGradableObjectWithStats(assignmentId, enrollmentUids);
 			if (assignment != null) {

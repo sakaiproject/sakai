@@ -33,14 +33,15 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.facades.Authn;
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 
 /**
  * Base class for all gradebook managers.  Provides methods common to two or more
@@ -51,7 +52,7 @@ import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 public abstract class BaseHibernateManager extends HibernateDaoSupport {
     private static final Log log = LogFactory.getLog(BaseHibernateManager.class);
 
-    protected CourseManagement courseManagement;
+    protected SectionAwareness sectionAwareness;
     protected Authn authn;
 
     protected List getAssignments(Long gradebookId, Session session) throws HibernateException {
@@ -171,7 +172,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		session.flush();
 		session.clear();
 
-        Set enrollments = courseManagement.getEnrollments(gradebook.getUid());
+        List enrollments = getEnrollments(gradebook.getId());
         Set studentIds = new HashSet();
         for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
             studentIds.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
@@ -179,10 +180,22 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         recalculateCourseGradeRecords(gradebook, studentIds, session);
     }
 
+    public String getGradebookUid(Long id) {
+        return ((Gradebook)getHibernateTemplate().load(Gradebook.class, id)).getUid();
+    }
+
+	public List getEnrollments(Long gradebookId) {
+		return getSectionAwareness().getSiteMembersInRole(getGradebookUid(gradebookId), Role.STUDENT);
+	}
+
     public void setAuthn(Authn authn) {
         this.authn = authn;
     }
-    public void setCourseManagement(CourseManagement courseManagement) {
-        this.courseManagement = courseManagement;
-    }
+
+	protected SectionAwareness getSectionAwareness() {
+		return sectionAwareness;
+	}
+	public void setSectionAwareness(SectionAwareness sectionAwareness) {
+		this.sectionAwareness = sectionAwareness;
+	}
 }

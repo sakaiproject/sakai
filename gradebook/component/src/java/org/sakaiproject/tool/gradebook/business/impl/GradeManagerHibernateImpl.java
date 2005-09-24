@@ -65,7 +65,6 @@ import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 
 /**
  * Manages GradeRecord and GradableObject persistence via hibernate.
@@ -455,13 +454,6 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
     // Consolidated from GradeManagerHibernateImpl.java //
     ///////////////////////////////////////////////////////////////
 
-
-    /**
-     * @param courseManagement The courseManagement to set.
-     */
-    public void setCourseManagement(CourseManagement courseManagement) {
-        this.courseManagement = courseManagement;
-    }
 
     /**
      */

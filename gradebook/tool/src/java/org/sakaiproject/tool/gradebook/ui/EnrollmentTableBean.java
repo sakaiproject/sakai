@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 
@@ -121,7 +122,7 @@ public abstract class EnrollmentTableBean
 		// future....
 
 		if (isFilteredSearch()) {
-			enrollments = getCourseManagementService().findEnrollmentsByStudentNameOrDisplayUid(getGradebookUid(), searchString);
+			enrollments = getSectionAwareness().findSiteMembersInRole(getGradebookUid(), Role.STUDENT, searchString);
 		}
 
 		scoreDataRows = enrollments.size();

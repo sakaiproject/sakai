@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
@@ -41,7 +42,6 @@ import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 
 /**
@@ -61,7 +61,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
     protected GradebookManager gradebookManager;
     protected GradeManager gradeManager;
     protected GradebookService gradebookService;
-    protected CourseManagement courseManagement;
+	protected SectionAwareness sectionAwareness;
     protected UserDirectoryService userDirectoryService;
 	protected IntegrationSupport integrationSupport;
 	protected UserManager userManager;
@@ -72,7 +72,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         gradebookService = (GradebookService)applicationContext.getBean("org_sakaiproject_service_gradebook_GradebookService");
         gradebookManager = (GradebookManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradebookManager");
         gradeManager = (GradeManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradeManager");
-        courseManagement = (CourseManagement)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_CourseManagement");
+        sectionAwareness = (SectionAwareness)applicationContext.getBean("org.sakaiproject.api.section.SectionAwareness");
         userDirectoryService = (UserDirectoryService)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_UserDirectoryService");
         integrationSupport = (IntegrationSupport)applicationContext.getBean("org.sakaiproject.component.section.support.IntegrationSupport");
         userManager = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");

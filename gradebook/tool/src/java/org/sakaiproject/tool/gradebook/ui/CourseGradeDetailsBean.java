@@ -114,7 +114,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		// Clear view state.
 		scoreRows = new ArrayList();
 
-		Set allEnrollments = getCourseManagementService().getEnrollments(getGradebookUid());
+		List allEnrollments = getEnrollments();
 		courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(allEnrollments));
 
         gradeMapping = getGradebook().getSelectedGradeMapping();

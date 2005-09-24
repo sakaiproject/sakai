@@ -13,8 +13,8 @@
 		<property name="target">
 			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradebookManagerHibernateImpl">
 				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
-				<property name="courseManagement">
-					<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
+				<property name="sectionAwareness">
+					<ref bean="org.sakaiproject.api.section.SectionAwareness" />
 				</property>
 				<property name="authn">
 					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
@@ -31,8 +31,8 @@
 		<property name="target">
 			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradeManagerHibernateImpl">
 				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
-				<property name="courseManagement">
-					<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
+				<property name="sectionAwareness">
+					<ref bean="org.sakaiproject.api.section.SectionAwareness" />
 				</property>
 				<property name="authn">
 					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />

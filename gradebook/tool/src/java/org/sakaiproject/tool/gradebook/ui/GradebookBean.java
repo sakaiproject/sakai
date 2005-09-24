@@ -30,13 +30,15 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.SectionAwareness;
+
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 
 /**
@@ -61,7 +63,7 @@ public class GradebookBean extends InitializableBean {
 	// UI classes don't know that).
 	private GradebookManager gradebookManager;
 	private GradeManager gradeManager;
-	private CourseManagement courseManagementService;
+	private SectionAwareness sectionAwareness;
 	private UserDirectoryService userDirectoryService;
 	private Authn authnService;
 	private ContextManagement contextManagementService;
@@ -142,17 +144,11 @@ public class GradebookBean extends InitializableBean {
 		this.gradebookManager = gradebookManager;
 	}
 
-	/**
-	 * @return Returns the courseManagementService.
-	 */
-	public CourseManagement getCourseManagementService() {
-		return courseManagementService;
+	public SectionAwareness getSectionAwareness() {
+		return sectionAwareness;
 	}
-	/**
-	 * @param courseManagementService The courseManagementService to set.
-	 */
-	public void setCourseManagementService(CourseManagement courseManagementService) {
-		this.courseManagementService = courseManagementService;
+	public void setSectionAwareness(SectionAwareness sectionAwareness) {
+		this.sectionAwareness = sectionAwareness;
 	}
 
 	/**

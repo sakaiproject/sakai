@@ -17,9 +17,9 @@
 			<value>#{org_sakaiproject_tool_gradebook_business_GradeManager}</value>
 		</managed-property>
 		<managed-property>
-			<description>Course Management Service</description>
-			<property-name>courseManagementService</property-name>
-			<value>#{org_sakaiproject_tool_gradebook_facades_CourseManagement}</value>
+			<description>Section Awareness Service</description>
+			<property-name>sectionAwareness</property-name>
+			<value>#{org_sakaiproject_api_section_SectionAwareness}</value>
 		</managed-property>
 		<managed-property>
 			<description>User Directory Service</description>

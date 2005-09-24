@@ -17,8 +17,8 @@
 		<property name="gradeManager">
 			<ref bean="org_sakaiproject_tool_gradebook_business_GradeManager" />
 		</property>
-		<property name="courseManagement">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_CourseManagement" />
+		<property name="sectionAwareness">
+			<ref bean="org.sakaiproject.api.section.SectionAwareness" />
 		</property>
 		<property name="authn">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />

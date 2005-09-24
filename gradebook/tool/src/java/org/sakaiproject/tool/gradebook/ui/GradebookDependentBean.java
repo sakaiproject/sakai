@@ -24,17 +24,21 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.text.MessageFormat;
+import java.util.*;
 
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.api.section.facade.Role;
+
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
-import org.sakaiproject.tool.gradebook.facades.CourseManagement;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
@@ -107,8 +111,8 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		return getGradebookBean().getGradebookManager();
 	}
 
-	public CourseManagement getCourseManagementService() {
-		return getGradebookBean().getCourseManagementService();
+	public SectionAwareness getSectionAwareness() {
+		return getGradebookBean().getSectionAwareness();
 	}
 
 	public UserDirectoryService getUserDirectoryService() {
@@ -121,6 +125,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 
 	public Authn getAuthnService() {
 		return getGradebookBean().getAuthnService();
+	}
+
+	public List getEnrollments() {
+		return getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
 	}
 
 	/**

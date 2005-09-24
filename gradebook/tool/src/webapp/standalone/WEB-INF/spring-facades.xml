@@ -7,12 +7,6 @@
 		This Spring configuration file specifies a standalone implementation of the facades.
 	-->
 
-	<!-- External Course Management Service -->
-	<bean id="org_sakaiproject_tool_gradebook_facades_CourseManagement"
-		class="org.sakaiproject.tool.gradebook.facades.sections.CourseManagementSectionsImpl">
-		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
-	</bean>
-
 	<!-- External User Directory Service -->
 	<bean id="org_sakaiproject_tool_gradebook_facades_UserDirectoryService"
 		class="org.sakaiproject.tool.gradebook.facades.sections.UserDirectoryServiceStandaloneSectionsImpl">
