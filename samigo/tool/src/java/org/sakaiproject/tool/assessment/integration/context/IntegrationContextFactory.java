@@ -50,10 +50,6 @@ import org.sakaiproject.tool.assessment.integration.context.spring.FactoryUtil;
 public abstract class IntegrationContextFactory
 {
   private static Log log = LogFactory.getLog(IntegrationContextFactory.class);
-
-  private static final String FS = File.separator;
-  private static final String CONFIGURATION =
-    "org" + FS + "sakaiproject" + FS + "spring" + FS + "integrationContext.xml";
   private static IntegrationContextFactory instance;
 
   /**
@@ -66,16 +62,11 @@ public abstract class IntegrationContextFactory
     {
       try
       {
-        // the instance is provided by Spring-injection
-//        Resource res = new ClassPathResource(CONFIGURATION);
-//        BeanFactory factory = new XmlBeanFactory(res);
         instance = FactoryUtil.lookup();
-//          (IntegrationContextFactory) factory.getBean("integrationContextFactory");
       }
       catch (Exception ex)
       {
-        log.error("Unable to read integration context'" +
-                  CONFIGURATION + "': " + ex);
+        log.error("Unable to read integration context: " + ex);
       }
     }
     return instance;
