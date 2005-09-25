@@ -220,6 +220,9 @@ public class SubmissionStatusListener
         try {
           bean.setMaxScore(data.getPublishedAssessment().getEvaluationModel().getFixedTotalScore().toString());
         } catch (Exception e) {
+	  bean.setMaxScore(data.getPublishedAssessment().getTotalScore().toString());
+
+/*
           float score = (float) 0.0;
           Iterator iter2 = data.getPublishedAssessment().getSectionArraySorted().iterator();
           while (iter2.hasNext())
@@ -233,6 +236,7 @@ public class SubmissionStatusListener
             }
           }
           bean.setMaxScore(new Float(score).toString());
+*/
         }
       }
 

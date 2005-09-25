@@ -189,8 +189,6 @@ public class HistogramListener
         while (piter.hasNext()) {
 
 
-// todo: i can iterate through the parts and see if any is random drawn type, and set historgramScore bean's property randomtype = true,  and in jsf, check this property, if it's true, hide histogram
-
           SectionDataIfc section = (SectionDataIfc) piter.next();
 
 
@@ -227,17 +225,20 @@ public class HistogramListener
               " (" + type + ")");
             qbean.setQuestionText(item.getText());
             qbean.setQuestionType(item.getTypeId().toString());
-            totalpossible = totalpossible + item.getScore().doubleValue();
+            //totalpossible = totalpossible + item.getScore().doubleValue();
             ArrayList responses = null;
             determineResults(qbean, (ArrayList) itemscores.get
               (item.getItemId()));
             qbean.setTotalScore(item.getScore().toString());
             info.add(qbean);
           }
+          totalpossible = data.getPublishedAssessment().getTotalScore().doubleValue();
+          
         }
         bean.setInfo(info);
         bean.setRandomType(hasRandompart);
 
+        // here scores contain AssessmentGradingData 
         Map assessmentMap = getAssessmentStatisticsMap(scores);
 
         // test to see if it gets back empty map
@@ -735,6 +736,7 @@ public class HistogramListener
   public void doScoreStatistics(HistogramQuestionScoresBean qbean,
     ArrayList scores)
   {
+    // here scores contain ItemGradingData
     Map assessmentMap = getAssessmentStatisticsMap(scores);
 
     // test to see if it gets back empty map
@@ -755,8 +757,17 @@ public class HistogramListener
       //qbean.setTotalScore( (String) assessmentMap.get("maxScore"));
 
 
+
+
       HistogramBarBean[] bars =
         new HistogramBarBean[qbean.getColumnHeight().length];
+
+      // if there is no response, do not show bars at all 
+      // do not check if assessmentMap is empty, because it's never empty.
+      if (scores.size() == 0) {
+      bars = new HistogramBarBean[0];
+    }
+    else {
       for (int i=0; i<qbean.getColumnHeight().length; i++)
       {
         bars[i] = new HistogramBarBean();
@@ -779,6 +790,7 @@ public class HistogramListener
         bars[i].setRangeInfo(qbean.getRangeCollection()[i]);
         bars[i].setLabel(qbean.getRangeCollection()[i]);
       }
+    }
       qbean.setHistogramBars(bars);
     } catch (Exception e) {
       e.printStackTrace();
@@ -787,14 +799,19 @@ public class HistogramListener
 
   public Map getAssessmentStatisticsMap(ArrayList scoreList)
   {
+    // this function is used to calculate stats for an entire assessment
+    // or for a non-autograded question
+    // depending on data's instanceof 
+
     Iterator iter = scoreList.iterator();
     ArrayList floats = new ArrayList();
     while (iter.hasNext())
     {
       Object data = iter.next();
-      if (data instanceof AssessmentGradingData)
+      if (data instanceof AssessmentGradingData) {
         floats.add((Float)
           ((AssessmentGradingData) data).getFinalScore());
+      }
       else
       {
         float autoScore = (float) 0.0;
@@ -807,6 +824,7 @@ public class HistogramListener
         floats.add(new Float(autoScore + overrideScore));
       }
     }
+
     if (floats.isEmpty())
       floats.add(new Float(0.0));
     Object[] array = floats.toArray();
@@ -825,14 +843,17 @@ public class HistogramListener
     int interval = 0;
     interval = calInterval(scores, min, max);
     int[] numStudents = calNumStudents(scores, min, max, interval);
-
+   
     statMap.put("maxScore", castingNum(max,2));
     statMap.put("interval", new Integer(interval));
-    statMap.put("numResponses", new Integer(scores.length));
+    statMap.put("numResponses", new Integer(scoreList.size()));
+    // statMap.put("numResponses", new Integer(scores.length));
+
     statMap.put("totalScore",castingNum(total,2));
     statMap.put("mean", castingNum(mean,2));
     statMap.put("median", castingNum(calMedian(scores),2));
     statMap.put("mode", (new String(calMode(scores))));
+
     statMap.put("numStudentCollection", numStudents);
     statMap.put(
       "rangeCollection", calRange(scores, numStudents, min, max, interval));
@@ -1093,6 +1114,7 @@ public class HistogramListener
   private static int[] calNumStudents(
     double[] scores, double min, double max, int interval)
   {
+
     if(min > max)
     {
       log.info("max(" + max + ") <min(" + min + ")");
