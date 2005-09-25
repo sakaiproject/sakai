@@ -761,8 +761,9 @@ public class HistogramListener
 
       HistogramBarBean[] bars =
         new HistogramBarBean[qbean.getColumnHeight().length];
+   
 
-      // if there is no response, do not show bars at all 
+      // SAK-1933: if there is no response, do not show bars at all 
       // do not check if assessmentMap is empty, because it's never empty.
       if (scores.size() == 0) {
       bars = new HistogramBarBean[0];
