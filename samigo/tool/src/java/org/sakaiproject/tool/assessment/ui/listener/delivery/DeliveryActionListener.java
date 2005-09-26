@@ -1298,15 +1298,8 @@ public class DeliveryActionListener
     // Only one text in FIB
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
     ArrayList fibs = new ArrayList();
-    ArrayList texts = new ArrayList();
     String alltext = new String(text.getText());
-    while (alltext.indexOf("{") > -1)
-    {
-      String tmp = alltext.substring(0, alltext.indexOf("{"));
-      alltext = alltext.substring(alltext.indexOf("}") + 1);
-      texts.add(tmp);
-    }
-    texts.add(alltext);
+    ArrayList texts = extractFIBTextArray(alltext);
     int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();
     while (iter.hasNext())
@@ -1360,5 +1353,93 @@ public class DeliveryActionListener
     fibs.add(fbean);
 
     bean.setFibArray(fibs);
+  }
+
+  private static ArrayList extractFIBTextArray(String alltext)
+  {
+    ArrayList texts = new ArrayList();
+
+    while (alltext.indexOf("{") > -1)
+    {
+      int alltextLeftIndex = alltext.indexOf("{");
+      int alltextRightIndex = alltext.indexOf("}");
+
+      String tmp = alltext.substring(0, alltextLeftIndex);
+      alltext = alltext.substring(alltextRightIndex + 1);
+      texts.add(tmp);
+      // there are no more "}", exit loop
+      if (alltextRightIndex == -1)
+      {
+        break;
+      }
+    }
+    texts.add(alltext);
+    return texts;
+  }
+
+  /**
+   * Tests that malformed FIB text does not create an excessive number of loops.
+   * Quickie test, nice to have: refine, move to JUnit.
+   * @param verbose
+   * @return
+   */
+  private static boolean testExtractFIBTextArray(boolean verbose)
+  {
+    boolean status = true;
+    String[] testsuite = {
+      "aaa{bbb}ccc{ddd}eee", // correct
+      "aaa{bbb}ccc{", //incorrect
+      "aaa{bbb}ccc}", //incorrect
+      "aaa{bbb{ccc}ddd}eee" //incorrect
+    };
+
+    ArrayList testResult;
+
+    try
+    {
+      for (int i = 0; i < testsuite.length; i++)
+      {
+        testResult = extractFIBTextArray(testsuite[i]);
+        if (verbose)
+        {
+          System.out.println("Extracting: " + testsuite[i]);
+          for (int j = 0; j < testResult.size(); j++)
+          {
+            System.out.println("testResult.get(" + j +
+                               ")="+testResult.get(j));
+          }
+        }
+        if (testResult.size() > 10)
+        {
+          if (verbose)
+          {
+            System.out.println("Extraction failed: exceeded reasonable size.");
+          }
+          return false;
+        }
+      }
+    }
+    catch (Exception ex)
+    {
+      if (verbose)
+      {
+        System.out.println("Extraction failed: " + ex);
+      }
+      return false;
+    }
+
+    return status;
+  }
+
+  public static void main (String args[])
+  {
+    boolean verbose = true;
+    if (args.length>0 && "false".equals(args[0]))
+    {
+      verbose = false;
+    }
+
+    System.out.println("testExtractFIBTextArray result="+testExtractFIBTextArray(verbose));;
+
   }
 }
