@@ -936,6 +936,10 @@ public class SyllabusServiceImpl implements SyllabusService
 	  ArrayList list = new ArrayList();
 	  
 	  SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(id);
+	  if(syllabusItem == null)
+	  {
+	    return null;
+	  }
 	  Set listSet = syllabusManager.getSyllabiForSyllabusItem(syllabusItem);
 	  Iterator iter = listSet.iterator();
 	  while(iter.hasNext())
