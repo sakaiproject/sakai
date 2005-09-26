@@ -106,6 +106,12 @@ td.subItemSummary table tr td {
 	padding-left:0px;
 }
 
+/* List filter label */
+.listView {
+	font-weight:bold;
+	padding-bottom:.5em;
+}
+
 /*
 	Make the currently sorted column header text bold, and make all sort headers
 	not underlined

@@ -169,4 +169,18 @@ public abstract class EnrollmentTableBean
 		String sortColumn = getSortColumn();
 		return (sortColumn.equals(PreferencesBean.SORT_BY_NAME) || sortColumn.equals(PreferencesBean.SORT_BY_UID));
 	}
+
+	// Section filtering.
+	private Long selectedSectionFilter;
+
+    public Long getSelectedSectionFilter() {
+        return selectedSectionFilter;
+    }
+    public void setSelectedSectionFilter(Long selectedSectionFilter) {
+        this.selectedSectionFilter = selectedSectionFilter;
+    }
+
+	public List getSectionFilterSelectItems() {
+		return new ArrayList();
+	}
 }
