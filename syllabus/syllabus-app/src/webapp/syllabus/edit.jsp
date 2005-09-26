@@ -35,6 +35,16 @@
 						
 						<h:outputText value="#{msgs.syllabus_content}"/>
 						<sakai:rich_text_area value="#{SyllabusTool.entry.entry.asset}" rows="17" columns="70"/>
+						
+						<sakai:doc_section>
+							<h:outputText value="#{msgs.syllabus_view}"/>
+						</sakai:doc_section>		
+						<sakai:doc_section>
+							<h:selectOneRadio value="#{SyllabusTool.entry.entry.view}">
+								<f:selectItem itemValue="yes" itemLabel="Yes"/>
+								<f:selectItem itemValue="no" itemLabel="No"/>
+							</h:selectOneRadio>
+						</sakai:doc_section>
 					</sakai:panel_edit>
 				</sakai:group_box>
 

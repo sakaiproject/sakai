@@ -35,6 +35,8 @@ import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
+import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
+import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -927,8 +929,35 @@ public class SyllabusServiceImpl implements SyllabusService
 		if (value.length() == 0) return null;
 		return value;
 
-	} 
+	}
+	
+	public List getMessages(String id)
+	{
+	  ArrayList list = new ArrayList();
+	  
+	  SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(id);
+	  Set listSet = syllabusManager.getSyllabiForSyllabusItem(syllabusItem);
+	  Iterator iter = listSet.iterator();
+	  while(iter.hasNext())
+	  {
+	    SyllabusData sd = (SyllabusData)iter.next();
+	    if(sd.getView().equalsIgnoreCase("yes") && (sd.getStatus().equalsIgnoreCase("Posted")))
+	    {
+	      ArrayList attachList = new ArrayList();
+	  	  Set attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(sd);
+	  	  Iterator attachIter = attachSet.iterator();
+	  	  while(attachIter.hasNext())
+	  	  {
+	  	    attachList.add((SyllabusAttachment)attachIter.next());
+	  	  }
+
+	      GatewaySyllabus gs = new GatewaySyllabusImpl(sd, attachList);
+	      
+	      list.add(gs);
+	    }
+	  }
+	  
+	  return list;
+	}
 }
-
-
 

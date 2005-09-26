@@ -23,6 +23,8 @@
 
 package org.sakaiproject.api.app.syllabus.cover;
 
+import java.util.List;
+
 import org.sakaiproject.service.framework.component.cover.ComponentManager;
 
 public class SyllabusService
@@ -35,7 +37,7 @@ public class SyllabusService
    */
 public static org.sakaiproject.api.app.syllabus.SyllabusService getInstance()
 	{
-	  if (ComponentManager.CACHE_SINGLETONS)
+/*	  if (ComponentManager.CACHE_SINGLETONS)
 		{
 			if(m_instance != null)
 			{
@@ -60,8 +62,23 @@ public static org.sakaiproject.api.app.syllabus.SyllabusService getInstance()
 		else
 		{
 			return (org.sakaiproject.api.app.syllabus.SyllabusService) ComponentManager.get(org.sakaiproject.api.app.syllabus.SyllabusService.class);
+		}*/
+  if (ComponentManager.CACHE_SINGLETONS)
+	{
+		if (m_instance == null)
+		{
+		  m_instance = (org.sakaiproject.api.app.syllabus.SyllabusService) 
+		  	ComponentManager.get("org.sakaiproject.api.app.syllabus.SyllabusService");
 		}
+		return m_instance;
 	}
+	else
+	{
+		return (org.sakaiproject.api.app.syllabus.SyllabusService) 
+			ComponentManager.get("org.sakaiproject.api.app.syllabus.SyllabusService");
+	}
+	}
+
   public static java.lang.String merge(java.lang.String param0,
       org.w3c.dom.Element param1, java.lang.String param2,
       java.lang.String param3, java.util.Map param4, java.util.HashMap param5,
@@ -102,7 +119,12 @@ public static org.sakaiproject.api.app.syllabus.SyllabusService getInstance()
 
     service.importResources(param0, param1, param2);
   }
+  
+	public static List getMessages(String id)
+	{
+    org.sakaiproject.api.app.syllabus.SyllabusService service = getInstance();
+    if (service == null) return null;
+
+    return service.getMessages(id);
+	}
 }
-
-
-

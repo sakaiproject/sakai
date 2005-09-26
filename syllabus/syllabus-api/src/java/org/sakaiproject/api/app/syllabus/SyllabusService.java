@@ -23,6 +23,8 @@
 
 package org.sakaiproject.api.app.syllabus;
 
+import java.util.List;
+
 import org.sakaiproject.service.legacy.resource.Resource;
 import org.sakaiproject.service.legacy.resource.ResourceService;
 
@@ -47,7 +49,5 @@ public interface SyllabusService extends ResourceService
 	
 	public void deletePostedSyllabus(SyllabusData data);
 	
+	public List getMessages(String id);
 }
-
-
-
