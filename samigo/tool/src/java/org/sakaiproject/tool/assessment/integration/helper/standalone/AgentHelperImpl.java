@@ -30,142 +30,245 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
+import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
+import org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
+/**
+ *
+ * <p>Description:
+ * This is a stub standalone context implementation helper delegate class for
+ * the AgentFacade class.  "Standalone" means that Samigo (Tests and Quizzes)
+ * is running without the context of the Sakai portal and authentication
+ * mechanisms, and therefore we "make up" some of the values returned.</p>
+ * <p>Note: To customize behavior you can add your own helper class to the
+ * Spring injection via the integrationContext.xml for your context.
+ * The particular integrationContext.xml to be used is selected by the
+ * build process.
+ * </p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ *
+ */
 public class AgentHelperImpl implements AgentHelper
 {
   private static Log log = LogFactory.getLog(AgentHelperImpl.class);
-  public AgentImpl getAgent()
-  {
+  String agentString;
 
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getAgent() not yet implemented.");
+  /**
+   * Get an osid Agent implementation class instance.
+   *
+   * @return an AgentImpl: osid Agent implementation class.
+   */
+  public AgentImpl getAgent(){
+    AgentImpl agent = new AgentImpl("Administrator", null, new IdImpl("admin"));
+    return agent;
   }
 
-  public String getAgentString()
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getAgentString() not yet implemented.");
+  /**
+   * Get the agent string.
+   * @return the agent string.
+   */
+
+  public String getAgentString(){
+    String agentS = "admin";
+    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+    if (bean != null && !bean.getProp1().equals("prop1"))
+      agentS = bean.getProp1();
+    return agentS;
   }
 
-  public String getAgentString(HttpServletRequest req, HttpServletResponse res)
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getAgentString() not yet implemented.");
+  /**
+   * Get the agent string.
+   * @param req the HttpServletRequest
+   * @param res the HttpServletResponse
+   * @return the agent string.
+   */
+  public String getAgentString(HttpServletRequest req, HttpServletResponse res){
+    String agentS = "admin";
+    BackingBean bean = (BackingBean) ContextUtil.lookupBeanFromExternalServlet(
+        "backingbean", req, res);
+    if (bean != null && !bean.getProp1().equals("prop1"))
+      agentS = bean.getProp1();
+    return agentS;
   }
 
-  public String getDisplayName(String agentS)
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getDisplayName() not yet implemented.");
+  /**
+   * Get the Agent display name.
+   * @param agentS the Agent string.
+   * @return the Agent display name.
+   */
+  public String getDisplayName(String agentS){
+    if ("admin".equals(agentS))
+      return "Administrator";
+    else if (agentS.equals("rachel"))
+      return "Rachel Gollub";
+    else if (agentS.equals("marith"))
+      return "Margaret Petit";
+    else
+      return "Dr. Who";
   }
 
+  /**
+   * Get the Agent first name.
+   * @return the Agent first name.
+   */
   public String getFirstName()
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getFirstName() not yet implemented.");
+    if ("admin".equals(agentString))
+      return "Samigo";
+    else if (agentString.equals("rachel"))
+      return "Rachel";
+    else if (agentString.equals("marith"))
+      return "Margaret";
+    else
+      return "Dr.";
   }
 
+  /**
+   * Gegt the Agent last name.
+   * @return the Agent last name.
+   */
   public String getLastName()
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getLastName() not yet implemented.");
+    if ("admin".equals(agentString))
+      return "Administrator";
+    else if (agentString.equals("rachel"))
+      return "Gollub";
+    else if (agentString.equals("marith"))
+      return "Petit";
+    else
+      return "Who";
   }
 
+  /**
+   * Get the agent role.
+   * @return the agent role.
+   */
   public String getRole()
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getRole() not yet implemented.");
+    return "Student";
   }
 
+  /**
+   * For a specific agent id, get the agent role.
+   * @param agentId the agent id
+   * @return the agent role.
+   */
   public String getRole(String agentId)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getRole() not yet implemented.");
+    return "Maintain";
   }
 
-  public String getCurrentSiteId()
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getCurrentSiteId() not yet implemented.");
+  /**
+   * Get the current site id.
+   * @return the site id.
+   */
+  public String getCurrentSiteId(){
+    return "Samigo Site";
   }
 
-  public String getCurrentSiteName()
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getCurrentSiteName() not yet implemented.");
+  /**
+   * Get the current site name.
+   * @return the site name.
+   */
+  public String getCurrentSiteName(){
+    return "Samigo Site";
   }
 
-  public String getSiteName(String siteId)
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getSiteName() not yet implemented.");
+  /**
+   * Get the site name.
+   * @param siteId  site id
+   * @return the site name.
+   */
+  public String getSiteName(String siteId){
+    return "Samigo Site";
   }
 
+  /**
+   * Get the id string.
+   * @return the id string.
+   */
   public String getIdString()
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getIdString() not yet implemented.");
+    return this.getAgentString();
   }
 
-  public String getDisplayNameByAgentId(String agentId)
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getDisplayNameByAgentId() not yet implemented.");
+  /**
+   * Get the display name fo ra specific agent id string.
+   * @param agentId the agent id string.
+   * @return the display name.
+   */
+  public String getDisplayNameByAgentId(String agentId){
+    return "Samigo Administrator";
   }
 
-  public String createAnonymous()
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method createAnonymous() not yet implemented.");
+  /**
+   * Create anonymous user and return the anonymous user id.
+   * @return the anonymous user id.
+   */
+  public String createAnonymous(){
+    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+    String anonymousId = "anonymous_"+(new java.util.Date()).getTime();
+    bean.setProp1(anonymousId);
+    return anonymousId;
   }
 
-  public boolean isStandaloneEnvironment()
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method isStandaloneEnvironment() not yet implemented.");
+  /**
+   * Is this a standalone environment?
+   * @return true, always, in this implementation
+   */
+  public boolean isStandaloneEnvironment(){
+    return true;
   }
 
-  public boolean isIntegratedEnvironment()
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method isIntegratedEnvironment() not yet implemented.");
+  /**
+   * Is this a standalone environment?
+   * @return false, in this implementation
+   */
+  public boolean isIntegratedEnvironment(){
+    return false;
   }
 
-  public String getCurrentSiteIdFromExternalServlet(HttpServletRequest req,
-    HttpServletResponse res)
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getCurrentSiteIdFromExternalServlet() not yet implemented.");
+  /**
+   * Get current site id from within an external servlet.
+   * @param req the HttpServletRequest
+   * @param res the HttpServletResponse
+   * @return teh site id.
+   */
+  public String getCurrentSiteIdFromExternalServlet(HttpServletRequest req,  HttpServletResponse res){
+      return "Samigo Site";
   }
 
-  public String getAnonymousId()
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getAnonymousId() not yet implemented.");
+  /**
+   * Get the anonymous user id.
+   * @return the anonymous user id.
+   */
+  public String getAnonymousId(){
+    String agentS = "";
+    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+    if (bean != null && !bean.getProp1().equals("prop1"))
+      agentS = bean.getProp1();
+    return agentS;
   }
 
+  /**
+   * Set the agent id string.
+   * @param idString the isd string.
+   */
   public void setIdString(String idString)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method setIdString() not yet implemented.");
+    this.agentString = idString;
   }
+
+  /**
+   * Set the agent string.
+   * @param agentString the agent string.
+   */
+  public void setAgentString(String agentString)
+  {
+    this.agentString = agentString;
+  }
+
 }

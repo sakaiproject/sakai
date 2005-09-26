@@ -28,22 +28,41 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 
+/**
+ *
+ * <p>Description:
+ * This is a stub standalone context implementation helper delegate class for
+ * the GradebookFacade class.  The helper methods use hardcoded values.
+ * "Standalone" means that Samigo (Tests and Quizzes)
+ * is running without the context of the Sakai portal and authentication
+ * mechanisms, and therefore we use stub methods.</p>
+ * <p>Note: To customize behavior you can add your own helper class to the
+ * Spring injection via the integrationContext.xml for your context.
+ * The particular integrationContext.xml to be used is selected by the
+ * build process.
+ * </p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ *
+ */
 public class GradebookHelperImpl implements GradebookHelper
 {
   private static Log log = LogFactory.getLog(GradebookHelperImpl.class);
 
-  public String getGradebookUId()
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getGradebookUId() not yet implemented.");
+  /**
+   * Hardcoded stub.  Get current gradebook uid.
+   * @return Gradebook #10
+   */
+  public String getGradebookUId(){
+    return "QA_8";
   }
 
-  public String getDefaultGradebookUId()
-  {
-
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getDefaultGradebookUId() not yet implemented.");
+  /**
+   * Hardcoded stub.  Get teh default gradebook uid.
+   * @return Gradebook #1
+   */
+  public String getDefaultGradebookUId(){
+    return "QA_1";
   }
 }

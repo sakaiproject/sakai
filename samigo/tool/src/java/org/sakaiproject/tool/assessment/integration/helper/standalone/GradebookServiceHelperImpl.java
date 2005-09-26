@@ -25,45 +25,85 @@ package org.sakaiproject.tool.assessment.integration.helper.standalone;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.
-  PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.
-  GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+
+/**
+ *
+ * <p>Description:
+ * This is a stub standalone context implementation helper delegate class for
+ * the GradebookService class.  The helper methods are stubs because in
+ * standalone there isn't gradebook integration.  "Standalone" means that
+ * Samigo (Tests and Quizzes) is running without the context of the Sakai portal
+ * and authentication mechanisms, and therefore we use stub methods.</p>
+ * <p>Note: To customize behavior you can add your own helper class to the
+ * Spring injection via the integrationContext.xml for your context.
+ * The particular integrationContext.xml to be used is selected by the
+ * build process.
+ * </p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ *
+ */
 
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
   private static Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
 
-  public boolean gradebookExists(String gradebookUId)
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method gradebookExists() not yet implemented.");
-  }
-
-  public void removeExternalAssessment(String gradebookUId,
-                                       String publishedAssessmentId) throws
-    Exception
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method removeExternalAssessment() not yet implemented.");
-  }
-
+  /**
+   * STUB.  NO-OP.
+   * @param publishedAssessment the published assessment
+   * @return false: cannot add to gradebook
+   * @throws java.lang.Exception
+   */
   public boolean addToGradebook(PublishedAssessmentData publishedAssessment) throws
     Exception
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method addToGradebook() not yet implemented.");
+    return false;
   }
 
+  /**
+   * STUB.  NO-OP.
+   * @param siteId teh site id
+   * @param publishedAssessmentId the id of the published assessment
+   * @throws java.lang.Exception
+   */
+  public void removeExternalAssessment(String siteId,
+                                       String publishedAssessmentId) throws
+    Exception
+  {
+  }
+
+  /**
+   * STUB.  NO-OP.
+   * @param ag the assessment grading
+   * @param agentIdString teh agent id string
+   */
+  public static void updateExternalAssessment(AssessmentGradingData ag,
+                                              String agentIdString)
+  {
+  }
+
+  /**
+   * Always returns false, because standalone.
+   * @param siteId teh site id
+   * @return false, no gradebook integration
+   */
+  public boolean gradebookExists(String siteId)
+  {
+    return false;
+  }
+
+  /**
+   * STUB.  NO-OP.
+   * @param ag the assessment grading
+   * @throws java.lang.Exception
+   */
   public void updateExternalAssessmentScore(AssessmentGradingIfc ag) throws
     Exception
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method updateExternalAssessmentScore() not yet implemented.");
   }
 }
