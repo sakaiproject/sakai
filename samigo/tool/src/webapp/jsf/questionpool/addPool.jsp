@@ -79,6 +79,7 @@
   <h:inputText id="keyfield" size="30" value="#{questionpool.currentPool.keywords}"/>
  </div>
 
+
 <p class="act">
   <h:commandButton id="submit"  action="#{questionpool.doit}"
 	value="#{msg.save}" styleClass="active">
