@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
- *
+ * based on code originally in AgentFacade
  */
 public class AgentHelperImpl implements AgentHelper
 {
@@ -127,7 +127,7 @@ public class AgentHelperImpl implements AgentHelper
   }
 
   /**
-   * Gegt the Agent last name.
+   * Get the Agent last name.
    * @return the Agent last name.
    */
   public String getLastName()
@@ -224,7 +224,7 @@ public class AgentHelperImpl implements AgentHelper
   }
 
   /**
-   * Is this a standalone environment?
+   * Is this an integrated environment?
    * @return false, in this implementation
    */
   public boolean isIntegratedEnvironment(){
