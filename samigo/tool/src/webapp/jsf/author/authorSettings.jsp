@@ -68,24 +68,31 @@ var feedbackIdFlag = "assessmentSettingsAction:feedback";
 var noFeedback = "3";
 
 // If we select "No Feedback will be displayed to the student"
-// it will disable feedback, otherwise leave it alone.
+// it will disable and uncheck feedback as well as blank out text, otherwise,
+// if a different radio button is selected, we reenable feedback checkboxes & text.
 function disableAllFeedbackCheck(feedbackType)
 {
-  if (feedbackType != noFeedback) return;
-
   var feedbacks = document.getElementsByTagName('INPUT');
   for (i=0; i<feedbacks.length; i++)
   {
     if (feedbacks[i].name.indexOf(feedbackIdFlag)==0)
     {
-      // type is referenced as a lowercase value
-      if (feedbacks[i].type == 'checkbox')
+      if (feedbackType == noFeedback)
       {
-        feedbacks[i].checked = false;
+        if (feedbacks[i].type == 'checkbox')
+        {
+          feedbacks[i].checked = false;
+          feedbacks[i].disabled = true;
+        }
+        else if (feedbacks[i].type == 'text')
+        {
+          feedbacks[i].value = "";
+          feedbacks[i].disabled = true;
+        }
       }
-      else if (feedbacks[i].type == 'text')
+      else
       {
-        feedbacks[i].value = "";
+        feedbacks[i].disabled = false;
       }
     }
   }
@@ -107,7 +114,7 @@ function checkTimeSelect(){
     document.getElementById(autoSubmitId).disabled=false;
 
 }
-           
+
 //-->
 </script>
 
@@ -433,6 +440,8 @@ function checkTimeSelect(){
    <h:outputLabel value="#{msg.feedback_delivery}" /> <f:verbatim></div><div class="indnt3"></f:verbatim>
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
       <h:panelGrid border="0" columns="1"  >
+<h:outputText value="debug: feedbackdelivery: #{assessmentSettings.feedbackDelivery}" />
+<h:outputText value="disabled: #{assessmentSettings.feedbackDelivery==3}" />
         <h:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}"
            layout="pageDirection" onclick="disableAllFeedbackCheck(this.value);">
           <f:selectItem itemValue="1" itemLabel="#{msg.immediate_feedback}"/>
@@ -457,27 +466,33 @@ function checkTimeSelect(){
           <h:outputText value="#{msg.question_text}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2"
+            disabled="#{assessmentSettings.feedbackDelivery==3}" />
           <h:outputText value="#{msg.question_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox3" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox3"
+            disabled="#{assessmentSettings.feedbackDelivery==3}" />
           <h:outputText value="#{msg.student_response}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4"
+            disabled="#{assessmentSettings.feedbackDelivery==3}" />
           <h:outputText value="#{msg.selection_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox5" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox5"
+            disabled="#{assessmentSettings.feedbackDelivery==3}" />
           <h:outputText value="#{msg.correct_response}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox6" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox6"
+            disabled="#{assessmentSettings.feedbackDelivery==3}" />
           <h:outputText value="#{msg.student_score}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox7" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox7"
+            disabled="#{assessmentSettings.feedbackDelivery==3}" />
           <h:outputText value="#{msg.grader_comments}" />
         </h:panelGroup>
 
