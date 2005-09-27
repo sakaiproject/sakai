@@ -8,19 +8,20 @@ For the bravest among you, here's how to build and populate a standalone Gradebo
 
 # Start in the "sections" module, not the "gradebook" module.
 cd ../sections
+
 # Build Section Management, Section Awareness, and integration support.
 maven -Dstandalone=true -Dhibernate.properties.dir=C:/java/sakai-trunk/sakai/gradebook/tool/src/hibernate cln bld
 # Initialize your local database with the sections tables.
-cd sections-app
+# (This step could be combined with the one above if you like.)
 maven -Dstandalone=true -Dmem=false -Dhibernate.properties.dir=C:/java/sakai-trunk/sakai/gradebook/tool/src/hibernate schema
+
 # Go back to the Gradebook.
 cd ../../gradebook/
 # Regular standalone build.
 maven -Dstandalone=true cln bld
 # Populate your local database with test Section Awareness data and Gradebook data.
-cd tool
-maven -Dstandalone=true load-sections
-maven -Dstandalone=true load-gradebook-data
+# (This step could be combined with the one above if you like.)
+maven -Dstandalone=true load-full
 
 ==========================
 

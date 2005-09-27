@@ -8,5 +8,10 @@
 		<attainGoal name="multiproject:goal" />
 	</goal>
 
-</project>
+	<goal name="load-full">
+		<j:set var="goal" value="load-full" />
+		<j:set var="maven.multiproject.includes" value="tool/project.xml" />
+		<attainGoal name="multiproject:goal" />
+	</goal>
 
+</project>
