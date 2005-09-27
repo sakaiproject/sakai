@@ -23,12 +23,8 @@
 
 package org.sakaiproject.tool.gradebook.jsf;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.text.MessageFormat;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -230,6 +226,30 @@ public class FacesUtil {
         Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
         ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
         return rb.getString(key);
+    }
+
+    /**
+     * Gets a localized message string based on the locale determined by the
+     * FacesContext.  Useful for adding localized FacesMessages from a backing bean.
+     * @param key The key to look up the localized string
+     */
+    public static String getLocalizedString(String key) {
+    	return FacesUtil.getLocalizedString(FacesContext.getCurrentInstance(), key);
+    }
+
+    /**
+     * Gets a localized message string based on the locale determined by the
+     * FacesContext.  Useful for adding localized FacesMessages from a backing bean.
+     *
+     *
+     * @param key The key to look up the localized string
+     * @param params The array of strings to use in replacing the placeholders
+     * in the localized string
+     */
+    public static String getLocalizedString(String key, String[] params) {
+    	String rawString = getLocalizedString(key);
+        MessageFormat format = new MessageFormat(rawString);
+        return format.format(params);
     }
 
 }

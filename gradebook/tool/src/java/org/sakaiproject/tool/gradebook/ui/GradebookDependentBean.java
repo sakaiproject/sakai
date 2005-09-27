@@ -23,7 +23,6 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
-import java.text.MessageFormat;
 import java.util.*;
 
 import javax.faces.context.FacesContext;
@@ -84,25 +83,27 @@ public abstract class GradebookDependentBean extends InitializableBean {
     /**
      * Gets a localized message string based on the locale determined by the
      * FacesContext.  Useful for adding localized FacesMessages from a backing bean.
+     *
+     * TODO Replace with direct calls to FacesUtil.
+     *
      * @param key The key to look up the localized string
      */
     public String getLocalizedString(String key) {
-    	return FacesUtil.getLocalizedString(FacesContext.getCurrentInstance(), key);
+    	return FacesUtil.getLocalizedString(key);
     }
 
     /**
      * Gets a localized message string based on the locale determined by the
      * FacesContext.  Useful for adding localized FacesMessages from a backing bean.
      *
+     * TODO Replace with direct calls to FacesUtil.
      *
      * @param key The key to look up the localized string
      * @param params The array of strings to use in replacing the placeholders
      * in the localized string
      */
     public String getLocalizedString(String key, String[] params) {
-    	String rawString = getLocalizedString(key);
-        MessageFormat format = new MessageFormat(rawString);
-        return format.format(params);
+    	return FacesUtil.getLocalizedString(key, params);
     }
 
     // Still more convenience methods, hiding the bean configuration details.
