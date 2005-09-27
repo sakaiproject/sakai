@@ -161,12 +161,25 @@
         ]]>
     </query>
 
+<!--
     <query name="findUserSectionMembershipsInSite">
         <![CDATA[
         from ParticipationRecordImpl as member where member.userUid=:userUid and
             member.learningContext.id in
             (
                 select section.id from CourseSectionImpl as section where
+                    section.course.siteContext = :siteContext
+            )
+        ]]>
+    </query>
+-->
+
+    <query name="findOrphanedSectionMemberships">
+        <![CDATA[
+        from ParticipationRecordImpl as member where member.userUid not in (:userUids) and
+            member.learningContext in
+            (
+                from CourseSectionImpl as section where
                     section.course.siteContext = :siteContext
             )
         ]]>

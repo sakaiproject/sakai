@@ -24,6 +24,8 @@
 
 package org.sakaiproject.api.section;
 
+import java.util.Set;
+
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
@@ -64,15 +66,7 @@ public interface CourseManager {
 	 * @return
 	 */
 	public boolean courseExists(String siteContext);
-	
-	/**
-	 * When a user is removed from a site, the course manager must be notified
-	 * so it can remove the user from all section memberships in the site.
-	 * 
-	 * @param userUid
-	 */
-	public void removeUserFromAllSections(String userUid, String siteContext);
-	
+		
 	/**
 	 * Adds a student to a course.  Useful for dataloading in standalone mode.
 	 * 
@@ -100,6 +94,23 @@ public interface CourseManager {
 	 */
 	public ParticipationRecord addInstructor(User user, Course course);
 	
+	/**
+	 * Removes a user from the course.
+	 * 
+	 * @param userUid
+	 * @param course
+	 */
+	public void removeCourseMembership(String userUid, Course course);
+	
+	/**
+	 * Removes any section membership record from a site that belongs to a user
+	 * who is no longer associated with the site.
+	 * 
+	 * @param siteContext The site context from which to remove the orphaned records
+	 * @param userUids The current set of user ids that are a member of the site.
+	 * Must not be null or empty.
+	 */
+	public void removeOrphans(String siteContext);
 	
 }
 

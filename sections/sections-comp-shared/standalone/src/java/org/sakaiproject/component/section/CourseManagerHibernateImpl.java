@@ -25,8 +25,9 @@
 package org.sakaiproject.component.section;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -90,26 +91,6 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 		return getHibernateTemplate().execute(hc) != null;
 	}
 
-	public void removeUserFromAllSections(final String userUuid, final String siteContext) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				Query q = session.getNamedQuery("findUserSectionMembershipsInSite");
-				q.setParameter("userUid", userUuid);
-				q.setParameter("siteContext", siteContext);
-				List results = q.list();
-				for(Iterator iter = results.iterator(); iter.hasNext();) {
-					ParticipationRecord record = (ParticipationRecord) iter.next();
-					if(log.isInfoEnabled()) log.info("User " + userUuid +
-							" removed from the site... removing user from section " +
-							record.getLearningContext().getTitle());
-					session.delete(record);
-				}
-				return null;
-			};
-		};
-		getHibernateTemplate().execute(hc);
-	}	
-
 	public ParticipationRecord addInstructor(final User user, final Course course) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
@@ -146,11 +127,79 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 		return (ParticipationRecord)getHibernateTemplate().execute(hc);
 	}
 	
+	public void removeCourseMembership(final String userUid, final Course course) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery("loadSiteParticipation");
+				q.setParameter("siteContext", course.getSiteContext());
+				q.setParameter("userUid", userUid);
+				Object result = q.uniqueResult();
+				if(result != null) {
+					session.delete(result);
+					if(log.isInfoEnabled()) log.info("Site membership for " + userUid + " in course " +
+							course + " has been deleted");
+				} else {
+					if(log.isInfoEnabled()) log.info("Could not find membership for " +
+							userUid + " in course " + course);
+				}
+				return null;
+			}
+		};
+		getHibernateTemplate().execute(hc);
+		
+		// Make sure we remove any orphaned section memberships
+		removeOrphans(course.getSiteContext());
+		
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public void removeOrphans(final String siteContext) {
+		final Set userUids = getSiteMemberIds(siteContext);
+		if(userUids == null || userUids.isEmpty()) {
+			return;
+		}
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery("findOrphanedSectionMemberships");
+				q.setParameter("siteContext", siteContext);
+				q.setParameterList("userUids", userUids);
+				int deleted = 0;
+				for(Iterator iter = q.iterate(); iter.hasNext(); deleted++) {
+					session.delete(iter.next());
+				}
+				if(log.isInfoEnabled()) log.info(deleted + " section memberships deleted");
+				return null;
+			}
+		};
+		getHibernateTemplate().execute(hc);
+	}
+
+	/**
+	 * Gets only the user IDs of the site members
+	 * 
+	 * @param siteContext
+	 * @return
+	 */
+	private Set getSiteMemberIds(final String siteContext) {
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
+				Query q = session.getNamedQuery("findSiteMemberUserUids");
+				q.setParameter("siteContext", siteContext);
+				return new HashSet(q.list());
+			};
+		};
+
+		return (Set)getHibernateTemplate().execute(hc);
+	}
+
 	// Dependency injection
 
 	public void setUuidManager(UuidManager uuidManager) {
 		this.uuidManager = uuidManager;
 	}
+
 }
 
 

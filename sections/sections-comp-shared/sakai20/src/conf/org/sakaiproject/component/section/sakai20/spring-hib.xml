@@ -15,6 +15,11 @@
         <property name="transactionManager"><ref bean="sectionsTransactionManager"/></property>
         <property name="transactionAttributes">
             <props>
+                <!-- Due to the remove-orphan problem, we must allow getters to write to the db -->
+
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            
+            <!-- 
                 <prop key="join*">PROPAGATION_REQUIRED</prop>
                 <prop key="switch*">PROPAGATION_REQUIRED</prop>
                 <prop key="drop*">PROPAGATION_REQUIRED</prop>
@@ -25,6 +30,7 @@
                 <prop key="remove*">PROPAGATION_REQUIRED</prop>
                 <prop key="disband*">PROPAGATION_REQUIRED</prop>
                 <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            -->
             </props>
         </property>
     </bean>

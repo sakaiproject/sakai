@@ -25,6 +25,8 @@
 package org.sakaiproject.test.section;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -34,6 +36,7 @@ import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.support.UserManager;
@@ -69,12 +72,6 @@ public class CourseManagerTest extends SectionsTestBase {
     	// Make sure the user is enrolled in the two sections
     	Collection enrollments = sectionManager.getSectionEnrollments(student1.getUserUid(), course.getUuid());
     	Assert.assertTrue(enrollments.size() == 2);
-    	
-    	// Remove the user from the course, and ensure that they are no longer in any sections
-    	courseManager.removeUserFromAllSections(student1.getUserUid(), course.getSiteContext());
-
-    	enrollments = sectionManager.getSectionEnrollments(student1.getUserUid(), course.getUuid());
-    	Assert.assertTrue(enrollments.size() == 0);
     }
 
     public void testRemoveTaFromCourse() throws Exception {
@@ -97,15 +94,75 @@ public class CourseManagerTest extends SectionsTestBase {
     	Collection memberships2 = sectionManager.getSectionTeachingAssistants(section2.getUuid());
     	Assert.assertTrue(memberships1.size() == 1);
     	Assert.assertTrue(memberships2.size() == 1);
-    	
-    	// Remove the user from the course, and ensure that they are no longer in any sections
-    	courseManager.removeUserFromAllSections(ta1.getUserUid(), course.getSiteContext());
-
-    	memberships1 = sectionManager.getSectionTeachingAssistants(section1.getUuid());
-    	memberships2 = sectionManager.getSectionTeachingAssistants(section2.getUuid());
-    	Assert.assertTrue(memberships1.size() == 0);
-    	Assert.assertTrue(memberships2.size() == 0);
     }
+    
+    public void testRemoveOrphanedSectionMemberships() throws Exception {
+    	Course course = courseManager.createCourse("site", "course title", false, false, false);
+    	User ta1 = userManager.createUser("userUid1", "foo1", "bar1", "baz1");
+    	User ta2 = userManager.createUser("userUid2", "foo2", "bar2", "baz2");
+    	User student1 = userManager.createUser("userUid3", "foo3", "bar3", "baz3");
+    	User student2 = userManager.createUser("userUid4", "foo4", "bar4", "baz4");
+    	CourseSection section1 = sectionManager.addSection(course.getUuid(), "a section", "a category",
+    			null, null, null, null, false, false, false, false, false, false, false);
+    	CourseSection section2 = sectionManager.addSection(course.getUuid(), "another section", "another category",
+    			null, null, null, null, false, false, false, false, false, false, false);
+
+    	// Enroll the users in the course
+    	courseManager.addTA(ta1, course);
+    	courseManager.addTA(ta2, course);
+    	courseManager.addEnrollment(student1, course);
+    	courseManager.addEnrollment(student2, course);
+
+    	// Enroll the users in both sections
+    	sectionManager.addSectionMembership(ta1.getUserUid(), Role.TA, section1.getUuid());
+    	sectionManager.addSectionMembership(ta1.getUserUid(), Role.TA, section2.getUuid());
+    	sectionManager.addSectionMembership(ta2.getUserUid(), Role.TA, section1.getUuid());
+    	sectionManager.addSectionMembership(ta2.getUserUid(), Role.TA, section2.getUuid());
+    	sectionManager.addSectionMembership(student1.getUserUid(), Role.STUDENT, section1.getUuid());
+    	sectionManager.addSectionMembership(student1.getUserUid(), Role.STUDENT, section2.getUuid());
+    	sectionManager.addSectionMembership(student2.getUserUid(), Role.STUDENT, section1.getUuid());
+    	sectionManager.addSectionMembership(student2.getUserUid(), Role.STUDENT, section2.getUuid());
+
+    	// Remove the #2 users from the course
+    	courseManager.removeCourseMembership(ta2.getUserUid(), course);
+    	courseManager.removeCourseMembership(student2.getUserUid(), course);
+    	
+    	// Ensure that the second student and ta are no longer associated with any sections
+    	List section1Tas = sectionManager.getSectionTeachingAssistants(section1.getUuid());
+    	for(Iterator iter = section1Tas.iterator(); iter.hasNext();) {
+    		ParticipationRecord record = (ParticipationRecord)iter.next();
+    		if(record.getUser().getUserUid().equals(ta2.getUserUid())) {
+    			fail();
+    		}
+    	}
+    	List section2Tas = sectionManager.getSectionTeachingAssistants(section2.getUuid());
+    	for(Iterator iter = section2Tas.iterator(); iter.hasNext();) {
+    		ParticipationRecord record = (ParticipationRecord)iter.next();
+    		if(record.getUser().getUserUid().equals(ta2.getUserUid())) {
+    			fail();
+    		}
+    	}
+
+    	List section1Students = sectionManager.getSectionTeachingAssistants(section1.getUuid());
+    	for(Iterator iter = section1Students.iterator(); iter.hasNext();) {
+    		ParticipationRecord record = (ParticipationRecord)iter.next();
+    		if(record.getUser().getUserUid().equals(student2.getUserUid())) {
+    			fail();
+    		}
+    	}
+    	List section2Students = sectionManager.getSectionTeachingAssistants(section2.getUuid());
+    	for(Iterator iter = section2Students.iterator(); iter.hasNext();) {
+    		ParticipationRecord record = (ParticipationRecord)iter.next();
+    		if(record.getUser().getUserUid().equals(student2.getUserUid())) {
+    			fail();
+    		}
+    	}
+
+    	Assert.assertEquals(1, sectionManager.getTotalEnrollments(section1.getUuid()));
+    	Assert.assertEquals(1, sectionManager.getTotalEnrollments(section2.getUuid()));
+    	
+    }
+    
 }
 
 

@@ -29,6 +29,9 @@
                 <property name="uuidManager">
                     <ref bean="org.sakaiproject.api.common.uuid.UuidManager"/>
                 </property>
+                <property name="courseManager">
+                    <ref bean="org.sakaiproject.api.section.CourseManager"/>
+                </property>
                 <property name="sectionCategoryList">
                     <list>
                         <value>section.category.lecture</value>

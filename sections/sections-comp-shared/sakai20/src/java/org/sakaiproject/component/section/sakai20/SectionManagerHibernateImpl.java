@@ -41,6 +41,7 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
+import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -73,6 +74,13 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	protected UuidManager uuidManager;
     protected Authn authn;
     protected Context context;
+    
+    /**
+     * In Sakai, as of 9.26.05, no way of monitoring changes in site membership.
+     * So, in order to remove orphaned section memberships, we will check for
+     * orphans every time getSectionEnrollments() and getSectionTas() are called.
+     */
+    protected CourseManager courseManager;
 
 	private List sectionCategoryList;
     
@@ -124,6 +132,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return membersList;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSiteTeachingAssistants(final String siteContext) {
 		String siteRef = SakaiUtil.getSiteReference();
         List sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, siteRef);
@@ -163,6 +174,11 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
+                String siteContext = section.getCourse().getSiteContext();
+                
+                // Remove any records that are no longer in the site
+                courseManager.removeOrphans(siteContext);
+            	
             	Query q = session.getNamedQuery("findSectionTAs");
                 q.setParameter("section", section);
                 return q.list();
@@ -175,6 +191,11 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
+                String siteContext = section.getCourse().getSiteContext();
+                
+                // Remove any records that are no longer in the site
+                courseManager.removeOrphans(siteContext);
+
             	Query q = session.getNamedQuery("findSectionStudents");
                 q.setParameter("section", section);
                 return q.list();
@@ -704,6 +725,10 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 
 	public void setSectionCategoryList(List sectionCategoryList) {
 		this.sectionCategoryList = sectionCategoryList;
+	}
+
+	public void setCourseManager(CourseManager courseManager) {
+		this.courseManager = courseManager;
 	}
 }
 

@@ -25,8 +25,12 @@
 package org.sakaiproject.component.section.sakai20;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -38,20 +42,29 @@ import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.component.section.facade.impl.sakai20.AuthzSakaiImpl;
+import org.sakaiproject.service.legacy.event.Event;
+import org.sakaiproject.service.legacy.event.EventTrackingService;
+import org.sakaiproject.service.legacy.realm.RealmService;
+import org.sakaiproject.service.legacy.resource.Reference;
+import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * Hibernate implementation of CourseManager.  Supports adding a Course, but not
- * adding members.
+ * adding members.  Also observes changes to realms and removes students and TAs
+ * from section memberships when they are removed from a site.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
 public class CourseManagerHibernateImpl extends HibernateDaoSupport
-	implements CourseManager {
+	implements CourseManager, Observer {
 
 	private static final Log log = LogFactory.getLog(CourseManagerHibernateImpl.class);
+
+//	private EventTrackingService eventTrackingService;
 
 	public Course createCourse(final String siteContext, final String title,
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,
@@ -89,37 +102,129 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 		return getHibernateTemplate().execute(hc) != null;
 	}
 
-	public void removeUserFromAllSections(final String userUid, final String siteContext) {
+	/**
+	 * Initializes this bean by registering as an observer on the realm service.
+	 * This allows this bean to respond to changes in realms that affect sections
+	 * and section memberships.
+	 * 
+	 * Since Sakai won't call the observer when the provider's memberships change,
+	 * this should not register as an observer.  Culling orphaned section memberships
+	 * will occur elsewhere.
+	 */
+	public void init() {
+//		eventTrackingService.addObserver(this);
+	}
+	
+	/**
+	 * Update is called by the observable object to indicate a change has occurred.
+	 * 
+	 * Since Sakai does not call this observer each time site membership is
+	 * changed, the implementation is now handled at runtime in SectionManager
+	 * and in section awareness.
+	 * 
+	 */
+	public void update(Observable o, Object arg) {
+//		if (!(arg instanceof Event)) {
+//			log.error(arg + " is not an event!");
+//			return;
+//		}
+//
+//		Event event = (Event)arg;
+//		String function = event.getEvent();
+//		if(function.equals(RealmService.SECURE_UPDATE_REALM)) {
+//			// Get the site reference from the event
+//			Reference realmRef = new Reference(event.getResource());
+//			Reference entityRef = new Reference(realmRef.getId());
+//
+//			// If this isn't a site, we're done
+//			if("org.sakaiproject.service.legacy.site.SiteService".equals(entityRef.getType())) {
+//				if(log.isDebugEnabled()) log.debug("A realm update is triggering the " +
+//					"removal of orphaned users from a site's sections.");
+//
+//				String siteRef = entityRef.getReference();
+//				String siteContext = entityRef.getId();
+//				
+//				// TODO The logic of who is a TA/Student is now in two places... refactor!
+//				// Remove all section memberships (student and ta) of anyone who is no longer a site member
+//		        List list = SecurityService.unlockUsers(AuthzSakaiImpl.STUDENT_PERMISSION, siteRef);
+//		        list.addAll(SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, siteRef));
+//				Set userUids = new HashSet();
+//				for(Iterator iter = list.iterator(); iter.hasNext();) {
+//					org.sakaiproject.service.legacy.user.User user = (org.sakaiproject.service.legacy.user.User)iter.next();
+//					userUids.add(user.getId());
+//				}
+//
+//				log.info(userUids.size() + " users in site");
+//				removeOrphans(siteContext, userUids);
+//			}
+//		}
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public void removeOrphans(final String siteContext) {
+		final Set userUids = getSiteMemberIds();
+		if(userUids == null || userUids.isEmpty()) {
+			return;
+		}
+		
 		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				Query q = session.getNamedQuery("findUserSectionMembershipsInSite");
-				q.setParameter("userUid", userUid);
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.getNamedQuery("findOrphanedSectionMemberships");
 				q.setParameter("siteContext", siteContext);
-				List results = q.list();
-				for(Iterator iter = results.iterator(); iter.hasNext();) {
-					ParticipationRecord record = (ParticipationRecord) iter.next();
-					if(log.isInfoEnabled()) log.info("User " + userUid +
-							" removed from the site... removing user from section " +
-							record.getLearningContext().getTitle());
-					session.delete(record);
+				q.setParameterList("userUids", userUids);
+				int deleted = 0;
+				for(Iterator iter = q.list().iterator(); iter.hasNext(); deleted++) {
+					session.delete(iter.next());
 				}
+				if(log.isInfoEnabled()) log.info(deleted + " section memberships deleted");
 				return null;
-			};
+			}
 		};
 		getHibernateTemplate().execute(hc);
-	}	
+	}
+	
+	/**
+	 * Gets only the user IDs of the members of the current site.
+	 * 
+	 * @return
+	 */
+	private Set getSiteMemberIds() {
+		String siteRef = SakaiUtil.getSiteReference();
+        List sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.STUDENT_PERMISSION, siteRef);
+
+        Set members = new HashSet();
+        
+        for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
+        	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
+    		members.add(sakaiUser.getId());
+        }
+        return members;
+	}
 
 	public ParticipationRecord addInstructor(final User user, final Course course) {
-		throw new RuntimeException("This method is not available outside of the section manager application");
+		throw new RuntimeException("This method is not available in the sakai 2.0 service implementation");
 	}
 
 	public ParticipationRecord addEnrollment(final User user, final Course course) {
-		throw new RuntimeException("This method is not available outside of the section manager application");
+		throw new RuntimeException("This method is not available in the sakai 2.0 service implementation");
 	}
 
 	public ParticipationRecord addTA(final User user, final Course course) {
-		throw new RuntimeException("This method is not available outside of the section manager application");
+		throw new RuntimeException("This method is not available in the sakai 2.0 service implementation");
 	}
+
+	public void removeCourseMembership(String userUid, Course course) {
+		throw new RuntimeException("This method is not available in the sakai 2.0 service implementation");
+	}
+
+	// Dependency injection
+	
+//	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+//		this.eventTrackingService = eventTrackingService;
+//	}
+
 }
 
 

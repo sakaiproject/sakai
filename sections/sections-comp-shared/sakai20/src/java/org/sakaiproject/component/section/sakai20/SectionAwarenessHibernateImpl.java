@@ -39,6 +39,7 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -67,6 +68,13 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * name keys, which should be localized with a properties file by the UI.
 	 */
 	protected List sectionCategoryList;
+
+    /**
+     * In Sakai, as of 9.26.05, no way of monitoring changes in site membership.
+     * So, in order to remove orphaned section memberships, we will check for
+     * orphans every time getSectionEnrollments() and getSectionTas() are called.
+     */
+    protected CourseManager courseManager;
 
 	public Set getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
@@ -222,6 +230,12 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	public List getSectionMembers(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
+            	CourseSection section = getSection(sectionUuid, session);
+                String siteContext = section.getCourse().getSiteContext();
+                
+                // Remove any records that are no longer in the site
+                courseManager.removeOrphans(siteContext);
+
                 Query q = session.getNamedQuery("findSectionMembers");
                 q.setParameter("sectionUuid", sectionUuid);
                 return q.list();
@@ -234,8 +248,14 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
+                String siteContext = section.getCourse().getSiteContext();
+                
+                // Remove any records that are no longer in the site
+                courseManager.removeOrphans(siteContext);
+            	
             	Query q;
-                if(role.isInstructor()) {
+                
+            	if(role.isInstructor()) {
                 	q = session.getNamedQuery("findSectionInstructors");
         		} else if(role.isStudent()) {
                     q = session.getNamedQuery("findSectionStudents");
@@ -250,6 +270,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         };
         return getHibernateTemplate().executeFind(hc);
 	}
+
 
 	public boolean isSectionMemberInRole(final String sectionUuid, final String userUid, final Role role) {
         HibernateCallback hc = new HibernateCallback(){
@@ -323,6 +344,10 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 
 	public void setSectionCategoryList(List sectionCategoryList) {
 		this.sectionCategoryList = sectionCategoryList;
+	}
+
+	public void setCourseManager(CourseManager courseManager) {
+		this.courseManager = courseManager;
 	}
 
 }
