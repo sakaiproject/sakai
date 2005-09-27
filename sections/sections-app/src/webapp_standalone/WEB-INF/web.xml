@@ -12,7 +12,6 @@
             classpath:/org/sakaiproject/component/section/spring-hib.xml
             classpath:/org/sakaiproject/component/section/spring-beans.xml
             classpath:/org/sakaiproject/component/section/spring-services.xml
-            classpath:/org/sakaiproject/component/section/spring-sectionAwareness.xml
 		</param-value>
 	</context-param>
 	<context-param>

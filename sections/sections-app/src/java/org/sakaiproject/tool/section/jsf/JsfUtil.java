@@ -35,6 +35,8 @@ import java.util.ResourceBundle;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
 
 /**
@@ -44,9 +46,17 @@ import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
  *
  */
 public class JsfUtil {
+	private static final Log log = LogFactory.getLog(JsfUtil.class);
 	
 	public static Locale getLocale() {
-		return FacesContext.getCurrentInstance().getViewRoot().getLocale();
+		Locale locale;
+		try {
+			locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+		} catch (Exception e) {
+			log.warn("Could not get locale from FacesContext (perhaps this was this called during testing?)");
+			locale = Locale.US;
+		}
+		return locale;
 	}
 	
 	/**

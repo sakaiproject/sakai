@@ -25,6 +25,8 @@ package org.sakaiproject.component.section;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -63,6 +65,9 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         SectionManager {
 
+	private ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
+			"org.sakaiproject.api.section.bundle.Messages");
+
 	private static final Log log = LogFactory.getLog(SectionManagerHibernateImpl.class);
 	
 	// Fields configured via dep. injection
@@ -70,8 +75,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     protected Authn authn;
     protected Context context;
 
-	private List sectionCategoryList;
-    
+	/**
+	 * @inheritDoc
+	 */
 	public List getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
         HibernateCallback hc = new HibernateCallback(){
@@ -84,6 +90,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSectionsInCategory(final String siteContext, final String categoryId) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
@@ -96,6 +105,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public CourseSection getSection(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
@@ -105,6 +117,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (CourseSection)getHibernateTemplate().execute(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSiteInstructors(final String siteContext) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -117,6 +132,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSiteTeachingAssistants(final String siteContext) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -129,6 +147,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return getHibernateTemplate().executeFind(hc);
 	}
 	
+	/**
+	 * @inheritDoc
+	 */
 	public List getSiteEnrollments(final String siteContext) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -141,6 +162,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSectionTeachingAssistants(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -153,6 +177,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSectionEnrollments(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -165,6 +192,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List findSiteEnrollments(String siteContext, String pattern) {
 		List fullList = getSiteEnrollments(siteContext);
 		List filteredList = new ArrayList();
@@ -180,8 +210,12 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		return filteredList;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public String getCategoryName(String categoryId, Locale locale) {
-		ResourceBundle bundle = ResourceBundle.getBundle("org.sakaiproject.api.section.bundle.Messages", locale);
+		ResourceBundle bundle = ResourceBundle.getBundle(
+				"org.sakaiproject.api.section.bundle.Messages", locale);
 		String name;
 		try {
 			name = bundle.getString(categoryId);
@@ -196,7 +230,13 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * @inheritDoc
 	 */
 	public List getSectionCategories(String siteContext) {
-		return sectionCategoryList;
+		Enumeration keys = sectionCategoryBundle.getKeys();
+		List categoryIds = new ArrayList();
+		while(keys.hasMoreElements()) {
+			categoryIds.add(keys.nextElement());
+		}
+		Collections.sort(categoryIds);
+		return categoryIds;
 	}
 
     
@@ -233,6 +273,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         }
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public Course getCourse(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting course for context " + siteContext);
         HibernateCallback hc = new HibernateCallback(){
@@ -243,6 +286,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (Course)getHibernateTemplate().execute(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public SectionEnrollments getSectionEnrollmentsForStudents(final String siteContext, final Set studentUids) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -260,6 +306,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     	return new SectionEnrollmentsImpl(getHibernateTemplate().executeFind(hc));
 	}
 
+	/**
+	 * @inheritDoc
+	 */
     public EnrollmentRecord joinSection(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -284,6 +333,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (EnrollmentRecord)getHibernateTemplate().execute(hc);
     }
 
+	/**
+	 * @inheritDoc
+	 */
     public void switchSection(final String newSectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -320,6 +372,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
 
+	/**
+	 * @inheritDoc
+	 */
     public ParticipationRecord addSectionMembership(String userUid, Role role, String sectionUuid)
             throws MembershipException {
     	if(role.isInstructor()) {
@@ -394,6 +449,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (TeachingAssistantRecordImpl)getHibernateTemplate().execute(hc);
 	}
 	
+	/**
+	 * @inheritDoc
+	 */
 	public void setSectionMemberships(final Set userUids, final Role role, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -472,6 +530,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     	}
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public void dropSectionMembership(final String userUid, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -487,6 +548,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
 
+	/**
+	 * @inheritDoc
+	 */
 	public void dropEnrollmentFromCategory(final String studentUid,
 			final String siteContext, final String category) {
         HibernateCallback hc = new HibernateCallback(){
@@ -505,6 +569,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public int getTotalEnrollments(final String learningContextUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -517,6 +584,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return ((Integer)getHibernateTemplate().execute(hc)).intValue();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
     public CourseSection addSection(final String courseUuid, final String title,
     		final String category, final Integer maxEnrollments,
     		final String location, final Time startTime,
@@ -542,6 +612,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (CourseSection)getHibernateTemplate().execute(hc);
     }
 
+	/**
+	 * @inheritDoc
+	 */
     public void updateSection(final String sectionUuid, final String title,
     		final Integer maxEnrollments, final String location, final Time startTime,
     		final Time endTime, final boolean monday, final boolean tuesday,
@@ -570,6 +643,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
     public void disbandSection(final String sectionUuid) {
         if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
         HibernateCallback hc = new HibernateCallback(){
@@ -591,6 +667,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
 
+	/**
+	 * @inheritDoc
+	 */
     public boolean isSelfRegistrationAllowed(final String courseUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -601,6 +680,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
     }
 
+	/**
+	 * @inheritDoc
+	 */
     public void setSelfRegistrationAllowed(final String courseUuid, final boolean allowed) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -613,6 +695,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
 
+	/**
+	 * @inheritDoc
+	 */
     public boolean isSelfSwitchingAllowed(final String courseUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -623,6 +708,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
     }
 
+	/**
+	 * @inheritDoc
+	 */
     public void setSelfSwitchingAllowed(final String courseUuid, final boolean allowed) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -635,6 +723,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         getHibernateTemplate().execute(hc);
     }
     
+	/**
+	 * @inheritDoc
+	 */
 	public List getUnsectionedEnrollments(final String courseUuid, final String category) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -647,6 +738,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public Set getSectionEnrollments(final String userUid, final String courseUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -659,6 +753,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return new HashSet(getHibernateTemplate().executeFind(hc));
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public User getSiteEnrollment(final String siteContext, final String studentUid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -691,10 +788,6 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	
 	public void setContext(Context context) {
 		this.context = context;
-	}
-
-	public void setSectionCategoryList(List sectionCategoryList) {
-		this.sectionCategoryList = sectionCategoryList;
 	}
 }
 

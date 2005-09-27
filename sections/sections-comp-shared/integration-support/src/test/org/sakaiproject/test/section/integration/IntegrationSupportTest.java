@@ -46,7 +46,6 @@ public class IntegrationSupportTest extends AbstractTransactionalSpringContextTe
         String[] configLocations = {
         							"org/sakaiproject/component/section/spring-beans.xml",
         							"org/sakaiproject/component/section/spring-db.xml",
-        							"org/sakaiproject/component/section/spring-sectionAwareness.xml",
         							"org/sakaiproject/component/section/support/spring-hib-test.xml",
         							"org/sakaiproject/component/section/support/spring-services-test.xml",
         							"org/sakaiproject/component/section/support/spring-integrationSupport.xml"
@@ -137,7 +136,6 @@ public class IntegrationSupportTest extends AbstractTransactionalSpringContextTe
     	// Ensure that we know which site the user belongs to
     	List siteMemberships = integrationSupport.getAllSiteMemberships(user1.getUserUid());
     	Assert.assertTrue(siteMemberships.contains(siteMembership));
-    	
     }
 
 }

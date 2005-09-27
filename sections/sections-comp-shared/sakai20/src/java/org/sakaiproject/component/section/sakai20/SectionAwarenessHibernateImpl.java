@@ -25,6 +25,8 @@ package org.sakaiproject.component.section.sakai20;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -60,14 +62,11 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  */
 public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         implements SectionAwareness {
-	
-	private static final Log log = LogFactory.getLog(SectionAwarenessHibernateImpl.class);
 
-	/**
-	 * A list (to be configured via dependency injection) containing category
-	 * name keys, which should be localized with a properties file by the UI.
-	 */
-	protected List sectionCategoryList;
+	private ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
+			"org.sakaiproject.api.section.bundle.Messages");
+
+	private static final Log log = LogFactory.getLog(SectionAwarenessHibernateImpl.class);
 
     /**
      * In Sakai, as of 9.26.05, no way of monitoring changes in site membership.
@@ -76,6 +75,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
      */
     protected CourseManager courseManager;
 
+	/**
+	 * @inheritDoc
+	 */
 	public Set getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
         HibernateCallback hc = new HibernateCallback(){
@@ -92,9 +94,18 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public List getSectionCategories(String siteContext) {
-		return sectionCategoryList;
+		Enumeration keys = sectionCategoryBundle.getKeys();
+		List categoryIds = new ArrayList();
+		while(keys.hasMoreElements()) {
+			categoryIds.add(keys.nextElement());
+		}
+		Collections.sort(categoryIds);
+		return categoryIds;
 	}
 	
+	/**
+	 * @inheritDoc
+	 */
 	public CourseSection getSection(final String sectionUuid) {
     	if(log.isDebugEnabled()) log.debug("Getting section with uuid=" + sectionUuid);
         HibernateCallback hc = new HibernateCallback(){
@@ -116,6 +127,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         }
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSiteMembersInRole(final String siteContext, final Role role) {
 		List sakaiMembers;
 		String siteRef = SakaiUtil.getSiteReference();
@@ -177,6 +191,8 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	/**
 	 * The sakai implementation will not use the database to do this kind of searching,
 	 * so I'll skip doing optimizations here.
+	 * 
+	 * @inheritDoc
 	 */
 	public List findSiteMembersInRole(final String siteContext, final Role role, final String pattern) {
 		List fullList = getSiteMembersInRole(siteContext, role);
@@ -193,6 +209,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 		return filteredList;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public boolean isSiteMemberInRole(String siteContext, String userUid, Role role) {
 		List members = getSiteMembersInRole(siteContext, role);
 		for(Iterator iter = members.iterator(); iter.hasNext();) {
@@ -230,6 +249,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         }
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSectionMembers(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -247,6 +269,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSectionMembersInRole(final String sectionUuid, final Role role) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -275,6 +300,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	}
 
 
+	/**
+	 * @inheritDoc
+	 */
 	public boolean isSectionMemberInRole(final String sectionUuid, final String userUid, final Role role) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
@@ -289,6 +317,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public String getSectionName(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
@@ -304,6 +335,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         return (String)getHibernateTemplate().execute(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public String getSectionCategory(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
@@ -319,6 +353,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         return (String)getHibernateTemplate().execute(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public List getSectionsInCategory(final String siteContext, final String categoryId) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
@@ -331,6 +368,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         return getHibernateTemplate().executeFind(hc);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public String getCategoryName(String categoryId, Locale locale) {
 		ResourceBundle bundle = ResourceBundle.getBundle("org.sakaiproject.api.section.bundle.Messages", locale);
 		String name;
@@ -344,10 +384,6 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	}
 
 	// Dependency injection
-
-	public void setSectionCategoryList(List sectionCategoryList) {
-		this.sectionCategoryList = sectionCategoryList;
-	}
 
 	public void setCourseManager(CourseManager courseManager) {
 		this.courseManager = courseManager;

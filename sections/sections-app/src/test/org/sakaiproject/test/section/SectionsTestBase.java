@@ -30,7 +30,6 @@ public class SectionsTestBase extends AbstractTransactionalSpringContextTests {
         String[] configLocations = {
 			"org/sakaiproject/component/section/spring-beans.xml",
 			"org/sakaiproject/component/section/spring-db.xml",
-			"org/sakaiproject/component/section/spring-sectionAwareness.xml",
 			"org/sakaiproject/component/section/support/spring-hib-test.xml",
 			"org/sakaiproject/component/section/support/spring-services-test.xml",
 			"org/sakaiproject/component/section/support/spring-integrationSupport.xml"
