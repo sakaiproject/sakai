@@ -45,7 +45,7 @@ import org.sakaiproject.tool.gradebook.business.FacadeUtils;
  */
 public abstract class EnrollmentTableBean
     extends GradebookDependentBean implements Paging, Serializable {
-	private static final Log logger = LogFactory.getLog(EnrollmentTableBean.class);
+	private static final Log log = LogFactory.getLog(EnrollmentTableBean.class);
 
     protected static Map columnSortMap;
     protected String searchString;
@@ -53,6 +53,7 @@ public abstract class EnrollmentTableBean
     protected int maxDisplayedScoreRows;
     protected int scoreDataRows;
     protected boolean emptyEnrollments;	// Needed to render buttons
+    private SectionSelector sectionSelector;
 
     public EnrollmentTableBean() {
         maxDisplayedScoreRows = getPreferencesBean().getDefaultMaxDisplayedScoreRows();
@@ -160,7 +161,7 @@ public abstract class EnrollmentTableBean
 		} else {
 			int nextPageRow = Math.min(firstScoreRow + maxDisplayedScoreRows, scoreDataRows);
 			finalList = new ArrayList(list.subList(firstScoreRow, nextPageRow));
-			if (logger.isDebugEnabled()) logger.debug("finalizeSortingAndPaging subList " + firstScoreRow + ", " + nextPageRow);
+			if (log.isDebugEnabled()) log.debug("finalizeSortingAndPaging subList " + firstScoreRow + ", " + nextPageRow);
 		}
 		return finalList;
 	}
@@ -171,16 +172,29 @@ public abstract class EnrollmentTableBean
 	}
 
 	// Section filtering.
-	private Long selectedSectionFilter;
+	protected void init() {
+		if (sectionSelector == null) {
+			if (log.isDebugEnabled()) log.debug("init creating sectionSelector");
+			sectionSelector = new SectionSelector();
+		}
+		sectionSelector.init(getSectionAwareness(), getGradebookUid());
+	}
 
-    public Long getSelectedSectionFilter() {
-        return selectedSectionFilter;
-    }
-    public void setSelectedSectionFilter(Long selectedSectionFilter) {
-        this.selectedSectionFilter = selectedSectionFilter;
-    }
+	public SectionSelector getSectionSelector() {
+		return sectionSelector;
+	}
+	public void setSectionSelector(SectionSelector sectionSelector) {
+		this.sectionSelector = sectionSelector;
+	}
+
+	public Integer getSelectedSectionFilterValue() {
+		return getSectionSelector().getSelectedSectionFilterValue();
+	}
+	public void setSelectedSectionFilterValue(Integer selectedSectionFilterValue) {
+		getSectionSelector().setSelectedSectionFilterValue(selectedSectionFilterValue);
+	}
 
 	public List getSectionFilterSelectItems() {
-		return new ArrayList();
+		return getSectionSelector().getSectionFilterSelectItems();
 	}
 }

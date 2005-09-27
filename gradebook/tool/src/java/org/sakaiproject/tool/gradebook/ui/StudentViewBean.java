@@ -47,7 +47,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class StudentViewBean extends EnrollmentTableBean implements Serializable {
+public class StudentViewBean extends GradebookDependentBean implements Serializable {
 	private static Log logger = LogFactory.getLog(StudentViewBean.class);
 
     // View maintenance fields - serializable.

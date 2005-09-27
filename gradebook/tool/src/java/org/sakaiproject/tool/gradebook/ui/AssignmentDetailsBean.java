@@ -115,6 +115,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);
 
+		super.init();
+
         dateFormat = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss", FacesContext.getCurrentInstance().getExternalContext().getRequestLocale());
 
         // Clear view state.

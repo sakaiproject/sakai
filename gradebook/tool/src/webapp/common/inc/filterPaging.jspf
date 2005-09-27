@@ -6,8 +6,7 @@
 	<x:div>
 		<x:div styleClass="listView">
 			<h:outputText value="#{msgs.search_sections_filter} "/>
-			<h:selectOneMenu id="selectSectionFilter" value="#{bean.selectedSectionFilter}">
-				<f:selectItem itemValue="0" itemLabel="#{msgs.search_sections_all}"/>
+			<h:selectOneMenu id="selectSectionFilter" value="#{bean.selectedSectionFilterValue}">
 				<f:selectItems value="#{bean.sectionFilterSelectItems}" />
 			</h:selectOneMenu>
 		</x:div>

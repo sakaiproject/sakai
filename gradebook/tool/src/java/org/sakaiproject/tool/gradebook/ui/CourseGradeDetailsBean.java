@@ -95,6 +95,8 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	}
 
 	protected void init() {
+		super.init();
+
 		// We save the "changedGrades" map across the request thread to deal with
 		// the following scenario:
 		//
