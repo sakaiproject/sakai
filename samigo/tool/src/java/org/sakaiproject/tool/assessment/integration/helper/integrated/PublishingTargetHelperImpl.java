@@ -29,46 +29,75 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.legacy.site.SiteService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.*;
+
+/**
+ *
+ * <p>Description:
+ * This is an integrated context implementation helper delegate class for
+ * the PublishingTarget class.
+ * "Integrated" means that Samigo (Tests and Quizzes)
+ * is running within the context of the Sakai portal and authentication
+ * mechanisms, and therefore makes calls on Sakai for things it needs.</p>
+ * <p>Note: To customize behavior you can add your own helper class to the
+ * Spring injection via the integrationContext.xml for your context.
+ * The particular integrationContext.xml to be used is selected by the
+ * build process.
+ * </p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
 
 public class PublishingTargetHelperImpl implements PublishingTargetHelper
 {
   private static Log log = LogFactory.getLog(PublishingTargetHelperImpl.class);
 
+  private Logger logger;
+  private SiteService siteService;
+
+  /**
+   * Gets to whom you can publish.
+   * @return map of key value pairs:
+   *  e.g. "Authenticated Users"->"AUTHENTICATED_USERS"
+   */
   public HashMap getTargets()
   {
 
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getTargets() not yet implemented.");
+     HashMap map = new HashMap();
+     map.put("Anonymous Users", "ANONYMOUS_USERS");
+     map.put(AgentFacade.getCurrentSiteName(), AgentFacade.getCurrentSiteId());
+     return map;
   }
 
+  /**
+   * @return Returns the siteService.
+   */
   public SiteService getSiteService()
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getSiteService() not yet implemented.");
+    return siteService;
   }
-
+  /**
+   * @param siteService The siteService to set.
+   */
   public void setSiteService(SiteService siteService)
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method setSiteService() not yet implemented.");
+    this.siteService = siteService;
   }
-
+  /**
+   * @return Returns the log.
+   */
   public Logger getLog()
   {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getLog() not yet implemented.");
+    return logger;
+  }
+  /**
+   * @param log The log to set.
+   */
+  public void setLog(Logger logger)
+  {
+    this.logger = logger;
   }
 
-  public void setLog(Logger log)
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method setLog() not yet implemented.");
-  }
 }

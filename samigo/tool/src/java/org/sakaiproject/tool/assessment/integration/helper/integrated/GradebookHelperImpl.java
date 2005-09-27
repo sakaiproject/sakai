@@ -26,24 +26,57 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
+
+/**
+ *
+ * <p>Description:
+ * This is an integrated context implementation helper delegate class for
+ * the GradebookFacade class.
+ * "Integrated" means that Samigo (Tests and Quizzes)
+ * is running within the context of the Sakai portal and authentication
+ * mechanisms, and therefore makes calls on Sakai for things it needs.</p>
+ * <p>Note: To customize behavior you can add your own helper class to the
+ * Spring injection via the integrationContext.xml for your context.
+ * The particular integrationContext.xml to be used is selected by the
+ * build process.
+ * </p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ * based on code originally in GradebookFacade
+ */
 
 public class GradebookHelperImpl implements GradebookHelper
 {
   private static Log log = LogFactory.getLog(GradebookHelperImpl.class);
 
-  public String getGradebookUId()
-  {
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getGradebookUId() not yet implemented.");
+  /**
+   * Get current gradebook uid.
+   * @return the current gradebook uid.
+   */
+  public String getGradebookUId(){
+    String context;
+
+    Placement placement = org.sakaiproject.api.kernel.tool.cover.ToolManager.getInstance().getCurrentPlacement();
+    if (placement == null)
+    {
+      log.warn("getGradebookUId() - no tool placement found, probably taking an assessment via URL.  Gradebook not updated.");
+        return null;
+    }
+    context = placement.getContext();
+
+    return context;
   }
 
-  public String getDefaultGradebookUId()
-  {
+  /**
+   * Get the default gradebook uid.
+   * @return "Test Gradebook #1" (always)
+   */
 
-    /**@todo Implement this org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper method*/
-    throw new java.lang.UnsupportedOperationException(
-      "Method getDefaultGradebookUId() not yet implemented.");
+  public String getDefaultGradebookUId(){
+    return "Test Gradebook #1";
   }
+
 }
