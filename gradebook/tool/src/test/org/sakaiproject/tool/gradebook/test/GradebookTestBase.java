@@ -91,7 +91,6 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
 				in section/spring-hib.xml.
 			*/
 			"classpath*:org/sakaiproject/component/section/spring-beans.xml",
-			"classpath*:org/sakaiproject/component/section/spring-sectionAwareness.xml",
 			"classpath*:org/sakaiproject/component/section/spring-services.xml",
         };
         return configLocations;
