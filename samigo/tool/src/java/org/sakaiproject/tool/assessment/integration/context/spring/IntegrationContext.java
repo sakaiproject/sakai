@@ -115,7 +115,7 @@ public class IntegrationContext extends IntegrationContextFactory
     System.out.println("getInstance();="+getInstance());
     System.out.println("getInstance().isIntegrated()="+getInstance().isIntegrated());
     System.out.println("getInstance().getAgentHelper()="+getInstance().getAgentHelper());
-    System.out.println("getInstance().getAuthzHelper()="+getInstance().getAuthzHelper());
+//    System.out.println("getInstance().getAuthzHelper()="+getInstance().getAuthzHelper());
     System.out.println("getInstance().getPublishingTargetHelper()="+getInstance().getPublishingTargetHelper());
     System.out.println("getInstance().getGradebookHelper()="+getInstance().getGradebookHelper());
 //    System.out.println("getInstance().getGradeBookServiceHelper()="+getInstance().getGradeBookServiceHelper());
