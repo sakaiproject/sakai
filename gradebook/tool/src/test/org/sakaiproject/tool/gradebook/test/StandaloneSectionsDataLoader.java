@@ -24,13 +24,17 @@
 
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
+
 public class StandaloneSectionsDataLoader extends GradebookTestBase {
 	private static Log log = LogFactory.getLog(StandaloneSectionsDataLoader.class);
 
@@ -75,10 +79,12 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
     public final static String AUTHID_STUDENT_PREFIX = "stu_";
     public static final String AUTHID_WITHOUT_GRADES_1 = "stu_16";
     public static final String AUTHID_WITHOUT_GRADES_2 = "stu_17";
+    public static final String AUTHID_TA = "authid_ta";
 
 	/** Special sites */
 	public static int SITE_AMBIGUOUS_TEACHER = 2;
 	public static int SITE_AMBIGUOUS_STUDENT = 6;
+	public static int SITE_LOADED_UP = 5;
 
 	public StandaloneSectionsDataLoader() {
     	// Don't roll these tests back, since they are intended to load data
@@ -89,12 +95,13 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
 		// Load courses. (No sections yet!)
 		List sites = new ArrayList(SITE_UIDS.length);
 		for (int i = 0; i < SITE_UIDS.length; i++) {
-			sites.add(integrationSupport.createCourse(SITE_UIDS[i], SITE_NAMES[i], SITE_EXTERNALLY_MANAGED[i], SITE_SELF_REG[i], SITE_SELF_SWITCH[i]));
+			Course courseSite = integrationSupport.createCourse(SITE_UIDS[i], SITE_NAMES[i], SITE_EXTERNALLY_MANAGED[i], SITE_SELF_REG[i], SITE_SELF_SWITCH[i]);
+			sites.add(courseSite);
 		}
 
 		// Load users.
         User teacherAll = userManager.createUser(AUTHID_TEACHER_ALL, "Bizzy Teacher", "Teacher, Bizzy", "uTeacher");
-        User teacherStudent = userManager.createUser(AUTHID_TEACHER_AND_STUDENT, "Teaching Assistant", "Assistant, Teaching", "uTA");
+        User teacherStudent = userManager.createUser(AUTHID_TEACHER_AND_STUDENT, "Teaching Student", "Student, Teaching", "uTeSt");
         List students = new ArrayList(400);
 
 		for(int i=0; i < 400; i++) {
@@ -214,8 +221,54 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
 		// Load the ambiguous one.
 		integrationSupport.addSiteMembership(teacherStudent.getUserUid(), SITE_UIDS[SITE_AMBIGUOUS_TEACHER], Role.INSTRUCTOR);
 		integrationSupport.addSiteMembership(teacherStudent.getUserUid(), SITE_UIDS[SITE_AMBIGUOUS_STUDENT], Role.STUDENT);
-	}
 
+		// Define and load sections for the assignment-loaded site.
+		String loadedSiteUid = ((Course)sites.get(SITE_LOADED_UP)).getUuid();
+		List sectionCategories = sectionAwareness.getSectionCategories(loadedSiteUid);
+
+		// We'd better have more than one category for this to work....
+		String catId = (String)sectionCategories.get(1);
+		String catName = sectionAwareness.getCategoryName(catId, Locale.US);
+		List catASectionUuids = new ArrayList();
+		for (int i = 0; i < 4; i++) {
+			String sectionName;
+			if (i != 2) {
+				sectionName = catName + " " + (i + 1);
+			} else {
+				sectionName = "Abe's " + catName;
+			}
+			CourseSection section = integrationSupport.createSection(loadedSiteUid, sectionName, catId, new Integer(40), "Room 2" + i, null, null, true, false, true,  false, false, false, false);
+			catASectionUuids.add(section.getUuid());
+		}
+		catId = (String)sectionCategories.get(0);
+		catName = sectionAwareness.getCategoryName(catId, Locale.US);
+		List catBSectionUuids = new ArrayList();
+		for (int i = 0; i < 2; i++) {
+			String sectionName = catName + " " + (i + 1);
+			CourseSection section = integrationSupport.createSection(loadedSiteUid, sectionName, catId, new Integer(40), "Room 3" + i, null, null, true, false, true,  false, false, false, false);
+			catBSectionUuids.add(section.getUuid());
+		}
+
+		// Populate the sections. Not all students will end up in a Category A section.
+		List enrollments = sectionAwareness.getSiteMembersInRole(SITE_UIDS[SITE_LOADED_UP], Role.STUDENT);
+		for (int i = 0; i < enrollments.size(); i++) {
+			String userUid = ((EnrollmentRecord)enrollments.get(i)).getUser().getUserUid();
+			String sectionUuid = (String)catBSectionUuids.get(i % catBSectionUuids.size());
+			System.err.println("about to addSectionMembership(" + userUid + ", " + sectionUuid + ")");
+			integrationSupport.addSectionMembership(userUid, sectionUuid, Role.STUDENT);
+			if (i < (enrollments.size() - 5)) {
+				System.err.println("about to addSectionMembership(" + userUid + ", " + sectionUuid + ")");
+				sectionUuid = (String)catASectionUuids.get(i % catASectionUuids.size());
+				integrationSupport.addSectionMembership(userUid, sectionUuid, Role.STUDENT);
+			}
+		}
+
+		// Add a TA to the site and two sections.
+		User ta = userManager.createUser(AUTHID_TA, "Teech N. Assist", "Assist, Teech N.", "uTA");
+		integrationSupport.addSiteMembership(AUTHID_TA, SITE_UIDS[SITE_LOADED_UP], Role.TA);
+		integrationSupport.addSectionMembership(AUTHID_TA, (String)catASectionUuids.get(2), Role.TA);
+		integrationSupport.addSectionMembership(AUTHID_TA, (String)catBSectionUuids.get(1), Role.TA);
+	}
 }
 
 /**********************************************************************************
