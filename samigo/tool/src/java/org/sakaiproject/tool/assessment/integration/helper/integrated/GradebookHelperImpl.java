@@ -1,12 +1,12 @@
 /**********************************************************************************
  * $URL$
- * $Id$
+   * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
  *
- * Licensed under the Educational Community License Version 1.0 (the "License");
+   * Licensed under the Educational Community License Version 1.0 (the "License");
  * By obtaining, using and/or copying this Original Work, you agree that you have read,
  * understand, and will comply with the terms and conditions of the Educational Community License.
  * You may obtain a copy of the License at:
@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.api.kernel.tool.Placement;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 
 /**
@@ -54,16 +55,29 @@ public class GradebookHelperImpl implements GradebookHelper
 
   /**
    * Get current gradebook uid.
+   * This will *fail* unless called from an integrated Sakai context!
    * @return the current gradebook uid.
    */
-  public String getGradebookUId(){
+  public String getGradebookUId()
+  {
     String context;
 
-    Placement placement = org.sakaiproject.api.kernel.tool.cover.ToolManager.getInstance().getCurrentPlacement();
+    Placement placement = null;
+    try
+    {
+      placement = ToolManager.getInstance().getCurrentPlacement();
+    }
+    catch (Exception ex)
+    {
+      log.warn(ex);
+      placement = null;
+    }
     if (placement == null)
     {
-      log.warn("getGradebookUId() - no tool placement found, probably taking an assessment via URL.  Gradebook not updated.");
-        return null;
+      log.warn(
+        "getGradebookUId() - no tool placement found, probably taking an " +
+        "assessment via URL.  Gradebook not updated.");
+      return null;
     }
     context = placement.getContext();
 
@@ -75,7 +89,8 @@ public class GradebookHelperImpl implements GradebookHelper
    * @return "Test Gradebook #1" (always)
    */
 
-  public String getDefaultGradebookUId(){
+  public String getDefaultGradebookUId()
+  {
     return "Test Gradebook #1";
   }
 
