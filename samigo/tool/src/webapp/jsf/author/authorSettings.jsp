@@ -440,8 +440,10 @@ function checkTimeSelect(){
    <h:outputLabel value="#{msg.feedback_delivery}" /> <f:verbatim></div><div class="indnt3"></f:verbatim>
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
       <h:panelGrid border="0" columns="1"  >
+<%--
 <h:outputText value="debug: feedbackdelivery: #{assessmentSettings.feedbackDelivery}" />
 <h:outputText value="disabled: #{assessmentSettings.feedbackDelivery==3}" />
+--%>
         <h:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}"
            layout="pageDirection" onclick="disableAllFeedbackCheck(this.value);">
           <f:selectItem itemValue="1" itemLabel="#{msg.immediate_feedback}"/>
