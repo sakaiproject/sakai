@@ -23,7 +23,7 @@
 package org.sakaiproject.component.app.syllabus;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,10 +48,11 @@ import org.sakaiproject.service.legacy.event.cover.EventTrackingService;
 import org.sakaiproject.service.legacy.notification.NotificationEdit;
 import org.sakaiproject.service.legacy.notification.NotificationService;
 import org.sakaiproject.service.legacy.resource.Edit;
-import org.sakaiproject.service.legacy.resource.ReferenceVector;
-import org.sakaiproject.service.legacy.resource.Resource;
+import org.sakaiproject.service.legacy.resource.Entity;
+import org.sakaiproject.service.legacy.resource.Reference;
 import org.sakaiproject.service.legacy.resource.ResourceProperties;
 import org.sakaiproject.service.legacy.resource.ResourcePropertiesEdit;
+import org.sakaiproject.service.legacy.resource.cover.EntityManager;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.time.cover.TimeService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
@@ -98,7 +99,7 @@ public class SyllabusServiceImpl implements SyllabusService
 //sakai2 -- add init and destroy methods  
 	public void init()
 	{
-	  ServerConfigurationService.registerResourceService(this);
+		EntityManager.registerEntityProducer(this);
 	  
 	  m_relativeAccessPoint = REFERENCE_ROOT;
 	  
@@ -146,6 +147,70 @@ public class SyllabusServiceImpl implements SyllabusService
     return "syllabus";
   }
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean willArchiveMerge()
+	{
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean willImport()
+	{
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean parseEntityReference(String reference, Reference ref)
+	{
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getEntityDescription(Reference ref)
+	{
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public ResourceProperties getEntityResourceProperties(Reference ref)
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Entity getEntity(Reference ref)
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Collection getEntityRealms(Reference ref)
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getEntityUrl(Reference ref)
+	{
+		return null;
+	}
+
   /*
    * (non-Javadoc)
    * 
@@ -154,7 +219,7 @@ public class SyllabusServiceImpl implements SyllabusService
    *      org.sakaiproject.service.legacy.resource.ReferenceVector)
    */
   public String archive(String siteId, Document doc, Stack stack, String arg3,
-      ReferenceVector attachments)
+      List attachments)
   {
 
     StringBuffer results = new StringBuffer();
@@ -163,7 +228,7 @@ public class SyllabusServiceImpl implements SyllabusService
     {
       int syDataCount = 0;
       results.append("archiving " + getLabel() + " context "
-          + Resource.SEPARATOR + siteId + Resource.SEPARATOR
+          + Entity.SEPARATOR + siteId + Entity.SEPARATOR
           + SiteService.MAIN_CONTAINER + ".\n");
       // start with an element with our very own (service) name
       Element element = doc.createElement(SyllabusService.class.getName());
@@ -290,7 +355,7 @@ public class SyllabusServiceImpl implements SyllabusService
    *      java.util.Set)
    */
   public String merge(String siteId, Element root, String archivePath,
-      String fromSiteId, Map attachmentNames, HashMap userIdTrans,
+      String fromSiteId, Map attachmentNames, Map userIdTrans,
       Set userListAllowImport)
   {
     // buffer for the results log
@@ -527,7 +592,7 @@ public class SyllabusServiceImpl implements SyllabusService
    * @see org.sakaiproject.service.legacy.resource.ResourceService#importResources(java.lang.String,
    *      java.lang.String, java.util.List)
    */
-  public void importResources(String fromSiteId, String toSiteId,
+  public void importEntities(String fromSiteId, String toSiteId,
       List resourceIds)
   {
    try {
@@ -722,7 +787,7 @@ public class SyllabusServiceImpl implements SyllabusService
 		EventTrackingService.post(event);
   }
   
-  public class BaseResourceEdit implements Resource, Edit
+  public class BaseResourceEdit implements Entity, Edit
   {
 		protected String m_id = null;
 
@@ -749,7 +814,7 @@ public class SyllabusServiceImpl implements SyllabusService
 			
 			m_data = data;
 			
-			m_reference = Resource.SEPARATOR + currentSiteId + Resource.SEPARATOR + m_id;
+			m_reference = Entity.SEPARATOR + currentSiteId + Entity.SEPARATOR + m_id;
 			
 			m_properties = new BaseResourcePropertiesEdit();
 			

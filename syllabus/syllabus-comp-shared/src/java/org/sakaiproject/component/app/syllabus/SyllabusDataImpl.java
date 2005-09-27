@@ -23,13 +23,11 @@
 
 package org.sakaiproject.component.app.syllabus;
 
-import org.sakaiproject.api.app.syllabus.SyllabusData;
-import org.sakaiproject.api.app.syllabus.SyllabusItem;
-import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.ArrayList;
-import java.util.Iterator;
+
+import org.sakaiproject.api.app.syllabus.SyllabusData;
+import org.sakaiproject.api.app.syllabus.SyllabusItem;
 
 /**
  * A syllabus item contains information relating to a syllabus and an order

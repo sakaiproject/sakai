@@ -37,14 +37,15 @@ import org.sakaiproject.service.legacy.event.Event;
 import org.sakaiproject.service.legacy.notification.Notification;
 import org.sakaiproject.service.legacy.notification.NotificationAction;
 import org.sakaiproject.service.legacy.notification.cover.NotificationService;
-import org.sakaiproject.service.legacy.resource.Reference;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.util.java.StringUtil;
-import org.w3c.dom.Element;
 import org.sakaiproject.service.legacy.preference.Preferences;
 import org.sakaiproject.service.legacy.preference.PreferencesEdit;
 import org.sakaiproject.service.legacy.preference.cover.PreferencesService;
+import org.sakaiproject.service.legacy.resource.Reference;
 import org.sakaiproject.service.legacy.resource.ResourceProperties;
+import org.sakaiproject.service.legacy.resource.cover.EntityManager;
+import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.util.java.StringUtil;
+import org.w3c.dom.Element;
 
 public class EmailNotification
 	implements NotificationAction
@@ -118,7 +119,7 @@ public class EmailNotification
 
 		if (immediate.size() > 0)
 		{
-			Reference ref = new Reference(event.getResource());
+			Reference ref = EntityManager.newReference(event.getResource());
 //			Resource r = ref.getResource();
 			String title = (getSite() != null) ? getSite() : ref.getContext();
 			if(title == null)

@@ -37,6 +37,7 @@ import org.sakaiproject.service.legacy.event.Event;
 import org.sakaiproject.service.legacy.notification.Notification;
 import org.sakaiproject.service.legacy.notification.NotificationAction;
 import org.sakaiproject.service.legacy.resource.Reference;
+import org.sakaiproject.service.legacy.resource.cover.EntityManager;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
@@ -71,7 +72,7 @@ public class SiteEmailNotificationSyllabus
 
 	public void notify(Notification notification, Event event)
 	{
-		Reference ref = new Reference(event.getResource());
+		Reference ref = EntityManager.newReference(event.getResource());
 
 		super.notify(notification, event);
 
@@ -98,7 +99,7 @@ public class SiteEmailNotificationSyllabus
 
 	public String getSubject(Event event)
 	{
-		Reference ref = new Reference(event.getResource());
+		Reference ref = EntityManager.newReference(event.getResource());
 /*		Resource r = ref.getResource();
 		ResourceProperties props = ref.getProperties();*/
 
@@ -159,7 +160,7 @@ public class SiteEmailNotificationSyllabus
 		{
 		  String newline = "<br />\n";
 		  
-		  Reference ref = new Reference(event.getResource());
+		  Reference ref = EntityManager.newReference(event.getResource());
 		  String siteId = (getSite() != null) ? getSite() : ref.getContext();
 		  
 		  int lastIndex = ref.getReference().lastIndexOf("/");
@@ -199,7 +200,7 @@ public class SiteEmailNotificationSyllabus
 		{
 		  String newline = "<br />\n";
 		  
-		  Reference ref = new Reference(event.getResource());
+		  Reference ref = EntityManager.newReference(event.getResource());
 		  String siteId = (getSite() != null) ? getSite() : ref.getContext();
 		  
 		  int lastIndex = ref.getReference().lastIndexOf("/");

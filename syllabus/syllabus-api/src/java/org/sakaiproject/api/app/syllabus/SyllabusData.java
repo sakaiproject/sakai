@@ -22,7 +22,6 @@
 **********************************************************************************/
 package org.sakaiproject.api.app.syllabus;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 public interface SyllabusData

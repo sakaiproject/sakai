@@ -26,8 +26,6 @@ package org.sakaiproject.component.app.syllabus;
 
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
-import org.sakaiproject.service.legacy.content.ContentResource;
-import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 
 /**
  * @author <a href="mailto:cwen.iupui.edu">Chen Wen</a>

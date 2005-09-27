@@ -23,12 +23,11 @@
 
 package org.sakaiproject.api.app.syllabus;
 
+import org.sakaiproject.service.legacy.resource.Entity;
+import org.sakaiproject.service.legacy.resource.EntityProducer;
 import java.util.List;
 
-import org.sakaiproject.service.legacy.resource.Resource;
-import org.sakaiproject.service.legacy.resource.ResourceService;
-
-public interface SyllabusService extends ResourceService
+public interface SyllabusService extends EntityProducer
 {
   /** This string can be used to find the service in the service manager. */
 	public static final String SERVICE_NAME = SyllabusService.class.getName();
@@ -39,7 +38,7 @@ public interface SyllabusService extends ResourceService
 	
 	public static final String EVENT_SYLLABUS_DELETE_POST = "syllabus.delete.posted";
 	
-	public static final String REFERENCE_ROOT = Resource.SEPARATOR + "syllabus";
+	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "syllabus";
 	
 	public static final String SYLLABUS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.SyllabusService";
 	
