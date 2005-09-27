@@ -102,7 +102,6 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
    * Remove authorization from qualifier (target).
    * @param qualifierId the target.
    */
-
   public void removeAuthorizationByQualifier(String qualifierId)
   {
     List l = getHibernateTemplate().find(
@@ -157,6 +156,11 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
       res.getString("and_qid") + qualifierId + "'");
   }
 
+  /**
+   * Check if member of site.
+   * @param siteId
+   * @return true--always
+   */
   public boolean checkMembership(String siteId)
   {
     return true;

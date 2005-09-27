@@ -55,6 +55,11 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
 {
   private static Log log = LogFactory.getLog(PublishingTargetHelperImpl.class);
 
+  /**
+   * Gets to whom you can publish.
+   * @return map of key value pairs:
+   *  e.g. "Authenticated Users"->"AUTHENTICATED_USERS"
+   */
   public HashMap getTargets()
   {
      HashMap map = new HashMap();

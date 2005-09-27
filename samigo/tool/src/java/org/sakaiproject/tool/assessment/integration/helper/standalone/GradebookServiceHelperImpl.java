@@ -67,11 +67,11 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
   /**
    * STUB.  NO-OP.
-   * @param siteId teh site id
+   * @param gradebookUId the gradebook id
    * @param publishedAssessmentId the id of the published assessment
    * @throws java.lang.Exception
    */
-  public void removeExternalAssessment(String siteId,
+  public void removeExternalAssessment(String gradebookUId,
                                        String publishedAssessmentId) throws
     Exception
   {
@@ -89,10 +89,10 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
   /**
    * Always returns false, because standalone.
-   * @param siteId teh site id
+   * @param gradebookUId the gradebook id
    * @return false, no gradebook integration
    */
-  public boolean gradebookExists(String siteId)
+  public boolean gradebookExists(String gradebookUId)
   {
     return false;
   }
