@@ -25,11 +25,9 @@ package org.sakaiproject.tool.gradebook;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

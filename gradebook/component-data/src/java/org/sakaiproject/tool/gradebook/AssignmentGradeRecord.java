@@ -23,7 +23,6 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import java.util.Date;
 
 /**
  * An AssignmentGradeRecord is a grade record that can be associated with an

@@ -139,6 +139,12 @@
 			<version>2.6.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-java</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
 	</dependencies>
 
 

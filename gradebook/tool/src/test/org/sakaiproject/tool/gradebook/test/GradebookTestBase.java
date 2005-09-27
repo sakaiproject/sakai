@@ -26,10 +26,6 @@ import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.springframework.test.AbstractTransactionalSpringContextTests;
-import org.springframework.transaction.PlatformTransactionManager;
-
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.component.section.support.UserManager;
@@ -43,6 +39,7 @@ import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
+import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 /**
  * Base class for gradebook test classes that provides the spring application

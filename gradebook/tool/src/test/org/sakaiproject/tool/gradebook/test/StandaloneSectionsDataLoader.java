@@ -24,15 +24,13 @@
 
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
-
 public class StandaloneSectionsDataLoader extends GradebookTestBase {
 	private static Log log = LogFactory.getLog(StandaloneSectionsDataLoader.class);
 

@@ -32,14 +32,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookArchiveService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.legacy.resource.ReferenceVector;
-import org.sakaiproject.service.legacy.resource.ResourceService;
+import org.sakaiproject.service.legacy.resource.Entity;
+import org.sakaiproject.service.legacy.resource.EntityProducer;
+import org.sakaiproject.service.legacy.resource.Reference;
+import org.sakaiproject.service.legacy.resource.ResourceProperties;
+import org.sakaiproject.service.legacy.resource.cover.EntityManager;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradeMapping;
@@ -48,6 +52,7 @@ import org.sakaiproject.tool.gradebook.GradebookArchive;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
+import org.sakaiproject.util.java.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -62,16 +67,18 @@ import org.w3c.dom.Element;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveService, ResourceService {
+public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveService, EntityProducer {
     private static Log log = LogFactory.getLog(GradebookArchiveServiceSakaiLegacyImpl.class);
 
     private ContextManagement contextManagement;
     private GradebookService gradebookService;
     private GradebookManager gradebookManager;
     private GradeManager gradeManager;
+    
+    protected String SERVICE_NAME = "gradebook"; 
 
 	/**
-	 * @see org.sakaiproject.service.legacy.resource.ResourceService#getLabel()
+	 * @see org.sakaiproject.service.legacy.resource.EntityProducer#getLabel()
 	 */
 	public String getLabel() {
         return "gradebook";
@@ -83,13 +90,119 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
      */
     public void init() {
         //if(log.isInfoEnabled()) log.info("Registering gradebook archive service with sakai as id=" + GradebookArchiveService.class.getName());
-        //ServerConfigurationService.registerResourceService(this);
+        EntityManager.registerEntityProducer(this);
     }
 
 	/**
-	 * @see org.sakaiproject.service.legacy.resource.ResourceService#archive(java.lang.String, org.w3c.dom.Document, java.util.Stack, java.lang.String, org.sakaiproject.service.legacy.resource.ReferenceVector)
+	 * {@inheritDoc}
 	 */
-	public String archive(String siteId, Document doc, Stack stack, String archivePath, ReferenceVector attachments) {
+	public boolean willArchiveMerge()
+	{
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean willImport()
+	{
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean parseEntityReference(String reference, Reference ref)
+	{
+		if (reference.startsWith(Entity.SEPARATOR + SERVICE_NAME))
+		{
+			String id = null;
+			String context = null;
+
+			// we will get null, gradebook, context, id
+			String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
+
+			if (parts.length > 2)
+			{
+				context = parts[2];
+			}
+			if (parts.length > 3)
+			{
+				id = parts[3];
+			}
+
+			ref.set(SERVICE_NAME, null, id, null, context);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getEntityDescription(Reference ref)
+	{
+		// double check that it's mine
+		if (SERVICE_NAME != ref.getType()) return null;
+
+		return "Gradebook: " + ref.getContext() + " / " + ref.getId();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public ResourceProperties getEntityResourceProperties(Reference ref)
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Entity getEntity(Reference ref)
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Collection getEntityRealms(Reference ref)
+	{
+		// double check that it's mine
+		if (SERVICE_NAME != ref.getType()) return null;
+
+		Collection rv = new Vector();
+
+		try
+		{
+			// site
+			ref.addSiteContextRealm(rv);
+
+			// specific
+			rv.add(ref.getReference());
+		}
+		catch (Throwable e)
+		{
+		}
+		
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getEntityUrl(Reference ref)
+	{
+		return null;
+	}
+
+	/**
+	 * @see org.sakaiproject.service.legacy.resource.EntityProducer#archive(java.lang.String, org.w3c.dom.Document, java.util.Stack, java.lang.String, org.sakaiproject.service.legacy.resource.ReferenceVector)
+	 */
+	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
         if(log.isDebugEnabled()) log.debug("archiving gradebook for " + siteId);
 
         // Keep a log of messages relating to this archive attempt
@@ -161,10 +274,10 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
     }
 
     /**
-	 * @see org.sakaiproject.service.legacy.resource.ResourceService#merge(java.lang.String, org.w3c.dom.Element, java.lang.String, java.lang.String, java.util.Map, java.util.HashMap, java.util.Set)
+	 * @see org.sakaiproject.service.legacy.resource.EntityProducer#merge(java.lang.String, org.w3c.dom.Element, java.lang.String, java.lang.String, java.util.Map, java.util.HashMap, java.util.Set)
 	 */
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId,
-            Map attachmentNames, HashMap userIdTrans, Set userListAllowImport) {
+            Map attachmentNames, Map userIdTrans, Set userListAllowImport) {
 
         if(log.isDebugEnabled()) log.debug("merging gradebook into " + siteId);
 
@@ -213,9 +326,9 @@ public class GradebookArchiveServiceSakaiLegacyImpl implements GradebookArchiveS
 	}
 
 	/**
-	 * @see org.sakaiproject.service.legacy.resource.ResourceService#importResources(java.lang.String, java.lang.String, java.util.List)
+	 * @see org.sakaiproject.service.legacy.resource.EntityProducer#importEntities(java.lang.String, java.lang.String, java.util.List)
 	 */
-	public void importResources(String fromContext, String toContext, List resourceIds) {
+	public void importEntities(String fromContext, String toContext, List resourceIds) {
 
         if(log.isDebugEnabled()) log.debug("copying gradebook from " + fromContext + " to " + toContext + ".  This is not yet supported");
 
