@@ -10,4 +10,10 @@
 		<attainGoal name="multiproject:goal" />
 	</goal>
 
+	<goal name="schema">
+		<j:set var="goal" value="schema" />
+		<j:set var="maven.multiproject.includes" value="sections-app/project.xml" />
+		<attainGoal name="multiproject:goal" />
+	</goal>
+
 </project>
