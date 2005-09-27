@@ -17,11 +17,11 @@
    <property name="agentHelper">
      <ref bean="agentHelper"/>
    </property>
-
+<!--
    <property name="authzHelper">
      <ref bean="authzHelper"/>
    </property>
-
+-->
    <property name="gradebookHelper">
      <ref bean="gradebookHelper"/>
    </property>
@@ -42,9 +42,11 @@
 </bean>
 
 <!-- context-sensitive authz behavior -->
+<!--
 <bean name="authzHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.standalone.AuthzHelperImpl">
 </bean>
+-->
 
 <!-- context-sensitive gradebook behavior -->
 <bean name="gradebookHelper"
