@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
 
@@ -116,14 +117,30 @@ public abstract class EnrollmentTableBean
         return !defaultSearchString.equals(searchString);
 	}
 
+	protected Map getOrderedEnrollmentMap() {
+		return getOrderedEnrollmentMap(null);
+	}
 	protected Map getOrderedEnrollmentMap(Collection enrollments) {
         Map enrollmentMap;
 
-		// This is where we used to allow for optimized queries. A lost cause for the forseeable
-		// future....
-
 		if (isFilteredSearch()) {
-			enrollments = getSectionAwareness().findSiteMembersInRole(getGradebookUid(), Role.STUDENT, searchString);
+			if (getSectionSelector().isAllSelected()) {
+				enrollments = getSectionAwareness().findSiteMembersInRole(getGradebookUid(), Role.STUDENT, searchString);
+			// TODO Put the check for unassigned students here when it's available.
+			} else {
+				enrollments = findSectionMembersInRole(getSectionAwareness(), getGradebookUid(), getSectionSelector().getSelectedSectionUid(), Role.STUDENT, searchString);
+			}
+		} else {
+			if (getSectionSelector().isAllSelected()) {
+				// We try to avoid unnecessary work by letting the caller supply
+				// the complete enrollment list if they happen to have it.
+				if (enrollments == null) {
+					enrollments = getEnrollments();
+				}
+			// TODO Put the check for unassigned students here when it's available.
+			} else {
+				enrollments = getSectionAwareness().getSectionMembersInRole(getSectionSelector().getSelectedSectionUid(), Role.STUDENT);
+			}
 		}
 
 		scoreDataRows = enrollments.size();
@@ -149,6 +166,23 @@ public abstract class EnrollmentTableBean
         }
 
         return enrollmentMap;
+	}
+
+	/**
+	 * Convenience method to deal with lack of a Section Awarness
+	 * findSectionMembersInRole service.
+	 */
+	public static List findSectionMembersInRole(SectionAwareness sectionAwareness, String siteContext, String sectionUid, Role role, String searchString) {
+		List intersection = new ArrayList();
+		Set searchFilteredStudentUids = FacadeUtils.getStudentUids(sectionAwareness.findSiteMembersInRole(siteContext, role, searchString));
+		Collection sectionFiltered = sectionAwareness.getSectionMembersInRole(sectionUid, role);
+		for (Iterator iter = sectionFiltered.iterator(); iter.hasNext(); ) {
+			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+			if (searchFilteredStudentUids.contains(enr.getUser().getUserUid())) {
+				intersection.add(enr);
+			}
+		}
+		return intersection;
 	}
 
 	protected List finalizeSortingAndPaging(List list) {
