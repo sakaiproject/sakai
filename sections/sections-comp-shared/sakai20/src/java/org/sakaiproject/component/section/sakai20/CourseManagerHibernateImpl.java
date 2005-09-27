@@ -178,7 +178,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 				for(Iterator iter = q.list().iterator(); iter.hasNext(); deleted++) {
 					session.delete(iter.next());
 				}
-				if(log.isInfoEnabled()) log.info(deleted + " section memberships deleted");
+				if(deleted > 0 && log.isInfoEnabled()) log.info(deleted + " orphaned section memberships deleted");
 				return null;
 			}
 		};

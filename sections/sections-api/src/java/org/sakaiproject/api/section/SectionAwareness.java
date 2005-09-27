@@ -55,13 +55,16 @@ public interface SectionAwareness {
     /**
      * Gets the list of section categories.  In sakai 2.1, there will be only a
      * single set of categories.  They will not be configurable on a per-course
-     * or per-context bases.
+     * or per-context bases.  In future versions, the list of categories will
+     * be configurable at the site level.
+     * 
+     * @param siteContext The site context
      * 
      * @return A List of unique Strings that identify the available section
      * categories.  These should be internationalized for display using
      * {@link SectionAwareness#getCategoryName(String, Locale) getCategoryName}.
      */
-    public List getSectionCategories();
+    public List getSectionCategories(String siteContext);
     
     /**
      * Gets a {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSection}

@@ -55,8 +55,8 @@ public class SectionAwareness {
 		return getInstance().getSection(sectionUuid);
 	}
 
-	public static final List getSectionCategories() {
-		return getInstance().getSectionCategories();
+	public static final List getSectionCategories(String siteContext) {
+		return getInstance().getSectionCategories(siteContext);
 	}
 
 	public static final List getSectionMembers(String sectionUuid) {

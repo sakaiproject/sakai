@@ -356,11 +356,14 @@ public interface SectionManager {
      * single set of categories.  They will not be configurable on a per-course
      * or per-context bases.
      * 
+     * @param siteContext The site context (which is not used in the
+     * current implementation)
+     * 
      * @return A List of unique Strings that identify the available section
      * categories.  These should be internationalized for display using
      * {@link SectionAwareness#getCategoryName(String, Locale) getCategoryName}.
      */
-    public List getSectionCategories();
+    public List getSectionCategories(String siteContext);
 
 	/**
 	 * Gets a single User object for a student in a site.

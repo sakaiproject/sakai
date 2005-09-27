@@ -88,7 +88,10 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         return (Set)getHibernateTemplate().execute(hc);
     }
 
-	public List getSectionCategories() {
+	/**
+	 * @inheritDoc
+	 */
+	public List getSectionCategories(String siteContext) {
 		return sectionCategoryList;
 	}
 	

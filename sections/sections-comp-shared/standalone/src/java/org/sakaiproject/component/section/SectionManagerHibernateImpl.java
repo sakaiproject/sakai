@@ -192,7 +192,10 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		return name;
 	}
 
-	public List getSectionCategories() {
+	/**
+	 * @inheritDoc
+	 */
+	public List getSectionCategories(String siteContext) {
 		return sectionCategoryList;
 	}
 

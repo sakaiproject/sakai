@@ -116,7 +116,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 	
 	protected List getSectionCategories() {
-		return getCourseBean().sectionManager.getSectionCategories();
+		return getCourseBean().sectionManager.getSectionCategories(getSiteContext());
 	}
 
 	public boolean isInstructorFeaturesEnabled() {

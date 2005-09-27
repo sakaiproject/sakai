@@ -66,7 +66,7 @@ public class AuthzTest extends SectionsTestBase{
 
     public void testSectionMembership() throws Exception {
     	String siteContext = context.getContext(null);
-    	List categories = secMgr.getSectionCategories();
+    	List categories = secMgr.getSectionCategories(siteContext);
     	
     	// Add a course and a section to work from
     	Course course = courseMgr.createCourse(siteContext, "A course", false, false, false);

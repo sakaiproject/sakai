@@ -115,7 +115,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		
 		// Construct the decorated enrollments for the UI
 		List unpagedEnrollments = new ArrayList();
-		categories = getSectionManager().getSectionCategories();
+		categories = getSectionManager().getSectionCategories(getSiteContext());
 		
 		for(Iterator iter = siteStudents.iterator(); iter.hasNext();) {
 			EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
