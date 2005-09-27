@@ -22,17 +22,72 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 import java.io.Serializable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
-public class GradebookFacade implements Serializable {
+/**
+ * <p>Description: Implements the internal gradebook information.
+ * Uses helper to determine integration context impelmentation.</p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ *
+ */
+public class GradebookFacade implements Serializable
+{
+  private static Log log = LogFactory.getLog(GradebookFacade.class);
+  private static final GradebookHelper helper =
+      IntegrationContextFactory.getInstance().getGradebookHelper();
+  private static final boolean integrated =
+    IntegrationContextFactory.getInstance().isIntegrated();
 
-  //return Gradebook #10
-  public static String getGradebookUId(){
-    return "QA_8";
+  /**
+   * Get current gradebook uid.
+   * @return the current gradebook uid.
+   */
+  public static String getGradebookUId()
+  {
+    return helper.getGradebookUId();
   }
 
-  // return Gradebook #1
-  public static String getDefaultGradebookUId(){
-    return "QA_1";
+  /**
+ * Get the default gradebook uid.
+ * @return "Test Gradebook #1" (always)
+ */
+  public static String getDefaultGradebookUId()
+  {
+    return helper.getDefaultGradebookUId();
+  }
+
+  /**
+   * Call unit test.
+   * @param args ignored
+   */
+  public static void main (String[] args)
+  {
+    unitTest();
+  }
+
+  /**
+   * Unit test can be run from command line.
+   * Needs integrationContext.xml in classpath at org.sakaiproject.spring
+   */
+
+  public static void unitTest()
+  {
+    System.out.println("integrated="+integrated);
+    if (!integrated)
+    {
+      System.out.println("getGradebookUId()="+getGradebookUId());
+    }
+    else
+    {
+      System.out.println("running integrated version standalone, bypassing " +
+                         "getGradebookUId()");
+    }
+    System.out.println("getDefaultGradebookUId()="+getDefaultGradebookUId());
   }
 
  }
