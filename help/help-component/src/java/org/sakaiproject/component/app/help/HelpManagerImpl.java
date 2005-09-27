@@ -198,7 +198,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
   /**
    * Store resource
-   * @see org.sakaiproject.api.app.help.HelpManager#storeResource(org.sakaiproject.api.help.Resource)
+   * @see org.sakaiproject.api.app.help.HelpManager#storeResource(org.sakaiproject.api.help.Entity)
    */
   public void storeResource(Resource resource)
   {    
