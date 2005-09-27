@@ -85,7 +85,7 @@ public class SectionSelector implements Serializable {
 
 		// Get the list of sections. For now, just use whatever default
 		// sorting we get from the Section Awareness component.
-		List sectionCategories = sectionAwareness.getSectionCategories();
+		List sectionCategories = sectionAwareness.getSectionCategories(siteContext);
 		for (Iterator catIter = sectionCategories.iterator(); catIter.hasNext(); ) {
 			String category = (String)catIter.next();
 			List sections = sectionAwareness.getSectionsInCategory(siteContext, category);
