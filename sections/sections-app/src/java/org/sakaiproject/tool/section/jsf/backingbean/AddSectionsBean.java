@@ -38,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -138,8 +139,8 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 			}
 			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
 					category, sectionModel.getMaxEnrollments(), sectionModel.getLocation(),
-					JsfUtil.convertDateToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm()),
-					JsfUtil.convertDateToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm()),
+					ConversionUtil.convertDateToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm()),
+					ConversionUtil.convertDateToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm()),
 					sectionModel.isMonday(), sectionModel.isTuesday(), sectionModel.isWednesday(),
 					sectionModel.isThursday(), sectionModel.isFriday(), sectionModel.isSaturday(),
 					sectionModel.isSunday());

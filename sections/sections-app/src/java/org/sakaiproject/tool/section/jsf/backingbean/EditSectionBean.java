@@ -33,6 +33,7 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
@@ -108,8 +109,8 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			return "failure";
 		}
 		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
-				location, JsfUtil.convertDateToTime(startTime, startTimeAm),
-				JsfUtil.convertDateToTime(endTime, endTimeAm), monday, tuesday,
+				location, ConversionUtil.convertDateToTime(startTime, startTimeAm),
+				ConversionUtil.convertDateToTime(endTime, endTimeAm), monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
 		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
 				"section_update_successful", new String[] {title}));
