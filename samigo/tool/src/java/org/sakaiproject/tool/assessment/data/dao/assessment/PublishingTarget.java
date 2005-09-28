@@ -175,6 +175,4 @@ public class PublishingTarget implements PublishingTargetHelper
     }
   }
 
-  // * $Info: $
-
 }
