@@ -29,6 +29,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import java.util.ResourceBundle;
+import javax.faces.context.FacesContext;
+import javax.faces.application.FacesMessage;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -83,28 +86,19 @@ public class ItemAddListener
     String iType=item.getItemType();
     //if((!iType.equals("1"))&&(!iType.equals("2"))){
     // only check this for Single Correct MC questions
-    if(!iType.equals(TypeFacade.MULTIPLE_CHOICE.toString())){
-       if (!saveItem(itemauthorbean)) {
-        throw new RuntimeException("failed to saveItem.");
-       }
-    }
-    else if(iType.equals(TypeFacade.MULTIPLE_CHOICE.toString()))
-	{
-	    if(!answer.equals("")&& answer!=null)
-		{
-		    if (!saveItem(itemauthorbean))
-			{
-			    throw new RuntimeException("failed to saveItem.");
-			}
+   
+    if(iType.equals(TypeFacade.MULTIPLE_CHOICE.toString())){
+	if(!answer.equals("")&& answer!=null){
+	    if (!saveItem(itemauthorbean)){
+		throw new RuntimeException("failed to saveItem.");
+	    }//end save
 
-		}
-	}
-/*
-    // do not need to check for mcmc
-    else //Multiple choice,multiple correct
-	{
-	    Iterator iter = item.getMultipleChoiceAnswers().iterator();
-	    if(item.getMultipleChoiceAnswers()!=null){
+	}//end answer
+    }//end if
+    else if(iType.equals(TypeFacade.MULTIPLE_CORRECT.toString())){
+	
+	Iterator iter = item.getMultipleChoiceAnswers().iterator();
+	if(item.getMultipleChoiceAnswers()!=null){
 	    while (iter.hasNext()) {
 		AnswerBean answerbean = (AnswerBean) iter.next();
 		if (isCorrectChoice(item, answerbean.getLabel().trim()))
@@ -112,19 +106,88 @@ public class ItemAddListener
 			correct=true;
 
 			break;
+		    }//end if isCorrect
+	    }//end while
+	    if(correct){
+		if (!saveItem(itemauthorbean)) {
+		    throw new RuntimeException("failed to saveItem.");
+		}//end save
+	    }//end correct
+	}//end item test
+    }//end else if
+    else if(iType.equals(TypeFacade.FILL_IN_BLANK.toString())){
+		FacesContext context=FacesContext.getCurrentInstance();
+		ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
+		if(!isErrorFIB()){
+
+		    item.setOutcomeFIB("FIBSuccess");
+		    item.setOutcomePoolFIB("FIBPoolSuccess");
+		    if(!saveItem(itemauthorbean)){
+           
+			throw new RuntimeException("failed to saveItem");
 		    }
-	    }
-	    if(correct)
-		{
-		    if (!saveItem(itemauthorbean)) {
-			throw new RuntimeException("failed to saveItem.");
-		    }
+            
 		}
+		else{
+		   String err=(String)rb.getObject("pool_missingBracket_error");
+		    context.addMessage(null,new FacesMessage(err));
+		    item.setOutcomeFIB("FIBFailure");
+		    item.setOutcomePoolFIB("FIBPoolFailure");
+
+		}
+    }
+    else{
+	
+	if (!saveItem(itemauthorbean)){
+	    throw new RuntimeException("failed to saveItem.");
+	}
+    }
+  }
+    
+	
+public boolean isErrorFIB() {
+ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+    ItemBean item =itemauthorbean.getCurrentItem();
+    int index=0;
+     boolean error=false;
+     String err="";
+     boolean hasOpen=false;
+     int opencount=0;
+     int closecount=0;
+     while(index<item.getItemText().length()){
+	 char c=item.getItemText().charAt(index);
+        if(c=='{'){
+	    opencount++;
+	    if(hasOpen){
+		error=true;
+		break;
+	    }
+	    else{ 
+		hasOpen=true;
 	    }
 	}
-*/
-
-  }
+	else if(c=='}'){ 
+            closecount++;
+	    if(!hasOpen){
+		error=true;
+		break;
+	    }
+            else{ 
+		hasOpen=false;
+	    }
+	}
+        else{}
+	index++;
+    }//end while
+    if((hasOpen==true)||(opencount<1)||(opencount!=closecount)||(error==true)){
+	return true;
+    }
+    else{ 
+	return false;
+    }
+}
+	
+  
 
   public boolean saveItem(ItemAuthorBean itemauthor) {
     boolean update = false;
