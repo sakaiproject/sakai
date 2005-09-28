@@ -2,10 +2,11 @@
 
 <project>
     <pomVersion>3</pomVersion>
+    <extend>../../master/project.xml</extend>
     <name>Sakai Help Help</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-help-content</id>
-	<currentVersion>2.0.0</currentVersion>
+	<currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
