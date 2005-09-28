@@ -2,10 +2,11 @@
 
 <project>
     <pomVersion>3</pomVersion>
+    <extend>../../master/project.xml</extend>
     <name>Sakai Syllabus Components</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-syllabus-components</id>
-	<currentVersion>2.0.0</currentVersion>
+	<currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
@@ -20,7 +21,7 @@
     	<dependency>
         	<groupId>sakaiproject</groupId>
 	        <artifactId>sakai-syllabus-api</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<deploy.target>shared</deploy.target>
 			</properties>        
@@ -29,7 +30,7 @@
         <dependency>
         	<groupId>sakaiproject</groupId>
 	        <artifactId>sakai-syllabus-component-shared</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<deploy.target>shared</deploy.target>
 			</properties>        

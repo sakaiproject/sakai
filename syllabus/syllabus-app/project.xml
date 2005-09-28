@@ -2,10 +2,11 @@
 
 <project>
 	<pomVersion>3</pomVersion>
+	<extend>../../master/project.xml</extend>
 	<name>Sakai Syllabus Tool</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-syllabus-tool</id>
-	<currentVersion>2.0.0</currentVersion>
+	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
 		<url>http://sakaiproject.org/</url>
@@ -20,7 +21,7 @@
 	    <dependency>
     	    <groupId>sakaiproject</groupId>
         	<artifactId>sakai-syllabus-api</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<deploy.target>shared</deploy.target>
 			</properties>        
@@ -29,7 +30,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-service</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 		</dependency>
 	
 		<dependency>
@@ -80,7 +81,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-jsf-tool</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>        
@@ -89,7 +90,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-jsf-app</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>        
@@ -97,7 +98,8 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-text</artifactId>
-			<version>2.0.0</version>
+			<version>${sakai.version}</version>
+<!--  ??			<version></version> --> 
 			<!-- <properties>
 				<war.bundle>true</war.bundle>
 			</properties>--> 
@@ -105,7 +107,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-web</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>        
@@ -113,7 +115,7 @@
         <dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-util</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -121,7 +123,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-jsf-widgets</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>        
@@ -130,7 +132,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-jsf-widgets-sun</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>        
@@ -139,13 +141,19 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
+		</dependency>  		  
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-active-tool</artifactId>
+			<version>${sakai.version}</version>
 		</dependency>  		  
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool-registration</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 		</dependency>  		  
 
 <!--try for sakai tag and wysiwyg-->
@@ -185,14 +193,9 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-session</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 		</dependency>
 		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-active-tool</artifactId>
-			<version>${pom.currentVersion}</version>
-		</dependency>		
 
 	</dependencies>
 
