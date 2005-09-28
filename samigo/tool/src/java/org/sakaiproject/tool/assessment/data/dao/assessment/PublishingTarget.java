@@ -63,8 +63,8 @@ public class PublishingTarget implements PublishingTargetHelper
 // The following methods are not fully implemented in the standalone version.
 // They are used only in the integrated version,
 // so please note that the helper class in the standalone version will
-// throw an UnsupportedOperationException, thus we catch we return null or
-// do nothing (if void) if we encounter an exception.
+// throw an UnsupportedOperationException, thus we trap them in a try/catch and
+// we return null or do nothing (if void) if we encounter an exception.
 ///////////////////////////////////////////////////////////////////////////////
 
   /**
@@ -174,4 +174,7 @@ public class PublishingTarget implements PublishingTargetHelper
     pt.setLog(testLogger);
     }
   }
+
+  // * $Info: $
+
 }
