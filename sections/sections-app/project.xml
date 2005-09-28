@@ -2,10 +2,11 @@
 
 <project>
 	<pomVersion>3</pomVersion>
+    <extend>../../master/project.xml</extend>
 	<name>Sakai Sections Tool</name>
 	<groupId>sakaiproject</groupId>
     <id>sakai-sections-tool</id>
-	<currentVersion>2.0.0</currentVersion>
+	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>Sakai Project</name>
 		<url>http://sakaiproject.org/</url>
@@ -21,19 +22,19 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-sections-api</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-sections-comp-shared-standalone</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 		</dependency>
 
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-comp-shared-sakai20</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
@@ -42,13 +43,13 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-comp-shared-data-sakai20</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
 
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-comp-shared-standalone-integrationsupport</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <properties>
                 <war.bundle>false</war.bundle>
             </properties>
@@ -57,12 +58,12 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-tool</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-jsf-tool</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
@@ -70,7 +71,7 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-jsf-app</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
@@ -78,7 +79,7 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-util-web</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
@@ -89,12 +90,12 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-common-uuid-component</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-common-uuid-api</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 		</dependency>
 	    <dependency>
 	      <groupId>commons-id</groupId>
@@ -107,7 +108,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.plugin.version}</version>
 			<type>plugin</type>
 		</dependency>
 	<!-- End Sakai2 Dependencies -->
@@ -259,7 +260,7 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-jsf-widgets</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <url>http://sakaiproject.org/</url>
             <properties>
                 <war.bundle>true</war.bundle>
@@ -269,7 +270,7 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-jsf-widgets-myfaces</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <url>http://sakaiproject.org/</url>
             <properties>
                 <war.bundle>true</war.bundle>
@@ -317,12 +318,6 @@
 			<version>2.6.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai</artifactId>
-			<version>${pom.currentVersion}</version>
-			<type>plugin</type>
-		</dependency>
 	</dependencies>
 
 	<reports/>

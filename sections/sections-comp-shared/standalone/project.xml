@@ -6,7 +6,7 @@
     <name>Sakai Sections Shared Components: Standalone</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-sections-comp-shared-standalone</id>
-    <currentVersion>2.0.0</currentVersion>
+    <currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>

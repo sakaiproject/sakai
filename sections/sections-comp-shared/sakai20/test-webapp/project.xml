@@ -2,10 +2,11 @@
 
 <project>
     <pomVersion>3</pomVersion>
+    <extend>../../../../master/project.xml</extend>
     <name>Sakai Sections Test Service</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-sections-testservice</id>
-	<currentVersion>2.0.0</currentVersion>
+	<currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
@@ -20,23 +21,23 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-api</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.plugin.version}</version>
             <type>plugin</type>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-tool</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-jsf-tool</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
@@ -44,7 +45,7 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-jsf-app</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
@@ -52,7 +53,7 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-util-web</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>

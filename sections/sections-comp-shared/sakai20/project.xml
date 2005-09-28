@@ -6,7 +6,7 @@
     <name>Sakai Sections Shared Components: Sakai 2.0</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-sections-comp-shared-sakai20</id>
-    <currentVersion>2.0.0</currentVersion>
+    <currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
@@ -29,24 +29,24 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-comp-shared-data-sakai20</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
 
         <!-- Sakai2 Dependencies -->
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-legacy-service</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-session</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-session-component</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
     </dependencies>
 

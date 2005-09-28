@@ -6,7 +6,7 @@
     <name>Sakai Sections Shared Components: Standalone Test Support</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-sections-comp-shared-standalone-integrationsupport</id>
-    <currentVersion>2.0.0</currentVersion>
+    <currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
@@ -22,32 +22,32 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.plugin.version}</version>
             <type>plugin</type>
         </dependency>
 
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-api</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
 
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-comp-shared-standalone</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
 
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-common-uuid-component</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
 
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-common-uuid-api</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
 
         <dependency>

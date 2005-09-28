@@ -28,17 +28,17 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-legacy-service</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-session</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-session-component</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${sakai.version}</version>
         </dependency>
     </dependencies>
 
