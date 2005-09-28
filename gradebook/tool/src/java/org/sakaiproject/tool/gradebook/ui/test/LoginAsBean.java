@@ -69,7 +69,7 @@ public class LoginAsBean extends InitializableBean {
 	}
 
 	public void init() {
-		String[][] users = {{"authid_teacher", "Instructor"}, {"stu_0", "Student"}, {"authid_nowhere", "Nobody"}};
+		String[][] users = {{"authid_teacher", "Instructor"}, {"stu_0", "Student"}, {"authid_ta", "TA"}, {"authid_nowhere", "Nobody"}};
 		String gradebookUid = "QA_6";
 		try {
 			gradebookUid = URLEncoder.encode(gradebookUid, "UTF-8");	// Since f:param won't do it

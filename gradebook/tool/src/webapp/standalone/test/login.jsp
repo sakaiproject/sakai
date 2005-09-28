@@ -19,7 +19,7 @@
 			</li>
 			<li>
 				<h:commandLink action="selectGradebook">
-					<h:outputText value="Teaching Assistant"/>
+					<h:outputText value="Teaching Student"/>
 					<f:param name="userUid" value="authid_teacher_student"/>
 				</h:commandLink>
 				(Instructor in one gradebook, student in another)
