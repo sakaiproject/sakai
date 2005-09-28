@@ -341,6 +341,29 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 		return name;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public List getUnassignedMembersInRole(final String siteContext, final Role role) {
+        HibernateCallback hc = new HibernateCallback(){
+	        public Object doInHibernate(Session session) throws HibernateException {
+	        	Course course = getCourse(siteContext, session);
+	            Query q;
+	            if(role.isStudent()) {
+	            	q = session.getNamedQuery("findUnsectionedStudents");
+	            } else if (role.isTeachingAssistant()) {
+	            	q = session.getNamedQuery("findUnsectionedTas");
+	            } else {
+	            	if(log.isInfoEnabled()) log.info(role + " is never assigned to sections, so unsectioned members is empty.");
+	            	return new ArrayList();
+	            }
+	            q.setParameter("courseUuid", course.getUuid());
+	            return q.list();
+	        }
+        };
+        return getHibernateTemplate().executeFind(hc);
+	}
+
 }
 
 

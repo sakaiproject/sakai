@@ -161,6 +161,18 @@ public interface SectionAwareness {
      */
     public boolean isSectionMemberInRole(String sectionId, String personId, Role role);
 
+    
+    /**
+     * Gets all users who are members of a site but are members of zero sections
+     * within the site.
+     * 
+     * @param siteContext The site context
+     * @param role The role that the user must play in the given site
+     * 
+     * @return A List of ParticipationRecords
+     */
+    public List getUnassignedMembersInRole(String siteContext, Role role);
+
     /**
      * Lists the sections in this context that are a member of the given category.
      * 

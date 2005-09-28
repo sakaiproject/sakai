@@ -185,6 +185,26 @@
         ]]>
     </query>
 
+    <query name="findSectionedStudentUserUids">
+        <![CDATA[
+        select enr.userUid from EnrollmentRecordImpl as enr where enr.learningContext in
+            (
+                from CourseSectionImpl as section where
+                    section.course.siteContext = :siteContext
+            )
+        ]]>
+    </query>
+    
+    <query name="findSectionedTaUserUids">
+        <![CDATA[
+        select ta.userUid from TeachingAssistantRecordImpl as ta where ta.learningContext in
+            (
+                from CourseSectionImpl as section where
+                    section.course.siteContext = :siteContext
+            )
+        ]]>
+    </query>
+
     <query name="findSectionEnrollments">
         <![CDATA[
         from EnrollmentRecordImpl as enr where enr.userUid in (:studentUids)

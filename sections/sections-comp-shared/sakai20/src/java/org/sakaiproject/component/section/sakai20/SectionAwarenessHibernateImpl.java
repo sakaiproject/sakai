@@ -383,6 +383,37 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 		return name;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public List getUnassignedMembersInRole(final String siteContext, final Role role) {
+		List siteMembers = getSiteMembersInRole(siteContext, role);
+        HibernateCallback hc = new HibernateCallback(){
+	        public Object doInHibernate(Session session) throws HibernateException {
+	            Query q;
+	            if(role.isStudent()) {
+	            	q = session.getNamedQuery("findSectionedStudentUserUids");
+	            } else if(role.isTeachingAssistant()) {
+	            	q = session.getNamedQuery("findSectionedTaUserUids");
+	            } else {
+	            	if(log.isInfoEnabled()) log.info(role + " is never assigned to sections, so unsectioned members is empty.");
+	            	return new ArrayList();
+	            }
+	            q.setParameter("siteContext", siteContext);
+	            return q.list();
+	        }
+        };
+        List sectionedUids = getHibernateTemplate().executeFind(hc);
+        List unSectionedRecords = new ArrayList();
+        for(Iterator iter = siteMembers.iterator(); iter.hasNext();) {
+        	ParticipationRecord record = (ParticipationRecord)iter.next();
+        	if(! sectionedUids.contains(record.getUser().getUserUid())) {
+        		unSectionedRecords.add(record);
+        	}
+        }
+        return unSectionedRecords;
+	}
+
 	// Dependency injection
 
 	public void setCourseManager(CourseManager courseManager) {

@@ -182,6 +182,52 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	Assert.assertTrue(taSectionRecords.contains(sectionTaRecord1));
     	Assert.assertTrue(taSectionRecords.contains(sectionTaRecord2));
     }
+    
+    public void testGetUnassignedMembers() throws Exception {
+    	String siteContext = context.getContext(null);
+    	List categories = secAware.getSectionCategories(siteContext);
+    	
+    	// Add a course and a section to work from
+    	Course course = courseMgr.createCourse(siteContext, "A course", false, false, false);
+    	
+    	String firstCategory = (String)categories.get(0);
+    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+
+		// Load students
+		User student1 = userMgr.createUser("student1", "Joe Student", "Student, Joe", "jstudent");
+		User student2 = userMgr.createUser("student2", "Jane Undergrad", "Undergrad, Jane", "jundergrad");
+		User student3 = userMgr.createUser("student3", "Foo Bar", "Bar, Foo", "fbar");
+
+		// Load TAs
+		User ta1 = userMgr.createUser("ta1", "Mike Grad", "Grad, Mike", "mgrad");
+		User ta2 = userMgr.createUser("ta2", "Sara Postdoc", "Postdoc, Sara", "spostdoc");
+
+		// Load enrollments into the course
+		ParticipationRecord siteEnrollment1 = courseMgr.addEnrollment(student1, course);
+		ParticipationRecord siteEnrollment2 = courseMgr.addEnrollment(student2, course);
+		ParticipationRecord siteEnrollment3 = courseMgr.addEnrollment(student3, course);
+		
+		// Load enrollments into sections
+		ParticipationRecord sectionEnrollment1 = secMgr.addSectionMembership("student1", Role.STUDENT, sec.getUuid());
+		
+		// Load TAs into the course
+		ParticipationRecord siteTaRecord1 = courseMgr.addTA(ta1, course);
+		ParticipationRecord siteTaRecord2 = courseMgr.addTA(ta2, course);
+		
+		// Load TAs into the sections
+		ParticipationRecord sectionTaRecord1 = secMgr.addSectionMembership("ta1", Role.TA, sec.getUuid());
+
+
+		// Students 2 and 3 should be unsectioned
+		List unassignedStudents = secAware.getUnassignedMembersInRole(siteContext, Role.STUDENT);
+		Assert.assertEquals(unassignedStudents.size(), 2);
+		Assert.assertTrue( ! unassignedStudents.contains(sectionEnrollment1));
+		
+		// TA2 should be unsectioned
+		List unassignedTas = secAware.getUnassignedMembersInRole(siteContext, Role.TA);
+		Assert.assertEquals(unassignedTas.size(), 1);
+		Assert.assertTrue( ! unassignedTas.contains(sectionTaRecord1));
+    }
 }
 
 
