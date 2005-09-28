@@ -102,18 +102,35 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	}
 
 	public String update() {
+		// Ensure that this title isn't being used by another section
 		if(isDuplicateSectionTitle()) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + title);
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 					"section_update_failure_duplicate_title", new String[] {title}), "editSectionForm:titleInput");
 			return "failure";
 		}
+		
+		// Perform the update
 		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
 				location, ConversionUtil.convertDateToTime(startTime, startTimeAm),
 				ConversionUtil.convertDateToTime(endTime, endTimeAm), monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
+		
+		// Add a success message
 		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
 				"section_update_successful", new String[] {title}));
+		
+		// Add a warning if max enrollments has been exceeded
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+		Integer maxEnrollments = section.getMaxEnrollments();
+		int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
+		if(maxEnrollments != null && totalEnrollments > maxEnrollments.intValue()) {
+			JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
+					"edit_student_over_max_warning", new String[] {
+							section.getTitle(),
+							Integer.toString(totalEnrollments),
+							Integer.toString(totalEnrollments - maxEnrollments.intValue()) }));
+		}
 		return "overview";
 	}
 	
