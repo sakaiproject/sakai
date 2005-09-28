@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <pomVersion>3</pomVersion>
+  <extend>../../master/project.xml</extend>
   <name>Sakai Samigo API</name>
   <shortDescription>Samigo (Test and Quizzes) exportable interfaces.</shortDescription>
   <groupId>sakaiproject</groupId>
   <id>sakai-samigo-api</id>
-  <currentVersion>2.1.0</currentVersion>
+  <currentVersion>${sakai.version}</currentVersion>
 
   <organization>
       <name>Sakai Project</name>

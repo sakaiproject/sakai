@@ -2,11 +2,12 @@
 
 <project xmlns:ant="jelly:ant">
 	<pomVersion>3</pomVersion>
+	<extend>../../master/project.xml</extend>
 	<name>Samigo Tool</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-samigo-tool</id>
 	<artifactId>samigo</artifactId>
-	<currentVersion>2.0.0</currentVersion>
+	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>Sakai Project</name>
 		<url>http://www.sakaiproject.org/</url>
@@ -20,7 +21,7 @@
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-samigo-api</artifactId>
-      <version>2.1.0</version>
+      <version>${sakai.version}</version>
     </dependency>
     <!-- Samigo IMPL -->
 <!-- comment out for now -->
@@ -34,7 +35,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.plugin.version}</version>
 			<type>plugin</type>
 		</dependency>
 		<dependency>
@@ -66,7 +67,7 @@
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-samigo-component</artifactId>
-      <version>${pom.currentVersion}</version>
+      <version>${sakai.version}</version>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -76,13 +77,13 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 		</dependency>
 		<!-- this is required for any Sakai JSF tool -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-jsf-tool</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>integrated</war.bundle>
 			</properties>
@@ -91,7 +92,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-jsf-app</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>integrated</war.bundle>
 			</properties>
@@ -99,7 +100,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-web</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>integrated</war.bundle>
 			</properties>
@@ -108,7 +109,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-gradebook-service</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>false</war.bundle>
 			</properties>
@@ -117,7 +118,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-component</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>false</war.bundle>
 			</properties>
@@ -125,7 +126,7 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-service</artifactId>
-			<version>${pom.currentVersion}</version>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>false</war.bundle>
 			</properties>

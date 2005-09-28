@@ -2,9 +2,10 @@
 
 <project>
 	<pomVersion>3</pomVersion>
+	<extend>../master/project.xml</extend>
 	<name>Samigo</name>
 	<groupId>sakai-samigo</groupId>
-	<currentVersion>2.0.0</currentVersion>
+	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>Sakai Project</name>
 		<url>http://sakaiproject.org/</url>
@@ -15,7 +16,7 @@
                 <dependency>
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai</artifactId>
-                        <version>${pom.currentVersion}</version>
+                        <version>${sakai.plugin.version}</version>
                         <type>plugin</type>
                 </dependency>
         </dependencies>
