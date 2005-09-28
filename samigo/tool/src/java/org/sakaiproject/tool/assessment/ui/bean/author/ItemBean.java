@@ -100,7 +100,10 @@ public class ItemBean
   private String rubric;
   private String timeAllowed;
   private String numAttempts;
-
+ 
+    //Huong adding for outcome to check errors
+    private String outcomeFIB;
+    private String outcomePoolFIB;
 
   private String selectedPool;  // pool id for the item to be added to
   private String origPool;  // pool id for the item to be added to
@@ -119,6 +122,25 @@ public class ItemBean
   /**
    * @return
    */
+
+    public String getOutcomeFIB()
+    {
+	return outcomeFIB;
+    }
+    public void setOutcomeFIB(String outcomeFIB)
+    {
+	this.outcomeFIB=outcomeFIB;
+    }
+
+     public String getOutcomePoolFIB()
+    {
+	return outcomePoolFIB;
+    }
+    public void setOutcomePoolFIB(String outcomePoolFIB)
+    {
+	this.outcomePoolFIB=outcomePoolFIB;
+    }
+
   public String getItemId()
   {
     return itemId;
@@ -1226,52 +1248,7 @@ public String checkError(boolean isPool){
 
 */
 
-    public String checkFIB(){
-	return checkFIB(false);
-    }
- public String checkPoolFIB(){
-	return checkFIB(true);
-    }
-
-public String checkFIB(boolean isPool){
-
-     FacesContext context=FacesContext.getCurrentInstance();
-     ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-     int index=0;
-     boolean error=false;
-     String err="";
-     boolean hasOpen=false;
-     int opencount=0;
-     int closecount=0;
-    while(index<itemText.length()){
-	char c=itemText.charAt(index);
-        if(c=='{'){
-	    opencount++;
-	    if(hasOpen) error=true;
-	    else hasOpen=true;
-	}
-	else if(c=='}'){ 
-            closecount++;
-	    if(!hasOpen) error=true;
-            else hasOpen=false;
-	}
-        else{}
-	index++;
-    }//end while
-    if((hasOpen==true)||(opencount<1)||(opencount!=closecount)) error=true;
-	
-    if(error==true){
-	err=(String)rb.getObject("pool_missingBracket_error");
-	context.addMessage(null,new FacesMessage(err));
-	if(isPool) return "FIBPoolFailure";
-	else return "FIBFailure";
-	}
-    else{
-	if(isPool) return "FIBPoolSuccess";
-	else return "FIBSuccess";
-    }
-}//end function
-
+   
 
 
 }
