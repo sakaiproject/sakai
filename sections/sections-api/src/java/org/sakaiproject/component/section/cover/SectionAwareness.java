@@ -87,6 +87,10 @@ public class SectionAwareness {
 		return getInstance().isSiteMemberInRole(siteContext, userUid, role);
 	}
 	
+    public static final List getUnassignedMembersInRole(String siteContext, Role role) {
+    	return getInstance().getUnassignedMembersInRole(siteContext, role);
+    }
+
 }
 
 
