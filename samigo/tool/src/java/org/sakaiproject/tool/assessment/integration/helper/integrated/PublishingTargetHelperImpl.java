@@ -23,14 +23,17 @@
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.HashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
+import org.sakaiproject.api.kernel.component.cover.ComponentManager;
 import org.sakaiproject.service.framework.log.Logger;
+import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.SiteService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 
 /**
  *
@@ -56,6 +59,15 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
 
   private Logger logger;
   private SiteService siteService;
+  private org.sakaiproject.api.kernel.component.ComponentManager cm;
+
+  private static String LOGGER_SERVICE = "org.sakaiproject.service.framework.log.cover.Logger";
+  private static String SITE_SERVICE = "org.sakaiproject.service.legacy.site.SiteService";
+
+  public PublishingTargetHelperImpl()
+  {
+  }
+
 
   /**
    * Gets to whom you can publish.
@@ -76,6 +88,8 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
    */
   public SiteService getSiteService()
   {
+    cm = ComponentManager.getInstance();
+    siteService = (org.sakaiproject.service.legacy.site.SiteService) cm.get(SITE_SERVICE);
     return siteService;
   }
   /**
@@ -90,6 +104,8 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
    */
   public Logger getLog()
   {
+    cm = ComponentManager.getInstance();
+    logger = (org.sakaiproject.service.framework.log.Logger) cm.get(LOGGER_SERVICE);
     return logger;
   }
   /**
