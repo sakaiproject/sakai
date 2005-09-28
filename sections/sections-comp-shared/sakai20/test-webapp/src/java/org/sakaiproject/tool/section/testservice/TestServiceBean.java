@@ -30,6 +30,7 @@ import java.util.List;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.api.section.facade.Role;
 
 /**
  * Tests whether the services exposed by the Section Info tool can be utilized
@@ -60,6 +61,16 @@ public class TestServiceBean {
 		return new ArrayList(org.sakaiproject.component.section.cover.SectionAwareness.getSections(siteContext));
 	}
 	
+	public List getUnassignedStudents() {
+		String siteContext = ToolManager.getCurrentPlacement().getContext();;
+		return sectionAwareness.getUnassignedMembersInRole(siteContext, Role.STUDENT);
+	}
+	
+	public List getUnassignedTas() {
+		String siteContext = ToolManager.getCurrentPlacement().getContext();;
+		return sectionAwareness.getUnassignedMembersInRole(siteContext, Role.TA);
+	}
+
 	// Dependency Injection
 	
 	public void setCourseManager(CourseManager courseManager) {

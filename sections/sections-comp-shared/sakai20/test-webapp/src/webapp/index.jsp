@@ -26,4 +26,29 @@
     </h:column>
 </h:dataTable>
 
+
+<hr/>
+
+<p>
+    All unassigned students
+</p>
+
+<h:dataTable value="#{testServiceBean.unassignedStudents}" var="enr" title="Unsectioned Students">
+    <h:column>
+        <h:outputText value="#{enr.user.userUid}"/>
+    </h:column>
+</h:dataTable>
+
+<hr/>
+
+<p>
+    All unassigned TAs
+</p>
+
+<h:dataTable value="#{testServiceBean.unassignedTas}" var="ta" title="Unsectioned TAs">
+    <h:column>
+        <h:outputText value="#{ta.user.userUid}"/>
+    </h:column>
+</h:dataTable>
+
 </f:view>
