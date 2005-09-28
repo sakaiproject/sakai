@@ -37,21 +37,19 @@ public interface AgentHelper
 
   public String getDisplayName(String agentS);
 
-  public String getFirstName();
+  public String getFirstName(String agentString);
 
-  public String getLastName();
+  public String getLastName(String agentString);
 
-  public String getRole();
+  public String getRole(String agentString);
 
-  public String getRole(String agentId);
+  public String getRoleForCurrentAgent(String agentString);
 
   public String getCurrentSiteId();
 
   public String getCurrentSiteName();
 
   public String getSiteName(String siteId);
-
-  public String getIdString();
 
   public String getDisplayNameByAgentId(String agentId);
 
@@ -66,6 +64,5 @@ public interface AgentHelper
 
   public String getAnonymousId();
 
-  public void setIdString(String idString);
 
 }
