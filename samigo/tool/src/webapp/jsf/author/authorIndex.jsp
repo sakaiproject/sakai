@@ -62,6 +62,12 @@
   <h3>
     <h:outputText value="#{msg.assessments}"/>
   </h3>
+<p>
+<f:verbatim><font color="red"></f:verbatim>
+  <h:messages />
+<f:verbatim></font></f:verbatim>
+
+</p>
      <div class="indnt1">
 	<h4><h:outputText value="#{msg.assessment_new}" /></h4>
   <div class="indnt2">
