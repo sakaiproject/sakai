@@ -38,25 +38,18 @@ import org.sakaiproject.tool.gradebook.facades.Authz;
 public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
     private static final Log log = LogFactory.getLog(AuthzSectionsImpl.class);
 
-	/**
-	 * @see org.sakaiproject.tool.gradebook.facades.Authz#getGradebookRole(java.lang.String, java.lang.String)
-	 */
-	public Role getGradebookRole(final String gradebookUid, final String userUid) {
-		Role role;
-
-		// TODO Either re-do Gradebook logic to more efficiently deal with lack of a Role object, or
-		// request that SectionAwareness add a "getRole(context, user)" method.
-
-		if (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR)) {
-			role = Role.INSTRUCTOR;
-		} else if (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.STUDENT)) {
-			role = Role.STUDENT;
-		} else {
-			// No TAs yet.
-			role = Role.NONE;
-		}
-		return role;
+	public boolean isUserAbleToGrade(String gradebookUid, String userUid) {
+		return (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.TA));
 	}
+
+	public boolean isUserAbleToEdit(String gradebookUid, String userUid) {
+		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
+	}
+
+	public boolean isUserGradable(String gradebookUid, String userUid) {
+		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.STUDENT);
+	}
+
 }
 
 

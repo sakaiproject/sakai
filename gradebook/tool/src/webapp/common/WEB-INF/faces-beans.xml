@@ -32,6 +32,11 @@
 			<value>#{org_sakaiproject_tool_gradebook_facades_Authn}</value>
 		</managed-property>
 		<managed-property>
+			<description>Authz Service</description>
+			<property-name>authzService</property-name>
+			<value>#{org_sakaiproject_tool_gradebook_facades_Authz}</value>
+		</managed-property>
+		<managed-property>
 			<description>ContextManagement Service</description>
 			<property-name>contextManagementService</property-name>
 			<value>#{org_sakaiproject_tool_gradebook_facades_ContextManagement}</value>
@@ -63,6 +68,10 @@
 		<managed-bean-name>feedbackOptionsBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.FeedbackOptionsBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>feedbackOptions</value>
+		</managed-property>
 	</managed-bean>
 
 	<managed-bean>
@@ -70,6 +79,10 @@
 		<managed-bean-name>rosterBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.RosterBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>roster</value>
+		</managed-property>
 	</managed-bean>
 
 	<managed-bean>
@@ -77,6 +90,10 @@
 		<managed-bean-name>studentViewBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.StudentViewBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>studentView</value>
+		</managed-property>
 	</managed-bean>
 
 	<managed-bean>
@@ -86,6 +103,10 @@
 		<managed-property>
 			<property-name>assignmentId</property-name>
 			<value>#{param.assignmentId}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>assignmentDetails</value>
 		</managed-property>
 	</managed-bean>
 
@@ -97,6 +118,10 @@
 			<property-name>assignmentId</property-name>
 			<value>#{param.assignmentId}</value>
 		</managed-property>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>editAssignment</value>
+		</managed-property>
 	</managed-bean>
 
 	<managed-bean>
@@ -107,24 +132,40 @@
 			<property-name>assignmentId</property-name>
 			<value>#{param.assignmentId}</value>
 		</managed-property>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>removeAssignment</value>
+		</managed-property>
 	</managed-bean>
 
 	<managed-bean>
 		<managed-bean-name>courseGradeDetailsBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.CourseGradeDetailsBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>courseGradeDetails</value>
+		</managed-property>
 	</managed-bean>
 
 	<managed-bean>
 		<managed-bean-name>addAssignmentBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.AddAssignmentBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>addAssignment</value>
+		</managed-property>
 	</managed-bean>
 
 	<managed-bean>
 		<managed-bean-name>overviewBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.OverviewBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>overview</value>
+		</managed-property>
 	</managed-bean>
 
 	<managed-bean>

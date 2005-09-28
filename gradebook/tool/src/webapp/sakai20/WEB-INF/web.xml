@@ -104,11 +104,11 @@
     </filter-mapping>
 
 	<filter>
-		<filter-name>InstructorRoleFilter</filter-name>
+		<filter-name>GradebookAuthzFilter</filter-name>
 		<filter-class>org.sakaiproject.tool.gradebook.ui.RoleFilter</filter-class>
 		<init-param>
-			<param-name>role</param-name>
-			<param-value>instructor</param-value>
+			<param-name>authorizationFilterConfigurationBean</param-name>
+			<param-value>org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean</param-value>
 		</init-param>
 		<init-param>
 			<param-name>authnServiceBean</param-name>
@@ -122,86 +122,10 @@
 			<param-name>contextManagementServiceBean</param-name>
 			<param-value>org_sakaiproject_tool_gradebook_facades_ContextManagement</param-value>
 		</init-param>
-
-<!--
-		<init-param>
-			<param-name>selectGradebookRedirect</param-name>
-			<param-value>/sakai-gradebook-tool/test/logout.jsf</param-value>
-		</init-param>
--->
 	</filter>
 	<filter-mapping>
-		<filter-name>InstructorRoleFilter</filter-name>
-		<url-pattern>/gb/overview.jsf</url-pattern>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>InstructorRoleFilter</filter-name>
-		<url-pattern>/gb/addAssignment.jsf</url-pattern>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>InstructorRoleFilter</filter-name>
-		<url-pattern>/gb/feedbackOptions.jsf</url-pattern>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>InstructorRoleFilter</filter-name>
-		<url-pattern>/gb/editAssignment.jsf</url-pattern>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>InstructorRoleFilter</filter-name>
-		<url-pattern>/gb/assignmentDetails.jsf</url-pattern>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>InstructorRoleFilter</filter-name>
-		<url-pattern>/gb/roster.jsf</url-pattern>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-
-	<filter>
-		<filter-name>StudentRoleFilter</filter-name>
-		<filter-class>org.sakaiproject.tool.gradebook.ui.RoleFilter</filter-class>
-		<init-param>
-			<param-name>role</param-name>
-			<param-value>student</param-value>
-		</init-param>
-		<init-param>
-			<param-name>authnServiceBean</param-name>
-			<param-value>org_sakaiproject_tool_gradebook_facades_Authn</param-value>
-		</init-param>
-		<init-param>
-			<param-name>authzServiceBean</param-name>
-			<param-value>org_sakaiproject_tool_gradebook_facades_Authz</param-value>
-		</init-param>
-		<init-param>
-			<param-name>contextManagementServiceBean</param-name>
-			<param-value>org_sakaiproject_tool_gradebook_facades_ContextManagement</param-value>
-		</init-param>
-<!--
-		<init-param>
-			<param-name>selectGradebookRedirect</param-name>
-			<param-value>/sakai-gradebook-tool/test/logout.jsf</param-value>
-		</init-param>
--->
-	</filter>
-	<filter-mapping>
-		<filter-name>StudentRoleFilter</filter-name>
-		<url-pattern>/gb/studentView.jsf</url-pattern>
+		<filter-name>GradebookAuthzFilter</filter-name>
+		<url-pattern>/gb/*</url-pattern>
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>

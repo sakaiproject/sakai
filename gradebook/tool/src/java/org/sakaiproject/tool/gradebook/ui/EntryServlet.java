@@ -37,8 +37,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import org.sakaiproject.api.section.facade.Role;
-
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
@@ -66,20 +64,16 @@ public class EntryServlet extends HttpServlet {
 		ContextManagement contextMgm = (ContextManagement)appContext.getBean("org_sakaiproject_tool_gradebook_facades_ContextManagement");
 
         String userUid = authnService.getUserUid(request);
-
         String gradebookUid = contextMgm.getGradebookUid(request);
 
         try {
             if (gradebookUid != null) {
-                Role role = authzService.getGradebookRole(gradebookUid, userUid);
                 StringBuffer path = new StringBuffer(request.getContextPath());
-                if (role == Role.INSTRUCTOR) {
+                if (authzService.isUserAbleToGrade(gradebookUid, userUid)) {
                     path.append("/overview.jsf?");
-                }
-                if (role == Role.STUDENT) {
+                } else if (authzService.isUserGradable(gradebookUid, userUid)) {
                     path.append("/studentView.jsf?");
-                }
-                if (role == Role.NONE) {
+                } else {
                     path.append("/error.jsf?");
                 }
                 path.append(request.getQueryString());

@@ -107,18 +107,9 @@ import org.sakaiproject.api.section.facade.Role;
  * </ul>
  */
 public interface Authz {
-	/**
-	 * @param gradebookUid
-	 * @param userUid
-	 * @return the role played by the specified user in the specified gradebook.
-	 *         For the Baseline Sakai 2.0 gradebook,there are only three roles.
-	 *         A role of "instructor" means that everything except "see my own
-	 *         released grades" is authorized.
-	 *         A role of "student" means that only "see my own released grades"
-	 *         is authorized.
-	 *         A role of "none" means the user shouldn't be here.
-	 */
-	public Role getGradebookRole(String gradebookUid, String userUid);
+	public boolean isUserAbleToGrade(String gradebookUid, String userUid);
+	public boolean isUserAbleToEdit(String gradebookUid, String userUid);
+	public boolean isUserGradable(String gradebookUid, String userUid);
 }
 
 

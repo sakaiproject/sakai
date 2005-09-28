@@ -45,17 +45,15 @@ public class GradebookServiceSecurityProxy implements GradebookService {
     private GradebookServiceHibernateImpl serviceImpl;
 
     private void authorize(String gradebookUid) {
-        // If this user has instructor role in this context, allow the creation
         String userUid = serviceImpl.getAuthn().getUserUid(null);
-        if(!serviceImpl.getAuthz().getGradebookRole(gradebookUid, userUid).isInstructor()) {
+        if (!serviceImpl.getAuthz().isUserAbleToGrade(gradebookUid, userUid)) {
         	if (log.isInfoEnabled()) log.info("User uid=" + userUid + " is not authorized to maintain gradebook uid=" + gradebookUid);
             throw new SecurityException("You do not have permission to perform this operation");
         }
     }
 
     public void addGradebook(String uid, String name) {
-        if(log.isDebugEnabled()) log.debug("checking authorization for addGradebook(" + uid + ")");
-        authorize(uid);
+        // Always allow Gradebook creation.
         serviceImpl.addGradebook(uid, name);
     }
 
@@ -114,6 +112,4 @@ public class GradebookServiceSecurityProxy implements GradebookService {
         this.serviceImpl = serviceImpl;
     }
 }
-
-
 

@@ -4,7 +4,7 @@
 <f:view>
   <h:form id="gbForm">
 
-	<x:aliasBean alias="#{viewName}" value="addAssignment">
+	<x:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
 		<%@include file="/inc/appMenu.jspf"%>
 	</x:aliasBean>
 

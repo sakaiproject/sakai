@@ -38,6 +38,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
+import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 
@@ -66,6 +67,7 @@ public class GradebookBean extends InitializableBean {
 	private SectionAwareness sectionAwareness;
 	private UserDirectoryService userDirectoryService;
 	private Authn authnService;
+	private Authz authzService;
 	private ContextManagement contextManagementService;
 
 	/**
@@ -188,6 +190,14 @@ public class GradebookBean extends InitializableBean {
 	public void setAuthnService(Authn authnService) {
 		this.authnService = authnService;
 	}
+
+	public Authz getAuthzService() {
+		return authzService;
+	}
+	public void setAuthzService(Authz authzService) {
+		this.authzService = authzService;
+	}
+
 	/**
 	 * @return Returns the contextManagementService.
 	 */

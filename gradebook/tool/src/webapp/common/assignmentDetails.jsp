@@ -1,7 +1,7 @@
 <f:view>
   <h:form id="gbForm">
 
-	<x:aliasBean alias="#{viewName}" value="assignmentDetails">
+	<x:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
 		<%@include file="/inc/appMenu.jspf"%>
 	</x:aliasBean>
 
@@ -64,9 +64,8 @@
 				<h:outputText id="dueDate" value="#{assignmentDetailsBean.assignment.dueDate}" rendered="#{assignmentDetailsBean.assignment.dueDate != null}"  />
 				<h:outputText id="dueDatePlaceholder" value="#{msgs.overview_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.dueDate == null}" />
 
-				<h:outputText id="optionsLabel" value="#{msgs.assignment_details_options}"/>
-
-				<h:panelGrid cellpadding="0" cellspacing="0" columns="1">
+				<h:outputText id="optionsLabel" value="#{msgs.assignment_details_options}" rendered="#{assignmentDetailsBean.userAbleToEdit}"/>
+				<h:panelGrid cellpadding="0" cellspacing="0" columns="1" rendered="#{assignmentDetailsBean.userAbleToEdit}">
 					<h:commandLink
 						action="editAssignment"
 						rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"

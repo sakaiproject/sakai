@@ -20,43 +20,35 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-package org.sakaiproject.tool.gradebook.test;
 
-import junit.framework.Assert;
+package org.sakaiproject.tool.gradebook.ui;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.Role;
+import java.util.*;
 
 /**
- * Tests standalone authz
- *
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ * Singleton bean to set up URL filtering by current user's role.
  */
-public class AuthzTest extends GradebookTestBase {
-    private static final Log log = LogFactory.getLog(AuthzTest.class);
+public class AuthorizationFilterConfigurationBean {
+	private List userAbleToEditPages;
+	private List userAbleToGradePages;
+	private List userGradablePages;
 
-    protected void onSetUpInTransaction() throws Exception {
-        super.onSetUpInTransaction();
-
-        // Create a gradebook
-        String className = this.getClass().getName();
-        gradebookService.addGradebook(className, className);
-    }
-
-    public void testGradebookModifyAuthz() throws Exception {
-        String userUid = authn.getUserUid(null);
-        Assert.assertTrue(authz.getGradebookRole(this.getClass().getName(), userUid) == Role.NONE);
-
-    }
-
-    public void testViewReleasedForSelfAuthorized() throws Exception {
-        String userUid = authn.getUserUid(null);
-        Assert.assertFalse(authz.getGradebookRole(this.getClass().getName(), userUid) == Role.STUDENT);
-    }
-
+	public List getUserAbleToEditPages() {
+		return userAbleToEditPages;
+	}
+	public void setUserAbleToEditPages(List userAbleToEditPages) {
+		this.userAbleToEditPages = userAbleToEditPages;
+	}
+	public List getUserAbleToGradePages() {
+		return userAbleToGradePages;
+	}
+	public void setUserAbleToGradePages(List userAbleToGradePages) {
+		this.userAbleToGradePages = userAbleToGradePages;
+	}
+	public List getUserGradablePages() {
+		return userGradablePages;
+	}
+	public void setUserGradablePages(List userGradablePages) {
+		this.userGradablePages = userGradablePages;
+	}
 }
-
-
-
-

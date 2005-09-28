@@ -29,8 +29,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
-import org.sakaiproject.api.section.facade.Role;
-
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
@@ -54,19 +52,18 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
 
         String userUid = authnService.getUserUid(null);
         String gradebookUid = contextManagementService.getGradebookUid(null);
-        Role role = authzService.getGradebookRole(gradebookUid, userUid);
+
+		// Add the gradebook if it doesn't exist
+		if(!gradebookService.gradebookExists(gradebookUid)) {
+			logger.warn("Gradebook " + gradebookUid + " doesn't exist, so user " + userUid + " is creating it");
+			gradebookService.addGradebook(gradebookUid, gradebookUid);
+		}
 
         String target;
-        if(role.isInstructor()) {
-            // Add the gradebook if it doesn't exist
-            if(!gradebookService.gradebookExists(gradebookUid)) {
-                logger.warn("Gradebook " + gradebookUid + " doesn't exist, so user " + userUid + " is creating it");
-                gradebookService.addGradebook(gradebookUid, gradebookUid);
-            }
-
+        if(authzService.isUserAbleToGrade(gradebookUid, userUid)) {
             if(logger.isInfoEnabled()) logger.info("Sending user to the overview page");
             target = "/overview";
-        } else if (role.isStudent()) {
+        } else if (authzService.isUserGradable(gradebookUid, userUid)) {
             if(logger.isInfoEnabled()) logger.info("Sending user to the student view page");
             target = "/studentView";
         } else {

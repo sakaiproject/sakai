@@ -88,6 +88,8 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
     }
 
 	private List getCourseGradeAsList() {
+        enrollments = getEnrollments();
+
         List list = new ArrayList();
         list.add(getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(enrollments)));
 
@@ -112,6 +114,8 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 	}
 
 	private List getRosterGradableObjects() {
+        enrollments = getEnrollments();
+
 		Gradebook gradebook = getGradebook();
 		List gradableObjects = getGradeManager().getAssignments(getGradebookId());
 		CourseGrade courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(enrollments));
@@ -234,7 +238,6 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		}
 
 		// Fill the spreadsheet cells
-        enrollments = getEnrollments();
         Collections.sort(enrollments, FacadeUtils.ENROLLMENT_NAME_COMPARATOR);
 		for(Iterator enrollmentIter = enrollments.iterator(); enrollmentIter.hasNext();) {
 			EnrollmentRecord enr = (EnrollmentRecord)enrollmentIter.next();
@@ -297,7 +300,6 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 			}
 		}
 		// Add the data
-        enrollments = getEnrollments();
         Collections.sort(enrollments, FacadeUtils.ENROLLMENT_NAME_COMPARATOR);
 
 		for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {

@@ -41,4 +41,32 @@
 		</property>
 	</bean>
 
+	<!--
+		UI authorization filtering. Handled here instead of in Faces configuration files
+		because Faces won't necessarily be loaded on the first authorization check.
+	-->
+	<bean id="org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean" class="org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean">
+		<property name="userAbleToEditPages">
+			<list>
+				<value>addAssignment</value>
+				<value>editAssignment</value>
+				<value>removeAssignment</value>
+				<value>gradeOptions</value>
+			</list>
+		</property>
+		<property name="userAbleToGradePages">
+			<list>
+				<value>assignmentDetails</value>
+				<value>courseGradeDetails</value>
+				<value>overview</value>
+				<value>roster</value>
+			</list>
+		</property>
+		<property name="userGradablePages">
+			<list>
+				<value>studentView</value>
+			</list>
+		</property>
+	</bean>
+
 </beans>

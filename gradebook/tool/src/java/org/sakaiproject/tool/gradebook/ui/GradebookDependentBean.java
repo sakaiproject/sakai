@@ -44,6 +44,8 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 public abstract class GradebookDependentBean extends InitializableBean {
 	private static final Log logger = LogFactory.getLog(GradebookDependentBean.class);
 
+	private String pageName;
+
 	/**
 	 * Marked transient to allow serializable subclasses.
 	 */
@@ -128,6 +130,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		return getGradebookBean().getAuthnService();
 	}
 
+	public boolean isUserAbleToEdit() {
+		return getGradebookBean().getAuthzService().isUserAbleToEdit(getGradebookUid(), getUserUid());
+	}
+
 	public List getEnrollments() {
 		return getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
 	}
@@ -166,7 +172,15 @@ public abstract class GradebookDependentBean extends InitializableBean {
     public void setPreferencesBean(PreferencesBean preferencesBean) {
         this.preferencesBean = preferencesBean;
     }
+
+    /**
+     * Set up close relations with page and action names for easier control
+     * of menus.
+     */
+    public String getPageName() {
+    	return pageName;
+    }
+    public void setPageName(String pageName) {
+    	this.pageName = pageName;
+    }
 }
-
-
-
