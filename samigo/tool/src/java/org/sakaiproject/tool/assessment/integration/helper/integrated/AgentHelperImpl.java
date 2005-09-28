@@ -76,7 +76,6 @@ public class AgentHelperImpl implements AgentHelper
 {
   private static Log log = LogFactory.getLog(AgentHelperImpl.class);
   AgentImpl agent;
-  String agentString;
 
 
   /**
@@ -131,18 +130,13 @@ public class AgentHelperImpl implements AgentHelper
 
   /**
    * Get the Agent display name.
-   * @deprecated should phrase out this one -daisyf
    * @param agentS the Agent string.
    * @return the Agent display name.
    */
   public String getDisplayName(String agentS){
-    return UserDirectoryService.getCurrentUser().getDisplayName();
-  }
-
-  public String getDisplayName(){
     String s="";
     try{
-      s=UserDirectoryService.getUser(this.agentString).getDisplayName();
+      s=UserDirectoryService.getUser(agentS).getDisplayName();
     }
     catch(Exception e){
       System.out.println(e.getMessage());
@@ -154,11 +148,11 @@ public class AgentHelperImpl implements AgentHelper
    * Get the Agent first name.
    * @return the Agent first name.
    */
-  public String getFirstName()
+  public String getFirstName(String agentString)
   {
     String s="";
     try{
-      s=UserDirectoryService.getUser(this.agentString).getFirstName();
+      s=UserDirectoryService.getUser(agentString).getFirstName();
     }
     catch(Exception e){
       System.out.println(e.getMessage());
@@ -170,11 +164,11 @@ public class AgentHelperImpl implements AgentHelper
    * Get the Agent last name.
    * @return the Agent last name.
    */
-  public String getLastName()
+  public String getLastName(String agentString)
   {
     String s="";
     try{
-      s=UserDirectoryService.getUser(this.agentString).getLastName();
+      s=UserDirectoryService.getUser(agentString).getLastName();
     }
     catch(Exception e){
       System.out.println(e.getMessage());
@@ -182,40 +176,13 @@ public class AgentHelperImpl implements AgentHelper
     return s;
   }
 
-  /**
-   * Get the agent role.
-   * @return the agent role.
-   */
-  public String getRole()
-  {
-    String role = "anonymous_access";
-    String thisSiteId = ToolManager.getCurrentPlacement().getContext();
-    String realmName = "/site/" + thisSiteId;
-    if (thisSiteId == null)
-      return role;
-
-    try
-    {
-      Realm siteRealm = RealmService.getRealm(realmName);
-      Role currentUserRole = siteRealm.getUserRole(agentString);
-      if (currentUserRole != null)
-        role = currentUserRole.getId();
-      log.debug(realmName + ":" + role);
-    }
-    catch(Exception e)
-    {
-      System.out.println(e.getMessage());
-    }
-    return role;
-  }
-
 
   /**
-   *
-   * @param agentIdString
-   * @return
+   * Can be called statically from AgentFacade from an instance
+   * @param agentString the agent string for an agent
+   * @return role string
    */
-  public String getRole(String agentIdString)
+  public String getRole(String agentString)
   {
     String role = "anonymous_access";
     String thisSiteId = ToolManager.getCurrentPlacement().getContext();
@@ -228,7 +195,7 @@ public class AgentHelperImpl implements AgentHelper
     {
       Realm siteRealm = RealmService.getRealm(realmName);
       if (siteRealm!=null)
-      userRole = siteRealm.getUserRole(agentIdString);
+      userRole = siteRealm.getUserRole(agentString);
       if (userRole!=null)
         role = userRole.getId();
       log.debug(realmName + ":" + role);
@@ -240,9 +207,14 @@ public class AgentHelperImpl implements AgentHelper
     return role;
   }
 
-  public String getIdString()
+  /**
+   * Called by AgentFacade from an instance.  In integrated just wrap the above.
+   * @param agentString the agent string for current AgentFacade instance
+   * @return role string
+   */
+  public String getRoleForCurrentAgent(String agentString)
   {
-    return agentString;
+     return this.getRole(agentString);
   }
 
   /**
@@ -286,11 +258,18 @@ public class AgentHelperImpl implements AgentHelper
    */
 
   public String createAnonymous(){
-    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-    String agentS = "anonymous_"+(new java.util.Date()).getTime();
-    log.debug("create anonymous ="+agentS);
-    bean.setProp1(agentS);
-    return agentS;
+    String anonymousId = "anonymous_";
+    try
+    {
+      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+      anonymousId += (new java.util.Date()).getTime();
+      bean.setProp1(anonymousId);
+    }
+    catch (Exception ex)
+    {
+      // leave... ...mostly for unit testing
+    }
+    return anonymousId;
   }
 
   /**
@@ -366,10 +345,6 @@ public class AgentHelperImpl implements AgentHelper
    * Set the agent id string.
    * @param idString the isd string.
    */
-  public void setIdString(String idString)
-  {
-    agentString = idString;
-  }
 
   /**
    * Get the anonymous user id.
@@ -382,4 +357,5 @@ public class AgentHelperImpl implements AgentHelper
         agentS = bean.getProp1();
     return agentS;
   }
- }
+
+}

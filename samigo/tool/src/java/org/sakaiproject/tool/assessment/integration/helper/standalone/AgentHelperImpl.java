@@ -73,9 +73,18 @@ public class AgentHelperImpl implements AgentHelper
 
   public String getAgentString(){
     String agentS = "admin";
-    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-    if (bean != null && !bean.getProp1().equals("prop1"))
-      agentS = bean.getProp1();
+    try
+    {
+      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+      if (bean != null && !bean.getProp1().equals("prop1"))
+      {
+        agentS = bean.getProp1();
+      }
+    }
+    catch (Exception ex)
+    {
+      // default
+    }
     return agentS;
   }
 
@@ -87,10 +96,20 @@ public class AgentHelperImpl implements AgentHelper
    */
   public String getAgentString(HttpServletRequest req, HttpServletResponse res){
     String agentS = "admin";
-    BackingBean bean = (BackingBean) ContextUtil.lookupBeanFromExternalServlet(
+    try
+    {
+      BackingBean bean = (BackingBean) ContextUtil.
+        lookupBeanFromExternalServlet(
         "backingbean", req, res);
-    if (bean != null && !bean.getProp1().equals("prop1"))
-      agentS = bean.getProp1();
+      if (bean != null && !bean.getProp1().equals("prop1"))
+      {
+        agentS = bean.getProp1();
+      }
+    }
+    catch (Exception ex)
+    {
+      // default
+    }
     return agentS;
   }
 
@@ -114,7 +133,7 @@ public class AgentHelperImpl implements AgentHelper
    * Get the Agent first name.
    * @return the Agent first name.
    */
-  public String getFirstName()
+  public String getFirstName(String agentString)
   {
     if ("admin".equals(agentString))
       return "Samigo";
@@ -130,7 +149,7 @@ public class AgentHelperImpl implements AgentHelper
    * Get the Agent last name.
    * @return the Agent last name.
    */
-  public String getLastName()
+  public String getLastName(String agentString)
   {
     if ("admin".equals(agentString))
       return "Administrator";
@@ -143,10 +162,12 @@ public class AgentHelperImpl implements AgentHelper
   }
 
   /**
-   * Get the agent role.
-   * @return the agent role.
+   * Called by AgentFacade from an instance.
+   * @param agentString the agent string for current AgentFacade instance
+   * @return role string
    */
-  public String getRole()
+
+  public String getRoleForCurrentAgent(String agentString)
   {
     return "Student";
   }
@@ -156,7 +177,7 @@ public class AgentHelperImpl implements AgentHelper
    * @param agentId the agent id
    * @return the agent role.
    */
-  public String getRole(String agentId)
+  public String getRole(String agentString)
   {
     return "Maintain";
   }
@@ -190,10 +211,6 @@ public class AgentHelperImpl implements AgentHelper
    * Get the id string.
    * @return the id string.
    */
-  public String getIdString()
-  {
-    return this.getAgentString();
-  }
 
   /**
    * Get the display name fo ra specific agent id string.
@@ -209,9 +226,17 @@ public class AgentHelperImpl implements AgentHelper
    * @return the anonymous user id.
    */
   public String createAnonymous(){
-    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-    String anonymousId = "anonymous_"+(new java.util.Date()).getTime();
-    bean.setProp1(anonymousId);
+    String anonymousId = "anonymous_";
+    try
+    {
+      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+      anonymousId += (new java.util.Date()).getTime();
+      bean.setProp1(anonymousId);
+    }
+    catch (Exception ex)
+    {
+      // leave... ...mostly for unit testing
+    }
     return anonymousId;
   }
 
@@ -247,9 +272,17 @@ public class AgentHelperImpl implements AgentHelper
    */
   public String getAnonymousId(){
     String agentS = "";
-    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-    if (bean != null && !bean.getProp1().equals("prop1"))
-      agentS = bean.getProp1();
+    try
+    {
+      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+      if (bean != null && !bean.getProp1().equals("prop1"))
+      {
+        agentS = bean.getProp1();
+      }
+    }
+    catch (Exception ex)
+    {
+    }
     return agentS;
   }
 
@@ -257,10 +290,6 @@ public class AgentHelperImpl implements AgentHelper
    * Set the agent id string.
    * @param idString the isd string.
    */
-  public void setIdString(String idString)
-  {
-    this.agentString = idString;
-  }
 
   /**
    * Set the agent string.
