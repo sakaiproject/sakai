@@ -5,7 +5,7 @@
 		<from-view-id>*</from-view-id>
         <navigation-case>
             <from-outcome>login</from-outcome>
-            <to-view-id>/login.jsp</to-view-id>
+            <to-view-id>/standalone/login.jsp</to-view-id>
             <redirect/>
         </navigation-case>
 	</navigation-rule>

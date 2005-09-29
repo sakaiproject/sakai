@@ -19,6 +19,7 @@
             classpath:/org/sakaiproject/component/section/sakai20/spring-hib.xml
             classpath:/org/sakaiproject/component/section/sakai20/spring-beans.xml
             classpath:/org/sakaiproject/component/section/sakai20/spring-services.xml
+            /WEB-INF/spring-uiAuthz.xml
 		</param-value>
 	</context-param>
 
@@ -65,6 +66,38 @@
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>Faces Servlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>SectionAuthzFilter</filter-name>
+        <filter-class>org.sakaiproject.tool.section.filter.RoleFilter</filter-class>
+        <init-param>
+            <param-name>authorizationFilterConfigurationBean</param-name>
+            <param-value>org.sakaiproject.tool.section.filter.AuthorizationFilterConfigurationBean</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authnServiceBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Authn</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authzServiceBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>contextManagementServiceBean</param-name>
+            <param-value>org.sakaiproject.api.section.facade.manager.Context</param-value>
+        </init-param>
+        <init-param>
+            <param-name>selectSiteRedirect</param-name>
+            <param-value>/sakai-sections-tool/standalone/login.jsf</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>SectionAuthzFilter</filter-name>
+        <url-pattern>/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>

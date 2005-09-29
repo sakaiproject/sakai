@@ -52,58 +52,92 @@ import org.springframework.web.context.WebApplicationContext;
  *
  */
 public class RoleFilter implements Filter {
-	private ApplicationContext ac;
+	private static Log logger = LogFactory.getLog(RoleFilter.class);
+
 	private String authnBeanName;
 	private String authzBeanName;
 	private String contextBeanName;
-	private String[] roleParam;
+	private String authorizationFilterConfigurationBeanName;
+	private String selectSiteRedirect;
 
-	private static final Log log = LogFactory.getLog(RoleFilter.class);
-	
+    private ApplicationContext ac;
+
 	public void init(FilterConfig filterConfig) throws ServletException {
-        ac = (ApplicationContext)filterConfig.getServletContext()
-        	.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-        authnBeanName = filterConfig.getInitParameter("authnBean");
-		authzBeanName = filterConfig.getInitParameter("authzBean");
-		contextBeanName = filterConfig.getInitParameter("contextBean");
-		roleParam = filterConfig.getInitParameter("role").split(",");
-	}
+        if(logger.isInfoEnabled()) logger.info("Initializing sections role filter");
 
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        ac = (ApplicationContext)filterConfig.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+
+        authnBeanName = filterConfig.getInitParameter("authnServiceBean");
+		authzBeanName = filterConfig.getInitParameter("authzServiceBean");
+		contextBeanName = filterConfig.getInitParameter("contextManagementServiceBean");
+		authorizationFilterConfigurationBeanName = filterConfig.getInitParameter("authorizationFilterConfigurationBean");
+		selectSiteRedirect = filterConfig.getInitParameter("selectSiteRedirect");
+    }
+
+	public void doFilter(ServletRequest servletRequest, ServletResponse response, FilterChain chain)
+		throws IOException, ServletException {
+
+		HttpServletRequest request = (HttpServletRequest)servletRequest;
+		String servletPath = request.getServletPath();
+		if (logger.isDebugEnabled()) logger.debug("Filtering request for servletPath=" + servletPath);
+		servletPath = servletPath.replaceFirst("^/", "");
+		if (servletPath.indexOf("/") >= 0) {
+			// Only protect the top-level folder, to allow for login through
+			// a subdirectory, shared resource files, and so on.
+			chain.doFilter(request, response);
+			return;
+		}
+
 		Authn authn = (Authn)ac.getBean(authnBeanName);
 		Authz authz = (Authz)ac.getBean(authzBeanName);
 		Context context = (Context)ac.getBean(contextBeanName);
+		AuthorizationFilterConfigurationBean authzFilterConfigBean = (AuthorizationFilterConfigurationBean)ac.getBean(authorizationFilterConfigurationBeanName);
 		String userUid = authn.getUserUid(request);
 
-        if(log.isDebugEnabled()) log.debug("Filtering request for user " + userUid);
+        if (logger.isDebugEnabled()) logger.debug("Filtering request for user " + userUid + ", pathInfo=" + request.getPathInfo());
 
-        String siteContext = context.getContext(request);
-        Role siteRole = authz.getSiteRole(userUid, siteContext);
+		// Try to get the currently selected site context, if any
+		String siteContext = context.getContext(request);
+		
+        if(logger.isDebugEnabled()) logger.debug("context=" + siteContext);
 
-        boolean roleAllowed = false;
-        for(int i=0; i<roleParam.length; i++) {
-			String roleName = roleParam[i];
-	        if (siteRole.getName().equals(roleName)) {
-	        	roleAllowed = true;
-	        	break;
-	        }
+		if (siteContext != null) {
+			// Get the name of the page from the servlet path.
+			String[] splitPath = servletPath.split("[./]");
+			String pageName = splitPath[0];
+
+			boolean isAuthorized = false;
+			Role role = authz.getSiteRole(userUid, siteContext);
+			if (role.isInstructor() &&
+				authzFilterConfigBean.getManageAllSections().contains(pageName)) {
+				isAuthorized = true;
+			} else if ( (role.isInstructor() || role.isTeachingAssistant())
+					&& authzFilterConfigBean.getManageEnrollments().contains(pageName)) {
+				isAuthorized = true;
+			} else if (role.isStudent()
+					&& authzFilterConfigBean.getManageOwnSections().contains(pageName)) {
+				isAuthorized = true;
+			}
+
+			if (isAuthorized) {
+				chain.doFilter(request, response);
+			} else {
+				logger.error("AUTHORIZATION FAILURE: User " + userUid + " in site " +
+					siteContext + " attempted to reach URL " + request.getRequestURL());
+				((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			}
+		} else {
+			if (selectSiteRedirect != null) {
+				((HttpServletResponse)response).sendRedirect(selectSiteRedirect);
+			} else {
+				((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			}
 		}
-
-        if(roleAllowed) {
-			chain.doFilter(request, response);
-        } else {
-    		if(log.isInfoEnabled()) log.info("PAGE VIEW AUTHZ FAILURE: User "
-    				+ userUid + " in role "
-    				+ siteRole + " for site " + siteContext + " on page "
-    				+ ((HttpServletRequest)request).getServletPath());
-    		((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
-        }
 	}
 
 	public void destroy() {
 		ac = null;
 	}
-
 }
 
 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    <!--
+        UI authorization filtering. Handled here instead of in Faces configuration files
+        because Faces won't necessarily be loaded on the first authorization check.
+    -->
+    <bean id="org.sakaiproject.tool.section.filter.AuthorizationFilterConfigurationBean"
+        class="org.sakaiproject.tool.section.filter.AuthorizationFilterConfigurationBean">
+        <property name="manageEnrollments">
+            <list>
+                <value>editStudents</value>
+                <value>editStudentSections</value>
+                <value>overview</value>
+                <value>roster</value>
+                <value>options</value>
+            </list>
+        </property>
+        <property name="manageAllSections">
+            <list>
+                <value>addSections</value>
+                <value>deleteSection</value>
+                <value>editManagers</value>
+                <value>editSection</value>
+            </list>
+        </property>
+        <property name="manageOwnSections">
+            <list>
+                <value>studentView</value>
+            </list>
+        </property>
+    </bean>
+
+</beans>
