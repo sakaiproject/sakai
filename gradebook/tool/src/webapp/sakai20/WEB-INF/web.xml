@@ -125,7 +125,7 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>GradebookAuthzFilter</filter-name>
-		<url-pattern>/gb/*</url-pattern>
+		<url-pattern>*.jsf</url-pattern>
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
