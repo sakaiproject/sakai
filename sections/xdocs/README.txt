@@ -33,10 +33,10 @@ I.  Building and deploying the application and its shared services
 		the 'standalone.deploy.dir' property, either from the command line or in
 		/sections-app/project.properties.  Include the trailing slash.
 
-		4.  Run "maven -Dstandalone=true cln bld" to clean and build the app.
+		4.  Run "maven -Dmode=standalone cln bld" to clean and build the app.
 		This will also copy the war file into your tomcat webapps directory.  If
 		you are using -Dmem=false (see below), make sure you include that when
-		running your build:  "maven -Dstandalone=true -Dmem=false cln bld".
+		running your build:  "maven -Dmode=standalone -Dmem=false cln bld".
 
 	Other Settings
 		Each time the sections tool is built, it runs a suite of tests to ensure
@@ -64,11 +64,11 @@ I.  Building and deploying the application and its shared services
 		following commands from the 'sections-app' subdirectory.
 		
 		Standalone dataload
-		maven -Dstandalone=true -Dmem=false loadData
+		maven -Dmode=standalone -Dmem=false loadData
 		
 		Standalone gradebook dataload (for running the standalone gradebook on
 		top of section awareness)
-		maven -Dstandalone=true -Dmem=false loadGradebookData
+		maven -Dmode=standalone -Dmem=false loadGradebookData
 
 		Sakai 2.0 dataload
 		(not yet available)
@@ -112,5 +112,9 @@ I.  Building and deploying the application and its shared services
 							"site.upd" or "section.ta" are considered to be
 							students.
 
-		3) Sakai 2.1:  TBD... will probably be based on the new groups framework.
-		
+		3) Sakai 2.1:  In progress.  However, the current build does not allow
+			the 2.1 implementation to be deployed without manually uncommenting
+			the <deploy.type> property from
+				/sections-comp-shared/sakai21/component-webapp/project.xml
+			and commenting the same lines in in
+				/sections-comp-shared/sakai20/component-webapp/project.xml

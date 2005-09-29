@@ -16,4 +16,9 @@
 		<attainGoal name="multiproject:goal" />
 	</goal>
 
+	<goal name="loadData">
+		<j:set var="goal" value="loadData" />
+		<j:set var="maven.multiproject.includes" value="sections-app/project.xml" />
+		<attainGoal name="multiproject:goal" />
+	</goal>
 </project>
