@@ -82,7 +82,7 @@ public class DataLoadTest extends SectionsTestBase {
 		
 		// Load TAs
 		User ta1 = userManager.createUser("ta1", "Mike Grad", "Grad, Mike", "mgrad");
-		User ta2 = userManager.createUser("ta2", "Sara Postdoc", "Postdoc, Sara", "spostdoc");
+		User ta2 = userManager.createUser("ta2", "Sara Hyphenated-Elongated-Postdoc", "Hyphenated-Elongated-Postdoc, Sara", "shyphenatedelongatedpostdoc");
 		
 		// Load instructors
 		User instructor1 = userManager.createUser("instructor1", "Bill Economist", "Economist, Bill", "beconomist");
