@@ -46,22 +46,14 @@ import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
 public class OverviewBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
 	private static final Log log = LogFactory.getLog(OverviewBean.class);
 	
-	private String sortColumn;
-	private boolean sortAscending;
 	private boolean externallyManaged;
 	private String rowClasses;
 	
 	private List sections;
 	private List categoryIds;
 	private List categoryNames; // Must be ordered exactly like the category ids
-	
-	public OverviewBean() {
-		sortColumn = "title";
-		sortAscending = true;
-	}
 	
 	public void init() {
 		// Determine whether this course is externally managed
@@ -127,6 +119,9 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	}
 	
 	private Comparator getComparator() {
+		String sortColumn = getPrefs().getOverviewSortColumn();
+		boolean sortAscending = getPrefs().isOverviewSortAscending();
+		
 		if(sortColumn.equals("managers")) {
 			return InstructorSectionDecorator.getManagersComparator(sortAscending, categoryNames, categoryIds); 
 		} else if(sortColumn.equals("available")) {
@@ -138,18 +133,6 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	
 	public List getSections() {
 		return sections;
-	}
-	public boolean isSortAscending() {
-		return sortAscending;
-	}
-	public void setSortAscending(boolean sortAscending) {
-		this.sortAscending = sortAscending;
-	}
-	public String getSortColumn() {
-		return sortColumn;
-	}
-	public void setSortColumn(String sortColumn) {
-		this.sortColumn = sortColumn;
 	}
 	public boolean isExternallyManaged() {
 		return externallyManaged;

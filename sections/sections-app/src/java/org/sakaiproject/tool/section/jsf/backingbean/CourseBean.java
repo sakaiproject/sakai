@@ -49,6 +49,7 @@ public class CourseBean implements Serializable {
     protected Authn authn;
     protected Authz authz;
     protected Context context;
+    protected PreferencesBean prefs;
 
 	protected String getCourseUuid() {
 		Course course = sectionManager.getCourse(context.getContext(null));
@@ -75,6 +76,14 @@ public class CourseBean implements Serializable {
 
 	public void setContext(Context context) {
 		this.context = context;
+	}
+
+	public PreferencesBean getPrefs() {
+		return prefs;
+	}
+
+	public void setPrefs(PreferencesBean prefs) {
+		this.prefs = prefs;
 	}
 	
 }

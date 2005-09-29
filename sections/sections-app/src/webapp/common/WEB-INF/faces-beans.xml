@@ -27,6 +27,11 @@
             <property-name>context</property-name>
             <value>#{org_sakaiproject_api_section_facade_manager_Context}</value>
         </managed-property>
+        <managed-property>
+            <description>Preferences Bean</description>
+            <property-name>prefs</property-name>
+            <value>#{preferencesBean}</value>
+        </managed-property>
     </managed-bean>
 
     <managed-bean>
@@ -106,4 +111,10 @@
         <managed-bean-scope>session</managed-bean-scope>
     </managed-bean>
 
+    <managed-bean>
+        <description>Preferences bean to maintain session-scoped preferences</description>
+        <managed-bean-name>preferencesBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.PreferencesBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
 </faces-config>

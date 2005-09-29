@@ -24,10 +24,64 @@
 
 package org.sakaiproject.tool.section.jsf.backingbean;
 
+/**
+ * Stores user preferences for table sorting and paging.  These preferences are
+ * currently implemented in session-scope, though this could be reimplemented
+ * to store preferences across sessions.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class PreferencesBean {
-	protected String overviewSortColumn;
-	protected String overviewSortAscending;
 	
+	public PreferencesBean() {
+		overviewSortColumn = "title";
+		overviewSortAscending = true;
+
+		rosterSortColumn = "studentName";
+		rosterSortAscending = true;
+		rosterMaxDisplayedRows = 10;
+	}
+	
+	protected String overviewSortColumn;
+	protected boolean overviewSortAscending;
+	
+	protected String rosterSortColumn;
+	protected boolean rosterSortAscending;
+	protected int rosterMaxDisplayedRows;
+
+	public boolean isOverviewSortAscending() {
+		return overviewSortAscending;
+	}
+	public void setOverviewSortAscending(boolean overviewSortAscending) {
+		this.overviewSortAscending = overviewSortAscending;
+	}
+	public String getOverviewSortColumn() {
+		return overviewSortColumn;
+	}
+	public void setOverviewSortColumn(String overviewSortColumn) {
+		this.overviewSortColumn = overviewSortColumn;
+	}
+	public int getRosterMaxDisplayedRows() {
+		return rosterMaxDisplayedRows;
+	}
+	public void setRosterMaxDisplayedRows(int rosterMaxDisplayedRows) {
+		this.rosterMaxDisplayedRows = rosterMaxDisplayedRows;
+	}
+	public boolean isRosterSortAscending() {
+		return rosterSortAscending;
+	}
+	public void setRosterSortAscending(boolean rosterSortAscending) {
+		this.rosterSortAscending = rosterSortAscending;
+	}
+	public String getRosterSortColumn() {
+		return rosterSortColumn;
+	}
+	public void setRosterSortColumn(String rosterSortColumn) {
+		this.rosterSortColumn = rosterSortColumn;
+	}
+
+
 }
 
 

@@ -21,7 +21,12 @@
         </x:div>
         
         <x:div>
-            <sakai:pager id="pager" totalItems="#{rosterBean.enrollmentsSize}" firstItem="#{rosterBean.firstRow}" pageSize="#{rosterBean.maxDisplayedRows}" textStatus="#{msgs.roster_pager_status}" />
+            <sakai:pager
+                id="pager"
+                totalItems="#{rosterBean.enrollmentsSize}"
+                firstItem="#{rosterBean.firstRow}"
+                pageSize="#{preferencesBean.rosterMaxDisplayedRows}"
+                textStatus="#{msgs.roster_pager_status}" />
         </x:div>
     </h:panelGrid>
             
@@ -30,8 +35,8 @@
             value="#{rosterBean.enrollments}"
             var="enrollment"
             binding="#{rosterBean.rosterDataTable}"
-            sortColumn="#{rosterBean.sortColumn}"
-            sortAscending="#{rosterBean.sortAscending}"
+            sortColumn="#{preferencesBean.rosterSortColumn}"
+            sortAscending="#{preferencesBean.rosterSortAscending}"
             styleClass="listHier narrowTable">
             <h:column>
                 <f:facet name="header">

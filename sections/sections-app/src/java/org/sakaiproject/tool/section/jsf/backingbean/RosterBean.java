@@ -62,28 +62,17 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public class RosterBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
 	private static final Log log = LogFactory.getLog(RosterBean.class);
-
 	private static final String CAT_COLUMN_PREFIX = "cat";
 	
 	private String searchText;
 	private int firstRow;
-	private int maxDisplayedRows;
 	private int enrollmentsSize;
-	private String sortColumn;
-	private boolean sortAscending;
 	private boolean externallyManaged;
 
 	private List enrollments;
 	private List sections;
 	private List categories;
-	
-	public RosterBean() {
-		maxDisplayedRows = 10;
-		sortColumn="studentName";
-		sortAscending = true;
-	}
 	
 	public void init() {
 		// Determine whether this course is externally managed
@@ -137,6 +126,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		// Filter the list
 		enrollments = new ArrayList();
 		int lastRow;
+		int maxDisplayedRows = getPrefs().getRosterMaxDisplayedRows();
 		if(maxDisplayedRows < 1 || firstRow + maxDisplayedRows > unpagedEnrollments.size()) {
 			lastRow = unpagedEnrollments.size();
 		} else {
@@ -147,6 +137,9 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 	
 	private Comparator getComparator() {
+		String sortColumn = getPrefs().getRosterSortColumn();
+		boolean sortAscending = getPrefs().isRosterSortAscending();
+		
 		if(sortColumn.equals("studentName")) {
 			return EnrollmentDecorator.getNameComparator(sortAscending);
 		} else if(sortColumn.equals("displayId")) {
@@ -215,18 +208,6 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	public int getEnrollmentsSize() {
 		return enrollmentsSize;
 	}
-	public boolean isSortAscending() {
-		return sortAscending;
-	}
-	public void setSortAscending(boolean sortAscending) {
-		this.sortAscending = sortAscending;
-	}
-	public String getSortColumn() {
-		return sortColumn;
-	}
-	public void setSortColumn(String sortColumn) {
-		this.sortColumn = sortColumn;
-	}
 	public boolean isExternallyManaged() {
 		return externallyManaged;
 	}
@@ -241,12 +222,6 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 	public void setFirstRow(int firstRow) {
 		this.firstRow = firstRow;
-	}
-	public int getMaxDisplayedRows() {
-		return maxDisplayedRows;
-	}
-	public void setMaxDisplayedRows(int maxDisplayedRows) {
-		this.maxDisplayedRows = maxDisplayedRows;
 	}
 }
 

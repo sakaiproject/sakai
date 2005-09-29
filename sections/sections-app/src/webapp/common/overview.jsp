@@ -18,8 +18,8 @@
             id="sectionsTable"
             value="#{overviewBean.sections}"
             var="section"
-            sortColumn="#{overviewBean.sortColumn}"
-            sortAscending="#{overviewBean.sortAscending}"
+            sortColumn="#{preferencesBean.overviewSortColumn}"
+            sortAscending="#{preferencesBean.overviewSortAscending}"
             styleClass="listHier narrowTable"
             rowClasses="#{overviewBean.rowClasses}">
     

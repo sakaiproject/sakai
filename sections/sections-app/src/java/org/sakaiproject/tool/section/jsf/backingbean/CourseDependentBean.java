@@ -122,6 +122,10 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	public boolean isInstructorFeaturesEnabled() {
 		return getSiteRole().isInstructor();
 	}
+	
+	public PreferencesBean getPrefs() {
+		return getCourseBean().getPrefs();
+	}
 }
 
 
