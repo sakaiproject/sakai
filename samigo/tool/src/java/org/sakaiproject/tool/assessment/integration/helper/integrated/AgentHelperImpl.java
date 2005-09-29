@@ -146,6 +146,7 @@ public class AgentHelperImpl implements AgentHelper
 
   /**
    * Get the Agent first name.
+   * @param agentString teh agent string
    * @return the Agent first name.
    */
   public String getFirstName(String agentString)
@@ -162,6 +163,7 @@ public class AgentHelperImpl implements AgentHelper
 
   /**
    * Get the Agent last name.
+   * @param agentString teh agent string
    * @return the Agent last name.
    */
   public String getLastName(String agentString)
