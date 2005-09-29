@@ -22,10 +22,12 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 import java.io.Serializable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
+
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 
 /**
  * <p>Description: Implements the internal gradebook information.
@@ -73,6 +75,7 @@ public class GradebookFacade implements Serializable
   /**
    * Unit test can be run from command line.
    * Needs integrationContext.xml in classpath at org.sakaiproject.spring
+   * Bypasses integrated code that requires a web context.
    */
 
   public static void unitTest()
