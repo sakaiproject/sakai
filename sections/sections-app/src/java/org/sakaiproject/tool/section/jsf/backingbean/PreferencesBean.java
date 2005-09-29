@@ -24,6 +24,10 @@
 
 package org.sakaiproject.tool.section.jsf.backingbean;
 
+import java.util.ResourceBundle;
+
+import javax.faces.context.FacesContext;
+
 /**
  * Stores user preferences for table sorting and paging.  These preferences are
  * currently implemented in session-scope, though this could be reimplemented
@@ -41,8 +45,15 @@ public class PreferencesBean {
 		rosterSortColumn = "studentName";
 		rosterSortAscending = true;
 		rosterMaxDisplayedRows = 10;
+		
+		// Get the max name length for displaying names from the app's properties file
+        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+        ResourceBundle rb = ResourceBundle.getBundle(bundleName,
+        		FacesContext.getCurrentInstance().getViewRoot().getLocale());
+        maxNameLength = Integer.parseInt(rb.getString("max_name_length"));
 	}
 	
+	protected int maxNameLength;
 	protected String overviewSortColumn;
 	protected boolean overviewSortAscending;
 	
@@ -79,6 +90,9 @@ public class PreferencesBean {
 	}
 	public void setRosterSortColumn(String rosterSortColumn) {
 		this.rosterSortColumn = rosterSortColumn;
+	}
+	public int getMaxNameLength() {
+		return maxNameLength;
 	}
 
 
