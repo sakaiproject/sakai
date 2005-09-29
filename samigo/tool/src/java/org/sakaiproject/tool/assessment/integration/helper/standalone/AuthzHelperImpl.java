@@ -23,24 +23,18 @@
 package org.sakaiproject.tool.assessment.integration.helper.standalone;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.AuthzHelper;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import java.util.ResourceBundle;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.AuthzHelper;
 
 /**
  *
@@ -104,8 +98,11 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
    */
   public void removeAuthorizationByQualifier(String qualifierId)
   {
-    List l = getHibernateTemplate().find(
-      res.getString("select_authdata_w_qual") + qualifierId);
+    String query =
+      res.getString("select_authdata_w_qual") + qualifierId;
+    log.info("query=" + query);
+
+    List l = getHibernateTemplate().find(query);
     getHibernateTemplate().deleteAll(l);
   }
 
@@ -138,7 +135,8 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   {
     String query = res.getString("select_authdata_w_agent") +
       agentId + res.getString("and_funid") + functionId + "'";
-    log.debug("query=" + query);
+    log.info("query=" + query);
+
     return getHibernateTemplate().find(query);
   }
 
@@ -151,9 +149,12 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   public List getAuthorizationByFunctionAndQualifier(String functionId,
     String qualifierId)
   {
-    return getHibernateTemplate().find(
+    String query =
       res.getString("select_authdata_w_fun") + functionId +
-      res.getString("and_qid") + qualifierId + "'");
+      res.getString("and_qid") + qualifierId + "'";
+    log.info("query=" + query);
+
+    return getHibernateTemplate().find(query);
   }
 
   /**

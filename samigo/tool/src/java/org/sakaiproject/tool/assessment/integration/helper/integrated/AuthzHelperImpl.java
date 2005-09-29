@@ -86,6 +86,7 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   {
     String query =
       res.getString("select_authdata_f_id_q_id");
+    log.info("query=" + query);
     List authorizationList = getHibernateTemplate().find(query,
       new Object[]
       {functionId, qualifierId}
@@ -165,8 +166,11 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
    * @param qualifierId the target.
    */
   public void removeAuthorizationByQualifier(String qualifierId) {
-    List l = getHibernateTemplate().find(
-      res.getString("select_authdata_q_id")+qualifierId);
+    String query =
+      res.getString("select_authdata_q_id") + qualifierId;
+    log.info("query=" + query);
+
+    List l = getHibernateTemplate().find(query);
     getHibernateTemplate().deleteAll(l);
   }
 
@@ -209,9 +213,12 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   public List getAuthorizationByFunctionAndQualifier(String functionId,
     String qualifierId)
   {
-    return getHibernateTemplate().find(
+    String query =
       res.getString("select_authdata_f_id") + functionId +
-      res.getString("and_a_id") + qualifierId + "'");
+      res.getString("and_a_id") + qualifierId + "'";
+    log.info("query=" + query);
+
+    return getHibernateTemplate().find(query);
   }
 
   /**
@@ -258,11 +265,17 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
       {
         Query query = session.createQuery(res.getString("HQL_QUERY_CHECK_AUTHZ"));
         if (agentId == null)
+        {
           query.setString(res.getString("a_id"), queryAgentId);
+        }
         else
+        {
           query.setString(res.getString("a_id"), agentId);
+        }
         query.setString(res.getString("f_id"), functionId);
         query.setString(res.getString("q_id"), qualifierId);
+
+        log.info("query=" + query);
         return query.uniqueResult();
       }
     };
@@ -299,6 +312,7 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
           Query query = session.createQuery(res.getString("HQL_QUERY_BY_AGENT_FUNC"));
           query.setString(res.getString("a_id"), agentId);
           query.setString(res.getString("f_id"), functionId);
+          log.info("query="+ query);
           return query.list();
         }
       };
@@ -335,6 +349,7 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
             session.createQuery(res.getString("HQL_QUERY_ASSESS_BY_AGENT_FUNC"));
           query.setString(res.getString("a_id"), agentId);
           query.setString(res.getString("f_id"), functionId);
+          log.info("query=" + query);
           return query.list();
         }
       };
