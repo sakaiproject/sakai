@@ -77,8 +77,8 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   /**
    * Is the agent {agentId} authorized to do {function} to {qualifier}?
    * @param agentId the agent id.
-   * @param function the function to be performed.
-   * @param qualifier the target of the function.
+   * @param functionId the function to be performed.
+   * @param qualifierId the target of the function.
    * @return true if authorized, false otherwise.
    */
   public boolean isAuthorized(final String agentId,
@@ -216,7 +216,7 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
 
   /**
    * Check if member of site.
-   * @param siteId
+   * @param siteId the site id
    * @return true if a member.
    */
   public boolean checkMembership(String siteId) {

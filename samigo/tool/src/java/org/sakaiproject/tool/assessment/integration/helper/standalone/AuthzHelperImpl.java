@@ -158,7 +158,7 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
 
   /**
    * Check if member of site.
-   * @param siteId
+   * @param siteId the site id
    * @return true--always
    */
   public boolean checkMembership(String siteId)
