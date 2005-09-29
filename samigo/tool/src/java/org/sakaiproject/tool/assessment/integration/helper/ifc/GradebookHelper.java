@@ -22,6 +22,18 @@
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
 
+/**
+ *
+ * <p>Description:
+ * This is a context implementation helper delegate interface for
+ * the GradebookFacade class.  Using Spring injection via the
+ * integrationContext.xml selected by the build process for the implementation.
+ * </p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
+
 public interface GradebookHelper
 {
   public String getGradebookUId();

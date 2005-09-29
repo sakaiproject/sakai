@@ -27,6 +27,17 @@ import java.util.HashMap;
 import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.legacy.site.SiteService;
 
+/**
+ * <p>Description:
+ * This is a context implementation helper delegate interface for
+ * the publishingTarget class.  Using Spring injection via the
+ * integrationContext.xml selected by the build process for the implementation.
+ * </p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
+
 public interface PublishingTargetHelper
 {
   public HashMap getTargets();

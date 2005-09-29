@@ -27,6 +27,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 
+/**
+ *
+ * <p>Description:
+ * This is a context implementation helper delegate interface for
+ * the AgentFacade class.  Using Spring injection via the integrationContext.xml
+ * selected by the build process to find the implementation.
+ * </p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
+ * @author Ed Smiley <esmiley@stanford.edu>
+ */
+
 public interface AgentHelper
 {
   public AgentImpl getAgent();
@@ -41,9 +53,9 @@ public interface AgentHelper
 
   public String getLastName(String agentString);
 
-  public String getRole(String agentString);
+  public String getRole(String agentString); // for static call
 
-  public String getRoleForCurrentAgent(String agentString);
+  public String getRoleForCurrentAgent(String agentString); // for instance call
 
   public String getCurrentSiteId();
 
