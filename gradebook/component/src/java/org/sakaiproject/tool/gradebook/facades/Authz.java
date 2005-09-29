@@ -108,6 +108,8 @@ import org.sakaiproject.api.section.facade.Role;
  */
 public interface Authz {
 	public boolean isUserAbleToGrade(String gradebookUid, String userUid);
+	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid);
+	public boolean isUserAbleToGradeSection(String sectionUid, String userUid);
 	public boolean isUserAbleToEdit(String gradebookUid, String userUid);
 	public boolean isUserGradable(String gradebookUid, String userUid);
 }

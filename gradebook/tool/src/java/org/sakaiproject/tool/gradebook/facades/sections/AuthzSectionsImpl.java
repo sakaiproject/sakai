@@ -42,6 +42,14 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 		return (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.TA));
 	}
 
+	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid) {
+		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
+	}
+
+	public boolean isUserAbleToGradeSection(String sectionUid, String userUid) {
+		return getSectionAwareness().isSectionMemberInRole(sectionUid, userUid, Role.TA);
+	}
+
 	public boolean isUserAbleToEdit(String gradebookUid, String userUid) {
 		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
 	}

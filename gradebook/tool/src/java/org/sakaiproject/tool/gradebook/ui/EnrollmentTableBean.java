@@ -27,26 +27,29 @@ import java.io.Serializable;
 import java.util.*;
 
 import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
  * This is an abstract base class for gradebook dependent backing
  * beans that support searching, sorting, and paging student data.
- *
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public abstract class EnrollmentTableBean
     extends GradebookDependentBean implements Paging, Serializable {
 	private static final Log log = LogFactory.getLog(EnrollmentTableBean.class);
+
+	private static final int ALL_SECTIONS_SELECT_VALUE = -1;
 
     protected static Map columnSortMap;
     protected String searchString;
@@ -54,7 +57,12 @@ public abstract class EnrollmentTableBean
     protected int maxDisplayedScoreRows;
     protected int scoreDataRows;
     protected boolean emptyEnrollments;	// Needed to render buttons
-    private SectionSelector sectionSelector;
+
+	// The section selection menu will include some choices that aren't
+	// real sections (e.g., "All Sections" or "Unassigned Students".
+	private Integer selectedSectionFilterValue = new Integer(ALL_SECTIONS_SELECT_VALUE);
+	private List sectionFilterSelectItems;
+	private List availableSections;	// The real sections accessible by this user
 
     public EnrollmentTableBean() {
         maxDisplayedScoreRows = getPreferencesBean().getDefaultMaxDisplayedScoreRows();
@@ -124,14 +132,14 @@ public abstract class EnrollmentTableBean
         Map enrollmentMap;
 
 		if (isFilteredSearch()) {
-			if (getSectionSelector().isAllSelected()) {
+			if (isAllSelectionsSelected()) {
 				enrollments = getSectionAwareness().findSiteMembersInRole(getGradebookUid(), Role.STUDENT, searchString);
 			// TODO Put the check for unassigned students here when it's available.
 			} else {
-				enrollments = findSectionMembersInRole(getSectionAwareness(), getGradebookUid(), getSectionSelector().getSelectedSectionUid(), Role.STUDENT, searchString);
+				enrollments = findSectionMembersInRole(getSelectedSectionUid(), Role.STUDENT, searchString);
 			}
 		} else {
-			if (getSectionSelector().isAllSelected()) {
+			if (isAllSelectionsSelected()) {
 				// We try to avoid unnecessary work by letting the caller supply
 				// the complete enrollment list if they happen to have it.
 				if (enrollments == null) {
@@ -139,7 +147,7 @@ public abstract class EnrollmentTableBean
 				}
 			// TODO Put the check for unassigned students here when it's available.
 			} else {
-				enrollments = getSectionAwareness().getSectionMembersInRole(getSectionSelector().getSelectedSectionUid(), Role.STUDENT);
+				enrollments = getSectionAwareness().getSectionMembersInRole(getSelectedSectionUid(), Role.STUDENT);
 			}
 		}
 
@@ -172,9 +180,10 @@ public abstract class EnrollmentTableBean
 	 * Convenience method to deal with lack of a Section Awarness
 	 * findSectionMembersInRole service.
 	 */
-	public static List findSectionMembersInRole(SectionAwareness sectionAwareness, String siteContext, String sectionUid, Role role, String searchString) {
+	public List findSectionMembersInRole(String sectionUid, Role role, String searchString) {
+		SectionAwareness sectionAwareness = getSectionAwareness();
 		List intersection = new ArrayList();
-		Set searchFilteredStudentUids = FacadeUtils.getStudentUids(sectionAwareness.findSiteMembersInRole(siteContext, role, searchString));
+		Set searchFilteredStudentUids = FacadeUtils.getStudentUids(sectionAwareness.findSiteMembersInRole(getGradebookUid(), role, searchString));
 		Collection sectionFiltered = sectionAwareness.getSectionMembersInRole(sectionUid, role);
 		for (Iterator iter = sectionFiltered.iterator(); iter.hasNext(); ) {
 			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
@@ -207,28 +216,66 @@ public abstract class EnrollmentTableBean
 
 	// Section filtering.
 	protected void init() {
-		if (sectionSelector == null) {
-			if (log.isDebugEnabled()) log.debug("init creating sectionSelector");
-			sectionSelector = new SectionSelector();
+		SectionAwareness sectionAwareness = getSectionAwareness();
+		availableSections = new ArrayList();
+		sectionFilterSelectItems = new ArrayList();
+
+		// The first choice is always "All available enrollments"
+		sectionFilterSelectItems.add(new SelectItem(new Integer(ALL_SECTIONS_SELECT_VALUE), FacesUtil.getLocalizedString("search_sections_all")));
+
+		// TODO If there are unassigned students and the current user is allowed to see them, add them next.
+
+		// Get the list of sections. For now, just use whatever default
+		// sorting we get from the Section Awareness component.
+		List sectionCategories = sectionAwareness.getSectionCategories(getGradebookUid());
+		int availableSectionsPos = 0;
+		for (Iterator catIter = sectionCategories.iterator(); catIter.hasNext(); ) {
+			String category = (String)catIter.next();
+			List sections = sectionAwareness.getSectionsInCategory(getGradebookUid(), category);
+			for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
+				CourseSection section = (CourseSection)iter.next();
+				if (isUserAbleToGradeAll() || isUserAbleToGradeSection(section.getUuid())) {
+					availableSections.add(section.getUuid());
+					sectionFilterSelectItems.add(new SelectItem(new Integer(availableSectionsPos++), section.getTitle()));
+				}
+			}
 		}
-		sectionSelector.init(getSectionAwareness(), getGradebookUid());
+
+		// If the selected value now falls out of legal range due to sections
+		// being deleted, throw it back to the default value (meaning everyone).
+		int selectedSectionVal = selectedSectionFilterValue.intValue();
+		if ((selectedSectionVal >= 0) && (selectedSectionVal >= availableSections.size())) {
+			if (log.isInfoEnabled()) log.info("selectedSectionFilterValue=" + selectedSectionFilterValue.intValue() + " but available sections=" + availableSections.size());
+			selectedSectionFilterValue = new Integer(ALL_SECTIONS_SELECT_VALUE);
+		}
 	}
 
-	public SectionSelector getSectionSelector() {
-		return sectionSelector;
+	public List getAvailableSections() {
+		return availableSections;
 	}
-	public void setSectionSelector(SectionSelector sectionSelector) {
-		this.sectionSelector = sectionSelector;
+
+	public boolean isAllSelectionsSelected() {
+		return (selectedSectionFilterValue.intValue() == ALL_SECTIONS_SELECT_VALUE);
+	}
+
+	public String getSelectedSectionUid() {
+		int filterValue = selectedSectionFilterValue.intValue();
+		if (filterValue == ALL_SECTIONS_SELECT_VALUE) {
+			return null;
+		} else {
+			return (String)availableSections.get(filterValue);
+		}
 	}
 
 	public Integer getSelectedSectionFilterValue() {
-		return getSectionSelector().getSelectedSectionFilterValue();
+		return selectedSectionFilterValue;
 	}
 	public void setSelectedSectionFilterValue(Integer selectedSectionFilterValue) {
-		getSectionSelector().setSelectedSectionFilterValue(selectedSectionFilterValue);
+		if (log.isDebugEnabled()) log.debug("setSelectedSectionFilterValue " + selectedSectionFilterValue);
+		this.selectedSectionFilterValue = selectedSectionFilterValue;
 	}
 
 	public List getSectionFilterSelectItems() {
-		return getSectionSelector().getSectionFilterSelectItems();
+		return sectionFilterSelectItems;
 	}
 }
