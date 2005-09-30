@@ -23,13 +23,18 @@
 
 package org.sakaiproject.tool.gradebook.facades.sections;
 
+import java.util.*;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
 
+import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.facades.Authz;
-
 
 /**
  * An implementation of Gradebook-specific authorization needs based
@@ -58,7 +63,91 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.STUDENT);
 	}
 
+	/**
+	 */
+	public List getAvailableEnrollments(String gradebookUid, String userUid) {
+		List enrollments;
+		if (isUserAbleToGradeAll(gradebookUid, userUid)) {
+			enrollments = getSectionAwareness().getSiteMembersInRole(gradebookUid, Role.STUDENT);
+		} else {
+			// We use a map because we may have duplicate students among the section
+			// participation records.
+			Map enrollmentMap = new HashMap();
+			List sections = getAvailableSections(gradebookUid, userUid);
+			for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
+				CourseSection section = (CourseSection)iter.next();
+				List sectionEnrollments = getSectionEnrollmentsTrusted(section.getUuid(), userUid);
+				for (Iterator eIter = sectionEnrollments.iterator(); eIter.hasNext(); ) {
+					EnrollmentRecord enr = (EnrollmentRecord)eIter.next();
+					enrollmentMap.put(enr.getUser().getUserUid(), enr);
+				}
+			}
+			enrollments = new ArrayList(enrollmentMap.values());
+		}
+		return enrollments;
+	}
+
+	public List getAvailableSections(String gradebookUid, String userUid) {
+		SectionAwareness sectionAwareness = getSectionAwareness();
+		List availableSections = new ArrayList();
+
+		// Get the list of sections. For now, just use whatever default
+		// sorting we get from the Section Awareness component.
+		List sectionCategories = sectionAwareness.getSectionCategories(gradebookUid);
+		for (Iterator catIter = sectionCategories.iterator(); catIter.hasNext(); ) {
+			String category = (String)catIter.next();
+			List sections = sectionAwareness.getSectionsInCategory(gradebookUid, category);
+			for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
+				CourseSection section = (CourseSection)iter.next();
+				if (isUserAbleToGradeAll(gradebookUid, userUid) || isUserAbleToGradeSection(section.getUuid(), userUid)) {
+					availableSections.add(section);
+				}
+			}
+		}
+
+		return availableSections;
+	}
+
+	private List getSectionEnrollmentsTrusted(String sectionUid, String userUid) {
+		return getSectionAwareness().getSectionMembersInRole(sectionUid, Role.STUDENT);
+	}
+
+	public List getSectionEnrollments(String gradebookUid, String sectionUid, String userUid) {
+		List enrollments;
+		if (isUserAbleToGradeAll(gradebookUid, userUid) || isUserAbleToGradeSection(sectionUid, userUid)) {
+			enrollments = getSectionEnrollmentsTrusted(sectionUid, userUid);
+		} else {
+			enrollments = new ArrayList();
+			log.warn("getSectionEnrollments for sectionUid=" + sectionUid + " called by unauthorized userUid=" + userUid);
+		}
+		return enrollments;
+	}
+
+	public List findMatchingEnrollments(String gradebookUid, String searchString, String optionalSectionUid, String userUid) {
+		List enrollments;
+        List allEnrollmentsFilteredBySearch = getSectionAwareness().findSiteMembersInRole(gradebookUid, Role.STUDENT, searchString);
+
+		if (allEnrollmentsFilteredBySearch.isEmpty() ||
+			((optionalSectionUid == null) && isUserAbleToGradeAll(gradebookUid, userUid))) {
+			enrollments = allEnrollmentsFilteredBySearch;
+		} else {
+			if (optionalSectionUid == null) {
+				enrollments = getAvailableEnrollments(gradebookUid, userUid);
+			} else {
+				// The user has selected a particular section.
+				enrollments = getSectionEnrollments(gradebookUid, optionalSectionUid, userUid);
+			}
+			Set availableStudentUids = FacadeUtils.getStudentUids(enrollments);
+			enrollments = new ArrayList();
+			for (Iterator iter = allEnrollmentsFilteredBySearch.iterator(); iter.hasNext(); ) {
+				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+				if (availableStudentUids.contains(enr.getUser().getUserUid())) {
+					enrollments.add(enr);
+				}
+			}
+		}
+
+		return enrollments;
+	}
+
 }
-
-
-

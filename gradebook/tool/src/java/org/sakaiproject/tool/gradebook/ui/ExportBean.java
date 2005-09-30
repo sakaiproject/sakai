@@ -97,16 +97,15 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
     }
 
 	private void initScoresMap(boolean isCourseGrade) {
-        List allEnrollments = getAllEnrollments();
         if (isCourseGrade) {
         	gradableObjects = new ArrayList();
         } else {
         	gradableObjects = getGradeManager().getAssignments(getGradebookId());
         }
-		CourseGrade courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(allEnrollments));
+		CourseGrade courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId());
 		gradableObjects.add(courseGrade);
 
-		enrollments = getAvailableEnrollments(allEnrollments);
+		enrollments = getAvailableEnrollments();
 
 		List gradeRecords;
 		if (isCourseGrade) {

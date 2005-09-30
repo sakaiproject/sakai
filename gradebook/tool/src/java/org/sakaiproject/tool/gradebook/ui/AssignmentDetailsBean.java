@@ -124,13 +124,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         nextAssignment = null;
 		scoreRows = new ArrayList();
 
-		// We'll need a full enrollment list to filter dropped students out
-		// of the statistics.
-
 		if (assignmentId != null) {
-			List allEnrollments = getAllEnrollments();
-			Set enrollmentUids = FacadeUtils.getStudentUids(allEnrollments);
-			assignment = (Assignment)getGradeManager().getGradableObjectWithStats(assignmentId, enrollmentUids);
+			assignment = getGradeManager().getAssignmentWithStats(assignmentId);
 			if (assignment != null) {
                 scores = new GradeRecordSet(assignment);
 
@@ -138,7 +133,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 // need to fetch the assignment statistics as well.
 				List assignments;
                 if(Assignment.SORT_BY_MEAN.equals(getAssignmentSortColumn())) {
-                    assignments = getGradeManager().getAssignmentsWithStats(getGradebookId(), enrollmentUids,
+                    assignments = getGradeManager().getAssignmentsWithStats(getGradebookId(),
                             getAssignmentSortColumn(), isAssignmentSortAscending());
                 } else {
                     assignments = getGradeManager().getAssignments(getGradebookId(),
@@ -155,7 +150,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				}
 
 				// Set up score rows.
-				Map enrollmentMap = getOrderedEnrollmentMap(allEnrollments);
+				Map enrollmentMap = getOrderedEnrollmentMap();
 
 				List gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(assignment, enrollmentMap.keySet());
 				List workingEnrollments = new ArrayList(enrollmentMap.values());

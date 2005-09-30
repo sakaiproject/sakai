@@ -58,14 +58,9 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 	}
 
 	protected void init() {
-		Set enrollmentUids = FacadeUtils.getStudentUids(getAllEnrollments());
-
 		// Get the list of assignments for this gradebook, sorted as defined in the overview page.
-        gradableObjects = getGradeManager().getAssignmentsWithStats(getGradebookId(), enrollmentUids,
+        gradableObjects = getGradeManager().getAssignmentsAndCourseGradeWithStats(getGradebookId(),
         		getAssignmentSortColumn(), isAssignmentSortAscending());
-
-		// Always put the course grade last.
-		gradableObjects.add(getGradeManager().getCourseGradeWithStats(getGradebookId(), enrollmentUids));
 	}
 
     // Delegated sort methods

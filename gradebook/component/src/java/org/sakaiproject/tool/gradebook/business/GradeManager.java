@@ -163,14 +163,15 @@ public interface GradeManager {
      * @param sortBy The field by which to sort the list.
      * @return A list of Assignments with their statistics fields populated
      */
-    public List getAssignmentsWithStats(Long gradebookId, Collection studentUids, String sortBy, boolean ascending);
+    public List getAssignmentsWithStats(Long gradebookId, String sortBy, boolean ascending);
 
     /**
-     * Convenience method to get assignments with statistics in the default sort order
-     *
-     * @param gradebookId The gradebook ID
+     * Same as the other getAssignmentsWithStats except for tacking the
+     * CourseGrade (with statistics) at the end of the list. This is
+     * combined into one call as a way to avoid either exposing the
+     * full enrollment list for the site or fetching it twice.
      */
-    public List getAssignmentsWithStats(Long gradebookId, Collection studentUids);
+    public List getAssignmentsAndCourseGradeWithStats(Long gradebookId, String sortBy, boolean ascending);
 
     /**
      * Fetches a GradableObject
@@ -181,15 +182,15 @@ public interface GradeManager {
     public GradableObject getGradableObject(Long gradableObjectId);
 
     /**
-     * Fetches a GradableObject and populates its non-persistent statistics
+     * Fetches an assignment and populates its non-persistent statistics
      * fields.
      *
-     * @param gradableObjectId The gradable object ID
+     * @param assignmentId The assignment ID
      * @param studentUids The current enrollment list to filter dropped students
      *        from the calculation
      * @return The GradableObject with all statistics fields populated
      */
-    public GradableObject getGradableObjectWithStats(Long gradableObjectId, Collection studentUids);
+    public Assignment getAssignmentWithStats(Long assignmentId);
 
     /**
      * Add a new assignment to a gradebook
@@ -225,7 +226,7 @@ public interface GradeManager {
      * @param gradebookId The gradebook id
      * @return The course grade
      */
-    public CourseGrade getCourseGradeWithStats(Long gradebookId, Collection studentUids);
+    public CourseGrade getCourseGradeWithStats(Long gradebookId);
 
     /**
      * Updates the values used for sorting on any course grade record where a letter

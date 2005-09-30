@@ -64,7 +64,6 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
-import org.sakaiproject.tool.gradebook.facades.Authn;
 
 /**
  * Manages GradeRecord and GradableObject persistence via hibernate.
@@ -395,11 +394,6 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
         return events;
     }
 
-	public void setAuthn(Authn authn) {
-        this.authn = authn;
-	}
-
-
     ///////////////////////////////////////////////////////////////
     // Consolidated from GradeManagerHibernateImpl.java //
     ///////////////////////////////////////////////////////////////
@@ -419,7 +413,22 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
     /**
      */
-    public List getAssignmentsWithStats(final Long gradebookId, final Collection studentUids, final String sortBy, final boolean ascending) {
+    public List getAssignmentsWithStats(final Long gradebookId, final String sortBy, final boolean ascending) {
+    	Set studentUids = FacadeUtils.getStudentUids(getAllEnrollments(gradebookId));
+		return getAssignmentsWithStatsInternal(gradebookId, sortBy, ascending, studentUids);
+    }
+
+    public List getAssignmentsAndCourseGradeWithStats(final Long gradebookId, final String sortBy, final boolean ascending) {
+    	Set studentUids = FacadeUtils.getStudentUids(getAllEnrollments(gradebookId));
+    	List assignments = getAssignmentsWithStatsInternal(gradebookId, sortBy, ascending, studentUids);
+
+    	// Always put the Course Grade at the end.
+    	assignments.add(getGradableObjectStatsInternal(getCourseGrade(gradebookId), studentUids));
+
+    	return assignments;
+    }
+
+    private List getAssignmentsWithStatsInternal(final Long gradebookId, final String sortBy, final boolean ascending, final Set studentUids) {
     	List assignments;
     	if (studentUids.isEmpty()) {
     		// Hibernate 2.1.8 generates invalid SQL if an empty collection is used
@@ -482,20 +491,23 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
     /**
      */
-    public List getAssignmentsWithStats(Long gradebookId, Collection studentUids) {
-        return getAssignmentsWithStats(gradebookId, studentUids, Assignment.DEFAULT_SORT, true);
-    }
-
-    /**
-     */
     public GradableObject getGradableObject(Long gradableObjectId) {
         return (GradableObject)getHibernateTemplate().load(GradableObject.class, gradableObjectId);
     }
 
     /**
      */
-    public GradableObject getGradableObjectWithStats(final Long gradableObjectId, final Collection studentUids) {
-		GradableObject gradableObject = (GradableObject)getHibernateTemplate().execute(new HibernateCallback() {
+    public Assignment getAssignmentWithStats(Long assignmentId) {
+    	return (Assignment)getGradableObjectWithStats(getGradableObject(assignmentId));
+    }
+
+    private GradableObject getGradableObjectWithStats(GradableObject gradableObject) {
+    	Set studentUids = FacadeUtils.getStudentUids(getAllEnrollments(gradableObject.getGradebook().getId()));
+    	return getGradableObjectStatsInternal(gradableObject, studentUids);
+    }
+
+    private GradableObject getGradableObjectStatsInternal(final GradableObject gradableObject, final Set studentUids) {
+		return (GradableObject)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				List gradeRecords;
 				if (studentUids.isEmpty()) {
@@ -505,16 +517,15 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 				} else {
 					Query q = session.createQuery(
 						"from AbstractGradeRecord as gr where gr.gradableObject.id=:gradableObjectId and gr.gradableObject.removed=false and gr.studentId in (:studentUids)");
-					q.setLong("gradableObjectId", gradableObjectId.longValue());
+					q.setLong("gradableObjectId", gradableObject.getId().longValue());
 					q.setParameterList("studentUids", studentUids);
 					gradeRecords = q.list();
 				}
 
 				// Calculate the total points possible, along with the auto-calculated grade percentage for each grade record
-				GradableObject go = (GradableObject)session.load(GradableObject.class, gradableObjectId);
-				if(go.isCourseGrade()) {
-					CourseGrade cg = (CourseGrade)go;
-					cg.calculateTotalPointsPossible(getAssignments(go.getGradebook().getId()));
+				if(gradableObject.isCourseGrade()) {
+					CourseGrade cg = (CourseGrade)gradableObject;
+					cg.calculateTotalPointsPossible(getAssignments(cg.getGradebook().getId()));
 					for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
 						CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
 						if(cgr.getPointsEarned() != null) {
@@ -525,11 +536,10 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 					}
 				}
 
-				go.calculateStatistics(gradeRecords, studentUids.size());
-				return go;
+				gradableObject.calculateStatistics(gradeRecords, studentUids.size());
+				return gradableObject;
 			}
 		});
-		return gradableObject;
     }
 
     /**
@@ -642,11 +652,8 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
     /**
      */
-    public CourseGrade getCourseGradeWithStats(Long gradebookId, Collection studentUids) {
-        // TODO Combine queries for efficiency
-        CourseGrade courseGrade = getCourseGrade(gradebookId);
-//        courseGrade.calculateTotalPoints(getAssignments(gradebookId));
-        return (CourseGrade)getGradableObjectWithStats(courseGrade.getId(), studentUids);
+    public CourseGrade getCourseGradeWithStats(Long gradebookId) {
+        return (CourseGrade)getGradableObjectWithStats(getCourseGrade(gradebookId));
     }
 
     /**

@@ -69,7 +69,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
         gradeManager.createAssignment(gradebook.getId(), "Assignment #1", new Double(20), new Date());
         Assignment persistentAssignment = (Assignment)gradeManager.
-            getAssignmentsWithStats(gradebook.getId(), new HashSet()).get(0);
+            getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
         GradeRecordSet gradeRecordSet = new GradeRecordSet(persistentAssignment);
         gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(0), new Double(18)));
@@ -92,7 +92,7 @@ public class GradeManagerTest extends GradebookTestBase {
         }
 
         // Add overrides to the course grades
-        CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId(), students);
+        CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId());
         records = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade, students);
 
         gradeRecordSet = new GradeRecordSet(courseGrade);
@@ -173,7 +173,7 @@ public class GradeManagerTest extends GradebookTestBase {
         Set studentIds = new HashSet(studentUidsList);
 
         Long asgId = gradeManager.createAssignment(gradebook.getId(), "Excessive Test", new Double(10), new Date());
-        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId(), studentIds).get(0);
+        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
         // Create a grade record set
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
@@ -209,7 +209,7 @@ public class GradeManagerTest extends GradebookTestBase {
         students.add("entered1");
 
         Long asgId = gradeManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date());
-        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId(), students).get(0);
+        Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
         Assert.assertTrue(!gradeManager.isEnteredAssignmentScores(asgId));
 
@@ -271,6 +271,13 @@ public class GradeManagerTest extends GradebookTestBase {
         Long asgId = gradeManager.createAssignment(gradebook.getId(), "Dropped Students Test", new Double(10), new Date());
         Assignment asn = (Assignment)gradeManager.getGradableObject(asgId);
 
+        // We need to operate on whatever grade records already exist in the db
+		List studentUidsList = Arrays.asList(new String[] {
+			"realStudent1",
+			"realStudent2",
+		});
+		addUsersEnrollments(gradebook, studentUidsList);
+
         // Create a grade record set
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
         gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "realStudent1", new Double(10)));
@@ -279,19 +286,19 @@ public class GradeManagerTest extends GradebookTestBase {
 
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
-        // We need to operate on whatever grade records already exist in the db
-        Set studentIds = new HashSet();
-        studentIds.add("realStudent1");
-        studentIds.add("realStudent2");
-
-        asn = (Assignment)gradeManager.getGradableObjectWithStats(asgId, studentIds);
+        asn = gradeManager.getAssignmentWithStats(asgId);
         System.out.println ("asn.getMean()=" + asn.getMean());
 
         // Make sure the dropped student wasn't included in the average.
         Assert.assertTrue(asn.getMean().doubleValue() == 100.0);
 
-        studentIds.add("droppedStudent");
-        asn = (Assignment)gradeManager.getGradableObjectWithStats(asgId, studentIds);
+		// Now add the dropped student.
+		studentUidsList = Arrays.asList(new String[] {
+			"droppedStudent",
+		});
+		addUsersEnrollments(gradebook, studentUidsList);
+
+        asn = gradeManager.getAssignmentWithStats(asgId);
         System.out.println ("asn.getMean()=" + asn.getMean());
         Assert.assertTrue(asn.getMean().doubleValue() < 100.0);
 

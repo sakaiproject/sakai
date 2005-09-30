@@ -126,10 +126,7 @@ public abstract class EnrollmentTableBean
 	}
 
 	protected Map getOrderedEnrollmentMap() {
-		return getOrderedEnrollmentMap(null);
-	}
-	protected Map getOrderedEnrollmentMap(List enrollments) {
-        enrollments = getWorkingEnrollments(enrollments);
+        List enrollments = getWorkingEnrollments();
 
 		scoreDataRows = enrollments.size();
 		emptyEnrollments = enrollments.isEmpty();
@@ -137,33 +134,22 @@ public abstract class EnrollmentTableBean
 		return transformToOrderedEnrollmentMap(enrollments);
 	}
 
-	protected List getWorkingEnrollments(List enrollments) {
-        List allEnrollmentsFilteredBySearch = null;
+	protected List getWorkingEnrollments() {
+		List enrollments;
 
 		if (isFilteredSearch()) {
-			allEnrollmentsFilteredBySearch = getSectionAwareness().findSiteMembersInRole(getGradebookUid(), Role.STUDENT, searchString);
-			if (allEnrollmentsFilteredBySearch.isEmpty() ||
-				(isAllSectionsSelected() && isUserAbleToGradeAll())) {
-				return allEnrollmentsFilteredBySearch;
+			String sectionUid;
+			if (isAllSectionsSelected()) {
+				sectionUid = null;
+			} else {
+				sectionUid = getSelectedSectionUid();
 			}
-		}
-
-		if (isAllSectionsSelected()) {
-			enrollments = getAvailableEnrollments(enrollments);
+			enrollments = findMatchingEnrollments(searchString, sectionUid);
+		} else if (isAllSectionsSelected()) {
+			enrollments = getAvailableEnrollments();
 		} else {
 			// The user has selected a particular section.
 			enrollments = getSectionEnrollments(getSelectedSectionUid());
-		}
-
-		if (isFilteredSearch()) {
-			Set availableStudentUids = FacadeUtils.getStudentUids(enrollments);
-			enrollments = new ArrayList();
-			for (Iterator iter = allEnrollmentsFilteredBySearch.iterator(); iter.hasNext(); ) {
-				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-				if (availableStudentUids.contains(enr.getUser().getUserUid())) {
-					enrollments.add(enr);
-				}
-			}
 		}
 
 		return enrollments;

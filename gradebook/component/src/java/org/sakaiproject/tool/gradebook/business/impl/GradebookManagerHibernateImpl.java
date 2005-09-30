@@ -133,6 +133,5 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 	public void setGradeManager(GradeManager gradeManager) {
 		this.gradeManager = gradeManager;
 	}
+
 }
-
-

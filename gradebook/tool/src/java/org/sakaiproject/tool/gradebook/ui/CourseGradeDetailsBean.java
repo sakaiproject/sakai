@@ -112,15 +112,13 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 		// Clear view state.
 		scoreRows = new ArrayList();
-
-		List allEnrollments = getAllEnrollments();
-		courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(allEnrollments));
+		courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId());
 
         gradeMapping = getGradebook().getSelectedGradeMapping();
         totalPoints = getGradeManager().getTotalPoints(getGradebookId());
 
 		// Set up score rows.
-		Map enrollmentMap = getOrderedEnrollmentMap(allEnrollments);
+		Map enrollmentMap = getOrderedEnrollmentMap();
 		List gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(courseGrade, enrollmentMap.keySet());
 		List workingEnrollments = new ArrayList(enrollmentMap.values());
 

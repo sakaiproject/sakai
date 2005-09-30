@@ -127,7 +127,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         if(logger.isDebugEnabled()) logger.debug("Recalculating " + studentIds.size() + " course grade records");
 
         List assignments = getAssignments(gradebook.getId(), session);
-        String graderId = FacadeUtils.getUserUid(authn);
+        String graderId = getUserUid();
         Date now = new Date();
         for(Iterator studentIter = studentIds.iterator(); studentIter.hasNext();) {
             String studentId = (String)studentIter.next();
@@ -172,7 +172,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		session.flush();
 		session.clear();
 
-        List enrollments = getEnrollments(gradebook.getId());
+        List enrollments = getAllEnrollments(gradebook.getId());
         Set studentIds = new HashSet();
         for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
             studentIds.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
@@ -184,12 +184,19 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return ((Gradebook)getHibernateTemplate().load(Gradebook.class, id)).getUid();
     }
 
-	public List getEnrollments(Long gradebookId) {
+	public List getAllEnrollments(Long gradebookId) {
 		return getSectionAwareness().getSiteMembersInRole(getGradebookUid(gradebookId), Role.STUDENT);
 	}
 
+    public Authn getAuthn() {
+        return authn;
+    }
     public void setAuthn(Authn authn) {
         this.authn = authn;
+    }
+
+    protected String getUserUid() {
+    	return FacadeUtils.getUserUid(authn);
     }
 
 	protected SectionAwareness getSectionAwareness() {

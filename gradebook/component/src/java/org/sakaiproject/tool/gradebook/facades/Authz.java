@@ -23,88 +23,12 @@
 
 package org.sakaiproject.tool.gradebook.facades;
 
+import java.util.*;
+
 import org.sakaiproject.api.section.facade.Role;
 
 /**
  * Facade to external role and authorization service.
- *
- * <p>
- * Baseline Sakai 2.0 gradebook requirements are minimal. There are three types of user per
- * gradebook: users who can do anything (conventionally referred to as "instructors"), users
- * who can only check their own released grades (conventionally referred to as "students"),
- * and users who can't do anything (conventionally kicked out).
- *
- * <p>
- * For full gradebook functionality and LMS capabilities, much richer notions of
- * permissions, roles, and scopes will need to be supported.
- *
- * <p>
- * This version of the API does not define methods to support these future features.
- * Instead, some of the expanded authorization requirements are described in comments
- * below. (It's generally a poor idea to commit development time to "requirements" that
- * aren't functionally required for delivery, don't have any user visibility, and
- * can't be thoroughly tested.) The bad news is that we expect we'll have to
- * change the baseline gradebook authz checks to a new interface later. The good news is
- * that gradebook authz checks are so simple that there isn't much code to
- * change. The alternative would spread more-or-less educated guesses at a proper interface
- * throughout more code, making the risk of later change more unpredictable.
- *
- * <p>
- * Roles will necessarily still play a highly visible role in administrative tools
- * and enterprise integration.
- *
- * <p>
- * But within the gradebook, the new complexity will mean moving from a simple "role"
- * query to more fine-grained but more stable "permission" queries. If "application
- * adminstrators", "instructors", and "graders" can all grade, it's cleaner to ask
- * "can this user grade here?" than "does this user play one of the following three roles?"
- * Instead, it's likely that authz will move to a more configurable
- * grants-based approach. Most permission checks will involve three arguments:
- * <pre>
- *   isAuthorized(permission, userUid, gradebookUid)</pre>
- * where "permission" includes serializable constants such as:
- * <ul>
- *   <li>MODIFY_GRADEBOOK - able to change gradebook-wide settings
- *   <li>MODIFY_ASSIGNMENTS - able to add, edit, or delete assignments
- *   <li>GRADE_COURSE - able to enter or change a final course grade
- *   <li>GRADE - permitted to enter grades (<b>NOTE</b>: If the user has been assigned
- *       any grading rights, this should return true even if no students are
- *       currently in the gradebook)
- *   <li>VIEW_ALL - readonly access to full view
- *   <li>VIEW_GRADE_REPORT_FOR_SELF - permitted to look at any released assignments
- *       and grades for self (the "student view")
- * </ul>
- *
- * At least one check will need to specify a "section". In these descriptions, the
- * term "sections" refers to named subsets of site members who can be graded. Some of these
- * subsets will likely be defined by institutional data. Other subsets will be ad hoc
- * groups created within Sakai's (eventual) group and role managment tool.
- * <pre>
- *   isAuthorized(GRADE_SECTION, userUid, sectionId)</pre>
- * (<b>NOTE</b>: If the user has been assigned grading responsibilities for a section,
- * this should return true even if that section is currently empty.)
- *
- * <p>
- * At least one four-argument check is theoretically possible:
- * <pre>
- *   isAuthorized(GRADE_STUDENT, userUid, gradebookUid, studentId)</pre>
- * However, it's also possible that this will be too fine-grained for practical
- * use, and that gradebook/Samigo users will instead rely on a combination of coarse-grained
- * authz and tracking of agents responsible for grade changes.
- *
- * <p>
- * A number of role and group related queries will also be needed. Without attempting
- * to generalize an approach, here are descriptions of a few.
- * <ul>
- *   <li>Find all enrollments for this gradebook - Used all over.
- *   <li>Find all persons who can grade in this gradebook - Used to filter the scores
- *       (see if Jane Grader is giving everyone lower grades than Jeff Grader). Used
- *       in group-and-role management (show me who I'm dealing with).
- *   <li>Find all sections for this gradebook - Used to filter the enrollments and
- *       scores (see if Lab 1 is doing ridiculously worse than Lab 2; grade a stack
- *       of papers from Lab 1). Used in group-and-role management (show me what sections
- *       graders can be assigned to).
- * </ul>
  */
 public interface Authz {
 	public boolean isUserAbleToGrade(String gradebookUid, String userUid);
@@ -112,6 +36,40 @@ public interface Authz {
 	public boolean isUserAbleToGradeSection(String sectionUid, String userUid);
 	public boolean isUserAbleToEdit(String gradebookUid, String userUid);
 	public boolean isUserGradable(String gradebookUid, String userUid);
+
+	/**
+	 * @return
+	 *	an EnrollmentRecord list for each student that the current user
+	 *  is allowed to grade.
+	 */
+	public List getAvailableEnrollments(String gradebookUid, String userUid);
+
+	/**
+	 * @return
+	 *	a CourseSection list for each group that the current user
+	 *  belongs to.
+	 */
+	public List getAvailableSections(String gradebookUid, String userUid);
+
+	/**
+	 * The section enrollment list will not be returned unless the user
+	 * has access to it.
+	 *
+	 * @return
+	 *  an EnrollmentRecord list for all the students in the given group.
+	 */
+	public List getSectionEnrollments(String gradebookUid, String sectionUid, String userUid);
+
+	/**
+	 * @param searchString
+	 *  a substring search for student name or display UID; the exact rules are
+	 *  up to the implementation
+	 *
+	 * @param optionalSectionUid
+	 *  null if the search should be made across all sections
+	 *
+	 * @return
+	 *  an EnrollmentRecord list for all matching available students.
+	 */
+	public List findMatchingEnrollments(String gradebookUid, String searchString, String optionalSectionUid, String userUid);
 }
-
-

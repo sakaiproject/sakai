@@ -35,6 +35,7 @@ import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
 
+import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
@@ -57,9 +58,7 @@ public class TestGradebookTool {
      * @return A List of all assignments in the currently selected gradebook
      */
     public List getAssignments() {
-    	Set enrollmentUids = FacadeUtils.getStudentUids(sectionAwareness.getSiteMembersInRole(selectedGradebook.getUid(), Role.STUDENT));
-        List gradableObjects = gradeManager.getAssignmentsWithStats(selectedGradebook.getId(), enrollmentUids);
-        gradableObjects.add(gradeManager.getCourseGradeWithStats(selectedGradebook.getId(), enrollmentUids));
+        List gradableObjects = gradeManager.getAssignmentsAndCourseGradeWithStats(selectedGradebook.getId(), Assignment.DEFAULT_SORT, true);
         return gradableObjects;
     }
 

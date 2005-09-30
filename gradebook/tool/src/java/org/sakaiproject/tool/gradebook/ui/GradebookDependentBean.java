@@ -142,68 +142,20 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		return getGradebookBean().getAuthzService().isUserAbleToGradeSection(sectionUid, getUserUid());
 	}
 
-	/**
-	 * Even if the current user doesn't have access to all enrollment records,
-	 * this list is needed to produce accurate grading statistics.
-	 */
-	public List getAllEnrollments() {
-		return getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
-	}
-
-	/**
-	 * @param allEnrollments Optional argument to avoid unnecessary calls for instructors.
-	 */
-	public List getAvailableEnrollments(List allEnrollments) {
-		List enrollments;
-		if (isUserAbleToGradeAll()) {
-			// As a performance optimization, the full list of enrollments
-			// may have been passed into the method.
-			if (allEnrollments != null) {
-				enrollments = allEnrollments;
-			} else {
-				enrollments = getAllEnrollments();
-			}
-		} else {
-			// We use a map because we may have duplicate students among the section
-			// participation records.
-			Map enrollmentMap = new HashMap();
-			List sections = getAvailableSections();
-			for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
-				CourseSection section = (CourseSection)iter.next();
-				List sectionEnrollments = getSectionEnrollments(section.getUuid());
-				for (Iterator eIter = sectionEnrollments.iterator(); eIter.hasNext(); ) {
-					EnrollmentRecord enr = (EnrollmentRecord)eIter.next();
-					enrollmentMap.put(enr.getUser().getUserUid(), enr);
-				}
-			}
-			enrollments = new ArrayList(enrollmentMap.values());
-		}
-		return enrollments;
+	public List getAvailableEnrollments() {
+		return getGradebookBean().getAuthzService().getAvailableEnrollments(getGradebookUid(), getUserUid());
 	}
 
 	public List getAvailableSections() {
-		SectionAwareness sectionAwareness = getSectionAwareness();
-		List availableSections = new ArrayList();
-
-		// Get the list of sections. For now, just use whatever default
-		// sorting we get from the Section Awareness component.
-		List sectionCategories = sectionAwareness.getSectionCategories(getGradebookUid());
-		for (Iterator catIter = sectionCategories.iterator(); catIter.hasNext(); ) {
-			String category = (String)catIter.next();
-			List sections = sectionAwareness.getSectionsInCategory(getGradebookUid(), category);
-			for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
-				CourseSection section = (CourseSection)iter.next();
-				if (isUserAbleToGradeAll() || isUserAbleToGradeSection(section.getUuid())) {
-					availableSections.add(section);
-				}
-			}
-		}
-
-		return availableSections;
+		return getGradebookBean().getAuthzService().getAvailableSections(getGradebookUid(), getUserUid());
 	}
 
 	public List getSectionEnrollments(String sectionUid) {
-		return getSectionAwareness().getSectionMembersInRole(sectionUid, Role.STUDENT);
+		return getGradebookBean().getAuthzService().getSectionEnrollments(getGradebookUid(), sectionUid, getUserUid());
+	}
+
+	public List findMatchingEnrollments(String searchString, String optionalSectionUid) {
+		return getGradebookBean().getAuthzService().findMatchingEnrollments(getGradebookUid(), searchString, optionalSectionUid, getUserUid());
 	}
 
 	/**

@@ -67,7 +67,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         gradeManager.updateAssignment(asn);
 
         // Fetch the updated assignment with statistics
-        Assignment persistentAssignment = (Assignment)gradeManager.getGradableObjectWithStats(asnId, new HashSet());
+        Assignment persistentAssignment = gradeManager.getAssignmentWithStats(asnId);
         // Ensure the DB update was successful
         Assert.assertEquals(persistentAssignment.getPointsPossible(), new Double(20));
 
@@ -142,7 +142,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
     public void testDeletedAssignments() throws Exception {
     	// Make sure nothing awful happens when we ask for CourseGrade
     	// total points for an empty Gradebook
-		CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId(), new HashSet());
+		CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId());
 		Assert.assertTrue(courseGrade.getPointsForDisplay().doubleValue() == 0.0);
 
 		List studentUidsList = Arrays.asList(new String[] {
@@ -158,7 +158,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         Long id3 = gradeManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date());
 
         List assignments = gradeManager.getAssignments(gradebook.getId());
-        Assignment asn = (Assignment)gradeManager.getGradableObjectWithStats(id1, studentUids);
+        Assignment asn = gradeManager.getAssignmentWithStats(id1);
 
 		// Add some scores to the interesting assignment, leaving one student unscored.
 		GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
@@ -167,8 +167,8 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 		gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
 		// Do what the Overview page does.
-		assignments = gradeManager.getAssignmentsWithStats(gradebook.getId(), studentUids, Assignment.SORT_BY_NAME, true);
-		courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId(), studentUids);
+		assignments = gradeManager.getAssignmentsWithStats(gradebook.getId(), Assignment.SORT_BY_NAME, true);
+		courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId());
 
         // Remove the assignments.
         // (We remove all of them to make sure that the calculated course grade can be emptied.)
@@ -181,7 +181,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         Assert.assertTrue(!assignments.contains(asn));
 
         // And again, this time calculating statistics
-        assignments = gradeManager.getAssignmentsWithStats(gradebook.getId(), studentUids);
+        assignments = gradeManager.getAssignmentsWithStats(gradebook.getId(), Assignment.SORT_BY_NAME, true);
         Assert.assertTrue(!assignments.contains(asn));
 
         // Get the grade records for this gradebook, and make sure none of them

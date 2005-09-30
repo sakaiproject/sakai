@@ -75,14 +75,6 @@ public interface GradebookManager {
     public Gradebook getGradebook(String uid) throws GradebookNotFoundException;
 
     /**
-     * Fetches all of the students "enrolled" in this gradebook
-     *
-     * @param gradebookId The gradebook ID
-     * @return A List of all enrolled students
-     */
-    public List getEnrollments(Long gradebookId);
-
-    /**
      * Removes an assignment from a gradebook.  The assignment should not be
      * deleted, but the assignment and all grade records associated with the
      * assignment should be ignored by the application.  A removed assignment

@@ -55,7 +55,6 @@ import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.business.impl.BaseHibernateManager;
-import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.springframework.orm.hibernate.HibernateCallback;
 
@@ -79,7 +78,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             log.warn("You can not add a gradebook with uid=" + uid + ".  That gradebook already exists.");
             throw new GradebookExistsException("You can not add a gradebook with uid=" + uid + ".  That gradebook already exists.");
         }
-        if (log.isInfoEnabled()) log.info("Adding gradebook uid=" + uid);
+        if (log.isInfoEnabled()) log.info("Adding gradebook uid=" + uid + " by userUid=" + getUserUid());
 
         getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -188,6 +187,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 recalculateCourseGradeRecords(gradebook, getSession());
                 return null;
             }});
+        if (log.isInfoEnabled()) log.info("External assessment added to gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + " from externalApp=" + externalServiceDescription);
 	}
 
 	/**
@@ -214,6 +214,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 }
                 asn.setPointsPossible(new Double(points));
                 session.update(asn);
+				if (log.isInfoEnabled()) log.info("External assessment updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid());
                 return new Boolean(updateCourseGradeSortScore);
             }
         };
@@ -264,6 +265,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
         };
         getHibernateTemplate().execute(hc);
+        if (log.isInfoEnabled()) log.info("External assessment removed from gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid());
 	}
 
     private Assignment getExternalAssignment(final String gradebookUid, final String externalId) throws GradebookNotFoundException {
@@ -299,7 +301,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Date now = new Date();
-                String graderId = FacadeUtils.getUserUid(authn);
+                String graderId = FacadeUtils.getUserUid(getAuthn());
                 String grHql = "from AssignmentGradeRecord as agr where agr.gradableObject=? and agr.studentId=?";
                 List list = session.find(grHql, new Object[] {asn, studentId},
                         new Type[] {Hibernate.entity(GradableObject.class), Hibernate.STRING});
@@ -330,6 +332,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             }
         };
         getHibernateTemplate().execute(hc);
+		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
 	}
 
 	public GradebookManager getGradebookManager() {
@@ -344,12 +347,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public void setGradeManager(GradeManager gradeManager) {
 		this.gradeManager = gradeManager;
 	}
-	public Authn getAuthn() {
-		return authn;
-	}
-	public void setAuthn(Authn authn) {
-		this.authn = authn;
-	}
     public Authz getAuthz() {
         return authz;
     }
@@ -357,6 +354,4 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         this.authz = authz;
     }
 }
-
-
 
