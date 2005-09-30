@@ -121,9 +121,9 @@ public class AgentHelperImpl implements AgentHelper
   public String getDisplayName(String agentS){
     if ("admin".equals(agentS))
       return "Administrator";
-    else if (agentS.equals("rachel"))
+    else if ("rachel".equals(agentS))
       return "Rachel Gollub";
-    else if (agentS.equals("marith"))
+    else if ("marith".equals(agentS))
       return "Margaret Petit";
     else
       return "Dr. Who";
