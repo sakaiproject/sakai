@@ -11,12 +11,12 @@
 
 		<sakai:flowState bean="#{addAssignmentBean}" />
 
-		<h2><h:outputText value="#{msgs.appmenu_add_assignment}"/></h2>
+		<h2><h:outputText value="#{msgs.add_assignment_page_title}"/></h2>
 
 		<div class="instruction"><h:outputText value="#{msgs.add_assignment_instruction}" escape="false"/></div>
 		<p class="instruction"><h:outputText value="#{msgs.flag_required}"/></p>
 
-		<h4><h:outputText value="#{msgs.add_assignment_page_title}"/></h4>
+		<h4><h:outputText value="#{msgs.add_assignment_header}"/></h4>
 
 		<x:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
 			<%@include file="/inc/assignmentEditing.jspf"%>
