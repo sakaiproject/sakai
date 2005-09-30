@@ -8,17 +8,12 @@
 	<sakai:view_container title="#{msgs.title_list}">
 		<sakai:view_content>
 			<h:form>
-
+		  	<sakai:tool_bar_message value="Deleting Syllabus Items..." /> 
 				<table width="100%" align="center">
-					<tr>
-					  <td>
-					  	<br/>
-					 	</td>
-					</tr>
 					<tr>
 						<table width="100%" align="center">
 							<tr>
-								<td align="center" style="font-size: 12pt; color: #8B0000" width="100%">
+								<td align="left" style="font-size: 12pt; color: #8B0000; background-color:#fff; background-position: .3em;background-repeat:no-repeat;border:1px solid #c00;display:block;clear:both;color:#c00;font-size:x-small;margin:5px 0px;padding-left:25px; padding-right:5px; padding-top:5px; padding-bottom:5px" width="60%">
 								Are you sure you want to delete the specified item(s)?
 								</td>
 							</tr>
@@ -51,14 +46,14 @@
 						<table width="100%" align="center">
 							<tr>
 							  <td width="40%" align="right">
-		 							<sakai:tool_bar_item
-										action="#{SyllabusTool.processDelete}"
-										value="#{msgs.bar_ok}" />
+									<h:commandButton 
+									  value="    #{msgs.bar_ok}   " 
+									  action="#{SyllabusTool.processDelete}"/>
 								</td>
 								<td width="60%" align="left">
-									<sakai:tool_bar_item
-										action="#{SyllabusTool.processDeleteCancel}"
-										value="#{msgs.bar_cancel}" />
+									<h:commandButton 
+									  value="#{msgs.bar_cancel}" 
+									  action="#{SyllabusTool.processDeleteCancel}"/>
 								</td>
 							</tr>
 						</table>
