@@ -42,24 +42,15 @@
 						</sakai:flat_list>
 					</tr>
 					<br/>
-					<tr>
-						<table width="100%" align="center">
-							<tr>
-							  <td width="40%" align="right">
-									<h:commandButton 
-									  value="    #{msgs.bar_ok}   " 
-									  action="#{SyllabusTool.processDelete}"/>
-								</td>
-								<td width="60%" align="left">
-									<h:commandButton 
-									  value="#{msgs.bar_cancel}" 
-									  action="#{SyllabusTool.processDeleteCancel}"/>
-								</td>
-							</tr>
-						</table>
-					</tr>
 				</table>
-
+				<sakai:button_bar>
+					<sakai:button_bar_item
+						action="#{SyllabusTool.processDelete}"
+						value="   #{msgs.bar_ok}   " />
+					<sakai:button_bar_item
+						action="#{SyllabusTool.processDeleteCancel}"
+						value="#{msgs.bar_cancel}" />
+				</sakai:button_bar>
 			</h:form>
 		</sakai:view_content>
 	</sakai:view_container>
