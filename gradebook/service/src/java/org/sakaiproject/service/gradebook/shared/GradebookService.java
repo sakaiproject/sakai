@@ -31,6 +31,25 @@ import java.util.Date;
  * management (to be able to create a new gradebook instance and associate it
  * with other parts of the site) and Samigo (to add and score externally-managed
  * assignments).
+ *
+ * <p>
+ * <b>WARNING</b>: Unlike some external services in Sakai, the caller of the
+ * Gradebook is responsible for "doing the right thing" as far as authorization
+ * goes. No unauthorized person should be allowed to reach code that calls these
+ * services, so don't just go wrapping this API in an open web service and expect
+ * things to work out!
+ * <p>
+ * The reason is that one of our principal service consumers is an online
+ * assessment application which will be updating a student's scores automatically
+ * based on the student's performance in the application. In other words, as
+ * far as the Gradebook Service code can tell, the student is changing their
+ * own grades. Since this is probably the primary security problem that any
+ * online gradebook has to be worry about, there's really not much point in
+ * going further.
+ * <p>
+ * Of course, the Gradebook application (as opposed to the external service)
+ * does guard against students having such free access. Any other applications
+ * that use the business logic need to take the same precautions.
  */
 public interface GradebookService {
 	// Site management hooks.
