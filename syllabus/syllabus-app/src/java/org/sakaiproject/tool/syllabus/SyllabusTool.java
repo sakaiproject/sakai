@@ -1635,6 +1635,9 @@ public String processDeleteCancel()
         logger.error(this + ".processRemoveAttach() - " + e);
         e.printStackTrace();
       }
+
+      removeAttachId = null;
+      prepareRemoveAttach.clear();
       return "read";
     }
   }
