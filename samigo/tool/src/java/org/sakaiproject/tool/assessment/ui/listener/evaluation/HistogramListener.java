@@ -419,8 +419,18 @@ public class HistogramListener
           studentResponseList.add(data);
           numStudentRespondedMap.put(data.getAssessmentGrading().getAssessmentGradingId(), studentResponseList);
         // we found a response, and got the  existing num , now update one
-        // check here for sam-443 about non-autograded items having 1 even with no responses
-        results.put(answer.getId(), new Integer(num.intValue() + 1));
+        if (qbean.getQuestionType().equals("8"))
+        {
+          // for fib we only count the number of correct responses 
+          Float autoscore = data.getAutoScore();
+          if (!autoscore.equals(new Float(0))) {
+            results.put(answer.getId(), new Integer(num.intValue() + 1));
+          }
+        }
+        else {  
+          // for mc, we count the number of all responses 
+          results.put(answer.getId(), new Integer(num.intValue() + 1));
+        }
       }
     }
     HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
