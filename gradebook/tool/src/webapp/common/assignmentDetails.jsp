@@ -1,13 +1,13 @@
 <f:view>
-  <h:form id="gbForm">
+  <div class="portletBody">
+	<h:form id="gbForm">
 
-	<x:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
-		<%@include file="/inc/appMenu.jspf"%>
-	</x:aliasBean>
+		<x:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
+			<%@include file="/inc/appMenu.jspf"%>
+		</x:aliasBean>
 
-	<sakai:flowState bean="#{assignmentDetailsBean}" />
+		<sakai:flowState bean="#{assignmentDetailsBean}" />
 
-	<div class="portletBody">
 		<h2><h:outputText value="#{assignmentDetailsBean.assignment.name}"/></h2>
 
 		<h4><h:outputText value="#{msgs.assignment_details_page_title}"/></h4>
@@ -119,7 +119,7 @@
 			var="scoreRow"
 			sortColumn="#{assignmentDetailsBean.sortColumn}"
 			sortAscending="#{assignmentDetailsBean.sortAscending}"
-			columnClasses="left,left,right,left"
+			columnClasses="left,left,left,right,left"
 			styleClass="listHier narrowTable">
 			<h:column>
 				<f:facet name="header">
@@ -148,7 +148,6 @@
 					rendered="#{not empty scoreRow.eventsString}"
 					onclick="javascript:toggleWindow(this, '#{msgs.assignment_details_log_window_title}', '#{scoreRow.eventsString}');return false;"/>
 			</h:column>
-
 
 			<h:column>
 				<f:facet name="header">
@@ -200,6 +199,6 @@
 				tabindex="9999"
 				title="#{msgs.assignment_details_cancel}"/>
 		</p>
-	</div>
-  </h:form>
+	</h:form>
+  </div>
 </f:view>

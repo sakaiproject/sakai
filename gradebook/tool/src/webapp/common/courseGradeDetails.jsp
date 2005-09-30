@@ -1,14 +1,14 @@
 <f:view>
-	<h:form id="gbForm">
+	<div class="portletBody">
+	  <h:form id="gbForm">
 
-	  <x:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
-		<%@include file="/inc/appMenu.jspf"%>
-	  </x:aliasBean>
+		<x:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
+			<%@include file="/inc/appMenu.jspf"%>
+		</x:aliasBean>
 
-	  <!-- Course Grade Summary -->
-	  <sakai:flowState bean="#{courseGradeDetailsBean}" />
+		<!-- Course Grade Summary -->
+		<sakai:flowState bean="#{courseGradeDetailsBean}" />
 
-	  <div class="portletBody">
 		<h2><h:outputText value="#{courseGradeDetailsBean.courseGrade.name}"/></h2>
 
 		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false"/></div>
@@ -135,6 +135,6 @@
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				/>
 		</p>
-	  </div>
-	</h:form>
+	  </h:form>
+	</div>
 </f:view>

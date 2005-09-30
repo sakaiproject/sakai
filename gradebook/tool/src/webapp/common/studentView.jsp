@@ -1,8 +1,8 @@
 <f:view>
-	<h:form id="gbForm">
-	  <sakai:flowState bean="#{studentViewBean}" />
+	<div class="portletBody">
+	  <h:form id="gbForm">
+		<sakai:flowState bean="#{studentViewBean}" />
 
-	  <div class="portletBody">
 		<h2>
 			<h:outputFormat value="#{msgs.student_view_page_title}"/>
 			<h:outputFormat value="#{studentViewBean.userDisplayName}"/>
@@ -101,6 +101,6 @@
 			<f:verbatim></fieldset></f:verbatim>
 		</h:panelGroup>
 
-	  </div>
-	</h:form>
+	  </h:form>
+	</div>
 </f:view>

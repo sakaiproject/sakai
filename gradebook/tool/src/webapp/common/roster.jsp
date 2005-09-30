@@ -1,13 +1,12 @@
 <f:view>
-	<h:form id="gbForm">
+	<div class="portletBody">
+	  <h:form id="gbForm">
+		<x:aliasBean alias="#{bean}" value="#{rosterBean}">
+			<%@include file="/inc/appMenu.jspf"%>
+		</x:aliasBean>
 
-	  <x:aliasBean alias="#{bean}" value="#{rosterBean}">
-		<%@include file="/inc/appMenu.jspf"%>
-	  </x:aliasBean>
+		<sakai:flowState bean="#{rosterBean}" />
 
-	  <sakai:flowState bean="#{rosterBean}" />
-
-	  <div class="portletBody">
 		<h2><h:outputText value="#{msgs.roster_page_title}"/></h2>
 
 		<x:aliasBean alias="#{bean}" value="#{rosterBean}">
@@ -59,6 +58,6 @@
 				rendered="#{!rosterBean.emptyEnrollments}"
 				/>
 		</p>
-	  </div>
-	</h:form>
+	  </h:form>
+	</div>
 </f:view>

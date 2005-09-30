@@ -2,15 +2,15 @@
 <link href="calendar/theme.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="calendar/popcalendar.js"></script>
 <f:view>
-  <h:form id="gbForm">
+  <div class="portletBody">
+	<h:form id="gbForm">
 
-	<x:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
-		<%@include file="/inc/appMenu.jspf"%>
-	</x:aliasBean>
+		<x:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
+			<%@include file="/inc/appMenu.jspf"%>
+		</x:aliasBean>
 
-	<sakai:flowState bean="#{addAssignmentBean}" />
+		<sakai:flowState bean="#{addAssignmentBean}" />
 
-	<div class="portletBody">
 		<h2><h:outputText value="#{msgs.appmenu_add_assignment}"/></h2>
 
 		<div class="instruction"><h:outputText value="#{msgs.add_assignment_instruction}" escape="false"/></div>
@@ -32,6 +32,6 @@
 				value="#{msgs.add_assignment_cancel}"
 				action="overview" immediate="true"/>
 		</p>
-	</div>
-  </h:form>
+	</h:form>
+  </div>
 </f:view>

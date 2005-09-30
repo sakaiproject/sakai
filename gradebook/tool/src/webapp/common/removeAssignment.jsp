@@ -1,12 +1,11 @@
 <f:view>
-	<h:form id="gbForm">
+	<div class="portletBody">
+	  <h:form id="gbForm">
+		<x:aliasBean alias="#{bean}" value="#{removeAssignmentBean}">
+			<%@include file="/inc/appMenu.jspf"%>
+		</x:aliasBean>
 
-	  <x:aliasBean alias="#{bean}" value="#{removeAssignmentBean}">
-		<%@include file="/inc/appMenu.jspf"%>
-	  </x:aliasBean>
-
-	  <sakai:flowState bean="#{removeAssignmentBean}" />
-	  <div class="portletBody">
+		<sakai:flowState bean="#{removeAssignmentBean}" />
 
 		<h2><h:outputText value="#{msgs.remove_assignment_page_title}"/></h2>
 
@@ -39,6 +38,6 @@
 				action="#{removeAssignmentBean.cancel}"
 				immediate="true"/>
 		</p>
-	  </div>
-	</h:form>
+	  </h:form>
+	</div>
 </f:view>

@@ -1,13 +1,12 @@
 <f:view>
-  <h:form id="gbForm">
+  <div class="portletBody">
+	<h:form id="gbForm">
+		<x:aliasBean alias="#{bean}" value="#{feedbackOptionsBean}">
+			<%@include file="/inc/appMenu.jspf"%>
+		</x:aliasBean>
 
-	<x:aliasBean alias="#{bean}" value="#{feedbackOptionsBean}">
-		<%@include file="/inc/appMenu.jspf"%>
-	</x:aliasBean>
+		<sakai:flowState bean="#{feedbackOptionsBean}" />
 
-	<sakai:flowState bean="#{feedbackOptionsBean}" />
-
-	<div class="portletBody">
 		<h2><h:outputText value="#{msgs.feedback_options_page_title}"/></h2>
 
 		<div class="instruction"><h:outputText value="#{msgs.feedback_options_instruction}" escape="false"/></div>
@@ -92,6 +91,6 @@
 				immediate="true" />
 		</p>
 
-	</div>
-  </h:form>
+	</h:form>
+  </div>
 </f:view>

@@ -64,6 +64,11 @@ table.narrowTable {
 table.narrowTable tr th {
 	padding-right:5em;
 }
+table.narrowTable td.rightpadded {
+	text-align:right;
+	vertical-align:bottom;
+	padding-right:6em !important;
+}
 
 .allowWrap {
 	white-space:normal;

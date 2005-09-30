@@ -1,4 +1,5 @@
 <f:view>
+  <div class="portletBody">
 	<h:form id="gbForm">
 	  <x:aliasBean alias="#{bean}" value="#{overviewBean}">
 		<%@include file="/inc/appMenu.jspf"%>
@@ -6,7 +7,6 @@
 
 	  <sakai:flowState bean="#{overviewBean}" />
 
-	  <div class="portletBody">
 		<h2><h:outputText value="#{msgs.appmenu_overview}"/></h2>
 
 		<div class="instruction"><h:outputText value="#{msgs.overview_instruction}" escape="false"/></div>
@@ -79,6 +79,6 @@
 			</h:column>
 		</x:dataTable>
 
-	  </div>
-	</h:form>
+	  </h:form>
+	</div>
 </f:view>
