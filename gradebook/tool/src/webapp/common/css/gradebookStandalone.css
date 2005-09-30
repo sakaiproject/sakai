@@ -107,10 +107,19 @@ td.subItemSummary table tr td {
 }
 
 /* List filter label */
+/*
+	Until some client other than the Gradebook is using this supposed
+	Sakai-wide CSS class, don't let the untested Sakai definition
+	mess up our display.
+
+	Once the Sakai-wide version is OK, replace our use of the "gbListView"
+	class.
+
 .listView {
 	font-weight:bold;
 	padding-bottom:.5em;
 }
+*/
 
 /*
 	Make the currently sorted column header text bold, and make all sort headers

@@ -24,6 +24,7 @@ table.gbContainerNav {
     text-align:left;
 }
 .gbRightNav  {
+	vertical-align:bottom;
     text-align:right;
 }
 
@@ -83,4 +84,14 @@ td.prefixedCheckbox {
 */
 .calendarPadding {
 	margin-bottom:100px;
+}
+
+/* List filter label */
+/*
+	TODO Once the Sakai-wide version is OK, replace with "listView".
+	class.
+*/
+.gbListView {
+	font-weight:bold;
+	padding-bottom:.5em;
 }

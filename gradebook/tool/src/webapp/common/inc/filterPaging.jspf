@@ -4,7 +4,7 @@
 */%>
 <h:panelGrid styleClass="gbContainerNav" columns="2" columnClasses="gbLeftNav,gbRightNav">
 	<x:div>
-		<x:div styleClass="listView">
+		<x:div styleClass="gbListView">
 			<h:outputText value="#{msgs.search_sections_filter} "/>
 			<h:selectOneMenu id="selectSectionFilter" value="#{bean.selectedSectionFilterValue}" onchange="this.form.submit()">
 				<f:selectItems value="#{bean.sectionFilterSelectItems}" />
