@@ -164,7 +164,9 @@
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 				</h:inputText>
 
-				<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.assignment.externallyMaintained}"/>
+				<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
+					<f:convertNumber maxFractionDigits="2"/>
+				</h:outputText>
 			</h:column>
 			<h:column>
 				<h:message for="Score" styleClass="validationEmbedded"/>
