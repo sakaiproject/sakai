@@ -47,6 +47,7 @@ p.draft {
 	font-weight:bold;
 	margin-left: 0px;
 }
+.style1 {color: #000099}
 </style>
 </head>
 <body>
@@ -409,11 +410,42 @@ etc.) and sort by the information columns.</li>
           <li> Clears any boxes checked in the &ldquo;remove&rdquo; column.</li>
         </ol>
       </li>
-  </ol>
+    </ol>
 </ol>
 <ol type="1">
-    <li type="1"><u><a href="#FuncAddSect">Add Sections</a><a name="INAddSections" id="AddSections"></a></u></li>
+    <li type="1" class="style1"><u>Remove Confirmation<a name="InRemoveConfirmation" id="InRemoveConfirmation"></a> </u></li>
   </ol>
+<p>The Instructor sees the remove confirmation page after clicking the Remove Section button on the <a href="#INoverview">Overview</a> page (assuming they first selected sections to remove). This page is meant to protect instructors from removing sections unintentionally.</p>
+<p><img src="images/Remove%20Confirmation.jpg" width="609" height="382" /></p>
+<ol type="1">
+  <li> <strong>Global Action Links</strong>
+    <ol type="a">
+      <li>See <a href="#Globalactionlinks">"Global Action Links" under Overview page</a></li>
+      </ol>
+    </li>
+  <li><strong>Message
+    </strong>
+    <ol type="a">
+      <li>List sections being removed in a bulleted list</li>
+      </ol>
+  </li>
+  <li><strong>Remove Button
+    </strong>
+    <ol type="a">
+      <li>On click, removes all sections in list and returns the instructor to the overview page. </li>
+      <li>The sections they removed will no longer be in the overview list.</li>
+    </ol>
+  </li>
+  <li><strong>Cancel Button
+    </strong>
+    <ol type="a">
+      <li>On click, cancel the action, take user back to the overview page without any sections checked. This starts them from a clean slate.</li>
+      </ol>
+  </li>
+  </ol>
+<ol type="1">
+  <li><u><a href="#FuncAddSect">Add Sections</a><a name="INAddSections" id="AddSections"></a></u></li>
+</ol>
 <p>The user arrives on the Add Sections page by choosing the &quot;Add Sections&quot; <a href="#Globalactionlinks">global action links</a> from anywhere within the section info tool. It allows instructors to create sections and assign attributes such as meeting information to the section.<u><br />
     <br />
     <img src="images/AddSections.jpg" width="568" height="612" /> </u></p>
@@ -421,7 +453,7 @@ etc.) and sort by the information columns.</li>
     <li>      <strong>Global Action Links</strong>
       <ol type="a">
         <li>See <a href="#Globalactionlinks">"Global Action Links" under Overview page</a></li>
-        </ol>
+      </ol>
     </li>
     <li><strong>&quot;Add Section(s)&quot; Page Heading</strong>
       <ol type="a">
@@ -519,13 +551,14 @@ etc.) and sort by the information columns.</li>
         <li>If ther is no match, the page reloads with an alert message that reads &quot;There were no results found for &quot;[the search term]&quot;. Please check your terms and try again.&quot; The table list remains the same.</li>
         <li>The last established students per page value is retained and displayed. Use the style guide specified for alert messages in the style guide. </li>
         <li>For search values, only the last space-or-comma-seperated value is treated as a substring:
-          <p>Copp</p>
-          <p>Francis Ford Copp</p>
-          <p>Coppola, Francis F</p>
-          <p>ffcoppola@niebaum.edu</p>
-          <p>ffcopp</p>
+          <p>Copp<br />
+          Francis Ford Copp<br />
+          Coppola, Francis F<br />
+          ffcoppola@niebaum.edu<br />
+          ffcopp          
           <p>All return <strong>Coppola, Francis Ford</strong></p>
-          <p>Francis F. Coppola Returns an error</p>
+          <p><strong>Francis F. Coppola</strong> Returns an error
+          <p></p></p>
         </li>
         <li>Case is ignored.</li>
         <li>Truncation or wild card symbols are not supported</li>
@@ -568,7 +601,7 @@ etc.) and sort by the information columns.</li>
       </ol>
     </li>
     <li><strong>Student ID Column</strong>
-      <ol>
+      <ol type="a">
         <li>Display student ID </li>
         <li>If no student ID exists, a guest for instance, leave field blank. </li>
       </ol>
@@ -628,13 +661,18 @@ etc.) and sort by the information columns.</li>
       <li>Global action links are persistently available from all pages within the section tool.</li>
       </ol>
     </li>
-  <li><strong>Title field</strong>
+  <li><strong>Page Title</strong>
     <ol type="a">
-      <li>Free text entry field that displays current setting.</li>
-      <li>This is the only required field on the form. </li>
-      <li>On arriving at this page, the title field is the default location of the cursor.</li>
+      <li>Display Section Name in title for context. </li>
+    </ol>
+  </li>
+  <li><strong>Title field</strong>
+      <ol type="a">
+        <li>Free text entry field that displays current setting.</li>
+        <li>This is the only required field on the form. </li>
+        <li>On arriving at this page, the title field is the default location of the cursor.</li>
       </ol>
-    </li>
+  </li>
   <li><strong>Days</strong>
       <ol type="a">
               <li>Checkboxes for each day of the week, starting with Monday and ending with Sunday.</li>
@@ -670,7 +708,8 @@ etc.) and sort by the information columns.</li>
   <li><strong>Maximum Size</strong>
       <ol type="a">
         <li>Free text entry field</li>
-        <li>If this field is not set, then maximum size set to infinity and nothing is displayed for maximum size in other places in the tool.</li>
+        <li>If this field is not set, then maximum size is set to infinity and nothing is displayed for maximum size in other places in the tool.</li>
+        <li>If max is set for less than current section size, on click of update button, display alert message at the top of overview page, &quot;You have set &lt;section name&gt;'s Maximum size for &lt;X&gt; and there are currently &lt;Y&gt; students assigned to the section.&quot;</li>
       </ol>
    </li>
   <li><strong>Location</strong>
@@ -686,7 +725,7 @@ etc.) and sort by the information columns.</li>
     <ol>
       <li>On click, users changes in the form are saved and they are returned to the overview page with the confirmation message at the top, &quot;Your changes to &lt;section name&gt; have been saved! &quot;. </li>
       <li>If required field, &quot;Title&quot;, is left empty, re-render page with an alert message at the top, &quot;A title is required. Please enter a title and update the section again&quot;. </li>
-      <li>In addition, if title is left blank add link next the title field to &quot;Create default&quot; title. On click, a title is entered in the the field in the format [section type] [next consecutive number of sections of that type].</li>
+      <li>In addition, if title is left blank, add link next to the title field to &quot;Create default&quot; title. On click, a title is entered in the the field in the format [section type] [next consecutive number of sections of that type].</li>
       </ol>
   </li>
   <li><strong>Cancel Button</strong>
@@ -710,10 +749,9 @@ etc.) and sort by the information columns.</li>
     <ol type="a">
       <li>Information provided about the section. This is information assigned the section on the Add or Edit Sections pages. </li>
     </ol>
-  <li><strong> Teaching Assistant for &lt;Course&gt; Combo Box
-    </strong>
+  <li><strong> &quot;Available Teaching Assistants&quot; Combo Box </strong>
     <ol type="a">
-      <li>Display name of site in place of &lt;Course&gt; in title for the combo box title </li>
+      <li>Display label, &quot;Available Teaching Assistants&quot;</li>
       <li>Display all people assigned the TA role for this site. The role assignment is done in other administrative tools, like Site Info or Worksite Setup.</li>
       <li>Include Note under box as shown in wireframe.</li>
       <li>A TA is selected by clicking on the name. This highlights the name to show focus. Allow users to user ctrl and shift shortcuts to choose mutliple names at once.</li>
@@ -823,7 +861,7 @@ etc.) and sort by the information columns.</li>
         <ol type="a">
           <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
             <li>NOTE: The TA overview page does not include the &quot;Add Sections&quot; global action link that is in the instructors view. </li>
-          </ol>
+        </ol>
       </li>
       <li><strong>Overview Page Heading </strong>
           <ol type="a">
@@ -853,36 +891,36 @@ etc.) and sort by the information columns.</li>
     <ol>
       <ol type="a">
         <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
-        </ol>
+      </ol>
       <li><strong>Teaching Assistant Column</strong>
           <ol type="a">
             <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
-            </ol>
+        </ol>
       </li>
       <li><strong>Location Column</strong>
           <ol type="a">
             <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
-            </ol>
+        </ol>
       </li>
       <li><strong>Maximum Size (Max Size) Column</strong>
           <ol type="a">
             <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
-            </ol>
+        </ol>
       </li>
       <li><strong>Avail Size Column</strong>
           <ol type="a">
             <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
-            </ol>
+        </ol>
       </li>
       <li><strong>Remove Column</strong>
           <ol type="a">
             <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
-            </ol>
+        </ol>
       </li>
       <li><strong>Remove Section Button</strong>
           <ol type="a">
             <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
-            </ol>
+        </ol>
       </li>
       <li><strong>Cancel Button</strong>
           <ol type="a">
@@ -911,12 +949,12 @@ etc.) and sort by the information columns.</li>
     <li><strong>&quot;Students can sign up for sections&quot; checkbox </strong>
         <ol type="a">
           <li>Read-only to allow TAs to see the rules for the class. </li>
-          </ol>
+      </ol>
     </li>
     <li><strong>&quot;Students can switch sections&quot; checkbox</strong>
         <ol type="a">
           <li>Read-only to allow TAs to see the rules for the class. </li>
-          </ol>
+      </ol>
     </li>
     <li><strong>Done Button
       </strong>
@@ -968,7 +1006,6 @@ etc.) and sort by the information columns.</li>
             <li>Default sort for each column:<ul><li>Day/time = Calendar</li>
                 <li>TA = Alphabetical on last name</li>
                 <li>Section Name = Alphanumeric</li>
-                <li>Section Type = Alphabetical. Section types always grouped.</li>
                 <li>Location = Alphanumeric</li>
                 <li>Change Schedule - &quot;Member&quot;, &quot;Switch to&quot; &amp; &quot;Full&quot; </li>
                 </ul>
@@ -995,12 +1032,6 @@ etc.) and sort by the information columns.</li>
       <li>Display name of section</li>
       <li>Display first 15 characters of name, then &quot;...&quot; if there is more</li>
     </ol>
-  </li>
-  <li><strong>Section type
-    </strong>
-    <ol type="a">
-      <li>Display section type</li>
-      </ol>
   </li>
   <li><strong>Location</strong>    
     <ol type="a">
