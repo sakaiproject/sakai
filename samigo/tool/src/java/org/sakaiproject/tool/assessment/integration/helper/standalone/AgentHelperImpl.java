@@ -118,12 +118,12 @@ public class AgentHelperImpl implements AgentHelper
    * @param agentS the Agent string.
    * @return the Agent display name.
    */
-  public String getDisplayName(String agentS){
-    if ("admin".equals(agentS))
+  public String getDisplayName(String agentString){
+    if ("admin".equals(agentString))
       return "Administrator";
-    else if ("rachel".equals(agentS))
+    else if ("rachel".equals(agentString))
       return "Rachel Gollub";
-    else if ("marith".equals(agentS))
+    else if ("marith".equals(agentString))
       return "Margaret Petit";
     else
       return "Dr. Who";
@@ -138,9 +138,9 @@ public class AgentHelperImpl implements AgentHelper
   {
     if ("admin".equals(agentString))
       return "Samigo";
-    else if (agentString.equals("rachel"))
+    else if ("rachel".equals(agentString))
       return "Rachel";
-    else if (agentString.equals("marith"))
+    else if ("marith".equals(agentString))
       return "Margaret";
     else
       return "Dr.";
@@ -155,9 +155,9 @@ public class AgentHelperImpl implements AgentHelper
   {
     if ("admin".equals(agentString))
       return "Administrator";
-    else if (agentString.equals("rachel"))
+    else if ("rachel".equals(agentString))
       return "Gollub";
-    else if (agentString.equals("marith"))
+    else if ("marith".equals(agentString))
       return "Petit";
     else
       return "Who";
