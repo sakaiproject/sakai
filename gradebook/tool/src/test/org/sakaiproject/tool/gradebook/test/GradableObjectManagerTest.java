@@ -191,7 +191,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
         // Get the grade records for this assignment.  None should be returned, since
         // it has been removed.
-        gradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(asn);
+        gradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(asn, studentUids);
         assertNoneFromRemovedAssignments(gradeRecords);
         Assert.assertTrue(gradeRecords.size() == 0);
 

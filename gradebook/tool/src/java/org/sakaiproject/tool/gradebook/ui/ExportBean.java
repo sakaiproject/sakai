@@ -28,14 +28,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -69,6 +62,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 	// Transient pointers to business data, for easier sharing of code
 	// between action methods.
 	private transient List enrollments;
+	private transient List gradableObjects;
 	private transient Map scoresMap;	// May be course grades instead
 
 	/**
@@ -78,49 +72,48 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 	 */
 	public void exportRosterCsv(ActionEvent event) {
         String filePrefix = getLocalizedString("export_gradebook_prefix");
-		writeAsCsv(getAsCsv(getRosterGradableObjects(), true), getFileName(filePrefix));
+        initScoresMap(false);
+		writeAsCsv(getAsCsv(true), getFileName(filePrefix));
 	}
 
     public void exportCourseGradeCsv(ActionEvent event) {
         if(logger.isInfoEnabled()) logger.info("exporting course grade as csv for gradebook " + getGradebookUid());
         String filePrefix = getLocalizedString("export_course_grade_prefix");
-        writeAsCsv(getAsCsv(getCourseGradeAsList(), false), getFileName(filePrefix));
+        initScoresMap(true);
+        writeAsCsv(getAsCsv(false), getFileName(filePrefix));
     }
 
-	private List getCourseGradeAsList() {
-        enrollments = getEnrollments();
-
-        List list = new ArrayList();
-        list.add(getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(enrollments)));
-
-        List gradeRecords = getGradeManager().getAllGradeRecords(getGradebookId());
-
-        scoresMap = new HashMap();
-        for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
-            AbstractGradeRecord gradeRecord = (AbstractGradeRecord)iter.next();
-            if(!gradeRecord.isCourseGradeRecord()) {
-                continue;
-            }
-            String studentUid = gradeRecord.getStudentId();
-            Map studentMap = (Map)scoresMap.get(studentUid);
-            if (studentMap == null) {
-                studentMap = new HashMap();
-                scoresMap.put(studentUid, studentMap);
-            }
-            studentMap.put(gradeRecord.getGradableObject().getId(), ((CourseGradeRecord)gradeRecord).getDisplayGrade());
-        }
-
-        return list;
+	public void exportRosterExcel(ActionEvent event) {
+        String filePrefix = getLocalizedString("export_gradebook_prefix");
+        initScoresMap(false);
+		writeAsExcel(getAsExcel(true), getFileName(filePrefix));
 	}
 
-	private List getRosterGradableObjects() {
-        enrollments = getEnrollments();
+    public void exportCourseGradeExcel(ActionEvent event) {
+        if(logger.isInfoEnabled()) logger.info("exporting course grade as excel for gradebook " + getGradebookUid());
+        String filePrefix = getLocalizedString("export_course_grade_prefix");
+        initScoresMap(true);
+        writeAsExcel(getAsExcel(false), getFileName(filePrefix));
+    }
 
-		Gradebook gradebook = getGradebook();
-		List gradableObjects = getGradeManager().getAssignments(getGradebookId());
-		CourseGrade courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(enrollments));
+	private void initScoresMap(boolean isCourseGrade) {
+        List allEnrollments = getAllEnrollments();
+        if (isCourseGrade) {
+        	gradableObjects = new ArrayList();
+        } else {
+        	gradableObjects = getGradeManager().getAssignments(getGradebookId());
+        }
+		CourseGrade courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(allEnrollments));
 		gradableObjects.add(courseGrade);
-		List gradeRecords = getGradeManager().getAllGradeRecords(getGradebookId());
+
+		enrollments = getAvailableEnrollments(allEnrollments);
+
+		List gradeRecords;
+		if (isCourseGrade) {
+			gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(courseGrade, FacadeUtils.getStudentUids(enrollments));
+		} else {
+			gradeRecords = getGradeManager().getPointsEarnedSortedAllGradeRecords(getGradebookId(), FacadeUtils.getStudentUids(enrollments));
+		}
 
 		scoresMap = new HashMap();
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
@@ -131,9 +124,14 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 				studentMap = new HashMap();
 				scoresMap.put(studentUid, studentMap);
 			}
-			studentMap.put(gradeRecord.getGradableObject().getId(), gradeRecord.getPointsEarned());
+			Object columnValue;
+			if (isCourseGrade) {
+				columnValue = ((CourseGradeRecord)gradeRecord).getDisplayGrade();
+			} else {
+				columnValue = gradeRecord.getPointsEarned();
+			}
+            studentMap.put(gradeRecord.getGradableObject().getId(), columnValue);
 		}
-        return gradableObjects;
 	}
 
 	private void writeAsCsv(String csvString, String fileName) {
@@ -161,17 +159,6 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		}
 		faces.responseComplete();
 	}
-
-	public void exportRosterExcel(ActionEvent event) {
-        String filePrefix = getLocalizedString("export_gradebook_prefix");
-		writeAsExcel(getAsExcel(getRosterGradableObjects(), true), getFileName(filePrefix));
-	}
-
-    public void exportCourseGradeExcel(ActionEvent event) {
-        if(logger.isInfoEnabled()) logger.info("exporting course grade as excel for gradebook " + getGradebookUid());
-        String filePrefix = getLocalizedString("export_course_grade_prefix");
-        writeAsExcel(getAsExcel(getCourseGradeAsList(), false), getFileName(filePrefix));
-    }
 
     private void writeAsExcel(HSSFWorkbook wb, String fileName) {
 		FacesContext faces = FacesContext.getCurrentInstance();
@@ -210,7 +197,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
      * as point totals or letter grades
 	 * @return The excel workbook
 	 */
-	private HSSFWorkbook getAsExcel(List gradableObjects, boolean showCourseGradeAsPoints) {
+	private HSSFWorkbook getAsExcel(boolean showCourseGradeAsPoints) {
 		HSSFWorkbook wb = new HSSFWorkbook();
         // Excel can not handle sheet names with > 31 characters, and can't handle /\*?[] characters
         String safeGradebookName = StringUtils.left(getGradebook().getName().replaceAll("\\W", "_"), 30);
@@ -272,7 +259,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
      * as point totals or letter grades
 	 * @return The csv document
 	 */
-	private String getAsCsv(List gradableObjects, boolean showCourseGradeAsPoints) {
+	private String getAsCsv(boolean showCourseGradeAsPoints) {
 		StringBuffer sb = new StringBuffer();
 
 		// Add the headers

@@ -51,18 +51,18 @@ public abstract class EnrollmentTableBean
 
 	private static final int ALL_SECTIONS_SELECT_VALUE = -1;
 
-    protected static Map columnSortMap;
-    protected String searchString;
-    protected int firstScoreRow;
-    protected int maxDisplayedScoreRows;
-    protected int scoreDataRows;
-    protected boolean emptyEnrollments;	// Needed to render buttons
+    private static Map columnSortMap;
+    private String searchString;
+    private int firstScoreRow;
+    private int maxDisplayedScoreRows;
+    private int scoreDataRows;
+    private boolean emptyEnrollments;	// Needed to render buttons
 
 	// The section selection menu will include some choices that aren't
 	// real sections (e.g., "All Sections" or "Unassigned Students".
 	private Integer selectedSectionFilterValue = new Integer(ALL_SECTIONS_SELECT_VALUE);
 	private List sectionFilterSelectItems;
-	private List availableSections;	// The real sections accessible by this user
+	private transient List availableSections;	// The real sections accessible by this user
 
     public EnrollmentTableBean() {
         maxDisplayedScoreRows = getPreferencesBean().getDefaultMaxDisplayedScoreRows();
@@ -128,41 +128,52 @@ public abstract class EnrollmentTableBean
 	protected Map getOrderedEnrollmentMap() {
 		return getOrderedEnrollmentMap(null);
 	}
-	protected Map getOrderedEnrollmentMap(Collection enrollments) {
-        Map enrollmentMap;
-
-		if (isFilteredSearch()) {
-			if (isAllSelectionsSelected()) {
-				enrollments = getSectionAwareness().findSiteMembersInRole(getGradebookUid(), Role.STUDENT, searchString);
-			// TODO Put the check for unassigned students here when it's available.
-			} else {
-				enrollments = findSectionMembersInRole(getSelectedSectionUid(), Role.STUDENT, searchString);
-			}
-		} else {
-			if (isAllSelectionsSelected()) {
-				// We try to avoid unnecessary work by letting the caller supply
-				// the complete enrollment list if they happen to have it.
-				if (enrollments == null) {
-					enrollments = getEnrollments();
-				}
-			// TODO Put the check for unassigned students here when it's available.
-			} else {
-				enrollments = getSectionAwareness().getSectionMembersInRole(getSelectedSectionUid(), Role.STUDENT);
-			}
-		}
+	protected Map getOrderedEnrollmentMap(List enrollments) {
+        enrollments = getWorkingEnrollments(enrollments);
 
 		scoreDataRows = enrollments.size();
-		if (isEnrollmentSort()) {
-			// Handle sorting and paging in memory, since the service facades
-			// didn't do it.
-			List enrollmentList = new ArrayList(enrollments);
-			Collections.sort(enrollmentList, (Comparator)columnSortMap.get(getSortColumn()));
-			enrollments = finalizeSortingAndPaging(enrollmentList);
-		}
-
 		emptyEnrollments = enrollments.isEmpty();
 
+		return transformToOrderedEnrollmentMap(enrollments);
+	}
+
+	protected List getWorkingEnrollments(List enrollments) {
+        List allEnrollmentsFilteredBySearch = null;
+
+		if (isFilteredSearch()) {
+			allEnrollmentsFilteredBySearch = getSectionAwareness().findSiteMembersInRole(getGradebookUid(), Role.STUDENT, searchString);
+			if (allEnrollmentsFilteredBySearch.isEmpty() ||
+				(isAllSectionsSelected() && isUserAbleToGradeAll())) {
+				return allEnrollmentsFilteredBySearch;
+			}
+		}
+
+		if (isAllSectionsSelected()) {
+			enrollments = getAvailableEnrollments(enrollments);
+		} else {
+			// The user has selected a particular section.
+			enrollments = getSectionEnrollments(getSelectedSectionUid());
+		}
+
+		if (isFilteredSearch()) {
+			Set availableStudentUids = FacadeUtils.getStudentUids(enrollments);
+			enrollments = new ArrayList();
+			for (Iterator iter = allEnrollmentsFilteredBySearch.iterator(); iter.hasNext(); ) {
+				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+				if (availableStudentUids.contains(enr.getUser().getUserUid())) {
+					enrollments.add(enr);
+				}
+			}
+		}
+
+		return enrollments;
+	}
+
+	private Map transformToOrderedEnrollmentMap(List enrollments) {
+		Map enrollmentMap;
 		if (isEnrollmentSort()) {
+			Collections.sort(enrollments, (Comparator)columnSortMap.get(getSortColumn()));
+			enrollments = finalizeSortingAndPaging(enrollments);
 			enrollmentMap = new LinkedHashMap();	// Preserve ordering
         } else {
         	enrollmentMap = new HashMap();
@@ -174,24 +185,6 @@ public abstract class EnrollmentTableBean
         }
 
         return enrollmentMap;
-	}
-
-	/**
-	 * Convenience method to deal with lack of a Section Awarness
-	 * findSectionMembersInRole service.
-	 */
-	public List findSectionMembersInRole(String sectionUid, Role role, String searchString) {
-		SectionAwareness sectionAwareness = getSectionAwareness();
-		List intersection = new ArrayList();
-		Set searchFilteredStudentUids = FacadeUtils.getStudentUids(sectionAwareness.findSiteMembersInRole(getGradebookUid(), role, searchString));
-		Collection sectionFiltered = sectionAwareness.getSectionMembersInRole(sectionUid, role);
-		for (Iterator iter = sectionFiltered.iterator(); iter.hasNext(); ) {
-			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-			if (searchFilteredStudentUids.contains(enr.getUser().getUserUid())) {
-				intersection.add(enr);
-			}
-		}
-		return intersection;
 	}
 
 	protected List finalizeSortingAndPaging(List list) {
@@ -217,7 +210,7 @@ public abstract class EnrollmentTableBean
 	// Section filtering.
 	protected void init() {
 		SectionAwareness sectionAwareness = getSectionAwareness();
-		availableSections = new ArrayList();
+		availableSections = getAvailableSections();
 		sectionFilterSelectItems = new ArrayList();
 
 		// The first choice is always "All available enrollments"
@@ -225,20 +218,10 @@ public abstract class EnrollmentTableBean
 
 		// TODO If there are unassigned students and the current user is allowed to see them, add them next.
 
-		// Get the list of sections. For now, just use whatever default
-		// sorting we get from the Section Awareness component.
-		List sectionCategories = sectionAwareness.getSectionCategories(getGradebookUid());
-		int availableSectionsPos = 0;
-		for (Iterator catIter = sectionCategories.iterator(); catIter.hasNext(); ) {
-			String category = (String)catIter.next();
-			List sections = sectionAwareness.getSectionsInCategory(getGradebookUid(), category);
-			for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
-				CourseSection section = (CourseSection)iter.next();
-				if (isUserAbleToGradeAll() || isUserAbleToGradeSection(section.getUuid())) {
-					availableSections.add(section.getUuid());
-					sectionFilterSelectItems.add(new SelectItem(new Integer(availableSectionsPos++), section.getTitle()));
-				}
-			}
+		// Add the available sections.
+		for (int i = 0; i < availableSections.size(); i++) {
+			CourseSection section = (CourseSection)availableSections.get(i);
+			sectionFilterSelectItems.add(new SelectItem(new Integer(i), section.getTitle()));
 		}
 
 		// If the selected value now falls out of legal range due to sections
@@ -250,11 +233,7 @@ public abstract class EnrollmentTableBean
 		}
 	}
 
-	public List getAvailableSections() {
-		return availableSections;
-	}
-
-	public boolean isAllSelectionsSelected() {
+	public boolean isAllSectionsSelected() {
 		return (selectedSectionFilterValue.intValue() == ALL_SECTIONS_SELECT_VALUE);
 	}
 
@@ -263,7 +242,8 @@ public abstract class EnrollmentTableBean
 		if (filterValue == ALL_SECTIONS_SELECT_VALUE) {
 			return null;
 		} else {
-			return (String)availableSections.get(filterValue);
+			CourseSection section = (CourseSection)availableSections.get(filterValue);
+			return section.getUuid();
 		}
 	}
 
@@ -273,9 +253,14 @@ public abstract class EnrollmentTableBean
 	public void setSelectedSectionFilterValue(Integer selectedSectionFilterValue) {
 		if (log.isDebugEnabled()) log.debug("setSelectedSectionFilterValue " + selectedSectionFilterValue);
 		this.selectedSectionFilterValue = selectedSectionFilterValue;
+        setFirstRow(0); // clear the paging when we update the search
 	}
 
 	public List getSectionFilterSelectItems() {
 		return sectionFilterSelectItems;
 	}
+
+    public boolean isEmptyEnrollments() {
+        return emptyEnrollments;
+    }
 }

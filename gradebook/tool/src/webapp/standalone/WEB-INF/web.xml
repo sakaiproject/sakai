@@ -100,7 +100,7 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>AuthzFilter</filter-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>*.jsf</url-pattern>
 	</filter-mapping>
 
 	<!--

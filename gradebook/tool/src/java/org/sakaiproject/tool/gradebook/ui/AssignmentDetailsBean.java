@@ -128,7 +128,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		// of the statistics.
 
 		if (assignmentId != null) {
-			List allEnrollments = getEnrollments();
+			List allEnrollments = getAllEnrollments();
 			Set enrollmentUids = FacadeUtils.getStudentUids(allEnrollments);
 			assignment = (Assignment)getGradeManager().getGradableObjectWithStats(assignmentId, enrollmentUids);
 			if (assignment != null) {
@@ -155,17 +155,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				}
 
 				// Set up score rows.
-				// TODO Avoid another DB query by passing all enrollments in.
 				Map enrollmentMap = getOrderedEnrollmentMap(allEnrollments);
 
-				List gradeRecords;
-
-				if (isFilteredSearch() || isEnrollmentSort()) {
-					gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(assignment, enrollmentMap.keySet());
-				} else {
-					gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(assignment);
-				}
-
+				List gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(assignment, enrollmentMap.keySet());
 				List workingEnrollments = new ArrayList(enrollmentMap.values());
 
 				if (!isEnrollmentSort()) {
@@ -281,10 +273,6 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	public void setScoreRows(List scoreRows) {
 		this.scoreRows = scoreRows;
 	}
-
-    public boolean isEmptyEnrollments() {
-        return emptyEnrollments;
-    }
 
     // A desparate stab at reasonable embedded validation message formatting.
     // If the score column is an input box, it may have a wide message associated

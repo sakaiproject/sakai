@@ -79,7 +79,7 @@ public class GradeManagerTest extends GradebookTestBase {
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
         // Fetch the grade records
-        List records = gradeManager.getPointsEarnedSortedGradeRecords(persistentAssignment);
+        List records = gradeManager.getPointsEarnedSortedGradeRecords(persistentAssignment, studentUidsList);
 
         // Ensure that each of the students in the map have a grade record, and
         // that their grade is correct
@@ -93,7 +93,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Add overrides to the course grades
         CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId(), students);
-        records = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade);
+        records = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade, students);
 
         gradeRecordSet = new GradeRecordSet(courseGrade);
         for(Iterator iter = records.iterator(); iter.hasNext();) {
@@ -113,7 +113,7 @@ public class GradeManagerTest extends GradebookTestBase {
         GradeMapping gradeMapping = gradebook.getSelectedGradeMapping();
 
         // Ensure that the sort grades have been updated to reflect the overridden grades
-        List courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade);
+        List courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade, studentUidsList);
         for(Iterator iter = courseGradeRecords.iterator(); iter.hasNext();) {
             CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
             Double sortGrade = cgr.getSortGrade();
@@ -134,7 +134,7 @@ public class GradeManagerTest extends GradebookTestBase {
         gradeManager.updateCourseGradeRecords(gradeRecordSet);
 
         // Ensure that the sort grades have been updated
-        courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade);
+        courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade, studentUidsList);
         double totalPoints = gradeManager.getTotalPoints(gradebook.getId());
 
         for(Iterator iter = courseGradeRecords.iterator(); iter.hasNext();) {
@@ -145,7 +145,7 @@ public class GradeManagerTest extends GradebookTestBase {
             Assert.assertTrue(sortGrade.doubleValue() - percent.doubleValue() < .001);
         }
 
-        List allGradeRecords = gradeManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId());
+        List allGradeRecords = gradeManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId(), studentUidsList);
         // There should be six grade records for these students
         Assert.assertTrue(allGradeRecords.size() == 6);
 

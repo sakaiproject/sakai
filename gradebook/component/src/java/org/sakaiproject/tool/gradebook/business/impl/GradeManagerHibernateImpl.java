@@ -76,27 +76,6 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
 	/**
 	 */
-	public List getPointsEarnedSortedGradeRecords(GradableObject go) {
-        List records = getHibernateTemplate().find(
-            "from AbstractGradeRecord as agr where agr.gradableObject.removed=false and agr.gradableObject.id=? order by agr.pointsEarned",
-            go.getId(), Hibernate.LONG);
-        // If this is a course grade, calculate the point totals for the grade records
-        if(go.isCourseGrade()) {
-            Double totalPoints = ((CourseGrade)go).getTotalPoints();
-            if(logger.isDebugEnabled()) logger.debug("Total points = " + totalPoints);
-            for(Iterator iter = records.iterator(); iter.hasNext();) {
-                CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
-                if(logger.isDebugEnabled()) logger.debug("Points earned = " + cgr.getPointsEarned());
-                Double autoCalc = new Double(cgr.getPointsEarned().doubleValue() / totalPoints.doubleValue() * 100);
-                cgr.setAutoCalculatedGrade(autoCalc);
-            }
-        }
-
-        return records;
-	}
-
-	/**
-	 */
 	public List getPointsEarnedSortedGradeRecords(final GradableObject go, final Collection studentUids) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -132,20 +111,6 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
     /**
      */
-    public List getPointsEarnedSortedAllGradeRecords(final Long gradebookId) {
-        HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.createQuery("from AbstractGradeRecord as agr where agr.gradableObject.removed=false and " +
-						"agr.gradableObject.gradebook.id=:gradebookId order by agr.pointsEarned");
-				q.setLong("gradebookId", gradebookId.longValue());
-				return q.list();
-            }
-        };
-        return (List)getHibernateTemplate().execute(hc);
-    }
-
-    /**
-     */
     public List getPointsEarnedSortedAllGradeRecords(final Long gradebookId, final Collection studentUids) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -164,19 +129,6 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
         };
         return (List)getHibernateTemplate().execute(hc);
     }
-
-    /**
-	 */
-	public List getAllGradeRecords(final Long gradebookId) {
-        HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                Query q = session.createQuery("from AbstractGradeRecord as agr where agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=:gradebookId");
-                q.setLong("gradebookId", gradebookId.longValue());
-                return q.list();
-            }
-        };
-        return (List)getHibernateTemplate().execute(hc);
-	}
 
    /**
      * @return Returns set of student UIDs who were given scores higher than the assignment's value.
@@ -360,8 +312,6 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
         };
         getHibernateTemplate().execute(hc);
     }
-
-
 
     /**
      */

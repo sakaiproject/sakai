@@ -109,35 +109,19 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		//      message. After fixing the error, the instructor saves.
 		//   4) JSF only calls value change listeners for the fixed grades, not for
 		//      the previously entered (but unsaved) valid grades.
-//		if (!workInProgress) {
-//			changedGrades = new HashMap();
-//		}
 
 		// Clear view state.
 		scoreRows = new ArrayList();
 
-		List allEnrollments = getEnrollments();
+		List allEnrollments = getAllEnrollments();
 		courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId(), FacadeUtils.getStudentUids(allEnrollments));
 
         gradeMapping = getGradebook().getSelectedGradeMapping();
         totalPoints = getGradeManager().getTotalPoints(getGradebookId());
 
-        // Set up searching and paging
-        String defaultSearchString = getLocalizedString("search_default_student_search_string");
-        if(StringUtils.trimToNull(searchString) == null) {
-            searchString = defaultSearchString;
-        }
-
 		// Set up score rows.
 		Map enrollmentMap = getOrderedEnrollmentMap(allEnrollments);
-
-		List gradeRecords;
-		if (isFilteredSearch() || isEnrollmentSort()) {
-			gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(courseGrade, enrollmentMap.keySet());
-		} else {
-			gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(courseGrade);
-		}
-
+		List gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(courseGrade, enrollmentMap.keySet());
 		List workingEnrollments = new ArrayList(enrollmentMap.values());
 
 		if (!isEnrollmentSort()) {
@@ -225,10 +209,6 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	public void setScoreRows(List scoreRows) {
 		this.scoreRows = scoreRows;
 	}
-
-    public boolean isEmptyEnrollments() {
-        return emptyEnrollments;
-    }
 
     // Sorting
     public boolean isSortAscending() {

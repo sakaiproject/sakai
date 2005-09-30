@@ -59,7 +59,6 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 	// View maintenance fields - serializable.
 	private List gradableObjectColumns;	// Needed to build table columns
-	private boolean emptyEnrollments;	// Needed to render the export buttons
 
 	public class GradableObjectColumn implements Serializable {
 		private Long id;
@@ -123,14 +122,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
         Map enrollmentMap = getOrderedEnrollmentMap();
 
-		List gradeRecords;
-
-        if (isFilteredSearch() || isEnrollmentSort()) {
-        	gradeRecords = getGradeManager().getPointsEarnedSortedAllGradeRecords(getGradebookId(), enrollmentMap.keySet());
-        } else {
-        	gradeRecords = getGradeManager().getPointsEarnedSortedAllGradeRecords(getGradebookId());
-        }
-
+		List gradeRecords = getGradeManager().getPointsEarnedSortedAllGradeRecords(getGradebookId(), enrollmentMap.keySet());
         List workingEnrollments = new ArrayList(enrollmentMap.values());
 
         if (!isEnrollmentSort()) {
@@ -152,8 +144,6 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
             workingEnrollments = finalizeSortingAndPaging(workingEnrollments);
 		}
-
-        emptyEnrollments = workingEnrollments.size() == 0;
 
         scoresMap = new HashMap();
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
@@ -288,10 +278,6 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	public Map getScoresMap() {
 		return scoresMap;
 	}
-
-	public boolean isEmptyEnrollments() {
-        return emptyEnrollments;
-    }
 
 	// Sorting
     public boolean isSortAscending() {

@@ -83,7 +83,7 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
 
 	/** Special sites */
 	public static int SITE_AMBIGUOUS_TEACHER = 2;
-	public static int SITE_AMBIGUOUS_STUDENT = 6;
+	public static int SITE_AMBIGUOUS_STUDENT = 5;
 	public static int SITE_LOADED_UP = 5;
 
 	public StandaloneSectionsDataLoader() {
@@ -185,8 +185,6 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
 		}
 		User nobody = userManager.createUser(AUTHID_NO_SITE, "Johnny Nobody", "Nobody, Johnny", AUTHID_NO_SITE);
 
-		// No TAs yet.
-
 		// Load enrollments into the courses.
 		for (int i = 0; i < students.size(); i++) {
 			// Everyone is added to Site 8.
@@ -254,10 +252,8 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
 		for (int i = 0; i < enrollments.size(); i++) {
 			String userUid = ((EnrollmentRecord)enrollments.get(i)).getUser().getUserUid();
 			String sectionUuid = (String)catBSectionUuids.get(i % catBSectionUuids.size());
-			System.err.println("about to addSectionMembership(" + userUid + ", " + sectionUuid + ")");
 			integrationSupport.addSectionMembership(userUid, sectionUuid, Role.STUDENT);
 			if (i < (enrollments.size() - 5)) {
-				System.err.println("about to addSectionMembership(" + userUid + ", " + sectionUuid + ")");
 				sectionUuid = (String)catASectionUuids.get(i % catASectionUuids.size());
 				integrationSupport.addSectionMembership(userUid, sectionUuid, Role.STUDENT);
 			}

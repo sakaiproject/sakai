@@ -10,9 +10,9 @@ For the bravest among you, here's how to build and populate a standalone Gradebo
 cd ../sections
 
 # Build Section Management, Section Awareness, and integration support.
-maven -Dstandalone=true -Dhibernate.properties.dir=C:/java/sakai-trunk/sakai/gradebook/tool/src/hibernate cln bld
+maven  -Dmode=standalone -Dhibernate.properties.dir=C:/java/sakai-trunk/sakai/gradebook/tool/src/hibernate cln bld
 # Initialize your local database with the sections tables.
-maven -Dstandalone=true -Dmem=false -Dhibernate.properties.dir=C:/java/sakai-trunk/sakai/gradebook/tool/src/hibernate schema
+maven  -Dmode=standalone -Dmem=false -Dhibernate.properties.dir=C:/java/sakai-trunk/sakai/gradebook/tool/src/hibernate schema
 
 # Go back to the Gradebook.
 cd ../gradebook/

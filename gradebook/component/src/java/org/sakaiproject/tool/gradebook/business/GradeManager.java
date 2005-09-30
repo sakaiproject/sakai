@@ -46,23 +46,6 @@ import org.sakaiproject.tool.gradebook.GradingEvents;
 public interface GradeManager {
 
     /**
-     * Get all grade records. In the long term, we expect this will be used
-     * primarily for export.
-     *
-     * @param gradebookId
-     * @return A List of grade records
-     */
-    public List getAllGradeRecords(Long gradebookId);
-
-    /**
-     * Get all grade records for the given gradable object
-     *
-     * @param gradableObject Find grade records for this gradable object
-     * @return A List of grade records
-     */
-    public List getPointsEarnedSortedGradeRecords(GradableObject gradableObject);
-
-    /**
      * Get all grade records for the given gradable object and the given set of
      * student UIDs
      *
@@ -80,13 +63,6 @@ public interface GradeManager {
      * @param studentUids
      */
     public List getPointsEarnedSortedAllGradeRecords(Long gradebookId, Collection studentUids);
-
-    /**
-     * Gets all grade records in a gradebook.
-     *
-     * @param gradebookId
-     */
-    public List getPointsEarnedSortedAllGradeRecords(Long gradebookId);
 
     /**
      * Gets whether there are explicitly entered course grade records in a gradebook.
