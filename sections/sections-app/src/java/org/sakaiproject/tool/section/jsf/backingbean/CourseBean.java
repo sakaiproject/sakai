@@ -57,7 +57,7 @@ public class CourseBean implements Serializable {
 		return courseUuid;
 	}
 	
-	protected SectionManager getSectionManager() {
+	public SectionManager getSectionManager() {
 		return sectionManager;
 	}
 	

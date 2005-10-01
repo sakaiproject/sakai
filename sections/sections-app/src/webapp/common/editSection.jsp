@@ -15,7 +15,10 @@
         <h:panelGrid columns="2">
             <h:outputLabel for="titleInput" value="#{msgs.section_title}" styleClass="formLabel"/>
             <h:panelGroup>
-                <h:inputText id="titleInput" required="true" value="#{editSectionBean.title}"/>
+                <h:inputText
+                    id="titleInput"
+                    required="true"
+                    value="#{editSectionBean.title}"/>
                 <h:message for="titleInput" styleClass="validationEmbedded"/>
             </h:panelGroup>
             
@@ -46,9 +49,7 @@
             <h:outputLabel for="startTime" value="#{msgs.section_start_time}" styleClass="formLabel"/>
             <h:panelGrid columns="3">
                 <h:panelGroup>
-                    <h:inputText id="startTime" value="#{editSectionBean.startTime}">
-                        <f:convertDateTime type="time" pattern="h:mm"/>
-                    </h:inputText>
+                    <h:inputText id="startTime" value="#{editSectionBean.startTime}"/>
                     <h:message for="startTime" styleClass="validationEmbedded"/>
                 </h:panelGroup>
                 <h:outputText value="#{msgs.section_start_time_example}"/>
@@ -61,9 +62,9 @@
             <h:outputLabel for="endTime" value="#{msgs.section_end_time}" styleClass="formLabel"/>
             <h:panelGrid columns="3">
                 <h:panelGroup>
-                    <h:inputText id="endTime" value="#{editSectionBean.endTime}">
-                        <f:convertDateTime type="time" pattern="h:mm"/>
-                    </h:inputText>
+                    <h:inputText
+                        id="endTime"
+                        value="#{editSectionBean.endTime}"/>
                     <h:message for="endTime" styleClass="validationEmbedded"/>
                 </h:panelGroup>
                 <h:outputText value="#{msgs.section_end_time_example}"/>
@@ -77,9 +78,7 @@
             <h:panelGroup>
                 <h:inputText
                     id="maxEnrollmentInput"
-                    value="#{editSectionBean.maxEnrollments}">
-                    <f:validateLongRange minimum="0" />
-                </h:inputText>
+                    value="#{editSectionBean.maxEnrollments}"/>
                 <h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
             </h:panelGroup>
     

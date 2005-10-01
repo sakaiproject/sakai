@@ -25,6 +25,9 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -106,26 +109,72 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	}
 	
 	public String addSections() {
-		// Check for duplicate section titles
 		Collection existingSections = getAllSiteSections();
-		boolean nameConflict = false;
-		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+
+		// Since the validation and conversion rules rely on the *relative*
+		// values of one component to another, we can't use JSF validators and
+		// converters.  So we check everything here.
+		boolean validationFailure = false;
+		int index = 0;
+		for(Iterator iter = sections.iterator(); iter.hasNext(); index++) {
 			LocalSectionModel sectionModel = (LocalSectionModel)iter.next();
+			
+			// Ensure that this title isn't being used by another section
 			if(isDuplicateSectionTitle(sectionModel.getTitle(), existingSections)) {
-				if(log.isDebugEnabled()) log.debug("Failed to add section... duplicate title: " + sectionModel.getTitle());
-				int index = sections.indexOf(sectionModel);
-				// FIXME This is a terrible hack
+				if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + sectionModel.getTitle());
 				String componentId = "addSectionsForm:sectionTable_" + index + ":titleInput";
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 						"section_add_failure_duplicate_title", new String[] {sectionModel.getTitle()}), componentId);
-				nameConflict = true;
+				validationFailure = true;
+			}
+			
+			if(isInvalidTime(sectionModel.getStartTime())) {
+				if(log.isDebugEnabled()) log.debug("Failed to add section... start time is invalid");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
+				validationFailure = true;
+			}
+			
+			if(isInvalidTime(sectionModel.getEndTime())) {
+				if(log.isDebugEnabled()) log.debug("Failed to add section... end time is invalid");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
+				validationFailure = true;
+			}
+
+			if(isEndTimeWithoutStartTime(sectionModel)) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"section_update_failure_end_without_start"), componentId);
+				validationFailure = true;
+			}
+			
+			if(isInvalidMaxEnrollments(sectionModel)) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":maxEnrollmentInput";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}), componentId);
+				validationFailure = true;
+			}
+			
+			if(isEndTimeBeforeStartTime(sectionModel)) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"section_update_failure_end_before_start"), componentId);
+				validationFailure = true;
 			}
 		}
-		if(nameConflict) {
+		
+		if(validationFailure) {
 			setNotValidated(true);
 			return "failure";
 		}
-		
+
+		// Validation passed, so save the new sections
 		String courseUuid = getCourse().getUuid();
 		StringBuffer titles = new StringBuffer();
 		String sepChar = JsfUtil.getLocalizedMessage("section_separator");
@@ -139,8 +188,8 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 			}
 			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
 					category, sectionModel.getMaxEnrollments(), sectionModel.getLocation(),
-					ConversionUtil.convertDateToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm()),
-					ConversionUtil.convertDateToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm()),
+					convertStringToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm()),
+					convertStringToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm()),
 					sectionModel.isMonday(), sectionModel.isTuesday(), sectionModel.isWednesday(),
 					sectionModel.isThursday(), sectionModel.isFriday(), sectionModel.isSaturday(),
 					sectionModel.isSunday());
@@ -158,18 +207,109 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		return "overview";
 	}
 	
-//	private Time getTime(LocalSectionModel section, boolean useStartTime) {
-//		Date startTime = section.getStartTime();
-//		Date endTime = section.getEndTime();
-//		boolean startTimeAm = section.isStartTimeAm();
-//		boolean endTimeAm = section.isEndTimeAm();
-//		
-//		if(useStartTime) {
-//			return JsfUtil.convertDateToTime(startTime, startTimeAm);
-//		} else {
-//			return JsfUtil.convertDateToTime(endTime, endTimeAm);
-//		}
-//	}
+	/**
+	 * Converts into a java.sql.Time object.
+	 * 
+	 * @param str
+	 * @param am
+	 * @return
+	 */
+	private Time convertStringToTime(String str, boolean am) {
+		if(StringUtils.trimToNull(str) == null) {
+			return null;
+		}
+		SimpleDateFormat sdf;
+		if(str.indexOf(':') != -1) {
+			sdf = new SimpleDateFormat(EditSectionBean.TIME_PATTERN_LONG);
+		} else {
+			sdf = new SimpleDateFormat(EditSectionBean.TIME_PATTERN_SHORT);
+		}
+		Date date;
+		try {
+			date = sdf.parse(str);
+		} catch (ParseException pe) {
+			throw new RuntimeException("A bad date made it through validation!  This should never happen!");
+		}
+		return ConversionUtil.convertDateToTime(date, am);
+		
+	}
+		
+	/**
+	 * Returns true if the string fails to represent a time.
+	 * 
+	 * @param str
+	 * @return
+	 */
+	private boolean isInvalidTime(String str) {
+		// Java's date formatters allow for impossible field values (eg hours > 12)
+		// so we do manual checks here.  Ugh.
+		if(StringUtils.trimToNull(str) == null) {
+			// Empty strings are ok
+			return false;
+		}
+		
+		if(str.indexOf(':') != -1) {
+			// This is a fully specified time
+			String[] sa = str.split(":");
+			if(sa.length != 2) {
+				if(log.isDebugEnabled()) log.debug("This is not a valid time... it has more than 1 ':'.");
+				return true;
+			}
+			return outOfRange(sa[0], 2, 1, 12) || outOfRange(sa[1], 2, 0, 59);
+		} else {
+			return outOfRange(str, 2, 1, 12);
+		}
+	}
+
+	/**
+	 * Returns true if the string is longer than len, less than low, or higher than high.
+	 * 
+	 * @param str The string
+	 * @param len The max length of the string
+	 * @param low The lowest possible numeric value
+	 * @param high The highest possible numeric value
+	 * @return
+	 */
+	private boolean outOfRange(String str, int len, int low, int high) {
+		if(str.length() > len) {
+			return true;
+		}
+		try {
+			int i = Integer.parseInt(str);
+			if(i < low || i > high) {
+				return true;
+			}
+		} catch (NumberFormatException nfe) {
+			if(log.isDebugEnabled()) log.debug("time must be a number");
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isEndTimeWithoutStartTime(LocalSectionModel sectionModel) {
+		if(sectionModel.getStartTime() == null & sectionModel.getEndTime() != null) {
+			if(log.isDebugEnabled()) log.debug("You can not set an end time without setting a start time.");
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isEndTimeBeforeStartTime(LocalSectionModel sectionModel) {
+		if(sectionModel.getStartTime() != null & sectionModel.getEndTime() != null) {
+			Time start = convertStringToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm());
+			Time end = convertStringToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm());
+			if(start.after(end)) {
+				if(log.isDebugEnabled()) log.debug("You can not set an end time earlier than the start time.");
+				return true;
+			}
+		}
+		return false;
+	}
+
+	
+	private boolean isInvalidMaxEnrollments(LocalSectionModel sectionModel) {
+		return sectionModel.getMaxEnrollments() != null && sectionModel.getMaxEnrollments().intValue() < 0;
+	}
 
 	public String getCategory() {
 		return category;
@@ -197,17 +337,15 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		public LocalSectionModel() {}
 		public LocalSectionModel(String title) {this.title = title;}
 		
-		private String title;
-	    private String location;
+		private String title, location, startTime, endTime;
 	    private Integer maxEnrollments;
 		private boolean monday, tuesday, wednesday, thursday, friday, saturday, sunday;
-		private Date startTime, endTime;
 		private boolean startTimeAm, endTimeAm;
 
-		public Date getEndTime() {
+		public String getEndTime() {
 			return endTime;
 		}
-		public void setEndTime(Date endTime) {
+		public void setEndTime(String endTime) {
 			this.endTime = endTime;
 		}
 		public boolean isEndTimeAm() {
@@ -246,10 +384,10 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		public void setSaturday(boolean saturday) {
 			this.saturday = saturday;
 		}
-		public Date getStartTime() {
+		public String getStartTime() {
 			return startTime;
 		}
-		public void setStartTime(Date startTime) {
+		public void setStartTime(String startTime) {
 			this.startTime = startTime;
 		}
 		public boolean isStartTimeAm() {

@@ -25,11 +25,15 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -46,12 +50,12 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public class EditSectionBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
 	private static final Log log = LogFactory.getLog(EditSectionBean.class);
+	public static final String TIME_PATTERN_LONG = "h:mm";
+	public static final String TIME_PATTERN_SHORT = "h";
 	
 	private String sectionUuid;
 	private String title;
-	private String category;
 	private String location;
 	private Integer maxEnrollments;
 	private boolean monday;
@@ -62,8 +66,8 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	private boolean saturday;
 	private boolean sunday;
 	
-	private Date startTime;
-	private Date endTime;
+	private String startTime;
+	private String endTime;
 	private boolean startTimeAm;
 	private boolean endTimeAm;
 	
@@ -74,9 +78,9 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 				sectionUuid = sectionUuidFromParam;
 			}
 			CourseSection section = getSectionManager().getSection(sectionUuid);
-
+			SimpleDateFormat sdf = new SimpleDateFormat(TIME_PATTERN_LONG);
+			
 			title = section.getTitle();
-			category = section.getCategory();
 			location = section.getLocation();
 			maxEnrollments = section.getMaxEnrollments();
 			monday = section.isMonday();
@@ -86,34 +90,85 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			friday = section.isFriday();
 			saturday = section.isSaturday();
 			sunday = section.isSunday();
-			startTime = section.getStartTime();
-			endTime = section.getEndTime();
 			if(section.getStartTime() != null) {
+				startTime = sdf.format(section.getStartTime());
 				Calendar cal = new GregorianCalendar();
-				cal.setTime(startTime);
+				cal.setTime(section.getStartTime());
 				startTimeAm = cal.get(Calendar.HOUR_OF_DAY) < 11;
 			}
 			if(section.getEndTime() != null) {
+				endTime = sdf.format(section.getEndTime());
 				Calendar cal = new GregorianCalendar();
-				cal.setTime(endTime);
+				cal.setTime(section.getEndTime());
 				endTimeAm = cal.get(Calendar.HOUR_OF_DAY) < 11;
 			}
 		}
 	}
 
+	public String delete() {
+		getSectionManager().disbandSection(sectionUuid);
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("delete_section_success"));
+		return "overview";
+	}
+
 	public String update() {
+		// Since the validation and conversion rules rely on the *relative*
+		// values of one component to another, we can't use JSF validators and
+		// converters.  So we check everything here.
+		boolean validationFailure = false;
+		
 		// Ensure that this title isn't being used by another section
 		if(isDuplicateSectionTitle()) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + title);
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 					"section_update_failure_duplicate_title", new String[] {title}), "editSectionForm:titleInput");
-			return "failure";
+			validationFailure = true;
+		}
+		
+		if(isInvalidTime(startTime)) {
+			if(log.isDebugEnabled()) log.debug("Failed to update section... start time is invalid");
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+					"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:startTime");
+			validationFailure = true;
+		}
+		
+		if(isInvalidTime(endTime)) {
+			if(log.isDebugEnabled()) log.debug("Failed to update section... end time is invalid");
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+					"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:endTime");
+			validationFailure = true;
+		}
+
+		if(isEndTimeWithoutStartTime()) {
+			if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+					"section_update_failure_end_without_start"), "editSectionForm:startTime");
+			validationFailure = true;
+		}
+		
+		if(isInvalidMaxEnrollments()) {
+			if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+					"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}),
+					"editSectionForm:maxEnrollmentInput");
+			validationFailure = true;
+		}
+
+		if(isEndTimeBeforeStartTime()) {
+			if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+					"section_update_failure_end_before_start"), "editSectionForm:endTime");
+			validationFailure = true;
+		}
+
+		if(validationFailure) {
+			return null;
 		}
 		
 		// Perform the update
 		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
-				location, ConversionUtil.convertDateToTime(startTime, startTimeAm),
-				ConversionUtil.convertDateToTime(endTime, endTimeAm), monday, tuesday,
+				location, convertStringToTime(startTime, startTimeAm),
+				convertStringToTime(endTime, endTimeAm), monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
 		
 		// Add a success message
@@ -134,6 +189,38 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		return "overview";
 	}
 	
+	/**
+	 * Converts into a java.sql.Time object.
+	 * 
+	 * @param str
+	 * @param am
+	 * @return
+	 */
+	private Time convertStringToTime(String str, boolean am) {
+		if(StringUtils.trimToNull(str) == null) {
+			return null;
+		}
+		SimpleDateFormat sdf;
+		if(str.indexOf(':') != -1) {
+			sdf = new SimpleDateFormat(TIME_PATTERN_LONG);
+		} else {
+			sdf = new SimpleDateFormat(TIME_PATTERN_SHORT);
+		}
+		Date date;
+		try {
+			date = sdf.parse(str);
+		} catch (ParseException pe) {
+			throw new RuntimeException("A bad date made it through validation!  This should never happen!");
+		}
+		return ConversionUtil.convertDateToTime(date, am);
+		
+	}
+	
+	/**
+	 * Returns true if the title is a duplicate of another section.
+	 * 
+	 * @return
+	 */
 	private boolean isDuplicateSectionTitle() {
 		for(Iterator iter = getAllSiteSections().iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
@@ -149,15 +236,85 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		return false;
 	}
 	
-	public String delete() {
-		getSectionManager().disbandSection(sectionUuid);
-		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("delete_section_success"));
-		return "overview";
+	/**
+	 * Returns true if the string fails to represent a time.
+	 * 
+	 * @param str
+	 * @return
+	 */
+	private boolean isInvalidTime(String str) {
+		// Java's date formatters allow for impossible field values (eg hours > 12)
+		// so we do manual checks here.  Ugh.
+		if(StringUtils.trimToNull(str) == null) {
+			// Empty strings are ok
+			return false;
+		}
+		
+		if(str.indexOf(':') != -1) {
+			// This is a fully specified time
+			String[] sa = str.split(":");
+			if(sa.length != 2) {
+				if(log.isDebugEnabled()) log.debug("This is not a valid time... it has more than 1 ':'.");
+				return true;
+			}
+			return outOfRange(sa[0], 2, 1, 12) || outOfRange(sa[1], 2, 0, 59);
+		} else {
+			return outOfRange(str, 2, 1, 12);
+		}
+	}
+
+	/**
+	 * Returns true if the string is longer than len, less than low, or higher than high.
+	 * 
+	 * @param str The string
+	 * @param len The max length of the string
+	 * @param low The lowest possible numeric value
+	 * @param high The highest possible numeric value
+	 * @return
+	 */
+	private boolean outOfRange(String str, int len, int low, int high) {
+		if(str.length() > len) {
+			return true;
+		}
+		try {
+			int i = Integer.parseInt(str);
+			if(i < low || i > high) {
+				return true;
+			}
+		} catch (NumberFormatException nfe) {
+			if(log.isDebugEnabled()) log.debug("time must be a number");
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isEndTimeWithoutStartTime() {
+		if(startTime == null & endTime != null) {
+			if(log.isDebugEnabled()) log.debug("You can not set an end time without setting a start time.");
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isEndTimeBeforeStartTime() {
+		if(startTime != null & endTime != null) {
+			Time start = convertStringToTime(startTime, startTimeAm);
+			Time end = convertStringToTime(endTime, endTimeAm);
+			if(start.after(end)) {
+				if(log.isDebugEnabled()) log.debug("You can not set an end time earlier than the start time.");
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isInvalidMaxEnrollments() {
+		return maxEnrollments != null && maxEnrollments.intValue() < 0;
 	}
 	
 	public String getDays() {
 		CourseSection section = getSectionManager().getSection(sectionUuid);
-		CourseSectionDecorator decorator = new CourseSectionDecorator(section, getCategoryName(category));
+		CourseSectionDecorator decorator = new CourseSectionDecorator(section, null);
 		return decorator.getMeetingDays();
 	}
 	
@@ -174,19 +331,11 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		this.title = title;
 	}
 
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	public Date getEndTime() {
+	public String getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(Date endTime) {
+	public void setEndTime(String endTime) {
 		this.endTime = endTime;
 	}
 
@@ -238,11 +387,11 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		this.saturday = saturday;
 	}
 
-	public Date getStartTime() {
+	public String getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(Date startTime) {
+	public void setStartTime(String startTime) {
 		this.startTime = startTime;
 	}
 
