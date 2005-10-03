@@ -39,6 +39,9 @@ import org.sakaiproject.api.kernel.tool.ActiveTool;
 import org.sakaiproject.api.kernel.tool.Tool;
 import org.sakaiproject.api.kernel.tool.cover.ActiveToolManager;
 import org.sakaiproject.jsf.util.JsfTool;
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.service.framework.session.SessionState;
+import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 import org.sakaiproject.util.web.Web;
 
 /**
@@ -202,6 +205,13 @@ public class SyllabusFilePickerServlet extends JsfTool
        toolSession.setAttribute(helperTool.getId() + Tool.HELPER_DONE_URL,
              req.getContextPath() + req.getServletPath() + computeDefaultTarget(true));
     }
+    
+    
+    SessionState state = UsageSessionService.getSessionState(toolSession.getPlacementId());
+		boolean show_other_sites = ServerConfigurationService.getBoolean("syllabus.resources.show_all_collections.helper", true);
+		state.setAttribute("resources.allow_user_to_see_all_sites", (new Boolean(show_other_sites)).toString());
+		state.setAttribute("resources.user_chooses_to_see_other_sites", (new Boolean(show_other_sites)).toString());
+
 
     String context = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2);
     String toolPath = Web.makePath(parts, 2, parts.length);
