@@ -665,6 +665,26 @@
     </navigation-case>
   </navigation-rule>
 
+ <navigation-rule>
+    <from-view-id>/jsf/author/authorSettings.jsp</from-view-id>
+    <navigation-case>
+      <from-outcome>publish_success</from-outcome>
+      <to-view-id>/jsf/author/publishAssessment.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>publish_fail</from-outcome>
+      <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+    </navigation-case>
+     <navigation-case>
+      <from-outcome>saveSettings_success</from-outcome>
+      <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>saveSettings_fail</from-outcome>
+      <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
 <navigation-rule>
     <from-view-id>/jsf/author/item/fillInTheBlank.jsp</from-view-id>
     <navigation-case>
