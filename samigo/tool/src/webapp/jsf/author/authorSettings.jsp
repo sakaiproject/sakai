@@ -608,20 +608,20 @@ function checkTimeSelect(){
 </div>
  <p class="act">
   <h:commandButton  value="#{msg.button_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
-      action="#{assessmentSettings.publishCheck}" disabled="#{not assessmentSettings.hasQuestions}">
+      action="#{assessmentSettings.getOutcomePublish}" disabled="#{not assessmentSettings.hasQuestions}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
   </h:commandButton>
 <h:commandButton  value="#{msg.button_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
-      action="saveSettingsAndConfirmPublish" disabled="true">
+      action="#{assessmentSettings.getOutcomePublish}" disabled="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
   </h:commandButton>
 
-<h:commandButton type="submit" value="#{msg.button_save_settings}" action="editAssessment" rendered="#{not assessmentSettings.hasQuestions}" styleClass="active">
+<h:commandButton type="submit" value="#{msg.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}" rendered="#{not assessmentSettings.hasQuestions}" styleClass="active">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener" />
   </h:commandButton>
 
-  <h:commandButton type="submit" value="#{msg.button_save_settings}" action="editAssessment" rendered="#{assessmentSettings.hasQuestions}">
+  <h:commandButton type="submit" value="#{msg.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}" rendered="#{assessmentSettings.hasQuestions}">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener" />
   </h:commandButton>
