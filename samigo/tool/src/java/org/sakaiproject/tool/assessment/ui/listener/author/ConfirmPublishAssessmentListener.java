@@ -25,7 +25,9 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.ResourceBundle;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -62,30 +64,50 @@ public class ConfirmPublishAssessmentListener
     ExternalContext extContext = context.getExternalContext();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-
+    ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", context.getViewRoot().getLocale());
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
         "assessmentSettings");
-    SaveAssessmentSettings s = new SaveAssessmentSettings();
-    AssessmentFacade assessment = s.save(assessmentSettings);
-    assessmentSettings.setAssessment(assessment);
+    //Huong's adding
+    Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
+    
+    boolean isTime=((Boolean)time).booleanValue();
+    // System.out.println("SAVESETTINGSANDCONFIRM");
+    if(!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0))){
+        System.out.println("SAVESETTINGSANDCONFIRM Success");
+	assessmentSettings.setOutcomePublish("publish_success");
+	SaveAssessmentSettings s = new SaveAssessmentSettings();
+	AssessmentFacade assessment = s.save(assessmentSettings);
+	// System.out.println("ASSESSMENT SETTINGSAVED");
+	assessmentSettings.setAssessment(assessment);
 
     //  we need a publishedUrl, this is the url used by anonymous user
-    String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
-    if (releaseTo != null) {
-      // generate an alias to the pub assessment
-      String alias = AgentFacade.getAgentString() + (new Date()).getTime();
-      assessmentSettings.setAlias(alias);
-      //log.info("servletPath=" + extContext.getRequestServletPath());
-      String server = ( (javax.servlet.http.HttpServletRequest) extContext.
-                       getRequest()).getRequestURL().toString();
-      int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo/"
-      server = server.substring(0, index);
+	String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
+	if (releaseTo != null) {
+           // generate an alias to the pub assessment
+	    String alias = AgentFacade.getAgentString() + (new Date()).getTime();
+	    assessmentSettings.setAlias(alias);
+           //log.info("servletPath=" + extContext.getRequestServletPath());
+            String server = ( (javax.servlet.http.HttpServletRequest) extContext.
+			getRequest()).getRequestURL().toString();
+	    int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo/"
+	    server = server.substring(0, index);
       //log.info("servletPath=" + server);
-      String url = server + extContext.getRequestContextPath();
-      assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
+	    String url = server + extContext.getRequestContextPath();
+	    assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
+
+	}
+
+    }
+    else{
+        //System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR CHECK");
+	String err=(String)rb.getObject("timeSelect_error");
+	context.addMessage(null,new FacesMessage(err));
+	assessmentSettings.setOutcomePublish("publish_fail");
+	// System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR MESSAGE CREATED");
+
     }
 
   }
-
+  
 }
