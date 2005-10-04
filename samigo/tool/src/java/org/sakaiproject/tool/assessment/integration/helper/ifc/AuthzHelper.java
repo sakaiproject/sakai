@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.integration.helper.ifc;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import net.sf.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 
 /**
@@ -68,5 +68,9 @@ public interface AuthzHelper
 
   public ArrayList getAssessmentsByAgentAndFunction(final String agentId,
     final String functionId);
+
+  public SessionFactory getSessionFactory();
+
+  public void setSessionFactory(SessionFactory sessionFactory);
 
 }
