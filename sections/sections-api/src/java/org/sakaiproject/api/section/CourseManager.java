@@ -24,8 +24,6 @@
 
 package org.sakaiproject.api.section;
 
-import java.util.Set;
-
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
