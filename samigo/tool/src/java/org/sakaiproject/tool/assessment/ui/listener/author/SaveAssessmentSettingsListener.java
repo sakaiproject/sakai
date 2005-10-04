@@ -25,7 +25,9 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.ResourceBundle;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -66,9 +68,17 @@ public class SaveAssessmentSettingsListener
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean("assessmentSettings");
     SaveAssessmentSettings s= new SaveAssessmentSettings();
+    //Huong's adding
+ ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", context.getViewRoot().getLocale());
+    Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
+    
+    boolean isTime=((Boolean)time).booleanValue();
+    // System.out.println("SAVESETTINGSANDCONFIRM");
+    if(!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0))){
+	// System.out.println("SAVESETTINGS Success");
+	assessmentSettings.setOutcomeSave("saveSettings_success");
     s.save(assessmentSettings);
-
-    // reset the core listing in case assessment title changes
+ // reset the core listing in case assessment title changes
     AuthorBean author = (AuthorBean) cu.lookupBean(
                        "author");
     AssessmentService assessmentService = new AssessmentService();
@@ -80,6 +90,18 @@ public class SaveAssessmentSettingsListener
     // goto Question Authoring page
     EditAssessmentListener editA= new EditAssessmentListener();
     editA.processAction(null);
+	
+
+    }
+    else{
+	//  System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR CHECK");
+	String err=(String)rb.getObject("timeSelect_error");
+	context.addMessage(null,new FacesMessage(err));
+	assessmentSettings.setOutcomeSave("saveSettings_fail");
+	//  System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR MESSAGE CREATED");
+
+    }
+   
   }
 
 }
