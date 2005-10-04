@@ -37,7 +37,7 @@ public class AuthzResource extends java.util.ListResourceBundle
 {
   private static final Object[][] contents = new String[][]{
   { "view_pub", "VIEW_PUBLISHED_ASSESSMENT" },
-	{ "select_authdata_w_qual", "select a from AuthorizationData a where a.qualifierId=" },
+	{ "select_authdata_w_qual", "select a from AuthorizationData a where a.qualifierId=\'" },
   { "select_authdata_w_fun", "select a from AuthorizationData a where a.functionId=\'" },
   { "select_authdata_w_agent", "select a from AuthorizationData a where a.agentIdString=\'" },
 	{ "and_funid", "\' and a.functionId=\'" },

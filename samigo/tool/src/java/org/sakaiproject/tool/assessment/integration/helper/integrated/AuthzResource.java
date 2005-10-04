@@ -55,7 +55,7 @@ public class AuthzResource extends java.util.ListResourceBundle
 	{ "delivery", "delivery" },
 	{ "select_authdata_f_id_q_id", "select a from AuthorizationData a where a.functionId=? and a.qualifierId=?" },
 	{ "select_authdata_a_id", "select a from AuthorizationData a where a.agentIdString=\'" },
-	{ "select_authdata_q_id", "select a from AuthorizationData a where a.qualifierId=" },
+	{ "select_authdata_q_id", "select a from AuthorizationData a where a.qualifierId=\'" },
 	{ "select_authdata_f_id", "select a from AuthorizationData a where a.functionId=\'" },
 	{ "someone", "someone" }};
   public Object[][] getContents()
