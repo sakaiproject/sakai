@@ -21,11 +21,13 @@
  *
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import net.sf.hibernate.SessionFactory;
+
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 
 /**
@@ -40,7 +42,7 @@ import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
  * @author Ed Smiley <esmiley@stanford.edu>
  */
 
-public interface AuthzHelper
+public interface AuthzHelper extends Serializable
 {
   public boolean isAuthorized
     (String agentId, String function, String qualifier);

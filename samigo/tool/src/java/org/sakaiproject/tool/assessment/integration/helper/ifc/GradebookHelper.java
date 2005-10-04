@@ -21,6 +21,7 @@
  *
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
+import java.io.Serializable;
 
 /**
  *
@@ -34,7 +35,7 @@ package org.sakaiproject.tool.assessment.integration.helper.ifc;
  * @author Ed Smiley <esmiley@stanford.edu>
  */
 
-public interface GradebookHelper
+public interface GradebookHelper extends Serializable
 {
   public String getGradebookUId();
 

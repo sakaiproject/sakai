@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
 
+import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,7 +40,7 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
  * @author Ed Smiley <esmiley@stanford.edu>
  */
 
-public interface AgentHelper
+public interface AgentHelper extends Serializable
 {
   public AgentImpl getAgent();
 

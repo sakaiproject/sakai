@@ -21,9 +21,9 @@
  *
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
+import java.io.Serializable;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.
-  PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 
 /**
@@ -36,7 +36,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
  */
-public interface GradebookServiceHelper
+public interface GradebookServiceHelper extends Serializable
 {
   public boolean gradebookExists(String gradebookUId);
 

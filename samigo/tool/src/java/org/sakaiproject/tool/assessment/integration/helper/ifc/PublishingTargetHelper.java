@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 import org.sakaiproject.service.framework.log.Logger;
@@ -38,7 +39,7 @@ import org.sakaiproject.service.legacy.site.SiteService;
  * @author Ed Smiley <esmiley@stanford.edu>
  */
 
-public interface PublishingTargetHelper
+public interface PublishingTargetHelper extends Serializable
 {
   public HashMap getTargets();
 
