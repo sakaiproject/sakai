@@ -45,7 +45,7 @@ public class IntegrationContext extends IntegrationContextFactory
   private AgentHelper agentHelper;
   private AuthzHelper authzHelper;
   private GradebookHelper gradebookHelper;
-  private GradebookServiceHelper gradeBookServiceHelper;
+  private GradebookServiceHelper gradebookServiceHelper;
   private PublishingTargetHelper publishingTargetHelper;
 
   // plain old Java bean properties, nothing mysterious here
@@ -84,13 +84,13 @@ public class IntegrationContext extends IntegrationContextFactory
   {
     this.gradebookHelper = gradebookHelper;
   }
-  public GradebookServiceHelper getGradeBookServiceHelper()
+  public GradebookServiceHelper getGradebookServiceHelper()
   {
-    return gradeBookServiceHelper;
+    return gradebookServiceHelper;
   }
-  public void setGradeBookServiceHelper(GradebookServiceHelper gradeBookServiceHelper)
+  public void setGradebookServiceHelper(GradebookServiceHelper gradebookServiceHelper)
   {
-    this.gradeBookServiceHelper = gradeBookServiceHelper;
+    this.gradebookServiceHelper = gradebookServiceHelper;
   }
   public PublishingTargetHelper getPublishingTargetHelper()
   {
@@ -115,10 +115,10 @@ public class IntegrationContext extends IntegrationContextFactory
     System.out.println("getInstance();="+getInstance());
     System.out.println("getInstance().isIntegrated()="+getInstance().isIntegrated());
     System.out.println("getInstance().getAgentHelper()="+getInstance().getAgentHelper());
-//    System.out.println("getInstance().getAuthzHelper()="+getInstance().getAuthzHelper());
+    System.out.println("getInstance().getAuthzHelper()="+getInstance().getAuthzHelper());
     System.out.println("getInstance().getPublishingTargetHelper()="+getInstance().getPublishingTargetHelper());
     System.out.println("getInstance().getGradebookHelper()="+getInstance().getGradebookHelper());
-//    System.out.println("getInstance().getGradeBookServiceHelper()="+getInstance().getGradeBookServiceHelper());
+    System.out.println("getInstance().getGradebookServiceHelper()="+getInstance().getGradebookServiceHelper());
   }
 
 }

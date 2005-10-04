@@ -77,6 +77,6 @@ public abstract class IntegrationContextFactory
   public abstract AgentHelper getAgentHelper();
   public abstract AuthzHelper getAuthzHelper();
   public abstract GradebookHelper getGradebookHelper();
-  public abstract GradebookServiceHelper getGradeBookServiceHelper();
+  public abstract GradebookServiceHelper getGradebookServiceHelper();
   public abstract PublishingTargetHelper getPublishingTargetHelper();
 }
