@@ -41,6 +41,9 @@ import org.sakaiproject.api.section.facade.Role;
  */
 public interface SectionAwareness {
 
+	/** The resource bundle containing the category IDs and names */
+	public static final String CATEGORY_BUNDLE = "org.sakaiproject.api.section.bundle.CourseSectionCategories";
+	
     /**
      * Gets the sections associated with this site context.
      * 

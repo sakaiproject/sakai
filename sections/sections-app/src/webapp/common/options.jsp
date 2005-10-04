@@ -26,11 +26,18 @@
         <h:commandButton
             action="#{optionsBean.update}"
             value="#{msgs.options_update}"
-            disabled="#{optionsBean.ta}"/>
+            rendered="#{ ! optionsBean.ta}"/>
     
         <h:commandButton
             action="overview"
-            value="#{msgs.options_cancel}"/>
+            value="#{msgs.options_cancel}"
+            rendered="#{ ! optionsBean.ta}"/>
+
+        <h:commandButton
+            action="overview"
+            value="#{msgs.options_done}"
+            rendered="#{optionsBean.ta}"/>
+
     </x:div>
 </h:form>
 </f:view>

@@ -63,11 +63,8 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         implements SectionAwareness {
 
-	private ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
-			"org.sakaiproject.api.section.bundle.Messages");
-
 	private static final Log log = LogFactory.getLog(SectionAwarenessHibernateImpl.class);
-
+	
     /**
      * In Sakai, as of 9.26.05, no way of monitoring changes in site membership.
      * So, in order to remove orphaned section memberships, we will check for
@@ -94,7 +91,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public List getSectionCategories(String siteContext) {
-		Enumeration keys = sectionCategoryBundle.getKeys();
+		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE);
+
+		Enumeration keys = bundle.getKeys();
 		List categoryIds = new ArrayList();
 		while(keys.hasMoreElements()) {
 			categoryIds.add(keys.nextElement());
@@ -372,7 +371,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public String getCategoryName(String categoryId, Locale locale) {
-		ResourceBundle bundle = ResourceBundle.getBundle("org.sakaiproject.api.section.bundle.Messages", locale);
+		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE, locale);
 		String name;
 		try {
 			name = bundle.getString(categoryId);

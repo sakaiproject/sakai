@@ -44,6 +44,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
 import org.sakaiproject.api.section.CourseManager;
+import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -71,9 +72,6 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         SectionManager {
 
 	private static final Log log = LogFactory.getLog(SectionManagerHibernateImpl.class);
-	
-	private ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
-			"org.sakaiproject.api.section.bundle.Messages");
 
 	// Fields configured via dep. injection
 	protected UuidManager uuidManager;
@@ -250,7 +248,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * @inheritDoc
 	 */
 	public String getCategoryName(String categoryId, Locale locale) {
-		ResourceBundle bundle = ResourceBundle.getBundle("org.sakaiproject.api.section.bundle.Messages", locale);
+		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE, locale);
 		String name;
 		try {
 			name = bundle.getString(categoryId);
@@ -265,7 +263,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * @inheritDoc
 	 */
 	public List getSectionCategories(String siteContext) {
-		Enumeration keys = sectionCategoryBundle.getKeys();
+		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE);
+
+		Enumeration keys = bundle.getKeys();
 		List categoryIds = new ArrayList();
 		while(keys.hasMoreElements()) {
 			categoryIds.add(keys.nextElement());

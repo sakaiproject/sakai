@@ -42,6 +42,7 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.uuid.UuidManager;
+import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -64,9 +65,6 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  */
 public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         SectionManager {
-
-	private ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
-			"org.sakaiproject.api.section.bundle.Messages");
 
 	private static final Log log = LogFactory.getLog(SectionManagerHibernateImpl.class);
 	
@@ -214,8 +212,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * @inheritDoc
 	 */
 	public String getCategoryName(String categoryId, Locale locale) {
-		ResourceBundle bundle = ResourceBundle.getBundle(
-				"org.sakaiproject.api.section.bundle.Messages", locale);
+		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE, locale);
 		String name;
 		try {
 			name = bundle.getString(categoryId);
@@ -230,7 +227,9 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * @inheritDoc
 	 */
 	public List getSectionCategories(String siteContext) {
-		Enumeration keys = sectionCategoryBundle.getKeys();
+		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE);
+		
+		Enumeration keys = bundle.getKeys();
 		List categoryIds = new ArrayList();
 		while(keys.hasMoreElements()) {
 			categoryIds.add(keys.nextElement());
@@ -239,7 +238,6 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		return categoryIds;
 	}
 
-    
 	private CourseSectionImpl getSection(final String sectionUuid, Session session) throws HibernateException {
         Query q = session.getNamedQuery("loadSectionByUuid");
         q.setParameter("uuid", sectionUuid);

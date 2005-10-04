@@ -58,9 +58,6 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         implements SectionAwareness {
 
-	private ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
-			"org.sakaiproject.api.section.bundle.Messages");
-	
 	private static final Log log = LogFactory.getLog(SectionAwarenessHibernateImpl.class);
 
 	/**
@@ -82,7 +79,9 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public List getSectionCategories(String siteContext) {
-		Enumeration keys = sectionCategoryBundle.getKeys();
+		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE);
+
+		Enumeration keys = bundle.getKeys();
 		List categoryIds = new ArrayList();
 		while(keys.hasMoreElements()) {
 			categoryIds.add(keys.nextElement());
@@ -328,9 +327,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public String getCategoryName(String categoryId, Locale locale) {
-		// Don't use the instance field bundle, since it may be the wrong locale
-		ResourceBundle bundle = ResourceBundle.getBundle(
-				"org.sakaiproject.api.section.bundle.Messages", locale);
+		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE, locale);
 		String name;
 		try {
 			name = bundle.getString(categoryId);

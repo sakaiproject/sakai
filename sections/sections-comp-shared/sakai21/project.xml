@@ -27,7 +27,7 @@
 
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-sections-comp-shared-data-sakai20</artifactId>
+            <artifactId>sakai-sections-comp-shared-data-sakai21</artifactId>
             <version>${sakai.version}</version>
         </dependency>
 
