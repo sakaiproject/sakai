@@ -53,22 +53,38 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  *
  * <p>Description:
  * This is an integrated context implementation helper delegate class for
- * the AuthzQueriesfacade class.
+ * the AuthzQueriesFacade class. It overloads some standalone version methods.
+ *
  * "Integrated" means that Samigo (Tests and Quizzes)
  * is running within the context of the Sakai portal and authentication
  * mechanisms, and therefore makes calls on Sakai for things it needs.</p>
+ *
  * <p>Note: To customize behavior you can add your own helper class to the
  * Spring injection via the integrationContext.xml for your context.
  * The particular integrationContext.xml to be used is selected by the
  * build process.
  * </p>
  * <p>Sakai Project Copyright (c) 2005</p>
- * <p> </p>
+ * <p>@see org.sakaiproject.tool.assessment.integration.helper.standalone.AuthzHelperImpl
+ * from which it inherits the following:
+ * <ul>
+ *  <li>
+ *   public void removeAuthorizationByQualifier(String qualifierId) {
+ *  </li>
+ *   public HashMap getAuthorizationToViewAssessments(String agentId) {
+ *  </li>
+ *   public List getAuthorizationByAgentAndFunction(String agentId,
+ *  <li>
+ *   public List getAuthorizationByFunctionAndQualifier(String functionId,
+ *  </li>
+ * </ul>
+</p>
  * @author Ed Smiley <esmiley@stanford.edu>
  * based on code originally in AuthzQueriesFacade
  */
 
-public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
+public class AuthzHelperImpl
+  extends org.sakaiproject.tool.assessment.integration.helper.standalone.AuthzHelperImpl
 {
   static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.integration.helper.integrated.AuthzResource");
   private static Log log = LogFactory.getLog(AuthzHelperImpl.class);
@@ -159,66 +175,6 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
       getHibernateTemplate().save(ad);
       return ad;
     }
-  }
-
-  /**
-   * Remove authorization from qualifier (target).
-   * @param qualifierId the target.
-   */
-  public void removeAuthorizationByQualifier(String qualifierId) {
-    String query =
-      res.getString("select_authdata_q_id") + qualifierId;
-    log.info("query=" + query);
-
-    List l = getHibernateTemplate().find(query);
-    getHibernateTemplate().deleteAll(l);
-  }
-
-  /**
-   * This returns a HashMap containing authorization data.
-   * @param agentId is a site for now but can be a user
-   * @return HashMap containing (String a.qualiferId, AuthorizationData a)
-   */
-  public HashMap getAuthorizationToViewAssessments(String agentId) {
-    HashMap h = new HashMap();
-    List l = getAuthorizationByAgentAndFunction(agentId, res.getString("VIEW_PUB"));
-    for (int i=0; i<l.size();i++){
-      AuthorizationData a = (AuthorizationData) l.get(i);
-      h.put(a.getQualifierId(), a);
-    }
-    return h;
-  }
-
-  /**
-   * Get authorization list by agent and function.
-   * @param agentId the agent id.
-   * @param functionId the function to be performed.
-   * @return the list of authorizations.
-   */
-  public List getAuthorizationByAgentAndFunction(String agentId,
-                                                 String functionId)
-  {
-    String query = res.getString("select_authdata_a_id") + agentId +
-      res.getString("and_f_id") + functionId + "'";
-    System.out.println("query=" + query);
-    return getHibernateTemplate().find(query);
-  }
-
-  /**
-   * Get authorization list by qualifier and function.
-   * @param functionId the function to be performed.
-   * @param qualifierId the target of the function.
-   * @return the list of authorizations.
-   */
-  public List getAuthorizationByFunctionAndQualifier(String functionId,
-    String qualifierId)
-  {
-    String query =
-      res.getString("select_authdata_f_id") + functionId +
-      res.getString("and_a_id") + qualifierId + "'";
-    log.info("query=" + query);
-
-    return getHibernateTemplate().find(query);
   }
 
   /**
@@ -363,4 +319,69 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
 
     return returnList;
   }
+
+//////////////////////////////////////////////////////////////////////////////
+// The following are inherited from the standalone version.
+// Remove when we have verified it is working.
+//////////////////////////////////////////////////////////////////////////////
+//  /**
+//   * Remove authorization from qualifier (target).
+//   * @param qualifierId the target.
+//   */
+//  public void removeAuthorizationByQualifier(String qualifierId) {
+//    String query =
+//      res.getString("select_authdata_q_id") + qualifierId;
+//    log.info("query=" + query);
+//
+//    List l = getHibernateTemplate().find(query);
+//    getHibernateTemplate().deleteAll(l);
+//  }
+//
+//  /**
+//   * This returns a HashMap containing authorization data.
+//   * @param agentId is a site for now but can be a user
+//   * @return HashMap containing (String a.qualiferId, AuthorizationData a)
+//   */
+//  public HashMap getAuthorizationToViewAssessments(String agentId) {
+//    HashMap h = new HashMap();
+//    List l = getAuthorizationByAgentAndFunction(agentId, res.getString("VIEW_PUB"));
+//    for (int i=0; i<l.size();i++){
+//      AuthorizationData a = (AuthorizationData) l.get(i);
+//      h.put(a.getQualifierId(), a);
+//    }
+//    return h;
+//  }
+//
+//  /**
+//   * Get authorization list by agent and function.
+//   * @param agentId the agent id.
+//   * @param functionId the function to be performed.
+//   * @return the list of authorizations.
+//   */
+//  public List getAuthorizationByAgentAndFunction(String agentId,
+//                                                 String functionId)
+//  {
+//    String query = res.getString("select_authdata_a_id") + agentId +
+//      res.getString("and_f_id") + functionId + "'";
+//    System.out.println("query=" + query);
+//    return getHibernateTemplate().find(query);
+//  }
+//  /**
+//   * Get authorization list by qualifier and function.
+//   * @param functionId the function to be performed.
+//   * @param qualifierId the target of the function.
+//   * @return the list of authorizations.
+//   */
+//  public List getAuthorizationByFunctionAndQualifier(String functionId,
+//    String qualifierId)
+//  {
+//    String query =
+//      res.getString("select_authdata_f_id") + functionId +
+//      res.getString("and_a_id") + qualifierId + "'";
+//    log.info("query=" + query);
+//
+//    return getHibernateTemplate().find(query);
+//  }
+//
+
 }
