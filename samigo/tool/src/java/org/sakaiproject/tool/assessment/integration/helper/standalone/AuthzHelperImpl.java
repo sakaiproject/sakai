@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.AuthzHelper;
 /**
  *
  * <p>Description:
- * This is a stub standalone context implementation helper delegate class for
+ * This is a standalone context implementation helper delegate class for
  * the AuthzQueriesFacade class.  Three methods are unimplemented.
  * "Standalone" means that Samigo (Tests and Quizzes)
  * is running without the context of the Sakai portal and authentication
@@ -65,7 +65,7 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
    * @param agentId the agent id.
    * @param function the function to be performed.
    * @param qualifier the target of the function.
-   * @return true if authorized, false otherwise.
+   * @return true if authorized (always)
    */
   public boolean isAuthorized
     (String agentId, String function, String qualifier)
@@ -99,7 +99,7 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   public void removeAuthorizationByQualifier(String qualifierId)
   {
     String query =
-      res.getString("select_authdata_w_qual") + qualifierId;
+      res.getString("select_authdata_w_qual") + qualifierId + "'";
     log.info("query=" + query);
 
     List l = getHibernateTemplate().find(query);
@@ -175,6 +175,7 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
 
   /**
    * UNIMPLEMENTED.
+   *
    * @todo If required for standalone context at some point in the future,
    * you'll need to implement this
    * org.sakaiproject.tool.assessment.integration.helper.ifc.AuthzHelper method
@@ -207,6 +208,8 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   }
 
   /**
+   * UNIMPLEMENTED.
+   *
    * @todo If required for standalone context at some point in the future,
    * you'll need to implement this org.sakaiproject.tool.assessment.integration.helper.ifc.AuthzHelper method
    * @param agentId the agent id.
