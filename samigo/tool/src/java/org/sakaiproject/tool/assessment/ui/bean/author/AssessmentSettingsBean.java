@@ -69,6 +69,8 @@ public class AssessmentSettingsBean
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
+    private String outcomeSave;
+    private String outcomePublish;
   private AssessmentFacade assessment;
   private AssessmentTemplateFacade template;
   private Long assessmentId;
@@ -304,6 +306,26 @@ public class AssessmentSettingsBean
     catch (Exception ex) {
     }
   }
+
+
+    //Huong adding for outcome error
+    public String getOutcomeSave()
+    {
+	return this.outcomeSave;
+    }
+    public void setOutcomeSave(String outcomeSave)
+    {
+	this.outcomeSave=outcomeSave;
+    }
+
+ public String getOutcomePublish()
+    {
+	return this.outcomePublish;
+    }
+    public void setOutcomePublish(String outcomePublish)
+    {
+	this.outcomePublish=outcomePublish;
+    }
 
   // properties from Assessment
   public Long getAssessmentId() {
@@ -1040,36 +1062,5 @@ public class AssessmentSettingsBean
     }
 
 
-    public String saveSettingCheck(){
-	return checkTime(true);
-
-    }
-    public String publishCheck(){
-        return checkTime(false);
-    }
-
-    public String checkTime(boolean saveSetting){
-         FacesContext context=FacesContext.getCurrentInstance();
-	 ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", context.getViewRoot().getLocale());
-	
-	 String err;
-	 String time=(String)(getValueMap().get("hasTimeAssessment"));
-		if(time!=null && (time.equals("true"))&&(this.timeLimit.intValue()==0))
-	  {
-              err=(String)rb.getObject("timeSelect_error");
-		     context.addMessage(null,new FacesMessage(err));
-		
-		return "editAssessmentSettings";
-	   }
-	else
-            {
-             if (saveSetting)
-	   
-		return "saveSettings";
-	     else
-                return "saveSettingsAndConfirmPublish";
-
-	    }
-
- }
+   
 }
