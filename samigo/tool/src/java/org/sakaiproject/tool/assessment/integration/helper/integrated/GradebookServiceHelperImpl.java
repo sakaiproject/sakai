@@ -75,7 +75,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   {
     GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
       getBean("org.sakaiproject.service.gradebook.GradebookService");
-    log.debug("**** GradebookService = " + g);
+    log.debug("GradebookService = " + g);
     if (gradebookUId == null)
     {
       return false;
@@ -110,20 +110,20 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   public boolean addToGradebook(PublishedAssessmentData publishedAssessment) throws
     Exception
   {
-    log.debug("*** total point is =" +
+    log.info("total point(s) is/are =" +
               publishedAssessment.getTotalScore().longValue());
-    log.debug("*** gradebookId =" + GradebookFacade.getGradebookUId());
+    log.info("gradebookId =" + GradebookFacade.getGradebookUId());
     boolean added = false;
     GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
       getBean("org.sakaiproject.service.gradebook.GradebookService");
-    log.debug("***** GradebookService instance=" + g);
+    log.info("GradebookService instance=" + g);
     String gradebookUId = GradebookFacade.getGradebookUId();
     if (gradebookUId == null)
     {
       return false;
     }
 
-    log.debug("**** inside addToGradebook, gradebook exists? " +
+    log.info("inside addToGradebook, gradebook exists? " +
               g.gradebookExists(gradebookUId));
     if (g.gradebookExists(gradebookUId))
     {
@@ -134,7 +134,9 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
       if (tool == null)
       {
-        log.warn("could not get tool named sakai.samigo, so we're going to assume we're called 'Tests & Quizzes'");
+        log.warn(
+          "could not get tool named sakai.samigo, " +
+          "so we're going to assume we're called 'Tests & Quizzes'");
         appName = "Tests & Quizzes";
       }
       else
@@ -165,7 +167,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   {
     GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
       getBean("org.sakaiproject.service.gradebook.GradebookService");
-    log.debug("***** GradebookService instance=" + g);
+    log.info("GradebookService instance=" + g);
     PublishedAssessmentService publishedAssessmentService = new
       PublishedAssessmentService();
     String gradebookUId = publishedAssessmentService.
