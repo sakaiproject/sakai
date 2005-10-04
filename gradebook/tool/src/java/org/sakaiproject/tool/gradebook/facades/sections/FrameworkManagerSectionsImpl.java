@@ -23,16 +23,15 @@
 
 package org.sakaiproject.tool.gradebook.facades.sections;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.component.section.support.IntegrationSupport;
-
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;

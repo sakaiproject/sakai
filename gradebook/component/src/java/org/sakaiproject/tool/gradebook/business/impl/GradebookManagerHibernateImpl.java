@@ -23,7 +23,6 @@
 
 package org.sakaiproject.tool.gradebook.business.impl;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,7 +30,6 @@ import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.StaleObjectStateException;
-import org.springframework.orm.hibernate.HibernateCallback;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +40,7 @@ import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.springframework.orm.hibernate.HibernateCallback;
 
 /**
  * Manages Gradebook persistence via hibernate.

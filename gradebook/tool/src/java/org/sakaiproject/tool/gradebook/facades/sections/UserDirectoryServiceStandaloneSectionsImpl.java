@@ -23,14 +23,10 @@
 
 package org.sakaiproject.tool.gradebook.facades.sections;
 
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.component.section.support.UserManager;
-
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 

@@ -34,10 +34,8 @@ import javax.faces.event.ActionEvent;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
-
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 

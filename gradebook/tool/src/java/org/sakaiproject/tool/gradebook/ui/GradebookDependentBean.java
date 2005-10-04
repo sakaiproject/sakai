@@ -23,18 +23,11 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
-import java.util.*;
-
-import javax.faces.context.FacesContext;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.api.section.SectionAwareness;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.api.section.facade.Role;
-
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradeManager;

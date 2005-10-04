@@ -23,8 +23,6 @@
 
 package org.sakaiproject.tool.gradebook.business;
 
-import java.util.List;
-
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Gradebook;

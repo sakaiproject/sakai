@@ -22,11 +22,14 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
-
-import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -36,7 +39,6 @@ import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvents;
-import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 
 /**
  * Tests the grade manager.

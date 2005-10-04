@@ -23,9 +23,7 @@
 
 package org.sakaiproject.tool.gradebook.facades;
 
-import java.util.*;
-
-import org.sakaiproject.api.section.facade.Role;
+import java.util.List;
 
 /**
  * Facade to external role and authorization service.

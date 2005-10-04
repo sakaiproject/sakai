@@ -24,13 +24,15 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.GradableObject;
-import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.

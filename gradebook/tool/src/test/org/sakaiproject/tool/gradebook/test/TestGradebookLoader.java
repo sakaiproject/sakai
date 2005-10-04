@@ -29,13 +29,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.User;
-
 import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.component.section.support.UserManager;
-
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**

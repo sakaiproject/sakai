@@ -22,19 +22,23 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
-
-import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  */
