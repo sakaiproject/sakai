@@ -35,6 +35,7 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AuthzHelper;
+import org.springframework.dao.*;
 
 /**
  *
@@ -133,11 +134,21 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   public List getAuthorizationByAgentAndFunction(String agentId,
                                                  String functionId)
   {
-    String query = res.getString("select_authdata_w_agent") +
-      agentId + res.getString("and_funid") + functionId + "'";
-    log.info("query=" + query);
+    try
+    {
+      String query = res.getString("select_authdata_w_agent") +
+        agentId + res.getString("and_funid") + functionId + "'";
+      log.info("query=" + query);
 
-    return getHibernateTemplate().find(query);
+      List list = getHibernateTemplate().find(query);
+      System.out.println("list="+list);
+      return list;
+    }
+    catch (DataAccessException ex)
+    {
+      log.warn("getAuthorizationByAgentAndFunction "+ ex);
+      return new ArrayList();//empty
+    }
   }
 
   /**
@@ -149,12 +160,22 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   public List getAuthorizationByFunctionAndQualifier(String functionId,
     String qualifierId)
   {
-    String query =
-      res.getString("select_authdata_w_fun") + functionId +
-      res.getString("and_qid") + qualifierId + "'";
-    log.info("query=" + query);
+    try
+    {
+      String query =
+        res.getString("select_authdata_w_fun") + functionId +
+        res.getString("and_qid") + qualifierId + "'";
+      log.info("query=" + query);
 
-    return getHibernateTemplate().find(query);
+      List list = getHibernateTemplate().find(query);
+      System.out.println("list="+list);
+      return list;
+    }
+    catch (DataAccessException ex)
+    {
+      log.warn("getAuthorizationByAgentAndFunction "+ ex);
+      return new ArrayList();//empty
+    }
   }
 
   /**
