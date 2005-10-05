@@ -131,48 +131,5 @@ public class PublishingTarget implements PublishingTargetHelper
     }
   }
 
-  /**
-   * for unit test
-   * @param args ignored
-   */
-  public static void main(String[] args)
-  {
-    unitTest();
-  }
-
-  /**
-   * Unit test can be run from command line.
-   * Bypasses methods that cannot be run outside Sakai.
-   * Needs integrationContext.xml in classpath at org.sakaiproject.spring
-   */
-  public static void unitTest()
-  {
-    PublishingTarget pt = new PublishingTarget();
-    System.out.println("pt.integrated="+pt.integrated);
-    System.out.println("pt.helper="+pt.helper);
-    System.out.println("pt.getTargets()="+pt.getTargets());
-    if (integrated)
-    {
-      System.out.println(
-        "Running integrated version in standalone.  " +
-        "Bypassing site and logging services tests.");
-      System.out.println("bypassing pt.getLog()");
-      System.out.println("bypassing pt.getSiteService()");
-      System.out.println("Bypassing: Setting site service");
-      System.out.println("Bypassing: Setting logger");
-    }
-    else
-    {
-    Logger testLogger = pt.getLog();
-    SiteService testSiteService = pt.getSiteService();
-    System.out.println("pt.getLog()="+testLogger);
-    System.out.println("pt.getSiteService()="+testSiteService);
-    // reset to saved off values
-    System.out.println("Setting site service");
-    pt.setSiteService(testSiteService);
-    System.out.println("Setting logger");
-    pt.setLog(testLogger);
-    }
-  }
 
 }
