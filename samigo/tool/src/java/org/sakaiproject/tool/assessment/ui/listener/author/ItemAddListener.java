@@ -1,3 +1,4 @@
+
 /**********************************************************************************
 * $URL$
 * $Id$
@@ -145,40 +146,61 @@ public class ItemAddListener
   }
     
 	
-public boolean isErrorFIB() {
-ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
-    ItemBean item =itemauthorbean.getCurrentItem();
-    int index=0;
-     boolean error=false;
-     String err="";
-     boolean hasOpen=false;
-     int opencount=0;
-     int closecount=0;
-     while(index<item.getItemText().length()){
-	 char c=item.getItemText().charAt(index);
-        if(c=='{'){
-	    opencount++;
-	    if(hasOpen){
-		error=true;
-		break;
+    public boolean isErrorFIB() {
+	ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+	ItemBean item =itemauthorbean.getCurrentItem();
+	int index=0;
+	boolean error=false;
+	String err="";
+	boolean hasOpen=false;
+	int opencount=0;
+	int closecount=0;
+	boolean notEmpty=false;
+	int indexOfOpen=-1;
+	String text=item.getItemText();
+	while(index<text.length()){ 
+	    char c=text.charAt(index);
+	    if(c=='{'){
+		opencount++;
+		if(hasOpen){
+		    error=true;
+		    break;
+		}
+		else{
+		    hasOpen=true;
+		    indexOfOpen=index;
+		}
 	    }
-	    else{ 
-		hasOpen=true;
+	    else if(c=='}'){
+		closecount++;
+		if(!hasOpen){
+		    error=true;
+		    break;
+		}
+		else{
+		    if((notEmpty==true)&&(index+1 !=index)&&(!(text.substring(indexOfOpen+1,index).equals("</p><p>")))){
+		       hasOpen=false;
+                       notEmpty=false;
+		    }
+		    else{
+		    //error for emptyString
+			error=true;
+			break;
+		   }
+
+		}
 	    }
-	}
-	else if(c=='}'){ 
-            closecount++;
-	    if(!hasOpen){
-		error=true;
-		break;
+       
+	    else{
+           
+		if((hasOpen==true)&&(Character.getType(c)!=12) &&(Character.getType(c)!=25)){
+	    	notEmpty=true; 
+		}
 	    }
-            else{ 
-		hasOpen=false;
-	    }
-	}
-        else{}
-	index++;
-    }//end while
+	
+	
+	    index++;
+     }//end while
     if((hasOpen==true)||(opencount<1)||(opencount!=closecount)||(error==true)){
 	return true;
     }
