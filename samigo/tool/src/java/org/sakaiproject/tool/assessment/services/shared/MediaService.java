@@ -26,9 +26,7 @@ package org.sakaiproject.tool.assessment.services.shared;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import java.util.ResourceBundle;
-import java.util.Properties;
-import java.io.FileInputStream;
+
 
 /**
  * The QuestionPoolService calls the service locator to reach the
@@ -37,8 +35,6 @@ import java.io.FileInputStream;
  */
 public class MediaService
 {
-    //private static final ResourceBundle mediaProperties =
-    //ResourceBundle.getBundle("org.sakaiproject.tool.assessment.services.shared");
   private static Log log = LogFactory.getLog(MediaService.class);
 
   /**
@@ -51,22 +47,6 @@ public class MediaService
   {
      PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
        removeMediaById(new Long(mediaId));
-  }
-
-    // determine value of SAVETODB
-  public boolean saveToDB(){
-    Properties mediaProperties = new Properties();
-    try{
-      mediaProperties.load(new FileInputStream("media.properties"));
-    }
-    catch(Exception e){
-      log.warn(e.getMessage());
-    } 
-    String saveToDB = mediaProperties.getProperty("SAVETODB");
-    if (("true").equals(saveToDB))
-      return true;
-    else
-      return false;
   }
 
 }
