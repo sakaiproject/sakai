@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.shared.MediaService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
@@ -1646,7 +1647,8 @@ public class DeliveryBean
 
     // 6. create a media record
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
-    boolean SAVETODB = MediaData.saveToDB();
+    MediaService mediaService = new MediaService();
+    boolean SAVETODB = mediaService.saveToDB();
     log.debug("**** SAVETODB=" + SAVETODB);
     MediaData mediaData = null;
     log.debug("***6a. addMediaToItemGrading, itemGradinDataId=" +
