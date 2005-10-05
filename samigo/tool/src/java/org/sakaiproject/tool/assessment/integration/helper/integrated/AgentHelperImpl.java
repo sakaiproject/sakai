@@ -52,6 +52,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
+import org.sakaiproject.service.legacy.user.User;
 
 /**
  *
@@ -95,11 +96,23 @@ public class AgentHelperImpl implements AgentHelper
   public String getAgentString(){
     String agentS="";
     // this is anonymous user sign 'cos sakai doesn't know about them-daisyf
-    if (UserDirectoryService.getCurrentUser().getId()==null || ("").equals(UserDirectoryService.getCurrentUser().getId())){
-      agentS = getAnonymousId();
+    try
+    {
+      User user = UserDirectoryService.getCurrentUser();
+
+      if (user ==  null || user.getId() == null ||
+          ("").equals(user.getId()))
+      {
+        agentS = getAnonymousId();
+      }
+      else
+      {
+        agentS = user.getId();
+      }
     }
-    else {
-      agentS = UserDirectoryService.getCurrentUser().getId();
+    catch (Exception ex)
+    {
+      log.warn(ex);
     }
     log.debug("** getAgentString() ="+agentS);
     return agentS;
@@ -226,12 +239,11 @@ public class AgentHelperImpl implements AgentHelper
   public String getCurrentSiteId(){
     // access via url => users does not login via any sites
     String currentSiteId = null;
-    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    if (delivery !=null){
-      delivery = (DeliveryBean) delivery;
-      if (!delivery.getAccessViaUrl()){
+    DeliveryBean delivery =  lookupDeliveryBean();
+
+    if (delivery!=null && !delivery.getAccessViaUrl())
+    {
         currentSiteId = ToolManager.getCurrentPlacement().getContext();
-      }
     }
     return currentSiteId;
   }
@@ -245,10 +257,10 @@ public class AgentHelperImpl implements AgentHelper
   public String getCurrentSiteIdFromExternalServlet(HttpServletRequest req,  HttpServletResponse res){
     // access via url => users does not login via any sites-daisyf
     String currentSiteId = null;
-    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery",req, res);
-    if (delivery !=null){
-      delivery = (DeliveryBean) delivery;
-      currentSiteId = ToolManager.getCurrentPlacement().getContext();
+    DeliveryBean delivery =  lookupDeliveryBean();
+    if (delivery!=null && !delivery.getAccessViaUrl())
+    {
+        currentSiteId = ToolManager.getCurrentPlacement().getContext();
     }
     return currentSiteId;
   }
@@ -281,8 +293,8 @@ public class AgentHelperImpl implements AgentHelper
   public String getCurrentSiteName(){
     // access via url => users does not login via any sites-daisyf
     String currentSiteName = null;
-    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    if (!delivery.getAccessViaUrl()){
+    DeliveryBean delivery =  lookupDeliveryBean();
+    if (delivery!=null && !delivery.getAccessViaUrl()){
       try{
         currentSiteName = SiteService.getSite(getCurrentSiteId()).getTitle();
       }
@@ -291,6 +303,25 @@ public class AgentHelperImpl implements AgentHelper
       }
     }
     return currentSiteName;
+  }
+
+  /**
+   * Right now gets from faces context.
+   * @return
+   */
+  private DeliveryBean lookupDeliveryBean()
+  {
+    DeliveryBean delivery = null;
+    try
+    {
+      delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    }
+    catch (Exception ex)
+    {
+      log.warn("Delivery been not available.  " +
+               "This needs to be fixed if you are not running a unit test.");
+    }
+    return delivery;
   }
 
   /**
