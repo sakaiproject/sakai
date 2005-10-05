@@ -63,34 +63,5 @@ public class GradebookFacade implements Serializable
     return helper.getDefaultGradebookUId();
   }
 
-  /**
-   * Call unit test.
-   * @param args ignored
-   */
-  public static void main (String[] args)
-  {
-    unitTest();
-  }
-
-  /**
-   * Unit test can be run from command line.
-   * Needs integrationContext.xml in classpath at org.sakaiproject.spring
-   * Bypasses integrated code that requires a web context.
-   */
-
-  public static void unitTest()
-  {
-    System.out.println("integrated="+integrated);
-    if (!integrated)
-    {
-      System.out.println("getGradebookUId()="+getGradebookUId());
-    }
-    else
-    {
-      System.out.println("running integrated version standalone, bypassing " +
-                         "getGradebookUId()");
-    }
-    System.out.println("getDefaultGradebookUId()="+getDefaultGradebookUId());
-  }
 
  }
