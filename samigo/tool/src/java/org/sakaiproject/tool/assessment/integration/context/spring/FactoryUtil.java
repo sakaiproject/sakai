@@ -32,14 +32,17 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.spring.SpringBeanLocator;
 
 /**
- * Incapsulates the Spring lookup for this factory.
+ * Encapsulates the Spring lookup for this factory.
  * @author Ed smiley
  */
 public class FactoryUtil
 {
   private static Log log = LogFactory.getLog(FactoryUtil.class);
+  private static boolean useLocator = false;
+//  private static boolean useLocator = true;
 
   private static final String FS = File.separator;
   private static final String CONFIGURATION =
@@ -48,10 +51,30 @@ public class FactoryUtil
   public static IntegrationContextFactory lookup() throws Exception
   {
     // the instance is provided by Spring-injection
-    Resource res = new ClassPathResource(CONFIGURATION);
-    BeanFactory factory = new XmlBeanFactory(res);
+    if (useLocator)
+    {
+
+    SpringBeanLocator locator = SpringBeanLocator.getInstance();
     return
-      (IntegrationContextFactory) factory.getBean("integrationContextFactory");
+      (IntegrationContextFactory) locator.getBean("integrationContextFactory");
+    }
+    else // unit testing
+    {
+      Resource res = new ClassPathResource(CONFIGURATION);
+      BeanFactory factory = new XmlBeanFactory(res);
+      return
+        (IntegrationContextFactory) factory.getBean("integrationContextFactory");
+    }
+
+  }
+  public static boolean getUseLocator()
+  {
+    return useLocator;
+  }
+
+  public static void setUseLocator(boolean use)
+  {
+    useLocator = use;
   }
 
 }
