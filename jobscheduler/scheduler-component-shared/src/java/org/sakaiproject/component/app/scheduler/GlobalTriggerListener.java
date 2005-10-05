@@ -24,6 +24,7 @@
 package org.sakaiproject.component.app.scheduler;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -89,11 +90,14 @@ public class GlobalTriggerListener implements TriggerListener
     }
     else
     {
-      todaysTriggerEvents = new ArrayList();
-      Date midnightToday = new Date();
-      midnightToday.setHours(0);
-      midnightToday.setMinutes(0);
-      midnightToday.setSeconds(0);
+      todaysTriggerEvents = new ArrayList();      
+      Calendar cal = Calendar.getInstance();
+      cal.set(Calendar.HOUR_OF_DAY, 0);
+      cal.set(Calendar.MINUTE, 0);
+      cal.set(Calendar.SECOND, 0);
+      
+      Date midnightToday = new Date(cal.getTimeInMillis());      
+      
       for (Iterator i = triggerEvents.iterator(); i.hasNext();)
       {
         TriggerEvent te = (TriggerEvent) i.next();
