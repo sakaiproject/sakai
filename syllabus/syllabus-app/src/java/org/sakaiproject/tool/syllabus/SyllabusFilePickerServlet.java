@@ -206,13 +206,12 @@ public class SyllabusFilePickerServlet extends JsfTool
              req.getContextPath() + req.getServletPath() + computeDefaultTarget(true));
     }
     
-    
+/*comment out for using the global parameter rather than tool-by-tool setting
     SessionState state = UsageSessionService.getSessionState(toolSession.getPlacementId());
 		boolean show_other_sites = ServerConfigurationService.getBoolean("syllabus.resources.show_all_collections.helper", true);
 		state.setAttribute("resources.allow_user_to_see_all_sites", (new Boolean(show_other_sites)).toString());
 		state.setAttribute("resources.user_chooses_to_see_other_sites", (new Boolean(show_other_sites)).toString());
-
-
+*/
     String context = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2);
     String toolPath = Web.makePath(parts, 2, parts.length);
     helperTool.help(req, res, context, toolPath);
