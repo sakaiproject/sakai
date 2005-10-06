@@ -43,15 +43,15 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.framework.session.cover.UsageSessionService;
+import org.sakaiproject.service.legacy.entity.Edit;
+import org.sakaiproject.service.legacy.entity.Entity;
+import org.sakaiproject.service.legacy.entity.Reference;
+import org.sakaiproject.service.legacy.entity.ResourceProperties;
+import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.event.Event;
 import org.sakaiproject.service.legacy.event.cover.EventTrackingService;
 import org.sakaiproject.service.legacy.notification.NotificationEdit;
 import org.sakaiproject.service.legacy.notification.NotificationService;
-import org.sakaiproject.service.legacy.resource.Edit;
-import org.sakaiproject.service.legacy.resource.Entity;
-import org.sakaiproject.service.legacy.resource.Reference;
-import org.sakaiproject.service.legacy.resource.ResourceProperties;
-import org.sakaiproject.service.legacy.resource.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.resource.cover.EntityManager;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.time.cover.TimeService;
@@ -140,7 +140,7 @@ public class SyllabusServiceImpl implements SyllabusService
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.service.legacy.resource.ResourceService#getLabel()
+   * @see org.sakaiproject.service.legacy.entity.ResourceService#getLabel()
    */
   public String getLabel()
   {
@@ -214,9 +214,9 @@ public class SyllabusServiceImpl implements SyllabusService
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.service.legacy.resource.ResourceService#archive(java.lang.String,
+   * @see org.sakaiproject.service.legacy.entity.ResourceService#archive(java.lang.String,
    *      org.w3c.dom.Document, java.util.Stack, java.lang.String,
-   *      org.sakaiproject.service.legacy.resource.ReferenceVector)
+   *      org.sakaiproject.service.legacy.entity.ReferenceVector)
    */
   public String archive(String siteId, Document doc, Stack stack, String arg3,
       List attachments)
@@ -350,7 +350,7 @@ public class SyllabusServiceImpl implements SyllabusService
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.service.legacy.resource.ResourceService#merge(java.lang.String,
+   * @see org.sakaiproject.service.legacy.entity.ResourceService#merge(java.lang.String,
    *      org.w3c.dom.Element, java.lang.String, java.lang.String, java.util.Map, java.util.HashMap,
    *      java.util.Set)
    */
@@ -589,7 +589,7 @@ public class SyllabusServiceImpl implements SyllabusService
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.service.legacy.resource.ResourceService#importResources(java.lang.String,
+   * @see org.sakaiproject.service.legacy.entity.ResourceService#importResources(java.lang.String,
    *      java.lang.String, java.util.List)
    */
   public void importEntities(String fromSiteId, String toSiteId,

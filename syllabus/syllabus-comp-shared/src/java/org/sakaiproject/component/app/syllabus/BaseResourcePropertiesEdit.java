@@ -25,7 +25,7 @@
 package org.sakaiproject.component.app.syllabus;
 
 // imports
-import org.sakaiproject.service.legacy.resource.ResourcePropertiesEdit;
+import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
 import org.w3c.dom.Element;
 
 /**

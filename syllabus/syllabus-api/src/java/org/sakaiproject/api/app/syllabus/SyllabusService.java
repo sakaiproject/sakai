@@ -23,8 +23,9 @@
 
 package org.sakaiproject.api.app.syllabus;
 
-import org.sakaiproject.service.legacy.resource.Entity;
-import org.sakaiproject.service.legacy.resource.EntityProducer;
+import org.sakaiproject.service.legacy.entity.Entity;
+import org.sakaiproject.service.legacy.entity.EntityProducer;
+
 import java.util.List;
 
 public interface SyllabusService extends EntityProducer
