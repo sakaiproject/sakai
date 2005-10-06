@@ -27,7 +27,7 @@ import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.service.legacy.authzGroup.cover.RealmService;
+import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -252,7 +252,7 @@ public class AuthzQueriesFacade
     boolean isMember = false;
     try{
       String realmName = "/site/" + siteId;
-      AuthzGroup siteAuthzGroup = RealmService.getAuthzGroup(realmName);
+      AuthzGroup siteAuthzGroup = AuthzGroupService.getAuthzGroup(realmName);
       if (siteAuthzGroup.getUserRole(AgentFacade.getAgentString()) != null)
         isMember = true;
     }

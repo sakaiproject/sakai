@@ -38,9 +38,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
-//import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-//import org.sakaiproject.service.legacy.authzGroup.Role;
-//import org.sakaiproject.service.legacy.authzGroup.cover.RealmService;
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
+import org.sakaiproject.service.legacy.authzGroup.Role;
+import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
@@ -252,21 +252,21 @@ public class AgentHelperImpl implements AgentHelper
       return role;
 
     String realmName = "/site/" + thisSiteId;
-//    Role userRole=null;
-//
-//    try
-//    {
-//      AuthzGroup siteAuthzGroup = RealmService.getAuthzGroup(realmName);
-//      if (siteAuthzGroup!=null)
-//      userRole = siteAuthzGroup.getUserRole(agentString);
-//      if (userRole!=null)
-//        role = userRole.getId();
-//      log.debug(realmName + ":" + role);
-//    }
-//    catch(Exception e)
-//    {
-//      System.out.println(e.getMessage());
-//    }
+    Role userRole=null;
+
+    try
+    {
+      AuthzGroup siteAuthzGroup = AuthzGroupService.getAuthzGroup(realmName);
+      if (siteAuthzGroup!=null)
+      userRole = siteAuthzGroup.getUserRole(agentString);
+      if (userRole!=null)
+        role = userRole.getId();
+      log.debug(realmName + ":" + role);
+    }
+    catch(Exception e)
+    {
+      System.out.println(e.getMessage());
+    }
     return role;
   }
 
