@@ -10,8 +10,8 @@
 			singleton="true">
 	</bean>
 
-	<bean id="org.sakaiproject.service.legacy.realm.RealmProvider"
-			class="org.sakaiproject.component.legacy.realm.SampleRealmProvider"
+	<bean id="org.sakaiproject.service.legacy.authzGroup.GroupProvider"
+			class="org.sakaiproject.component.legacy.authzGroup.SampleRealmProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

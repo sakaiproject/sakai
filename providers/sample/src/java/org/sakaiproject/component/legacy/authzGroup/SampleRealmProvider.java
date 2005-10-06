@@ -22,7 +22,7 @@
  **********************************************************************************/
 
 // package
-package org.sakaiproject.component.legacy.realm;
+package org.sakaiproject.component.legacy.authzGroup;
 
 // imports
 import java.io.FileInputStream;
