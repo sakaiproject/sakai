@@ -1,3 +1,25 @@
+/**********************************************************************************
+ * $URL: $
+ * $Id: $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ *
+   * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ *
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
 package org.sakaiproject.tool.assessment.test.integration.helper.ifc;
 
 import junit.framework.*;
@@ -109,7 +131,6 @@ public class TestAgentHelper extends TestCase
     String expectedReturn = "Samigo Site";
     String actualReturn = agentHelper.getCurrentSiteIdFromExternalServlet(req,
       res);
-    assertNotNull(actualReturn);
     if (agentHelper.isStandaloneEnvironment())
     {
       assertNotNull(actualReturn);
@@ -125,10 +146,13 @@ public class TestAgentHelper extends TestCase
   {
     String expectedReturn = "Samigo Site";
     String actualReturn = agentHelper.getCurrentSiteName();
-    assertNotNull(actualReturn);
     if (agentHelper.isStandaloneEnvironment())
     {
       assertEquals("return value", expectedReturn, actualReturn);
+    }
+    if (agentHelper.isIntegratedEnvironment())
+    {
+      assertNull(actualReturn);//delivery bean is not available in unit test
     }
   }
 
@@ -153,13 +177,17 @@ public class TestAgentHelper extends TestCase
     String agentId = null;
     String expectedReturn = null;
     String actualReturn = agentHelper.getDisplayNameByAgentId(agentId);
-    assertNotNull(actualReturn);
     if (agentHelper.isStandaloneEnvironment())
     {
       agentId = "rachel";
       expectedReturn = "Samigo Administrator";
       actualReturn = agentHelper.getDisplayNameByAgentId(agentId);
+      assertNotNull(actualReturn);
       assertEquals("return value", expectedReturn, actualReturn);
+    }
+    if (agentHelper.isIntegratedEnvironment())
+    {
+      assertNull(actualReturn);// component manager not avial in unit test
     }
   }
 
@@ -168,7 +196,7 @@ public class TestAgentHelper extends TestCase
     String agentString = null;
     String expectedReturn = null;
     String actualReturn = agentHelper.getFirstName(agentString);
-//    assertEquals("return value", expectedReturn, actualReturn);
+
     assertNotNull(actualReturn);
     if (agentHelper.isStandaloneEnvironment())
     {
@@ -198,15 +226,27 @@ public class TestAgentHelper extends TestCase
   {
     String agentString = null;
     String expectedReturn = null;
-    String actualReturn = agentHelper.getRole(agentString);
-    assertNotNull(actualReturn);
+    String actualReturn = null;
+    String expectedReturnIntegrated = "anonymous_access";
     if (agentHelper.isStandaloneEnvironment())
     {
       agentString = "rachel";
       expectedReturn = "Maintain";
       actualReturn = agentHelper.getRole(agentString);
+      assertNotNull(actualReturn);
       assertEquals("return value", expectedReturn, actualReturn);
     }
+
+    //tool manager unavailable in unit test, so returns default
+    if (agentHelper.isIntegratedEnvironment())
+    {
+      agentString = "rachel";
+      expectedReturn = "anonymous_access";
+      actualReturn = agentHelper.getRole(agentString);
+      assertNotNull(actualReturn);
+      assertEquals("return value", expectedReturn, actualReturn);
+    }
+
   }
 
   public void testGetRoleForCurrentAgent()
@@ -214,12 +254,21 @@ public class TestAgentHelper extends TestCase
     String agentString = null;
     String expectedReturn = null;
     String actualReturn = agentHelper.getRoleForCurrentAgent(agentString);
-    assertNotNull(actualReturn);
     if (agentHelper.isStandaloneEnvironment())
     {
       agentString = "rachel";
       expectedReturn = "Student";
       actualReturn = agentHelper.getRoleForCurrentAgent(agentString);
+      assertNotNull(actualReturn);
+      assertEquals("return value", expectedReturn, actualReturn);
+    }
+    //tool manager unavailable in unit test, so returns default
+    if (agentHelper.isIntegratedEnvironment())
+    {
+      agentString = "rachel";
+      expectedReturn = "anonymous_access";
+      actualReturn = agentHelper.getRole(agentString);
+      assertNotNull(actualReturn);
       assertEquals("return value", expectedReturn, actualReturn);
     }
   }
@@ -229,8 +278,16 @@ public class TestAgentHelper extends TestCase
     String siteId = null;
     String expectedReturn = null;
     String actualReturn = agentHelper.getSiteName(siteId);
-//    assertEquals("return value", expectedReturn, actualReturn);
-    assertNotNull(actualReturn);
+
+    if (agentHelper.isStandaloneEnvironment())
+    {
+      assertNotNull(actualReturn);
+    }
+    if (agentHelper.isIntegratedEnvironment())
+    {
+      assertNull(actualReturn);//SiteService not avail in unit test
+    }
+
   }
 
   public void testIsIntegratedEnvironment()
