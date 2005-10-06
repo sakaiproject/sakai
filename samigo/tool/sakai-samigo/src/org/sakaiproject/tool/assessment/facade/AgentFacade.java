@@ -32,9 +32,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.legacy.realm.Realm;
-import org.sakaiproject.service.legacy.realm.Role;
-import org.sakaiproject.service.legacy.realm.cover.RealmService;
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
+import org.sakaiproject.service.legacy.authzGroup.Role;
+import org.sakaiproject.service.legacy.authzGroup.cover.RealmService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
@@ -145,8 +145,8 @@ public class AgentFacade implements Serializable, AgentDataIfc {
 
     try
     {
-      Realm siteRealm = RealmService.getRealm(realmName);
-      Role currentUserRole = siteRealm.getUserRole(agentString);
+      AuthzGroup siteAuthzGroup = RealmService.getAuthzGroup(realmName);
+      Role currentUserRole = siteAuthzGroup.getUserRole(agentString);
       if (currentUserRole != null)
         role = currentUserRole.getId();
       log.debug(realmName + ":" + role);
@@ -170,9 +170,9 @@ public class AgentFacade implements Serializable, AgentDataIfc {
 
     try
     {
-      Realm siteRealm = RealmService.getRealm(realmName);
-      if (siteRealm!=null)
-      userRole = siteRealm.getUserRole(agentIdString);
+      AuthzGroup siteAuthzGroup = RealmService.getAuthzGroup(realmName);
+      if (siteAuthzGroup!=null)
+      userRole = siteAuthzGroup.getUserRole(agentIdString);
       if (userRole!=null)
         role = userRole.getId();
       log.debug(realmName + ":" + role);

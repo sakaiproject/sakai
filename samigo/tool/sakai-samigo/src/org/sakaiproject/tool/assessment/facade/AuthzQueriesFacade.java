@@ -23,11 +23,11 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 
-import org.sakaiproject.service.legacy.realm.Realm;
-import org.sakaiproject.service.legacy.realm.Role;
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
+import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.service.legacy.realm.cover.RealmService;
+import org.sakaiproject.service.legacy.authzGroup.cover.RealmService;
 
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -252,8 +252,8 @@ public class AuthzQueriesFacade
     boolean isMember = false;
     try{
       String realmName = "/site/" + siteId;
-      Realm siteRealm = RealmService.getRealm(realmName);
-      if (siteRealm.getUserRole(AgentFacade.getAgentString()) != null)
+      AuthzGroup siteAuthzGroup = RealmService.getAuthzGroup(realmName);
+      if (siteAuthzGroup.getUserRole(AgentFacade.getAgentString()) != null)
         isMember = true;
     }
     catch(Exception e)

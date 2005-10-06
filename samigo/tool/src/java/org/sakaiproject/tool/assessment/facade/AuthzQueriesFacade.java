@@ -137,7 +137,6 @@ public class AuthzQueriesFacade
    * @return true if a member.
    */
   public boolean checkMembership(String siteId) {
-
     return helper.checkMembership(siteId);
   }
 
