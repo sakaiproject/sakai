@@ -34,18 +34,18 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.service.legacy.realm.RealmProvider;
+import org.sakaiproject.service.legacy.authzGroup.GroupProvider;
 import org.sakaiproject.util.java.StringUtil;
 
 /**
  * <p>
- * Sample of a RealmProvider. Shows how to handle compound ids (connected with a '+').
+ * Sample of a GroupProvider. Shows how to handle compound ids (connected with a '+').
  * </p>
  * 
  * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
  */
-public class SampleRealmProvider implements RealmProvider
+public class SampleRealmProvider implements GroupProvider
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SampleRealmProvider.class);
@@ -96,7 +96,7 @@ public class SampleRealmProvider implements RealmProvider
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * RealmProvider implementation
+	 * GroupProvider implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** A collection of user ids. */
@@ -167,7 +167,7 @@ public class SampleRealmProvider implements RealmProvider
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getUserRolesForRealm(String id)
+	public Map getUserRolesForGroup(String id)
 	{
 		update();
 
@@ -223,7 +223,7 @@ public class SampleRealmProvider implements RealmProvider
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getRealmRolesForUser(String userId)
+	public Map getGroupRolesForUser(String userId)
 	{
 		update();
 

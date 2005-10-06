@@ -29,8 +29,8 @@
  */
 package org.sakaiproject.component.imsent.user;
 
+import org.sakaiproject.service.legacy.authzGroup.GroupProvider;
 import org.sakaiproject.service.legacy.coursemanagement.CourseManagementProvider;
-import org.sakaiproject.service.legacy.realm.RealmProvider;
 import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
 
 public class IMSEntProviderUnitTest {
@@ -56,7 +56,7 @@ public class IMSEntProviderUnitTest {
 		}
 	}
 
-	public static boolean localUnitTests(UserDirectoryProvider udp, RealmProvider rp, 
+	public static boolean localUnitTests(UserDirectoryProvider udp, GroupProvider rp, 
 			CourseManagementProvider cp)
 	{
 		m_passUnitTest = true;  // Assume we pass
