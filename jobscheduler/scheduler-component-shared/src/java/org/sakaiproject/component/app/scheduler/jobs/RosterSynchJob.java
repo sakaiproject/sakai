@@ -42,7 +42,7 @@
 //import org.sakaiproject.exception.PermissionException;
 //import org.sakaiproject.service.legacy.authzGroup.RealmEdit;
 //import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
-//import org.sakaiproject.service.legacy.resource.ResourceProperties;
+//import org.sakaiproject.service.legacy.entity.ResourceProperties;
 //import org.sakaiproject.service.legacy.site.Site;
 //import org.sakaiproject.service.legacy.site.cover.SiteService;
 //
