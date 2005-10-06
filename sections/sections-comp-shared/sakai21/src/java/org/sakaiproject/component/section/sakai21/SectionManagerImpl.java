@@ -52,8 +52,8 @@ import org.sakaiproject.api.section.facade.manager.Context;
 import org.sakaiproject.component.section.facade.impl.sakai21.AuthzSakaiImpl;
 import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.realm.Realm;
-import org.sakaiproject.service.legacy.realm.cover.RealmService;
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
+import org.sakaiproject.service.legacy.authzGroup.cover.RealmService;
 import org.sakaiproject.service.legacy.resource.Reference;
 import org.sakaiproject.service.legacy.resource.ResourceProperties;
 import org.sakaiproject.service.legacy.resource.cover.EntityManager;
@@ -341,14 +341,14 @@ public class SectionManagerImpl implements SectionManager {
 	 */
 	public int getTotalEnrollments(final String learningContextUuid) {
 		Reference ref = EntityManager.newReference(learningContextUuid);
-		Realm realm;
+		AuthzGroup realm;
 		try {
-			realm = RealmService.getRealm(ref.getId());
+			realm = RealmService.getAuthzGroup(ref.getId());
 		} catch (IdUnusedException e) {
 			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
 			return 0;
 		}
-		Set users = realm.getUsersWithRole(studentRole);
+		Set users = realm.getUsersHasRole(studentRole);
 		return users.size();
 	}
 

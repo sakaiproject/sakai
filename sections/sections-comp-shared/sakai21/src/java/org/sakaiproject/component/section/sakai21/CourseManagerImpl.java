@@ -77,7 +77,7 @@ public class CourseManagerImpl implements CourseManager {
 	
 	
 	/**
-	 * This is handled by the Site and Realm Services in Sakai 2.1.  No need to
+	 * This is handled by the Site and AuthzGroup Services in Sakai 2.1.  No need to
 	 * do anything here.
 	 */
 	public void removeOrphans(final String siteContext) {
@@ -88,16 +88,16 @@ public class CourseManagerImpl implements CourseManager {
 	 */
 	public ParticipationRecord addInstructor(final User user, final Course course) {
 //		String roleString = getRoleString(INSTRUCTOR);
-//		RealmEdit realm;
-//		String realmId = course.getUuid();
+//		AuthzGroup azGroup;
+//		String azGroupId = course.getUuid();
 //		try {
-//			realm = RealmService.editRealm(realmId);
+//			azGroup = AuthzGroupService.getAuthzGroup(azGroupId);
+//			azGroup.addMember(user.getUserUid(), roleString, true, false);
+//			AuthzGroupService.save(azGroup);
 //		} catch (Exception e) {
-//			log.error("Unable to find or open realm " + realmId);
+//			log.error("Unable to find or open azGroup " + azGroupId);
 //			return null;
 //		}
-//		realm.addUserRole(user.getUserUid(), roleString, true, false);
-//		RealmService.commitEdit(realm);
 //		return new InstructorRecordImpl(course, user);
 		throw new RuntimeException("Operation not supported in sakai 2.1");
 	}
@@ -107,16 +107,16 @@ public class CourseManagerImpl implements CourseManager {
 	 */
 	public ParticipationRecord addEnrollment(final User user, final Course course) {
 //		String roleString = getRoleString(STUDENT);
-//		RealmEdit realm;
-//		String realmId = course.getUuid();
+//		AuthzGroup azGroup;
+//		String azGroupId = course.getUuid();
 //		try {
-//			realm = RealmService.editRealm(realmId);
+//			azGroup = AuthzGroupService.getAuthzGroup(azGroupId);
+//			azGroup.addMember(user.getUserUid(), roleString, true, false);
+//			AuthzGroupService.save(azGroup);
 //		} catch (Exception e) {
-//			log.error("Unable to find or open realm " + realmId);
+//			log.error("Unable to find or open azGroup " + azGroupId);
 //			return null;
 //		}
-//		realm.addUserRole(user.getUserUid(), roleString, true, false);
-//		RealmService.commitEdit(realm);
 //		return new EnrollmentRecordImpl(course, null, user);
 		throw new RuntimeException("Operation not supported in sakai 2.1");
 	}
@@ -126,16 +126,16 @@ public class CourseManagerImpl implements CourseManager {
 	 */
 	public ParticipationRecord addTA(final User user, final Course course) {
 //		String roleString = getRoleString(TA);
-//		RealmEdit realm;
-//		String realmId = course.getUuid();
+//		AuthzGroup azGroup;
+//		String azGroupId = course.getUuid();
 //		try {
-//			realm = RealmService.editRealm(realmId);
+//			azGroup = AuthzGroupService.editRealm(azGroupId);
+//			azGroup.addMember(user.getUserUid(), roleString, true, false);
+//			AuthzGroupService.save(azGroup);
 //		} catch (Exception e) {
-//			log.error("Unable to find or open realm " + realmId);
+//			log.error("Unable to find or open azGroup " + azGroupId);
 //			return null;
 //		}
-//		realm.addUserRole(user.getUserUid(), roleString, true, false);
-//		RealmService.commitEdit(realm);
 //		return new TeachingAssistantRecordImpl(course, user);
 		throw new RuntimeException("Operation not supported in sakai 2.1");
 	}

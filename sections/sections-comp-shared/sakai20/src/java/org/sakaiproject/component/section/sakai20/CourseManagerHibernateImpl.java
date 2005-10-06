@@ -127,7 +127,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 //
 //		Event event = (Event)arg;
 //		String function = event.getEvent();
-//		if(function.equals(RealmService.SECURE_UPDATE_REALM)) {
+//		if(function.equals(AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP)) {
 //			// Get the site reference from the event
 //			Reference realmRef = new Reference(event.getResource());
 //			Reference entityRef = new Reference(realmRef.getId());
