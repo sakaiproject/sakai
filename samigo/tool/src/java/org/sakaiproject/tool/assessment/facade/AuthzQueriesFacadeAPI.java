@@ -30,6 +30,8 @@ import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 public interface AuthzQueriesFacadeAPI
 {
 
+  public boolean hasAdminPriviledge(String agentId, String function, String qualifier);
+
   public boolean isAuthorized(String agentId, String function, String qualifier);
 
   public AuthorizationData createAuthorization(String agentId,

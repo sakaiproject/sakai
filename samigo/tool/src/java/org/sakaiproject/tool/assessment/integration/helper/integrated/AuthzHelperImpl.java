@@ -47,6 +47,8 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AuthzHelper;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.service.legacy.security.cover.SecurityService;
 
 /**
  *
@@ -87,6 +89,17 @@ public class AuthzHelperImpl
 {
   static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.integration.helper.integrated.AuthzResource");
   private static Log log = LogFactory.getLog(AuthzHelperImpl.class);
+
+    public static final String STUDENT_ACCESS = "testandquiz.access";
+    public static final String ADMIN_ACCESS = "testandquiz.maintain";
+
+  public boolean hasAdminPrivilege(final String agentId,
+                              final String functionId, final String qualifierId)
+  {
+      String context = ToolManager.getCurrentPlacement().getContext();
+      log.info("****context="+context);
+      return SecurityService.unlock(ADMIN_ACCESS, context);
+  }
 
   // this method is added by daisyf on 02/22/05
   /**

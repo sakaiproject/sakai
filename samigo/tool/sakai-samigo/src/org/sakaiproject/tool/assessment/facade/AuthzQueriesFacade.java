@@ -31,6 +31,8 @@ import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.service.legacy.security.cover.SecurityService;
 
 /**
  * @author cwen
@@ -56,7 +58,19 @@ public class AuthzQueriesFacade
 		"org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as authz " +
 		"where asset.assessmentBaseId=authz.qualifierId and " +
 		"authz.agentIdString = :agentId and authz.functionId = :functionId";
-  
+
+    public static final String STUDENT_ACCESS = "testandquiz.access";
+    public static final String ADMIN_ACCESS = "testandquiz.maintain";
+
+
+  public boolean hasAdminPriviledge(String agentId, 
+      String functionId, String qualifierId)
+  {
+      String context = ToolManager.getCurrentPlacement().getContext();
+      System.out.println("****context="+context);
+      return SecurityService.unlock(ADMIN_ACCESS, context);
+  }
+
     // this method is added by daisyf on 02/22/05
   public boolean isAuthorized(final String agentId, 
       final String functionId, final String qualifierId)

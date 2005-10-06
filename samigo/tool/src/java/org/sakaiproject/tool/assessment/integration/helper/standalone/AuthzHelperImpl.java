@@ -61,6 +61,12 @@ public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
   static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.integration.helper.standalone.AuthzResource");
   private static Log log = LogFactory.getLog(AuthzHelperImpl.class);
 
+  public boolean hasAdminPriviledge
+    (String agentId, String function, String qualifier)
+  {
+    return true;
+  }
+
   /**
    * Is the agent {agentId} authorized to do {function} to {qualifier}?
    * @param agentId the agent id.

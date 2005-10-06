@@ -51,6 +51,14 @@ public class AuthzQueriesFacade
   private static final boolean integrated =
     IntegrationContextFactory.getInstance().isIntegrated();
 
+  public  boolean hasAdminPriviledge
+    (String agentId, String functionId, String qualifierId)
+  {
+
+  return helper.hasAdminPriviledge(agentId, functionId, qualifierId);
+
+  }
+
   /**
    * Is the agent {agentId} authorized to do {function} to {qualifier}?
    * @param agentId the agent id.
