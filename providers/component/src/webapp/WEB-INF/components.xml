@@ -11,7 +11,7 @@
 	</bean>
 
 	<bean id="org.sakaiproject.service.legacy.authzGroup.GroupProvider"
-			class="org.sakaiproject.component.legacy.authzGroup.SampleRealmProvider"
+			class="org.sakaiproject.component.legacy.authzGroup.SampleGroupProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

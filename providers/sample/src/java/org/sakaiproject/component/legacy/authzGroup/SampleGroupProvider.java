@@ -42,13 +42,12 @@ import org.sakaiproject.util.java.StringUtil;
  * Sample of a GroupProvider. Shows how to handle compound ids (connected with a '+').
  * </p>
  * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
+ * @author Sakai Software Development Team
  */
-public class SampleRealmProvider implements GroupProvider
+public class SampleGroupProvider implements GroupProvider
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SampleRealmProvider.class);
+	private static Log M_log = LogFactory.getLog(SampleGroupProvider.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -109,7 +108,7 @@ public class SampleRealmProvider implements GroupProvider
 	/**
 	 * Construct.
 	 */
-	public SampleRealmProvider()
+	public SampleGroupProvider()
 	{
 		// users: 1 is 'a', 2 is both, 3 is 'm'
 		m_usersa = new HashSet();
@@ -134,7 +133,7 @@ public class SampleRealmProvider implements GroupProvider
 		String[] ids = unpackId(id);
 		for (int i = 0; i < ids.length; i++)
 		{
-			// if the user is in the list for the 'a' realm
+			// if the user is in the list for the 'a' group
 			if ((m_usersa.contains(user)) && ("sakai.access".equals(ids[i])))
 			{
 				// give the "access" role, if "maintain" not already found
@@ -144,7 +143,7 @@ public class SampleRealmProvider implements GroupProvider
 				}
 			}
 
-			// if the user is in the list for the 'm' realm
+			// if the user is in the list for the 'm' group
 			if ((m_usersm.contains(user)) && ("sakai.maintain".equals(ids[i])))
 			{
 				// give the "maintain" role
@@ -317,6 +316,3 @@ public class SampleRealmProvider implements GroupProvider
 		}
 	}
 }
-
-
-
