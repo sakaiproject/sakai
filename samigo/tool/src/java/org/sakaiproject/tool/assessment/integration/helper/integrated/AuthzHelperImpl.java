@@ -39,8 +39,8 @@ import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.cover.RealmService;
+//import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
+//import org.sakaiproject.service.legacy.authzGroup.cover.RealmService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
@@ -186,16 +186,16 @@ public class AuthzHelperImpl
    */
   public boolean checkMembership(String siteId) {
     boolean isMember = false;
-    try{
-      String realmName = res.getString("_site_") + siteId;
-      AuthzGroup siteAuthzGroup = RealmService.getAuthzGroup(realmName);
-      if (siteAuthzGroup.getUserRole(AgentFacade.getAgentString()) != null)
-        isMember = true;
-    }
-    catch(Exception e)
-    {
-      System.out.println(e.getMessage());
-    }
+//    try{
+//      String realmName = res.getString("_site_") + siteId;
+//      AuthzGroup siteAuthzGroup = RealmService.getAuthzGroup(realmName);
+//      if (siteAuthzGroup.getUserRole(AgentFacade.getAgentString()) != null)
+//        isMember = true;
+//    }
+//    catch(Exception e)
+//    {
+//      System.out.println(e.getMessage());
+//    }
     return isMember;
   }
 
