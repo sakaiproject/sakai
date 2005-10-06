@@ -53,7 +53,7 @@ import org.sakaiproject.component.section.facade.impl.sakai21.AuthzSakaiImpl;
 import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.cover.RealmService;
+import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.service.legacy.resource.Reference;
 import org.sakaiproject.service.legacy.resource.ResourceProperties;
 import org.sakaiproject.service.legacy.resource.cover.EntityManager;
@@ -343,7 +343,7 @@ public class SectionManagerImpl implements SectionManager {
 		Reference ref = EntityManager.newReference(learningContextUuid);
 		AuthzGroup realm;
 		try {
-			realm = RealmService.getAuthzGroup(ref.getId());
+			realm = AuthzGroupService.getAuthzGroup(ref.getId());
 		} catch (IdUnusedException e) {
 			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
 			return 0;
