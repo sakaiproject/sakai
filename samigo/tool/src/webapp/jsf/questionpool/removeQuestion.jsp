@@ -51,7 +51,7 @@
 
 <h:dataTable value="#{questionpool.itemsToDelete}" var="question">
       <h:column>
-       <h:outputText  value="#{question.text}" />
+       <h:outputText escape="false" value="#{question.text}" />
       </h:column>
 </h:dataTable>
 
