@@ -1316,7 +1316,7 @@ public String processDeleteCancel()
     String realmName = "/site/" + siteId;
     try
     {
-      Realm siteRealm = RealmService.getRealm(realmName);
+      AuthzGroup siteRealm = AuthzGroupService.getRealm(realmName);
       Set users = siteRealm.getUsers();
       
       if(entry.getEntry().getEmailNotification().equalsIgnoreCase("high"))
