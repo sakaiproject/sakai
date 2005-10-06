@@ -111,10 +111,12 @@ public class AuthzHelperImpl
       {Hibernate.STRING, Hibernate.STRING});
 
     String currentSiteId = null;
-    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean(res.getString("delivery"));
-    if (!delivery.getAccessViaUrl())
+    DeliveryBean delivery = lookupDeliveryBean();
+    if (delivery!=null && !delivery.getAccessViaUrl())
     {
-      currentSiteId = org.sakaiproject.service.framework.portal.cover.
+      currentSiteId = lookupSiteIdFromCoverPortalService();
+
+      org.sakaiproject.service.framework.portal.cover.
         PortalService.getCurrentSiteId();
     }
     if (currentSiteId == null)
@@ -212,7 +214,8 @@ public class AuthzHelperImpl
     {
       throw new IllegalArgumentException("Null Argument");
     }
-    final String queryAgentId = org.sakaiproject.service.framework.portal.cover.PortalService.getCurrentSiteId();
+    final String queryAgentId = lookupSiteIdFromCoverPortalService();
+    if (queryAgentId==null) return false;
 
     HibernateCallback hcb = new HibernateCallback()
     {
@@ -241,6 +244,44 @@ public class AuthzHelperImpl
       return true;
     else
       return false;
+  }
+
+  private String lookupSiteIdFromCoverPortalService()
+  {
+    String queryAgentId = null;
+    try
+    {
+      queryAgentId =
+        org.sakaiproject.service.framework.portal.cover.PortalService.
+        getCurrentSiteId();
+    }
+    catch (Exception ex)
+    {
+      log.warn("Unable to 'lookupSiteIdFromCoverPortalService()'.  " +
+               "need to fix if this is not a unit test.");
+    }
+    return queryAgentId;
+  }
+
+  /**
+   * Right now gets from faces context.
+   * This is a dupe of a method in AgentHelperImpl
+   * @todo extract util class
+   * @return
+   */
+  private DeliveryBean lookupDeliveryBean()
+  {
+    DeliveryBean delivery = null;
+    try
+    {
+      delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    }
+    catch (Exception ex)
+    {
+      log.warn("Delivery bean not available.  " +
+               "This needs to be fixed if you are not running a unit test.");
+    }
+    return delivery;
   }
 
   /**

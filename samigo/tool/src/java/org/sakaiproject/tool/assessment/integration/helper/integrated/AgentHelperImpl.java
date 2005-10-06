@@ -128,19 +128,56 @@ public class AgentHelperImpl implements AgentHelper
     String agentS="";
     // this is a sign that an unauthenticated person is trying to access the application
     // 'cos sakai doesn't know about them-daisyf
-    if (UserDirectoryService.getCurrentUser().getId()==null || ("").equals(UserDirectoryService.getCurrentUser().getId())){
-      BackingBean bean = (BackingBean) ContextUtil.lookupBeanFromExternalServlet(
-        "backingbean", req, res);
-      if (bean != null && !bean.getProp1().equals("prop1"))
-        agentS = bean.getProp1();
+    try
+    {
+      User user = UserDirectoryService.getCurrentUser();
+
+      if (user == null || user.getId() == null ||
+          ("").equals(user.getId()))
+      {
+        BackingBean bean = lookupBackingBean(req, res);
+        if (bean != null && !bean.getProp1().equals("prop1"))
+        {
+          agentS = bean.getProp1();
+        }
+      }
+      else
+      {
+        agentS = user.getId();
+      }
     }
-    else {
-      agentS = UserDirectoryService.getCurrentUser().getId();
+    catch (Exception ex)
+    {
+      log.warn(ex);
     }
     System.out.println("** getAgentString() ="+agentS);
     return agentS;
   }
 
+  private BackingBean lookupBackingBean(HttpServletRequest req,
+                                        HttpServletResponse res)
+  {
+    BackingBean bean =
+      (BackingBean) ContextUtil.lookupBeanFromExternalServlet(
+      "backingbean", req, res);
+    return bean;
+  }
+
+  private BackingBean lookupBackingBean()
+  {
+    BackingBean bean =  null;
+    try
+    {
+      bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+    }
+    catch (Exception ex)
+    {
+      log.warn("Backing been not available.  " +
+               "This needs to be fixed if you are not running a unit test.");
+    }
+
+    return bean;
+  }
   /**
    * Get the Agent display name.
    * @param agentS the Agent string.
@@ -200,11 +237,22 @@ public class AgentHelperImpl implements AgentHelper
   public String getRole(String agentString)
   {
     String role = "anonymous_access";
-    String thisSiteId = ToolManager.getCurrentPlacement().getContext();
-    String realmName = "/site/" + thisSiteId;
-    Role userRole=null;
+    String thisSiteId = null;
+    try
+    {
+      thisSiteId = ToolManager.getCurrentPlacement().getContext();
+    }
+    catch (Exception ex)
+    {
+      log.warn("Failure to get site id from ToolManager.  \n" +
+               "Need to fix if not running in unit test.");
+      log.warn(ex);
+    }
     if (thisSiteId == null)
       return role;
+
+    String realmName = "/site/" + thisSiteId;
+    Role userRole=null;
 
     try
     {
@@ -275,7 +323,7 @@ public class AgentHelperImpl implements AgentHelper
     String anonymousId = "anonymous_";
     try
     {
-      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+      BackingBean bean = lookupBackingBean();
       anonymousId += (new java.util.Date()).getTime();
       bean.setProp1(anonymousId);
     }
@@ -318,7 +366,7 @@ public class AgentHelperImpl implements AgentHelper
     }
     catch (Exception ex)
     {
-      log.warn("Delivery been not available.  " +
+      log.warn("Delivery bean not available.  " +
                "This needs to be fixed if you are not running a unit test.");
     }
     return delivery;
@@ -333,10 +381,12 @@ public class AgentHelperImpl implements AgentHelper
    String siteName=null;
    try{
       siteName = SiteService.getSite(siteId).getTitle();
-      log.debug("**** siteName="+siteName);
+      log.info("**** siteName="+siteName);
     }
-    catch (Exception e){
-      System.out.println(e.getMessage());
+    catch (Exception ex){
+      log.warn(ex);
+      log.warn("SiteService not available.  " +
+               "This needs to be fixed if you are not running a unit test.");
     }
     return siteName;
   }
@@ -385,7 +435,7 @@ public class AgentHelperImpl implements AgentHelper
    */
   public String getAnonymousId(){
     String agentS="";
-    BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+    BackingBean bean = lookupBackingBean();
     if (bean != null && !bean.getProp1().equals("prop1"))
         agentS = bean.getProp1();
     return agentS;
