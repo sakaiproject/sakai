@@ -198,7 +198,7 @@ public class SyllabusServiceImpl implements SyllabusService
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityRealms(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref)
 	{
 		return null;
 	}
