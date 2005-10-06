@@ -40,8 +40,8 @@
 //import org.sakaiproject.exception.IdUnusedException;
 //import org.sakaiproject.exception.InUseException;
 //import org.sakaiproject.exception.PermissionException;
-//import org.sakaiproject.service.legacy.realm.RealmEdit;
-//import org.sakaiproject.service.legacy.realm.cover.RealmService;
+//import org.sakaiproject.service.legacy.authzGroup.RealmEdit;
+//import org.sakaiproject.service.legacy.authzGroup.cover.RealmService;
 //import org.sakaiproject.service.legacy.resource.ResourceProperties;
 //import org.sakaiproject.service.legacy.site.Site;
 //import org.sakaiproject.service.legacy.site.cover.SiteService;
@@ -85,7 +85,7 @@
 //
 //        try
 //        {
-//          realmEdit = RealmService.editRealm("/site/" + siteId);
+//          realmEdit = AuthzGroupService.editRealm("/site/" + siteId);
 //        }
 //        catch (IdUnusedException e)
 //        {
@@ -129,7 +129,7 @@
 //              realmEdit.addUserRole(username, role, true, false);
 //            }
 //
-//            RealmService.commitEdit(realmEdit);
+//            AuthzGroupService.commitEdit(realmEdit);
 //          }
 //        }
 //      }
