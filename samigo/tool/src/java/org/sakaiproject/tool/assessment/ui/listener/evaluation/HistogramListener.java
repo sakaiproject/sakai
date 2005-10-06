@@ -601,7 +601,7 @@ public class HistogramListener
       bars[i] = new HistogramBarBean();
       bars[i].setLabel(answer.getText());
       bars[i].setIsCorrect(answer.getIsCorrect());
-      if (num>1)
+      if ((num>1)||(num==0))
 	  {
 	      bars[i].setNumStudentsText(num + " Responses");
 	  }
@@ -682,7 +682,7 @@ public class HistogramListener
       bars[i] = new HistogramBarBean();
       bars[i].setLabel(text.getText());
       bars[i].setNumStudents(num);
-      if (num>1)
+      if ((num>1)||(num==0))
 	  {
 	      bars[i].setNumStudentsText(num + " Correct Responses");
 	  }
