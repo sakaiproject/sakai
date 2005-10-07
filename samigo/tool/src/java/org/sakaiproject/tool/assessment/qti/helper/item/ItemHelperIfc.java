@@ -53,7 +53,7 @@ public interface ItemHelperIfc
     {
     "Unknown Type",
     "Multiple Choice",
-    "Multiple Choice",
+    "Multiple Correct Answer",
     "Survey",
     "True or False",
     "Short Answers/Essay",

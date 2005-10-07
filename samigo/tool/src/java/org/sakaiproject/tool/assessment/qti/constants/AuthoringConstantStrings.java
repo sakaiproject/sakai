@@ -67,7 +67,7 @@ public class AuthoringConstantStrings
 
   // "Unknown Type" is a placeholder for the invalid '0' , "Unused Type" is an alternate MCMC
   public static String[] itemTypes =
-  { "Unknown Type", "Unused Type", MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING };
+  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING };
 
 
 	// Feedback Type
