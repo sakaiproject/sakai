@@ -58,10 +58,12 @@ public abstract class IntegrationContextFactory
    */
   public static IntegrationContextFactory getInstance()
   {
+    log.info("IntegrationContextFactory.getInstance()");
     if (instance==null)
     {
       try
       {
+        FactoryUtil.setUseLocator(true);
         instance = FactoryUtil.lookup();
       }
       catch (Exception ex)
@@ -69,6 +71,7 @@ public abstract class IntegrationContextFactory
         log.error("Unable to read integration context: " + ex);
       }
     }
+    log.info("instance="+instance);
     return instance;
   }
 

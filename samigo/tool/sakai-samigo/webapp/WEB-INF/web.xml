@@ -20,6 +20,7 @@
   <context-param>
      <param-name>contextConfigLocation</param-name>
      <param-value>WEB-INF/classes/org/sakaiproject/spring/applicationContext.xml,
+                  WEB-INF/classes/org/sakaiproject/spring/integrationContext.xml,
                   WEB-INF/classes/org/sakaiproject/spring/BeanDefinitions.xml</param-value>
   </context-param>
 

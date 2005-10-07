@@ -17,11 +17,11 @@
    <property name="agentHelper">
      <ref bean="agentHelper"/>
    </property>
-<!--
+
    <property name="authzHelper">
      <ref bean="authzHelper"/>
    </property>
--->
+
    <property name="gradebookHelper">
      <ref bean="gradebookHelper"/>
    </property>
@@ -29,11 +29,11 @@
    <property name="publishingTargetHelper">
      <ref bean="publishingTargetHelper"/>
    </property>
-<!--
+
    <property name="gradebookServiceHelper">
      <ref bean="gradebookServiceHelper"/>
    </property>
--->
+
 </bean>
 
 <!-- context-sensitive agent behavior -->
@@ -42,11 +42,12 @@
 </bean>
 
 <!-- context-sensitive authz behavior -->
-<!--
 <bean name="authzHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.standalone.AuthzHelperImpl">
+   <property name="sessionFactory">
+     <ref bean="sessionFactory"/>
+   </property>
 </bean>
--->
 
 <!-- context-sensitive gradebook behavior -->
 <bean name="gradebookHelper"
@@ -59,11 +60,11 @@
 </bean>
 
 <!-- context-sensitive gradebook service behavior -->
-<!--
+
 <bean name="gradebookServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.standalone.GradebookServiceHelperImpl">
 </bean>
--->
+
 
 </beans>
 
