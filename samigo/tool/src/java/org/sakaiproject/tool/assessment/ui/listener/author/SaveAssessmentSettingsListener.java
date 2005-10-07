@@ -71,7 +71,6 @@ public class SaveAssessmentSettingsListener
     //Huong's adding
  ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", context.getViewRoot().getLocale());
 
-    System.out.println("***ConfirmPublishAssessmentListener");
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
     if (time!=null)

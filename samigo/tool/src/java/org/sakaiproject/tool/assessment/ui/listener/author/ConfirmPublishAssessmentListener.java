@@ -69,7 +69,6 @@ public class ConfirmPublishAssessmentListener
         lookupBean(
         "assessmentSettings");
     //Huong's adding
-    System.out.println("***ConfirmPublishAssessmentListener");
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
     if (time!=null)
