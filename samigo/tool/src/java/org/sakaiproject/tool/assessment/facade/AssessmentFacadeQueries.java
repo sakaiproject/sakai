@@ -22,6 +22,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
+import java.lang.SecurityException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -202,6 +203,12 @@ public class AssessmentFacadeQueries
   }
 
   public Long addAssessment(Long assessmentTemplateId) {
+    boolean hasAdminPriviledge = PersistenceService.getInstance().getAuthzQueriesFacade().hasAdminPriviledge(null,null,null);
+    System.out.println("**** addAssessment, admin right= "+hasAdminPriviledge);
+    if (!hasAdminPriviledge){
+      throw new SecurityException("You do not have permission to perform this operation");
+    }
+
     AssessmentData assessment = new AssessmentData(
         new Long(0),
         "assessment title", "assessment description", "assessment acomments",
