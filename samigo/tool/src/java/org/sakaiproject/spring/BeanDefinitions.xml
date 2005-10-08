@@ -1,102 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
   "http://www.springframework.org/dtd/spring-beans.dtd">
 
 
-<beans> 
-    
+<beans>
+
   <bean id="PersistenceService" class="org.sakaiproject.tool.assessment.services.PersistenceService">
     <property name="typeFacadeQueries" >
       <ref bean="TypeFacadeQueries"/>
-    </property>    
+    </property>
     <property name="questionPoolFacadeQueries" >
       <ref bean="QuestionPoolFacadeQueries"/>
-    </property>    
+    </property>
     <property name="sectionFacadeQueries" >
       <ref bean="SectionFacadeQueries"/>
-    </property>    
+    </property>
     <property name="itemFacadeQueries" >
       <ref bean="ItemFacadeQueries"/>
-    </property>    
+    </property>
     <property name="assessmentFacadeQueries" >
       <ref bean="AssessmentFacadeQueries"/>
-    </property>    
+    </property>
     <property name="publishedAssessmentFacadeQueries" >
       <ref bean="PublishedAssessmentFacadeQueries"/>
-    </property>    
+    </property>
     <property name="assessmentGradingFacadeQueries" >
       <ref bean="AssessmentGradingFacadeQueries"/>
-    </property>    
+    </property>
     <property name="authorizationFacadeQueries" >
       <ref bean="AuthorizationFacadeQueries"/>
-    </property>    
+    </property>
     <property name="pagingUtilQueries" >
       <ref bean="PagingUtilQueries"/>
-    </property>    
+    </property>
     <property name="authzQueriesFacade" >
       <ref bean="AuthzQueriesFacade"/>
-    </property>    
-  </bean>   
-  
+    </property>
+  </bean>
+
   <bean id="TypeFacadeQueries" class="org.sakaiproject.tool.assessment.facade.TypeFacadeQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
-  
+  </bean>
+
   <bean id="QuestionPoolFacadeQueries" class="org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
+  </bean>
 
   <bean id="ItemFacadeQueries" class="org.sakaiproject.tool.assessment.facade.ItemFacadeQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
-  
+  </bean>
+
   <bean id="AssessmentFacadeQueries" class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
+  </bean>
 
   <bean id="SectionFacadeQueries" class="org.sakaiproject.tool.assessment.facade.SectionFacadeQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
+  </bean>
 
   <bean id="PublishedAssessmentFacadeQueries" class="org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
+  </bean>
 
   <bean id="AssessmentGradingFacadeQueries" class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
+  </bean>
 
   <bean id="AuthorizationFacadeQueries" class="org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
+  </bean>
 
   <bean id="PagingUtilQueries" class="org.sakaiproject.tool.assessment.util.PagingUtilQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
+  </bean>
 
-  <bean id="AuthzQueriesFacade" class="org.sakaiproject.tool.assessment.facade.AuthzQueriesFacade">
+	<bean id="AuthzQueriesFacade"
+		class="org.sakaiproject.tool.assessment.facade.authz.standalone.AuthzQueriesFacade">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>
-  </bean>    
+  </bean>
 
 </beans>
 
