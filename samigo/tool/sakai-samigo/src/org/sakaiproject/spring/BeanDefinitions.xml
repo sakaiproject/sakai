@@ -101,8 +101,8 @@
 	</bean>
 
 	<bean id="AuthzQueriesFacade"
-		class="org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade">
-		<property name="sessionFactory">
+     class="org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade">
+    <property name="sessionFactory">
 			<ref bean="sakai-sam.sessionFactory" />
 		</property>
 	</bean>
