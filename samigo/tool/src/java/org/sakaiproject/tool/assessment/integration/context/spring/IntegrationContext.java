@@ -101,24 +101,4 @@ public class IntegrationContext extends IntegrationContextFactory
     this.publishingTargetHelper = publishingTargetHelper;
   }
 
-  /**
-   * This is a unit test that verifies that the factory and bean property
-   * singletons have been properly created.  Examine output to verify
-   * interface instances are NOT null, and that they are of the right impl type.
-   * @param args ignored here
-   */
-  public static void main(String[] args)
-  {
-    System.out.print("Getting factory 1st time. ");
-    System.out.println("getInstance();="+getInstance());
-    System.out.print("Getting factory is this a singleton? ");
-    System.out.println("getInstance();="+getInstance());
-    System.out.println("getInstance().isIntegrated()="+getInstance().isIntegrated());
-    System.out.println("getInstance().getAgentHelper()="+getInstance().getAgentHelper());
-    System.out.println("getInstance().getAuthzHelper()="+getInstance().getAuthzHelper());
-    System.out.println("getInstance().getPublishingTargetHelper()="+getInstance().getPublishingTargetHelper());
-    System.out.println("getInstance().getGradebookHelper()="+getInstance().getGradebookHelper());
-    System.out.println("getInstance().getGradebookServiceHelper()="+getInstance().getGradebookServiceHelper());
-  }
-
 }
