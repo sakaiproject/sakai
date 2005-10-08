@@ -1,10 +1,26 @@
-/*
- * Created on 2005-1-17
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
-package org.sakaiproject.tool.assessment.facade;
+/**********************************************************************************
+* $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/tool/src/java/org/sakaiproject/tool/assessment/facade/AuthzQueriesFacade.java $
+* $Id: AuthzQueriesFacade.java 2422 2005-10-06 21:23:02Z daisyf@stanford.edu $
+***********************************************************************************
+*
+* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+*
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+*
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
+package org.sakaiproject.tool.assessment.facade.authz.integrated;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -33,12 +49,16 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 /**
+ * <p>Description: Facade for AuthZ queries.
+ * Uses helper to determine integration context implementation.</p>
+ * <p>Sakai Project Copyright (c) 2005</p>
+ * <p> </p>
  * @author cwen
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * @author Rachel Gollub <rgollub@stanford.edu>
+ * @author Ed Smiley <esmiley@stanford.edu> split integrated, standlaone.
  */
 public class AuthzQueriesFacade
 	extends HibernateDaoSupport implements AuthzQueriesFacadeAPI
@@ -48,9 +68,9 @@ public class AuthzQueriesFacade
   private final static String HQL_QUERY_CHECK_AUTHZ =
     "select from " +
 		"org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as data" +
-		" where data.agentIdString = :agentId and data.functionId = :functionId" + 
+		" where data.agentIdString = :agentId and data.functionId = :functionId" +
 		" and data.qualifierId = :qualifierId";
-  private final static String HQL_QUERY_BY_AGENT_FUNC = 
+  private final static String HQL_QUERY_BY_AGENT_FUNC =
     "select from org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData " +
     "as item where item.agentIdString = :agentId and item.functionId = :functionId";
   private final static String HQL_QUERY_ASSESS_BY_AGENT_FUNC = "select asset from " +
@@ -63,7 +83,7 @@ public class AuthzQueriesFacade
     public static final String ADMIN_ACCESS = "testandquiz.maintain";
 
 
-  public boolean hasAdminPriviledge(String agentId, 
+  public boolean hasAdminPriviledge(String agentId,
       String functionId, String qualifierId)
   {
       String context = ToolManager.getCurrentPlacement().getContext();
@@ -72,13 +92,13 @@ public class AuthzQueriesFacade
   }
 
     // this method is added by daisyf on 02/22/05
-  public boolean isAuthorized(final String agentId, 
+  public boolean isAuthorized(final String agentId,
       final String functionId, final String qualifierId)
   {
     String query = "select a from AuthorizationData a where a.functionId=? and a.qualifierId=?";
     List authorizationList = getHibernateTemplate().find(query,
                              new Object[] { functionId, qualifierId },
-                             new net.sf.hibernate.type.Type[] { Hibernate.STRING, Hibernate.STRING });    
+                             new net.sf.hibernate.type.Type[] { Hibernate.STRING, Hibernate.STRING });
 
     String currentSiteId = null;
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
@@ -91,7 +111,7 @@ public class AuthzQueriesFacade
     String currentAgentId = UserDirectoryService.getCurrentUser().getId();
     for (int i=0; i<authorizationList.size(); i++){
       AuthorizationData a = (AuthorizationData) authorizationList.get(i);
-      String siteId = a.getAgentIdString(); 
+      String siteId = a.getAgentIdString();
       if (("AUTHENTICATED_USERS").equals(siteId) && (currentAgentId!=null)){
         return true;
       }
@@ -106,7 +126,7 @@ public class AuthzQueriesFacade
     return false;
   }
 
-  public boolean checkAuthorization(final String agentId, 
+  public boolean checkAuthorization(final String agentId,
       final String functionId, final String qualifierId)
   {
 /*    if (agentId == null || functionId == null || qualifierId == null)
@@ -118,7 +138,7 @@ public class AuthzQueriesFacade
       throw new IllegalArgumentException("Null Argument");
     }
     final String queryAgentId = org.sakaiproject.service.framework.portal.cover.PortalService.getCurrentSiteId();
-    
+
     HibernateCallback hcb = new HibernateCallback()
     {
       public Object doInHibernate(Session session) throws HibernateException,
@@ -137,7 +157,7 @@ public class AuthzQueriesFacade
       }
     };
     Object result = (AuthorizationData)getHibernateTemplate().execute(hcb);
-    
+
     if(result != null)
       return true;
     else
@@ -158,7 +178,7 @@ public class AuthzQueriesFacade
 
       Calendar cal = Calendar.getInstance();
       Date lastModifiedDate = cal.getTime();
-      
+
       ad.setAgentIdString(agentId);
       ad.setFunctionId(functionId);
       ad.setQualifierId(qualifierId);
@@ -168,7 +188,7 @@ public class AuthzQueriesFacade
       return ad;
     }
   }
-  
+
   public ArrayList getAssessments(final String agentId, final String functionId)
   {
     ArrayList returnList = new ArrayList();
@@ -179,7 +199,7 @@ public class AuthzQueriesFacade
     else
     {
       HibernateCallback hcb = new HibernateCallback()
-      {                
+      {
         public Object doInHibernate(Session session) throws HibernateException,
             SQLException
         {
@@ -195,10 +215,10 @@ public class AuthzQueriesFacade
         returnList.add(ad);
       }
     }
-    
+
     return returnList;
   }
-  
+
   public ArrayList getAssessmentsByAgentAndFunction(final String agentId, final String functionId)
   {
     ArrayList returnList = new ArrayList();
@@ -209,7 +229,7 @@ public class AuthzQueriesFacade
     else
     {
       HibernateCallback hcb = new HibernateCallback()
-      {                
+      {
         public Object doInHibernate(Session session) throws HibernateException,
         SQLException
         {
@@ -226,14 +246,14 @@ public class AuthzQueriesFacade
         returnList.add(ad);
       }
     }
-    
+
     return returnList;
   }
 
   public void removeAuthorizationByQualifier(String qualifierId) {
     List l = getHibernateTemplate().find(
       "select a from AuthorizationData a where a.qualifierId="+qualifierId);
-    getHibernateTemplate().deleteAll(l);    
+    getHibernateTemplate().deleteAll(l);
   }
 
   /** This returns a HashMap containing (String a.qualiferId, AuthorizationData a)
