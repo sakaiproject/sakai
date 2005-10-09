@@ -48,7 +48,6 @@ import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.sakaiproject.service.legacy.entity.Reference;
@@ -405,8 +404,7 @@ public class SyllabusTool
       {
         if (!this.checkAccess())
         {
-          throw new PermissionException(UsageSessionService.getSessionUserId(),
-              "syllabus_access_athz", "");
+          throw new PermissionException("syllabus_access_athz", "");
         }
         else
         {

@@ -31,18 +31,18 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.apache.xerces.impl.dv.util.Base64;
+import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
+import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
-import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
-import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 import org.sakaiproject.service.legacy.entity.Edit;
 import org.sakaiproject.service.legacy.entity.Entity;
 import org.sakaiproject.service.legacy.entity.Reference;
@@ -904,7 +904,7 @@ public class SyllabusServiceImpl implements SyllabusService
 	{
 		ResourcePropertiesEdit p = r.getPropertiesEdit();
 
-		String current = UsageSessionService.getSessionUserId();
+		String current = SessionManager.getCurrentSessionUserId();
 		p.addProperty(ResourceProperties.PROP_CREATOR, current);
 		p.addProperty(ResourceProperties.PROP_MODIFIED_BY, current);
 

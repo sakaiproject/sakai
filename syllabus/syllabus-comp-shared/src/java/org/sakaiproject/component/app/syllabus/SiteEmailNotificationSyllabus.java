@@ -32,7 +32,6 @@ import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.api.kernel.component.cover.ComponentManager;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 import org.sakaiproject.service.legacy.entity.Reference;
 import org.sakaiproject.service.legacy.event.Event;
 import org.sakaiproject.service.legacy.notification.Notification;
@@ -88,7 +87,7 @@ public class SiteEmailNotificationSyllabus
 		{
 //			return props.getUserProperty(ResourceProperties.PROP_MODIFIED_BY).getEmail();
 //		  return UsageSessionService.getSessionUserId();
-		  User user = UserDirectoryService.getUser(UsageSessionService.getSessionUserId());
+		  User user = UserDirectoryService.getCurrentUser();
 		  return user.getEmail();
 		}
 		catch (Throwable e)
