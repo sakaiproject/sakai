@@ -73,32 +73,39 @@ public class SaveAssessmentSettingsListener
 
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
+    String err="";
     if (time!=null)
       isTime=((Boolean)time).booleanValue();
 
     // System.out.println("SAVESETTINGSANDCONFIRM");
-    if(!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0))){
+    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(assessmentSettings.getTitle()!=null)&&(!(assessmentSettings.getTitle().trim()).equals(""))){
 	// System.out.println("SAVESETTINGS Success");
 	assessmentSettings.setOutcomeSave("saveSettings_success");
-    s.save(assessmentSettings);
+	s.save(assessmentSettings);
  // reset the core listing in case assessment title changes
-    AuthorBean author = (AuthorBean) cu.lookupBean(
+	AuthorBean author = (AuthorBean) cu.lookupBean(
                        "author");
-    AssessmentService assessmentService = new AssessmentService();
-    ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
-         author.getCoreAssessmentOrderBy(),author.isCoreAscending());
+	AssessmentService assessmentService = new AssessmentService();
+	ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
+											author.getCoreAssessmentOrderBy(),author.isCoreAscending());
     // get the managed bean, author and set the list
-    author.setAssessments(assessmentList);
+	author.setAssessments(assessmentList);
 
     // goto Question Authoring page
-    EditAssessmentListener editA= new EditAssessmentListener();
-    editA.processAction(null);
+	EditAssessmentListener editA= new EditAssessmentListener();
+	editA.processAction(null);
 	
 
     }
     else{
-	//  System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR CHECK");
-	String err=(String)rb.getObject("timeSelect_error");
+         if((assessmentSettings.getTitle()==null)||(assessmentSettings.getTitle().trim()).equals("")){
+      
+	    err=(String)rb.getObject("emptyAssessment_error");
+	}
+	else{
+	   
+	    err=(String)rb.getObject("timeSelect_error");
+	}
 	context.addMessage(null,new FacesMessage(err));
 	assessmentSettings.setOutcomeSave("saveSettings_fail");
 	//  System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR MESSAGE CREATED");
