@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
 import java.io.Serializable;
 
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 
@@ -38,15 +39,14 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
  */
 public interface GradebookServiceHelper extends Serializable
 {
-  public boolean gradebookExists(String gradebookUId);
+  public boolean gradebookExists(String gradebookUId, GradebookService g);
 
   public void removeExternalAssessment(String gradebookUId,
-                                       String publishedAssessmentId) throws
-    Exception;
+     String publishedAssessmentId, GradebookService g) throws Exception;
 
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment) throws
-    Exception;
+  public boolean addToGradebook(PublishedAssessmentData publishedAssessment,
+    GradebookService g) throws Exception;
 
-  public void updateExternalAssessmentScore(AssessmentGradingIfc ag) throws
-    Exception;
+  public void updateExternalAssessmentScore(AssessmentGradingIfc ag,
+    GradebookService g) throws Exception;
 }

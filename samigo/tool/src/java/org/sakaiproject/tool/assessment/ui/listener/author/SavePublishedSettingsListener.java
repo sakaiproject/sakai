@@ -33,21 +33,23 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 
 /**
  * <p>Title: Samigo</p>2
@@ -63,6 +65,10 @@ public class SavePublishedSettingsListener
 {
   private static Log log = LogFactory.getLog(SavePublishedSettingsListener.class);
   private static ContextUtil cu;
+  private static final GradebookServiceHelper gbsHelper =
+    IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+  private static final boolean integrated =
+    IntegrationContextFactory.getInstance().isIntegrated();
 
   public SavePublishedSettingsListener()
   {
@@ -104,7 +110,10 @@ public class SavePublishedSettingsListener
     // b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
     //    exception are indication that the assessment is already in the Gradebook or there is nothing
     //    to remove.
-    if (GradebookServiceHelper.gradebookExists(GradebookFacade.getGradebookUId())){ // => something to do
+    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
+    getBean("org.sakaiproject.service.gradebook.GradebookService");
+
+    if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)){ // => something to do
       PublishedEvaluationModel evaluation = (PublishedEvaluationModel)assessment.getEvaluationModel();
       if (evaluation == null){
         evaluation = new PublishedEvaluationModel();
@@ -113,14 +122,15 @@ public class SavePublishedSettingsListener
       evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
       if (evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
         //add and copy scores over if any
+
         try{
-          GradebookServiceHelper.addToGradebook((PublishedAssessmentData)assessment.getData());
+          gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
           // any score to copy over? get all the assessmentGradingData and copy over
           GradingService gradingService = new GradingService();
           ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());
           for (int i=0; i<list.size();i++){
             AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
-            GradebookServiceHelper.updateExternalAssessmentScore(ag);
+            gbsHelper.updateExternalAssessmentScore(ag, g);
           }
         }
         catch(Exception e){
@@ -129,7 +139,9 @@ public class SavePublishedSettingsListener
       }
       else{ //remove
         try{
-          GradebookServiceHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(),assessment.getPublishedAssessmentId().toString());
+          gbsHelper.removeExternalAssessment(
+            GradebookFacade.getGradebookUId(),
+            assessment.getPublishedAssessmentId().toString(), g);
         }
         catch(Exception e){
           log.debug("*** oh well, looks like there is nothing to remove:"+e.getMessage());

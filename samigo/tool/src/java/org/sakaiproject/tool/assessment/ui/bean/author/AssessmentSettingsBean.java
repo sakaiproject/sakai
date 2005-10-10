@@ -41,6 +41,8 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishingTarget;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -52,8 +54,9 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelper;
 
 /**
  * @author rshastri
@@ -66,7 +69,10 @@ import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelpe
 public class AssessmentSettingsBean
     implements Serializable {
     private static Log log = LogFactory.getLog(AssessmentSettingsBean.class);
-
+    private static final GradebookServiceHelper gbsHelper =
+      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+    private static final boolean integrated =
+      IntegrationContextFactory.getInstance().isIntegrated();
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
     private String outcomeSave;
@@ -288,7 +294,12 @@ public class AssessmentSettingsBean
           this.toDefaultGradebook = evaluation.getToGradeBook().toString();
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
-        this.gradebookExists = GradebookServiceHelper.gradebookExists(GradebookFacade.getGradebookUId());
+
+        GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.service.gradebook.GradebookService");
+
+        this.gradebookExists = gbsHelper.gradebookExists(
+          GradebookFacade.getGradebookUId(), g);
       }
 
       // ip addresses
@@ -1062,5 +1073,5 @@ public class AssessmentSettingsBean
     }
 
 
-   
+
 }

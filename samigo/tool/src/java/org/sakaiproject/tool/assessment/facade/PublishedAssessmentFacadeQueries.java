@@ -31,11 +31,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.type.Type;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -71,16 +74,17 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.util.PagingUtilQueriesAPI;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class PublishedAssessmentFacadeQueries
     extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {
 
   private static Log log = LogFactory.getLog(PublishedAssessmentFacadeQueries.class);
+
   public static String STARTDATE = "assessmentAccessControl.startDate";
   public static String DUEDATE = "assessmentAccessControl.dueDate";
   public static String RETRACTDATE = "assessmentAccessControl.retractDate";
@@ -508,9 +512,16 @@ public class PublishedAssessmentFacadeQueries
     // add to gradebook
     if (publishedAssessment.getEvaluationModel() != null){
       String toGradebook = publishedAssessment.getEvaluationModel().getToGradeBook();
-      if (GradebookServiceHelper.gradebookExists(GradebookFacade.getGradebookUId()) && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+
+      GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
+      getBean("org.sakaiproject.service.gradebook.GradebookService");
+      GradebookServiceHelper gbsHelper =
+        IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+
+      if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g) &&
+          toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
         try {
-            addedToGradebook = GradebookServiceHelper.addToGradebook(publishedAssessment);
+            addedToGradebook = gbsHelper.addToGradebook(publishedAssessment, g);
         } catch (Exception e) {
             log.error("Removing published assessment: " + e);
             getHibernateTemplate().delete(publishedAssessment);

@@ -22,8 +22,6 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
-import java.lang.SecurityException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,12 +30,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import net.sf.hibernate.Hibernate;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -54,17 +53,17 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.util.PagingUtilQueriesAPI;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class AssessmentFacadeQueries
     extends HibernateDaoSupport implements AssessmentFacadeQueriesAPI {
   private static Log log = LogFactory.getLog(AssessmentFacadeQueries.class);
+
   public static String LASTMODIFIEDDATE = "lastModifiedDate";
   public static String TITLE = "title";
 
@@ -499,8 +498,12 @@ public class AssessmentFacadeQueries
     if (evaluation == null) {
         evaluation = new EvaluationModel();
     }
-    if (!GradebookServiceHelper.gradebookExists(GradebookFacade.getGradebookUId()))
-	evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
+    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
+    getBean("org.sakaiproject.service.gradebook.GradebookService");
+    GradebookServiceHelper gbsHelper =
+      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+    if (!gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g))
+      evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
     getHibernateTemplate().save(assessment);
     registerWithCurrentSite(assessment.getAssessmentId().toString());
     return new AssessmentFacade(assessment);
@@ -530,8 +533,12 @@ public class AssessmentFacadeQueries
     if (evaluation == null) {
 	evaluation = new EvaluationModel();
     }
-    if (!GradebookServiceHelper.gradebookExists(GradebookFacade.getGradebookUId()))
-      evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
+
+    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
+    getBean("org.sakaiproject.service.gradebook.GradebookService");
+    GradebookServiceHelper gbsHelper =
+      IntegrationContextFactory.getInstance().getGradebookServiceHelper();    if (!gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g))
+    evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
 
     getHibernateTemplate().save(assessment);
     // register assessmnet with current site

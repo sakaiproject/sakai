@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,12 +35,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.type.Type;
-import net.sf.hibernate.Session;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import net.sf.hibernate.Hibernate;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.type.Type;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -57,9 +59,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelper;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI{
   private static Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
@@ -441,10 +443,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   private void notifyGradebook(AssessmentGradingIfc data) {
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = data.getPublishedAssessment().getEvaluationModel().getToGradeBook();
-    if (GradebookServiceHelper.gradebookExists(GradebookFacade.getGradebookUId()) && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+
+    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
+    getBean("org.sakaiproject.service.gradebook.GradebookService");
+    GradebookServiceHelper gbsHelper =
+      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+
+    if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)
+        && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
         if(log.isDebugEnabled()) log.debug("Attempting to update a score in the gradebook");
         try {
-            GradebookServiceHelper.updateExternalAssessmentScore(data);
+            gbsHelper.updateExternalAssessmentScore(data, g);
         } catch (Exception e) {
             // TODO Handle this exception in the UI rather than swallowing it!
             e.printStackTrace();

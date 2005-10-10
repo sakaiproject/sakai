@@ -69,12 +69,11 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   /**
    * Does a gradebook exist?
    * @param gradebookUId the gradebook id
+   * @param g  the Gradebook Service
    * @return true if the given gradebook exists
    */
-  public boolean gradebookExists(String gradebookUId)
+  public boolean gradebookExists(String gradebookUId, GradebookService g)
   {
-    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-      getBean("org.sakaiproject.service.gradebook.GradebookService");
     log.debug("GradebookService = " + g);
     if (gradebookUId == null)
     {
@@ -86,15 +85,13 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   /**
    * Remove a published assessment from the gradebook.
    * @param gradebookUId the gradebook id
+   * @param g  the Gradebook Service
    * @param publishedAssessmentId the id of the published assessment
    * @throws java.lang.Exception
    */
-  public void removeExternalAssessment(String gradebookUId,
-                                       String publishedAssessmentId) throws
-    Exception
+public void removeExternalAssessment(String gradebookUId,
+   String publishedAssessmentId, GradebookService g) throws Exception
   {
-    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-      getBean("org.sakaiproject.service.gradebook.GradebookService");
     if (g.gradebookExists(gradebookUId))
     {
       g.removeExternalAssessment(gradebookUId, publishedAssessmentId);
@@ -104,18 +101,18 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   /**
    * Add a published assessment to gradebook.
    * @param publishedAssessment the published assessment
+   * @param g  the Gradebook Service
    * @return false: cannot add to gradebook
    * @throws java.lang.Exception
    */
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment) throws
+  public boolean addToGradebook(PublishedAssessmentData publishedAssessment,
+                                GradebookService g) throws
     Exception
   {
     log.info("total point(s) is/are =" +
               publishedAssessment.getTotalScore().longValue());
     log.info("gradebookId =" + GradebookFacade.getGradebookUId());
     boolean added = false;
-    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-      getBean("org.sakaiproject.service.gradebook.GradebookService");
     log.info("GradebookService instance=" + g);
     String gradebookUId = GradebookFacade.getGradebookUId();
     if (gradebookUId == null)
@@ -160,28 +157,26 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   /**
    * Update the grading of the assessment.
    * @param ag the assessment grading.
+   * @param g  the Gradebook Service
    * @throws java.lang.Exception
    */
-  public void updateExternalAssessmentScore(AssessmentGradingIfc ag) throws
+  public void updateExternalAssessmentScore(AssessmentGradingIfc ag,
+   GradebookService g) throws
     Exception
   {
-    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-      getBean("org.sakaiproject.service.gradebook.GradebookService");
     log.info("GradebookService instance=" + g);
     PublishedAssessmentService publishedAssessmentService = new
       PublishedAssessmentService();
-    String gradebookUId = publishedAssessmentService.
-      getPublishedAssessmentOwner(ag.getPublishedAssessment().
-                                  getPublishedAssessmentId());
+    String gradebookUId =
+      publishedAssessmentService.getPublishedAssessmentOwner(
+        ag.getPublishedAssessment().getPublishedAssessmentId());
     if (gradebookUId == null)
     {
       return;
     }
     g.updateExternalAssessmentScore(gradebookUId,
-                                    ag.getPublishedAssessment().
-                                    getPublishedAssessmentId().toString(),
-                                    ag.getAgentId(),
-                                    new Double(ag.getFinalScore().doubleValue()));
+      ag.getPublishedAssessment().getPublishedAssessmentId().toString(),
+      ag.getAgentId(), new Double(ag.getFinalScore().doubleValue()));
   }
 
 }
