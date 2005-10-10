@@ -71,11 +71,12 @@ public class ConfirmPublishAssessmentListener
     //Huong's adding
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
+    String err;
     if (time!=null)
       isTime=((Boolean)time).booleanValue();
 
     // System.out.println("SAVESETTINGSANDCONFIRM");
-    if(!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0))){
+    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(assessmentSettings.getTitle()!=null)&&(!(assessmentSettings.getTitle().trim()).equals(""))){
         System.out.println("SAVESETTINGSANDCONFIRM Success");
 	assessmentSettings.setOutcomePublish("publish_success");
 	SaveAssessmentSettings s = new SaveAssessmentSettings();
@@ -102,12 +103,17 @@ public class ConfirmPublishAssessmentListener
 
     }
     else{
-        //System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR CHECK");
-	String err=(String)rb.getObject("timeSelect_error");
+       
+        if((assessmentSettings.getTitle()==null)||(assessmentSettings.getTitle().trim()).equals("")){
+	    err=(String)rb.getObject("emptyAssessment_error");
+	   
+	}
+	else{//error in time select
+	    err=(String)rb.getObject("timeSelect_error");
+	}
 	context.addMessage(null,new FacesMessage(err));
 	assessmentSettings.setOutcomePublish("publish_fail");
-	// System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR MESSAGE CREATED");
-
+	    
     }
 
   }
