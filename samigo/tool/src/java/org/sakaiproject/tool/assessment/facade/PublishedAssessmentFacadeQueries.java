@@ -64,7 +64,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishingTarget;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
