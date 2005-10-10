@@ -40,7 +40,6 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishingTarget;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -48,19 +47,29 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 
 public class PublishedAssessmentSettingsBean
-    implements Serializable {
-    private static Log log = LogFactory.getLog(PublishedAssessmentSettingsBean.class);
-    /**
-     *  we use the calendar widget which uses 'MM-dd-yyyy hh:mm:ss a'
-     *  used to take the internal format from calendar picker and move it
-     *  transparently in and out of the date properties
-     *
-     */
-    private static final String DISPLAY_DATEFORMAT = "MM/dd/yyyy hh:mm:ss a";
-    private static final SimpleDateFormat displayFormat = new SimpleDateFormat(
-        DISPLAY_DATEFORMAT);
+  implements Serializable {
+  private static Log log = LogFactory.getLog(PublishedAssessmentSettingsBean.class);
+
+  private static final IntegrationContextFactory integrationContextFactory =
+    IntegrationContextFactory.getInstance();
+  private static final PublishingTargetHelper ptHelper =
+    integrationContextFactory.getPublishingTargetHelper();
+  private static final boolean integrated =
+    integrationContextFactory.isIntegrated();
+
+  /**
+   *  we use the calendar widget which uses 'MM-dd-yyyy hh:mm:ss a'
+   *  used to take the internal format from calendar picker and move it
+   *  transparently in and out of the date properties
+   *
+   */
+  private static final String DISPLAY_DATEFORMAT = "MM/dd/yyyy hh:mm:ss a";
+  private static final SimpleDateFormat displayFormat = new SimpleDateFormat(
+      DISPLAY_DATEFORMAT);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
@@ -850,8 +859,7 @@ public class PublishedAssessmentSettingsBean
   }
 
   public SelectItem[] getPublishingTargets() {
-    PublishingTarget publishingTarget = new PublishingTarget();
-    HashMap targets = publishingTarget.getTargets();
+    HashMap targets = ptHelper.getTargets();
     Set e = targets.keySet();
     Iterator iter = e.iterator();
     // sort the targets
