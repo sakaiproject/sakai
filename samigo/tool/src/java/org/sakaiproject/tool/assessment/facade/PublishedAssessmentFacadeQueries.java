@@ -79,6 +79,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.util.PagingUtilQueriesAPI;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 
 public class PublishedAssessmentFacadeQueries
     extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {
@@ -555,8 +556,10 @@ public class PublishedAssessmentFacadeQueries
     Vector v = new Vector();
 
     //1. get all possible publishing targets (agentKey, agentId)
-    PublishingTarget publishingTarget = new PublishingTarget();
-    HashMap targets = publishingTarget.getTargets();
+    PublishingTargetHelper ptHelper =
+      IntegrationContextFactory.getInstance().getPublishingTargetHelper();
+
+    HashMap targets = ptHelper.getTargets();
 
     // 2. get the key of the target selected, it is stored in accessControl.releaseTo
     AssessmentAccessControlIfc control = p.getAssessmentAccessControl();

@@ -27,10 +27,7 @@ import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.site.SiteService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.*;
 
 /**
  *
@@ -68,61 +65,4 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
      return map;
   }
 
-///////////////////////////////////////////////////////////////////////////////
-// The following methods are not implemented in the standalone version of
-// PublishingTarget.  Currently they are not used in the standalone context,
-// so they are left throwing UnsupportedOperationExceptions.
-///////////////////////////////////////////////////////////////////////////////
-
-  /**
-   * UNIMPLEMENTED.
-   * @todo If required for standalone context at some point in the future,
-   * you'll need to implement this
-   * org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper method
-   * @return throw UnsupportedOperationException
-   */
-  public SiteService getSiteService()
-  {
-    throw new java.lang.UnsupportedOperationException(
-      "Method getSiteService() not yet implemented for standalone context.");
-  }
-
-  /**
-   * UNIMPLEMENTED.
-   * @todo If required for standalone context at some point in the future,
-   * you'll need to implement this
-   * org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper method
-   * @param siteService
-   */
-  public void setSiteService(SiteService siteService)
-  {
-    throw new java.lang.UnsupportedOperationException(
-      "Method setSiteService() not yet implemented for standalone context.");
-  }
-
-  /**
-   * UNIMPLEMENTED.
-   * @todo If required for standalone context at some point in the future,
-   * you'll need to implement this
-   * org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper method
-   * @return throw UnsupportedOperationException
-   */
-  public Logger getLog()
-  {
-    throw new java.lang.UnsupportedOperationException(
-      "Method getLog() not yet implemented for standalone context.");
-  }
-
-  /**
-   * UNIMPLEMENTED.
-   * @todo If required for standalone context at some point in the future,
-   * you'll need to implement this
-   * org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper method
-   * @param log the logger
-   */
-  public void setLog(Logger log)
-  {
-    throw new java.lang.UnsupportedOperationException(
-      "Method setLog() not yet implemented for standalone context.");
-  }
 }

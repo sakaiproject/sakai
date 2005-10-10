@@ -23,17 +23,12 @@
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.HashMap;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SiteService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 
 /**
  *
@@ -57,12 +52,7 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
 {
   private static Log log = LogFactory.getLog(PublishingTargetHelperImpl.class);
 
-  private Logger logger;
-  private SiteService siteService;
   private org.sakaiproject.api.kernel.component.ComponentManager cm;
-
-  private static String LOGGER_SERVICE = "org.sakaiproject.service.framework.log.cover.Logger";
-  private static String SITE_SERVICE = "org.sakaiproject.service.legacy.site.SiteService";
 
   public PublishingTargetHelperImpl()
   {
@@ -82,38 +72,4 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
      map.put(AgentFacade.getCurrentSiteName(), AgentFacade.getCurrentSiteId());
      return map;
   }
-
-  /**
-   * @return Returns the siteService.
-   */
-  public SiteService getSiteService()
-  {
-    cm = ComponentManager.getInstance();
-    siteService = (org.sakaiproject.service.legacy.site.SiteService) cm.get(SITE_SERVICE);
-    return siteService;
-  }
-  /**
-   * @param siteService The siteService to set.
-   */
-  public void setSiteService(SiteService siteService)
-  {
-    this.siteService = siteService;
-  }
-  /**
-   * @return Returns the log.
-   */
-  public Logger getLog()
-  {
-    cm = ComponentManager.getInstance();
-    logger = (org.sakaiproject.service.framework.log.Logger) cm.get(LOGGER_SERVICE);
-    return logger;
-  }
-  /**
-   * @param log The log to set.
-   */
-  public void setLog(Logger logger)
-  {
-    this.logger = logger;
-  }
-
 }

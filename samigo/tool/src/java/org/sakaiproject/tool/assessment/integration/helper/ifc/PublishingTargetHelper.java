@@ -25,13 +25,10 @@ package org.sakaiproject.tool.assessment.integration.helper.ifc;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.site.SiteService;
-
 /**
  * <p>Description:
  * This is a context implementation helper delegate interface for
- * the publishingTarget class.  Using Spring injection via the
+ * the Publishing Target map.  Using Spring injection via the
  * integrationContext.xml selected by the build process for the implementation.
  * </p>
  * <p>Sakai Project Copyright (c) 2005</p>
@@ -42,13 +39,4 @@ import org.sakaiproject.service.legacy.site.SiteService;
 public interface PublishingTargetHelper extends Serializable
 {
   public HashMap getTargets();
-
-  public SiteService getSiteService();
-
-  public void setSiteService(SiteService siteService);
-
-  public Logger getLog();
-
-  public void setLog(Logger log);
-
 }

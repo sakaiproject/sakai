@@ -43,7 +43,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishingTarget;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -56,6 +55,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 /**
@@ -69,10 +69,16 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 public class AssessmentSettingsBean
     implements Serializable {
     private static Log log = LogFactory.getLog(AssessmentSettingsBean.class);
+
+    private static final IntegrationContextFactory integrationContextFactory =
+      IntegrationContextFactory.getInstance();
     private static final GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+      integrationContextFactory.getGradebookServiceHelper();
+    private static final PublishingTargetHelper ptHelper =
+      integrationContextFactory.getPublishingTargetHelper();
     private static final boolean integrated =
-      IntegrationContextFactory.getInstance().isIntegrated();
+      integrationContextFactory.isIntegrated();
+
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
     private String outcomeSave;
@@ -965,8 +971,7 @@ public class AssessmentSettingsBean
   }
 
   public boolean validateTarget(String firstTarget){
-    PublishingTarget publishingTarget = new PublishingTarget();
-    HashMap targets = publishingTarget.getTargets();
+    HashMap targets = ptHelper.getTargets();
     if (targets.get(firstTarget) != null)
       return true;
     else
@@ -974,8 +979,7 @@ public class AssessmentSettingsBean
   }
 
   public SelectItem[] getPublishingTargets(){
-    PublishingTarget publishingTarget = new PublishingTarget();
-    HashMap targets = publishingTarget.getTargets();
+    HashMap targets = ptHelper.getTargets();
     Set e = targets.keySet();
     Iterator iter = e.iterator();
     // sort the targets
