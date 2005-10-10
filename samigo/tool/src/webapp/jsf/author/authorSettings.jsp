@@ -497,6 +497,11 @@ function checkTimeSelect(){
             disabled="#{assessmentSettings.feedbackDelivery==3}" />
           <h:outputText value="#{msg.grader_comments}" />
         </h:panelGroup>
+        <h:panelGroup>
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStatistics}" id="feedbackCheckbox8"
+            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+          <h:outputText value="#{msg.statistics_and_histogram}" />
+        </h:panelGroup>
 
       </h:panelGrid>
 <f:verbatim></div></f:verbatim>

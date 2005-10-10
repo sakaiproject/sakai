@@ -445,13 +445,13 @@
           value="#{template.feedbackComponent_StudentScore}"/>
         <h:outputLabel for="student_score" value="#{msg.student_score}"/>
       </h:panelGroup>
-<%--
+
       <h:panelGroup>
         <h:selectBooleanCheckbox id="statistics_hist"
           value="#{template.feedbackComponent_Statistics}"/>
         <h:outputLabel for="statistics_hist" value="#{msg.statistics_hist}"/>
       </h:panelGroup>
---%>
+
      </h:panelGrid>
     </h:panelGrid>
    </div></div>
