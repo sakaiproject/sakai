@@ -181,7 +181,7 @@ function checkTimeSelect(){
       summary="#{summary_msg.enter_template_info_section}">
 
         <h:outputLabel value="#{msg.assessment_title}"/>
-        <h:inputText size="80" value="#{assessmentSettings.title}" required="true" />
+        <h:inputText size="80" value="#{assessmentSettings.title}" />
 
         <h:outputLabel value="#{msg.assessment_creator}"/>
 
