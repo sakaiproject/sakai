@@ -202,11 +202,6 @@ public class AssessmentFacadeQueries
   }
 
   public Long addAssessment(Long assessmentTemplateId) {
-    boolean hasAdminPriviledge = PersistenceService.getInstance().getAuthzQueriesFacade().hasAdminPriviledge(null,null,null);
-    System.out.println("**** addAssessment, admin right= "+hasAdminPriviledge);
-    if (!hasAdminPriviledge){
-      throw new SecurityException("You do not have permission to perform this operation");
-    }
 
     AssessmentData assessment = new AssessmentData(
         new Long(0),

@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 
 public interface AuthzHelper extends Serializable
 {
-  public boolean hasAdminPriviledge
+  public boolean hasAdminPrivilege
     (String agentId, String function, String qualifier);
 
   public boolean isAuthorized

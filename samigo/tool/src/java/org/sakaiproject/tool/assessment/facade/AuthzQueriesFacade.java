@@ -51,11 +51,11 @@ public class AuthzQueriesFacade
   private static final boolean integrated =
     IntegrationContextFactory.getInstance().isIntegrated();
 
-  public  boolean hasAdminPriviledge
+  public  boolean hasAdminPrivilege
     (String agentId, String functionId, String qualifierId)
   {
 
-  return helper.hasAdminPriviledge(agentId, functionId, qualifierId);
+  return helper.hasAdminPrivilege(agentId, functionId, qualifierId);
 
   }
 

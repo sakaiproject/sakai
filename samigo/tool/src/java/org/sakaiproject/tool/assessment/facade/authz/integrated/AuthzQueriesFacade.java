@@ -83,7 +83,7 @@ public class AuthzQueriesFacade
     public static final String ADMIN_ACCESS = "testandquiz.maintain";
 
 
-  public boolean hasAdminPriviledge(String agentId,
+  public boolean hasAdminPrivilege(String agentId,
       String functionId, String qualifierId)
   {
       String context = ToolManager.getCurrentPlacement().getContext();
