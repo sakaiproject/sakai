@@ -22,11 +22,12 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade.authz;
 
-import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIteratorIfc;
-import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIfc;
-import org.sakaiproject.tool.assessment.facade.DataFacadeException;
-import java.util.Iterator;
 import java.util.Collection;
+import java.util.Iterator;
+
+import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIfc;
+import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIteratorIfc;
+import org.sakaiproject.tool.assessment.facade.DataFacadeException;
 
 public class AuthorizationIteratorFacade
   implements AuthorizationIteratorIfc

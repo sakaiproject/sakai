@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 import net.sf.hibernate.Hibernate;
 
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.authz.QualifierData;
 import org.sakaiproject.tool.assessment.facade.DataFacadeException;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 
 public class AuthorizationFacadeQueries
