@@ -20,7 +20,7 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
-package org.sakaiproject.tool.assessment.util;
+package org.sakaiproject.tool.assessment.facade.util;
 
 import java.util.ArrayList;
 import java.util.List;
