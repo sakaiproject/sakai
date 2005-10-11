@@ -561,7 +561,7 @@ public final class XmlUtil
       {
         String val = node.getNodeValue();
         if (val==null) val = "";
-        domString += (val.trim());
+        domString += (val);//rshastri .trim() removed SAK-1671 
         break;
       }
 
