@@ -48,6 +48,7 @@ public class InstructorRecordImpl extends ParticipationRecordImpl implements Ser
 	
 	public InstructorRecordImpl(LearningContext learningContext, User user) {
 		this.learningContext = learningContext;
+		this.user = user;
 		this.userUid = user.getUserUid();
 	}
 

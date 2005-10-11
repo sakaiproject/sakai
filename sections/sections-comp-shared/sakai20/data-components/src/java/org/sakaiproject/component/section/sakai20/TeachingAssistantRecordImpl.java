@@ -49,6 +49,7 @@ public class TeachingAssistantRecordImpl extends ParticipationRecordImpl impleme
 	public TeachingAssistantRecordImpl(LearningContext learningContext, User user) {
 		this.learningContext = learningContext;
 		this.user = user;
+		this.userUid = user.getUserUid();
 	}
 
 	public Role getRole() {
