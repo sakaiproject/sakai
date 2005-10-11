@@ -27,10 +27,8 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
-
-//import osid.assessment.Item;
-
 
 /**
  * The ItemService calls persistent service locator to reach the
