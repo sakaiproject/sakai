@@ -68,6 +68,10 @@
 <f:verbatim></font></f:verbatim>
 
 </p>
+
+<h:message for="createAssessment" styleClass="validate"/>
+<h:message for="importAssessment" styleClass="validate"/>
+
      <div class="indnt1">
 	<h4><h:outputText value="#{msg.assessment_new}" /></h4>
   <div class="indnt2">

@@ -79,16 +79,12 @@ public class AuthzQueriesFacade
 		"where asset.assessmentBaseId=authz.qualifierId and " +
 		"authz.agentIdString = :agentId and authz.functionId = :functionId";
 
-    public static final String STUDENT_ACCESS = "testandquiz.access";
-    public static final String ADMIN_ACCESS = "testandquiz.maintain";
-
-
-  public boolean hasAdminPrivilege(String agentId,
+  public boolean hasAdminPrivilege(String functionName,
       String functionId, String qualifierId)
   {
       String context = ToolManager.getCurrentPlacement().getContext();
-      System.out.println("****context="+context);
-      return SecurityService.unlock(ADMIN_ACCESS, context);
+      System.out.println("****context is="+context);
+      return SecurityService.unlock(functionName, "/site/"+context);
   }
 
     // this method is added by daisyf on 02/22/05
