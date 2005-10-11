@@ -213,7 +213,7 @@
 <h5 class="plain">
   <h:outputText value="#{msg.assessment_active}" />
 </h5>
-  <h:dataTable  styleClass="listHier" width="100%"
+  <h:dataTable  styleClass="listHier"
     value="#{author.publishedAssessments}" var="publishedAssessment">
     <h:column>
       <f:facet name="header">
@@ -359,7 +359,7 @@
 <h5 class="plain">
   <h:outputText value="#{msg.assessment_inactive}" />
 </h5>
-  <h:dataTable  styleClass="listHier" width="100%" headerClass="regHeading"
+  <h:dataTable  styleClass="listHier" headerClass="regHeading"
     value="#{author.inactivePublishedAssessments}" var="inactivePublishedAssessment" id="inactivePublishedAssessments">
     <h:column>
       <f:facet name="header">
