@@ -23,15 +23,14 @@
 
 package org.sakaiproject.tool.assessment.shared.impl.qti;
 
-import org.w3c.dom.Document;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
+import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceException;
 
 /**
