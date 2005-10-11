@@ -78,7 +78,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.util.PagingUtilQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 
 public class PublishedAssessmentFacadeQueries
     extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {

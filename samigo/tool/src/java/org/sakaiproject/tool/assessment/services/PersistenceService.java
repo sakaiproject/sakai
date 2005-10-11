@@ -36,7 +36,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.SectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.util.PagingUtilQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 
 /**
  * @author jlannan
