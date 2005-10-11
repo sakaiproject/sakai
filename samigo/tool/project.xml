@@ -580,7 +580,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<sourceDirectory>patched-src</sourceDirectory>
+		<sourceDirectory>src</sourceDirectory>
 		<!-- <unitTestSourceDirectory>src/test</unitTestSourceDirectory> -->
 		<resources>
 			<resource>
