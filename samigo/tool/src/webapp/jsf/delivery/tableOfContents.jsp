@@ -40,8 +40,8 @@
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
     </head>
     <body onload="hideUnhideAllDivs('none');;<%= request.getAttribute("html.body.onload") %>">
+ <h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgColor}'>" escape="false"/>
 
-<div class="portletBody">
 <!-- content... -->
 <script language="javascript">
 function checkRadio()
