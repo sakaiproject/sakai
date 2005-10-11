@@ -26,7 +26,9 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.ResourceBundle;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -38,6 +40,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
@@ -67,6 +70,19 @@ public class AuthorAssessmentListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
+
+    //permission checking before proceeding - daisyf
+    /*
+    boolean hasAdminPrivilege = PersistenceService.getInstance().getAuthzQueriesFacade().
+	hasAdminPrivilege("testandquiz.createAssessment",null,null);
+    System.out.println("**** addAssessment, admin right= "+hasAdminPrivilege);
+    if (!hasAdminPrivilege){
+	ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+                             context.getViewRoot().getLocale());
+	String err=(String)rb.getObject("denied_create_assessment_error");
+	context.addMessage("authorIndexForm:createAssessment",new FacesMessage(err));
+    }
+    */
 
     AuthorBean author = (AuthorBean) cu.lookupBean(
                          "author");
