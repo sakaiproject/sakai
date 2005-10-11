@@ -56,7 +56,7 @@ import org.springframework.dao.*;
  *
  */
 
-public class AuthzHelperImpl extends HibernateDaoSupport implements AuthzHelper
+public class AuthzHelperImpl extends HibernateDaoSupport //implements AuthzHelper
 {
   static ResourceBundle res = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.integration.helper.standalone.AuthzResource");
   private static Log log = LogFactory.getLog(AuthzHelperImpl.class);

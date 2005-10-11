@@ -17,13 +17,6 @@
      <ref bean="agentHelper"/>
    </property>
 
-<!-- going to take this out and inject via BeanDefinitions.xml -->
-<!--
-   <property name="authzHelper">
-     <ref bean="authzHelper"/>
-   </property>
--->
-
    <property name="gradebookHelper">
      <ref bean="gradebookHelper"/>
    </property>
@@ -43,14 +36,6 @@
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl">
 </bean>
 
-<!-- context-sensitive authz behavior -->
-<!-- going to take this out and inject via BeanDefinitions.xml -->
-<!--
-<bean name="authzHelper"
-     class="org.sakaiproject.tool.assessment.integration.helper.integrated.AuthzHelperImpl">
-</bean>
--->
-
 <!-- context-sensitive gradebook behavior -->
 <bean name="gradebookHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookHelperImpl">
@@ -61,8 +46,7 @@
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.PublishingTargetHelperImpl">
 </bean>
 
-<!-- context-sensitive gradebook service behavior -->
-
+<!-- context-sensitive gradebook service helper -->
 <bean name="gradebookServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookServiceHelperImpl">
 </bean>

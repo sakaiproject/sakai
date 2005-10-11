@@ -52,10 +52,9 @@ import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 /**
- * <p>Description: Facade for AuthZ queries.
- * Uses helper to determine integration context implementation.</p>
+ * <p>Description: Facade for AuthZ queries, standalone version.
  * <p>Sakai Project Copyright (c) 2005</p>
- * <p> </p>
+ * <p>@todo use resources in AuthzResource.</p>
  * @author cwen
  * @author Rachel Gollub <rgollub@stanford.edu>
  * @author Ed Smiley <esmiley@stanford.edu> split integrated, standlaone.
@@ -65,6 +64,11 @@ public class AuthzQueriesFacade
 {
   private final static org.apache.log4j.Logger LOG =
     org.apache.log4j.Logger.getLogger(AuthzQueriesFacade.class);
+
+  // stores sql strings
+  private static ResourceBundle res = ResourceBundle.getBundle(
+    "org.sakaiproject.tool.assessment.facade.authz.resource.AuthzResource");
+  // can convert these to use the resource bundle....
   private final static String HQL_QUERY_CHECK_AUTHZ =
     "select from " +
 		"org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as data" +
@@ -122,6 +126,7 @@ public class AuthzQueriesFacade
     return false;
   }
 
+  // this appears to be unused, it is also dangerous, as it is not in the API
   public boolean checkAuthorization(final String agentId,
       final String functionId, final String qualifierId)
   {
@@ -185,6 +190,7 @@ public class AuthzQueriesFacade
     }
   }
 
+  // this appears to be unused, it is also dangerous, as it is not in the API
   public ArrayList getAssessments(final String agentId, final String functionId)
   {
     ArrayList returnList = new ArrayList();
@@ -215,6 +221,7 @@ public class AuthzQueriesFacade
     return returnList;
   }
 
+  // this appears to be unused, it is also dangerous, as it is not in the API
   public ArrayList getAssessmentsByAgentAndFunction(final String agentId, final String functionId)
   {
     ArrayList returnList = new ArrayList();

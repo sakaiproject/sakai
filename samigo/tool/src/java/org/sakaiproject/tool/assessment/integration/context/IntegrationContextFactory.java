@@ -22,24 +22,14 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.integration.context;
 
-import java.io.File;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
+import org.sakaiproject.tool.assessment.integration.context.spring.FactoryUtil;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.AuthzHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import org.sakaiproject.tool.assessment.integration.context.spring.FactoryUtil;
 
 /**
  * This is an abstract class.  It defines the public methods available for
@@ -78,7 +68,6 @@ public abstract class IntegrationContextFactory
   // the factory api
   public abstract boolean isIntegrated();
   public abstract AgentHelper getAgentHelper();
-  public abstract AuthzHelper getAuthzHelper();
   public abstract GradebookHelper getGradebookHelper();
   public abstract GradebookServiceHelper getGradebookServiceHelper();
   public abstract PublishingTargetHelper getPublishingTargetHelper();

@@ -24,12 +24,12 @@ package org.sakaiproject.tool.assessment.integration.context.spring;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.AuthzHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
 /**
  * IntegrationContext is an internal implementation of IntegrationContextFactory.
@@ -43,7 +43,6 @@ public class IntegrationContext extends IntegrationContextFactory
 
   private boolean integrated;
   private AgentHelper agentHelper;
-  private AuthzHelper authzHelper;
   private GradebookHelper gradebookHelper;
   private GradebookServiceHelper gradebookServiceHelper;
   private PublishingTargetHelper publishingTargetHelper;
@@ -67,14 +66,6 @@ public class IntegrationContext extends IntegrationContextFactory
   public void setAgentHelper(AgentHelper agentHelper)
   {
     this.agentHelper = agentHelper;
-  }
-  public AuthzHelper getAuthzHelper()
-  {
-    return authzHelper;
-  }
-  public void setAuthzHelper(AuthzHelper authzHelper)
-  {
-    this.authzHelper = authzHelper;
   }
   public GradebookHelper getGradebookHelper()
   {
