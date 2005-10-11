@@ -316,6 +316,17 @@ public class SettingsDeliveryBean
     }
   }
 
+    public String getDivBgColor()
+    {
+	    return checkColor((getBgcolor().substring(8)),"#F0F0F0");
+    }
+   public String getDivBgIm()
+    {
+	return getBackground().substring(11);
+    }
+
+
+
   public String getItemNumbering()
   {
     return itemNumbering;
