@@ -370,61 +370,202 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       Set itemgrading = data.getItemGradingSet();
       Iterator iter = itemgrading.iterator();
       float totalAutoScore = 0;
-      while (iter.hasNext())
+      
+      //change algorithm based on each question (SAK-1930 & IM271559) -cwen
+      HashMap totalItems = new HashMap();
+      while(iter.hasNext())
       {
         ItemGradingIfc itemdata = (ItemGradingIfc) iter.next();
         ItemDataIfc item = (ItemDataIfc) itemdata.getPublishedItem();
+        Long itemId = item.getItemId();
         float autoScore = (float) 0;
+        
         if (!regrade)
         {
           itemdata.setAssessmentGrading(data);
           itemdata.setSubmittedDate(new Date());
           itemdata.setAgentId(agent);
-          //itemdata.setItemGradingId(new Long(0)); // Always create a new one
           itemdata.setOverrideScore(new Float(0));
-
-          // Autograde
+          
           if (item.getTypeId().intValue() == 1 || // MCSS
               item.getTypeId().intValue() == 3 || // MCSS
               item.getTypeId().intValue() == 4) // True/False
+          {
             autoScore = getAnswerScore(itemdata);
-          if (item.getTypeId().intValue() == 2) // MCMS
-	  {
-	    ArrayList answerArray = itemdata.getPublishedItemText().getAnswerArray();
-            int correctAnswers = 0;
-            if (answerArray != null) {
-               for (int i =0; i<answerArray.size(); i++)
-	       {
-                 PublishedAnswer a = (PublishedAnswer) answerArray.get(i);
-                 if (a.getIsCorrect().booleanValue()) {
-                  correctAnswers++;
-                 }
-               }
+            
+            //overridescore
+            if (itemdata.getOverrideScore() != null)
+            {
+              autoScore += itemdata.getOverrideScore().floatValue();
             }
-            autoScore = getAnswerScore(itemdata)/ correctAnswers;
+            
+            totalItems.put(itemId, new Float(autoScore));
           }
-          if (item.getTypeId().intValue() == 9) // Matching
-              autoScore = (getAnswerScore(itemdata) / (float) item.getItemTextSet().size());
-            // Skip 5/6/7, since they can't be autoscored
+          else if (item.getTypeId().intValue() == 2) // MCMS
+          {
+            ArrayList answerArray = itemdata.getPublishedItemText().getAnswerArray();
+            int correctAnswers = 0;
+            if (answerArray != null) 
+            {
+              for (int i =0; i<answerArray.size(); i++)
+              {
+                PublishedAnswer a = (PublishedAnswer) answerArray.get(i);
+                if (a.getIsCorrect().booleanValue()) 
+                {
+                  correctAnswers++;
+                }
+              }
+            }
+            float initScore = getAnswerScore(itemdata);
+            if(initScore > 0)
+            {
+              autoScore = initScore / correctAnswers;
+            }
+            else
+            {
+              autoScore = (getTotalCorrectScore(itemdata) / correctAnswers) * ((float) -1);
+            }
+            
+            //overridescore?
+            if (itemdata.getOverrideScore() != null)
+            {
+              autoScore += itemdata.getOverrideScore().floatValue();
+            }
+            
+            if(!totalItems.containsKey(itemId))
+            {
+              totalItems.put(itemId, new Float(autoScore));
+            }
+            else
+            {
+              float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+              accumelateScore += autoScore;
+              totalItems.put(itemId, new Float(accumelateScore));
+            }
+          }
+          else if (item.getTypeId().intValue() == 9) // Matching
+          {
+            float initScore = getAnswerScore(itemdata);
+            if(initScore > 0)
+            {
+              autoScore = initScore / ((float) item.getItemTextSet().size());
+            }
+            else
+            {
+              autoScore = (getTotalCorrectScore(itemdata) / ((float) item.getItemTextSet().size())) * ((float) -1);
+            }
+            
+            //overridescore?
+            if (itemdata.getOverrideScore() != null)
+            {
+              autoScore += itemdata.getOverrideScore().floatValue();
+            }
+            
+            if(!totalItems.containsKey(itemId))
+            {
+              totalItems.put(itemId, new Float(autoScore));
+            }
+            else
+            {
+              float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+              accumelateScore += autoScore;
+              totalItems.put(itemId, new Float(accumelateScore));
+            }
+            //Skip 5/6/7, since they can't be autoscored
+          }
           else if (item.getTypeId().intValue() == 8) // FIB
-            autoScore = getFIBScore(itemdata) /
-              (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+          {
+            autoScore = getFIBScore(itemdata) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
 
-         }
-         else
-         {
-           autoScore = itemdata.getAutoScore().floatValue();
-         }
-        if (itemdata.getOverrideScore() == null)
-          totalAutoScore += autoScore;
+            //overridescore - cwen
+            if (itemdata.getOverrideScore() != null)
+            {
+              autoScore += itemdata.getOverrideScore().floatValue();
+            }
+            
+            if(!totalItems.containsKey(itemId))
+            {
+              totalItems.put(itemId, new Float(autoScore));
+            }
+            else
+            {
+              float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+              accumelateScore += autoScore;
+              totalItems.put(itemId, new Float(accumelateScore));
+            }
+          }
+          else
+          {
+             //overridescore - cwen
+            if (itemdata.getOverrideScore() != null)
+            {
+              autoScore += itemdata.getOverrideScore().floatValue();
+            }	
+            if(!totalItems.containsKey(itemId))
+            {
+              totalItems.put(itemId, new Float(autoScore));
+            }
+            else
+            {
+              float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+              accumelateScore += autoScore;
+              totalItems.put(itemId, new Float(accumelateScore));
+            }            
+          }
+        }
         else
-          totalAutoScore +=
-            autoScore + itemdata.getOverrideScore().floatValue();
+        {
+          autoScore = itemdata.getAutoScore().floatValue();
+         
+          //overridescore - cwen
+          if (itemdata.getOverrideScore() != null)
+          {
+            autoScore += itemdata.getOverrideScore().floatValue();
+          }
+
+          if(!totalItems.containsKey(itemId))
+          {
+            totalItems.put(itemId, new Float(autoScore));
+          }
+          else
+          {
+            float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+            accumelateScore += autoScore;
+            totalItems.put(itemId, new Float(accumelateScore));
+          }            
+        }
         itemdata.setAutoScore(new Float(autoScore));
       }
+      
+      Set keySet = totalItems.keySet();
+      Iterator keyIter = keySet.iterator();
+      while(keyIter.hasNext())
+      {
+        float eachItemScore = ((Float) totalItems.get((Long)keyIter.next())).floatValue();
+        if(eachItemScore > 0)
+        {
+          totalAutoScore += eachItemScore;
+        }
+      }
+      
+      iter = itemgrading.iterator();
+      while(iter.hasNext())
+      {
+        ItemGradingIfc itemdata = (ItemGradingIfc) iter.next();
+        ItemDataIfc item = (ItemDataIfc) itemdata.getPublishedItem();
+        Long itemId = item.getItemId();
+        float autoScore = (float) 0;
+
+        float eachItemScore = ((Float) totalItems.get(itemId)).floatValue();
+        if(eachItemScore < 0)
+        {
+          itemdata.setAutoScore(new Float(0));
+        }
+      }
+      
       data.setTotalAutoScore(new Float(totalAutoScore));
-      data.setFinalScore(new Float(totalAutoScore +
-        data.getTotalOverrideScore().floatValue()));
+      data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
+
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -802,5 +943,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return b;
   }
 
+  public float getTotalCorrectScore(ItemGradingIfc data)
+  {
+    AnswerIfc answer = (AnswerIfc) data.getPublishedAnswer();
+    if (answer == null || answer.getScore() == null)
+      return (float) 0;
+    return answer.getScore().floatValue();
+  }
 
 }
