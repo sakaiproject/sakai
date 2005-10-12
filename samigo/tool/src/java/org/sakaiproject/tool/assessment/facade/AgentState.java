@@ -27,9 +27,9 @@ import java.io.Serializable;
 /**
  *
  * <p>Description:
- * This is a Spring-injected bean with default properties.
+ * This is a singleton bean with default properties and factory method.
  * It provides miscellaneous Agent state information in one place.</p>
- * <p>Accessed by DeliveryBean and BackingBean. </p>
+ * <p>Accessed by DeliveryBean, as well as facade and integration packages. </p>
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
@@ -37,9 +37,26 @@ import java.io.Serializable;
  */
 public class AgentState implements Serializable
 {
+  public static final String UNASSIGNED = "UNASSIGNED";
+  private static AgentState instance = null;
 
   private boolean accessViaUrl;
   private String agentAccessString;
+
+  private AgentState()
+  {
+    accessViaUrl = false;
+    agentAccessString = UNASSIGNED;
+  }
+
+  public static AgentState getInstance()
+  {
+    if (instance==null)
+    {
+      instance = new AgentState();
+    }
+    return instance;
+  }
   public boolean isAccessViaUrl()
   {
     return accessViaUrl;
