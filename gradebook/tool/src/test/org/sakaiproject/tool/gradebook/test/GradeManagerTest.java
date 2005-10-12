@@ -304,7 +304,14 @@ public class GradeManagerTest extends GradebookTestBase {
         System.out.println ("asn.getMean()=" + asn.getMean());
         Assert.assertTrue(asn.getMean().doubleValue() < 100.0);
 
-
+		// Make sure that dropped students can't prevent changing final grade types.
+        CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId());
+        gradeRecordSet = new GradeRecordSet(courseGrade);
+        CourseGradeRecord courseGradeRecord = new CourseGradeRecord(courseGrade, "noSuchStudent", null);
+        courseGradeRecord.setEnteredGrade("C-");
+        gradeRecordSet.addGradeRecord(courseGradeRecord);
+		gradeManager.updateCourseGradeRecords(gradeRecordSet);
+		Assert.assertFalse(gradeManager.isExplicitlyEnteredCourseGradeRecords(gradebook.getId()));
     }
 
 }

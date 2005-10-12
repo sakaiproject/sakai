@@ -315,10 +315,18 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
     /**
      */
     public boolean isExplicitlyEnteredCourseGradeRecords(final Long gradebookId) {
+    	final Set studentUids = FacadeUtils.getStudentUids(getAllEnrollments(gradebookId));
+    	if (studentUids.isEmpty()) {
+    		return false;
+    	}
+
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                String hql = "select count(cgr) from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=?";
-                Integer total = (Integer)session.iterate(hql, gradebookId, Hibernate.LONG).next();
+            	Query q = q = session.createQuery(
+            		"select count(cgr) from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
+            	q.setLong("gradebookId", gradebookId.longValue());
+            	q.setParameterList("studentUids", studentUids);
+            	Integer total = (Integer)q.list().get(0);
                 if (log.isInfoEnabled()) log.info("total number of explicitly entered course grade records = " + total);
                 return total;
             }
