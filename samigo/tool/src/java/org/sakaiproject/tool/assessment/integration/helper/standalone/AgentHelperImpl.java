@@ -31,8 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.facade.AgentState;
 
 /**
  *
@@ -56,6 +55,10 @@ public class AgentHelperImpl implements AgentHelper
   private static Log log = LogFactory.getLog(AgentHelperImpl.class);
   String agentString;
 
+  // this singleton tracks if the Agent is taking a test via URL, as well as
+  // current agent string (if assigned).
+  private static final AgentState agentState = AgentState.getInstance();
+
   /**
    * Get an osid Agent implementation class instance.
    *
@@ -75,10 +78,9 @@ public class AgentHelperImpl implements AgentHelper
     String agentS = "admin";
     try
     {
-      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-      if (bean != null && !bean.getProp1().equals("prop1"))
+      if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
       {
-        agentS = bean.getProp1();
+        agentS = agentState.getAgentAccessString();
       }
     }
     catch (Exception ex)
@@ -98,12 +100,9 @@ public class AgentHelperImpl implements AgentHelper
     String agentS = "admin";
     try
     {
-      BackingBean bean = (BackingBean) ContextUtil.
-        lookupBeanFromExternalServlet(
-        "backingbean", req, res);
-      if (bean != null && !bean.getProp1().equals("prop1"))
+      if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
       {
-        agentS = bean.getProp1();
+        agentS = agentState.getAgentAccessString();
       }
     }
     catch (Exception ex)
@@ -231,9 +230,8 @@ public class AgentHelperImpl implements AgentHelper
     String anonymousId = "anonymous_";
     try
     {
-      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
       anonymousId += (new java.util.Date()).getTime();
-      bean.setProp1(anonymousId);
+      agentState.setAgentAccessString(anonymousId);
     }
     catch (Exception ex)
     {
@@ -276,14 +274,14 @@ public class AgentHelperImpl implements AgentHelper
     String agentS = "";
     try
     {
-      BackingBean bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-      if (bean != null && !bean.getProp1().equals("prop1"))
+      if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
       {
-        agentS = bean.getProp1();
+        agentS = agentState.getAgentAccessString();
       }
     }
     catch (Exception ex)
     {
+      // leave... ...mostly for unit testing
     }
     return agentS;
   }

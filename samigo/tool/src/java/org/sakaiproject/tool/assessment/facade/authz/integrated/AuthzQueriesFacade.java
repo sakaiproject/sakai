@@ -45,9 +45,8 @@ import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AgentState;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Description: Facade for AuthZ queries, standalone version.
@@ -62,6 +61,10 @@ public class AuthzQueriesFacade
 {
   private final static org.apache.log4j.Logger LOG =
     org.apache.log4j.Logger.getLogger(AuthzQueriesFacade.class);
+
+  // this singleton tracks if the Agent is taking a test via URL, as well as
+  // current agent string (if assigned).
+  private static final AgentState agentState = AgentState.getInstance();
 
   // stores sql strings
   private static ResourceBundle res = ResourceBundle.getBundle(
@@ -99,9 +102,13 @@ public class AuthzQueriesFacade
                              new net.sf.hibernate.type.Type[] { Hibernate.STRING, Hibernate.STRING });
 
     String currentSiteId = null;
-    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    if (!delivery.getAccessViaUrl())
-        currentSiteId = org.sakaiproject.service.framework.portal.cover.PortalService.getCurrentSiteId();
+
+    if (!agentState.isAccessViaUrl())
+    {
+      currentSiteId =
+        org.sakaiproject.service.framework.portal.cover.PortalService.getCurrentSiteId();
+    }
+
     if(currentSiteId == null)
 	return false; // user don't login via any site if they are using published url
 

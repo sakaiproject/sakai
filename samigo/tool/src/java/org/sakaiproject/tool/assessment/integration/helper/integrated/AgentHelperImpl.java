@@ -27,32 +27,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import java.io.Serializable;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
-import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
-import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
+import org.sakaiproject.tool.assessment.facade.AgentState;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
-import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 
 /**
  *
@@ -78,6 +64,9 @@ public class AgentHelperImpl implements AgentHelper
   private static Log log = LogFactory.getLog(AgentHelperImpl.class);
   AgentImpl agent;
 
+  // this singleton tracks if the Agent is taking a test via URL, as well as
+  // current agent string (if assigned).
+  private static final AgentState agentState = AgentState.getInstance();
 
   /**
    * Get an osid Agent implementation class instance.
@@ -135,10 +124,9 @@ public class AgentHelperImpl implements AgentHelper
       if (user == null || user.getId() == null ||
           ("").equals(user.getId()))
       {
-        BackingBean bean = lookupBackingBean(req, res);
-        if (bean != null && !bean.getProp1().equals("prop1"))
+        if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
         {
-          agentS = bean.getProp1();
+          agentS = agentState.getAgentAccessString();
         }
       }
       else
@@ -154,30 +142,30 @@ public class AgentHelperImpl implements AgentHelper
     return agentS;
   }
 
-  private BackingBean lookupBackingBean(HttpServletRequest req,
-                                        HttpServletResponse res)
-  {
-    BackingBean bean =
-      (BackingBean) ContextUtil.lookupBeanFromExternalServlet(
-      "backingbean", req, res);
-    return bean;
-  }
+//  private BackingBean lookupBackingBean(HttpServletRequest req,
+//                                        HttpServletResponse res)
+//  {
+//    BackingBean bean =
+//      (BackingBean) ContextUtil.lookupBeanFromExternalServlet(
+//      "backingbean", req, res);
+//    return bean;
+//  }
 
-  private BackingBean lookupBackingBean()
-  {
-    BackingBean bean =  null;
-    try
-    {
-      bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-    }
-    catch (Exception ex)
-    {
-      log.warn("Backing been not available.  " +
-               "This needs to be fixed if you are not running a unit test.");
-    }
-
-    return bean;
-  }
+//  private BackingBean lookupBackingBean()
+//  {
+//    BackingBean bean =  null;
+//    try
+//    {
+//      bean = (BackingBean) ContextUtil.lookupBean("backingbean");
+//    }
+//    catch (Exception ex)
+//    {
+//      log.warn("Backing been not available.  " +
+//               "This needs to be fixed if you are not running a unit test.");
+//    }
+//
+//    return bean;
+//  }
   /**
    * Get the Agent display name.
    * @param agentS the Agent string.
@@ -287,9 +275,7 @@ public class AgentHelperImpl implements AgentHelper
   public String getCurrentSiteId(){
     // access via url => users does not login via any sites
     String currentSiteId = null;
-    DeliveryBean delivery =  lookupDeliveryBean();
-
-    if (delivery!=null && !delivery.getAccessViaUrl())
+    if (!agentState.isAccessViaUrl())
     {
         currentSiteId = ToolManager.getCurrentPlacement().getContext();
     }
@@ -305,8 +291,7 @@ public class AgentHelperImpl implements AgentHelper
   public String getCurrentSiteIdFromExternalServlet(HttpServletRequest req,  HttpServletResponse res){
     // access via url => users does not login via any sites-daisyf
     String currentSiteId = null;
-    DeliveryBean delivery =  lookupDeliveryBean();
-    if (delivery!=null && !delivery.getAccessViaUrl())
+    if (!agentState.isAccessViaUrl())
     {
         currentSiteId = ToolManager.getCurrentPlacement().getContext();
     }
@@ -323,9 +308,8 @@ public class AgentHelperImpl implements AgentHelper
     String anonymousId = "anonymous_";
     try
     {
-      BackingBean bean = lookupBackingBean();
       anonymousId += (new java.util.Date()).getTime();
-      bean.setProp1(anonymousId);
+      agentState.setAgentAccessString(anonymousId);
     }
     catch (Exception ex)
     {
@@ -341,8 +325,8 @@ public class AgentHelperImpl implements AgentHelper
   public String getCurrentSiteName(){
     // access via url => users does not login via any sites-daisyf
     String currentSiteName = null;
-    DeliveryBean delivery =  lookupDeliveryBean();
-    if (delivery!=null && !delivery.getAccessViaUrl()){
+    if (!agentState.isAccessViaUrl())
+    {
       try{
         currentSiteName = SiteService.getSite(getCurrentSiteId()).getTitle();
       }
@@ -353,24 +337,6 @@ public class AgentHelperImpl implements AgentHelper
     return currentSiteName;
   }
 
-  /**
-   * Right now gets from faces context.
-   * @return
-   */
-  private DeliveryBean lookupDeliveryBean()
-  {
-    DeliveryBean delivery = null;
-    try
-    {
-      delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    }
-    catch (Exception ex)
-    {
-      log.warn("Delivery bean not available.  " +
-               "This needs to be fixed if you are not running a unit test.");
-    }
-    return delivery;
-  }
 
   /**
    * Get the site name.
@@ -435,9 +401,10 @@ public class AgentHelperImpl implements AgentHelper
    */
   public String getAnonymousId(){
     String agentS="";
-    BackingBean bean = lookupBackingBean();
-    if (bean != null && !bean.getProp1().equals("prop1"))
-        agentS = bean.getProp1();
+    if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
+    {
+      agentS = agentState.getAgentAccessString();
+    }
     return agentS;
   }
 
