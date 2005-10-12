@@ -86,7 +86,7 @@
     </property>
   </bean>
 
-  <bean id="PagingUtilQueries" class="org.sakaiproject.tool.assessment.util.PagingUtilQueries">
+  <bean id="PagingUtilQueries" class="org.sakaiproject.tool.assessment.facade.util.PagingUtilQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>

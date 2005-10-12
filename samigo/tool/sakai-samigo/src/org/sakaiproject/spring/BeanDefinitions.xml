@@ -94,7 +94,7 @@
 	</bean>
 
 	<bean id="PagingUtilQueries"
-		class="org.sakaiproject.tool.assessment.util.PagingUtilQueries">
+		class="org.sakaiproject.tool.assessment.facade.util.PagingUtilQueries">
 		<property name="sessionFactory">
 			<ref bean="sakai-sam.sessionFactory" />
 		</property>
