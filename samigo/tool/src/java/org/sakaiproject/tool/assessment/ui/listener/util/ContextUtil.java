@@ -26,6 +26,8 @@ package org.sakaiproject.tool.assessment.ui.listener.util;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Locale;
 
 import javax.faces.context.FacesContextFactory;
 import javax.faces.lifecycle.Lifecycle;
@@ -277,5 +279,17 @@ public static ArrayList paramArrayValueLike(String paramPart)
 	{
 		M_servletContext = context;
 	}
+
+
+  /**
+  * Gets a localized message string based on the locale determined by the
+  * FacesContext.
+  * @param key The key to look up the localized string
+  */
+  public static String getLocalizedString(String bundleName, String key) {
+    Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+    ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+    return rb.getString(key);
+  }
 
 }
