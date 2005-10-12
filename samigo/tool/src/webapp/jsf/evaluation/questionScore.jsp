@@ -471,18 +471,24 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="comments" />
       </h:commandLink>
      </f:facet>
+ <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
+<%-- temp replaced by inputTextArea until resize is introduced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
        <f:validateLength maximum="4000"/>
      </samigo:wysiwyg>
+--%>
     </h:column>
 
     <h:column rendered="#{questionScores.sortType=='comments'}">
      <f:facet name="header">
         <h:outputText value="#{msg.comment}" />
      </f:facet>
+ <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
+<%-- temp replaced by inputTextArea until resize is introduced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
        <f:validateLength maximum="4000"/>
      </samigo:wysiwyg>
+--%>
     </h:column>
   </h:dataTable>
 
