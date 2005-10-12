@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AgentState;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -51,10 +52,12 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActi
 import org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
+import org.sakaiproject.spring.SpringBeanLocator;
 
 /**
  *
  * @author casong
+ * @author esmiley@stanford.edu added agentState
  * $Id$
  *
  * Used to be org.navigoproject.ui.web.asi.delivery.XmlDeliveryForm.java
@@ -154,8 +157,13 @@ public class DeliveryBean
   // daisyf added for servlet Login.java, to support anonymous login with
   // publishedUrl
   private boolean anonymousLogin = false;
-  private boolean accessViaUrl = false;
   private String contextPath;
+  // replaced with agentState.isAccessViaUrl(), see below
+  // private boolean accessViaUrl = false;
+
+  // this singleton tracks if the Agent is taking a test via URL, as well as
+  // current agent string (if assigned). SAK-1927: esmiley
+  private static final AgentState agentState = AgentState.getInstance();
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -1090852048737428722L;
@@ -176,7 +184,30 @@ public class DeliveryBean
    */
   public DeliveryBean()
   {
+//    if (agentState == null)
+//    {
+//      init();
+//    }
   }
+
+//  private void init()
+//  {
+//    if (agentState == null)
+//    {
+//      try
+//      {
+//        SpringBeanLocator locator = SpringBeanLocator.getInstance();
+//        agentState = (AgentState) locator.getBean("agentState");
+//        log.info("accessing locator for agent State: " + agentState);
+//      }
+//      catch (Exception ex) // we guarantee some defaults
+//      {
+//        agentState = new AgentState();
+//        agentState.setAccessViaUrl(false);
+//        agentState.setAgentAccessString("prop1");
+//      }
+//    }
+//  }
 
   /**
    *
@@ -1840,12 +1871,12 @@ public class DeliveryBean
 
   public boolean getAccessViaUrl()
   {
-    return accessViaUrl;
+    return agentState.isAccessViaUrl();
   }
 
   public void setAccessViaUrl(boolean accessViaUrl)
   {
-    this.accessViaUrl = accessViaUrl;
+    agentState.setAccessViaUrl(accessViaUrl);
   }
 
   public ItemGradingData getItemGradingData(String publishedItemId)
