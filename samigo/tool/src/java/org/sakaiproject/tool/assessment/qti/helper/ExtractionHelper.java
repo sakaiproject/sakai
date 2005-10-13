@@ -953,7 +953,7 @@ public class ExtractionHelper
     String duration = (String) itemMap.get("duration");
     String triesAllowed = (String) itemMap.get("triesAllowed");
     String score = (String) itemMap.get("score");
-    String hasRationale = (String) itemMap.get("hasRationale");
+    String hasRationale =  item.getItemMetaDataByLabel("hasRationale");//rshastri :SAK-1824
     String status = (String) itemMap.get("status");
     String createdBy = (String) itemMap.get("createdBy");
 

@@ -144,6 +144,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     this.itemMetaDataMap = getItemMetaDataMap(this.itemMetaDataSet);
     this.itemFeedbackSet = getItemFeedbackSet();
     this.itemFeedbackMap = getItemFeedbackMap(this.itemFeedbackSet);
+    this.hasRationale= data.getHasRationale();//rshastri :SAK-1824
   }
 
   public Object clone() throws CloneNotSupportedException{

@@ -26,6 +26,11 @@
         <fieldlabel>ITEM_RUBRIC</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
+      <!--rshastri SAK 1824  -->
+      <qtimetadatafield>
+        <fieldlabel>hasRationale</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
     </qtimetadata>
   </itemmetadata>
 <rubric>

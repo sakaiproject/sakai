@@ -34,7 +34,7 @@
     </xsl:for-each>
   </score>
   <hint></hint>
-  <hasRationale></hasRationale>
+  <!-- <hasRationale></hasRationale>rshastri :SAK-1824-->
   <status></status>
   <!-- item text -->
  <itemText type="list">
@@ -211,7 +211,13 @@
      <xsl:attribute name="type">list</xsl:attribute>qmd_itemtype|<xsl:value-of select="."/>
     </xsl:element>
   </xsl:for-each>
-
+   <!-- Respondus //rshastri :SAK-1824 -->
+  <xsl:for-each select="//itemmetadata/hasRationale">
+    <xsl:element name="metadata">
+     <xsl:attribute name="type">list</xsl:attribute>hasRationale|<xsl:value-of select="."/>
+    </xsl:element>
+  </xsl:for-each>
+ <!-- //end rshastri :SAK-1824-->
   <!-- if other methods of determining type don't work, attempt to determine from structure-->
   <!-- NOT guaranteed to be accurate, this is a fallback if none in metadata, title -->
   <!-- DEPENDENCY WARNING: syncs with type strings in AuthoringConstantStrings.java -->
