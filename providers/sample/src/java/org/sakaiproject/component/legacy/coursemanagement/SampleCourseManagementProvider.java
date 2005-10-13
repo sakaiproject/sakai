@@ -102,14 +102,22 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 	 */
 	public String getCourseName(String courseId)
 	{
-		for (int i = 0; i < m_courses.length; i++)
+		StringBuffer tab = new StringBuffer();
+		String[] fields;
+		
+		// A single course with a single section; tab is course and section
+		fields = courseId.split(",");
+		if (fields.length == 6)
 		{
-			if (m_courses[i].getId().equals(courseId))
-			{
-				return m_courses[i].getTitle();
-			}
+			tab.append(fields[3]); //Subject
+			tab.append(" ");
+			tab.append(fields[4]); //Catalog number
+			tab.append(" ");
+			tab.append(fields[5]); //Section
 		}
-		return null;
+		
+		return tab.toString();
+		
 	}
 
 	/**
