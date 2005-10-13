@@ -47,7 +47,7 @@ public class FactoryUtil
 
   private static final String FS = File.separator;
   private static final String CONFIGURATION =
-    "org" + FS + "sakaiproject" + FS + "spring" + FS + "springAPI.xml";
+    "org" + FS + "sakaiproject" + FS + "spring" + FS + "samigoApi.xml";
 
   public static SamigoApiFactory lookup() throws Exception
   {
@@ -57,14 +57,14 @@ public class FactoryUtil
 
     SpringBeanLocator locator = SpringBeanLocator.getInstance();
     return
-      (SamigoApiFactory) locator.getBean("samigoAPI");
+      (SamigoApiFactory) locator.getBean("samigoApiFactory");
     }
     else // unit testing
     {
       Resource res = new ClassPathResource(CONFIGURATION);
       BeanFactory factory = new XmlBeanFactory(res);
       return
-        (SamigoApiFactory) factory.getBean("samigoAPI");
+        (SamigoApiFactory) factory.getBean("samigoApiFactory");
     }
 
   }
