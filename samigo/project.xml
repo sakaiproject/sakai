@@ -11,8 +11,8 @@
 		<url>http://sakaiproject.org/</url>
 	</organization>
 	<inceptionYear>2005</inceptionYear>
-
         <dependencies>
+
                 <dependency>
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai</artifactId>
@@ -20,7 +20,6 @@
                         <type>plugin</type>
                 </dependency>
         </dependencies>
-
 	<build>	
 	</build>
 </project>
