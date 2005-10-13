@@ -41,7 +41,7 @@
       </head>
       <h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" />
       <h:outputText value="<a name='top'></a>" escape="false" />
- <h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgColor}'>" escape="false"/>
+ <h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}'>" escape="false"/>
 
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"

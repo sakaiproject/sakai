@@ -44,7 +44,7 @@
       <%--body onload="<%= request.getAttribute("html.body.onload") %>"--%>
  <h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" />
 
- <h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgColor} '>" escape="false"/>
+ <h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor} '>" escape="false"/>
  <!-- content... -->
 
 <h:form id="takeAssessmentForm">
@@ -97,7 +97,7 @@
        <h:outputText value="No Time Limit" />
     </h:panelGroup>
    </div>
-   <div class="longtext">
+   <div class="shorttext">
     <h:outputLabel value="#{msg.num_subs}" />
            <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
           rendered="#{!delivery.settings.unlimitedAttempts}"/>
@@ -105,7 +105,7 @@
           rendered="#{delivery.settings.unlimitedAttempts}"/>
    </div>
 
-   <div class="longtext"> 
+   <div class="shorttext"> 
     <h:outputLabel value="#{msg.auto_exp}" />
         <h:outputText value="#{msg.enabled_}"
           rendered="#{delivery.settings.autoSubmit}"/>
