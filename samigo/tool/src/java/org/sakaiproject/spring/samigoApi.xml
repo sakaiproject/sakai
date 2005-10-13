@@ -27,7 +27,6 @@
     <property name="qtiServiceAPI" >
       <ref bean="QTIServiceAPI"/>
     </property>
-
     <property name="questionPoolServiceAPI" >
       <ref bean="QuestionPoolServiceAPI"/>
     </property>
@@ -40,34 +39,34 @@
   </bean>
 
   <bean id="AssessmentServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.assessment.AssessmentServiceImpl">
   </bean>
   <bean id="ItemServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.assessment.ItemServiceImpl">
   </bean>
   <bean id="PublishedAssessmentServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.assessment.PublishedAssessmentServiceImpl">
   </bean>
   <bean id="SectionServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.assessment.SectionServiceImpl">
   </bean>
   <bean id="MediaServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.common.MediaServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.common.MediaServiceImpl">
   </bean>
   <bean id="TypeServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.common.TypeServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.common.TypeServiceImpl">
   </bean>
   <bean id="GradebookServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.grading.GradebookServiceImpl">
   </bean>
   <bean id="GradingServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.grading.GradingServiceImpl">
   </bean>
   <bean id="QTIServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.qti.QTIServiceImpl">
   </bean>
   <bean id="QuestionPoolServiceAPI"
-    class="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI">
+    class="org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl">
   </bean>
 
 </beans>
