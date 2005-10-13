@@ -412,7 +412,24 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       attach.setCreatedBy(cr.getProperties().getProperty(cr.getProperties().getNamePropCreator()));
       attach.setLastModifiedBy(cr.getProperties().getProperty(cr.getProperties().getNamePropModifiedBy()));
       attach.setType(cr.getContentType());
-      attach.setUrl(cr.getUrl());
+      String tempString = cr.getUrl();
+      String newString = new String();
+      char[] oneChar = new char[1];
+      for(int i=0; i<tempString.length(); i++)
+      {
+        if(tempString.charAt(i) != ' ')
+        {
+          oneChar[0] = tempString.charAt(i);
+          String concatString = new String(oneChar);
+          newString = newString.concat(concatString);
+        }
+        else
+        {
+          newString = newString.concat("%20");
+        }
+      } 
+      //tempString.replaceAll(" ", "%20");
+      attach.setUrl(newString);
 
       saveSyllabusAttachment(attach);
       
