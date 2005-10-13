@@ -285,7 +285,7 @@ public class SettingsDeliveryBean
 
   public String getBgcolor()
   {
-      return checkColor(bgcolor,"bgcolor='white'");
+    return checkColor(bgcolor,"bgcolor=#F0F0F0");
   }
 
   public void setBgcolor(String color)
@@ -295,8 +295,8 @@ public class SettingsDeliveryBean
 
   public String getBackground()
   {
-
-      return checkColor(background,"background='white'");
+ 
+      return checkColor(background,"background=#F0F0F0");
   }
 
   public void setBackground(String bg)
@@ -304,6 +304,15 @@ public class SettingsDeliveryBean
     background="background=" + bg;
   }
 
+    public String getDivBgcolor()
+    {
+	return this.getBgcolor().substring(8);
+    }
+
+    public String getDivBackground()
+    {
+	return this.getBackground().substring(11);
+    }
   public String checkColor(String color,String defaultcolor)
   {
     if (color==null|| color.equals(""))
@@ -315,17 +324,6 @@ public class SettingsDeliveryBean
       return color;
     }
   }
-
-    public String getDivBgColor()
-    {
-	    return checkColor((getBgcolor().substring(8)),"#F0F0F0");
-    }
-   public String getDivBgIm()
-    {
-	return getBackground().substring(11);
-    }
-
-
 
   public String getItemNumbering()
   {
