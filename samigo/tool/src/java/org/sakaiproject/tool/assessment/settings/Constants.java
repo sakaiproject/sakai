@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.business.entity;
+package org.sakaiproject.tool.assessment.settings;
 
 /**
  * Provides a common place to house all application wide constants.
