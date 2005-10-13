@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+  <bean id="samigoApiFactory"
+      class="org.sakaiproject.tool.assessment.api.spring.SamigoApi">
+    <property name="assessmentServiceAPI" >
+      <ref bean="AssessmentServiceAPI"/>
+    </property>
+    <property name="gradebookServiceAPI" >
+      <ref bean="GradebookServiceAPI"/>
+    </property>
+    <property name="gradingServiceAPI" >
+      <ref bean="GradingServiceAPI"/>
+    </property>
+    <property name="itemServiceAPI" >
+      <ref bean="ItemServiceAPI"/>
+    </property>
+    <property name="mediaServiceAPI" >
+      <ref bean="MediaServiceAPI"/>
+    </property>
+    <property name="publishedAssessmentServiceAPI" >
+      <ref bean="PublishedAssessmentServiceAPI"/>
+    </property>
+    <property name="qtiServiceAPI" >
+      <ref bean="QTIServiceAPI"/>
+    </property>
+
+    <property name="questionPoolServiceAPI" >
+      <ref bean="QuestionPoolServiceAPI"/>
+    </property>
+    <property name="sectionServiceAPI" >
+      <ref bean="SectionServiceAPI"/>
+    </property>
+    <property name="typeServiceAPI" >
+      <ref bean="TypeServiceAPI"/>
+    </property>
+  </bean>
+
+  <bean id="AssessmentServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceAPI">
+  </bean>
+  <bean id="ItemServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI">
+  </bean>
+  <bean id="PublishedAssessmentServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI">
+  </bean>
+  <bean id="SectionServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI">
+  </bean>
+  <bean id="MediaServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.common.MediaServiceAPI">
+  </bean>
+  <bean id="TypeServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.common.TypeServiceAPI">
+  </bean>
+  <bean id="GradebookServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI">
+  </bean>
+  <bean id="GradingServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI">
+  </bean>
+  <bean id="QTIServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI">
+  </bean>
+  <bean id="QuestionPoolServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI">
+  </bean>
+
+</beans>
+
+
+
