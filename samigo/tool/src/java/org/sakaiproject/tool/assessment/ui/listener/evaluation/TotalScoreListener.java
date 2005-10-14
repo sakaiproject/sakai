@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Collection;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -40,6 +41,8 @@ import javax.faces.event.ValueChangeListener;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -275,6 +278,16 @@ public class TotalScoreListener
       // set this value in the requestMap for sound recorder
       bean.setRecordingData(recordingData);
 
+      // Collect a list of all the users in the scores list
+      ArrayList agentUserIds = new ArrayList();
+      iter = scores.iterator();
+      while (iter.hasNext())
+      {
+          AssessmentGradingData gdata = (AssessmentGradingData) iter.next();
+          agentUserIds.add(gdata.getAgentId());
+      }
+      Map userRoles = getUserRolesFromContextRealm(agentUserIds);
+      
       /* Dump the grading and agent information into AgentResults */
       ArrayList agents = new ArrayList();
       iter = scores.iterator();
@@ -324,7 +337,7 @@ public class TotalScoreListener
         else
           results.setLastInitial("Anonymous");
         results.setIdString(agent.getIdString());
-        results.setRole(agent.getRole());
+        results.setRole((String)userRoles.get(gdata.getAgentId()));
         agents.add(results);
       }
 
@@ -355,6 +368,40 @@ public class TotalScoreListener
     }
 
     return true;
+  }
+  
+  /**
+   * This gets the current site id and transforms it into the realm.
+   *  From there it asks the AuthzGroupService for the roles of the given users
+   *
+   * @param inUsers the Collection of users who have their roles looked up.
+   *                This is a Collection of userId Strings
+   * @return Returns the map of users as keys and their roles as values.
+   *			If the user is not in the realm then they will have a null role.
+   */
+  Map getUserRolesFromContextRealm(Collection inUsers)
+  {
+  	    //Get the SiteId
+	    String thisSiteId = null;
+	    try
+	    {
+	      thisSiteId = ToolManager.getCurrentPlacement().getContext();
+	    }
+	    catch (Exception ex)
+	    {
+	      log.warn("Failure to get site id from ToolManager.  \n" +
+	               "Need to fix if not running in unit test.");
+	      log.warn(ex);
+	    }
+	    //If none the returna blank map
+	    if (thisSiteId == null)
+	      return new HashMap();
+
+		//create the realm from the site 
+	    String realmName = "/site/" + thisSiteId;
+	    
+	    //get the roles from the realm and set of users
+	    return AuthzGroupService.getUsersRole(inUsers, realmName);
   }
 
 }
