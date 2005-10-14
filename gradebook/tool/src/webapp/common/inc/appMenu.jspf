@@ -12,7 +12,7 @@
 		<h:outputText value="#{msgs.appmenu_roster}"/>
 	</h:commandLink>
 	<h:outputText value="#{msgs.appmenu_roster}" rendered="#{bean.pageName eq 'roster'}" styleClass="currentView" />
-	<h:panelGroup rendered="#{bean.userAbleToEdit}">
+	<h:panelGroup rendered="#{bean.userAbleToEditAssessments}">
 		<h:outputText value=" | "/>
 		<h:commandLink action="addAssignment" immediate="true" rendered="#{bean.pageName ne 'addAssignment'}">
 			<h:outputText value="#{msgs.appmenu_add_assignment}"/>

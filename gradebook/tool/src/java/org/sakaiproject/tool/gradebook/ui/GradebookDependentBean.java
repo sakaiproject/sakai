@@ -125,8 +125,8 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		return getGradebookBean().getAuthnService();
 	}
 
-	public boolean isUserAbleToEdit() {
-		return getGradebookBean().getAuthzService().isUserAbleToEdit(getGradebookUid(), getUserUid());
+	public boolean isUserAbleToEditAssessments() {
+		return getGradebookBean().getAuthzService().isUserAbleToEditAssessments(getGradebookUid(), getUserUid());
 	}
 	public boolean isUserAbleToGradeAll() {
 		return getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid(), getUserUid());

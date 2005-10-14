@@ -55,7 +55,7 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 		return getSectionAwareness().isSectionMemberInRole(sectionUid, userUid, Role.TA);
 	}
 
-	public boolean isUserAbleToEdit(String gradebookUid, String userUid) {
+	public boolean isUserAbleToEditAssessments(String gradebookUid, String userUid) {
 		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
 	}
 

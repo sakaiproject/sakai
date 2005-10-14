@@ -49,6 +49,7 @@ public class TestGradeLoader extends GradebookLoaderBase {
 		List assignments = gradeManager.getAssignments(gb.getId());
 
 		for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {
+			boolean needToAddScrewyExternalScore = true;
 			Assignment asn = (Assignment)asnIter.next();
 
 			// Don't add grades for at least one assignment.
@@ -64,6 +65,10 @@ public class TestGradeLoader extends GradebookLoaderBase {
                         !enr.getUser().getUserUid().equals(StandaloneSectionsDataLoader.AUTHID_WITHOUT_GRADES_2)) {
                     Double grade = new Double(Math.ceil(asn.getPointsPossible().doubleValue() * Math.random()));
                     if(asn.isExternallyMaintained()) {
+                    	if (needToAddScrewyExternalScore) {
+                    		grade = new Double(grade.doubleValue() + 0.3001);
+                    		needToAddScrewyExternalScore = false;
+                    	}
                         gradebookService.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);
                     } else {
                     	AssignmentGradeRecord agr = new AssignmentGradeRecord(asn, enr.getUser().getUserUid(), grade);

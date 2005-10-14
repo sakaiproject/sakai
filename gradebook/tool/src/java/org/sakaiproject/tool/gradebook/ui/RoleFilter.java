@@ -130,7 +130,7 @@ public class RoleFilter implements Filter {
 			if (authzService.isUserAbleToGrade(gradebookUid, userUid) &&
 				authorizationFilterConfigurationBean.getUserAbleToGradePages().contains(pageName)) {
 				isAuthorized = true;
-			} else if (authzService.isUserAbleToEdit(gradebookUid, userUid) && authorizationFilterConfigurationBean.getUserAbleToEditPages().contains(pageName)) {
+			} else if (authzService.isUserAbleToEditAssessments(gradebookUid, userUid) && authorizationFilterConfigurationBean.getUserAbleToEditPages().contains(pageName)) {
 				isAuthorized = true;
 			} else if (authzService.isUserGradable(gradebookUid, userUid) && authorizationFilterConfigurationBean.getUserGradablePages().contains(pageName)) {
 				isAuthorized = true;

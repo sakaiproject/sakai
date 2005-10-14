@@ -64,8 +64,8 @@
 				<h:outputText id="dueDate" value="#{assignmentDetailsBean.assignment.dueDate}" rendered="#{assignmentDetailsBean.assignment.dueDate != null}"  />
 				<h:outputText id="dueDatePlaceholder" value="#{msgs.overview_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.dueDate == null}" />
 
-				<h:outputText id="optionsLabel" value="#{msgs.assignment_details_options}" rendered="#{assignmentDetailsBean.userAbleToEdit}"/>
-				<h:panelGrid cellpadding="0" cellspacing="0" columns="1" rendered="#{assignmentDetailsBean.userAbleToEdit}">
+				<h:outputText id="optionsLabel" value="#{msgs.assignment_details_options}" rendered="#{assignmentDetailsBean.userAbleToEditAssessments}"/>
+				<h:panelGrid cellpadding="0" cellspacing="0" columns="1" rendered="#{assignmentDetailsBean.userAbleToEditAssessments}">
 					<h:commandLink
 						action="editAssignment"
 						rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
