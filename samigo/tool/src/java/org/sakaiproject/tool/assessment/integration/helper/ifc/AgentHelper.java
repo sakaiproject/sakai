@@ -23,6 +23,9 @@
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -76,6 +79,8 @@ public interface AgentHelper extends Serializable
     HttpServletResponse res);
 
   public String getAnonymousId();
+
+  public Map getUserRolesFromContextRealm(Collection inUsers);
 
 
 }

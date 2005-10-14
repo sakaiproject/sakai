@@ -22,12 +22,18 @@
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.integration.helper.standalone;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
@@ -298,6 +304,20 @@ public class AgentHelperImpl implements AgentHelper
   public void setAgentString(String agentString)
   {
     this.agentString = agentString;
+  }
+  
+  
+  /**
+   * This gets the current site id and transforms it into the realm.
+   *
+   * @param inUsers the Collection of users who have their roles looked up.
+   *                This is a Collection of userId Strings
+   * @return Returns the map of users as keys and their roles as values.
+   *			If the user is not in the realm then they will have a null role.
+   */
+  public Map getUserRolesFromContextRealm(Collection inUsers)
+  {
+	return new HashMap();
   }
 
 }

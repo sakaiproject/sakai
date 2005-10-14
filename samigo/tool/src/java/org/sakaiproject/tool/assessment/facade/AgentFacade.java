@@ -23,6 +23,9 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -256,6 +259,15 @@ public class AgentFacade implements Serializable, AgentDataIfc
   public void setIdString(String idString)
   {
     agentString = idString;
+  }
+
+  /**
+   * Get the anonymous user id.
+   * @return the anonymous user id.
+   */
+  public static Map getUserRolesFromContextRealm(Collection inUsers)
+  {
+    return helper.getUserRolesFromContextRealm(inUsers);
   }
 
 
