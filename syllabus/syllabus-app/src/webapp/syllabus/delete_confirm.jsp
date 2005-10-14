@@ -46,10 +46,10 @@
 				<sakai:button_bar>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processDelete}"
-						value="   #{msgs.bar_ok}   " />
+						value="   #{msgs.title_delete}   " />
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processDeleteCancel}"
-						value="#{msgs.bar_cancel}" />
+						value="#{msgs.cancel}" />
 				</sakai:button_bar>
 			</h:form>
 		</sakai:view_content>
