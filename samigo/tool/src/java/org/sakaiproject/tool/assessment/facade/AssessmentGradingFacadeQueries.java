@@ -100,14 +100,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         agentid = data.getAgentId();
         newlist.add(data);
         while (items.hasNext()) {
-          while (items.hasNext()) {
             data = (AssessmentGradingData) items.next();
             if (!data.getAgentId().equals(agentid)) {
               agentid = data.getAgentId();
               newlist.add(data);
               break;
             }
-          }
         }
         return newlist;
       }
