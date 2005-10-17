@@ -26,7 +26,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -76,10 +75,13 @@ public class AuthorAssessmentListener
     Map requestParams = context.getExternalContext().getRequestParameterMap();
 
     //permission checking before proceeding - daisyf
-    boolean hasAdminPrivilege = PersistenceService.getInstance().getAuthzQueriesFacade().
-	hasAdminPrivilege("assessment.createAssessment",null,null);
-    System.out.println("**** addAssessment, admin right= "+hasAdminPrivilege);
-    if (!hasAdminPrivilege){
+    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "create_assessment");
+    System.out.println("**** functionName= "+functionName);
+
+    boolean hasPrivilege = PersistenceService.getInstance().getAuthzQueriesFacade().
+	hasPrivilege(functionName);
+    System.out.println("**** craeteAssessment, admin right= "+hasPrivilege);
+    if (!hasPrivilege){
       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                   "denied_create_assessment_error");
       context.addMessage("authorIndexForm:createAssessment",new FacesMessage(err));

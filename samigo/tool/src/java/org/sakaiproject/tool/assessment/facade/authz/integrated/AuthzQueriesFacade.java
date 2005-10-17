@@ -84,8 +84,7 @@ public class AuthzQueriesFacade
 		"where asset.assessmentBaseId=authz.qualifierId and " +
 		"authz.agentIdString = :agentId and authz.functionId = :functionId";
 
-  public boolean hasAdminPrivilege(String functionName,
-      String functionId, String qualifierId)
+  public boolean hasPrivilege(String functionName)
   {
       String context = ToolManager.getCurrentPlacement().getContext();
       System.out.println("****context is="+context);

@@ -53,8 +53,7 @@ public class AuthzQueriesFacade
   private static ResourceBundle res = ResourceBundle.getBundle(
     "org.sakaiproject.tool.assessment.facade.authz.resource.AuthzResource");
 
-  public boolean hasAdminPrivilege
-    (String agentId, String function, String qualifier)
+  public boolean hasPrivilege(String functionName)
   {
     return true;
   }
