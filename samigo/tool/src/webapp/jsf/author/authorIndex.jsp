@@ -96,7 +96,8 @@
     <!-- AuthorAssessmentListener.createAssessment() read param from AuthorBean to
       create the assessment  -->
     </h:inputText>
-    <h:commandButton type="submit" value="#{msg.button_create}" action="createAssessment">
+    <!-- action=createAssessment if privilege is granted, otherwise =author --> 
+    <h:commandButton type="submit" value="#{msg.button_create}" action="#{author.getOutcome}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
     </h:commandButton>
     <br />

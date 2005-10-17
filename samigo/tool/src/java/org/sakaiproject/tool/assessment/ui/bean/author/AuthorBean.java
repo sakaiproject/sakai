@@ -72,6 +72,7 @@ public class AuthorBean implements Serializable
   private boolean publishedAscending = true;
   private String inactivePublishedAssessmentOrderBy = "title";
   private boolean inactivePublishedAscending = true;
+  private String outcome;
 
   /**
    * @return the id
@@ -462,4 +463,15 @@ public class AuthorBean implements Serializable
   public void setAssessmentDescription(String description){
     this.assessmentDescription = description;
   }
+
+  public String getOutcome()
+  {
+    return outcome;
+  }
+
+  public void setOutcome(String outcome)
+  {
+    this.outcome = outcome;
+  }
+
 }

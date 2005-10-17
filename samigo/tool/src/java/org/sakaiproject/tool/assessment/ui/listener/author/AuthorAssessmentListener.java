@@ -67,25 +67,26 @@ public class AuthorAssessmentListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
+    AuthorBean author = (AuthorBean) cu.lookupBean(
+                         "author");
+    author.setOutcome("createAssessment");
+
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
 
     //permission checking before proceeding - daisyf
-    /*
     boolean hasAdminPrivilege = PersistenceService.getInstance().getAuthzQueriesFacade().
-	hasAdminPrivilege("testandquiz.createAssessment",null,null);
+	hasAdminPrivilege("assessment.createAssessment",null,null);
     System.out.println("**** addAssessment, admin right= "+hasAdminPrivilege);
     if (!hasAdminPrivilege){
-	ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-                             context.getViewRoot().getLocale());
-	String err=(String)rb.getObject("denied_create_assessment_error");
-	context.addMessage("authorIndexForm:createAssessment",new FacesMessage(err));
+      String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+                  "denied_create_assessment_error");
+      context.addMessage("authorIndexForm:createAssessment",new FacesMessage(err));
+      author.setOutcome("author");
+      return;
     }
-    */
 
-    AuthorBean author = (AuthorBean) cu.lookupBean(
-                         "author");
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
                                                            "assessmentBean");
 

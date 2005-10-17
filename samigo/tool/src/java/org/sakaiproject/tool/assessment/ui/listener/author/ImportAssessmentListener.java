@@ -76,19 +76,6 @@ public class ImportAssessmentListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    //permission checking before proceeding - daisyf
-      /* comment out till IU is done fxing 2.0.1
-    boolean hasAdminPrivilege = PersistenceService.getInstance().getAuthzQueriesFacade().
-                                  hasAdminPrivilege("testandquiz.createAssessment",null,null);
-    System.out.println("**** addAssessment, admin right= "+hasAdminPrivilege);
-    if (!hasAdminPrivilege){
-      FacesContext context=FacesContext.getCurrentInstance();
-      ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-      String err=(String)rb.getObject("denied_create_assessment_error");
-      context.addMessage("authorIndexForm:importAssessment",new FacesMessage(err));
-    }
-      */
-
     //Get the beans
     AuthorBean author = (AuthorBean) cu.lookupBean("author");
     AssessmentBean assessmentBean =
