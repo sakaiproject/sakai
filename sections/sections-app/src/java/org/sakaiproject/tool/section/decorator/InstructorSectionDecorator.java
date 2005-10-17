@@ -6,18 +6,18 @@
 *
 * Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
+*
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
 * understand, and will comply with the terms and conditions of the Educational Community License.
 * You may obtain a copy of the License at:
-* 
+*
 *      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 **********************************************************************************/
@@ -36,7 +36,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
  * Decorates a CourseSection for use in the instructor's (and TA's) page views.
- * 
+ *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
@@ -46,12 +46,12 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	private static final Log log = LogFactory.getLog(InstructorSectionDecorator.class);
 
 	public static final int NAME_TRUNCATION_LENGTH = 20;
-	
+
 	protected List instructorNames;
 	protected int totalEnrollments;
 	protected String spotsAvailable;
 	private boolean flaggedForRemoval;
-	
+
 	public InstructorSectionDecorator(CourseSection courseSection, String categoryForDisplay,
 			List instructorNames, int totalEnrollments) {
 		super(courseSection, categoryForDisplay);
@@ -73,7 +73,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	public InstructorSectionDecorator() {
 		// Needed for serialization
 	}
-	
+
 	public List getInstructorNames() {
 		return instructorNames;
 	}
@@ -81,16 +81,18 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		return spotsAvailable;
 	}
 	public boolean isFlaggedForRemoval() {
+		if(log.isDebugEnabled()) log.debug("isFlaggedForRemoval returning " + flaggedForRemoval + " for section=" + section);
 		return flaggedForRemoval;
 	}
 	public void setFlaggedForRemoval(boolean flaggedForRemoval) {
+		if(log.isDebugEnabled()) log.debug("setFlaggedForRemoval " + flaggedForRemoval + " for section=" + section);
 		this.flaggedForRemoval = flaggedForRemoval;
 	}
-	
+
 	public int compareTo(Object o) {
 		return this.getTitle().compareTo(((InstructorSectionDecorator)o).getTitle());
 	}
-		
+
 	public static final Comparator getFieldComparator(final String fieldName,
 			final boolean sortAscending, final List categoryNames, final List categoryIds) {
 		return new Comparator() {
