@@ -77,7 +77,15 @@
       </properties>
     </dependency>
 -->
-                <!-- need to use Placement and ToolManager -->
+
+        <!--  need for SessionUtil -->
+        <dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-session</artifactId>
+			<version>${sakai.version}</version>			
+        </dependency>	   		
+        
+        <!-- need to use Placement and ToolManager -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool</artifactId>
