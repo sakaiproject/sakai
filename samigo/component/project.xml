@@ -204,9 +204,9 @@
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.7.0</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
+                        <properties>
+                           <deploy.target>shared</deploy.target>
+                        </properties>
 		</dependency>
 		<dependency>
 			<groupId>commons-collections</groupId>

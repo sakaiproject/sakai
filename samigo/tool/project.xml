@@ -224,7 +224,8 @@
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.7.0</version>
 			<properties>
-				<war.bundle>true</war.bundle>
+				<war.bundle>false</war.bundle>
+                           <deploy.target>shared</deploy.target>
 			</properties>
 		</dependency>
 		<dependency>
