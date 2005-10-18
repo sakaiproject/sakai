@@ -42,6 +42,9 @@ document.links[newindex].onclick();
 
 //-->
 </script>
+<%
+	String commentOutFileUpload = org.sakaiproject.service.framework.config.cover.ServerConfigurationService.getString("sam_file_upload_comment_out");
+%>
 <h:form id="itemFormHeading">
 <%-- The following hidden fields echo some of the data in the item form
      when this form posts a change in item type, the data is persisted.
@@ -127,7 +130,9 @@ document.links[newindex].onclick();
 <%--
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
 --%>
+<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
+<%}  %>  
 </h:selectOneMenu>
 
 <!-- if not from qpool , show the last option: copy from question pool-->
@@ -146,7 +151,9 @@ document.links[newindex].onclick();
 <%--
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
 --%>
+<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
+<%}  %>  
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
 
@@ -172,7 +179,9 @@ document.links[newindex].onclick();
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 8}" value="#{msg.fill_in_the_blank}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 9}" value="#{msg.matching}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 7}" value="#{msg.audio_recording}"/>
+<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 6}" value="#{msg.file_upload}"/>
+<%}  %>  
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 10}" value="#{msg.import_from_q}"/>
    </b>
  </span>

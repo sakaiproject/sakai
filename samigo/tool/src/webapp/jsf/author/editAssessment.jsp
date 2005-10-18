@@ -72,6 +72,9 @@ document.links[newindex].onclick();
 <div class="portletBody">
 <!-- content... -->
 <!-- some back end stuff stubbed -->
+<%
+	String commentOutFileUpload = org.sakaiproject.service.framework.config.cover.ServerConfigurationService.getString("sam_file_upload_comment_out");
+%>
 <h:form id="assesssmentForm">
 <h:messages/>
   <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
@@ -151,7 +154,9 @@ document.links[newindex].onclick();
 <%--
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
 --%>
+<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
+<%}  %>  
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
 </div>
@@ -222,7 +227,9 @@ document.links[newindex].onclick();
 <%--
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7,#{partBean.number},0"/>
 --%>
+<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6,#{partBean.number},0"/>
+<%}  %>  
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10,#{partBean.number},0"/>
 
 </h:selectOneMenu>
