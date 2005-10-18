@@ -27,9 +27,13 @@ package org.sakaiproject.component.section.sakai21;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.service.legacy.authzGroup.Member;
+import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.site.Section;
@@ -287,6 +291,94 @@ public class CourseImpl implements Course, Site, Serializable {
 
 	public void setType(String type) {
 		siteInstance.setType(type);
+	}
+
+	public void addMember(String userId, String roleId, boolean active, boolean provided) {
+		siteInstance.addMember(userId, roleId, active, provided);
+	}
+
+	public Role addRole(String id) throws IdUsedException {
+		return siteInstance.addRole(id);
+	}
+
+	public Role addRole(String id, Role other) throws IdUsedException {
+		return siteInstance.addRole(id, other);
+	}
+
+	public String getMaintainRole() {
+		return siteInstance.getMaintainRole();
+	}
+
+	public Member getMember(String userId) {
+		return siteInstance.getMember(userId);
+	}
+
+	public Set getMembers() {
+		return siteInstance.getMembers();
+	}
+
+	public String getProviderGroupId() {
+		return siteInstance.getProviderGroupId();
+	}
+
+	public Role getRole(String id) {
+		return siteInstance.getRole(id);
+	}
+
+	public Set getRoles() {
+		return siteInstance.getRoles();
+	}
+
+	public Role getUserRole(String userId) {
+		return siteInstance.getUserRole(userId);
+	}
+
+	public Set getUsers() {
+		return siteInstance.getUsers();
+	}
+
+	public Set getUsersHasRole(String role) {
+		return siteInstance.getUsersHasRole(role);
+	}
+
+	public Set getUsersIsAllowed(String function) {
+		return siteInstance.getUsersIsAllowed(function);
+	}
+
+	public boolean hasRole(String userId, String role) {
+		return siteInstance.hasRole(userId, role);
+	}
+
+	public boolean isAllowed(String userId, String function) {
+		return siteInstance.isAllowed(userId, function);
+	}
+
+	public boolean isEmpty() {
+		return siteInstance.isEmpty();
+	}
+
+	public void removeMember(String userId) {
+		siteInstance.removeMember(userId);
+	}
+
+	public void removeMembers() {
+		siteInstance.removeMembers();
+	}
+
+	public void removeRole(String role) {
+		siteInstance.removeRole(role);
+	}
+
+	public void removeRoles() {
+		siteInstance.removeRoles();
+	}
+
+	public void setMaintainRole(String role) {
+		siteInstance.setMaintainRole(role);
+	}
+
+	public void setProviderGroupId(String id) {
+		siteInstance.setProviderGroupId(id);
 	}
 }
 

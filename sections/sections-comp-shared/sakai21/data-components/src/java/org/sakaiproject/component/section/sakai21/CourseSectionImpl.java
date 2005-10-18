@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.logging.Log;
@@ -42,11 +43,15 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.service.legacy.authzGroup.Member;
+import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.site.Section;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.service.legacy.user.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -341,6 +346,114 @@ public class CourseSectionImpl implements CourseSection, Section, Serializable {
 
 	public Site getContainingSite() {
 		return sectionInstance.getContainingSite();
+	}
+
+	public void addMember(String userId, String roleId, boolean active, boolean provided) {
+		sectionInstance.addMember(userId, roleId, active, provided);
+	}
+
+	public Role addRole(String id) throws IdUsedException {
+		return sectionInstance.addRole(id);
+	}
+
+	public Role addRole(String id, Role other) throws IdUsedException {
+		return sectionInstance.addRole(id, other);
+	}
+
+	public User getCreatedBy() {
+		return sectionInstance.getCreatedBy();
+	}
+
+	public org.sakaiproject.service.legacy.time.Time getCreatedTime() {
+		return sectionInstance.getCreatedTime();
+	}
+
+	public String getMaintainRole() {
+		return sectionInstance.getMaintainRole();
+	}
+
+	public Member getMember(String userId) {
+		return sectionInstance.getMember(userId);
+	}
+
+	public Set getMembers() {
+		return sectionInstance.getMembers();
+	}
+
+	public User getModifiedBy() {
+		return sectionInstance.getModifiedBy();
+	}
+
+	public org.sakaiproject.service.legacy.time.Time getModifiedTime() {
+		return sectionInstance.getModifiedTime();
+	}
+
+	public String getProviderGroupId() {
+		return sectionInstance.getProviderGroupId();
+	}
+
+	public Role getRole(String id) {
+		return sectionInstance.getRole(id);
+	}
+
+	public Set getRoles() {
+		return sectionInstance.getRoles();
+	}
+
+	public Role getUserRole(String userId) {
+		return sectionInstance.getUserRole(userId);
+	}
+
+	public Set getUsers() {
+		return sectionInstance.getUsers();
+	}
+
+	public Set getUsersHasRole(String role) {
+		return sectionInstance.getUsersHasRole(role);
+	}
+
+	public Set getUsersIsAllowed(String function) {
+		return sectionInstance.getUsersIsAllowed(function);
+	}
+
+	public boolean hasRole(String userId, String role) {
+		return sectionInstance.hasRole(userId, role);
+	}
+
+	public boolean isAllowed(String userId, String function) {
+		return sectionInstance.isAllowed(userId, function);
+	}
+
+	public boolean isEmpty() {
+		return sectionInstance.isEmpty();
+	}
+
+	public void removeMember(String userId) {
+		sectionInstance.removeMember(userId);
+	}
+
+	public void removeMembers() {
+		sectionInstance.removeMembers();
+	}
+
+	public void removeRole(String role) {
+		sectionInstance.removeRole(role);
+	}
+
+	public void removeRoles() {
+		sectionInstance.removeRoles();
+	}
+
+	public void setMaintainRole(String role) {
+		sectionInstance.setMaintainRole(role);
+	}
+
+	public void setProviderGroupId(String id) {
+		sectionInstance.setProviderGroupId(id);
+	}
+
+	public int compareTo(Object o) {
+		return sectionInstance.compareTo(o);
 	}
 
 }
