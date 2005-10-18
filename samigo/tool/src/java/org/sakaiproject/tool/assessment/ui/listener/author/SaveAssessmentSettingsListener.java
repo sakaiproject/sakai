@@ -69,16 +69,16 @@ public class SaveAssessmentSettingsListener
         lookupBean("assessmentSettings");
     SaveAssessmentSettings s= new SaveAssessmentSettings();
     //Huong's adding
- ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", context.getViewRoot().getLocale());
-
+ 
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
     String err="";
+    String assessmentName=assessmentSettings.getTitle();
     if (time!=null)
       isTime=((Boolean)time).booleanValue();
 
     // System.out.println("SAVESETTINGSANDCONFIRM");
-    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(assessmentSettings.getTitle()!=null)&&(!(assessmentSettings.getTitle().trim()).equals(""))){
+    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.notEmptyAndNotDub(assessmentName))){
 	// System.out.println("SAVESETTINGS Success");
 	assessmentSettings.setOutcomeSave("saveSettings_success");
 	s.save(assessmentSettings);
@@ -98,13 +98,13 @@ public class SaveAssessmentSettingsListener
 
     }
     else{
-         if((assessmentSettings.getTitle()==null)||(assessmentSettings.getTitle().trim()).equals("")){
+          if(!s.notEmptyAndNotDub(assessmentName)){
+	    //  err=(String)rb.getObject("emptyAssessment_error");
+           err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
       
-	    err=(String)rb.getObject("emptyAssessment_error");
 	}
 	else{
-	   
-	    err=(String)rb.getObject("timeSelect_error");
+	    err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
 	}
 	context.addMessage(null,new FacesMessage(err));
 	assessmentSettings.setOutcomeSave("saveSettings_fail");
