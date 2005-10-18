@@ -131,6 +131,7 @@ public class QuestionPoolBean
 
 
   private String outcome;
+  private String outcomeEdit;
   private String deletePoolSource;  // either from poolList.jsp , or from editPool.jsp
   private String addPoolSource;  // either from poolList.jsp , or from editPool.jsp
 
@@ -920,6 +921,20 @@ public class QuestionPoolBean
   public void setOutcome(String param)
   {
     this.outcome= param;
+  }
+ 
+  public String getOutcomeEdit()
+  {
+    return outcomeEdit;
+  }
+
+  /**
+   * set the outcome for doit()
+   * @param param
+   */
+  public void setOutcomeEdit(String param)
+  {
+    this.outcomeEdit= param;
   }
 
   public String getDeletePoolSource()
