@@ -90,7 +90,7 @@ public class AuthorAssessmentListener
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
                                                            "assessmentBean");
 
-
+     SaveAssessmentSettings s= new SaveAssessmentSettings();
     ItemAuthorBean itemauthorBean = (ItemAuthorBean) cu.lookupBean("itemauthor");
     itemauthorBean.setTarget(itemauthorBean.FROM_ASSESSMENT); // save to assessment
 
@@ -99,31 +99,42 @@ public class AuthorAssessmentListener
     // template selected
     // #1 - read from form authorIndex.jsp
     String assessmentTitle = author.getAssessTitle();
-    String description = author.getAssessmentDescription();
-    String typeId = author.getAssessmentTypeId();
-    String templateId = author.getAssessmentTemplateId();
 
-    if (templateId == null){
-      templateId = AssessmentTemplateFacade.DEFAULTTEMPLATE.toString();;
-    }
+    //HUONG's EDIT
+    //check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error
+    if (s.notEmptyAndNotDub(assessmentTitle)){
+	String description = author.getAssessmentDescription();
+	String typeId = author.getAssessmentTypeId();
+	String templateId = author.getAssessmentTemplateId();
 
+	if (templateId == null){
+	    templateId = AssessmentTemplateFacade.DEFAULTTEMPLATE.toString();
+	}
+    
     // #2 - got all the info, create now
-    AssessmentFacade assessment = createAssessment(
-        assessmentTitle, description, typeId, templateId);
+	AssessmentFacade assessment = createAssessment(
+						       assessmentTitle, description, typeId, templateId);
 
     // #3a - goto editAssessment.jsp, so prepare assessmentBean
-    assessmentBean.setAssessment(assessment);
+	assessmentBean.setAssessment(assessment);
     // #3b - reset the following
-    author.setAssessTitle("");
-    author.setAssessmentDescription("");
-    author.setAssessmentTypeId("");
-    author.setAssessmentTemplateId(AssessmentTemplateFacade.DEFAULTTEMPLATE.toString());
+	author.setAssessTitle("");
+	author.setAssessmentDescription("");
+	author.setAssessmentTypeId("");
+	author.setAssessmentTemplateId(AssessmentTemplateFacade.DEFAULTTEMPLATE.toString());
 
     // #3c - update core AssessmentList
-    AssessmentService assessmentService = new AssessmentService();
-    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(AssessmentFacadeQueries.TITLE,true);
+	AssessmentService assessmentService = new AssessmentService();
+	ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(AssessmentFacadeQueries.TITLE,true);
     // get the managed bean, author and set the list
-    author.setAssessments(list);
+	author.setAssessments(list);
+	author.setOutcome("createAssessment");
+    }
+    else{
+	String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","duplicateName_error");
+context.addMessage(null,new FacesMessage(err));
+	author.setOutcome("author");
+	}
   }
 
   public AssessmentFacade createAssessment(
