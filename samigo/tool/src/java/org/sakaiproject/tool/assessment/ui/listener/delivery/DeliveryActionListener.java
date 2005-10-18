@@ -93,13 +93,7 @@ public class DeliveryActionListener
     try
     {
       // get managed bean
-      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-      
-      /** if taking assessment, modify session intactive interval */ 
-      if (!("true".equals(cu.lookupParam("review")) || "true".equals(cu.lookupParam("previewAssessment"))))
-      {                                                     
-        SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
-      }
+      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");            
 
       // this is to be reset to true on the saveTime() JavaScript when submitted
       delivery.setJavaScriptEnabledCheck("false");
@@ -369,6 +363,13 @@ public class DeliveryActionListener
 
       log.debug("****Set begin time " + delivery.getBeginTime());
       log.debug("****Set elapsed time " + delivery.getTimeElapse());
+      
+      /** if taking assessment, modify session intactive interval */ 
+      if (!("true".equals(cu.lookupParam("review")) || "true".equals(cu.lookupParam("previewAssessment"))))
+      {                                                     
+        SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
+      }
+      
       // get table of contents
       delivery.setTableOfContents(getContents(publishedAssessment, itemData,
                                               delivery));

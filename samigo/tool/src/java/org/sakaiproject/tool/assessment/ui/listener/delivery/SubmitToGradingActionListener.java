@@ -40,7 +40,6 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.delivery.SessionUtil;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -75,10 +74,7 @@ public class SubmitToGradingActionListener implements ActionListener
       log.debug("SubmitToGradingActionListener.processAction() ");
 
       // get managed bean
-      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-      
-      // set session timeout interval the value before taking assessment        
-      SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, false);
+      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");            
 
       if ((cu.lookupParam("showfeedbacknow") != null &&
 	   "true".equals(cu.lookupParam("showfeedbacknow")) || "true".equals(delivery.getPreviewAssessment())))
