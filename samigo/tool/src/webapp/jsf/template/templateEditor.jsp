@@ -42,6 +42,7 @@
 <!-- content... -->
  <div class="portletBody">
   <h:form id="templateEditorForm">
+  
    <p class="navIntraTool" >
    <h:commandLink action="author" id="authorLink" immediate="true">
       <h:outputText value="#{msg.link_assessments}" />
@@ -61,6 +62,7 @@
      <h:outputText value="#{template.templateName}"/>
 </h3>
  <h:outputText value="#{msg.template_instructions}"/>
+ <h:messages layout="table" style="color:red"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
   <div class="indnt1">
   <samigo:hideDivision id="div1" title="#{msg.template_inform}" >
@@ -586,7 +588,7 @@
   <p class="act">
   <h:panelGroup rendered="#{template.idString ne '1' || backingbean.prop1 eq 'admin'}">
     <h:commandButton type="submit" id="Submit" value="#{msg.save}"
-      action="template" styleClass="active">
+      action="#{template.getOutcome}" styleClass="active">
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateUpdateListener" />
                 </h:commandButton>

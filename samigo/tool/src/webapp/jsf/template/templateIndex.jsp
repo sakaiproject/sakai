@@ -47,6 +47,7 @@
  <!-- div class="heading"><h:outputText value="#{msg.index_heading}"/></div -->
 <div class="portletBody">
   <h:form id="templateEditorForm">
+<h:messages layout="table" style="color:red"/>
    <p class="navIntraTool">
    <h:commandLink action="author" id="authorlink" immediate="true">
       <h:outputText value="#{msg.link_assessments}" />
