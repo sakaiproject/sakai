@@ -69,49 +69,62 @@ public class SaveAssessmentSettingsListener
         lookupBean("assessmentSettings");
     SaveAssessmentSettings s= new SaveAssessmentSettings();
     //Huong's adding
- 
+
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
     String err="";
     String assessmentName=assessmentSettings.getTitle();
-    if (time!=null)
-      isTime=((Boolean)time).booleanValue();
+    // If something is in there that is not a Boolean object, keep default.
+    // I have seen this happen, this avoids ClassCastException --esmiley
+    try
+    {
+      if (time != null)
+      {
+        isTime = ( (Boolean) time).booleanValue();
+      }
+    }
+    catch (Exception ex)
+    {
+      // keep default
+      log.warn("Expecting Boolean hasTimeAssessment, got: " + time);
+
+    }
 
     // System.out.println("SAVESETTINGSANDCONFIRM");
     if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.notEmptyAndNotDub(assessmentName))){
-	// System.out.println("SAVESETTINGS Success");
-	assessmentSettings.setOutcomeSave("saveSettings_success");
-	s.save(assessmentSettings);
+  // System.out.println("SAVESETTINGS Success");
+  assessmentSettings.setOutcomeSave("saveSettings_success");
+  s.save(assessmentSettings);
  // reset the core listing in case assessment title changes
-	AuthorBean author = (AuthorBean) cu.lookupBean(
+  AuthorBean author = (AuthorBean) cu.lookupBean(
                        "author");
-	AssessmentService assessmentService = new AssessmentService();
-	ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
-											author.getCoreAssessmentOrderBy(),author.isCoreAscending());
+  AssessmentService assessmentService = new AssessmentService();
+  ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
+                      author.getCoreAssessmentOrderBy(),author.isCoreAscending());
     // get the managed bean, author and set the list
-	author.setAssessments(assessmentList);
+  author.setAssessments(assessmentList);
 
     // goto Question Authoring page
-	EditAssessmentListener editA= new EditAssessmentListener();
-	editA.processAction(null);
-	
+  EditAssessmentListener editA= new EditAssessmentListener();
+  editA.processAction(null);
+
 
     }
     else{
           if(!s.notEmptyAndNotDub(assessmentName)){
-	    //  err=(String)rb.getObject("emptyAssessment_error");
+      //  err=(String)rb.getObject("emptyAssessment_error");
            err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
-      
-	}
-	else{
-	    err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
-	}
-	context.addMessage(null,new FacesMessage(err));
-	assessmentSettings.setOutcomeSave("saveSettings_fail");
-	//  System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR MESSAGE CREATED");
+
+  }
+  else{
+      err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
+  }
+  context.addMessage(null,new FacesMessage(err));
+  assessmentSettings.setOutcomeSave("saveSettings_fail");
+  //  System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR MESSAGE CREATED");
 
     }
-   
+
   }
 
 }
