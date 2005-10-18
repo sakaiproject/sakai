@@ -31,9 +31,17 @@ import java.io.Serializable;
 
 public class AuthorizationBean implements Serializable {
   private static ContextUtil cu;
-  private AuthorizationService authzService = (AuthorizationService) SpringBeanLocator.getInstance().getBean("AuthorizationService");
+  private AuthorizationService authzService;
 
   public AuthorizationBean(){}
+
+  public void setAuthzService(AuthorizationService authzService){
+    this.authzService = authzService;
+  }
+
+  public AuthorizationService getAuthzService(){
+    return authzService;
+  }
 
   public boolean getTakeAssessment(){
     return getPrivilege("take_assessment");
@@ -97,8 +105,8 @@ public class AuthorizationBean implements Serializable {
   public boolean getPrivilege(String functionKey){
     String siteId  = AgentFacade.getCurrentSiteId();
     String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
-    boolean privilege = ((Boolean)authzService.getAuthzMap().get(functionName+"_"+siteId)).booleanValue();
     System.out.println("**** authzBean: authzService ="+authzService);
+    boolean privilege = ((Boolean)authzService.getAuthzMap().get(functionName+"_"+siteId)).booleanValue();
     System.out.println("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
     return privilege;
   }

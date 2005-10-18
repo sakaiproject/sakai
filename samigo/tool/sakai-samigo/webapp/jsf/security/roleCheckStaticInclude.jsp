@@ -3,12 +3,21 @@
                  org.sakaiproject.tool.assessment.services.authz.AuthorizationService,
                  org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener,
                  org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener,
+                 org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean,
+                 org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil,
                  org.sakaiproject.service.framework.portal.cover.PortalService"
 %>
 <%
-  AuthorizationService service = (AuthorizationService) SpringBeanLocator.getInstance().
+  AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean(
+                         "authorization");
+  AuthorizationService service = authzBean.getAuthzService();
+  if (authzBean.getAuthzService()==null){ 
+    service = (AuthorizationService) SpringBeanLocator.getInstance().
                                    getBean("AuthorizationService");
+    authzBean.setAuthzService(service);
+  }
   System.out.println("***** roleCheck: authorizationService="+service);
+
   if (service!=null && !service.allowAdminAssessment(PortalService.getCurrentSiteId()))
   {
           SelectActionListener listener = new SelectActionListener();
