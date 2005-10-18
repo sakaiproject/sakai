@@ -208,7 +208,7 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			// These are already sorted by category, so just sort by title
 			return InstructorSectionDecorator.getFieldComparator("title", sortAscending, categoryNames, categoryIds);
 		} else if(sortColumn.equals("available")) {
-			return InstructorSectionDecorator.getAvailableEnrollmentsComparator(sortAscending, categoryNames, categoryIds); 
+			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true, categoryNames, categoryIds); 
 		} else if(sortColumn.equals("change")) {
 			return StudentSectionDecorator.getChangeComparator(sortAscending, categoryNames, categoryIds, joinAllowed, switchAllowed);
 		} else {

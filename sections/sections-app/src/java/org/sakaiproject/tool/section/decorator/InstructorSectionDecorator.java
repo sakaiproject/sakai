@@ -179,8 +179,8 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator getAvailableEnrollmentsComparator(final boolean sortAscending,
-			final List categoryNames, final List categoryIds) {
+	public static final Comparator getEnrollmentsComparator(final boolean sortAscending,
+			final boolean useAvailable, final List categoryNames, final List categoryIds) {
 		return new Comparator() {
 			public int compare(Object o1, Object o2) {
 				if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
@@ -203,9 +203,15 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 						if(maxEnrollments1 == null && maxEnrollments2 == null) {
 							return 0;
 						}
-						int availEnrollmentComparison =
+						int availEnrollmentComparison;
+						if(useAvailable) {
+							
+							availEnrollmentComparison =
 							(maxEnrollments1.intValue() - section1.totalEnrollments) -
 							(maxEnrollments2.intValue() - section2.totalEnrollments);
+						} else {
+							availEnrollmentComparison = maxEnrollments1.intValue() - maxEnrollments2.intValue();
+						}
 						return sortAscending ? availEnrollmentComparison : (-1 * availEnrollmentComparison);
 					}
 					// These are in different categories, so sort them by category name
