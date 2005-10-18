@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.ResourceBundle;
+
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -64,22 +64,22 @@ public class ConfirmPublishAssessmentListener
     ExternalContext extContext = context.getExternalContext();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", context.getViewRoot().getLocale());
+    // ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", context.getViewRoot().getLocale());
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
         "assessmentSettings");
-    //Huong's adding
+   //Huong's adding
+    SaveAssessmentSettings s = new SaveAssessmentSettings();
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
-    String err;
+    String err="";
+    String assessmentName=assessmentSettings.getTitle();
     if (time!=null)
       isTime=((Boolean)time).booleanValue();
 
-    // System.out.println("SAVESETTINGSANDCONFIRM");
-    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(assessmentSettings.getTitle()!=null)&&(!(assessmentSettings.getTitle().trim()).equals(""))){
+    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.notEmptyAndNotDub(assessmentName))){
         System.out.println("SAVESETTINGSANDCONFIRM Success");
-	assessmentSettings.setOutcomePublish("publish_success");
-	SaveAssessmentSettings s = new SaveAssessmentSettings();
+	assessmentSettings.setOutcomePublish("publish_success");	
 	AssessmentFacade assessment = s.save(assessmentSettings);
 	// System.out.println("ASSESSMENT SETTINGSAVED");
 	assessmentSettings.setAssessment(assessment);
@@ -104,12 +104,13 @@ public class ConfirmPublishAssessmentListener
     }
     else{
        
-        if((assessmentSettings.getTitle()==null)||(assessmentSettings.getTitle().trim()).equals("")){
-	    err=(String)rb.getObject("emptyAssessment_error");
+        if(!s.notEmptyAndNotDub(assessmentName)){
+	    //  err=(String)rb.getObject("emptyAssessment_error");
+           err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 	   
 	}
 	else{//error in time select
-	    err=(String)rb.getObject("timeSelect_error");
+            err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
 	}
 	context.addMessage(null,new FacesMessage(err));
 	assessmentSettings.setOutcomePublish("publish_fail");
