@@ -117,6 +117,10 @@
 		</property>
 	</bean>
 
+<bean name="AuthorizationService"
+     class="org.sakaiproject.tool.assessment.services.authz.AuthorizationService">
+</bean>
+
 </beans>
 
 

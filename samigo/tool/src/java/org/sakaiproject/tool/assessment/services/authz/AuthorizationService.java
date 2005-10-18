@@ -57,6 +57,14 @@ public class AuthorizationService
     return hasAdminPrivilege;
   }
 
+  public boolean getHasAdminPrivilege(){
+    return hasAdminPrivilege;
+  }
+
+  public void setHasAdminPrivilege(boolean hasAdminPrivilege){
+    this.hasAdminPrivilege = hasAdminPrivilege;
+  }
+
   public boolean canCreateAssessment(String siteId)
   {
     String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "create_assessment");

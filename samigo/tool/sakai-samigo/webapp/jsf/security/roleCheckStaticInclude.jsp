@@ -1,10 +1,15 @@
 <%@ page import="org.sakaiproject.service.legacy.site.cover.SiteService,
+                 org.sakaiproject.spring.SpringBeanLocator,
+                 org.sakaiproject.tool.assessment.services.authz.AuthorizationService,
                  org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener,
                  org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener,
                  org.sakaiproject.service.framework.portal.cover.PortalService"
 %>
 <%
-  if (!SiteService.allowUpdateSite(PortalService.getCurrentSiteId()))
+  AuthorizationService service = (AuthorizationService) SpringBeanLocator.getInstance().
+                                   getBean("AuthorizationService");
+  System.out.println("***** roleCheck: authorizationService="+service);
+  if (service!=null && !service.allowAdminAssessment(PortalService.getCurrentSiteId()))
   {
           SelectActionListener listener = new SelectActionListener();
           listener.processAction(null);
