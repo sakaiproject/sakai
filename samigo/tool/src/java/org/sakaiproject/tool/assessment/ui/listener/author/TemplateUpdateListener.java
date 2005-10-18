@@ -28,7 +28,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -48,9 +51,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
 
 /**
  * <p>Description: Action Listener for template updates</p>
@@ -84,7 +90,52 @@ public class TemplateUpdateListener
     TemplateBean templateBean = lookupTemplateBean(context);
     log.info("name=" + templateBean.getTemplateName());
     log.info("id=" + templateBean.getIdString());
-    updateAssessment(templateBean);
+String tempName=templateBean.getTemplateName();
+// System.out.println("TEMPNAME= "+tempName);
+ AssessmentService assessmentService = new AssessmentService();
+ // IndexBean templateIndex = (IndexBean) ContextUtil.lookupBean(
+ //                       "templateIndex");
+
+ boolean duplicateName=false;
+    try
+    {
+	//	FacesContext.getCurrentInstance().getExternalContext().getSessionMap().
+	//	    put("template", new TemplateBean());
+	ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessmentTemplates("title");
+        Iterator iter = list.iterator();
+     
+        while (iter.hasNext())
+        { 
+	 AssessmentTemplateFacade facade =
+	 (AssessmentTemplateFacade) iter.next();
+	
+	     String n=facade.getTitle();
+             //System.out.println("TempName: "+n);
+	      if((tempName.trim()).equals(n)){
+		 duplicateName=true;
+		 break;
+	      }
+	      
+	}
+	  
+    }
+    catch(Exception e)
+    {
+		  e.printStackTrace();
+		  throw new Error(e);
+    }
+    if(duplicateName){
+	String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","duplicateName_error");
+ context.addMessage(null,new FacesMessage(error));
+  templateBean.setOutcome("editTemplate");
+          System.out.println("duplicateName= "+duplicateName);
+       
+      }
+      else{
+       updateAssessment(templateBean);
+        templateBean.setOutcome("template");
+      }
+   
   }
 
   /**
