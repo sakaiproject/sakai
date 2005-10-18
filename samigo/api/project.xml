@@ -3,14 +3,14 @@
   <pomVersion>3</pomVersion>
   <extend>../../master/project.xml</extend>
   <name>Sakai Samigo API</name>
-  <shortDescription>Samigo (Test and Quizzes) exportable interfaces.</shortDescription>
+  <shortDescription>Test and Quizzes exportable interfaces.</shortDescription>
   <groupId>sakaiproject</groupId>
   <id>sakai-samigo-api</id>
   <currentVersion>${sakai.version}</currentVersion>
 
   <organization>
-      <name>Sakai Project</name>
-      <url>http://sakaiproject.org/</url>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
   </organization>
 
   <inceptionYear>2005</inceptionYear>
