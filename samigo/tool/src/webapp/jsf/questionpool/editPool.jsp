@@ -52,9 +52,6 @@
 <f:verbatim><body onload="collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();"></f:verbatim>
  <div class="portletBody">
 <h:form id="editform">
-
-<h:messages />
-
 <p class="navIntraTool" style="background-color:DDE3EB">
 
 <h:commandLink action="author" id="authorlink" immediate="true">
@@ -94,6 +91,7 @@
 <h:outputText value="#{msg.qp}: "/>
 <h:outputText value="#{questionpool.currentPool.displayName}"/>
 </h3>
+<h:messages layout="table" style="color:red" />
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_editpool}"/>
  <div class="shorttext indnt2">
   <h:outputLabel for="namefield" value="#{msg.p_name}"/>
@@ -191,7 +189,7 @@
 
 <div class="indnt1">
 <!-- for normal pool operations -->
-  <h:commandButton id="submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.doit}"
+  <h:commandButton id="submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
         value="#{msg.update}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />

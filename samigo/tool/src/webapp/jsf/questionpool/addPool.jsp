@@ -44,9 +44,9 @@
 <h:outputText value="#{msg.add_p}"/>
 </h3>
 
-<h:outputText value="#{msg.add_p_required}"/>
-
  <h:form id="questionpool">
+<h:messages layout="table" style="color:red"/>
+<h:outputText value="#{msg.add_p_required}"/>
 
  <div class="shorttext indnt1">
   <h:outputLabel for="namefield" value="#{msg.p_name}*"/>
