@@ -24,6 +24,9 @@
 
 package org.sakaiproject.component.section.sakai21;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Time;
 import java.text.DateFormat;
@@ -65,10 +68,26 @@ public class CourseSectionImpl implements CourseSection, Section, Serializable {
 	public static final String SATURDAY = "sections_saturday";
 	public static final String SUNDAY = "sections_sunday";
 	
-	private Section sectionInstance;
+	private transient Section sectionInstance;
+	private String sectionInstanceId;
 
 	public CourseSectionImpl(Section section) {
 		this.sectionInstance = section;
+		this.sectionInstanceId = section.getId();
+	}
+	
+	private void writeObject(ObjectOutputStream s) throws IOException {
+	    s.defaultWriteObject();
+	}
+	
+	private void readObject(ObjectInputStream s) throws IOException  {
+	    try {
+	    	s.defaultReadObject();
+	    } catch (ClassNotFoundException e) {
+	    	log.error("Could not de-serialize... ", e);
+	    	return;
+	    }
+	    sectionInstance = SiteService.findSection(sectionInstanceId);
 	}
 	
     public static final String convertTimeToString(Time time) {

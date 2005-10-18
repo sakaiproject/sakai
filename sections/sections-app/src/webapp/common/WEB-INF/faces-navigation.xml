@@ -22,8 +22,8 @@
             <to-view-id>/editStudentSections.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
-            <from-outcome>deleteSection</from-outcome>
-            <to-view-id>/deleteSection.jsp</to-view-id>
+            <from-outcome>deleteSections</from-outcome>
+            <to-view-id>/deleteSections.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
             <from-outcome>editManagers</from-outcome>

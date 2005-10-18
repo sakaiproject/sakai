@@ -101,7 +101,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
 					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
 
-					// First compare the category name, then compare the time
+					// First compare the category name, then compare the field
 					int categoryNameComparison = categoryNameComparison(section1,
 							section2, categoryNames, categoryIds);
 					if(categoryNameComparison == 0) {

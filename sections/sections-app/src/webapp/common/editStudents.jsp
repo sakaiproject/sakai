@@ -1,4 +1,5 @@
 <f:view>
+<div class="portletBody">
 <h:form id="memberForm">
 
     <sakai:flowState bean="#{editStudentsBean}"/>
@@ -7,7 +8,6 @@
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
 
-    <x:div styleClass="portletBody">
         <h2><h:outputText value="#{msgs.edit_student_page_header}"/></h2>
         
         <%@include file="/inc/globalMessages.jspf"%>
@@ -56,6 +56,6 @@
         <h:commandButton
             action="overview"
             value="#{msgs.edit_student_cancel}"/>
-    </x:div>
 </h:form>
+</div>
 </f:view>

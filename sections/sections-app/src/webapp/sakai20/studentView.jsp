@@ -1,4 +1,5 @@
 <f:view>
+<div class="portletBody">
 <h:form id="studentViewForm">
 <%/*
     Due to the limited screen real estate available in sakai iframes, several
@@ -9,7 +10,6 @@
 
     <sakai:flowState bean="#{studentViewBean}"/>
 
-    <x:div styleClass="portletBody">
     
         <x:div styleClass="instructions">
             <h:outputText
@@ -111,7 +111,6 @@
 
         <h:outputText value="#{msgs.no_sections_available}" rendered="#{empty studentViewBean.sections}"/>
 
-    </x:div>
-
 </h:form>
+</div>
 </f:view>

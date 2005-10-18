@@ -1,4 +1,5 @@
 <f:view>
+<div class="portletBody">
 <h:form id="rosterForm">
 
     <sakai:flowState bean="#{rosterBean}"/>
@@ -7,7 +8,6 @@
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
     
-    <x:div styleClass="portletBody">
         <h2><h:outputText value="#{msgs.roster_page_header}"/></h2>
         
         <%@include file="/inc/globalMessages.jspf"%>
@@ -60,6 +60,6 @@
             <%/* A dynamic number of section columns will be appended here by the backing bean */%>
         
         </x:dataTable>
-    </x:div>
 </h:form>
+</div>
 </f:view>

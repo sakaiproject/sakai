@@ -58,8 +58,6 @@ td.external {
 }
 
 
-/* Number fields are right-aligned with a bit of padding. */
-
 td.left {text-align:left; vertical-align:bottom;}
 td.center {text-align:center; vertical-align:bottom;}
 td.right {text-align:right; vertical-align:bottom; padding-right:2em !important;}
@@ -88,4 +86,13 @@ table.narrowTable tr th {
 td.prefixedCheckbox {
 	vertical-align:top;
 	padding-right:.5em;
+}
+
+table.deleteConfirmation {
+    background:#EEE;
+    border:thin solid #000;
+}
+
+.deleteButtons {
+    margin-top:40px;
 }

@@ -105,12 +105,6 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		}
 	}
 
-	public String delete() {
-		getSectionManager().disbandSection(sectionUuid);
-		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("delete_section_success"));
-		return "overview";
-	}
-
 	public String update() {
 		// Since the validation and conversion rules rely on the *relative*
 		// values of one component to another, we can't use JSF validators and

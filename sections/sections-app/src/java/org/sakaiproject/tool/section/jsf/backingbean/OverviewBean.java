@@ -31,12 +31,18 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.component.UIComponent;
+import javax.faces.component.html.HtmlSelectBooleanCheckbox;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
  * Controls the overview page.
@@ -53,6 +59,7 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	private String rowClasses;
 
 	private List sections;
+	private List sectionsToDelete;
 	private List categoryIds;
 	private List categoryNames; // Must be ordered exactly like the category ids
 
@@ -140,6 +147,31 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		}
 	}
 
+	public String confirmDelete() {
+		sectionsToDelete = new ArrayList();
+		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+			InstructorSectionDecorator decoratedSection = (InstructorSectionDecorator)iter.next();
+			if(decoratedSection.isFlaggedForRemoval()) {
+				sectionsToDelete.add(decoratedSection);
+			}
+		}
+		if(sectionsToDelete.isEmpty()) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("overview_delete_section_choose"));
+			return null; // Don't go anywhere
+		} else {
+			return "deleteSections";
+		}
+	}
+	
+	public String deleteSections() {
+		for(Iterator iter = sectionsToDelete.iterator(); iter.hasNext();) {
+			InstructorSectionDecorator decoratedSection = (InstructorSectionDecorator)iter.next();
+			getSectionManager().disbandSection(decoratedSection.getUuid());
+		}
+		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("overview_delete_section_success"));
+		return "overview";
+	}
+
 	public List getSections() {
 		return sections;
 	}
@@ -148,5 +180,9 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	}
 	public String getRowClasses() {
 		return rowClasses;
+	}
+
+	public List getSectionsToDelete() {
+		return sectionsToDelete;
 	}
 }

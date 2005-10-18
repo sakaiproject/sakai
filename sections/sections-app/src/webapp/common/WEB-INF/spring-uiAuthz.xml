@@ -20,7 +20,7 @@
         <property name="manageAllSections">
             <list>
                 <value>addSections</value>
-                <value>deleteSection</value>
+                <value>deleteSections</value>
                 <value>editManagers</value>
                 <value>editSection</value>
             </list>

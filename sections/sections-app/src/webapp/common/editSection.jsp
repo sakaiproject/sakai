@@ -1,4 +1,5 @@
 <f:view>
+<div class="portletBody">
 <h:form id="editSectionForm">
 
     <sakai:flowState bean="#{editSectionBean}"/>
@@ -7,7 +8,6 @@
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
     
-    <x:div styleClass="portletBody">
         <h2><h:outputText value="#{msgs.edit_section_page_header}"/></h2>
         
         <%@include file="/inc/globalMessages.jspf"%>
@@ -87,12 +87,8 @@
         </h:panelGrid>
     
         <h:commandButton action="#{editSectionBean.update}" value="Update"/>
-        
-        <h:commandButton action="deleteSection" value="Delete">
-            <f:param name="sectionUuid" value="#{editSectionBean.sectionUuid}"/>
-        </h:commandButton>
-        
+                
         <h:commandButton action="overview" value="Cancel" immediate="true" />
-    </x:div>    
 </h:form>
+</div>
 </f:view>

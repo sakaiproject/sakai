@@ -340,10 +340,9 @@ public class SectionManagerImpl implements SectionManager {
 	 * @inheritDoc
 	 */
 	public int getTotalEnrollments(final String learningContextUuid) {
-		Reference ref = EntityManager.newReference(learningContextUuid);
 		AuthzGroup realm;
 		try {
-			realm = AuthzGroupService.getAuthzGroup(ref.getId());
+			realm = AuthzGroupService.getAuthzGroup(learningContextUuid);
 		} catch (IdUnusedException e) {
 			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
 			return 0;

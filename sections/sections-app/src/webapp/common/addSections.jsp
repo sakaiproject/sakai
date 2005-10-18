@@ -1,4 +1,5 @@
 <f:view>
+<div class="portletBody">
 <h:form id="addSectionsForm">
 
     <sakai:flowState bean="#{addSectionsBean}"/>
@@ -7,7 +8,6 @@
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
 
-    <x:div styleClass="portletBody">
         <h2><h:outputText value="#{msgs.nav_add_sections}"/></h2>
         
         <%@include file="/inc/globalMessages.jspf"%>
@@ -126,6 +126,7 @@
             value="#{msgs.add_sections_add}"/>
         
         <h:commandButton action="overview" immediate="true" value="#{msgs.add_sections_cancel}"/>
-    </x:div>        
+
 </h:form>
+</div>
 </f:view>
