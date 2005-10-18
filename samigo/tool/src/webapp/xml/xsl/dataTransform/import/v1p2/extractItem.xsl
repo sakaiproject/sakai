@@ -100,14 +100,7 @@
   </xsl:for-each>
   <!-- answers -->
   <xsl:for-each select="//presentation//response_lid/render_choice/response_label/material/mattext" >
-  <xsl:choose>
-    <xsl:when test="./*">
-      <itemAnswer type="list"><xsl:copy-of select="./*"/></itemAnswer>
-    </xsl:when>
-    <xsl:when test="string-length(.)">
-     <itemAnswer type="list"><xsl:value-of select="."/></itemAnswer>
-    </xsl:when>
-  </xsl:choose>
+      <itemAnswer type="list"><xsl:apply-templates mode="itemRichText" /></itemAnswer>
   </xsl:for-each>
   <xsl:for-each select="//respcondition/conditionvar/or/varequal" >
   <xsl:choose>
