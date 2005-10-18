@@ -71,22 +71,16 @@ public class AuthorAssessmentListener
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
 
+    //#0 - permission checking before proceeding - daisyf
     AuthorBean author = (AuthorBean) cu.lookupBean(
                          "author");
     author.setOutcome("createAssessment");
-
-    //#0 - permission checking before proceeding - daisyf
-    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean(
-                         "authorization");
-    boolean hasPrivilege = authzBean.getCreateAssessment();
-    if (!hasPrivilege){
-      String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-                  "denied_create_assessment_error");
-      context.addMessage("authorIndexForm:createAssessment",new FacesMessage(err));
+    if (!passAuthz(context)){
       author.setOutcome("author");
       return;
     }
 
+    // pass authz test, move on
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
                                                            "assessmentBean");
 
@@ -144,5 +138,17 @@ context.addMessage(null,new FacesMessage(err));
     AssessmentFacade assessment = assessmentService.createAssessment(
         assessmentTitle, description, typeId, templateId);
     return assessment;
+  }
+
+  public boolean passAuthz(FacesContext context){
+    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean(
+                         "authorization");
+    boolean hasPrivilege = authzBean.getCreateAssessment();
+    if (!hasPrivilege){
+      String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+                  "denied_create_assessment_error");
+      context.addMessage("authorIndexForm:createAssessment_denied",new FacesMessage(err));
+    }
+    return hasPrivilege;
   }
 }

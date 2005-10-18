@@ -99,7 +99,7 @@
     </property>
   </bean>
 
-<bean name="AuthorizationService"
+<bean name="AuthorizationService" singleton="false"
      class="org.sakaiproject.tool.assessment.services.authz.AuthorizationService">
 </bean>
 

@@ -31,9 +31,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import java.util.HashMap;
 
 /**
- * The QuestionPoolService calls the service locator to reach the
- * manager on the back end.
- * @author Rachel Gollub <rgollub@stanford.edu>
+ * The AuthorizationService
  */
 public class AuthorizationService
 {
@@ -41,23 +39,50 @@ public class AuthorizationService
   private static Log log = LogFactory.getLog(AuthorizationService.class);
   private HashMap map = new HashMap();
 
+  // This method is called (via jsf/security/roleCheckStaticInclude.jsp) 
+  // when user first enter samigo in a site.
+  // This is the time when we determine his permission in the site.
+  // This info is stored in the AuthorizationService HashMap for the entire session.
   public boolean allowAdminAssessment(String siteId)
   {
-    boolean hasAdminPrivilege = canCreateAssessment(siteId) 
-                        || canEditAnyAssessment(siteId) || canEditOwnAssessment(siteId)
-                        || canDeleteAnyAssessment(siteId) || canDeleteOwnAssessment(siteId)
-                        || canPublishAnyAssessment(siteId) || canPublishOwnAssessment(siteId)
-                        || canGradeAnyAssessment(siteId) || canGradeOwnAssessment(siteId)
-                        || canCreateQuestionPool(siteId)
-                        || canEditOwnQuestionPool(siteId)
-                        || canDeleteOwnQuestionPool(siteId)
-                        || canCopyOwnQuestionPool(siteId);
+    // admin functions
+    boolean p1 = canCreateAssessment(siteId);
+    boolean p2 = canEditAnyAssessment(siteId);
+    boolean p3 = canEditOwnAssessment(siteId);
+    boolean p4 = canDeleteAnyAssessment(siteId);
+    boolean p5 = canDeleteOwnAssessment(siteId);
+    boolean p6 = canPublishAnyAssessment(siteId);
+    boolean p7 = canPublishOwnAssessment(siteId);
+    boolean p8 = canGradeAnyAssessment(siteId);
+    boolean p9 = canGradeOwnAssessment(siteId);
+    boolean p10 = canCreateQuestionPool(siteId);
+    boolean p11 = canEditOwnQuestionPool(siteId);
+    boolean p12 = canDeleteOwnQuestionPool(siteId);
+    boolean p13 = canCopyOwnQuestionPool(siteId);
+
+    // non admin functions
+    boolean p14 = canTakeAssessment(siteId);
+    boolean p15 = canSubmitAssessmentForGrade(siteId);
+
+    boolean hasAdminPrivilege = p1 || p2 || p3 || p4 || p5 || p6 || p7
+	                        || p8 || p9 || p10 || p11 || p12 || p13;
 
     return hasAdminPrivilege;
   }
 
   public HashMap getAuthzMap(){
     return map;
+  }
+
+
+  public boolean canTakeAssessment(String siteId)
+  {
+    return getPrivilege("take_assessment", siteId);
+  }
+
+  public boolean canSubmitAssessmentForGrade(String siteId)
+  {
+    return getPrivilege("submit_assessment_for_grade", siteId);
   }
 
   public boolean canCreateAssessment(String siteId)

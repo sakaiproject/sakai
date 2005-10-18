@@ -35,6 +35,13 @@ public class AuthorizationBean implements Serializable {
 
   public AuthorizationBean(){}
 
+  public boolean getTakeAssessment(){
+    return getPrivilege("take_assessment");
+  } 
+
+  public boolean getSubmitAssessmentForGrade(){
+    return getPrivilege("submit_assessment_for_grade");
+  } 
   public boolean getCreateAssessment(){
     return getPrivilege("create_assessment");
   } 
@@ -91,7 +98,8 @@ public class AuthorizationBean implements Serializable {
     String siteId  = AgentFacade.getCurrentSiteId();
     String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
     boolean privilege = ((Boolean)authzService.getAuthzMap().get(functionName+"_"+siteId)).booleanValue();
-    System.out.println(functionName+"_"+siteId+"="+privilege);
+    System.out.println("**** authzBean: authzService ="+authzService);
+    System.out.println("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
     return privilege;
   }
 

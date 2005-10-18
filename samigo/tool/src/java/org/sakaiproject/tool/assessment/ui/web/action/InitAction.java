@@ -135,9 +135,5 @@ public class InitAction extends HttpServlet{
     TypeServiceAPI typeServiceAPI = SamigoApiFactory.getInstance().getTypeServiceAPI();
     log.info("TypeServiceAPI: " + typeServiceAPI);
 
-    //checking Authorization Service (a spring bean)
-    AuthorizationService authzService = (AuthorizationService) SpringBeanLocator.getInstance().
-	getBean("AuthorizationService");
-    System.out.println("*****#13. initAction: authorizationService="+authzService);
   }
 }

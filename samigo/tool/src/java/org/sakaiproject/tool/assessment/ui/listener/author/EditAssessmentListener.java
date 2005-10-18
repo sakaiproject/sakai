@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Map;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -32,11 +33,14 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -64,6 +68,7 @@ public class EditAssessmentListener
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
 
+
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
                                           "assessmentBean");
 
@@ -71,7 +76,7 @@ public class EditAssessmentListener
                                           "itemauthor");
 
     // #1a - come from authorIndex.jsp, load the assessment
-    // goto editAssessment.jsp
+    // goto editAssessment.jsp if successful
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("assessmentId");
     if (assessmentId == null){
@@ -83,8 +88,16 @@ public class EditAssessmentListener
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId);
-    //log.info("** assessment = "+assessment);
-    //log.info("** assessment Bean= "+assessmentBean);
+
+    //#1b - permission checking before proceeding - daisyf
+    AuthorBean author = (AuthorBean) cu.lookupBean("author");
+    author.setOutcome("editAssessment");
+    if (!passAuthz(context, assessment.getCreatedBy())){
+      author.setOutcome("author");
+      return;
+    }
+
+    // pass authz, move on
     assessmentBean.setAssessment(assessment);
     itemauthorBean.setTarget(itemauthorBean.FROM_ASSESSMENT); // save to assessment
     // initalize the itemtype
@@ -93,4 +106,25 @@ public class EditAssessmentListener
 
   }
 
+  public boolean passAuthz(FacesContext context, String ownerId){
+    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+    boolean hasPrivilege_any = authzBean.getEditAnyAssessment();
+    boolean hasPrivilege_own0 = authzBean.getEditOwnAssessment();
+    boolean hasPrivilege_own = (hasPrivilege_own0 || isOwner(ownerId));
+    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
+    if (!hasPrivilege){
+       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+						 "denied_edit_assessment_error");
+       context.addMessage("authorIndexForm:edit_assessment_denied",new FacesMessage(err));
+    }
+    return hasPrivilege;
+  }
+
+  public boolean isOwner(String ownerId){
+    boolean isOwner = false;
+    String agentId = AgentFacade.getAgentString();
+    isOwner = agentId.equals(ownerId);
+    System.out.println("*** assessment's owner="+isOwner);
+    return isOwner;
+  }
 }

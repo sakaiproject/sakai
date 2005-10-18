@@ -69,6 +69,9 @@
 
 </p>
 
+<h:message for="denied_create_assessment" styleClass="validate"/>
+<h:message for="denied_edit_assessment" styleClass="validate"/>
+
 <h:message for="createAssessment" styleClass="validate"/>
 
      <div class="indnt1">
@@ -135,13 +138,15 @@
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:commandLink id="editAssessment" immediate="true" action="editAssessment">
+      <!-- action=editAssessment if pass authz -->
+      <h:commandLink id="editAssessment" immediate="true" action="#{author.getOutcome}">
         <h:outputText id="assessmentTitle" value="#{coreAssessment.title}" />
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
       </h:commandLink>
       <f:verbatim><br/></f:verbatim>
       <!-- AuthorBean.editAssessmentSettings() prepare the edit page -->
+      <!-- action=editAssessment if pass authz -->
       <f:verbatim><span class="itemAction"></f:verbatim>
       <h:commandLink id="editAssessmentSettings" immediate="true" action="editAssessmentSettings">
         <h:outputText id="linkSettings" value="#{msg.link_settings}"/>
@@ -149,7 +154,8 @@
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
       </h:commandLink>
         <h:outputText value=" | " />
-      <h:commandLink id="confirmRemoveAssessment" immediate="true" action="confirmRemoveAssessment">
+      <!-- action=confirmRemoveAssessment if pass authz -->
+      <h:commandLink id="confirmRemoveAssessment" immediate="true" action="#{author.getOutcome}">
         <h:outputText id="linkRemove" value="#{msg.link_remove}"/>
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemoveAssessmentListener" />
