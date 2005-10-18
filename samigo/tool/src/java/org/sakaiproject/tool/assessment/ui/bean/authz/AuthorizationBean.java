@@ -23,122 +23,76 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.authz;
 
-import java.util.HashMap;
+import org.sakaiproject.tool.assessment.services.authz.AuthorizationService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import java.io.Serializable;
 
-public class AuthorizationBean {
-  private HashMap map = new HashMap();
+public class AuthorizationBean implements Serializable {
+  private static ContextUtil cu;
+  private AuthorizationService authzService = (AuthorizationService) SpringBeanLocator.getInstance().getBean("AuthorizationService");
 
-  public AuthorizationBean(){
-    map = new HashMap();
+  public AuthorizationBean(){}
+
+  public boolean getCreateAssessment(){
+    return getPrivilege("create_assessment");
+  } 
+
+  public boolean getEditAnyAssessment() {
+    return getPrivilege("edit_any_assessment");
+  } 
+
+  public boolean getEditOwnAssessment() {
+    return getPrivilege("edit_own_assessment");
+  } 
+
+  public boolean getDeleteAnyAssessment() {
+    return getPrivilege("delete_any_assessment");
+  } 
+
+  public boolean getDeleteOwnAssessment() {
+    return getPrivilege("delete_own_assessment");
+  } 
+
+  public boolean getPublishAnyAssessment() {
+    return getPrivilege("publish_any_assessment");
+  } 
+
+  public boolean getPublishOwnAssessment() {
+    return getPrivilege("publish_own_assessment");
+  } 
+
+  public boolean getGradeAnyAssessment() {
+    return getPrivilege("grade_any_assessment");
+  } 
+
+  public boolean getGradeOwnAssessment() {
+    return getPrivilege("grade_own_assessment");
+  } 
+
+  public boolean getCreateQuestionPool() {
+    return getPrivilege("create_questionpool");
+  } 
+
+  public boolean getEditOwnQuestionPool() {
+    return getPrivilege("edit_own_questionpool");
+  } 
+
+  public boolean getDeleteOwnQuestionPool() {
+    return getPrivilege("delete_own_questionpool");
+  } 
+
+  public boolean getCopyOwnQuestionPool() {
+    return getPrivilege("copy_own_questionpool");
+  } 
+
+  public boolean getPrivilege(String functionKey){
+    String siteId  = AgentFacade.getCurrentSiteId();
+    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
+    boolean privilege = ((Boolean)authzService.getAuthzMap().get(functionName+"_"+siteId)).booleanValue();
+    System.out.println(functionName+"_"+siteId+"="+privilege);
+    return privilege;
   }
-
-  public void setPrivilege(String functionName, boolean privilege){
-    map.put(functionName, new Boolean(privilege));
-  } 
-
-  public boolean getPrivilege(String functionName){
-    return ((Boolean)map.get(functionName)).booleanValue();
-  } 
-
-    /**
-  public boolean getCreateAssessment(String siteId){
-    return ((Boolean)map.get("createAssessment_"+siteId)).booleanValue();
-  } 
-  public void setCreateAssessment(String siteId, boolean createAssessment){
-    map.put("createAssessment_"+siteId, new Boolean(createAssessment));
-  } 
-
-  public boolean getEditAnyAssessment(String siteId) {
-    return ((Boolean)map.get("editAnyAssessment_"+siteId)).booleanValue();
-  } 
-
-  public void setEditAnyAssessment(String siteId, boolean editAnyAssessment){
-    map.put("editAnyAssessment_"+siteId, new Boolean(editAnyAssessment));
-  } 
-
-  public boolean getEditOwnAssessment(String siteId) {
-    return ((Boolean)map.get("editOwnAssessment_"+siteId)).booleanValue();
-  } 
-  public void setEditOwnAssessment(String siteId, boolean editOwnAssessment){
-    map.put("editOwnAssessment_"+siteId, new Boolean(editOwnAssessment));
-  } 
-
-  public boolean getDeleteAnyAssessment(String siteId) {
-    return ((Boolean)map.get("deleteAnyAssessment_"+siteId)).booleanValue();
-  } 
-
-  public void setDeleteAnyAssessment(String siteId, boolean deleteAnyAssessment){
-    map.put("deleteAnyAssessment_"+siteId, new Boolean(deleteAnyAssessment));
-  } 
-
-  public boolean getDeleteOwnAssessment(String siteId) {
-    return ((Boolean)map.get("deleteOwnAssessment_"+siteId)).booleanValue();
-  } 
-  public void setDeleteOwnAssessment(String siteId, boolean deleteOwnAssessment){
-    map.put("deleteOwnAssessment_"+siteId, new Boolean(deleteOwnAssessment));
-  } 
-
-  public boolean getPublishAnyAssessment(String siteId) {
-    return ((Boolean)map.get("publishAnyAssessment_"+siteId)).booleanValue();
-  } 
-  public void setPublishAnyAssessment(String siteId, boolean publishAnyAssessment){
-    map.put("publishAnyAssessment_"+siteId, new Boolean(publishAnyAssessment));
-  } 
-
-  public boolean getPublishOwnAssessment(String siteId) {
-    return ((Boolean)map.get("publishOwnAssessment_"+siteId)).booleanValue();
-  } 
-
-  public void setPublishOwnAssessment(String siteId, boolean publishOwnAssessment){
-    map.put("publishOwnAssessment_"+siteId, new Boolean(publishOwnAssessment));
-  } 
-
-  public boolean getGradeAnyAssessment(String siteId) {
-    return ((Boolean)map.get("gradeAnyAssessment_"+siteId)).booleanValue();
-  } 
-  public void setGradeAnyAssessment(String siteId, boolean gradeAnyAssessment){
-    map.put("gradeAnyAssessment_"+siteId, new Boolean(gradeAnyAssessment));
-  } 
-
-  public boolean getGradeOwnAssessment(String siteId) {
-    return ((Boolean)map.get("gradeOwnAssessment_"+siteId)).booleanValue();
-  } 
-
-  public void setGradeOwnAssessment(String siteId, boolean gradeOwnAssessment){
-    map.put("gradeOwnAssessment_"+siteId, new Boolean(gradeOwnAssessment));
-  } 
-
-  public boolean getCreateQuestionPool(String siteId) {
-    return ((Boolean)map.get("createQuestionPool_"+siteId)).booleanValue();
-  } 
-
-  public void setCreateQuestionPool(String siteId, boolean createQuestionPool){
-    map.put("createQuestionPool_"+siteId, new Boolean(createQuestionPool));
-  } 
-
-  public boolean getEditOwnQuestionPool(String siteId) {
-    return ((Boolean)map.get("editOwnQuestionPool_"+siteId)).booleanValue();
-  } 
-
-  public void setEditOwnQuestionPool(String siteId, boolean editOwnQuestionPool){
-    map.put("editOwnQuestionPool_"+siteId, new Boolean(editOwnQuestionPool));
-  } 
-
-  public boolean getDeleteOwnQuestionPool(String siteId) {
-    return ((Boolean)map.get("deleteOwnQuestionPool_"+siteId)).booleanValue();
-  } 
-
-  public void setDeleteOwnQuestionPool(String siteId, boolean deleteOwnQuestionPool){
-    map.put("deleteOwnQuestionPool_"+siteId, new Boolean(deleteOwnQuestionPool));
-  } 
-
-  public boolean getCopyOwnQuestionPool(String siteId) {
-    return ((Boolean)map.get("copyOwnQuestionPool_"+siteId)).booleanValue();
-  } 
-
-  public void setCopyOwnQuestionPool(String siteId, boolean copyOwnQuestionPool){
-    map.put("copyOwnQuestionPool_"+siteId, new Boolean(copyOwnQuestionPool));
-  } 
-    */
 
 }

@@ -56,122 +56,80 @@ public class AuthorizationService
     return hasAdminPrivilege;
   }
 
+  public HashMap getAuthzMap(){
+    return map;
+  }
+
   public boolean canCreateAssessment(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "create_assessment");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("create_assessment", siteId);
   }
 
   public boolean canEditAnyAssessment(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "edit_any_assessment");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("edit_any_assessment", siteId);
   }
 
   public boolean canEditOwnAssessment(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "edit_own_assessment");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("edit_own_assessment", siteId);
   }
 
   public boolean canDeleteAnyAssessment(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "delete_any_assessment");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("delete_any_assessment", siteId);
   }
 
   public boolean canDeleteOwnAssessment(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "delete_own_assessment");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("delete_own_assessment", siteId);
   }
 
   public boolean canPublishAnyAssessment(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "publish_any_assessment");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("publish_any_assessment", siteId);
   }
 
   public boolean canPublishOwnAssessment(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "publish_own_assessment");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("publish_own_assessment", siteId);
   }
 
   public boolean canGradeAnyAssessment(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "grade_any_assessment");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("grade_any_assessment", siteId);
   }
 
   public boolean canGradeOwnAssessment(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "grade_own_assessment");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("grade_own_assessment", siteId);
   }
 
   public boolean canCreateQuestionPool(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "create_questionpool");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("create_questionpool", siteId);
   }
   
   public boolean canEditOwnQuestionPool(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "edit_own_questionpool");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("edit_own_questionpool", siteId);
   }
 
   public boolean canDeleteOwnQuestionPool(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "delete_own_questionpool");
-    boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
-    map.put(functionName+"_"+siteId, new Boolean(privilege)); 
-    System.out.println(functionName+"_"+siteId+"="+privilege);
-    return privilege;
+    return getPrivilege("delete_own_questionpool", siteId);
   }
 
   public boolean canCopyOwnQuestionPool(String siteId)
   {
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "copy_own_questionpool");
+    return getPrivilege("copy_own_questionpool", siteId);
+  }
+
+  public boolean getPrivilege(String functionKey, String siteId){
+    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
     boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
     map.put(functionName+"_"+siteId, new Boolean(privilege)); 
     System.out.println(functionName+"_"+siteId+"="+privilege);
     return privilege;
   }
-
 }

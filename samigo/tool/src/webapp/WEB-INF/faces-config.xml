@@ -87,6 +87,12 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <description>For authorization</description>
+    <managed-bean-name>authorization</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <description>For author: Assessment Authoring backing bean.</description>
     <managed-bean-name>author</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean</managed-bean-class>

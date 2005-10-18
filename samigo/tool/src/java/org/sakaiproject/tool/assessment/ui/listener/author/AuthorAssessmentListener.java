@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -66,20 +67,19 @@ public class AuthorAssessmentListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    AuthorBean author = (AuthorBean) cu.lookupBean(
-                         "author");
-    author.setOutcome("createAssessment");
-
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
 
-    //permission checking before proceeding - daisyf
-    String functionName=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", "create_assessment");
-    System.out.println("**** functionName= "+functionName);
+    AuthorBean author = (AuthorBean) cu.lookupBean(
+                         "author");
+    author.setOutcome("createAssessment");
 
-    boolean hasPrivilege = PersistenceService.getInstance().getAuthzQueriesFacade().
-	hasPrivilege(functionName);
+    //#0 - permission checking before proceeding - daisyf
+    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean(
+                         "authorization");
+    System.out.println("**** authzBean = "+authzBean);
+    boolean hasPrivilege = authzBean.getCreateAssessment();
     System.out.println("**** craeteAssessment, admin right= "+hasPrivilege);
     if (!hasPrivilege){
       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
