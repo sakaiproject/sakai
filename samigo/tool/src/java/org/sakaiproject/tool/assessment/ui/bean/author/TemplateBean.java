@@ -79,6 +79,7 @@ public class TemplateBean implements Serializable
   private String lastModified;
   private String lastModifiedBy;
     private Date modifiedDate;
+    private String outcome;
 
   /**
    * This just sets some defaults.
@@ -95,6 +96,13 @@ public class TemplateBean implements Serializable
     values.put("anonymousRelease_isInstructorEditable", Boolean.TRUE);
     values.put("authenticatedRelease_isInstructorEditable", Boolean.TRUE);
   }
+
+    public void setOutcome(String outcome){
+	this.outcome=outcome;
+    }
+    public String getOutcome(){
+	return outcome;
+    }
 
   /**
    * set value
