@@ -26,10 +26,6 @@
                         <f:selectItems value="#{editManagersBean.availableUsers}"/>
                     </h:selectManyListbox>
                 </x:div>
-
-                <x:div>
-                    <h:outputText value="#{msgs.edit_manager_ta_note}"/>
-                </x:div>
             </h:panelGroup>
         
             <%@include file="/inc/transferButtons.jspf"%>
@@ -45,7 +41,19 @@
                     </h:selectManyListbox>
                 </x:div>
             </h:panelGroup>
+
+            <x:div style="width:200px;">
+                <h:outputText value="#{msgs.edit_manager_ta_note}"/>
+            </x:div>
     
+            <x:div>
+                <h:outputText value=" "/>
+            </x:div>
+
+            <x:div>
+                <h:outputText value=" "/>
+            </x:div>
+
         </h:panelGrid>
         
         <h:commandButton

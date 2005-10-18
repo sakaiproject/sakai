@@ -16,7 +16,7 @@ label.formLabel {font-weight:bold;}
 .transferButtons {width:100px; text-align:center; vertical-align:middle;}
 .selected {width:210px; text-align:right; vertical-align:top;}
 
-.transferButtonTable {text-align:center;}
+.transferButtonTable {text-align:center; font-weight:bold;}
 .instructions {padding-bottom:1em;}
 
 /* Item property editing. THIS SHOULD BE MOVED INTO SAKAI CSS. */
