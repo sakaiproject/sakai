@@ -78,9 +78,7 @@ public class AuthorAssessmentListener
     //#0 - permission checking before proceeding - daisyf
     AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean(
                          "authorization");
-    System.out.println("**** authzBean = "+authzBean);
     boolean hasPrivilege = authzBean.getCreateAssessment();
-    System.out.println("**** craeteAssessment, admin right= "+hasPrivilege);
     if (!hasPrivilege){
       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                   "denied_create_assessment_error");
