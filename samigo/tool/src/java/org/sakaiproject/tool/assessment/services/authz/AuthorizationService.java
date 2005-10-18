@@ -40,11 +40,10 @@ public class AuthorizationService
   private static ContextUtil cu;
   private static Log log = LogFactory.getLog(AuthorizationService.class);
   private HashMap map = new HashMap();
-  private boolean hasAdminPrivilege;
 
   public boolean allowAdminAssessment(String siteId)
   {
-    hasAdminPrivilege = canCreateAssessment(siteId) 
+    boolean hasAdminPrivilege = canCreateAssessment(siteId) 
                         || canEditAnyAssessment(siteId) || canEditOwnAssessment(siteId)
                         || canDeleteAnyAssessment(siteId) || canDeleteOwnAssessment(siteId)
                         || canPublishAnyAssessment(siteId) || canPublishOwnAssessment(siteId)
@@ -55,14 +54,6 @@ public class AuthorizationService
                         || canCopyOwnQuestionPool(siteId);
 
     return hasAdminPrivilege;
-  }
-
-  public boolean getHasAdminPrivilege(){
-    return hasAdminPrivilege;
-  }
-
-  public void setHasAdminPrivilege(boolean hasAdminPrivilege){
-    this.hasAdminPrivilege = hasAdminPrivilege;
   }
 
   public boolean canCreateAssessment(String siteId)
