@@ -114,6 +114,7 @@
     </div> </div>
   </samigo:hideDivision>
 
+<%-- get rid of delivery dates according to the new mockup,
   <!-- *** DELIVERY DATES *** -->
   <samigo:hideDivision title="#{msg.delivery_dates}" id="div3">
    <div class="indnt2">
@@ -134,6 +135,7 @@
     </h:panelGrid>
    </div></div>
   </samigo:hideDivision>
+ --%>
 
   <!-- *** RELEASED TO  *** -->
   <samigo:hideDivision title="#{msg.released_to}" id="div4">
