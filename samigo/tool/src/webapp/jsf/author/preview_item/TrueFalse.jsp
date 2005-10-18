@@ -37,7 +37,7 @@ should be included in file importing DeliveryMessages
           <h:graphicImage id="image2" rendered="#{!answer.isCorrect}"
              alt="#{msg.not_correct}" url="/images/radiounchecked.gif" >
           </h:graphicImage>
-          <h:outputText value="#{answer.text}" />
+          <h:outputText escape="false" value="#{answer.text}" />
         </h:column>
       </h:dataTable>
  </h:column>
@@ -47,24 +47,8 @@ should be included in file importing DeliveryMessages
 
 <h:panelGrid columns="2" styleClass="longtext">
   <h:outputLabel value="#{msg.answerKey}: "/>
-  <h:outputText value="#{question.itemData.answerKey}" />
+  <h:outputText escape="false" value="#{question.itemData.answerKey}" />
 
-
-<%-- OLD ANSWER KEY
-<h:panelGrid columns="2" styleClass="longtext">
-<h:outputLabel value="#{msg.answerKey}: "/>
-   <h:panelGroup>
-    <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
-    <h:column>
-      <h:dataTable value="#{itemText.answerArraySorted}" var="answer2">
-        <h:column>
-          <h:outputText rendered="#{answer2.isCorrect}" escape="false" value="#{answer2.text}" />
-        </h:column>
-      </h:dataTable>
-        </h:column>
-      </h:dataTable>
-</h:panelGroup>
---%>
 
   <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correctItemFeedback}: "/>
   <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}"

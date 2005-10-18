@@ -37,9 +37,12 @@ should be included in file importing DeliveryMessages
              alt="#{msg.not_correct}" url="/images/unchecked.gif" >
           </h:graphicImage>
           <h:outputText escape="false" value="#{answer.label}. #{answer.text}" /> </h:column><h:column>
-       <f:verbatim><b></f:verbatim>  <h:outputText rendered="#{answer.generalAnswerFeedback != null && answer.generalAnswerFeedback ne ''}" value="#{          msg.feedback}: " /> <f:verbatim></b></f:verbatim>
+       <f:verbatim><b></f:verbatim>
+         <h:outputText escape="false"
+          rendered="#{answer.generalAnswerFeedback != null && answer.generalAnswerFeedback ne ''}" value="#{          msg.feedback}: " />
+         <f:verbatim></b></f:verbatim>
 
- <h:outputText value="#{answer.generalAnswerFeedback}" />
+         <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" />
         </h:column>
       </h:dataTable>
 
@@ -48,32 +51,15 @@ should be included in file importing DeliveryMessages
 
 <h:panelGrid columns="2" styleClass="longtext">
   <h:outputLabel value="#{msg.answerKey}: "/>
-  <h:outputText value="#{question.itemData.answerKey}" />
+  <h:outputText escape="false" value="#{question.itemData.answerKey}" />
 
-<%-- OLD ANSWER KEY
-<h:panelGrid columns="2" styleClass="longtext">
-<h:outputLabel value="#{msg.answerKey}: "/>
-   <h:panelGroup>
-    <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
-    <h:column>
-      <h:dataTable value="#{itemText.answerArraySorted}" var="answer2">
-        <h:column>
-          <h:outputText rendered="#{answer2.isCorrect}" escape="false" value="#{answer2.label}" />
-        </h:column>
-      </h:dataTable>
-        </h:column>
-      </h:dataTable>
-</h:panelGroup>
+   <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correctItemFeedback}: "/>
+   <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}"
+     value="#{question.itemData.correctItemFeedback}" escape="false" />
 
- END OLD ANSWER KEY --%>
-
-     <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correctItemFeedback}: "/>
-     <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}"
-       value="#{question.itemData.correctItemFeedback}" escape="false" />
-
-     <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{msg.incorrectItemFeedback}: "/>
-     <h:outputText  rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}"
-       value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+   <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{msg.incorrectItemFeedback}: "/>
+   <h:outputText  rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}"
+     value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
 
 </h:panelGrid>
 
