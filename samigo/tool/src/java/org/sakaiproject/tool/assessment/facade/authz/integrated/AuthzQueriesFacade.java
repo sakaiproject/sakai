@@ -87,7 +87,6 @@ public class AuthzQueriesFacade
   public boolean hasPrivilege(String functionName)
   {
       String context = ToolManager.getCurrentPlacement().getContext();
-      System.out.println("****context is="+context);
       return SecurityService.unlock(functionName, "/site/"+context);
   }
 
