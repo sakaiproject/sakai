@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -230,5 +231,34 @@ public class SaveAssessmentSettings
         }
     }
   }
+
+    public boolean notEmptyAndNotDub(String s){
+	//if name=assessment name List return true else return false
+        AssessmentService assessmentService = new AssessmentService();
+	boolean returnValue=true;
+      
+	try{
+	    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments("title");
+	    Iterator iter = list.iterator();
+       
+	    while (iter.hasNext()){
+		AssessmentFacade facade =(AssessmentFacade) iter.next();
+		String n=facade.getTitle();
+		System.out.println("AssessmentName: "+n);
+		if((s==null)||((s.trim()).equals(""))||((s.trim()).equals(n.trim()))){
+		    returnValue= false;
+		    break;
+		}
+	    }
+	}
+	catch(Exception e){
+    
+	    e.printStackTrace();
+	    throw new Error(e);
+	}
+	return returnValue;
+
+    }
+
 
 }
