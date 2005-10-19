@@ -411,13 +411,16 @@ public class ExtractionHelper
     // additional information
 
     // restricted IP address
-//    log.debug("ASSESSMENT updating access control, evaluation model, feedback");
-//    String allowIp = assessment.getAssessmentMetaDataByLabel(
-//        "CONSIDER_ALLOW_IP");
-//    if ("TRUE".equalsIgnoreCase(allowIp))
-//    {
-//      makeSecuredIPAddressSet(assessment);
-//    }
+    log.info("ASSESSMENT updating access control, evaluation model, feedback");
+    String allowIp = assessment.getAssessmentMetaDataByLabel(
+        "ALLOW_IP");
+    log.info("allowIp: " + allowIp);
+
+    if (allowIp !=null)
+    {
+      log.info("NOT NULL: " + allowIp);
+      makeSecuredIPAddressSet(assessment, allowIp);
+    }
 
     // access control
     String duration = (String) assessmentMap.get("duration");
@@ -849,30 +852,36 @@ public class ExtractionHelper
    * the ip address is in a newline delimited string
    * @param assessment
    */
-  private void makeSecuredIPAddressSet(AssessmentFacade assessment)
+  private void makeSecuredIPAddressSet(AssessmentFacade assessment, String ipList)
   {
     Set securedIPAddressSet = (Set) assessment.getSecuredIPAddressSet();
     if (securedIPAddressSet == null)
     {
       securedIPAddressSet = new HashSet();
     }
+    log.info("Getting securedIPAddressSet=" + securedIPAddressSet);
 
-    String ipList = (String) assessment.getAssessmentMetaDataByLabel("ALLOW_IP");
+    log.info("ipList: " + ipList);
+
     if (ipList == null)
       ipList = "";
     String[] ip = ipList.split("\\n");
+
     for (int j = 0; j < ip.length; j++)
     {
+      log.info("ip # " + j + ip[j]);
       if (ip[j] != null)
         securedIPAddressSet.add(new SecuredIPAddress(assessment.getData(), null,
             ip[j]));
     }
 
-    assessment.setSecuredIPAddressSet(securedIPAddressSet);
+    log.info("securedIPAddressSet.size()=" + securedIPAddressSet.size());
     if (securedIPAddressSet.size()>0)
     {
+      log.info("Setting securedIPAddressSet;addAssessmentMetaData(hasIpAddress, true)");
+      assessment.getData().setSecuredIPAddressSet(securedIPAddressSet);
       assessment.getData().addAssessmentMetaData("hasIpAddress", "true");
-//      assessment.getData().addAssessmentMetaData("hasSpecificIP", "true");
+      assessment.getData().addAssessmentMetaData("hasSpecificIP", "true");
     }
   }
   /**
