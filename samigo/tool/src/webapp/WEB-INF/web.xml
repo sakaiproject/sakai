@@ -16,12 +16,13 @@
     <param-name>PathToSettings</param-name>
     <param-value>/opt/j2ee/dev</param-value>
   </context-param>
-
+  
+  <!-- if running in Sakai context, build will change to a web.xml with the integrated versions -->
   <context-param>
      <param-name>contextConfigLocation</param-name>
-     <param-value>WEB-INF/classes/org/sakaiproject/spring/applicationContext.xml,
-     WEB-INF/classes/org/sakaiproject/spring/BeanDefinitions.xml,
-     WEB-INF/classes/org/sakaiproject/spring/integrationContext.xml,
+     <param-value>WEB-INF/classes/org/sakaiproject/spring/applicationContextStandalone.xml,
+     WEB-INF/classes/org/sakaiproject/spring/BeanDefinitionsStandalone.xml,
+     WEB-INF/classes/org/sakaiproject/spring/integrationContextStandalone.xml,
      WEB-INF/classes/org/sakaiproject/spring/samigoApi.xml</param-value>
   </context-param>
 
