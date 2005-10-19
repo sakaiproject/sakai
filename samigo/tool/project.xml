@@ -29,6 +29,9 @@
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-samigo-component</artifactId>
       <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
     </dependency>
     <!-- Sakai plugin for building inside Sakai -->
     <dependency>
@@ -207,8 +210,7 @@
       <artifactId>commons-beanutils</artifactId>
       <version>1.7.0</version>
       <properties>
-       <war.bundle>false</war.bundle>
-       <deploy.target>shared</deploy.target>
+       <war.bundle>true</war.bundle>
       </properties>
     </dependency>
     <dependency>

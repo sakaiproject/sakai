@@ -19,10 +19,10 @@
 
   <context-param>
      <param-name>contextConfigLocation</param-name>
-     <param-value>WEB-INF/classes/org/sakaiproject/spring/applicationContext.xml,
-     WEB-INF/classes/org/sakaiproject/spring/BeanDefinitions.xml,
-     WEB-INF/classes/org/sakaiproject/spring/integrationContext.xml,
-     WEB-INF/classes/org/sakaiproject/spring/samigoApi.xml</param-value>
+     <param-value>classpath:/org/sakaiproject/spring/applicationContext.xml,
+     classpath:/org/sakaiproject/spring/BeanDefinitions.xml,
+     classpath:/org/sakaiproject/spring/integrationContext.xml,
+     classpath:/org/sakaiproject/spring/samigoApi.xml</param-value>
   </context-param>
 
   <!-- BEGIN SAMIGO JSF CONTEXT PARAM-->

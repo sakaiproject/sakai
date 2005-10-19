@@ -20,10 +20,10 @@
   <!-- if running in Sakai context, build will change to a web.xml with the integrated versions -->
   <context-param>
      <param-name>contextConfigLocation</param-name>
-     <param-value>WEB-INF/classes/org/sakaiproject/spring/applicationContextStandalone.xml,
-     WEB-INF/classes/org/sakaiproject/spring/BeanDefinitionsStandalone.xml,
-     WEB-INF/classes/org/sakaiproject/spring/integrationContextStandalone.xml,
-     WEB-INF/classes/org/sakaiproject/spring/samigoApi.xml</param-value>
+     <param-value>classpath:/org/sakaiproject/spring/applicationContextStandalone.xml,
+     classpath:/org/sakaiproject/spring/BeanDefinitionsStandalone.xml,
+     classpath:/org/sakaiproject/spring/integrationContextStandalone.xml,
+     classpath:/org/sakaiproject/spring/samigoApi.xml</param-value>
   </context-param>
 
   <!-- BEGIN SAMIGO JSF CONTEXT PARAM-->
