@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -101,6 +102,11 @@ public class ConfirmPublishAssessmentListener
 
 	}
 
+	//## - permission checking before proceeding - daisyf
+	if (!passAuthz(context, assessment.getCreatedBy())){
+	    assessmentSettings.setOutcomePublish("editAssessmentSettings");
+	}
+       
     }
     else{
        
@@ -118,5 +124,28 @@ public class ConfirmPublishAssessmentListener
     }
 
   }
+
+    public boolean passAuthz(FacesContext context, String ownerId){
+	AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+	boolean hasPrivilege_any = authzBean.getPublishAnyAssessment();
+	boolean hasPrivilege_own0 = authzBean.getPublishOwnAssessment();
+	boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
+	boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
+	if (!hasPrivilege){
+	    String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+						     "denied_publish_assessment_error");
+	    context.addMessage("authorIndexForm:publish_assessment_denied",new FacesMessage(err));
+	}
+	return hasPrivilege;
+    }
+
+    public boolean isOwner(String ownerId){
+	boolean isOwner = false;
+	String agentId = AgentFacade.getAgentString();
+	isOwner = agentId.equals(ownerId);
+	System.out.println("***ownerId="+ownerId);
+	System.out.println("***isOwner="+isOwner);
+	return isOwner;
+    }
   
 }

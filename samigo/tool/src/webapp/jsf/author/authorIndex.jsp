@@ -146,9 +146,9 @@
       </h:commandLink>
       <f:verbatim><br/></f:verbatim>
       <!-- AuthorBean.editAssessmentSettings() prepare the edit page -->
-      <!-- action=editAssessment if pass authz -->
+      <!-- action=editAssessmentSettings if pass authz -->
       <f:verbatim><span class="itemAction"></f:verbatim>
-      <h:commandLink id="editAssessmentSettings" immediate="true" action="editAssessmentSettings">
+      <h:commandLink id="editAssessmentSettings" immediate="true" action="#{author.getOutcome}">
         <h:outputText id="linkSettings" value="#{msg.link_settings}"/>
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
