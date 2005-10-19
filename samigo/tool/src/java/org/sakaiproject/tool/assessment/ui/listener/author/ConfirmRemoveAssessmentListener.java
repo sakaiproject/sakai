@@ -96,7 +96,7 @@ public class ConfirmRemoveAssessmentListener implements ActionListener
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     if (!hasPrivilege){
       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-	     "denied_delete_assessment_error");
+				     "denied_delete_assessment_error");
       context.addMessage("authorIndexForm:delete_assessment_denied",new FacesMessage(err));
     }
     return hasPrivilege;

@@ -647,8 +647,10 @@ public class AssessmentFacadeQueries
   public AssessmentFacade getBasicInfoOfAnAssessment(Long assessmentId) {
     AssessmentData a = (AssessmentData) getHibernateTemplate().load(
         AssessmentData.class, assessmentId);
-    return new AssessmentFacade(a.getAssessmentBaseId(), a.getTitle(),
+    AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(), a.getTitle(),
                                 a.getLastModifiedDate());
+    f.setCreatedBy(a.getCreatedBy());
+    return f;
   }
 
   public ArrayList getSettingsOfAllActiveAssessments(String orderBy) {
