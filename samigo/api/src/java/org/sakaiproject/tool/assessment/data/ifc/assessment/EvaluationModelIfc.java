@@ -37,8 +37,13 @@ public interface EvaluationModelIfc
   public static Integer GRADEBOOK_NOT_AVAILABLE = new Integer(0);
   public static Integer TO_DEFAULT_GRADEBOOK = new Integer(1);
   public static Integer TO_SELECTED_GRADEBOOK = new Integer(2);
+
+  // scoring type 
   public static Integer HIGHEST_SCORE = new Integer(1);
-  public static Integer AVERAGE_SCORE = new Integer(2);
+  //public static Integer AVERAGE_SCORE = new Integer(2);
+  public static Integer LAST_SCORE= new Integer(2);
+  public static Integer ALL_SCORE= new Integer(3);
+
 
   Long getId();
 
