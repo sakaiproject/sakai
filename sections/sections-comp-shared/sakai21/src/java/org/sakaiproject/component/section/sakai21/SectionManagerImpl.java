@@ -58,7 +58,7 @@ import org.sakaiproject.service.legacy.entity.Reference;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.resource.cover.EntityManager;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.site.Section;
+import org.sakaiproject.service.legacy.site.Group;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.SiteService;
 
@@ -98,13 +98,13 @@ public class SectionManagerImpl implements SectionManager {
     	List sectionList = new ArrayList();
     	Collection sections;
     	try {
-    		sections = siteService.getSite(siteContext).getSections();
+    		sections = siteService.getSite(siteContext).getGroups();
     	} catch (IdUnusedException e) {
     		log.error("No site with id = " + siteContext);
     		return new ArrayList();
     	}
     	for(Iterator iter = sections.iterator(); iter.hasNext();) {
-    		Section section = (Section)iter.next();
+    		Group section = (Group)iter.next();
     		sectionList.add(new CourseSectionImpl(section));
     	}
     	return sectionList;
@@ -118,13 +118,13 @@ public class SectionManagerImpl implements SectionManager {
     	List sectionList = new ArrayList();
     	Collection sections;
     	try {
-    		sections = siteService.getSite(siteContext).getSections();
+    		sections = siteService.getSite(siteContext).getGroups();
     	} catch (IdUnusedException e) {
     		log.error("No site with id = " + siteContext);
     		return new ArrayList();
     	}
     	for(Iterator iter = sections.iterator(); iter.hasNext();) {
-    		Section section = (Section)iter.next();
+    		Group section = (Group)iter.next();
     		if(categoryId.equals(section.getProperties().getProperty(CourseSectionImpl.CATEGORY))) {
         		sectionList.add(new CourseSectionImpl(section));
     		}
@@ -136,8 +136,8 @@ public class SectionManagerImpl implements SectionManager {
 	 * @inheritDoc
 	 */
 	public CourseSection getSection(String sectionUuid) {
-		Section section;
-		section = siteService.findSection(sectionUuid);
+		Group section;
+		section = siteService.findGroup(sectionUuid);
 		if(section == null) {
 			log.error("Unable to find section " + sectionUuid);
 			return null;
@@ -368,7 +368,7 @@ public class SectionManagerImpl implements SectionManager {
     		log.error("Unable to find site " + courseUuid);
     		return null;
     	}
-    	Section section = site.addSection();
+    	Group section = site.addGroup();
     	setSectionProperties(title, category, maxEnrollments, location, startTime, endTime, section);
     	    	
     	return new CourseSectionImpl(section);
@@ -388,7 +388,7 @@ public class SectionManagerImpl implements SectionManager {
 	 * @param section
 	 */
     private void setSectionProperties(String title, String category, Integer maxEnrollments,
-			String location, Time startTime, Time endTime, Section section) {
+			String location, Time startTime, Time endTime, Group section) {
     	section.setTitle(title);
 		ResourceProperties props = section.getProperties();
 		if(category != null) {
@@ -416,7 +416,7 @@ public class SectionManagerImpl implements SectionManager {
     		final Time endTime, final boolean monday, final boolean tuesday,
     		final boolean wednesday, final boolean thursday, final boolean friday,
     		final boolean saturday, final boolean sunday) {
-    	Section section = siteService.findSection(sectionUuid);
+    	Group section = siteService.findGroup(sectionUuid);
     	if(section == null) {
     		throw new RuntimeException("Unable to find section " + sectionUuid);
     	}
@@ -428,9 +428,9 @@ public class SectionManagerImpl implements SectionManager {
 	 */
     public void disbandSection(final String sectionUuid) {
         if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
-        Section section = siteService.findSection(sectionUuid);
+        Group section = siteService.findGroup(sectionUuid);
         Site site = section.getContainingSite();
-        site.removeSection(section);
+        site.removeGroup(section);
     }
 
 	/**

@@ -48,14 +48,14 @@ import org.sakaiproject.service.legacy.authzGroup.Member;
 import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.site.Section;
+import org.sakaiproject.service.legacy.site.Group;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class CourseSectionImpl implements CourseSection, Section, Serializable {
+public class CourseSectionImpl implements CourseSection, Group, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(CourseSectionImpl.class);
@@ -73,10 +73,10 @@ public class CourseSectionImpl implements CourseSection, Section, Serializable {
 	public static final String SATURDAY = "sections_saturday";
 	public static final String SUNDAY = "sections_sunday";
 	
-	private transient Section sectionInstance;
+	private transient Group sectionInstance;
 	private String sectionInstanceId;
 
-	public CourseSectionImpl(Section section) {
+	public CourseSectionImpl(Group section) {
 		this.sectionInstance = section;
 		this.sectionInstanceId = section.getId();
 	}
@@ -92,7 +92,7 @@ public class CourseSectionImpl implements CourseSection, Section, Serializable {
 	    	log.error("Could not de-serialize... ", e);
 	    	return;
 	    }
-	    sectionInstance = SiteService.findSection(sectionInstanceId);
+	    sectionInstance = SiteService.findGroup(sectionInstanceId);
 	}
 	
     public static final String convertTimeToString(Time time) {
@@ -201,11 +201,11 @@ public class CourseSectionImpl implements CourseSection, Section, Serializable {
 		// TODO Set Saturday
 	}
 
-	public Section getSectionInstance() {
+	public Group getSectionInstance() {
 		return sectionInstance;
 	}
 
-	public void setSectionInstance(Section sectionInstance) {
+	public void setSectionInstance(Group sectionInstance) {
 		this.sectionInstance = sectionInstance;
 	}
 

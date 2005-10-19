@@ -36,7 +36,7 @@ import org.sakaiproject.service.legacy.authzGroup.Member;
 import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.site.Section;
+import org.sakaiproject.service.legacy.site.Group;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.SitePage;
 import org.sakaiproject.service.legacy.site.ToolConfiguration;
@@ -161,12 +161,12 @@ public class CourseImpl implements Course, Site, Serializable {
 		return siteInstance.getReference();
 	}
 
-	public Section getSection(String id) {
-		return siteInstance.getSection(id);
+	public Group getGroup(String id) {
+		return siteInstance.getGroup(id);
 	}
 
-	public Collection getSections() {
-		return siteInstance.getSections();
+	public Collection getGroups() {
+		return siteInstance.getGroups();
 	}
 
 	public String getShortDescription() {
@@ -193,8 +193,8 @@ public class CourseImpl implements Course, Site, Serializable {
 		return siteInstance.getUrl();
 	}
 
-	public boolean hasSections() {
-		return siteInstance.hasSections();
+	public boolean hasGroups() {
+		return siteInstance.hasGroups();
 	}
 
 	public boolean isJoinable() {
@@ -225,8 +225,8 @@ public class CourseImpl implements Course, Site, Serializable {
 		return siteInstance.addPage();
 	}
 
-	public Section addSection() {
-		return siteInstance.addSection();
+	public Group addGroup() {
+		return siteInstance.addGroup();
 	}
 
 	public ResourcePropertiesEdit getPropertiesEdit() {
@@ -245,8 +245,8 @@ public class CourseImpl implements Course, Site, Serializable {
 		siteInstance.removePage(page);
 	}
 
-	public void removeSection(Section section) {
-		siteInstance.removeSection(section);
+	public void removeGroup(Group section) {
+		siteInstance.removeGroup(section);
 	}
 
 	public void setDescription(String description) {

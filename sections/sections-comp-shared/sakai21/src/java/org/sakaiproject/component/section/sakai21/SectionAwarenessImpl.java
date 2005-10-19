@@ -45,7 +45,7 @@ import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.site.Section;
+import org.sakaiproject.service.legacy.site.Group;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.SiteService;
 
@@ -73,13 +73,13 @@ public class SectionAwarenessImpl implements SectionAwareness {
     	Set sectionSet = new HashSet();
     	Collection sections;
     	try {
-    		sections = siteService.getSite(siteContext).getSections();
+    		sections = siteService.getSite(siteContext).getGroups();
     	} catch (IdUnusedException e) {
     		log.error("No site with id = " + siteContext);
     		return new HashSet();
     	}
     	for(Iterator iter = sections.iterator(); iter.hasNext();) {
-    		Section section = (Section)iter.next();
+    		Group section = (Group)iter.next();
     		sectionSet.add(new CourseSectionImpl(section));
     	}
     	return sectionSet;
@@ -102,8 +102,8 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	 * @inheritDoc
 	 */
 	public CourseSection getSection(final String sectionUuid) {
-		Section section;
-		section = siteService.findSection(sectionUuid);
+		Group section;
+		section = siteService.findGroup(sectionUuid);
 		if(section == null) {
 			log.error("Unable to find section " + sectionUuid);
 			return null;
@@ -224,13 +224,13 @@ public class SectionAwarenessImpl implements SectionAwareness {
     	List sectionList = new ArrayList();
     	Collection sections;
     	try {
-    		sections = siteService.getSite(siteContext).getSections();
+    		sections = siteService.getSite(siteContext).getGroups();
     	} catch (IdUnusedException e) {
     		log.error("No site with id = " + siteContext);
     		return new ArrayList();
     	}
     	for(Iterator iter = sections.iterator(); iter.hasNext();) {
-    		Section section = (Section)iter.next();
+    		Group section = (Group)iter.next();
     		if(categoryId.equals(section.getProperties().getProperty(CourseSectionImpl.CATEGORY))) {
         		sectionList.add(new CourseSectionImpl(section));
     		}
