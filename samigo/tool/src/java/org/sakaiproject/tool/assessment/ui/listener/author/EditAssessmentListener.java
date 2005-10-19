@@ -110,7 +110,7 @@ public class EditAssessmentListener
     AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
     boolean hasPrivilege_any = authzBean.getEditAnyAssessment();
     boolean hasPrivilege_own0 = authzBean.getEditOwnAssessment();
-    boolean hasPrivilege_own = (hasPrivilege_own0 || isOwner(ownerId));
+    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     if (!hasPrivilege){
        String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
@@ -124,7 +124,6 @@ public class EditAssessmentListener
     boolean isOwner = false;
     String agentId = AgentFacade.getAgentString();
     isOwner = agentId.equals(ownerId);
-    System.out.println("*** assessment's owner="+isOwner);
     return isOwner;
   }
 }

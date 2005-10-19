@@ -48,9 +48,6 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
-import org.sakaiproject.tool.assessment.services.authz.AuthorizationService;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.spring.SpringBeanLocator;
 
 public class InitAction extends HttpServlet{
 
