@@ -129,7 +129,7 @@ public class QuestionPoolBean
   private Collection sortedSubqpools;
   // private QuestionPoolDataModel qpDataModel;
 
-
+ private String addOrEdit;
   private String outcome;
   private String outcomeEdit;
   private String deletePoolSource;  // either from poolList.jsp , or from editPool.jsp
@@ -908,6 +908,18 @@ public class QuestionPoolBean
     sortSubPoolProperty= newProperty;
   }
 
+public String getAddOrEdit()
+  {
+    return addOrEdit;
+  }
+
+  /**
+   * @param param
+   */
+  public void setAddOrEdit(String param)
+  {
+    this.addOrEdit= param;
+  }
 
   public String getOutcome()
   {
@@ -1397,7 +1409,7 @@ public String startRemoveQuestions(){
           addsource = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("addsource");
 	this.setAddPoolSource(addsource);
  	startCreatePool();
-
+        this.setAddOrEdit("add");
 	return "addPool";
   }
 
@@ -1582,6 +1594,8 @@ String poolId = ContextUtil.lookupParam("qpid");
 
   public String editPool(){
  	startEditPool();
+         this.setAddOrEdit("edit");
+        
 	return "editPool";
   }
 
