@@ -33,6 +33,9 @@ import java.util.HashMap;
 public class AuthorizationBean implements Serializable {
   private HashMap map = new HashMap();
   private boolean adminPrivilege = false;
+  private boolean adminAssessmentPrivilege = false;
+  private boolean adminTemplatePrivilege = false;
+  private boolean adminQuestionPoolPrivilege = false;
 
   public AuthorizationBean(){}
 
@@ -41,6 +44,18 @@ public class AuthorizationBean implements Serializable {
   }
   public boolean getAdminPrivilege(){
     return adminPrivilege;
+  }
+
+  public boolean getAdminAssessmentPrivilege(){
+    return adminAssessmentPrivilege;
+  }
+
+  public boolean getAdminTemplatePrivilege(){
+    return adminTemplatePrivilege;
+  }
+
+  public boolean getAdminQuestionPoolPrivilege(){
+    return adminQuestionPoolPrivilege;
   }
 
 
@@ -63,14 +78,19 @@ public class AuthorizationBean implements Serializable {
     boolean p11 = canEditOwnQuestionPool(siteId);
     boolean p12 = canDeleteOwnQuestionPool(siteId);
     boolean p13 = canCopyOwnQuestionPool(siteId);
+    boolean p14 = canCreateTemplate(siteId);
+    boolean p15 = canEditOwnTemplate(siteId);
+    boolean p16 = canDeleteOwnTemplate(siteId);
 
     // non admin functions
-    boolean p14 = canTakeAssessment(siteId);
-    boolean p15 = canSubmitAssessmentForGrade(siteId);
+    boolean p21 = canTakeAssessment(siteId);
+    boolean p22 = canSubmitAssessmentForGrade(siteId);
 
     // set adminPrivilege
-    adminPrivilege = p1 || p2 || p3 || p4 || p5 || p6 || p7
-                    || p8 || p9 || p10 || p11 || p12 || p13;
+    adminAssessmentPrivilege = p1 || p2 || p3 || p4 || p5 || p6 || p7 || p8 || p9;
+    adminQuestionPoolPrivilege = p10 || p11 || p12 || p13;
+    adminTemplatePrivilege = p14 ||p15 || p16;
+    adminPrivilege = adminAssessmentPrivilege || adminQuestionPoolPrivilege || adminTemplatePrivilege;
   }
 
   public boolean canTakeAssessment(String siteId)
@@ -148,6 +168,22 @@ public class AuthorizationBean implements Serializable {
     return addPrivilege("copy_own_questionpool", siteId);
   }
 
+  public boolean canCreateTemplate(String siteId)
+  {
+    return addPrivilege("create_template", siteId);
+  }
+
+  public boolean canEditOwnTemplate(String siteId)
+  {
+    return addPrivilege("edit_own_template", siteId);
+  }
+
+  public boolean canDeleteOwnTemplate(String siteId)
+  {
+    return addPrivilege("delete_own_template", siteId);
+  }
+
+
   public boolean addPrivilege(String functionKey, String siteId){
      String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
      boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
@@ -213,6 +249,18 @@ public class AuthorizationBean implements Serializable {
 
   public boolean getCopyOwnQuestionPool() {
     return getPrivilege("copy_own_questionpool");
+  } 
+
+  public boolean getCreateTemplate() {
+    return getPrivilege("create_template");
+  } 
+
+  public boolean getEditOwnTemplate() {
+    return getPrivilege("edit_own_template");
+  } 
+
+  public boolean getDeleteOwnTemplate() {
+    return getPrivilege("delete_own_template");
   } 
 
   public boolean getPrivilege(String functionKey){
