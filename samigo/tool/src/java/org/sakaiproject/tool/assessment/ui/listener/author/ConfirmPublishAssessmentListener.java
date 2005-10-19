@@ -143,8 +143,6 @@ public class ConfirmPublishAssessmentListener
 	boolean isOwner = false;
 	String agentId = AgentFacade.getAgentString();
 	isOwner = agentId.equals(ownerId);
-	System.out.println("***ownerId="+ownerId);
-	System.out.println("***isOwner="+isOwner);
 	return isOwner;
     }
   
