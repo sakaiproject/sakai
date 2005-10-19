@@ -25,13 +25,6 @@
     </fileset>
   </copy>
   <j:if test="${sakaiDeployIntegrated}">
-    <!--  overlay Sakai-Samigo integration *.hbm.xml, *.properties, *.xml... -->
-    <copy todir="target/samigo/WEB-INF/classes" includeemptydirs="false"
-      verbose="false" overwrite="true">
-      <fileset dir="sakai-samigo/src">
-        <exclude name="**/*.java" />
-      </fileset>
-    </copy>
     <!--  Copy the Sakai-Samigo webapp integration files  -->
     <copy todir="target/samigo" includeemptydirs="false"
       verbose="false" overwrite="true">
