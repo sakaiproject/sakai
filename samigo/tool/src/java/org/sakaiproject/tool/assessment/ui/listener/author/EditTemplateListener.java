@@ -76,6 +76,7 @@ public class EditTemplateListener
 
     ArrayList templates = new ArrayList();
  boolean duplicateName=false;
+ int count=0;
     try
     {
 		FacesContext.getCurrentInstance().getExternalContext().getSessionMap().
@@ -91,12 +92,15 @@ public class EditTemplateListener
 	     String n=facade.getTitle();
              System.out.println("TempName: "+n);
 	      if((tempName.trim()).equals(n)){
-		 duplicateName=true;
-		 break;
+		  if(count==0){
+		      count++;
+		  }
+		  else{
+		      duplicateName=true;
+		      break;
+		  }
 	      }
-	      
 	}
-	  
     }
     catch(Exception e)
     {
@@ -112,7 +116,7 @@ FacesContext context = FacesContext.getCurrentInstance();
       }
       else{ 
       
-      templateBean.setTemplateName(templateBean.getNewName());
+      templateBean.setTemplateName(tempName);
      
         templateBean.setIdString("0"); //new template
      

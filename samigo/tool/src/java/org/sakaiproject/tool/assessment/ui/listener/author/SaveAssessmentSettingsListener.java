@@ -91,7 +91,7 @@ public class SaveAssessmentSettingsListener
     }
 
     // System.out.println("SAVESETTINGSANDCONFIRM");
-    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.notEmptyAndNotDub(assessmentName))){
+    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.notEmptyAndNotDub(assessmentName,false))){
   // System.out.println("SAVESETTINGS Success");
   assessmentSettings.setOutcomeSave("saveSettings_success");
   s.save(assessmentSettings);
@@ -111,7 +111,7 @@ public class SaveAssessmentSettingsListener
 
     }
     else{
-          if(!s.notEmptyAndNotDub(assessmentName)){
+	if(!s.notEmptyAndNotDub(assessmentName,false)){
       //  err=(String)rb.getObject("emptyAssessment_error");
            err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 

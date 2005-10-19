@@ -86,7 +86,9 @@ public class AuthorSettingsListener implements ActionListener
     }
 
     // pass authz, move on
+    //if not duplicate name
     assessmentSettings.setAssessment(assessment);
+    // else throw error
 
     // #1c - get question size
     int questionSize = assessmentService.getQuestionSize(assessmentId);

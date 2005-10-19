@@ -78,7 +78,7 @@ public class ConfirmPublishAssessmentListener
     if (time!=null)
       isTime=((Boolean)time).booleanValue();
 
-    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.notEmptyAndNotDub(assessmentName))){
+    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.notEmptyAndNotDub(assessmentName,false))){
         System.out.println("SAVESETTINGSANDCONFIRM Success");
 	assessmentSettings.setOutcomePublish("publish_success");	
 	AssessmentFacade assessment = s.save(assessmentSettings);
@@ -110,7 +110,7 @@ public class ConfirmPublishAssessmentListener
     }
     else{
        
-        if(!s.notEmptyAndNotDub(assessmentName)){
+        if(!s.notEmptyAndNotDub(assessmentName,false)){
 	    //  err=(String)rb.getObject("emptyAssessment_error");
            err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 	   

@@ -97,6 +97,7 @@ String tempName=templateBean.getTemplateName();
  //                       "templateIndex");
 
  boolean duplicateName=false;
+ int count=0;
     try
     {
 	//	FacesContext.getCurrentInstance().getExternalContext().getSessionMap().
@@ -112,8 +113,14 @@ String tempName=templateBean.getTemplateName();
 	     String n=facade.getTitle();
              //System.out.println("TempName: "+n);
 	      if((tempName.trim()).equals(n)){
-		 duplicateName=true;
-		 break;
+		  //  if(count==0)
+		  //    { 
+		  //	  count++;
+		  //     }
+		  //  else{
+		      duplicateName=true;
+		      break;
+		      // }
 	      }
 	      
 	}

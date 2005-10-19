@@ -232,10 +232,11 @@ public class SaveAssessmentSettings
     }
   }
 
-    public boolean notEmptyAndNotDub(String s){
+    public boolean notEmptyAndNotDub(String s,boolean newItem){
 	//if name=assessment name List return true else return false
         AssessmentService assessmentService = new AssessmentService();
 	boolean returnValue=true;
+        int count=0;
       
 	try{
 	    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments("title");
@@ -244,11 +245,28 @@ public class SaveAssessmentSettings
 	    while (iter.hasNext()){
 		AssessmentFacade facade =(AssessmentFacade) iter.next();
 		String n=facade.getTitle();
-		System.out.println("AssessmentName: "+n);
-		if((s==null)||((s.trim()).equals(""))||((s.trim()).equals(n.trim()))){
+		//	System.out.println("AssessmentName: "+n);
+		if((s==null)||((s.trim()).equals(""))){                    
 		    returnValue= false;
 		    break;
 		}
+		else if(((s.trim()).equals(n.trim()))){
+		    if(newItem){
+			returnValue=false; 
+			break;
+		    }
+		    else { 
+			if(count==0){//itself 
+			    count++;
+			}
+			else{
+			    returnValue=false;
+			    break;
+			}
+		    }
+		}
+		else{}
+		
 	    }
 	}
 	catch(Exception e){
