@@ -92,7 +92,7 @@ public class ConfirmRemoveAssessmentListener implements ActionListener
     AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
     boolean hasPrivilege_any = authzBean.getDeleteAnyAssessment();
     boolean hasPrivilege_own0 = authzBean.getDeleteOwnAssessment();
-    boolean hasPrivilege_own = (hasPrivilege_own0 || isOwner(ownerId));
+    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     if (!hasPrivilege){
       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
@@ -106,7 +106,6 @@ public class ConfirmRemoveAssessmentListener implements ActionListener
     boolean isOwner = false;
     String agentId = AgentFacade.getAgentString();
     isOwner = agentId.equals(ownerId);
-    System.out.println("*** assessment's owner="+isOwner);
     return isOwner;
   }
 
