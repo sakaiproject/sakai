@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+  default="deploy"
+  xmlns:ant="jelly:ant"
+  xmlns:j="jelly:core">
+
+<preGoal name="jar:jar">
+  <!-- includes *.hbm.xml, *.properties, *.xml which live among the code -->
+  <copy todir="target/classes" includeemptydirs="false"
+    verbose="false">
+    <fileset dir="src/java">
+      <exclude name="**/*.java" />
+    </fileset>
+  </copy>
+</preGoal>
+
+</project>
+
