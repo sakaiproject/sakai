@@ -932,4 +932,30 @@ public class AssessmentFacadeQueries
     section.setItemSet(newItemSet);
     getHibernateTemplate().update(section);
   }
+
+  public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate) {
+    String currentSiteId = AgentFacade.getCurrentSiteId(); 
+    boolean isUnique = true;
+    String query="";
+    if (isTemplate.booleanValue()){
+      query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
+                   " from AssessmentTemplateData a, AuthorizationData z where "+
+                   " a.title=? and a.assessmentTemplateId!=?" +
+                   " a.assessmentTemplateId=z.qualifierId and z.agentIdString=?";
+    }
+    else{
+      query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
+                   " from AssessmentData a, AuthorizationData z where "+
+                   " a.title=? and a.assessmentId!=?" +
+                   " a.assessmentId=z.qualifierId and z.agentIdString=?";
+    }
+    List list = getHibernateTemplate().find(query,
+                  new Object[]{title,assessmentBaseId,currentSiteId},
+                  new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
+    if (list.size()>0)
+      isUnique = false;
+    return isUnique;
+  }
+
+
 }

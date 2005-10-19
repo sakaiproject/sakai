@@ -356,4 +356,10 @@ public void deleteAssessment(Id assessmentId)
     }
     return assessment;
   }
+
+  public boolean assessmentTitleIsUnique(String assessmentBaseId, String title, boolean isTemplate) {
+    return PersistenceService.getInstance().getAssessmentFacadeQueries().
+           assessmentTitleIsUnique(new Long(assessmentBaseId), title, new Boolean(isTemplate));
+  }
+
 }

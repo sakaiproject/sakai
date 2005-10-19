@@ -152,4 +152,6 @@ public interface AssessmentFacadeQueriesAPI
 
   public void removeAllItems(Long sourceSectionId);
 
+  public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate);
+
 }
