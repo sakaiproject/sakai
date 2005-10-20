@@ -6,6 +6,8 @@
 		<variable-resolver>
 			org.springframework.web.jsf.DelegatingVariableResolver
 		</variable-resolver>
+		<!-- End of deployment-specific properties -->
+		
 		<message-bundle>
 			org.sakaiproject.tool.gradebook.bundle.Messages
 		</message-bundle>
