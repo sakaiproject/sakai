@@ -65,6 +65,7 @@ public class MetaDataList
     "submissionMessage_isInstructorEditable",
     "finalPageURL_isInstructorEditable",
     "feedbackType_isInstructorEditable",
+    "feedbackAuthoring_isInstructorEditable",
     "feedbackComponents_isInstructorEditable",
     "testeeIdentity_isInstructorEditable",
     "toGradebook_isInstructorEditable",
