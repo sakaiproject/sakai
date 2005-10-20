@@ -329,6 +329,10 @@ public class CourseImpl implements Course, Site, Serializable {
 		return siteInstance.getRoles();
 	}
 
+	public Set getRolesIsAllowed(String function) {
+		return siteInstance.getRolesIsAllowed(function);
+	}
+
 	public Role getUserRole(String userId) {
 		return siteInstance.getUserRole(userId);
 	}

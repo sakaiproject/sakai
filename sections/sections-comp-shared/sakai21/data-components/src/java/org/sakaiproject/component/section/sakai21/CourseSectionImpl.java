@@ -400,6 +400,10 @@ public class CourseSectionImpl implements CourseSection, Group, Serializable {
 		return sectionInstance.getRoles();
 	}
 
+	public Set getRolesIsAllowed(String function) {
+		return sectionInstance.getRolesIsAllowed(function);
+	}
+
 	public Role getUserRole(String userId) {
 		return sectionInstance.getUserRole(userId);
 	}
