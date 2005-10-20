@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -43,6 +44,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -81,6 +83,11 @@ public class SelectActionListener
    */
   public void processAction(ActionEvent ae) throws
       AbortProcessingException {
+
+    //#0 - permission checking before proceeding - daisyf
+    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+    if (!authzBean.getTakeAssessment())
+      return;
 
     // get service and managed bean
     PublishedAssessmentService publishedAssessmentService = new
@@ -498,4 +505,5 @@ public class SelectActionListener
     }
     return h;
   }
+
 }

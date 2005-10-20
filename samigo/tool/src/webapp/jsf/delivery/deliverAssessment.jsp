@@ -214,11 +214,14 @@ function saveTime()
     rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1' && delivery.previous}">
   </h:commandButton>
 
+  <!-- check for submit for grade permission to determine if button can be displayed -->
+  <h:panelGroup rendered="#{authorization.takeAssessment && authorization.submitAssessmentForGrade}">
   <h:commandButton type="submit" value="#{msg.button_submit_grading}"
     action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
     rendered="#{!delivery.accessViaUrl && delivery.previewMode ne 'true' && delivery.navigation eq '1' && !delivery.continue}" disabled="#{delivery.previewAssessment eq 'true'}"
     onclick="pauseTiming='true'">
   </h:commandButton>
+  </h:panelGroup>
 
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
