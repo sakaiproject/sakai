@@ -74,7 +74,7 @@
 
 <h:message for="createAssessment" styleClass="validate"/>
 
-     <div class="indnt1">
+<div class="indnt1" rendered="#{authorization.createAssessment}">
 	<h4><h:outputText value="#{msg.assessment_new}" /></h4>
   <div class="indnt2">
 <h5 class="plain">

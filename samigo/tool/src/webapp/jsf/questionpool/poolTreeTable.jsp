@@ -55,10 +55,16 @@
 <h:graphicImage id="spacer_for_mozilla1" style="border:0" width="30" height="14"  value="/images/delivery/spacer.gif" />
 </h:outputLink>
 
-<h:commandLink id="editlink" immediate="true" action="#{questionpool.editPool}">
+<h:commandLink id="editlink" immediate="true" action="#{questionpool.editPool}"
+   rendered="#{authorization.editOwnQuestionPool}">
   <h:outputText id="poolnametext" value="#{pool.displayName}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
+
+<h:panelGroup rendered="#{!authorization.editOwnQuestionPool}">
+  <h:outputText id="poolnametext2" value="#{pool.displayName}"/>
+</h:panelGroup>
+
 
 <f:verbatim><br/></f:verbatim>
 <h:graphicImage id="spacer" style="border:0" width="30" height="14" value="/images/delivery/spacer.gif" />
@@ -67,14 +73,14 @@
   <h:outputText id="add" value="#{msg.add}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
-<h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool}" value=" | " />
+<h:commandLink rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
   <h:outputText id="copy" value="#{msg.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool}" value=" | " />
 
-<h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}" id="movelink" immediate="true" action="#{questionpool.startMovePool}">
+<h:commandLink rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool}" id="movelink" immediate="true" action="#{questionpool.startMovePool}">
   <h:outputText id="move" value="#{msg.move}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>

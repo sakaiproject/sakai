@@ -66,7 +66,7 @@
    <h:outputText value="#{msg.index_templates}"/>
  </h3>
 
- <div class="indnt1">
+<div class="indnt1" rendered="#{authorization.createTemplate}">
    <h4>
    <h:outputText value="#{msg.index_new}"/>
    </h4>
@@ -86,12 +86,13 @@
                 type="org.sakaiproject.tool.assessment.ui.listener.author.EditTemplateListener" />
        </h:commandButton>
 
-<br/><h:message for="tempName" styleClass="validate"/>
-
   </div>
     </div>
     </div>
 </h:form>
+
+<br/><h:message for="tempName" styleClass="validate"/>
+
  <h:form>
  <div class="indnt1">
  <h4>
@@ -127,6 +128,7 @@
      </f:facet>
      <!--h:panelGrid columns="1"-->
        <!--h:panelGroup-->
+      <h:panelGroup rendered="#{authorization.editOwnTemplate}">
         <h:commandLink id="editlink" action="editTemplate" immediate="true">
           <h:outputText value="#{templateListItem.templateName}" />
 
@@ -134,8 +136,16 @@
               type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateLoadListener" />
           <f:param name="templateId" value="#{templateListItem.idString}"/>
         </h:commandLink> <f:verbatim><br/></f:verbatim>
-       <!--/h:panelGroup-->
+      </h:panelGroup>
+
+      <h:panelGroup rendered="#{!authorization.editOwnTemplate}">
+          <h:outputText value="#{templateListItem.templateName}" />
+          <f:verbatim><br/></f:verbatim>
+      </h:panelGroup>
+      <!--/h:panelGroup-->
+
       <!--h:panelGroup-->
+      <h:panelGroup rendered="#{authorization.deleteOwnTemplate}">
         <h:commandLink id="deletelink" action="confirmDeleteTemplate" immediate="true"
             rendered="#{templateListItem.idString ne 1}">
           <h:outputText value="#{msg.index_button_remove}" styleClass="itemAction"/>
@@ -143,6 +153,7 @@
             <f:actionListener
                 type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmDeleteTemplateListener" />
         </h:commandLink>
+      </h:panelGroup>
       <!--/h:panelGroup-->
      <!--/h:panelGrid-->
     </h:column>

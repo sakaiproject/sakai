@@ -90,7 +90,7 @@
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_poolmanager}"/>
 
 <div class="indnt1">
-<h4 class="nav"><h:commandLink rendered="#{questionpool.importToAuthoring == 'false'}" id="add" immediate="true" action="#{questionpool.addPool}">
+<h4 class="nav"><h:commandLink rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="add" immediate="true" action="#{questionpool.addPool}">
   <h:outputText value="#{msg.add_new_pool}"/>
   <f:param name="qpid" value="0"/>
 </h:commandLink>
@@ -102,7 +102,7 @@
 </div>
 
 <p class="act">
-  <h:commandButton rendered="#{questionpool.importToAuthoring == 'false'}"  type="submit" immediate="true" id="Submit" value="#{msg.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
+  <h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}"  type="submit" immediate="true" id="Submit" value="#{msg.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
   </h:commandButton>
   <h:commandButton rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{msg.cancel}" action="#{questionpool.cancelImport}"  >
   </h:commandButton>
