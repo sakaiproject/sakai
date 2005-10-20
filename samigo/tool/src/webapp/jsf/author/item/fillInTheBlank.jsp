@@ -67,6 +67,10 @@
   <f:verbatim><br/></f:verbatim>
   <h:outputText value="#{msg.for_example_curly}" />
   <br/>
+  <h:outputText value="#{msg.note_insert_pipe}" />
+  <f:verbatim><br/></f:verbatim>
+  <h:outputText value="#{msg.for_example_pipe}" />
+<br/>
   <h:panelGrid width="50%" columns="1">
    <samigo:wysiwyg
      rows="280" value="#{itemauthor.currentItem.itemText}" >

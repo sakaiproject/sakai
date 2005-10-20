@@ -105,32 +105,24 @@
  <!-- 5 ANSWER and ANSWERFEEDBACK -->
 
   <span id="num5" class="number"></span>
-   <div class="longtext">
-  <h:outputLabel value="#{msg.answer_provide_a_mo}" />
-  <h:panelGrid columns="2">
-  <h:outputLabel value="#{msg.model_short_answer}" />
-  <h:outputLabel value="#{msg.feedback_optional}" />
-
- <!-- not for autograding, but using corrAnswer and corrFeedback to pass value to bean -->
-<%--
-  <h:inputTextarea id="corranswer" value="#{itemauthor.currentItem.corrAnswer}" cols="30" rows="3"/>
-  <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
---%>
-  <!-- WYSIWYG -->
+   <div class="longtext indnt2">
+  <h:outputLabel value="#{msg.answer_provide_a_mo}" /> <br/><br/>
+  <h:outputLabel value="#{msg.model_short_answer}" /><br/>
+ <!-- WYSIWYG -->
+ <h:panelGrid width="50%">
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+</h:panelGrid>
+<br/>
 
-<%--
-  <h:inputTextarea id="genfdbk" value="#{itemauthor.currentItem.generalFeedback}" cols="30" rows="3"/>
-  <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
---%>
+  <h:outputLabel value="#{msg.feedback_optional}" /><br/>
+ <h:panelGrid width="50%">
    <!-- WYSIWYG  -->
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-
-  </h:panelGrid>
+</h:panelGrid>
   </div>
 
 
