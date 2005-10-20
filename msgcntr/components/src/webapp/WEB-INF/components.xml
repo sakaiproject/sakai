@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="org.springframework.orm.hibernate.MessageForumsSessionFactory"
+		parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
+				<!--
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Area.hbm.xml</value>				
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/DiscussionForum.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/DiscussionTopic.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Message.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePersmissions.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenForum.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenTopic.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateForum.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateMessage.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Topic.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Type.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/UnreadStatus.hbm.xml</value>
+				--> 
+			</list>
+		</property>
+	</bean>
+
+	<bean id="messageForumsTransactionManager"
+		class="org.springframework.orm.hibernate.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref bean="org.springframework.orm.hibernate.MessageForumsSessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsManager"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="messageForumsTransactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsManagerImpl">
+				<property name="sessionFactory">
+					<ref bean="org.springframework.orm.hibernate.MessageForumsSessionFactory" />
+				</property>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsService"
+		class="org.sakaiproject.component.app.messageforums.MessageForumsServiceImpl">
+		<property name="messageForumsManager">
+			<ref bean="org.sakaiproject.api.app.messageforums.MessageForumsManager" />
+		</property>
+	</bean>
+
+</beans>

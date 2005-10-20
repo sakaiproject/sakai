@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
+  "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+    <display-name>sakai-messageforums</display-name>
+    <description>Sakai Message Forums</description>
+    <context-param>
+        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+        <param-value>server</param-value>
+    </context-param>
+    <context-param>
+        <param-name>com.sun.faces.validateXml</param-name>
+        <param-value>false</param-value>
+        <description> Set this flag to true if you want the JavaServer 
+                      Faces Reference Implementation to validate the
+                      XML in your faces-config.xml resources against 
+                      the DTD. Default value is false. </description>
+    </context-param>
+    <context-param>
+        <param-name>com.sun.faces.verifyObjects</param-name>
+        <param-value>false</param-value>
+        <description> Set this flag to true if you want the JavaServer 
+                      Faces Reference Implementation to verify that all
+                      of the application objects you have configured (components, 
+                      converters, renderers, and validators) can be successfully 
+                      created. Default value is false. </description>
+    </context-param>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/local.xml</param-value>
+    </context-param>
+    
+    <!-- Sakai request filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>Faces Servlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+    
+    <!-- Faces Servlet -->
+    <servlet>
+        <servlet-name>sakai.messageforums</servlet-name>
+        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <init-param>
+            <param-name>default</param-name>
+            <param-value>main</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/messageforums</param-value>
+        </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <!-- Faces Servlet -->
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Sakai Listeners -->
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    </listener>
+</web-app>
