@@ -134,8 +134,6 @@
      </h:selectOneMenu>
 
   </span>
-        <h:outputText value="#{totalScores.allSubmissions}"/>
-        <h:outputText value="#{totalScores.scoringOption}"/>
 
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 
