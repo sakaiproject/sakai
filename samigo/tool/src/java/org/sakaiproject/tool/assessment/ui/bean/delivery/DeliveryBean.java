@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AgentState;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.delivery.SessionUtil;
+//import org.sakaiproject.tool.assessment.integration.delivery.SessionUtil;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 
 /**
  *
@@ -1215,7 +1216,7 @@ public class DeliveryBean
   }
 
   public String submitForGrade()
-  {       
+  {
     SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
 
     forGrade = true;
@@ -1239,7 +1240,7 @@ public class DeliveryBean
   }
 
   public String saveAndExit()
-  {    
+  {
     FacesContext context = FacesContext.getCurrentInstance();
     SessionUtil.setSessionTimeout(context, this, false);
     log.debug("***DeliverBean.saveAndEXit face context =" + context);

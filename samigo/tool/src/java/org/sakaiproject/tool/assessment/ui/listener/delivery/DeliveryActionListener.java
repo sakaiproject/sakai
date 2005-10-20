@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.delivery.SessionUtil;
+//import org.sakaiproject.tool.assessment.integration.delivery.SessionUtil;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ContentsDeliveryBean;
@@ -61,6 +61,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 
 /**
  * <p>Title: Samigo</p>
@@ -93,7 +94,7 @@ public class DeliveryActionListener
     try
     {
       // get managed bean
-      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");            
+      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
 
       // this is to be reset to true on the saveTime() JavaScript when submitted
       delivery.setJavaScriptEnabledCheck("false");
@@ -230,7 +231,7 @@ public class DeliveryActionListener
       }
       else  // taking assessment
       {
-	  itemData = service.getLastItemGradingData(id, agent);
+    itemData = service.getLastItemGradingData(id, agent);
           if (itemData!=null && itemData.size()>0)
             setAssessmentGradingFromItemData(delivery, itemData, true);
           else{
@@ -239,8 +240,8 @@ public class DeliveryActionListener
             if (ag!=null){
               log.debug("**** assessment grading id ="+ag.getAssessmentGradingId());
               log.debug("**** assessment forGrade ="+ag.getForGrade());
-	    }
-	  }
+      }
+    }
       }
       if (delivery.getTimeElapse() == null)
       {
@@ -304,9 +305,9 @@ public class DeliveryActionListener
         //    items += section.getItemSet().size();  // bug 464
         Iterator i2 = null;
 
-    	if (delivery.getForGrading()) {
+      if (delivery.getForGrading()) {
 
-       	  StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
+          StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
           long seed = (long) studentscorebean.getStudentId().hashCode();
           i2 = section.getItemArraySortedWithRandom(seed).iterator();
         }
@@ -349,10 +350,10 @@ public class DeliveryActionListener
           if (delivery.getAssessmentGrading().getTimeElapsed() != null){
             delivery.setTimeElapse(delivery.getAssessmentGrading()
                                 .getTimeElapsed().toString());
-	  }
+    }
           else{
             delivery.setTimeElapse("0");
-	  }
+    }
         }
         else
         {
@@ -363,13 +364,13 @@ public class DeliveryActionListener
 
       log.debug("****Set begin time " + delivery.getBeginTime());
       log.debug("****Set elapsed time " + delivery.getTimeElapse());
-      
-      /** if taking assessment, modify session intactive interval */ 
+
+      /** if taking assessment, modify session intactive interval */
       if (!("true".equals(cu.lookupParam("review")) || "true".equals(cu.lookupParam("previewAssessment"))))
-      {                                                     
+      {
         SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
       }
-      
+
       // get table of contents
       delivery.setTableOfContents(getContents(publishedAssessment, itemData,
                                               delivery));
@@ -409,7 +410,7 @@ public class DeliveryActionListener
         log.debug("setAssessmentGradingFromItemData delivery.getTimeElapse(): " + delivery.getTimeElapse());
       }
       else{ // if assessmentGradingData has been submitted for grade, then
-	  // we need to reset delivery.assessmentGrading - a problem review from fixing SAK-1781
+    // we need to reset delivery.assessmentGrading - a problem review from fixing SAK-1781
         if (setNullOK) delivery.setAssessmentGrading(null);
       }
     }
@@ -1004,7 +1005,7 @@ public class DeliveryActionListener
 */
           Collections.shuffle(shuffled,
                               new Random( (long) item.getText().hashCode() +
-          			AgentFacade.getAgentString().hashCode()));
+                AgentFacade.getAgentString().hashCode()));
         }
         else
         {
@@ -1242,8 +1243,8 @@ public class DeliveryActionListener
 
       }
       Collections.shuffle(shuffled,
-	new Random( (long) item.getText().hashCode() +
-	AgentFacade.getAgentString().hashCode()));
+  new Random( (long) item.getText().hashCode() +
+  AgentFacade.getAgentString().hashCode()));
 
 /*
       Collections.shuffle
