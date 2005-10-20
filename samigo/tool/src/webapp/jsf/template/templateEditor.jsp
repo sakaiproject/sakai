@@ -371,6 +371,32 @@
   <samigo:hideDivision title="#{msg.feedback}" id="div10">
  <div class="indnt2">
 
+  <!-- FEEDBACK AUTHORING--> 
+     <div class="longtext">
+    <h:outputLabel for="fb_deli" value="#{msg.feedback_authoring}"/></div>
+    <div class="indnt3">
+     <h:panelGrid columns="2"
+      summary="#{msg.feedback_authoring_sub}">
+
+        <h:selectBooleanCheckbox id="feedback_authoring"
+          value="#{template.valueMap.feedbackAuthoring_isInstructorEditable}"/>
+        <h:outputLabel for="feedback_authoring" value="#{msg.template_canbedefault}"/>
+
+       <h:outputText value=" "/>
+      <h:panelGroup>
+    <h:selectOneRadio layout="pageDirection" value="#{template.feedbackAuthoring}"
+      required="true">
+      <f:selectItem itemValue="1"
+        itemLabel="#{msg.questionlevel_feedback}"/>
+      <f:selectItem itemValue="2"
+        itemLabel="#{msg.sectionlevel_feedback}"/>
+      <f:selectItem itemValue="3"
+        itemLabel="#{msg.both_feedback}"/>
+    </h:selectOneRadio>
+   </h:panelGroup>
+   </h:panelGrid>
+</div>
+
     <!-- FEEDBACK DELIVERY -->
      <div class="longtext">
     <h:outputLabel for="fb_deli" value="#{msg.feedback_delivery}"/></div>
