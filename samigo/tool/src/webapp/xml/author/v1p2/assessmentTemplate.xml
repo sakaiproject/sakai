@@ -414,7 +414,7 @@
         <fieldentry>HIGHEST</fieldentry>
       </qtimetadatafield>
       <!--Possible Values -->
-      <!--HIGHEST, AVAERAGE -->
+      <!--HIGHEST, LAST SUBMISSION-->
 
       <qtimetadatafield>
         <fieldlabel>GRADEBOOK_OPTIONS</fieldlabel>

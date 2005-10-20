@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Collection;
+import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -41,8 +41,6 @@ import javax.faces.event.ValueChangeListener;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -61,7 +59,15 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
-// end testing
+
+import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+//import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
+
+
 
 /**
  * <p>
@@ -81,6 +87,9 @@ public class TotalScoreListener
   private static EvaluationListenerUtil util;
   private static BeanSort bs;
   private static ContextUtil cu;
+
+  //private SectionAwareness sectionAwareness;
+  // private List availableSections;
 
   /**
    * Standard process action method.
@@ -119,6 +128,17 @@ public class TotalScoreListener
     String publishedId = cu.lookupParam("publishedId");
     //log.info("Got publishedId " + publishedId);
 
+    String selectedvalue= (String) event.getNewValue();
+System.out.println("lydiateset in value change event seletedvalue = " + selectedvalue);
+    if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
+      if (event.getComponent().getId().indexOf("sectionpicker") >-1 ) 
+        bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
+      else 
+        bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
+    }
+
+
+System.out.println("lydiateset in value change event bean.getAllsubmission = " + bean.getAllSubmissions());
     log.info("Calling totalScores.");
     if (!totalScores(publishedId, bean, true))
     {
@@ -146,17 +166,89 @@ public class TotalScoreListener
       if (cu.lookupParam("sortBy") != null &&
           !cu.lookupParam("sortBy").trim().equals(""))
         bean.setSortType(cu.lookupParam("sortBy"));
-      String which = cu.lookupParam("allSubmissionsT");
-      //log.info("Rachel: allSubmissionsT = " + which);
+
+
+
+      String which = bean.getAllSubmissions();
+System.out.println("lydiateset beore setting to null which = " + which);
       if (which == null)
-        which = "false";
-      bean.setAllSubmissions(which);
+      {
+   	// coming from authorIndex.jsp
+      	String allSubmissionTparam= cu.lookupParam("allSubmissionsT");
+        if (allSubmissionTparam ==null) 
+		which = "1";
+	else 
+		which = allSubmissionTparam;
+      }
+
+System.out.println("lydiateset after if which = " + which);
+
+      // bean.setAllSubmissions(which);
       bean.setPublishedId(publishedId);
-      ArrayList scores = delegate.getTotalScores(publishedId, which);
+
+      // get available sections 
+      //bean.setSectionFilterSelectItems(getSectionsPullDownItems(bean));
+
+      String pulldownid = bean.getSelectedSectionFilterValue();
+System.out.println("lydiateset pulldown id = " + pulldownid);
+
+
+      ArrayList allscores = delegate.getTotalScores(publishedId, which);
+
+System.out.println("lydiateset allscores's size = " + allscores.size());
+      // now we need filter by sections selected 
+      ArrayList scores = new ArrayList();  // filtered list
+      Iterator allscores_iter = allscores.iterator();
+      if (!pulldownid.equals(bean.ALL_SECTIONS_SELECT_VALUE)) {
+      while (allscores_iter.hasNext())
+      {
+	AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
+        String agentid =  data.getAgentId();
+System.out.println("lydiateset ************* agentid = " + agentid);
+        
+	// get the Map of all users(keyed on userid) belong to the selected sections 
+	Map useridMap= bean.getUserIdMap(); 
+
+	// now we only include scores of users belong to the selected sections
+        if (useridMap.containsKey(agentid) ) {
+System.out.println("lydiateset adding " + agentid);
+		scores.add(data);
+	  }
+
+/*
+	if (sectionid !=null){
+	  if (isSectionMember(sectionid, agentid)){
+System.out.println("lydiateset yes is a member = " + agentid);
+		scores.add(data);
+	  }
+        }
+*/
+
+
+
+System.out.println("lydiateset scores.size(): " + scores.size());
+      }
+      }
+        else {
+System.out.println("lydiateset selected all sevtions " );
+ 	// selected All Sections, include all members
+		scores.addAll(allscores);
+        }
+    
+      
+System.out.println(" before populating agent results:  lydiateset scores.size(): " + scores.size());
+
       Iterator iter = scores.iterator();
       //log.info("Has this many agents: " + scores.size());
+      ArrayList agents = new ArrayList();
+
       if (!iter.hasNext())
-        return false;
+      {
+        // this section has no students
+      bean.setAgents(agents);
+      bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+      return true;
+      }
       Object next = iter.next();
       Date dueDate = null;
 
@@ -168,6 +260,10 @@ public class TotalScoreListener
       if (data.getPublishedAssessment() != null)
       {
         bean.setAssessmentName(data.getPublishedAssessment().getTitle());
+// get assessmentSettings and call bean.setScoringOption()
+        Integer scoringoption = data.getPublishedAssessment().getEvaluationModel().getScoringType(); 
+System.out.println("lydiatest:  scoring otion =" + scoringoption.toString());
+	bean.setScoringOption(scoringoption.toString());
 
         // if section set is null, initialize it - daisyf , 01/31/05
         PublishedAssessmentData pub = (PublishedAssessmentData)data.getPublishedAssessment();
@@ -197,10 +293,17 @@ public class TotalScoreListener
         bean.setAnsweredItems(answeredItems); // Save for QuestionScores
 
         boolean foundid = false;
+	boolean hasRandompart = false;
+
         i2 = data.getPublishedAssessment().getSectionArraySorted().iterator();
         while (i2.hasNext() && !foundid)
         {
           SectionDataIfc sdata = (SectionDataIfc) i2.next();
+          String authortype = sdata.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
+          if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(authortype)){
+            hasRandompart = true;
+          }
+
           Iterator i3 = sdata.getItemArraySortedForGrading().iterator();
           while (i3.hasNext() && !foundid)
           {
@@ -213,6 +316,7 @@ public class TotalScoreListener
           }
         }
 
+        bean.setHasRandomDrawPart(hasRandompart);
         //log.info("Rachel: Setting first item to " +
         //  bean.getFirstItem());
 
@@ -294,8 +398,9 @@ public class TotalScoreListener
       AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
       
+System.out.println(" lydiatest after userRoles score size (): " + scores.size());
       /* Dump the grading and agent information into AgentResults */
-      ArrayList agents = new ArrayList();
+      // ArrayList agents = new ArrayList();
       iter = scores.iterator();
       while (iter.hasNext())
       {
@@ -343,10 +448,11 @@ public class TotalScoreListener
         else
           results.setLastInitial("Anonymous");
         results.setIdString(agent.getIdString());
-        results.setRole((String)userRoles.get(gdata.getAgentId()));
+	results.setRole((String)userRoles.get(gdata.getAgentId()));
         agents.add(results);
       }
 
+System.out.println(" lydiatest agent size (): " + agents.size());
       //log.info("Sort type is " + bean.getSortType() + ".");
       bs = new BeanSort(agents, bean.getSortType());
       if (
@@ -375,6 +481,5 @@ public class TotalScoreListener
 
     return true;
   }
-  
 
 }

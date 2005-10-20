@@ -27,13 +27,25 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.faces.model.SelectItem;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+
+import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.facade.Role;
+
 
 /**
  * <p>Description: class form for evaluating total scores</p>
@@ -47,6 +59,8 @@ public class TotalScoresBean
 {
   private String assessmentId;
   private String publishedId;
+
+  public static final String ALL_SECTIONS_SELECT_VALUE = "-1";
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
@@ -69,6 +83,14 @@ public class TotalScoresBean
   private String totalPeople;
   private String firstItem;
   private HashMap answeredItems;
+  private boolean hasRandomDrawPart;
+  private String scoringOption;
+
+  private String selectedSectionFilterValue = ALL_SECTIONS_SELECT_VALUE;
+  private List sectionFilterSelectItems;
+  private List availableSections;
+
+
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
   /**
@@ -403,12 +425,13 @@ public class TotalScoresBean
   }
 
   /**
-   * Is this an all submissions or, just the largest
+   * Is this an all submissions or, the highest, or the largest
+   * Scoring option from assessment Settings page 
    * @return true if is is, else false
    */
   public String getAllSubmissions()
   {
-    return Validator.check(allSubmissions, "false");
+    return allSubmissions;
   }
 
   /**
@@ -417,6 +440,7 @@ public class TotalScoresBean
    */
   public void setAllSubmissions(String pallSubmissions)
   {
+System.out.println("lydiatest TotalScoresBean.setAllSubmission = " + pallSubmissions);
     allSubmissions = pallSubmissions;
   }
 
@@ -504,4 +528,145 @@ public class TotalScoresBean
   {
     answeredItems = newItems;
   }
+
+
+  public boolean getHasRandomDrawPart() {
+    return this.hasRandomDrawPart;
+  }
+
+  public void setHasRandomDrawPart(boolean param) {
+    this.hasRandomDrawPart= param;
+  }
+
+
+  public String getSelectedSectionFilterValue() {
+    return selectedSectionFilterValue;
+  }
+
+  public void setSelectedSectionFilterValue(String param ) {
+      this.selectedSectionFilterValue = param;
+  }
+
+  public String getScoringOption()
+  {
+    return scoringOption;
+  }
+
+  public void setScoringOption(String param)
+  {
+    scoringOption= param;
+  }
+
+
+  public void setAvailableSections(List param) {
+    availableSections= param;
+  }
+
+  public List getAvailableSections() {
+System.out.println("lydiatest: geAvailableSections size = " + availableSections.size());
+    return availableSections;
+  }
+
+  public void setSectionFilterSelectItems(List param) {
+    sectionFilterSelectItems = param;
+    System.out.println("lydiatest:  setSectionFilterSelectItems(): total sections = " + sectionFilterSelectItems.size());
+  }
+
+  public List getSectionFilterSelectItems() {
+    System.out.println("lydiatest:  getSectionFilterSelectItems(), ");
+
+
+    availableSections = getAllAvailableSections();
+System.out.println("lydiatest:  availableSections.size() = " + availableSections.size());
+    List filterSelectItems = new ArrayList();
+
+    // The first choice is always "All available enrollments"
+    filterSelectItems.add(new SelectItem(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE, ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "all_sections")));
+    // TODO If there are unassigned students and the current user is allowed to see them, add them next.
+
+    // Add the available sections.
+    for (int i = 0; i < availableSections.size(); i++) {
+        CourseSection section = (CourseSection)availableSections.get(i);
+System.out.println("lydiatest:  i = " + i + " title =" + section.getTitle());
+        filterSelectItems.add(new SelectItem(String.valueOf(i), section.getTitle()));
+        //filterSelectItems.add(new SelectItem(section.getUuid(), section.getTitle()));
+    }
+
+    // If the selected value now falls out of legal range due to sections
+    // being deleted, throw it back to the default value (meaning everyone).
+    int selectedSectionVal = new Integer(selectedSectionFilterValue).intValue();
+    if ((selectedSectionVal >= 0) && (selectedSectionVal >= availableSections.size())) {
+        System.out.println("selectedSectionFilterValue=" + selectedSectionFilterValue + " but available sections=" + availableSections.size());
+        setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
+    }
+System.out.println("lydiatest:  size () = " + filterSelectItems.size());
+    return filterSelectItems;
+  }
+
+  private List getAllAvailableSections() {
+    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    return service.getAvailableSections(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString());
+  }
+
+
+        protected List getEnrollmentListForSelectedSections() {
+                List enrollments;
+
+                if (this.getSelectedSectionFilterValue().trim().equals(this.ALL_SECTIONS_SELECT_VALUE)) {
+                        enrollments = getAvailableEnrollments();
+                } else {
+                        // The user has selected a particular section.
+                        enrollments = getSectionEnrollments(getSelectedSectionUid(this.getSelectedSectionFilterValue()));
+                }
+System.out.println("lydiatest:  getEnrollmentListForSelectedSections() size = " + enrollments.size());
+        return enrollments;
+        }
+
+
+  public List getSectionEnrollments(String sectionid) {
+System.out.println("lydiatest:  getSection Enrollments()");
+    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    return service.getSectionEnrollments(AgentFacade.getCurrentSiteId(), sectionid , AgentFacade.getAgentString());
+}
+
+
+  public List getAvailableEnrollments() {
+    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    return service.getAvailableEnrollments(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString());
+}
+
+  public String getSelectedSectionUid(String uid) {
+System.out.println("lydiatest:  getSelectedSectionUid() for " + uid);
+    if (uid.equals(this.ALL_SECTIONS_SELECT_VALUE)){
+      return null;
+    } else {
+      CourseSection section = (CourseSection)(availableSections.get(new Integer(uid).intValue()));
+System.out.println("lydiatest:  return " + section.getUuid());
+      return section.getUuid();
+    }
+  }
+
+
+  public Map getUserIdMap() {
+System.out.println("lydiateset in getUserIdMap = ");
+        List enrollments = getEnrollmentListForSelectedSections();
+// for debugging
+      Iterator useriter = enrollments.iterator();
+      while (useriter.hasNext())
+      {
+         EnrollmentRecord enrollrec = (EnrollmentRecord) useriter.next();
+System.out.println("lydiateset userlist = " + enrollrec.getUser().getDisplayName());
+      }
+// end for debugging
+
+        Map enrollmentMap = new HashMap();
+
+        for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
+                EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+                enrollmentMap.put(enr.getUser().getUserUid(), enr);
+        }
+
+        return enrollmentMap;
+        }
+
 }

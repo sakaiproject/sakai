@@ -25,6 +25,16 @@
      classpath:/org/sakaiproject/spring/samigoApi.xml</param-value>
   </context-param>
 
+
+  <context-param>
+     <param-name>contextSharedLocation</param-name>
+     <param-value>
+	classpath*:org/sakaiproject/component/section/sakai20/spring-*.xml
+     </param-value>
+  </context-param>
+
+
+
   <!-- BEGIN SAMIGO JSF CONTEXT PARAM-->
     <context-param>
         <param-name>com.sun.faces.validateXml</param-name>
