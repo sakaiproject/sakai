@@ -19,11 +19,13 @@
 			columnClasses="itemName"
 			styleClass="itemSummary">
 			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}"/>
-			<h:outputText id="points" value="#{courseGradeDetailsBean.courseGrade.pointsForDisplay}"/>
+			<h:outputText id="points" value="#{courseGradeDetailsBean.courseGrade.pointsForDisplay}">
+				<f:convertNumber maxFractionDigits="2"/>
+			</h:outputText>
 
 			<h:outputText id="averageLabel" value="#{msgs.course_grade_details_average}"/>
 			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean / 100}">
-				<f:convertNumber type="percentage" maxFractionDigits="2" />
+				<f:convertNumber type="percentage" integerOnly="true" />
 			</h:outputText>
 		</h:panelGrid>
 		</div>
@@ -69,7 +71,7 @@
 		            </x:commandSortHeader>
 				</f:facet>
 				<h:outputText value="#{scoreRow.courseGradeRecord.pointsEarned}">
-					<f:convertNumber pattern="#"/>
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 				</h:outputText>
 			</h:column>
 			<h:column>
@@ -81,9 +83,9 @@
 				<h:outputText value="#{scoreRow.calculatedLetterGrade}"/>
 				<h:outputText value=" ("/>
 				<h:outputText value="#{scoreRow.calculatedPercentGrade}">
-					<f:convertNumber pattern="##.#"/>
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
 				</h:outputText>
-				<h:outputText value="%)"/>
+				<h:outputText value=")"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">

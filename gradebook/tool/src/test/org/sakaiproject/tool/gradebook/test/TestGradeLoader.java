@@ -66,7 +66,7 @@ public class TestGradeLoader extends GradebookLoaderBase {
                     Double grade = new Double(Math.ceil(asn.getPointsPossible().doubleValue() * Math.random()));
                     if(asn.isExternallyMaintained()) {
                     	if (needToAddScrewyExternalScore) {
-                    		grade = new Double(grade.doubleValue() + 0.3001);
+                    		grade = new Double(grade.doubleValue() + 0.39981);
                     		needToAddScrewyExternalScore = false;
                     	}
                         gradebookService.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);

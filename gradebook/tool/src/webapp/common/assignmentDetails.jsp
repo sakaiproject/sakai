@@ -50,7 +50,7 @@
 
 				<h:outputText id="pointsLabel" value="#{msgs.assignment_details_points}"/>
 				<h:outputText id="points" value="#{assignmentDetailsBean.assignment.pointsPossible}" rendered="#{assignmentDetailsBean.assignment.pointsPossible != null}">
-					<f:convertNumber />
+					<f:convertNumber maxFractionDigits="2"/>
 				</h:outputText>
 				<h:outputText id="pointsPlaceholder" value="#{msgs.overview_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.pointsPossible == null}" />
 
@@ -164,7 +164,7 @@
 				</h:inputText>
 
 				<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
-					<f:convertNumber maxFractionDigits="2"/>
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 				</h:outputText>
 			</h:column>
 			<h:column>

@@ -53,9 +53,6 @@ import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 public class GradebookBean extends InitializableBean {
 	private static final Log logger = LogFactory.getLog(GradebookBean.class);
 
-	// TODO Remove.
-	public static final String GRADEBOOK_UID_PARAM = "gradebookUid";
-
 	private Long gradebookId;
 	private String gradebookUid;
 

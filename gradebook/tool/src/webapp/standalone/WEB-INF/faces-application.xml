@@ -32,6 +32,22 @@
 			org.sakaiproject.tool.gradebook.jsf.CourseGradeConverter
 		</converter-class>
 	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.PERCENTAGE
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.PercentageConverter
+		</converter-class>
+	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.POINTS
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.PointsConverter
+		</converter-class>
+	</converter>
 
 	<validator>
 		<validator-id>

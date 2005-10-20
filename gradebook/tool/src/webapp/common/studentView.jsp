@@ -68,7 +68,7 @@
 					</f:facet>
 
 					<h:outputText value="#{row.pointsEarned}" rendered="#{row.pointsEarned != null}">
-						<f:convertNumber type="percentage" integerOnly="true" />
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
 					</h:outputText>
 					<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{row.pointsEarned == null}"/>
 				</h:column>
@@ -80,7 +80,7 @@
 					</f:facet>
 
 					<h:outputText value="#{row.pointsPossible}">
-						<f:convertNumber pattern="##.#" />
+						<f:convertNumber maxFractionDigits="2"/>
 					</h:outputText>
 				</h:column>
 				<h:column>

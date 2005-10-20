@@ -81,7 +81,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         }
 
         public Double getCalculatedPercentGrade() {
-        	return courseGradeRecord.getNonNullAutoCalculatedGrade();
+        	return new Double(courseGradeRecord.getNonNullAutoCalculatedGrade().doubleValue() / 100.);
         }
 
         public CourseGradeRecord getCourseGradeRecord() {

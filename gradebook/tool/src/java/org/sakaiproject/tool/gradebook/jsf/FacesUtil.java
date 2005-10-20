@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.gradebook.jsf;
 
 import java.text.MessageFormat;
+import java.math.BigDecimal;
 import java.util.*;
 
 import javax.faces.application.FacesMessage;
@@ -252,6 +253,23 @@ public class FacesUtil {
         return format.format(params);
     }
 
+	/**
+	 * All Faces number formatting options round instead of truncating.
+	 * For the Gradebook, virtually no displayed numbers are ever supposed to
+	 * round up.
+	 * This method rounds down to reach the specified maximum number
+	 * of decimal places and then returns the equivalent double for
+	 * further formatting.
+	 */
+	public static double getRoundDown(double rawValue, int maxDecimalPlaces) {
+		if (maxDecimalPlaces == 0) {
+			return Math.floor(rawValue);
+		} else {
+			BigDecimal bd = new BigDecimal(rawValue);
+			bd = bd.setScale(maxDecimalPlaces, BigDecimal.ROUND_DOWN);
+			return bd.doubleValue();
+		}
+	}
 }
 
 

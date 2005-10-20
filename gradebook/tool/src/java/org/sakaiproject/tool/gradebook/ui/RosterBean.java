@@ -34,7 +34,6 @@ import javax.faces.application.Application;
 import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
-import javax.faces.convert.NumberConverter;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
@@ -47,6 +46,7 @@ import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.jsf.PointsConverter;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -157,6 +157,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 			// The current specification shows the final column as "Cumulative" points
 			// rather than as a course display grade.
+
 			studentMap.put(gradeRecord.getGradableObject().getId(), gradeRecord.getPointsEarned());
 		}
 		if (logger.isDebugEnabled()) logger.debug("init - scoresMap.keySet().size() = " + scoresMap.keySet().size());
@@ -247,9 +248,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				contents.setId(ASSIGNMENT_COLUMN_PREFIX + "cell_" + colpos);
 				contents.setValueBinding("value",
 					app.createValueBinding("#{row.scores[rosterBean.gradableObjectColumns[" + colpos + "].id]}"));
-                NumberConverter numberConverter = new NumberConverter();
-                numberConverter.setPattern("#");
-                contents.setConverter(numberConverter);
+                contents.setConverter(new PointsConverter());
 
                 // Distinguish the "Cumulative" score for the course, which, by convention,
                 // is always the last column.

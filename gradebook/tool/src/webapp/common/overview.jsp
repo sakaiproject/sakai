@@ -70,7 +70,7 @@
 		            </x:commandSortHeader>
 		        </f:facet>
 				<h:outputText value="#{gradableObject.pointsForDisplay}" rendered="#{gradableObject.pointsForDisplay != null}">
-					<f:convertNumber />
+					<f:convertNumber maxFractionDigits="2"/>
 				</h:outputText>
 				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{gradableObject.pointsForDisplay == null}"/>
 			</h:column>
