@@ -98,23 +98,44 @@
 
   <h:messages layout="table" style="color:red"/>
 
-  <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
+  <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
+  <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
   <span class="indnt1">
      <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
      <h:outputText value="#{totalScores.maxScore}" style="instruction"/></span>
      <f:verbatim><br /></f:verbatim> </span>
+  </h:panelGroup>
 
+  <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
   <span class="indnt1">
      <h:outputText value="#{msg.view}" />
      <h:outputText value=": " />
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsT"
+     <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker"
         required="true" onchange="document.forms[0].submit();" >
-      <f:selectItem itemValue="false" itemLabel="#{msg.last_sub}" />
-      <f:selectItem itemValue="true" itemLabel="#{msg.all_sub}" />
+	<f:selectItems value="#{totalScores.sectionFilterSelectItems}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
      </h:selectOneMenu>
+
+     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+      <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
+      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+      <f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+     </h:selectOneMenu>
+
+     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+      <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
+      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+      <f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+     </h:selectOneMenu>
+
   </span>
+        <h:outputText value="#{totalScores.allSubmissions}"/>
+        <h:outputText value="#{totalScores.scoringOption}"/>
 
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 

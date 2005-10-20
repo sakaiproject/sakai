@@ -198,10 +198,22 @@ $Id$
 
      <h:outputText value="#{msg.view}" />
       <h:outputText value=" : " />
+
+<%--
+     <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL"
+        required="true" onchange="document.forms[0].submit();" >
+      <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
+      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+      <f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+     </h:selectOneMenu>
+     <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsH"
+--%>
+
      <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissions"
         required="true" onchange="document.forms[0].submit();" >
-      <f:selectItem itemValue="false" itemLabel="#{msg.last_sub}" />
-      <f:selectItem itemValue="true" itemLabel="#{msg.all_sub}" />
+      <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
+      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
      </h:selectOneMenu>
