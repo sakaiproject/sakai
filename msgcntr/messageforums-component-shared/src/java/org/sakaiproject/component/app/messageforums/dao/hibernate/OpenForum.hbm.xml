@@ -5,8 +5,11 @@
 
 <hibernate-mapping>
 
-  <class name="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForum"
-    table="MFR_OPEN_FORUM_T" optimistic-lock="version" discriminator-value="OF">
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForum"
+      table="MFR_OPEN_FORUM_T" 
+      optimistic-lock="version" 
+      discriminator-value="OF">
 
     <!-- Inherited fields from MutableEntity -->
     <id name="id">
@@ -15,15 +18,18 @@
         <param name="sequence">MFR_OPEN_FORUM_S</param>
       </generator>
     </id>
+
+	<!--  Discriminator field used for polymophism in the database -->
+    <discriminator column="FORUM_DTYPE" type="string" length="2" />
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
        
     <property name="uuid" column="UUID" length="36" unique="true" not-null="true" />
     <property name="created" column="CREATED" not-null="true" />
     <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
     <property name="modified" column="MODIFIED" not-null="true" />
     <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
-
-	<!--  Version number used for optimistic locking -->
-    <version name="version" column="VERSION" />
 
     <!-- BaseForum fields -->
     <property name="title">
@@ -76,7 +82,7 @@
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictions"
         not-null="false" cascade="none" />
       <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
-        class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionss"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissions"
         not-null="false" cascade="none" />
       <property name="moderated">
         <column name="MODERATED" not-null="false" />

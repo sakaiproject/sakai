@@ -11,19 +11,14 @@
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePermissions.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
-				<!--
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/UnreadStatus.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Area.hbm.xml</value>				
-				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/DiscussionForum.hbm.xml</value>
-				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/DiscussionTopic.hbm.xml</value>
-				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Message.hbm.xml</value>
-				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenForum.hbm.xml</value>
-				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenTopic.hbm.xml</value>
-				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateForum.hbm.xml</value>
-				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateMessage.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Topic.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenForum.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateForum.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Type.hbm.xml</value>
-				--> 
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Label.hbm.xml</value>
 			</list>
 		</property>
 	</bean>

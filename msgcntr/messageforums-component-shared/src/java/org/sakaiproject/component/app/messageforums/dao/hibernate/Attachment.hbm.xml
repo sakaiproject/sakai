@@ -17,16 +17,16 @@
         <param name="sequence">MFR_ATTACHMENT_S</param>
       </generator>
     </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />       
        
     <property name="uuid" column="UUID" length="36" unique="true" not-null="true" />
     <property name="created" column="CREATED" not-null="true" />
-    <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="255" not-null="true" />
     <property name="modified" column="MODIFIED" not-null="true" />
-    <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
-
-	<!--  Version number used for optimistic locking -->
-    <version name="version" column="VERSION" />
-
+    <property name="modifiedBy" column="MODIFIED_BY" length="255" not-null="true" />
+ 
     <!-- Attachment fields -->
     <property name="attachmentId">
       <column name="ATTACHMENT_ID" length="255" not-null="true" />
@@ -45,7 +45,6 @@
     </property>
   </class>
 
-  <!-- 
   <query name="findAttachmentById">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment as area where attachment.id = :id]]>
   </query>
@@ -53,5 +52,4 @@
   <query name="findAttachmentByUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment as ap where attachment.uuid = :uuid]]>
   </query>
-  -->
 </hibernate-mapping>

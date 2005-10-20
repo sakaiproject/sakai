@@ -5,8 +5,11 @@
 
 <hibernate-mapping>
 
-  <class name="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
-    table="MFR_MESSAGE_T" optimistic-lock="version" discriminator-value="ME">
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
+      table="MFR_MESSAGE_T" 
+      optimistic-lock="version" 
+      discriminator-value="ME">
     
     <!-- Inherited fields from MutableEntity -->
     <id name="id">
@@ -15,15 +18,18 @@
         <param name="sequence">MFR_MESSAGE_S</param>
       </generator>
     </id>
+
+	<!--  Discriminator field used for polymophism in the database -->
+    <discriminator column="MESSAGE_DTYPE" type="string" length="2" />
        
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
     <property name="uuid" column="UUID" length="36" unique="true" not-null="true" />
     <property name="created" column="CREATED" not-null="true" />
     <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
     <property name="modified" column="MODIFIED" not-null="true" />
     <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
-
-	<!--  Version number used for optimistic locking -->
-    <version name="version" column="VERSION" />
 
     <!-- Message fields -->
     <property name="title">
@@ -44,7 +50,7 @@
       <column name="LABEL" length="255" not-null="true" />
     </property>
     <many-to-one name="inReplyTo" column="IN_REPLY_TO"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.Message"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
       not-null="false" cascade="none" />        
     <property name="gradebook">
       <column name="GRADEBOOK" length="255" not-null="true" />
@@ -66,7 +72,7 @@
       <set name="recipients" lazy="true" sort="natural"
            order-by="surname asc" cascade="all-delete-orphan">
           <key column="surrogateKey"/>                        
-          <one-to-many class="org.sakaiproject.component.common.edu.person.PersonImpl"/>            
+          <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"/>            
       </set>     
       <property name="externalEmail">
         <column name="EXTERNAL_EMAIL" not-null="false" />
@@ -78,12 +84,12 @@
     
   </class>
 
-  <query name="findAreaById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Message as message where message.id = :id]]>
+  <query name="findMessageById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.id = :id]]>
   </query>
 
-  <query name="findAreaByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Message as message where message.uuid = :uuid]]>
+  <query name="findMessageByUuid">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImple as message where message.uuid = :uuid]]>
   </query>
 
 </hibernate-mapping>
