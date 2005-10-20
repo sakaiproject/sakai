@@ -39,39 +39,35 @@
       <title><h:outputText value="#{msg.import_a}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
- <!-- content... -->
+<!-- content... -->
  <h:form id="importAssessmentForm" enctype="multipart/form-data">
+   <div class="indnt1">
    <h:inputHidden value="#{xmlImport.importType}" />
    <h3><h:outputText  value="#{msg.import_a}" /></h3>
-   <div class="validation">
-     <font color="red"><h:messages /></font>
-     <h:outputText value="#{msg.import_instructions}" />
-   </div>
-   <br />
-   <h:panelGrid columns="2" rendered="false">
-     <h:outputText value="#{msg.im_ex_version_choose}"/>
-     <h:selectOneRadio layout="lineDirection" value="#{xmlImport.qtiVersion}">
-       <f:selectItem itemLabel="#{msg.im_ex_version_12}"
-         itemValue="1"/>
-       <f:selectItem itemLabel="#{msg.im_ex_version_20}"
-         itemValue="2"/>
-     </h:selectOneRadio>
-   </h:panelGrid>
-   <%-- target represents location where import will be temporarily stored
+    <div class="indnt2">
+     <div class="form_label">
+      <font color="red"><h:messages /></font>
+      <h:outputText value="#{msg.import_instructions}" />
+     </div>
+    </div>
+    <br />
+   <div class="indnt3">
+   <h:outputText value="#{msg.choose_file}" />
+    <%-- target represents location where import will be temporarily stored
         check valueChangeListener for final destination --%>
-   <corejsf:upload target="/jsf/upload_tmp/qti_imports"
-     valueChangeListener="#{xmlImport.importFromQti}" />
-
-   <h:commandButton value="#{msg.import_action}" type="submit"
-      style="act" action="author" />
+    <corejsf:upload target="/jsf/upload_tmp/qti_imports"
+      valueChangeListener="#{xmlImport.importFromQti}" />
+   </div>
+    <br />
+    <br />
+     <%-- activates the valueChangeListener --%>
+     <h:commandButton value="#{msg.import_action}" type="submit"
+       style="act" action="author" />
+     <%-- immediate=true bypasses the valueChangeListener --%>
+     <h:commandButton value="#{msg.import_cancel_action}" type="submit"
+       style="act" action="author" immediate="true"/>
+   </div>
  </h:form>
-<%-- SAK-1298 --%>
-<%--
- <h:form id="doneForm">
-   <h:commandButton value="#{msg.import_cancel_action}" type="submit"
-      style="act" action="author" immediate="true"/>
- </h:form>
---%>
  <!-- end content -->
       </body>
     </html>
