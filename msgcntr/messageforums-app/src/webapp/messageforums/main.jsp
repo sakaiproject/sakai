@@ -11,7 +11,7 @@
 <sakai:view_container title="Messge Forums">
   <sakai:view_content>
     <sakai:hideDivision title="testing">
-      hi! sakai rules!		
+      hi! 	
     </sakai:hideDivision>
   </sakai:view_content>	
 </sakai:view_container>
