@@ -540,19 +540,17 @@ function checkTimeSelect(){
 <f:verbatim></div></f:verbatim>
     </h:panelGroup>
 
-<%-- SAK-1998 *** hide this until different grading scheme is available ***
     <!-- RECORDED SCORE AND MULTIPLES -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}">
    <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel value="#{msg.recorded_score}" /><f:verbatim></div> <div class="indnt3"> </f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="scoringType" value="#{assessmentSettings.scoringType}"  layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{msg.highest_score}"/>
-          <f:selectItem itemValue="2" itemLabel="#{msg.average_score}"/>
+          <f:selectItem itemValue="2" itemLabel="#{msg.last_score}"/>
         </h:selectOneRadio>
       </h:panelGrid>
      <f:verbatim></div></f:verbatim>
     </h:panelGroup>
---%>
 
    <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
