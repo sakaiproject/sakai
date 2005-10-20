@@ -267,8 +267,7 @@ public class AuthorizationBean implements Serializable {
     String siteId  = AgentFacade.getCurrentSiteId();
     String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
     boolean privilege = ((Boolean)map.get(functionName+"_"+siteId)).booleanValue();
-    System.out.println("**** authzBean:"+this);
-    System.out.println("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
+    //System.out.println("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
     return privilege;
   }
 
