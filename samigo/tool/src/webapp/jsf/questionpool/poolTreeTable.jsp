@@ -69,7 +69,7 @@
 <f:verbatim><br/></f:verbatim>
 <h:graphicImage id="spacer" style="border:0" width="30" height="14" value="/images/delivery/spacer.gif" />
  <f:verbatim><span class="itemAction"></f:verbatim>
-<h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}"  styleClass="treetier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
+<h:commandLink rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool}"  styleClass="treetier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText id="add" value="#{msg.add}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
@@ -78,7 +78,7 @@
   <h:outputText id="copy" value="#{msg.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool}" value=" | " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool}" value=" | " />
 
 <h:commandLink rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool}" id="movelink" immediate="true" action="#{questionpool.startMovePool}">
   <h:outputText id="move" value="#{msg.move}"/>

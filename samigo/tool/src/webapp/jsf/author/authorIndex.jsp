@@ -74,43 +74,43 @@
 
 <h:message for="createAssessment" styleClass="validate"/>
 
-<div class="indnt1" rendered="#{authorization.createAssessment}">
-	<h4><h:outputText value="#{msg.assessment_new}" /></h4>
+<div class="indnt1">
+	<h4><h:outputText value="#{msg.assessment_new}" rendered="#{authorization.createAssessment}" /></h4>
   <div class="indnt2">
 <h5 class="plain">
 
-    <h:outputText value="#{msg.assessment_create}" styleClass="form_label" />
+    <h:outputText value="#{msg.assessment_create}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
    </h5>
    <div class="shorttext">
-    <h:outputLabel value="#{msg.assessment_choose}" styleClass="form_label" />
+    <h:outputLabel value="#{msg.assessment_choose}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
 
-      <h:selectOneMenu id="assessmentTemplate"
+      <h:selectOneMenu id="assessmentTemplate" rendered="#{authorization.createAssessment}"
         value="#{author.assessmentTemplateId}">
          <f:selectItem itemValue="" itemLabel="select..."/>
          <f:selectItems value="#{author.assessmentTemplateList}" />
       </h:selectOneMenu>
 
-      <h:outputText value="#{msg.optional_paren}" styleClass="form_label" />
+      <h:outputText value="#{msg.optional_paren}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
       <br/>
    </div>
 <div class="shorttext">
-    <h:outputLabel value="#{msg.assessment_title}" />
-    <h:inputText id="title" value="#{author.assessTitle}" size="32" required="true">
+    <h:outputLabel value="#{msg.assessment_title}" rendered="#{authorization.createAssessment}"/>
+    <h:inputText id="title" value="#{author.assessTitle}" size="32" required="true" rendered="#{authorization.createAssessment}">
     <!-- AuthorAssessmentListener.createAssessment() read param from AuthorBean to
       create the assessment  -->
     </h:inputText>
     <!-- action=createAssessment if privilege is granted, otherwise =author --> 
-    <h:commandButton type="submit" value="#{msg.button_create}" action="#{author.getOutcome}">
+    <h:commandButton type="submit" value="#{msg.button_create}" action="#{author.getOutcome}" rendered="#{authorization.createAssessment}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
     </h:commandButton>
     <br />
     <br />
-    <h:outputLabel value="#{msg.assessment_import}" />
-    <h:commandButton value="#{msg.button_import}" immediate="true" type="submit"
+    <h:outputLabel value="#{msg.assessment_import}" rendered="#{authorization.createAssessment}"/>
+    <h:commandButton value="#{msg.button_import}" immediate="true" type="submit" 
+      rendered="#{authorization.createAssessment}"
       action="importAssessment">
     </h:commandButton>
 </div></div>
-
 	<!-- CORE ASSESSMENTS-->
 
   <h4><h:outputText value="#{msg.assessment_core}" /></h4>

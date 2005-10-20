@@ -66,22 +66,23 @@
    <h:outputText value="#{msg.index_templates}"/>
  </h3>
 
-<div class="indnt1" rendered="#{authorization.createTemplate}">
+<div class="indnt1">
    <h4>
-   <h:outputText value="#{msg.index_new}"/>
+   <h:outputText value="#{msg.index_new}"  rendered="#{authorization.createTemplate}"/>
    </h4>
 <div class="indnt2">
   <h5 class="plain">
-   <h:outputText value="#{msg.index_create_new}"/>
+   <h:outputText value="#{msg.index_create_new}"  rendered="#{authorization.createTemplate}"/>
   </h5>
     <div class="shorttext">
-      <h:outputLabel for="newName" value="#{msg.index_templates_title}"/>
+      <h:outputLabel for="newName" value="#{msg.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
       <!--h:outputText value="#{msg.index_templates_title}" /-->
 
-      <h:inputText id="tempName" value="#{template.newName}" size="60" required="true"/>
+      <h:inputText id="tempName" value="#{template.newName}" size="60" required="true" rendered="#{authorization.createTemplate}"/>
 
       <h:commandButton type="submit" id="Submit" value="#{msg.index_button_create}"
-       action="newTemplate">
+        rendered="#{authorization.createTemplate}"
+        action="newTemplate">
               <f:actionListener
                 type="org.sakaiproject.tool.assessment.ui.listener.author.EditTemplateListener" />
        </h:commandButton>
