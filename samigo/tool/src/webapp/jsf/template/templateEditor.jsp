@@ -507,7 +507,6 @@
      </h:panelGrid>
     </div>
 
-<%-- *** SAK-1998 hide this setting until we implement different grading scheme ***
 
     <!-- RECORDED SCORE AND MULTIPLES -->
     <div class="longtext"> <h:outputLabel for="recorded_score" value="#{msg.record_score_if_multi}"/></div>
@@ -524,12 +523,11 @@
     <h:selectOneRadio layout="pageDirection" value="#{template.recordedScore}"
       required="true">
       <f:selectItem itemValue="1" itemLabel="#{msg.record_highest}"/>
-      <f:selectItem itemValue="2" itemLabel="#{msg.record_average}"/>
+      <f:selectItem itemValue="2" itemLabel="#{msg.record_last}"/>
     </h:selectOneRadio>
       </h:panelGroup>
     </h:panelGrid>
     </div>
---%>
 
 
 </div>
