@@ -585,18 +585,25 @@ public class ExtractionHelper
       evaluationModel.setToGradeBook(EvaluationModel.TO_SELECTED_GRADEBOOK.toString());
     }
 
-    // highest or average
+    // highest or last  
     if ("HIGHEST".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "GRADE_SCORE")))
     {
       evaluationModel.setScoringType(EvaluationModel.HIGHEST_SCORE);
     }
+    /*
+       // not implementing average for now
     else if ("AVERAGE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "GRADE_SCORE")))
     {
       evaluationModel.setScoringType(EvaluationModel.AVERAGE_SCORE);
     }
-
+    */
+    else if ("LAST".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "GRADE_SCORE")))
+    {
+      evaluationModel.setScoringType(EvaluationModel.LAST_SCORE);
+    }
     assessment.setEvaluationModel(evaluationModel);
   }
 

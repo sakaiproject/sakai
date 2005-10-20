@@ -193,15 +193,23 @@ public abstract class AssessmentHelperBase
       assessmentXml.setFieldentry("GRADEBOOK_OPTIONS", "DEFAULT");
     }
 
-    //highest or average
+    //highest or last 
     if (EvaluationModelIfc.HIGHEST_SCORE.equals(evaluationModel.getScoringType()))
     {
       assessmentXml.setFieldentry("GRADE_SCORE", "HIGHEST_SCORE");
     }
+    /*
+    // not implementing average for now
     else if (EvaluationModelIfc.AVERAGE_SCORE.equals(evaluationModel.
       getScoringType()))
     {
       assessmentXml.setFieldentry("GRADE_SCORE", "AVERAGE_SCORE");
+    }
+    */
+    else if (EvaluationModelIfc.LAST_SCORE.equals(evaluationModel.
+      getScoringType()))
+    {
+      assessmentXml.setFieldentry("GRADE_SCORE", "LAST_SCORE");
     }
 
   }

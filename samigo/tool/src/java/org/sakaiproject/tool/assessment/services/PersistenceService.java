@@ -37,6 +37,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
+import org.sakaiproject.api.section.SectionAwareness;
 
 /**
  * @author jlannan
@@ -57,6 +58,7 @@ public class PersistenceService{
         private AuthorizationFacadeQueriesAPI authorizationFacadeQueries;
         private PagingUtilQueriesAPI pagingUtilQueries;
         private AuthzQueriesFacadeAPI authzQueriesFacade;
+        private SectionAwareness sectionAwareness;
 
 	private static PersistenceService INSTANCE;
 
@@ -150,6 +152,19 @@ public class PersistenceService{
         public void setAuthzQueriesFacade(AuthzQueriesFacadeAPI authzQueriesFacade){
 	  this.authzQueriesFacade = authzQueriesFacade;
         }
+
+	public SectionAwareness getSectionAwareness()
+	{
+	  return sectionAwareness;
+
+ 	}
+
+
+	public void setSectionAwareness(SectionAwareness sectionAwareness)
+	{
+	  this.sectionAwareness = sectionAwareness;
+	}
+
 
 }
 
