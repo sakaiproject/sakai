@@ -60,6 +60,7 @@ public class TemplateBean implements Serializable
   private String lateHandling = "1";
   private String autoSave = "1";
   private String feedbackType = "1";
+  private String feedbackAuthoring = "1";
   private Boolean feedbackComponent_QuestionText = Boolean.TRUE;
   private Boolean feedbackComponent_StudentResp = Boolean.TRUE;
   private Boolean feedbackComponent_CorrectResp = Boolean.TRUE;
@@ -78,9 +79,9 @@ public class TemplateBean implements Serializable
   private String createdBy;
   private String lastModified;
   private String lastModifiedBy;
-    private Date modifiedDate;
+  private Date modifiedDate;
     private String outcome;
-
+  
   /**
    * This just sets some defaults.
    */
@@ -93,8 +94,9 @@ public class TemplateBean implements Serializable
     values.put("releaseDate_isInstructorEditable", Boolean.TRUE);
     values.put("lateHandling_isInstructorEditable", Boolean.TRUE);
     values.put("feedbackType_isInstructorEditable", Boolean.TRUE);
+    values.put("feedbackAuthoring_isInstructorEditable", Boolean.TRUE);
     values.put("anonymousRelease_isInstructorEditable", Boolean.TRUE);
-    values.put("authenticatedRelease_isInstructorEditable", Boolean.TRUE);
+    values.put("authenticatedRelease_isInstructorEditable", Boolean.TRUE);     
   }
 
     public void setOutcome(String outcome){
@@ -177,6 +179,29 @@ public class TemplateBean implements Serializable
     return feedbackType;
   }
 
+ /**
+   * feedback Authoring
+   *
+   * @param key
+   * @param value
+   */
+  public void setFeedbackAuthoring(String newAuthoring)
+  {
+    feedbackAuthoring = newAuthoring;
+  }
+
+  /**
+   * feedback Authoring
+   *
+   * @param key
+   *
+   * @return
+   */
+  public String getFeedbackAuthoring()
+  {
+    return checker(feedbackAuthoring, "");
+  }
+
   /**
    * set feedback type map
    * @param newMap
@@ -195,6 +220,7 @@ public class TemplateBean implements Serializable
   {
     return feedbackTypes;
   }
+
 
   /**
    * template name
