@@ -23,10 +23,16 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.application.FacesMessage;
 
+import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -60,11 +66,49 @@ public class PoolSaveListener implements ActionListener
   {
     log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
-    if (!savePool(qpoolbean))
-    {
-      throw new RuntimeException("failed to populateItemBean.");
-    }
+    String currentName= qpoolbean.getCurrentPool().getDisplayName();
+    // System.out.println("NAME = "+ currentName);
+    QuestionPoolService delegate = new QuestionPoolService();
+    ArrayList qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+    Iterator iter = qplist.iterator();
+    boolean nameDup=false;
+    int count=0;
+    try {
+	while(iter.hasNext()){
+		QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();  
+		if ((pool.getDisplayName().trim()).equals(currentName)){
+		    if(((qpoolbean.getAddOrEdit()).equals("add"))|| (count==1))
+			{
+			    nameDup=true;
+			    break;
+			}
+		    else{
+			count++;
+		    }
+		}
+	}
+	    
+	if(nameDup){
+	   FacesContext context = FacesContext.getCurrentInstance();
+	String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","duplicateName_error");
+	   
+	context.addMessage(null,new FacesMessage(error));
+          
+	qpoolbean.setOutcomeEdit("editPool");
+        qpoolbean.setOutcome("addPool");
+	//	System.out.println("NAMEDUP "+nameDup);
+	}
+	else{
+	    if (!savePool(qpoolbean)){
+		throw new RuntimeException("failed to populateItemBean.");
+	    }
 
+	}
+    }
+    catch(Exception e){
+	throw new Error(e);
+    } //if error=false then save, if not then create error message
+    
   }
 
   public boolean savePool(QuestionPoolBean qpbean) {
@@ -107,7 +151,8 @@ public class PoolSaveListener implements ActionListener
 
 
 
-
+      //  System.out.println( "SAVE - POOLSOURCE= "+qpbean.getAddPoolSource());
+      //where do you get value from addPoolSource?  It always return null though.
       if ("editpool".equals(qpbean.getAddPoolSource())) {
     // so reset subpools tree
 //    QuestionPoolFacade thepool= delegate.getPool(parentid, AgentFacade.getAgentString());
@@ -117,6 +162,7 @@ public class PoolSaveListener implements ActionListener
 	qpbean.setAddPoolSource("");
       }
       else {
+	  qpbean.setOutcomeEdit("poolList");
 	qpbean.setOutcome("poolList");
       }
    }
