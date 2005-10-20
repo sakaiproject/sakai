@@ -35,6 +35,24 @@ public class UnreadStatus {
     private Message message;
     private String user;
     private Boolean read;
+    private Long id;
+    private Integer version; 
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 
     public Message getMessage() {
         return message;

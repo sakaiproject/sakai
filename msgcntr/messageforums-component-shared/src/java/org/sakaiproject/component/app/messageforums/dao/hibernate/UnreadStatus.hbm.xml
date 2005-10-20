@@ -5,15 +5,27 @@
 
 <hibernate-mapping>
 
-  <class name="org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatus"
-    table="MFR_UNREAD_STATUS_T">
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatus"
+      table="MFR_UNREAD_STATUS_T"
+      optimistic-lock="version">
+
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_UNREAD_STATUS_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
 
     <!-- UnreadStatus fields -->
     <many-to-one name="topic" column="TOPIC"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.Topic"
       not-null="false" cascade="none" />
     <many-to-one name="message" column="MESSAGE"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.Message"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
       not-null="false" cascade="none" />
     <property name="user">
       <column name="USER" length="255" not-null="true" />

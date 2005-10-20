@@ -5,8 +5,10 @@
 
 <hibernate-mapping>
 
-  <class name="org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment"
-    table="MFR_ATTACHMENT_T" optimistic-lock="version">
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment"
+      table="MFR_ATTACHMENT_T" 
+      optimistic-lock="version">
 
     <!-- Inherited fields from MutableEntity -->
     <id name="id">
@@ -43,6 +45,7 @@
     </property>
   </class>
 
+  <!-- 
   <query name="findAttachmentById">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment as area where attachment.id = :id]]>
   </query>
@@ -50,5 +53,5 @@
   <query name="findAttachmentByUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment as ap where attachment.uuid = :uuid]]>
   </query>
-
+  -->
 </hibernate-mapping>
