@@ -1,4 +1,4 @@
-Test and Quizzes JavaScriptlicense information
+Test and Quizzes JavaScript license information
 ==============================================
 * htmlarea standard htmlarea license (legacy version)
 * js/authoring.js Apache
