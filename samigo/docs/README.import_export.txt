@@ -7,17 +7,16 @@ made in questtestinterop format for either assessment/section/item or item.
 Only assessment/section/item format may be imported.
 Object bank format is supported for web service inquiries via QTIService.
 
-2. Export in Firefox.
-   a. In some cases, JSF prepends extra lines, see 7, below.  When you 
-export, you will see "XML Parsing Error: xml processing instruction is not at 
-start of external entity."  This can be safely ignored.  If you want to see 
-the XML, you can do so with "view source".
+2. Export Assessment XML Format.
+   a. In earlier versions of Samigo, JSF prepended extra lines,and you may have
+seen "XML Parsing Error: xml processing instruction is not at
+start of external entity." in Firefox. For backward compatibility, these
+prepended lines are ignored.
 
-   b.Users requiring an XML (.xml) extension in Firefox browsers should
-"Save as Type:" "Web Page, HTML only" and specify the ".xml" extension,
-explicitly typing the desired file name and extension.  DO NOT save as
-"Text File", this will save only the text nodes of the XML document, and will
-cause errors on re-import.
+   b.  Exported Assessment files now default to the name "exportAssessment.xml".
+Firefox users should accept the default "Save as Type:" "Web Page, HTML only".
+DO NOT save as "Text File", this will save only the text nodes of the XML document,
+and will cause errors on re-import.
 
    c.  Tests and Quizzes will accept files with any extension as long as they
 are in correct format for importation.  (SAK-1203).
@@ -26,14 +25,14 @@ are in correct format for importation.  (SAK-1203).
 3. Question format issues on export.
   a. Blank space lost in the question text for the file upload question.
   b. A non-breaking space will be used to supply absent text between blanks in
-fill-in-the-blank questions.  (SAM-271).
-  c. Selection-level feedback is not retained for matching questions. (SAM-520)  
+fill-in-the-blank questions.  (SAK-1872).
+  c. Selection-level feedback is not retained for matching questions. (SAM-520)
 
 4. Sakai specific metadata.  Sakai specific metadata is supported by embedding
 assessment information in QTI format.  The following metadata elements are not
 yet supported:
     a. High Security IP address settings,
-    b. Rich text in submission message. (SAM-271)
+    b. Rich text in submission message. (SAK-1872)
 
 5. Import and Export of Character Entities and Non-XHTML Data.
 As of 2.01 is should be possible to include characters such as '&' in titles and
@@ -68,16 +67,7 @@ For example:
   Note that the XML parser will make no attempt to validate CDATA enclosed
 character data, and will then accept non-XHTML and even bad HTML.
 
-6. Fix for JSF corruption of XML export.
-    a. In some builds of the portal we are seeing the addition of one or more
-blank lines on export by JSF itself. The XML spcification does not allow this.
-As of 2.01 have added a fix that any XML file with extra blank lines will have
-these trimmed on import so that exported files will always import.
-    b. If you wish to import Sakai exports into other systems, or validating XML
-editors, you may need to remove blank lines before the XML declaration.
-(SAK-1499)
-
-7. Respondus.
+6. Respondus.
 Fixed in 2.01.  Respondus questions with missing score can be edited.
 Note: there are some non-Sakai QTI formatting issues in Respondus. We will be
 building alternate processing to handle these, realistically, to be taken care
