@@ -29,10 +29,8 @@ fill-in-the-blank questions.  (SAK-1872).
   c. Selection-level feedback is not retained for matching questions. (SAM-520)
 
 4. Sakai specific metadata.  Sakai specific metadata is supported by embedding
-assessment information in QTI format.  The following metadata elements are not
-yet supported:
-    a. High Security IP address settings,
-    b. Rich text in submission message. (SAK-1872)
+assessment information in QTI format, except for High Security IP address
+settings. (SAK-1873)
 
 5. Import and Export of Character Entities and Non-XHTML Data.
 As of 2.01 is should be possible to include characters such as '&' in titles and
