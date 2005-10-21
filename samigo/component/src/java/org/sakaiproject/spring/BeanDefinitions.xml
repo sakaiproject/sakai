@@ -35,6 +35,10 @@
 		<property name="authzQueriesFacade">
 			<ref bean="AuthzQueriesFacade" />
 		</property>
+                <property name="sectionAwareness" >
+                        <ref bean="org.sakaiproject.api.section.SectionAwareness"/>
+                </property>
+
 	</bean>
 
 	<bean id="TypeFacadeQueries"
