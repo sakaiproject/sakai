@@ -18,6 +18,7 @@
     <deploy.type>war</deploy.type>
   </properties>
   <dependencies>
+
     <!-- Samigo API -->
     <dependency>
       <groupId>sakaiproject</groupId>
@@ -153,6 +154,12 @@
       <properties>
         <war.bundle>false</war.bundle>
       </properties>
+    </dependency>
+    <!-- need to registering samigo functions with sakai -->
+    <dependency>
+       <groupId>sakaiproject</groupId>
+       <artifactId>sakai-function</artifactId>
+       <version>${sakai.version}</version>
     </dependency>
     <!-- end Sakai integration dependencies -->
     <!--**********************************************************-->
