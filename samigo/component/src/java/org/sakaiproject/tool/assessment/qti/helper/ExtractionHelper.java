@@ -67,6 +67,7 @@ import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 
 /**
  * <p>Has helper methods for data extraction (import) from QTI</p>
@@ -585,7 +586,7 @@ public class ExtractionHelper
       evaluationModel.setToGradeBook(EvaluationModel.TO_SELECTED_GRADEBOOK.toString());
     }
 
-    // highest or last  
+    // highest or last
     if ("HIGHEST".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "GRADE_SCORE")))
     {
@@ -779,11 +780,15 @@ public class ExtractionHelper
     //Submissions
     // submissions allowed
     String maxAttempts =
-        assessment.getAssessmentMetaDataByLabel("MAX_ATTEMPTS");
-    String unlimited = control.UNLIMITED_SUBMISSIONS.toString();
+        "" + assessment.getAssessmentMetaDataByLabel("MAX_ATTEMPTS");
+    String unlimited = AuthoringConstantStrings.UNLIMITED_SUBMISSIONS;
+    log.info("maxAttempts: '" + maxAttempts + "'");
+    log.info("unlimited: '" + unlimited + "'");
+
     if (
-        unlimited.equalsIgnoreCase(maxAttempts))
+        unlimited.equals(maxAttempts.trim()))
     {
+      log.info("unlimited.equals(maxAttempts.trim()");
       control.setUnlimitedSubmissions(Boolean.TRUE);
       control.setSubmissionsAllowed(AssessmentAccessControlIfc.
                                     UNLIMITED_SUBMISSIONS);

@@ -47,12 +47,14 @@ package org.sakaiproject.tool.assessment.qti.constants;
 
 
 /**
- * This class contains qti tag names and attribute names frequently used
- * in the Java code.
+ * This class contains authoring strings and names frequently used
+ * in the Java code for QTI authoring.
  */
 public class AuthoringConstantStrings
 {
 
+  //
+  public static String UNLIMITED_SUBMISSIONS = "9999";
   //Item Types
   public static String MATCHING = "Matching";
   public static String FIB = "Fill In the Blank";
@@ -70,10 +72,10 @@ public class AuthoringConstantStrings
   { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING };
 
 
-	// Feedback Type
-	public static String FEEDBACKTYPE_IMMEDIATE = "IMMEDIATE";
-	public static String FEEDBACKTYPE_DATED = "DATED";
-	public static String FEEDBACKTYPE_NONE = "NONE";
+  // Feedback Type
+  public static String FEEDBACKTYPE_IMMEDIATE = "IMMEDIATE";
+  public static String FEEDBACKTYPE_DATED = "DATED";
+  public static String FEEDBACKTYPE_NONE = "NONE";
 }
 
 
