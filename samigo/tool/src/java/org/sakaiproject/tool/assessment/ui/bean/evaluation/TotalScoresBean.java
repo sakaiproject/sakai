@@ -440,7 +440,6 @@ public class TotalScoresBean
    */
   public void setAllSubmissions(String pallSubmissions)
   {
-System.out.println("lydiatest TotalScoresBean.setAllSubmission = " + pallSubmissions);
     allSubmissions = pallSubmissions;
   }
 
@@ -563,17 +562,14 @@ System.out.println("lydiatest TotalScoresBean.setAllSubmission = " + pallSubmiss
   }
 
   public List getAvailableSections() {
-System.out.println("lydiatest: geAvailableSections size = " + availableSections.size());
     return availableSections;
   }
 
   public void setSectionFilterSelectItems(List param) {
     sectionFilterSelectItems = param;
-    System.out.println("lydiatest:  setSectionFilterSelectItems(): total sections = " + sectionFilterSelectItems.size());
   }
 
   public List getSectionFilterSelectItems() {
-    System.out.println("lydiatest:  getSectionFilterSelectItems(), ");
 
 
     availableSections = getAllAvailableSections();
@@ -587,7 +583,6 @@ System.out.println("lydiatest:  availableSections.size() = " + availableSections
     // Add the available sections.
     for (int i = 0; i < availableSections.size(); i++) {
         CourseSection section = (CourseSection)availableSections.get(i);
-System.out.println("lydiatest:  i = " + i + " title =" + section.getTitle());
         filterSelectItems.add(new SelectItem(String.valueOf(i), section.getTitle()));
         //filterSelectItems.add(new SelectItem(section.getUuid(), section.getTitle()));
     }
@@ -599,7 +594,6 @@ System.out.println("lydiatest:  i = " + i + " title =" + section.getTitle());
         System.out.println("selectedSectionFilterValue=" + selectedSectionFilterValue + " but available sections=" + availableSections.size());
         setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
     }
-System.out.println("lydiatest:  size () = " + filterSelectItems.size());
     return filterSelectItems;
   }
 
@@ -624,7 +618,6 @@ System.out.println("lydiatest:  getEnrollmentListForSelectedSections() size = " 
 
 
   public List getSectionEnrollments(String sectionid) {
-System.out.println("lydiatest:  getSection Enrollments()");
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
     return service.getSectionEnrollments(AgentFacade.getCurrentSiteId(), sectionid , AgentFacade.getAgentString());
 }
@@ -636,26 +629,22 @@ System.out.println("lydiatest:  getSection Enrollments()");
 }
 
   public String getSelectedSectionUid(String uid) {
-System.out.println("lydiatest:  getSelectedSectionUid() for " + uid);
     if (uid.equals(this.ALL_SECTIONS_SELECT_VALUE)){
       return null;
     } else {
       CourseSection section = (CourseSection)(availableSections.get(new Integer(uid).intValue()));
-System.out.println("lydiatest:  return " + section.getUuid());
       return section.getUuid();
     }
   }
 
 
   public Map getUserIdMap() {
-System.out.println("lydiateset in getUserIdMap = ");
         List enrollments = getEnrollmentListForSelectedSections();
 // for debugging
       Iterator useriter = enrollments.iterator();
       while (useriter.hasNext())
       {
          EnrollmentRecord enrollrec = (EnrollmentRecord) useriter.next();
-System.out.println("lydiateset userlist = " + enrollrec.getUser().getDisplayName());
       }
 // end for debugging
 
