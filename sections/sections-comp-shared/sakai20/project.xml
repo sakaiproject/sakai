@@ -48,6 +48,11 @@
             <artifactId>sakai-session-component</artifactId>
             <version>${sakai.version}</version>
         </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-function</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
     </dependencies>
 
     <reports/>

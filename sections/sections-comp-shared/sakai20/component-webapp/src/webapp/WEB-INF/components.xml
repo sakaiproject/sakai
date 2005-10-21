@@ -39,6 +39,7 @@
 -->
 
     <bean id="org.sakaiproject.api.section.SectionAwareness"
+        init-method="init"
         class="org.sakaiproject.component.section.sakai20.SectionAwarenessHibernateImpl">
         <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
         <property name="courseManager">

@@ -54,6 +54,11 @@ public class AuthzSakaiImpl extends HibernateDaoSupport implements Authz {
 	 * @inheritDoc
 	 */
 	public Role getSiteRole(String userUid, String siteContext) {
+		// An admin gets to play the role of instructor, but is not included in
+		// the list of instructors for the site
+		if(SecurityService.isSuperUser()) {
+			return Role.INSTRUCTOR;
+		}
 		String siteAuthzRef = SakaiUtil.getSiteReference();
         boolean isInstructor = SecurityService.unlock(INSTRUCTOR_PERMISSION, siteAuthzRef);
         boolean isTa = SecurityService.unlock(TA_PERMISSION, siteAuthzRef);

@@ -41,6 +41,7 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.kernel.function.cover.FunctionManager;
 import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -72,6 +73,10 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
      */
     protected CourseManager courseManager;
 
+    public void init() {
+    	FunctionManager.registerFunction("section.ta");
+    }
+    
 	/**
 	 * @inheritDoc
 	 */
