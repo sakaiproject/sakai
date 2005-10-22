@@ -60,14 +60,6 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
-import org.sakaiproject.api.section.SectionAwareness;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
-//import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
-
-
 
 /**
  * <p>
@@ -128,13 +120,19 @@ public class TotalScoreListener
     String publishedId = cu.lookupParam("publishedId");
     //log.info("Got publishedId " + publishedId);
 
+
     String selectedvalue= (String) event.getNewValue();
-System.out.println("lydiateset in value change event seletedvalue = " + selectedvalue);
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
       if (event.getComponent().getId().indexOf("sectionpicker") >-1 ) 
+      {
+System.out.println("changed section picker");
         bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
+      }
       else 
+      {
+System.out.println("changed submission pulldown ");
         bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
+      }
     }
 
 
@@ -187,7 +185,6 @@ System.out.println("lydiateset after if which = " + which);
       bean.setPublishedId(publishedId);
 
       // get available sections 
-      //bean.setSectionFilterSelectItems(getSectionsPullDownItems(bean));
 
       String pulldownid = bean.getSelectedSectionFilterValue();
 System.out.println("lydiateset pulldown id = " + pulldownid);
@@ -199,7 +196,7 @@ System.out.println("lydiateset allscores's size = " + allscores.size());
       // now we need filter by sections selected 
       ArrayList scores = new ArrayList();  // filtered list
       Iterator allscores_iter = allscores.iterator();
-      if (!pulldownid.equals(bean.ALL_SECTIONS_SELECT_VALUE)) {
+      //if (!pulldownid.equals(bean.ALL_SECTIONS_SELECT_VALUE)) {
       while (allscores_iter.hasNext())
       {
 	AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
@@ -215,26 +212,7 @@ System.out.println("lydiateset adding " + agentid);
 		scores.add(data);
 	  }
 
-/*
-	if (sectionid !=null){
-	  if (isSectionMember(sectionid, agentid)){
-System.out.println("lydiateset yes is a member = " + agentid);
-		scores.add(data);
-	  }
-        }
-*/
-
-
-
-System.out.println("lydiateset scores.size(): " + scores.size());
       }
-      }
-        else {
-System.out.println("lydiateset selected all sevtions " );
- 	// selected All Sections, include all members
-		scores.addAll(allscores);
-        }
-    
       
 System.out.println(" before populating agent results:  lydiateset scores.size(): " + scores.size());
 
@@ -398,7 +376,6 @@ System.out.println("lydiatest:  scoring otion =" + scoringoption.toString());
       AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
       
-System.out.println(" lydiatest after userRoles score size (): " + scores.size());
       /* Dump the grading and agent information into AgentResults */
       // ArrayList agents = new ArrayList();
       iter = scores.iterator();
