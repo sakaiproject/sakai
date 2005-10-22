@@ -37,8 +37,9 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceException;
 import java.util.ArrayList;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.SectionAwareServiceHelperImpl;
+//import org.sakaiproject.tool.assessment.integration.helper.integrated.SectionAwareServiceHelperImpl;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
 /**
  *
@@ -49,13 +50,10 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServi
 public class GradingSectionAwareServiceImpl implements GradingSectionAwareServiceAPI
 {
   private static Log log = LogFactory.getLog(GradingServiceImpl.class);
-/*  private static final AgentHelper helper =
-    IntegrationContextFactory.getInstance().getAgentHelper();
-  private static final boolean integrated =
-    IntegrationContextFactory.getInstance().isIntegrated();
-*/
+  private static final SectionAwareServiceHelper helper =
+    IntegrationContextFactory.getInstance().getSectionAwareServiceHelper();
 
-  private static final SectionAwareServiceHelper  helper= new SectionAwareServiceHelperImpl();
+//  private static final SectionAwareServiceHelper  helper= new SectionAwareServiceHelperImpl();
 
 
   public boolean isUserAbleToGrade(String siteId, String userUid){
