@@ -64,7 +64,7 @@ should be included in file importing DeliveryMessages
     </h:column>
     <h:column>
       <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
-       delivery.feedbackComponent.showSelectionLevel}" >
+       delivery.feedbackComponent.showSelectionLevel && question.itemData.typeId != 3}" >
        <f:verbatim><br /></f:verbatim>
        <h:outputText value="#{msg.feedback}: " />
        <h:outputText value="#{selection.feedback}" escape="false" />
@@ -72,7 +72,8 @@ should be included in file importing DeliveryMessages
     </h:column>
   </h:dataTable>
 
-  <h:panelGroup rendered="#{question.itemData.hasRationale}" >
+  <h:panelGroup
+    rendered="#{question.itemData.hasRationale && question.itemData.typeId != 3}" >
     <f:verbatim><br /></f:verbatim>
     <h:outputLabel for="rationale" value="#{msg.rationale}" />
     <f:verbatim><br /></f:verbatim>
