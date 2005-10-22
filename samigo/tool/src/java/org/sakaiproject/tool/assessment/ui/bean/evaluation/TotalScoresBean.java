@@ -591,7 +591,6 @@ System.out.println("lydiatest:  availableSections.size() = " + availableSections
     // being deleted, throw it back to the default value (meaning everyone).
     int selectedSectionVal = new Integer(selectedSectionFilterValue).intValue();
     if ((selectedSectionVal >= 0) && (selectedSectionVal >= availableSections.size())) {
-        System.out.println("selectedSectionFilterValue=" + selectedSectionFilterValue + " but available sections=" + availableSections.size());
         setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
     }
     return filterSelectItems;
@@ -603,7 +602,7 @@ System.out.println("lydiatest:  availableSections.size() = " + availableSections
   }
 
 
-        protected List getEnrollmentListForSelectedSections() {
+  private List getEnrollmentListForSelectedSections() {
                 List enrollments;
 
                 if (this.getSelectedSectionFilterValue().trim().equals(this.ALL_SECTIONS_SELECT_VALUE)) {
@@ -612,23 +611,22 @@ System.out.println("lydiatest:  availableSections.size() = " + availableSections
                         // The user has selected a particular section.
                         enrollments = getSectionEnrollments(getSelectedSectionUid(this.getSelectedSectionFilterValue()));
                 }
-System.out.println("lydiatest:  getEnrollmentListForSelectedSections() size = " + enrollments.size());
         return enrollments;
         }
 
 
-  public List getSectionEnrollments(String sectionid) {
+  private List getSectionEnrollments(String sectionid) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
     return service.getSectionEnrollments(AgentFacade.getCurrentSiteId(), sectionid , AgentFacade.getAgentString());
 }
 
 
-  public List getAvailableEnrollments() {
+  private List getAvailableEnrollments() {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
     return service.getAvailableEnrollments(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString());
 }
 
-  public String getSelectedSectionUid(String uid) {
+  private String getSelectedSectionUid(String uid) {
     if (uid.equals(this.ALL_SECTIONS_SELECT_VALUE)){
       return null;
     } else {
