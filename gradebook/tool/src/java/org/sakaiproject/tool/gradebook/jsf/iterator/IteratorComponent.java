@@ -37,30 +37,31 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 
 /**
- * This is a bit like UIData, except that it doesn't put any constraints on which
- * children it processes. (UIData renderers ignore everything but UIColumn children.)
- * <gb:iterator value="#{assignmentDetailsBean.scoreRows}" var="scoreRow">
+ * A simple looping component which encodes all its children for every record in
+ * the input collection.
+ *
+ * <gbx:iterator value="#{assignmentDetailsBean.scoreRows}" var="scoreRow" rowIndexVar="scoreRowPos">
  *    ...
- * </gb:iterator>
+ * </gbx:iterator>
  */
 
 public class IteratorComponent extends UIComponentBase implements NamingContainer {
 	private static final Log log = LogFactory.getLog(IteratorComponent.class);
 
 	public final static String COMPONENT_TYPE = "org.sakaiproject.tool.gradebook.jsf.iterator";
-	public static final String COMPONENT_FAMILY = "javax.faces.Data";
+	public final static String COMPONENT_FAMILY = "javax.faces.Data";
 
 	private Object value = null;
 	private String var = null;
+	private String rowIndexVar = null;
+	private Integer rowIndex = null;
 
 	public void encodeChildren(FacesContext context) throws IOException {
 		Collection dataModel = getDataModel();
-		if (log.isDebugEnabled()) log.debug("encodeChildren: dataModel=" + dataModel);
 		if (dataModel != null) {
 			Map requestMap = context.getExternalContext().getRequestMap();
-			ResponseWriter writer = context.getResponseWriter();
-			writer.write("<blockquote>");
-			for (Iterator iter = dataModel.iterator(); iter.hasNext(); ) {
+			int rowIndex = 0;
+			for (Iterator iter = dataModel.iterator(); iter.hasNext(); rowIndex++) {
 				Object varObject = iter.next();
 				if (var != null) {
 					if (varObject != null) {
@@ -69,30 +70,46 @@ public class IteratorComponent extends UIComponentBase implements NamingContaine
 						requestMap.remove(var);
 					}
 				}
-				encodeRecursive(context, getChildren());
+				if (rowIndexVar != null) {
+					requestMap.put(rowIndexVar, new Integer(rowIndex));
+				}
+				renderRowChildren(context);
 			}
-			requestMap.remove(var);
-			writer.write("</blockquote>");
-			writer.flush();
+			if (var != null) {
+				requestMap.remove(var);
+			}
+			if (rowIndexVar != null) {
+				requestMap.remove(rowIndexVar);
+			}
 		}
 	}
 
-	private void encodeRecursive(FacesContext context, List components) throws IOException {
-		for (Iterator iter = components.iterator(); iter.hasNext(); ) {
-			UIComponent component = (UIComponent)iter.next();
-			if (component.isRendered()) {
-				component.encodeBegin(context);
-				if (component.getRendersChildren()) {
-					component.encodeChildren(context);
-				} else {
-					encodeRecursive(context, component.getChildren());
+	/**
+
+	 * Subclasses can decorate the children as they see fit.
+	 */
+	protected void renderRowChildren(FacesContext context) throws IOException {
+		for (Iterator iter = getChildren().iterator(); iter.hasNext(); ) {
+			encodeRecursive(context, (UIComponent)iter.next());
+		}
+	}
+
+	protected void encodeRecursive(FacesContext context, UIComponent component) throws IOException {
+		if (component.isRendered()) {
+			component.encodeBegin(context);
+			if (component.getRendersChildren()) {
+				component.encodeChildren(context);
+			} else {
+				for (Iterator iter = component.getChildren().iterator(); iter.hasNext(); ) {
+					encodeRecursive(context, (UIComponent)iter.next());
 				}
-				component.encodeEnd(context);
 			}
+			component.encodeEnd(context);
 		}
 	}
 
 	private Collection getDataModel() {
+		if (log.isDebugEnabled()) log.debug("getDataModel");
 		Collection dataModel = null;
 		Object val = getValue();
 		if (val != null) {
@@ -106,10 +123,8 @@ public class IteratorComponent extends UIComponentBase implements NamingContaine
 	}
 
 	public void encodeBegin(FacesContext context) throws IOException {
-		if (log.isDebugEnabled()) log.debug("encodeBegin");
 	}
 	public void encodeEnd(FacesContext context) throws IOException {
-		if (log.isDebugEnabled()) log.debug("encodeEnd");
 		return;
 	}
 
@@ -122,52 +137,55 @@ public class IteratorComponent extends UIComponentBase implements NamingContaine
 	}
 
 	public void setValueBinding(String name, ValueBinding binding) {
-		if ("var".equals(name)) {
+		if ("var".equals(name) || "rowIndexVar".equals(name)) {
 			throw new IllegalArgumentException();
 		}
 		super.setValueBinding(name, binding);
 	}
 
-
-	public Object getValue() {
-		if (log.isDebugEnabled()) log.debug("getValue: value=" + value + ", valueBinding=" + getValueBinding("value"));
+	protected Object getFieldOrBinding(Object field, String bindingName) {
 		Object retVal = null;
-		if (value != null) {
-			retVal = value;
+		if (field != null) {
+			retVal = field;
 		} else {
-			ValueBinding binding = getValueBinding("value");
+			ValueBinding binding = getValueBinding(bindingName);
 			if (binding != null) {
 				retVal = binding.getValue(getFacesContext());
 			}
 		}
 		return retVal;
 	}
+
+	public Object getValue() {
+		return getFieldOrBinding(value, "value");
+	}
 	public void setValue(Object value) {
-		if (log.isDebugEnabled()) log.debug("setValue " + value);
 		this.value = value;
 	}
 	public String getVar() {
-		if (log.isDebugEnabled()) log.debug("getVar: var=" + var);
 		return var;
 	}
 	public void setVar(String var) {
-		if (log.isDebugEnabled()) log.debug("setVar " + var);
 		this.var = var;
+	}
+	public void setRowIndexVar(String rowIndexVar) {
+		this.rowIndexVar = rowIndexVar;
 	}
 
 	public Object saveState(FacesContext context) {
-		Object values[] = new Object[3];
+		Object values[] = new Object[4];
 		values[0] = super.saveState(context);
 		values[1] = value;
 		values[2] = var;
+		values[3] = rowIndexVar;
 		return values;
 	}
 	public void restoreState(FacesContext context, Object state) {
-		if (log.isDebugEnabled()) log.debug("restoreState " + state);
 		Object values[] = (Object[])state;
 		super.restoreState(context, values[0]);
 		value = values[1];
 		var = (String)values[2];
+		rowIndexVar = (String)values[3];
 	}
 
 	public String getFamily() {

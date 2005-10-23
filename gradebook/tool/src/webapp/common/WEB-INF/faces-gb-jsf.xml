@@ -5,4 +5,8 @@
 		<component-type>org.sakaiproject.tool.gradebook.jsf.iterator</component-type>
 		<component-class>org.sakaiproject.tool.gradebook.jsf.iterator.IteratorComponent</component-class>
 	</component>
+	<component>
+		<component-type>org.sakaiproject.tool.gradebook.jsf.dhtmlpopup</component-type>
+		<component-class>org.sakaiproject.tool.gradebook.jsf.dhtmlpopup.DhtmlPopupComponent</component-class>
+	</component>
 </faces-config>

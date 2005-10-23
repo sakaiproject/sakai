@@ -29,6 +29,7 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.faces.application.Application;
 import javax.faces.webapp.UIComponentTag;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -37,6 +38,7 @@ import javax.faces.el.ValueBinding;
 public class IteratorTag extends UIComponentTag {
 	private String var;
 	private String value;
+	private String rowIndexVar;
 
 	public void setVar(String var) {
 		this.var = var;
@@ -44,15 +46,24 @@ public class IteratorTag extends UIComponentTag {
 	public void setValue(String value) {
 		this.value = value;
 	}
+	public void setRowIndexVar(String rowIndexVar) {
+		this.rowIndexVar = rowIndexVar;
+	}
 
 	protected void setProperties(UIComponent component) {
 		super.setProperties(component);
 
 		IteratorComponent iteratorComponent = (IteratorComponent)component;
-		iteratorComponent.setVar(var);
 
-		ValueBinding binding = FacesContext.getCurrentInstance().getApplication().createValueBinding(value);
-		iteratorComponent.setValueBinding("value", binding);
+		if (var != null) {
+			iteratorComponent.setVar(var);
+		}
+		if (rowIndexVar != null) {
+			iteratorComponent.setRowIndexVar(rowIndexVar);
+		}
+
+		Application application =  FacesContext.getCurrentInstance().getApplication();
+		iteratorComponent.setValueBinding("value", application.createValueBinding(value));
 	}
 
 	public String getComponentType() {
