@@ -327,7 +327,9 @@ document.links[newindex].onclick();
 <%--
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7,#{partBean.number},#{question.itemData.sequence}"/>
 --%>
+<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6,#{partBean.number},#{question.itemData.sequence}"/>
+<%}  %>  
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
 
 </h:selectOneMenu>
