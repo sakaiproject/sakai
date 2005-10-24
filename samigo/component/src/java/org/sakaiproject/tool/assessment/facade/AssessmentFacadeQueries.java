@@ -940,13 +940,13 @@ public class AssessmentFacadeQueries
     if (isTemplate.booleanValue()){
       query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentTemplateData a, AuthorizationData z where "+
-                   " a.title=? and a.assessmentBaseId!=?" +
+                   " a.title=? and a.assessmentBaseId!=? and " +
                    " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
     }
     else{
       query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentData a, AuthorizationData z where "+
-                   " a.title=? and a.assessmentBaseId!=?" +
+                   " a.title=? and a.assessmentBaseId!=? and " +
                    " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
     }
     List list = getHibernateTemplate().find(query,
