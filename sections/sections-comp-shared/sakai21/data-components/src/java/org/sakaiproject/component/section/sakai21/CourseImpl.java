@@ -25,365 +25,100 @@
 package org.sakaiproject.component.section.sakai21;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.service.legacy.authzGroup.Member;
-import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.site.Group;
 import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SitePage;
-import org.sakaiproject.service.legacy.site.ToolConfiguration;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.user.User;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-public class CourseImpl implements Course, Site, Serializable {
+public class CourseImpl implements Course, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static final String EXTERNALLY_MAINTAINED = "sections_externally_maintained";
 	public static final String STUDENT_REGISTRATION_ALLOWED = "sections_student_registration_allowed";
 	public static final String STUDENT_SWITCHING_ALLOWED = "sections_student_switching_allowed";
 	
-
-	protected Site siteInstance;
-
 	/**
 	 * Creates a course from a sakai Site
 	 * 
 	 * @param site The Sakai site
 	 */
 	public CourseImpl(Site site) {
-		this.siteInstance = site;
+		this.site = site;
+		this.uuid = site.getReference();
+		this.title = site.getTitle();
+		this.siteContext = site.getId();
+		this.externallyManaged = Boolean.valueOf(site.getProperties().getProperty(CourseImpl.EXTERNALLY_MAINTAINED)).booleanValue();
+		this.selfRegistrationAllowed = Boolean.valueOf(site.getProperties().getProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED)).booleanValue();
+		this.selfSwitchingAllowed = Boolean.valueOf(site.getProperties().getProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED)).booleanValue();
 	}
 	
-	/**
-	 * The siteContext is the site's ID
-	 */
-	public String getSiteContext() {
-		return siteInstance.getId();
+	public void decorateSite(Site site) {
+		ResourceProperties props = site.getProperties();
+		props.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.toString(externallyManaged));
+		props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.toString(selfRegistrationAllowed));
+		props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.toString(selfSwitchingAllowed));
 	}
 
-	/**
-	 * The course's UUID is the site's reference
-	 */
-	public String getUuid() {
-		return siteInstance.getReference();
-	}
+	protected String siteContext;
+	protected String uuid;
+	protected String title;
+	protected boolean externallyManaged;
+	protected boolean selfRegistrationAllowed;
+	protected boolean selfSwitchingAllowed;
 
-	public boolean isExternallyManaged() {
-		String str = siteInstance.getProperties().getProperty(EXTERNALLY_MAINTAINED);
-		return "true".equals(str);
-	}
-
-	public boolean isSelfRegistrationAllowed() {
-		String str = siteInstance.getProperties().getProperty(STUDENT_REGISTRATION_ALLOWED);
-		return "true".equals(str);
-	}
-
+	// Transient reference to the site being modeled
+	private transient Site site;
+	
 	public boolean isSelfSwitchingAllowed() {
-		String str = siteInstance.getProperties().getProperty(STUDENT_REGISTRATION_ALLOWED);
-		return "true".equals(str);
+		return selfSwitchingAllowed;
 	}
-
-	public int compareTo(Object o) {
-		return siteInstance.compareTo(o);
+	public void setSelfSwitchingAllowed(boolean selfSwitchingAllowed) {
+		this.selfSwitchingAllowed = selfSwitchingAllowed;
 	}
-
-	public User getCreatedBy() {
-		return siteInstance.getCreatedBy();
+	public boolean isSelfRegistrationAllowed() {
+		return selfRegistrationAllowed;
 	}
-
-	public Time getCreatedTime() {
-		return siteInstance.getCreatedTime();
+	public void setSelfRegistrationAllowed(boolean selfRegistrationAllowed) {
+		this.selfRegistrationAllowed = selfRegistrationAllowed;
 	}
-
-	public String getDescription() {
-		return siteInstance.getDescription();
+	public String getSiteContext() {
+		return siteContext;
 	}
-
-	public String getIconUrl() {
-		return siteInstance.getIconUrl();
+	public void setSiteContext(String siteContext) {
+		this.siteContext = siteContext;
 	}
-
-	public String getIconUrlFull() {
-		return siteInstance.getIconUrlFull();
+	public boolean isExternallyManaged() {
+		return externallyManaged;
 	}
-
-	public String getId() {
-		return siteInstance.getId();
+	public void setExternallyManaged(boolean externallyManaged) {
+		this.externallyManaged = externallyManaged;
 	}
-
-	public String getInfoUrl() {
-		return siteInstance.getInfoUrl();
-	}
-
-	public String getInfoUrlFull() {
-		return siteInstance.getInfoUrlFull();
-	}
-
-	public String getJoinerRole() {
-		return siteInstance.getJoinerRole();
-	}
-
-	public User getModifiedBy() {
-		return siteInstance.getModifiedBy();
-	}
-
-	public Time getModifiedTime() {
-		return siteInstance.getModifiedTime();
-	}
-
-	public List getOrderedPages() {
-		return siteInstance.getOrderedPages();
-	}
-
-	public SitePage getPage(String id) {
-		return siteInstance.getPage(id);
-	}
-
-	public List getPages() {
-		return siteInstance.getPages();
-	}
-
-	public ResourceProperties getProperties() {
-		return siteInstance.getProperties();
-	}
-
-	public String getReference() {
-		return siteInstance.getReference();
-	}
-
-	public Group getGroup(String id) {
-		return siteInstance.getGroup(id);
-	}
-
-	public Collection getGroups() {
-		return siteInstance.getGroups();
-	}
-
-	public String getShortDescription() {
-		return siteInstance.getShortDescription();
-	}
-
-	public String getSkin() {
-		return siteInstance.getSkin();
-	}
-
 	public String getTitle() {
-		return siteInstance.getTitle();
+		return title;
 	}
-
-	public ToolConfiguration getTool(String id) {
-		return siteInstance.getTool(id);
-	}
-
-	public String getType() {
-		return siteInstance.getType();
-	}
-
-	public String getUrl() {
-		return siteInstance.getUrl();
-	}
-
-	public boolean hasGroups() {
-		return siteInstance.hasGroups();
-	}
-
-	public boolean isJoinable() {
-		return siteInstance.isJoinable();
-	}
-
-	public boolean isPublished() {
-		return siteInstance.isPublished();
-	}
-
-	public boolean isPubView() {
-		return siteInstance.isPubView();
-	}
-
-	public boolean isType(Object type) {
-		return siteInstance.isType(type);
-	}
-
-	public void loadAll() {
-		siteInstance.loadAll();
-	}
-
-	public Element toXml(Document doc, Stack stack) {
-		return siteInstance.toXml(doc, stack);
-	}
-
-	public SitePage addPage() {
-		return siteInstance.addPage();
-	}
-
-	public Group addGroup() {
-		return siteInstance.addGroup();
-	}
-
-	public ResourcePropertiesEdit getPropertiesEdit() {
-		return siteInstance.getPropertiesEdit();
-	}
-
-	public boolean isActiveEdit() {
-		return siteInstance.isActiveEdit();
-	}
-
-	public void regenerateIds() {
-		siteInstance.regenerateIds();
-	}
-
-	public void removePage(SitePage page) {
-		siteInstance.removePage(page);
-	}
-
-	public void removeGroup(Group section) {
-		siteInstance.removeGroup(section);
-	}
-
-	public void setDescription(String description) {
-		siteInstance.setDescription(description);
-	}
-
-	public void setIconUrl(String url) {
-		siteInstance.setIconUrl(url);
-	}
-
-	public void setInfoUrl(String url) {
-		siteInstance.setInfoUrl(url);
-	}
-
-	public void setJoinable(boolean joinable) {
-		siteInstance.setJoinable(joinable);
-	}
-
-	public void setJoinerRole(String role) {
-		siteInstance.setJoinerRole(role);
-	}
-
-	public void setPublished(boolean published) {
-		siteInstance.setPublished(published);
-	}
-
-	public void setPubView(boolean pubView) {
-		siteInstance.setPubView(pubView);
-	}
-
-	public void setShortDescription(String description) {
-		siteInstance.setShortDescription(description);
-	}
-
-	public void setSkin(String skin) {
-		siteInstance.setSkin(skin);
-	}
-
 	public void setTitle(String title) {
-		siteInstance.setTitle(title);
+		this.title = title;
+	}
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+	
+	public String toString() {
+		return new ToStringBuilder(this)
+		.append(title)
+		.append(siteContext)
+		.append(uuid)
+		.toString();
 	}
 
-	public void setType(String type) {
-		siteInstance.setType(type);
+	public Site getSite() {
+		return site;
 	}
 
-	public void addMember(String userId, String roleId, boolean active, boolean provided) {
-		siteInstance.addMember(userId, roleId, active, provided);
-	}
-
-	public Role addRole(String id) throws IdUsedException {
-		return siteInstance.addRole(id);
-	}
-
-	public Role addRole(String id, Role other) throws IdUsedException {
-		return siteInstance.addRole(id, other);
-	}
-
-	public String getMaintainRole() {
-		return siteInstance.getMaintainRole();
-	}
-
-	public Member getMember(String userId) {
-		return siteInstance.getMember(userId);
-	}
-
-	public Set getMembers() {
-		return siteInstance.getMembers();
-	}
-
-	public String getProviderGroupId() {
-		return siteInstance.getProviderGroupId();
-	}
-
-	public Role getRole(String id) {
-		return siteInstance.getRole(id);
-	}
-
-	public Set getRoles() {
-		return siteInstance.getRoles();
-	}
-
-	public Set getRolesIsAllowed(String function) {
-		return siteInstance.getRolesIsAllowed(function);
-	}
-
-	public Role getUserRole(String userId) {
-		return siteInstance.getUserRole(userId);
-	}
-
-	public Set getUsers() {
-		return siteInstance.getUsers();
-	}
-
-	public Set getUsersHasRole(String role) {
-		return siteInstance.getUsersHasRole(role);
-	}
-
-	public Set getUsersIsAllowed(String function) {
-		return siteInstance.getUsersIsAllowed(function);
-	}
-
-	public boolean hasRole(String userId, String role) {
-		return siteInstance.hasRole(userId, role);
-	}
-
-	public boolean isAllowed(String userId, String function) {
-		return siteInstance.isAllowed(userId, function);
-	}
-
-	public boolean isEmpty() {
-		return siteInstance.isEmpty();
-	}
-
-	public void removeMember(String userId) {
-		siteInstance.removeMember(userId);
-	}
-
-	public void removeMembers() {
-		siteInstance.removeMembers();
-	}
-
-	public void removeRole(String role) {
-		siteInstance.removeRole(role);
-	}
-
-	public void removeRoles() {
-		siteInstance.removeRoles();
-	}
-
-	public void setMaintainRole(String role) {
-		siteInstance.setMaintainRole(role);
-	}
-
-	public void setProviderGroupId(String id) {
-		siteInstance.setProviderGroupId(id);
-	}
 }
 
 

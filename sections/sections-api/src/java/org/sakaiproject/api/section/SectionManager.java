@@ -215,7 +215,14 @@ public interface SectionManager {
      */
     public void dropSectionMembership(String userUid, String sectionUuid);
     
-	public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category);
+	/**
+	 * Removes the user from any enrollment to a section of the given category.
+	 * 
+	 * @param studentUid
+	 * @param siteContext
+	 * @param category
+	 */
+    public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category);
 
     /**
      * Adds a CourseSection to a parent CourseSection.  This assumes that meeting times

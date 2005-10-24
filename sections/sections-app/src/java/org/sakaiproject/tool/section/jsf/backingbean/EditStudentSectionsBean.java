@@ -90,7 +90,7 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		List allSections = getAllSiteSections();
 
 		// Get the list of used categories
-		Set usedCategorySet = super.getUsedCategories(getSectionCategories(), allSections); 
+		Set usedCategorySet = super.getUsedCategories(); 
 		usedCategories = new ArrayList();
 		for(Iterator iter=usedCategorySet.iterator(); iter.hasNext();) {
 			usedCategories.add(iter.next());
@@ -215,7 +215,7 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		return studentName;
 	}
 
-	public List getUsedCategories() {
+	public List getUsedCategoryList() {
 		return usedCategories;
 	}
 

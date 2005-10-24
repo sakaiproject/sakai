@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    <bean id="org.sakaiproject.api.section.SectionManager"
+        class="org.sakaiproject.component.section.sakai21.SectionManagerImpl">
+        <property name="siteService">
+            <ref bean="org.sakaiproject.service.legacy.site.SiteService"/>
+        </property>
+        <property name="authzGroupService">
+            <ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/>
+        </property>
+        <property name="securityService">
+            <ref bean="org.sakaiproject.service.legacy.security.SecurityService"/>
+        </property>
+        <property name="userDirectoryService">
+            <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
+        </property>
+        <property name="sessionManager">
+            <ref bean="org.sakaiproject.api.kernel.session.SessionManager"/>
+        </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.service.legacy.entity.EntityManager"/>
+        </property>
+    </bean>
+</beans>

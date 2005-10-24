@@ -2,15 +2,78 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
+<!--
+    Provides read-only section information, including membership.
+-->
     <bean id="org.sakaiproject.api.section.SectionAwareness"
-        class="org.sakaiproject.component.section.sakai21.SectionAwarenessHibernateImpl">
+        class="org.sakaiproject.component.section.sakai21.SectionAwarenessImpl"
+        init-method="init">
         <property name="siteService">
-            <ref bean="org.sakaiproject.service.legacy.site"/>
+            <ref bean="org.sakaiproject.service.legacy.site.SiteService"/>
+        </property>
+        <property name="functionManager">
+            <ref bean="org.sakaiproject.api.kernel.function.FunctionManager"/>
+        </property>
+        <property name="securityService">
+            <ref bean="org.sakaiproject.service.legacy.security.SecurityService"/>
+        </property>
+        <property name="userDirectoryService">
+            <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
+        </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.service.legacy.entity.EntityManager"/>
         </property>
     </bean>
 
+<!--
+    CourseManager allows for section-related metadata to be attached to a site.
+    For instance, if you decide to manage sections and their membership outside
+    Sakai (using the SectionManager interface), you could use CourseManager to
+    designate sites as "Externally Managed".  The Section Info tool will not allow
+    users to add, modify, or remove sections in externally managed sites.  Similarly,
+    users can not modify the enrollments in externally managed sites.
+    
+    Most installations will not need to use CourseManager.
+-->
     <bean id="org.sakaiproject.api.section.CourseManager"
-        class="org.sakaiproject.component.section.sakai21.CourseManagerHibernateImpl">
+        class="org.sakaiproject.component.section.sakai21.CourseManagerImpl">
     </bean>
+
+<!-- 
+    SectionManager is the interface used by the Section Info tool to manipulate
+    sections and their members.  It is not intended for public use.
+    
+    However, if a local institution wants to use the interface to populate sections
+    from enterprise data, they could use this as a temporary stop-gap until the
+    CourseManagement service comes on line.  Be warned that this is not recommended.
+    Uncomment this at your own risk!
+    
+    The Sakai 2.1 SectionManager implementation does not do authorization checks,
+    so use this carefully.
+-->
+
+<!-- 
+    <bean id="org.sakaiproject.api.section.SectionManager"
+        class="org.sakaiproject.component.section.sakai21.SectionManagerImpl">
+        <property name="siteService">
+            <ref bean="org.sakaiproject.service.legacy.site.SiteService"/>
+        </property>
+        <property name="authzGroupService">
+            <ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/>
+        </property>
+        <property name="securityService">
+            <ref bean="org.sakaiproject.service.legacy.security.SecurityService"/>
+        </property>
+        <property name="userDirectoryService">
+            <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
+        </property>
+        <property name="sessionManager">
+            <ref bean="org.sakaiproject.api.kernel.session.SessionManager"/>
+        </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.service.legacy.entity.EntityManager"/>
+        </property>
+    </bean>
+-->
 
 </beans>

@@ -24,18 +24,15 @@
 
 package org.sakaiproject.component.section.facade.impl.sakai21;
 
-import java.sql.SQLException;
-
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
-
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authz;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 
 /**
  * Uses Sakai's SecurityService to determine the current user's site role, or
@@ -44,48 +41,49 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class AuthzSakaiImpl extends HibernateDaoSupport implements Authz {
-    public static final String INSTRUCTOR_PERMISSION = "site.upd";
-    public static final String TA_PERMISSION = "section.ta";
-    public static final String STUDENT_PERMISSION = "site.visit";
-
+public class AuthzSakaiImpl implements Authz {
+	private static final Log log = LogFactory.getLog(AuthzSakaiImpl.class);
+    
 	/**
+	 * Ignores the userUid parameter, since sakai can get the current user itself.
+	 * 
 	 * @inheritDoc
 	 */
 	public Role getSiteRole(String userUid, String siteContext) {
-		String siteAuthzRef = SakaiUtil.getSiteReference();
-        boolean isInstructor = SecurityService.unlock(INSTRUCTOR_PERMISSION, siteAuthzRef);
-        boolean isTa = SecurityService.unlock(TA_PERMISSION, siteAuthzRef);
-        boolean isStudent = SecurityService.unlock(STUDENT_PERMISSION, siteAuthzRef);
-
-        if(isInstructor) {
-           return Role.INSTRUCTOR;
-        } else if(isTa) {
-            return Role.TA;
-        } else if(isStudent) {
-           return Role.STUDENT;
-        } else {
-           return Role.NONE;
-        }
+		User sakaiUser = UserDirectoryService.getCurrentUser();
+		String siteAuthzRef = SiteService.siteReference(siteContext);
+		return getRole(sakaiUser, siteAuthzRef);
 	}
 
 	/**
+	 * Ignores the userUid parameter, since sakai can get the current user itself.
+	 * 
 	 * @inheritDoc
 	 */
 	public Role getSectionRole(final String userUid, final String sectionUuid) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Query q = session.getNamedQuery("loadSectionParticipation");
-				q.setParameter("userUid", userUid);
-				q.setParameter("sectionUuid", sectionUuid);
-				return q.uniqueResult();
-			}
-		};
-		ParticipationRecord record = (ParticipationRecord)getHibernateTemplate().execute(hc);
-		if(record == null) {
-			return Role.NONE;
+		User sakaiUser = UserDirectoryService.getCurrentUser();
+		return getRole(sakaiUser, sectionUuid);
+	}
+
+	/**
+	 * Determines the local role based on the sakai role markers in the permission matrix.
+	 * 
+	 * @param sakaiUser The user
+	 * @param authzRef The security reference string
+	 * 
+	 * @return The internal role enumeration (not the sakai role)
+	 */
+	private Role getRole(User sakaiUser, String authzRef) {
+		if(SecurityService.unlock(sakaiUser, SectionAwareness.INSTRUCTOR_MARKER, authzRef)) {
+			return Role.INSTRUCTOR;
 		}
-		return record.getRole();
+		if(SecurityService.unlock(sakaiUser, SectionAwareness.TA_MARKER, authzRef)) {
+			return Role.TA;
+		}
+		if(SecurityService.unlock(sakaiUser, SectionAwareness.STUDENT_MARKER, authzRef)) {
+			return Role.STUDENT;
+		}
+		return Role.NONE;
 	}
 }
 

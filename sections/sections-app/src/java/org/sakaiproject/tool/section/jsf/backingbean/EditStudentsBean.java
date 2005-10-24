@@ -118,13 +118,13 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		availableSectionItems.add(new SelectItem("", JsfUtil.getLocalizedMessage("edit_student_unassigned")));
 		for(Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
-			if(section.getUuid().equals(availableSectionUuid)) {
-				availableSectionTitle = section.getTitle();
-				availableSectionMax = section.getMaxEnrollments();
-			}
 			// Don't include the current section
 			if(section.equals(currentSection)) {
 				continue;
+			}
+			if(section.getUuid().equals(availableSectionUuid)) {
+				availableSectionTitle = section.getTitle();
+				availableSectionMax = section.getMaxEnrollments();
 			}
 			availableSectionItems.add(new SelectItem(section.getUuid(), section.getTitle()));
 		}

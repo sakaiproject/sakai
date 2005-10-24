@@ -5,7 +5,7 @@
     <extend>../../../../master/project.xml</extend>
     <name>Sakai Sections Components</name>
     <groupId>sakaiproject</groupId>
-    <id>sakai-sections-comp-shared-sakai20-web-package</id>
+    <id>sakai-sections-comp-shared-sakai21-web-package</id>
 	<currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
@@ -16,11 +16,9 @@
 <!-- Do not deploy this components package yet -->
 <!-- If this is uncommented, you must comment the equivalent in ../../sakai20/component-webapp -->
 
-<!--
 	<properties>
 		<deploy.type>components</deploy.type>
 	</properties>
--->
 
     <dependencies>
     	<dependency>

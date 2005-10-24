@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-The build uses the sakai 2.0-based service layer by default.  To use another
+The build uses the sakai 2.1-based service layer by default.  To use another
 service implementation, specify -Dmode=<service layer name>.
 
-Currently, standalone is the only other mode available.
+service layer names include 'standalone' and 'sakai20'.
 
 -->
 
@@ -52,7 +52,7 @@ Currently, standalone is the only other mode available.
 				<ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
 			</j:if>
             
-			<j:if test="${mode.equals('sakai20') || empty(mode)}">
+			<j:if test="${mode.equals('sakai20')}">
 				<ant:echo message="Copying sakai 2.0 dependent resources into webapp"/>
 
 				<ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
@@ -62,7 +62,7 @@ Currently, standalone is the only other mode available.
 				</ant:copy>
     		</j:if>
 
-            <j:if test="${mode.equals('sakai21')}">
+            <j:if test="${mode.equals('sakai21') || empty(mode)}">
                 <ant:echo message="Copying sakai 2.1 dependent resources into webapp"/>
 
                 <ant:copy todir="${maven.war.webapp.dir}" overwrite="true">

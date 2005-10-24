@@ -58,7 +58,6 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	private CourseBean getCourseBean() {
 		if(courseBean == null) {
 			courseBean = (CourseBean)JsfUtil.resolveVariable("courseBean");
-			if(log.isDebugEnabled()) log.debug("resolved course bean = " + courseBean);
 		}
 		return courseBean;
 	}
@@ -70,8 +69,10 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	 * @param sections
 	 * @return
 	 */
-	protected Set getUsedCategories(List categories, Collection sections) {
+	protected Set getUsedCategories() {
 		Set used = new HashSet();
+		List sections = getAllSiteSections();
+		List categories = getSectionManager().getSectionCategories(getSiteContext());
 		for(Iterator iter = sections.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
 			String cat = section.getCategory();

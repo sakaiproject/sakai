@@ -24,9 +24,6 @@
 
 package org.sakaiproject.component.section.sakai21;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Time;
 import java.text.DateFormat;
@@ -35,29 +32,22 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.Stack;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.service.legacy.authzGroup.Member;
-import org.sakaiproject.service.legacy.authzGroup.Role;
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.site.Group;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.service.legacy.user.User;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-public class CourseSectionImpl implements CourseSection, Group, Serializable {
+public class CourseSectionImpl implements CourseSection, Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final String TIME_FORMAT_LONG = "h:mm a";
 	private static final Log log = LogFactory.getLog(CourseSectionImpl.class);
 	
 	public static final String CATEGORY = "sections_category";
@@ -72,40 +62,108 @@ public class CourseSectionImpl implements CourseSection, Group, Serializable {
 	public static final String FRIDAY = "sections_friday";
 	public static final String SATURDAY = "sections_saturday";
 	public static final String SUNDAY = "sections_sunday";
-	
-	private transient Group sectionInstance;
-	private String sectionInstanceId;
 
-	public CourseSectionImpl(Group section) {
-		this.sectionInstance = section;
-		this.sectionInstanceId = section.getId();
+	// Fields from Site Section
+	protected String description;
+
+	// Fields from CourseSection
+    protected String uuid;
+	protected Course course;
+	protected String category;
+    protected String location;
+    protected Integer maxEnrollments;
+	private boolean monday;
+	private boolean tuesday;
+	private boolean wednesday;
+	private boolean thursday;
+	private boolean friday;
+	private boolean saturday;
+	private boolean sunday;
+	private Time startTime;
+	private Time endTime;
+
+    // Fields shared between the two interfaces
+	protected String id;
+    protected String title;
+
+    // Transient holder for the framework group being decorated.
+    private transient Group group;
+    
+	public CourseSectionImpl(Group group) {
+		this.group = group;
+		ResourceProperties props = group.getProperties();
+		id = group.getId();
+		uuid = group.getReference();
+		title = group.getTitle();
+		course = new CourseImpl(group.getContainingSite());
+		category = props.getProperty(CourseSectionImpl.CATEGORY);
+		location = props.getProperty(CourseSectionImpl.LOCATION);
+		endTime = CourseSectionImpl.convertStringToTime(props.getProperty(END_TIME));
+		startTime = CourseSectionImpl.convertStringToTime(props.getProperty(START_TIME));
+		String str = props.getProperty(MAX_ENROLLMENTS);
+
+		if(StringUtils.trimToNull(str) != null) {
+			try {
+				maxEnrollments = Integer.valueOf(str);
+			} catch(NumberFormatException nfe) {
+				if(log.isDebugEnabled()) log.debug("can not parse integer property for " + CourseSectionImpl.MAX_ENROLLMENTS);
+			}
+		}
+		try {
+			monday = props.getBooleanProperty(CourseSectionImpl.MONDAY);
+		} catch (Exception e) {
+			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.MONDAY);
+		}
+		try {
+			tuesday = props.getBooleanProperty(CourseSectionImpl.TUESDAY);
+		} catch (Exception e) {
+			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.TUESDAY);
+		}
+		try {
+			wednesday = props.getBooleanProperty(CourseSectionImpl.WEDNESDAY);
+		} catch (Exception e) {
+			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.WEDNESDAY);
+		}
+		try {
+			thursday = props.getBooleanProperty(CourseSectionImpl.THURSDAY);
+		} catch (Exception e) {
+			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.THURSDAY);
+		}
+		try {
+			friday = props.getBooleanProperty(CourseSectionImpl.FRIDAY);
+		} catch (Exception e) {
+			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.FRIDAY);
+		}
+		try {
+			saturday = props.getBooleanProperty(CourseSectionImpl.SATURDAY);
+		} catch (Exception e) {
+			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.SATURDAY);
+		}
+		try {
+			sunday = props.getBooleanProperty(CourseSectionImpl.SUNDAY);
+		} catch (Exception e) {
+			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.SUNDAY);
+		}
+		
+		// Always generate the description last, so the fields are properly set
+		description = generateDescription();
+
 	}
-	
-	private void writeObject(ObjectOutputStream s) throws IOException {
-	    s.defaultWriteObject();
-	}
-	
-	private void readObject(ObjectInputStream s) throws IOException  {
-	    try {
-	    	s.defaultReadObject();
-	    } catch (ClassNotFoundException e) {
-	    	log.error("Could not de-serialize... ", e);
-	    	return;
-	    }
-	    sectionInstance = SiteService.findGroup(sectionInstanceId);
-	}
-	
+		
     public static final String convertTimeToString(Time time) {
     	if(time == null) {
     		return null;
     	}
-		SimpleDateFormat sdf = new SimpleDateFormat("h:mm");
+		SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_LONG);
     	return sdf.format(time);
     }
 
     public static final Time convertStringToTime(String str) {
+    	if(StringUtils.trimToNull(str) == null) {
+    		return null;
+    	}
     	try {
-    		SimpleDateFormat sdf = new SimpleDateFormat("h:mm");
+    		SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_LONG);
         	return new Time(sdf.parse(str).getTime());
     	} catch (Exception e) {
     		if(log.isDebugEnabled()) log.debug("Unable to parse " + str);
@@ -113,139 +171,7 @@ public class CourseSectionImpl implements CourseSection, Group, Serializable {
     	}
     }
 
-    public Course getCourse() {
-		Site site;
-		try {
-			site = SiteService.getSite(sectionInstance.getSiteId());
-		} catch (IdUnusedException e) {
-			log.error("could not find site with id = " + sectionInstance.getSiteId());
-			return null;
-		}
-		return new CourseImpl(site);
-	}
-	
-	/**
-	 * The uuid is the Sakai Section's reference
-	 */
-	public String getUuid() {
-		return sectionInstance.getReference(); 
-	}
-	
-	public String getCategory() {
-		return sectionInstance.getProperties().getProperty(CATEGORY);
-	}
-
-	public void setCategory(String category) {
-		// TODO Set the category
-	}
-
-	public Time getStartTime() {
-		String str = sectionInstance.getProperties().getProperty(START_TIME);
-		return convertStringToTime(str);
-	}
-
-	public void setStartTime(Time startTime) {
-		// TODO Set the end time
-	}
-
-	public Time getEndTime() {
-		String str = sectionInstance.getProperties().getProperty(END_TIME);
-		return convertStringToTime(str);
-	}
-
-	public void setEndTime(Time endTime) {
-		// TODO Set the end time
-	}
-
-	public boolean isFriday() {
-		String str = sectionInstance.getProperties().getProperty(FRIDAY);
-		return "true".equals(str);
-	}
-
-	public void setFriday(boolean friday) {
-		// TODO Set friday
-	}
-
-	public String getLocation() {
-		return sectionInstance.getProperties().getProperty(LOCATION);
-	}
-
-	public void setLocation(String location) {
-		// TODO Set the location
-	}
-
-	public Integer getMaxEnrollments() {
-		String str = sectionInstance.getProperties().getProperty(MAX_ENROLLMENTS);
-		return Integer.valueOf(str);
-	}
-
-	public void setMaxEnrollments(Integer maxEnrollments) {
-		// TODO Set the max enrollments
-	}
-
-	public boolean isMonday() {
-		String str = sectionInstance.getProperties().getProperty(MONDAY);
-		return "true".equals(str);
-	}
-
-	public void setMonday(boolean monday) {
-		// TODO Set monday
-	}
-
-	public boolean isSaturday() {
-		String str = sectionInstance.getProperties().getProperty(SATURDAY);
-		return "true".equals(str);
-	}
-
-	public void setSaturday(boolean saturday) {
-		// TODO Set Saturday
-	}
-
-	public Group getSectionInstance() {
-		return sectionInstance;
-	}
-
-	public void setSectionInstance(Group sectionInstance) {
-		this.sectionInstance = sectionInstance;
-	}
-
-	public boolean isSunday() {
-		String str = sectionInstance.getProperties().getProperty(SUNDAY);
-		return "true".equals(str);
-	}
-
-	public void setSunday(boolean sunday) {
-		// TODO Set sunday
-	}
-
-	public boolean isThursday() {
-		String str = sectionInstance.getProperties().getProperty(THURSDAY);
-		return "true".equals(str);
-	}
-
-	public void setThursday(boolean thursday) {
-		// TODO Set thursday
-	}
-
-	public boolean isTuesday() {
-		String str = sectionInstance.getProperties().getProperty(TUESDAY);
-		return "true".equals(str);
-	}
-
-	public void setTuesday(boolean tuesday) {
-		// TODO Set tuesday
-	}
-
-	public boolean isWednesday() {
-		String str = sectionInstance.getProperties().getProperty(WEDNESDAY);
-		return "true".equals(str);
-	}
-
-	public void setWednesday(boolean wednesday) {
-		// TODO Set wednesday
-	}
-	
-	public String getDescription() {
+    private String generateDescription() {
 		String daySepChar = ",";
 		String timeSepChar = "-";
 		
@@ -253,19 +179,19 @@ public class CourseSectionImpl implements CourseSection, Group, Serializable {
 		
 		// Days of the week
 		List dayList = new ArrayList();
-		if(isMonday())
+		if(monday)
 			dayList.add("M");
-		if(isTuesday())
+		if(tuesday)
 			dayList.add("T");
-		if(isWednesday())
+		if(wednesday)
 			dayList.add("W");
-		if(isThursday())
+		if(thursday)
 			dayList.add("Th");
-		if(isFriday())
+		if(friday)
 			dayList.add("F");
-		if(isSaturday())
+		if(saturday)
 			dayList.add("Sa");
-		if(isSunday())
+		if(sunday)
 			dayList.add("Su");
 
 		for(Iterator iter = dayList.iterator(); iter.hasNext();) {
@@ -276,188 +202,286 @@ public class CourseSectionImpl implements CourseSection, Group, Serializable {
 		}
 
 		// Start time
-		DateFormat df = new SimpleDateFormat("h:mm a");
+		DateFormat df = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_LONG);
 		sb.append(" ");
-		Time startTime = getStartTime();
 		if(startTime != null) {
 			sb.append(df.format(new Date(startTime.getTime())).toLowerCase());
 		}
 
 		// End time
-		Time endTime = getEndTime();
 		if(startTime != null &&
 				endTime != null) {
 			sb.append(timeSepChar);
 		}
-
 		if(endTime != null) {
 			sb.append(df.format(new Date(endTime.getTime())).toLowerCase());
 		}
-		
 		return sb.toString();
+    }
+
+    /**
+     * Decorates the framework's section (group) with metadata from this CourseSection.
+     * 
+     * @param group The framework group
+     */
+    public void decorateSection(Group group) {
+    	ResourceProperties props = group.getProperties();
+    	SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_LONG);
+    	group.setTitle(title);
+    	group.setDescription(description);
+    	props.addProperty(CourseSectionImpl.CATEGORY, category);
+    	props.addProperty(CourseSectionImpl.LOCATION, location);
+    	if(startTime == null) {
+    		props.removeProperty(CourseSectionImpl.START_TIME);
+    	} else {
+        	props.addProperty(CourseSectionImpl.START_TIME, sdf.format(startTime));
+    	}
+    	if(endTime == null) {
+    		props.removeProperty(CourseSectionImpl.END_TIME);
+    	} else {
+        	props.addProperty(CourseSectionImpl.END_TIME, sdf.format(endTime));
+    	}
+    	if(maxEnrollments == null) {
+    		props.removeProperty(CourseSectionImpl.MAX_ENROLLMENTS);
+    	} else {
+    		props.addProperty(CourseSectionImpl.MAX_ENROLLMENTS, maxEnrollments.toString());
+    	}
+    	props.addProperty(CourseSectionImpl.MONDAY, Boolean.toString(monday));
+    	props.addProperty(CourseSectionImpl.TUESDAY, Boolean.toString(tuesday));
+    	props.addProperty(CourseSectionImpl.WEDNESDAY, Boolean.toString(wednesday));
+    	props.addProperty(CourseSectionImpl.THURSDAY, Boolean.toString(thursday));
+    	props.addProperty(CourseSectionImpl.FRIDAY, Boolean.toString(friday));
+    	props.addProperty(CourseSectionImpl.SATURDAY, Boolean.toString(saturday));
+    	props.addProperty(CourseSectionImpl.SUNDAY, Boolean.toString(sunday));
+    }
+    
+	/**
+	 * Sets the fields for an update so we can easily call decorateSection.
+	 * 
+	 * @param title
+	 * @param location
+	 * @param maxEnrollments
+	 * @param startTime
+	 * @param endTime
+	 * @param monday
+	 * @param tuesday
+	 * @param wednesday
+	 * @param thursday
+	 * @param friday
+	 * @param saturday
+	 * @param sunday
+	 */
+    public void setUpdateFields(String title, String location, Integer maxEnrollments, Time startTime,
+			Time endTime, boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
+			boolean friday, boolean saturday, boolean sunday) {
+		this.title = title;
+		this.location = location;
+		this.maxEnrollments = maxEnrollments;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.monday = monday;
+		this.tuesday = tuesday;
+		this.wednesday = wednesday;
+		this.thursday = thursday;
+		this.friday = friday;
+		this.saturday = saturday;
+		this.sunday = sunday;
+		
+    	this.description = generateDescription();
 	}
 
-	
-	// Delegates from Site Service's Section
-	
-	public String getId() {
-		return sectionInstance.getId();
+    /**
+	 * Sets the fields for an add section operation so we can easily call decorateSection.
+     * 
+     * @param category
+     * @param title
+     * @param location
+     * @param maxEnrollments
+     * @param startTime
+     * @param endTime
+     * @param monday
+     * @param tuesday
+     * @param wednesday
+     * @param thursday
+     * @param friday
+     * @param saturday
+     * @param sunday
+     */
+    public void setAddFields(String category, String title, String location, Integer maxEnrollments,
+    		Time startTime, Time endTime, boolean monday, boolean tuesday, boolean wednesday,
+    		boolean thursday, boolean friday, boolean saturday, boolean sunday) {
+    	setUpdateFields(title, location, maxEnrollments, startTime, endTime, monday,
+    			tuesday, wednesday, thursday, friday, saturday, sunday);
+    	this.category = category;
+    	this.description = generateDescription();
+    }
+    
+    /* Bean getters & setters */
+    
+	public String getCategory() {
+		return category;
 	}
 
-	public ResourceProperties getProperties() {
-		return sectionInstance.getProperties();
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
-	public ResourcePropertiesEdit getPropertiesEdit() {
-		return sectionInstance.getPropertiesEdit();
+	public Course getCourse() {
+		return course;
 	}
 
-	public String getReference() {
-		return sectionInstance.getReference();
+	public void setCourse(Course course) {
+		this.course = course;
 	}
 
-	public String getSiteId() {
-		return sectionInstance.getSiteId();
-	}
-
-	public String getTitle() {
-		return sectionInstance.getTitle();
-	}
-
-	public String getUrl() {
-		return sectionInstance.getUrl();
-	}
-
-	public boolean isActiveEdit() {
-		return sectionInstance.isActiveEdit();
+	public String getDescription() {
+		return description;
 	}
 
 	public void setDescription(String description) {
-		sectionInstance.setDescription(description);
+		this.description = description;
+	}
+
+	public Time getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Time endTime) {
+		this.endTime = endTime;
+	}
+
+	public boolean isFriday() {
+		return friday;
+	}
+
+	public void setFriday(boolean friday) {
+		this.friday = friday;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public Integer getMaxEnrollments() {
+		return maxEnrollments;
+	}
+
+	public void setMaxEnrollments(Integer maxEnrollments) {
+		this.maxEnrollments = maxEnrollments;
+	}
+
+	public boolean isMonday() {
+		return monday;
+	}
+
+	public void setMonday(boolean monday) {
+		this.monday = monday;
+	}
+
+	public boolean isSaturday() {
+		return saturday;
+	}
+
+	public void setSaturday(boolean saturday) {
+		this.saturday = saturday;
+	}
+
+	public Time getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Time startTime) {
+		this.startTime = startTime;
+	}
+
+	public boolean isSunday() {
+		return sunday;
+	}
+
+	public void setSunday(boolean sunday) {
+		this.sunday = sunday;
+	}
+
+	public boolean isThursday() {
+		return thursday;
+	}
+
+	public void setThursday(boolean thursday) {
+		this.thursday = thursday;
+	}
+
+	public String getTitle() {
+		return title;
 	}
 
 	public void setTitle(String title) {
-		sectionInstance.setTitle(title);
+		this.title = title;
 	}
 
-	public Element toXml(Document doc, Stack stack) {
-		return sectionInstance.toXml(doc, stack);
+	public boolean isTuesday() {
+		return tuesday;
 	}
 
-	public Site getContainingSite() {
-		return sectionInstance.getContainingSite();
+	public void setTuesday(boolean tuesday) {
+		this.tuesday = tuesday;
 	}
 
-	public void addMember(String userId, String roleId, boolean active, boolean provided) {
-		sectionInstance.addMember(userId, roleId, active, provided);
+	public String getUuid() {
+		return uuid;
 	}
 
-	public Role addRole(String id) throws IdUsedException {
-		return sectionInstance.addRole(id);
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
-	public Role addRole(String id, Role other) throws IdUsedException {
-		return sectionInstance.addRole(id, other);
+	public boolean isWednesday() {
+		return wednesday;
 	}
 
-	public User getCreatedBy() {
-		return sectionInstance.getCreatedBy();
+	public void setWednesday(boolean wednesday) {
+		this.wednesday = wednesday;
 	}
 
-	public org.sakaiproject.service.legacy.time.Time getCreatedTime() {
-		return sectionInstance.getCreatedTime();
+	public boolean equals(Object o) {
+		if(o == this) {
+			return true;
+		}
+		if(o instanceof CourseSectionImpl) {
+			CourseSectionImpl other = (CourseSectionImpl)o;
+			return new EqualsBuilder()
+				.append(getUuid(), other.getUuid())
+				.isEquals();
+		}
+		return false;
+	}
+	
+	public int hashCode() {
+		return new HashCodeBuilder()
+			.append(getUuid())
+			.toHashCode();
 	}
 
-	public String getMaintainRole() {
-		return sectionInstance.getMaintainRole();
-	}
-
-	public Member getMember(String userId) {
-		return sectionInstance.getMember(userId);
-	}
-
-	public Set getMembers() {
-		return sectionInstance.getMembers();
-	}
-
-	public User getModifiedBy() {
-		return sectionInstance.getModifiedBy();
-	}
-
-	public org.sakaiproject.service.legacy.time.Time getModifiedTime() {
-		return sectionInstance.getModifiedTime();
-	}
-
-	public String getProviderGroupId() {
-		return sectionInstance.getProviderGroupId();
-	}
-
-	public Role getRole(String id) {
-		return sectionInstance.getRole(id);
-	}
-
-	public Set getRoles() {
-		return sectionInstance.getRoles();
-	}
-
-	public Set getRolesIsAllowed(String function) {
-		return sectionInstance.getRolesIsAllowed(function);
-	}
-
-	public Role getUserRole(String userId) {
-		return sectionInstance.getUserRole(userId);
-	}
-
-	public Set getUsers() {
-		return sectionInstance.getUsers();
-	}
-
-	public Set getUsersHasRole(String role) {
-		return sectionInstance.getUsersHasRole(role);
-	}
-
-	public Set getUsersIsAllowed(String function) {
-		return sectionInstance.getUsersIsAllowed(function);
-	}
-
-	public boolean hasRole(String userId, String role) {
-		return sectionInstance.hasRole(userId, role);
-	}
-
-	public boolean isAllowed(String userId, String function) {
-		return sectionInstance.isAllowed(userId, function);
-	}
-
-	public boolean isEmpty() {
-		return sectionInstance.isEmpty();
-	}
-
-	public void removeMember(String userId) {
-		sectionInstance.removeMember(userId);
-	}
-
-	public void removeMembers() {
-		sectionInstance.removeMembers();
-	}
-
-	public void removeRole(String role) {
-		sectionInstance.removeRole(role);
-	}
-
-	public void removeRoles() {
-		sectionInstance.removeRoles();
-	}
-
-	public void setMaintainRole(String role) {
-		sectionInstance.setMaintainRole(role);
-	}
-
-	public void setProviderGroupId(String id) {
-		sectionInstance.setProviderGroupId(id);
-	}
-
-	public int compareTo(Object o) {
-		return sectionInstance.compareTo(o);
+	/**
+	 * Access the group object being decorated.  This field is transient, so this
+	 * is likely to return null.  This method should not be added to the CourseSection
+	 * interface, since it is implementation dependent.
+	 * 
+	 * @return The transient Group object being modeled.
+	 */
+	public Group getGroup() {
+		return group;
 	}
 
 }

@@ -44,7 +44,16 @@ public interface SectionAwareness {
 	/** The resource bundle containing the category IDs and names */
 	public static final String CATEGORY_BUNDLE = "org.sakaiproject.api.section.bundle.CourseSectionCategories";
 	
-    /**
+	/** The permission "marker" indicating that a role is the student role */
+	public static final String STUDENT_MARKER = "section.role.student";
+
+	/** The permission "marker" indicating that a role is the ta role */
+	public static final String TA_MARKER = "section.role.ta";
+
+	/** The permission "marker" indicating that a role is the instructor role */
+	public static final String INSTRUCTOR_MARKER = "section.role.instructor";
+
+	/**
      * Gets the sections associated with this site context.
      * 
 	 * @param siteContext The site context

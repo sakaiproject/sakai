@@ -71,7 +71,6 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	private boolean externallyManaged;
 
 	private List enrollments;
-	private List sections;
 	private List categories;
 	
 	public void init() {
@@ -83,9 +82,6 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			searchText = JsfUtil.getLocalizedMessage("roster_search_text");
 		}
 
-		// Get the sections
-		sections = getAllSiteSections();
-		
 		// Get the site enrollments
 		List siteStudents;
 		if(searchText.equals(JsfUtil.getLocalizedMessage("roster_search_text"))) {
@@ -154,7 +150,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 	
 	public void setRosterDataTable(HtmlDataTable rosterDataTable) {
-		Set usedCategories = getUsedCategories(categories, sections);
+		Set usedCategories = getUsedCategories();
 		
 		if (rosterDataTable.findComponent(CAT_COLUMN_PREFIX + "0") == null) {
 			Application app = FacesContext.getCurrentInstance().getApplication();

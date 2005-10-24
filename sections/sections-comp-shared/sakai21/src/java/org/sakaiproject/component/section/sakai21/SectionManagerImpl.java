@@ -38,6 +38,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -47,20 +49,20 @@ import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.component.section.facade.impl.sakai21.AuthzSakaiImpl;
 import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
+import org.sakaiproject.service.legacy.authzGroup.Member;
+import org.sakaiproject.service.legacy.entity.EntityManager;
 import org.sakaiproject.service.legacy.entity.Reference;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.sakaiproject.service.legacy.security.SecurityService;
 import org.sakaiproject.service.legacy.site.Group;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.SiteService;
+import org.sakaiproject.service.legacy.user.UserDirectoryService;
 
 /**
  * A sakai 2.1 based implementation of the Section Management API, using the
@@ -73,22 +75,18 @@ public class SectionManagerImpl implements SectionManager {
 
 	private static final Log log = LogFactory.getLog(SectionManagerImpl.class);
 	
-	private ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
+	protected ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
 			"org.sakaiproject.api.section.bundle.CourseSectionCategories");
 
-    protected Authn authn;
-    protected Context context;
-    protected SiteService siteService;
-    
-    /**
-     * The role name that corresponds to a TA.  Configured via dependency injection.
-     */
-    protected String taRole;
+	// Local facades and services
 
-    /**
-     * The role name that corresponds to a Student.  Configured via dependency injection.
-     */
-    protected String studentRole;
+    // Sakai services
+    protected SiteService siteService;
+    protected AuthzGroupService authzGroupService;
+    protected SecurityService securityService;
+    protected UserDirectoryService userDirectoryService;
+    protected SessionManager sessionManager;
+    protected EntityManager entityManager;
     
 	/**
 	 * @inheritDoc
@@ -104,8 +102,8 @@ public class SectionManagerImpl implements SectionManager {
     		return new ArrayList();
     	}
     	for(Iterator iter = sections.iterator(); iter.hasNext();) {
-    		Group section = (Group)iter.next();
-    		sectionList.add(new CourseSectionImpl(section));
+    		Group group = (Group)iter.next();
+    		sectionList.add(new CourseSectionImpl(group));
     	}
     	return sectionList;
 	}
@@ -124,9 +122,9 @@ public class SectionManagerImpl implements SectionManager {
     		return new ArrayList();
     	}
     	for(Iterator iter = sections.iterator(); iter.hasNext();) {
-    		Group section = (Group)iter.next();
-    		if(categoryId.equals(section.getProperties().getProperty(CourseSectionImpl.CATEGORY))) {
-        		sectionList.add(new CourseSectionImpl(section));
+    		Group group = (Group)iter.next();
+    		if(categoryId.equals(group.getProperties().getProperty(CourseSectionImpl.CATEGORY))) {
+        		sectionList.add(new CourseSectionImpl(group));
     		}
     	}
     	return sectionList;
@@ -136,24 +134,27 @@ public class SectionManagerImpl implements SectionManager {
 	 * @inheritDoc
 	 */
 	public CourseSection getSection(String sectionUuid) {
-		Group section;
-		section = siteService.findGroup(sectionUuid);
-		if(section == null) {
+		Group group;
+		group = siteService.findGroup(sectionUuid);
+		if(group == null) {
 			log.error("Unable to find section " + sectionUuid);
 			return null;
 		}
-		return new CourseSectionImpl(section);
+		return new CourseSectionImpl(group);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public List getSiteInstructors(final String siteContext) {
-        List sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, SakaiUtil.getSiteReference());
+	public List getSiteInstructors(String siteContext) {
+        CourseImpl course = (CourseImpl)getCourse(siteContext);
+        if(course == null) {
+        	return new ArrayList();
+        }
+        Site site = course.getSite();
+        Set sakaiUserIds = site.getUsersIsAllowed(SectionAwareness.INSTRUCTOR_MARKER);
+        List sakaiMembers = userDirectoryService.getUsers(sakaiUserIds);
         List membersList = new ArrayList();
-
-        Course course = getCourse(siteContext);
-        
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
@@ -166,14 +167,15 @@ public class SectionManagerImpl implements SectionManager {
 	/**
 	 * @inheritDoc
 	 */
-	public List getSiteTeachingAssistants(final String siteContext) {
-		String siteRef = SakaiUtil.getSiteReference();
-        List sakaiMembers = SecurityService.unlockUsers(AuthzSakaiImpl.TA_PERMISSION, siteRef);
-        sakaiMembers.removeAll(SecurityService.unlockUsers(AuthzSakaiImpl.INSTRUCTOR_PERMISSION, siteRef));
-
+	public List getSiteTeachingAssistants(String siteContext) {
+        CourseImpl course = (CourseImpl)getCourse(siteContext);
+        if(course == null) {
+        	return new ArrayList();
+        }
+        Site site = course.getSite();
+        Set sakaiUserIds = site.getUsersIsAllowed(SectionAwareness.TA_MARKER);
+        List sakaiMembers = userDirectoryService.getUsers(sakaiUserIds);
         List membersList = new ArrayList();
-        Course course = getCourse(siteContext);
-        
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
@@ -186,17 +188,18 @@ public class SectionManagerImpl implements SectionManager {
 	/**
 	 * @inheritDoc
 	 */
-	public List getSiteEnrollments(final String siteContext) {
-		// TODO Replace with list of site members in student role
-        List sakaiMembers = new ArrayList();
+	public List getSiteEnrollments(String siteContext) {
+        CourseImpl course = (CourseImpl)getCourse(siteContext);
+        if(course == null) {
+        	return new ArrayList();
+        }
+        Site site = course.getSite();
+        Set sakaiUserIds = site.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER);
+        List sakaiMembers = userDirectoryService.getUsers(sakaiUserIds);
         List membersList = new ArrayList();
-
-        Course course = getCourse(siteContext);
-        
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
-    		// TODO Where do we get the enrollment status?
     		EnrollmentRecordImpl record = new EnrollmentRecordImpl(course, null, user);
     		membersList.add(record);
         }
@@ -206,17 +209,45 @@ public class SectionManagerImpl implements SectionManager {
 	/**
 	 * @inheritDoc
 	 */
-	public List getSectionTeachingAssistants(final String sectionUuid) {
-		log.error("FIXME!");
-		return new ArrayList();
+	public List getSectionTeachingAssistants(String sectionUuid) {
+		Group group = siteService.findGroup(sectionUuid);
+		CourseSection section = getSection(sectionUuid);
+		if(section == null) {
+			return new ArrayList();
+		}
+		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
+		Set sakaiUserUids = group.getUsersHasRole(getSectionTaRole(group));
+		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
+
+        List membersList = new ArrayList();
+        for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
+        	User user = SakaiUtil.convertUser((org.sakaiproject.service.legacy.user.User) iter.next());
+    		TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(section, user);
+    		membersList.add(record);
+        }
+        return membersList;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public List getSectionEnrollments(final String sectionUuid) {
-		log.error("FIXME!");
-		return new ArrayList();
+	public List getSectionEnrollments(String sectionUuid) {
+		Group group = siteService.findGroup(sectionUuid);
+		CourseSection section = getSection(sectionUuid);
+		if(section == null) {
+			return new ArrayList();
+		}
+		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
+		Set sakaiUserUids = group.getUsersHasRole(getSectionStudentRole(group));
+		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
+
+        List membersList = new ArrayList();
+        for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
+        	User user = SakaiUtil.convertUser((org.sakaiproject.service.legacy.user.User) iter.next());
+    		EnrollmentRecordImpl record = new EnrollmentRecordImpl(section, null, user);
+    		membersList.add(record);
+        }
+        return membersList;
 	}
 
 	/**
@@ -268,7 +299,7 @@ public class SectionManagerImpl implements SectionManager {
 	/**
 	 * @inheritDoc
 	 */
-	public Course getCourse(final String siteContext) {
+	public Course getCourse(String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting course for context " + siteContext);
     	Site site;
     	try {
@@ -283,25 +314,104 @@ public class SectionManagerImpl implements SectionManager {
 	/**
 	 * @inheritDoc
 	 */
-	public SectionEnrollments getSectionEnrollmentsForStudents(final String siteContext, final Set studentUids) {
-		// TODO Get the list of all section enrollment records
-		log.error("FIXME!");
-		return new SectionEnrollmentsImpl(new ArrayList());
+	public SectionEnrollments getSectionEnrollmentsForStudents(String siteContext, Set studentUids) {
+		if(studentUids == null || studentUids.isEmpty()) {
+			if(log.isDebugEnabled()) log.debug("Null or empty set of student Uids passed to getSectionEnrollmentsForStudents");
+			return new SectionEnrollmentsImpl(new ArrayList());
+		}
+		// Get all sections
+		List allSections = getSections(siteContext);
+		
+		// Get all student enrollments in each section, and combine them into a single collection
+		List allSectionEnrollments = new ArrayList();
+		for(Iterator sectionIter = allSections.iterator(); sectionIter.hasNext();) {
+			CourseSection section = (CourseSection)sectionIter.next();
+			List sectionEnrollments = getSectionEnrollments(section.getUuid());
+			for(Iterator enrollmentIter = sectionEnrollments.iterator(); enrollmentIter.hasNext();) {
+				EnrollmentRecord enr = (EnrollmentRecord)enrollmentIter.next();
+				if(studentUids.contains(enr.getUser().getUserUid())) {
+					allSectionEnrollments.add(enr);
+				}
+			}
+		}
+		
+		return new SectionEnrollmentsImpl(allSectionEnrollments);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-    public EnrollmentRecord joinSection(final String sectionUuid) {
-		log.error("FIXME!");
-		return null;
+    public EnrollmentRecord joinSection(String sectionUuid) {
+    	Group group = siteService.findGroup(sectionUuid);
+    	String role = getSectionStudentRole(group);
+		try {
+			authzGroupService.joinGroup(sectionUuid, role);
+		} catch (PermissionException e) {
+			log.error("access denied while attempting to join authz group: ", e);
+			return null;
+		} catch (IdUnusedException e) {
+			log.error("can not find group while attempting to join authz group: ", e);
+			return null;
+		}
+
+		// Return the membership record that the app understands
+		String userUid = sessionManager.getCurrentSessionUserId();
+		User user = SakaiUtil.getUserFromSakai(userUid);
+		CourseSection section = getSection(sectionUuid);
+
+		return new EnrollmentRecordImpl(section, null, user);
+    }
+
+    private String getSectionStudentRole(AuthzGroup group) {
+    	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
+    	if(roleStrings.size() != 1) {
+    		String str = "Group " + group + " must have one and only one role with permission "
+			+ SectionAwareness.STUDENT_MARKER;
+    		log.error(str);
+    		throw new RuntimeException(str);
+    	}
+    	return (String)roleStrings.iterator().next();
+    }
+
+    private String getSectionTaRole(Group group) {
+    	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.TA_MARKER);
+    	if(roleStrings.size() != 1) {
+    		String str = "Group " + group + " must have one and only one role with permission "
+			+ SectionAwareness.TA_MARKER;
+    		log.error(str);
+    		throw new RuntimeException(str);
+    	}
+    	return (String)roleStrings.iterator().next();
     }
 
 	/**
 	 * @inheritDoc
 	 */
-    public void switchSection(final String newSectionUuid) {
-		log.error("FIXME!");
+    public void switchSection(String newSectionUuid) {
+    	CourseSection newSection = getSection(newSectionUuid);
+    	
+		// Remove any section membership for a section of the same category.
+    	// We can not use dropEnrollmentFromCategory because security checks won't
+    	// allow a student to update the authZ groups directly.
+		List categorySections = getSectionsInCategory(newSection.getCourse().getSiteContext(), newSection.getCategory());
+		for(Iterator iter = categorySections.iterator(); iter.hasNext();) {
+			CourseSection section = (CourseSection)iter.next();
+			// Skip the current section
+			if(section.getUuid().equals(newSectionUuid)) {
+				continue;
+			}
+			try {
+				authzGroupService.unjoinGroup(section.getUuid());
+			} catch (IdUnusedException e) {
+				log.error("There is not authzGroup with id " + section.getUuid());
+			} catch (PermissionException e) {
+				String userUid = sessionManager.getCurrentSessionUserId();
+				log.error("Permission denied while " + userUid + " attempted to unjoin authzGroup " + section.getUuid());
+			}
+		}
+
+    	// Join the new section
+    	joinSection(newSectionUuid);
     }
 
 	/**
@@ -309,58 +419,169 @@ public class SectionManagerImpl implements SectionManager {
 	 */
     public ParticipationRecord addSectionMembership(String userUid, Role role, String sectionUuid)
             throws MembershipException {
-		log.error("FIXME!");
-    	return null;
+    	if(role.isStudent()) {
+    		return addStudentToSection(userUid, sectionUuid);
+    	} else if(role.isTeachingAssistant()) {
+    		return addTaToSection(userUid, sectionUuid);
+    	} else {
+    		throw new RuntimeException("Adding a user to a section with role instructor or none is not supported");
+    	}
     }
 	
+    private ParticipationRecord addTaToSection(String userUid, String sectionUuid) {
+		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
+		Group group = section.getGroup();
+		User user = SakaiUtil.getUserFromSakai(userUid);
+
+		// Add the membership to the framework
+    	String role = getSectionTaRole(group);
+		group.addMember(userUid, role, true, false);
+		
+		try {
+			siteService.save(group.getContainingSite());
+		} catch (IdUnusedException e) {
+			log.error("unable to find site: ", e);
+			return null;
+		} catch (PermissionException e) {
+			log.error("access denied while attempting to save site: ", e);
+			return null;
+		}
+
+		// Return the enrollment record
+		return new TeachingAssistantRecordImpl(section, user);
+	}
+
+	private EnrollmentRecord addStudentToSection(String userUid, String sectionUuid) {
+		User user = SakaiUtil.getUserFromSakai(userUid);
+
+		CourseSectionImpl newSection = (CourseSectionImpl)getSection(sectionUuid);
+		Group group = newSection.getGroup();
+		
+		// Remove any section membership for a section of the same category.
+		dropEnrollmentFromCategory(userUid, newSection.getCourse().getSiteContext(), newSection.getCategory());
+
+		// Add the membership to the framework
+		group.addMember(userUid, getSectionStudentRole(group), true, false);
+
+		try {
+			siteService.save(group.getContainingSite());
+		} catch (IdUnusedException e) {
+			log.error("unable to find site: ", e);
+			return null;
+		} catch (PermissionException e) {
+			log.error("access denied while attempting to save site: ", e);
+			return null;
+		}
+		
+		// Return the enrollment record
+		return new EnrollmentRecordImpl(newSection, null, user);
+    }
+    
 	/**
 	 * @inheritDoc
 	 */
-	public void setSectionMemberships(final Set userUids, final Role role, final String sectionUuid) {
-		log.error("FIXME!");
+	public void setSectionMemberships(Set userUids, Role role, String sectionUuid) {
+		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
+		Group group = section.getGroup();
+		String sakaiRoleString;
+		if(role.isTeachingAssistant()) {
+			sakaiRoleString = getSectionTaRole(group);
+		} else if(role.isStudent()) {
+			sakaiRoleString = getSectionStudentRole(group);
+		} else {
+			String str = "Only students and TAs can be added to sections";
+			log.error(str);
+			throw new RuntimeException(str);
+		}
+
+		// Remove the current members in this role
+		Set currentUserIds = group.getUsersHasRole(sakaiRoleString);
+		for(Iterator iter = currentUserIds.iterator(); iter.hasNext();) {
+			String userUid = (String)iter.next();
+			group.removeMember(userUid);
+		}
+		
+		// Add the new members (sure would be nice to have transactions here!)
+		for(Iterator iter = userUids.iterator(); iter.hasNext();) {
+			String userUid = (String)iter.next();
+			group.addMember(userUid, sakaiRoleString, true, false);
+		}
+
+		try {
+			siteService.save(group.getContainingSite());
+		} catch (IdUnusedException e) {
+			log.error("unable to find site: ", e);
+		} catch (PermissionException e) {
+			log.error("access denied while attempting to save authz group: ", e);
+		}
 	}
 
 
 	/**
 	 * @inheritDoc
 	 */
-	public void dropSectionMembership(final String userUid, final String sectionUuid) {
-		log.error("FIXME!");
+	public void dropSectionMembership(String userUid, String sectionUuid) {
+		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
+		Group group = section.getGroup();
+		group.removeMember(userUid);
+		try {
+			siteService.save(group.getContainingSite());
+		} catch (IdUnusedException e) {
+			log.error("unable to find site: ", e);
+		} catch (PermissionException e) {
+			log.error("access denied while attempting to save site: ", e);
+		}
     }
 
 	/**
 	 * @inheritDoc
 	 */
-	public void dropEnrollmentFromCategory(final String studentUid,
-			final String siteContext, final String category) {
-		log.error("FIXME!");
+	public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category) {
+		// Get the sections in this category
+		List sections = getSectionsInCategory(siteContext, category);
+		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+			// Drop the user from this section if they are enrolled
+			CourseSectionImpl section = (CourseSectionImpl)iter.next();
+			Group group = section.getGroup();
+			group.removeMember(studentUid);
+			try {
+				siteService.save(group.getContainingSite());
+			} catch (IdUnusedException e) {
+				log.error("unable to find site: ", e);
+				return;
+			} catch (PermissionException e) {
+				log.error("access denied while attempting to save site: ", e);
+				return;
+			}
+		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public int getTotalEnrollments(final String learningContextUuid) {
-		AuthzGroup realm;
+	public int getTotalEnrollments(String learningContextUuid) {
+		AuthzGroup authzGroup;
 		try {
-			realm = AuthzGroupService.getAuthzGroup(learningContextUuid);
+			authzGroup = authzGroupService.getAuthzGroup(learningContextUuid);
 		} catch (IdUnusedException e) {
 			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
 			return 0;
 		}
-		Set users = realm.getUsersHasRole(studentRole);
+		Set users = authzGroup.getUsersHasRole(getSectionStudentRole(authzGroup));
 		return users.size();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-    public CourseSection addSection(final String courseUuid, final String title,
-    		final String category, final Integer maxEnrollments,
-    		final String location, final Time startTime,
-    		final Time endTime, final boolean monday,
-    		final boolean tuesday, final boolean wednesday, final boolean thursday,
-    		final boolean friday, final boolean saturday, final boolean sunday) {
-    	Reference ref = EntityManager.newReference(courseUuid);
+    public CourseSection addSection(String courseUuid, String title,
+    		String category, Integer maxEnrollments,
+    		String location, Time startTime,
+    		Time endTime, boolean monday,
+    		boolean tuesday, boolean wednesday, boolean thursday,
+    		boolean friday, boolean saturday, boolean sunday) {
+    	Reference ref = entityManager.newReference(courseUuid);
+    	
     	Site site;
     	try {
     		site = siteService.getSite(ref.getId());
@@ -368,76 +589,84 @@ public class SectionManagerImpl implements SectionManager {
     		log.error("Unable to find site " + courseUuid);
     		return null;
     	}
-    	Group section = site.addGroup();
-    	setSectionProperties(title, category, maxEnrollments, location, startTime, endTime, section);
-    	    	
-    	return new CourseSectionImpl(section);
+    	Group group = site.addGroup();
+    	
+    	// Construct a CourseSection to generate the description
+    	CourseSectionImpl courseSection = new CourseSectionImpl(group);
+    	
+    	// Set the fields of the course section
+    	courseSection.setAddFields(category, title, location, maxEnrollments, startTime,
+    			endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
+
+    	// Decorate the framework section
+    	courseSection.decorateSection(group);
+
+    	// Save the site, along with the new section
+    	try {
+        	siteService.save(group.getContainingSite());
+    	} catch (IdUnusedException ide) {
+    		log.error("Error saving site... could not find site for section " + group, ide);
+    	} catch (PermissionException pe) {
+    		log.error("Error saving site... permission denied for section " + group, pe);
+    	}
+
+    	return new CourseSectionImpl(group);
     }
 
 	/**
-	 * Sets the properties of a section.  Since updates do not change category,
-	 * you can call this with a null category and it will not change the section's
-	 * current category.
-	 * 
-	 * @param title
-	 * @param category
-	 * @param maxEnrollments
-	 * @param location
-	 * @param startTime
-	 * @param endTime
-	 * @param section
-	 */
-    private void setSectionProperties(String title, String category, Integer maxEnrollments,
-			String location, Time startTime, Time endTime, Group section) {
-    	section.setTitle(title);
-		ResourceProperties props = section.getProperties();
-		if(category != null) {
-	    	props.addProperty(CourseSectionImpl.CATEGORY, category);
-		}
-    	props.addProperty(CourseSectionImpl.LOCATION, location);
-    	props.addProperty(CourseSectionImpl.START_TIME, CourseSectionImpl.convertTimeToString(startTime));
-    	props.addProperty(CourseSectionImpl.END_TIME, CourseSectionImpl.convertTimeToString(endTime));
-    	props.addProperty(CourseSectionImpl.LOCATION, location);
-
-    	if(maxEnrollments != null) {
-    		props.addProperty(CourseSectionImpl.MAX_ENROLLMENTS, maxEnrollments.toString());
-    	}
-    	
-    	section.setDescription(null);
-
-    	// TODO Update the properties in persistence
-	}
-    
-	/**
 	 * @inheritDoc
 	 */
-    public void updateSection(final String sectionUuid, final String title,
-    		final Integer maxEnrollments, final String location, final Time startTime,
-    		final Time endTime, final boolean monday, final boolean tuesday,
-    		final boolean wednesday, final boolean thursday, final boolean friday,
-    		final boolean saturday, final boolean sunday) {
-    	Group section = siteService.findGroup(sectionUuid);
+    public void updateSection(String sectionUuid, String title,
+    		Integer maxEnrollments, String location, Time startTime,
+    		Time endTime, boolean monday, boolean tuesday,
+    		boolean wednesday, boolean thursday, boolean friday,
+    		boolean saturday, boolean sunday) {
+    	CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
+    	
     	if(section == null) {
     		throw new RuntimeException("Unable to find section " + sectionUuid);
     	}
-    	setSectionProperties(title, null, maxEnrollments, location, startTime, endTime, section);
+    	
+    	// Set the decorator's fields
+    	section.setUpdateFields(title, location, maxEnrollments, startTime, endTime,
+    			monday, tuesday, wednesday, thursday, friday, saturday, sunday);
+    	
+    	// Decorate the framework section
+    	Group group = siteService.findGroup(sectionUuid);
+    	section.decorateSection(group);
+
+    	// Save the site with its new section
+    	try {
+        	siteService.save(group.getContainingSite());
+    	} catch (IdUnusedException ide) {
+    		log.error("Error saving site... could not find site for section " + group, ide);
+    	} catch (PermissionException pe) {
+    		log.error("Error saving site... permission denied for section " + group, pe);
+    	}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-    public void disbandSection(final String sectionUuid) {
+    public void disbandSection(String sectionUuid) {
         if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
-        Group section = siteService.findGroup(sectionUuid);
-        Site site = section.getContainingSite();
-        site.removeGroup(section);
+        Group group = siteService.findGroup(sectionUuid);
+        Site site = group.getContainingSite();
+        site.removeGroup(group);
+        try {
+			siteService.save(site);
+		} catch (IdUnusedException e) {
+			log.error("Cound not disband section (can't find section): ",e);
+		} catch (PermissionException e) {
+			log.error("Cound not disband section (access denied): ",e);
+		}
     }
 
 	/**
 	 * @inheritDoc
 	 */
-    public boolean isSelfRegistrationAllowed(final String courseUuid) {
-    	Reference ref = EntityManager.newReference(courseUuid);
+    public boolean isSelfRegistrationAllowed(String courseUuid) {
+    	Reference ref = entityManager.newReference(courseUuid);
     	String siteId = ref.getId();
     	Site site;
     	try {
@@ -452,8 +681,8 @@ public class SectionManagerImpl implements SectionManager {
 	/**
 	 * @inheritDoc
 	 */
-    public void setSelfRegistrationAllowed(final String courseUuid, final boolean allowed) {
-    	Reference ref = EntityManager.newReference(courseUuid);
+    public void setSelfRegistrationAllowed(String courseUuid, boolean allowed) {
+    	Reference ref = entityManager.newReference(courseUuid);
     	String siteId = ref.getId();
     	Site site;
     	try {
@@ -463,16 +692,20 @@ public class SectionManagerImpl implements SectionManager {
     	}
 		ResourceProperties props = site.getProperties();
 		props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, new Boolean(allowed).toString());
-		
-		// TODO Save the properties
-		log.error("FIXME!");
+    	try {
+        	siteService.save(site);
+    	} catch (IdUnusedException ide) {
+    		log.error("Error saving site... could not find site " + site, ide);
+    	} catch (PermissionException pe) {
+    		log.error("Error saving site... permission denied for " + site, pe);
+    	}
     }
 
 	/**
 	 * @inheritDoc
 	 */
-    public boolean isSelfSwitchingAllowed(final String courseUuid) {
-    	Reference ref = EntityManager.newReference(courseUuid);
+    public boolean isSelfSwitchingAllowed(String courseUuid) {
+    	Reference ref = entityManager.newReference(courseUuid);
     	String siteId = ref.getId();
     	Site site;
     	try {
@@ -487,8 +720,8 @@ public class SectionManagerImpl implements SectionManager {
 	/**
 	 * @inheritDoc
 	 */
-    public void setSelfSwitchingAllowed(final String courseUuid, final boolean allowed) {
-    	Reference ref = EntityManager.newReference(courseUuid);
+    public void setSelfSwitchingAllowed(String courseUuid, boolean allowed) {
+    	Reference ref = entityManager.newReference(courseUuid);
     	String siteId = ref.getId();
     	Site site;
     	try {
@@ -499,62 +732,121 @@ public class SectionManagerImpl implements SectionManager {
 		ResourceProperties props = site.getProperties();
 		props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, new Boolean(allowed).toString());
 		
-		// TODO Save the properties
-		log.error("FIXME!");
+    	try {
+        	siteService.save(site);
+    	} catch (IdUnusedException ide) {
+    		log.error("Error saving site... could not find site " + site, ide);
+    	} catch (PermissionException pe) {
+    		log.error("Error saving site... permission denied for " + site, pe);
+    	}
     }
     
 	/**
 	 * @inheritDoc
 	 */
-	public List getUnsectionedEnrollments(final String courseUuid, final String category) {
-		Reference siteRef = EntityManager.newReference(courseUuid);
+	public List getUnsectionedEnrollments(String courseUuid, String category) {
+		Reference siteRef = entityManager.newReference(courseUuid);
 		String siteId = siteRef.getId();
-		List allEnrollments = getSiteEnrollments(siteId);
-		List unsectionedEnrollments = new ArrayList();
 
-		// TODO Filter the enrollments
-		log.error("FIXME!");
+		// Get all of the sections and userUids of enrolled students
+		List siteEnrollments = getSiteEnrollments(siteId);
 		
+		// Get all userUids of students enrolled in sections of this category
+		List sectionedStudentUids = new ArrayList();
+		List categorySections = getSectionsInCategory(siteId, category);
+		for(Iterator sectionIter = categorySections.iterator(); sectionIter.hasNext();) {
+			CourseSection section = (CourseSection)sectionIter.next();
+			List sectionUsers = getSectionEnrollments(section.getUuid());
+			
+			if(log.isDebugEnabled()) log.debug("There are " + sectionUsers.size() +
+					" students in section " + section.getUuid());
+
+			for(Iterator userIter = sectionUsers.iterator(); userIter.hasNext();) {
+				ParticipationRecord record = (ParticipationRecord)userIter.next();
+				sectionedStudentUids.add(record.getUser().getUserUid());
+			}
+		}
+
+		// Now generate the list of unsectioned enrollments by subtracting the two collections
+		// Since the APIs return different kinds of objects, we need to iterate
+		List unsectionedEnrollments = new ArrayList();
+		for(Iterator iter = siteEnrollments.iterator(); iter.hasNext();) {
+			EnrollmentRecord record = (EnrollmentRecord)iter.next();
+			if(! sectionedStudentUids.contains(record.getUser().getUserUid())) {
+				unsectionedEnrollments.add(record);
+			}
+		}
 		return unsectionedEnrollments;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public Set getSectionEnrollments(final String userUid, final String courseUuid) {
-		log.error("FIXME!");
-    	return new HashSet();
+	public Set getSectionEnrollments(String userUid, String courseUuid) {
+		// Get the user
+		org.sakaiproject.service.legacy.user.User sakaiUser;
+		try {
+			sakaiUser = userDirectoryService.getUser(userUid); 
+		} catch (IdUnusedException ide) {
+			log.error("Can not find user with id " + userUid);
+			return new HashSet();
+		}
+		User sectionUser = SakaiUtil.convertUser(sakaiUser);
+		
+		// Get all of the sections
+		Reference siteRef = entityManager.newReference(courseUuid);
+		String siteId = siteRef.getId();
+		List sections = getSections(siteId);
+		
+		// Generate a set of sections for which this user is enrolled
+		Set sectionEnrollments = new HashSet();
+		for(Iterator sectionIter = sections.iterator(); sectionIter.hasNext();) {
+			CourseSectionImpl section = (CourseSectionImpl)sectionIter.next();
+			Group group = section.getGroup();
+			Member member = group.getMember(userUid);
+			if(member == null) {
+				continue;
+			}
+			if(member.getRole().isAllowed(SectionAwareness.STUDENT_MARKER)) {
+				sectionEnrollments.add(new EnrollmentRecordImpl(section, null, sectionUser));
+			}
+		}
+		return sectionEnrollments;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public User getSiteEnrollment(final String siteContext, final String studentUid) {
+	public User getSiteEnrollment(String siteContext, String studentUid) {
 		return SakaiUtil.getUserFromSakai(studentUid);
 	}
+	
 
     // Dependency injection
-
-	public void setAuthn(Authn authn) {
-        this.authn = authn;
-    }
-	
-	public void setContext(Context context) {
-		this.context = context;
-	}
-
-	public void setStudentRole(String studentRole) {
-		this.studentRole = studentRole;
-	}
-
-	public void setTaRole(String taRole) {
-		this.taRole = taRole;
-	}
 
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
 
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
 }
 
 

@@ -31,6 +31,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 
@@ -45,10 +46,18 @@ public class CourseManagerImpl implements CourseManager {
 
 	private static final Log log = LogFactory.getLog(CourseManagerImpl.class);
 
+	/**
+	 * @inheritDoc
+	 */
 	public Course createCourse(final String siteContext, final String title,
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,
 			final boolean externallyManaged) {
 
+		log.warn("There should be no need to call " +
+				"org.sakaiproject.api.section.CourseManager.createCourse() in " +
+				"sakai 2.1.  This should only be called by a customized section " +
+				"data loader.");
+		
 		Site site;
 		try {
 			site = SiteService.getSite(siteContext);
@@ -56,10 +65,25 @@ public class CourseManagerImpl implements CourseManager {
 			log.error("Not site with id = " + siteContext);
 			return null;
 		}
+		CourseImpl course = new CourseImpl(site);
 		
-		// TODO Set the site properties
+		// Update the course with the new booleans passed to this method
+		course.setSelfRegistrationAllowed(selfRegAllowed);
+		course.setSelfSwitchingAllowed(selfSwitchingAllowed);
+		course.setExternallyManaged(externallyManaged);
+		course.decorateSite(site);
 		
-		return new CourseImpl(site);
+		// Save the modified site
+		try {
+			SiteService.save(site);
+		} catch (IdUnusedException e) {
+			log.error("Not site with id = " + siteContext);
+			return null;
+		} catch (PermissionException e) {
+			log.error("Not allowed to save site with id = " + siteContext);
+			return null;
+		}
+		return course;
 	}
 	
 	/**
@@ -69,10 +93,10 @@ public class CourseManagerImpl implements CourseManager {
 	public boolean courseExists(final String siteContext) {
 		try {
 			SiteService.getSite(siteContext);
+			return true;
 		} catch (IdUnusedException e) {
 			return false;
 		}
-		return true;
 	}
 	
 	
@@ -87,18 +111,6 @@ public class CourseManagerImpl implements CourseManager {
 	 * Not supported in sakai 2.1
 	 */
 	public ParticipationRecord addInstructor(final User user, final Course course) {
-//		String roleString = getRoleString(INSTRUCTOR);
-//		AuthzGroup azGroup;
-//		String azGroupId = course.getUuid();
-//		try {
-//			azGroup = AuthzGroupService.getAuthzGroup(azGroupId);
-//			azGroup.addMember(user.getUserUid(), roleString, true, false);
-//			AuthzGroupService.save(azGroup);
-//		} catch (Exception e) {
-//			log.error("Unable to find or open azGroup " + azGroupId);
-//			return null;
-//		}
-//		return new InstructorRecordImpl(course, user);
 		throw new RuntimeException("Operation not supported in sakai 2.1");
 	}
 
@@ -106,18 +118,6 @@ public class CourseManagerImpl implements CourseManager {
 	 * Not supported in sakai 2.1
 	 */
 	public ParticipationRecord addEnrollment(final User user, final Course course) {
-//		String roleString = getRoleString(STUDENT);
-//		AuthzGroup azGroup;
-//		String azGroupId = course.getUuid();
-//		try {
-//			azGroup = AuthzGroupService.getAuthzGroup(azGroupId);
-//			azGroup.addMember(user.getUserUid(), roleString, true, false);
-//			AuthzGroupService.save(azGroup);
-//		} catch (Exception e) {
-//			log.error("Unable to find or open azGroup " + azGroupId);
-//			return null;
-//		}
-//		return new EnrollmentRecordImpl(course, null, user);
 		throw new RuntimeException("Operation not supported in sakai 2.1");
 	}
 
@@ -125,26 +125,14 @@ public class CourseManagerImpl implements CourseManager {
 	 * Not supported in sakai 2.1
 	 */
 	public ParticipationRecord addTA(final User user, final Course course) {
-//		String roleString = getRoleString(TA);
-//		AuthzGroup azGroup;
-//		String azGroupId = course.getUuid();
-//		try {
-//			azGroup = AuthzGroupService.editRealm(azGroupId);
-//			azGroup.addMember(user.getUserUid(), roleString, true, false);
-//			AuthzGroupService.save(azGroup);
-//		} catch (Exception e) {
-//			log.error("Unable to find or open azGroup " + azGroupId);
-//			return null;
-//		}
-//		return new TeachingAssistantRecordImpl(course, user);
 		throw new RuntimeException("Operation not supported in sakai 2.1");
 	}
 
 	/**
-	 * Should this be supported in the Sakai 2.1 impl?
+	 * Not supported in sakai 2.1
 	 */
 	public void removeCourseMembership(String userUid, Course course) {
-		log.error("FIXME!");
+		throw new RuntimeException("Operation not supported in sakai 2.1");
 	}
 
 }

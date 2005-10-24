@@ -9,25 +9,20 @@
             org.sakaiproject.jsf.app.SakaiVariableResolver
         </variable-resolver>
     </application>
-
 	<managed-bean>
 		<description>Test for exposed section services</description>
 		<managed-bean-name>testServiceBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.section.testservice.TestServiceBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
-
 		<managed-property>
 			<description>sectionAwareness</description>
 			<property-name>sectionAwareness</property-name>
             <value>#{Components["org.sakaiproject.api.section.SectionAwareness"]}</value>
 		</managed-property>
-		
         <managed-property>
             <description>courseManager</description>
             <property-name>courseManager</property-name>
             <value>#{Components["org.sakaiproject.api.section.CourseManager"]}</value>
         </managed-property>
-
 	</managed-bean>
-
 </faces-config>

@@ -12,10 +12,11 @@
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2005</inceptionYear>
-
+<!-- 
 	<properties>
 		<deploy.type>components</deploy.type>
 	</properties>
+-->
 
     <dependencies>
     	<dependency>

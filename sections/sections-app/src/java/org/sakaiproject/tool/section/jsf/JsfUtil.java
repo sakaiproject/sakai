@@ -65,7 +65,9 @@ public class JsfUtil {
 	 */
 	public static final Object resolveVariable(String name) {
 		FacesContext context = FacesContext.getCurrentInstance();
-		return context.getApplication().getVariableResolver().resolveVariable(context, name);
+		Object result = context.getApplication().getVariableResolver().resolveVariable(context, name);
+		if(log.isDebugEnabled()) log.debug("JSF variable " + name + " resolved to " + result);
+		return result;
 	}
 
 	public static void addErrorMessage(String message) {

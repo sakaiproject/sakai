@@ -32,6 +32,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
 
 /**
  * A base class of ParticipationRecords for detachable persistent storage.
@@ -47,6 +48,13 @@ public abstract class ParticipationRecordImpl implements ParticipationRecord, Se
 
 	public User getUser() {
 		return user;
+	}
+	
+	/**
+	 * Returns null, since this is an unknown type of participant
+	 */
+	public Role getRole() {
+		return null;
 	}
 	
 	public String getUserUid() {

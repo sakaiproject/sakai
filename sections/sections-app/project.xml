@@ -33,6 +33,12 @@
 
         <dependency>
             <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-data-sakai20</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-comp-shared-sakai20</artifactId>
             <version>${sakai.version}</version>
             <properties>
@@ -42,8 +48,17 @@
 
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-sections-comp-shared-data-sakai20</artifactId>
+            <artifactId>sakai-sections-comp-shared-data-sakai21</artifactId>
             <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-sakai21</artifactId>
+            <version>${sakai.version}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
         </dependency>
 
         <dependency>
