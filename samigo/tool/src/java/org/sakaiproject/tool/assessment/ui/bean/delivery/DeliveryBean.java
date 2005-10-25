@@ -52,6 +52,7 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListe
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
@@ -1681,7 +1682,8 @@ public class DeliveryBean
 
     // 6. create a media record
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
-    boolean SAVETODB = MediaData.saveToDB();
+    //boolean SAVETODB = MediaData.saveToDB();
+    boolean SAVETODB = getSaveToDb();
     log.debug("**** SAVETODB=" + SAVETODB);
     MediaData mediaData = null;
     log.debug("***6a. addMediaToItemGrading, itemGradinDataId=" +
@@ -1976,4 +1978,11 @@ public class DeliveryBean
     this.javaScriptEnabledCheck = javaScriptEnabledCheck;
   }
 
+  public boolean getSaveToDb(){
+    String saveToDb=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.ui.bean.delivery.resource.MediaConstants", "SAVETODB");
+    if (saveToDb.equals("true"))
+      return true;
+    else
+      return false;
+  }
 }
