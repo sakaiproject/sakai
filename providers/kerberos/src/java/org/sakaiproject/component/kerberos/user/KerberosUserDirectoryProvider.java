@@ -26,6 +26,7 @@ package org.sakaiproject.component.kerberos.user;
 
 // imports
 import java.io.IOException;
+import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -40,6 +41,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.sakaiproject.service.framework.log.Logger;
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
 import org.sakaiproject.service.legacy.user.UserEdit;
 import org.sakaiproject.util.java.StringUtil;
@@ -140,7 +142,57 @@ public class KerberosUserDirectoryProvider
 	{
 		try
 		{
-			m_logger.info(this +".init() Domain=" + m_domain + " LoginContext=" + m_logincontext + " RequireLocalAccount=" + m_requirelocalaccount + " KnownUserMsg=" + m_knownusermsg);
+
+			// Full paths only from the file
+			String kerberoskrb5conf = ServerConfigurationService.getString("provider.kerberos.krb5.conf", null);
+			String kerberosauthloginconfig = ServerConfigurationService.getString("provider.kerberos.auth.login.config", null);
+			boolean kerberosshowconfig = ServerConfigurationService.getBoolean("provider.kerberos.showconfig", false);
+			String sakaihomepath = System.getProperty("sakai.home");
+
+			// if locations are configured in sakai.properties, use them in place of the current system locations
+			//	if the location specified exists and is readable, use full absolute path
+			//	     otherwise, try file path relative to sakai.home
+			// if files are readable use the, otherwise print warning and use system defaults
+			if (kerberoskrb5conf != null) {
+				if (new File(kerberoskrb5conf).canRead()) {
+				  System.setProperty("java.security.krb5.conf", kerberoskrb5conf);
+				} else if (new File(sakaihomepath + kerberoskrb5conf).canRead()) {
+				  System.setProperty("java.security.krb5.conf", sakaihomepath + kerberoskrb5conf);
+				} else {
+				  m_logger.warn(this +".init(): Cannot set krb5conf location");
+				  kerberoskrb5conf = null;
+				}
+			}
+
+			if (kerberosauthloginconfig != null) {
+
+				if (new File(kerberosauthloginconfig).canRead()) {
+					System.setProperty("java.security.auth.login.config", kerberosauthloginconfig);
+				} else if (new File(sakaihomepath + kerberosauthloginconfig).canRead()) {
+					System.setProperty("java.security.auth.login.config", sakaihomepath + kerberosauthloginconfig);
+				} else {
+				  m_logger.warn(this +".init(): Cannot set kerberosauthloginconfig location");
+				  kerberosauthloginconfig = null;
+				}
+			}
+
+			m_logger.info(this +".init()"
+				+ " Domain=" + m_domain 
+				+ " LoginContext=" + m_logincontext 
+				+ " RequireLocalAccount=" + m_requirelocalaccount 
+				+ " KnownUserMsg=" + m_knownusermsg);
+
+			// show the whole config if set
+			// system locations will read NULL if not set (system defaults will be used)
+			if ( kerberosshowconfig ) {
+				m_logger.info(this +".init()"
+					+ " SakaiHome=" + sakaihomepath
+					+ " SakaiPropertyKrb5Conf=" + kerberoskrb5conf
+					+ " SakaiPropertyAuthLoginConfig=" + kerberosauthloginconfig
+					+ " SystemPropertyKrb5Conf=" + System.getProperty("java.security.krb5.conf")
+					+ " SystemPropertyAuthLoginConfig=" + System.getProperty("java.security.auth.login.config"));
+			}
+
 		}
 		catch (Throwable t)
 		{
