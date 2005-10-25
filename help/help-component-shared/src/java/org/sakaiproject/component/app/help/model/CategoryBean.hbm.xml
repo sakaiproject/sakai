@@ -28,6 +28,6 @@
 	</class>
 
 	<query name="query.getCategoryByName">
-		<![CDATA[from CategoryBean c where c.name = :name order by c.id]]>
+		<![CDATA[from CategoryBean c where lower(c.name) = :name order by c.id]]>
 	</query>
 </hibernate-mapping>

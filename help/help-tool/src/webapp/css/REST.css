@@ -1,0 +1,27 @@
+code	{
+	font-size:1.1em;
+	}
+span.example {
+	display: block;
+	font-family: monospace;
+	font-size:1.1em;
+	white-space: pre;
+	margin: 1em 0;
+}	
+	
+table span.example {
+	margin: 0;
+}	
+
+table.kbtable {
+	border: solid 1px black;
+}	
+
+.kbtd, .kbth {
+	border: solid 1px black;
+	padding: 8px;
+}
+
+.noborder { border: none; }
+
+body{background: #F0F0F0;}

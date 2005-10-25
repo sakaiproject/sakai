@@ -101,11 +101,7 @@ public class ContentServlet extends HttpServlet
         {
           res.sendRedirect(resource.getLocation());
         }
-    }
-    else
-    {
-      writer.write("Resource not found.");
-    }
+    }    
     writer.flush();
     writer.close();
   }

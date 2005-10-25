@@ -26,6 +26,11 @@
 			<column name="DEFAULT_FOR_TOOL" length="255"
 				not-null="false" />
 		</property>
+		
+		<property name="welcomePage">
+			<column name="WELCOME_PAGE" length="50"
+				not-null="false" />
+		</property>
 
 		<property name="name" type="string" column="NAME"
 			not-null="false" index="HELP_CAT_IDX" />
@@ -46,6 +51,10 @@
 
 	<query name="query.getResourceByDocId">
 		<![CDATA[from ResourceBean r where r.docId = :docId]]>
+	</query>
+	
+	<query name="query.getWelcomePage">
+		<![CDATA[from ResourceBean r where lower(r.welcomePage) = :welcomePage]]>
 	</query>
 
 </hibernate-mapping>

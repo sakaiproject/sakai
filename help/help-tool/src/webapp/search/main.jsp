@@ -49,10 +49,12 @@
     <h:outputText value="#{SearchTool.numberOfResult}" />
     <sakai:flat_list value="#{SearchTool.searchResults}" var="result">
 	    <h:column>
-
-	    			<h:outputLink value="../TOCDisplay/main?help=#{result.docId}" target="toc" style="font:8pt">
+	    	<h:outputLink value="../content.hlp?docId=#{result.docId}" target="content" style="font:8pt" rendered="#{SearchTool.isRestEnabled}">
+  	      <h:outputText value="#{result.name}"/>
+	    	</h:outputLink>
+	  		<h:outputLink value="../TOCDisplay/main?help=#{result.docId}" target="toc" style="font:8pt"  rendered="#{not SearchTool.isRestEnabled}">
 			    <h:outputText value="#{result.name}"/>
-			</h:outputLink>
+			  </h:outputLink>
 		</h:column>
 		<h:column>
 			<h:outputText value="#{result.formattedScore}" style="font:8pt"/>

@@ -124,6 +124,18 @@ public interface Resource
    * @param defaultForTool
    */
   public void setDefaultForTool(String defaultForTool);
+  
+  /**
+   * determine if this document welcome page for the help tool
+   * @return
+   */
+  public String getWelcomePage();
+  
+  /**
+   * set whether this resource is the welcome page for the tool
+   * @param defaultForTool
+   */
+  public void setWelcomePage(String welcomePage);
 }
 
 

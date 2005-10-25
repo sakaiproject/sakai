@@ -1,23 +1,48 @@
 
-//collapseAll(["ol"]);
-var n = document.getElementById("default");
+/** this file is appended to the Table of Contnets markup after the DOM is built */
+collapseAll(["ol"]);
+element = document.getElementById("default");
+n = element;
 
-if (n != null){
-  while(true){
-    n = n.parentNode;  
-    
-    if (n == null){
-      break;
-    }            
-    
+while(n){
+        
+  /** walk up to the parent folder's li element */
+  while(n){    
     if (n.className == "dir"){
-      if (n.childNodes && n.childNodes.length > 1 && n.childNodes[1].tagName == "A"){
-        toggle(n.childNodes[1]);
+    
+      /** walk down to first image */
+      tempNode = n;
+      while (tempNode){
+         if (tempNode.tagName == "IMG"){
+           if(tempNode.src.indexOf('closed.gif') > -1){
+             tempNode.src = openImg.src;
+           }
+           else {
+             tempNode.src = closedImg.src;
+           }
+           break;
+         }
+         tempNode = tempNode.firstChild;
       }
-    }    
-  }
+      
+      /** walk down to docs list item and set style */
+      tempNode = n;
+      if (tempNode.firstChild && tempNode.firstChild.nextSibling && 
+          tempNode.firstChild.nextSibling.className == "docs"){
+        e = tempNode.firstChild.nextSibling;
+        if (e.style.display || e.style.display== "none") {     
+          e.style.display = "block";
+        }
+        else{
+          e.style.display = "none";
+        }  
+      }            
+    }                       
+    n = n.parentNode;
+  }       
+}
+
+if (element){
   document.getElementById('default').focus();
   parent.content.location = document.getElementById('default').getAttribute('href');
-  //window.setTimeout("document.getElementById('default').focus()", 250);
-  //window.setTimeout("parent.content.location = document.getElementById('default').getAttribute('href');", 300);
 }

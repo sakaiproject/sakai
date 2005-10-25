@@ -40,6 +40,11 @@ public interface HelpManager
    * Synchronize initialization of the manager.
    */
   public void initialize();
+  
+  /**
+   * reInitialization of the help tool.
+   */
+  public void reInitialize();
 
   /**
    * Create Category
@@ -207,12 +212,6 @@ public interface HelpManager
   public RestConfiguration getRestConfiguration();
   
   /**
-   * get static REST url
-   * @return REST url
-   */
-  public String getStaticRestUrl();
-  
-  /**
    * get static EXTERNAL_LOCATION
    * @return EXTERNAL_LOCATION
    */
@@ -229,6 +228,13 @@ public interface HelpManager
    * @param s
    */
   public void setServerConfigurationService(ServerConfigurationService s);
+  
+  /**
+   * get Welcome Page
+   * @return docId of Welcome Page
+   */
+  public String getWelcomePage();
+    
 }
 
 

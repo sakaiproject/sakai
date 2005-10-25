@@ -95,6 +95,11 @@ public class SearchTool
    */
   public String processActionSearch()
   {
+    if (searchString != null && searchString.equals(getHelpManager().getRestConfiguration().getRestCredentials())){
+      getHelpManager().reInitialize();
+      return "main";
+    }
+    
     Set resultSet = getHelpManager().searchResources(this.searchString);
     TreeSet treeSet = new TreeSet(resultSet);
     searchResults = new ArrayList();
@@ -173,5 +178,18 @@ public class SearchTool
       showLinkToQuestionTool = "false";
     }
     return showLinkToQuestionTool;
+  }
+  
+  /**
+   * get value of REST configuration
+   * @return true if REST is enabled, false otherwise
+   */
+  public boolean getIsRestEnabled(){
+    if ("sakai".equals(getHelpManager().getRestConfiguration().getOrganization())){
+      return false;
+    }
+    else{
+      return true;
+    }
   }
 }

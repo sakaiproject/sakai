@@ -47,6 +47,7 @@ public class ResourceBean implements Resource, Comparable
   private float score;
   private String formattedScore;
   private String defaultForTool;
+  private String welcomePage;
   private Category category;
 
   /**
@@ -270,9 +271,11 @@ public class ResourceBean implements Resource, Comparable
     sb.append(", location=");
     sb.append(location);
     sb.append(", defaultForTool=");
-    sb.append(", source=");
-    sb.append(source);
     sb.append(defaultForTool);
+    sb.append(", welcomePage=");
+    sb.append(welcomePage);
+    sb.append(", source=");
+    sb.append(source);    
     return sb.toString();
   }
 
@@ -292,6 +295,16 @@ public class ResourceBean implements Resource, Comparable
   public void setCategory(Category category)
   {
     this.category = category;
+  }
+
+  public String getWelcomePage()
+  {
+    return welcomePage;
+  }
+
+  public void setWelcomePage(String welcomePage)
+  {
+    this.welcomePage = welcomePage;
   }
 }
 

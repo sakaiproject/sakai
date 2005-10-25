@@ -61,25 +61,27 @@ public class ContextSensitiveTreeRender extends Renderer
   public void encodeBegin(FacesContext context, UIComponent component)
       throws IOException
   {
-
+    
     String skinRoot = ServerConfigurationService.getString("skin.repo",
         "/library/skin");
     String skin = ServerConfigurationService.getString("skin.default",
         "default");
 
     String jsLibraryUrl = "../js";
+    
     ResponseWriter writer = context.getResponseWriter();
     writer.write("<html><head>");
+    writer.write("<head>");            
     writer.write("<script type=\"text/javascript\" src=\"" + jsLibraryUrl
         + "/csTree.js\"></script>\n");
     writer.write("<link href=\"" + skinRoot + "/tool_base.css\""
-        + " rel=\"stylesheet\">");
+        + " rel=\"stylesheet\">\n");
     writer.write("<link href=\"" + skinRoot + "/" + skin + "/tool.css\""
-        + " rel=\"stylesheet\">");
+        + " rel=\"stylesheet\">\n");
     writer
         .write("<link href=\"../css/csTree.css\" type=\"text/css\" rel=\"stylesheet\">");
     //writer.write("<body onload='collapseAll([\"ol\"]); openBookMark();'>");
-    writer.write("</head>");
+    writer.write("</head>\n");
     writer.write("<body>");
     writer.write("<ol id=\"root\">");
     UIData data = (UIData) component;
@@ -92,8 +94,8 @@ public class ContextSensitiveTreeRender extends Renderer
     
     // filter to only include top-level categories
     for (Iterator i = categories.iterator(); i.hasNext();){
-      Category c = (Category) i.next();
-      if (c.getParent() != null){
+      Category c = (Category) i.next();      
+      if (c.getParent() != null || "home".equalsIgnoreCase(c.getName())){
         i.remove();
       }
     }
@@ -125,12 +127,13 @@ public class ContextSensitiveTreeRender extends Renderer
              
       Set resources = new TreeSet(category.getResources());
       String id = category.getName();
-
+      
       writer.write("<li class=\"dir\">");
-      writer.write("<img src=\"../image/toc_closed.gif\" border=\"0\" id=\"I"
-          + category.getName() + "\"/>");
-      writer.write("<a id=\"" + id + "\" href=\"#" + category.getName()
-          + "\" onclick=\"toggle(this)\">" + category.getName() + "</a>");
+      writer.write("<table border=0 cellspacing=0 cellpadding=0><tr><td>");
+      writer.write("<img src=\"../image/toc_closed.gif\"></td>");      
+      writer.write("<td><a id=\"" + id + "\" href=\"#" + category.getName()
+          + "\" onclick=\"toggle(this)\">" + category.getName() + "</a></td>");
+      writer.write("</tr></table>");
 
       writer.write("<ol class=\"docs\">");
       Set subCategories = new TreeSet(category.getCategories());
@@ -147,26 +150,28 @@ public class ContextSensitiveTreeRender extends Renderer
           if (helpDocId != null
               && (helpDocId.equals(resource.getDefaultForTool()) || helpDocId
                   .equals(resource.getDocId())))
-          {
-            writer.write("<img src=\"../image/topic.gif\" border=\"0\"/>");
-            writer.write("<a id=\"default\"" + " href=\"content.hlp?docId="
+          {         
+            writer.write("<table border=0 cellspacing=0 cellpadding=0><tr><td>");
+            writer.write("<img src=\"../image/topic.gif\"/></td>");            
+            writer.write("<td><a id=\"default\"" + " href=\"content.hlp?docId="
                 + resource.getDocId() + "\" target = \"content\">"
-                + resource.getName() + "</a>");
-            writer.write("</li>");
+                + resource.getName() + "</a></td>");
+            writer.write("</tr></table></li>");            
           }
           else
           {
-            writer.write("<img src=\"../image/topic.gif\" border=\"0\"/>");
-            writer.write("<a id=\"" + resource.getDocId()
+            writer.write("<table border=0 cellspacing=0 cellpadding=0><tr><td>");
+            writer.write("<img src=\"../image/topic.gif\"/></td>");            
+            writer.write("<td><a id=\"" + resource.getDocId()
                 + "\" href=\"content.hlp?docId=" + resource.getDocId()
-                + "\" target = \"content\">" + resource.getName() + "</a>");
-            writer.write("</li>");
+                + "\" target = \"content\">" + resource.getName() + "</a></td>");            
+            writer.write("</tr></table></li>");
           }
         }
       }
       writer.write("</ol></li>");
     }
-  }
+  }     
 
   /**
    * contains help doc

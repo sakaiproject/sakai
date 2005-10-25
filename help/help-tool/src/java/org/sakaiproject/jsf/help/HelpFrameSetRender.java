@@ -24,15 +24,20 @@
 package org.sakaiproject.jsf.help;
 
 import java.io.IOException;
+import java.util.Map;
 
+import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+import javax.faces.el.ValueBinding;
 import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.util.ComponentMap;
 
 /**
  * render help frame set 
@@ -71,13 +76,27 @@ public class HelpFrameSetRender extends Renderer
     
     helpWindowTitle = ServerConfigurationService.getString("ui.service") + " Help";
     
+    
+    
     writer.write("<html><head><title>" + helpWindowTitle + "</title></head>");
     writer.write("<FRAMESET cols=\"30%, 70%\"><FRAMESET rows=\"250, 350\">");
     writer.write("<FRAME src=" + searchToolUrl + " name=\"search\"/>");
     writer.write("<FRAME src=" + tocToolUrl + " name=\"toc\"/>");
     writer.write("</FRAMESET>");
-    writer
-        .write("<FRAME src=\"" + helpUrl + "/help.html" + "\" name=\"content\" scrolling=\"yes\">");
+    
+    if (helpParameter == null){
+      writer
+      .write("<FRAME src=\"content.hlp\" name=\"content\" scrolling=\"yes\">");
+    }
+    else{
+      Application app = context.getApplication();
+      ValueBinding binding = app.createValueBinding("#{Components['org.sakaiproject.api.app.help.HelpManager']}");
+      HelpManager manager  = (HelpManager) binding.getValue(context);    
+                  
+      writer
+      .write("<FRAME src=\"content.hlp?docId=" + manager.getWelcomePage() + "\" name=\"content\" scrolling=\"yes\">");         
+    }
+                           
     writer.write("</FRAMESET></html>");
   }
 }
