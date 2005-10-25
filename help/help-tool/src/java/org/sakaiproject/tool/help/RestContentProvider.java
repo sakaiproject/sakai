@@ -32,8 +32,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -67,16 +65,16 @@ import sun.misc.BASE64Encoder;
 
 public class RestContentProvider
 {
-
-  private static final String XML_TO_HTML_XSL = "/xsl/xmlToHtml.xsl";
+  
+  private static final String XML_PREPROCESS_XSL = "/xsl/kbxml-preprocess.xsl";
+  private static final String XML_KB_XSL = "/xsl/kb.xsl";
   private static Boolean XSL_INITIALIZED = Boolean.FALSE;
 
-  private static Document xslDocument;
-  
-  private static final Map cacheMap = new HashMap();
-
-  private static Log LOG = LogFactory
-      .getLog("org.sakaiproject.tool.help.RestContentProvider");
+  private static Document xslDocumentPreprocess;
+  private static Document xslDocumentAllInOne;
+    
+  private static final Log LOG = LogFactory
+      .getLog(RestContentProvider.class);
 
   /**
    * @param htmlDocument
@@ -93,9 +91,10 @@ public class RestContentProvider
         "/library/skin");
     String skin = ServerConfigurationService.getString("skin.default",
         "default");
+    
     NodeList nodes = htmlDocument.getElementsByTagName("head");
     Node node = nodes.item(0);
-    
+        
     Element linkNodeBase = htmlDocument.createElement("link");
     linkNodeBase.setAttribute("href", skinRoot + "/tool_base.css");
     linkNodeBase.setAttribute("rel", "stylesheet");
@@ -106,11 +105,17 @@ public class RestContentProvider
     linkNodeDefault.setAttribute("rel", "stylesheet");
     linkNodeDefault.setAttribute("content-type", "text/css");
     
+    Element linkNodeREST = htmlDocument.createElement("link");
+    linkNodeREST.setAttribute("href", "css/REST.css");
+    linkNodeREST.setAttribute("rel", "stylesheet");
+    linkNodeREST.setAttribute("content-type", "text/css");
+    
     if (node.getFirstChild() == null
         || !(node.getFirstChild().getNodeName().equals("link")))
     {
-      node.appendChild(linkNodeBase);
-      node.appendChild(linkNodeDefault);
+      //node.appendChild(linkNodeBase);
+      //node.appendChild(linkNodeDefault);
+      node.appendChild(linkNodeREST);
     }    
   }
 
@@ -282,17 +287,20 @@ public class RestContentProvider
         if (!XSL_INITIALIZED.booleanValue())
         {
           //read in and parse xsl
-          InputStream iStream = null;
+          InputStream iStreamPreprocess = null;
+          InputStream iStreamAllInOne = null;
           try
           {
-            iStream = context.getResourceAsStream(XML_TO_HTML_XSL);
-
+            iStreamPreprocess = context.getResourceAsStream(XML_PREPROCESS_XSL);
+            iStreamAllInOne = context.getResourceAsStream(XML_KB_XSL);           
+            
             DocumentBuilderFactory builderFactory = DocumentBuilderFactory
                 .newInstance();
             builderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = builderFactory
                 .newDocumentBuilder();
-            xslDocument = documentBuilder.parse(iStream);
+            xslDocumentPreprocess = documentBuilder.parse(iStreamPreprocess);
+            xslDocumentAllInOne = documentBuilder.parse(iStreamAllInOne);            
           }
           catch (ParserConfigurationException e)
           {
@@ -308,7 +316,8 @@ public class RestContentProvider
           }
           try
           {
-            iStream.close();
+            iStreamPreprocess.close();
+            iStreamAllInOne.close();
           }
           catch (IOException e)
           {
@@ -339,7 +348,7 @@ public class RestContentProvider
 
     initializeXsl(context);
 
-    Document htmlDocument = null;
+    Document result = null;
     try
     {
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -350,12 +359,26 @@ public class RestContentProvider
       
       // test for kb error condition
       if (xmlDocument.getElementsByTagName("kberror").getLength() > 0){        
-        htmlDocument = createErrorDocument();
+        result = createErrorDocument();
       }
       else{
-        htmlDocument = transformDocument(xmlDocument, xslDocument);  
-      }      
-      addLinkToCss(htmlDocument);
+        /** debugging
+        OutputFormat format = new OutputFormat(xmlDocument);
+        XMLSerializer output = new XMLSerializer(System.out, format);
+        output.serialize(xmlDocument);
+        */
+        
+        result = transformDocument(xmlDocument, xslDocumentPreprocess);  
+        result = transformDocument(result, xslDocumentAllInOne);
+      } 
+      
+      /** debugging  
+      OutputFormat format = new OutputFormat(result);
+      XMLSerializer output = new XMLSerializer(System.out, format);
+      output.serialize(result);
+      */
+           
+      addLinkToCss(result);
 
     }
     catch (ParserConfigurationException e)
@@ -370,7 +393,7 @@ public class RestContentProvider
     {
       LOG.error(e.getMessage(), e);
     }
-    return htmlDocument;
+    return result;
   }
    
 
@@ -405,7 +428,7 @@ public class RestContentProvider
     String transformedString = null;
     try
     {
-      url = new URL(helpManager.getStaticRestUrl() + resource.getDocId() + "?domain="
+      url = new URL(helpManager.getRestConfiguration().getRestUrlInDomain() + resource.getDocId() + "?domain="
           + helpManager.getRestConfiguration().getRestDomain());
       URLConnection urlConnection = url.openConnection();
 
@@ -445,6 +468,7 @@ public class RestContentProvider
     
     return transformedString;
   }
+  
   
   /**
    * Given any error condition, create an error document including css
