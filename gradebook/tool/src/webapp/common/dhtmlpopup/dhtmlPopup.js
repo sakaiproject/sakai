@@ -7,7 +7,7 @@ dhtmlPopupVars.offsetY = 0;
 function dhtmlDebug(s) {
 	var theDiv = document.getElementById("dhtmlMonitor");
 	if (theDiv != null) {
-		theDiv.innerHTML = s;
+		theDiv.innerHTML = theDiv.innerHTML + s;
 	}
 }
 
@@ -33,10 +33,15 @@ function dhtmlPopupHide(winName, e) {
 
 function dhtmlPopupShow(winName, e) {
 	var theDiv = dhtmlPopupGetDiv(winName);
-	dhtmlDebug("e.clientX=" + e.clientX + ", window.pageXOffset=" + window.pageXOffset + ", window.innerWidth=" + window.innerWidth + ", window.pageYOffset=" + window.pageYOffset + ", theDiv.offsetWidth=" + theDiv.offsetWidth + ", theDiv.offsetHeight=" + theDiv.offsetHeight);
+	dhtmlDebug("<br />e.clientX=" + e.clientX + ", window.pageXOffset=" + window.pageXOffset + ", window.innerWidth=" + window.innerWidth + ", window.pageYOffset=" + window.pageYOffset + ", theDiv.offsetWidth=" + theDiv.offsetWidth + ", theDiv.offsetHeight=" + theDiv.offsetHeight);
 	if (e.clientX > 0) {
-		theDiv.style.left = (e.clientX - 10) + "px";
-		theDiv.style.top = (e.clientY + 15) + "px";
+		var maxLeftPos = window.innerWidth - theDiv.offsetWidth;
+		var leftPos = e.clientX - 10;
+		if (leftPos > maxLeftPos) {
+			leftPos = maxLeftPos;
+		}
+		theDiv.style.left = (leftPos) + "px";
+		theDiv.style.top = (window.pageYOffset + e.clientY + 15) + "px";
 	} else {
 		// The keyboard was used instead of the mouse, so we
 		// don't have a good starting position.
