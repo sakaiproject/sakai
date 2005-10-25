@@ -586,5 +586,13 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider {
 	public void setOperationTimeout(int operationTimeout) {
 		this.operationTimeout = operationTimeout;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean authenticateWithProviderFirst(String id)
+	{
+		return false;
+	}
 }
 

@@ -381,6 +381,14 @@ public class IMSEntUserDirectoryProvider implements UserDirectoryProvider
 	public void destroyAuthentication()
 	{
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean authenticateWithProviderFirst(String id)
+	{
+		return false;
+	}
 
 } // SampleUserDirectoryProvider
 

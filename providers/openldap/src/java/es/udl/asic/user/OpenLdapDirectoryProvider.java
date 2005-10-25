@@ -324,7 +324,13 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider {
 	
 	//helper class for storing user data in the hashtable cache
 	
-		
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean authenticateWithProviderFirst(String id)
+	{
+		return false;
+	}
 }
 
 

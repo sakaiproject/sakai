@@ -493,6 +493,14 @@ public class KerberosUserDirectoryProvider
 
 	}   // SakaiCallbackHandler
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean authenticateWithProviderFirst(String id)
+	{
+		return false;
+	}
+	
 }	// KerberosUserDirectoryProvider
 
 

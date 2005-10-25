@@ -250,6 +250,14 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider
 	{
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean authenticateWithProviderFirst(String id)
+	{
+		return false;
+	}
+	
 } // SampleUserDirectoryProvider
 
 
