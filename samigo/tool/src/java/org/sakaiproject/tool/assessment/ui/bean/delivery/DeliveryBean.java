@@ -167,7 +167,7 @@ public class DeliveryBean
   // this singleton tracks if the Agent is taking a test via URL, as well as
   // current agent string (if assigned). SAK-1927: esmiley
   private static final AgentState agentState = AgentState.getInstance();
-
+  private boolean initAgentAccessString = false;
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -1090852048737428722L;
   private boolean showStudentScore;
@@ -1956,6 +1956,13 @@ public class DeliveryBean
   }
   public String getAgentAccessString()
   {
+    if (!initAgentAccessString)
+    {
+      agentState.setAgentAccessString(AgentFacade.getAgentString());
+      initAgentAccessString = false;
+    }
+    log.info("agentState.getAgentAccessString(): " + agentState.getAgentAccessString());
+
     return agentState.getAgentAccessString();
   }
   public void setAgentAccessString(String agentAccessString)
