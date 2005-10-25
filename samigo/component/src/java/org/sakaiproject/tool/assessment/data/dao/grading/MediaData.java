@@ -219,12 +219,4 @@ public class MediaData
     this.lastModifiedDate = lastModifiedDate;
   }
 
-  // determine value of SAVETODB
-  public static boolean saveToDB(){
-    String saveToDB = mediaProperties.getString("SAVETODB");
-    if (("true").equals(saveToDB))
-      return true;
-    else
-      return false;
-  }
 }
