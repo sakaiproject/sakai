@@ -208,8 +208,8 @@
      <f:facet name="header">
        <h:outputText value="#{msg.remove_chbox}"/>
      </f:facet>
-<h:selectManyCheckbox id="removeCheckbox" value ="#{questionpool.destPools}">
-	<f:selectItem itemValue="#{pool.questionPoolId}" itemLabel=""/>
+<h:selectManyCheckbox onclick="checkUpdate()" id="removebox" value ="#{questionpool.destPools}">
+	<f:selectItem itemValue="#{pool.questionPoolId}"  itemLabel=""/>
 </h:selectManyCheckbox>
     </h:column>
 

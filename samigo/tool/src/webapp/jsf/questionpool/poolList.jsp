@@ -42,6 +42,7 @@
 <script language="javascript" style="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>
+
 //-->
 </script>
       </head>
@@ -102,7 +103,7 @@
 </div>
 
 <p class="act">
-  <h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}"  type="submit" immediate="true" id="Submit" value="#{msg.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
+  <h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}"  disabled="true" type="submit" immediate="true" id="Submit" value="#{msg.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
   </h:commandButton>
   <h:commandButton rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{msg.cancel}" action="#{questionpool.cancelImport}"  >
   </h:commandButton>
