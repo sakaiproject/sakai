@@ -1,7 +1,7 @@
 This directory contains a sample Kerberos UserDirectoryProvider.
 
-This has not yet been tested so you should consider this code sample code 
-and test accordingly.
+It (and its derivatives) are in use at a few institutions, but you 
+should review the code and test it accordingly.
 
 By default, the provider provides authentication ONLY for existing 
 accounts in the local Sakai user database (where Sakai user ids and 
@@ -9,50 +9,42 @@ Kerberos principals are the same). If you wish to allow anyone with a
 valid Kerberos principal to use Sakai, follow the instructions below 
 under ADVANCED OPTIONS.
 
-In addition, to protect the integrity of your Kerberos password, the use 
-of a secure Web front-end is HIGHLY recommended.
+In addition, to protect the integrity of your Kerberos password, the 
+use of a secure Web front-end is HIGHLY recommended.
+
+NOTE: To use this provider with an existing or new systemwide 
+configuration, contact your local administrator or follow the steps in 
+SYSTEMWIDE.txt. By default, most JDKs are NOT configured for use with 
+Kerberos.
 
 **GENERAL SETUP**
 
-To use this provider:
+To use this provider using $SAKAI_HOME/sakai.properties:
 
-1) Configure Java for Kerberos using JAAS:
-
-- Find the file java.security in the your Java installation, usually in 
-$JAVA_HOME/lib/security or $JAVA_HOME/jre/lib/security.
-
-- Add this block (or edit an existing block):
-
-# Default login configuration file
-#
-#login.config.url.1=file:${user.home}/.java.login.config
-login.config.url.1=file:${java.home}/lib/security/jaas.conf
-
-The name of the login configuration file can be anything.
-
-- In the same directory as java.security, create a file called jaas.conf 
-with the following content:
+1) Create a JAAS configuration file. A sample file -- sakai-jaas.conf 
+-- with the following content is included with the provider:
 
 /*
- * Login Configuration for the JAAS Applications 
+ * JAAS Login Configuration for Sakai 
  */
 
 KerberosAuthentication {
    com.sun.security.auth.module.Krb5LoginModule required;
 };
 
-The UserDirectoryProvider uses the KerberosAuthentication context by 
-default; it can be configured by changing the loginContext parameter in 
-the components.xml file described in Step 3.
+The provider uses the KerberosAuthentication context by default; it 
+can be configured by changing the loginContext parameter in the 
+components.xml file described in Step 3. Each context name is unique 
+and may not be duplicated.
 
-- Copy or create a symlink to your existing krb5.conf in the same 
-directory as java.security.
+The installation of this file is described in Step 4.
 
-2) Test your JAAS installation. A test program (JaasTest.java) is 
-available to confirm Kerberos authentication. To run it:
+2) A test program (JaasTest.java) is available to confirm Kerberos 
+authentication. To run it:
 
 $ javac JaasTest.java
-$ java JaasTest KerberosAuthentication
+$ java -Djava.security.auth.login.config=sakai-jaas.conf \
+ JaasTest KerberosAuthentication
 
 LoginContext for testing: KerberosAuthentication
 Enter a username and password to test this LoginContext.
@@ -75,13 +67,55 @@ After deployment, you can also edit this file:
 
 $TOMCAT_HOME/components/sakai-legacy-providers/WEB-INF/components.xml 
 
-4) After deployment and startup, create a new Sakai account with your 
-Kerberos principal as the user id. You should then be able to login 
-using your Kerberos password.
+4) Once Sakai is deployed, copy sakai-jaas.conf to ${sakai.home} and 
+then set options in ${sakai.home}/sakai.properties to configure the 
+provider for use.
+
+Three options control the behavior of this provider:
+
+provider.kerberos.auth.login.config -- location of JAAS config file
+provider.kerberos.krb5.conf -- location of krb5.conf
+provider.kerberos.showconfig -- show extended config info (true/false)
+
+Locations specified using the above options are used in place of the 
+current system locations. Absolute path names are acceptable; if the 
+file specified exists and is readable, it is used. Otherwise, the file 
+path is assumed to be relative to ${sakai.home}. If no readable file 
+is found, an error message is written to the log.
+
+You MUST provide a value for provider.kerberos.auth.login.config 
+unless you are using a systemwide configuration. Otherwise, all 
+authentication will fail.
+
+Examples:
+
+provider.kerberos.auth.login.config=sakai-jaas.conf
+provider.kerberos.auth.login.config=kerberos/sakai-jaas.conf
+provider.kerberos.auth.login.config=/usr/local/sakai/sakai-jaas.conf
+
+For general use. the last two options do not need to be specified. An 
+alternate Kerberos5 configuration file can specified using 
+provider.kerberos.krb5.conf; otherwise, the system default 
+(/etc/krb5.conf on Unix systems) is used.  Setting the
+provider.kerberos.showconfig option to "true" provides extended 
+configuration about the provider's settings in the catalina.out logs:
+
+- Standard information
+INFO: org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init() Domain=columbia.edu LoginContext=SakaiAuthentication RequireLocalAccount=true KnownUserMsg=Integrity check on decrypted field failed (2005-10-21 17:29:54,466 main_org.sakaiproject.component.framework.log.CommonsLogger)
+
+- Extended information
+INFO: org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init() SakaiHome=/spare/sakai-201/jakarta-tomcat-5.5.9/sakai/ SakaiPropertyKrb5Conf=null SakaiPropertyAuthLoginConfig=kerberos/sakai-jaas.conf SystemPropertyKrb5Conf=null SystemPropertyAuthLoginConfig=/spare/sakai-201/jakarta-tomcat-5.5.9/sakai/kerberos/sakai.jaas.conf (2005-10-21 17:29:54,466 main_org.sakaiproject.component.framework.log.CommonsLogger)
+
+In the above, "null" entries indicate the use of systemwide defaults.
+
+5) After startup, create a new Sakai account with your Kerberos 
+principal as the user id. You should then be able to login using your 
+Kerberos password.
 
 **ADVANCED OPTIONS**
 
-The Kerberos UserDirectoryProvider takes 4 configuration properties:
+The Kerberos UserDirectoryProvider takes 4 configuration properties in 
+its components.xml:
 
 domain -- the 2nd-level domain name of the user's e-mail address
 loginContext -- the name of the JAAS LoginContext to use
@@ -96,7 +130,12 @@ To do so:
 1) Determine the error message to be used by passing a valid Kerberos 
 principal and an INCORRECT password to the JaasTest application:
 
-$ java JaasTest KerberosAuthentication
+$ java -Djava.security.auth.login.config=sakai-jaas.conf \
+ JaasTest KerberosAuthentication
+
+(NOTE: for systemwide configuration testing, use:
+	$ java JaasTest KerberosAuthentication
+)
 
 LoginContext for testing: KerberosAuthentication
 Enter a username and password to test this LoginContext.
@@ -117,7 +156,7 @@ string).
 <property name="requireLocalAccount"><value>false</value></property> 
 <property name="knownUserMsg"><value>STRING</value></property>
 
-where STRING is replaced by "Integrity check on decrypted field failed"
-Note: This string is the default, culled from RFC 1510.
+where STRING is replaced by "Integrity check on decrypted field 
+failed" Note: This string is the default, culled from RFC 1510.
 
 
