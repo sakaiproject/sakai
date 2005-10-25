@@ -30,7 +30,7 @@ public class SyllabusTableComponent extends HtmlDataTable
 	{
 		super();
 
-		setStyleClass("syllabusTable");
+		setStyleClass("listHier");
 		setColumnClasses("item,move,move,status,status");
 	}
 }
