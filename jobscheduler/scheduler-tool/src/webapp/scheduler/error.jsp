@@ -9,7 +9,7 @@
     <h:outputText value="dlkjd"/>
 	<%--<sakai:view_container title="#{msgs.title_job}">		
     <sakai:view_content>
-  	  <h:outputText value="#{requestScope['error']}" styleClass="chefAlertBox"/>
+  	  <h:outputText value="#{requestScope['error']}" styleClass="alertMessage"/>
 	  </sakai:view_content>
 	</sakai:view_container>
 	--%>

@@ -10,11 +10,11 @@
 	  <h:form>
   	  <h:graphicImage value="/images/quartz.jpg" alt="Powered By Quartz"/>      
    	  <sakai:view_content>
-    	  <h:outputText value="#{msgs.select_jobs_first}" styleClass="chefAlertBox" rendered="#{empty schedulerTool.filteredJobDetailWrapperList}"/>    	        
+    	  <h:outputText value="#{msgs.select_jobs_first}" styleClass="alertMessage" rendered="#{empty schedulerTool.filteredJobDetailWrapperList}"/>    	        
   	    <h:dataTable rendered="#{!empty schedulerTool.filteredJobDetailWrapperList}" value="#{schedulerTool.filteredJobDetailWrapperList}" var="job" styleClass="chefFlatListViewTable" >
   	      <h:column>
     	      <f:facet name="header">    	      
-    	        <h:outputText value="#{msgs.delete_jobs_confirm}" styleClass="chefAlertBox"/>    	        
+    	        <h:outputText value="#{msgs.delete_jobs_confirm}" styleClass="alertMessage"/>    	        
     	      </f:facet>
    	        <h:outputText value="#{job.jobDetail.name}"/>
     	    </h:column>  	      
