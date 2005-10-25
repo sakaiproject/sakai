@@ -89,7 +89,7 @@ $Id$
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
-    <h:outputText value=" | " rendered="#{totalScores.firstItem ne ''}"  />
+    <h:outputText value=" | " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}"  />
     <h:commandLink action="histogramScores" immediate="true"
       rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
       <h:outputText value="#{msg.stat_view}" />
