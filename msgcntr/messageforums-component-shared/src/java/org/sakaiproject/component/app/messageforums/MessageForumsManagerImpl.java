@@ -24,12 +24,17 @@
 package org.sakaiproject.component.app.messageforums;
 
 import org.sakaiproject.api.app.messageforums.MessageForumsManager;
+import org.sakaiproject.api.app.messageforums.dataobject.Message;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class MessageForumsManagerImpl extends HibernateDaoSupport implements MessageForumsManager {
 
     public MessageForumsManagerImpl() {
 
+    }
+
+    public void saveMessage(Message message) {
+        getHibernateTemplate().saveOrUpdate(message);
     }
     
 }

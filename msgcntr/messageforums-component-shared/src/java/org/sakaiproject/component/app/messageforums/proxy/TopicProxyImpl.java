@@ -23,9 +23,9 @@
 
 package org.sakaiproject.component.app.messageforums.proxy;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.sakaiproject.api.app.messageforums.dataobject.Message;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
@@ -55,7 +55,7 @@ public class TopicProxyImpl implements TopicProxy {
         attachment.setCreated(new Date());
         attachment.setCreatedBy("Nate Johnson");
         
-        List attachments = new ArrayList();
+        Set attachments = new TreeSet();
         attachments.add(attachment);
         newMessage.setAttachments(attachments);
     }

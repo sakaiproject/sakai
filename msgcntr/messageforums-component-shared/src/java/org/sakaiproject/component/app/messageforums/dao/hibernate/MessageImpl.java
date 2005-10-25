@@ -23,7 +23,8 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,7 +37,8 @@ public class MessageImpl extends MutableEntity implements Message {
     private String title;
     private String body;
     private String author;
-    private List attachments;
+    private Set attachments = new TreeSet();
+    //private List attachments;
     private String label;
     private Message inReplyTo;
     private String gradebook;
@@ -52,11 +54,11 @@ public class MessageImpl extends MutableEntity implements Message {
         this.approved = approved;
     }
 
-    public List getAttachments() {
+    public Set getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(List attachments) {
+    public void setAttachments(Set attachments) {
         this.attachments = attachments;
     }
 

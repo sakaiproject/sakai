@@ -27,10 +27,10 @@
 
     <!-- Label fields -->
     <property name="key">
-      <column name="KEY" length="255" not-null="true" />
+      <column name="KEY_C" length="255" not-null="true" />
     </property>
     <property name="value">
-      <column name="VALUE" length="255" not-null="true" />
+      <column name="VALUE_C" length="255" not-null="true" />
     </property>
   </class>
 

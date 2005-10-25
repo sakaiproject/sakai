@@ -23,7 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums.dataobject;
 
-import java.util.List;
+import java.util.Set;
 
 //import org.sakaiproject.component.app.messageforums.dao.hibernate.Type;
 
@@ -34,8 +34,8 @@ public interface Message {
 
     public Boolean getApproved();
     public void setApproved(Boolean approved);
-    public List getAttachments();
-    public void setAttachments(List attachments);
+    public Set getAttachments();
+    public void setAttachments(Set attachments);
     public String getAuthor();
     public void setAuthor(String author);
     public String getBody();

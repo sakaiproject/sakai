@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.messageforums;
 
 import org.sakaiproject.api.app.messageforums.MessageForumsManager;
+import org.sakaiproject.api.app.messageforums.dataobject.Message;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Topic;
 import org.sakaiproject.component.app.messageforums.proxy.TopicProxyImpl;
@@ -61,7 +62,10 @@ public class MessageForumsTool {
     
 
     public String processCDFMPostMessage() {
+        Message message = topicProxy.getNewMessage();
+        messageForumsManager.saveMessage(message);
         return "compose";
+        //return "showallmessages";
     }
     
     public String processCDFMSaveDraft() {

@@ -3,8 +3,7 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 
 <f:view>
-<f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
-  <sakai:script path="/js/hideDivision.js"></sakai:script>
+  <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form onsubmit="return false;">
@@ -77,7 +76,7 @@
               headerClass="list-header" rowClasses="list-row" styleClass="list-background" 
               value="#{MessageForumsTool.topicProxy.newMessage.attachments}" 
               var="attachment" 
-              rendered="!empty #{MessageForumsTool.topicProxy.newMessage.attachments}"> 
+              rendered="#{!empty MessageForumsTool.topicProxy.newMessage.attachments}"> 
             <h:column rendered="#{!empty MessageForumsTool.topicProxy.newMessage.attachments}">
               <f:facet name="header">
                 <h:outputText value="Title"/>

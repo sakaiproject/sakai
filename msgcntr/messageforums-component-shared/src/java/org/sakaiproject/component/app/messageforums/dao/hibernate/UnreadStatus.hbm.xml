@@ -28,10 +28,10 @@
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
       not-null="false" cascade="none" />
     <property name="user">
-      <column name="USER" length="255" not-null="true" />
+      <column name="USER_C" length="255" not-null="true" />
     </property>
     <property name="read">
-      <column name="READ" not-null="true" />
+      <column name="READ_C" not-null="true" />
     </property>      
   </class>
 

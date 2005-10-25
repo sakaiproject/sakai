@@ -23,6 +23,10 @@
 
 package org.sakaiproject.api.app.messageforums;
 
+import org.sakaiproject.api.app.messageforums.dataobject.Message;
+
 public interface MessageForumsManager {
+    
+    public void saveMessage(Message message);
 
 }
