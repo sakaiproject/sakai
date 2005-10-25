@@ -22,5 +22,8 @@
         <property name="entityManager">
             <ref bean="org.sakaiproject.service.legacy.entity.EntityManager"/>
         </property>
+        <property name="eventTrackingService">
+            <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+        </property>
     </bean>
 </beans>
