@@ -187,30 +187,7 @@ public class DeliveryBean
    */
   public DeliveryBean()
   {
-//    if (agentState == null)
-//    {
-//      init();
-//    }
   }
-
-//  private void init()
-//  {
-//    if (agentState == null)
-//    {
-//      try
-//      {
-//        SpringBeanLocator locator = SpringBeanLocator.getInstance();
-//        agentState = (AgentState) locator.getBean("agentState");
-//        log.info("accessing locator for agent State: " + agentState);
-//      }
-//      catch (Exception ex) // we guarantee some defaults
-//      {
-//        agentState = new AgentState();
-//        agentState.setAccessViaUrl(false);
-//        agentState.setAgentAccessString("prop1");
-//      }
-//    }
-//  }
 
   /**
    *
@@ -1976,6 +1953,14 @@ public class DeliveryBean
   public void setJavaScriptEnabledCheck(String javaScriptEnabledCheck)
   {
     this.javaScriptEnabledCheck = javaScriptEnabledCheck;
+  }
+  public String getAgentAccessString()
+  {
+    return agentState.getAgentAccessString();
+  }
+  public void setAgentAccessString(String agentAccessString)
+  {
+    agentState.setAgentAccessString(agentAccessString);
   }
 
   public boolean getSaveToDb(){
