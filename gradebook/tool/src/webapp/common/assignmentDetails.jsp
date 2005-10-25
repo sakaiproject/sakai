@@ -1,3 +1,5 @@
+<link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
+<script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <f:view>
   <div class="portletBody">
 	<h:form id="gbForm">
@@ -117,6 +119,7 @@
 			id="gradingTable"
 			value="#{assignmentDetailsBean.scoreRows}"
 			var="scoreRow"
+			rowIndexVar="scoreRowIndex"
 			sortColumn="#{assignmentDetailsBean.sortColumn}"
 			sortAscending="#{assignmentDetailsBean.sortAscending}"
 			columnClasses="left,left,left,right,left"
@@ -142,11 +145,11 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.assignment_details_log}" styleClass="tier0"/>
 				</f:facet>
-				<h:commandButton
-					id="log"
-					image="images/log.png"
-					rendered="#{not empty scoreRow.eventsString}"
-					onclick="javascript:toggleWindow(this, '#{msgs.assignment_details_log_window_title}', '#{scoreRow.eventsString}');return false;"/>
+				<h:outputLink value="#"
+					rendered="#{not empty scoreRow.eventRows}"
+					onclick="javascript:dhtmlPopupToggle('#{scoreRowIndex}', event);return false;">
+					<h:graphicImage value="images/log.png" alt="Show log"/>
+				</h:outputLink>
 			</h:column>
 
 			<h:column>
@@ -171,6 +174,10 @@
 				<h:message for="Score" styleClass="validationEmbedded"/>
 			</h:column>
 		</x:dataTable>
+
+		<x:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
+			<%@include file="/inc/gradingEventLogs.jspf"%>
+		</x:aliasBean>
 
 		<p class="instruction">
 			<h:outputText value="#{msgs.assignment_details_no_enrollments}" rendered="#{assignmentDetailsBean.emptyEnrollments}" />

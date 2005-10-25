@@ -68,13 +68,9 @@ public class DhtmlPopupComponent extends IteratorComponent implements NamingCont
 	private String dataRowClass = null;
 
 	public void encodeBegin(FacesContext context) throws IOException {
-		if (log.isDebugEnabled()) log.debug("encodeBegin");
-
 		String popupId = getPopupId();
 		String titleText = getTitleText();
 		String closeIconUrl = getCloseIconUrl();
-
-		if (log.isDebugEnabled()) log.debug("popupId=" + popupId);
 
 		ResponseWriter writer = context.getResponseWriter();
 		writer.startElement("div", null);
@@ -123,6 +119,7 @@ public class DhtmlPopupComponent extends IteratorComponent implements NamingCont
 			writer.writeAttribute("src", closeIconUrl, "closeIconUrl");
 			writer.writeAttribute("alt", "Close", null);
 			writer.writeAttribute("border", "0", null);
+			writer.endElement("img");
 		}
 		writer.endElement("a");
 		writer.endElement("div");
@@ -141,33 +138,7 @@ public class DhtmlPopupComponent extends IteratorComponent implements NamingCont
 		writer.writeAttribute("cellpadding", "0", null);
 	}
 
-/*
-
-<div id="dhtmlPopup_Log_1" style="position:absolute; visibility:hidden; background-color:white; border:1px solid black; left:100px; top:100px;">
-<table border="0" cellspacing="0" cellpadding="0">
-<tr><td colspan="2">
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-<tr style="background-color:#666;">
-<td width="100%"><div id="dhtmlPopupMenu_Log_1" style="color:#fff; background-color:#666; padding:5px; cursor:move;" onmouseover="javascript:dhtmlPopupMouseover('Log_1', event);" onmouseout="javascript:dhtmlPopupMouseout(event);">Grade Log: Samuel Taylor Coleridge Ascot</div></td>
-<td><div id="dhtmlPopupClose_Log_1" style="padding-right:5px;"><a href="#" onClick="javascript:dhtmlPopupHide('Log_1', event); return false;"><img src="images/dhtmlPopupClose.gif" alt="close" border="0" width="16" height="16" /></a></div></td>
-</tr>
-</table>
-</td></tr>
-<tr align="left">
-<td style="border-top: 1px solid black; padding:5px;">09/23/2005</td>
-<td style="border-top: 1px solid black; padding:5px;"><b>Score Set</b> to 85 by Amy Rupnik</td>
-</tr>
-<tr align="left">
-<td style="border-top: 1px solid black; padding:5px;">09/01/2005</td>
-<td style="border-top: 1px solid black; padding:5px;"><b>Score Set</b> to 80 by Assessment Manager</td>
-</tr>
-</table>
-</div>
-
-
-*/
 	public void encodeEnd(FacesContext context) throws IOException {
-		if (log.isDebugEnabled()) log.debug("encodeEnd");
 		ResponseWriter writer = context.getResponseWriter();
 		writer.endElement("table");
 		writer.endElement("div");
@@ -243,7 +214,6 @@ public class DhtmlPopupComponent extends IteratorComponent implements NamingCont
 		return values;
 	}
 	public void restoreState(FacesContext context, Object state) {
-		if (log.isDebugEnabled()) log.debug("restoreState " + state);
 		Object values[] = (Object[])state;
 		super.restoreState(context, values[0]);
 		popupId = (String)values[1];

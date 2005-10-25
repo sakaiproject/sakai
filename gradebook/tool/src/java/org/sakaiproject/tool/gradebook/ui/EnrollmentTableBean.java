@@ -24,14 +24,7 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
@@ -39,9 +32,13 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+
+import org.sakaiproject.service.gradebook.shared.UnknownUserException;
+import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
@@ -67,6 +64,11 @@ public abstract class EnrollmentTableBean
 	private Integer selectedSectionFilterValue = new Integer(ALL_SECTIONS_SELECT_VALUE);
 	private List sectionFilterSelectItems;
 	private transient List availableSections;	// The real sections accessible by this user
+
+	// We only store grader UIDs in the grading event history, but the
+	// log displays grader names instead. This map cuts down on possibly expensive
+	// calls to the user directory service.
+	private Map graderIdToNameMap;
 
     public EnrollmentTableBean() {
         maxDisplayedScoreRows = getPreferencesBean().getDefaultMaxDisplayedScoreRows();
@@ -197,8 +199,11 @@ public abstract class EnrollmentTableBean
 		return (sortColumn.equals(PreferencesBean.SORT_BY_NAME) || sortColumn.equals(PreferencesBean.SORT_BY_UID));
 	}
 
-	// Section filtering.
+
 	protected void init() {
+		graderIdToNameMap = new HashMap();
+
+		// Section filtering.
 		SectionAwareness sectionAwareness = getSectionAwareness();
 		availableSections = getAvailableSections();
 		sectionFilterSelectItems = new ArrayList();
@@ -252,5 +257,45 @@ public abstract class EnrollmentTableBean
 
     public boolean isEmptyEnrollments() {
         return emptyEnrollments;
+    }
+
+    // Map grader UIDs to grader names for the grading event log.
+    public String getGraderNameForId(String graderId) {
+		String graderName = (String)graderIdToNameMap.get(graderId);
+		if (graderName == null) {
+			try {
+				graderName = getUserDirectoryService().getUserDisplayName(graderId);
+			} catch (UnknownUserException e) {
+				log.warn("Unable to find grader with uid=" + graderId);
+				graderName = graderId;
+			}
+			graderIdToNameMap.put(graderId, graderName);
+		}
+		return graderName;
+    }
+
+    // Support grading event logs.
+    public class GradingEventRow implements Serializable {
+		private Date date;
+		private String graderName;
+		private String grade;
+
+		public GradingEventRow(GradingEvent gradingEvent) {
+			date = gradingEvent.getDateGraded();
+			grade = gradingEvent.getGrade();
+			graderName = getGraderNameForId(gradingEvent.getGraderId());
+		}
+
+		public Date getDate() {
+			return date;
+		}
+
+		public String getGrade() {
+			return grade;
+		}
+
+		public String getGraderName() {
+			return graderName;
+		}
     }
 }

@@ -43,6 +43,8 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
+import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public class CourseGradeDetailsBean extends EnrollmentTableBean {
@@ -50,8 +52,6 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 	// View maintenance fields - serializable.
 	private List scoreRows;
-//	private Map changedGrades;
-//	private boolean workInProgress;
 
 	// Controller fields - transient.
 	private CourseGrade courseGrade;
@@ -62,10 +62,11 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	public class ScoreRow implements Serializable {
         private EnrollmentRecord enrollment;
         private CourseGradeRecord courseGradeRecord;
+        private List eventRows;
 
 		public ScoreRow() {
 		}
-		public ScoreRow(EnrollmentRecord enrollment) {
+		public ScoreRow(EnrollmentRecord enrollment, List gradingEvents) {
             this.enrollment = enrollment;
 			courseGradeRecord = (CourseGradeRecord)gradeRecordSet.getGradeRecord(enrollment.getUser().getUserUid());
 			if (courseGradeRecord == null) {
@@ -74,6 +75,12 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 				courseGradeRecord = new CourseGradeRecord(courseGrade, enrollment.getUser().getUserUid(), null);
 				gradeRecordSet.addGradeRecord(courseGradeRecord);
 			}
+
+            eventRows = new ArrayList();
+            for (Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
+            	GradingEvent gradingEvent = (GradingEvent)iter.next();
+            	eventRows.add(new GradingEventRow(gradingEvent));
+            }
 		}
 
         public String getCalculatedLetterGrade() {
@@ -93,23 +100,17 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         public EnrollmentRecord getEnrollment() {
             return enrollment;
         }
+
+        public List getEventRows() {
+        	return eventRows;
+        }
+        public String getEventsLogTitle() {
+        	return FacesUtil.getLocalizedString("course_grade_details_log_title", new String[] {enrollment.getUser().getDisplayName()});
+        }
 	}
 
 	protected void init() {
 		super.init();
-
-		// We save the "changedGrades" map across the request thread to deal with
-		// the following scenario:
-		//
-		//   1) The instructor enters several grades, one of which is invalid,
-		//      and saves.
-		//   2) The component model is updated with the request values. Validation
-		//      fails for the invalid grade. Value change listeners are called for
-		//      the valid grades. The save action is not reached.
-		//   3) The instructor is reshown the form with its inputs, with an error
-		//      message. After fixing the error, the instructor saves.
-		//   4) JSF only calls value change listeners for the fixed grades, not for
-		//      the previously entered (but unsaved) valid grades.
 
 		// Clear view state.
 		scoreRows = new ArrayList();
@@ -151,6 +152,10 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 			workingEnrollments = finalizeSortingAndPaging(workingEnrollments);
 		}
+
+		// Get all of the grading events for these enrollments on this assignment
+		GradingEvents allEvents = getGradeManager().getGradingEvents(courseGrade, workingEnrollments);
+
 		gradeRecordSet = new GradeRecordSet(courseGrade);
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 			CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
@@ -158,10 +163,8 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		}
 		for (Iterator iter = workingEnrollments.iterator(); iter.hasNext(); ) {
 			EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
-            scoreRows.add(new ScoreRow(enrollment));
+            scoreRows.add(new ScoreRow(enrollment, allEvents.getEvents(enrollment.getUser().getUserUid())));
 		}
-
-//		workInProgress = true;
 	}
 
     public CourseGrade getCourseGrade() {
@@ -189,10 +192,6 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	private void saveGrades() throws StaleObjectModificationException {
 		getGradeManager().updateCourseGradeRecords(gradeRecordSet);
 
-		// Clear the work-in-progress indicator so that the user can
-		// start fresh.
-//		workInProgress = false;
-
 		// Let the user know.
 		FacesUtil.addMessage(getLocalizedString("course_grade_details_grades_saved"));
 	}
@@ -207,6 +206,10 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	}
 	public void setScoreRows(List scoreRows) {
 		this.scoreRows = scoreRows;
+	}
+
+	public String getEventsLogType() {
+		return FacesUtil.getLocalizedString("course_grade_details_log_type");
 	}
 
     // Sorting

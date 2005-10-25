@@ -6,7 +6,9 @@ dhtmlPopupVars.offsetY = 0;
 
 function dhtmlDebug(s) {
 	var theDiv = document.getElementById("dhtmlMonitor");
-	theDiv.innerHTML = s;
+	if (theDiv != null) {
+		theDiv.innerHTML = s;
+	}
 }
 
 function dhtmlPopupGetDiv(winName) {

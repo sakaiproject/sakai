@@ -1,7 +1,6 @@
 
 div.dhtmlPopup {
 	position:absolute;
-	visibility:hidden;
 	z-index:+999;
 	background-color:white;
 	border:1px solid black;

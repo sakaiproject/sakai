@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,9 +36,9 @@ import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -59,13 +58,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	private Assignment previousAssignment;
 	private Assignment nextAssignment;
 
-    private SimpleDateFormat dateFormat;
-
 	public class ScoreRow implements Serializable {
         private AssignmentGradeRecord gradeRecord;
         private EnrollmentRecord enrollment;
-        private StringBuffer eventsString;
-        private static final char EVENT_SEP_CHAR = '|';
+        private List eventRows;
 
 		public ScoreRow() {
 		}
@@ -79,24 +75,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 this.gradeRecord = gradeRecord;
             }
 
-            eventsString = new StringBuffer();
-            for(Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
-                GradingEvent gradingEvent = (GradingEvent)iter.next();
-                String graderName;
-                try {
-                    graderName = getUserDirectoryService().getUserDisplayName(gradingEvent.getGraderId());
-                } catch (UnknownUserException e) {
-                    logger.warn("Unable to find user with uid=" + gradingEvent.getGraderId());
-                    graderName = gradingEvent.getGraderId();
-                }
-                eventsString.append(dateFormat.format(gradingEvent.getDateGraded()));
-                eventsString.append(EVENT_SEP_CHAR);
-                eventsString.append(gradingEvent.getGrade());
-                eventsString.append(EVENT_SEP_CHAR);
-                eventsString.append(graderName);
-                if(iter.hasNext()) {
-                    eventsString.append(EVENT_SEP_CHAR);
-                }
+            eventRows = new ArrayList();
+            for (Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
+            	GradingEvent gradingEvent = (GradingEvent)iter.next();
+            	eventRows.add(new GradingEventRow(gradingEvent));
             }
 		}
 
@@ -109,8 +91,12 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         public EnrollmentRecord getEnrollment() {
             return enrollment;
         }
-        public String getEventsString() {
-            return eventsString.toString();
+
+        public List getEventRows() {
+        	return eventRows;
+        }
+        public String getEventsLogTitle() {
+        	return FacesUtil.getLocalizedString("assignment_details_log_title", new String[] {enrollment.getUser().getDisplayName()});
         }
 	}
 
@@ -118,8 +104,6 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		if (logger.isDebugEnabled()) logger.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);
 
 		super.init();
-
-        dateFormat = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss", FacesContext.getCurrentInstance().getExternalContext().getRequestLocale());
 
         // Clear view state.
         previousAssignment = null;
@@ -284,6 +268,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     		return "left";
     	}
     }
+
+	public String getEventsLogType() {
+		return FacesUtil.getLocalizedString("assignment_details_log_type");
+	}
 
     // Sorting
     public boolean isSortAscending() {
