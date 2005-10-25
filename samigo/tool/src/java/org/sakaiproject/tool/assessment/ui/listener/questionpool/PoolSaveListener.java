@@ -67,12 +67,14 @@ public class PoolSaveListener implements ActionListener
     log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     String currentName= qpoolbean.getCurrentPool().getDisplayName();
+    String currentId=""+ (qpoolbean.getCurrentPool().getId());
     // System.out.println("NAME = "+ currentName);
     QuestionPoolService delegate = new QuestionPoolService();
     ArrayList qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
     Iterator iter = qplist.iterator();
     boolean nameDup=false;
     int count=0;
+    String id="";
     try {
 	while(iter.hasNext()){
 		QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();  
@@ -83,7 +85,16 @@ public class PoolSaveListener implements ActionListener
 			    break;
 			}
 		    else{
-			count++;
+                        id=String.valueOf(pool.getQuestionPoolId());
+                        System.out.println("Id string : "+id);
+                        System.out.println("Current Id : "+currentId);
+			if(!id.equals(currentId)){
+			    nameDup=true;
+			    break;
+			}
+			else{
+			    count++;
+			}
 		    }
 		}
 	}
