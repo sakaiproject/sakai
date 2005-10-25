@@ -39,35 +39,37 @@
       <title><h:outputText value="#{msg.import_a}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+ <div class="portletBody">
 <!-- content... -->
  <h:form id="importAssessmentForm" enctype="multipart/form-data">
-   <div class="indnt1">
+
    <h:inputHidden value="#{xmlImport.importType}" />
    <h3><h:outputText  value="#{msg.import_a}" /></h3>
-    <div class="indnt2">
+    <div class="indnt1">
      <div class="form_label">
       <font color="red"><h:messages /></font>
-      <h:outputText value="#{msg.import_instructions}" />
-     </div>
+      <h:outputText value="#{msg.import_instructions}"/>
     </div>
     <br />
-   <div class="indnt3">
-   <h:outputText value="#{msg.choose_file}" />
+   <div class="indnt2">
+   <h:outputLabel  styleClass="form_label" value="#{msg.choose_file}"/>
     <%-- target represents location where import will be temporarily stored
         check valueChangeListener for final destination --%>
     <corejsf:upload target="/jsf/upload_tmp/qti_imports"
-      valueChangeListener="#{xmlImport.importFromQti}" />
+      valueChangeListener="#{xmlImport.importFromQti}"/>
    </div>
-    <br />
-    <br />
+    <br/>
+    <br/>
      <%-- activates the valueChangeListener --%>
      <h:commandButton value="#{msg.import_action}" type="submit"
        style="act" action="author" />
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{msg.import_cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>
-   </div>
+  </div>
+
  </h:form>
+</div>
  <!-- end content -->
       </body>
     </html>
