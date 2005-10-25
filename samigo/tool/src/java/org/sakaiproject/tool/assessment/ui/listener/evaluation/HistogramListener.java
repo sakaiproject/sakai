@@ -193,7 +193,7 @@ public class HistogramListener
 
 
  	  String authortype = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
-          if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(authortype)){
+          if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(new Integer(authortype))){
             hasRandompart = true;
             isRandompart = true;
           }
