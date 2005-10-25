@@ -464,3 +464,35 @@ function PopupWin(url)
    window.open(url,"ha_fullscreen","toolbar=no,location=no,directories=no,status=no,menubar=yes,"+"scrollbars=yes,resizable=yes,width=640,height=480");
 
 }
+
+
+function checkUpdate(){
+ var tables= document.getElementsByTagName("INPUT");
+ for (var i = 0; i < tables.length; i++) {
+    if (tables[i].name.indexOf("removebox") >=0){
+         if(tables[i].checked){   
+            abledButton();
+             break;
+         }
+         else disabledButton();
+    }
+
+ }
+
+}
+
+function disabledButton(){
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i < inputs.length; i++){
+    if (inputs[i].name.indexOf("Submit") >=0)
+      inputs[i].disabled=true;
+  }
+}
+function abledButton(){
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i].name.indexOf("Submit") >=0)
+      inputs[i].disabled=false;
+  }
+}
+
