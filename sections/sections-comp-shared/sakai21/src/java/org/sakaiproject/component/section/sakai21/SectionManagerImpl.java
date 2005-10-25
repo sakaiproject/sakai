@@ -36,6 +36,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.kernel.session.SessionManager;
@@ -103,7 +104,12 @@ public class SectionManagerImpl implements SectionManager {
     	}
     	for(Iterator iter = sections.iterator(); iter.hasNext();) {
     		Group group = (Group)iter.next();
-    		sectionList.add(new CourseSectionImpl(group));
+    		// Only use groups with a category defined.  If there is no category,
+    		// it is not a section.
+    		if(StringUtils.trimToNull(
+    				group.getProperties().getProperty(CourseSectionImpl.CATEGORY)) != null) {
+        		sectionList.add(new CourseSectionImpl(group));
+    		}
     	}
     	return sectionList;
 	}
