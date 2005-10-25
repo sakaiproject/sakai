@@ -160,9 +160,11 @@ $Id$
   <h:dataTable value="#{histogramScores.info}" var="item">
 
 <!-- need to add a randomtype property for histogramQuestionScoreBean (item) and if it's true, hide histogram  -->
+<%--
     <h:column rendered="#{histogramScores.randomType =='true'}">
       <h:outputText value="#{msg.no_histogram_for_random}" />
     </h:column>
+--%>
 
 
     <h:column rendered="#{histogramScores.randomType =='false'}">
