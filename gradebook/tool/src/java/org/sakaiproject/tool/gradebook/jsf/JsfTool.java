@@ -50,7 +50,7 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
         GradebookService gradebookService = (GradebookService)ac.getBean("org.sakaiproject.service.gradebook.GradebookService");
         ContextManagement contextManagementService = (ContextManagement)ac.getBean("org_sakaiproject_tool_gradebook_facades_ContextManagement");
 
-        String userUid = authnService.getUserUid(null);
+        String userUid = authnService.getUserUid();
         String gradebookUid = contextManagementService.getGradebookUid(null);
 
 		// Add the gradebook if it doesn't exist
@@ -60,10 +60,10 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
 		}
 
         String target;
-        if(authzService.isUserAbleToGrade(gradebookUid, userUid)) {
+        if(authzService.isUserAbleToGrade(gradebookUid)) {
             if(logger.isInfoEnabled()) logger.info("Sending user to the overview page");
             target = "/overview";
-        } else if (authzService.isUserGradable(gradebookUid, userUid)) {
+        } else if (authzService.isUserAbleToViewOwnGrades(gradebookUid)) {
             if(logger.isInfoEnabled()) logger.info("Sending user to the student view page");
             target = "/studentView";
         } else {

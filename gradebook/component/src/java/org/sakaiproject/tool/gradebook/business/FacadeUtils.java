@@ -42,13 +42,6 @@ public class FacadeUtils {
 	private FacadeUtils() {
 	}
 
-	/**
-	 * Get the UID identifying the current user.
-	 */
-	public static String getUserUid(Authn authnFacade) {
-		return authnFacade.getUserUid(null);
-	}
-
     /**
      * A comparator that sorts enrollments by student sortName
      */

@@ -58,7 +58,8 @@ public class AuthnFilter implements Filter {
 		throws IOException, ServletException {
 		HttpSession session = ((HttpServletRequest)request).getSession();
 		Authn authnService = (Authn)WebApplicationContextUtils.getWebApplicationContext(session.getServletContext()).getBean(authnServiceBean);
-		String userUid = authnService.getUserUid(request);
+		authnService.setAuthnContext(request);
+		String userUid = authnService.getUserUid();
 		if (logger.isInfoEnabled()) logger.info("userUid=" + userUid);
 		if (userUid == null) {
 			if (authnRedirect != null) {

@@ -105,7 +105,8 @@ public class RoleFilter implements Filter {
 		Authz authzService = (Authz)ac.getBean(authzServiceBeanName);
 		ContextManagement contextManagementService = (ContextManagement)ac.getBean(contextManagementServiceBeanName);
 		AuthorizationFilterConfigurationBean authorizationFilterConfigurationBean = (AuthorizationFilterConfigurationBean)ac.getBean(authorizationFilterConfigurationBeanName);
-		String userUid = authnService.getUserUid(request);
+		authnService.setAuthnContext(request);
+		String userUid = authnService.getUserUid();
 
         if (logger.isDebugEnabled()) logger.debug("Filtering request for user " + userUid + ", pathInfo=" + request.getPathInfo());
 
@@ -127,12 +128,12 @@ public class RoleFilter implements Filter {
 			String pageName = splitPath[0];
 
 			boolean isAuthorized;
-			if (authzService.isUserAbleToGrade(gradebookUid, userUid) &&
+			if (authzService.isUserAbleToGrade(gradebookUid) &&
 				authorizationFilterConfigurationBean.getUserAbleToGradePages().contains(pageName)) {
 				isAuthorized = true;
-			} else if (authzService.isUserAbleToEditAssessments(gradebookUid, userUid) && authorizationFilterConfigurationBean.getUserAbleToEditPages().contains(pageName)) {
+			} else if (authzService.isUserAbleToEditAssessments(gradebookUid) && authorizationFilterConfigurationBean.getUserAbleToEditPages().contains(pageName)) {
 				isAuthorized = true;
-			} else if (authzService.isUserGradable(gradebookUid, userUid) && authorizationFilterConfigurationBean.getUserGradablePages().contains(pageName)) {
+			} else if (authzService.isUserAbleToViewOwnGrades(gradebookUid) && authorizationFilterConfigurationBean.getUserAbleToViewOwnGradesPages().contains(pageName)) {
 				isAuthorized = true;
 			} else {
 				isAuthorized = false;

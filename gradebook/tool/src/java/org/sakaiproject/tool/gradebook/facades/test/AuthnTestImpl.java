@@ -33,16 +33,11 @@ import org.sakaiproject.tool.gradebook.facades.Authn;
 public class AuthnTestImpl implements Authn {
 	private String userUid;
 
-	/**
-	 * Exposed only in the test implementation.
-	 */
-	public void setUserUid(String userUid) {
-		this.userUid = userUid;
+	public void setAuthnContext(Object whatToAuthn) {
+		this.userUid = (String)whatToAuthn;
 	}
 
-    /**
-	 */
-	public String getUserUid(Object whatToAuthn) {
+	public String getUserUid() {
         return userUid;
 	}
 

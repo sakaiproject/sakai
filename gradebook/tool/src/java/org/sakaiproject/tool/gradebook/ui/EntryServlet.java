@@ -63,15 +63,16 @@ public class EntryServlet extends HttpServlet {
 		Authz authzService = (Authz)appContext.getBean("org_sakaiproject_tool_gradebook_facades_Authz");
 		ContextManagement contextMgm = (ContextManagement)appContext.getBean("org_sakaiproject_tool_gradebook_facades_ContextManagement");
 
-        String userUid = authnService.getUserUid(request);
+        authnService.setAuthnContext(request);
+        String userUid = authnService.getUserUid();
         String gradebookUid = contextMgm.getGradebookUid(request);
 
         try {
             if (gradebookUid != null) {
                 StringBuffer path = new StringBuffer(request.getContextPath());
-                if (authzService.isUserAbleToGrade(gradebookUid, userUid)) {
+                if (authzService.isUserAbleToGrade(gradebookUid)) {
                     path.append("/overview.jsf?");
-                } else if (authzService.isUserGradable(gradebookUid, userUid)) {
+                } else if (authzService.isUserAbleToViewOwnGrades(gradebookUid)) {
                     path.append("/studentView.jsf?");
                 } else {
                     path.append("/error.jsf?");

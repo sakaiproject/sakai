@@ -37,13 +37,20 @@ public class AuthnSakai2Impl implements Authn {
     private static final Log log = LogFactory.getLog(AuthnSakai2Impl.class);
 
 	/**
-	 * @see org.sakaiproject.tool.gradebook.facades.Authn#getUserUid(java.lang.Object)
+	 * @see org.sakaiproject.tool.gradebook.facades.Authn#getUserUid()
 	 */
-	public String getUserUid(Object notNeededInSakai) {
+	public String getUserUid() {
         Session session = SessionManager.getCurrentSession();
         String userId = session.getUserId();
         if(log.isDebugEnabled()) log.debug("current user id is " + userId);
         return userId;
+    }
+
+    /**
+     * In Sakai, the framework maintains its own ThreadLocal
+     * user context.
+     */
+    public void setAuthnContext(Object whatToAuthn) {
     }
 }
 

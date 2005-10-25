@@ -62,7 +62,7 @@
 				<value>roster</value>
 			</list>
 		</property>
-		<property name="userGradablePages">
+		<property name="userAbleToViewOwnGradesPages">
 			<list>
 				<value>studentView</value>
 			</list>

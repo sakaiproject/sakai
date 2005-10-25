@@ -21,6 +21,7 @@
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
 		class="org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl">
 		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
+		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
 	</bean>
 
 	<!-- External Context Management Service -->

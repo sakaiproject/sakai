@@ -29,25 +29,25 @@ import java.util.List;
  * Facade to external role and authorization service.
  */
 public interface Authz {
-	public boolean isUserAbleToGrade(String gradebookUid, String userUid);
-	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid);
-	public boolean isUserAbleToGradeSection(String sectionUid, String userUid);
-	public boolean isUserAbleToEditAssessments(String gradebookUid, String userUid);
-	public boolean isUserGradable(String gradebookUid, String userUid);
+	public boolean isUserAbleToGrade(String gradebookUid);
+	public boolean isUserAbleToGradeAll(String gradebookUid);
+	public boolean isUserAbleToGradeSection(String sectionUid);
+	public boolean isUserAbleToEditAssessments(String gradebookUid);
+	public boolean isUserAbleToViewOwnGrades(String gradebookUid);
 
 	/**
 	 * @return
 	 *	an EnrollmentRecord list for each student that the current user
 	 *  is allowed to grade.
 	 */
-	public List getAvailableEnrollments(String gradebookUid, String userUid);
+	public List getAvailableEnrollments(String gradebookUid);
 
 	/**
 	 * @return
 	 *	a CourseSection list for each group that the current user
 	 *  belongs to.
 	 */
-	public List getAvailableSections(String gradebookUid, String userUid);
+	public List getAvailableSections(String gradebookUid);
 
 	/**
 	 * The section enrollment list will not be returned unless the user
@@ -56,7 +56,7 @@ public interface Authz {
 	 * @return
 	 *  an EnrollmentRecord list for all the students in the given group.
 	 */
-	public List getSectionEnrollments(String gradebookUid, String sectionUid, String userUid);
+	public List getSectionEnrollments(String gradebookUid, String sectionUid);
 
 	/**
 	 * @param searchString
@@ -69,5 +69,5 @@ public interface Authz {
 	 * @return
 	 *  an EnrollmentRecord list for all matching available students.
 	 */
-	public List findMatchingEnrollments(String gradebookUid, String searchString, String optionalSectionUid, String userUid);
+	public List findMatchingEnrollments(String gradebookUid, String searchString, String optionalSectionUid);
 }

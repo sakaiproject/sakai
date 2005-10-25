@@ -35,11 +35,16 @@ import org.sakaiproject.tool.gradebook.facades.Authn;
  * An implementation of the Authn facade to support demos and UI tests.
  */
 public class AuthnStandaloneImpl implements Authn {
-	private static Log logger = LogFactory.getLog(AuthnStandaloneImpl.class);
+	private static Log log = LogFactory.getLog(AuthnStandaloneImpl.class);
 
 	private static String USER_ID_PARAMETER = "userUid";
 
-	public String getUserUid(Object whatToAuthn) {
+	private ThreadLocal authnContext = new ThreadLocal();
+
+	public String getUserUid() {
+		Object whatToAuthn = authnContext.get();
+		if (log.isDebugEnabled()) log.debug("whatToAuthn=" + whatToAuthn);
+
         // If we got a null, get the request from the faces context
         if(whatToAuthn == null) {
             whatToAuthn = FacesContext.getCurrentInstance().getExternalContext().getRequest();
@@ -61,6 +66,16 @@ public class AuthnStandaloneImpl implements Authn {
 		}
 
 		return userUid;
+	}
+
+	/**
+	 * This is usually redundant, since all the necessary information
+	 * is available through the FacesContext object.
+	 * Unfortunately, servlets and filters might call this service before
+	 * the Faces context is fully initialized.
+	 */
+	public void setAuthnContext(Object whatToAuthn) {
+		authnContext.set(whatToAuthn);
 	}
 
 }

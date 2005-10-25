@@ -46,7 +46,7 @@ public class SelectGradebookBean extends InitializableBean {
 	 * Return a list of gradebooks accessible by the currently logged-in user.
 	 */
 	public List getGradebooks() {
-		String userUid = FacadeUtils.getUserUid(authnService);
+		String userUid = authnService.getUserUid();
 		List gradebooks = frameworkManager.getAccessibleGradebooks(userUid);
 
 		// JSF's "f:param" doesn't java.net.URLEncoder.encode the

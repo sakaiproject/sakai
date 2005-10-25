@@ -67,7 +67,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	 * Convenience method to hide the Authn context object.
 	 */
 	public String getUserUid() {
-		return FacadeUtils.getUserUid(getAuthnService());
+		return getAuthnService().getUserUid();
 	}
 
 	/**
@@ -126,29 +126,29 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	}
 
 	public boolean isUserAbleToEditAssessments() {
-		return getGradebookBean().getAuthzService().isUserAbleToEditAssessments(getGradebookUid(), getUserUid());
+		return getGradebookBean().getAuthzService().isUserAbleToEditAssessments(getGradebookUid());
 	}
 	public boolean isUserAbleToGradeAll() {
-		return getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid(), getUserUid());
+		return getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid());
 	}
 	public boolean isUserAbleToGradeSection(String sectionUid) {
-		return getGradebookBean().getAuthzService().isUserAbleToGradeSection(sectionUid, getUserUid());
+		return getGradebookBean().getAuthzService().isUserAbleToGradeSection(sectionUid);
 	}
 
 	public List getAvailableEnrollments() {
-		return getGradebookBean().getAuthzService().getAvailableEnrollments(getGradebookUid(), getUserUid());
+		return getGradebookBean().getAuthzService().getAvailableEnrollments(getGradebookUid());
 	}
 
 	public List getAvailableSections() {
-		return getGradebookBean().getAuthzService().getAvailableSections(getGradebookUid(), getUserUid());
+		return getGradebookBean().getAuthzService().getAvailableSections(getGradebookUid());
 	}
 
 	public List getSectionEnrollments(String sectionUid) {
-		return getGradebookBean().getAuthzService().getSectionEnrollments(getGradebookUid(), sectionUid, getUserUid());
+		return getGradebookBean().getAuthzService().getSectionEnrollments(getGradebookUid(), sectionUid);
 	}
 
 	public List findMatchingEnrollments(String searchString, String optionalSectionUid) {
-		return getGradebookBean().getAuthzService().findMatchingEnrollments(getGradebookUid(), searchString, optionalSectionUid, getUserUid());
+		return getGradebookBean().getAuthzService().findMatchingEnrollments(getGradebookUid(), searchString, optionalSectionUid);
 	}
 
 	/**

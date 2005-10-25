@@ -196,7 +196,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
 
     protected String getUserUid() {
-    	return FacadeUtils.getUserUid(authn);
+    	return authn.getUserUid();
     }
 
 	protected SectionAwareness getSectionAwareness() {

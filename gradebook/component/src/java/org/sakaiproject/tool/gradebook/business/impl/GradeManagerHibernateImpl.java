@@ -154,7 +154,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 Assignment assignment = (Assignment)session.load(Assignment.class, gradeRecordSet.getGradableObject().getId());
 				Date now = new Date();
 				Gradebook gb = assignment.getGradebook();
-				String graderId = FacadeUtils.getUserUid(authn);
+				String graderId = authn.getUserUid();
 
                 Set studentsWithUpdatedAssignmentGradeRecords = new HashSet();
 				Set studentsWithExcessiveScores = new HashSet();
@@ -249,7 +249,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 				CourseGrade courseGrade = (CourseGrade)gradeRecordSet.getGradableObject();
 				Date now = new Date();
 				Gradebook gb = courseGrade.getGradebook();
-				String graderId = FacadeUtils.getUserUid(authn);
+				String graderId = authn.getUserUid();
 
 				// Find the number of points possible in this gradebook
 				double totalPointsPossibleInGradebook = getTotalPoints(gb.getId());

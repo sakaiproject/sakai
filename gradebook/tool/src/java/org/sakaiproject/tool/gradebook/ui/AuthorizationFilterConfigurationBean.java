@@ -45,10 +45,10 @@ public class AuthorizationFilterConfigurationBean {
 	public void setUserAbleToGradePages(List userAbleToGradePages) {
 		this.userAbleToGradePages = userAbleToGradePages;
 	}
-	public List getUserGradablePages() {
+	public List getUserAbleToViewOwnGradesPages() {
 		return userGradablePages;
 	}
-	public void setUserGradablePages(List userGradablePages) {
+	public void setUserAbleToViewOwnGradesPages(List userGradablePages) {
 		this.userGradablePages = userGradablePages;
 	}
 }
