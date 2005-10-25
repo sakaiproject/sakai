@@ -75,8 +75,8 @@ $Id$
     </h:commandLink>
     <h:outputText value=" | " />
       <h:outputText value="#{msg.q_view}" />
-    <h:outputText value=" | " />
-    <h:commandLink action="histogramScores" immediate="true">
+    <h:outputText value=" | " rendered="#{!totalScores.hasRandomDrawPart}" />
+    <h:commandLink action="histogramScores" immediate="true" rendered="#{!totalScores.hasRandomDrawPart}">
       <h:outputText value="#{msg.stat_view}" />
       <f:param name="hasNav" value="true"/>
       <f:actionListener
@@ -199,21 +199,25 @@ $Id$
      <h:outputText value="#{msg.view}" />
       <h:outputText value=" : " />
 
-<%--
-     <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL"
+     <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker"
         required="true" onchange="document.forms[0].submit();" >
-      <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
-      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+        <f:selectItems value="#{totalScores.sectionFilterSelectItems}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
      </h:selectOneMenu>
-     <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsH"
---%>
 
-     <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissions"
-        required="true" onchange="document.forms[0].submit();" >
-      <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
+     <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
       <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+      <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
+      <f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+     </h:selectOneMenu>
+
+     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+      <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
      </h:selectOneMenu>

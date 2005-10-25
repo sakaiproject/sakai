@@ -86,7 +86,7 @@ $Id$
     </h:commandLink>
     <h:outputText value=" | " rendered="#{totalScores.firstItem ne ''}" />
     <h:commandLink action="histogramScores" immediate="true"
-      rendered="#{totalScores.firstItem ne ''}" >
+      rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
       <h:outputText value="#{msg.stat_view}" />
       <f:param name="hasNav" value="true"/>
       <f:actionListener
