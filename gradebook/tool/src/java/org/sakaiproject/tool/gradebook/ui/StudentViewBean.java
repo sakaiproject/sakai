@@ -284,10 +284,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
 				// Update the AssignmentGradeRow in the map
 				AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
-				Double pointsEarned = asnGr.getPointsEarned();
-				if(pointsEarned != null) {
-					asnGradeRow.setPointsEarned(new Double(pointsEarned.doubleValue() / asnGr.getAssignment().getPointsPossible().doubleValue()));
-				}
+				asnGradeRow.setPointsEarned(asnGr.getPointsEarned());
 				asnGradeRow.setGrade(asnGr.getDisplayGrade());
             }
 

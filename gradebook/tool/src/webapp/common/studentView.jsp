@@ -68,7 +68,7 @@
 					</f:facet>
 
 					<h:outputText value="#{row.pointsEarned}" rendered="#{row.pointsEarned != null}">
-						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 					</h:outputText>
 					<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{row.pointsEarned == null}"/>
 				</h:column>
