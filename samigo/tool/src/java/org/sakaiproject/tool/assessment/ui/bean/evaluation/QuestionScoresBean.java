@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 
 /**
  * <p>Description: class form for evaluating question scores</p>
@@ -74,6 +75,8 @@ public class QuestionScoresBean
   private String typeId;
   private HashMap scoresByItem;
   private static Log log = LogFactory.getLog(QuestionScoresBean.class);
+  private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
+
 
   /**
    * Creates a new QuestionScoresBean object.
@@ -496,7 +499,7 @@ public class QuestionScoresBean
    */
   public String getAllSubmissions()
   {
-    return Validator.check(allSubmissions, "false");
+    return allSubmissions;
   }
 
   /**
@@ -584,4 +587,14 @@ public class QuestionScoresBean
   {
     scoresByItem = newScores;
   }
+
+
+  public String getSelectedSectionFilterValue() {
+    return selectedSectionFilterValue;
+  }
+
+  public void setSelectedSectionFilterValue(String param ) {
+      this.selectedSectionFilterValue = param;
+  }
+
 }

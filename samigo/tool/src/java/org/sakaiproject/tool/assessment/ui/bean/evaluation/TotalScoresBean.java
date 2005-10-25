@@ -573,7 +573,6 @@ public class TotalScoresBean
 
 
     availableSections = getAllAvailableSections();
-System.out.println("lydiatest:  availableSections.size() = " + availableSections.size());
     List filterSelectItems = new ArrayList();
 
     // The first choice is always "All available enrollments"
