@@ -88,29 +88,24 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       types[0] = Hibernate.LONG;
       types[1] = Hibernate.BOOLEAN;
 
-      List list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, submittedDate DESC", objects, types);
+      List list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, finalScore DESC", objects, types);
 
-System.out.println("lydiateset list size is " + list.size());
-System.out.println("lydiateset which = " + which);
+/*
       // highest score	
       if (which.equals(EvaluationModelIfc.HIGHEST_SCORE.toString())) {
       list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, finalScore DESC", objects, types);
       }
 
-/*
+*/
       // last submission 
-      else if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
+      if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
       list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, submittedDate DESC", objects, types);
       }
 
-*/
       if (which.equals(EvaluationModelIfc.ALL_SCORE.toString())) {
-System.out.println("lydiateset which = all-score " );
-System.out.println("lydiateset list size is " + list.size());
         return list;
       }
       else {
-System.out.println("lydiateset which  <>  all-score  it is " + which );
         // only take highest or latest 
         Iterator items = list.iterator();
         ArrayList newlist = new ArrayList();
@@ -119,7 +114,6 @@ System.out.println("lydiateset which  <>  all-score  it is " + which );
         // daisyf add the following line on 12/15/04
         data.setPublishedAssessment(assessment);
         agentid = data.getAgentId();
-System.out.println("lydiateset agentid = " + agentid);
         newlist.add(data);
         while (items.hasNext()) {
           while (items.hasNext()) {
@@ -131,7 +125,6 @@ System.out.println("lydiateset agentid = " + agentid);
             }
           }
         }
-System.out.println("lydiateset new list size is " + newlist.size());
         return newlist;
       }
 
