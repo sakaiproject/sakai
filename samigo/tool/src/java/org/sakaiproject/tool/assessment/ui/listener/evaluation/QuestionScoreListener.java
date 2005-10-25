@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -77,10 +78,10 @@ public class QuestionScoreListener
 
   /**
    * Standard process action method.
-   * @param ae ActionEvent
+   * @param event ActionEvent
    * @throws AbortProcessingException
    */
-  public void processAction(ActionEvent ae) throws
+  public void processAction(ActionEvent event) throws
     AbortProcessingException
   {
     log.info("QuestionScore LISTENER.");
@@ -110,6 +111,23 @@ public class QuestionScoreListener
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
 
+    String selectedvalue= (String) event.getNewValue();
+    if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
+      if (event.getComponent().getId().indexOf("sectionpicker") >-1 )
+      {
+        bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
+      }
+      else
+      {
+        bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
+      }
+    }
+
+
+
+
+
+
     log.info("Calling questionScores.");
     if (!questionScores(publishedId, bean, true))
     {
@@ -134,6 +152,9 @@ public class QuestionScoreListener
     {
       GradingService delegate =	new GradingService();
 
+      TotalScoresBean totalBean =
+        (TotalScoresBean) cu.lookupBean("totalScores");
+
       if (cu.lookupParam("sortBy") != null &&
           !cu.lookupParam("sortBy").trim().equals(""))
         bean.setSortType(cu.lookupParam("sortBy"));
@@ -141,29 +162,84 @@ public class QuestionScoreListener
       if (cu.lookupParam("newItemId") != null &&
           !cu.lookupParam("newItemId").trim().equals(""))
         itemId = cu.lookupParam("newItemId");
+
+/*
       String which = cu.lookupParam("allSubmissions");
       //log.info("Rachel: publishedId = " + publishedId + ", itemId = " + itemId + ", allSubmissions = " + which);
       if (which == null)
         which = "false";
       bean.setAllSubmissions(which);
+
+*/
+
+      String which = bean.getAllSubmissions();
+      if (which == null && totalBean.getAllSubmissions() != null)
+      {
+        // use totalscore's selection 
+         which = totalBean.getAllSubmissions();
+      }
+      else {
+  	// default display all 
+        which = "3";
+      }
+
+
+
+
+
+      totalBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());   // set section pulldown
       bean.setPublishedId(publishedId);
       Date dueDate = null;
 
-      TotalScoresBean totalBean =
-        (TotalScoresBean) cu.lookupBean("totalScores");
 
-      ArrayList scores = new ArrayList();
+      ArrayList allscores = new ArrayList();
       HashMap map = delegate.getItemScores(new Long(publishedId),
         new Long(itemId), which);
-      Iterator iter = map.keySet().iterator();
-      while (iter.hasNext())
+
+      Iterator keyiter = map.keySet().iterator();
+      while (keyiter.hasNext())
       {
-        scores.addAll((ArrayList) map.get(iter.next()));
+        allscores.addAll((ArrayList) map.get(keyiter.next()));
+      }
+
+
+///
+
+      // now we need filter by sections selected
+      ArrayList scores = new ArrayList();  // filtered list
+      Iterator allscores_iter = allscores.iterator();
+      while (allscores_iter.hasNext())
+      {
+        // AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
+        ItemGradingData idata = (ItemGradingData) allscores_iter.next();
+        String agentid = idata.getAssessmentGrading().getAgentId();
+
+        // get the Map of all users(keyed on userid) belong to the selected sections
+        Map useridMap= totalBean.getUserIdMap();
+
+        // now we only include scores of users belong to the selected sections
+        if (useridMap.containsKey(agentid) ) {
+                scores.add(idata);
+          }
+
+      }
+
+
+
+      Iterator iter = scores.iterator();
+      ArrayList agents = new ArrayList();
+
+      if (!iter.hasNext())
+      {
+        // this section has no students
+      bean.setAgents(agents);
+      bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+      return true;
       }
 
       // List them by item and assessmentgradingid, so we can
       // group answers by item and save them for update use.
-      iter = scores.iterator();
+
       HashMap scoresByItem = new HashMap();
       while (iter.hasNext())
       {
@@ -347,7 +423,7 @@ public class QuestionScoreListener
       bean.setRecordingData(recordingData);
 
       /* Dump the grading and agent information into AgentResults */
-      ArrayList agents = new ArrayList();
+      //ArrayList agents = new ArrayList();
       iter = scoresByItem.values().iterator();
       while (iter.hasNext())
       {

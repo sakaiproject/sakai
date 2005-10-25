@@ -136,7 +136,6 @@ System.out.println("changed submission pulldown ");
     }
 
 
-System.out.println("lydiateset in value change event bean.getAllsubmission = " + bean.getAllSubmissions());
     log.info("Calling totalScores.");
     if (!totalScores(publishedId, bean, true))
     {
@@ -168,18 +167,16 @@ System.out.println("lydiateset in value change event bean.getAllsubmission = " +
 
 
       String which = bean.getAllSubmissions();
-System.out.println("lydiateset beore setting to null which = " + which);
       if (which == null)
       {
    	// coming from authorIndex.jsp
       	String allSubmissionTparam= cu.lookupParam("allSubmissionsT");
         if (allSubmissionTparam ==null) 
-		which = "1";
+		which = "3";
 	else 
 		which = allSubmissionTparam;
       }
 
-System.out.println("lydiateset after if which = " + which);
 
       // bean.setAllSubmissions(which);
       bean.setPublishedId(publishedId);
@@ -187,34 +184,28 @@ System.out.println("lydiateset after if which = " + which);
       // get available sections 
 
       String pulldownid = bean.getSelectedSectionFilterValue();
-System.out.println("lydiateset pulldown id = " + pulldownid);
 
 
       ArrayList allscores = delegate.getTotalScores(publishedId, which);
 
-System.out.println("lydiateset allscores's size = " + allscores.size());
       // now we need filter by sections selected 
       ArrayList scores = new ArrayList();  // filtered list
       Iterator allscores_iter = allscores.iterator();
-      //if (!pulldownid.equals(bean.ALL_SECTIONS_SELECT_VALUE)) {
       while (allscores_iter.hasNext())
       {
 	AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
         String agentid =  data.getAgentId();
-System.out.println("lydiateset ************* agentid = " + agentid);
         
 	// get the Map of all users(keyed on userid) belong to the selected sections 
 	Map useridMap= bean.getUserIdMap(); 
 
 	// now we only include scores of users belong to the selected sections
         if (useridMap.containsKey(agentid) ) {
-System.out.println("lydiateset adding " + agentid);
 		scores.add(data);
 	  }
 
       }
       
-System.out.println(" before populating agent results:  lydiateset scores.size(): " + scores.size());
 
       Iterator iter = scores.iterator();
       //log.info("Has this many agents: " + scores.size());
@@ -240,7 +231,6 @@ System.out.println(" before populating agent results:  lydiateset scores.size():
         bean.setAssessmentName(data.getPublishedAssessment().getTitle());
 // get assessmentSettings and call bean.setScoringOption()
         Integer scoringoption = data.getPublishedAssessment().getEvaluationModel().getScoringType(); 
-System.out.println("lydiatest:  scoring otion =" + scoringoption.toString());
 	bean.setScoringOption(scoringoption.toString());
 
         // if section set is null, initialize it - daisyf , 01/31/05
@@ -278,7 +268,7 @@ System.out.println("lydiatest:  scoring otion =" + scoringoption.toString());
         {
           SectionDataIfc sdata = (SectionDataIfc) i2.next();
           String authortype = sdata.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
-          if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(authortype)){
+          if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(new Integer(authortype))){
             hasRandompart = true;
           }
 
@@ -429,7 +419,6 @@ System.out.println("lydiatest:  scoring otion =" + scoringoption.toString());
         agents.add(results);
       }
 
-System.out.println(" lydiatest agent size (): " + agents.size());
       //log.info("Sort type is " + bean.getSortType() + ".");
       bs = new BeanSort(agents, bean.getSortType());
       if (
