@@ -19,7 +19,8 @@
 
 	<!-- External Authz Service -->
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
-		class="org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl">
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthzSakai2Impl"
+		init-method="init">
 		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
 		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
 	</bean>

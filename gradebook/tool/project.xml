@@ -71,7 +71,7 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
-<!-- Sakai2 Dependencies -->
+		<!-- Sakai2 Dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-service</artifactId>
@@ -92,6 +92,11 @@
 			<artifactId>sakai-tool</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-function</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 
 		<!-- this is required for any Sakai JSF tool -->
 		<dependency>
