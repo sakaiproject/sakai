@@ -29,6 +29,7 @@ package com.corejsf;
 import java.io.File;
 import java.io.IOException;
 
+import javax.servlet.ServletContext;
 import javax.faces.FacesException;
 import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
@@ -90,8 +91,10 @@ public class UploadRenderer extends Renderer {
     if (binding != null) target = binding.getValue(context);
     else target = component.getAttributes().get("target");
 
+    String repositoryPath = (String)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_REPOSITORY_PATH");
+    System.out.println("****"+repositoryPath);
     if (target != null){
-      File dir = new File(target.toString()); //directory where file would be saved
+      File dir = new File(repositoryPath+target.toString()); //directory where file would be saved
       if (!dir.exists())
         dir.mkdirs();
       if (item!= null && !("").equals(item.getName())){

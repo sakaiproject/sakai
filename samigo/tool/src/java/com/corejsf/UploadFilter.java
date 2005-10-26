@@ -35,6 +35,7 @@ import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -73,6 +74,10 @@ public class UploadFilter implements Filter {
          servletEx.initCause(ex);
          throw servletEx;
       }
+      ServletContext context = config.getServletContext();
+      context.setAttribute("FILEUPLOAD_REPOSITORY_PATH",repositoryPath);
+      context.setAttribute("FILEUPLOAD_SIZE_THRESHOLD",new Integer(sizeThreshold));
+      context.setAttribute("FILEUPLOAD_SIZE_MAX",new Long(sizeMax));
    }
 
    public void destroy() {
