@@ -42,7 +42,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AgentState;
+//import org.sakaiproject.tool.assessment.facade.AgentState;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -58,6 +58,7 @@ import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 //cwen
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.kernel.tool.Placement;
+// note: we should wrap above dependency in a backend service--esmiley
 
 /**
  *
@@ -163,13 +164,8 @@ public class DeliveryBean
   // publishedUrl
   private boolean anonymousLogin = false;
   private String contextPath;
-  // replaced with agentState.isAccessViaUrl(), see below
-  // private boolean accessViaUrl = false;
-
-  // this singleton tracks if the Agent is taking a test via URL, as well as
-  // current agent string (if assigned). SAK-1927: esmiley
-  private static final AgentState agentState = AgentState.getInstance();
   private boolean initAgentAccessString = false;
+
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -1090852048737428722L;
   private boolean showStudentScore;
@@ -186,6 +182,10 @@ public class DeliveryBean
 
   //cwen
   private String siteId;
+
+  // this instance tracks if the Agent is taking a test via URL, as well as
+  // current agent string (if assigned). SAK-1927: esmiley
+  private static final AgentFacade deliveryAgent = new AgentFacade();
 
   /**
    * Creates a new DeliveryBean object.
@@ -1864,12 +1864,12 @@ public class DeliveryBean
 
   public boolean getAccessViaUrl()
   {
-    return agentState.isAccessViaUrl();
+    return deliveryAgent.isAccessViaUrl();
   }
 
   public void setAccessViaUrl(boolean accessViaUrl)
   {
-    agentState.setAccessViaUrl(accessViaUrl);
+    deliveryAgent.setAccessViaUrl(accessViaUrl);
   }
 
   public ItemGradingData getItemGradingData(String publishedItemId)
@@ -1981,18 +1981,15 @@ public class DeliveryBean
 
   public String getAgentAccessString()
   {
-    if (!initAgentAccessString)
-    {
-      agentState.setAgentAccessString(AgentFacade.getAgentString());
-      initAgentAccessString = false;
-    }
-    log.info("agentState.getAgentAccessString(): " + agentState.getAgentAccessString());
+    log.info("getAgentAccessString(): " + deliveryAgent.getAgentInstanceString());
 
-    return agentState.getAgentAccessString();
+    return deliveryAgent.getAgentInstanceString();
   }
-  public void setAgentAccessString(String agentAccessString)
+  public void setAgentAccessString(String agentString)
   {
-    agentState.setAgentAccessString(agentAccessString);
+    log.info("setAgentAccessString() agentString: " + agentString);
+
+    deliveryAgent.setAgentInstanceString(agentString);
   }
 
   public boolean getSaveToDb(){
