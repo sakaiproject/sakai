@@ -56,6 +56,9 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+//cwen
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.api.kernel.tool.Placement;
 
 /**
  *
@@ -181,6 +184,9 @@ public class DeliveryBean
   // SAM-535
   // esmiley added to track JavaScript
   private String javaScriptEnabledCheck;
+
+  //cwen
+  private String siteId;
 
   /**
    * Creates a new DeliveryBean object.
@@ -1616,6 +1622,11 @@ public class DeliveryBean
     int assessmentIndex = mediaLocation.indexOf("assessment");
     int questionIndex = mediaLocation.indexOf("question");
     int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
+    //cwen
+    if(agentIndex < 0 )
+    {
+      agentIndex = mediaLocation.indexOf("\\", questionIndex + 8);
+    }
     String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10,
       questionIndex - 1);
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
@@ -1954,6 +1965,21 @@ public class DeliveryBean
   {
     this.javaScriptEnabledCheck = javaScriptEnabledCheck;
   }
+  //cwen
+  public void setSiteId(String siteId)
+  {
+    this.siteId = siteId;
+  }
+  
+  public String getSiteId()
+  {
+    siteId = null;
+    Placement currentPlacement = ToolManager.getCurrentPlacement();
+    if(currentPlacement != null)
+      siteId = currentPlacement.getContext();
+    return siteId;
+  }
+  
   public String getAgentAccessString()
   {
     if (!initAgentAccessString)

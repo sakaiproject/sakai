@@ -270,5 +270,10 @@ public class AgentFacade implements Serializable, AgentDataIfc
     return helper.getUserRolesFromContextRealm(inUsers);
   }
 
+  //cwen
+  public static String getRoleForAgentAndSite(String agentString, String siteId)
+  {
+    return helper.getRoleForAgentAndSite(agentString, siteId);
+  }
 
 }

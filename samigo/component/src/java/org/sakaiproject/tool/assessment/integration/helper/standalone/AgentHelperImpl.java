@@ -33,6 +33,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
+import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
@@ -318,6 +320,12 @@ public class AgentHelperImpl implements AgentHelper
   public Map getUserRolesFromContextRealm(Collection inUsers)
   {
 	return new HashMap();
+  }
+
+  //cwen
+  public String getRoleForAgentAndSite(String agentString, String siteId)
+  {
+    return null;
   }
 
 }

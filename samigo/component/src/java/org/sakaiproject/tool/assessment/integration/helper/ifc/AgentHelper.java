@@ -81,6 +81,8 @@ public interface AgentHelper extends Serializable
   public String getAnonymousId();
 
   public Map getUserRolesFromContextRealm(Collection inUsers);
-
+  
+  //cwen
+  public String getRoleForAgentAndSite(String agentString, String siteId);
 
 }

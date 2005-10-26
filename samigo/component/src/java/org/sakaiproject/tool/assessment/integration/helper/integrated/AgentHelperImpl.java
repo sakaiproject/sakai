@@ -43,6 +43,8 @@ import org.sakaiproject.tool.assessment.facade.AgentState;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
+//cwen
+import org.sakaiproject.api.kernel.tool.Placement;
 
 /**
  *
@@ -240,7 +242,8 @@ public class AgentHelperImpl implements AgentHelper
                "Need to fix if not running in unit test.");
       log.warn(ex);
     }
-    if (thisSiteId == null)
+    //cwen
+    if ((thisSiteId == null) || (thisSiteId.equals("")))
       return role;
 
     String realmName = "/site/" + thisSiteId;
@@ -281,7 +284,7 @@ public class AgentHelperImpl implements AgentHelper
     String currentSiteId = null;
     if (!agentState.isAccessViaUrl())
     {
-        currentSiteId = ToolManager.getCurrentPlacement().getContext();
+      currentSiteId = ToolManager.getCurrentPlacement().getContext();
     }
     return currentSiteId;
   }
@@ -297,7 +300,10 @@ public class AgentHelperImpl implements AgentHelper
     String currentSiteId = null;
     if (!agentState.isAccessViaUrl())
     {
-        currentSiteId = ToolManager.getCurrentPlacement().getContext();
+//    cwen      
+      Placement thisPlacement = ToolManager.getCurrentPlacement();
+      if(thisPlacement != null)
+        currentSiteId = thisPlacement.getContext();
     }
     return currentSiteId;
   }
@@ -445,6 +451,33 @@ public class AgentHelperImpl implements AgentHelper
 	    
 	    //get the roles from the realm and set of users
 	    return AuthzGroupService.getUsersRole(inUsers, realmName);
+  }
+
+  //cwen
+  public String getRoleForAgentAndSite(String agentString, String siteId)
+  {
+    String role = "anonymous_access";
+
+    if (siteId == null)
+      return role;
+
+    String realmName = "/site/" + siteId;
+    Role userRole=null;
+
+    try
+    {
+      AuthzGroup siteAuthzGroup = AuthzGroupService.getAuthzGroup(realmName);
+      if (siteAuthzGroup!=null)
+      userRole = siteAuthzGroup.getUserRole(agentString);
+      if (userRole!=null)
+        role = userRole.getId();
+      log.debug(realmName + ":" + role);
+    }
+    catch(Exception e)
+    {
+      log.error("error in:" + this + "-getRoleForAgnetAndSite");
+    }
+    return role;
   }
 
 }

@@ -76,14 +76,26 @@ public class ShowMediaServlet extends HttpServlet
     if (agentIdString == null) // try this
       agentIdString = AgentFacade.getAgentString(req, res);
     String currentSiteId = AgentFacade.getCurrentSiteIdFromExternalServlet(req,res);
+    //cwen
+    if((currentSiteId == null) || (currentSiteId.equals("")))
+    {
+      currentSiteId = req.getParameter("sam_fileupload_siteId");
+    }
     String mediaSiteId = mediaData.getItemGradingData().getAssessmentGrading().getPublishedAssessment().getOwnerSiteId();
     log.info("agentIdString ="+agentIdString);
     log.info("****current site Id ="+currentSiteId);
     log.info("****media site Id ="+mediaSiteId);
+    //cwen
     String role = AgentFacade.getRole(agentIdString);
+    if((role==null) || (role.equals("")) || (role.equals("anonymous_access")))
+    {
+      role = AgentFacade.getRoleForAgentAndSite(agentIdString, currentSiteId);
+    }
+    //cwen
     if (agentIdString !=null && mediaData != null &&
-	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator
-	 || (("maintain").equals(role) && currentSiteId.equals(mediaSiteId)))) // u have maintain role
+        (agentIdString.equals(mediaData.getCreatedBy()) // user is creator
+            || (("maintain").equals(role) && currentSiteId.equals(mediaSiteId)))  // u have maintain role
+            || (("instructor").equals(role) && currentSiteId.equals(mediaSiteId))) 
       accessDenied = false;
     if (accessDenied){
       String path = "/jsf/delivery/mediaAccessDenied.faces";
