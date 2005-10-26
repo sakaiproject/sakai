@@ -45,7 +45,6 @@ import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AgentState;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 
 /**
@@ -57,14 +56,10 @@ import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
  * @author Ed Smiley <esmiley@stanford.edu> split integrated, standlaone.
  */
 public class AuthzQueriesFacade
-	extends HibernateDaoSupport implements AuthzQueriesFacadeAPI
+  extends HibernateDaoSupport implements AuthzQueriesFacadeAPI
 {
   private final static org.apache.log4j.Logger LOG =
     org.apache.log4j.Logger.getLogger(AuthzQueriesFacade.class);
-
-  // this singleton tracks if the Agent is taking a test via URL, as well as
-  // current agent string (if assigned).
-  private static final AgentState agentState = AgentState.getInstance();
 
   // stores sql strings
   private static ResourceBundle res = ResourceBundle.getBundle(
@@ -72,17 +67,17 @@ public class AuthzQueriesFacade
   // can convert these to use the resource bundle....
   private final static String HQL_QUERY_CHECK_AUTHZ =
     "select from " +
-		"org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as data" +
-		" where data.agentIdString = :agentId and data.functionId = :functionId" +
-		" and data.qualifierId = :qualifierId";
+    "org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as data" +
+    " where data.agentIdString = :agentId and data.functionId = :functionId" +
+    " and data.qualifierId = :qualifierId";
   private final static String HQL_QUERY_BY_AGENT_FUNC =
     "select from org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData " +
     "as item where item.agentIdString = :agentId and item.functionId = :functionId";
   private final static String HQL_QUERY_ASSESS_BY_AGENT_FUNC = "select asset from " +
-		"org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData as asset, " +
-		"org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as authz " +
-		"where asset.assessmentBaseId=authz.qualifierId and " +
-		"authz.agentIdString = :agentId and authz.functionId = :functionId";
+    "org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData as asset, " +
+    "org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData as authz " +
+    "where asset.assessmentBaseId=authz.qualifierId and " +
+    "authz.agentIdString = :agentId and authz.functionId = :functionId";
 
   public boolean hasPrivilege(String functionName)
   {
@@ -101,14 +96,16 @@ public class AuthzQueriesFacade
 
     String currentSiteId = null;
 
-    if (!agentState.isAccessViaUrl())
+    AgentFacade agent = new AgentFacade();
+
+    if (!agent.isAccessViaUrl())
     {
       currentSiteId =
         org.sakaiproject.service.framework.portal.cover.PortalService.getCurrentSiteId();
     }
 
     if(currentSiteId == null)
-	return false; // user don't login via any site if they are using published url
+  return false; // user don't login via any site if they are using published url
 
     //System.out.println("**** currentSiteId"+currentSiteId);
     String currentAgentId = UserDirectoryService.getCurrentUser().getId();
@@ -283,7 +280,7 @@ public class AuthzQueriesFacade
   }
 
   public List getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {
-	return getHibernateTemplate().find(
+  return getHibernateTemplate().find(
         "select a from AuthorizationData a where a.functionId='"+ functionId +
         "' and a.qualifierId='"+qualifierId+"'");
   }
