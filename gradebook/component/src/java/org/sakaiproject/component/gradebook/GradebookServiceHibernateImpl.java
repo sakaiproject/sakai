@@ -23,11 +23,14 @@
 
 package org.sakaiproject.component.gradebook;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
@@ -45,6 +48,12 @@ import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.service.legacy.entity.Entity;
+import org.sakaiproject.service.legacy.entity.EntityProducer;
+import org.sakaiproject.service.legacy.entity.Reference;
+import org.sakaiproject.service.legacy.entity.ResourceProperties;
+import org.sakaiproject.service.legacy.resource.cover.EntityManager;
+import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -56,6 +65,8 @@ import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.business.impl.BaseHibernateManager;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.springframework.orm.hibernate.HibernateCallback;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * A Hibernate implementation of GradebookService, which can be used by other
@@ -351,5 +362,105 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     public void setAuthz(Authz authz) {
         this.authz = authz;
     }
-}
+    
+    /***************************************************************************************************
+     * Entity Producer Support
+     **************************************************************************************************/
+    
+    public void init()
+    {
+		// register as an entity producer
+		EntityManager.registerEntityProducer(this);
+    }
 
+	public void syncWithSiteChange(Site site, ChangeType change)
+	{
+		String[] toolIds = {"sakai.gradebook.tool"};
+
+		// for a delete, just disable
+		if (EntityProducer.ChangeType.REMOVE == change)
+		{
+			// TODO: when the site is deleted, we leave the gradebook hanging around
+			// removeGradebook(site.getId()); ??
+		}
+		
+		// otherwise enable if we now have the tool, disable otherwise
+		else
+		{
+			// collect the tools from the site
+			Collection tools = site.getTools(toolIds);
+
+			// if we have the tool
+			if (!tools.isEmpty())
+			{
+				addGradebook(site.getId(), site.getId());
+			}
+			
+			// if we do not
+			else
+			{
+				// TODO: when gradebook is removed from a site, we leave the gradebook hanging around
+				// removeGradebook(site.getId()); ??
+			}
+		}
+	}
+
+	public String getLabel()
+	{
+		return null;
+	}
+
+	public boolean willArchiveMerge()
+	{
+		return false;
+	}
+
+	public boolean willImport()
+	{
+		return false;
+	}
+
+	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
+	{
+		return null;
+	}
+
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
+	{
+		return null;
+	}
+
+	public void importEntities(String fromContext, String toContext, List ids)
+	{
+	}
+
+	public boolean parseEntityReference(String reference, Reference ref)
+	{
+		return false;
+	}
+
+	public String getEntityDescription(Reference ref)
+	{
+		return null;
+	}
+
+	public ResourceProperties getEntityResourceProperties(Reference ref)
+	{
+		return null;
+	}
+
+	public Entity getEntity(Reference ref)
+	{
+		return null;
+	}
+
+	public String getEntityUrl(Reference ref)
+	{
+		return null;
+	}
+
+	public Collection getEntityAuthzGroups(Reference ref)
+	{
+		return null;
+	}
+}

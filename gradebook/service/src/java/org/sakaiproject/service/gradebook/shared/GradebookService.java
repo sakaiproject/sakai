@@ -24,6 +24,8 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.util.Date;
 
+import org.sakaiproject.service.legacy.entity.EntityProducer;
+
 /**
  * This is the externally exposed API of the gradebook application.
  *
@@ -51,7 +53,7 @@ import java.util.Date;
  * does guard against students having such free access. Any other applications
  * that use the business logic need to take the same precautions.
  */
-public interface GradebookService {
+public interface GradebookService extends EntityProducer {
 	// Site management hooks.
 
     /**
