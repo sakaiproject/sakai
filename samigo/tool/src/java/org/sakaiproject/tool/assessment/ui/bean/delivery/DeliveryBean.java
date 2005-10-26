@@ -44,7 +44,6 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AgentState;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-//import org.sakaiproject.tool.assessment.integration.delivery.SessionUtil;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
@@ -1970,7 +1969,7 @@ public class DeliveryBean
   {
     this.siteId = siteId;
   }
-  
+
   public String getSiteId()
   {
     siteId = null;
@@ -1979,7 +1978,7 @@ public class DeliveryBean
       siteId = currentPlacement.getContext();
     return siteId;
   }
-  
+
   public String getAgentAccessString()
   {
     if (!initAgentAccessString)
