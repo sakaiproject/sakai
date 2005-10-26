@@ -24,18 +24,16 @@
 package org.sakaiproject.tool.gradebook.jsf.dhtmlpopup;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.faces.component.NamingContainer;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIComponentBase;
-import javax.faces.component.NamingContainer;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.el.ValueBinding;
-
 import org.sakaiproject.tool.gradebook.jsf.iterator.IteratorComponent;
 
 /*

@@ -23,13 +23,9 @@
 
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.api.kernel.function.cover.FunctionManager;
-
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl;
 

@@ -23,11 +23,14 @@
 
 package org.sakaiproject.tool.gradebook.business;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 
 /**
