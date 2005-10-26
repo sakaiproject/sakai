@@ -39,12 +39,12 @@ import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.assessment.facade.AgentState;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 //cwen
 import org.sakaiproject.api.kernel.tool.Placement;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 /**
  *
@@ -70,10 +70,6 @@ public class AgentHelperImpl implements AgentHelper
   private static Log log = LogFactory.getLog(AgentHelperImpl.class);
   AgentImpl agent;
 
-  // this singleton tracks if the Agent is taking a test via URL, as well as
-  // current agent string (if assigned).
-  private static final AgentState agentState = AgentState.getInstance();
-
   /**
    * Get an osid Agent implementation class instance.
    *
@@ -88,7 +84,7 @@ public class AgentHelperImpl implements AgentHelper
    * Get the agent string.
    * @return the agent string.
    */
-  public String getAgentString(){
+  public String getAgentString(String agentString){
     String agentS="";
     // this is anonymous user sign 'cos sakai doesn't know about them-daisyf
     try
@@ -98,7 +94,7 @@ public class AgentHelperImpl implements AgentHelper
       if (user ==  null || user.getId() == null ||
           ("").equals(user.getId()))
       {
-        agentS = getAnonymousId();
+        agentS = getAnonymousId(agentString);
       }
       else
       {
@@ -113,65 +109,6 @@ public class AgentHelperImpl implements AgentHelper
     return agentS;
   }
 
-  /**
-   * Get the agent string.
-   * @param req the HttpServletRequest
-   * @param res the HttpServletResponse
-   * @return the agent string.
-   */
-  public String getAgentString(HttpServletRequest req, HttpServletResponse res){
-    String agentS="";
-    // this is a sign that an unauthenticated person is trying to access the application
-    // 'cos sakai doesn't know about them-daisyf
-    try
-    {
-      User user = UserDirectoryService.getCurrentUser();
-
-      if (user == null || user.getId() == null ||
-          ("").equals(user.getId()))
-      {
-        if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
-        {
-          agentS = agentState.getAgentAccessString();
-        }
-      }
-      else
-      {
-        agentS = user.getId();
-      }
-    }
-    catch (Exception ex)
-    {
-      log.warn(ex);
-    }
-    System.out.println("** getAgentString() ="+agentS);
-    return agentS;
-  }
-
-//  private BackingBean lookupBackingBean(HttpServletRequest req,
-//                                        HttpServletResponse res)
-//  {
-//    BackingBean bean =
-//      (BackingBean) ContextUtil.lookupBeanFromExternalServlet(
-//      "backingbean", req, res);
-//    return bean;
-//  }
-
-//  private BackingBean lookupBackingBean()
-//  {
-//    BackingBean bean =  null;
-//    try
-//    {
-//      bean = (BackingBean) ContextUtil.lookupBean("backingbean");
-//    }
-//    catch (Exception ex)
-//    {
-//      log.warn("Backing been not available.  " +
-//               "This needs to be fixed if you are not running a unit test.");
-//    }
-//
-//    return bean;
-//  }
   /**
    * Get the Agent display name.
    * @param agentS the Agent string.
@@ -279,28 +216,12 @@ public class AgentHelperImpl implements AgentHelper
    * Get the current site id.
    * @return the site id.
    */
-  public String getCurrentSiteId(){
+  public String getCurrentSiteId(boolean accessViaUrl){
     // access via url => users does not login via any sites
     String currentSiteId = null;
-    if (!agentState.isAccessViaUrl())
+    if (!accessViaUrl)
     {
-      currentSiteId = ToolManager.getCurrentPlacement().getContext();
-    }
-    return currentSiteId;
-  }
-
-  /**
-   * Get current site id from within an external servlet.
-   * @param req the HttpServletRequest
-   * @param res the HttpServletResponse
-   * @return teh site id.
-   */
-  public String getCurrentSiteIdFromExternalServlet(HttpServletRequest req,  HttpServletResponse res){
-    // access via url => users does not login via any sites-daisyf
-    String currentSiteId = null;
-    if (!agentState.isAccessViaUrl())
-    {
-//    cwen      
+//    cwen
       Placement thisPlacement = ToolManager.getCurrentPlacement();
       if(thisPlacement != null)
         currentSiteId = thisPlacement.getContext();
@@ -314,12 +235,12 @@ public class AgentHelperImpl implements AgentHelper
    * @return the anonymous user id.
    */
 
-  public String createAnonymous(){
+  public String createAnonymous(AgentFacade agent){
     String anonymousId = "anonymous_";
     try
     {
       anonymousId += (new java.util.Date()).getTime();
-      agentState.setAgentAccessString(anonymousId);
+      agent.setAgentInstanceString(anonymousId);
     }
     catch (Exception ex)
     {
@@ -332,13 +253,14 @@ public class AgentHelperImpl implements AgentHelper
    * Get the current site name.
    * @return the site name.
    */
-  public String getCurrentSiteName(){
+  public String getCurrentSiteName(boolean accessViaUrl){
     // access via url => users does not login via any sites-daisyf
     String currentSiteName = null;
-    if (!agentState.isAccessViaUrl())
+    if (!accessViaUrl)
     {
       try{
-        currentSiteName = SiteService.getSite(getCurrentSiteId()).getTitle();
+        currentSiteName =
+          SiteService.getSite(getCurrentSiteId(accessViaUrl)).getTitle();
       }
       catch (Exception e){
         System.out.println(e.getMessage());
@@ -409,16 +331,16 @@ public class AgentHelperImpl implements AgentHelper
    * Get the anonymous user id.
    * @return the anonymous user id.
    */
-  public String getAnonymousId(){
+  public String getAnonymousId(String agentString){
     String agentS="";
-    if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
+    if (!UNASSIGNED_AGENT_STRING.equals(agentString))
     {
-      agentS = agentState.getAgentAccessString();
+      agentS = agentString;
     }
     return agentS;
   }
-  
-  
+
+
   /**
    * This gets the current site id and transforms it into the realm.
    *  From there it asks the AuthzGroupService for the roles of the given users
@@ -430,27 +352,27 @@ public class AgentHelperImpl implements AgentHelper
    */
   public Map getUserRolesFromContextRealm(Collection inUsers)
   {
-  	    //Get the SiteId
-	    String thisSiteId = null;
-	    try
-	    {
-	      thisSiteId = ToolManager.getCurrentPlacement().getContext();
-	    }
-	    catch (Exception ex)
-	    {
-	      log.warn("Failure to get site id from ToolManager.  \n" +
-	               "Need to fix if not running in unit test.");
-	      log.warn(ex);
-	    }
-	    //If none the returna blank map
-	    if (thisSiteId == null)
-	      return new HashMap();
+        //Get the SiteId
+      String thisSiteId = null;
+      try
+      {
+        thisSiteId = ToolManager.getCurrentPlacement().getContext();
+      }
+      catch (Exception ex)
+      {
+        log.warn("Failure to get site id from ToolManager.  \n" +
+                 "Need to fix if not running in unit test.");
+        log.warn(ex);
+      }
+      //If none the returna blank map
+      if (thisSiteId == null)
+        return new HashMap();
 
-		//create the realm from the site 
-	    String realmName = "/site/" + thisSiteId;
-	    
-	    //get the roles from the realm and set of users
-	    return AuthzGroupService.getUsersRole(inUsers, realmName);
+    //create the realm from the site
+      String realmName = "/site/" + thisSiteId;
+
+      //get the roles from the realm and set of users
+      return AuthzGroupService.getUsersRole(inUsers, realmName);
   }
 
   //cwen

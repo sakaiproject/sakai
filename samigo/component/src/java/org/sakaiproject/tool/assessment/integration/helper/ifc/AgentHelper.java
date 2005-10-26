@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 /**
  *
@@ -45,13 +46,18 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 
 public interface AgentHelper extends Serializable
 {
+
+  public static final String UNASSIGNED_AGENT_STRING = "UNASSIGNED";
+
   public AgentImpl getAgent();
 
-  public String getAgentString();
+  public String getAgentString(String agentString);
 
-  public String getAgentString(HttpServletRequest req, HttpServletResponse res);
+  public String createAnonymous(AgentFacade agent);
 
-  public String getDisplayName(String agentS);
+  public String getAnonymousId(String agentString);
+
+  public String getDisplayName(String agentString);
 
   public String getFirstName(String agentString);
 
@@ -61,27 +67,20 @@ public interface AgentHelper extends Serializable
 
   public String getRoleForCurrentAgent(String agentString); // for instance call
 
-  public String getCurrentSiteId();
+  public String getCurrentSiteId(boolean accessViaUrl);
 
-  public String getCurrentSiteName();
+  public String getCurrentSiteName(boolean accessViaUrl);
 
   public String getSiteName(String siteId);
 
   public String getDisplayNameByAgentId(String agentId);
 
-  public String createAnonymous();
-
   public boolean isStandaloneEnvironment();
 
   public boolean isIntegratedEnvironment();
 
-  public String getCurrentSiteIdFromExternalServlet(HttpServletRequest req,
-    HttpServletResponse res);
-
-  public String getAnonymousId();
-
   public Map getUserRolesFromContextRealm(Collection inUsers);
-  
+
   //cwen
   public String getRoleForAgentAndSite(String agentString, String siteId);
 

@@ -6,7 +6,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
  *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
  *
- * Licensed under the Educational Community License Version 1.0 (the "License");
+ * Licensed under the Educational Community License Version `1.0 (the "License");
  * By obtaining, using and/or copying this Original Work, you agree that you have read,
  * understand, and will comply with the terms and conditions of the Educational Community License.
  * You may obtain a copy of the License at:
@@ -39,7 +39,7 @@ import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.facade.AgentState;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 /**
  *
@@ -63,9 +63,6 @@ public class AgentHelperImpl implements AgentHelper
   private static Log log = LogFactory.getLog(AgentHelperImpl.class);
   String agentString;
 
-  // this singleton tracks if the Agent is taking a test via URL, as well as
-  // current agent string (if assigned).
-  private static final AgentState agentState = AgentState.getInstance();
 
   /**
    * Get an osid Agent implementation class instance.
@@ -82,13 +79,13 @@ public class AgentHelperImpl implements AgentHelper
    * @return the agent string.
    */
 
-  public String getAgentString(){
+  public String getAgentString(String agentString){
     String agentS = "admin";
     try
     {
-      if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
+      if (!UNASSIGNED_AGENT_STRING.equals(agentString))
       {
-        agentS = agentState.getAgentAccessString();
+        agentS = agentString;
       }
     }
     catch (Exception ex)
@@ -108,9 +105,9 @@ public class AgentHelperImpl implements AgentHelper
     String agentS = "admin";
     try
     {
-      if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
+      if (!UNASSIGNED_AGENT_STRING.equals(agentString))
       {
-        agentS = agentState.getAgentAccessString();
+        agentS = agentString;
       }
     }
     catch (Exception ex)
@@ -195,7 +192,7 @@ public class AgentHelperImpl implements AgentHelper
    * Get the current site id.
    * @return the site id.
    */
-  public String getCurrentSiteId(){
+  public String getCurrentSiteId(boolean accessViaUrl){
     return "Samigo Site";
   }
 
@@ -203,7 +200,7 @@ public class AgentHelperImpl implements AgentHelper
    * Get the current site name.
    * @return the site name.
    */
-  public String getCurrentSiteName(){
+  public String getCurrentSiteName(boolean accessViaUrl){
     return "Samigo Site";
   }
 
@@ -234,12 +231,12 @@ public class AgentHelperImpl implements AgentHelper
    * Create anonymous user and return the anonymous user id.
    * @return the anonymous user id.
    */
-  public String createAnonymous(){
+  public String createAnonymous(AgentFacade agent){
     String anonymousId = "anonymous_";
     try
     {
       anonymousId += (new java.util.Date()).getTime();
-      agentState.setAgentAccessString(anonymousId);
+      agent.setAgentInstanceString(anonymousId);
     }
     catch (Exception ex)
     {
@@ -278,13 +275,13 @@ public class AgentHelperImpl implements AgentHelper
    * Get the anonymous user id.
    * @return the anonymous user id.
    */
-  public String getAnonymousId(){
+  public String getAnonymousId(String agentString){
     String agentS = "";
     try
     {
-      if (!AgentState.UNASSIGNED.equals(agentState.getAgentAccessString()))
+      if (!UNASSIGNED_AGENT_STRING.equals(agentString))
       {
-        agentS = agentState.getAgentAccessString();
+        agentS = agentString;
       }
     }
     catch (Exception ex)
@@ -307,8 +304,8 @@ public class AgentHelperImpl implements AgentHelper
   {
     this.agentString = agentString;
   }
-  
-  
+
+
   /**
    * This gets the current site id and transforms it into the realm.
    *
@@ -319,7 +316,7 @@ public class AgentHelperImpl implements AgentHelper
    */
   public Map getUserRolesFromContextRealm(Collection inUsers)
   {
-	return new HashMap();
+  return new HashMap();
   }
 
   //cwen

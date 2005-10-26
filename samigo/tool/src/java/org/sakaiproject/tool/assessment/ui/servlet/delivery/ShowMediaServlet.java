@@ -74,8 +74,8 @@ public class ShowMediaServlet extends HttpServlet
     boolean accessDenied = true;
     String agentIdString = req.getRemoteUser();
     if (agentIdString == null) // try this
-      agentIdString = AgentFacade.getAgentString(req, res);
-    String currentSiteId = AgentFacade.getCurrentSiteIdFromExternalServlet(req,res);
+      agentIdString = AgentFacade.getAgentString();
+    String currentSiteId = AgentFacade.getCurrentSiteId();
     //cwen
     if((currentSiteId == null) || (currentSiteId.equals("")))
     {
@@ -95,7 +95,7 @@ public class ShowMediaServlet extends HttpServlet
     if (agentIdString !=null && mediaData != null &&
         (agentIdString.equals(mediaData.getCreatedBy()) // user is creator
             || (("maintain").equals(role) && currentSiteId.equals(mediaSiteId)))  // u have maintain role
-            || (("instructor").equals(role) && currentSiteId.equals(mediaSiteId))) 
+            || (("instructor").equals(role) && currentSiteId.equals(mediaSiteId)))
       accessDenied = false;
     if (accessDenied){
       String path = "/jsf/delivery/mediaAccessDenied.faces";
@@ -105,7 +105,7 @@ public class ShowMediaServlet extends HttpServlet
     else {
       String displayType="inline";
       if (mediaData.getMimeType()!=null){
-	res.setContentType(mediaData.getMimeType());
+  res.setContentType(mediaData.getMimeType());
       }
       else {
         displayType="attachment";

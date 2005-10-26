@@ -77,10 +77,12 @@ public class AgentFacade implements Serializable, AgentDataIfc
    */
   public AgentFacade()
   {
-    String agentId = helper.getAgentString();
+    // If an agent string is available, UNASSIGNED_AGENT_STRING willbe replaced
+    String agentId = helper.getAgentString(helper.UNASSIGNED_AGENT_STRING);
     agent = new AgentImpl(agentId, null, new IdImpl(agentId));
     agentString = agentId;
   }
+
   /**
    * Get an osid Agent implementation class instance.
    *
@@ -112,17 +114,17 @@ public class AgentFacade implements Serializable, AgentDataIfc
     return this.agentString;
   }
 
-  /**
-   * Get the agent string.
-   * @param req the HttpServletRequest
-   * @param res the HttpServletResponse
-   * @return the agent string.
-   */
-  public static String getAgentString(HttpServletRequest req,
-                                      HttpServletResponse res)
-  {
-    return helper.getAgentString(req, res);
-  }
+//  /**
+//   * Get the agent string.
+//   * @param req the HttpServletRequest
+//   * @param res the HttpServletResponse
+//   * @return the agent string.
+//   */
+//  public static String getAgentString(HttpServletRequest req,
+//                                      HttpServletResponse res)
+//  {
+//    return helper.getAgentString(agentString);
+//  }
   /**
    * Get the Agent display name.
    * @param agentS the Agent string.
@@ -185,7 +187,10 @@ public class AgentFacade implements Serializable, AgentDataIfc
    */
   public static String getCurrentSiteId()
   {
-    return helper.getCurrentSiteId();
+    AgentFacade facade = new AgentFacade();
+    boolean accessViaUrl = facade.isAccessViaUrl();
+
+    return helper.getCurrentSiteId(accessViaUrl);
   }
 
   /**
@@ -194,7 +199,10 @@ public class AgentFacade implements Serializable, AgentDataIfc
    */
   public static String getCurrentSiteName()
   {
-    return helper.getCurrentSiteName();
+    AgentFacade facade = new AgentFacade();
+    boolean accessViaUrl = facade.isAccessViaUrl();
+
+    return helper.getCurrentSiteName(accessViaUrl);
   }
 
 
@@ -230,7 +238,8 @@ public class AgentFacade implements Serializable, AgentDataIfc
    */
   public static String createAnonymous()
   {
-    return helper.createAnonymous();
+    AgentFacade facade = new AgentFacade();
+    return helper.createAnonymous(facade);
   }
 
 
@@ -252,17 +261,17 @@ public class AgentFacade implements Serializable, AgentDataIfc
     return integrated;
   }
 
-  /**
-   * Get current site id from within an external servlet.
-   * @param req the HttpServletRequest
-   * @param res the HttpServletResponse
-   * @return teh site id.
-   */
-  public static String getCurrentSiteIdFromExternalServlet(HttpServletRequest
-    req, HttpServletResponse res)
-  {
-    return helper.getCurrentSiteIdFromExternalServlet(req, res);
-  }
+//  /**
+//   * Get current site id from within an external servlet.
+//   * @param req the HttpServletRequest
+//   * @param res the HttpServletResponse
+//   * @return teh site id.
+//   */
+//  public static String getCurrentSiteIdFromExternalServlet(HttpServletRequest
+//    req, HttpServletResponse res)
+//  {
+//    return helper.getCurrentSiteIdFromExternalServlet(req, res);
+//  }
 
   /**
    * Get the anonymous user id.
@@ -270,7 +279,9 @@ public class AgentFacade implements Serializable, AgentDataIfc
    */
   public static String getAnonymousId()
   {
-    return helper.getAnonymousId();
+    AgentFacade facade = new AgentFacade();
+    String agentString = facade.getAgentInstanceString();
+    return helper.getAnonymousId(agentString);
   }
 
 
