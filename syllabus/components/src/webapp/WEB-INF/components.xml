@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean id="org.springframework.orm.hibernate.SyllabusSessionFactory"
-		parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.syllabus"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="mappingResources">
 			<list>
 				<value>
@@ -32,18 +32,10 @@
 		</property>
 	</bean>
 
-	<bean id="syllabusTransactionManager"
-		class="org.springframework.orm.hibernate.HibernateTransactionManager">
-		<property name="sessionFactory">
-			<ref
-				bean="org.springframework.orm.hibernate.SyllabusSessionFactory" />
-		</property>
-	</bean>
-
 	<bean id="org.sakaiproject.api.app.syllabus.SyllabusManager"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
-			<ref bean="syllabusTransactionManager" />
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		</property>
 		<property name="target">
 			<bean
@@ -51,7 +43,7 @@
 				singleton="true">
 				<property name="sessionFactory">
 					<ref
-						bean="org.springframework.orm.hibernate.SyllabusSessionFactory" />
+						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 				</property>
 			</bean>
 		</property>
