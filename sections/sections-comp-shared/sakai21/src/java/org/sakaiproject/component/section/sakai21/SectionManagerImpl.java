@@ -573,16 +573,23 @@ public class SectionManagerImpl implements SectionManager {
 	public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category) {
 		log.info("Dropping " + studentUid + " from all sections in category " + category + " in site " + siteContext);
 		// Get the sections in this category
-		List sections = getSectionsInCategory(siteContext, category);
-		CourseImpl course = (CourseImpl)getCourse(siteContext);
-		Site site = course.getSite();
-		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+		Site site;
+		try {
+			site = siteService.getSite(siteContext);
+		} catch (IdUnusedException ide) {
+			log.error("Unable to find site " + siteContext);
+			return;
+		}
+		Collection groups = site.getGroups();
+		for(Iterator iter = groups.iterator(); iter.hasNext();) {
 			// Drop the user from this section if they are enrolled
-			CourseSectionImpl section = (CourseSectionImpl)iter.next();
-			Group group = section.getGroup();
-			log.info("group size pre-drop = " + group.getMembers().size() + " for " + group.getReference());
-			group.removeMember(studentUid);
-			log.info("group size post-drop = " + group.getMembers().size() + " for " + group.getReference());
+			Group group= (Group)iter.next();
+			CourseSectionImpl section = new CourseSectionImpl(group);
+			if(section.getCategory().equals(category)) {
+				log.info("group size pre-drop = " + group.getMembers().size() + " for " + group.getReference());
+				group.removeMember(studentUid);
+				log.info("group size post-drop = " + group.getMembers().size() + " for " + group.getReference());
+			}
 		}
 		try {
 			siteService.saveGroupMembership(site);
@@ -691,6 +698,7 @@ public class SectionManagerImpl implements SectionManager {
 	 */
     public void disbandSection(String sectionUuid) {
         if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
+
         Group group = siteService.findGroup(sectionUuid);
         Site site = group.getContainingSite();
         site.removeGroup(group);
