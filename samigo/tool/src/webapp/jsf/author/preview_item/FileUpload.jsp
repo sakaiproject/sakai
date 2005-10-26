@@ -33,7 +33,7 @@ should be included in file importing DeliveryMessages
     <h:panelGroup>
       <h:outputText value="File:" />
 <%--
-      <corejsf:upload target="/tmp/test_fileupload/"/>
+      <corejsf:upload target="test_fileupload/"/>
 --%>
       <h:inputText size="50" />
       <h:outputText value="  " />
