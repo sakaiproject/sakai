@@ -437,6 +437,7 @@
         <war.bundle>standalone</war.bundle>
       </properties>
     </dependency>
+<!--
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
@@ -445,6 +446,8 @@
         <war.bundle>standalone</war.bundle>
       </properties>
     </dependency>
+-->
+
     <dependency>
       <groupId>ojb</groupId>
       <artifactId>db-ojb</artifactId>
