@@ -76,9 +76,11 @@ public class ItemService
       ItemFacade item= PersistenceService.getInstance().
         getItemFacadeQueries().getItem(itemId, agentId);
 
+/*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner
       if (!item.getData().getCreatedBy().equals(agentId))
         throw new Error(new Exception());
+*/
       PersistenceService.getInstance().getItemFacadeQueries().
         deleteItem(itemId, agentId);
     }
@@ -99,10 +101,11 @@ public class ItemService
       ItemFacade item= PersistenceService.getInstance().
         getItemFacadeQueries().getItem(itemId, agentId);
 
+/*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner
-
       if (!item.getData().getCreatedBy().equals(agentId))
         throw new Error(new Exception());
+*/
       PersistenceService.getInstance().getItemFacadeQueries().
         deleteItemContent(itemId, agentId);
     }
@@ -124,10 +127,11 @@ public class ItemService
       ItemFacade item= PersistenceService.getInstance().
         getItemFacadeQueries().getItem(itemId, agentId);
 
+/*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner
-
       if (!item.getData().getCreatedBy().equals(agentId))
         throw new Error(new Exception());
+*/
       PersistenceService.getInstance().getItemFacadeQueries().
         deleteItemMetaData(itemId, label);
     }
@@ -148,10 +152,11 @@ public class ItemService
       ItemFacade item= PersistenceService.getInstance().
         getItemFacadeQueries().getItem(itemId, agentId);
 
+/*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner
-
       if (!item.getData().getCreatedBy().equals(agentId))
         throw new Error(new Exception());
+*/
       PersistenceService.getInstance().getItemFacadeQueries().
         addItemMetaData(itemId, label, value);
     }
