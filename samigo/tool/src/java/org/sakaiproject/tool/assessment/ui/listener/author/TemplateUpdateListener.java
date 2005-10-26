@@ -88,61 +88,18 @@ public class TemplateUpdateListener
     log.info("debug requestParams: " + requestParams);
     log.info("debug reqMap: " + reqMap);
     TemplateBean templateBean = lookupTemplateBean(context);
-    log.info("name=" + templateBean.getTemplateName());
-    log.info("id=" + templateBean.getIdString());
-String tempName=templateBean.getTemplateName();
-// System.out.println("TEMPNAME= "+tempName);
- AssessmentService assessmentService = new AssessmentService();
- // IndexBean templateIndex = (IndexBean) ContextUtil.lookupBean(
- //                       "templateIndex");
+    templateBean.setOutcome("template");
+    String tempName=templateBean.getTemplateName();
+    AssessmentService assessmentService = new AssessmentService();
 
- boolean duplicateName=false;
- int count=0;
-    try
-    {
-	//	FacesContext.getCurrentInstance().getExternalContext().getSessionMap().
-	//	    put("template", new TemplateBean());
-	ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessmentTemplates("title");
-        Iterator iter = list.iterator();
-     
-        while (iter.hasNext())
-        { 
-	 AssessmentTemplateFacade facade =
-	 (AssessmentTemplateFacade) iter.next();
-	
-	     String n=facade.getTitle();
-             //System.out.println("TempName: "+n);
-	      if((tempName.trim()).equals(n)){
-		  //  if(count==0)
-		  //    { 
-		  //	  count++;
-		  //     }
-		  //  else{
-		      duplicateName=true;
-		      break;
-		      // }
-	      }
-	      
-	}
-	  
+    boolean isUnique=assessmentService.assessmentTitleIsUnique(templateBean.getIdString(),tempName,true);
+    System.out.println("*** is unique="+isUnique);
+    if (!isUnique){
+      String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","duplicateName_error");
+      context.addMessage(null,new FacesMessage(error));
+      return;
     }
-    catch(Exception e)
-    {
-		  e.printStackTrace();
-		  throw new Error(e);
-    }
-    if(duplicateName){
-	String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","duplicateName_error");
- context.addMessage(null,new FacesMessage(error));
-  templateBean.setOutcome("editTemplate");
-          System.out.println("duplicateName= "+duplicateName);
-       
-      }
-      else{
-       updateAssessment(templateBean);
-        templateBean.setOutcome("template");
-      }
-   
+    updateAssessment(templateBean);
   }
 
   /**

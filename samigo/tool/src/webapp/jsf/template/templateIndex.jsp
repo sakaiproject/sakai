@@ -82,7 +82,7 @@
 
       <h:commandButton type="submit" id="Submit" value="#{msg.index_button_create}"
         rendered="#{authorization.createTemplate}"
-        action="newTemplate">
+        action="#{template.getOutcome}">
               <f:actionListener
                 type="org.sakaiproject.tool.assessment.ui.listener.author.EditTemplateListener" />
        </h:commandButton>

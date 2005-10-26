@@ -935,27 +935,30 @@ public class AssessmentFacadeQueries
 
   public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate) {
     String currentSiteId = AgentFacade.getCurrentSiteId(); 
+    String agentString = AgentFacade.getAgentString(); 
+    List list;
     boolean isUnique = true;
     String query="";
-    if (isTemplate.booleanValue()){
+    if (isTemplate.booleanValue()){ // templates are person scoped
       query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentTemplateData a, AuthorizationData z where "+
-                   " a.title=? and a.assessmentBaseId!=? and " +
-                   " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
+                   " a.title=? and a.assessmentBaseId!=? and a.createdBy=?";
+      list = getHibernateTemplate().find(query,
+                  new Object[]{title,assessmentBaseId,agentString},
+                  new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     }
-    else{
+    else{ // assessments are site scoped 
       query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentData a, AuthorizationData z where "+
-                   " a.title=? and a.assessmentBaseId!=? and " +
+                   " a.title=? and a.assessmentBaseId!=? and z.functionId='EDIT_ASSESSMENT'" +
                    " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
-    }
-    List list = getHibernateTemplate().find(query,
+      list = getHibernateTemplate().find(query,
                   new Object[]{title,assessmentBaseId,currentSiteId},
                   new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
+    }
     if (list.size()>0)
       isUnique = false;
     return isUnique;
   }
-
 
 }
