@@ -26,7 +26,6 @@ package org.sakaiproject.tool.section.jsf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Authz;
 import org.sakaiproject.api.section.facade.manager.Context;
@@ -58,13 +57,18 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
 
         String userUid = authnService.getUserUid(null);
         String siteContext = contextService.getContext(null);
-        Role siteRole = authzService.getSiteRole(userUid, siteContext);
+        
+        boolean manageEnrollments = authzService.isSectionEnrollmentMangementAllowed(userUid, siteContext);
+        boolean manageTas = authzService.isSectionTaManagementAllowed(userUid, siteContext);
+        boolean manageSections = authzService.isSectionManagementAllowed(userUid, siteContext);
+
+        boolean viewOwnSections = authzService.isViewOwnSectionsAllowed(userUid, siteContext);
 
         String target;
-        if(siteRole.isInstructor() || siteRole.isTeachingAssistant()) {
+        if(manageEnrollments || manageTas || manageSections) {
             if(log.isDebugEnabled()) log.debug("Sending user to the overview page");
             target = "/overview";
-        } else if (siteRole.isStudent()) {
+        } else if (viewOwnSections) {
             if(log.isDebugEnabled()) log.debug("Sending user to the student view page");
             target = "/studentView";
         } else {

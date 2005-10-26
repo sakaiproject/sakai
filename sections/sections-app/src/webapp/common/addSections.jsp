@@ -12,6 +12,7 @@
         
         <%@include file="/inc/globalMessages.jspf"%>
     
+        <h:outputText value="#{msgs.add_section_add}"/>
         <h:selectOneMenu
             id="numToAdd"
             immediate="true"
@@ -29,7 +30,7 @@
             <f:selectItem itemValue="9"/>
             <f:selectItem itemValue="10"/>
         </h:selectOneMenu>
-        
+        <h:outputText value="#{msgs.add_section_sections_of}"/>
         <h:selectOneMenu
             id="category"
             immediate="true"
@@ -39,7 +40,12 @@
             <f:selectItem itemLabel="#{msgs.add_sections_select_one}" itemValue=""/>
             <f:selectItems value="#{addSectionsBean.categoryItems}"/>
         </h:selectOneMenu>
+        <h:outputText value="#{msgs.add_section_category}"/>
     
+        <x:div rendered="#{not empty addSectionsBean.sections}" styleClass="verticalPadding">
+            <%/* Add space if the table isn't rendered */%>
+        </x:div>
+
         <x:dataTable
             id="sectionTable"
             value="#{addSectionsBean.sections}"
@@ -47,17 +53,17 @@
             rowClasses="#{addSectionsBean.rowStyleClasses}">
             <h:column>
                 <h:panelGrid columns="2" rowClasses="sectionRow">
-                    <h:outputLabel for="titleInput" value="#{msgs.section_title}" styleClass="formLabel"/>
-                    <h:panelGroup>
+                    <h:outputLabel for="titleInput" value="#{msgs.section_title} #{msgs.section_required}" styleClass="formLabel"/>
+                    <h:panelGrid columns="2">
                         <h:inputText
                             id="titleInput"
                             required="true"
                             value="#{section.title}"/>
                         <h:message for="titleInput" styleClass="validationEmbedded"/>
-                    </h:panelGroup>
+                    </h:panelGrid>
                     
                     <h:outputLabel for="monday" value="#{msgs.section_days}" styleClass="formLabel"/>
-                    <h:panelGroup>
+                    <h:panelGrid columns="14">
                         <h:selectBooleanCheckbox id="monday" value="#{section.monday}"/>
                         <h:outputLabel for="monday" value="#{msgs.day_of_week_monday}"/>
             
@@ -78,7 +84,7 @@
             
                         <h:selectBooleanCheckbox id="sunday" value="#{section.sunday}"/>
                         <h:outputLabel for="sunday" value="#{msgs.day_of_week_sunday}"/>
-                    </h:panelGroup>
+                    </h:panelGrid>
             
                     <h:outputLabel for="startTime" value="#{msgs.section_start_time}" styleClass="formLabel"/>
                     <h:panelGrid columns="3">
@@ -109,17 +115,24 @@
                     </h:panelGrid>
             
                     <h:outputLabel for="maxEnrollmentInput" value="#{msgs.section_max_size}" styleClass="formLabel"/>
-                    <h:panelGroup>
+                    <h:panelGrid columns="2">
                         <h:inputText id="maxEnrollmentInput" value="#{section.maxEnrollments}"/>
                         <h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
-                    </h:panelGroup>
+                    </h:panelGrid>
             
                     <h:outputLabel for="location" value="#{msgs.section_location}" styleClass="formLabel"/>
-                    <h:inputText id="location" value="#{section.location}"/>
+                    <h:panelGrid columns="2">
+                        <h:inputText id="location" value="#{section.location}"/>
+                        <h:outputText value="#{msgs.section_location_truncation}"/>
+                    </h:panelGrid>
                 </h:panelGrid>
             </h:column>
         </x:dataTable>
     
+        <x:div rendered="#{empty addSectionsBean.sections}" styleClass="verticalPadding">
+            <%/* Add space if the table isn't rendered */%>
+        </x:div>
+        
         <h:commandButton
             action="#{addSectionsBean.addSections}"
             disabled="#{addSectionsBean.category == null}"

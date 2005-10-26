@@ -46,19 +46,17 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	private boolean selfRegister;
 	private boolean selfSwitch;
 
-	private boolean ta;
-	
 	public void init() {
 		Course course = getCourse();
 		selfRegister = course.isSelfRegistrationAllowed();
 		selfSwitch = course.isSelfSwitchingAllowed();
 		
-		ta = getSiteRole().isTeachingAssistant();
 	}
 
 	public String update() {
-		if(ta) {
+		if(!isSectionOptionsManagementEnabled()) {
 			// This should never happen
+			log.warn("Updating section options not permitted for user " + getUserUid());
 			return "overview";
 		}
 		Course course = getCourse();
@@ -83,14 +81,6 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 
 	public void setSelfSwitch(boolean selfSwitch) {
 		this.selfSwitch = selfSwitch;
-	}
-	
-	/**
-	 * Whether the current user is a ta.  If true, this disallows updates.
-	 * @return
-	 */
-	public boolean isTa() {
-		return ta;
 	}
 
 }

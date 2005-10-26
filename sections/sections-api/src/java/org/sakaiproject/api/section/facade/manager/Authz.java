@@ -33,25 +33,75 @@ import org.sakaiproject.api.section.facade.Role;
  *
  */
 public interface Authz {
+//	/**
+//	 * Gets the role for a given user in a given site.
+//	 * 
+//	 * @param userUid The user's uid
+//	 * @param siteContext The site id
+//	 * 
+//	 * @return
+//	 */
+//	public Role getSiteRole(String userUid, String siteContext);
+//	
+//	/**
+//	 * Gets the role for a given user in a given CourseSection.
+//	 * 
+//	 * @param userUid The user's uid
+//	 * @param sectionUuid The uuid of a CourseSection
+//	 * 
+//	 * @return
+//	 */
+//	public Role getSectionRole(String userUid, String sectionUuid);
+
+
 	/**
-	 * Gets the role for a given user in a given site.
+	 * Returns whether the current user can manage (add, edit, delete) sections.
 	 * 
+	 * @param siteContext
 	 * @param userUid The user's uid
-	 * @param siteContext The site id
 	 * 
 	 * @return
 	 */
-	public Role getSiteRole(String userUid, String siteContext);
+	public boolean isSectionManagementAllowed(String userUid, String siteContext);
+
+	/**
+	 * Returns whether the current user can change section options in the site.
+	 * 
+	 * @param siteContext
+	 * @param userUid The user's uid
+	 * 
+	 * @return
+	 */
+	public boolean isSectionOptionsManagementAllowed(String userUid, String siteContext);
 	
 	/**
-	 * Gets the role for a given user in a given CourseSection.
+	 * Returns whether the current user can change section enrollments.
 	 * 
+	 * @param siteContext
 	 * @param userUid The user's uid
-	 * @param sectionUuid The uuid of a CourseSection
 	 * 
 	 * @return
 	 */
-	public Role getSectionRole(String userUid, String sectionUuid);
+	public boolean isSectionEnrollmentMangementAllowed(String userUid, String siteContext);
+	
+	/**
+	 * Returns whether the current user can change TA assignments to sections.
+	 * 
+	 * @param siteContext
+	 * @param userUid The user's uid
+	 * 
+	 * @return
+	 */
+	public boolean isSectionTaManagementAllowed(String userUid, String siteContext);
+
+	/**
+	 * Returns whether the current user is a student in the course
+	 * 
+	 * @param userUid
+	 * @param siteContext
+	 * @return
+	 */
+	public boolean isViewOwnSectionsAllowed(String userUid, String siteContext);
 }
 
 

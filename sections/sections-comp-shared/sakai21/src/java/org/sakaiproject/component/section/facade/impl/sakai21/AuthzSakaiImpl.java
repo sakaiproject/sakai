@@ -27,7 +27,6 @@ package org.sakaiproject.component.section.facade.impl.sakai21;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
-import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authz;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
@@ -42,49 +41,62 @@ import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
  *
  */
 public class AuthzSakaiImpl implements Authz {
+	private static final String SITE_UPDATE = "site.upd";
+	private static final String SITE_UPDATE_GROUP_MEMBERSHIP = "site.upd.grp.mbrshp";
+
 	private static final Log log = LogFactory.getLog(AuthzSakaiImpl.class);
-    
+
 	/**
-	 * Ignores the userUid parameter, since sakai can get the current user itself.
-	 * 
-	 * @inheritDoc
+	 * The user must have site.upd to update sections in the Section Info tool.
 	 */
-	public Role getSiteRole(String userUid, String siteContext) {
+	public boolean isSectionManagementAllowed(String userUid, String siteContext) {
 		User sakaiUser = UserDirectoryService.getCurrentUser();
-		String siteAuthzRef = SiteService.siteReference(siteContext);
-		return getRole(sakaiUser, siteAuthzRef);
+		String siteRef = SiteService.siteReference(siteContext);
+		boolean canUpdateSite = SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE, siteRef);
+		
+		return canUpdateSite;
 	}
 
 	/**
-	 * Ignores the userUid parameter, since sakai can get the current user itself.
-	 * 
-	 * @inheritDoc
+	 * The user must have site.upd to update section options in the Section Info tool.
 	 */
-	public Role getSectionRole(final String userUid, final String sectionUuid) {
-		User sakaiUser = UserDirectoryService.getCurrentUser();
-		return getRole(sakaiUser, sectionUuid);
+	public boolean isSectionOptionsManagementAllowed(String userUid, String siteContext) {
+		return isSectionManagementAllowed(userUid, siteContext);
 	}
 
 	/**
-	 * Determines the local role based on the sakai role markers in the permission matrix.
-	 * 
-	 * @param sakaiUser The user
-	 * @param authzRef The security reference string
-	 * 
-	 * @return The internal role enumeration (not the sakai role)
+	 * The user must have site.upd to update TA assignments in the Section Info
+	 * tool, even though the framework doesn't require this (it would accept site.upd.grp.mbrshp).
 	 */
-	private Role getRole(User sakaiUser, String authzRef) {
-		if(SecurityService.unlock(sakaiUser, SectionAwareness.INSTRUCTOR_MARKER, authzRef)) {
-			return Role.INSTRUCTOR;
-		}
-		if(SecurityService.unlock(sakaiUser, SectionAwareness.TA_MARKER, authzRef)) {
-			return Role.TA;
-		}
-		if(SecurityService.unlock(sakaiUser, SectionAwareness.STUDENT_MARKER, authzRef)) {
-			return Role.STUDENT;
-		}
-		return Role.NONE;
+	public boolean isSectionTaManagementAllowed(String userUid, String siteContext) {
+		return isSectionManagementAllowed(userUid, siteContext);
 	}
+
+	/**
+	 * The user must have either site.upd or site.upd.grp.mbrshp to update
+	 * section enrollments in the Section Info tool.
+	 */
+	public boolean isSectionEnrollmentMangementAllowed(String userUid, String siteContext) {
+		User sakaiUser = UserDirectoryService.getCurrentUser();
+		String siteRef = SiteService.siteReference(siteContext);
+		boolean canUpdateSite = SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE, siteRef);
+		boolean canUpdateGroups = SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE_GROUP_MEMBERSHIP, siteRef);
+		
+		return canUpdateSite || canUpdateGroups;
+	}
+
+	/**
+	 * The user must have access to the student marker function (section.role.student)
+	 * to view their own section enrollments.
+	 */
+	public boolean isViewOwnSectionsAllowed(String userUid, String siteContext) {
+		User sakaiUser = UserDirectoryService.getCurrentUser();
+		String siteRef = SiteService.siteReference(siteContext);
+		boolean isStudent = SecurityService.unlock(sakaiUser, SectionAwareness.STUDENT_MARKER, siteRef);
+		
+		return isStudent;
+	}
+
 }
 
 

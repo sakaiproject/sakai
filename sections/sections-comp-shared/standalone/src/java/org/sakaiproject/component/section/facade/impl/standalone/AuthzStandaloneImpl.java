@@ -47,7 +47,7 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class AuthzStandaloneImpl extends HibernateDaoSupport implements Authz {
 	private static final Log log = LogFactory.getLog(AuthzStandaloneImpl.class);
 
-	public Role getSiteRole(final String userUid, final String siteContext) {
+	private Role getSiteRole(final String userUid, final String siteContext) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query q = session.getNamedQuery("loadSiteParticipation");
@@ -64,20 +64,43 @@ public class AuthzStandaloneImpl extends HibernateDaoSupport implements Authz {
 		return((ParticipationRecord)result).getRole();
 	}
 
-	public Role getSectionRole(final String userUid, final String sectionUuid) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Query q = session.getNamedQuery("loadSectionParticipation");
-				q.setParameter("userUid", userUid);
-				q.setParameter("sectionUuid", sectionUuid);
-				return q.uniqueResult();
-			}
-		};
-		ParticipationRecord record = (ParticipationRecord)getHibernateTemplate().execute(hc);
-		if(record == null) {
-			return Role.NONE;
-		}
-		return record.getRole();
+//	public Role getSectionRole(final String userUid, final String sectionUuid) {
+//		HibernateCallback hc = new HibernateCallback() {
+//			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+//				Query q = session.getNamedQuery("loadSectionParticipation");
+//				q.setParameter("userUid", userUid);
+//				q.setParameter("sectionUuid", sectionUuid);
+//				return q.uniqueResult();
+//			}
+//		};
+//		ParticipationRecord record = (ParticipationRecord)getHibernateTemplate().execute(hc);
+//		if(record == null) {
+//			return Role.NONE;
+//		}
+//		return record.getRole();
+//	}
+
+	public boolean isSectionManagementAllowed(String userUid, String siteContext) {
+		Role role = getSiteRole(userUid, siteContext);
+		return role.isInstructor();
+	}
+
+	public boolean isSectionOptionsManagementAllowed(String userUid, String siteContext) {
+		return isSectionManagementAllowed(userUid, siteContext);
+	}
+
+	public boolean isSectionEnrollmentMangementAllowed(String userUid, String siteContext) {
+		Role role = getSiteRole(userUid, siteContext);
+		return role.isInstructor() || role.isTeachingAssistant();
+	}
+
+	public boolean isSectionTaManagementAllowed(String userUid, String siteContext) {
+		return isSectionManagementAllowed(userUid, siteContext);
+	}
+
+	public boolean isViewOwnSectionsAllowed(String userUid, String siteContext) {
+		Role role = getSiteRole(userUid, siteContext);
+		return role.isStudent();
 	}
 }
 

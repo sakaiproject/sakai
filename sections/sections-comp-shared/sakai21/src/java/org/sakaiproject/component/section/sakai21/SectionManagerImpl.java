@@ -467,7 +467,7 @@ public class SectionManagerImpl implements SectionManager {
 		group.addMember(userUid, role, true, false);
 		
 		try {
-			siteService.save(group.getContainingSite());
+			siteService.saveGroupMembership(group.getContainingSite());
 			postEvent("Added " + userUid + " as a TA in section", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
@@ -494,7 +494,7 @@ public class SectionManagerImpl implements SectionManager {
 		group.addMember(userUid, getSectionStudentRole(group), true, false);
 
 		try {
-			siteService.save(group.getContainingSite());
+			siteService.saveGroupMembership(group.getContainingSite());
 			postEvent("Added " + userUid + " as a student in section", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
@@ -539,7 +539,7 @@ public class SectionManagerImpl implements SectionManager {
 		}
 
 		try {
-			siteService.save(group.getContainingSite());
+			siteService.saveGroupMembership(group.getContainingSite());
 			postEvent("Redefined section memberships to include " + userUids.size() +
 					" users in role " + role.getDescription(), sectionUuid);
 		} catch (IdUnusedException e) {
@@ -558,7 +558,7 @@ public class SectionManagerImpl implements SectionManager {
 		Group group = section.getGroup();
 		group.removeMember(userUid);
 		try {
-			siteService.save(group.getContainingSite());
+			siteService.saveGroupMembership(group.getContainingSite());
 			postEvent("Removed " + userUid + " from section", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
@@ -571,18 +571,21 @@ public class SectionManagerImpl implements SectionManager {
 	 * @inheritDoc
 	 */
 	public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category) {
+		log.info("Dropping " + studentUid + " from all sections in category " + category + " in site " + siteContext);
 		// Get the sections in this category
 		List sections = getSectionsInCategory(siteContext, category);
 		CourseImpl course = (CourseImpl)getCourse(siteContext);
+		Site site = course.getSite();
 		for(Iterator iter = sections.iterator(); iter.hasNext();) {
 			// Drop the user from this section if they are enrolled
 			CourseSectionImpl section = (CourseSectionImpl)iter.next();
 			Group group = section.getGroup();
+			log.info("group size pre-drop = " + group.getMembers().size() + " for " + group.getReference());
 			group.removeMember(studentUid);
+			log.info("group size post-drop = " + group.getMembers().size() + " for " + group.getReference());
 		}
 		try {
-			Site site = course.getSite();
-			siteService.save(site);
+			siteService.saveGroupMembership(site);
 			postEvent("Removed " + studentUid + " from any sections of category " + category, site.getReference());
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);

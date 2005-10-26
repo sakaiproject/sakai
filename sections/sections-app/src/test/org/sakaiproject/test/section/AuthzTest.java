@@ -104,23 +104,30 @@ public class AuthzTest extends SectionsTestBase{
 		// Load instructor into the courses
 		courseMgr.addInstructor(instructor1, course);
 
-		Assert.assertTrue(authz.getSiteRole(student1.getUserUid(), siteContext).isStudent());
-		Assert.assertTrue(authz.getSectionRole(student1.getUserUid(), sec1.getUuid()).isStudent());
-		Assert.assertTrue(authz.getSectionRole(student1.getUserUid(), sec2.getUuid()).isNone());
+		Assert.assertTrue(authz.isViewOwnSectionsAllowed(student1.getUserUid(), siteContext));
+		Assert.assertTrue(authz.isViewOwnSectionsAllowed(student2.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isViewOwnSectionsAllowed(ta1.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isViewOwnSectionsAllowed(ta2.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isViewOwnSectionsAllowed(instructor1.getUserUid(), siteContext));
 
-		Assert.assertTrue(authz.getSiteRole(student2.getUserUid(), siteContext).isStudent());
-		Assert.assertTrue(authz.getSectionRole(student2.getUserUid(), sec1.getUuid()).isNone());
-		Assert.assertTrue(authz.getSectionRole(student2.getUserUid(), sec2.getUuid()).isStudent());
-		
-		Assert.assertTrue(authz.getSiteRole(ta1.getUserUid(), siteContext).isTeachingAssistant());
-		Assert.assertTrue(authz.getSectionRole(ta1.getUserUid(), sec1.getUuid()).isTeachingAssistant());
-		Assert.assertTrue(authz.getSectionRole(ta1.getUserUid(), sec2.getUuid()).isNone());
+		Assert.assertTrue(authz.isSectionEnrollmentMangementAllowed(instructor1.getUserUid(), siteContext));
+		Assert.assertTrue(authz.isSectionEnrollmentMangementAllowed(ta1.getUserUid(), siteContext));
+		Assert.assertTrue(authz.isSectionEnrollmentMangementAllowed(ta2.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionEnrollmentMangementAllowed(student1.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionEnrollmentMangementAllowed(student2.getUserUid(), siteContext));
 
-		Assert.assertTrue(authz.getSiteRole(ta2.getUserUid(), siteContext).isTeachingAssistant());
-		Assert.assertTrue(authz.getSectionRole(ta2.getUserUid(), sec1.getUuid()).isNone());
-		Assert.assertTrue(authz.getSectionRole(ta2.getUserUid(), sec2.getUuid()).isTeachingAssistant());
+		Assert.assertTrue(authz.isSectionManagementAllowed(instructor1.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionManagementAllowed(ta1.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionManagementAllowed(ta2.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionManagementAllowed(student1.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionManagementAllowed(student2.getUserUid(), siteContext));
 		
-		Assert.assertTrue(authz.getSiteRole(instructor1.getUserUid(), siteContext).isInstructor());
+		Assert.assertTrue(authz.isSectionOptionsManagementAllowed(instructor1.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionOptionsManagementAllowed(ta1.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionOptionsManagementAllowed(ta2.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionOptionsManagementAllowed(student1.getUserUid(), siteContext));
+		Assert.assertTrue( ! authz.isSectionOptionsManagementAllowed(student2.getUserUid(), siteContext));
+		
     }
 }
 

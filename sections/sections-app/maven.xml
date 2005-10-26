@@ -52,16 +52,6 @@ service layer names include 'standalone' and 'sakai20'.
 				<ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
 			</j:if>
             
-			<j:if test="${mode.equals('sakai20')}">
-				<ant:echo message="Copying sakai 2.0 dependent resources into webapp"/>
-
-				<ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
-					<ant:fileset dir="${maven.src.dir}/webapp/sakai20/">
-						<ant:include name="**/*"/>
-					</ant:fileset>
-				</ant:copy>
-    		</j:if>
-
             <j:if test="${mode.equals('sakai21') || empty(mode)}">
                 <ant:echo message="Copying sakai 2.1 dependent resources into webapp"/>
 

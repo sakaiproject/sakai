@@ -32,7 +32,7 @@ public class AuthorizationFilterConfigurationBean {
 	private List manageEnrollments;
 	private List manageTeachingAssistants;
 	private List manageAllSections;
-	private List manageOwnSections;
+	private List viewOwnSections;
 	
 	public List getManageEnrollments() {
 		return manageEnrollments;
@@ -52,11 +52,11 @@ public class AuthorizationFilterConfigurationBean {
 	public void setManageTeachingAssistants(List manageTeachingAssistants) {
 		this.manageTeachingAssistants = manageTeachingAssistants;
 	}
-	public List getManageOwnSections() {
-		return manageOwnSections;
+	public List getViewOwnSections() {
+		return viewOwnSections;
 	}
-	public void setManageOwnSections(List manageOwnSections) {
-		this.manageOwnSections = manageOwnSections;
+	public void setViewOwnSections(List viewOwnSections) {
+		this.viewOwnSections = viewOwnSections;
 	}
 
 }

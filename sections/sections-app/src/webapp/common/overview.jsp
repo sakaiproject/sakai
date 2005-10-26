@@ -33,7 +33,7 @@
                 <h:outputText value="#{section.title}"/>
             </x:div>
             <x:div styleClass="itemAction">
-                <h:panelGroup rendered="#{ ! overviewBean.externallyManaged && overviewBean.instructorFeaturesEnabled}">
+                <h:panelGroup rendered="#{ ! overviewBean.externallyManaged && overviewBean.sectionManagementEnabled}">
                     <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
                         <f:param name="sectionUuid" value="#{section.uuid}"/>
                     </h:commandLink>
@@ -43,15 +43,20 @@
                 <h:commandLink
                     action="editManagers"
                     value="#{msgs.overview_link_managers}"
-                    rendered="#{overviewBean.instructorFeaturesEnabled}">
+                    rendered="#{overviewBean.sectionTaManagementEnabled}">
                         <f:param name="sectionUuid" value="#{section.uuid}"/>
                 </h:commandLink>
     
                 <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
-                    <h:outputFormat value="#{msgs.overview_link_sep_char}" rendered="#{overviewBean.instructorFeaturesEnabled}"/>
+                    <h:outputFormat
+                        value="#{msgs.overview_link_sep_char}"
+                        rendered="#{overviewBean.sectionTaManagementEnabled}"/>
         
-                    <h:commandLink action="editStudents" value="#{msgs.overview_link_students}">
-                        <f:param name="sectionUuid" value="#{section.uuid}"/>
+                    <h:commandLink
+                        action="editStudents"
+                        value="#{msgs.overview_link_students}"
+                        rendered="#{overviewBean.sectionEnrollmentMangementEnabled}">
+                            <f:param name="sectionUuid" value="#{section.uuid}"/>
                     </h:commandLink>
                 </h:panelGroup>
             </x:div>
@@ -103,7 +108,7 @@
             </f:facet>
             <h:outputText value="#{section.spotsAvailable}"/>
         </h:column>
-        <h:column rendered="#{ ! overviewBean.externallyManaged}">
+        <h:column rendered="#{overviewBean.deleteRendered}">
             <f:facet name="header">
                 <h:outputText value="#{msgs.overview_table_header_remove}" />
             </f:facet>
@@ -113,16 +118,18 @@
 
     <h:outputText value="#{msgs.no_sections_available}" rendered="#{empty overviewBean.sections}"/>
 
-    <h:panelGroup rendered="#{not empty overviewBean.sections}">
+        <x:div rendered="#{overviewBean.deleteRendered}" styleClass="verticalPadding">
+            <%/* Add space before the buttons */%>
+        </x:div>
+
+    <h:panelGroup rendered="#{overviewBean.deleteRendered}">
         <h:commandButton
             action="#{overviewBean.confirmDelete}"
-            value="#{msgs.overview_delete}"
-             rendered="#{ ! overviewBean.externallyManaged}"/>
+            value="#{msgs.overview_delete}"/>
     
         <h:commandButton
             action="overview"
-            value="#{msgs.overview_cancel}"
-            rendered="#{ ! overviewBean.externallyManaged}"/>
+            value="#{msgs.overview_cancel}"/>
     </h:panelGroup>
     
 </h:form>

@@ -29,7 +29,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.facade.impl.standalone.AuthnStandaloneImpl;
 import org.sakaiproject.component.section.facade.impl.standalone.ContextStandaloneImpl;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -61,13 +60,13 @@ public class LoginBean extends CourseDependentBean {
         session.setAttribute(AuthnStandaloneImpl.USER_NAME, userName);
         session.setAttribute(ContextStandaloneImpl.CONTEXT, context);
 
-        Role siteRole = getSiteRole();
-        
-        if(siteRole.isStudent()) {
-        	return "studentView";
-        }
-        if(siteRole.isInstructor() || siteRole.isTeachingAssistant()) {
+        if(isSectionEnrollmentMangementEnabled() || isSectionManagementEnabled() ||
+        		isSectionOptionsManagementEnabled() || isSectionTaManagementEnabled()) {
         	return "overview";
+        }
+        
+        if(isViewOwnSectionsEnabled()) {
+        	return "studentView";
         }
 
         if(log.isDebugEnabled()) log.debug(userName + " does not have a role in site " + context);

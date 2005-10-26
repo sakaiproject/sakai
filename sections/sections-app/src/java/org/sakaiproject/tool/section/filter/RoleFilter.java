@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.api.section.facade.manager.Authn;
 import org.sakaiproject.api.section.facade.manager.Authz;
 import org.sakaiproject.api.section.facade.manager.Context;
@@ -107,15 +106,17 @@ public class RoleFilter implements Filter {
 			String pageName = splitPath[0];
 
 			boolean isAuthorized = false;
-			Role role = authz.getSiteRole(userUid, siteContext);
-			if (role.isInstructor() &&
-				authzFilterConfigBean.getManageAllSections().contains(pageName)) {
+			if(authz.isSectionManagementAllowed(userUid, siteContext) &&
+					authzFilterConfigBean.getManageAllSections().contains(pageName)) {
 				isAuthorized = true;
-			} else if ( (role.isInstructor() || role.isTeachingAssistant())
+			} else if (authz.isSectionTaManagementAllowed(userUid, siteContext)
+					&& authzFilterConfigBean.getManageTeachingAssistants().contains(pageName)) {
+				isAuthorized = true;
+			} else if (authz.isSectionEnrollmentMangementAllowed(userUid, siteContext)
 					&& authzFilterConfigBean.getManageEnrollments().contains(pageName)) {
 				isAuthorized = true;
-			} else if (role.isStudent()
-					&& authzFilterConfigBean.getManageOwnSections().contains(pageName)) {
+			} else if (authz.isViewOwnSectionsAllowed(userUid, siteContext)
+					&& authzFilterConfigBean.getViewOwnSections().contains(pageName)) {
 				isAuthorized = true;
 			}
 

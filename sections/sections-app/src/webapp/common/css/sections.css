@@ -88,11 +88,10 @@ td.prefixedCheckbox {
 	padding-right:.5em;
 }
 
-table.deleteConfirmation {
-    background:#EEE;
-    border:thin solid #000;
-}
-
 .deleteButtons {
     margin-top:40px;
+}
+
+.verticalPadding {
+    margin-top:20px;
 }

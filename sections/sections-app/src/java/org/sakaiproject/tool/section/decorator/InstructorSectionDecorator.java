@@ -50,6 +50,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	protected List instructorNames;
 	protected int totalEnrollments;
 	protected String spotsAvailable;
+	protected String truncatedLocation;
 	private boolean flaggedForRemoval;
 
 	public InstructorSectionDecorator(CourseSection courseSection, String categoryForDisplay,
@@ -57,6 +58,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		super(courseSection, categoryForDisplay);
 		this.instructorNames = instructorNames;
 		this.totalEnrollments = totalEnrollments;
+		this.truncatedLocation = internalTruncation(courseSection.getLocation());
 		populateSpotsAvailable(courseSection);
 	}
 
@@ -81,11 +83,9 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		return spotsAvailable;
 	}
 	public boolean isFlaggedForRemoval() {
-		if(log.isDebugEnabled()) log.debug("isFlaggedForRemoval returning " + flaggedForRemoval + " for section=" + section);
 		return flaggedForRemoval;
 	}
 	public void setFlaggedForRemoval(boolean flaggedForRemoval) {
-		if(log.isDebugEnabled()) log.debug("setFlaggedForRemoval " + flaggedForRemoval + " for section=" + section);
 		this.flaggedForRemoval = flaggedForRemoval;
 	}
 
@@ -231,6 +231,39 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		return section1Name.compareTo(section2Name);
 	}
 
+	private String internalTruncation(final String str) {
+		int maxLength = 15;
+		if(log.isDebugEnabled()) log.debug("Truncating " + str + " to " + maxLength + " characters");
+		
+		if(str == null) {
+			return null;
+		}
+
+		final String ellipsis = "...";
+		final int length = str.length();
+		if(log.isDebugEnabled()) log.debug("String length = " + length + ", max length = " + maxLength);
+		if(length <= maxLength) {
+			return str;
+		} else {
+			final StringBuffer sb = new StringBuffer();
+			final int prefixEnd = (int)Math.floor((maxLength - ellipsis.length()) / 2);
+			if(log.isDebugEnabled()) log.debug("prefix end = " + prefixEnd);
+
+			// TODO This truncates one too many chars if maxLength is even
+			int suffixStart = length - prefixEnd;
+			if(log.isDebugEnabled()) log.debug("suffix start = " + suffixStart);
+
+			sb.append(str.substring(0, prefixEnd));
+			sb.append(ellipsis);
+			sb.append(str.substring(suffixStart, length));
+			
+			return sb.toString();
+		}
+	}
+	
+	public String getLocation() {
+		return truncatedLocation;
+	}
 }
 
 

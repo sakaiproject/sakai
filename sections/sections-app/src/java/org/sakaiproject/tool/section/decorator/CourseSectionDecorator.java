@@ -45,6 +45,8 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  */
 public class CourseSectionDecorator implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	protected CourseSection section;
 	protected String categoryForDisplay;
 

@@ -90,9 +90,10 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().authn.getUserUid(FacesContext.getCurrentInstance().getExternalContext().getRequest());
 	}
 	
-	protected Role getSiteRole() {
-		return getCourseBean().authz.getSiteRole(getUserUid(), getSiteContext());
-	}
+//	protected Role getSiteRole() {
+//		return getCourseBean().authz.getSiteRole(getUserUid(), getSiteContext());
+//	}
+	
 	protected String getSiteContext() {
 		return getCourseBean().context.getContext(null);
 	}
@@ -119,10 +120,22 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().sectionManager.getSectionCategories(getSiteContext());
 	}
 
-	public boolean isInstructorFeaturesEnabled() {
-		return getSiteRole().isInstructor();
+	public boolean isSectionManagementEnabled() {
+		return getCourseBean().authz.isSectionManagementAllowed(getUserUid(), getSiteContext());
 	}
-	
+	public boolean isSectionOptionsManagementEnabled() {
+		return getCourseBean().authz.isSectionOptionsManagementAllowed(getUserUid(), getSiteContext());
+	}
+	public boolean isSectionEnrollmentMangementEnabled() {
+		return getCourseBean().authz.isSectionEnrollmentMangementAllowed(getUserUid(), getSiteContext());
+	}
+	public boolean isSectionTaManagementEnabled() {
+		return getCourseBean().authz.isSectionTaManagementAllowed(getUserUid(), getSiteContext());
+	}
+	public boolean isViewOwnSectionsEnabled() {
+		return getCourseBean().authz.isViewOwnSectionsAllowed(getUserUid(), getSiteContext());
+	}
+
 	public PreferencesBean getPrefs() {
 		return getCourseBean().getPrefs();
 	}

@@ -5,7 +5,7 @@ This document consists the following sections:
 
 I.  Building and deploying the application and its shared services
 II. Available service implementations
-
+III. Authorization and Section Awareness rules
 -------------------------
 
 I.  Building and deploying the application and its shared services
@@ -70,11 +70,8 @@ I.  Building and deploying the application and its shared services
 		top of section awareness)
 		maven -Dmode=standalone -Dmem=false loadGradebookData
 
-		Sakai 2.0 dataload
-		(not yet available)
-
 		Sakai 2.1 dataload
-		(not yet available)
+		(not available)
 
 	II. Available service implementations
 
@@ -83,38 +80,81 @@ I.  Building and deploying the application and its shared services
 		
 		1) Standalone:  This is appropriate for supporting the standalone webapp,
 		it is not capable of functioning inside the sakai framework.
+
+		2) Sakai 2.1:  This is the default mode when building the application.
+		This implementation decorates Sakai's native group capabilities with
+		section-specific metadata.
+
+	III. Authorization and Section Awareness rules
 		
-		2) Sakai 2.0:  This implementation relies solely on the framework services
-		available as of Sakai 2.0.  Legacy services provide for user authentication
-		and permission checking.  In this implementation, the following
-		site-scoped permissions are used to determine user roles.  These services
-		use an internal concept of roles, which are not related to Sakai's roles.
-
-		In the Section Info tool, as in the SectionAwareness service, there are
-		four roles that describe how a user is associated with a site.  These
-		include:
-			Instructor	--	Capable of manipulating all non enterprise-managed
-							sections, section leadership, and section enrollments.
-
-							Users with the sakai permission "site.upd" are
-							considered to be instructors.
-
-			TA			--	Capable of manipulating all non enterprise-managed
-							section enrollments.
-							
-							Users with the sakai permission "section.ta" but not
-							"site.upd" are considered to be TAs.
+		The Section Info tool applies the following authorization rules for
+		checking whether a user can perform a particular operation:
+		
+			Add/Edit/Remove Sections -- requires the 'site.upd' authorization
+			function.
 			
-			Student		--	Capable of enrolling or switching sections within a
-							self-joinable or self-switchable course/site.
-							
-							Users with the sakai permission "site.visit" but not
-							"site.upd" or "section.ta" are considered to be
-							students.
+			Modify Section Options -- requires the 'site.upd' authorization
+			function.
 
-		3) Sakai 2.1:  In progress.  However, the current build does not allow
-			the 2.1 implementation to be deployed without manually uncommenting
-			the <deploy.type> property from
-				/sections-comp-shared/sakai21/component-webapp/project.xml
-			and commenting the same lines in in
-				/sections-comp-shared/sakai20/component-webapp/project.xml
+			Modify TA Section Memberships -- requires the 'site.upd' authorization
+			function.
+			
+			Modify Student Section Memberships -- requires either the 'site.upd'
+			or 'site.upd.grp.mbrshp' authorization function.
+			
+			View Own Section Enrollments -- requires the 'section.role.student'
+			marker function at the site level.
+			
+		The SectionAwareness API uses the following rules when determining the
+		membership lists of sites and sections:
+
+			Sites use a "marker" authorization function to determine whether a
+			user is a student, a TA, or an instructor.  There could be more than
+			one role with the "marker" authorization function (e.g both 'TA' and
+			'Head TA' could have the TA marker set, and members of both roles
+			would be returned as Site TAs by SectionAwareness.
+			
+				Students:  Find the users who have been granted the
+				'section.role.student' authorization function.  The members in
+				the site with this authorization function are considered students
+				in the site.
+				
+				TAs:  Find the users who have been granted the
+				'section.role.ta' authorization function.  The members in
+				the site with this authorization function are considered TAs
+				in the site.
+				
+				Instructors:  Find the users who have been granted the
+				'section.role.instructor' authorization function.  The members in
+				the site with this authorization function are considered instructors
+				in the site.
+
+				
+			Sections use a "marker" authorization function to determine which
+			sakai role contains the list of members.  Only one role per
+			section can contain the marker function.  If more than one role
+			contains the marker function, SectionAwareness will fail quickly.
+			Since there is no UI exposed to the user for editing section authzGroups,
+			this kind of misconfiguration shouldn't occur.
+			
+				Students:  Find the role that contains the 'section.role.student'
+				authorization function.	 The members in this section's role
+				are considered students in the section.
+				
+				TAs:  Find the role that contains the 'section.role.ta'
+				authorization function.	 The members in this section's role
+				are considered TAs.
+				
+				Instructors:  Find the role that contains the 'section.role.instructor'
+				authorization function.	 The members in this section's role
+				are considered instructors.
+
+			We must insist that only one section role have any particular marker
+			in a site because, when adding a user to a section, we need to find
+			the one (and only one) role to use when adding the user.  If two roles
+			with the same marker function existed in the section's authzGroup,
+			it would be impossible to know which roles to use when determining
+			the section's membership.
+
+
+			

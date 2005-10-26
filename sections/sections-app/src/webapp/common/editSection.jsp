@@ -13,17 +13,17 @@
         <%@include file="/inc/globalMessages.jspf"%>
     
         <h:panelGrid columns="2">
-            <h:outputLabel for="titleInput" value="#{msgs.section_title}" styleClass="formLabel"/>
-            <h:panelGroup>
+            <h:outputLabel for="titleInput" value="#{msgs.section_title} #{msgs.section_required}" styleClass="formLabel"/>
+            <h:panelGrid columns="2">
                 <h:inputText
                     id="titleInput"
                     required="true"
                     value="#{editSectionBean.title}"/>
                 <h:message for="titleInput" styleClass="validationEmbedded"/>
-            </h:panelGroup>
+            </h:panelGrid>
             
             <h:outputLabel for="monday" value="#{msgs.section_days}" styleClass="formLabel"/>
-            <h:panelGroup>
+            <h:panelGrid columns="14">
                 <h:selectBooleanCheckbox id="monday" value="#{editSectionBean.monday}"/>
                 <h:outputLabel for="monday" value="#{msgs.day_of_week_monday}"/>
     
@@ -44,7 +44,7 @@
     
                 <h:selectBooleanCheckbox id="sunday" value="#{editSectionBean.sunday}"/>
                 <h:outputLabel for="sunday" value="#{msgs.day_of_week_sunday}"/>
-            </h:panelGroup>
+            </h:panelGrid>
     
             <h:outputLabel for="startTime" value="#{msgs.section_start_time}" styleClass="formLabel"/>
             <h:panelGrid columns="3">
@@ -75,20 +75,26 @@
             </h:panelGrid>
     
             <h:outputLabel for="maxEnrollmentInput" value="#{msgs.section_max_size}" styleClass="formLabel"/>
-            <h:panelGroup>
+            <h:panelGrid columns="2">
                 <h:inputText
                     id="maxEnrollmentInput"
                     value="#{editSectionBean.maxEnrollments}"/>
                 <h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
-            </h:panelGroup>
+            </h:panelGrid>
     
             <h:outputLabel value="#{msgs.section_location}" for="location" styleClass="formLabel"/>
-            <h:inputText id="location" value="#{editSectionBean.location}" styleClass="formLabel"/>
+            <h:panelGrid columns="2">
+                <h:inputText id="location" value="#{editSectionBean.location}" styleClass="formLabel"/>
+                <h:outputText value="#{msgs.section_location_truncation}"/>
+            </h:panelGrid>
         </h:panelGrid>
+
+        <x:div rendered="#{empty addSectionsBean.sections}" styleClass="verticalPadding">
+            <%/* Add space if the table isn't rendered */%>
+        </x:div>
     
-        <h:commandButton action="#{editSectionBean.update}" value="Update"/>
-                
-        <h:commandButton action="overview" value="Cancel" immediate="true" />
+        <h:commandButton action="#{editSectionBean.update}" value="#{msgs.section_update}"/>
+        <h:commandButton action="overview" value="#{msgs.section_cancel}" immediate="true" />
 </h:form>
 </div>
 </f:view>

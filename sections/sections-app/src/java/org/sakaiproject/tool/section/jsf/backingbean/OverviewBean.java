@@ -62,14 +62,6 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		// Determine whether this course is externally managed
 		externallyManaged = getCourse().isExternallyManaged();
 
-		if(log.isDebugEnabled()) log.debug("at top of init; sections=" + sections);
-		if (log.isDebugEnabled() && (sections != null)) {
-			for(int i = 0; i < sections.size(); i++) {
-				InstructorSectionDecorator decoratedSection = (InstructorSectionDecorator)sections.get(i);
-				log.debug("decoratedSection[" + i + "] isFlaggedForRemoval=" + decoratedSection.isFlaggedForRemoval() + ", section=" + decoratedSection.getSection());
-			}
-		}
-
 		// Get all sections in the site
 		List sectionSet = getAllSiteSections();
 		sections = new ArrayList();
@@ -167,6 +159,9 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		}
 		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("overview_delete_section_success"));
 		return "overview";
+	}
+	public boolean isDeleteRendered() {
+		return (!externallyManaged) && sections.size() > 0 && isSectionManagementEnabled();
 	}
 
 	public List getSections() {

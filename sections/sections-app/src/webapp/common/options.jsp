@@ -13,12 +13,12 @@
         
         <%@include file="/inc/globalMessages.jspf"%>
 
-        <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{optionsBean.ta}"/>
+        <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
         <h:outputLabel for="selfRegister" value="#{msgs.options_self_register_label}"/>
         
         <br/>
         
-        <h:selectBooleanCheckbox id="selfSwitch" value="#{optionsBean.selfSwitch}" disabled="#{optionsBean.ta}"/>
+        <h:selectBooleanCheckbox id="selfSwitch" value="#{optionsBean.selfSwitch}" disabled="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
         <h:outputLabel for="selfSwitch" value="#{msgs.options_self_switch_label}"/>
     
         <br/>
@@ -26,17 +26,17 @@
         <h:commandButton
             action="#{optionsBean.update}"
             value="#{msgs.options_update}"
-            rendered="#{ ! optionsBean.ta}"/>
+            rendered="#{optionsBean.sectionOptionsManagementEnabled}"/>
     
         <h:commandButton
             action="overview"
             value="#{msgs.options_cancel}"
-            rendered="#{ ! optionsBean.ta}"/>
+            rendered="#{optionsBean.sectionOptionsManagementEnabled}"/>
 
         <h:commandButton
             action="overview"
             value="#{msgs.options_done}"
-            rendered="#{optionsBean.ta}"/>
+            rendered="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
 
 </h:form>
 </div>

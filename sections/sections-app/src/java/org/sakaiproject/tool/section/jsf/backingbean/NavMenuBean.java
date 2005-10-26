@@ -34,15 +34,52 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 public class NavMenuBean extends CourseDependentBean {
 	private static final long serialVersionUID = 1L;
 	
-	private boolean instructorFeaturesEnabled;
-	
+	private boolean sectionTaManagementEnabled;
+	private boolean sectionEnrollmentMangementEnabled;
+	private boolean sectionOptionsManagementEnabled;
+	private boolean sectionManagementEnabled;
+
 	public NavMenuBean() {
-		instructorFeaturesEnabled = super.isInstructorFeaturesEnabled();
+		this.sectionManagementEnabled = super.isSectionManagementEnabled();
+		this.sectionOptionsManagementEnabled = super.isSectionOptionsManagementEnabled();
+		this.sectionEnrollmentMangementEnabled = super.isSectionEnrollmentMangementEnabled();
+		this.sectionTaManagementEnabled = super.isSectionTaManagementEnabled();
 	}
 
-	public boolean isInstructorFeaturesEnabled() {
-		return instructorFeaturesEnabled;
+	public boolean isSectionEnrollmentMangementEnabled() {
+		return sectionEnrollmentMangementEnabled;
 	}
+
+	public void setSectionEnrollmentMangementEnabled(
+			boolean sectionEnrollmentMangementEnabled) {
+		this.sectionEnrollmentMangementEnabled = sectionEnrollmentMangementEnabled;
+	}
+
+	public boolean isSectionManagementEnabled() {
+		return sectionManagementEnabled;
+	}
+
+	public void setSectionManagementEnabled(boolean sectionManagementEnabled) {
+		this.sectionManagementEnabled = sectionManagementEnabled;
+	}
+
+	public boolean isSectionOptionsManagementEnabled() {
+		return sectionOptionsManagementEnabled;
+	}
+
+	public void setSectionOptionsManagementEnabled(
+			boolean sectionOptionsManagementEnabled) {
+		this.sectionOptionsManagementEnabled = sectionOptionsManagementEnabled;
+	}
+
+	public boolean isSectionTaManagementEnabled() {
+		return sectionTaManagementEnabled;
+	}
+
+	public void setSectionTaManagementEnabled(boolean sectionTaManagementEnabled) {
+		this.sectionTaManagementEnabled = sectionTaManagementEnabled;
+	}
+
 }
 
 
