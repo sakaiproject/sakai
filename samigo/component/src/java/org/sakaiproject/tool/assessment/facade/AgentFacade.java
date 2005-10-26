@@ -60,6 +60,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
 
   AgentImpl agent;
   String agentString;
+  private String acessViaUrl;
 
   /**
    * Create AgentFacade for agent Id
@@ -72,6 +73,15 @@ public class AgentFacade implements Serializable, AgentDataIfc
   }
 
   /**
+   * Create AgentFacade and have it look up its own agentString (id).
+   */
+  public AgentFacade()
+  {
+    String agentId = helper.getAgentString();
+    agent = new AgentImpl(agentId, null, new IdImpl(agentId));
+    agentString = agentId;
+  }
+  /**
    * Get an osid Agent implementation class instance.
    *
    * @return an AgentImpl: osid Agent implementation class.
@@ -83,11 +93,23 @@ public class AgentFacade implements Serializable, AgentDataIfc
 
   /**
    * Get the agent string.
+   * Static convenience method.
    * @return the agent string.
    */
   public static String getAgentString()
   {
+    AgentFacade facade =new AgentFacade();
     return helper.getAgentString();
+  }
+
+  /**
+   * Get the agent string.
+   * Preferred approach: instantiate and then call this.
+   * @return the agent string.
+   */
+  public String getAgentInstanceString()
+  {
+    return this.agentString;
   }
 
   /**
@@ -274,6 +296,14 @@ public class AgentFacade implements Serializable, AgentDataIfc
   public static String getRoleForAgentAndSite(String agentString, String siteId)
   {
     return helper.getRoleForAgentAndSite(agentString, siteId);
+  }
+  public String getAcessViaUrl()
+  {
+    return acessViaUrl;
+  }
+  public void setAcessViaUrl(String acessViaUrl)
+  {
+    this.acessViaUrl = acessViaUrl;
   }
 
 }
