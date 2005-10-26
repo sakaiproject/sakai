@@ -91,7 +91,7 @@ public class UploadRenderer extends Renderer {
     else target = component.getAttributes().get("target");
 
     if (target != null){
-      File dir = new File("/tmp/" + target.toString()); //directory where file would be saved
+      File dir = new File(target.toString()); //directory where file would be saved
       if (!dir.exists())
         dir.mkdirs();
       if (item!= null && !("").equals(item.getName())){
