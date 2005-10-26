@@ -24,7 +24,6 @@
 package org.sakaiproject.jsf.help;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -37,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.util.ComponentMap;
 
 /**
  * render help frame set 
