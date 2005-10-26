@@ -49,7 +49,7 @@ public abstract class IntegrationContextFactory
    */
   public static IntegrationContextFactory getInstance()
   {
-    log.info("IntegrationContextFactory.getInstance()");
+    log.debug("IntegrationContextFactory.getInstance()");
     if (instance==null)
     {
       try
@@ -62,7 +62,7 @@ public abstract class IntegrationContextFactory
         log.error("Unable to read integration context: " + ex);
       }
     }
-    log.info("instance="+instance);
+    log.debug("instance="+instance);
     return instance;
   }
 
