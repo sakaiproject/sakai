@@ -117,6 +117,8 @@
     </x:dataTable>
 
     <h:outputText value="#{msgs.no_sections_available}" rendered="#{empty overviewBean.sections}"/>
+    <h:outputText value="#{msgs.no_sections_instructions}" rendered="#{empty overviewBean.sections && overviewBean.sectionManagementEnabled}"/>
+
 
         <x:div rendered="#{overviewBean.deleteRendered}" styleClass="verticalPadding">
             <%/* Add space before the buttons */%>
