@@ -60,7 +60,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
 
   private AgentImpl agent;
   private String agentString;
-  private boolean acessViaUrl;
+  private boolean accessViaUrl;
 
   /**
    * Create AgentFacade for agent Id
@@ -297,13 +297,17 @@ public class AgentFacade implements Serializable, AgentDataIfc
   {
     return helper.getRoleForAgentAndSite(agentString, siteId);
   }
-  public boolean isAcessViaUrl()
+  public boolean isAccessViaUrl()
   {
-    return acessViaUrl;
+    return accessViaUrl;
   }
-  public void setAcessViaUrl(boolean acessViaUrl)
+  public void setAccessViaUrl(boolean accessViaUrl)
   {
-    this.acessViaUrl = acessViaUrl;
+    this.accessViaUrl = accessViaUrl;
+  }
+  public void setAgentInstanceString(String agentInstanceString)
+  {
+    this.agentString = agentInstanceString;
   }
 
 }
