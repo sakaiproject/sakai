@@ -58,9 +58,9 @@ public class AgentFacade implements Serializable, AgentDataIfc
   private static final boolean integrated =
     IntegrationContextFactory.getInstance().isIntegrated();
 
-  AgentImpl agent;
-  String agentString;
-  private String acessViaUrl;
+  private AgentImpl agent;
+  private String agentString;
+  private boolean acessViaUrl;
 
   /**
    * Create AgentFacade for agent Id
@@ -297,11 +297,11 @@ public class AgentFacade implements Serializable, AgentDataIfc
   {
     return helper.getRoleForAgentAndSite(agentString, siteId);
   }
-  public String getAcessViaUrl()
+  public boolean isAcessViaUrl()
   {
     return acessViaUrl;
   }
-  public void setAcessViaUrl(String acessViaUrl)
+  public void setAcessViaUrl(boolean acessViaUrl)
   {
     this.acessViaUrl = acessViaUrl;
   }
