@@ -67,16 +67,6 @@ public class TemplateLoadListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-    log.info("DEBUG: TEMPLATE LOAD LISTENER.");
-    log.info("debugging ActionEvent: " + ae);
-    log.info("debug requestParams: " + requestParams);
-    log.info("debug reqMap: " + reqMap);
-    // need to know who is looking at the templates
-    BackingBean backingBean = (BackingBean) cu.lookupBean("backingbean");
-    backingBean.setProp1(AgentFacade.getAgentString());
-
 
     TemplateBean templateBean = lookupTemplateBean(context);
     log.info("id=" + cu.lookupParam("templateId"));
