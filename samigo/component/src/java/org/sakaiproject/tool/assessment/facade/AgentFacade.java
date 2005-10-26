@@ -99,7 +99,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
   public static String getAgentString()
   {
     AgentFacade facade =new AgentFacade();
-    return helper.getAgentString();
+    return facade.agentString;
   }
 
   /**
