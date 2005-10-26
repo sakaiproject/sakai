@@ -23,6 +23,7 @@
      classpath:/org/sakaiproject/spring/BeanDefinitions.xml,
      classpath:/org/sakaiproject/spring/integrationContext.xml,
      classpath:/org/sakaiproject/spring/samigoApi.xml
+     </param-value>
   </context-param>
 
 
