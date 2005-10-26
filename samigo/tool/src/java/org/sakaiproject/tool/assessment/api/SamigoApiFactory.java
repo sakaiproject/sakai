@@ -58,7 +58,7 @@ public abstract class SamigoApiFactory
    */
   public static SamigoApiFactory getInstance()
   {
-    log.info("SamigoApiFactory.getInstance()");
+    log.debug("SamigoApiFactory.getInstance()");
     if (instance==null)
     {
       try
@@ -71,7 +71,7 @@ public abstract class SamigoApiFactory
         log.error("Unable to read integration context: " + ex);
       }
     }
-    log.info("instance="+instance);
+    log.debug("instance="+instance);
     return instance;
   }
 

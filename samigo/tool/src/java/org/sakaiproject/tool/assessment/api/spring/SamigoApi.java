@@ -62,52 +62,52 @@ public class SamigoApi extends SamigoApiFactory
 
   public void setAssessmentServiceAPI(AssessmentServiceAPI assessmentServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: assessmentServiceAPI="+ assessmentServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: assessmentServiceAPI="+ assessmentServiceAPI);
     this.assessmentServiceAPI = assessmentServiceAPI;
   }
   public void setGradebookServiceAPI(GradebookServiceAPI gradebookServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: gradebookServiceAPI="+ gradebookServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: gradebookServiceAPI="+ gradebookServiceAPI);
     this.gradebookServiceAPI = gradebookServiceAPI;
   }
   public void setGradingServiceAPI(GradingServiceAPI gradingServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: gradingServiceAPI="+ gradingServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: gradingServiceAPI="+ gradingServiceAPI);
     this.gradingServiceAPI = gradingServiceAPI;
   }
   public void setItemServiceAPI(ItemServiceAPI itemServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: itemServiceAPI="+ itemServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: itemServiceAPI="+ itemServiceAPI);
     this.itemServiceAPI = itemServiceAPI;
   }
   public void setMediaServiceAPI(MediaServiceAPI mediaServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: mediaServiceAPI="+ mediaServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: mediaServiceAPI="+ mediaServiceAPI);
     this.mediaServiceAPI = mediaServiceAPI;
   }
   public void setPublishedAssessmentServiceAPI(PublishedAssessmentServiceAPI publishedAssessmentServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: publishedAssessmentServiceAPI="+ publishedAssessmentServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: publishedAssessmentServiceAPI="+ publishedAssessmentServiceAPI);
     this.publishedAssessmentServiceAPI = publishedAssessmentServiceAPI;
   }
   public void setQtiServiceAPI(QTIServiceAPI qtiServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: qtiServiceAPI="+ qtiServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: qtiServiceAPI="+ qtiServiceAPI);
     this.qtiServiceAPI = qtiServiceAPI;
   }
   public void setQuestionPoolServiceAPI(QuestionPoolServiceAPI questionPoolServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: questionPoolServiceAPI="+ questionPoolServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: questionPoolServiceAPI="+ questionPoolServiceAPI);
     this.questionPoolServiceAPI = questionPoolServiceAPI;
   }
   public void setSectionServiceAPI(SectionServiceAPI sectionServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: sectionServiceAPI="+ sectionServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: sectionServiceAPI="+ sectionServiceAPI);
     this.sectionServiceAPI = sectionServiceAPI;
   }
   public void setTypeServiceAPI(TypeServiceAPI typeServiceAPI)
   {
-    log.info("Setting Samigo (Test and Quizzes) API, injecting: typeServiceAPI="+ typeServiceAPI);
+    log.debug("Setting Samigo (Test and Quizzes) API, injecting: typeServiceAPI="+ typeServiceAPI);
     this.typeServiceAPI = typeServiceAPI;
   }
   public AssessmentServiceAPI getAssessmentServiceAPI()
