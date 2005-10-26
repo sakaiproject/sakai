@@ -10,8 +10,7 @@
 	<!-- Gradebook Service -->
 	<bean id="org_sakaiproject_service_gradebook_GradebookService"
 		class="org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl"
-		name="org.sakaiproject.service.gradebook.GradebookService"
-		init-method="init">
+		name="org.sakaiproject.service.gradebook.GradebookService">
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
 		<property name="gradebookManager">
 			<ref bean="org_sakaiproject_tool_gradebook_business_GradebookManager" />
