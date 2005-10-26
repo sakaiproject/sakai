@@ -278,11 +278,13 @@
       <artifactId>jta</artifactId>
       <version>h2.1.8</version>
     </dependency>
+<!--
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>3.0.10-stable-bin</version>
     </dependency>
+-->
     <dependency>
       <groupId>ojb</groupId>
       <artifactId>db-ojb</artifactId>
