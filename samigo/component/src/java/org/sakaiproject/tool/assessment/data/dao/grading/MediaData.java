@@ -31,8 +31,6 @@ import java.util.ResourceBundle;
 public class MediaData
     implements Serializable, MediaIfc
 {
-  private static final ResourceBundle mediaProperties =
-      ResourceBundle.getBundle("org.sakaiproject.tool.assessment.data.ifc.grading.media");
   private Long mediaId;
   private ItemGradingIfc itemGradingData;
   private byte[] media;
