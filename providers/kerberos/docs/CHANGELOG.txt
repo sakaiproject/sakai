@@ -1,0 +1,15 @@
+Kerberos UserDirectoryProvider
+
+Changes/features:
+
+- for 2.1
+
+ o compatible with new UserDirectoryProvider methods (core)
+
+ o uses "master project descriptor file" for project.xml (core)
+
+ o Can use sakai.properties settings to reduce dependency on working
+   systemwide Kerberos JAAS configuration (slt)
+
+ o Documentation moved into separate directory (slt)
+

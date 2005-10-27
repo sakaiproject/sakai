@@ -1,7 +1,9 @@
-This directory contains a sample Kerberos UserDirectoryProvider.
+This file describes configuring Java for Kerberos for use with Sakai.
 
-It (and its derivatives) are in use at a few institutions, but you 
-should review the code and test it accordingly.
+NOTE: To use this provider with an existing or new systemwide
+configuration, contact your local administrator and/or follow the
+steps in SYSTEMWIDE.txt. By default, most JDKs are NOT configured for
+use with Kerberos.
 
 By default, the provider provides authentication ONLY for existing 
 accounts in the local Sakai user database (where Sakai user ids and 
@@ -12,17 +14,12 @@ under ADVANCED OPTIONS.
 In addition, to protect the integrity of your Kerberos password, the 
 use of a secure Web front-end is HIGHLY recommended.
 
-NOTE: To use this provider with an existing or new systemwide 
-configuration, contact your local administrator or follow the steps in 
-SYSTEMWIDE.txt. By default, most JDKs are NOT configured for use with 
-Kerberos.
-
 **GENERAL SETUP**
 
 To use this provider using $SAKAI_HOME/sakai.properties:
 
 1) Create a JAAS configuration file. A sample file -- sakai-jaas.conf 
--- with the following content is included with the provider:
+-- with the following content is included:
 
 /*
  * JAAS Login Configuration for Sakai 
@@ -93,11 +90,11 @@ provider.kerberos.auth.login.config=sakai-jaas.conf
 provider.kerberos.auth.login.config=kerberos/sakai-jaas.conf
 provider.kerberos.auth.login.config=/usr/local/sakai/sakai-jaas.conf
 
-For general use. the last two options do not need to be specified. An 
-alternate Kerberos5 configuration file can specified using 
-provider.kerberos.krb5.conf; otherwise, the system default 
-(/etc/krb5.conf on Unix systems) is used.  Setting the
-provider.kerberos.showconfig option to "true" provides extended 
+For general use. the last two options do not need to be specified. An
+alternate Kerberos5 configuration file can specified using
+provider.kerberos.krb5.conf; otherwise, the system default
+(/etc/krb5.conf on Unix-based systems) is used.  Setting the
+provider.kerberos.showconfig option to "true" provides extended
 configuration about the provider's settings in the catalina.out logs:
 
 - Standard information
