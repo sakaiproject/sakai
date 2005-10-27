@@ -30,7 +30,7 @@
   <context-param>
      <param-name>contextSharedLocation</param-name>
      <param-value>
-  classpath*:org/sakaiproject/component/section/sakai20/spring-*.xml
+  classpath*:org/sakaiproject/component/section/sakai21/spring-*.xml
      </param-value>
   </context-param>
 
