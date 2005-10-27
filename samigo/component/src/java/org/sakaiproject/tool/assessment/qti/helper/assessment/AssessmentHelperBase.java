@@ -135,6 +135,8 @@ public abstract class AssessmentHelperBase
                                                  getShowCorrectResponse()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_STUDENT_SCORE",
                                 qtiBooleanString(feedback.getShowStudentScore()));
+    assessmentXml.setFieldentry("FEEDBACK_SHOW_STUDENT_QUESTIONSCORE",
+                                qtiBooleanString(feedback.getShowStudentQuestionScore()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_ITEM_LEVEL",
                                 qtiBooleanString(feedback.
                                                  getShowQuestionLevelFeedback()));
