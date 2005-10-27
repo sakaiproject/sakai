@@ -62,7 +62,7 @@
      <h:outputText value="#{template.templateName}"/>
 </h3>
  <h:outputText value="#{msg.template_instructions}"/>
- <h:messages layout="table" style="color:red"/>
+ <h:messages styleClass="validation"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
   <div class="indnt1">
   <samigo:hideDivision id="div1" title="#{msg.template_inform}" >
