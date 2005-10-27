@@ -43,7 +43,7 @@ should be included in file importing DeliveryMessages
     <h:outputLabel for="answerKeyMC" value="#{msg.model} " />
      <f:verbatim></b></f:verbatim>
 
-    <h:outputLink  value="#" onclick="javascript:window.alert('#{question.key}');" >
+    <h:outputLink  value="#" onclick="javascript:window.alert('#{question.strippedKey}');" >
     <h:outputText value="#{dmsg.click}" />
     </h:outputLink>
   </h:panelGroup>
