@@ -94,7 +94,7 @@ $Id$
     </h:commandLink>
   </p>
 
-  <h:messages layout="table" style="color:red"/>
+  <h:messages styleClass="validation"/>
 
   <span class="indnt1">
      <h:outputText value="#{msg.max_score_poss}" style="instruction"/>

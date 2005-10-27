@@ -83,7 +83,7 @@ $Id$
       <h:outputText value="#{msg.stat_view}" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
   </p>
 
-  <h:messages layout="table" />
+  <h:messages styleClass="validation" />
 
 <div class="indent2">
 

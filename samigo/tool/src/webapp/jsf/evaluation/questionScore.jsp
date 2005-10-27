@@ -84,7 +84,7 @@ $Id$
     </h:commandLink>
   </p>
 
-  <h:messages layout="table" style="color:red"/>
+  <h:messages styleClass="validation"/>
 
   <h:dataTable value="#{questionScores.sections}" var="partinit">
     <h:column>

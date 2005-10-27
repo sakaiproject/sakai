@@ -98,7 +98,7 @@ $Id$
     </h:commandLink>
   </p>
 
-  <h:messages layout="table" style="color:red"/>
+  <h:messages styleClass="validation"/>
 
 <f:verbatim><h4></f:verbatim>
 <h:outputText value="#{delivery.assessmentTitle}" />

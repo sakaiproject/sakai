@@ -96,7 +96,7 @@
     </h:commandLink>
   </p>
 
-  <h:messages layout="table" style="color:red"/>
+  <h:messages styleClass="validation"/>
 
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
   <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
