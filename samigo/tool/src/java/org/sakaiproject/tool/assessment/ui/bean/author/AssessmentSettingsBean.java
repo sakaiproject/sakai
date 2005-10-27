@@ -135,6 +135,7 @@ public class AssessmentSettingsBean
   private boolean showStudentResponse = false;
   private boolean showCorrectResponse = false;
   private boolean showStudentScore = false;
+  private boolean showStudentQuestionScore = false;
   private boolean showQuestionLevelFeedback = false;
   private boolean showSelectionLevelFeedback = false; // must be MC
   private boolean showGraderComments = false;
@@ -281,6 +282,8 @@ public class AssessmentSettingsBean
           this.showCorrectResponse = true;
         if ((Boolean.TRUE).equals(feedback.getShowStudentScore()))
           this.showStudentScore = true;
+        if ((Boolean.TRUE).equals(feedback.getShowStudentQuestionScore()))
+          this.showStudentQuestionScore = true;
         if ((Boolean.TRUE).equals(feedback.getShowQuestionLevelFeedback()))
           this.showQuestionLevelFeedback = true;
         if ((Boolean.TRUE).equals(feedback.getShowSelectionLevelFeedback()))
@@ -661,6 +664,14 @@ public class AssessmentSettingsBean
 
   public void setShowStudentScore(boolean showStudentScore) {
     this.showStudentScore = showStudentScore;
+  }
+
+ public boolean getShowStudentQuestionScore() {
+    return showStudentQuestionScore;
+  }
+
+  public void setShowStudentQuestionScore(boolean showStudentQuestionScore) {
+    this.showStudentQuestionScore = showStudentQuestionScore;
   }
 
   public boolean getShowQuestionLevelFeedback() {
