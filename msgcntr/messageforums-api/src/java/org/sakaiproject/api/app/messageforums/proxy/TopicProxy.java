@@ -23,11 +23,11 @@
 
 package org.sakaiproject.api.app.messageforums.proxy;
 
-import org.sakaiproject.api.app.messageforums.dataobject.Message;
+import org.sakaiproject.api.app.messageforums.model.MessageModel;
 
 public interface TopicProxy {
 
-    public Message getNewMessage();
+    public MessageModel getMessageModel();
     public String getCrumbTrail();
     public String getShortDescription();
 

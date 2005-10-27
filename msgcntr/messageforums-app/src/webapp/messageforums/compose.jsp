@@ -38,7 +38,7 @@
               <h:outputText value="*" style="color: red"/>
               <h:outputText value="#{msgs.cdfm_title}" style="font-weight:bold"/>              
               <h:outputText value="    "/>
-              <h:inputText value="#{MessageForumsTool.topicProxy.newMessage.title}" id="title"/>
+              <h:inputText value="#{MessageForumsTool.topicProxy.messageModel.title}" id="title"/>
               <h:outputText value="#{msgs.cdfm_empty_title_error}" style="color: red" rendered="#{MessageForumsTool.errorMessages.displayTitleErrorMessage}"/>
             </sakai:doc_section>    
           </sakai:panel_edit>
@@ -53,7 +53,7 @@
         <sakai:group_box>
           <sakai:panel_edit>
             <sakai:doc_section>                
-              <sakai:rich_text_area value="#{MessageForumsTool.topicProxy.newMessage.body}" rows="17" columns="70"/>
+              <sakai:rich_text_area value="#{MessageForumsTool.topicProxy.messageModel.body}" rows="17" columns="70"/>
             </sakai:doc_section>    
           </sakai:panel_edit>
         </sakai:group_box>
@@ -69,15 +69,15 @@
         </sakai:group_box>       
 		
         <sakai:group_box>
-          <h:outputText value="#{msgs.cdfm_no_attachments}" rendered="#{empty MessageForumsTool.topicProxy.newMessage.attachments}"/>          
+          <h:outputText value="#{msgs.cdfm_no_attachments}" rendered="#{empty MessageForumsTool.topicProxy.messageModel.attachments}"/>          
           <h:dataTable 
               id="attachments-id" 
               columnClasses="list-column-center, list-column-right, list-column-center, list-column-right" 
               headerClass="list-header" rowClasses="list-row" styleClass="list-background" 
-              value="#{MessageForumsTool.topicProxy.newMessage.attachments}" 
+              value="#{MessageForumsTool.topicProxy.messageModel.attachments}" 
               var="attachment" 
-              rendered="#{!empty MessageForumsTool.topicProxy.newMessage.attachments}"> 
-            <h:column rendered="#{!empty MessageForumsTool.topicProxy.newMessage.attachments}">
+              rendered="#{!empty MessageForumsTool.topicProxy.messageModel.attachments}"> 
+            <h:column rendered="#{!empty MessageForumsTool.topicProxy.messageModel.attachments}">
               <f:facet name="header">
                 <h:outputText value="Title"/>
               </f:facet>
@@ -91,19 +91,19 @@
                 <h:outputText value="#{attachment.attachmentName}"/>
               </sakai:doc_section>
             </h:column>
-            <h:column rendered="#{!empty MessageForumsTool.topicProxy.newMessage.attachments}">
+            <h:column rendered="#{!empty MessageForumsTool.topicProxy.messageModel.attachments}">
               <f:facet name="header">
                 <h:outputText value="Size" />
               </f:facet>
               <h:outputText value="#{attachment.attachmentSize}"/>
             </h:column>
-            <h:column rendered="#{!empty MessageForumsTool.topicProxy.newMessage.attachments}">
+            <h:column rendered="#{!empty MessageForumsTool.topicProxy.messageModel.attachments}">
               <f:facet name="header">
                 <h:outputText value="Type" />
               </f:facet>
               <h:outputText value="#{attachment.attachmentType}"/>
             </h:column>
-            <h:column rendered="#{!empty MessageForumsTool.topicProxy.newMessage.attachments}">
+            <h:column rendered="#{!empty MessageForumsTool.topicProxy.messageModel.attachments}">
               <f:facet name="header">
                 <h:outputText value="Remove" />
               </f:facet>
@@ -129,7 +129,7 @@
           <h:panelGroup>
           <h:outputText value="*" style="color: red"/>
           <h:outputText value="#{msgs.cdfm_labels} "/>
-          <h:selectOneListbox size="1" id="list1" value="#{MessageForumsTool.topicProxy.newMessage.label}">
+          <h:selectOneListbox size="1" id="list1" value="#{MessageForumsTool.topicProxy.messageModel.label}">
             <f:selectItem itemLabel="#{msgs.cdfm_none}" itemValue="none"/>
           </h:selectOneListbox>
           </h:panelGroup>

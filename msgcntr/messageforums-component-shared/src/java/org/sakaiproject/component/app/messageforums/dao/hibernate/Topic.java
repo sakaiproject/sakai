@@ -28,7 +28,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class Topic extends MutableEntity {
+public class Topic extends MutableEntityImpl {
 
     private static final Log LOG = LogFactory.getLog(Topic.class);
     

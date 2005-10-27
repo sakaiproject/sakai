@@ -23,16 +23,16 @@
 
 package org.sakaiproject.tool.messageforums;
 
+import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsManager;
-import org.sakaiproject.api.app.messageforums.dataobject.Message;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Topic;
-import org.sakaiproject.component.app.messageforums.proxy.TopicProxyImpl;
+import org.sakaiproject.tool.messageforums.proxy.TopicProxyImpl;
 
 public class MessageForumsTool {
     
     private TopicProxy topicProxy;
-    private MessageForumsManager messageForumsManager;
+    private MessageForumsManager messageForumsManager; 
     private ErrorMessages errorMessages;
     
     public MessageForumsTool() {
@@ -62,13 +62,15 @@ public class MessageForumsTool {
     
 
     public String processCDFMPostMessage() {
-        Message message = topicProxy.getNewMessage();
+        Message message = topicProxy.getMessageModel().createPersistible();
         messageForumsManager.saveMessage(message);
         return "compose";
-        //return "showallmessages";
     }
     
     public String processCDFMSaveDraft() {
+        Message message = topicProxy.getMessageModel().createPersistible();
+        message.setDraft(Boolean.TRUE);
+        messageForumsManager.saveMessage(message);
         return "compose";
     }
 

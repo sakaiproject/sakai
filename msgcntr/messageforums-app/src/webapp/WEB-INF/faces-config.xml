@@ -72,7 +72,7 @@
         <description>Message Forums Tool</description>
         <managed-bean-name>MessageForumsTool</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.messageforums.MessageForumsTool</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
+        <managed-bean-scope>request</managed-bean-scope>
         <managed-property>
             <description>Message Forums Manager</description>
             <property-name>messageForumsManager</property-name>

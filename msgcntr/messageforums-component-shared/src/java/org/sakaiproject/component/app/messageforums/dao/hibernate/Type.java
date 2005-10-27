@@ -26,7 +26,7 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class Type extends MutableEntity {
+public class Type extends MutableEntityImpl {
 
     private static final Log LOG = LogFactory.getLog(Type.class);
     

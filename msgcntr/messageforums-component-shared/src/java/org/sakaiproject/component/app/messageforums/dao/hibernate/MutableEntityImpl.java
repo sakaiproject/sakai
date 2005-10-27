@@ -27,10 +27,11 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.MutableEntity;
 
-public class MutableEntity {
+public class MutableEntityImpl implements MutableEntity {
  
-    private static final Log LOG = LogFactory.getLog(MutableEntity.class);
+    private static final Log LOG = LogFactory.getLog(MutableEntityImpl.class);
 
     protected Long id;
     protected String uuid;

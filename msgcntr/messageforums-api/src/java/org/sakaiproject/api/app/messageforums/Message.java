@@ -21,34 +21,38 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.component.app.messageforums;
+package org.sakaiproject.api.app.messageforums;
 
-import java.util.Date;
+import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsManager;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+//import org.sakaiproject.component.app.messageforums.dao.hibernate.Type;
 
-public class MessageForumsManagerImpl extends HibernateDaoSupport implements MessageForumsManager {
+// TODO: Needs to be able to get to the MutableEntity stuff
+// TODO: Make Type an interface too
 
-    private static final Log LOG = LogFactory.getLog(MessageForumsManagerImpl.class);    
+public interface Message extends MutableEntity {
 
-    public MessageForumsManagerImpl() {
+    public Boolean getDraft();
+    public void setDraft(Boolean draft);
+    public Boolean getApproved();
+    public void setApproved(Boolean approved);
+    public Set getAttachments();
+    public void setAttachments(Set attachments);
+    public String getAuthor();
+    public void setAuthor(String author);
+    public String getBody();
+    public void setBody(String body);
+    public String getGradebook();
+    public void setGradebook(String gradebook);
+    public String getGradebookAssignment();
+    public void setGradebookAssignment(String gradebookAssignment);
+    public Message getInReplyTo();
+    public void setInReplyTo(Message inReplyTo);
+    public String getLabel();
+    public void setLabel(String label);
+    public String getTitle();
+    public void setTitle(String title);
+    //public Type getType();
+    //public void setType(Type type); 
 
-    }
-
-    public void saveMessage(Message message) {
-        // TODO: this persistable info should come from somewhere in sakai???
-        message.setUuid("001");
-        message.setCreated(new Date());
-        message.setCreatedBy("nate");
-        message.setModified(new Date());
-        message.setModifiedBy("nate");
-        
-        getHibernateTemplate().saveOrUpdate(message);
-        LOG.info("message " + message.getId() + " saved successfully");
-    }
-    
 }

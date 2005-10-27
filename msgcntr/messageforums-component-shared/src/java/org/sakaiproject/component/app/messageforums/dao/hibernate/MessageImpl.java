@@ -28,9 +28,9 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.dataobject.Message;
+import org.sakaiproject.api.app.messageforums.Message;
 
-public class MessageImpl extends MutableEntity implements Message {
+public class MessageImpl extends MutableEntityImpl implements Message {
 
     private static final Log LOG = LogFactory.getLog(MessageImpl.class);    
     
@@ -38,14 +38,26 @@ public class MessageImpl extends MutableEntity implements Message {
     private String body;
     private String author;
     private Set attachments = new TreeSet();
-    //private List attachments;
     private String label;
     private Message inReplyTo;
     private String gradebook;
     private String gradebookAssignment;
     private Type type;
     private Boolean approved;
+    private Boolean draft;
+
+    public MessageImpl() {
+        attachments = new TreeSet();
+    }
     
+    public Boolean getDraft() {
+        return draft;
+    }
+
+    public void setDraft(Boolean draft) {
+        this.draft = draft;
+    }
+
     public Boolean getApproved() {
         return approved;
     }

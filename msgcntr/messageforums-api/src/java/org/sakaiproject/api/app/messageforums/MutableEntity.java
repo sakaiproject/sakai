@@ -21,34 +21,38 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.component.app.messageforums;
+package org.sakaiproject.api.app.messageforums;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsManager;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+public interface MutableEntity {
 
-public class MessageForumsManagerImpl extends HibernateDaoSupport implements MessageForumsManager {
+    public Date getCreated();
 
-    private static final Log LOG = LogFactory.getLog(MessageForumsManagerImpl.class);    
+    public void setCreated(Date created);
 
-    public MessageForumsManagerImpl() {
+    public String getCreatedBy();
 
-    }
+    public void setCreatedBy(String createdBy);
 
-    public void saveMessage(Message message) {
-        // TODO: this persistable info should come from somewhere in sakai???
-        message.setUuid("001");
-        message.setCreated(new Date());
-        message.setCreatedBy("nate");
-        message.setModified(new Date());
-        message.setModifiedBy("nate");
-        
-        getHibernateTemplate().saveOrUpdate(message);
-        LOG.info("message " + message.getId() + " saved successfully");
-    }
-    
+    public Long getId();
+
+    public void setId(Long id);
+
+    public String getModifiedBy();
+
+    public void setModifiedBy(String modifiedBy);
+
+    public Date getModified();
+
+    public void setModified(Date modified);
+
+    public String getUuid();
+
+    public void setUuid(String uuid);
+
+    public Integer getVersion();
+
+    public void setVersion(Integer version);
+
 }

@@ -25,7 +25,7 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.dataobject.Message;
+import org.sakaiproject.api.app.messageforums.Message;
 
 public class UnreadStatus {
 
