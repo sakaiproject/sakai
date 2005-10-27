@@ -712,6 +712,10 @@ public class ExtractionHelper
       try
       {
         Iso8601TimeInterval tiso = new Iso8601TimeInterval(duration);
+        if(tiso==null || tiso.getSeconds()==null)
+        {
+          throw new Iso8601FormatException("Assessment duration could not be resolved.");
+        }
         control.setTimeLimit(tiso.getSeconds());
         control.setTimedAssessment(AssessmentAccessControl.TIMED_ASSESSMENT);
         assessment.getData().addAssessmentMetaData("hasTimeAssessment", "true");
