@@ -44,7 +44,7 @@
 				<ant:echo message="Copying sakai-dependent resources into webapp"/>
 
 				<ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
-					<ant:fileset dir="${maven.src.dir}/webapp/sakai20/">
+					<ant:fileset dir="${maven.src.dir}/webapp/sakai2/">
 						<ant:include name="**/*"/>
 					</ant:fileset>
 				</ant:copy>
