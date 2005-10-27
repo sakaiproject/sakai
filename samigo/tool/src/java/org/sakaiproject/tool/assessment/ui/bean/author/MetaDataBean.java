@@ -41,6 +41,7 @@ public class MetaDataBean implements Serializable
   private boolean autoSubmit;
   private boolean feedbackShowCorrectResponse;
   private boolean feedbackShowStudentScore;
+  private boolean feedbackShowStudentQuestionScore;
   private boolean feedbackShowItemLevel;
   private boolean feedbackShowSelectionLevel;
   private boolean feedbackShowGraderComment;
@@ -153,6 +154,25 @@ public class MetaDataBean implements Serializable
   {
     this.feedbackShowStudentScore = feedbackShowStudentScore;
   }
+
+  /**
+   * show student Question score?
+   * @return true or false
+   */
+  public boolean isFeedbackShowStudentQuestionScore()
+  {
+    return feedbackShowStudentQuestionScore;
+  }
+
+  /**
+   * show student Question score?
+   * @param feedbackShowStudentQuestionScore
+   */
+  public void setFeedbackShowStudentQuestionScore(boolean feedbackShowStudentQuestionScore)
+  {
+    this.feedbackShowStudentQuestionScore = feedbackShowStudentQuestionScore;
+  }
+
 
   /**
    * item level feedback?
