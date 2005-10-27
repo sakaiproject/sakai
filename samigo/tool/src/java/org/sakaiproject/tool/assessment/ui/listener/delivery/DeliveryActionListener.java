@@ -435,6 +435,7 @@ public class DeliveryActionListener
     delivery.getFeedbackComponent().setShowSelectionLevel(true);
     delivery.getFeedbackComponent().setShowStats(true);
     delivery.getFeedbackComponent().setShowStudentScore(true);
+    delivery.getFeedbackComponent().setShowStudentQuestionScore(true);
   }
 
   /**
