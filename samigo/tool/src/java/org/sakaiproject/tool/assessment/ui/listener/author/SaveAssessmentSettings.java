@@ -158,6 +158,7 @@ public class SaveAssessmentSettings
     feedback.setShowStudentResponse(new Boolean(assessmentSettings.getShowStudentResponse()));
     feedback.setShowCorrectResponse(new Boolean(assessmentSettings.getShowCorrectResponse()));
     feedback.setShowStudentScore(new Boolean(assessmentSettings.getShowStudentScore()));
+    feedback.setShowStudentQuestionScore(new Boolean(assessmentSettings.getShowStudentQuestionScore()));
     feedback.setShowQuestionLevelFeedback(new Boolean(assessmentSettings.getShowQuestionLevelFeedback()));
     feedback.setShowSelectionLevelFeedback(new Boolean(assessmentSettings.getShowSelectionLevelFeedback()));
     feedback.setShowGraderComments(new Boolean(assessmentSettings.getShowGraderComments()));
