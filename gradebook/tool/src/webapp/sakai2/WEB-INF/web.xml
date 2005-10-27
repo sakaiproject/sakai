@@ -24,10 +24,24 @@
         <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
     </listener>
 
+    <!-- Initialize external services -->
+    <servlet>
+        <servlet-name>sakai.gradebook.services</servlet-name>
+        <servlet-class>org.sakaiproject.tool.gradebook.ui.InitializeServicesServlet</servlet-class>
+        <init-param>
+        	<param-name>services</param-name>
+ 			<param-value>
+ 				org.sakaiproject.service.gradebook.GradebookService
+ 				org_sakaiproject_service_gradebook_EntityProducer
+ 			</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
     <!-- Register jsf tool with sakai -->
     <servlet>
         <servlet-name>sakai.gradebook.tool</servlet-name>
-        <servlet-class>org.sakaiproject.tool.gradebook.jsf.JsfTool</servlet-class>
+        <servlet-class>org.sakaiproject.tool.gradebook.facades.sakai2impl.JsfTool</servlet-class>
         <init-param>
             <param-name>default</param-name>
             <param-value>overview</param-value>
@@ -39,30 +53,14 @@
         <load-on-startup>2</load-on-startup>
     </servlet>
 
-
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
 
-    <!-- Initialize external services -->
-    <servlet>
-        <servlet-name>sakai.gradebook.services</servlet-name>
-        <servlet-class>org.sakaiproject.tool.gradebook.ui.InitializeServicesServlet</servlet-class>
-        <init-param>
-        	<param-name>services</param-name>
- 			<param-value>
- 				org.sakaiproject.service.gradebook.GradebookService
- 			</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
 	<!-- MyFaces support -->
-
 	<listener>
 		<listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
 	</listener>
-
 
 	<!-- Faces Servlet -->
 	<servlet>
@@ -85,16 +83,6 @@
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
     </filter>
-
-<!--
-    <filter-mapping>
-        <filter-name>sakai.request</filter-name>
-        <servlet-name>sakai.gradebook.tool</servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-    </filter-mapping>
--->
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>Faces Servlet</servlet-name>
@@ -139,13 +127,13 @@
 	-->
 
 		<jsp-config>
-	<jsp-property-group>
-		<url-pattern>*.jsp</url-pattern>
-		<include-prelude>/inc/preludeEmbedded.jspf</include-prelude>
-		<!-- Or, for the original standalone look... -->
-		<!-- <include-prelude>/inc/preludeEmbeddedClassic.jspf</include-prelude> -->
-		<include-coda>/inc/codaEmbedded.jspf</include-coda>
-	</jsp-property-group>
+			<jsp-property-group>
+				<url-pattern>*.jsp</url-pattern>
+				<include-prelude>/inc/preludeEmbedded.jspf</include-prelude>
+				<!-- Or, for the original standalone look... -->
+				<!-- <include-prelude>/inc/preludeEmbeddedClassic.jspf</include-prelude> -->
+				<include-coda>/inc/codaEmbedded.jspf</include-coda>
+			</jsp-property-group>
 		</jsp-config>
 
 </web-app>

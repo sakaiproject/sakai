@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.gradebook.jsf;
+package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,10 +53,9 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
         String userUid = authnService.getUserUid();
         String gradebookUid = contextManagementService.getGradebookUid(null);
 
-		// Add the gradebook if it doesn't exist
+		// If the Gradebook doesn't exist, give up.
 		if(!gradebookService.gradebookExists(gradebookUid)) {
-			logger.warn("Gradebook " + gradebookUid + " doesn't exist, so user " + userUid + " is creating it");
-			gradebookService.addGradebook(gradebookUid, gradebookUid);
+			throw new RuntimeException("Gradebook " + gradebookUid + " doesn't exist");
 		}
 
         String target;
