@@ -65,6 +65,7 @@ public class TemplateBean implements Serializable
   private Boolean feedbackComponent_StudentResp = Boolean.TRUE;
   private Boolean feedbackComponent_CorrectResp = Boolean.TRUE;
   private Boolean feedbackComponent_StudentScore = Boolean.TRUE;
+  private Boolean feedbackComponent_StudentQuestionScore = Boolean.TRUE;
   private Boolean feedbackComponent_QuestionLevel = Boolean.TRUE;
   private Boolean feedbackComponent_SelectionLevel = Boolean.FALSE;
   private Boolean feedbackComponent_GraderComments = Boolean.TRUE;
@@ -551,6 +552,27 @@ public class TemplateBean implements Serializable
   {
     return bchecker(feedbackComponent_StudentScore, true);
   }
+
+ /**
+   * feedback component...
+   *
+   * @param newComponent feedback component...
+   */
+  public void setFeedbackComponent_StudentQuestionScore(Boolean newComponent)
+  {
+    feedbackComponent_StudentQuestionScore = newComponent;
+  }
+
+  /**
+   * feedback component...
+   *
+   * @return feedback component...
+   */
+  public Boolean getFeedbackComponent_StudentQuestionScore()
+  {
+    return bchecker(feedbackComponent_StudentQuestionScore, true);
+  }
+
 
   /**
    * feedback component...
