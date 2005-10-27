@@ -25,7 +25,13 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.api.kernel.function.cover.FunctionManager;
+import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.sakaiproject.service.legacy.site.cover.SiteService;
+
+import org.sakaiproject.api.section.facade.Role;
+
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl;
 
@@ -54,5 +60,35 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
     	FunctionManager.registerFunction(PERMISSION_EDIT_ASSIGNMENTS);
     	FunctionManager.registerFunction(PERMISSION_VIEW_OWN_GRADES);
     }
+
+	public boolean isUserAbleToGrade(String gradebookUid) {
+		return (hasPermission(gradebookUid, PERMISSION_GRADE_ALL) || hasPermission(gradebookUid, PERMISSION_GRADE_SECTION));
+	}
+
+	public boolean isUserAbleToGradeAll(String gradebookUid) {
+		return hasPermission(gradebookUid, PERMISSION_GRADE_ALL);
+	}
+
+	/**
+	 * When group-scoped permissions are available, this is where
+	 * they will go. My current assumption is that the call will look like:
+	 *
+	 *   return hasPermission(sectionUid, PERMISSION_GRADE_ALL);
+	 */
+	public boolean isUserAbleToGradeSection(String sectionUid) {
+		return getSectionAwareness().isSectionMemberInRole(sectionUid, getAuthn().getUserUid(), Role.TA);
+	}
+
+	public boolean isUserAbleToEditAssessments(String gradebookUid) {
+		return hasPermission(gradebookUid, PERMISSION_EDIT_ASSIGNMENTS);
+	}
+
+	public boolean isUserAbleToViewOwnGrades(String gradebookUid) {
+		return hasPermission(gradebookUid, PERMISSION_VIEW_OWN_GRADES);
+	}
+
+	private boolean hasPermission(String gradebookUid, String permission) {
+		return SecurityService.unlock(permission, SiteService.siteReference(gradebookUid));
+	}
 
 }
