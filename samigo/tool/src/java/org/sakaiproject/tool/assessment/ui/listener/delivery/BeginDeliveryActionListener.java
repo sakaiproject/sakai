@@ -155,6 +155,7 @@ public class BeginDeliveryActionListener implements ActionListener
       feed.setShowSelectionLevelFeedback(new Boolean(false));
       feed.setShowStatistics(new Boolean(false));
       feed.setShowStudentScore(new Boolean(false));
+      feed.setShowStudentQuestionScore(new Boolean(false));
       feed.setFeedbackDelivery(feed.NO_FEEDBACK);
       pub.setAssessmentFeedback(feed);
     }
@@ -234,6 +235,7 @@ public class BeginDeliveryActionListener implements ActionListener
        feedback.setShowSelectionLevel(info.getShowSelectionLevelFeedback().booleanValue());
        feedback.setShowStats(info.getShowStatistics().booleanValue());
        feedback.setShowStudentScore(info.getShowStudentScore().booleanValue());
+       feedback.setShowStudentQuestionScore(info.getShowStudentQuestionScore().booleanValue());
        Integer feedbackDelivery = info.getFeedbackDelivery();
        feedback.setShowDateFeedback(info.FEEDBACK_BY_DATE.equals(feedbackDelivery));
        feedback.setShowImmediate(info.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
