@@ -123,6 +123,13 @@ public class ItemContentsBean
      
   }
 
+ public String getStrippedKey()
+  {
+   
+      return getKey().replaceAll("<.*?>", " ");
+     
+  }
+
   /**
    * String representation of the points.
    * @return String representation of the points.
