@@ -24,19 +24,105 @@
 
 package org.sakaiproject.test.section;
 
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.component.section.CourseImpl;
+import org.sakaiproject.component.section.CourseSectionImpl;
+import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
+import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
+
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class SectionSortTest extends TestCase {
-	public void testEnrollmentDecoratorSorting() throws Exception {
-		// TODO Test enrollment sorting
+	private CourseSection sectionA;
+	private CourseSection sectionB;
+	
+	private CourseSection sectionC;
+	private CourseSection sectionD;
+	
+	private List instructorsA;
+	private List instructorsB;
+	
+	private List categoryNames;
+	private List categoryIds;
+	
+	protected void setUp() throws Exception {
+		categoryNames = new ArrayList();
+		categoryNames.add("Category A");
+		categoryNames.add("Category B");
+		
+		categoryIds = new ArrayList();
+		categoryIds.add("a category");
+		categoryIds.add("b category");
+
+		CourseImpl course = new CourseImpl();
+		course.setUuid("course 1 uuid");
+		course.setTitle("course 1 title");
+		
+		sectionA = new CourseSectionImpl(course, "a section",
+				"a section uuid", "a category", new Integer(10), "a section location",
+				new Time(8, 0, 0), new Time(9, 0, 0), false, false, false, false, false, false, false);
+		sectionB = new CourseSectionImpl(course, "b section",
+				"b section uuid", "a category", new Integer(20), "b section location",
+				new Time(9, 0, 0), new Time(10, 0, 0), false, false, false, false, false, false, false);
+		sectionC = new CourseSectionImpl(course, "c section",
+				"c section uuid", "b category", new Integer(5), "c section location",
+				new Time(8, 0, 0), new Time(9, 0, 0), false, false, false, false, false, false, false);
+		sectionD = new CourseSectionImpl(course, "d section",
+				"d section uuid", "b category", new Integer(15), "d section location",
+				new Time(9, 0, 0), new Time(10, 0, 0), false, false, false, false, false, false, false);
+		
+		instructorsA = new ArrayList();
+		instructorsA.add("Schmoe, Joe");
+		instructorsA.add("Adams, Sally");
+	
+		instructorsB = new ArrayList();
+		instructorsA.add("Schmoe, Joe");
 	}
 
+	
 	public void testInstructorSectionDecoratorSorting() throws Exception {
-		// TODO Test section sorting
+		InstructorSectionDecorator secA = new InstructorSectionDecorator(sectionA, "Category A", instructorsA, 10);
+		InstructorSectionDecorator secB = new InstructorSectionDecorator(sectionB, "Category A", instructorsB, 20);
+		InstructorSectionDecorator secC = new InstructorSectionDecorator(sectionC, "Category B", new ArrayList(), 10);
+		InstructorSectionDecorator secD = new InstructorSectionDecorator(sectionD, "Category B", new ArrayList(), 20);
+		
+		Comparator comp = InstructorSectionDecorator.getManagersComparator(true, categoryNames, categoryIds);
+
+		// Compare managers in sections of the same category
+		Assert.assertTrue(comp.compare(secA, secB) > 0);
+		Assert.assertTrue(comp.compare(secC, secD) == 0);
+		
+		// Compare managers in sections in different categories.  The one with no managers sorts first
+		Assert.assertTrue(comp.compare(secC, secA) > 0);
+		
+		comp = InstructorSectionDecorator.getEnrollmentsComparator(true, false, categoryNames, categoryIds);
+
+		// Compare the max enrollments in sections of the same category
+		Assert.assertTrue(comp.compare(secB, secA) > 0);
+
+		// Compare the max enrollments in different categories
+		Assert.assertTrue(comp.compare(secB, secC) < 0);
+		
+		// TODO Test the rest of the comparisons
 	}
 
 	public void testStudentSectionDecoratorSorting() throws Exception {
-		// TODO Test section sorting
+		StudentSectionDecorator secA = new StudentSectionDecorator(sectionA, "Category A", instructorsA, 10, true, false);
+		StudentSectionDecorator secB = new StudentSectionDecorator(sectionB, "Category B", instructorsB, 10, false, true);
+
+		Comparator comp = StudentSectionDecorator.getChangeComparator(true, categoryNames, categoryIds, true, true);
+	
+		// TODO This relies on a faces context, so we can't test it here.
+		// Compare the change status between two sections in the same category
+//		Assert.assertTrue(comp.compare(secA, secB) > 0);
+		
+		// TODO Test the rest of the comparisons
 	}
 }
 

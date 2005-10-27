@@ -571,7 +571,7 @@ public class SectionManagerImpl implements SectionManager {
 	 * @inheritDoc
 	 */
 	public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category) {
-		log.info("Dropping " + studentUid + " from all sections in category " + category + " in site " + siteContext);
+		if(log.isDebugEnabled()) log.debug("Dropping " + studentUid + " from all sections in category " + category + " in site " + siteContext);
 		// Get the sections in this category
 		Site site;
 		try {
@@ -586,9 +586,7 @@ public class SectionManagerImpl implements SectionManager {
 			Group group= (Group)iter.next();
 			CourseSectionImpl section = new CourseSectionImpl(group);
 			if(section.getCategory().equals(category)) {
-				log.info("group size pre-drop = " + group.getMembers().size() + " for " + group.getReference());
 				group.removeMember(studentUid);
-				log.info("group size post-drop = " + group.getMembers().size() + " for " + group.getReference());
 			}
 		}
 		try {
@@ -650,7 +648,7 @@ public class SectionManagerImpl implements SectionManager {
 
     	// Save the site, along with the new section
     	try {
-        	siteService.save(group.getContainingSite());
+        	siteService.save(site);
 			postEvent("Added new section", group.getReference());
     	} catch (IdUnusedException ide) {
     		log.error("Error saving site... could not find site for section " + group, ide);

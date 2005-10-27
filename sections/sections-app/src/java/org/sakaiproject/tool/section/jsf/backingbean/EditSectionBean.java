@@ -51,8 +51,6 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(EditSectionBean.class);
-	public static final String TIME_PATTERN_LONG = "h:mm";
-	public static final String TIME_PATTERN_SHORT = "h";
 	
 	private String sectionUuid;
 	private String title;
@@ -78,7 +76,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 				sectionUuid = sectionUuidFromParam;
 			}
 			CourseSection section = getSectionManager().getSection(sectionUuid);
-			SimpleDateFormat sdf = new SimpleDateFormat(TIME_PATTERN_LONG);
+			SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY);
 			
 			title = section.getTitle();
 			location = section.getLocation();
@@ -161,8 +159,8 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		
 		// Perform the update
 		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
-				location, convertStringToTime(startTime, startTimeAm),
-				convertStringToTime(endTime, endTimeAm), monday, tuesday,
+				location, JsfUtil.convertStringToTime(startTime, startTimeAm),
+				JsfUtil.convertStringToTime(endTime, endTimeAm), monday, tuesday,
 				wednesday, thursday, friday, saturday, sunday);
 		
 		// Add a success message
@@ -182,34 +180,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		}
 		return "overview";
 	}
-	
-	/**
-	 * Converts into a java.sql.Time object.
-	 * 
-	 * @param str
-	 * @param am
-	 * @return
-	 */
-	private Time convertStringToTime(String str, boolean am) {
-		if(StringUtils.trimToNull(str) == null) {
-			return null;
-		}
-		SimpleDateFormat sdf;
-		if(str.indexOf(':') != -1) {
-			sdf = new SimpleDateFormat(TIME_PATTERN_LONG);
-		} else {
-			sdf = new SimpleDateFormat(TIME_PATTERN_SHORT);
-		}
-		Date date;
-		try {
-			date = sdf.parse(str);
-		} catch (ParseException pe) {
-			throw new RuntimeException("A bad date made it through validation!  This should never happen!");
-		}
-		return ConversionUtil.convertDateToTime(date, am);
 		
-	}
-	
 	/**
 	 * Returns true if the title is a duplicate of another section.
 	 * 
@@ -292,10 +263,12 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	
 	private boolean isEndTimeBeforeStartTime() {
 		if(startTime != null & endTime != null) {
-			Time start = convertStringToTime(startTime, startTimeAm);
-			Time end = convertStringToTime(endTime, endTimeAm);
+			Time start = JsfUtil.convertStringToTime(startTime, startTimeAm);
+			Time end = JsfUtil.convertStringToTime(endTime, endTimeAm);
 			if(start.after(end)) {
 				if(log.isDebugEnabled()) log.debug("You can not set an end time earlier than the start time.");
+				if(log.isDebugEnabled()) log.debug("start time = " + start.getTime());
+				if(log.isDebugEnabled()) log.debug("end time = " + end.getTime());
 				return true;
 			}
 		}

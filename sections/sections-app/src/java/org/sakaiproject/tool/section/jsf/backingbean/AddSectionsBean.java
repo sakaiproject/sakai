@@ -26,11 +26,8 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,7 +38,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -186,10 +182,11 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 				titles.append(sepChar);
 				titles.append(" ");
 			}
+
 			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
 					category, sectionModel.getMaxEnrollments(), sectionModel.getLocation(),
-					convertStringToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm()),
-					convertStringToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm()),
+					JsfUtil.convertStringToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm()),
+					JsfUtil.convertStringToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm()),
 					sectionModel.isMonday(), sectionModel.isTuesday(), sectionModel.isWednesday(),
 					sectionModel.isThursday(), sectionModel.isFriday(), sectionModel.isSaturday(),
 					sectionModel.isSunday());
@@ -207,33 +204,6 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		return "overview";
 	}
 	
-	/**
-	 * Converts into a java.sql.Time object.
-	 * 
-	 * @param str
-	 * @param am
-	 * @return
-	 */
-	private Time convertStringToTime(String str, boolean am) {
-		if(StringUtils.trimToNull(str) == null) {
-			return null;
-		}
-		SimpleDateFormat sdf;
-		if(str.indexOf(':') != -1) {
-			sdf = new SimpleDateFormat(EditSectionBean.TIME_PATTERN_LONG);
-		} else {
-			sdf = new SimpleDateFormat(EditSectionBean.TIME_PATTERN_SHORT);
-		}
-		Date date;
-		try {
-			date = sdf.parse(str);
-		} catch (ParseException pe) {
-			throw new RuntimeException("A bad date made it through validation!  This should never happen!");
-		}
-		return ConversionUtil.convertDateToTime(date, am);
-		
-	}
-		
 	/**
 	 * Returns true if the string fails to represent a time.
 	 * 
@@ -296,8 +266,8 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	
 	private boolean isEndTimeBeforeStartTime(LocalSectionModel sectionModel) {
 		if(sectionModel.getStartTime() != null & sectionModel.getEndTime() != null) {
-			Time start = convertStringToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm());
-			Time end = convertStringToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm());
+			Time start = JsfUtil.convertStringToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm());
+			Time end = JsfUtil.convertStringToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm());
 			if(start.after(end)) {
 				if(log.isDebugEnabled()) log.debug("You can not set an end time earlier than the start time.");
 				return true;

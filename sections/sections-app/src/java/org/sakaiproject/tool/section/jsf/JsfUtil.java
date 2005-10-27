@@ -24,15 +24,21 @@
 
 package org.sakaiproject.tool.section.jsf;
 
+import java.sql.Time;
 import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
 
 /**
@@ -43,7 +49,11 @@ import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
  */
 public class JsfUtil {
 	private static final Log log = LogFactory.getLog(JsfUtil.class);
-	
+
+	public static final String TIME_PATTERN_DISPLAY = "h:mm";
+	public static final String TIME_PATTERN_LONG = "h:mm a";
+	public static final String TIME_PATTERN_SHORT = "h a";
+
 	public static Locale getLocale() {
 		Locale locale;
 		try {
@@ -109,6 +119,37 @@ public class JsfUtil {
 		return (String)FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterMap().get(string);
 	}
+	
+	/**
+	 * Converts a string and a boolean (am) into a java.sql.Time object.
+	 * 
+	 * @param str
+	 * @param am
+	 * @return
+	 */
+	public static Time convertStringToTime(String str, boolean am) {
+		if(StringUtils.trimToNull(str) == null) {
+			return null;
+		}
+
+		// Set the am/pm flag to ensure that the time is parsed properly
+		if(am) {
+			str = str + " AM";
+		} else {
+			str = str + " PM";
+		}
+		
+		String pattern = (str.indexOf(':') != -1) ? JsfUtil.TIME_PATTERN_LONG : JsfUtil.TIME_PATTERN_SHORT;
+		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		Date date;
+		try {
+			date = sdf.parse(str);
+		} catch (ParseException pe) {
+			throw new RuntimeException("A bad date made it through validation!  This should never happen!");
+		}
+		return ConversionUtil.convertDateToTime(date, am);
+	}
+
 }
 
 
