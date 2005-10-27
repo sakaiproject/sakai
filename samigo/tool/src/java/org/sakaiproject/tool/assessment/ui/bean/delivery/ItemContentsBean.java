@@ -118,7 +118,9 @@ public class ItemContentsBean
    */
   public String getStrippedText()
   {
-    return getText().replaceAll("<.*?>", "");
+      // String s1=getText().replaceAll("<P></P>",".    ");
+      return getText().replaceAll("<.*?>", " ");
+     
   }
 
   /**
