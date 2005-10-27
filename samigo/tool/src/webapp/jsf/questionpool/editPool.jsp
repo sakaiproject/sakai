@@ -91,7 +91,7 @@
 <h:outputText value="#{msg.qp}: "/>
 <h:outputText value="#{questionpool.currentPool.displayName}"/>
 </h3>
-<h:messages layout="table" style="color:red" />
+<h:messages styleClass="validation" />
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_editpool}"/>
  <div class="shorttext indnt2">
   <h:outputLabel for="namefield" value="#{msg.p_name}"/>

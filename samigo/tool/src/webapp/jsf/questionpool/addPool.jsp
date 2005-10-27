@@ -45,7 +45,7 @@
 </h3>
 
  <h:form id="questionpool">
-<h:messages layout="table" style="color:red"/>
+<h:messages styleClass="validation"/>
 <h:outputText value="#{msg.add_p_required}"/>
 
  <div class="shorttext indnt1">
