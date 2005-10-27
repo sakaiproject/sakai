@@ -489,6 +489,16 @@ public class ExtractionHelper
     }
 
     if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_SHOW_STUDENT_QUESTIONSCORE")))
+    {
+      feedback.setShowStudentQuestionScore(Boolean.TRUE);
+    }
+    else
+    {
+      feedback.setShowStudentQuestionScore(Boolean.FALSE);
+    }
+
+    if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_SHOW_ITEM_LEVEL")))
     {
       feedback.setShowQuestionLevelFeedback(Boolean.TRUE);
