@@ -160,6 +160,8 @@ public class TemplateLoadListener
           (feedback.getShowCorrectResponse());
         templateBean.setFeedbackComponent_StudentScore
           (feedback.getShowStudentScore());
+        templateBean.setFeedbackComponent_StudentQuestionScore
+          (feedback.getShowStudentQuestionScore());
         templateBean.setFeedbackComponent_QuestionLevel
           (feedback.getShowQuestionLevelFeedback());
         templateBean.setFeedbackComponent_SelectionLevel
