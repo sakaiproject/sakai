@@ -55,7 +55,7 @@ should be included in file importing DeliveryMessages
     <h:outputLabel for="answerKeyMC" value="#{msg.ans_key}: " />
       <f:verbatim></b></f:verbatim>
     <h:outputText id="answerKeyMC"
-       value="#{question.key}"/>
+       value="#{question.key}" escape="false"/>
 
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedback ne '' && question.feedback != null && !delivery.noFeedback=='true'}">
