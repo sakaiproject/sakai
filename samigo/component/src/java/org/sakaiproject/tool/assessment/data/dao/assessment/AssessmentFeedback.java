@@ -39,6 +39,7 @@ public class AssessmentFeedback
   private Boolean showStudentResponse;
   private Boolean showCorrectResponse;
   private Boolean showStudentScore;
+  private Boolean showStudentQuestionScore;
   private Boolean showQuestionLevelFeedback;
   private Boolean showSelectionLevelFeedback; // must be MC
   private Boolean showGraderComments;
@@ -55,7 +56,7 @@ public class AssessmentFeedback
       Integer feedbackDelivery, Integer editComponents,
       Boolean showQuestionText,
       Boolean showStudentResponse, Boolean showCorrectResponse,
-      Boolean showStudentScore,
+      Boolean showStudentScore,   Boolean showStudentQuestionScore, 
       Boolean showQuestionLevelFeedback, Boolean showSelectionLevelFeedback,
       Boolean showGraderComments, Boolean showStatistics)
   {
@@ -65,6 +66,7 @@ public class AssessmentFeedback
     this.showStudentResponse = showStudentResponse;
     this.showCorrectResponse = showCorrectResponse;
     this.showStudentScore = showStudentScore;
+    this.showStudentQuestionScore = showStudentQuestionScore;
     this.showQuestionLevelFeedback = showQuestionLevelFeedback;
     this.showSelectionLevelFeedback = showSelectionLevelFeedback; // must be MC
     this.showGraderComments = showGraderComments;
@@ -76,7 +78,8 @@ public class AssessmentFeedback
         this.getFeedbackDelivery(), this.getEditComponents(),
         this.getShowQuestionText(),
         this.getShowStudentResponse(), this.getShowCorrectResponse(),
-        this.getShowStudentScore(), this.getShowQuestionLevelFeedback(),
+        this.getShowStudentScore(),  this.getShowStudentQuestionScore(),
+        this.getShowQuestionLevelFeedback(),
         this.getShowSelectionLevelFeedback(), this.getShowGraderComments(),
         this.getShowStatistics());
     return cloned;
@@ -161,6 +164,16 @@ public class AssessmentFeedback
   public void setShowStudentScore(Boolean showStudentScore)
   {
     this.showStudentScore = showStudentScore;
+  }
+
+  public Boolean getShowStudentQuestionScore()
+  {
+    return showStudentQuestionScore;
+  }
+
+  public void setShowStudentQuestionScore(Boolean showStudentQuestionScore)
+  {
+    this.showStudentQuestionScore = showStudentQuestionScore;
   }
 
   public Boolean getShowQuestionLevelFeedback()
