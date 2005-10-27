@@ -47,7 +47,7 @@
    <h3><h:outputText  value="#{msg.import_a}" /></h3>
     <div class="indnt1">
      <div class="form_label">
-      <font color="red"><h:messages /></font>
+      <h:messages styleClass="validation" />
       <h:outputText value="#{msg.import_instructions}"/>
     </div>
     <br />
