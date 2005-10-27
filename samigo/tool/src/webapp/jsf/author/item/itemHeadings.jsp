@@ -212,7 +212,7 @@ document.links[newindex].onclick();
 --%>
  </span>
  <br />
-   <h:messages layout="table" style="color:red"/>
+   <h:messages styleClass="validation"/>
 
  <br />
 

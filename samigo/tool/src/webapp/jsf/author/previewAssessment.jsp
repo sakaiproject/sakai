@@ -45,7 +45,7 @@
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
 
-<h:messages/>
+<h:messages styleClass="validation"/>
 
  <div align="left">
     <h3>

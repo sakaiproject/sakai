@@ -45,7 +45,7 @@
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
 
-<h:messages/>
+<h:messages styleClass="validation"/>
  <h:panelGrid columns="2" border="1" width="100%">
     <h:panelGroup>
        <h:outputText styleClass="tier1" value="#{itemContents.itemData.type.keyword}" />
