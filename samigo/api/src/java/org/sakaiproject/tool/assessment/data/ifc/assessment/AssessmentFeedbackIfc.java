@@ -62,6 +62,10 @@ public interface AssessmentFeedbackIfc
 
   void setShowStudentScore(Boolean showStudentScore);
 
+  Boolean getShowStudentQuestionScore();
+
+  void setShowStudentQuestionScore(Boolean showStudentQuestionScore);
+
   Boolean getShowQuestionLevelFeedback();
 
   void setShowQuestionLevelFeedback(Boolean showQuestionLevelFeedback);
