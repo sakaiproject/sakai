@@ -434,10 +434,11 @@
 
       <h:outputText value=" "/>
       <h:panelGrid columns="2">
+
       <h:panelGroup>
-        <h:selectBooleanCheckbox id="question_text" disabled="true"
-          value="#{template.feedbackComponent_QuestionText}"/>
-        <h:outputLabel for="question_text" value="#{msg.question_text}"/>
+        <h:selectBooleanCheckbox id="student_response"
+          value="#{template.feedbackComponent_StudentResp}"/>
+        <h:outputLabel for="student_response" value="#{msg.student_response}"/>
       </h:panelGroup>
 
       <h:panelGroup>
@@ -447,9 +448,9 @@
       </h:panelGroup>
 
       <h:panelGroup>
-        <h:selectBooleanCheckbox id="student_response"
-          value="#{template.feedbackComponent_StudentResp}"/>
-        <h:outputLabel for="student_response" value="#{msg.student_response}"/>
+        <h:selectBooleanCheckbox id="correct_response"
+          value="#{template.feedbackComponent_CorrectResp}"/>
+        <h:outputLabel for="correct_response" value="#{msg.correct_response}"/>
       </h:panelGroup>
 
       <h:panelGroup>
@@ -459,9 +460,9 @@
       </h:panelGroup>
 
       <h:panelGroup>
-        <h:selectBooleanCheckbox id="correct_response"
-          value="#{template.feedbackComponent_CorrectResp}"/>
-        <h:outputLabel for="correct_response" value="#{msg.correct_response}"/>
+        <h:selectBooleanCheckbox id="student_score"
+          value="#{template.feedbackComponent_StudentScore}"/>
+        <h:outputLabel for="student_score" value="#{msg.student_score}"/>
       </h:panelGroup>
 
       <h:panelGroup>
@@ -471,11 +472,11 @@
       </h:panelGroup>
 
       <h:panelGroup>
-        <h:selectBooleanCheckbox id="student_score"
-          value="#{template.feedbackComponent_StudentScore}"/>
-        <h:outputLabel for="student_score" value="#{msg.student_score}"/>
+        <h:selectBooleanCheckbox id="question_text" 
+          value="#{template.feedbackComponent_QuestionText}"/>
+        <h:outputLabel for="question_text" value="#{msg.student_questionscore}"/>
       </h:panelGroup>
-
+   
       <h:panelGroup>
         <h:selectBooleanCheckbox id="statistics_hist"
           value="#{template.feedbackComponent_Statistics}"/>
