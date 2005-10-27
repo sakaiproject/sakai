@@ -212,6 +212,8 @@ public class TemplateUpdateListener
         (templateBean.getFeedbackComponent_CorrectResp());
       feedback.setShowStudentScore
         (templateBean.getFeedbackComponent_StudentScore());
+      feedback.setShowStudentQuestionScore
+        (templateBean.getFeedbackComponent_StudentQuestionScore());
       feedback.setShowQuestionLevelFeedback
         (templateBean.getFeedbackComponent_QuestionLevel());
       feedback.setShowSelectionLevelFeedback
