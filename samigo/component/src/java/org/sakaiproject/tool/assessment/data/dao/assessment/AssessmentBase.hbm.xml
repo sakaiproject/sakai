@@ -253,6 +253,9 @@
     <property name="showStudentScore">
       <column name="SHOWSTUDENTSCORE" not-null="false" sql-type="integer" />
     </property>
+    <property name="showStudentQuestionScore">
+      <column name="SHOWSTUDENTQUESTIONSCORE" not-null="false" sql-type="integer" />
+    </property>
     <property name="showQuestionLevelFeedback">
       <column name="SHOWQUESTIONLEVELFEEDBACK" not-null="false" sql-type="integer" />
     </property>
