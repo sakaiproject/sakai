@@ -62,7 +62,6 @@
 <f:validateDoubleRange/>
 </h:inputText>
     <h:message for="answerptr" styleClass="validate"/><br/>
-  <h:outputText value="  #{msg.zero_survey}" />
   </div>
   <!-- 2 TEXT -->
 

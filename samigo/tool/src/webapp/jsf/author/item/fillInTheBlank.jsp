@@ -56,7 +56,6 @@
   <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
     <f:validateDoubleRange />
   </h:inputText>
-  <h:outputText value="  #{msg.zero_survey}" />
  <br/>  <h:message for="answerptr" styleClass="validate"/>
  </div>
 <%-- 2 QUESTION TEXT --%>

@@ -58,13 +58,8 @@
 <span id="num1" class="number"></span>
 <div class="shorttext">
 
-    <h:outputLabel value="#{msg.answer_point_value}" />
-    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
-<f:validateDoubleRange/>
-</h:inputText>
-
-    <h:message for="answerptr" styleClass="validate"/>
-  <h:outputText value="  #{msg.zero_survey} " />
+    <h:outputLabel value="#{msg.answer_point_value}"/>
+    <h:outputText value="#{msg.zeropoints}"/>
  </div>
 
   <!-- 2 TEXT -->
