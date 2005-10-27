@@ -64,7 +64,7 @@
   </h3>
 <p>
 <f:verbatim><font color="red"></f:verbatim>
-  <h:messages />
+  <h:messages styleClass="validation"/>
 <f:verbatim></font></f:verbatim>
 
 </p>

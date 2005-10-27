@@ -76,7 +76,7 @@ document.links[newindex].onclick();
 	String commentOutFileUpload = org.sakaiproject.service.framework.config.cover.ServerConfigurationService.getString("sam_file_upload_comment_out");
 %>
 <h:form id="assesssmentForm">
-<h:messages/>
+<h:messages styleClass="validation"/>
   <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
   <h:inputHidden id="showCompleteAssessment" value="#{author.showCompleteAssessment}"/>
   <h:inputHidden id="title" value="#{assessmentBean.title}" />
