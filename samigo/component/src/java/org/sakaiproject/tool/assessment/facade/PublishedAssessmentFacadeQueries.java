@@ -213,6 +213,7 @@ public class PublishedAssessmentFacadeQueries
         a.getFeedbackDelivery(), a.getEditComponents(), a.getShowQuestionText(),
         a.getShowStudentResponse(), a.getShowCorrectResponse(),
         a.getShowStudentScore(),
+        a.getShowStudentQuestionScore(),
         a.getShowQuestionLevelFeedback(), a.getShowSelectionLevelFeedback(),
         a.getShowGraderComments(), a.getShowStatistics());
     publishedFeedback.setAssessmentBase(p);
@@ -1140,6 +1141,7 @@ public class PublishedAssessmentFacadeQueries
         " p.feedbackDelivery, p.editComponents, p.showQuestionText," +
         " p.showStudentResponse, p.showCorrectResponse," +
         " p.showStudentScore," +
+        " p.showStudentQuestionScore," +
         " p.showQuestionLevelFeedback, p.showSelectionLevelFeedback," +
         " p.showGraderComments, p.showStatistics)" +
         " from PublishedFeedback p";
