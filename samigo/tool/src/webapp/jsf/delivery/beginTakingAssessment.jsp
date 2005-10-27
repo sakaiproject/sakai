@@ -70,7 +70,7 @@
 <div class="indnt1">
  <h4> <h:outputText value="#{delivery.assessmentTitle} #{msg.info} " /></h4>
 <div class="indnt2">
-<font color="red"><h:messages/></font>
+<h:messages styleClass="validation"/>
   <h:outputText value="#{delivery.instructorMessage}" escape="false"/>
 <div class="shorttext">
     <h:outputLabel value="#{msg.course}" />

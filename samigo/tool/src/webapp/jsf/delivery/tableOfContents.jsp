@@ -122,6 +122,9 @@ function saveTime()
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 </h:panelGroup>
+<div class="indnt1 validation">
+<h:outputText value="#{msg.instruction_submitGrading}" />
+ </div>
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 
@@ -157,7 +160,7 @@ function saveTime()
 
 <h:inputHidden id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
 
-<font color="red"><h:messages/></font>
+<h:messages styleClass="validation"/>
 
   <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
   <h:column>

@@ -48,7 +48,7 @@
   </h3>
   <%-- Clicking OK returns user to the assessments page. --%>
   <h:form id="ok">
-  <font color="red"><h:messages/></font>
+  <h:messages styleClass="validation"/>
    <h:commandButton value="#{msg.button_ok}" type="submit"
      style="act" action="select" />
   </h:form>

@@ -48,7 +48,7 @@
 
 <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
 
-<font color="red"><h:messages/></font>
+<h:messages styleClass="validation"/>
 
 <%-- PART/ITEM DATA TABLES --%>
 <div class="tier2">

@@ -55,7 +55,7 @@
 </h4>
 
 <h:form id="submittedForm">
-<font color="red"><h:messages /></font>
+<h:messages styleClass="validation" />
 
     <h:outputText value="#{msg.submission_confirmation_message_1}" /> <br />
     <h:outputText escape="false" value="#{delivery.submissionMessage}" />
