@@ -51,7 +51,7 @@
                 <!-- Sakai-embedded version -->
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-sections-comp-shared-sakai20</artifactId>
+            <artifactId>sakai-sections-comp-shared-sakai21</artifactId>
             <version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
