@@ -39,6 +39,7 @@ public class FeedbackComponent
   private boolean showStats;
   private boolean showImmediate;
   private boolean showStudentScore;
+  private boolean showStudentQuestionScore;
   private boolean showDateFeedback;
   private boolean showNoFeedback;
 
@@ -57,6 +58,14 @@ public class FeedbackComponent
    */
   public boolean getShowStudentScore(){
     return this.showStudentScore;
+  }
+
+ /**
+   *
+   * @return
+   */
+  public boolean getShowStudentQuestionScore(){
+    return this.showStudentQuestionScore;
   }
 
   /**
@@ -222,6 +231,15 @@ public class FeedbackComponent
   public void setShowStudentScore(boolean showStudentScore)
   {
     this.showStudentScore = showStudentScore;
+  }
+
+  /**
+   * Show Question score?
+   * @param showStudentQuestionScore
+   */
+  public void setShowStudentQuestionScore(boolean showStudentQuestionScore)
+  {
+    this.showStudentQuestionScore = showStudentQuestionScore;
   }
 
 }
