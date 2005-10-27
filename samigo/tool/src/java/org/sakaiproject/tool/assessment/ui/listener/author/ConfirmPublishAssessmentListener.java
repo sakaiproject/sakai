@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
@@ -75,14 +75,18 @@ public class ConfirmPublishAssessmentListener
     boolean isTime=false;
     String err="";
     String assessmentName=assessmentSettings.getTitle();
+    String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
+    System.out.println("assessmentId : "+assessmentId);
+    AssessmentService service = new AssessmentService();
+ 
     if (time!=null)
       isTime=((Boolean)time).booleanValue();
 
-    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.notEmptyAndNotDub(assessmentName,false))){
-        System.out.println("SAVESETTINGSANDCONFIRM Success");
+    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.isUnique(assessmentId,assessmentName))&&(s.isUniquePublished(assessmentName))){
+	// if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(service.assessmentTitleIsUnique(assessmentId,assessmentName,false))){
 	assessmentSettings.setOutcomePublish("publish_success");	
 	AssessmentFacade assessment = s.save(assessmentSettings);
-	// System.out.println("ASSESSMENT SETTINGSAVED");
+
 	assessmentSettings.setAssessment(assessment);
 
     //  we need a publishedUrl, this is the url used by anonymous user
@@ -109,9 +113,10 @@ public class ConfirmPublishAssessmentListener
        
     }
     else{
+	if((!s.isUnique(assessmentId,assessmentName))||(!s.isUniquePublished(assessmentName))){
        
-        if(!s.notEmptyAndNotDub(assessmentName,false)){
-	    //  err=(String)rb.getObject("emptyAssessment_error");
+	// if(!service.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
+	  
            err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 	   
 	}

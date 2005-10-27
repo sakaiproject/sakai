@@ -74,6 +74,9 @@ public class SaveAssessmentSettingsListener
     boolean isTime=false;
     String err="";
     String assessmentName=assessmentSettings.getTitle();
+    String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
+ 
+    AssessmentService assessmentService = new AssessmentService();
     // If something is in there that is not a Boolean object, keep default.
     // I have seen this happen, this avoids ClassCastException --esmiley
     try
@@ -90,15 +93,16 @@ public class SaveAssessmentSettingsListener
 
     }
 
-    // System.out.println("SAVESETTINGSANDCONFIRM");
-    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.notEmptyAndNotDub(assessmentName,false))){
-  // System.out.println("SAVESETTINGS Success");
+    
+    // if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false))){
+    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.isUnique(assessmentId,assessmentName))&&(s.isUniquePublished(assessmentName))){
+  
   assessmentSettings.setOutcomeSave("saveSettings_success");
   s.save(assessmentSettings);
  // reset the core listing in case assessment title changes
   AuthorBean author = (AuthorBean) cu.lookupBean(
                        "author");
-  AssessmentService assessmentService = new AssessmentService();
+ 
   ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
                       author.getCoreAssessmentOrderBy(),author.isCoreAscending());
     // get the managed bean, author and set the list
@@ -111,8 +115,9 @@ public class SaveAssessmentSettingsListener
 
     }
     else{
-	if(!s.notEmptyAndNotDub(assessmentName,false)){
-      //  err=(String)rb.getObject("emptyAssessment_error");
+	//if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
+	if((!s.isUnique(assessmentId,assessmentName))||(!s.isUniquePublished(assessmentName))){
+    
            err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 
   }

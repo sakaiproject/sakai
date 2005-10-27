@@ -38,7 +38,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 
 /**
@@ -232,11 +234,10 @@ public class SaveAssessmentSettings
     }
   }
 
-    public boolean notEmptyAndNotDub(String s,boolean newItem){
+    public boolean isUnique(String name){
 	//if name=assessment name List return true else return false
         AssessmentService assessmentService = new AssessmentService();
 	boolean returnValue=true;
-        int count=0;
       
 	try{
 	    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments("title");
@@ -245,31 +246,20 @@ public class SaveAssessmentSettings
 	    while (iter.hasNext()){
 		AssessmentFacade facade =(AssessmentFacade) iter.next();
 		String n=facade.getTitle();
-		//	System.out.println("AssessmentName: "+n);
-		if((s==null)||((s.trim()).equals(""))){                    
+               	
+		if((name==null)||((name.trim()).equals(""))){                    
 		    returnValue= false;
 		    break;
 		}
-		else if(((s.trim()).equals(n.trim()))){
-		    if(newItem){
+		else{
+		    if(((name.trim()).equals(n.trim()))){
 			returnValue=false; 
 			break;
 		    }
-		    else { 
-			if(count==0){//itself 
-			    count++;
-			}
-			else{
-			    returnValue=false;
-			    break;
-			}
-		    }
+		   
 		}
-		else{}
-		
 	    }
-	}
-	catch(Exception e){
+	}catch(Exception e){
     
 	    e.printStackTrace();
 	    throw new Error(e);
@@ -278,5 +268,79 @@ public class SaveAssessmentSettings
 
     }
 
+ public boolean isUniquePublished(String name){
+	//if name=assessment name List return true else return false
+        PublishedAssessmentService service = new PublishedAssessmentService();
+       
+	boolean returnValue=true;
+      
+	try{
+	    ArrayList list = service.getAllActivePublishedAssessments("title");
+	    Iterator iter = list.iterator();
+       
+	    while (iter.hasNext()){
+		PublishedAssessmentFacade facade =(PublishedAssessmentFacade) iter.next();
+		String n=facade.getTitle();
+               	System.out.println("AssessmentName: "+n);
+		if((name==null)||((name.trim()).equals(""))){                    
+		    returnValue= false;
+		    break;
+		}
+		else{
+		    if(((name.trim()).equals(n.trim()))){
+			returnValue=false; 
+			break;
+		    }
+		   
+		}
+	    }
+	}catch(Exception e){
+    
+	    e.printStackTrace();
+	    throw new Error(e);
+	}
+	return returnValue;
+
+    }
+
+  public boolean isUnique(String id, String name){
+        AssessmentService assessmentService = new AssessmentService();
+	boolean returnValue=true;
+        int count=0;
+      
+	try{
+	      ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments("title");
+	      // ArrayList list = assessmentService.getAllAssessments("title");
+	    Iterator iter = list.iterator();
+       
+	    while (iter.hasNext()){
+		AssessmentFacade facade =(AssessmentFacade) iter.next();
+		String n=facade.getTitle();
+		String i=String.valueOf(facade.getAssessmentBaseId());
+		if((name==null)||((name.trim()).equals(""))){                    
+		    returnValue= false;
+		    break;
+		}
+		else{
+		    if(((name.trim()).equals(n.trim()))){
+                        if((i.equals(id))&& (count==0)){//itself 
+			    count++; //itself
+			}
+			else{
+			    returnValue=false;
+			    break;
+			}
+		    }
+		}	
+		
+	    }
+	}catch(Exception e){
+    
+	    e.printStackTrace();
+	    throw new Error(e);
+	}
+	return returnValue;
+
+    }
 
 }

@@ -96,7 +96,7 @@ public class AuthorAssessmentListener
 
     //HUONG's EDIT
     //check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error
-    if (s.notEmptyAndNotDub(assessmentTitle,true)){
+    if (s.isUnique(assessmentTitle)&& (s.isUniquePublished(assessmentTitle))){
 	String description = author.getAssessmentDescription();
 	String typeId = author.getAssessmentTypeId();
 	String templateId = author.getAssessmentTemplateId();
