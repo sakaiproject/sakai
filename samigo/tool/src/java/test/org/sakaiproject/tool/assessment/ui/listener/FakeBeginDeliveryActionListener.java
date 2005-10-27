@@ -120,6 +120,7 @@ public class FakeBeginDeliveryActionListener implements ActionListener
       feed.setShowSelectionLevelFeedback(new Boolean(true));
       feed.setShowStatistics(new Boolean(true));
       feed.setShowStudentScore(new Boolean(true));
+      feed.setShowStudentQuestionScore(new Boolean(true));
       feed.setFeedbackDelivery(feed.FEEDBACK_BY_DATE);
       pub.setAssessmentFeedback(feed);
       /*
@@ -213,6 +214,7 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     feedback.setShowSelectionLevel(info.getShowSelectionLevelFeedback().booleanValue());
     feedback.setShowStats(info.getShowStatistics().booleanValue());
     feedback.setShowStudentScore(info.getShowStudentScore().booleanValue());
+    feedback.setShowStudentQuestionScore(info.getShowStudentQuestionScore().booleanValue());
     Integer feedbackDelivery = info.getFeedbackDelivery();
     feedback.setShowDateFeedback(info.FEEDBACK_BY_DATE.equals(feedbackDelivery));
     feedback.setShowImmediate(info.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
