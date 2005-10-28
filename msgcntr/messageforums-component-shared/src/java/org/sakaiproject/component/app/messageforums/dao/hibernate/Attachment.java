@@ -23,8 +23,13 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Message;
+
 
 public class Attachment extends MutableEntityImpl {
 
@@ -35,7 +40,8 @@ public class Attachment extends MutableEntityImpl {
     private String attachmentName;
     private String attachmentSize;
     private String attachmentType;
-
+    private Message parent;
+    
     public String getAttachmentId() {
         return attachmentId;
     }
@@ -76,4 +82,33 @@ public class Attachment extends MutableEntityImpl {
         this.attachmentUrl = attachmentUrl;
     }
 
+    public Message getParent() {
+        return parent;
+    }
+
+    public void setParent(Message parent) {
+        this.parent = parent;
+    }
+
+    public boolean equals(Object other) {
+        if (!(other instanceof Attachment)) {
+            return false;
+        }
+        
+        Attachment attachment = (Attachment) other;
+        return new EqualsBuilder().append(attachmentId, attachment.getAttachmentId()).isEquals();
+    }
+
+    public int hashCode() {
+        return new HashCodeBuilder().append(attachmentId).toHashCode();
+    }
+
+    public String toString() {
+        return new ToStringBuilder(this).
+        append("attachmentId", attachmentId).
+        append("attachmentUrl", attachmentUrl).
+        append("attachmentName", attachmentName).
+        append("attachmentSize", attachmentSize).
+        append("attachmentType", attachmentType).toString();
+    }
 }

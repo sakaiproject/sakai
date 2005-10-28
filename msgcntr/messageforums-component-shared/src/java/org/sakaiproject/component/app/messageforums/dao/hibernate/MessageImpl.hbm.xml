@@ -43,7 +43,7 @@
     </property>
     <set name="attachments" lazy="true" sort="natural" 
          order-by="attachmentName asc" cascade="all">
-        <key column="surrogateKey"/>                        
+        <key column="PARENT_ID"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment"/>            
     </set>
     <property name="label">

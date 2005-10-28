@@ -66,7 +66,7 @@ public class TopicProxyImpl implements TopicProxy {
         
         Set attachments = new TreeSet();
         attachments.add(attachment);
-        //message.setAttachments(attachments);
+        message.setAttachments(attachments);
         
         messageModel = new MessageModelImpl(message);
     }

@@ -43,6 +43,11 @@
     <property name="attachmentType">
       <column name="ATTACHMENT_TYPE" length="255" not-null="true" />
     </property>
+
+    <many-to-one name="parent" column="PARENT_ID"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
+      not-null="false" index="MFR_NODE_PARENT_I" cascade="none" />
+
   </class>
 
   <query name="findAttachmentById">
