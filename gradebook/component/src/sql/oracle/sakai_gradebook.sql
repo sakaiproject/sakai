@@ -75,6 +75,7 @@ create table GB_GRADABLE_OBJECT_T (
    REMOVED number(1,0),
    POINTS_POSSIBLE double precision,
    DUE_DATE date,
+   NOT_COUNTED number(1,0),
    EXTERNALLY_MAINTAINED number(1,0),
    EXTERNAL_STUDENT_LINK varchar2(255),
    EXTERNAL_INSTRUCTOR_LINK varchar2(255),

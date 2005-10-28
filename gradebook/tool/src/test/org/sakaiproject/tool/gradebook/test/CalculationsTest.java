@@ -134,12 +134,12 @@ public class CalculationsTest extends TestCase {
         studentGradeRecords.add(new AssignmentGradeRecord(homework3, "studentId", new Double(400)));
 
         // The grade records should total 90%
-        Double autoCalc = courseGrade.calculateCourseGrade("studentId", assignments, studentGradeRecords);
+        courseGrade.calculateTotalPointsPossible(assignments);
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.calculateTotalPointsEarned(studentGradeRecords);
+        Double autoCalc = cgr.calculatePercent(courseGrade.getTotalPoints().doubleValue());
         Assert.assertEquals(new Double(90), autoCalc);
-
-		// Test for an empty list of assignments.
-		autoCalc = courseGrade.calculateCourseGrade("studentId", new HashSet(), new ArrayList());
-        Assert.assertEquals(new Double(0), autoCalc);
     }
 
     /**

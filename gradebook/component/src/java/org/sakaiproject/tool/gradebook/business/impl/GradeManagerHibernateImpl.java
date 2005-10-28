@@ -96,8 +96,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 						CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
 						if(logger.isDebugEnabled()) logger.debug("Points earned = " + cgr.getPointsEarned());
                         if(cgr.getPointsEarned() != null) {
-                            Double autoCalc = new Double(cgr.getPointsEarned().doubleValue() / totalPoints.doubleValue() * 100);
-                            cgr.setAutoCalculatedGrade(autoCalc);
+                            cgr.setAutoCalculatedGrade(cgr.calculatePercent(totalPoints.doubleValue()));
                         }
 					}
 				}
@@ -351,7 +350,9 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 	public List getStudentGradeRecords(final Long gradebookId, final String studentId) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                return getStudentGradeRecords(gradebookId, studentId, session);
+				return session.find("from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=?",
+					new Object[] {studentId, gradebookId},
+					new Type[] {Hibernate.STRING, Hibernate.LONG});
             }
         };
         return (List)getHibernateTemplate().execute(hc);
@@ -537,9 +538,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 					for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
 						CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
 						if(cgr.getPointsEarned() != null) {
-							Double autoCalc = new Double(cgr.getPointsEarned().doubleValue() /
-									cg.getTotalPoints().doubleValue() * 100);
-							cgr.setAutoCalculatedGrade(autoCalc);
+							cgr.setAutoCalculatedGrade(cgr.calculatePercent(cg.getTotalPoints().doubleValue()));
 						}
 					}
 				}
@@ -630,7 +629,8 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                     throw new RuntimeConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
                 }
 
-                if(!asnFromDb.getPointsPossible().equals(assignment.getPointsPossible())) {
+                if (!asnFromDb.getPointsPossible().equals(assignment.getPointsPossible()) ||
+                	(asnFromDb.isNotCounted() != assignment.isNotCounted())) {
                     pointsChanged = true;
                 }
 
@@ -642,7 +642,8 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 session.clear();
 
                 if(pointsChanged) {
-                    updateCourseGradeRecordSortValues(assignment.getGradebook().getId(), false);
+                	recalculateCourseGradeRecords(assignment.getGradebook(), session);
+                    // updateCourseGradeRecordSortValues(assignment.getGradebook().getId(), false);
                 }
 
                 return null;
@@ -713,11 +714,12 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
      * Gets the total number of points possible in a gradebook.
      */
     public double getTotalPoints(Long gradebookId) {
-        List assignmentPoints = getHibernateTemplate().find("select asn.pointsPossible from Assignment as asn where asn.removed=false and asn.gradebook.id=?", gradebookId, Hibernate.LONG);
+        List assignmentPoints = getHibernateTemplate().find("select asn.pointsPossible from Assignment as asn where asn.removed=false and asn.notCounted=false and asn.gradebook.id=?", gradebookId, Hibernate.LONG);
         double totalPoints = 0;
         for(Iterator iter = assignmentPoints.iterator(); iter.hasNext();) {
             Double points = (Double)iter.next();
-            totalPoints += points.doubleValue();
+ logger.warn("getTotalPoints: points=" + points);
+           totalPoints += points.doubleValue();
         }
         return totalPoints;
     }

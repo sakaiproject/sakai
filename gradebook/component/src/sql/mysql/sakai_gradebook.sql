@@ -67,6 +67,7 @@ create table GB_GRADABLE_OBJECT_T (
    REMOVED bit,
    POINTS_POSSIBLE double precision,
    DUE_DATE date,
+   NOT_COUNTED bit,
    EXTERNALLY_MAINTAINED bit,
    EXTERNAL_STUDENT_LINK varchar(255),
    EXTERNAL_INSTRUCTOR_LINK varchar(255),

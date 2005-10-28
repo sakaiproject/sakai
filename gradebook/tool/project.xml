@@ -414,7 +414,7 @@
 	With this setup, there's no way to restrict ourselves to a single
 	test on the command line. Instead, this file must be edited. For example,
 	the above line might be replaced with something like:
-				<include>**/GradableObjectManagerTest.java</include>
+				<include>**/GradeManagerTest.java</include>
 -->
 <!--
 	Include the following if you want to run the jcoverage goal.  Otherwise,

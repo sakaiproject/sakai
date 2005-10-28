@@ -49,6 +49,7 @@ public class Assignment extends GradableObject {
 
     protected Double pointsPossible;
     protected Date dueDate;
+    protected boolean notCounted;
     protected boolean externallyMaintained;
     protected String externalStudentLink;
     protected String externalInstructorLink;
@@ -172,6 +173,16 @@ public class Assignment extends GradableObject {
 		this.dueDate = dueDate;
 	}
 	/**
+	 */
+	public boolean isNotCounted() {
+		return notCounted;
+	}
+	/**
+	 */
+	public void setNotCounted(boolean notCounted) {
+		this.notCounted = notCounted;
+	}
+	/**
 	 * @return Returns the externalInstructorLink.
 	 */
 	public String getExternalInstructorLink() {
@@ -248,9 +259,6 @@ public class Assignment extends GradableObject {
      * returns the mean score for students with entered grades.
 	 */
     protected Double calculateMean(Collection grades, int numEnrollments) {
-//        for(int i=0; i < (numEnrollments - grades.size()); i++) {
-//            grades.add(new Double(0));
-//        }
         if(grades == null || grades.size() == 0) {
             return null;
         }

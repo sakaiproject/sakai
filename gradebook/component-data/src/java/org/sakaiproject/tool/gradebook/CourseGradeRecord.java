@@ -42,7 +42,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     private Double autoCalculatedGrade;  // Not persisted
     private String displayGrade;  // Not persisted
 
-    private static final Log logger = LogFactory.getLog(CourseGradeRecord.class);
+    private static final Log log = LogFactory.getLog(CourseGradeRecord.class);
     public static Comparator calcComparator;
 
     static {
@@ -123,6 +123,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
      * Calculates the total points earned for a set of grade records.
      *
      * @param gradeRecords The collection of all grade records for a student
+     * that count toward the course grade
      */
     public void calculateTotalPointsEarned(Collection gradeRecords) {
         double total = 0;

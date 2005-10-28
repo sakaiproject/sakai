@@ -84,50 +84,6 @@ public class CourseGrade extends GradableObject {
         return null;
 	}
 
-	/**
-     * Determines the auto-calculated value for an individual student's course
-     * grade record, based on the given assignments and grade records.
-     *
-     * @param assignments The assignments in the gradebook that count toward the
-     * course grade
-	 * @param gradeRecords  The collection of grade records that apply toward the
-     * course grade.
-     *
-	 * @return The calculated grade
-	 */
-	public Double calculateCourseGrade(String studentId, Collection assignments, Collection gradeRecords) {
-        // Ensure that the total points field has been populated
-		calculateTotalPointsPossible(assignments);
-		double totalPointsValue = this.totalPoints.doubleValue();
-
-		// The default value is 0.0, not null.
-		if (totalPointsValue == 0.0) {
-			return new Double(0.0);
-		}
-
-        // Determine the total points earned for all assignments
-        double totalEarned = 0;
-
-        // Loop through each assignment
-
-        for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {
-            Assignment asn = (Assignment)asnIter.next();
-            // Find the grade record for this assignment
-            for(Iterator gradeRecordIter = gradeRecords.iterator(); gradeRecordIter.hasNext();) {
-                AssignmentGradeRecord gr = (AssignmentGradeRecord)gradeRecordIter.next();
-                // Apply this grade record only if it is for this assignment and for the given student
-                if(gr.getGradableObject().equals(asn) && gr.getStudentId().equals(studentId)) {
-                    if(gr.getPointsEarned() != null) {
-                        totalEarned += gr.getPointsEarned().doubleValue();
-                    }
-                    break;
-                }
-            }
-        }
-
-        return new Double(totalEarned / this.totalPoints.doubleValue() * 100);
-	}
-
     /**
      * Calculates the total points possible based on a collection of assignments
      *
@@ -144,6 +100,9 @@ public class CourseGrade extends GradableObject {
                 continue;
             }
             Assignment asn = (Assignment)go;
+            if (asn.isNotCounted()) {
+            	continue;
+            }
             totalPoints+=asn.getPointsPossible().doubleValue();
         }
         this.totalPoints = new Double(totalPoints);

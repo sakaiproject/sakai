@@ -214,13 +214,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 asn.setPointsPossible(new Double(points));
                 session.update(asn);
 				if (log.isInfoEnabled()) log.info("External assessment updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid());
-                return new Boolean(updateCourseGradeSortScore);
+				if (updateCourseGradeSortScore) {
+					recalculateCourseGradeRecords(asn.getGradebook(), session);
+				}
+				return null;
+
             }
         };
-        Boolean performSortUpdate = (Boolean)getHibernateTemplate().execute(hc);
-        if(performSortUpdate.booleanValue()) {
-            gradeManager.updateCourseGradeRecordSortValues(gradebookManager.getGradebook(gradebookUid).getId(), false);
-        }
+        getHibernateTemplate().execute(hc);
 	}
 
 	/**

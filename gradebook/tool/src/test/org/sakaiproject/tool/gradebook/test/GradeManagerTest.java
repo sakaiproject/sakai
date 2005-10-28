@@ -31,6 +31,9 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -45,6 +48,7 @@ import org.sakaiproject.tool.gradebook.GradingEvents;
  *
  */
 public class GradeManagerTest extends GradebookTestBase {
+	private static Log log = LogFactory.getLog(GradeManagerTest.class);
 
     protected Gradebook gradebook;
 
@@ -289,7 +293,6 @@ public class GradeManagerTest extends GradebookTestBase {
         gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
 
         asn = gradeManager.getAssignmentWithStats(asgId);
-        System.out.println ("asn.getMean()=" + asn.getMean());
 
         // Make sure the dropped student wasn't included in the average.
         Assert.assertTrue(asn.getMean().doubleValue() == 100.0);
@@ -301,7 +304,6 @@ public class GradeManagerTest extends GradebookTestBase {
 		addUsersEnrollments(gradebook, studentUidsList);
 
         asn = gradeManager.getAssignmentWithStats(asgId);
-        System.out.println ("asn.getMean()=" + asn.getMean());
         Assert.assertTrue(asn.getMean().doubleValue() < 100.0);
 
 		// Make sure that dropped students can't prevent changing final grade types.
@@ -314,4 +316,55 @@ public class GradeManagerTest extends GradebookTestBase {
 		Assert.assertFalse(gradeManager.isExplicitlyEnteredCourseGradeRecords(gradebook.getId()));
     }
 
+    public void testNotCountedAssignments() throws Exception {
+		List studentUidsList = Arrays.asList(new String[] {
+			"testStudentUserUid1",
+		});
+		addUsersEnrollments(gradebook, studentUidsList);
+		Set studentUids = new HashSet(studentUidsList);
+
+        Long id1 = gradeManager.createAssignment(gradebook.getId(), "asn1", new Double(10), null);
+        Long id2 = gradeManager.createAssignment(gradebook.getId(), "asn2", new Double(20), new Date(10));
+
+        List assignments = gradeManager.getAssignments(gradebook.getId());
+        Assignment asn1 = gradeManager.getAssignmentWithStats(id1);
+        Assignment asn2 = gradeManager.getAssignmentWithStats(id2);
+
+		// Add some scores to the assignments.
+		GradeRecordSet gradeRecordSet = new GradeRecordSet(asn1);
+		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn1, (String)studentUidsList.get(0), new Double(8)));
+		gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
+		gradeRecordSet = new GradeRecordSet(asn2);
+		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn2, (String)studentUidsList.get(0), new Double(18)));
+		gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
+
+		// Make sure that the Course Grade total points includes both.
+		CourseGrade courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId());
+		Assert.assertTrue(courseGrade.getPointsForDisplay().doubleValue() == 30.0);
+        List courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade, studentUidsList);
+        CourseGradeRecord cgr = (CourseGradeRecord)courseGradeRecords.get(0);
+        Assert.assertTrue(cgr.getPointsEarned().doubleValue() == 26.0);
+
+        // Don't count one assignment.
+        asn2.setNotCounted(true);
+        gradeManager.updateAssignment(asn2);
+
+        // Make sure it's not counted.
+        courseGrade = gradeManager.getCourseGradeWithStats(gradebook.getId());
+		Assert.assertTrue(courseGrade.getPointsForDisplay().doubleValue() == 10.0);
+		courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade, studentUidsList);
+		cgr = (CourseGradeRecord)courseGradeRecords.get(0);
+		Assert.assertTrue(cgr.getPointsEarned().doubleValue() == 8.0);
+
+		// Test what is now (unfortunately) a different code path.
+        List persistentGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(asn1, studentUidsList);
+        AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)persistentGradeRecords.get(0);
+        gradeRecord.setPointsEarned(new Double(7));
+		gradeRecordSet = new GradeRecordSet(asn1);
+		gradeRecordSet.addGradeRecord(gradeRecord);
+		gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
+		courseGradeRecords = gradeManager.getPointsEarnedSortedGradeRecords(courseGrade, studentUidsList);
+		cgr = (CourseGradeRecord)courseGradeRecords.get(0);
+		Assert.assertTrue(cgr.getPointsEarned().doubleValue() == 7.0);
+    }
 }

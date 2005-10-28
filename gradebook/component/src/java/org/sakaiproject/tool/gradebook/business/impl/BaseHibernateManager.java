@@ -65,18 +65,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return assignments;
     }
 
-    /**
-     * Gets all grade records for a student.
-     *
-     * @param studentId The student ID
-     * @param session The hibernate session
-     * @return A List of grade records
-     *
-     * @throws HibernateException
-     */
-    protected List getStudentGradeRecords(Long gradebookId, String studentId, Session session) throws HibernateException {
-        return session.find("from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=?",
-                new Object[] {studentId, gradebookId}, new Type[] {Hibernate.STRING, Hibernate.LONG});
+    protected List getCountedStudentGradeRecords(Long gradebookId, String studentId, Session session) throws HibernateException {
+        return session.find("select agr from AssignmentGradeRecord as agr, Assignment as asn where agr.studentId=? and agr.gradableObject=asn and asn.removed=false and asn.notCounted=false and asn.gradebook.id=?",
+        	new Object[] {studentId, gradebookId}, new Type[] {Hibernate.STRING, Hibernate.LONG});
     }
 
     /**
@@ -136,8 +127,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
             // TODO Run performance test: get all grade records and deal with them in memory vs. multiple queries
 
-            List gradeRecords = getStudentGradeRecords(gradebook.getId(), studentId, session);
+            List gradeRecords = getCountedStudentGradeRecords(gradebook.getId(), studentId, session);
             CourseGrade cg = getCourseGrade(gradebook.getId());
+            cg.calculateTotalPointsPossible(assignments);
 
             // Find the course grade record, if it exists
             CourseGradeRecord cgr = getCourseGradeRecord(gradebook, studentId, session);
@@ -150,7 +142,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             // Calculate and update the total points and sort grade fields
             cgr.calculateTotalPointsEarned(gradeRecords);
             if(cgr.getEnteredGrade() == null) {
-                cgr.setSortGrade(cg.calculateCourseGrade(studentId, assignments, gradeRecords));
+                cgr.setSortGrade(cgr.calculatePercent(cg.getTotalPoints().doubleValue()));
             } else {
                 cgr.setSortGrade(gradebook.getSelectedGradeMapping().getValue(cgr.getEnteredGrade()));
             }
