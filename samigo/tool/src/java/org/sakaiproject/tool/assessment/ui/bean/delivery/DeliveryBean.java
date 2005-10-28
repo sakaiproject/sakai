@@ -112,6 +112,7 @@ public class DeliveryBean
   private String creatorName;
 
   private FeedbackComponent feedbackComponent;
+  private boolean feedbackOnDate;
   private String errorMessage;
   private SettingsDeliveryBean settings;
   private java.util.Date dueDate;
@@ -917,6 +918,16 @@ public class DeliveryBean
   public void setGraded(boolean graded)
   {
     this.graded = graded;
+  }
+
+  public boolean getFeedbackOnDate()
+  {
+    return feedbackOnDate;
+  }
+
+  public void setFeedbackOnDate(boolean feedbackOnDate)
+  {
+    this.feedbackOnDate = feedbackOnDate;
   }
 
   public String getGraderComment()
