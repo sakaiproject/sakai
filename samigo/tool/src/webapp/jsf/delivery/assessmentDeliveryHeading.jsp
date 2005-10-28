@@ -31,8 +31,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 </h3>
 <%-- NAV BAR --%>
 <p class="navIntraTool">
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showImmediate &&
-                            delivery.previewMode ne 'true'}">
+  <h:panelGroup rendered="#{(delivery.feedbackComponent.showImmediate || delivery.feedbackOnDate) && delivery.previewMode ne 'true'}">
     <h:commandLink action="takeAssessment" onmouseup="saveTime();" rendered="#{delivery.previewAssessment ne 'true'}" >
      <h:outputText value="#{msg.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
