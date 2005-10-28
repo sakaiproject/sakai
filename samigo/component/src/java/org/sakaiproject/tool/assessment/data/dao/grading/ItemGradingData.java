@@ -156,7 +156,7 @@ public class ItemGradingData
 
   public ArrayList getMediaArray(){
     GradingService service = new GradingService();
-    if (itemGradingId != null);
+    if (itemGradingId != null)
       return service.getMediaArray(itemGradingId.toString());
     else
       return new ArrayList();
