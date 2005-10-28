@@ -58,7 +58,7 @@
 					<h:outputText value="#{row.dueDate}" rendered="#{row.dueDate != null}">
 						<f:convertDateTime />
 					</h:outputText>
-					<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{row.dueDate == null}"/>
+					<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{row.dueDate == null}"/>
 				</h:column>
 				<h:column>
 					<f:facet name="header">
@@ -67,10 +67,9 @@
 						</x:commandSortHeader>
 					</f:facet>
 
-					<h:outputText value="#{row.pointsEarned}" rendered="#{row.pointsEarned != null}">
+					<h:outputText value="#{row.pointsEarned}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 					</h:outputText>
-					<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{row.pointsEarned == null}"/>
 				</h:column>
 				<h:column>
 					<f:facet name="header">
@@ -91,7 +90,7 @@
 					</f:facet>
 
 					<h:outputText value="#{row.grade}" rendered="#{row.grade != null}"/>
-					<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{row.grade == null}"/>
+					<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{row.grade == null}"/>
 				</h:column>
 				<h:column>
 					<h:outputText value="#{row.externalAppName}" />

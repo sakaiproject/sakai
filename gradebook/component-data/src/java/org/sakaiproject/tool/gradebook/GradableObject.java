@@ -111,7 +111,7 @@ public abstract class GradableObject implements Serializable {
         if(mean == null || mean.equals(new Double(Double.NaN))) {
         	return null;
         } else {
-            return mean;
+            return new Double(mean.doubleValue() / 100.0);
         }
 	}
 

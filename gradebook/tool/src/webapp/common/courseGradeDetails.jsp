@@ -26,7 +26,7 @@
 			</h:outputText>
 
 			<h:outputText id="averageLabel" value="#{msgs.course_grade_details_average}"/>
-			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean / 100}">
+			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean}">
 				<f:convertNumber type="percentage" integerOnly="true" />
 			</h:outputText>
 		</h:panelGrid>

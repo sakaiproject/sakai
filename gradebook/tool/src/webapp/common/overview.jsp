@@ -49,7 +49,7 @@
 		        </f:facet>
 
 				<h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}"/>
-				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
+				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -58,10 +58,9 @@
 		            </x:commandSortHeader>
 		        </f:facet>
 
-				<h:outputText value="#{gradableObject.formattedMean / 100}" rendered="#{gradableObject.formattedMean != null}">
-					<f:convertNumber type="percentage" integerOnly="true" />
+				<h:outputText value="#{gradableObject.formattedMean}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE"/>
 				</h:outputText>
-				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{gradableObject.formattedMean == null}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -69,10 +68,9 @@
 						<h:outputText value="#{msgs.overview_assignments_header_points}"/>
 		            </x:commandSortHeader>
 		        </f:facet>
-				<h:outputText value="#{gradableObject.pointsForDisplay}" rendered="#{gradableObject.pointsForDisplay != null}">
-					<f:convertNumber maxFractionDigits="2"/>
+				<h:outputText value="#{gradableObject.pointsForDisplay}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
 				</h:outputText>
-				<h:outputText value="#{msgs.overview_null_placeholder}" rendered="#{gradableObject.pointsForDisplay == null}"/>
 			</h:column>
 			<h:column>
 				<h:outputText value="from #{gradableObject.externalAppName}" rendered="#{! gradableObject.courseGrade && ! empty gradableObject.externalAppName}"/>

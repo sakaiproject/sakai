@@ -51,20 +51,18 @@
 				<h:outputText id="title" value="#{assignmentDetailsBean.assignment.name}"/>
 
 				<h:outputText id="pointsLabel" value="#{msgs.assignment_details_points}"/>
-				<h:outputText id="points" value="#{assignmentDetailsBean.assignment.pointsPossible}" rendered="#{assignmentDetailsBean.assignment.pointsPossible != null}">
-					<f:convertNumber maxFractionDigits="2"/>
+				<h:outputText id="points" value="#{assignmentDetailsBean.assignment.pointsPossible}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 				</h:outputText>
-				<h:outputText id="pointsPlaceholder" value="#{msgs.overview_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.pointsPossible == null}" />
 
 				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}"/>
-				<h:outputText id="average" value="#{assignmentDetailsBean.assignment.formattedMean / 100}" rendered="#{assignmentDetailsBean.assignment.formattedMean != null}" >
-					<f:convertNumber type="percentage" integerOnly="true" />
+				<h:outputText id="average" value="#{assignmentDetailsBean.assignment.formattedMean}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE"/>
 				</h:outputText>
-				<h:outputText id="averagePlaceholder" value="#{msgs.overview_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.formattedMean == null}" />
 
 				<h:outputText id="dueDateLabel" value="#{msgs.assignment_details_due_date}"/>
 				<h:outputText id="dueDate" value="#{assignmentDetailsBean.assignment.dueDate}" rendered="#{assignmentDetailsBean.assignment.dueDate != null}"  />
-				<h:outputText id="dueDatePlaceholder" value="#{msgs.overview_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.dueDate == null}" />
+				<h:outputText id="dueDatePlaceholder" value="#{msgs.score_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.dueDate == null}" />
 
 				<h:outputText id="optionsLabel" value="#{msgs.assignment_details_options}" rendered="#{assignmentDetailsBean.userAbleToEditAssessments}"/>
 				<h:panelGrid cellpadding="0" cellspacing="0" columns="1" rendered="#{assignmentDetailsBean.userAbleToEditAssessments}">

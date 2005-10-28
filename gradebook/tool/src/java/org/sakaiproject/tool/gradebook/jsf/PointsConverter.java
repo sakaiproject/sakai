@@ -47,13 +47,18 @@ public class PointsConverter extends NumberConverter {
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");
 
-		if ((value != null) && (value instanceof Number)) {
-			// Truncate to 2 decimal places.
-			double truncated = FacesUtil.getRoundDown(((Number)value).doubleValue(), 2);
-			value = new Double(truncated);
+		String formattedScore;
+		if (value == null) {
+			formattedScore = FacesUtil.getLocalizedString("score_null_placeholder");
+		} else {
+			if (value instanceof Number) {
+				// Truncate to 2 decimal places.
+				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), 2));
+			}
+			formattedScore = super.getAsString(context, component, value);
 		}
 
-		return super.getAsString(context, component, value);
+		return formattedScore;
 	}
 
 }
