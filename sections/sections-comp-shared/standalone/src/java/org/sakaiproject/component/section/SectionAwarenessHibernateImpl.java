@@ -26,13 +26,11 @@ package org.sakaiproject.component.section;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -63,16 +61,25 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	/**
 	 * @inheritDoc
 	 */
-	public Set getSections(final String siteContext) {
+	public List getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
-                Query q = session.getNamedQuery("findSectionsBySiteContext");
-                q.setParameter("context", siteContext);
-                return new HashSet(q.list());
+            	// Get the sections
+                Query secQuery = session.getNamedQuery("findSectionsBySiteContext");
+                secQuery.setParameter("context", siteContext);
+                List list = secQuery.list();
+
+                // Get the teams
+                Query teamQuery = session.getNamedQuery("findTeamsBySiteContext");
+                teamQuery.setParameter("context", siteContext);
+
+                // Add the teams after the sections
+                list.addAll(teamQuery.list());
+                return list;
             }
         };
-        return (Set)getHibernateTemplate().execute(hc);
+        return getHibernateTemplate().executeFind(hc);
     }
 
 	/**

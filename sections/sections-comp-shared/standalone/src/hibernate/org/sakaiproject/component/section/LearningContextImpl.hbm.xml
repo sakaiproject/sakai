@@ -47,6 +47,14 @@
     <query name="findSectionsBySiteContext">
         <![CDATA[
         from CourseSectionImpl as section where section.course.siteContext=:context
+            and section.category is not null order by section.category asc, section.title asc
+        ]]>
+    </query>
+
+    <query name="findTeamsBySiteContext">
+        <![CDATA[
+        from CourseSectionImpl as section where section.course.siteContext=:context
+            and section.category is null
         ]]>
     </query>
 
@@ -82,7 +90,8 @@
 
     <query name="findSectionsByCategory">
         <![CDATA[
-        from CourseSectionImpl as section where section.category=:categoryId and section.course.siteContext=:siteContext
+        from CourseSectionImpl as section where section.category=:categoryId and
+            section.course.siteContext=:siteContext order by section.category asc
         ]]>
     </query>
 

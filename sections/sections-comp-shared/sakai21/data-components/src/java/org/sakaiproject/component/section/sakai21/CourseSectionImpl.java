@@ -43,7 +43,7 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.site.Group;
 
-public class CourseSectionImpl implements CourseSection, Serializable {
+public class CourseSectionImpl implements CourseSection, Comparable, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final String TIME_FORMAT_LONG = "h:mm a";
@@ -473,6 +473,36 @@ public class CourseSectionImpl implements CourseSection, Serializable {
 	}
 
 	/**
+	 * Compares CourseSectionImpls based on their category ID and title.  Sections
+	 * without a category are sorted last.
+	 */
+	public int compareTo(Object o) {
+		if(o == this) {
+			return 0;
+		}
+		if(o instanceof CourseSectionImpl) {
+			CourseSectionImpl other = (CourseSectionImpl)o;
+			if(this.category != null && other.category == null) {
+				return -1;
+			} else if(this.category == null && other.category != null) {
+				return 1;
+			}
+			if(this.category == null && other.category == null) {
+				return this.title.compareTo(other.title);
+			}
+			int categoryComparison = this.category.compareTo(other.category);
+			if(categoryComparison == 0) {
+				return this.title.compareTo(other.title);
+			} else {
+				return categoryComparison;
+			}
+		} else {
+			throw new ClassCastException("Can not compare CourseSectionImpl to " + o.getClass());
+		}
+		
+	}
+
+	/**
 	 * Access the group object being decorated.  This field is transient, so this
 	 * is likely to return null.  This method should not be added to the CourseSection
 	 * interface, since it is implementation dependent.
@@ -482,7 +512,6 @@ public class CourseSectionImpl implements CourseSection, Serializable {
 	public Group getGroup() {
 		return group;
 	}
-
 }
 
 

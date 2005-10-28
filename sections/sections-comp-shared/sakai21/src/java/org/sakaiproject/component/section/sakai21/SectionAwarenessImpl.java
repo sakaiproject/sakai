@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -89,21 +88,22 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	/**
 	 * @inheritDoc
 	 */
-	public Set getSections(final String siteContext) {
+	public List getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
-    	Set sectionSet = new HashSet();
+    	List sectionList = new ArrayList();
     	Collection sections;
     	try {
     		sections = siteService.getSite(siteContext).getGroups();
     	} catch (IdUnusedException e) {
     		log.error("No site with id = " + siteContext);
-    		return new HashSet();
+    		return sectionList;
     	}
     	for(Iterator iter = sections.iterator(); iter.hasNext();) {
     		Group group = (Group)iter.next();
-    		sectionSet.add(new CourseSectionImpl(group));
+    		sectionList.add(new CourseSectionImpl(group));
     	}
-    	return sectionSet;
+    	Collections.sort(sectionList);
+    	return sectionList;
     }
 
 	/**
@@ -448,7 +448,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 
 		// Get all userUids of all users in sections
 		List sectionedUserUids = new ArrayList();
-		Set sections = getSections(siteContext);
+		List sections = getSections(siteContext);
 		for(Iterator sectionIter = sections.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			List sectionUsers = securityService.unlockUsers(getLock(role), section.getUuid());

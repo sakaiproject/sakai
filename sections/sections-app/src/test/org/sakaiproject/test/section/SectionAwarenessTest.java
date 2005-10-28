@@ -23,6 +23,7 @@
 **********************************************************************************/
 package org.sakaiproject.test.section;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -82,7 +83,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	Assert.assertTrue(secMgr.getCourse(siteContext).getUuid().equals(course.getUuid()));
     	
     	// Assert that section awareness can retrieve the new section
-    	Set sections = secAware.getSections(siteContext);
+    	List sections = secAware.getSections(siteContext);
     	Assert.assertTrue(sections.size() == 1);
     	Assert.assertTrue(sections.contains(sec));
 
@@ -96,6 +97,44 @@ public class SectionAwarenessTest extends SectionsTestBase{
 
     	// Assert that section awareness can retrieve the category name
     	Assert.assertTrue(secAware.getCategoryName(firstCategory, Locale.US) != null);
+    }
+    
+    public void testSectionSorting() throws Exception {
+    	String siteContext = context.getContext(null);
+    	List categories = secAware.getSectionCategories(siteContext);
+    	
+    	// Add a course and a section to work from
+    	courseMgr.createCourse(siteContext, "A course", false, false, false);
+    	Course course = secMgr.getCourse(siteContext);
+    	
+    	String firstCategory = (String)categories.get(0);
+    	String secondCategory = (String)categories.get(1);
+    	
+    	CourseSection sec1 = secMgr.addSection(course.getUuid(), "aSection", firstCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec2 = secMgr.addSection(course.getUuid(), "bSection", firstCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+
+    	CourseSection sec3 = secMgr.addSection(course.getUuid(), "aaSection", secondCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec4 = secMgr.addSection(course.getUuid(), "bbSection", secondCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	
+    	CourseSection sec5 = secMgr.addSection(course.getUuid(), "aaaSection", null, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec6 = secMgr.addSection(course.getUuid(), "bbbSection", null, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+
+    	List sections = secAware.getSections(siteContext);
+    	
+    	// Ensure that sections in the same category sort by title
+    	Assert.assertTrue(sections.indexOf(sec1) < sections.indexOf(sec2));
+    	
+    	// Ensure that secions in different categories sort by category
+    	Assert.assertTrue(sections.indexOf(sec1) < sections.indexOf(sec3));
+
+    	// Ensure that sections with null categories sort by title
+    	Assert.assertTrue(sections.indexOf(sec5) < sections.indexOf(sec6));
+
+    	// Ensure that sections with null categories sort after a section with a category
+    	// This isn't possible in standalone... so do we need to test for it?
+    	// Since the sorting is in the DB, we can't be sure where null categories will be sorted (first or last)
+    	Assert.assertTrue(sections.indexOf(sec1) < sections.indexOf(sec5));
+    	Assert.assertTrue(sections.indexOf(sec1) < sections.indexOf(sec6));
     }
     
     public void testSectionMembership() throws Exception {

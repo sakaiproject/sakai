@@ -26,7 +26,6 @@ package org.sakaiproject.component.section.cover;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import org.sakaiproject.api.kernel.component.cover.ComponentManager;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -67,7 +66,7 @@ public class SectionAwareness {
 		return getInstance().getSectionMembersInRole(sectionUuid, role);
 	}
 
-	public static final Set getSections(String siteContext) {
+	public static final List getSections(String siteContext) {
 		return getInstance().getSections(siteContext);
 	}
 

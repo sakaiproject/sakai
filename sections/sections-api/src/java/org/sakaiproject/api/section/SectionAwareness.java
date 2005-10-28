@@ -25,7 +25,6 @@ package org.sakaiproject.api.section;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.facade.Role;
@@ -58,11 +57,11 @@ public interface SectionAwareness {
      * 
 	 * @param siteContext The site context
 	 * 
-     * @return The Set of
+     * @return The List of
      * {@link org.sakaiproject.api.section.coursemanagement.CourseSection CourseSections}
      * associated with this site context.
      */
-    public Set getSections(String siteContext);
+    public List getSections(String siteContext);
 
     /**
      * Gets the list of section categories.  In sakai 2.1, there will be only a

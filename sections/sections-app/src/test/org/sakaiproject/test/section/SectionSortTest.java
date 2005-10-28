@@ -26,7 +26,9 @@ package org.sakaiproject.test.section;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -64,18 +66,34 @@ public class SectionSortTest extends TestCase {
 		course.setUuid("course 1 uuid");
 		course.setTitle("course 1 title");
 		
+		Calendar startCal = new GregorianCalendar();
+		startCal.set(Calendar.HOUR_OF_DAY, 8);
+
+		Calendar endCal = new GregorianCalendar();
+		endCal.set(Calendar.HOUR_OF_DAY, 9);
+		
 		sectionA = new CourseSectionImpl(course, "a section",
 				"a section uuid", "a category", new Integer(10), "a section location",
-				new Time(8, 0, 0), new Time(9, 0, 0), false, false, false, false, false, false, false);
+				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
+				false, false, false, false, false, false, false);
+
 		sectionB = new CourseSectionImpl(course, "b section",
 				"b section uuid", "a category", new Integer(20), "b section location",
-				new Time(9, 0, 0), new Time(10, 0, 0), false, false, false, false, false, false, false);
+				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
+				false, false, false, false, false, false, false);
+
 		sectionC = new CourseSectionImpl(course, "c section",
 				"c section uuid", "b category", new Integer(5), "c section location",
-				new Time(8, 0, 0), new Time(9, 0, 0), false, false, false, false, false, false, false);
+				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
+				false, false, false, false, false, false, false);
+		
+		startCal.set(Calendar.HOUR_OF_DAY, 9);
+		endCal.set(Calendar.HOUR_OF_DAY, 10);
+
 		sectionD = new CourseSectionImpl(course, "d section",
 				"d section uuid", "b category", new Integer(15), "d section location",
-				new Time(9, 0, 0), new Time(10, 0, 0), false, false, false, false, false, false, false);
+				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
+				false, false, false, false, false, false, false);
 		
 		instructorsA = new ArrayList();
 		instructorsA.add("Schmoe, Joe");
