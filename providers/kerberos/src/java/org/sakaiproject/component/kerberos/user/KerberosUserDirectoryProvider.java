@@ -553,6 +553,14 @@ public class KerberosUserDirectoryProvider
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean createUserRecord(String id)
+	{
+		return false;
+	}
+	
 }	// KerberosUserDirectoryProvider
 
 

@@ -258,6 +258,14 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean createUserRecord(String id)
+	{
+		return false;
+	}
+	
 } // SampleUserDirectoryProvider
 
 

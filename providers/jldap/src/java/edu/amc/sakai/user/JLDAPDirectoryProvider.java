@@ -594,5 +594,13 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider {
 	{
 		return false;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean createUserRecord(String id)
+	{
+		return false;
+	}
 }
 
