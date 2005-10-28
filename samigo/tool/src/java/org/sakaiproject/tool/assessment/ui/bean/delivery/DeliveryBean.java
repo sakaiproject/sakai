@@ -29,7 +29,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ExternalContext;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1613,8 +1616,6 @@ public class DeliveryBean
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
     String mediaLocation = (String) e.getNewValue();
     log.debug("***2a. addMediaToItemGrading, new value =" + mediaLocation);
-    File media = new File(mediaLocation);
-    byte[] mediaByte = getMediaStream(mediaLocation);
 
     // 3. get the questionId (which is the PublishedItemData.itemId)
     int assessmentIndex = mediaLocation.indexOf("assessment");
@@ -1666,7 +1667,38 @@ public class DeliveryBean
     gradingService.saveOrUpdateAssessmentGrading(adata);
     log.debug("***5b. addMediaToItemGrading, saved=" + adata);
 
-    // 6. create a media record
+    //if media is uploaded, create media record and attach to itemGradingData
+    if (mediaIsValid())
+      saveMedia(agent, mediaLocation, itemGradingData, gradingService);
+
+    // 8. do whatever need doing
+    DeliveryActionListener l2 = new DeliveryActionListener();
+    l2.processAction(null);
+
+    // 9. do the timer thing
+    Integer timeLimit = null;
+    if (adata != null && adata.getPublishedAssessment() != null
+        && adata.getPublishedAssessment().getAssessmentAccessControl() != null)
+    {
+      timeLimit = adata.getPublishedAssessment().getAssessmentAccessControl().
+        getTimeLimit();
+    }
+    if (timeLimit != null && timeLimit.intValue() > 0)
+    {
+      UpdateTimerListener l3 = new UpdateTimerListener();
+      l3.processAction(null);
+    }
+
+    reload = true;
+    return "takeAssessment";
+
+  }
+
+  public void saveMedia(String agent, String mediaLocation, ItemGradingData itemGradingData, 
+                        GradingService gradingService){
+    // 1. create a media record
+    File media = new File(mediaLocation);
+    byte[] mediaByte = getMediaStream(mediaLocation);
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
     //boolean SAVETODB = MediaData.saveToDB();
     boolean SAVETODB = getSaveToDb();
@@ -1704,32 +1736,42 @@ public class DeliveryBean
               getItemGradingId());
     log.debug("***6d. addMediaToItemGrading, mediaId=" + mediaData.getMediaId());
 
-    // 7. store mediaId in itemGradingRecord.answerText
+    // 2. store mediaId in itemGradingRecord.answerText
     log.debug("***7. addMediaToItemGrading, adata=" + adata);
     itemGradingData.setAnswerText(mediaId + "");
     gradingService.saveItemGrading(itemGradingData);
+  }
 
-    // 8. do whatever need doing
-    DeliveryActionListener l2 = new DeliveryActionListener();
-    l2.processAction(null);
 
-    // 9. do the timer thing
-    Integer timeLimit = null;
-    if (adata != null && adata.getPublishedAssessment() != null
-        && adata.getPublishedAssessment().getAssessmentAccessControl() != null)
-    {
-      timeLimit = adata.getPublishedAssessment().getAssessmentAccessControl().
-        getTimeLimit();
+  public boolean mediaIsValid()
+  {
+    boolean returnValue =true;
+    // check if file is too big
+    FacesContext context = FacesContext.getCurrentInstance();
+    ExternalContext external = context.getExternalContext();
+    Long fileSize = (Long)((ServletContext)external.getContext()).getAttribute("TEMP_FILEUPLOAD_SIZE");
+    Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
+    log.info("**** filesize is ="+fileSize);
+    log.info("**** maxsize is ="+maxSize);
+    ((ServletContext)external.getContext()).removeAttribute("TEMP_FILEUPLOAD_SIZE");
+    if (fileSize!=null){
+      float fileSize_float = fileSize.floatValue()/1024;
+      int tmp = Math.round(fileSize_float * 10.0f);
+      fileSize_float = (float)tmp / 10.0f;
+      float maxSize_float = maxSize.floatValue()/1024;
+      int tmp0 = Math.round(maxSize_float * 10.0f);
+      maxSize_float = (float)tmp0 / 10.0f;
+      
+      String err1=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "file_upload_error");
+      String err2=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "file_uploaded");
+      String err3=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "max_size_allowed");
+      String err4=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "upload_again");
+      String err = err2 + fileSize_float + err3 + maxSize_float + err4;
+      context.addMessage("file_upload_error",new FacesMessage(err1));
+      context.addMessage("file_upload_error",new FacesMessage(err));
+      returnValue = false;
     }
-    if (timeLimit != null && timeLimit.intValue() > 0)
-    {
-      UpdateTimerListener l3 = new UpdateTimerListener();
-      l3.processAction(null);
-    }
-
-    reload = true;
-    return "takeAssessment";
-
+    return returnValue;
   }
 
   public boolean getNotTakeable()

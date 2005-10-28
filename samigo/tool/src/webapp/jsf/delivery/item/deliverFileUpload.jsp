@@ -29,6 +29,7 @@ should be included in file importing DeliveryMessages
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <h:panelGroup rendered="#{delivery.previewAssessment ne 'true'}">
+  <h:messages id="file_upload_error" layout="table" style="color:red"/>
   <h:outputText value="#{msg.file}" />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
   <!-- For ItemGradingData, it is very important that target must be in this format: -->
@@ -57,7 +58,7 @@ should be included in file importing DeliveryMessages
 <f:verbatim><br /></f:verbatim>
 
       <%-- media list, note that question is ItemContentBean --%>
-
+<h:panelGroup rendered="#{question!=null and question.mediaArray!=null}">
       <h:dataTable value="#{question.mediaArray}" var="media">
         <h:column>
           <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
@@ -82,6 +83,7 @@ should be included in file importing DeliveryMessages
           </h:commandLink>
         </h:column>
       </h:dataTable>
+</h:panelGroup>
 
 <h:selectBooleanCheckbox value="#{question.review}" rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" id="mark_for_review" />
 <h:outputLabel for="mark_for_review" value="#{msg.mark}"
