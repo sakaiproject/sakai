@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -46,6 +47,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	private static final Log log = LogFactory.getLog(InstructorSectionDecorator.class);
 
 	public static final int NAME_TRUNCATION_LENGTH = 20;
+	public static final int LOCATION_TRUNCATION_LENGTH = 15;
 
 	protected List instructorNames;
 	protected int totalEnrollments;
@@ -58,7 +60,9 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		super(courseSection, categoryForDisplay);
 		this.instructorNames = instructorNames;
 		this.totalEnrollments = totalEnrollments;
-		this.truncatedLocation = internalTruncation(courseSection.getLocation());
+		
+		// The latest spec has no truncation (10.28.2005)
+		this.truncatedLocation = courseSection.getLocation();
 		populateSpotsAvailable(courseSection);
 	}
 
@@ -93,8 +97,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		return this.getTitle().compareTo(((InstructorSectionDecorator)o).getTitle());
 	}
 
-	public static final Comparator getFieldComparator(final String fieldName,
-			final boolean sortAscending, final List categoryNames, final List categoryIds) {
+	public static final Comparator getFieldComparator(final String fieldName, final boolean sortAscending) {
 		return new Comparator() {
 			public int compare(Object o1, Object o2) {
 				if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
@@ -102,8 +105,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
 
 					// First compare the category name, then compare the field
-					int categoryNameComparison = categoryNameComparison(section1,
-							section2, categoryNames, categoryIds);
+					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
 						// These are in the same category, so compare by the field
 						Comparable object1;
@@ -126,7 +128,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 							if(fieldName.equals("title")) {
 								return 0;
 							} else {
-								return getFieldComparator("title", sortAscending, categoryNames, categoryIds).compare(o1, o2);
+								return getFieldComparator("title", sortAscending).compare(o1, o2);
 							}
 						}
 						int comparison = object1.compareTo(object2);
@@ -142,8 +144,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator getManagersComparator(final boolean sortAscending,
-			final List categoryNames, final List categoryIds) {
+	public static final Comparator getManagersComparator(final boolean sortAscending) {
 		return new Comparator() {
 			public int compare(Object o1, Object o2) {
 				if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
@@ -151,8 +152,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
 
 					// First compare the category name, then compare the time
-					int categoryNameComparison = categoryNameComparison(section1,
-							section2, categoryNames, categoryIds);
+					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
 						// These are in the same category, so compare by the list of managers
 						List managers1 = section1.getInstructorNames();
@@ -179,8 +179,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator getEnrollmentsComparator(final boolean sortAscending,
-			final boolean useAvailable, final List categoryNames, final List categoryIds) {
+	public static final Comparator getEnrollmentsComparator(final boolean sortAscending, final boolean useAvailable) {
 		return new Comparator() {
 			public int compare(Object o1, Object o2) {
 				if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
@@ -188,8 +187,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
 
 					// First compare the category name, then compare available spots
-					int categoryNameComparison = categoryNameComparison(section1,
-							section2, categoryNames, categoryIds);
+					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
 						// These are in the same category, so compare by available enrollments
 						Integer maxEnrollments1 = section1.getMaxEnrollments();
@@ -224,42 +222,34 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	protected static final int categoryNameComparison(InstructorSectionDecorator section1,
-			InstructorSectionDecorator section2, List categoryNames, List categoryIds) {
-		String section1Name = (String)categoryNames.get(categoryIds.indexOf(section1.getCategory()));
-		String section2Name = (String)categoryNames.get(categoryIds.indexOf(section2.getCategory()));
-		return section1Name.compareTo(section2Name);
-	}
-
-	private String internalTruncation(final String str) {
-		int maxLength = 15;
-		if(log.isDebugEnabled()) log.debug("Truncating " + str + " to " + maxLength + " characters");
-		
-		if(str == null) {
-			return null;
-		}
-
-		final String ellipsis = "...";
-		final int length = str.length();
-		if(log.isDebugEnabled()) log.debug("String length = " + length + ", max length = " + maxLength);
-		if(length <= maxLength) {
-			return str;
-		} else {
-			final StringBuffer sb = new StringBuffer();
-			final int prefixEnd = (int)Math.floor((maxLength - ellipsis.length()) / 2);
-			if(log.isDebugEnabled()) log.debug("prefix end = " + prefixEnd);
-
-			// TODO This truncates one too many chars if maxLength is even
-			int suffixStart = length - prefixEnd;
-			if(log.isDebugEnabled()) log.debug("suffix start = " + suffixStart);
-
-			sb.append(str.substring(0, prefixEnd));
-			sb.append(ellipsis);
-			sb.append(str.substring(suffixStart, length));
-			
-			return sb.toString();
-		}
-	}
+//	private String internalTruncation(final String str) {
+//		if(log.isDebugEnabled()) log.debug("Truncating " + str + " to " + LOCATION_TRUNCATION_LENGTH + " characters");
+//		
+//		if(str == null) {
+//			return null;
+//		}
+//
+//		final String ellipsis = "...";
+//		final int length = str.length();
+//		if(log.isDebugEnabled()) log.debug("String length = " + length + ", max length = " + LOCATION_TRUNCATION_LENGTH);
+//		if(length <= LOCATION_TRUNCATION_LENGTH) {
+//			return str;
+//		} else {
+//			final StringBuffer sb = new StringBuffer();
+//			final int prefixEnd = (int)Math.floor((LOCATION_TRUNCATION_LENGTH - ellipsis.length()) / 2);
+//			if(log.isDebugEnabled()) log.debug("prefix end = " + prefixEnd);
+//
+//			// TODO This truncates one too many chars if maxLength is even
+//			int suffixStart = length - prefixEnd;
+//			if(log.isDebugEnabled()) log.debug("suffix start = " + suffixStart);
+//
+//			sb.append(str.substring(0, prefixEnd));
+//			sb.append(ellipsis);
+//			sb.append(str.substring(suffixStart, length));
+//			
+//			return sb.toString();
+//		}
+//	}
 	
 	public String getLocation() {
 		return truncatedLocation;

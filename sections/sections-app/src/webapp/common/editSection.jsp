@@ -84,7 +84,7 @@
     
             <h:outputLabel value="#{msgs.section_location}" for="location" styleClass="formLabel"/>
             <h:panelGrid columns="2">
-                <h:inputText id="location" value="#{editSectionBean.location}" styleClass="formLabel"/>
+                <h:inputText id="location" value="#{editSectionBean.location}" maxlength="20" />
                 <h:outputText value="#{msgs.section_location_truncation}"/>
             </h:panelGrid>
         </h:panelGrid>

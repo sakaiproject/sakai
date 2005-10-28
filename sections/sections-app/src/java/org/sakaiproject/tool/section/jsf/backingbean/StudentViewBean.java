@@ -203,16 +203,16 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 
 	private Comparator getComparator() {
 		if(sortColumn.equals("instructor")) {
-			return InstructorSectionDecorator.getManagersComparator(sortAscending, categoryNames, categoryIds); 
+			return InstructorSectionDecorator.getManagersComparator(sortAscending); 
 		} else if(sortColumn.equals("category")) {
 			// These are already sorted by category, so just sort by title
-			return InstructorSectionDecorator.getFieldComparator("title", sortAscending, categoryNames, categoryIds);
+			return InstructorSectionDecorator.getFieldComparator("title", sortAscending);
 		} else if(sortColumn.equals("available")) {
-			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true, categoryNames, categoryIds); 
+			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true); 
 		} else if(sortColumn.equals("change")) {
-			return StudentSectionDecorator.getChangeComparator(sortAscending, categoryNames, categoryIds, joinAllowed, switchAllowed);
+			return StudentSectionDecorator.getChangeComparator(sortAscending, joinAllowed, switchAllowed);
 		} else {
-			return InstructorSectionDecorator.getFieldComparator(sortColumn, sortAscending, categoryNames, categoryIds); 
+			return InstructorSectionDecorator.getFieldComparator(sortColumn, sortAscending); 
 		}
 	}
 

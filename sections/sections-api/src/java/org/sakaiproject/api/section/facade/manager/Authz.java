@@ -32,26 +32,6 @@ package org.sakaiproject.api.section.facade.manager;
  *
  */
 public interface Authz {
-//	/**
-//	 * Gets the role for a given user in a given site.
-//	 * 
-//	 * @param userUid The user's uid
-//	 * @param siteContext The site id
-//	 * 
-//	 * @return
-//	 */
-//	public Role getSiteRole(String userUid, String siteContext);
-//	
-//	/**
-//	 * Gets the role for a given user in a given CourseSection.
-//	 * 
-//	 * @param userUid The user's uid
-//	 * @param sectionUuid The uuid of a CourseSection
-//	 * 
-//	 * @return
-//	 */
-//	public Role getSectionRole(String userUid, String sectionUuid);
-
 
 	/**
 	 * Returns whether the current user can manage (add, edit, delete) sections.

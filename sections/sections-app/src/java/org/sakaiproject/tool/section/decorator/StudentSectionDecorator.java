@@ -91,8 +91,7 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 	}
 	
 	public static final Comparator getChangeComparator(final boolean sortAscending,
-			final List categoryNames, final List categoryIds, final boolean joinAllowed,
-			final boolean switchAllowed) {
+			final boolean joinAllowed, final boolean switchAllowed) {
 		return new Comparator() {
 			public int compare(Object o1, Object o2) {
 				if(o1 instanceof StudentSectionDecorator && o2 instanceof StudentSectionDecorator) {
@@ -100,8 +99,7 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 					StudentSectionDecorator section2 = (StudentSectionDecorator)o2;
 
 					// First compare the category name, then compare the change link
-					int categoryNameComparison = categoryNameComparison(section1,
-							section2, categoryNames, categoryIds);
+					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
 						// These are in the same category, so compare by the change link
 						boolean member1 = section1.isMember();
@@ -115,7 +113,7 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 						
 						// If these are the same, sort by title
 						if(member1 && member2 || full1 && full2 || switch1 && switch2 || join1 && join2) {
-							return getFieldComparator("title", sortAscending, categoryNames, categoryIds).compare(o1, o2);
+							return getFieldComparator("title", sortAscending).compare(o1, o2);
 						}
 
 						String section1ChangeLabel = getChangeLabel(section1, joinAllowed, switchAllowed);

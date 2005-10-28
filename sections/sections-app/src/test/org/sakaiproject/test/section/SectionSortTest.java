@@ -110,7 +110,7 @@ public class SectionSortTest extends TestCase {
 		InstructorSectionDecorator secC = new InstructorSectionDecorator(sectionC, "Category B", new ArrayList(), 10);
 		InstructorSectionDecorator secD = new InstructorSectionDecorator(sectionD, "Category B", new ArrayList(), 20);
 		
-		Comparator comp = InstructorSectionDecorator.getManagersComparator(true, categoryNames, categoryIds);
+		Comparator comp = InstructorSectionDecorator.getManagersComparator(true);
 
 		// Compare managers in sections of the same category
 		Assert.assertTrue(comp.compare(secA, secB) > 0);
@@ -119,7 +119,7 @@ public class SectionSortTest extends TestCase {
 		// Compare managers in sections in different categories.  The one with no managers sorts first
 		Assert.assertTrue(comp.compare(secC, secA) > 0);
 		
-		comp = InstructorSectionDecorator.getEnrollmentsComparator(true, false, categoryNames, categoryIds);
+		comp = InstructorSectionDecorator.getEnrollmentsComparator(true, false);
 
 		// Compare the max enrollments in sections of the same category
 		Assert.assertTrue(comp.compare(secB, secA) > 0);
@@ -127,20 +127,22 @@ public class SectionSortTest extends TestCase {
 		// Compare the max enrollments in different categories
 		Assert.assertTrue(comp.compare(secB, secC) < 0);
 		
-		// TODO Test the rest of the comparisons
+		comp = InstructorSectionDecorator.getFieldComparator("title", true);
+		Assert.assertTrue(comp.compare(secA, secB) < 0);
+		
 	}
 
 	public void testStudentSectionDecoratorSorting() throws Exception {
+		// secA will say "Member"
 		StudentSectionDecorator secA = new StudentSectionDecorator(sectionA, "Category A", instructorsA, 10, true, false);
-		StudentSectionDecorator secB = new StudentSectionDecorator(sectionB, "Category B", instructorsB, 10, false, true);
-
-		Comparator comp = StudentSectionDecorator.getChangeComparator(true, categoryNames, categoryIds, true, true);
-	
-		// TODO This relies on a faces context, so we can't test it here.
-		// Compare the change status between two sections in the same category
-//		Assert.assertTrue(comp.compare(secA, secB) > 0);
 		
-		// TODO Test the rest of the comparisons
+		// secB will say "Switch"
+		StudentSectionDecorator secB = new StudentSectionDecorator(sectionB, "Category A", instructorsB, 10, false, true);
+
+		Comparator comp = StudentSectionDecorator.getChangeComparator(true, true, true);
+	
+		// Compare the change status between two sections in the same category
+		Assert.assertTrue(comp.compare(secA, secB) < 0);
 	}
 }
 

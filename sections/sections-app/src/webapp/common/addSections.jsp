@@ -122,7 +122,7 @@
             
                     <h:outputLabel for="location" value="#{msgs.section_location}" styleClass="formLabel"/>
                     <h:panelGrid columns="2">
-                        <h:inputText id="location" value="#{section.location}"/>
+                        <h:inputText id="location" value="#{section.location}" maxlength="20" />
                         <h:outputText value="#{msgs.section_location_truncation}"/>
                     </h:panelGrid>
                 </h:panelGrid>

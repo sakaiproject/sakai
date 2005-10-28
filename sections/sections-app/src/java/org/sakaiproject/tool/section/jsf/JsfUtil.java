@@ -103,7 +103,15 @@ public class JsfUtil {
     }
 
     public static String getLocalizedMessage(String key) {
-        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+        FacesContext context = FacesContext.getCurrentInstance();
+        String bundleName;
+        
+        // We need to be able to call this from tests.  Is there a way to manually construct a FacesContext?
+        if(context == null) {
+        	bundleName = "org.sakaiproject.tool.section.bundle.Messages";
+        } else {
+        	bundleName = context.getApplication().getMessageBundle();
+        }
         ResourceBundle rb = ResourceBundle.getBundle(bundleName, getLocale());
         return rb.getString(key);
 	}
