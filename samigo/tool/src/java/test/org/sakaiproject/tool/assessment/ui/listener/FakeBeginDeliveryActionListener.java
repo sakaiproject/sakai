@@ -25,6 +25,7 @@ package test.org.sakaiproject.tool.assessment.ui.listener;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Date;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -165,6 +166,7 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     delivery.setSubmitted(false);
     delivery.setGraded(false);
     delivery.setPreviewMode(false);
+    delivery.setFeedbackOnDate(false);
 
     // initialize current position in taking assessment to start
     /**
@@ -177,6 +179,13 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     FeedbackComponent feedback = new FeedbackComponent();
     populateFeedbackComponent(feedback, pubAssessment);
     delivery.setFeedbackComponent(feedback);
+
+    AssessmentAccessControlIfc control = (AssessmentAccessControlIfc)pubAssessment.getAssessmentAccessControl();
+    Date currentDate = new Date();
+    if (feedback.getShowDateFeedback() && control.getFeedbackDate()!= null && currentDate.after(control.getFeedbackDate()))
+    {
+        delivery.setFeedbackOnDate(true); 
+    }
 
     // settings
     SettingsDeliveryBean settings = new SettingsDeliveryBean();
