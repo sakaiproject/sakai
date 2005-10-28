@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Date;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -189,6 +190,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setPartIndex(0);
     delivery.setQuestionIndex(0);
     delivery.setBeginTime(null);
+    delivery.setFeedbackOnDate(false);
 
     AssessmentAccessControlIfc control = (AssessmentAccessControlIfc)pubAssessment.getAssessmentAccessControl();
     delivery.setDueDate(control.getDueDate());
@@ -197,7 +199,13 @@ public class BeginDeliveryActionListener implements ActionListener
     FeedbackComponent feedback = new FeedbackComponent();
     populateFeedbackComponent(feedback, pubAssessment);
     delivery.setFeedbackComponent(feedback);
-
+   
+    Date currentDate = new Date();
+    if (feedback.getShowDateFeedback() && control.getFeedbackDate()!= null && currentDate.after(control.getFeedbackDate()))
+    {
+        delivery.setFeedbackOnDate(true); 
+    }
+    
     // settings
     SettingsDeliveryBean settings = new SettingsDeliveryBean();
     populateSettings(settings, pubAssessment, delivery);
