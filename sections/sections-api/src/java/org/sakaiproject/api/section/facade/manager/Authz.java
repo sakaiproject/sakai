@@ -24,7 +24,6 @@
 
 package org.sakaiproject.api.section.facade.manager;
 
-import org.sakaiproject.api.section.facade.Role;
 
 /**
  * A facade that provides answers to the section manager's authorization questions.
