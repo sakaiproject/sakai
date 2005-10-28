@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
     <pomVersion>3</pomVersion>
+    <extend>../../master/project.xml</extend>
     <name>Sakai MessageForums API</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-messageforums-api</id>
-	<currentVersion>2.0.0</currentVersion>
+    <currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
-    <inceptionYear>2005</inceptionYear>
-    
-   	<properties>
-		<deploy.type>jar</deploy.type>
-		<deploy.target>shared</deploy.target>
-	</properties>
-    
-    <dependencies>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${pom.currentVersion}</version>
-		</dependency>    
+    <inceptionYear>2003</inceptionYear>
+    <properties>
+        <deploy.type>jar</deploy.type>
+        <deploy.target>shared</deploy.target>
+    </properties>
+    <dependencies> 
         <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-legacy-service</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+ 		<dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>2.0</version>
-        </dependency>		
-	</dependencies>
-    
+        </dependency>
+    </dependencies>
     <build>
         <sourceDirectory>src/java</sourceDirectory>
     </build>
 </project>
+ 

@@ -2,5 +2,4 @@
 <!--sakai2 -->
 <project
 	default="sakai:build">
-
 </project>
