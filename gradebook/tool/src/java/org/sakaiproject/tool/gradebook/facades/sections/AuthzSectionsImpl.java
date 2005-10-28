@@ -103,15 +103,11 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 
 		// Get the list of sections. For now, just use whatever default
 		// sorting we get from the Section Awareness component.
-		List sectionCategories = sectionAwareness.getSectionCategories(gradebookUid);
-		for (Iterator catIter = sectionCategories.iterator(); catIter.hasNext(); ) {
-			String category = (String)catIter.next();
-			List sections = sectionAwareness.getSectionsInCategory(gradebookUid, category);
-			for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
-				CourseSection section = (CourseSection)iter.next();
-				if (isUserAbleToGradeAll(gradebookUid) || isUserAbleToGradeSection(section.getUuid())) {
-					availableSections.add(section);
-				}
+		List sections = sectionAwareness.getSections(gradebookUid);
+		for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
+			CourseSection section = (CourseSection)iter.next();
+			if (isUserAbleToGradeAll(gradebookUid) || isUserAbleToGradeSection(section.getUuid())) {
+				availableSections.add(section);
 			}
 		}
 
