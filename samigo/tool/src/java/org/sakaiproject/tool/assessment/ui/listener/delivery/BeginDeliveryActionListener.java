@@ -235,7 +235,10 @@ public class BeginDeliveryActionListener implements ActionListener
        feedback.setShowSelectionLevel(info.getShowSelectionLevelFeedback().booleanValue());
        feedback.setShowStats(info.getShowStatistics().booleanValue());
        feedback.setShowStudentScore(info.getShowStudentScore().booleanValue());
-       feedback.setShowStudentQuestionScore(info.getShowStudentQuestionScore().booleanValue());
+       if (info.getShowStudentQuestionScore()!=null)
+         feedback.setShowStudentQuestionScore(info.getShowStudentQuestionScore().booleanValue());
+       else
+         feedback.setShowStudentQuestionScore(false);
        Integer feedbackDelivery = info.getFeedbackDelivery();
        feedback.setShowDateFeedback(info.FEEDBACK_BY_DATE.equals(feedbackDelivery));
        feedback.setShowImmediate(info.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
