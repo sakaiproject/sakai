@@ -7,7 +7,7 @@
 			org.sakaiproject.jsf.app.SakaiVariableResolver
 		</variable-resolver>
 		<!-- End of deployment-specific properties -->
-		
+
 		<message-bundle>
 			org.sakaiproject.tool.gradebook.bundle.Messages
 		</message-bundle>
@@ -48,6 +48,14 @@
 		</converter-id>
 		<converter-class>
 			org.sakaiproject.tool.gradebook.jsf.PointsConverter
+		</converter-class>
+	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter
 		</converter-class>
 	</converter>
 

@@ -66,6 +66,10 @@
 
 				<h:outputText id="optionsLabel" value="#{msgs.assignment_details_options}" rendered="#{assignmentDetailsBean.userAbleToEditAssessments}"/>
 				<h:panelGrid cellpadding="0" cellspacing="0" columns="1" rendered="#{assignmentDetailsBean.userAbleToEditAssessments}">
+					<h:outputText
+						value="#{msgs.score_not_counted_tooltip}"
+						rendered="#{assignmentDetailsBean.assignment.notCounted}"
+					/>
 					<h:commandLink
 						action="editAssignment"
 						rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"

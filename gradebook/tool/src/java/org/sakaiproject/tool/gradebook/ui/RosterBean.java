@@ -46,7 +46,7 @@ import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
-import org.sakaiproject.tool.gradebook.jsf.PointsConverter;
+import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -158,7 +158,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			// The current specification shows the final column as "Cumulative" points
 			// rather than as a course display grade.
 
-			studentMap.put(gradeRecord.getGradableObject().getId(), gradeRecord.getPointsEarned());
+			studentMap.put(gradeRecord.getGradableObject().getId(), gradeRecord);
 		}
 		if (logger.isDebugEnabled()) logger.debug("init - scoresMap.keySet().size() = " + scoresMap.keySet().size());
 
@@ -245,10 +245,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
                 col.setHeader(sortHeader);
 
 				HtmlOutputText contents = new HtmlOutputText();
+				contents.setEscape(false);
 				contents.setId(ASSIGNMENT_COLUMN_PREFIX + "cell_" + colpos);
 				contents.setValueBinding("value",
 					app.createValueBinding("#{row.scores[rosterBean.gradableObjectColumns[" + colpos + "].id]}"));
-                contents.setConverter(new PointsConverter());
+                contents.setConverter(new AssignmentPointsConverter());
 
                 // Distinguish the "Cumulative" score for the course, which, by convention,
                 // is always the last column.

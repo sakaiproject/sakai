@@ -183,6 +183,17 @@ public class Assignment extends GradableObject {
 		this.notCounted = notCounted;
 	}
 	/**
+	 */
+	public boolean isCounted() {
+		return !isNotCounted();
+	}
+	/**
+	 * This cover is for the benefit of JSF checkboxes.
+	 */
+	public void setCounted(boolean counted) {
+		setNotCounted(!counted);
+	}
+	/**
 	 * @return Returns the externalInstructorLink.
 	 */
 	public String getExternalInstructorLink() {

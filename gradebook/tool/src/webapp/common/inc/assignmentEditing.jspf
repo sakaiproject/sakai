@@ -23,6 +23,7 @@
 		<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date}"/>
 		<h:outputText style="font-weight:normal;" value=" #{msgs.add_assignment_date_format}"/>
 	</h:panelGroup>
+
 	<%/* Temporary workaround for lack of a date picker. */%>
 	<h:panelGroup>
 		<h:inputText id="dueDate" value="#{bean.assignment.dueDate}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
@@ -36,3 +37,12 @@
 	<h:message for="dueDate" styleClass="validationEmbedded" />
 </h:panelGrid>
 
+<%/*
+	This would be positioned directly under the Point Value entry if
+	only JSF supported "colspan"....
+*/%>
+<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+	<h:selectBooleanCheckbox id="countAssignment" value="#{bean.assignment.counted}"
+		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+	<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
+</h:panelGrid>
