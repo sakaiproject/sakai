@@ -687,7 +687,18 @@ public class ItemAuthorBean
 
     }
 
+
     Collections.reverse(list);
+    // create a new part if there are no non-randomDraw parts available
+    if (list.size() <1) {
+      i = i + 1;
+      SelectItem temppart = new SelectItem();
+      temppart.setLabel("Part " + i );
+      temppart.setValue("-1");  // use -1 to indicate this is a temporary part. if the user decides to cancel the operation, this part will not be created
+      list.add(temppart);
+    } 
+    
+
     return list;
   }
 
