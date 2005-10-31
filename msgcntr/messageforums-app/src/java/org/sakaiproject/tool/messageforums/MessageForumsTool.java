@@ -85,4 +85,9 @@ public class MessageForumsTool {
     public ErrorMessages getErrorMessages() {
         return errorMessages;
     }
+
+    //cwen - test hide division and commandLink
+    public String processTestLinkCompose(){
+      return "compose";
+    }
 }

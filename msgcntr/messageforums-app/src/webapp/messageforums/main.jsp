@@ -13,7 +13,7 @@
   
       <h:form onsubmit="return false;">
   
-        <sakai:hideDivision title="Private Message Area">
+<%--        <sakai:hideDivision title="Private Message Area">
           private messages here 
         </sakai:hideDivision>
 
@@ -29,7 +29,12 @@
           <mf:hideDivisionContent>
             some stuff...
           </mf:hideDivisionContent>
-        </mf:hideDivisionButtonBar>
+        </mf:hideDivisionButtonBar>--%>
+			<mf:forumHideDivision title="Test Division" id="_test_div">
+					<mf:forum_bar_link value="TestLink" action="#{MessageForumsTool.processTestLinkCompose}"/>
+					<h:outputText value="Testing this division with links above."/>
+			</mf:forumHideDivision>
+        
 
 <h4 style="" onclick="javascript:showHideDiv('_id7', '/sakai-jsf-resource');" class="">  
 <table border="0" cellspacing="0" cellpadding="0"> 

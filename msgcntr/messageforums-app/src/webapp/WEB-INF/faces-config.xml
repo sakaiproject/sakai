@@ -31,6 +31,16 @@
     -->
 
     <!-- hide division button bar -->
+    <component>
+	  <component-type>BarLink</component-type>
+      <component-class>org.sakaiproject.tool.messageforums.jsf.BarLinkComponent</component-class>
+    </component>
+	<component>
+      <component-type>HideDivision</component-type>
+      <component-class>org.sakaiproject.tool.messageforums.jsf.HideDivisionComponent</component-class>
+    </component>
+    
+	<render-kit>
     <renderer>
       <component-family>javax.faces.Output</component-family>
       <renderer-type>org.sakaiproject.HideDivisionButtonBar</renderer-type>
@@ -41,6 +51,17 @@
       <renderer-type>org.sakaiproject.HideDivisionContent</renderer-type>
       <renderer-class>org.sakaiproject.tool.messageforums.jsf.HideDivisionContentRenderer</renderer-class>
     </renderer>
+    <renderer>
+      <component-family>HideDivision</component-family> 
+      <renderer-type>org.sakaiproject.HideDivision</renderer-type>
+      <renderer-class>org.sakaiproject.tool.messageforums.jsf.HideDivisionRenderer</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>javax.faces.Command</component-family>
+      <renderer-type>org.sakaiproject.tool.messageforums.jsf.BarLinkRenderer</renderer-type>
+      <renderer-class>org.sakaiproject.tool.messageforums.jsf.BarLinkRenderer</renderer-class>
+    </renderer>    
+    </render-kit>
     <!-- =================== Navigation ============== -->
     <navigation-rule>
         <from-view-id>/messageforums/*</from-view-id>
