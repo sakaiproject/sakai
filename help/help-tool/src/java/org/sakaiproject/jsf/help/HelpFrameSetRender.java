@@ -82,18 +82,12 @@ public class HelpFrameSetRender extends Renderer
     writer.write("<FRAME src=" + tocToolUrl + " name=\"toc\"/>");
     writer.write("</FRAMESET>");
     
-    if (helpParameter == null){
-      writer
-      .write("<FRAME src=\"content.hlp\" name=\"content\" scrolling=\"yes\">");
-    }
-    else{
-      Application app = context.getApplication();
-      ValueBinding binding = app.createValueBinding("#{Components['org.sakaiproject.api.app.help.HelpManager']}");
-      HelpManager manager  = (HelpManager) binding.getValue(context);    
+    Application app = context.getApplication();
+    ValueBinding binding = app.createValueBinding("#{Components['org.sakaiproject.api.app.help.HelpManager']}");
+    HelpManager manager  = (HelpManager) binding.getValue(context);    
                   
       writer
-      .write("<FRAME src=\"content.hlp?docId=" + manager.getWelcomePage() + "\" name=\"content\" scrolling=\"yes\">");         
-    }
+      .write("<FRAME src=\"content.hlp?docId=" + manager.getWelcomePage() + "\" name=\"content\" scrolling=\"yes\">");             
                            
     writer.write("</FRAMESET></html>");
   }

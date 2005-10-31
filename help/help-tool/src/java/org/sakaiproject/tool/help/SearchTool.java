@@ -95,10 +95,10 @@ public class SearchTool
    */
   public String processActionSearch()
   {
-    if (searchString != null && searchString.equals(getHelpManager().getRestConfiguration().getRestCredentials())){
-      getHelpManager().reInitialize();
-      return "main";
-    }
+    //if (searchString != null && searchString.equals(getHelpManager().getRestConfiguration().getRestCredentials())){
+    //  getHelpManager().reInitialize();
+    //  return "main";
+    //}
     
     Set resultSet = getHelpManager().searchResources(this.searchString);
     TreeSet treeSet = new TreeSet(resultSet);
