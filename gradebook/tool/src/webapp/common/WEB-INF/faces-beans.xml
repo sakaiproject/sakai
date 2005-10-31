@@ -101,7 +101,7 @@
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.AssignmentDetailsBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 		<managed-property>
-			<property-name>assignmentId</property-name>
+			<property-name>assignmentIdParam</property-name>
 			<value>#{param.assignmentId}</value>
 		</managed-property>
 		<managed-property>

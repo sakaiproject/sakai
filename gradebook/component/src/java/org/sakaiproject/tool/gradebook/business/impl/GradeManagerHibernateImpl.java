@@ -721,7 +721,6 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
         double totalPoints = 0;
         for(Iterator iter = assignmentPoints.iterator(); iter.hasNext();) {
             Double points = (Double)iter.next();
- logger.warn("getTotalPoints: points=" + points);
            totalPoints += points.doubleValue();
         }
         return totalPoints;

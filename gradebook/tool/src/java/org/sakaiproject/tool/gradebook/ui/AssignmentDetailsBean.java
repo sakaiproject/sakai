@@ -232,6 +232,26 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		this.assignmentId = assignmentId;
 	}
 
+	/**
+	 * In IE (but not Mozilla/Firefox) empty request parameters may be returned
+	 * to JSF as the string "null". JSF always "restores" some idea of the
+	 * last view, even if that idea is always going to be null because a redirect
+	 * has occurred. Put these two things together, and you end up with
+	 * a class cast exception when redirecting from this request-scoped
+	 * bean to a static page.
+	 */
+	public void setAssignmentIdParam(String assignmentIdParam) {
+		if (logger.isDebugEnabled()) logger.debug("setAssignmentIdParam String " + assignmentIdParam);
+		if ((assignmentIdParam != null) && (assignmentIdParam.length() > 0) &&
+			!assignmentIdParam.equals("null")) {
+			try {
+				setAssignmentId(Long.valueOf(assignmentIdParam));
+			} catch(NumberFormatException e) {
+				if (logger.isWarnEnabled()) logger.warn("AssignmentId param set to non-number '" + assignmentIdParam + "'");
+			}
+		}
+	}
+
 	public boolean isFirst() {
 		return (previousAssignment == null);
 	}
