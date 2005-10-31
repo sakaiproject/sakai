@@ -546,6 +546,12 @@
       <resource>
         <directory>src/webapp/WEB-INF</directory>
       </resource>
+      <resource> 
+        <directory>${basedir}/src/sql</directory> 
+        <includes> 
+          <include>**/*.sql</include> 
+         </includes> 
+      </resource> 
     </resources>
     <!-- <unitTestSourceDirectory>src/test</unitTestSourceDirectory> -->
     <!--
