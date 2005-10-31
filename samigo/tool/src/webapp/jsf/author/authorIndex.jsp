@@ -69,10 +69,8 @@
 
 </p>
 
-<h:message for="denied_create_assessment" styleClass="validate"/>
-<h:message for="denied_edit_assessment" styleClass="validate"/>
-
-<h:message for="createAssessment" styleClass="validate"/>
+<h:message for="authorIndexForm:create_assessment_denied" styleClass="validate"/>
+<h:message for="authorIndexForm:edit_assessment_denied" styleClass="validate"/>
 
 <div class="indnt1">
 	<h4><h:outputText value="#{msg.assessment_new}" rendered="#{authorization.createAssessment}" /></h4>
