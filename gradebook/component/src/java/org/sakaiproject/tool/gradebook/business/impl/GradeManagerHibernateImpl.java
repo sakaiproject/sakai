@@ -562,7 +562,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
 
     /**
      */
-    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate)
+    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted)
         throws ConflictingAssignmentNameException, StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -585,6 +585,9 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 asn.setName(name);
                 asn.setPointsPossible(points);
                 asn.setDueDate(dueDate);
+                if (isNotCounted != null) {
+	                asn.setNotCounted(isNotCounted.booleanValue());
+	            }
 
                 // Save the new assignment
                 Long id = (Long)session.save(asn);

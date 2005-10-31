@@ -199,10 +199,11 @@ public interface GradeManager {
      * @param name The assignment's name (must be unique in the gradebook and not be null)
      * @param points The number of points possible for this assignment (must not be null)
      * @param dueDate The due date for the assignment (optional)
+     * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
      *
      * @return The ID of the new assignment
      */
-    public Long createAssignment(Long gradebookId, String name, Double points, Date dueDate)
+    public Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted)
         throws ConflictingAssignmentNameException, StaleObjectModificationException;
 
     /**
