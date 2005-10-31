@@ -33,6 +33,7 @@ import org.w3c.dom.Element;
 
 import org.sakaiproject.service.legacy.entity.Entity;
 import org.sakaiproject.service.legacy.entity.EntityProducer;
+import org.sakaiproject.service.legacy.entity.HttpAccess;
 import org.sakaiproject.service.legacy.entity.Reference;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.resource.cover.EntityManager;
@@ -127,5 +128,9 @@ public class EntityProducerSakai2 implements EntityProducer {
 	 */
 	public void setToolId(String toolId) {
 		this.toolId = toolId;
+	}
+
+	public HttpAccess getHttpAccess() {
+		return null;
 	}
 }
