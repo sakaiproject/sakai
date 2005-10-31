@@ -89,6 +89,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	}
 
 	public List getAvailableSections(String siteid, String userUid) {
+
 		List availableSections = new ArrayList();
 
 		SectionAwareness sectionAwareness = getSectionAwareness();
@@ -98,6 +99,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 
 		// Get the list of sections. For now, just use whatever default
 		// sorting we get from the Section Awareness component.
+/*
 		List sectionCategories = sectionAwareness.getSectionCategories(siteid);
 		for (Iterator catIter = sectionCategories.iterator(); catIter.hasNext(); ) {
 			String category = (String)catIter.next();
@@ -109,7 +111,19 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 				}
 			}
 		}
+*/
+
+                List sections = sectionAwareness.getSections(siteid);
+                for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
+                        CourseSection section = (CourseSection)iter.next();
+                     //    if (isUserAbleToGradeAll(gradebookUid) || isUserAbleToGradeSection(section.getUuid())) {
+				if (isUserAbleToGradeAll(siteid, userUid) || isUserAbleToGradeSection(section.getUuid(), userUid)) {
+                                availableSections.add(section);
+                        }
                 }
+                }
+
+
 
 		return availableSections;
 	}
