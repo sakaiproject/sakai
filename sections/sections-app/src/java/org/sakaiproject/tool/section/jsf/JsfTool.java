@@ -58,14 +58,11 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
         String userUid = authnService.getUserUid(null);
         String siteContext = contextService.getContext(null);
         
-        boolean manageEnrollments = authzService.isSectionEnrollmentMangementAllowed(userUid, siteContext);
-        boolean manageTas = authzService.isSectionTaManagementAllowed(userUid, siteContext);
-        boolean manageSections = authzService.isSectionManagementAllowed(userUid, siteContext);
-
+        boolean viewAllSections = authzService.isViewAllSectionsAllowed(userUid, siteContext);
         boolean viewOwnSections = authzService.isViewOwnSectionsAllowed(userUid, siteContext);
 
         String target;
-        if(manageEnrollments || manageTas || manageSections) {
+        if(viewAllSections) {
             if(log.isDebugEnabled()) log.debug("Sending user to the overview page");
             target = "/overview";
         } else if (viewOwnSections) {

@@ -134,6 +134,9 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	public boolean isViewOwnSectionsEnabled() {
 		return getCourseBean().authz.isViewOwnSectionsAllowed(getUserUid(), getSiteContext());
 	}
+	public boolean isViewAllSectionsEnabled() {
+		return getCourseBean().authz.isViewAllSectionsAllowed(getUserUid(), getSiteContext());
+	}
 
 	public PreferencesBean getPrefs() {
 		return getCourseBean().getPrefs();

@@ -15,6 +15,13 @@
                 <value>editSection</value>
             </list>
         </property>
+        <property name="viewAllSections">
+            <list>
+                <value>overview</value>
+                <value>roster</value>
+                <value>options</value>
+            </list>
+        </property>
         <property name="manageTeachingAssistants">
             <list>
                 <value>editManagers</value>
@@ -24,9 +31,6 @@
             <list>
                 <value>editStudents</value>
                 <value>editStudentSections</value>
-                <value>overview</value>
-                <value>roster</value>
-                <value>options</value>
             </list>
         </property>
         <property name="viewOwnSections">

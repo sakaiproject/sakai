@@ -109,6 +109,9 @@ public class RoleFilter implements Filter {
 			if(authz.isSectionManagementAllowed(userUid, siteContext) &&
 					authzFilterConfigBean.getManageAllSections().contains(pageName)) {
 				isAuthorized = true;
+			} else if (authz.isViewAllSectionsAllowed(userUid, siteContext)
+					&& authzFilterConfigBean.getViewAllSections().contains(pageName)) {
+				isAuthorized = true;
 			} else if (authz.isSectionTaManagementAllowed(userUid, siteContext)
 					&& authzFilterConfigBean.getManageTeachingAssistants().contains(pageName)) {
 				isAuthorized = true;

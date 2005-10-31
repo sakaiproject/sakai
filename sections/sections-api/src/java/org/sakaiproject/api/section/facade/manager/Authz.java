@@ -44,6 +44,16 @@ public interface Authz {
 	public boolean isSectionManagementAllowed(String userUid, String siteContext);
 
 	/**
+	 * Returns whether the current user can view all sections and their enrollments.
+	 * 
+	 * @param siteContext
+	 * @param userUid The user's uid
+	 * 
+	 * @return
+	 */
+	public boolean isViewAllSectionsAllowed(String userUid, String siteContext);
+
+	/**
 	 * Returns whether the current user can change section options in the site.
 	 * 
 	 * @param siteContext

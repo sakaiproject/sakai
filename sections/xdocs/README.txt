@@ -102,9 +102,30 @@ I.  Building and deploying the application and its shared services
 			Modify Student Section Memberships -- requires either the 'site.upd'
 			or 'site.upd.grp.mbrshp' authorization function.
 			
+			View All Sections -- requires either 'site.upd', 'site.upd.grp.mbrshp'
+			or 'section.role.ta'.
+			
 			View Own Section Enrollments -- requires the 'section.role.student'
 			marker function at the site level.
 			
+			The Section Info tool will display in one of four modes:
+				1) Full control / Sakai control:  Users with site.upd have full
+				control of sections and their memberships as long as the site
+				is not flagged as externally managed.
+				
+				2) Full control / Enterprise control: Users with site.upd have
+				control of TA memberships in sections, but can not change student
+				enrollments or section metadata, and can not add or remove sections.
+				
+				3) Enrollment control / Sakai control:  Users without site.upd but
+				with site.upd.grp.mbrshp can modify section enrollments, but not
+				TA memberships.  They can not add/edit/remove sections or modify
+				section options.
+				
+				4) Own enrollment control / Sakai control:  Users enrolled in a
+				non-enterprise-managed site can join or switch their section
+				enrollments if those options have been enabled in the site.
+
 		The SectionAwareness API uses the following rules when determining the
 		membership lists of sites and sections:
 
@@ -156,5 +177,3 @@ I.  Building and deploying the application and its shared services
 			it would be impossible to know which roles to use when determining
 			the section's membership.
 
-
-			

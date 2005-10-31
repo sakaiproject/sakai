@@ -44,9 +44,15 @@
                         <h:outputText value="#{msgs.roster_table_header_name}" />
                     </x:commandSortHeader>
                 </f:facet>
-                <h:commandLink action="editStudentSections" value="#{enrollment.user.sortName}">
-                    <f:param name="studentUid" value="#{enrollment.user.userUid}"/>
+                <h:commandLink
+                    action="editStudentSections"
+                    value="#{enrollment.user.sortName}"
+                    rendered="#{overviewBean.sectionEnrollmentMangementEnabled}">
+                        <f:param name="studentUid" value="#{enrollment.user.userUid}"/>
                 </h:commandLink>
+                <h:outputText
+                    value="#{enrollment.user.sortName}"
+                    rendered="#{ ! overviewBean.sectionEnrollmentMangementEnabled}"/>
             </h:column>
             <h:column>
                 <f:facet name="header">

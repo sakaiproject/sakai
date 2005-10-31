@@ -97,6 +97,18 @@ public class AuthzSakaiImpl implements Authz {
 		return isStudent;
 	}
 
+	/**
+	 * Even if a TA can't make changes to the sections or their enrollments,
+	 * they can always view the sections and their enrollments.
+	 */
+	public boolean isViewAllSectionsAllowed(String userUid, String siteContext) {
+		User sakaiUser = UserDirectoryService.getCurrentUser();
+		String siteRef = SiteService.siteReference(siteContext);
+		 return SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE, siteRef) ||
+		 		SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE_GROUP_MEMBERSHIP, siteRef) ||
+		 		SecurityService.unlock(sakaiUser, SectionAwareness.TA_MARKER, siteRef);
+	}
+
 }
 
 
