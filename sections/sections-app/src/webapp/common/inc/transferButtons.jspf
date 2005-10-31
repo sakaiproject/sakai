@@ -7,6 +7,10 @@
                 <input type="button" onclick="removeUser();" value="&lt;"/>
             </f:verbatim>
 
+            <x:div styleClass="verticalPadding">
+                <%/* Add space between the move-single and move-multiple buttons */%>
+            </x:div>
+
             <h:outputText value="#{msgs.transfer_membership_move_all}"/>
             <f:verbatim>
                 <input type="button" onclick="addAll();" value="&gt;&gt;"/>
