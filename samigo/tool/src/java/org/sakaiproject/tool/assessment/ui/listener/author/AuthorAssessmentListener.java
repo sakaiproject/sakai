@@ -147,7 +147,7 @@ context.addMessage(null,new FacesMessage(err));
     if (!hasPrivilege){
       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                   "denied_create_assessment_error");
-      context.addMessage("authorIndexForm:createAssessment_denied",new FacesMessage(err));
+      context.addMessage("authorIndexForm:create_assessment_denied",new FacesMessage(err));
     }
     return hasPrivilege;
   }
