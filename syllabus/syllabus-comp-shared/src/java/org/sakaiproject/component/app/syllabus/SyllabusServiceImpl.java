@@ -46,6 +46,7 @@ import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.legacy.entity.Edit;
 import org.sakaiproject.service.legacy.entity.Entity;
 import org.sakaiproject.service.legacy.entity.EntityProducer;
+import org.sakaiproject.service.legacy.entity.HttpAccess;
 import org.sakaiproject.service.legacy.entity.Reference;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
@@ -163,6 +164,14 @@ public class SyllabusServiceImpl implements SyllabusService
 	public boolean willImport()
 	{
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public HttpAccess getHttpAccess()
+	{
+		return null;
 	}
 
 	/**
@@ -851,7 +860,7 @@ public class SyllabusServiceImpl implements SyllabusService
       return m_properties;
     }
 
-    public Element toXml(Document doc, Stack stack)
+	public Element toXml(Document doc, Stack stack)
     {
 			Element syllabus = doc.createElement("syllabus");
 
