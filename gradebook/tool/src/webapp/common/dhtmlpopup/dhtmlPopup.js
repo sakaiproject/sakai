@@ -26,6 +26,52 @@ function dhtmlPopupToggle(winName, e) {
 	}
 }
 
+function dhtmlGetInnerWidth() {
+	var theWidth = 0;
+	if (typeof(window.innerWidth) == "number") {
+		theWidth = window.innerWidth;
+	} else if (document.documentElement && document.documentElement.clientWidth) {
+		theWidth = document.documentElement.clientWidth;
+	} else if (document.body && document.body.clientWidth) {
+		theWidth = document.body.clientWidth;
+	}
+	return theWidth;
+}
+function dhtmlGetInnerWidth() {
+	var theHeight = 0;
+
+	if (typeof(window.innerHeight) == "number") {
+		theHeight = window.innerHeight;
+	} else if (document.documentElement && document.documentElement.clientHeight) {
+		theHeight = document.documentElement.clientHeight;
+	} else if (document.body && document.body.clientHeight) {
+		theHeight = document.body.clientHeight;
+	}
+	return theHeight;
+}
+function dhtmlGetPageXOffset() {
+	theOffset = 0;
+	if (typeof(window.pageXOffset) == "number") {
+		theOffset = window.pageXOffset;
+	} else if (document.body && document.body.scrollLeft) {
+		theOffset = document.body.scrollLeft;
+	} else if (document.documentElement && document.documentElement.scrollLeft) {
+		theOffset = document.documentElement.scrollLeft;
+	}
+	return theOffset;
+}
+function dhtmlGetPageYOffset() {
+	theOffset = 0;
+	if (typeof(window.pageYOffset) == "number") {
+		theOffset = window.pageYOffset;
+	} else if (document.body && document.body.scrollTop) {
+		theOffset = document.body.scrollTop;
+	} else if (document.documentElement && document.documentElement.scrollTop) {
+		theOffset = document.documentElement.scrollTop;
+	}
+	return theOffset;
+}
+
 function dhtmlPopupHide(winName, e) {
 	var theDiv = dhtmlPopupGetDiv(winName);
 	theDiv.style.visibility = "hidden";
@@ -33,21 +79,21 @@ function dhtmlPopupHide(winName, e) {
 
 function dhtmlPopupShow(winName, e) {
 	var theDiv = dhtmlPopupGetDiv(winName);
-	dhtmlDebug("<br />e.clientX=" + e.clientX + ", window.pageXOffset=" + window.pageXOffset + ", window.innerWidth=" + window.innerWidth + ", window.pageYOffset=" + window.pageYOffset + ", theDiv.offsetWidth=" + theDiv.offsetWidth + ", theDiv.offsetHeight=" + theDiv.offsetHeight);
+	dhtmlDebug("<br />e.clientX=" + e.clientX + ", dhtmlGetPageXOffset=" + dhtmlGetPageXOffset() + ", dhtmlGetInnerWidth=" + dhtmlGetInnerWidth() + ", dhtmlGetPageYOffset=" + dhtmlGetPageYOffset() + ", theDiv.offsetWidth=" + theDiv.offsetWidth + ", theDiv.offsetHeight=" + theDiv.offsetHeight);
 	if (e.clientX > 0) {
-		var maxLeftPos = window.innerWidth - theDiv.offsetWidth;
+		var maxLeftPos = dhtmlGetInnerWidth() - theDiv.offsetWidth;
 		var leftPos = e.clientX - 10;
 		if (leftPos > maxLeftPos) {
 			leftPos = maxLeftPos;
 		}
 		theDiv.style.left = (leftPos) + "px";
-		theDiv.style.top = (window.pageYOffset + e.clientY + 15) + "px";
+		theDiv.style.top = (dhtmlGetPageYOffset() + e.clientY + 15) + "px";
 	} else {
 		// The keyboard was used instead of the mouse, so we
 		// don't have a good starting position.
 		// Just center the popup for now.
-		theDiv.style.left = (window.pageXOffset + window.innerWidth/2 - theDiv.offsetWidth/2) + "px";
-		theDiv.style.top = (window.pageYOffset + window.innerHeight/2 - theDiv.offsetHeight/2) + "px";
+		theDiv.style.left = (dhtmlGetPageXOffset() + dhtmlGetInnerWidth()/2 - theDiv.offsetWidth/2) + "px";
+		theDiv.style.top = (dhtmlGetPageYOffset() + dhtmlGetInnerHeight()/2 - theDiv.offsetHeight/2) + "px";
 	}
 	theDiv.style.visibility = "visible";
 }
