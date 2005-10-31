@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--sakai2 -->
 <project
-	default="sakai:build">
+  default="sakai:build"
+  xmlns:ant="jelly:ant"
+  xmlns:j="jelly:core">
+
+   <goal name="standalone">
+           <ant:echo message="Samigo: top level STANDALONE BUILD."/>
+           <j:set var="goal" value="standalone" />
+           <j:set var="maven.multiproject.includes" value="*/project.xml" />
+           <attainGoal name="multiproject:goal" />
+   </goal>
 
 </project>

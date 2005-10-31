@@ -5,15 +5,21 @@
   xmlns:ant="jelly:ant"
   xmlns:j="jelly:core">
 
-<!--  Make sure a flag variable is set when building inside Sakai -->
 <goal name="sakai:sakai.clean">
-  <j:set var="sakaiDeployIntegrated" value="true" />
   <attainGoal name="clean:clean" />
 </goal>
 
 <goal name="sakai:sakai.build">
-  <j:set var="sakaiDeployIntegrated" value="true" />
   <attainGoal name="war:install" />
+</goal>
+
+<!-- If we are building with our special standalone goal -->
+<goal name="standalone">
+<ant:echo>Setting standalone TRUE.</ant:echo>
+   <j:set var="standalone" value="true" />
+   <attainGoal name="sakai:sakai.clean" />
+   <attainGoal name="sakai:sakai.build" />
+   <attainGoal name="sakai:deploy" />
 </goal>
 
 <postGoal name="war:webapp">
@@ -24,7 +30,17 @@
       <exclude name="**/*.java" />
     </fileset>
   </copy>
-  <j:if test="${sakaiDeployIntegrated}">
+
+  <!--  Copy dependencies into the webapp based on the deploy.type of the dependency -->
+  <j:choose>
+    <j:when test="${standalone}">
+      <ant:echo>deploy - SAMIGO STANDALONE</ant:echo>
+      <j:set var="deployType" value="standalone" />
+    </j:when>
+    <j:otherwise>
+      <ant:echo>deploy - SAMIGO INTEGRATED</ant:echo>
+      <j:set var="deployType" value="integrated" />
+     <ant:echo>Copy the Sakai-Samigo webapp integration files</ant:echo>
     <!--  Copy the Sakai-Samigo webapp integration files  -->
     <copy todir="target/samigo" includeemptydirs="false"
       verbose="false" overwrite="true">
@@ -32,15 +48,6 @@
         <include name="**/*" />
       </fileset>
     </copy>
-  </j:if>
-
-  <!--  Copy dependencies into the webapp based on the deploy.type of the dependency -->
-  <j:choose>
-    <j:when test="${sakaiDeployIntegrated}">
-      <j:set var="deployType" value="integrated" />
-    </j:when>
-    <j:otherwise>
-      <j:set var="deployType" value="standalone" />
     </j:otherwise>
   </j:choose>
   <j:forEach var="lib" items="${pom.artifacts}">
@@ -53,7 +60,7 @@
 </postGoal>
 
 <preGoal name="clean">
-  <j:if test="${sakaiDeployIntegrated != true}">
+  <j:if test="${standalone}">
     <attainGoal name="undeploy" />
   </j:if>
 </preGoal>
@@ -70,7 +77,6 @@
 </goal>
 
 <goal name="deploy">
-  <ant:echo>deploy - SAMIGO STANDALONE</ant:echo>
   <attainGoal name="clean" />
   <attainGoal name="war:install" />
 

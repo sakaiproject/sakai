@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project
-  default="deploy"
+  default="sakai:deploy"
   xmlns:ant="jelly:ant"
   xmlns:j="jelly:core">
+
+<!-- If we are building with our special standalone goal -->
+<goal name="standalone">
+   <attainGoal name="sakai:clean" />
+   <attainGoal name="sakai:build" />
+   <attainGoal name="sakai:deploy" />
+</goal>
 
 <preGoal name="jar:jar">
   <!-- includes *.hbm.xml, *.properties, *.xml which live among the code -->
@@ -16,4 +23,6 @@
 </preGoal>
 
 </project>
+
+
 
