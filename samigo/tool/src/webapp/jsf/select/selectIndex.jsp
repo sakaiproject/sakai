@@ -210,7 +210,7 @@ sorting actions for table:
           </h:commandLink>
       </h:panelGroup>
       </f:facet>
-      <h:commandLink action="takeAssessment">
+      <h:commandLink action="takeAssessment"> 
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="review" value="true"/>
         <f:param name="nofeedback" value="true"/>
@@ -222,7 +222,8 @@ sorting actions for table:
 
  <h:commandLink action="takeAssessment" rendered="#{reviewable.feedback == 'true'}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
-        <f:param name="review" value="true" />
+        <!-- SAK-1764: well, previewAssessment (not review) seem to be the parameter that the developer used in DeliveryActionListener ln 160) -->
+        <f:param name="previewAssessment" value="true" /> 
         <f:param name="nofeedback" value="false"/>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />

@@ -73,7 +73,7 @@ should be included in file importing DeliveryMessages
          </h:outputText>
          <h:outputText value=")"/>
         </h:column>
-        <h:column>
+        <h:column rendered="#{delivery.previewAssessment != 'true'}">
           <h:commandLink action="confirmRemoveMedia" immediate="true">
             <h:outputText value="#{msg.remove}" />
             <f:param name="mediaId" value="#{media.mediaId}"/>
