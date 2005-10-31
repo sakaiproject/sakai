@@ -10,27 +10,25 @@
     
     <h2><h:outputText value="#{msgs.overview_page_header}"/></h2>
 
-    <h:panelGrid columns="1" styleClass="validation">
-        <h:panelGroup>
-            <h:outputText value="#{msgs.overview_delete_section_confirmation_pre}"/>
-            <x:dataList
-                id="deleteSectionsTable"
-                value="#{overviewBean.sectionsToDelete}"
-                var="section"
-                layout="unorderedList">
-                <h:outputText value="#{section.title}"/>
-            </x:dataList>
-        
-            <x:div>
-                <h:outputText value="#{msgs.overview_delete_section_confirmation_post}"/>
-            </x:div>
-        
-            <x:div styleClass="deleteButtons">
-                <h:commandButton action="#{overviewBean.deleteSections}" value="#{msgs.overview_delete_short}"/>
-                <h:commandButton action="overview" value="#{msgs.overview_cancel}"/>
-            </x:div>        
-        </h:panelGroup>
-    </h:panelGrid>
+    <x:div styleClass="alertMessage">
+        <h:outputText value="#{msgs.overview_delete_section_confirmation_pre}"/>
+        <x:dataList
+            id="deleteSectionsTable"
+            value="#{overviewBean.sectionsToDelete}"
+            var="section"
+            layout="unorderedList">
+            <h:outputText value="#{section.title}"/>
+        </x:dataList>
+    
+        <x:div>
+            <h:outputText value="#{msgs.overview_delete_section_confirmation_post}"/>
+        </x:div>
+    
+        <x:div styleClass="deleteButtons">
+            <h:commandButton action="#{overviewBean.deleteSections}" value="#{msgs.overview_delete_short}"/>
+            <h:commandButton action="overview" value="#{msgs.overview_cancel}"/>
+        </x:div>        
+    </x:div>
 
 </h:form>
 </div>

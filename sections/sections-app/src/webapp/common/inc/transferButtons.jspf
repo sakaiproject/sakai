@@ -1,4 +1,6 @@
-        <h:panelGrid columns="1" columnClasses="transferButtonTable">
+        <h:panelGrid
+            columns="1"
+            columnClasses="transferButtonTable">
             <h:outputText value="#{msgs.transfer_membership_move_selected}"/>
             <f:verbatim>
                 <input type="button" onclick="addUser();" value="&gt;" />
@@ -6,12 +8,9 @@
             <f:verbatim>
                 <input type="button" onclick="removeUser();" value="&lt;"/>
             </f:verbatim>
-
             <x:div styleClass="verticalPadding">
-                <%/* Add space between the move-single and move-multiple buttons */%>
+                <h:outputText value="#{msgs.transfer_membership_move_all}"/>
             </x:div>
-
-            <h:outputText value="#{msgs.transfer_membership_move_all}"/>
             <f:verbatim>
                 <input type="button" onclick="addAll();" value="&gt;&gt;"/>
             </f:verbatim>
