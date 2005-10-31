@@ -38,6 +38,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
 /**
  * <p>Title: Samigo</p>
@@ -72,12 +74,25 @@ public class ConfirmRemovePartListener implements ActionListener
 
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
         "assessmentBean");
+    AssessmentService assessdelegate = new AssessmentService();
     List sectionList = assessmentBean.getSectionList();
     ArrayList otherSectionList = new ArrayList();
     for (int i=0; i<sectionList.size();i++){
       SelectItem s = (SelectItem) sectionList.get(i);
-      if (! (sectionId).equals((String)s.getValue()))
+      
+      // need to filter out all the random draw parts
+
+      SectionDataIfc section= assessdelegate.getSection(s.getValue().toString());
+  if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+
+        // skip random draw parts, cannot add items to this part manually
+      }
+
+      else {	
+        if (! (sectionId).equals((String)s.getValue())) {
 	  otherSectionList.add(s);
+        }
+      }
     }
     assessmentBean.setOtherSectionList(otherSectionList);
   }

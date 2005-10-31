@@ -357,9 +357,19 @@ public class ItemAddListener
         AssessmentService assessdelegate = new AssessmentService();
         // add the item to the specified part, otherwise add to default
         if (bean.getSelectedSection() != null) {
-          SectionFacade section = assessdelegate.getSection(bean.
-              getSelectedSection());
+// need to do  add a temp part first if assigned to a temp part SAK-2109
+ 
+          SectionFacade section;
 
+	  if ("-1".equals(bean.getSelectedSection())) {
+	    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean("assessmentBean");
+// add a new section
+      	    section = assessdelegate.addSection(assessmentBean.getAssessmentId());
+          }
+
+	  else {
+            section = assessdelegate.getSection(bean.getSelectedSection());
+          }
           item.setSection(section);
 
           if (update) {
@@ -385,7 +395,13 @@ public class ItemAddListener
             if ( (itemauthor.getInsertPosition() == null) ||
                 ("".equals(itemauthor.getInsertPosition()))) {
               // if adding to the end
+              if (section.getItemSet() != null) {
               item.setSequence(new Integer(section.getItemSet().size() + 1));
+              }
+              else {
+	 	// this is a new part, not saved yet 
+		item.setSequence(new Integer(1));
+              }
             }
             else {
               // if inserting or a question
