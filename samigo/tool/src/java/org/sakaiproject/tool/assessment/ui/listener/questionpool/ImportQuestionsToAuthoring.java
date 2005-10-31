@@ -107,16 +107,30 @@ public class ImportQuestionsToAuthoring implements ActionListener
 
 
         AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
+
+          if ("-1".equals(qpoolbean.getSelectedSection())) {
+// add a new section
+            section = assessdelegate.addSection(assessmentBean.getAssessmentId());
+          }
+	else {
 	section = sectiondelegate.getSection(new Long(qpoolbean.getSelectedSection()), AgentFacade.getAgentString());
+        }
+
         if (section!=null) {
           itemfacade.setSection(section);
 
 
           if ( (itemauthor.getInsertPosition() ==null) || ("".equals(itemauthor.getInsertPosition())) ) {
                 // if adding to the end
-                itemfacade.setSequence(new Integer(section.getItemSet().size()+1));
+              if (section.getItemSet() != null) {
+                itemfacade.setSequence(new Integer(section.getItemSet().size() + 1));
               }
               else {
+                // this is a new part 
+                itemfacade.setSequence(new Integer(1));
+              }
+           }
+           else {
                 // if inserting or a question
                 String insertPos = itemauthor.getInsertPosition();
                 ItemAddListener itemAddListener = new ItemAddListener();
@@ -124,7 +138,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
                 itemAddListener.shiftSequences(section, new Integer(insertPosIntvalue));
                 int insertPosInt= insertPosIntvalue + 1 ;
                 itemfacade.setSequence(new Integer(insertPosInt));
-              }
+           }
 
 
           delegate.saveItem(itemfacade);
