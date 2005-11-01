@@ -263,6 +263,11 @@ public class XmlStringBuffer
       {
         dbfi = DocumentBuilderFactory.newInstance();
         builder = dbfi.newDocumentBuilder();
+        String s = this.xml.toString();
+        if (s==null)
+        {
+          s = "";
+        }
         sr = new StringReader(this.xml.toString());
         is = new org.xml.sax.InputSource(sr);
         this.document = builder.parse(is);
