@@ -40,6 +40,7 @@ import org.sakaiproject.service.legacy.resource.cover.EntityManager;
 import org.sakaiproject.service.legacy.site.Site;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 
 /**
  * Implements the Sakai 2.1 EntityProducer approach to integration of tool-specific
@@ -64,15 +65,21 @@ public class EntityProducerSakai2 implements EntityProducer {
 			String[] toolsToSearchFor = {getToolId()};
 			Collection matchingTools = site.getTools(toolsToSearchFor);
 			if (matchingTools.isEmpty() && gradebookExists) {
-				// TODO Remove gradebook.
-				if (log.isWarnEnabled()) log.warn("Site " + gradebookUid + " removed gradebook tool but storage remains");
+				try {
+					gradebookService.deleteGradebook(gradebookUid);
+				} catch (GradebookNotFoundException e) {
+					if (log.isWarnEnabled()) log.warn(e);
+				}
 			} else if (!matchingTools.isEmpty() && !gradebookExists) {
 				if (log.isInfoEnabled()) log.info("Gradebook being added to site " + gradebookUid);
 				gradebookService.addGradebook(gradebookUid, gradebookUid);
 			}
 		} else if (change == EntityProducer.ChangeType.REMOVE) {
-			// TODO Remove gradebook.
-			if (log.isWarnEnabled()) log.warn("Site " + gradebookUid + " has been removed but gradebook storage remains");
+			try {
+				gradebookService.deleteGradebook(gradebookUid);
+			} catch (GradebookNotFoundException e) {
+				if (log.isWarnEnabled()) log.warn(e);
+			}
 		}
 	}
 
