@@ -56,10 +56,7 @@ public class HideDivisionRenderer extends Renderer
       if(!(child instanceof org.sakaiproject.tool.messageforums.jsf.BarLinkComponent))
       {
         child.encodeBegin(context);
-        if(child.getRendersChildren())
-        {
-          child.encodeChildren(context);
-        }
+        child.encodeChildren(context);
         child.encodeEnd(context);
       }
     }
