@@ -27,18 +27,20 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.Type;
+ 
+public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
-public class Topic extends MutableEntityImpl {
+    private static final Log LOG = LogFactory.getLog(BaseForumImpl.class);
 
-    private static final Log LOG = LogFactory.getLog(Topic.class);
-    
     private String title;
     private String shortDescription;
     private String extendedDescription;
-    private Set attachments;
-    private Boolean mutable;
-    private Integer sortIndex;
     private Type type;
+    private Set attachments;
+    private Set topics;
+    private Integer sortIndex; 
     
     public Set getAttachments() {
         return attachments;
@@ -54,14 +56,6 @@ public class Topic extends MutableEntityImpl {
 
     public void setExtendedDescription(String extendedDescription) {
         this.extendedDescription = extendedDescription;
-    }
-
-    public Boolean getMutable() {
-        return mutable;
-    }
-
-    public void setMutable(Boolean mutable) {
-        this.mutable = mutable;
     }
 
     public String getShortDescription() {
@@ -88,6 +82,14 @@ public class Topic extends MutableEntityImpl {
         this.title = title;
     }
 
+    public Set getTopics() {
+        return topics;
+    }
+
+    public void setTopics(Set topics) {
+        this.topics = topics;
+    }
+
     public Type getType() {
         return type;
     }
@@ -95,5 +97,5 @@ public class Topic extends MutableEntityImpl {
     public void setType(Type type) {
         this.type = type;
     }
-        
+    
 }

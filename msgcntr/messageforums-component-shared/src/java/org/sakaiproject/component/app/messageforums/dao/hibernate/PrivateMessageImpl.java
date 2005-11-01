@@ -23,43 +23,44 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
 
-public class Area extends MutableEntityImpl {
+// TODO: External email address per message?  Seems like a more global preference per user.
 
-    private static final Log LOG = LogFactory.getLog(Area.class);
+public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
+
+    private static final Log LOG = LogFactory.getLog(PrivateMessageImpl.class);
     
-    private String contextId;
-    private String name;
-    private Boolean hidden;
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public String getContextId() {
-        return contextId;
-    }
-
-    public void setContextId(String contextId) {
-        this.contextId = contextId;
-    }
-
-    public Boolean getHidden() {
-        return hidden;
-    }
-
-    public void setHidden(Boolean hidden) {
-        this.hidden = hidden;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    private Set recipients;
+    private Boolean externalEmail;
+    private String externalEmailAddress;
     
+    public Boolean getExternalEmail() {
+        return externalEmail;
+    }
+
+    public void setExternalEmail(Boolean externalEmail) {
+        this.externalEmail = externalEmail;
+    }
+
+    public String getExternalEmailAddress() {
+        return externalEmailAddress;
+    }
+
+    public void setExternalEmailAddress(String externalEmailAddress) {
+        this.externalEmailAddress = externalEmailAddress;
+    }
+
+    public Set getRecipients() {
+        return recipients;
+    }
+
+    public void setRecipients(Set recipients) {
+        this.recipients = recipients;
+    }
+        
 }

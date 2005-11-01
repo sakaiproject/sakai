@@ -6,7 +6,7 @@
 <hibernate-mapping>
 
   <class 
-      name="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForum"
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
       table="MFR_OPEN_FORUM_T" 
       optimistic-lock="version" 
       discriminator-value="OF">
@@ -42,17 +42,17 @@
       <column name="EXTENDED_DESCRIPTION" not-null="true" />
     </property>
     <many-to-one name="type" column="TYPE"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.Type"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TypeImpl"
       not-null="false" cascade="none" />
     <set name="attachments" lazy="true" sort="natural"
          order-by="attachmentName asc" cascade="all-delete-orphan">
         <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment"/>            
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>     
     <set name="topics" lazy="true" sort="natural"
          order-by="created desc" cascade="all-delete-orphan">
         <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.Topic"/>            
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
     </set> 
     <property name="sortIndex">
       <column name="SORT_INDEX" length="10" not-null="true" />
@@ -60,10 +60,10 @@
         
     <!-- OpenForum fields -->
     <many-to-one name="controlPermissions" column="CONTROL_PERMISSIONS"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissions"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl"
       not-null="false" cascade="none" />
     <many-to-one name="messagePermissions" column="MESSAGE_PERMISSIONS"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissions"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl"
       not-null="false" cascade="none" />
     <property name="locked">
       <column name="LOCKED" not-null="true" />
@@ -71,18 +71,18 @@
 
     <!-- DiscussionForum fields -->
     <subclass 
-      name="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForum"
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl"
       discriminator-value="DF">
       <set name="labels" lazy="true" sort="natural"
            cascade="all-delete-orphan">
           <key column="surrogateKey"/>                        
-          <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.Label"/>            
+          <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl"/>            
       </set>    
       <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"
-        class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictions"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"
         not-null="false" cascade="none" />
       <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
-        class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissions"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
         not-null="false" cascade="none" />
       <property name="moderated">
         <column name="MODERATED" not-null="false" />

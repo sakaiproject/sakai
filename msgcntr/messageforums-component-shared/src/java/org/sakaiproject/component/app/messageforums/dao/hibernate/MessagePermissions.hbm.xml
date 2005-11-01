@@ -6,7 +6,7 @@
 <hibernate-mapping>
 
   <class 
-      name="org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissions"
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl"
       table="MFR_MESSAGE_PERSMISSIONS_T"
       optimistic-lock="version">
 

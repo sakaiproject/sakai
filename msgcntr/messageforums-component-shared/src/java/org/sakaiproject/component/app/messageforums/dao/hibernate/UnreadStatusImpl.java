@@ -25,18 +25,18 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UnreadStatus;
 
-public class ControlPermissions {
+public class UnreadStatusImpl implements UnreadStatus {
 
-    private static final Log LOG = LogFactory.getLog(ControlPermissions.class);    
-  
-    private String role;
-    private Boolean newTopic;
-    private Boolean newResponse;
-    private Boolean responseToResponse;
-    private Boolean movePostings;
-    private Boolean changeSettings;
-
+    private static final Log LOG = LogFactory.getLog(UnreadStatusImpl.class);
+    
+    private Topic topic;
+    private Message message;
+    private String user;
+    private Boolean read;
     private Long id;
     private Integer version; 
 
@@ -55,53 +55,37 @@ public class ControlPermissions {
     public void setVersion(Integer version) {
         this.version = version;
     }
-    
-    public Boolean getChangeSettings() {
-        return changeSettings;
+
+    public Message getMessage() {
+        return message;
     }
 
-    public void setChangeSettings(Boolean changeSettings) {
-        this.changeSettings = changeSettings;
+    public void setMessage(Message message) {
+        this.message = message;
     }
 
-    public Boolean getMovePostings() {
-        return movePostings;
+    public Boolean getRead() {
+        return read;
     }
 
-    public void setMovePostings(Boolean movePostings) {
-        this.movePostings = movePostings;
+    public void setRead(Boolean read) {
+        this.read = read;
     }
 
-    public Boolean getNewResponse() {
-        return newResponse;
+    public Topic getTopic() {
+        return topic;
     }
 
-    public void setNewResponse(Boolean newResponse) {
-        this.newResponse = newResponse;
+    public void setTopic(Topic topic) {
+        this.topic = topic;
     }
 
-    public Boolean getNewTopic() {
-        return newTopic;
+    public String getUser() {
+        return user;
     }
 
-    public void setNewTopic(Boolean newTopic) {
-        this.newTopic = newTopic;
-    }
-
-    public Boolean getResponseToResponse() {
-        return responseToResponse;
-    }
-
-    public void setResponseToResponse(Boolean responseToResponse) {
-        this.responseToResponse = responseToResponse;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    public void setUser(String user) {
+        this.user = user;
     }
         
 }

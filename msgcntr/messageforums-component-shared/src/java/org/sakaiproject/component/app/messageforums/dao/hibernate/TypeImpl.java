@@ -25,10 +25,11 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Type;
 
-public class Type extends MutableEntityImpl {
+public class TypeImpl extends MutableEntityImpl implements Type {
 
-    private static final Log LOG = LogFactory.getLog(Type.class);
+    private static final Log LOG = LogFactory.getLog(TypeImpl.class);
     
     private String authority;
     private String domain;

@@ -27,10 +27,13 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.ActorPermissions;
+import org.sakaiproject.api.app.messageforums.DateRestrictions;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 
-public class DiscussionTopic extends OpenTopic {
+public class DiscussionTopicImpl extends OpenTopicImpl implements DiscussionTopic {
 
-    private static final Log LOG = LogFactory.getLog(DiscussionTopic.class);
+    private static final Log LOG = LogFactory.getLog(DiscussionTopicImpl.class);
     
     private Boolean confidentialResponses;
     private Boolean mustRespondBeforeReading;

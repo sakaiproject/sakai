@@ -28,11 +28,11 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.model.MessageModel;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.Topic;
 import org.sakaiproject.tool.messageforums.model.MessageModelImpl;
 
 /*
@@ -52,7 +52,7 @@ public class TopicProxyImpl implements TopicProxy {
         message.setApproved(new Boolean(true));
         message.setAuthor("nate");
         
-        Attachment attachment = new Attachment();
+        AttachmentImpl attachment = new AttachmentImpl();
         attachment.setUuid("002");
         attachment.setCreated(new Date());
         attachment.setCreatedBy("nate");

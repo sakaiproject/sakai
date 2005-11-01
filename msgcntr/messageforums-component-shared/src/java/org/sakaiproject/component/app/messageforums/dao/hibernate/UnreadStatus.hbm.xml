@@ -6,7 +6,7 @@
 <hibernate-mapping>
 
   <class 
-      name="org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatus"
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl"
       table="MFR_UNREAD_STATUS_T"
       optimistic-lock="version">
 
@@ -22,7 +22,7 @@
 
     <!-- UnreadStatus fields -->
     <many-to-one name="topic" column="TOPIC"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.Topic"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
       not-null="false" cascade="none" />
     <many-to-one name="message" column="MESSAGE"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"

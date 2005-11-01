@@ -23,39 +23,61 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.ActorPermissions;
 
-public class OpenForum extends BaseForum {
+public class ActorPermissionsImpl implements ActorPermissions {
 
-    private static final Log LOG = LogFactory.getLog(OpenForum.class);
+    private static final Log LOG = LogFactory.getLog(ActorPermissionsImpl.class);
     
-    private ControlPermissions controlPermissions;
-    private MessagePermissions messagePermissions;
-    private Boolean locked;
-    
-    public ControlPermissions getControlPermissions() {
-        return controlPermissions;
+    private Set contributors;
+    private Set accessors;
+    private Set moderators;
+
+    private Long id;
+    private Integer version; 
+
+    public Long getId() {
+        return id;
     }
 
-    public void setControlPermissions(ControlPermissions controlPermissions) {
-        this.controlPermissions = controlPermissions;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Boolean getLocked() {
-        return locked;
+    public Integer getVersion() {
+        return version;
     }
 
-    public void setLocked(Boolean locked) {
-        this.locked = locked;
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+                
+    public Set getAccessors() {
+        return accessors;
     }
 
-    public MessagePermissions getMessagePermissions() {
-        return messagePermissions;
+    public void setAccessors(Set accessors) {
+        this.accessors = accessors;
     }
 
-    public void setMessagePermissions(MessagePermissions messagePermissions) {
-        this.messagePermissions = messagePermissions;
+    public Set getContributors() {
+        return contributors;
+    }
+
+    public void setContributors(Set contributors) {
+        this.contributors = contributors;
+    }
+
+    public Set getModerators() {
+        return moderators;
+    }
+
+    public void setModerators(Set moderators) {
+        this.moderators = moderators;
     }
 
 }

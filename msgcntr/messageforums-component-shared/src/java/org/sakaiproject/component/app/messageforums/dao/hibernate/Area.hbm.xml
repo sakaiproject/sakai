@@ -5,7 +5,7 @@
 
 <hibernate-mapping>
 
-  <class name="org.sakaiproject.component.app.messageforums.dao.hibernate.Area"
+  <class name="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
     table="MFR_AREA_T" optimistic-lock="version">
 
     <!-- Inherited fields from MutableEntity -->

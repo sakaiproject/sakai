@@ -6,7 +6,7 @@
 <hibernate-mapping>
 
   <class 
-      name="org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment"
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"
       table="MFR_ATTACHMENT_T" 
       optimistic-lock="version">
 

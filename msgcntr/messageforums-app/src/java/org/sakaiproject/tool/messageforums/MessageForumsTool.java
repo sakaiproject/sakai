@@ -30,8 +30,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsManager;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.Topic;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.tool.messageforums.proxy.TopicProxyImpl;
 
 public class MessageForumsTool {
@@ -45,7 +46,7 @@ public class MessageForumsTool {
         errorMessages = new ErrorMessages();
         errorMessages.setDisplayTitleErrorMessage(false);
 
-        Topic topic = new Topic();
+        Topic topic = new TopicImpl();
         topic.setTitle("Dubai Port Authority Case");
         topic.setShortDescription("What scope and partners do you recommend for the proposed system?  Provide one sentence of support for your position.");
         topic.setExtendedDescription("...");

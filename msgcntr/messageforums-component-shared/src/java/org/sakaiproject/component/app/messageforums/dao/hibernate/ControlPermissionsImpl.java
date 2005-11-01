@@ -25,19 +25,19 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.ControlPermissions;
 
-public class MessagePermissions {
+public class ControlPermissionsImpl implements ControlPermissions {
 
-    private static final Log LOG = LogFactory.getLog(MessagePermissions.class);
-     
+    private static final Log LOG = LogFactory.getLog(ControlPermissionsImpl.class);    
+  
     private String role;
-    private Boolean doNew;
-    private Boolean read;
-    private Boolean reviseAny;
-    private Boolean reviseOwn;
-    private Boolean deleteAny;
-    private Boolean deleteOwn;
-    private Boolean readDrafts;
+    private Boolean newTopic;
+    private Boolean newResponse;
+    private Boolean responseToResponse;
+    private Boolean movePostings;
+    private Boolean changeSettings;
+
     private Long id;
     private Integer version; 
 
@@ -57,60 +57,44 @@ public class MessagePermissions {
         this.version = version;
     }
     
-    public Boolean getDeleteAny() {
-        return deleteAny;
+    public Boolean getChangeSettings() {
+        return changeSettings;
     }
 
-    public void setDeleteAny(Boolean deleteAny) {
-        this.deleteAny = deleteAny;
+    public void setChangeSettings(Boolean changeSettings) {
+        this.changeSettings = changeSettings;
     }
 
-    public Boolean getDeleteOwn() {
-        return deleteOwn;
+    public Boolean getMovePostings() {
+        return movePostings;
     }
 
-    public void setDeleteOwn(Boolean deleteOwn) {
-        this.deleteOwn = deleteOwn;
+    public void setMovePostings(Boolean movePostings) {
+        this.movePostings = movePostings;
     }
 
-    public Boolean getDoNew() {
-        return doNew;
+    public Boolean getNewResponse() {
+        return newResponse;
     }
 
-    public void setDoNew(Boolean doNew) {
-        this.doNew = doNew;
+    public void setNewResponse(Boolean newResponse) {
+        this.newResponse = newResponse;
     }
 
-    public Boolean getRead() {
-        return read;
+    public Boolean getNewTopic() {
+        return newTopic;
     }
 
-    public void setRead(Boolean read) {
-        this.read = read;
+    public void setNewTopic(Boolean newTopic) {
+        this.newTopic = newTopic;
     }
 
-    public Boolean getReadDrafts() {
-        return readDrafts;
+    public Boolean getResponseToResponse() {
+        return responseToResponse;
     }
 
-    public void setReadDrafts(Boolean readDrafts) {
-        this.readDrafts = readDrafts;
-    }
-
-    public Boolean getReviseAny() {
-        return reviseAny;
-    }
-
-    public void setReviseAny(Boolean reviseAny) {
-        this.reviseAny = reviseAny;
-    }
-
-    public Boolean getReviseOwn() {
-        return reviseOwn;
-    }
-
-    public void setReviseOwn(Boolean reviseOwn) {
-        this.reviseOwn = reviseOwn;
+    public void setResponseToResponse(Boolean responseToResponse) {
+        this.responseToResponse = responseToResponse;
     }
 
     public String getRole() {
@@ -120,5 +104,5 @@ public class MessagePermissions {
     public void setRole(String role) {
         this.role = role;
     }
-
+        
 }

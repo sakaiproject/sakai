@@ -27,10 +27,11 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.DateRestrictions;
 
-public class DateRestrictions {
+public class DateRestrictionsImpl implements DateRestrictions {
 
-    private static final Log LOG = LogFactory.getLog(DateRestrictions.class);
+    private static final Log LOG = LogFactory.getLog(DateRestrictionsImpl.class);
  
     private Date visible;
     private Boolean visiblePostOnSchedule;

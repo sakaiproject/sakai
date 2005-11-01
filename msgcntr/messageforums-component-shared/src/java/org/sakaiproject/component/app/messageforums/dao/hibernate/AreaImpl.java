@@ -23,50 +23,44 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
 
-public class DiscussionForum extends OpenForum {
+public class AreaImpl extends MutableEntityImpl implements Area {
 
-    private static final Log LOG = LogFactory.getLog(DiscussionForum.class);
-
-    private Set labels;
-    private DateRestrictions dateRestrictions;
-    private ActorPermissions actorPermissions;
-    private Boolean moderated;
+    private static final Log LOG = LogFactory.getLog(AreaImpl.class);
     
-    public ActorPermissions getActorPermissions() {
-        return actorPermissions;
+    private String contextId;
+    private String name;
+    private Boolean hidden;
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
-    public void setActorPermissions(ActorPermissions actorPermissions) {
-        this.actorPermissions = actorPermissions;
+    public String getContextId() {
+        return contextId;
     }
 
-    public DateRestrictions getDateRestrictions() {
-        return dateRestrictions;
+    public void setContextId(String contextId) {
+        this.contextId = contextId;
     }
 
-    public void setDateRestrictions(DateRestrictions dateRestrictions) {
-        this.dateRestrictions = dateRestrictions;
+    public Boolean getHidden() {
+        return hidden;
     }
 
-    public Set getLabels() {
-        return labels;
+    public void setHidden(Boolean hidden) {
+        this.hidden = hidden;
     }
 
-    public void setLabels(Set labels) {
-        this.labels = labels;
+    public String getName() {
+        return name;
     }
 
-    public Boolean getModerated() {
-        return moderated;
+    public void setName(String name) {
+        this.name = name;
     }
-
-    public void setModerated(Boolean moderated) {
-        this.moderated = moderated;
-    }
-
+    
 }

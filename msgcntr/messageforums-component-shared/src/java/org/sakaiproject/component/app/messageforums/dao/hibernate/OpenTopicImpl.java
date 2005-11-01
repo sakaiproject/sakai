@@ -25,10 +25,13 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.ControlPermissions;
+import org.sakaiproject.api.app.messageforums.MessagePermissions;
+import org.sakaiproject.api.app.messageforums.OpenTopic;
 
-public class OpenTopic extends Topic {
+public class OpenTopicImpl extends TopicImpl implements OpenTopic {
 
-    private static final Log LOG = LogFactory.getLog(OpenTopic.class);
+    private static final Log LOG = LogFactory.getLog(OpenTopicImpl.class);
     
     private ControlPermissions controlPermissions;
     private MessagePermissions messagePermissions;

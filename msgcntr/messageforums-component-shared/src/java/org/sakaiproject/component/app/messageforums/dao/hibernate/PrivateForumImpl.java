@@ -25,65 +25,38 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
 
-public class UnreadStatus {
+public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
 
-    private static final Log LOG = LogFactory.getLog(UnreadStatus.class);
+    private static final Log LOG = LogFactory.getLog(PrivateForumImpl.class);
     
-    private Topic topic;
-    private Message message;
-    private String user;
-    private Boolean read;
-    private Long id;
-    private Integer version; 
-
-    public Long getId() {
-        return id;
+    private Boolean autoForward;
+    private String autoForwardEmail;
+    private Boolean previewPaneEnabled;
+    
+    public Boolean getAutoForward() {
+        return autoForward;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setAutoForward(Boolean autoForward) {
+        this.autoForward = autoForward;
     }
 
-    public Integer getVersion() {
-        return version;
+    public String getAutoForwardEmail() {
+        return autoForwardEmail;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setAutoForwardEmail(String autoForwardEmail) {
+        this.autoForwardEmail = autoForwardEmail;
     }
 
-    public Message getMessage() {
-        return message;
+    public Boolean getPreviewPaneEnabled() {
+        return previewPaneEnabled;
     }
 
-    public void setMessage(Message message) {
-        this.message = message;
+    public void setPreviewPaneEnabled(Boolean previewPaneEnabled) {
+        this.previewPaneEnabled = previewPaneEnabled;
     }
-
-    public Boolean getRead() {
-        return read;
-    }
-
-    public void setRead(Boolean read) {
-        this.read = read;
-    }
-
-    public Topic getTopic() {
-        return topic;
-    }
-
-    public void setTopic(Topic topic) {
-        this.topic = topic;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-        
+   
 }

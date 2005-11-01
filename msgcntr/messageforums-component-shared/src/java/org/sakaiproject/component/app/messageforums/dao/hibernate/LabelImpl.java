@@ -25,37 +25,29 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Label;
 
-public class PrivateForum extends BaseForum {
+public class LabelImpl extends MutableEntityImpl implements Label {
 
-    private static final Log LOG = LogFactory.getLog(PrivateForum.class);
+    private static final Log LOG = LogFactory.getLog(LabelImpl.class);
     
-    private Boolean autoForward;
-    private String autoForwardEmail;
-    private Boolean previewPaneEnabled;
+    private String key;
+    private String value;
     
-    public Boolean getAutoForward() {
-        return autoForward;
+    public String getKey() {
+        return key;
+    }
+    
+    public void setKey(String key) {
+        this.key = key;
+    }
+    
+    public String getValue() {
+        return value;
     }
 
-    public void setAutoForward(Boolean autoForward) {
-        this.autoForward = autoForward;
+    public void setValue(String value) {
+        this.value = value;
     }
-
-    public String getAutoForwardEmail() {
-        return autoForwardEmail;
-    }
-
-    public void setAutoForwardEmail(String autoForwardEmail) {
-        this.autoForwardEmail = autoForwardEmail;
-    }
-
-    public Boolean getPreviewPaneEnabled() {
-        return previewPaneEnabled;
-    }
-
-    public void setPreviewPaneEnabled(Boolean previewPaneEnabled) {
-        this.previewPaneEnabled = previewPaneEnabled;
-    }
-   
+    
 }

@@ -27,39 +27,49 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.ActorPermissions;
+import org.sakaiproject.api.app.messageforums.DateRestrictions;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
 
-// TODO: External email address per message?  Seems like a more global preference per user.
+public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForum {
 
-public class PrivateMessage extends MessageImpl {
+    private static final Log LOG = LogFactory.getLog(DiscussionForumImpl.class);
 
-    private static final Log LOG = LogFactory.getLog(PrivateMessage.class);
+    private Set labels;
+    private DateRestrictions dateRestrictions;
+    private ActorPermissions actorPermissions;
+    private Boolean moderated;
     
-    private Set recipients;
-    private Boolean externalEmail;
-    private String externalEmailAddress;
-    
-    public Boolean getExternalEmail() {
-        return externalEmail;
+    public ActorPermissions getActorPermissions() {
+        return actorPermissions;
     }
 
-    public void setExternalEmail(Boolean externalEmail) {
-        this.externalEmail = externalEmail;
+    public void setActorPermissions(ActorPermissions actorPermissions) {
+        this.actorPermissions = actorPermissions;
     }
 
-    public String getExternalEmailAddress() {
-        return externalEmailAddress;
+    public DateRestrictions getDateRestrictions() {
+        return dateRestrictions;
     }
 
-    public void setExternalEmailAddress(String externalEmailAddress) {
-        this.externalEmailAddress = externalEmailAddress;
+    public void setDateRestrictions(DateRestrictions dateRestrictions) {
+        this.dateRestrictions = dateRestrictions;
     }
 
-    public Set getRecipients() {
-        return recipients;
+    public Set getLabels() {
+        return labels;
     }
 
-    public void setRecipients(Set recipients) {
-        this.recipients = recipients;
+    public void setLabels(Set labels) {
+        this.labels = labels;
     }
-        
+
+    public Boolean getModerated() {
+        return moderated;
+    }
+
+    public void setModerated(Boolean moderated) {
+        this.moderated = moderated;
+    }
+
 }

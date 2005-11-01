@@ -44,7 +44,7 @@
     <set name="attachments" lazy="true" sort="natural" 
          order-by="attachmentName asc" cascade="all">
         <key column="PARENT_ID"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment"/>            
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
     <property name="label">
       <column name="LABEL" length="255" not-null="false" />
@@ -59,7 +59,7 @@
       <column name="GRADEBOOK_ASSIGNMENT" length="255" not-null="false" />
     </property>
     <many-to-one name="type" column="TYPE"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.Type"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TypeImpl"
       not-null="false" cascade="none" />    
     <property name="approved">
       <column name="APPROVED" not-null="true" />
@@ -70,7 +70,7 @@
         
     <!-- PrivateMessage fields -->
     <subclass 
-      name="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage"
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl"
       discriminator-value="PM">
       <set name="recipients" lazy="true" sort="natural"
            order-by="surname asc" cascade="all-delete-orphan">

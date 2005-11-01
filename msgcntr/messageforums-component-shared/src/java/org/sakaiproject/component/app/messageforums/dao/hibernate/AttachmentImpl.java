@@ -28,12 +28,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 
 
-public class Attachment extends MutableEntityImpl {
+public class AttachmentImpl extends MutableEntityImpl implements Attachment {
 
-    private static final Log LOG = LogFactory.getLog(Attachment.class);
+    private static final Log LOG = LogFactory.getLog(AttachmentImpl.class);
 
     private String attachmentId;
     private String attachmentUrl;
@@ -91,7 +92,7 @@ public class Attachment extends MutableEntityImpl {
     }
 
     public boolean equals(Object other) {
-        if (!(other instanceof Attachment)) {
+        if (!(other instanceof AttachmentImpl)) {
             return false;
         }
         

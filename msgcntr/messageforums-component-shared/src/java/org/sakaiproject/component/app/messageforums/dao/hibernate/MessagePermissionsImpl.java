@@ -23,19 +23,22 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.MessagePermissions;
 
-public class ActorPermissions {
+public class MessagePermissionsImpl implements MessagePermissions {
 
-    private static final Log LOG = LogFactory.getLog(ActorPermissions.class);
-    
-    private Set contributors;
-    private Set accessors;
-    private Set moderators;
-
+    private static final Log LOG = LogFactory.getLog(MessagePermissionsImpl.class);
+     
+    private String role;
+    private Boolean doNew;
+    private Boolean read;
+    private Boolean reviseAny;
+    private Boolean reviseOwn;
+    private Boolean deleteAny;
+    private Boolean deleteOwn;
+    private Boolean readDrafts;
     private Long id;
     private Integer version; 
 
@@ -54,29 +57,69 @@ public class ActorPermissions {
     public void setVersion(Integer version) {
         this.version = version;
     }
-                
-    public Set getAccessors() {
-        return accessors;
+    
+    public Boolean getDeleteAny() {
+        return deleteAny;
     }
 
-    public void setAccessors(Set accessors) {
-        this.accessors = accessors;
+    public void setDeleteAny(Boolean deleteAny) {
+        this.deleteAny = deleteAny;
     }
 
-    public Set getContributors() {
-        return contributors;
+    public Boolean getDeleteOwn() {
+        return deleteOwn;
     }
 
-    public void setContributors(Set contributors) {
-        this.contributors = contributors;
+    public void setDeleteOwn(Boolean deleteOwn) {
+        this.deleteOwn = deleteOwn;
     }
 
-    public Set getModerators() {
-        return moderators;
+    public Boolean getDoNew() {
+        return doNew;
     }
 
-    public void setModerators(Set moderators) {
-        this.moderators = moderators;
+    public void setDoNew(Boolean doNew) {
+        this.doNew = doNew;
+    }
+
+    public Boolean getRead() {
+        return read;
+    }
+
+    public void setRead(Boolean read) {
+        this.read = read;
+    }
+
+    public Boolean getReadDrafts() {
+        return readDrafts;
+    }
+
+    public void setReadDrafts(Boolean readDrafts) {
+        this.readDrafts = readDrafts;
+    }
+
+    public Boolean getReviseAny() {
+        return reviseAny;
+    }
+
+    public void setReviseAny(Boolean reviseAny) {
+        this.reviseAny = reviseAny;
+    }
+
+    public Boolean getReviseOwn() {
+        return reviseOwn;
+    }
+
+    public void setReviseOwn(Boolean reviseOwn) {
+        this.reviseOwn = reviseOwn;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
 }
