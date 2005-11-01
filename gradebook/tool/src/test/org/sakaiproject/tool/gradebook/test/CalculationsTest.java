@@ -43,6 +43,7 @@ import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradeMapping;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
@@ -182,6 +183,11 @@ public class CalculationsTest extends TestCase {
     	Assert.assertEquals(gradeMap.standardizeInputGrade("Ba"), null);
     	Assert.assertEquals(gradeMap.standardizeInputGrade("z"), null);
     }
+
+    public void testRoundDown() throws Exception {
+    	Assert.assertTrue(FacesUtil.getRoundDown(17.99, 2) == 17.99);
+    	Assert.assertTrue(FacesUtil.getRoundDown(17.999, 2) == 17.99);
+	}
 }
 
 

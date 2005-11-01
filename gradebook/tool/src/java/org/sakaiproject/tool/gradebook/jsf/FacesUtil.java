@@ -45,6 +45,12 @@ import org.sakaiproject.tool.gradebook.ui.MessagingBean;
 public class FacesUtil {
 	private static final Log logger = LogFactory.getLog(FacesUtil.class);
 
+	/**
+	 * Before display, scores are rounded at this number of decimal
+	 * places and later truncated to (hopefully) a shorter number.
+	 */
+	public static int MAXIMUM_MEANINGFUL_DECIMAL_PLACES = 5;
+
 	// Enforce noninstantiability.
 	private FacesUtil() {
 	}
@@ -257,17 +263,36 @@ public class FacesUtil {
 	 * All Faces number formatting options round instead of truncating.
 	 * For the Gradebook, virtually no displayed numbers are ever supposed to
 	 * round up.
-	 * This method rounds down to reach the specified maximum number
-	 * of decimal places and then returns the equivalent double for
+	 *
+	 * This method moves the specified raw value into a higher-resolution
+	 * BigDecimal, rounding away noise at MAXIMUM_MEANINGFUL_DECIMAL_PLACES.
+	 * It then rounds down to reach the specified maximum number
+	 * of decimal places and returns the equivalent double for
 	 * further formatting.
+	 *
+	 * This is all necessary because we don't store scores as
+	 * BigDecimal and because Java / JSF lacks a DecimalFormat
+	 * class which uses "floor" instead of "round" when
+	 * trimming decimal places.
 	 */
 	public static double getRoundDown(double rawValue, int maxDecimalPlaces) {
 		if (maxDecimalPlaces == 0) {
 			return Math.floor(rawValue);
-		} else {
-			BigDecimal bd = new BigDecimal(rawValue);
-			bd = bd.setScale(maxDecimalPlaces, BigDecimal.ROUND_DOWN);
+		} else if (rawValue != 0) {
+			// We don't use the BigDecimal ROUND_DOWN functionality directly,
+			// because moving from lower resolution storage to a higher
+			// resolution form can introduce false truncations (e.g.,
+			// a "17.99" double being treated as a "17.9899999999999"
+			// BigDecimal).
+			BigDecimal bd = (new BigDecimal(rawValue)).
+				setScale(MAXIMUM_MEANINGFUL_DECIMAL_PLACES, BigDecimal.ROUND_HALF_DOWN).
+				setScale(maxDecimalPlaces, BigDecimal.ROUND_DOWN);
+
+			if (logger.isDebugEnabled()) logger.debug("getRoundDown: rawValue=" + rawValue + ", maxDecimalPlaces=" + maxDecimalPlaces + ", bigDecimal=" + (new BigDecimal(rawValue)) + ", returning=" + bd.doubleValue());
+
 			return bd.doubleValue();
+		} else {
+			return rawValue;
 		}
 	}
 }
