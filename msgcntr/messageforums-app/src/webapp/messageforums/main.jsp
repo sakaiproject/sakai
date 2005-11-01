@@ -12,7 +12,6 @@
     <sakai:view_content>
   
       <h:form onsubmit="return false;">
-  
 <%--        
         <sakai:hideDivision title="Private Message Area">
           private messages here 
@@ -35,13 +34,19 @@
         <mf:forumHideDivision title="Test Division" id="_test_div">
           <mf:forum_bar_link value="TestLink" action="#{MessageForumsTool.processTestLinkCompose}"/>
           <h:outputText value="Testing this division with links above."/>
-		  <h:inputText>testing</h:inputText>
+		  <h:inputText value="hi"/>
+        <sakai:button_bar>
+          <sakai:button_bar_item action="#{MessageForumsTool.processCDFMPostMessage}" value="#{msgs.cdfm_button_bar_post_message}" /> &nbsp;
+          <sakai:button_bar_item action="#{MessageForumsTool.processCDFMSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" />&nbsp;
+          <sakai:button_bar_item action="#{MessageForumsTool.processCDFMCancel}" value="#{msgs.cdfm_button_bar_cancel}" />&nbsp;
+        </sakai:button_bar>     
         </mf:forumHideDivision>
         <sakai:button_bar>
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMPostMessage}" value="#{msgs.cdfm_button_bar_post_message}" />
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" />
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMCancel}" value="#{msgs.cdfm_button_bar_cancel}" />
-        </sakai:button_bar>               
+        </sakai:button_bar>     
+          
       </h:form>
 
     </sakai:view_content>	
