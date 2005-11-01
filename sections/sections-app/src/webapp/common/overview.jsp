@@ -121,19 +121,19 @@
     <h:outputText value="#{msgs.no_sections_instructions}" rendered="#{empty overviewBean.sections && overviewBean.sectionManagementEnabled}"/>
 
 
-        <x:div rendered="#{overviewBean.deleteRendered}" styleClass="verticalPadding">
-            <%/* Add space before the buttons */%>
-        </x:div>
+    <x:div rendered="#{overviewBean.deleteRendered}" styleClass="verticalPadding">
+        <%/* Add space before the buttons */%>
+    </x:div>
 
-    <h:panelGroup rendered="#{overviewBean.deleteRendered}">
-        <h:commandButton
-            action="#{overviewBean.confirmDelete}"
-            value="#{msgs.overview_delete}"/>
-    
-        <h:commandButton
-            action="overview"
-            value="#{msgs.overview_cancel}"/>
-    </h:panelGroup>
+    <h:commandButton
+        action="#{overviewBean.confirmDelete}"
+        value="#{msgs.overview_delete}"
+        rendered="#{overviewBean.deleteRendered}"/>
+
+    <h:commandButton
+        action="overview"
+        value="#{msgs.overview_cancel}"
+        rendered="#{overviewBean.deleteRendered}"/>
     
 </h:form>
 </div>
