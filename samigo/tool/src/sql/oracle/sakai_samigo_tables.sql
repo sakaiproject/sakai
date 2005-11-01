@@ -102,494 +102,494 @@ drop sequence SAM_ITEMFEEDBACK_ID_S;
 drop sequence SAM_ANSWERFEEDBACK_ID_S;
 drop sequence SAM_PUBITEMTEXT_ID_S;
 drop sequence SAM_PUBITEMFEEDBACK_ID_S;
-create table SAM_ANSWER_T (;
-   ANSWERID number(19,0) not null,;
-   ITEMTEXTID number(19,0) not null,;
-   ITEMID number(19,0) not null,;
-   TEXT varchar(4000),;
-   SEQUENCE integer not null,;
-   LABEL varchar(20),;
-   ISCORRECT varchar(1),;
-   GRADE varchar(80),;
-   SCORE float,;
-   primary key (ANSWERID);
-);
-create table SAM_PUBLISHEDASSESSMENT_T (;
-   ID number(19,0) not null,;
-   ASSESSMENTID number(19,0) not null,;
-   TITLE varchar(255),;
-   DESCRIPTION varchar(4000),;
-   COMMENTS varchar(255),;
-   TYPEID varchar(36),;
-   INSTRUCTORNOTIFICATION integer,;
-   TESTEENOTIFICATION integer,;
-   MULTIPARTALLOWED integer,;
-   STATUS integer not null,;
-   CREATEDBY varchar(36) not null,;
-   CREATEDDATE date not null,;
-   LASTMODIFIEDBY varchar(36) not null,;
-   LASTMODIFIEDDATE date not null,;
-   primary key (ID);
-);
-create table SAM_ASSESSMENTGRADING_T (;
-   ASSESSMENTGRADINGID number(19,0) not null,;
-   PUBLISHEDASSESSMENTID number(19,0) not null,;
-   AGENTID varchar(36) not null,;
-   SUBMITTEDDATE date not null,;
-   ISLATE varchar(1) not null,;
-   FORGRADE integer not null,;
-   TOTALAUTOSCORE float,;
-   TOTALOVERRIDESCORE float,;
-   FINALSCORE float,;
-   COMMENTS varchar(4000),;
-   GRADEDBY varchar(36),;
-   GRADEDDATE date,;
-   STATUS integer not null,;
-   ATTEMPTDATE date,;
-   TIMEELAPSED integer,;
-   primary key (ASSESSMENTGRADINGID);
-);
-create table SAM_FUNCTIONDATA_T (;
-   FUNCTIONID number(19,0) not null,;
-   REFERENCENAME varchar(255) not null,;
-   DISPLAYNAME varchar(255),;
-   DESCRIPTION varchar(4000),;
-   FUNCTIONTYPEID varchar(4000),;
-   primary key (FUNCTIONID);
-);
-create table SAM_ITEMGRADING_T (;
-   ITEMGRADINGID number(19,0) not null,;
-   ASSESSMENTGRADINGID number(19,0) not null,;
-   PUBLISHEDITEMID number(19,0) not null,;
-   PUBLISHEDITEMTEXTID number(19,0) not null,;
-   AGENTID varchar(36) not null,;
-   SUBMITTEDDATE date not null,;
-   PUBLISHEDANSWERID number(19,0),;
-   RATIONALE varchar(4000),;
-   ANSWERTEXT varchar(4000),;
-   AUTOSCORE float,;
-   OVERRIDESCORE float,;
-   COMMENTS varchar(4000),;
-   GRADEDBY varchar(36),;
-   GRADEDDATE date,;
-   REVIEW integer,;
-   primary key (ITEMGRADINGID);
-);
-create table SAM_PUBLISHEDMETADATA_T (;
-   ASSESSMENTMETADATAID number(19,0) not null,;
-   ASSESSMENTID number(19,0) not null,;
-   LABEL varchar(255) not null,;
-   ENTRY varchar(255),;
-   primary key (ASSESSMENTMETADATAID);
-);
-create table SAM_PUBLISHEDSECTIONMETADATA_T (;
-   PUBLISHEDSECTIONMETADATAID number(19,0) not null,;
-   SECTIONID number(19,0) not null,;
-   LABEL varchar(255) not null,;
-   ENTRY varchar(255),;
-   primary key (PUBLISHEDSECTIONMETADATAID);
-);
-create table SAM_SECTION_T (;
-   SECTIONID number(19,0) not null,;
-   ASSESSMENTID number(19,0) not null,;
-   DURATION integer,;
-   SEQUENCE integer,;
-   TITLE varchar(255),;
-   DESCRIPTION varchar(4000),;
-   TYPEID integer,;
-   STATUS integer not null,;
-   CREATEDBY varchar(36) not null,;
-   CREATEDDATE date not null,;
-   LASTMODIFIEDBY varchar(36) not null,;
-   LASTMODIFIEDDATE date not null,;
-   primary key (SECTIONID);
-);
-create table SAM_QUESTIONPOOLITEM_T (;
-   QUESTIONPOOLID number(19,0) not null,;
-   ITEMID varchar2(255) not null,;
-   primary key (QUESTIONPOOLID, ITEMID);
-);
-create table SAM_PUBLISHEDITEMFEEDBACK_T (;
-   ITEMFEEDBACKID number(19,0) not null,;
-   ITEMID number(19,0) not null,;
-   TYPEID varchar(36) not null,;
-   TEXT varchar(4000),;
-   primary key (ITEMFEEDBACKID);
-);
-create table SAM_ITEMFEEDBACK_T (;
-   ITEMFEEDBACKID number(19,0) not null,;
-   ITEMID number(19,0) not null,;
-   TYPEID varchar(36) not null,;
-   TEXT varchar(4000),;
-   primary key (ITEMFEEDBACKID);
-);
-create table SAM_ITEMMETADATA_T (;
-   ITEMMETADATAID number(19,0) not null,;
-   ITEMID number(19,0) not null,;
-   LABEL varchar(255) not null,;
-   ENTRY varchar(255),;
-   primary key (ITEMMETADATAID);
-);
-create table SAM_PUBLISHEDFEEDBACK_T (;
-   ASSESSMENTID number(19,0) not null,;
-   FEEDBACKDELIVERY integer,;
-   EDITCOMPONENTS integer,;
-   SHOWQUESTIONTEXT integer,;
-   SHOWSTUDENTRESPONSE integer,;
-   SHOWCORRECTRESPONSE integer,;
-   SHOWSTUDENTSCORE integer,;
-   SHOWSTUDENTQUESTIONSCORE integer,;
-   SHOWQUESTIONLEVELFEEDBACK integer,;
-   SHOWSELECTIONLEVELFEEDBACK integer,;
-   SHOWGRADERCOMMENTS integer,;
-   SHOWSTATISTICS integer,;
-   primary key (ASSESSMENTID);
-);
-create table SAM_GRADINGSUMMARY_T (;
-   ASSESSMENTGRADINGSUMMARYID number(19,0) not null,;
-   PUBLISHEDASSESSMENTID number(19,0) not null,;
-   AGENTID varchar(36) not null,;
-   TOTALSUBMITTED integer,;
-   TOTALSUBMITTEDFORGRADE integer,;
-   LASTSUBMITTEDDATE date,;
-   LASTSUBMITTEDASSESSMENTISLATE integer not null,;
-   SUMOF_AUTOSCOREFORGRADE float,;
-   AVERAGE_AUTOSCOREFORGRADE float,;
-   HIGHEST_AUTOSCOREFORGRADE float,;
-   LOWEST_AUTOSCOREFORGRADE float,;
-   LAST_AUTOSCOREFORGRADE float,;
-   SUMOF_OVERRIDESCOREFORGRADE float,;
-   AVERAGE_OVERRIDESCOREFORGRADE float,;
-   HIGHEST_OVERRIDESCOREFORGRADE float,;
-   LOWEST_OVERRIDESCOREFORGRADE float,;
-   LAST_OVERRIDESCOREFORGRADE float,;
-   SCORINGTYPE integer,;
-   ACCEPTEDASSESSMENTISLATE integer,;
-   FINALASSESSMENTSCORE float,;
-   FEEDTOGRADEBOOK integer,;
-   primary key (ASSESSMENTGRADINGSUMMARYID);
-);
-create table SAM_PUBLISHEDEVALUATION_T (;
-   ASSESSMENTID number(19,0) not null,;
-   EVALUATIONCOMPONENTS varchar(255),;
-   SCORINGTYPE integer,;
-   NUMERICMODELID varchar(255),;
-   FIXEDTOTALSCORE integer,;
-   GRADEAVAILABLE integer,;
-   ISSTUDENTIDPUBLIC integer,;
-   ANONYMOUSGRADING integer,;
-   AUTOSCORING integer,;
-   TOGRADEBOOK integer,;
-   primary key (ASSESSMENTID);
-);
-create table SAM_PUBLISHEDACCESSCONTROL_T (;
-   ASSESSMENTID number(19,0) not null,;
-   UNLIMITEDSUBMISSIONS integer,;
-   SUBMISSIONSALLOWED integer,;
-   SUBMISSIONSSAVED integer,;
-   ASSESSMENTFORMAT integer,;
-   BOOKMARKINGITEM integer,;
-   TIMELIMIT integer,;
-   TIMEDASSESSMENT integer,;
-   RETRYALLOWED integer,;
-   LATEHANDLING integer,;
-   STARTDATE date,;
-   DUEDATE date,;
-   SCOREDATE date,;
-   FEEDBACKDATE date,;
-   RETRACTDATE date,;
-   AUTOSUBMIT integer,;
-   ITEMNAVIGATION integer,;
-   ITEMNUMBERING integer,;
-   SUBMISSIONMESSAGE varchar(4000),;
-   RELEASETO varchar(255),;
-   USERNAME varchar(255),;
-   PASSWORD varchar(255),;
-   FINALPAGEURL varchar(1023),;
-   primary key (ASSESSMENTID);
-);
-create table SAM_QUALIFIERDATA_T (;
-   QUALIFIERID number(19,0) not null,;
-   REFERENCENAME varchar(255) not null,;
-   DISPLAYNAME varchar(255),;
-   DESCRIPTION varchar(4000),;
-   QUALIFIERTYPEID varchar(4000),;
-   primary key (QUALIFIERID);
-);
-create table SAM_QUESTIONPOOLACCESS_T (;
-   QUESTIONPOOLID number(19,0) not null,;
-   AGENTID varchar2(255) not null,;
-   ACCESSTYPEID number(19,0) not null,;
-   primary key (QUESTIONPOOLID, AGENTID, ACCESSTYPEID);
-);
-create table SAM_AUTHZDATA_T (;
-   ID number(19,0) not null,;
-   lockId number(10,0) not null,;
-   AGENTID varchar2(36) not null,;
-   FUNCTIONID varchar2(36) not null,;
-   QUALIFIERID varchar2(36) not null,;
-   EFFECTIVEDATE date,;
-   EXPIRATIONDATE date,;
-   LASTMODIFIEDBY varchar(36) not null,;
-   LASTMODIFIEDDATE date not null,;
-   ISEXPLICIT integer,;
-   primary key (ID),;
-   unique (AGENTID, FUNCTIONID, QUALIFIERID);
-);
-create table SAM_ASSESSEVALUATION_T (;
-   ASSESSMENTID number(19,0) not null,;
-   EVALUATIONCOMPONENTS varchar(255),;
-   SCORINGTYPE integer,;
-   NUMERICMODELID varchar(255),;
-   FIXEDTOTALSCORE integer,;
-   GRADEAVAILABLE integer,;
-   ISSTUDENTIDPUBLIC integer,;
-   ANONYMOUSGRADING integer,;
-   AUTOSCORING integer,;
-   TOGRADEBOOK varchar(255),;
-   primary key (ASSESSMENTID);
-);
-create table SAM_ANSWERFEEDBACK_T (;
-   ANSWERFEEDBACKID number(19,0) not null,;
-   ANSWERID number(19,0) not null,;
-   TYPEID varchar(36),;
-   TEXT varchar(4000),;
-   primary key (ANSWERFEEDBACKID);
-);
-create table SAM_PUBLISHEDANSWER_T (;
-   ANSWERID number(19,0) not null,;
-   ITEMTEXTID number(19,0) not null,;
-   itemId number(19,0) not null,;
-   TEXT varchar(4000),;
-   SEQUENCE integer not null,;
-   LABEL varchar(20),;
-   ISCORRECT varchar(1),;
-   GRADE varchar(80),;
-   SCORE float,;
-   primary key (ANSWERID);
-);
-create table SAM_PUBLISHEDANSWERFEEDBACK_T (;
-   ANSWERFEEDBACKID number(19,0) not null,;
-   ANSWERID number(19,0) not null,;
-   TYPEID varchar(36),;
-   TEXT varchar(4000),;
-   primary key (ANSWERFEEDBACKID);
-);
-create table SAM_PUBLISHEDITEM_T (;
-   ITEMID number(19,0) not null,;
-   SECTIONID number(19,0) not null,;
-   ITEMIDSTRING varchar(36),;
-   SEQUENCE integer,;
-   DURATION integer,;
-   TRIESALLOWED integer,;
-   INSTRUCTION varchar(4000),;
-   DESCRIPTION varchar(4000),;
-   TYPEID varchar(36) not null,;
-   GRADE varchar(80),;
-   SCORE float,;
-   HINT varchar(4000),;
-   HASRATIONALE varchar(1),;
-   STATUS integer not null,;
-   CREATEDBY varchar(36) not null,;
-   CREATEDDATE date not null,;
-   LASTMODIFIEDBY varchar(36) not null,;
-   LASTMODIFIEDDATE date not null,;
-   primary key (ITEMID);
-);
-create table SAM_ASSESSACCESSCONTROL_T (;
-   ASSESSMENTID number(19,0) not null,;
-   SUBMISSIONSALLOWED integer,;
-   UNLIMITEDSUBMISSIONS integer,;
-   SUBMISSIONSSAVED integer,;
-   ASSESSMENTFORMAT integer,;
-   BOOKMARKINGITEM integer,;
-   TIMELIMIT integer,;
-   TIMEDASSESSMENT integer,;
-   RETRYALLOWED integer,;
-   LATEHANDLING integer,;
-   STARTDATE date,;
-   DUEDATE date,;
-   SCOREDATE date,;
-   FEEDBACKDATE date,;
-   RETRACTDATE date,;
-   AUTOSUBMIT integer,;
-   ITEMNAVIGATION integer,;
-   ITEMNUMBERING integer,;
-   SUBMISSIONMESSAGE varchar(4000),;
-   RELEASETO varchar(255),;
-   USERNAME varchar(255),;
-   PASSWORD varchar(255),;
-   FINALPAGEURL varchar(1023),;
-   primary key (ASSESSMENTID);
-);
-create table SAM_PUBLISHEDSECTION_T (;
-   SECTIONID number(19,0) not null,;
-   ASSESSMENTID number(19,0) not null,;
-   DURATION integer,;
-   SEQUENCE integer,;
-   TITLE varchar(255),;
-   DESCRIPTION varchar(4000),;
-   TYPEID integer not null,;
-   STATUS integer not null,;
-   CREATEDBY varchar(36) not null,;
-   CREATEDDATE date not null,;
-   LASTMODIFIEDBY varchar(36) not null,;
-   LASTMODIFIEDDATE date not null,;
-   primary key (SECTIONID);
-);
-create table SAM_PUBLISHEDITEMTEXT_T (;
-   ITEMTEXTID number(19,0) not null,;
-   ITEMID number(19,0) not null,;
-   SEQUENCE integer not null,;
-   TEXT varchar(4000),;
-   primary key (ITEMTEXTID);
-);
-create table SAM_PUBLISHEDSECUREDIP_T (;
-   IPADDRESSID number(19,0) not null,;
-   ASSESSMENTID number(19,0) not null,;
-   HOSTNAME varchar(255),;
-   IPADDRESS varchar(255),;
-   primary key (IPADDRESSID);
-);
-create table SAM_QUESTIONPOOL_T (;
-   QUESTIONPOOLID number(19,0) not null,;
-   TITLE varchar(255),;
-   DESCRIPTION varchar(255),;
-   PARENTPOOLID integer,;
-   OWNERID varchar(255),;
-   ORGANIZATIONNAME varchar(255),;
-   DATECREATED date,;
-   LASTMODIFIEDDATE date,;
-   LASTMODIFIEDBY varchar(255),;
-   DEFAULTACCESSTYPEID integer,;
-   OBJECTIVE varchar(255),;
-   KEYWORDS varchar(255),;
-   RUBRIC varchar(4000),;
-   TYPEID integer,;
-   INTELLECTUALPROPERTYID integer,;
-   primary key (QUESTIONPOOLID);
-);
-create table SAM_SECTIONMETADATA_T (;
-   SECTIONMETADATAID number(19,0) not null,;
-   SECTIONID number(19,0) not null,;
-   LABEL varchar(255) not null,;
-   ENTRY varchar(255),;
-   primary key (SECTIONMETADATAID);
-);
-create table SAM_ITEM_T (;
-   ITEMID number(19,0) not null,;
-   SECTIONID number(19,0),;
-   ITEMIDSTRING varchar(36),;
-   SEQUENCE integer,;
-   DURATION integer,;
-   TRIESALLOWED integer,;
-   INSTRUCTION varchar(4000),;
-   DESCRIPTION varchar(4000),;
-   TYPEID varchar(36) not null,;
-   GRADE varchar(80),;
-   SCORE float,;
-   HINT varchar(4000),;
-   HASRATIONALE varchar(1),;
-   STATUS integer not null,;
-   CREATEDBY varchar(36) not null,;
-   CREATEDDATE date not null,;
-   LASTMODIFIEDBY varchar(36) not null,;
-   LASTMODIFIEDDATE date not null,;
-   primary key (ITEMID);
-);
-create table SAM_ASSESSFEEDBACK_T (;
-   ASSESSMENTID number(19,0) not null,;
-   FEEDBACKDELIVERY integer,;
-   EDITCOMPONENTS integer,;
-   SHOWQUESTIONTEXT integer,;
-   SHOWSTUDENTRESPONSE integer,;
-   SHOWCORRECTRESPONSE integer,;
-   SHOWSTUDENTSCORE integer,;
-   SHOWSTUDENTQUESTIONSCORE integer,;
-   SHOWQUESTIONLEVELFEEDBACK integer,;
-   SHOWSELECTIONLEVELFEEDBACK integer,;
-   SHOWGRADERCOMMENTS integer,;
-   SHOWSTATISTICS integer,;
-   primary key (ASSESSMENTID);
-);
-create table SAM_SECUREDIP_T (;
-   IPADDRESSID number(19,0) not null,;
-   ASSESSMENTID number(19,0) not null,;
-   HOSTNAME varchar(255),;
-   IPADDRESS varchar(255),;
-   primary key (IPADDRESSID);
-);
-create table SAM_ITEMTEXT_T (;
-   ITEMTEXTID number(19,0) not null,;
-   ITEMID number(19,0) not null,;
-   SEQUENCE integer not null,;
-   TEXT varchar(4000),;
-   primary key (ITEMTEXTID);
-);
-create table SAM_PUBLISHEDITEMMETADATA_T (;
-   ITEMMETADATAID number(19,0) not null,;
-   ITEMID number(19,0) not null,;
-   LABEL varchar(255) not null,;
-   ENTRY varchar(255),;
-   primary key (ITEMMETADATAID);
-);
-create table SAM_MEDIA_T (;
-   MEDIAID number(19,0) not null,;
-   ITEMGRADINGID number(19,0),;
-   MEDIA blob,;
-   FILESIZE integer,;
-   MIMETYPE varchar(80),;
-   DESCRIPTION varchar(4000),;
-   LOCATION varchar(255),;
-   FILENAME varchar(255),;
-   ISLINK integer,;
-   ISHTMLINLINE integer,;
-   STATUS integer,;
-   CREATEDBY varchar(36),;
-   CREATEDDATE date,;
-   LASTMODIFIEDBY varchar(36),;
-   LASTMODIFIEDDATE date,;
-   primary key (MEDIAID);
-);
-create table SAM_ASSESSMENTBASE_T (;
-   ID number(19,0) not null,;
-   isTemplate varchar2(255) not null,;
-   PARENTID integer,;
-   TITLE varchar(255),;
-   DESCRIPTION varchar(4000),;
-   COMMENTS varchar(4000),;
-   TYPEID varchar(36),;
-   INSTRUCTORNOTIFICATION integer,;
-   TESTEENOTIFICATION integer,;
-   MULTIPARTALLOWED integer,;
-   STATUS integer not null,;
-   CREATEDBY varchar(36) not null,;
-   CREATEDDATE date not null,;
-   LASTMODIFIEDBY varchar(36) not null,;
-   LASTMODIFIEDDATE date not null,;
-   ASSESSMENTTEMPLATEID number(19,0),;
-   primary key (ID);
-);
-create table SAM_TYPE_T (;
-   TYPEID number(19,0) not null,;
-   AUTHORITY varchar(255),;
-   DOMAIN varchar(255),;
-   KEYWORD varchar(255),;
-   DESCRIPTION varchar(4000),;
-   STATUS integer not null,;
-   CREATEDBY varchar(36) not null,;
-   CREATEDDATE date not null,;
-   LASTMODIFIEDBY varchar(36) not null,;
-   LASTMODIFIEDDATE date not null,;
-   primary key (TYPEID);
-);
-create table SAM_ASSESSMETADATA_T (;
-   ASSESSMENTMETADATAID number(19,0) not null,;
-   ASSESSMENTID number(19,0) not null,;
-   LABEL varchar(255) not null,;
-   ENTRY varchar(255),;
-   primary key (ASSESSMENTMETADATAID);
-);
+create table SAM_ANSWER_T (
+   ANSWERID number(19,0) not null,
+   ITEMTEXTID number(19,0) not null,
+   ITEMID number(19,0) not null,
+   TEXT varchar(4000),
+   SEQUENCE integer not null,
+   LABEL varchar(20),
+   ISCORRECT varchar(1),
+   GRADE varchar(80),
+   SCORE float,
+   primary key (ANSWERID)
+)
+create table SAM_PUBLISHEDASSESSMENT_T (
+   ID number(19,0) not null,
+   ASSESSMENTID number(19,0) not null,
+   TITLE varchar(255),
+   DESCRIPTION varchar(4000),
+   COMMENTS varchar(255),
+   TYPEID varchar(36),
+   INSTRUCTORNOTIFICATION integer,
+   TESTEENOTIFICATION integer,
+   MULTIPARTALLOWED integer,
+   STATUS integer not null,
+   CREATEDBY varchar(36) not null,
+   CREATEDDATE date not null,
+   LASTMODIFIEDBY varchar(36) not null,
+   LASTMODIFIEDDATE date not null,
+   primary key (ID)
+)
+create table SAM_ASSESSMENTGRADING_T (
+   ASSESSMENTGRADINGID number(19,0) not null,
+   PUBLISHEDASSESSMENTID number(19,0) not null,
+   AGENTID varchar(36) not null,
+   SUBMITTEDDATE date not null,
+   ISLATE varchar(1) not null,
+   FORGRADE integer not null,
+   TOTALAUTOSCORE float,
+   TOTALOVERRIDESCORE float,
+   FINALSCORE float,
+   COMMENTS varchar(4000),
+   GRADEDBY varchar(36),
+   GRADEDDATE date,
+   STATUS integer not null,
+   ATTEMPTDATE date,
+   TIMEELAPSED integer,
+   primary key (ASSESSMENTGRADINGID)
+)
+create table SAM_FUNCTIONDATA_T (
+   FUNCTIONID number(19,0) not null,
+   REFERENCENAME varchar(255) not null,
+   DISPLAYNAME varchar(255),
+   DESCRIPTION varchar(4000),
+   FUNCTIONTYPEID varchar(4000),
+   primary key (FUNCTIONID)
+)
+create table SAM_ITEMGRADING_T (
+   ITEMGRADINGID number(19,0) not null,
+   ASSESSMENTGRADINGID number(19,0) not null,
+   PUBLISHEDITEMID number(19,0) not null,
+   PUBLISHEDITEMTEXTID number(19,0) not null,
+   AGENTID varchar(36) not null,
+   SUBMITTEDDATE date not null,
+   PUBLISHEDANSWERID number(19,0),
+   RATIONALE varchar(4000),
+   ANSWERTEXT varchar(4000),
+   AUTOSCORE float,
+   OVERRIDESCORE float,
+   COMMENTS varchar(4000),
+   GRADEDBY varchar(36),
+   GRADEDDATE date,
+   REVIEW integer,
+   primary key (ITEMGRADINGID)
+)
+create table SAM_PUBLISHEDMETADATA_T (
+   ASSESSMENTMETADATAID number(19,0) not null,
+   ASSESSMENTID number(19,0) not null,
+   LABEL varchar(255) not null,
+   ENTRY varchar(255),
+   primary key (ASSESSMENTMETADATAID)
+)
+create table SAM_PUBLISHEDSECTIONMETADATA_T (
+   PUBLISHEDSECTIONMETADATAID number(19,0) not null,
+   SECTIONID number(19,0) not null,
+   LABEL varchar(255) not null,
+   ENTRY varchar(255),
+   primary key (PUBLISHEDSECTIONMETADATAID)
+)
+create table SAM_SECTION_T (
+   SECTIONID number(19,0) not null,
+   ASSESSMENTID number(19,0) not null,
+   DURATION integer,
+   SEQUENCE integer,
+   TITLE varchar(255),
+   DESCRIPTION varchar(4000),
+   TYPEID integer,
+   STATUS integer not null,
+   CREATEDBY varchar(36) not null,
+   CREATEDDATE date not null,
+   LASTMODIFIEDBY varchar(36) not null,
+   LASTMODIFIEDDATE date not null,
+   primary key (SECTIONID)
+)
+create table SAM_QUESTIONPOOLITEM_T (
+   QUESTIONPOOLID number(19,0) not null,
+   ITEMID varchar2(255) not null,
+   primary key (QUESTIONPOOLID, ITEMID)
+)
+create table SAM_PUBLISHEDITEMFEEDBACK_T (
+   ITEMFEEDBACKID number(19,0) not null,
+   ITEMID number(19,0) not null,
+   TYPEID varchar(36) not null,
+   TEXT varchar(4000),
+   primary key (ITEMFEEDBACKID)
+)
+create table SAM_ITEMFEEDBACK_T (
+   ITEMFEEDBACKID number(19,0) not null,
+   ITEMID number(19,0) not null,
+   TYPEID varchar(36) not null,
+   TEXT varchar(4000),
+   primary key (ITEMFEEDBACKID)
+)
+create table SAM_ITEMMETADATA_T (
+   ITEMMETADATAID number(19,0) not null,
+   ITEMID number(19,0) not null,
+   LABEL varchar(255) not null,
+   ENTRY varchar(255),
+   primary key (ITEMMETADATAID)
+)
+create table SAM_PUBLISHEDFEEDBACK_T (
+   ASSESSMENTID number(19,0) not null,
+   FEEDBACKDELIVERY integer,
+   EDITCOMPONENTS integer,
+   SHOWQUESTIONTEXT integer,
+   SHOWSTUDENTRESPONSE integer,
+   SHOWCORRECTRESPONSE integer,
+   SHOWSTUDENTSCORE integer,
+   SHOWSTUDENTQUESTIONSCORE integer,
+   SHOWQUESTIONLEVELFEEDBACK integer,
+   SHOWSELECTIONLEVELFEEDBACK integer,
+   SHOWGRADERCOMMENTS integer,
+   SHOWSTATISTICS integer,
+   primary key (ASSESSMENTID)
+)
+create table SAM_GRADINGSUMMARY_T (
+   ASSESSMENTGRADINGSUMMARYID number(19,0) not null,
+   PUBLISHEDASSESSMENTID number(19,0) not null,
+   AGENTID varchar(36) not null,
+   TOTALSUBMITTED integer,
+   TOTALSUBMITTEDFORGRADE integer,
+   LASTSUBMITTEDDATE date,
+   LASTSUBMITTEDASSESSMENTISLATE integer not null,
+   SUMOF_AUTOSCOREFORGRADE float,
+   AVERAGE_AUTOSCOREFORGRADE float,
+   HIGHEST_AUTOSCOREFORGRADE float,
+   LOWEST_AUTOSCOREFORGRADE float,
+   LAST_AUTOSCOREFORGRADE float,
+   SUMOF_OVERRIDESCOREFORGRADE float,
+   AVERAGE_OVERRIDESCOREFORGRADE float,
+   HIGHEST_OVERRIDESCOREFORGRADE float,
+   LOWEST_OVERRIDESCOREFORGRADE float,
+   LAST_OVERRIDESCOREFORGRADE float,
+   SCORINGTYPE integer,
+   ACCEPTEDASSESSMENTISLATE integer,
+   FINALASSESSMENTSCORE float,
+   FEEDTOGRADEBOOK integer,
+   primary key (ASSESSMENTGRADINGSUMMARYID)
+)
+create table SAM_PUBLISHEDEVALUATION_T (
+   ASSESSMENTID number(19,0) not null,
+   EVALUATIONCOMPONENTS varchar(255),
+   SCORINGTYPE integer,
+   NUMERICMODELID varchar(255),
+   FIXEDTOTALSCORE integer,
+   GRADEAVAILABLE integer,
+   ISSTUDENTIDPUBLIC integer,
+   ANONYMOUSGRADING integer,
+   AUTOSCORING integer,
+   TOGRADEBOOK integer,
+   primary key (ASSESSMENTID)
+)
+create table SAM_PUBLISHEDACCESSCONTROL_T (
+   ASSESSMENTID number(19,0) not null,
+   UNLIMITEDSUBMISSIONS integer,
+   SUBMISSIONSALLOWED integer,
+   SUBMISSIONSSAVED integer,
+   ASSESSMENTFORMAT integer,
+   BOOKMARKINGITEM integer,
+   TIMELIMIT integer,
+   TIMEDASSESSMENT integer,
+   RETRYALLOWED integer,
+   LATEHANDLING integer,
+   STARTDATE date,
+   DUEDATE date,
+   SCOREDATE date,
+   FEEDBACKDATE date,
+   RETRACTDATE date,
+   AUTOSUBMIT integer,
+   ITEMNAVIGATION integer,
+   ITEMNUMBERING integer,
+   SUBMISSIONMESSAGE varchar(4000),
+   RELEASETO varchar(255),
+   USERNAME varchar(255),
+   PASSWORD varchar(255),
+   FINALPAGEURL varchar(1023),
+   primary key (ASSESSMENTID)
+)
+create table SAM_QUALIFIERDATA_T (
+   QUALIFIERID number(19,0) not null,
+   REFERENCENAME varchar(255) not null,
+   DISPLAYNAME varchar(255),
+   DESCRIPTION varchar(4000),
+   QUALIFIERTYPEID varchar(4000),
+   primary key (QUALIFIERID)
+)
+create table SAM_QUESTIONPOOLACCESS_T (
+   QUESTIONPOOLID number(19,0) not null,
+   AGENTID varchar2(255) not null,
+   ACCESSTYPEID number(19,0) not null,
+   primary key (QUESTIONPOOLID, AGENTID, ACCESSTYPEID)
+)
+create table SAM_AUTHZDATA_T (
+   ID number(19,0) not null,
+   lockId number(10,0) not null,
+   AGENTID varchar2(36) not null,
+   FUNCTIONID varchar2(36) not null,
+   QUALIFIERID varchar2(36) not null,
+   EFFECTIVEDATE date,
+   EXPIRATIONDATE date,
+   LASTMODIFIEDBY varchar(36) not null,
+   LASTMODIFIEDDATE date not null,
+   ISEXPLICIT integer,
+   primary key (ID),
+   unique (AGENTID, FUNCTIONID, QUALIFIERID)
+)
+create table SAM_ASSESSEVALUATION_T (
+   ASSESSMENTID number(19,0) not null,
+   EVALUATIONCOMPONENTS varchar(255),
+   SCORINGTYPE integer,
+   NUMERICMODELID varchar(255),
+   FIXEDTOTALSCORE integer,
+   GRADEAVAILABLE integer,
+   ISSTUDENTIDPUBLIC integer,
+   ANONYMOUSGRADING integer,
+   AUTOSCORING integer,
+   TOGRADEBOOK varchar(255),
+   primary key (ASSESSMENTID)
+)
+create table SAM_ANSWERFEEDBACK_T (
+   ANSWERFEEDBACKID number(19,0) not null,
+   ANSWERID number(19,0) not null,
+   TYPEID varchar(36),
+   TEXT varchar(4000),
+   primary key (ANSWERFEEDBACKID)
+)
+create table SAM_PUBLISHEDANSWER_T (
+   ANSWERID number(19,0) not null,
+   ITEMTEXTID number(19,0) not null,
+   itemId number(19,0) not null,
+   TEXT varchar(4000),
+   SEQUENCE integer not null,
+   LABEL varchar(20),
+   ISCORRECT varchar(1),
+   GRADE varchar(80),
+   SCORE float,
+   primary key (ANSWERID)
+)
+create table SAM_PUBLISHEDANSWERFEEDBACK_T (
+   ANSWERFEEDBACKID number(19,0) not null,
+   ANSWERID number(19,0) not null,
+   TYPEID varchar(36),
+   TEXT varchar(4000),
+   primary key (ANSWERFEEDBACKID)
+)
+create table SAM_PUBLISHEDITEM_T (
+   ITEMID number(19,0) not null,
+   SECTIONID number(19,0) not null,
+   ITEMIDSTRING varchar(36),
+   SEQUENCE integer,
+   DURATION integer,
+   TRIESALLOWED integer,
+   INSTRUCTION varchar(4000),
+   DESCRIPTION varchar(4000),
+   TYPEID varchar(36) not null,
+   GRADE varchar(80),
+   SCORE float,
+   HINT varchar(4000),
+   HASRATIONALE varchar(1),
+   STATUS integer not null,
+   CREATEDBY varchar(36) not null,
+   CREATEDDATE date not null,
+   LASTMODIFIEDBY varchar(36) not null,
+   LASTMODIFIEDDATE date not null,
+   primary key (ITEMID)
+)
+create table SAM_ASSESSACCESSCONTROL_T (
+   ASSESSMENTID number(19,0) not null,
+   SUBMISSIONSALLOWED integer,
+   UNLIMITEDSUBMISSIONS integer,
+   SUBMISSIONSSAVED integer,
+   ASSESSMENTFORMAT integer,
+   BOOKMARKINGITEM integer,
+   TIMELIMIT integer,
+   TIMEDASSESSMENT integer,
+   RETRYALLOWED integer,
+   LATEHANDLING integer,
+   STARTDATE date,
+   DUEDATE date,
+   SCOREDATE date,
+   FEEDBACKDATE date,
+   RETRACTDATE date,
+   AUTOSUBMIT integer,
+   ITEMNAVIGATION integer,
+   ITEMNUMBERING integer,
+   SUBMISSIONMESSAGE varchar(4000),
+   RELEASETO varchar(255),
+   USERNAME varchar(255),
+   PASSWORD varchar(255),
+   FINALPAGEURL varchar(1023),
+   primary key (ASSESSMENTID)
+)
+create table SAM_PUBLISHEDSECTION_T (
+   SECTIONID number(19,0) not null,
+   ASSESSMENTID number(19,0) not null,
+   DURATION integer,
+   SEQUENCE integer,
+   TITLE varchar(255),
+   DESCRIPTION varchar(4000),
+   TYPEID integer not null,
+   STATUS integer not null,
+   CREATEDBY varchar(36) not null,
+   CREATEDDATE date not null,
+   LASTMODIFIEDBY varchar(36) not null,
+   LASTMODIFIEDDATE date not null,
+   primary key (SECTIONID)
+)
+create table SAM_PUBLISHEDITEMTEXT_T (
+   ITEMTEXTID number(19,0) not null,
+   ITEMID number(19,0) not null,
+   SEQUENCE integer not null,
+   TEXT varchar(4000),
+   primary key (ITEMTEXTID)
+)
+create table SAM_PUBLISHEDSECUREDIP_T (
+   IPADDRESSID number(19,0) not null,
+   ASSESSMENTID number(19,0) not null,
+   HOSTNAME varchar(255),
+   IPADDRESS varchar(255),
+   primary key (IPADDRESSID)
+)
+create table SAM_QUESTIONPOOL_T (
+   QUESTIONPOOLID number(19,0) not null,
+   TITLE varchar(255),
+   DESCRIPTION varchar(255),
+   PARENTPOOLID integer,
+   OWNERID varchar(255),
+   ORGANIZATIONNAME varchar(255),
+   DATECREATED date,
+   LASTMODIFIEDDATE date,
+   LASTMODIFIEDBY varchar(255),
+   DEFAULTACCESSTYPEID integer,
+   OBJECTIVE varchar(255),
+   KEYWORDS varchar(255),
+   RUBRIC varchar(4000),
+   TYPEID integer,
+   INTELLECTUALPROPERTYID integer,
+   primary key (QUESTIONPOOLID)
+)
+create table SAM_SECTIONMETADATA_T (
+   SECTIONMETADATAID number(19,0) not null,
+   SECTIONID number(19,0) not null,
+   LABEL varchar(255) not null,
+   ENTRY varchar(255),
+   primary key (SECTIONMETADATAID)
+)
+create table SAM_ITEM_T (
+   ITEMID number(19,0) not null,
+   SECTIONID number(19,0),
+   ITEMIDSTRING varchar(36),
+   SEQUENCE integer,
+   DURATION integer,
+   TRIESALLOWED integer,
+   INSTRUCTION varchar(4000),
+   DESCRIPTION varchar(4000),
+   TYPEID varchar(36) not null,
+   GRADE varchar(80),
+   SCORE float,
+   HINT varchar(4000),
+   HASRATIONALE varchar(1),
+   STATUS integer not null,
+   CREATEDBY varchar(36) not null,
+   CREATEDDATE date not null,
+   LASTMODIFIEDBY varchar(36) not null,
+   LASTMODIFIEDDATE date not null,
+   primary key (ITEMID)
+)
+create table SAM_ASSESSFEEDBACK_T (
+   ASSESSMENTID number(19,0) not null,
+   FEEDBACKDELIVERY integer,
+   EDITCOMPONENTS integer,
+   SHOWQUESTIONTEXT integer,
+   SHOWSTUDENTRESPONSE integer,
+   SHOWCORRECTRESPONSE integer,
+   SHOWSTUDENTSCORE integer,
+   SHOWSTUDENTQUESTIONSCORE integer,
+   SHOWQUESTIONLEVELFEEDBACK integer,
+   SHOWSELECTIONLEVELFEEDBACK integer,
+   SHOWGRADERCOMMENTS integer,
+   SHOWSTATISTICS integer,
+   primary key (ASSESSMENTID)
+)
+create table SAM_SECUREDIP_T (
+   IPADDRESSID number(19,0) not null,
+   ASSESSMENTID number(19,0) not null,
+   HOSTNAME varchar(255),
+   IPADDRESS varchar(255),
+   primary key (IPADDRESSID)
+)
+create table SAM_ITEMTEXT_T (
+   ITEMTEXTID number(19,0) not null,
+   ITEMID number(19,0) not null,
+   SEQUENCE integer not null,
+   TEXT varchar(4000),
+   primary key (ITEMTEXTID)
+)
+create table SAM_PUBLISHEDITEMMETADATA_T (
+   ITEMMETADATAID number(19,0) not null,
+   ITEMID number(19,0) not null,
+   LABEL varchar(255) not null,
+   ENTRY varchar(255),
+   primary key (ITEMMETADATAID)
+)
+create table SAM_MEDIA_T (
+   MEDIAID number(19,0) not null,
+   ITEMGRADINGID number(19,0),
+   MEDIA blob,
+   FILESIZE integer,
+   MIMETYPE varchar(80),
+   DESCRIPTION varchar(4000),
+   LOCATION varchar(255),
+   FILENAME varchar(255),
+   ISLINK integer,
+   ISHTMLINLINE integer,
+   STATUS integer,
+   CREATEDBY varchar(36),
+   CREATEDDATE date,
+   LASTMODIFIEDBY varchar(36),
+   LASTMODIFIEDDATE date,
+   primary key (MEDIAID)
+)
+create table SAM_ASSESSMENTBASE_T (
+   ID number(19,0) not null,
+   isTemplate varchar2(255) not null,
+   PARENTID integer,
+   TITLE varchar(255),
+   DESCRIPTION varchar(4000),
+   COMMENTS varchar(4000),
+   TYPEID varchar(36),
+   INSTRUCTORNOTIFICATION integer,
+   TESTEENOTIFICATION integer,
+   MULTIPARTALLOWED integer,
+   STATUS integer not null,
+   CREATEDBY varchar(36) not null,
+   CREATEDDATE date not null,
+   LASTMODIFIEDBY varchar(36) not null,
+   LASTMODIFIEDDATE date not null,
+   ASSESSMENTTEMPLATEID number(19,0),
+   primary key (ID)
+)
+create table SAM_TYPE_T (
+   TYPEID number(19,0) not null,
+   AUTHORITY varchar(255),
+   DOMAIN varchar(255),
+   KEYWORD varchar(255),
+   DESCRIPTION varchar(4000),
+   STATUS integer not null,
+   CREATEDBY varchar(36) not null,
+   CREATEDDATE date not null,
+   LASTMODIFIEDBY varchar(36) not null,
+   LASTMODIFIEDDATE date not null,
+   primary key (TYPEID)
+)
+create table SAM_ASSESSMETADATA_T (
+   ASSESSMENTMETADATAID number(19,0) not null,
+   ASSESSMENTID number(19,0) not null,
+   LABEL varchar(255) not null,
+   ENTRY varchar(255),
+   primary key (ASSESSMENTMETADATAID)
+)
 alter table SAM_ANSWER_T add constraint FKDD0580938152036E foreign key (ITEMID) references SAM_ITEM_T;
 alter table SAM_ANSWER_T add constraint FKDD058093CBA347DB foreign key (ITEMTEXTID) references SAM_ITEMTEXT_T;
 alter table SAM_PUBLISHEDASSESSMENT_T add constraint FKB2E48A65C07F835D foreign key (ASSESSMENTID) references SAM_ASSESSMENTBASE_T;
@@ -658,7 +658,8 @@ create sequence SAM_ITEMFEEDBACK_ID_S;
 create sequence SAM_ANSWERFEEDBACK_ID_S;
 create sequence SAM_PUBITEMTEXT_ID_S;
 create sequence SAM_PUBITEMFEEDBACK_ID_S;
-;
--- SAK-2461: improve performance;
-create index SAM_PUBLISHEDANSWERFEEDBCK_I01 ON SAM_PUBLISHEDANSWERFEEDBACK_T (ANSWERID); ;
-create index SAM_PUBLISHEDITEMTEXT_I01 ON SAM_PUBLISHEDITEMTEXT_T (ITEMID); ;
+commit;
+-- SAK-2461: improve performance
+create index SAM_PUBLISHEDANSWERFEEDBCK_I01 ON SAM_PUBLISHEDANSWERFEEDBACK_T (ANSWERID); 
+create index SAM_PUBLISHEDITEMTEXT_I01 ON SAM_PUBLISHEDITEMTEXT_T (ITEMID); 
+commit;
