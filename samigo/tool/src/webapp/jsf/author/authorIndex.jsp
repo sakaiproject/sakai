@@ -71,6 +71,7 @@
 
 <h:message for="authorIndexForm:create_assessment_denied" styleClass="validate"/>
 <h:message for="authorIndexForm:edit_assessment_denied" styleClass="validate"/>
+<h:message for="authorIndexForm:grade_assessment_denied" styleClass="validate"/>
 
 <div class="indnt1">
 	<h4><h:outputText value="#{msg.assessment_new}" rendered="#{authorization.createAssessment}" /></h4>
@@ -260,7 +261,7 @@
       </h:commandLink>
 --%>
       <h:outputText rendered="#{publishedAssessment.submissionSize >0}" value=" | "/>
-      <h:commandLink action="totalScores" immediate="true" rendered="#{publishedAssessment.submissionSize >0}">
+      <h:commandLink action="#{author.getOutcome}" immediate="true" rendered="#{publishedAssessment.submissionSize >0}">
 
         <h:outputText value="Scores" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -406,7 +407,7 @@
       </h:commandLink>
 --%>
       <h:outputText rendered="#{inactivePublishedAssessment.submissionSize >0}" value=" | "/>
-      <h:commandLink action="totalScores" immediate="true" rendered="#{inactivePublishedAssessment.submissionSize >0}">
+      <h:commandLink action="#{author.getOutcome}" immediate="true" rendered="#{inactivePublishedAssessment.submissionSize >0}">
 
         <h:outputText value="Scores" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
