@@ -1,23 +1,30 @@
 /* Section Manager specific CSS definitions. */
 
-tr.member td {font-weight:bold;}
-tr.memberPadRow td {font-weight:bold; padding-bottom:2em !important;}
-tr.nonmember td {font-weight:normal;}
-tr.nonmemberPadRow td {font-weight:normal; padding-bottom:2em !important;}
-
-tr.sectionPadRowHighlighted td {background-color:#FFC; padding-bottom:2em !important;}
-tr.sectionPadRow td {padding-bottom:2em !important;}
-tr.sectionRowHighlighted td {background-color:#FFC; padding-bottom:0em !important;}
-tr.sectionRow td {padding-bottom:0em !important;}
-
-label.formLabel {font-weight:bold;}
-
+/* Global style classes */
 .available {width:210px; text-align:left; vertical-align:top;}
 .transferButtons {width:100px; text-align:center; vertical-align:middle;}
 .selected {width:210px; text-align:right; vertical-align:top;}
 
 .transferButtonTable {text-align:center; font-weight:bold;}
 .instructions {padding-bottom:1em;}
+.studentSectionInfo {font-weight:bold;}
+.deleteButtons {margin-top:40px;}
+.verticalPadding {margin-top:20px;}
+
+/* Student View section table */
+tr.member td {font-weight:bold;}
+tr.memberPadRow td {font-weight:bold; padding-bottom:2em !important;}
+tr.nonmember td {font-weight:normal;}
+tr.nonmemberPadRow td {font-weight:normal; padding-bottom:2em !important;}
+
+/* Keep space between section categories in section tables */
+tr.sectionPadRowHighlighted td {background-color:#FFC; padding-bottom:2em !important;}
+tr.sectionPadRow td {padding-bottom:2em !important;}
+tr.sectionRowHighlighted td {background-color:#FFC; padding-bottom:0em !important;}
+tr.sectionRow td {padding-bottom:0em !important;}
+
+/* Form labels should be bold */
+label.formLabel {font-weight:bold;}
 
 /* Item property editing. THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.itemSummary td.itemName {
@@ -28,10 +35,6 @@ table.itemSummary td.itemName {
 	padding:.3em 1em .3em .3em
 }
 
-.studentSectionInfo {
-    font-weight:bold;
-}
-    
 /* Create a container for filter/paging controls to enable bottom-alignment. */
 /* THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.sectionContainerNav {
@@ -50,18 +53,7 @@ table.sectionContainerNav {
     text-align:right;
 }
 
-tr.internal {}
-tr.external {
-	width:100%;
-	background-color:#FFC;
-}
-td.external {
-	font-style:italic;
-	text-align:right;
-	padding-right:2em;
-}
-
-
+/* Table columns change alignmnet depending on their data type (numbers vs. letters) */
 td.left {text-align:left; vertical-align:bottom;}
 td.center {text-align:center; vertical-align:bottom;}
 td.right {text-align:right; vertical-align:bottom; padding-right:2em !important;}
@@ -74,6 +66,16 @@ table.wideTable {
 table.narrowTable {
 	width:auto;
 }
+
+table.rosterTable {
+	width:auto;
+}
+
+table.rosterTable td {
+	padding-left:1.5em !important;
+	padding-right:1.5em !important;
+}
+
 /*
 	It would be better to use margin-right in a div or to apply this to specific
 	columns, but JSF can't manage either of those.
@@ -82,20 +84,3 @@ table.narrowTable tr th {
 	padding-right:5em;
 }
 
-.allowWrap {
-	white-space:normal;
-}
-
-/* Allow some space after checkbox and radio inputs. */
-td.prefixedCheckbox {
-	vertical-align:top;
-	padding-right:.5em;
-}
-
-.deleteButtons {
-    margin-top:40px;
-}
-
-.verticalPadding {
-    margin-top:20px;
-}
