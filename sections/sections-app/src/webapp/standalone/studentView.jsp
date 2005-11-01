@@ -14,15 +14,21 @@
                 rendered="#{ ! studentViewBean.externallyManaged}"/>
         </x:div>
         
-        <x:div>
-            <h:outputText
-                value="#{msgs.student_view_view}"/>
-        
-            <h:selectOneMenu value="#{studentViewBean.sectionFilter}" onchange="this.form.submit()">
-                <f:selectItem itemLabel="#{msgs.student_view_all}" itemValue="ALL"/>
-                <f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
-            </h:selectOneMenu>
-        </x:div>
+        <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">
+            <x:div>
+                <h:outputText
+                    value="#{msgs.student_view_view}"/>
+            
+                <h:selectOneMenu value="#{studentViewBean.sectionFilter}" onchange="this.form.submit()">
+                    <f:selectItem itemLabel="#{msgs.student_view_all}" itemValue="ALL"/>
+                    <f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
+                </h:selectOneMenu>
+            </x:div>
+
+            <x:div>
+                <h:outputText value="#{msgs.student_view_sections_in_bold}" styleClass="studentSectionInfo"/>
+            </x:div>
+        </h:panelGrid>
         
         <x:dataTable cellpadding="0" cellspacing="0"
             id="studentViewSectionsTable"

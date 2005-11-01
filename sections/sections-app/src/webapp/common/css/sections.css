@@ -28,6 +28,10 @@ table.itemSummary td.itemName {
 	padding:.3em 1em .3em .3em
 }
 
+.studentSectionInfo {
+    font-weight:bold;
+}
+    
 /* Create a container for filter/paging controls to enable bottom-alignment. */
 /* THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.sectionContainerNav {

@@ -1,4 +1,5 @@
 <f:view>
+<div class="portletBody">
 <h:form id="studentViewForm">
 <%/*
     Due to the limited screen real estate available in sakai iframes, several
@@ -9,7 +10,6 @@
 
     <sakai:flowState bean="#{studentViewBean}"/>
 
-    <x:div styleClass="portletBody">
     
         <x:div styleClass="instructions">
             <h:outputText
@@ -20,17 +20,24 @@
                 value="#{msgs.student_view_change_sections_message}"
                 rendered="#{ ! studentViewBean.externallyManaged}"/>
         </x:div>
-        
-        <x:div>
-            <h:outputText
-                value="#{msgs.student_view_view}"/>
-        
-            <h:selectOneMenu value="#{studentViewBean.sectionFilter}" onchange="this.form.submit()">
-                <f:selectItem itemLabel="#{msgs.student_view_all}" itemValue="ALL"/>
-                <f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
-            </h:selectOneMenu>
-        </x:div>
-        
+
+
+        <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">
+            <x:div>
+                <h:outputText
+                    value="#{msgs.student_view_view}"/>
+            
+                <h:selectOneMenu value="#{studentViewBean.sectionFilter}" onchange="this.form.submit()">
+                    <f:selectItem itemLabel="#{msgs.student_view_all}" itemValue="ALL"/>
+                    <f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
+                </h:selectOneMenu>
+            </x:div>
+
+            <x:div>
+                <h:outputText value="#{msgs.student_view_sections_in_bold}" styleClass="studentSectionInfo"/>
+            </x:div>
+        </h:panelGrid>
+
         <x:dataTable cellpadding="0" cellspacing="0"
             id="studentViewSectionsTable"
             value="#{studentViewBean.sections}"
@@ -111,7 +118,6 @@
 
         <h:outputText value="#{msgs.no_sections_available}" rendered="#{empty studentViewBean.sections}"/>
 
-    </x:div>
-
 </h:form>
+</div>
 </f:view>
