@@ -106,6 +106,17 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		return currentSection;
 	}
 
+	protected void populateSelectedUsers(List participationRecords) {
+		// Build the list of items for the right-side list box
+		selectedUsers = new ArrayList();
+		for(Iterator iter =participationRecords.iterator(); iter.hasNext();) {
+			ParticipationRecord record = (ParticipationRecord)iter.next();
+			SelectItem item = new SelectItem(record.getUser().getUserUid(),
+					record.getUser().getSortName());
+			selectedUsers.add(item);
+		}
+	}
+
 	public void init() {
 		initializeFields();
 
@@ -113,14 +124,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		List selectedManagers = getSectionManager().getSectionTeachingAssistants(sectionUuid);
 		Collections.sort(selectedManagers, sortNameComparator);
 		
-		// Build the list of items for the right-side list box
-		selectedUsers = new ArrayList();
-		for(Iterator iter = selectedManagers.iterator(); iter.hasNext();) {
-			ParticipationRecord manager = (ParticipationRecord)iter.next();
-			SelectItem item = new SelectItem(manager.getUser().getUserUid(),
-					manager.getUser().getSortName());
-			selectedUsers.add(item);
-		}
+		populateSelectedUsers(selectedManagers);
 
 		// Build the list of items for the left-side box.  Since the selected (right-side)
 		// participation records are linked to a section, while the available records

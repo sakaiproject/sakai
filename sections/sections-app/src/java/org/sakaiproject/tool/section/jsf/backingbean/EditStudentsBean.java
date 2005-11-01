@@ -75,15 +75,8 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		List enrollments = getSectionManager().getSectionEnrollments(currentSection.getUuid());
 		Collections.sort(enrollments, EditManagersBean.sortNameComparator);
 
-		// Build the list of items for the right-side list box
-		selectedUsers = new ArrayList();
-		for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-			ParticipationRecord enrollment = (ParticipationRecord)iter.next();
-			SelectItem item = new SelectItem(enrollment.getUser().getUserUid(),
-					enrollment.getUser().getSortName());
-			selectedUsers.add(item);
-		}
-
+		populateSelectedUsers(enrollments);
+		
 		// Build the list of items for the left-side box
 		List available;
 		if(StringUtils.trimToNull(availableSectionUuid) == null) {
