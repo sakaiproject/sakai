@@ -23,6 +23,11 @@
 
 package org.sakaiproject.tool.messageforums;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsManager;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
@@ -30,43 +35,40 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.Topic;
 import org.sakaiproject.tool.messageforums.proxy.TopicProxyImpl;
 
 public class MessageForumsTool {
+    private static final Log LOG = LogFactory.getLog(MessageForumsTool.class);
     
     private TopicProxy topicProxy;
-    private MessageForumsManager messageForumsManager; 
+    private MessageForumsManager messageForumsManager;
     private ErrorMessages errorMessages;
-    
+
     public MessageForumsTool() {
         errorMessages = new ErrorMessages();
         errorMessages.setDisplayTitleErrorMessage(false);
-        
+
         Topic topic = new Topic();
         topic.setTitle("Dubai Port Authority Case");
         topic.setShortDescription("What scope and partners do you recommend for the proposed system?  Provide one sentence of support for your position.");
         topic.setExtendedDescription("...");
         topicProxy = new TopicProxyImpl(topic);
     }
-    
+
     // start injections
     public void setMessageForumsManager(MessageForumsManager messageForumsManager) {
         this.messageForumsManager = messageForumsManager;
     }
-       
+
     public MessageForumsManager getMessageForumsManager() {
         return messageForumsManager;
     }
+
     // end injections
-    
-    
-    
-    
-    
 
     public String processCDFMPostMessage() {
         Message message = topicProxy.getMessageModel().createPersistible();
         messageForumsManager.saveMessage(message);
         return "compose";
     }
-    
+
     public String processCDFMSaveDraft() {
         Message message = topicProxy.getMessageModel().createPersistible();
         message.setDraft(Boolean.TRUE);
@@ -77,17 +79,29 @@ public class MessageForumsTool {
     public String processCDFMCancel() {
         return "compose";
     }
-    
+
     public TopicProxy getTopicProxy() {
         return topicProxy;
+    }
+
+    public String processCDFMAddAttachmentRedirect() {
+        try {
+            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+            context.redirect("sakai.filepicker.helper/tool");
+            return null;
+        } catch (Exception e) {
+            LOG.error(this + ".processAddAttachRedirect - " + e);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public ErrorMessages getErrorMessages() {
         return errorMessages;
     }
 
-    //cwen - test hide division and commandLink
-    public String processTestLinkCompose(){
-      return "compose";
+    // cwen - test hide division and commandLink
+    public String processTestLinkCompose() {
+        return "compose";
     }
 }

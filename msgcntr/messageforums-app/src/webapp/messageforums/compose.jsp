@@ -72,8 +72,7 @@
           <h:outputText value="#{msgs.cdfm_no_attachments}" rendered="#{empty MessageForumsTool.topicProxy.messageModel.attachments}"/>          
           <h:dataTable 
               id="attachments-id" 
-              columnClasses="list-column-center, list-column-right, list-column-center, list-column-right" 
-              headerClass="list-header" rowClasses="list-row" styleClass="list-background" 
+              border="0" cellspacing="10" cellpadding="2"
               value="#{MessageForumsTool.topicProxy.messageModel.attachments}" 
               var="attachment" 
               rendered="#{!empty MessageForumsTool.topicProxy.messageModel.attachments}"> 
@@ -82,12 +81,12 @@
                 <h:outputText value="Title"/>
               </f:facet>
               <sakai:doc_section>
-                <h:graphicImage url="/messageforums/images/attachtypes/excel.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-excel'}"/>
-                <h:graphicImage url="/messageforums/images/attachtypes/html.gif" rendered="#{attachment.attachmentType == 'text/html'}"/>
-                <h:graphicImage url="/messageforums/images/attachtypes/pdf.gif" rendered="#{attachment.attachmentType == 'application/pdf'}"/>
-                <h:graphicImage url="/messageforums/images/attachtypes/ppt.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-powerpoint'}"/>
-                <h:graphicImage url="/messageforums/images/attachtypes/text.gif" rendered="#{attachment.attachmentType == 'text/plain'}"/>
-                <h:graphicImage url="/messageforums/images/attachtypes/word.gif" rendered="#{attachment.attachmentType == 'application/msword'}"/>              
+                <h:graphicImage url="/messageforums/excel.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-excel'}"/>
+                <h:graphicImage url="/messageforums/html.gif" rendered="#{attachment.attachmentType == 'text/html'}"/>
+                <h:graphicImage url="/messageforums/pdf.gif" rendered="#{attachment.attachmentType == 'application/pdf'}"/>
+                <h:graphicImage url="/messageforums/ppt.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-powerpoint'}"/>
+                <h:graphicImage url="/messageforums/text.gif" rendered="#{attachment.attachmentType == 'text/plain'}"/>
+                <h:graphicImage url="/messageforums/word.gif" rendered="#{attachment.attachmentType == 'application/msword'}"/>              
                 <h:outputText value="#{attachment.attachmentName}"/>
               </sakai:doc_section>
             </h:column>
