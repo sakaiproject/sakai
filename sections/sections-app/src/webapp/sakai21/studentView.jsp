@@ -44,7 +44,7 @@
             var="section"
             sortColumn="#{studentViewBean.sortColumn}"
             sortAscending="#{studentViewBean.sortAscending}"
-            styleClass="listHier narrowTable"
+            styleClass="listHier"
             rowClasses="#{studentViewBean.rowClasses}">
     
             <h:column>
