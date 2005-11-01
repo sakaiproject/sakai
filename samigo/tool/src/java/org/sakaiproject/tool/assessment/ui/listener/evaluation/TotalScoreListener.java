@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
+import javax.faces.application.FacesMessage;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -50,10 +51,14 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -93,11 +98,26 @@ public class TotalScoreListener
   {
 
     log.info("TotalScore LISTENER.");
+
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
     //log.info("Got publishedId " + publishedId);
+
+   // checking for permission first
+
+    PublishedAssessmentService pubassessmentService = new PublishedAssessmentService();
+    PublishedAssessmentFacade pubassessment = pubassessmentService.getPublishedAssessment(
+        publishedId);
+
+    FacesContext context = FacesContext.getCurrentInstance();
+    AuthorBean author = (AuthorBean) cu.lookupBean("author");
+    author.setOutcome("totalScores");
+    if (!passAuthz(context, pubassessment.getCreatedBy())){
+      author.setOutcome("author");
+      return;
+    }
 
     log.info("Calling totalScores.");
     if (!totalScores(publishedId, bean, false))
@@ -446,6 +466,28 @@ System.out.println("changed submission pulldown ");
     }
 
     return true;
+  }
+
+
+ public boolean passAuthz(FacesContext context, String ownerId){
+    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+    boolean hasPrivilege_any = authzBean.getGradeAnyAssessment();
+    boolean hasPrivilege_own0 = authzBean.getGradeOwnAssessment();
+    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
+    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
+    if (!hasPrivilege){
+       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_grade_assessment_error");
+       context.addMessage("authorIndexForm:grade_assessment_denied" ,new FacesMessage(err));
+    }
+    return hasPrivilege;
+  }
+
+  public boolean isOwner(String ownerId){
+    boolean isOwner = false;
+    String agentId = AgentFacade.getAgentString();
+    isOwner = agentId.equals(ownerId);
+    System.out.println("***isOwner="+isOwner);
+    return isOwner;
   }
 
 }
