@@ -43,6 +43,7 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -51,17 +52,12 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class EditStudentsBean extends CourseDependentBean implements Serializable {
+public class EditStudentsBean extends EditManagersBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final Log log = LogFactory.getLog(EditStudentsBean.class);
 	
-	// For the right-side list box
-	private List selectedUsers;
-	
-	// For the left-side list box
-	private List availableUsers;
 	
 	// For the "View" selectbox
 	private String availableSectionUuid;
@@ -69,19 +65,10 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 	private Integer availableSectionMax;
 	private List availableSectionItems;
 	
-	private String sectionUuid;
-	private String sectionTitle;
 	private Integer sectionMax;
-	
+
 	public void init() {
-		// Get the section to edit
-		String sectionUuidFromParam = (String)FacesContext.getCurrentInstance()
-			.getExternalContext().getRequestParameterMap().get("sectionUuid");
-		if(sectionUuidFromParam != null) {
-			sectionUuid = sectionUuidFromParam;
-		}
-		CourseSection currentSection = getSectionManager().getSection(sectionUuid);
-		sectionTitle = currentSection.getTitle();
+		CourseSectionDecorator currentSection = initializeFields();
 		sectionMax = currentSection.getMaxEnrollments();
 		
 		// Get the current users
@@ -119,7 +106,7 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		for(Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
 			// Don't include the current section
-			if(section.equals(currentSection)) {
+			if(section.getUuid().equals(currentSection.getUuid())) {
 				continue;
 			}
 			if(section.getUuid().equals(availableSectionUuid)) {
@@ -128,7 +115,6 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 			}
 			availableSectionItems.add(new SelectItem(section.getUuid(), section.getTitle()));
 		}
-
 	}
 
 	public void processChangeSection(ValueChangeEvent event) {
@@ -179,36 +165,6 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		
 		return "overview";
 	}
-	
-	private Set getHighlightedUsers(String componentId) {
-		Set userUids = new HashSet();
-		
-		String[] highlighted = (String[])FacesContext.getCurrentInstance()
-		.getExternalContext().getRequestParameterValuesMap().get(componentId);
-
-		if(highlighted != null) {
-			for(int i=0; i < highlighted.length; i++) {
-				userUids.add(highlighted[i]);
-			}
-		}
-		return userUids;
-	}
-	
-	public List getAvailableUsers() {
-		return availableUsers;
-	}
-
-	public void setAvailableUsers(List availableUsers) {
-		this.availableUsers = availableUsers;
-	}
-
-	public List getSelectedUsers() {
-		return selectedUsers;
-	}
-
-	public void setSelectedUsers(List selectedUsers) {
-		this.selectedUsers = selectedUsers;
-	}
 
 	public String getAvailableSectionUuid() {
 		return availableSectionUuid;
@@ -222,24 +178,8 @@ public class EditStudentsBean extends CourseDependentBean implements Serializabl
 		return availableSectionItems;
 	}
 
-	public String getSectionUuid() {
-		return sectionUuid;
-	}
-
-	public void setSectionUuid(String sectionUuid) {
-		this.sectionUuid = sectionUuid;
-	}
-
-	public String getSectionTitle() {
-		return sectionTitle;
-	}
-
 	public Integer getSectionMax() {
 		return sectionMax;
-	}
-
-	public void setSectionMax(Integer sectionMax) {
-		this.sectionMax = sectionMax;
 	}
 }
 

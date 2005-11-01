@@ -21,6 +21,7 @@
         sortColumn="#{preferencesBean.overviewSortColumn}"
         sortAscending="#{preferencesBean.overviewSortAscending}"
         styleClass="listHier narrowTable"
+        columnClasses="left,left,left,left,rightpadded,rightpadded,left"
         rowClasses="#{overviewBean.rowClasses}">
     
         <h:column>
@@ -37,7 +38,7 @@
                     <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
                         <f:param name="sectionUuid" value="#{section.uuid}"/>
                     </h:commandLink>
-                    <h:outputFormat value="#{msgs.overview_link_sep_char}"/>
+                    <h:outputFormat value=" #{msgs.overview_link_sep_char} "/>
                 </h:panelGroup>
     
                 <h:commandLink
@@ -49,7 +50,7 @@
     
                 <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
                     <h:outputFormat
-                        value="#{msgs.overview_link_sep_char}"
+                        value=" #{msgs.overview_link_sep_char} "
                         rendered="#{overviewBean.sectionTaManagementEnabled}"/>
         
                     <h:commandLink

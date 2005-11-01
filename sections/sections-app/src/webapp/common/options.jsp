@@ -13,30 +13,30 @@
         
         <%@include file="/inc/globalMessages.jspf"%>
 
-        <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
-        <h:outputLabel for="selfRegister" value="#{msgs.options_self_register_label}"/>
+        <x:div>
+            <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
+            <h:outputLabel for="selfRegister" value="#{msgs.options_self_register_label}"/>
+        </x:div>
         
-        <br/>
-        
-        <h:selectBooleanCheckbox id="selfSwitch" value="#{optionsBean.selfSwitch}" disabled="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
-        <h:outputLabel for="selfSwitch" value="#{msgs.options_self_switch_label}"/>
+        <x:div>
+            <h:selectBooleanCheckbox id="selfSwitch" value="#{optionsBean.selfSwitch}" disabled="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
+            <h:outputLabel for="selfSwitch" value="#{msgs.options_self_switch_label}"/>
+        </x:div>
     
-        <br/>
-        
-        <h:commandButton
-            action="#{optionsBean.update}"
-            value="#{msgs.options_update}"
-            rendered="#{optionsBean.sectionOptionsManagementEnabled}"/>
-    
-        <h:commandButton
-            action="overview"
-            value="#{msgs.options_cancel}"
-            rendered="#{optionsBean.sectionOptionsManagementEnabled}"/>
-
-        <h:commandButton
-            action="overview"
-            value="#{msgs.options_done}"
-            rendered="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
+        <x:div styleClass="verticalPadding">
+            <h:commandButton
+                action="#{optionsBean.update}"
+                value="#{msgs.options_update}"
+                rendered="#{optionsBean.sectionOptionsManagementEnabled}"/>
+            <h:commandButton
+                action="overview"
+                value="#{msgs.options_cancel}"
+                rendered="#{optionsBean.sectionOptionsManagementEnabled}"/>
+            <h:commandButton
+                action="overview"
+                value="#{msgs.options_done}"
+                rendered="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
+        </x:div>
 
 </h:form>
 </div>

@@ -50,7 +50,16 @@ public class CourseSectionDecorator implements Serializable {
 	protected CourseSection section;
 	protected String categoryForDisplay;
 
-	public CourseSectionDecorator(CourseSection section, String categoryForDisplay) {
+	/**
+	 * Creates a decorator based on the course section alone.  Useful for only
+	 * displaying meeting times.
+	 * 
+	 * @param section
+	 */public CourseSectionDecorator(CourseSection section) {
+		this.section = section;
+	}
+
+	 public CourseSectionDecorator(CourseSection section, String categoryForDisplay) {
 		this.section = section;
 		this.categoryForDisplay = categoryForDisplay;
 	}

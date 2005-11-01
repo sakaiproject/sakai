@@ -11,15 +11,14 @@
     </h:panelGroup>
 
         <h2><h:outputText value="#{msgs.edit_manager_page_header}"/></h2>
-        
+        <h4><h:outputText value="#{editManagersBean.sectionDescription}"/></h4>
+
         <%@include file="/inc/globalMessages.jspf"%>
 
         <h:panelGrid columns="3" columnClasses="available,transferButtons,selected">
         
             <h:panelGroup>
-                <h:outputFormat value="#{msgs.edit_manager_available_label}">
-                    <f:param value="#{editManagersBean.courseTitle}"/>
-                </h:outputFormat>
+                <h:outputText value="#{msgs.edit_manager_available_label}"/>
                         
                 <x:div>
                     <h:selectManyListbox id="availableUsers" size="20" style="width:200px;">

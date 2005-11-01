@@ -36,12 +36,13 @@ import java.util.Set;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -57,16 +58,16 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	private static final Log log = LogFactory.getLog(EditManagersBean.class);
 	
 	// For the right-side list box
-	private List selectedUsers;
+	protected List selectedUsers;
 	
 	// For the left-side list box
-	private List availableUsers;
+	protected List availableUsers;
 	
-	private String sectionUuid;
-	private String sectionTitle;
-	private String courseTitle;
+	protected String sectionUuid;
+	protected String sectionTitle;
+	protected String sectionDescription;
 	
-	private boolean externallyManaged;
+	protected boolean externallyManaged;
 
 	/**
 	 * Compares ParticipationRecords by users' sortNames.
@@ -79,7 +80,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		}
 	};
 
-	public void init() {
+	protected CourseSectionDecorator initializeFields() {
 		// Determine whether this course is externally managed
 		externallyManaged = getCourse().isExternallyManaged();
 		
@@ -89,12 +90,27 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		if(sectionUuidFromParam != null) {
 			sectionUuid = sectionUuidFromParam;
 		}
-		CourseSection currentSection = getSectionManager().getSection(sectionUuid);
+		CourseSectionDecorator currentSection = new CourseSectionDecorator(getSectionManager().getSection(sectionUuid));
+
 		sectionTitle = currentSection.getTitle();
-		courseTitle = currentSection.getCourse().getTitle();
 		
+		// Generate the description
+		String sectionMeetingTimes = currentSection.getMeetingTimes();
+		if(StringUtils.trimToNull(sectionMeetingTimes) == null) {
+			sectionDescription = sectionTitle;
+		} else {
+			sectionDescription = JsfUtil.getLocalizedMessage("section_description",
+				new String[] {sectionTitle, sectionMeetingTimes});
+		}
+		
+		return currentSection;
+	}
+
+	public void init() {
+		initializeFields();
+
 		// Get the current users in the manager role for this section
-		List selectedManagers = getSectionManager().getSectionTeachingAssistants(currentSection.getUuid());
+		List selectedManagers = getSectionManager().getSectionTeachingAssistants(sectionUuid);
 		Collections.sort(selectedManagers, sortNameComparator);
 		
 		// Build the list of items for the right-side list box
@@ -143,7 +159,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		return "overview";
 	}
 
-	private Set getHighlightedUsers(String componentId) {
+	protected Set getHighlightedUsers(String componentId) {
 		Set userUids = new HashSet();
 		
 		String[] highlighted = (String[])FacesContext.getCurrentInstance()
@@ -185,13 +201,14 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		return sectionTitle;
 	}
 
-	public String getCourseTitle() {
-		return courseTitle;
-	}
-
 	public boolean isExternallyManaged() {
 		return externallyManaged;
 	}
+
+	public String getSectionDescription() {
+		return sectionDescription;
+	}
+
 }
 
 

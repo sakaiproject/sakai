@@ -9,7 +9,8 @@
     </x:aliasBean>
 
         <h2><h:outputText value="#{msgs.edit_student_page_header}"/></h2>
-        
+        <h4><h:outputText value="#{editStudentsBean.sectionDescription}"/></h4>
+
         <%@include file="/inc/globalMessages.jspf"%>
 
         <h:panelGrid columns="3" columnClasses="available,transferButtons,selected">
