@@ -49,11 +49,4 @@
 		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsService"
-		class="org.sakaiproject.component.app.messageforums.MessageForumsServiceImpl">
-		<property name="messageForumsManager">
-			<ref bean="org.sakaiproject.api.app.messageforums.MessageForumsManager" />
-		</property>
-	</bean>
-
 </beans>
