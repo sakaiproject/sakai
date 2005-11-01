@@ -23,7 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-public interface MessageForumsManager {
+public interface MessageForumsMessageManager {
     
     public void saveMessage(Message message);
 

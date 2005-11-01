@@ -71,9 +71,14 @@
         <managed-bean-class>org.sakaiproject.tool.messageforums.MessageForumsTool</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
         <managed-property>
-            <description>Message Forums Manager</description>
-            <property-name>messageForumsManager</property-name>
-            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsManager"]}</value>
+            <description>Message Forums Forum/Topic Manager</description>
+            <property-name>messageForumsForumManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Message Forums Message Manager</description>
+            <property-name>messageForumsMessageManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
         </managed-property>
     </managed-bean>
 </faces-config>

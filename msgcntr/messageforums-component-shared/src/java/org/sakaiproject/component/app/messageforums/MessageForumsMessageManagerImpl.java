@@ -28,14 +28,14 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class MessageForumsManagerImpl extends HibernateDaoSupport implements MessageForumsManager {
+public class MessageForumsMessageManagerImpl extends HibernateDaoSupport implements MessageForumsMessageManager {
 
-    private static final Log LOG = LogFactory.getLog(MessageForumsManagerImpl.class);    
+    private static final Log LOG = LogFactory.getLog(MessageForumsMessageManagerImpl.class);    
 
-    public MessageForumsManagerImpl() {
+    public MessageForumsMessageManagerImpl() {
 
     }
 

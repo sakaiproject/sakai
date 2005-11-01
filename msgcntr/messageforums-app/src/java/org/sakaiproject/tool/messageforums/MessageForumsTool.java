@@ -29,7 +29,8 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
@@ -38,8 +39,9 @@ import org.sakaiproject.tool.messageforums.proxy.TopicProxyImpl;
 public class MessageForumsTool {
     private static final Log LOG = LogFactory.getLog(MessageForumsTool.class);
     
-    private TopicProxy topicProxy;
-    private MessageForumsManager messageForumsManager;
+    private TopicProxy topicProxy;  // TODO: can be deleted as soon as more of the backend works
+    private MessageForumsMessageManager messageForumsMessageManager;
+    private MessageForumsForumManager messageForumsForumManager;
     private ErrorMessages errorMessages;
 
     public MessageForumsTool() {
@@ -54,35 +56,41 @@ public class MessageForumsTool {
     }
 
     // start injections
-    public void setMessageForumsManager(MessageForumsManager messageForumsManager) {
-        this.messageForumsManager = messageForumsManager;
+    public void setMessageForumsMessageManager(MessageForumsMessageManager messageForumsMessageManager) {
+        this.messageForumsMessageManager = messageForumsMessageManager;
     }
 
-    public MessageForumsManager getMessageForumsManager() {
-        return messageForumsManager;
+    public void setMessageForumsForumManager(MessageForumsForumManager messageForumsForumManager) {
+        this.messageForumsForumManager = messageForumsForumManager;
     }
-
     // end injections
+    
+    public MessageForumsMessageManager getMessageForumsMessageManager() {
+        return messageForumsMessageManager;
+    }
 
+    public MessageForumsForumManager getMessageForumsForumManager() {
+        return messageForumsForumManager;
+    }
+
+    //
+    // start button process actions
+    //
     public String processCDFMPostMessage() {
         Message message = topicProxy.getMessageModel().createPersistible();
-        messageForumsManager.saveMessage(message);
+        messageForumsMessageManager.saveMessage(message);
         return "compose";
     }
 
     public String processCDFMSaveDraft() {
         Message message = topicProxy.getMessageModel().createPersistible();
         message.setDraft(Boolean.TRUE);
-        messageForumsManager.saveMessage(message);
+        messageForumsMessageManager.saveMessage(message);
         return "compose";
     }
 
     public String processCDFMCancel() {
         return "compose";
-    }
-
-    public TopicProxy getTopicProxy() {
-        return topicProxy;
     }
 
     public String processCDFMAddAttachmentRedirect() {
@@ -97,12 +105,24 @@ public class MessageForumsTool {
         }
     }
 
+    public String processTestLinkCompose() {
+        return "compose";
+    }
+
+    //
+    // end button process actions
+    //
+
+
+    // helpers
+    
     public ErrorMessages getErrorMessages() {
         return errorMessages;
     }
 
-    // cwen - test hide division and commandLink
-    public String processTestLinkCompose() {
-        return "compose";
+    public TopicProxy getTopicProxy() {
+        return topicProxy;
     }
+
+
 }
