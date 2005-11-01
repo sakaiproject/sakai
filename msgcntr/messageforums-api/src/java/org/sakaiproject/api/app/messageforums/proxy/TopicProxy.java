@@ -25,6 +25,8 @@ package org.sakaiproject.api.app.messageforums.proxy;
 
 import org.sakaiproject.api.app.messageforums.model.MessageModel;
 
+// just a dummy class to build up interface object before the real objects are ready
+
 public interface TopicProxy {
 
     public MessageModel getMessageModel();
