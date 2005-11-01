@@ -266,9 +266,10 @@ public class XmlStringBuffer
         String s = this.xml.toString();
         if (s==null)
         {
+          log.warn("string value null");
           s = "";
         }
-        sr = new StringReader(this.xml.toString());
+        sr = new StringReader(s);
         is = new org.xml.sax.InputSource(sr);
         this.document = builder.parse(is);
       }
