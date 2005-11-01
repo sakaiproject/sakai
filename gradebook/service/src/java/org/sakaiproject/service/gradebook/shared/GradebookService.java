@@ -68,6 +68,12 @@ public interface GradebookService {
 	public void addGradebook(String uid, String name);
 
     /**
+     * Deletes the gradebook with the given UID, along with all its associated data.
+     */
+	public void deleteGradebook(String uid)
+		throws GradebookNotFoundException;
+
+    /**
      * Checks to see whether a gradebook with the given uid exists.
      *
      * @param gradebookUid The gradebook UID to check

@@ -115,6 +115,36 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		});
 	}
 
+	public void deleteGradebook(final String uid)
+		throws GradebookNotFoundException {
+        if (log.isInfoEnabled()) log.info("Deleting gradebook uid=" + uid + " by userUid=" + getUserUid());
+        final Long gradebookId = gradebookManager.getGradebook(uid).getId();
+        getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				// This should be much more efficient in Hibernate 3, which
+				// supports bulk deletion in HQL. In Hibernate 2, deletions happen
+				// one record at a time.
+				int numberDeleted = session.delete("from GradingEvent as ge where ge.gradableObject.gradebook.id=?", gradebookId, Hibernate.LONG);
+				if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " grading events");
+				numberDeleted = session.delete("from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=?", gradebookId, Hibernate.LONG);
+				if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " grade records");
+				numberDeleted = session.delete("from GradableObject as go where go.gradebook.id=?", gradebookId, Hibernate.LONG);
+				if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " gradable objects");
+
+				Gradebook gradebook = (Gradebook)session.load(Gradebook.class, gradebookId);
+				gradebook.setSelectedGradeMapping(null);
+				numberDeleted = session.delete("from GradeMapping as gm where gm.gradebook.id=?", gradebookId, Hibernate.LONG);
+				if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " grade mappings");
+				session.flush();
+
+				session.delete(gradebook);
+				session.flush();
+				session.clear();
+				return null;
+			}
+		});
+	}
+
     /**
      * @see org.sakaiproject.service.gradebook.shared.GradebookService#gradebookExists(java.lang.String)
      */

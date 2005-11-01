@@ -16,7 +16,7 @@
 
 		<property name="name" column="NAME" type="string" not-null="true"/>
 
-		<many-to-one name="selectedGradeMapping" column="SELECTED_GRADE_MAPPING_ID" cascade="save-update" />
+		<many-to-one name="selectedGradeMapping" column="SELECTED_GRADE_MAPPING_ID" cascade="all" />
 
 		<set name="gradeMappings">
 			<key column="GRADEBOOK_ID"/>

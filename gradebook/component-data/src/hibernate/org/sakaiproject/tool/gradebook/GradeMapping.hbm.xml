@@ -15,8 +15,8 @@
 		<version type="integer" name="version" column="VERSION"/>
 
 		<many-to-one name="gradebook" column="GRADEBOOK_ID" not-null="true" />
-		
-		<map name="gradeMap" order-by="percent" table="GB_GRADE_TO_PERCENT_MAPPING_T" cascade="save-update" lazy="false">
+
+		<map name="gradeMap" order-by="percent" table="GB_GRADE_TO_PERCENT_MAPPING_T" cascade="all" lazy="false">
 			<key column="GRADE_MAP_ID"/>
 			<index column="LETTER_GRADE" type="string"/>
 			<element column="PERCENT" type="double"/>
