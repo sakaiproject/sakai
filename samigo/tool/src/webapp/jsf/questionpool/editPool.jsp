@@ -53,7 +53,7 @@
  <div class="portletBody">
 <h:form id="editform">
   <!-- HEADINGS -->
-  <%@ include file="/jsf/questionpool/questionpoolHeader.jsp" %>
+  <%@ include file="/jsf/questionpool/questionpoolHeadings.jsp" %>
 
 <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
    separator=" > " first="0" rows="100" >
