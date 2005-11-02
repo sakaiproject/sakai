@@ -21,62 +21,65 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
+
 
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.ActorPermissions;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.model.ActorPermissionsModel;
+import org.sakaiproject.api.app.messageforums.model.DateRestrictionsModel;
+import org.sakaiproject.api.app.messageforums.model.DiscussionForumModel;
 
-public class ActorPermissionsModelImpl implements ActorPermissionsModel {
+public class DiscussionForumModelImpl extends OpenForumModelImpl implements DiscussionForumModel {
 
-    private static final Log LOG = LogFactory.getLog(ActorPermissionsModelImpl.class);
+    private static final Log LOG = LogFactory.getLog(DiscussionForumModelImpl.class);
+
+    private List labels;
+    private DateRestrictionsModel dateRestrictions;
+    private ActorPermissionsModel actorPermissions;
+    private Boolean moderated;
     
-    private List contributors;
-    private List accessors;
-    private List moderators;
-    private Long id;
-
     // package level constructor only used for Testing
-    ActorPermissionsModelImpl() {}
+    DiscussionForumModelImpl() {}
     
-    public ActorPermissionsModelImpl(ActorPermissions actorPermissions) {
+    public DiscussionForumModelImpl(DiscussionForum discussionForum) {
         // TODO: set up this model based on hibernate object passes
         
     }
-    
-    public Long getId() {
-        return id;
+
+    public ActorPermissionsModel getActorPermissions() {
+        return actorPermissions;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-                
-    public List getAccessors() {
-        return accessors;
+    public void setActorPermissions(ActorPermissionsModel actorPermissions) {
+        this.actorPermissions = actorPermissions;
     }
 
-    public void setAccessors(List accessors) {
-        this.accessors = accessors;
+    public DateRestrictionsModel getDateRestrictions() {
+        return dateRestrictions;
     }
 
-    public List getContributors() {
-        return contributors;
+    public void setDateRestrictions(DateRestrictionsModel dateRestrictions) {
+        this.dateRestrictions = dateRestrictions;
     }
 
-    public void setContributors(List contributors) {
-        this.contributors = contributors;
+    public List getLabels() {
+        return labels;
     }
 
-    public List getModerators() {
-        return moderators;
+    public void setLabels(List labels) {
+        this.labels = labels;
     }
 
-    public void setModerators(List moderators) {
-        this.moderators = moderators;
+    public Boolean getModerated() {
+        return moderated;
+    }
+
+    public void setModerated(Boolean moderated) {
+        this.moderated = moderated;
     }
 
 }

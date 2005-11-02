@@ -21,7 +21,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -21,51 +21,53 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.model.AreaModel;
+import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.model.ControlPermissionsModel;
+import org.sakaiproject.api.app.messageforums.model.MessagePermissionsModel;
+import org.sakaiproject.api.app.messageforums.model.OpenForumModel;
 
-public class AreaModelImpl extends MutableEntityModelImpl implements AreaModel {
+public class OpenForumModelImpl extends BaseForumModelImpl implements OpenForumModel {
 
-    private static final Log LOG = LogFactory.getLog(AreaModelImpl.class);
+    private static final Log LOG = LogFactory.getLog(OpenForumModelImpl.class);
     
-    private String contextId;
-    private String name;
-    private Boolean hidden;
-
+    private ControlPermissionsModel controlPermissions;
+    private MessagePermissionsModel messagePermissions;
+    private Boolean locked;
+    
     // package level constructor only used for Testing
-    AreaModelImpl() {}
+    OpenForumModelImpl() {}
     
-    public AreaModelImpl(Area area) {
+    public OpenForumModelImpl(OpenForum openForum) {
         // TODO: set up this model based on hibernate object passes
         
     }
     
-    public String getContextId() {
-        return contextId;
+    public ControlPermissionsModel getControlPermissions() {
+        return controlPermissions;
     }
 
-    public void setContextId(String contextId) {
-        this.contextId = contextId;
+    public void setControlPermissions(ControlPermissionsModel controlPermissions) {
+        this.controlPermissions = controlPermissions;
     }
 
-    public Boolean getHidden() {
-        return hidden;
+    public Boolean getLocked() {
+        return locked;
     }
 
-    public void setHidden(Boolean hidden) {
-        this.hidden = hidden;
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
     }
 
-    public String getName() {
-        return name;
+    public MessagePermissionsModel getMessagePermissions() {
+        return messagePermissions;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMessagePermissions(MessagePermissionsModel messagePermissions) {
+        this.messagePermissions = messagePermissions;
     }
-    
+
 }

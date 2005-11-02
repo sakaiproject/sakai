@@ -21,55 +21,62 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
 
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
-import org.sakaiproject.api.app.messageforums.model.PrivateMessageModel;
+import org.sakaiproject.api.app.messageforums.ActorPermissions;
+import org.sakaiproject.api.app.messageforums.model.ActorPermissionsModel;
 
-// TODO: External email address per message?  Seems like a more global preference per user.
+public class ActorPermissionsModelImpl implements ActorPermissionsModel {
 
-public class PrivateMessageModelImpl extends MessageModelImpl implements PrivateMessageModel {
-
-    private static final Log LOG = LogFactory.getLog(PrivateMessageModelImpl.class);
+    private static final Log LOG = LogFactory.getLog(ActorPermissionsModelImpl.class);
     
-    private List recipients;
-    private Boolean externalEmail;
-    private String externalEmailAddress;
-    
+    private List contributors;
+    private List accessors;
+    private List moderators;
+    private Long id;
+
     // package level constructor only used for Testing
-    PrivateMessageModelImpl() {}
+    ActorPermissionsModelImpl() {}
     
-    public PrivateMessageModelImpl(PrivateMessage privateMessage) {
+    public ActorPermissionsModelImpl(ActorPermissions actorPermissions) {
         // TODO: set up this model based on hibernate object passes
         
     }
     
-    public Boolean getExternalEmail() {
-        return externalEmail;
+    public Long getId() {
+        return id;
     }
 
-    public void setExternalEmail(Boolean externalEmail) {
-        this.externalEmail = externalEmail;
+    public void setId(Long id) {
+        this.id = id;
+    }
+                
+    public List getAccessors() {
+        return accessors;
     }
 
-    public String getExternalEmailAddress() {
-        return externalEmailAddress;
+    public void setAccessors(List accessors) {
+        this.accessors = accessors;
     }
 
-    public void setExternalEmailAddress(String externalEmailAddress) {
-        this.externalEmailAddress = externalEmailAddress;
+    public List getContributors() {
+        return contributors;
     }
 
-    public List getRecipients() {
-        return recipients;
+    public void setContributors(List contributors) {
+        this.contributors = contributors;
     }
 
-    public void setRecipients(List recipients) {
-        this.recipients = recipients;
+    public List getModerators() {
+        return moderators;
     }
-        
+
+    public void setModerators(List moderators) {
+        this.moderators = moderators;
+    }
+
 }

@@ -21,65 +21,69 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
-
-
-import java.util.List;
+package org.sakaiproject.component.app.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.model.ActorPermissionsModel;
-import org.sakaiproject.api.app.messageforums.model.DateRestrictionsModel;
-import org.sakaiproject.api.app.messageforums.model.DiscussionForumModel;
+import org.sakaiproject.api.app.messageforums.Type;
+import org.sakaiproject.api.app.messageforums.model.TypeModel;
 
-public class DiscussionForumModelImpl extends OpenForumModelImpl implements DiscussionForumModel {
+public class TypeModelImpl extends MutableEntityModelImpl implements TypeModel {
 
-    private static final Log LOG = LogFactory.getLog(DiscussionForumModelImpl.class);
-
-    private List labels;
-    private DateRestrictionsModel dateRestrictions;
-    private ActorPermissionsModel actorPermissions;
-    private Boolean moderated;
+    private static final Log LOG = LogFactory.getLog(TypeModelImpl.class);
+    
+    private String authority;
+    private String domain;
+    private String keyword;
+    private String description;
+    private String displayName;
     
     // package level constructor only used for Testing
-    DiscussionForumModelImpl() {}
+    TypeModelImpl() {}
     
-    public DiscussionForumModelImpl(DiscussionForum discussionForum) {
+    public TypeModelImpl(Type type) {
         // TODO: set up this model based on hibernate object passes
         
     }
-
-    public ActorPermissionsModel getActorPermissions() {
-        return actorPermissions;
+    
+    public String getAuthority() {
+        return authority;
     }
 
-    public void setActorPermissions(ActorPermissionsModel actorPermissions) {
-        this.actorPermissions = actorPermissions;
+    public void setAuthority(String authority) {
+        this.authority = authority;
     }
 
-    public DateRestrictionsModel getDateRestrictions() {
-        return dateRestrictions;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDateRestrictions(DateRestrictionsModel dateRestrictions) {
-        this.dateRestrictions = dateRestrictions;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public List getLabels() {
-        return labels;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setLabels(List labels) {
-        this.labels = labels;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
-    public Boolean getModerated() {
-        return moderated;
+    public String getDomain() {
+        return domain;
     }
 
-    public void setModerated(Boolean moderated) {
-        this.moderated = moderated;
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
 }

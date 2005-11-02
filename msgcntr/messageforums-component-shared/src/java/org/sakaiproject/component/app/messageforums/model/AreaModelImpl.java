@@ -21,51 +21,51 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.PrivateForum;
-import org.sakaiproject.api.app.messageforums.model.PrivateForumModel;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.model.AreaModel;
 
-public class PrivateForumModelImpl extends BaseForumModelImpl implements PrivateForumModel {
+public class AreaModelImpl extends MutableEntityModelImpl implements AreaModel {
 
-    private static final Log LOG = LogFactory.getLog(PrivateForumModelImpl.class);
+    private static final Log LOG = LogFactory.getLog(AreaModelImpl.class);
     
-    private Boolean autoForward;
-    private String autoForwardEmail;
-    private Boolean previewPaneEnabled;
-    
+    private String contextId;
+    private String name;
+    private Boolean hidden;
+
     // package level constructor only used for Testing
-    PrivateForumModelImpl() {}
+    AreaModelImpl() {}
     
-    public PrivateForumModelImpl(PrivateForum privateForum) {
+    public AreaModelImpl(Area area) {
         // TODO: set up this model based on hibernate object passes
         
     }
     
-    public Boolean getAutoForward() {
-        return autoForward;
+    public String getContextId() {
+        return contextId;
     }
 
-    public void setAutoForward(Boolean autoForward) {
-        this.autoForward = autoForward;
+    public void setContextId(String contextId) {
+        this.contextId = contextId;
     }
 
-    public String getAutoForwardEmail() {
-        return autoForwardEmail;
+    public Boolean getHidden() {
+        return hidden;
     }
 
-    public void setAutoForwardEmail(String autoForwardEmail) {
-        this.autoForwardEmail = autoForwardEmail;
+    public void setHidden(Boolean hidden) {
+        this.hidden = hidden;
     }
 
-    public Boolean getPreviewPaneEnabled() {
-        return previewPaneEnabled;
+    public String getName() {
+        return name;
     }
 
-    public void setPreviewPaneEnabled(Boolean previewPaneEnabled) {
-        this.previewPaneEnabled = previewPaneEnabled;
+    public void setName(String name) {
+        this.name = name;
     }
-   
+    
 }

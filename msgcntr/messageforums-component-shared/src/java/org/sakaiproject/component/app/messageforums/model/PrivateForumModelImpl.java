@@ -21,69 +21,51 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Type;
-import org.sakaiproject.api.app.messageforums.model.TypeModel;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
+import org.sakaiproject.api.app.messageforums.model.PrivateForumModel;
 
-public class TypeModelImpl extends MutableEntityModelImpl implements TypeModel {
+public class PrivateForumModelImpl extends BaseForumModelImpl implements PrivateForumModel {
 
-    private static final Log LOG = LogFactory.getLog(TypeModelImpl.class);
+    private static final Log LOG = LogFactory.getLog(PrivateForumModelImpl.class);
     
-    private String authority;
-    private String domain;
-    private String keyword;
-    private String description;
-    private String displayName;
+    private Boolean autoForward;
+    private String autoForwardEmail;
+    private Boolean previewPaneEnabled;
     
     // package level constructor only used for Testing
-    TypeModelImpl() {}
+    PrivateForumModelImpl() {}
     
-    public TypeModelImpl(Type type) {
+    public PrivateForumModelImpl(PrivateForum privateForum) {
         // TODO: set up this model based on hibernate object passes
         
     }
     
-    public String getAuthority() {
-        return authority;
+    public Boolean getAutoForward() {
+        return autoForward;
     }
 
-    public void setAuthority(String authority) {
-        this.authority = authority;
+    public void setAutoForward(Boolean autoForward) {
+        this.autoForward = autoForward;
     }
 
-    public String getDescription() {
-        return description;
+    public String getAutoForwardEmail() {
+        return autoForwardEmail;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setAutoForwardEmail(String autoForwardEmail) {
+        this.autoForwardEmail = autoForwardEmail;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Boolean getPreviewPaneEnabled() {
+        return previewPaneEnabled;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setPreviewPaneEnabled(Boolean previewPaneEnabled) {
+        this.previewPaneEnabled = previewPaneEnabled;
     }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
-
+   
 }

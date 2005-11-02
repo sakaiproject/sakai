@@ -21,29 +21,29 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.ControlPermissions;
-import org.sakaiproject.api.app.messageforums.model.ControlPermissionsModel;
+import org.sakaiproject.api.app.messageforums.UnreadStatus;
+import org.sakaiproject.api.app.messageforums.model.MessageModel;
+import org.sakaiproject.api.app.messageforums.model.TopicModel;
+import org.sakaiproject.api.app.messageforums.model.UnreadStatusModel;
 
-public class ControlPermissionsModelImpl implements ControlPermissionsModel {
+public class UnreadStatusModelImpl implements UnreadStatusModel {
 
-    private static final Log LOG = LogFactory.getLog(ControlPermissionsModelImpl.class);    
-  
-    private String role;
-    private Boolean newTopic;
-    private Boolean newResponse;
-    private Boolean responseToResponse;
-    private Boolean movePostings;
-    private Boolean changeSettings;
+    private static final Log LOG = LogFactory.getLog(UnreadStatusModelImpl.class);
+    
+    private TopicModel topic;
+    private MessageModel message;
+    private String user;
+    private Boolean read;
     private Long id;
-    
+
     // package level constructor only used for Testing
-    ControlPermissionsModelImpl() {}
+    UnreadStatusModelImpl() {}
     
-    public ControlPermissionsModelImpl(ControlPermissions controlPermissions) {
+    public UnreadStatusModelImpl(UnreadStatus unreadStatus) {
         // TODO: set up this model based on hibernate object passes
         
     }
@@ -55,53 +55,37 @@ public class ControlPermissionsModelImpl implements ControlPermissionsModel {
     public void setId(Long id) {
         this.id = id;
     }
-   
-    public Boolean getChangeSettings() {
-        return changeSettings;
+
+    public MessageModel getMessage() {
+        return message;
     }
 
-    public void setChangeSettings(Boolean changeSettings) {
-        this.changeSettings = changeSettings;
+    public void setMessage(MessageModel message) {
+        this.message = message;
     }
 
-    public Boolean getMovePostings() {
-        return movePostings;
+    public Boolean getRead() {
+        return read;
     }
 
-    public void setMovePostings(Boolean movePostings) {
-        this.movePostings = movePostings;
+    public void setRead(Boolean read) {
+        this.read = read;
     }
 
-    public Boolean getNewResponse() {
-        return newResponse;
+    public TopicModel getTopic() {
+        return topic;
     }
 
-    public void setNewResponse(Boolean newResponse) {
-        this.newResponse = newResponse;
+    public void setTopic(TopicModel topic) {
+        this.topic = topic;
     }
 
-    public Boolean getNewTopic() {
-        return newTopic;
+    public String getUser() {
+        return user;
     }
 
-    public void setNewTopic(Boolean newTopic) {
-        this.newTopic = newTopic;
-    }
-
-    public Boolean getResponseToResponse() {
-        return responseToResponse;
-    }
-
-    public void setResponseToResponse(Boolean responseToResponse) {
-        this.responseToResponse = responseToResponse;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    public void setUser(String user) {
+        this.user = user;
     }
         
 }

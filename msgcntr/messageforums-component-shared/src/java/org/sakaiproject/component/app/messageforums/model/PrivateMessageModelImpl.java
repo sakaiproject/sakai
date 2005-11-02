@@ -21,71 +21,55 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
+
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.UnreadStatus;
-import org.sakaiproject.api.app.messageforums.model.MessageModel;
-import org.sakaiproject.api.app.messageforums.model.TopicModel;
-import org.sakaiproject.api.app.messageforums.model.UnreadStatusModel;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.model.PrivateMessageModel;
 
-public class UnreadStatusModelImpl implements UnreadStatusModel {
+// TODO: External email address per message?  Seems like a more global preference per user.
 
-    private static final Log LOG = LogFactory.getLog(UnreadStatusModelImpl.class);
+public class PrivateMessageModelImpl extends MessageModelImpl implements PrivateMessageModel {
+
+    private static final Log LOG = LogFactory.getLog(PrivateMessageModelImpl.class);
     
-    private TopicModel topic;
-    private MessageModel message;
-    private String user;
-    private Boolean read;
-    private Long id;
-
+    private List recipients;
+    private Boolean externalEmail;
+    private String externalEmailAddress;
+    
     // package level constructor only used for Testing
-    UnreadStatusModelImpl() {}
+    PrivateMessageModelImpl() {}
     
-    public UnreadStatusModelImpl(UnreadStatus unreadStatus) {
+    public PrivateMessageModelImpl(PrivateMessage privateMessage) {
         // TODO: set up this model based on hibernate object passes
         
     }
     
-    public Long getId() {
-        return id;
+    public Boolean getExternalEmail() {
+        return externalEmail;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setExternalEmail(Boolean externalEmail) {
+        this.externalEmail = externalEmail;
     }
 
-    public MessageModel getMessage() {
-        return message;
+    public String getExternalEmailAddress() {
+        return externalEmailAddress;
     }
 
-    public void setMessage(MessageModel message) {
-        this.message = message;
+    public void setExternalEmailAddress(String externalEmailAddress) {
+        this.externalEmailAddress = externalEmailAddress;
     }
 
-    public Boolean getRead() {
-        return read;
+    public List getRecipients() {
+        return recipients;
     }
 
-    public void setRead(Boolean read) {
-        this.read = read;
-    }
-
-    public TopicModel getTopic() {
-        return topic;
-    }
-
-    public void setTopic(TopicModel topic) {
-        this.topic = topic;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
+    public void setRecipients(List recipients) {
+        this.recipients = recipients;
     }
         
 }

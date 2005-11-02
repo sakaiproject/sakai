@@ -21,42 +21,53 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Label;
-import org.sakaiproject.api.app.messageforums.model.LabelModel;
+import org.sakaiproject.api.app.messageforums.OpenTopic;
+import org.sakaiproject.api.app.messageforums.model.ControlPermissionsModel;
+import org.sakaiproject.api.app.messageforums.model.MessagePermissionsModel;
+import org.sakaiproject.api.app.messageforums.model.OpenTopicModel;
 
-public class LabelModelImpl extends MutableEntityModelImpl implements LabelModel {
+public class OpenTopicModelImpl extends TopicModelImpl implements OpenTopicModel {
 
-    private static final Log LOG = LogFactory.getLog(LabelModelImpl.class);
+    private static final Log LOG = LogFactory.getLog(OpenTopicModelImpl.class);
     
-    private String key;
-    private String value;
+    private ControlPermissionsModel controlPermissions;
+    private MessagePermissionsModel messagePermissions;
+    private Boolean locked;
     
     // package level constructor only used for Testing
-    LabelModelImpl() {}
+    OpenTopicModelImpl() {}
     
-    public LabelModelImpl(Label label) {
+    public OpenTopicModelImpl(OpenTopic openTopic) {
         // TODO: set up this model based on hibernate object passes
         
     }
     
-    public String getKey() {
-        return key;
-    }
-    
-    public void setKey(String key) {
-        this.key = key;
-    }
-    
-    public String getValue() {
-        return value;
+    public ControlPermissionsModel getControlPermissions() {
+        return controlPermissions;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setControlPermissions(ControlPermissionsModel controlPermissions) {
+        this.controlPermissions = controlPermissions;
     }
-    
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
+    }
+
+    public MessagePermissionsModel getMessagePermissions() {
+        return messagePermissions;
+    }
+
+    public void setMessagePermissions(MessagePermissionsModel messagePermissions) {
+        this.messagePermissions = messagePermissions;
+    }
+        
 }

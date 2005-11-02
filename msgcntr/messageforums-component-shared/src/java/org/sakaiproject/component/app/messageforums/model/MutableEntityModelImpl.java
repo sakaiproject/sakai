@@ -21,70 +21,80 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums.model;
+package org.sakaiproject.component.app.messageforums.model;
+
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.model.AttachmentModel;
-import org.sakaiproject.api.app.messageforums.model.MessageModel;
+import org.sakaiproject.api.app.messageforums.MutableEntity;
+import org.sakaiproject.api.app.messageforums.model.MutableEntityModel;
 
-public class AttachmentModelImpl extends MutableEntityModelImpl implements AttachmentModel {
+public class MutableEntityModelImpl implements MutableEntityModel {
+ 
+    private static final Log LOG = LogFactory.getLog(MutableEntityModelImpl.class);
 
-    private static final Log LOG = LogFactory.getLog(AttachmentModelImpl.class);
+    protected Long id;
+    protected String uuid;
+    protected Date created;
+    protected String createdBy;
+    protected Date modified;
+    protected String modifiedBy;
 
-    private String attachmentId;
-    private String attachmentUrl;
-    private String attachmentName;
-    private String attachmentSize;
-    private String attachmentType;
-    
     // package level constructor only used for Testing
-    AttachmentModelImpl() {}
+    MutableEntityModelImpl() {}
     
-    public AttachmentModelImpl(Attachment attachment) {
+    public MutableEntityModelImpl(MutableEntity mutableEntity) {
         // TODO: set up this model based on hibernate object passes
         
     }
     
-    public String getAttachmentId() {
-        return attachmentId;
+    public Date getCreated() {
+        return created;
     }
 
-    public void setAttachmentId(String attachmentId) {
-        this.attachmentId = attachmentId;
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
-    public String getAttachmentName() {
-        return attachmentName;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setAttachmentName(String attachmentName) {
-        this.attachmentName = attachmentName;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
-    public String getAttachmentSize() {
-        return attachmentSize;
+    public Long getId() {
+        return id;
     }
 
-    public void setAttachmentSize(String attachmentSize) {
-        this.attachmentSize = attachmentSize;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getAttachmentType() {
-        return attachmentType;
+    public String getModifiedBy() {
+        return modifiedBy;
     }
 
-    public void setAttachmentType(String attachmentType) {
-        this.attachmentType = attachmentType;
+    public void setModifiedBy(String modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
-    public String getAttachmentUrl() {
-        return attachmentUrl;
+    public Date getModified() {
+        return modified;
     }
 
-    public void setAttachmentUrl(String attachmentUrl) {
-        this.attachmentUrl = attachmentUrl;
+    public void setModified(Date modified) {
+        this.modified = modified;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
 }

@@ -33,7 +33,7 @@ import org.sakaiproject.api.app.messageforums.model.MessageModel;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
-import org.sakaiproject.tool.messageforums.model.MessageModelImpl;
+import org.sakaiproject.component.app.messageforums.model.MessageModelImpl;
 
 /*
  * TopicProxy provides all methods needed by a jsf page.  It is merely
