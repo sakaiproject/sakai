@@ -40,6 +40,9 @@
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai-sections-api</artifactId>
                         <version>${sakai.version}</version>
+                        <properties>
+                          <deploy.target>shared</deploy.target>
+                        </properties>
                 </dependency>
         <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
                 <!-- Standalone component -->
@@ -47,6 +50,9 @@
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai-sections-comp-shared-standalone</artifactId>
                         <version>${sakai.version}</version>
+                        <properties>
+                          <war.bundle>standalone</war.bundle>
+                        </properties>
                 </dependency>
                 <!-- Sakai-embedded version -->
         <dependency>
@@ -54,9 +60,42 @@
             <artifactId>sakai-sections-comp-shared-sakai21</artifactId>
             <version>${sakai.version}</version>
             <properties>
-                <war.bundle>true</war.bundle>
+                <war.bundle>integrated</war.bundle>
             </properties>
         </dependency>
+
+  
+	<!--
+	The following is included as a dependency of the standalone Sections
+	integration support JAR.
+	-->
+	<!-- Uuid generator -->
+	<dependency>
+	  <groupId>sakaiproject</groupId>
+		<artifactId>sakai-common-uuid-component</artifactId>
+		<version>${sakai.version}</version>
+            <properties>
+                <war.bundle>standalone</war.bundle>
+            </properties>
+	</dependency>
+	<dependency>
+		<groupId>sakaiproject</groupId>
+		<artifactId>sakai-common-uuid-api</artifactId>
+		<version>${sakai.version}</version>
+            <properties>
+                <war.bundle>standalone</war.bundle>
+            </properties>
+	</dependency>
+	<dependency>
+	      <groupId>commons-id</groupId>
+	      <artifactId>commons-id</artifactId>
+	      <version>0.1-dev</version>
+	      <url>http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/</url>
+            <properties>
+                <war.bundle>standalone</war.bundle>
+            </properties>
+	</dependency>
+
 
 
     <!-- Sakai plugin for building inside Sakai -->
@@ -540,6 +579,7 @@
       </properties>
     </dependency>
   </dependencies>
+
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
@@ -553,6 +593,8 @@
          </includes> 
       </resource> 
     </resources>
+
+
     <!-- <unitTestSourceDirectory>src/test</unitTestSourceDirectory> -->
     <!--
       <unitTest>
