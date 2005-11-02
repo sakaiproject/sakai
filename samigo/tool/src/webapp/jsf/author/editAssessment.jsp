@@ -90,9 +90,7 @@ document.links[newindex].onclick();
   <h:inputHidden id="ItemIdent" value="#{author.currentItem}"/>
 
   <!-- HEADINGS -->
-  <h:panelGroup rendered="#{authorization.adminQuestionPool or authorization.adminTemplate}">
-   <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
-  </h:panelGroup>
+  <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
 
   <div align="left">
     <h3>

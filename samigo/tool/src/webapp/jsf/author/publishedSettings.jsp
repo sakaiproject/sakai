@@ -52,9 +52,7 @@
   <h:inputHidden id="assessmentId" value="#{publishedSettings.assessmentId}"/>
 
   <!-- HEADINGS -->
-  <h:panelGroup rendered="#{authorization.adminQuestionPool or authorization.adminTemplate}">
-   <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
-  </h:panelGroup>
+  <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
 
     <h3>
      <h:outputText id="x1"
