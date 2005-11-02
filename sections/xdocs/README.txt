@@ -30,13 +30,17 @@ I.  Building and deploying the application and its shared services
 
 		3.  Specify the location of your tomcat 5.5.9 webapps directory (not
 		your sakai tomcat -- you must use a different tomcat installation!) with
-		the 'standalone.deploy.dir' property, either from the command line or in
-		/sections-app/project.properties.  Include the trailing slash.
+		the 'standalone.deploy.dir' property, either from the command line,
+		in $HOME/build.properties, or in /sections-app/project.properties.  Make
+		sure you nclude the trailing slash.
 
 		4.  Run "maven -Dmode=standalone cln bld" to clean and build the app.
 		This will also copy the war file into your tomcat webapps directory.  If
 		you are using -Dmem=false (see below), make sure you include that when
-		running your build:  "maven -Dmode=standalone -Dmem=false cln bld".
+		running your build:  "maven -Dmode=standalone -Dmem=false cln bld", and
+		make sure that your database is empty so the tests don't attempt to insert
+		duplicate records.  Due to these constraints, using -Dmem=false is not
+		recommended.
 
 	Other Settings
 		Each time the sections tool is built, it runs a suite of tests to ensure
