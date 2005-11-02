@@ -37,13 +37,13 @@ public interface MessageForumsAreaManager
   boolean isPrivateAreaUnabled(); 
 
   /**
-   * Retrieve private message area is enabled for the current user
+   * Retrieve private message area if it is enabled for the current user
    * @return
    */
   Area getPrivateArea();  
 
   /**
-   * Retrieve discussion message area is enabled for the current user
+   * Retrieve discussion message area the current user
    * @return
    */
   Area getDiscussionForumArea();  

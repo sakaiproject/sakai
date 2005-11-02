@@ -43,7 +43,7 @@ public interface Area
   public void setName(String name);
   
   /**
-   * List of forums in chronologial order 
+   * List of forums in chronological order 
    * 
    * @return
    */
