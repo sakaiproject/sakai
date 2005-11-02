@@ -85,7 +85,7 @@ public class UploadRenderer extends Renderer {
     // check if file > maxSize allowed
     log.debug("clientId ="+ clientId);
     log.debug("fileItem ="+ item);
-    log.debug("***UploadRender: fileItem size ="+ item.getSize());
+    // if (item!=null) log.debug("***UploadRender: fileItem size ="+ item.getSize());
     Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
     if (item.getSize() > maxSize.intValue()){
       ((ServletContext)external.getContext()).setAttribute("TEMP_FILEUPLOAD_SIZE", new Long(item.getSize()));
