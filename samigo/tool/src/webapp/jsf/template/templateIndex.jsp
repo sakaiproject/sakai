@@ -49,7 +49,7 @@
   <h:form id="templateEditorForm">
 <h:messages styleClass="validation"/>
   <!-- HEADINGS -->
-  <%@ include file="/jsf/template/templateHeader.jsp" %>
+  <%@ include file="/jsf/template/templateHeadings.jsp" %>
 
 <h3>
    <h:outputText value="#{msg.index_templates}"/>
