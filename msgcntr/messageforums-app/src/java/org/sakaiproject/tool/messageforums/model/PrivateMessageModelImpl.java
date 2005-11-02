@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.model.PrivateMessageModel;
 
 // TODO: External email address per message?  Seems like a more global preference per user.
@@ -38,6 +39,14 @@ public class PrivateMessageModelImpl extends MessageModelImpl implements Private
     private List recipients;
     private Boolean externalEmail;
     private String externalEmailAddress;
+    
+    // package level constructor only used for Testing
+    PrivateMessageModelImpl() {}
+    
+    public PrivateMessageModelImpl(PrivateMessage privateMessage) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
     
     public Boolean getExternalEmail() {
         return externalEmail;

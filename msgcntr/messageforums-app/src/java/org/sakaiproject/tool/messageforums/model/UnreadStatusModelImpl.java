@@ -25,6 +25,7 @@ package org.sakaiproject.tool.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.app.messageforums.model.MessageModel;
 import org.sakaiproject.api.app.messageforums.model.TopicModel;
 import org.sakaiproject.api.app.messageforums.model.UnreadStatusModel;
@@ -38,22 +39,21 @@ public class UnreadStatusModelImpl implements UnreadStatusModel {
     private String user;
     private Boolean read;
     private Long id;
-    private Integer version; 
 
+    // package level constructor only used for Testing
+    UnreadStatusModelImpl() {}
+    
+    public UnreadStatusModelImpl(UnreadStatus unreadStatus) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
+    
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public MessageModel getMessage() {

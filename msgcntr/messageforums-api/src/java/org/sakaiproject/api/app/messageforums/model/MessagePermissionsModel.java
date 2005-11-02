@@ -29,10 +29,6 @@ public interface MessagePermissionsModel {
 
     public void setId(Long id);
 
-    public Integer getVersion();
-
-    public void setVersion(Integer version);
-
     public Boolean getDeleteAny();
 
     public void setDeleteAny(Boolean deleteAny);

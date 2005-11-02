@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.model.ActorPermissionsModel;
 import org.sakaiproject.api.app.messageforums.model.DateRestrictionsModel;
 import org.sakaiproject.api.app.messageforums.model.DiscussionForumModel;
@@ -41,6 +42,14 @@ public class DiscussionForumModelImpl extends OpenForumModelImpl implements Disc
     private ActorPermissionsModel actorPermissions;
     private Boolean moderated;
     
+    // package level constructor only used for Testing
+    DiscussionForumModelImpl() {}
+    
+    public DiscussionForumModelImpl(DiscussionForum discussionForum) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
+
     public ActorPermissionsModel getActorPermissions() {
         return actorPermissions;
     }

@@ -25,8 +25,6 @@ package org.sakaiproject.api.app.messageforums.model;
 
 public interface AreaModel {
 
-    public void setVersion(Integer version);
-
     public String getContextId();
 
     public void setContextId(String contextId);

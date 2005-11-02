@@ -24,10 +24,10 @@
 package org.sakaiproject.tool.messageforums.model;
 
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.model.ActorPermissionsModel;
 
 public class ActorPermissionsModelImpl implements ActorPermissionsModel {
@@ -37,24 +37,22 @@ public class ActorPermissionsModelImpl implements ActorPermissionsModel {
     private List contributors;
     private List accessors;
     private List moderators;
-
     private Long id;
-    private Integer version; 
 
+    // package level constructor only used for Testing
+    ActorPermissionsModelImpl() {}
+    
+    public ActorPermissionsModelImpl(ActorPermissions actorPermissions) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
+    
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
                 
     public List getAccessors() {

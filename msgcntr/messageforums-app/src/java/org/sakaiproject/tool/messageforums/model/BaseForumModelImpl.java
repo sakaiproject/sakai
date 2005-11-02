@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.model.BaseForumModel;
 import org.sakaiproject.api.app.messageforums.model.TypeModel;
  
@@ -42,6 +43,14 @@ public class BaseForumModelImpl extends MutableEntityModelImpl implements BaseFo
     private List topics;
     private Integer sortIndex; 
     
+    // package level constructor only used for Testing
+    BaseForumModelImpl() {}
+    
+    public BaseForumModelImpl(BaseForum baseForum) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
+
     public List getAttachments() {
         return attachments;
     }

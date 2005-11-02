@@ -27,6 +27,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.MutableEntity;
 import org.sakaiproject.api.app.messageforums.model.MutableEntityModel;
 
 public class MutableEntityModelImpl implements MutableEntityModel {
@@ -39,8 +40,15 @@ public class MutableEntityModelImpl implements MutableEntityModel {
     protected String createdBy;
     protected Date modified;
     protected String modifiedBy;
-    protected Integer version;
 
+    // package level constructor only used for Testing
+    MutableEntityModelImpl() {}
+    
+    public MutableEntityModelImpl(MutableEntity mutableEntity) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
+    
     public Date getCreated() {
         return created;
     }
@@ -87,14 +95,6 @@ public class MutableEntityModelImpl implements MutableEntityModel {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
 }

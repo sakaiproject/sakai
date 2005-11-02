@@ -31,10 +31,6 @@ public interface DateRestrictionsModel {
 
     public void setId(Long id);
 
-    public Integer getVersion();
-
-    public void setVersion(Integer version);
-
     public Date getHidden();
 
     public void setHidden(Date hidden);

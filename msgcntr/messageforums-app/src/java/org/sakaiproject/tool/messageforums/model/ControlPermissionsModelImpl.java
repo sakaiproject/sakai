@@ -25,6 +25,7 @@ package org.sakaiproject.tool.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.ControlPermissions;
 import org.sakaiproject.api.app.messageforums.model.ControlPermissionsModel;
 
 public class ControlPermissionsModelImpl implements ControlPermissionsModel {
@@ -37,10 +38,16 @@ public class ControlPermissionsModelImpl implements ControlPermissionsModel {
     private Boolean responseToResponse;
     private Boolean movePostings;
     private Boolean changeSettings;
-
     private Long id;
-    private Integer version; 
-
+    
+    // package level constructor only used for Testing
+    ControlPermissionsModelImpl() {}
+    
+    public ControlPermissionsModelImpl(ControlPermissions controlPermissions) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
+    
     public Long getId() {
         return id;
     }
@@ -48,15 +55,7 @@ public class ControlPermissionsModelImpl implements ControlPermissionsModel {
     public void setId(Long id) {
         this.id = id;
     }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-    
+   
     public Boolean getChangeSettings() {
         return changeSettings;
     }

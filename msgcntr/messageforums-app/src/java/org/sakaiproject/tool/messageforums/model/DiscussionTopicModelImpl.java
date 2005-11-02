@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.model.ActorPermissionsModel;
 import org.sakaiproject.api.app.messageforums.model.DateRestrictionsModel;
 import org.sakaiproject.api.app.messageforums.model.DiscussionTopicModel;
@@ -44,6 +45,14 @@ public class DiscussionTopicModelImpl extends OpenTopicModelImpl implements Disc
     private Boolean moderated;
     private String gradebook;
     private String gradebookAssignment;
+    
+    // package level constructor only used for Testing
+    DiscussionTopicModelImpl() {}
+    
+    public DiscussionTopicModelImpl(DiscussionTopic discussionTopic) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
     
     public ActorPermissionsModel getActorPermissions() {
         return actorPermissions;

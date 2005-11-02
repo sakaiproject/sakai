@@ -25,6 +25,7 @@ package org.sakaiproject.tool.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.model.AttachmentModel;
 import org.sakaiproject.api.app.messageforums.model.MessageModel;
 
@@ -38,6 +39,14 @@ public class AttachmentModelImpl extends MutableEntityModelImpl implements Attac
     private String attachmentSize;
     private String attachmentType;
     private MessageModel parent;
+    
+    // package level constructor only used for Testing
+    AttachmentModelImpl() {}
+    
+    public AttachmentModelImpl(Attachment attachment) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
     
     public String getAttachmentId() {
         return attachmentId;

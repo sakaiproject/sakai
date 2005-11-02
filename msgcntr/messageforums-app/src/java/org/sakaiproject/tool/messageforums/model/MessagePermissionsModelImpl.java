@@ -25,6 +25,7 @@ package org.sakaiproject.tool.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.model.MessagePermissionsModel;
 
 public class MessagePermissionsModelImpl implements MessagePermissionsModel {
@@ -39,9 +40,16 @@ public class MessagePermissionsModelImpl implements MessagePermissionsModel {
     private Boolean deleteAny;
     private Boolean deleteOwn;
     private Boolean readDrafts;
-    private Long id;
-    private Integer version; 
+    private Long id; 
 
+    // package level constructor only used for Testing
+    MessagePermissionsModelImpl() {}
+    
+    public MessagePermissionsModelImpl(MessagePermissions messagePermissions) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
+    
     public Long getId() {
         return id;
     }
@@ -50,14 +58,6 @@ public class MessagePermissionsModelImpl implements MessagePermissionsModel {
         this.id = id;
     }
 
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-    
     public Boolean getDeleteAny() {
         return deleteAny;
     }

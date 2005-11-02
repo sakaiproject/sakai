@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.model.TopicModel;
 import org.sakaiproject.api.app.messageforums.model.TypeModel;
 
@@ -41,6 +42,14 @@ public class TopicModelImpl extends MutableEntityModelImpl implements TopicModel
     private Boolean mutable;
     private Integer sortIndex;
     private TypeModel type;
+    
+    // package level constructor only used for Testing
+    TopicModelImpl() {}
+    
+    public TopicModelImpl(Topic topic) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
     
     public List getAttachments() {
         return attachments;

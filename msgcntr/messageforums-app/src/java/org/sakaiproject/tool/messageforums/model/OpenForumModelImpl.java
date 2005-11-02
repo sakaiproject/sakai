@@ -25,6 +25,7 @@ package org.sakaiproject.tool.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.model.ControlPermissionsModel;
 import org.sakaiproject.api.app.messageforums.model.MessagePermissionsModel;
 import org.sakaiproject.api.app.messageforums.model.OpenForumModel;
@@ -36,6 +37,14 @@ public class OpenForumModelImpl extends BaseForumModelImpl implements OpenForumM
     private ControlPermissionsModel controlPermissions;
     private MessagePermissionsModel messagePermissions;
     private Boolean locked;
+    
+    // package level constructor only used for Testing
+    OpenForumModelImpl() {}
+    
+    public OpenForumModelImpl(OpenForum openForum) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
     
     public ControlPermissionsModel getControlPermissions() {
         return controlPermissions;

@@ -25,6 +25,7 @@ package org.sakaiproject.tool.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.model.PrivateForumModel;
 
 public class PrivateForumModelImpl extends BaseForumModelImpl implements PrivateForumModel {
@@ -34,6 +35,14 @@ public class PrivateForumModelImpl extends BaseForumModelImpl implements Private
     private Boolean autoForward;
     private String autoForwardEmail;
     private Boolean previewPaneEnabled;
+    
+    // package level constructor only used for Testing
+    PrivateForumModelImpl() {}
+    
+    public PrivateForumModelImpl(PrivateForum privateForum) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
     
     public Boolean getAutoForward() {
         return autoForward;

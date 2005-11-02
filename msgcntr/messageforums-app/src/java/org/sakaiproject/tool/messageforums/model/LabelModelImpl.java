@@ -25,6 +25,7 @@ package org.sakaiproject.tool.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Label;
 import org.sakaiproject.api.app.messageforums.model.LabelModel;
 
 public class LabelModelImpl extends MutableEntityModelImpl implements LabelModel {
@@ -33,6 +34,14 @@ public class LabelModelImpl extends MutableEntityModelImpl implements LabelModel
     
     private String key;
     private String value;
+    
+    // package level constructor only used for Testing
+    LabelModelImpl() {}
+    
+    public LabelModelImpl(Label label) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
     
     public String getKey() {
         return key;

@@ -25,6 +25,7 @@ package org.sakaiproject.tool.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Type;
 import org.sakaiproject.api.app.messageforums.model.TypeModel;
 
 public class TypeModelImpl extends MutableEntityModelImpl implements TypeModel {
@@ -36,6 +37,14 @@ public class TypeModelImpl extends MutableEntityModelImpl implements TypeModel {
     private String keyword;
     private String description;
     private String displayName;
+    
+    // package level constructor only used for Testing
+    TypeModelImpl() {}
+    
+    public TypeModelImpl(Type type) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
     
     public String getAuthority() {
         return authority;

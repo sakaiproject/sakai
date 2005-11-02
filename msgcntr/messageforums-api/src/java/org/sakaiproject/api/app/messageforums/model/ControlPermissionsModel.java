@@ -29,10 +29,6 @@ public interface ControlPermissionsModel {
 
     public void setId(Long id);
 
-    public Integer getVersion();
-
-    public void setVersion(Integer version);
-
     public Boolean getChangeSettings();
 
     public void setChangeSettings(Boolean changeSettings);

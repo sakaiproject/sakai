@@ -25,6 +25,7 @@ package org.sakaiproject.tool.messageforums.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.model.AreaModel;
 
 public class AreaModelImpl extends MutableEntityModelImpl implements AreaModel {
@@ -35,10 +36,14 @@ public class AreaModelImpl extends MutableEntityModelImpl implements AreaModel {
     private String name;
     private Boolean hidden;
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    // package level constructor only used for Testing
+    AreaModelImpl() {}
+    
+    public AreaModelImpl(Area area) {
+        // TODO: set up this model based on hibernate object passes
+        
     }
-
+    
     public String getContextId() {
         return contextId;
     }

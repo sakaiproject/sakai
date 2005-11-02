@@ -50,10 +50,4 @@ public interface AttachmentModel {
 
     public void setParent(MessageModel parent);
 
-    public boolean equals(Object other);
-
-    public int hashCode();
-
-    public String toString();
-
 }

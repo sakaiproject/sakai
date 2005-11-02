@@ -51,8 +51,4 @@ public interface MutableEntityModel {
 
     public void setUuid(String uuid);
 
-    public Integer getVersion();
-
-    public void setVersion(Integer version);
-
 }

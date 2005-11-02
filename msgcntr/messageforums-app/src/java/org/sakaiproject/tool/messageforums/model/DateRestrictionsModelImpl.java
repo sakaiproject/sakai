@@ -27,6 +27,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.DateRestrictions;
 import org.sakaiproject.api.app.messageforums.model.DateRestrictionsModel;
 
 public class DateRestrictionsModelImpl implements DateRestrictionsModel {
@@ -42,7 +43,15 @@ public class DateRestrictionsModelImpl implements DateRestrictionsModel {
     private Date hidden;
     private Boolean hiddenPostOnSchedule;
     private Long id;
-    private Integer version; 
+
+    
+    // package level constructor only used for Testing
+    DateRestrictionsModelImpl() {}
+    
+    public DateRestrictionsModelImpl(DateRestrictions dateRestrictions) {
+        // TODO: set up this model based on hibernate object passes
+        
+    }
 
     public Long getId() {
         return id;
@@ -52,14 +61,6 @@ public class DateRestrictionsModelImpl implements DateRestrictionsModel {
         this.id = id;
     }
 
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-    
     public Date getHidden() {
         return hidden;
     }
