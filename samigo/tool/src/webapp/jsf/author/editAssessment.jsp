@@ -90,19 +90,10 @@ document.links[newindex].onclick();
   <h:inputHidden id="ItemIdent" value="#{author.currentItem}"/>
 
   <!-- HEADINGS -->
-  <p class="navIntraTool">
-    <h:commandLink action="author" immediate="true">
-      <h:outputText value="#{msg.global_nav_assessmt}" />
-    </h:commandLink>
-    <h:outputText value=" | " />
-    <h:commandLink action="template" immediate="true">
-      <h:outputText value="#{msg.global_nav_template}" />
-    </h:commandLink>
-    <h:outputText value=" | " />
-    <h:commandLink action="poolList" immediate="true">
-      <h:outputText value="#{msg.global_nav_pools}" />
-    </h:commandLink>
-  </p>
+  <h:panelGroup rendered="#{authorization.adminQuestionPool or authorization.adminTemplate}">
+   <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
+  </h:panelGroup>
+
   <div align="left">
     <h3>
        <h:outputText value="#{msg.qs}" />

@@ -131,19 +131,9 @@ function checkTimeSelect(){
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
 
   <!-- HEADINGS -->
-  <p class="navIntraTool">
-    <h:commandLink  action="author">
-      <h:outputText value="#{msg.global_nav_assessmt}" />
-    </h:commandLink>
-    <h:outputText value=" | " />
-    <h:commandLink  action="template">
-      <h:outputText value="#{msg.global_nav_template}" />
-    </h:commandLink>
-    <h:outputText value=" | " />
-    <h:commandLink  action="poolList">
-      <h:outputText value="#{msg.global_nav_pools}" />
-    </h:commandLink>
-  </p>
+  <h:panelGroup rendered="#{authorization.adminQuestionPool or authorization.adminTemplate}">
+   <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
+  </h:panelGroup>
 
     <h3>
      <h:outputText value="#{msg.settings}" />

@@ -48,8 +48,8 @@
 
 <h:form id="authorIndexForm">
   <!-- HEADINGS -->
-  <h:panelGroup rendered="#{authorization.adminQuestionPool and authorization.adminTemplate}">
-   <%@ include file="/jsf/author/assessmentHeader.jsp" %>
+  <h:panelGroup rendered="#{authorization.adminQuestionPool or authorization.adminTemplate}">
+   <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
   </h:panelGroup>
 
   <h3>
