@@ -122,7 +122,8 @@ function saveTime()
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 </h:panelGroup>
-<div class="indnt1 validation">
+<div class="indnt1">
+<f:verbatim><b></f:verbatim><h:outputText value="#{msg.warning}: "/><f:verbatim></b></f:verbatim>
 <h:outputText value="#{msg.instruction_submitGrading}" />
  </div>
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
