@@ -225,4 +225,22 @@ public class SelectAssessmentBean
     this.takeableAscending = takeableAscending;
   }
 
+ public boolean getIsThereAssessmentToTake()
+  {
+      if(takeableAssessments==null || takeableAssessments.size()==0)
+
+	  return false;
+      else
+	  return true;
+  }
+
+ public boolean getIsThereAssessmentToReview()
+  {
+      
+      if(reviewableAssessments==null || reviewableAssessments.size()==0)
+	
+	  return false;
+      else
+	   return true;
+  }
 }

@@ -51,7 +51,8 @@
  <div class="indnt1">
   <h4><h:outputText value="#{msg.take_assessment}" /></h4>
   <p class="tier2">
-    <h:outputText value="#{msg.take_assessment_notes}" />
+    <h:outputText rendered="#{select.isThereAssessmentToTake eq 'true'}" value="#{msg.take_assessment_notes}" />
+<h:outputText rendered="#{select.isThereAssessmentToTake eq 'false'}" value="#{msg.take_assessment_notAvailable}" />
   </p>
 <%-- pager controls NOT required by mockups, not implemented
   <span class="rightNav">
@@ -148,9 +149,12 @@ sorting actions for table:
   </div></div>
   <!-- SUBMITTED ASSESMENTS -->
 <div class="indnt1">
+
 <h4> <h:outputText value="#{msg.submitted_assessments}" /></h4>
   <p class="tier2">
-    <h:outputText value="#{msg.review_assessment_notes}" />
+   
+<h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{msg.review_assessment_notes}" />
+<h:outputText rendered="#{select.isThereAssessmentToReview eq 'false'}" value="#{msg.review_assessment_notAvailable}" />
   </p>
 
 <%-- pager controls NOT required by mockups, not implemented
