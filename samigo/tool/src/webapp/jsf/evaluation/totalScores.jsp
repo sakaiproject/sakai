@@ -49,21 +49,8 @@
   <h:inputHidden id="itemId" value="#{totalScores.firstItem}" />
 
   <!-- HEADINGS -->
-  <p class="navIntraTool">
-    <h:commandLink action="author" immediate="true">
-       <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-      <h:outputText value="#{msg.global_nav_assessmt}" />
-    </h:commandLink>
-    <h:outputText value=" | " />
-    <h:commandLink action="template" immediate="true">
-      <h:outputText value="#{msg.global_nav_template}" />
-    </h:commandLink>
-    <h:outputText value=" | " />
-    <h:commandLink action="poolList" immediate="true">
-      <h:outputText value="#{msg.global_nav_pools}" />
-    </h:commandLink>
-  </p>
+  <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
+
   <h3>
     <h:outputText value="#{msg.title_total}"/>
     <h:outputText value=": "/>

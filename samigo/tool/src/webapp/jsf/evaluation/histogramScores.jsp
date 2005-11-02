@@ -48,21 +48,8 @@ $Id$
   <h:inputHidden id="itemId" value="#{histogramScores.itemId}" />
 
   <!-- HEADINGS -->
-  <p class="navIntraTool">
-    <h:commandLink action="author" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-      <h:outputText value="#{msg.global_nav_assessmt}" />
-       <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-    </h:commandLink>
-    <h:outputText value=" | " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
-    <h:commandLink action="template" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-      <h:outputText value="#{msg.global_nav_template}" />
-    </h:commandLink>
-    <h:outputText value=" | " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
-    <h:commandLink action="poolList" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-      <h:outputText value="#{msg.global_nav_pools}" />
-    </h:commandLink>
-  </p>
+  <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
+
   <h3>
     <h:outputText value="#{msg.stat_view}"/>
     <h:outputText value=": "/>
