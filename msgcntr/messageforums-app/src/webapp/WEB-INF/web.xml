@@ -94,7 +94,7 @@
       <servlet-class>org.sakaiproject.tool.messageforums.MessageForumsFilePickerServlet</servlet-class>
         <init-param>
             <param-name>path</param-name>
-            <param-value>/messageforums</param-value>
+            <param-value>/jsp</param-value>
         </init-param>
         <load-on-startup>2</load-on-startup>
         <init-param>

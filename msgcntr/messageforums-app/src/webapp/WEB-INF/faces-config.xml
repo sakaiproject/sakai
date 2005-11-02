@@ -40,72 +40,71 @@
     </render-kit>
     <!-- =================== Navigation ============== -->
     <navigation-rule>
-        <from-view-id>/messageforums/*</from-view-id>
+        <from-view-id>/jsp/*</from-view-id>
         <navigation-case>
             <from-outcome>main</from-outcome>
-            <to-view-id>/messageforums/main.jsp</to-view-id>
+            <to-view-id>/jsp/main.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>compose</from-outcome>
-            <to-view-id>/messageforums/compose.jsp</to-view-id>
+            <to-view-id>/jsp/compose.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>test</from-outcome>
-            <to-view-id>/messageforums/test.jsp</to-view-id>
+            <to-view-id>/jsp/test.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>showallmessages</from-outcome>
-            <to-view-id>/messageforums/debug-showallmessages.jsp</to-view-id>
+            <to-view-id>/jsp/debug-showallmessages.jsp</to-view-id>
             <redirect/>
         </navigation-case>
-        
-        <!-- htripath -->
+    
         <navigation-case>
             <from-outcome>pvtMsgOrganize</from-outcome>
-            <to-view-id>/messageforums/pvtMsgOrganize.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsgOrganize.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>pvtMsgStatistics</from-outcome>
-            <to-view-id>/messageforums/pvtMsgStatistics.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsgStatistics.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>pvtMsgSettings</from-outcome>
-            <to-view-id>/messageforums/pvtMsgSettings.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsgSettings.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>pvtMsgReceived</from-outcome>
-            <to-view-id>/messageforums/pvtMsgReceived.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsgReceived.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>pvtMsgSent</from-outcome>
-            <to-view-id>/messageforums/pvtMsgSent.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsgSent.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>pvtMsgDelete</from-outcome>
-            <to-view-id>/messageforums/pvtMsgDelete.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsgDelete.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>pvtMsgDrafts</from-outcome>
-            <to-view-id>/messageforums/pvtMsgDrafts.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsgDrafts.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>pvtMsgCase</from-outcome>
-            <to-view-id>/messageforums/pvtMsgCase.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsgCase.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
             <from-outcome>pvtMsgGrpCorres</from-outcome>
-            <to-view-id>/messageforums/pvtMsgGrpCorres.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsgGrpCorres.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <!--htripath -->                                        
@@ -113,9 +112,26 @@
     
     <!-- =================== Tool Beans ============== -->
     <managed-bean>
-        <description>Message Forums Tool</description>
-        <managed-bean-name>MessageForumsTool</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.messageforums.MessageForumsTool</managed-bean-class>
+        <description>Discussion Forum Tool</description>
+        <managed-bean-name>DiscussionForumTool</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.messageforums.DiscussionForumTool</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+            <description>Message Forums Forum/Topic Manager</description>
+            <property-name>messageForumsForumManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Message Forums Message Manager</description>
+            <property-name>messageForumsMessageManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
+        </managed-property>
+    </managed-bean>
+    
+    <managed-bean>
+        <description>Private Messages Tool</description>
+        <managed-bean-name>PrivateMessagesTool</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.messageforums.PrivateMessagesTool</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
         <managed-property>
             <description>Message Forums Forum/Topic Manager</description>

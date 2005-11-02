@@ -23,6 +23,8 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.awt.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -61,6 +63,12 @@ public class AreaImpl extends MutableEntityImpl implements Area {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List getForums()
+    {
+      // TODO Auto-generated method stub
+      return null;
     }
     
 }

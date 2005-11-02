@@ -23,20 +23,30 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-public interface Area {
+import java.awt.List;
 
-    public void setVersion(Integer version);
+public interface Area
+{
 
-    public String getContextId();
+  public void setVersion(Integer version);
 
-    public void setContextId(String contextId);
+  public String getContextId();
 
-    public Boolean getHidden();
+  public void setContextId(String contextId);
 
-    public void setHidden(Boolean hidden);
+  public Boolean getHidden();
 
-    public String getName();
+  public void setHidden(Boolean hidden);
 
-    public void setName(String name);
+  public String getName();
 
-}
+  public void setName(String name);
+  
+  /**
+   * List of forums in chronologial order 
+   * 
+   * @return
+   */
+  public List getForums();
+    
+ }

@@ -36,15 +36,15 @@ import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.tool.messageforums.proxy.TopicProxyImpl;
 
-public class MessageForumsTool {
-    private static final Log LOG = LogFactory.getLog(MessageForumsTool.class);
+public class DiscussionForumTool {
+    private static final Log LOG = LogFactory.getLog(DiscussionForumTool.class);
     
     private TopicProxy topicProxy;  // TODO: can be deleted as soon as more of the backend works
     private MessageForumsMessageManager messageForumsMessageManager;
     private MessageForumsForumManager messageForumsForumManager;
     private ErrorMessages errorMessages;
 
-    public MessageForumsTool() {
+    public DiscussionForumTool() {
         errorMessages = new ErrorMessages();
         errorMessages.setDisplayTitleErrorMessage(false);
 
