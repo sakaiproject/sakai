@@ -4,8 +4,8 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+* Copyright (c) 2005 The Regents of the University of California and The Regents of the University of Michigan
+*
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
@@ -64,22 +64,6 @@ public class AuthzStandaloneImpl extends HibernateDaoSupport implements Authz {
 		return((ParticipationRecord)result).getRole();
 	}
 
-//	public Role getSectionRole(final String userUid, final String sectionUuid) {
-//		HibernateCallback hc = new HibernateCallback() {
-//			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-//				Query q = session.getNamedQuery("loadSectionParticipation");
-//				q.setParameter("userUid", userUid);
-//				q.setParameter("sectionUuid", sectionUuid);
-//				return q.uniqueResult();
-//			}
-//		};
-//		ParticipationRecord record = (ParticipationRecord)getHibernateTemplate().execute(hc);
-//		if(record == null) {
-//			return Role.NONE;
-//		}
-//		return record.getRole();
-//	}
-
 	public boolean isSectionManagementAllowed(String userUid, String siteContext) {
 		Role role = getSiteRole(userUid, siteContext);
 		return role.isInstructor();
@@ -108,9 +92,3 @@ public class AuthzStandaloneImpl extends HibernateDaoSupport implements Authz {
 		return role.isInstructor() || role.isTeachingAssistant();
 	}
 }
-
-
-
-/**********************************************************************************
- * $Id$
- *********************************************************************************/

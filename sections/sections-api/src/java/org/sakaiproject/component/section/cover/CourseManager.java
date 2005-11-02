@@ -4,8 +4,8 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+* Copyright (c) 2005 The Regents of the University of California and The Regents of the University of Michigan
+*
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
@@ -49,10 +49,6 @@ public class CourseManager {
 		return getInstance().createCourse(siteContext, title, selfRegAllowed, selfSwitchingAllowed, externallyManaged);
 	}
 
-//	public void removeUserFromAllSections(String userUid, String siteContext) {
-//		getInstance().removeUserFromAllSections(userUid, siteContext);
-//	}
-
 	private static org.sakaiproject.api.section.CourseManager getInstance() {
 		if(instance == null) {
 			instance = (org.sakaiproject.api.section.CourseManager)ComponentManager.get(
@@ -62,9 +58,3 @@ public class CourseManager {
 	}
 
 }
-
-
-
-/**********************************************************************************
- * $Id$
- *********************************************************************************/

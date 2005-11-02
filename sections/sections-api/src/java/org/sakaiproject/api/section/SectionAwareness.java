@@ -4,8 +4,8 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The Regents of the University of Michigan,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+* Copyright (c) 2005 The Regents of the University of California and The Regents of the University of Michigan
+*
 * 
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
@@ -206,8 +206,3 @@ public interface SectionAwareness {
     public String getCategoryName(String categoryId, Locale locale);
     
 }
-
-
-/**********************************************************************************
- * $Id: $
- *********************************************************************************/
