@@ -42,6 +42,12 @@
                 </includes>
             </resource>
             <resource>
+                <directory>${hibernate.properties.dir}</directory>
+                <includes>
+                    <include>hibernate.properties</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>${basedir}/src/hibernate</directory>
                 <includes>
                     <include>ehcache.xml</include>
