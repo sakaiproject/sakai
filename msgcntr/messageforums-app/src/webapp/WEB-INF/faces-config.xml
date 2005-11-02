@@ -62,6 +62,53 @@
             <redirect/>
         </navigation-case>
         
+        <!-- htripath -->
+        <navigation-case>
+            <from-outcome>pvtMsgOrganize</from-outcome>
+            <to-view-id>/messageforums/pvtMsgOrganize.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgStatistics</from-outcome>
+            <to-view-id>/messageforums/pvtMsgStatistics.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgSettings</from-outcome>
+            <to-view-id>/messageforums/pvtMsgSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgReceived</from-outcome>
+            <to-view-id>/messageforums/pvtMsgReceived.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgSent</from-outcome>
+            <to-view-id>/messageforums/pvtMsgSent.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgDelete</from-outcome>
+            <to-view-id>/messageforums/pvtMsgDelete.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgDrafts</from-outcome>
+            <to-view-id>/messageforums/pvtMsgDrafts.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgCase</from-outcome>
+            <to-view-id>/messageforums/pvtMsgCase.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgGrpCorres</from-outcome>
+            <to-view-id>/messageforums/pvtMsgGrpCorres.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <!--htripath -->                                        
     </navigation-rule>
     
     <!-- =================== Tool Beans ============== -->

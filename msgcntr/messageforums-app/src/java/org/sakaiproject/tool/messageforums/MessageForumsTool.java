@@ -123,6 +123,57 @@ public class MessageForumsTool {
     public TopicProxy getTopicProxy() {
         return topicProxy;
     }
+    
+    //htripath
+    public String processPvtMsgOrganize() {
+      
+      return "pvtMsgOrganize";
+    }
 
-
+    public String processPvtMsgStatistics() {
+      
+      return "pvtMsgStatistics";
+    }
+    
+    public String processPvtMsgSettings() {
+      
+      return "pvtMsgSettings";
+    }
+    
+    public String processPvtMsgReceived() {
+      
+      return "pvtMsgReceived";
+    }
+    
+    public String processPvtMsgSent() {
+      
+      return "pvtMsgSent";
+    }
+    
+    public String processPvtMsgDelete() {
+      
+      return "pvtMsgDelete";
+    }
+    
+    public String processPvtMsgDrafts() {
+      
+      return "pvtMsgDrafts";
+    }
+    
+    public String processPvtMsgCase() {
+      
+      return "pvtMsgCase";
+    }
+    
+    public String processPvtMsgGrpCorres() {
+      
+      return "pvtMsgGrpCorres";
+    }
+    
+    public String processPvtMsgCancel() {
+      
+      return "main";
+    }
+    
+    //htripath
 }

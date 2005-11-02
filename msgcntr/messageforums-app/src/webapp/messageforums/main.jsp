@@ -31,16 +31,39 @@
           </mf:hideDivisionContent> 
         </mf:hideDivisionButtonBar>
 --%>
-        <mf:forumHideDivision title="Test Division" id="_test_div">
-          <mf:forum_bar_link value="TestLink" action="#{MessageForumsTool.processTestLinkCompose}"/>
-          <h:outputText value="Testing this division with links above."/>
-		  <h:inputText value="hi"/>
+        <mf:forumHideDivision title="Private Message" id="_test_div">
+          <mf:forum_bar_link value="Organize " action="#{MessageForumsTool.processPvtMsgOrganize}"/> &nbsp;
+          <mf:forum_bar_link value=" Statistics " action="#{MessageForumsTool.processPvtMsgStatistics}"/> &nbsp;
+          <mf:forum_bar_link value=" Settings " action="#{MessageForumsTool.processPvtMsgSettings}"/> &nbsp;
+          
+          <h:outputText value="Private Messages"/>
+          <h:commandLink value="Received" styleClass="line-break:  strict" action="#{MessageForumsTool.processPvtMsgReceived}"/>  
+          <h:commandLink value="Sent" styleClass="line-break:  strict" action="#{MessageForumsTool.processPvtMsgSent}"/> 
+          <h:commandLink value="Delete" styleClass="line-break:  strict" action="#{MessageForumsTool.processPvtMsgDelete}"/>  
+          <h:commandLink value="Drafts" styleClass="line-break:  strict" action="#{MessageForumsTool.processPvtMsgDrafts}"/>    
+          <h:commandLink value="Case" styleClass="line-break:  strict" action="#{MessageForumsTool.processPvtMsgCase}"/>    
+          <h:commandLink value="Group 2 Correspondance" styleClass="line-break:  strict" action="#{MessageForumsTool.processPvtMsgGrpCorres}"/>    
+          
+		  
         <sakai:button_bar>
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMPostMessage}" value="#{msgs.cdfm_button_bar_post_message}" /> &nbsp;
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" />&nbsp;
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMCancel}" value="#{msgs.cdfm_button_bar_cancel}" />&nbsp;
         </sakai:button_bar>     
         </mf:forumHideDivision>
+        
+        <mf:forumHideDivision title="Discussion Forums" id="_test_div">
+          <mf:forum_bar_link value="Organize " action="#{MessageForumsTool.processPvtMsgOrganize}"/> &nbsp;
+          <mf:forum_bar_link value=" Statistics " action="#{MessageForumsTool.processPvtMsgStatistics}"/> &nbsp;
+          <mf:forum_bar_link value=" Settings " action="#{MessageForumsTool.processPvtMsgSettings}"/> &nbsp;                       
+        </mf:forumHideDivision>
+
+        <mf:forumHideDivision title="Open Forums" id="_test_div">
+          <mf:forum_bar_link value="Organize " action="#{MessageForumsTool.processPvtMsgOrganize}"/> &nbsp;
+          <mf:forum_bar_link value=" Statistics " action="#{MessageForumsTool.processPvtMsgStatistics}"/> &nbsp;
+          <mf:forum_bar_link value=" Settings " action="#{MessageForumsTool.processPvtMsgSettings}"/> &nbsp;                       
+        </mf:forumHideDivision>
+                
         <sakai:button_bar>
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMPostMessage}" value="#{msgs.cdfm_button_bar_post_message}" />
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" />
