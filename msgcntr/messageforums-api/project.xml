@@ -21,6 +21,11 @@
             <artifactId>sakai-legacy-service</artifactId>
             <version>${sakai.version}</version>
         </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-type-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
  		<dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>

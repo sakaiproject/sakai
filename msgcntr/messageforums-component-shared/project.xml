@@ -89,7 +89,11 @@
             <artifactId>commons-lang</artifactId>
             <version>2.0</version>
         </dependency>     
-
+		<dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-type-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
 	</dependencies>
 
     <build>
