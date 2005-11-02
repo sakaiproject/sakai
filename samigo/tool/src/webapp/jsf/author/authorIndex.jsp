@@ -48,7 +48,9 @@
 
 <h:form id="authorIndexForm">
   <!-- HEADINGS -->
-  <%@ include file="/jsf/author/assessmentHeader.jsp" %>
+  <h:panelGroup rendered="#{authorization.adminQuestionPool and authorization.adminTemplate}">
+   <%@ include file="/jsf/author/assessmentHeader.jsp" %>
+  </h:panelGroup>
 
   <h3>
     <h:outputText value="#{msg.assessments}"/>
