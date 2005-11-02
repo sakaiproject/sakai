@@ -30,6 +30,10 @@
      <ref bean="gradebookServiceHelper"/>
    </property>
 
+   <property name="sectionAwareServiceHelper">
+     <ref bean="sectionAwareServiceHelper"/>
+   </property>
+
 </bean>
 
 <!-- context-sensitive agent behavior -->
@@ -50,6 +54,11 @@
 <!-- context-sensitive gradebook service helper -->
 <bean name="gradebookServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.standalone.GradebookServiceHelperImpl">
+</bean>
+
+<!-- context-sensitive sectionAware service helper -->
+<bean name="sectionAwareServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.SectionAwareServiceHelperImpl">
 </bean>
 
 
