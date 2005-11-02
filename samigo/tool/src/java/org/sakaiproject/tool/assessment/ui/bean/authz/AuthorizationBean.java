@@ -49,27 +49,27 @@ public class AuthorizationBean implements Serializable {
     return getPrivilege("admin_privilege");
   }
 
-  public boolean getAdminNewAssessmentPrivilege(){
+  public boolean getAdminNewAssessment(){
     return getPrivilege("admin_new_assessment");
   }
 
-  public boolean getAdminCoreAssessmentPrivilege(){
+  public boolean getAdminCoreAssessment(){
     return getPrivilege("admin_core_assessment");
   }
 
-  public boolean getAdminPublishedAssessmentPrivilege(){
+  public boolean getAdminPublishedAssessment(){
     return getPrivilege("admin_published_assessment");
   }
 
-  public boolean getAdminAssessmentPrivilege(){
+  public boolean getAdminAssessment(){
     return getPrivilege("admin_assessment");
   }
 
-  public boolean getAdminTemplatePrivilege(){
+  public boolean getAdminTemplate(){
     return getPrivilege("admin_template");
   }
 
-  public boolean getAdminQuestionPoolPrivilege(){
+  public boolean getAdminQuestionPool(){
     return getPrivilege("admin_questionpool");
   }
 

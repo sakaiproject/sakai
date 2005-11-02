@@ -103,9 +103,10 @@
 </div></div>
 	<!-- CORE ASSESSMENTS-->
 
-  <h4><h:outputText value="#{msg.assessment_core}" /></h4>
+  <h4><h:outputText value="#{msg.assessment_core}" rendered="#{authorization.adminCoreAssessment}"/></h4>
 <div class="indnt2">
-  <h:dataTable styleClass="listHier" id="coreAssessments" value="#{author.assessments}" var="coreAssessment">
+  <h:dataTable styleClass="listHier" id="coreAssessments" value="#{author.assessments}" 
+     var="coreAssessment" rendered="#{authorization.adminCoreAssessment}">
     <h:column>
       <f:facet name="header">
           <h:panelGroup>
@@ -190,27 +191,23 @@
   </h:dataTable>
 </div>
 
-
 	<!-- PUBLISHED ASSESSMENTS-->
-
-  <h4><h:outputText value="#{msg.assessment_pub}" /></h4>
+  <h4><h:outputText value="#{msg.assessment_pub}" rendered="#{authorization.adminPublishedAssessment}"/></h4>
   <!-- active -->
 <!--
   <p>
-
   <span class="rightNav">
     <samigo:pagerButtons  formId="editTotalResults" dataTableId="myData"
       firstItem="1" lastItem="10" totalItems="50"
       prevText="Previous" nextText="Next" numItems="10" />
   </span>
-
   </p>
 -->
 <div class="indnt2">
 <h5 class="plain">
-  <h:outputText value="#{msg.assessment_active}" />
+  <h:outputText value="#{msg.assessment_active}" rendered="#{authorization.adminPublishedAssessment}"/>
 </h5>
-  <h:dataTable  styleClass="listHier"
+  <h:dataTable  styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
     value="#{author.publishedAssessments}" var="publishedAssessment">
     <h:column>
       <f:facet name="header">
@@ -354,10 +351,12 @@
   </p>
 
 <h5 class="plain">
-  <h:outputText value="#{msg.assessment_inactive}" />
+  <h:outputText value="#{msg.assessment_inactive}" rendered="#{authorization.adminPublishedAssessment}"/>
 </h5>
-  <h:dataTable  styleClass="listHier" headerClass="regHeading"
-    value="#{author.inactivePublishedAssessments}" var="inactivePublishedAssessment" id="inactivePublishedAssessments">
+  <h:dataTable  styleClass="listHier" headerClass="regHeading" 
+     rendered="#{authorization.adminPublishedAssessment}"
+     value="#{author.inactivePublishedAssessments}" var="inactivePublishedAssessment" 
+     id="inactivePublishedAssessments">
     <h:column>
       <f:facet name="header">
        <h:panelGroup>
