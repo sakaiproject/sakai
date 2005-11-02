@@ -236,6 +236,7 @@
  <f:verbatim><span class="itemAction"></f:verbatim>
       <!-- if passAuth, action=editPublishedAssessmentSettings -->
       <h:commandLink id="editPublishedAssessmentSettings" immediate="true"
+          rendered="#{authorization.publishAnyAssessment or authorization.publishOwnAssessment}"
           action="#{author.getOutcome}">
         <h:outputText  value="Settings" />
         <f:param name="publishedAssessmentId" value="#{publishedAssessment.publishedAssessmentId}"/>
@@ -249,8 +250,10 @@
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
       </h:commandLink>
 --%>
-      <h:outputText rendered="#{publishedAssessment.submissionSize >0}" value=" | "/>
-      <h:commandLink action="#{author.getOutcome}" immediate="true" rendered="#{publishedAssessment.submissionSize >0}">
+      <h:outputText value=" | " 
+         rendered="#{publishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"/>
+      <h:commandLink action="#{author.getOutcome}" immediate="true" 
+         rendered="#{publishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
 
         <h:outputText value="Scores" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -383,8 +386,10 @@
       <h:outputText id="inactivePublishedAssessmentTitle" value="#{inactivePublishedAssessment.title}" />
       <f:verbatim><br /></f:verbatim>
        <f:verbatim><span class="itemAction"></f:verbatim>
+      <!-- if passAuth, action=editPublishedAssessmentSettings -->
       <h:commandLink id="editPublishedAssessmentSettings" immediate="true"
-          action="editPublishedAssessmentSettings">
+          rendered="#{authorization.publishAnyAssessment or authorization.publishOwnAssessment}"
+          action="#{author.getOutcome}">
         <h:outputText  value="Settings" />
         <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
@@ -397,9 +402,11 @@
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
       </h:commandLink>
 --%>
-      <h:outputText rendered="#{inactivePublishedAssessment.submissionSize >0}" value=" | "/>
-      <h:commandLink action="#{author.getOutcome}" immediate="true" rendered="#{inactivePublishedAssessment.submissionSize >0}">
-
+      <h:outputText value=" | "
+          rendered="#{inactivePublishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"
+      />
+      <h:commandLink action="#{author.getOutcome}" immediate="true" 
+         rendered="#{publishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
         <h:outputText value="Scores" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="publishedId" value="#{inactivePublishedAssessment.publishedAssessmentId}" />
