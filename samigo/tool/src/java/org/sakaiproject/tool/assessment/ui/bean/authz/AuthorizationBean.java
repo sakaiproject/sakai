@@ -33,6 +33,9 @@ import java.util.HashMap;
 public class AuthorizationBean implements Serializable {
   private HashMap map = new HashMap();
   private boolean adminPrivilege = false;
+  private boolean adminNewAssessmentPrivilege = false;
+  private boolean adminCoreAssessmentPrivilege = false;
+  private boolean adminPublishedAssessmentPrivilege = false;
   private boolean adminAssessmentPrivilege = false;
   private boolean adminTemplatePrivilege = false;
   private boolean adminQuestionPoolPrivilege = false;
@@ -43,19 +46,31 @@ public class AuthorizationBean implements Serializable {
     return map;
   }
   public boolean getAdminPrivilege(){
-    return adminPrivilege;
+    return getPrivilege("admin_privilege");
+  }
+
+  public boolean getAdminNewAssessmentPrivilege(){
+    return getPrivilege("admin_new_assessment");
+  }
+
+  public boolean getAdminCoreAssessmentPrivilege(){
+    return getPrivilege("admin_core_assessment");
+  }
+
+  public boolean getAdminPublishedAssessmentPrivilege(){
+    return getPrivilege("admin_published_assessment");
   }
 
   public boolean getAdminAssessmentPrivilege(){
-    return adminAssessmentPrivilege;
+    return getPrivilege("admin_assessment");
   }
 
   public boolean getAdminTemplatePrivilege(){
-    return adminTemplatePrivilege;
+    return getPrivilege("admin_template");
   }
 
   public boolean getAdminQuestionPoolPrivilege(){
-    return adminQuestionPoolPrivilege;
+    return getPrivilege("admin_questionpool");
   }
 
 
@@ -87,10 +102,26 @@ public class AuthorizationBean implements Serializable {
     boolean p22 = canSubmitAssessmentForGrade(siteId);
 
     // set adminPrivilege
+    adminNewAssessmentPrivilege = p1;
+    addAdminPrivilege(adminNewAssessmentPrivilege, "admin_new_assessment", siteId);
+
+    adminCoreAssessmentPrivilege = p2 || p3 || p4 || p5 || p6 || p7;
+    addAdminPrivilege(adminCoreAssessmentPrivilege, "admin_core_assessment", siteId);
+
+    adminPublishedAssessmentPrivilege = p8 || p9;
+    addAdminPrivilege(adminPublishedAssessmentPrivilege, "admin_published_assessment", siteId);
+
     adminAssessmentPrivilege = p1 || p2 || p3 || p4 || p5 || p6 || p7 || p8 || p9;
+    addAdminPrivilege(adminAssessmentPrivilege, "admin_assessment", siteId);
+
     adminQuestionPoolPrivilege = p10 || p11 || p12 || p13;
+    addAdminPrivilege(adminQuestionPoolPrivilege, "admin_questionpool", siteId);
+
     adminTemplatePrivilege = p14 ||p15 || p16;
+    addAdminPrivilege(adminTemplatePrivilege, "admin_template", siteId);
+
     adminPrivilege = adminAssessmentPrivilege || adminQuestionPoolPrivilege || adminTemplatePrivilege;
+    addAdminPrivilege(adminPrivilege, "admin_privilege", siteId);
   }
 
   public boolean canTakeAssessment(String siteId)
@@ -190,6 +221,12 @@ public class AuthorizationBean implements Serializable {
      map.put(functionName+"_"+siteId, new Boolean(privilege));
      System.out.println(functionName+"_"+siteId+"="+privilege);
      return privilege;
+  }
+
+  public void addAdminPrivilege(boolean privilege, String functionKey, String siteId){
+     String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
+     map.put(functionName+"_"+siteId, new Boolean(privilege));
+     System.out.println(functionName+"_"+siteId+"="+privilege);
   }
 
   public boolean getTakeAssessment(){

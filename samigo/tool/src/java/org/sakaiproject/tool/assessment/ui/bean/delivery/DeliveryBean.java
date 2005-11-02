@@ -1604,13 +1604,15 @@ public class DeliveryBean
       "Anonymous Users") > -1)
     {
       agent = AgentFacade.getAnonymousId();
-
-      // 0. submit other question 1st
     }
+
+    // 0. submit other question 1st
+    System.out.println("****1 submit otehr questions"+adata);
     SubmitToGradingActionListener listener =
       new SubmitToGradingActionListener();
     listener.processAction(null);
 
+    System.out.println("****2 submit media"+adata);
     // 1. create assessmentGrading if it is null
     if (this.adata == null)
     {
@@ -1622,7 +1624,7 @@ public class DeliveryBean
       adata.setAttemptDate(getBeginTime());
       gradingService.saveOrUpdateAssessmentGrading(adata);
     }
-    log.debug("***1b. addMediaToItemGrading, adata=" + adata);
+    log.info("***1b. addMediaToItemGrading, adata=" + adata);
 
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
     String mediaLocation = (String) e.getNewValue();
@@ -1699,6 +1701,7 @@ public class DeliveryBean
       UpdateTimerListener l3 = new UpdateTimerListener();
       l3.processAction(null);
     }
+    System.out.println("****3 submit media"+adata);
 
     reload = true;
     return "takeAssessment";

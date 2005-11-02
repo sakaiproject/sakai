@@ -113,7 +113,7 @@ create table SAM_ANSWER_T (
    GRADE varchar(80),
    SCORE float,
    primary key (ANSWERID)
-)
+);
 create table SAM_PUBLISHEDASSESSMENT_T (
    ID number(19,0) not null,
    ASSESSMENTID number(19,0) not null,
@@ -130,7 +130,7 @@ create table SAM_PUBLISHEDASSESSMENT_T (
    LASTMODIFIEDBY varchar(36) not null,
    LASTMODIFIEDDATE date not null,
    primary key (ID)
-)
+);
 create table SAM_ASSESSMENTGRADING_T (
    ASSESSMENTGRADINGID number(19,0) not null,
    PUBLISHEDASSESSMENTID number(19,0) not null,
@@ -148,7 +148,7 @@ create table SAM_ASSESSMENTGRADING_T (
    ATTEMPTDATE date,
    TIMEELAPSED integer,
    primary key (ASSESSMENTGRADINGID)
-)
+);
 create table SAM_FUNCTIONDATA_T (
    FUNCTIONID number(19,0) not null,
    REFERENCENAME varchar(255) not null,
@@ -156,7 +156,7 @@ create table SAM_FUNCTIONDATA_T (
    DESCRIPTION varchar(4000),
    FUNCTIONTYPEID varchar(4000),
    primary key (FUNCTIONID)
-)
+);
 create table SAM_ITEMGRADING_T (
    ITEMGRADINGID number(19,0) not null,
    ASSESSMENTGRADINGID number(19,0) not null,
@@ -174,21 +174,21 @@ create table SAM_ITEMGRADING_T (
    GRADEDDATE date,
    REVIEW integer,
    primary key (ITEMGRADINGID)
-)
+);
 create table SAM_PUBLISHEDMETADATA_T (
    ASSESSMENTMETADATAID number(19,0) not null,
    ASSESSMENTID number(19,0) not null,
    LABEL varchar(255) not null,
    ENTRY varchar(255),
    primary key (ASSESSMENTMETADATAID)
-)
+);
 create table SAM_PUBLISHEDSECTIONMETADATA_T (
    PUBLISHEDSECTIONMETADATAID number(19,0) not null,
    SECTIONID number(19,0) not null,
    LABEL varchar(255) not null,
    ENTRY varchar(255),
    primary key (PUBLISHEDSECTIONMETADATAID)
-)
+);
 create table SAM_SECTION_T (
    SECTIONID number(19,0) not null,
    ASSESSMENTID number(19,0) not null,
@@ -203,33 +203,33 @@ create table SAM_SECTION_T (
    LASTMODIFIEDBY varchar(36) not null,
    LASTMODIFIEDDATE date not null,
    primary key (SECTIONID)
-)
+);
 create table SAM_QUESTIONPOOLITEM_T (
    QUESTIONPOOLID number(19,0) not null,
    ITEMID varchar2(255) not null,
    primary key (QUESTIONPOOLID, ITEMID)
-)
+);
 create table SAM_PUBLISHEDITEMFEEDBACK_T (
    ITEMFEEDBACKID number(19,0) not null,
    ITEMID number(19,0) not null,
    TYPEID varchar(36) not null,
    TEXT varchar(4000),
    primary key (ITEMFEEDBACKID)
-)
+);
 create table SAM_ITEMFEEDBACK_T (
    ITEMFEEDBACKID number(19,0) not null,
    ITEMID number(19,0) not null,
    TYPEID varchar(36) not null,
    TEXT varchar(4000),
    primary key (ITEMFEEDBACKID)
-)
+);
 create table SAM_ITEMMETADATA_T (
    ITEMMETADATAID number(19,0) not null,
    ITEMID number(19,0) not null,
    LABEL varchar(255) not null,
    ENTRY varchar(255),
    primary key (ITEMMETADATAID)
-)
+);
 create table SAM_PUBLISHEDFEEDBACK_T (
    ASSESSMENTID number(19,0) not null,
    FEEDBACKDELIVERY integer,
@@ -244,7 +244,7 @@ create table SAM_PUBLISHEDFEEDBACK_T (
    SHOWGRADERCOMMENTS integer,
    SHOWSTATISTICS integer,
    primary key (ASSESSMENTID)
-)
+);
 create table SAM_GRADINGSUMMARY_T (
    ASSESSMENTGRADINGSUMMARYID number(19,0) not null,
    PUBLISHEDASSESSMENTID number(19,0) not null,
@@ -268,7 +268,7 @@ create table SAM_GRADINGSUMMARY_T (
    FINALASSESSMENTSCORE float,
    FEEDTOGRADEBOOK integer,
    primary key (ASSESSMENTGRADINGSUMMARYID)
-)
+);
 create table SAM_PUBLISHEDEVALUATION_T (
    ASSESSMENTID number(19,0) not null,
    EVALUATIONCOMPONENTS varchar(255),
@@ -281,7 +281,7 @@ create table SAM_PUBLISHEDEVALUATION_T (
    AUTOSCORING integer,
    TOGRADEBOOK integer,
    primary key (ASSESSMENTID)
-)
+);
 create table SAM_PUBLISHEDACCESSCONTROL_T (
    ASSESSMENTID number(19,0) not null,
    UNLIMITEDSUBMISSIONS integer,
@@ -307,7 +307,7 @@ create table SAM_PUBLISHEDACCESSCONTROL_T (
    PASSWORD varchar(255),
    FINALPAGEURL varchar(1023),
    primary key (ASSESSMENTID)
-)
+);
 create table SAM_QUALIFIERDATA_T (
    QUALIFIERID number(19,0) not null,
    REFERENCENAME varchar(255) not null,
@@ -315,13 +315,13 @@ create table SAM_QUALIFIERDATA_T (
    DESCRIPTION varchar(4000),
    QUALIFIERTYPEID varchar(4000),
    primary key (QUALIFIERID)
-)
+);
 create table SAM_QUESTIONPOOLACCESS_T (
    QUESTIONPOOLID number(19,0) not null,
    AGENTID varchar2(255) not null,
    ACCESSTYPEID number(19,0) not null,
    primary key (QUESTIONPOOLID, AGENTID, ACCESSTYPEID)
-)
+);
 create table SAM_AUTHZDATA_T (
    ID number(19,0) not null,
    lockId number(10,0) not null,
@@ -335,7 +335,7 @@ create table SAM_AUTHZDATA_T (
    ISEXPLICIT integer,
    primary key (ID),
    unique (AGENTID, FUNCTIONID, QUALIFIERID)
-)
+);
 create table SAM_ASSESSEVALUATION_T (
    ASSESSMENTID number(19,0) not null,
    EVALUATIONCOMPONENTS varchar(255),
@@ -348,14 +348,14 @@ create table SAM_ASSESSEVALUATION_T (
    AUTOSCORING integer,
    TOGRADEBOOK varchar(255),
    primary key (ASSESSMENTID)
-)
+);
 create table SAM_ANSWERFEEDBACK_T (
    ANSWERFEEDBACKID number(19,0) not null,
    ANSWERID number(19,0) not null,
    TYPEID varchar(36),
    TEXT varchar(4000),
    primary key (ANSWERFEEDBACKID)
-)
+);
 create table SAM_PUBLISHEDANSWER_T (
    ANSWERID number(19,0) not null,
    ITEMTEXTID number(19,0) not null,
@@ -367,14 +367,14 @@ create table SAM_PUBLISHEDANSWER_T (
    GRADE varchar(80),
    SCORE float,
    primary key (ANSWERID)
-)
+);
 create table SAM_PUBLISHEDANSWERFEEDBACK_T (
    ANSWERFEEDBACKID number(19,0) not null,
    ANSWERID number(19,0) not null,
    TYPEID varchar(36),
    TEXT varchar(4000),
    primary key (ANSWERFEEDBACKID)
-)
+);
 create table SAM_PUBLISHEDITEM_T (
    ITEMID number(19,0) not null,
    SECTIONID number(19,0) not null,
@@ -395,7 +395,7 @@ create table SAM_PUBLISHEDITEM_T (
    LASTMODIFIEDBY varchar(36) not null,
    LASTMODIFIEDDATE date not null,
    primary key (ITEMID)
-)
+);
 create table SAM_ASSESSACCESSCONTROL_T (
    ASSESSMENTID number(19,0) not null,
    SUBMISSIONSALLOWED integer,
@@ -421,7 +421,7 @@ create table SAM_ASSESSACCESSCONTROL_T (
    PASSWORD varchar(255),
    FINALPAGEURL varchar(1023),
    primary key (ASSESSMENTID)
-)
+);
 create table SAM_PUBLISHEDSECTION_T (
    SECTIONID number(19,0) not null,
    ASSESSMENTID number(19,0) not null,
@@ -436,21 +436,21 @@ create table SAM_PUBLISHEDSECTION_T (
    LASTMODIFIEDBY varchar(36) not null,
    LASTMODIFIEDDATE date not null,
    primary key (SECTIONID)
-)
+);
 create table SAM_PUBLISHEDITEMTEXT_T (
    ITEMTEXTID number(19,0) not null,
    ITEMID number(19,0) not null,
    SEQUENCE integer not null,
    TEXT varchar(4000),
    primary key (ITEMTEXTID)
-)
+);
 create table SAM_PUBLISHEDSECUREDIP_T (
    IPADDRESSID number(19,0) not null,
    ASSESSMENTID number(19,0) not null,
    HOSTNAME varchar(255),
    IPADDRESS varchar(255),
    primary key (IPADDRESSID)
-)
+);
 create table SAM_QUESTIONPOOL_T (
    QUESTIONPOOLID number(19,0) not null,
    TITLE varchar(255),
@@ -468,14 +468,14 @@ create table SAM_QUESTIONPOOL_T (
    TYPEID integer,
    INTELLECTUALPROPERTYID integer,
    primary key (QUESTIONPOOLID)
-)
+);
 create table SAM_SECTIONMETADATA_T (
    SECTIONMETADATAID number(19,0) not null,
    SECTIONID number(19,0) not null,
    LABEL varchar(255) not null,
    ENTRY varchar(255),
    primary key (SECTIONMETADATAID)
-)
+);
 create table SAM_ITEM_T (
    ITEMID number(19,0) not null,
    SECTIONID number(19,0),
@@ -496,7 +496,7 @@ create table SAM_ITEM_T (
    LASTMODIFIEDBY varchar(36) not null,
    LASTMODIFIEDDATE date not null,
    primary key (ITEMID)
-)
+);
 create table SAM_ASSESSFEEDBACK_T (
    ASSESSMENTID number(19,0) not null,
    FEEDBACKDELIVERY integer,
@@ -511,28 +511,28 @@ create table SAM_ASSESSFEEDBACK_T (
    SHOWGRADERCOMMENTS integer,
    SHOWSTATISTICS integer,
    primary key (ASSESSMENTID)
-)
+);
 create table SAM_SECUREDIP_T (
    IPADDRESSID number(19,0) not null,
    ASSESSMENTID number(19,0) not null,
    HOSTNAME varchar(255),
    IPADDRESS varchar(255),
    primary key (IPADDRESSID)
-)
+);
 create table SAM_ITEMTEXT_T (
    ITEMTEXTID number(19,0) not null,
    ITEMID number(19,0) not null,
    SEQUENCE integer not null,
    TEXT varchar(4000),
    primary key (ITEMTEXTID)
-)
+);
 create table SAM_PUBLISHEDITEMMETADATA_T (
    ITEMMETADATAID number(19,0) not null,
    ITEMID number(19,0) not null,
    LABEL varchar(255) not null,
    ENTRY varchar(255),
    primary key (ITEMMETADATAID)
-)
+);
 create table SAM_MEDIA_T (
    MEDIAID number(19,0) not null,
    ITEMGRADINGID number(19,0),
@@ -550,7 +550,7 @@ create table SAM_MEDIA_T (
    LASTMODIFIEDBY varchar(36),
    LASTMODIFIEDDATE date,
    primary key (MEDIAID)
-)
+);
 create table SAM_ASSESSMENTBASE_T (
    ID number(19,0) not null,
    isTemplate varchar2(255) not null,
@@ -569,7 +569,7 @@ create table SAM_ASSESSMENTBASE_T (
    LASTMODIFIEDDATE date not null,
    ASSESSMENTTEMPLATEID number(19,0),
    primary key (ID)
-)
+);
 create table SAM_TYPE_T (
    TYPEID number(19,0) not null,
    AUTHORITY varchar(255),
@@ -582,14 +582,14 @@ create table SAM_TYPE_T (
    LASTMODIFIEDBY varchar(36) not null,
    LASTMODIFIEDDATE date not null,
    primary key (TYPEID)
-)
+);
 create table SAM_ASSESSMETADATA_T (
    ASSESSMENTMETADATAID number(19,0) not null,
    ASSESSMENTID number(19,0) not null,
    LABEL varchar(255) not null,
    ENTRY varchar(255),
    primary key (ASSESSMENTMETADATAID)
-)
+);
 alter table SAM_ANSWER_T add constraint FKDD0580938152036E foreign key (ITEMID) references SAM_ITEM_T;
 alter table SAM_ANSWER_T add constraint FKDD058093CBA347DB foreign key (ITEMTEXTID) references SAM_ITEMTEXT_T;
 alter table SAM_PUBLISHEDASSESSMENT_T add constraint FKB2E48A65C07F835D foreign key (ASSESSMENTID) references SAM_ASSESSMENTBASE_T;
