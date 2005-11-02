@@ -130,30 +130,41 @@
          </h:panelGroup>
       </f:facet>
       <!-- action=editAssessment if pass authz -->
-      <h:commandLink id="editAssessment" immediate="true" action="#{author.getOutcome}">
+      <h:commandLink id="editAssessment" immediate="true" action="#{author.getOutcome}"
+        rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" >
         <h:outputText id="assessmentTitle" value="#{coreAssessment.title}" />
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
       </h:commandLink>
+      <h:outputText id="assessmentTitle2" value="#{coreAssessment.title}" 
+        rendered="#{!authorization.editAnyAssessment and !authorization.editOwnAssessment}" />
+
       <f:verbatim><br/></f:verbatim>
       <!-- AuthorBean.editAssessmentSettings() prepare the edit page -->
       <!-- action=editAssessmentSettings if pass authz -->
       <f:verbatim><span class="itemAction"></f:verbatim>
-      <h:commandLink id="editAssessmentSettings" immediate="true" action="#{author.getOutcome}">
+      <h:commandLink id="editAssessmentSettings" immediate="true" action="#{author.getOutcome}"
+         rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}">
         <h:outputText id="linkSettings" value="#{msg.link_settings}"/>
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
       </h:commandLink>
-        <h:outputText value=" | " />
+        <h:outputText value=" | " 
+          rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}"/>
+
       <!-- action=confirmRemoveAssessment if pass authz -->
-      <h:commandLink id="confirmRemoveAssessment" immediate="true" action="#{author.getOutcome}">
+      <h:commandLink id="confirmRemoveAssessment" immediate="true" 
+        rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}"
+        action="#{author.getOutcome}">
         <h:outputText id="linkRemove" value="#{msg.link_remove}"/>
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemoveAssessmentListener" />
       </h:commandLink>
-        <h:outputText value=" | " />
+        <h:outputText value=" | " 
+          rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}" />
 
     <h:outputLink value="#"
+      rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" 
       onclick=
       "window.open( '/samigo/jsf/qti/exportAssessment.xml?exportAssessmentId=#{coreAssessment.assessmentBaseId}','_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
        ><h:outputText id="linkExport" value="#{msg.link_export}"/>
