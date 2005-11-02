@@ -32,6 +32,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -100,11 +102,14 @@ public class StudentScoreListener
       DeliveryBean dbean = (DeliveryBean) cu.lookupBean("delivery");
       dbean.setForGrading(true);
 
+      GradingService service = new GradingService();
+      AssessmentGradingData adata= (AssessmentGradingData) service.load(bean.getAssessmentGradingId());
+
       DeliveryActionListener listener = new DeliveryActionListener();
       listener.processAction(null);
 
-      if (dbean.getAssessmentGrading() != null)
-      bean.setComments(dbean.getAssessmentGrading().getComments());
+      if (adata.getComments() != null)
+          bean.setComments(adata.getComments());
 
       dbean.setForGrading(false);
       return true;
