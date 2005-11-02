@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Message;
 
-public interface MessageModel {
+public interface MessageModel extends MutableEntityModel {
 
     public Message createPersistible();
 

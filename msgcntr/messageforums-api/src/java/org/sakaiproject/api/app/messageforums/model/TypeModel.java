@@ -23,7 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums.model;
 
-public interface TypeModel {
+public interface TypeModel extends MutableEntityModel {
 
     public String getAuthority();
 

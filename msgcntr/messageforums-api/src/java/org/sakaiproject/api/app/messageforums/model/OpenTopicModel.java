@@ -24,7 +24,7 @@
 package org.sakaiproject.api.app.messageforums.model;
 
 
-public interface OpenTopicModel {
+public interface OpenTopicModel extends TopicModel {
 
     public ControlPermissionsModel getControlPermissions();
 

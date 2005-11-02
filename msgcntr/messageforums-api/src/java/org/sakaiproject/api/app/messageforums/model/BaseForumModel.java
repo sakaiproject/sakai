@@ -25,7 +25,7 @@ package org.sakaiproject.api.app.messageforums.model;
 
 import java.util.List;
 
-public interface BaseForumModel {
+public interface BaseForumModel extends MutableEntityModel {
 
     public List getAttachments();
 

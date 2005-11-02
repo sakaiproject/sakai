@@ -23,7 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums.model;
 
-public interface PrivateForumModel {
+public interface PrivateForumModel extends BaseForumModel {
 
     public Boolean getAutoForward();
 

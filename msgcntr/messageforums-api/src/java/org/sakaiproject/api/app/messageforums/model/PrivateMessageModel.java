@@ -25,7 +25,7 @@ package org.sakaiproject.api.app.messageforums.model;
 
 import java.util.List;
 
-public interface PrivateMessageModel {
+public interface PrivateMessageModel extends MessageModel {
 
     public Boolean getExternalEmail();
 

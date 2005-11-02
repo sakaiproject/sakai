@@ -23,7 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums.model;
 
-public interface AreaModel {
+public interface AreaModel extends MutableEntityModel {
 
     public String getContextId();
 

@@ -29,12 +29,11 @@ import java.util.List;
 import java.util.TreeSet;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.Label;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.model.MessageModel;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 
-public class MessageModelImpl implements MessageModel {
+public class MessageModelImpl extends MutableEntityModelImpl implements MessageModel {
     
     private String title;
     private String body;

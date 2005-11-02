@@ -24,7 +24,7 @@
 package org.sakaiproject.api.app.messageforums.model;
 
 
-public interface AttachmentModel {
+public interface AttachmentModel extends MutableEntityModel {
 
     public String getAttachmentId();
 
@@ -45,9 +45,5 @@ public interface AttachmentModel {
     public String getAttachmentUrl();
 
     public void setAttachmentUrl(String attachmentUrl);
-
-    public MessageModel getParent();
-
-    public void setParent(MessageModel parent);
 
 }

@@ -25,7 +25,7 @@ package org.sakaiproject.api.app.messageforums.model;
 
 import java.util.List;
 
-public interface DiscussionTopicModel {
+public interface DiscussionTopicModel extends OpenTopicModel {
 
     public ActorPermissionsModel getActorPermissions();
 

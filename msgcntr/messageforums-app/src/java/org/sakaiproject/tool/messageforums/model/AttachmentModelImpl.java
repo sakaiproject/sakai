@@ -38,7 +38,6 @@ public class AttachmentModelImpl extends MutableEntityModelImpl implements Attac
     private String attachmentName;
     private String attachmentSize;
     private String attachmentType;
-    private MessageModel parent;
     
     // package level constructor only used for Testing
     AttachmentModelImpl() {}
@@ -86,14 +85,6 @@ public class AttachmentModelImpl extends MutableEntityModelImpl implements Attac
 
     public void setAttachmentUrl(String attachmentUrl) {
         this.attachmentUrl = attachmentUrl;
-    }
-
-    public MessageModel getParent() {
-        return parent;
-    }
-
-    public void setParent(MessageModel parent) {
-        this.parent = parent;
     }
 
 }
