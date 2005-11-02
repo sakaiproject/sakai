@@ -58,6 +58,7 @@ public abstract class EnrollmentTableBean
     private int maxDisplayedScoreRows;
     private int scoreDataRows;
     private boolean emptyEnrollments;	// Needed to render buttons
+    private String defaultSearchString;
 
 	// The section selection menu will include some choices that aren't
 	// real sections (e.g., "All Sections" or "Unassigned Students".
@@ -85,15 +86,22 @@ public abstract class EnrollmentTableBean
         return searchString;
     }
     public void setSearchString(String searchString) {
-        this.searchString = searchString;
+        if (StringUtils.trimToNull(searchString) == null) {
+            searchString = defaultSearchString;
+        }
+    	if (!StringUtils.equals(searchString, this.searchString)) {
+	    	if (log.isDebugEnabled()) log.debug("setSearchString " + searchString);
+	        this.searchString = searchString;
+	        setFirstRow(0); // clear the paging when we update the search
+	    }
     }
     public void search(ActionEvent event) {
         // We don't need to do anything special here, since init will handle the search
-        setFirstRow(0); // clear the paging when we update the search
+        if (log.isDebugEnabled()) log.debug("search");
     }
     public void clear(ActionEvent event) {
-        searchString = null;
-        setFirstRow(0); // clear the paging when we update the search
+        if (log.isDebugEnabled()) log.debug("clear");
+        setSearchString(null);
     }
 
     // Sorting
@@ -123,12 +131,8 @@ public abstract class EnrollmentTableBean
         return scoreDataRows;
     }
 
-	public boolean isFilteredSearch() {
-        String defaultSearchString = getLocalizedString("search_default_student_search_string");
-        if (StringUtils.trimToNull(searchString) == null) {
-            searchString = defaultSearchString;
-        }
-        return !defaultSearchString.equals(searchString);
+	private boolean isFilteredSearch() {
+        return !StringUtils.equals(searchString, defaultSearchString);
 	}
 
 	protected Map getOrderedEnrollmentMap() {
@@ -199,9 +203,13 @@ public abstract class EnrollmentTableBean
 		return (sortColumn.equals(PreferencesBean.SORT_BY_NAME) || sortColumn.equals(PreferencesBean.SORT_BY_UID));
 	}
 
-
 	protected void init() {
 		graderIdToNameMap = new HashMap();
+
+        defaultSearchString = getLocalizedString("search_default_student_search_string");
+		if (searchString == null) {
+			searchString = defaultSearchString;
+		}
 
 		// Section filtering.
 		SectionAwareness sectionAwareness = getSectionAwareness();
@@ -246,9 +254,10 @@ public abstract class EnrollmentTableBean
 		return selectedSectionFilterValue;
 	}
 	public void setSelectedSectionFilterValue(Integer selectedSectionFilterValue) {
-		if (log.isDebugEnabled()) log.debug("setSelectedSectionFilterValue " + selectedSectionFilterValue);
-		this.selectedSectionFilterValue = selectedSectionFilterValue;
-        setFirstRow(0); // clear the paging when we update the search
+		if (!selectedSectionFilterValue.equals(this.selectedSectionFilterValue)) {
+			this.selectedSectionFilterValue = selectedSectionFilterValue;
+			setFirstRow(0); // clear the paging when we update the search
+		}
 	}
 
 	public List getSectionFilterSelectItems() {
