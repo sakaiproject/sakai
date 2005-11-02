@@ -236,8 +236,9 @@
       <h:outputText id="publishedAssessmentTitle" value="#{publishedAssessment.title}" />
       <f:verbatim><br /></f:verbatim>
  <f:verbatim><span class="itemAction"></f:verbatim>
+      <!-- if passAuth, action=editPublishedAssessmentSettings -->
       <h:commandLink id="editPublishedAssessmentSettings" immediate="true"
-          action="editPublishedAssessmentSettings">
+          action="#{author.getOutcome}">
         <h:outputText  value="Settings" />
         <f:param name="publishedAssessmentId" value="#{publishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
