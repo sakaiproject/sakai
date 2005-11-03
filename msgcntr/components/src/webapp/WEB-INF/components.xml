@@ -30,7 +30,7 @@
 		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"
+<!-- 	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
 			<ref bean="messageForumsTransactionManager" />
@@ -47,15 +47,15 @@
 				<prop key="*">PROPAGATION_REQUIRED</prop>
 			</props>
 		</property>
-	</bean>
+	</bean> -->
 
-	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"
+	<bean id="org.sakaiproject.api.app.messageforums.PrivateMessageManager"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
 			<ref bean="messageForumsTransactionManager" />
 		</property>
 		<property name="target">
-			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsMessageManagerImpl">
+			<bean class="org.sakaiproject.api.app.messageforums.PrivateMessageManagerImpl">
 				<property name="sessionFactory">
 					<ref bean="org.springframework.orm.hibernate.MessageForumsSessionFactory" />
 				</property>
