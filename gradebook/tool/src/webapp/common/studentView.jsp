@@ -36,7 +36,7 @@
 				var="row"
 				sortColumn="#{studentViewBean.sortColumn}"
 				sortAscending="#{studentViewBean.sortAscending}"
-				columnClasses="left,left,left,left,left,external"
+				columnClasses="left,left,center,center,left,external"
 				rowClasses="#{studentViewBean.rowStyles}"
 				styleClass="listHier wideTable">
 				<h:column>
