@@ -36,12 +36,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class MessageForumsForumManagerImpl extends HibernateDaoSupport implements MessageForumsForumManager {
+public class MessageForumsForumManagerImpl extends HibernateDaoSupport{// implements MessageForumsForumManager {
 
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
 
