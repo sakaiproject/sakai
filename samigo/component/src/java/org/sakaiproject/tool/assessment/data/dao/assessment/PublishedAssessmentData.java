@@ -86,6 +86,17 @@ public class PublishedAssessmentData
   private String ownerSiteName;
 
   public PublishedAssessmentData() {}
+  /**
+   * "Convenient Constructor"
+   * This is a cheap object created for holding just the Id, title. This object is merely used for validation of assessmentTitleIsUniqueForAll. It is not used
+   * for persistence.
+   */
+    public PublishedAssessmentData(Long id, String title, Date lastModifiedDate) {
+    this.assessmentBaseId = id;
+    this.title = title;
+    this.lastModifiedDate=lastModifiedDate;
+  }
+
 
   /**
    * "Convenient Constructor"

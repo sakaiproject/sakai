@@ -318,4 +318,9 @@ public class PublishedAssessmentService {
          getPublishedAssessmentOwner(publishedAssessmentId.toString());
   }
 
+ public boolean publishedAssessmentTitleIsUnique(String assessmentBaseId, String title) {
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+           publishedAssessmentTitleIsUnique(new Long(assessmentBaseId), title);
+  }
+
 }

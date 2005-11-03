@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
@@ -65,7 +66,7 @@ public class ConfirmPublishAssessmentListener
     ExternalContext extContext = context.getExternalContext();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    // ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", context.getViewRoot().getLocale());
+    
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
         "assessmentSettings");
@@ -74,60 +75,59 @@ public class ConfirmPublishAssessmentListener
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
     String err="";
+    boolean error=false;
     String assessmentName=assessmentSettings.getTitle();
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
     System.out.println("assessmentId : "+assessmentId);
     AssessmentService service = new AssessmentService();
- 
+     PublishedAssessmentService publishedService = new PublishedAssessmentService();
+     
     if (time!=null)
       isTime=((Boolean)time).booleanValue();
+  
+    if((!service.assessmentTitleIsUnique(assessmentId,assessmentName,false)) || (!publishedService.publishedAssessmentTitleIsUnique(assessmentId,assessmentName))){
+	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+	error=true;
+    }
+    if((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
 
-    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.isUnique(assessmentId,assessmentName))&&(s.isUniquePublished(assessmentName))){
-	// if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(service.assessmentTitleIsUnique(assessmentId,assessmentName,false))){
-	assessmentSettings.setOutcomePublish("publish_success");	
-	AssessmentFacade assessment = s.save(assessmentSettings);
+	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
+        error=true;
+       
+    }
+    if(error){
+	context.addMessage(null,new FacesMessage(err));
 
-	assessmentSettings.setAssessment(assessment);
+       	assessmentSettings.setOutcomePublish("publish_fail");
+	return;
+    }
+  
+    	assessmentSettings.setOutcomePublish("publish_success");	
+    AssessmentFacade assessment = s.save(assessmentSettings);
+    assessmentSettings.setAssessment(assessment);
 
     //  we need a publishedUrl, this is the url used by anonymous user
-	String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
-	if (releaseTo != null) {
+    String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
+    if (releaseTo != null) {
            // generate an alias to the pub assessment
-	    String alias = AgentFacade.getAgentString() + (new Date()).getTime();
-	    assessmentSettings.setAlias(alias);
+	String alias = AgentFacade.getAgentString() + (new Date()).getTime();
+	assessmentSettings.setAlias(alias);
            //log.info("servletPath=" + extContext.getRequestServletPath());
             String server = ( (javax.servlet.http.HttpServletRequest) extContext.
-			getRequest()).getRequestURL().toString();
+			      getRequest()).getRequestURL().toString();
 	    int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo/"
 	    server = server.substring(0, index);
       //log.info("servletPath=" + server);
 	    String url = server + extContext.getRequestContextPath();
 	    assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
 
-	}
+    }
 
 	//## - permission checking before proceeding - daisyf
-	if (!passAuthz(context, assessment.getCreatedBy())){
-	    assessmentSettings.setOutcomePublish("editAssessmentSettings");
-	}
-       
+    if (!passAuthz(context, assessment.getCreatedBy())){
+	assessmentSettings.setOutcomePublish("editAssessmentSettings");
     }
-    else{
-	if((!s.isUnique(assessmentId,assessmentName))||(!s.isUniquePublished(assessmentName))){
        
-	// if(!service.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
-	  
-           err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
-	   
-	}
-	else{//error in time select
-            err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
-	}
-	context.addMessage(null,new FacesMessage(err));
-	assessmentSettings.setOutcomePublish("publish_fail");
-	    
-    }
-
   }
 
     public boolean passAuthz(FacesContext context, String ownerId){

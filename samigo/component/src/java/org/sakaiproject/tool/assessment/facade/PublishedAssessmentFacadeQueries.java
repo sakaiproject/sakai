@@ -1186,4 +1186,24 @@ public class PublishedAssessmentFacadeQueries
     return a.getAgentIdString();
   }
 
+ public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title) {
+    String currentSiteId = AgentFacade.getCurrentSiteId(); 
+    String agentString = AgentFacade.getAgentString();
+    List list;
+    boolean isUnique = true;
+    String query="";
+
+ query = "select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate)"+
+                   " from PublishedAssessmentData a, AuthorizationData z where "+
+                   " a.title=? and a.publishedAssessmentId!=? and z.functionId='OWN_PUBLISHED_ASSESSMENT' and " +
+     " a.publishedAssessmentId=z.qualifierId and z.agentIdString=?";
+ System.out.println("query" + query);
+      list = getHibernateTemplate().find(query,
+                  new Object[]{title,assessmentBaseId,currentSiteId},
+					 new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
+    if (list.size()>0)
+      isUnique = false;
+    return isUnique;
+
+ }
 }

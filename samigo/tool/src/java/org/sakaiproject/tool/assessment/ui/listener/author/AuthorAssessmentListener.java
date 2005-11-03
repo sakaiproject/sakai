@@ -39,6 +39,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
@@ -71,7 +72,7 @@ public class AuthorAssessmentListener
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
     AssessmentService assessmentService = new AssessmentService();
-
+    PublishedAssessmentService publishedService= new PublishedAssessmentService();
     //#0 - permission checking before proceeding - daisyf
     AuthorBean author = (AuthorBean) cu.lookupBean(
                          "author");
@@ -97,7 +98,8 @@ public class AuthorAssessmentListener
     //HUONG's EDIT
     //check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error
     boolean isUnique = assessmentService.assessmentTitleIsUnique("0", assessmentTitle, false);
-    if (!isUnique){
+    boolean isUniquePublish= publishedService.publishedAssessmentTitleIsUnique("0", assessmentTitle);
+    if (!(isUnique && isUniquePublish)){
       String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","duplicateName_error");
       context.addMessage(null,new FacesMessage(err));
       author.setOutcome("author");

@@ -36,6 +36,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -73,10 +74,12 @@ public class SaveAssessmentSettingsListener
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
     String err="";
+    boolean error=false;
     String assessmentName=assessmentSettings.getTitle();
-    String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
- 
+    String assessmentId=String.valueOf(assessmentSettings.getAssessmentId()); 
     AssessmentService assessmentService = new AssessmentService();
+    PublishedAssessmentService publishedService = new PublishedAssessmentService();
+  
     // If something is in there that is not a Boolean object, keep default.
     // I have seen this happen, this avoids ClassCastException --esmiley
     try
@@ -93,11 +96,24 @@ public class SaveAssessmentSettingsListener
 
     }
 
-    
-    // if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false))){
-    if((!((isTime)&&((assessmentSettings.getTimeLimit().intValue())==0)))&&(s.isUnique(assessmentId,assessmentName))&&(s.isUniquePublished(assessmentName))){
-  
-  assessmentSettings.setOutcomeSave("saveSettings_success");
+    if((!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)) || (!publishedService.publishedAssessmentTitleIsUnique(assessmentId,assessmentName))){
+	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+	error=true;
+    }
+    if((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
+
+	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
+        error=true;
+       
+    }
+    if(error){
+	context.addMessage(null,new FacesMessage(err));
+       	assessmentSettings.setOutcomePublish("publish_fail");
+        
+	return;
+    }
+ 
+   assessmentSettings.setOutcomeSave("saveSettings_success");
   s.save(assessmentSettings);
  // reset the core listing in case assessment title changes
   AuthorBean author = (AuthorBean) cu.lookupBean(
@@ -111,24 +127,6 @@ public class SaveAssessmentSettingsListener
     // goto Question Authoring page
   EditAssessmentListener editA= new EditAssessmentListener();
   editA.processAction(null);
-
-
-    }
-    else{
-	//if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
-	if((!s.isUnique(assessmentId,assessmentName))||(!s.isUniquePublished(assessmentName))){
-    
-           err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
-
-  }
-  else{
-      err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
-  }
-  context.addMessage(null,new FacesMessage(err));
-  assessmentSettings.setOutcomeSave("saveSettings_fail");
-  //  System.out.println("ASSESSMENT SETTING NOT SAVE AND ERROR MESSAGE CREATED");
-
-    }
 
   }
 

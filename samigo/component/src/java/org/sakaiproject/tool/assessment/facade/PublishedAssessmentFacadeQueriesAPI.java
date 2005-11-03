@@ -274,4 +274,5 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public String getPublishedAssessmentOwner(String publishedAssessmentId);
 
+    public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title);
 }
