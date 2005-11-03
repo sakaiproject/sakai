@@ -50,7 +50,7 @@ public interface MessageForumsForumManager {
     /**
      * Save a discussion forum topic
      */
-    public void saveOpenForumTopic(DiscussionTopic topic);
+    public void saveDiscussionForumTopic(DiscussionTopic topic);
 
     /**
      * Save an open forum topic

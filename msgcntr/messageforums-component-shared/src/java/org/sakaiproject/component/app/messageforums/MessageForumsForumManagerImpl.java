@@ -98,7 +98,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     /**
      * Save a discussion forum topic
      */
-    public void saveOpenForumTopic(DiscussionTopic topic) {
+    public void saveDiscussionForumTopic(DiscussionTopic topic) {
         getHibernateTemplate().saveOrUpdate(topic);
         LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());        
     }
