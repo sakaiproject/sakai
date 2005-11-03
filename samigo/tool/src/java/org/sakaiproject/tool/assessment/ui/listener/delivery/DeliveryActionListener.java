@@ -191,9 +191,13 @@ public class DeliveryActionListener
         // determine if scores will display to student
       }
       if (Boolean.TRUE.equals(
-        publishedAssessment.getAssessmentFeedback().getShowStudentScore()))
+	  publishedAssessment.getAssessmentFeedback().getShowStudentScore()))
       {
-        delivery.setShowStudentScore(true);
+        
+        if (delivery.getFeedbackComponent().getShowDateFeedback() && !delivery.getFeedbackOnDate())
+            delivery.setShowStudentScore(false);
+        else
+            delivery.setShowStudentScore(true);
       }
       else
       {
