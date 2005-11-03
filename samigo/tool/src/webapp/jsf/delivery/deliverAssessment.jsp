@@ -37,7 +37,7 @@
      var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title> <h:outputTex value="#{delivery.assessmentTitle}"/>
+      <title> <h:outputText value="#{delivery.assessmentTitle}"/>
             <!--h:outputText value="#{msg.item_display_author}"/-->
       </title>
       </head>
