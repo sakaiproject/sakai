@@ -23,7 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-public interface Type {
+public interface Type extends MutableEntity {
 
     public String getAuthority();
 

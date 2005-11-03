@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL$
-* $Id$
+* $URL: $
+* $Id:  $
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -26,5 +26,6 @@ package org.sakaiproject.api.app.messageforums;
 public interface MessageForumsMessageManager {
     
     public void saveMessage(Message message);
+    public void deleteMessage(Message message);
 
 }

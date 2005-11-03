@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: $
+ * $Id:  $
  ***********************************************************************************
  *
  * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -50,5 +50,16 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         getHibernateTemplate().saveOrUpdate(message);
         LOG.info("message " + message.getId() + " saved successfully");
     }
+
+    public void deleteMessage(Message message) {
+        getHibernateTemplate().delete(message);
+        LOG.info("message " + message.getId() + " deleted successfully");
+    }
+    
+    // helpers
+    
+//    private String getCurrentUser() {
+//        return SessionManager.getCurrentSession().getUserEid();
+//    }
     
 }

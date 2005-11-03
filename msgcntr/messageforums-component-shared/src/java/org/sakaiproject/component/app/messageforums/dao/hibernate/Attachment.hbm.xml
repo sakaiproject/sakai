@@ -44,17 +44,17 @@
       <column name="ATTACHMENT_TYPE" length="255" not-null="true" />
     </property>
 
-    <many-to-one name="parent" column="PARENT_ID"
+    <many-to-one name="parent" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
       not-null="false" index="MFR_NODE_PARENT_I" cascade="none" />
 
   </class>
 
   <query name="findAttachmentById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment as area where attachment.id = :id]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl as area where attachment.id = :id]]>
   </query>
 
   <query name="findAttachmentByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Attachment as ap where attachment.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl as ap where attachment.uuid = :uuid]]>
   </query>
 </hibernate-mapping>

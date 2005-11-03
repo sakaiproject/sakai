@@ -38,11 +38,11 @@
   </class>
 
   <query name="findAreaById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Area as area where area.id = :id]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.id = :id]]>
   </query>
 
   <query name="findAreaByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Area as area where area.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.uuid = :uuid]]>
   </query>
 
 </hibernate-mapping>

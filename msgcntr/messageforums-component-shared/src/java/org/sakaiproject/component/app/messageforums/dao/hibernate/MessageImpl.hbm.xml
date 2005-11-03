@@ -43,7 +43,7 @@
     </property>
     <set name="attachments" lazy="true" sort="natural" 
          order-by="attachmentName asc" cascade="all">
-        <key column="PARENT_ID"/>                        
+        <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
     <property name="label">
@@ -92,7 +92,7 @@
   </query>
 
   <query name="findMessageByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImple as message where message.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.uuid = :uuid]]>
   </query>
 
 </hibernate-mapping>

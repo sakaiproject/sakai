@@ -92,11 +92,15 @@
   </class>
 
   <query name="findOpenForumById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForum as of where of.id = :id]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as of where of.id = :id]]>
   </query>
 
   <query name="findOpenForumByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForum as of where of.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as of where of.uuid = :uuid]]>
+  </query>
+
+  <query name="findDiscussionForumById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl as df where df.id = :id]]>
   </query>
 
 </hibernate-mapping>

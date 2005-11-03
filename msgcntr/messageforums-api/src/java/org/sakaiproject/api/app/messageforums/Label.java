@@ -23,7 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-public interface Label {
+public interface Label extends MutableEntity {
 
     public String getKey();
 

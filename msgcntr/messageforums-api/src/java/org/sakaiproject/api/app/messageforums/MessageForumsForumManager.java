@@ -23,7 +23,53 @@
 
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.List;
+
 public interface MessageForumsForumManager {
+    
+    /**
+     * Retrieve the current user's discussion forums
+     */
+    public List getDiscussionForums();
 
+    /**
+     * Retrieve a given discussion forum for the current user
+     */
+    public DiscussionForum getDiscussionForumById(final String forumId);
 
+    /**
+     * Retrieve topics the current user's open forums
+     */
+    public List getOpenForums();    
+      
+    /**
+     * Save a discussion forum 
+     */
+    public void saveDiscussionForum(DiscussionForum forum);
+
+    /**
+     * Save a discussion forum topic
+     */
+    public void saveOpenForumTopic(DiscussionTopic topic);
+
+    /**
+     * Save an open forum topic
+     */
+    public void saveOpenForumTopic(OpenTopic topic);
+    
+    /**
+     * Delete a discussion forum and all topics/messages
+     */
+    public void deleteDiscussionForum(DiscussionForum forum);
+
+    /**
+     * Delete a discussion forum topic
+     */
+    public void deleteOpenForumTopic(DiscussionTopic topic);
+
+    /**
+     * Delete an open forum topic
+     */
+    public void deleteOpenForumTopic(OpenTopic topic);
+    
 }

@@ -110,11 +110,11 @@
   </class>
 
   <query name="findTopicById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Topic as topic where topic.id = :id]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic where topic.id = :id]]>
   </query>
 
   <query name="findTopicByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Topic as topic where topic.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic where topic.uuid = :uuid]]>
   </query>
 
 </hibernate-mapping>

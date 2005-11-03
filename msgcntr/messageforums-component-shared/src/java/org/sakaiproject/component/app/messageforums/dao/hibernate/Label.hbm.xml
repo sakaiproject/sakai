@@ -35,11 +35,11 @@
   </class>
 
   <query name="findLabelById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Label as label where label.id = :id]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl as label where label.id = :id]]>
   </query>
 
   <query name="findLabelByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Label as label where label.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl as label where label.uuid = :uuid]]>
   </query>
 
 </hibernate-mapping>

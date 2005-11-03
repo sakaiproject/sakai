@@ -25,8 +25,7 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.awt.List;
 
-public interface Area
-{
+public interface Area extends MutableEntity {
 
   public void setVersion(Integer version);
 

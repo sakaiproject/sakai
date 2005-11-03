@@ -65,11 +65,11 @@
   </class>
 
   <query name="findPrivateForumById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForum as pf where pf.id = :id]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.id = :id]]>
   </query>
 
   <query name="findPrivateForumByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForum as pf where pf.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.uuid = :uuid]]>
   </query>
 
 </hibernate-mapping>

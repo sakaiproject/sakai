@@ -24,7 +24,7 @@
 package org.sakaiproject.api.app.messageforums;
 
 
-public interface OpenForum {
+public interface OpenForum extends BaseForum {
 
     public ControlPermissions getControlPermissions();
 

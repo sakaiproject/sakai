@@ -44,11 +44,11 @@
   </class>
 
   <query name="findTypeById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Type as t where t.id = :id]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TypeImpl as t where t.id = :id]]>
   </query>
 
   <query name="findTypeByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.Type as t where t.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TypeImpl as t where t.uuid = :uuid]]>
   </query>
 
 </hibernate-mapping>

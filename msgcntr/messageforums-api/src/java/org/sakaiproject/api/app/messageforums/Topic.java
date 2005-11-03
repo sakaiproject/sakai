@@ -26,7 +26,7 @@ package org.sakaiproject.api.app.messageforums;
 import java.util.Set;
 
 
-public interface Topic {
+public interface Topic extends MutableEntity {
 
     public Set getAttachments();
 

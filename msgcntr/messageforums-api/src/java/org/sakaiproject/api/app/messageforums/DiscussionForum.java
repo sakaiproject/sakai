@@ -26,7 +26,7 @@ package org.sakaiproject.api.app.messageforums;
 import java.util.Set;
 
 
-public interface DiscussionForum {
+public interface DiscussionForum extends OpenForum {
 
     public ActorPermissions getActorPermissions();
 

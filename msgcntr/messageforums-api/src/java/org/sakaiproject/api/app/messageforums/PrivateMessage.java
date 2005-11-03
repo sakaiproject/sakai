@@ -25,7 +25,7 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.Set;
 
-public interface PrivateMessage {
+public interface PrivateMessage extends Message {
 
     public Boolean getExternalEmail();
 

@@ -24,7 +24,7 @@
 package org.sakaiproject.api.app.messageforums;
 
 
-public interface Attachment {
+public interface Attachment extends MutableEntity {
 
     public String getAttachmentId();
 
