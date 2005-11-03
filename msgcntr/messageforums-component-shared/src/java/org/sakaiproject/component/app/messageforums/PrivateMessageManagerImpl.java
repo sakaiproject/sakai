@@ -3,7 +3,7 @@ package org.sakaiproject.component.app.messageforums;
  import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.PrivateMessageManager;
 
-public class PrivateMessageAreaManagerImpl implements PrivateMessageManager
+public class PrivateMessageManagerImpl implements PrivateMessageManager
 {
 
   public boolean isPrivateAreaUnabled()
