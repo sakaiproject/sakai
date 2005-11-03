@@ -29,7 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.model.TopicModel;
-import org.sakaiproject.api.app.messageforums.model.TypeModel;
+import org.sakaiproject.api.common.type.Type;
 
 public class TopicModelImpl extends MutableEntityModelImpl implements TopicModel {
 
@@ -41,7 +41,7 @@ public class TopicModelImpl extends MutableEntityModelImpl implements TopicModel
     private List attachments;
     private Boolean mutable;
     private Integer sortIndex;
-    private TypeModel type;
+    private Type type;
     
     // package level constructor only used for Testing
     TopicModelImpl() {}
@@ -99,11 +99,11 @@ public class TopicModelImpl extends MutableEntityModelImpl implements TopicModel
         this.title = title;
     }
 
-    public TypeModel getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(TypeModel type) {
+    public void setType(Type type) {
         this.type = type;
     }
         

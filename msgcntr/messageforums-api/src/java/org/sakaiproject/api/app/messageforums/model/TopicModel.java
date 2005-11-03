@@ -25,6 +25,8 @@ package org.sakaiproject.api.app.messageforums.model;
 
 import java.util.List;
 
+import org.sakaiproject.api.common.type.Type;
+
 public interface TopicModel extends MutableEntityModel {
 
     public List getAttachments();
@@ -51,8 +53,8 @@ public interface TopicModel extends MutableEntityModel {
 
     public void setTitle(String title);
 
-    public TypeModel getType();
+    public Type getType();
 
-    public void setType(TypeModel typeModel);
+    public void setType(Type typeModel);
 
 }

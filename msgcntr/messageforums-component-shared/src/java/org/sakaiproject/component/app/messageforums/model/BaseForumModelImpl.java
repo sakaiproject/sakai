@@ -29,7 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.model.BaseForumModel;
-import org.sakaiproject.api.app.messageforums.model.TypeModel;
+import org.sakaiproject.api.common.type.Type;
  
 public class BaseForumModelImpl extends MutableEntityModelImpl implements BaseForumModel {
 
@@ -38,7 +38,7 @@ public class BaseForumModelImpl extends MutableEntityModelImpl implements BaseFo
     private String title;
     private String shortDescription;
     private String extendedDescription;
-    private TypeModel type;
+    private Type  type;
     private List attachments;
     private List topics;
     private Integer sortIndex; 
@@ -99,12 +99,16 @@ public class BaseForumModelImpl extends MutableEntityModelImpl implements BaseFo
         this.topics = topics;
     }
 
-    public TypeModel getType() {
-        return type;
+    public Type getType()
+    {
+      // TODO Auto-generated method stub
+      return null;
     }
 
-    public void setType(TypeModel type) {
-        this.type = type;
+    public void setType(Type typeModel)
+    {
+      // TODO Auto-generated method stub
+      
     }
     
 }
