@@ -25,7 +25,6 @@
 package org.sakaiproject.tool.section.decorator;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -90,63 +89,6 @@ public class StudentSectionDecorator extends InstructorSectionDecorator
 		return instructorNames;
 	}
 	
-	public static final Comparator getChangeComparator(final boolean sortAscending,
-			final boolean joinAllowed, final boolean switchAllowed) {
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				if(o1 instanceof StudentSectionDecorator && o2 instanceof StudentSectionDecorator) {
-					StudentSectionDecorator section1 = (StudentSectionDecorator)o1;
-					StudentSectionDecorator section2 = (StudentSectionDecorator)o2;
-
-					// First compare the category name, then compare the change link
-					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
-					if(categoryNameComparison == 0) {
-						// These are in the same category, so compare by the change link
-						boolean member1 = section1.isMember();
-						boolean member2 = section2.isMember();
-						boolean full1 = section1.isFull();
-						boolean full2 = section2.isFull();
-						boolean switch1 = section1.isSwitchable();
-						boolean switch2 = section2.isSwitchable();
-						boolean join1 = section1.isJoinable();
-						boolean join2 = section2.isJoinable();
-						
-						// If these are the same, sort by title
-						if(member1 && member2 || full1 && full2 || switch1 && switch2 || join1 && join2) {
-							return getFieldComparator("title", sortAscending).compare(o1, o2);
-						}
-
-						String section1ChangeLabel = getChangeLabel(section1, joinAllowed, switchAllowed);
-						String section2ChangeLabel = getChangeLabel(section2, joinAllowed, switchAllowed);
-						if(log.isDebugEnabled()) log.debug("Comparing " + section1ChangeLabel + " to " + section2ChangeLabel);
-						int changeComparison = section1ChangeLabel.compareTo(section2ChangeLabel);
-						return sortAscending ? changeComparison : (-1 * changeComparison);
-					}
-					// These are in different categories, so sort them by category name
-					return categoryNameComparison;
-				}
-				if(log.isDebugEnabled()) log.debug("One of these is not a StudentSectionDecorator: "
-						+ o1 + "," + o2);
-				return 0;
-			}
-
-			private String getChangeLabel(StudentSectionDecorator section,
-					boolean joinAllowed, boolean switchAllowed) {
-				if(section.isJoinable() && joinAllowed) {
-					return JsfUtil.getLocalizedMessage("student_view_join");
-				} else  if(section.isSwitchable() && switchAllowed) {
-					return JsfUtil.getLocalizedMessage("student_view_switch");
-				} else if(section.isFull()) {
-					return JsfUtil.getLocalizedMessage("student_view_full");
-				} else if(section.isMember()) {
-					return JsfUtil.getLocalizedMessage("student_view_member");
-				} else {
-					return "";
-				}
-			}
-		};
-	}
-
 	public boolean isFull() {
 		return full;
 	}

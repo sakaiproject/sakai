@@ -6,14 +6,8 @@
     
         <h2><h:outputText value="#{msgs.student_view_page_header}"/></h2>
 
-        <x:div styleClass="instructions">
-            <h:outputText
-                value="#{msgs.student_view_change_sections_message_external}"
-                rendered="#{studentViewBean.externallyManaged}"/>
-    
-            <h:outputText
-                value="#{msgs.student_view_change_sections_message}"
-                rendered="#{ ! studentViewBean.externallyManaged}"/>
+        <x:div styleClass="instructions" rendered="#{not empty studentViewBean.instructions}">
+            <h:outputText value="#{studentViewBean.instructions}"/>
         </x:div>
         
         <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">
@@ -28,7 +22,10 @@
             </x:div>
 
             <x:div>
-                <h:outputText value="#{msgs.student_view_sections_in_bold}" styleClass="studentSectionInfo"/>
+                <h:outputText
+                    value="#{msgs.student_view_sections_in_bold}"
+                    styleClass="studentSectionInfo"
+                    rendered="#{not empty studentViewBean.sections}"/>
             </x:div>
         </h:panelGrid>
         
@@ -109,11 +106,6 @@
             </h:column>
 
             <h:column rendered="#{!studentViewBean.externallyManaged}">
-                <f:facet name="header">
-                    <x:commandSortHeader columnName="change" immediate="true" arrow="true">
-                        <h:outputText value="#{msgs.student_view_header_change}" />
-                    </x:commandSortHeader>
-                </f:facet>
                 <h:commandLink
                     value="#{msgs.student_view_join}"
                     actionListener="#{studentViewBean.processJoinSection}"
@@ -136,7 +128,9 @@
     
         </x:dataTable>
         
-        <h:outputText value="#{msgs.no_sections_available}" rendered="#{empty studentViewBean.sections}"/>
+        <x:div styleClass="verticalPadding" rendered="#{empty studentViewBean.sections}">
+            <h:outputText value="#{msgs.no_sections_available}"/>
+        </x:div>
 
 </h:form>
 </div>

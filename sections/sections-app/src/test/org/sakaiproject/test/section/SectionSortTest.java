@@ -131,17 +131,4 @@ public class SectionSortTest extends TestCase {
 		Assert.assertTrue(comp.compare(secA, secB) < 0);
 		
 	}
-
-	public void testStudentSectionDecoratorSorting() throws Exception {
-		// secA will say "Member"
-		StudentSectionDecorator secA = new StudentSectionDecorator(sectionA, "Category A", instructorsA, 10, true, false);
-		
-		// secB will say "Switch"
-		StudentSectionDecorator secB = new StudentSectionDecorator(sectionB, "Category A", instructorsB, 10, false, true);
-
-		Comparator comp = StudentSectionDecorator.getChangeComparator(true, true, true);
-	
-		// Compare the change status between two sections in the same category
-		Assert.assertTrue(comp.compare(secA, secB) < 0);
-	}
 }

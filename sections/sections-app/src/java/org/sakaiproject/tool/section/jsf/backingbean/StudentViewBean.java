@@ -43,6 +43,7 @@ import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
  * Controls the student view page.
@@ -65,10 +66,8 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	
 	private List sections;
 	private String rowClasses;
+	private String instructions;
 	
-	private List categoryIds;
-	private List categoryNames; // Must be ordered exactly like the category ids
-
 	public StudentViewBean() {
 		sortColumn = "meetingTimes";
 		sortAscending = true;
@@ -84,20 +83,16 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		joinAllowed = course.isSelfRegistrationAllowed();
 		switchAllowed = course.isSelfSwitchingAllowed();
 
+		// Keep track of whether there are joinable Sections
+		boolean joinableSectionsExist = false;
+
+		// Keep track of whether there are switchable Sections
+		boolean switchableSectionsExist = false;
+		
 		// Get all sections in the site
 		List sectionSet = getAllSiteSections();
 		sections = new ArrayList();
 		
-		// Get the category ids
-		categoryIds = getSectionCategories();
-		
-		// Get category names, ordered just like the category ids
-		categoryNames = new ArrayList();
-		for(Iterator iter = categoryIds.iterator(); iter.hasNext();) {
-			String catId = (String)iter.next();
-			categoryNames.add(getCategoryName(catId));
-		}
-
 		// Get the section enrollments for this student
 		Set enrolledSections = getMyEnrolledSections();
 
@@ -121,33 +116,63 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			
 			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(
 					section, catName, taNames, totalEnrollments, member, memberOtherSection);
-			sections.add(decoratedSection);
-		}
-		
-		Collections.sort(sections, getComparator());
-		
-		// Remove the sections that don't match the filter.  Since the display logic
-		// requires that we have all of the sections in memory to decide on the switch,
-		// join, and member flags, we can't filter until now.
-		filterSections();
-		
-		// Add the row css classes
-		buildRowClasses();
-	}
 
-	private void filterSections() {
-		if("MY".equals(sectionFilter)) {
-			List filteredSections = new ArrayList();
-			for(Iterator iter = sections.iterator(); iter.hasNext();) {
-				StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next();
-				if(decoratedSection.isMember()) {
-					filteredSections.add(decoratedSection);
-				}
+			// Ignore non-member sections if we're filtering for my sections
+			if("MY".equals(sectionFilter) && ! decoratedSection.isMember()) {
+				continue;
 			}
-			sections = filteredSections;
+			
+			sections.add(decoratedSection);
+			
+			if(decoratedSection.isJoinable()) {
+				joinableSectionsExist = true;
+			} else if (decoratedSection.isSwitchable()) {
+				switchableSectionsExist = true;
+			}
 		}
+		Collections.sort(sections, getComparator());
+		buildRowClasses();
+
+		instructions = generateInstructions(joinableSectionsExist, switchableSectionsExist);
 	}
 
+	private String generateInstructions(boolean joinableSectionsExist, boolean switchableSectionsExist) {
+
+		// No instructions if the site is externally managed
+		if(externallyManaged) {
+			return null;
+		} else
+
+		// No instructions if not allowed to join or switch
+		if(!joinAllowed && !switchAllowed) {
+			return null;
+		} else
+
+		// No instructions if there are no joinable or switchable sections
+		if(!joinableSectionsExist && !switchableSectionsExist) {
+			return null;
+		} else
+
+		// Joining is possible, but switching is not
+		if(joinAllowed && joinableSectionsExist && !(switchAllowed && switchableSectionsExist)) {
+			return JsfUtil.getLocalizedMessage("student_view_instructions_join");
+		} else
+		
+		// Switching is possible, but joining is not
+		if(switchAllowed && switchableSectionsExist && !(joinAllowed && joinableSectionsExist)) {
+			return JsfUtil.getLocalizedMessage("student_view_instructions_switch");
+		} else
+
+		// Joining and switching are both possible
+		if(switchAllowed && switchableSectionsExist && joinAllowed && joinableSectionsExist) {
+			return JsfUtil.getLocalizedMessage("student_view_instructions_join_or_switch");
+		} else {
+			// Something is wrong with this picture
+			log.error("A serious mistake occurred in the section info student view!");
+			return null;
+		}
+	}
+	
 	private void buildRowClasses() {
 		StringBuffer sb = new StringBuffer();
 		int index = 0;
@@ -209,8 +234,6 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			return InstructorSectionDecorator.getFieldComparator("title", sortAscending);
 		} else if(sortColumn.equals("available")) {
 			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true); 
-		} else if(sortColumn.equals("change")) {
-			return StudentSectionDecorator.getChangeComparator(sortAscending, joinAllowed, switchAllowed);
 		} else {
 			return InstructorSectionDecorator.getFieldComparator(sortColumn, sortAscending); 
 		}
@@ -231,11 +254,9 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	public List getSections() {
 		return sections;
 	}
-	
 	public String getRowClasses() {
 		return rowClasses;
 	}
-	
 	public boolean isSortAscending() {
 		return sortAscending;
 	}
@@ -254,16 +275,16 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	public void setSectionFilter(String sectionFilter) {
 		this.sectionFilter = sectionFilter;
 	}
-
 	public boolean isExternallyManaged() {
 		return externallyManaged;
 	}
-
 	public boolean isJoinAllowed() {
 		return joinAllowed;
 	}
-
 	public boolean isSwitchAllowed() {
 		return switchAllowed;
+	}
+	public String getInstructions() {
+		return instructions;
 	}
 }
