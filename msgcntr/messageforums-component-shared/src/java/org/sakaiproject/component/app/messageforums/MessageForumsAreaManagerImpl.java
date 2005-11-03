@@ -26,9 +26,9 @@ package org.sakaiproject.component.app.messageforums;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.MessageForumsAreaManager;
 
-public class MessageForumsAreaManagerImpl implements MessageForumsAreaManager {
+
+public class MessageForumsAreaManagerImpl {//implements MessageForumsAreaManager {
     
     private static final Log LOG = LogFactory.getLog(MessageForumsAreaManagerImpl.class);    
 
