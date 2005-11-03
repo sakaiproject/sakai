@@ -70,6 +70,7 @@ public class AuthorAssessmentListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
+    AssessmentService assessmentService = new AssessmentService();
 
     //#0 - permission checking before proceeding - daisyf
     AuthorBean author = (AuthorBean) cu.lookupBean(
@@ -82,9 +83,8 @@ public class AuthorAssessmentListener
 
     // pass authz test, move on
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
-                                                           "assessmentBean");
+                                                      "assessmentBean");
 
-     SaveAssessmentSettings s= new SaveAssessmentSettings();
     ItemAuthorBean itemauthorBean = (ItemAuthorBean) cu.lookupBean("itemauthor");
     itemauthorBean.setTarget(itemauthorBean.FROM_ASSESSMENT); // save to assessment
 
@@ -96,39 +96,40 @@ public class AuthorAssessmentListener
 
     //HUONG's EDIT
     //check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error
-    if (s.isUnique(assessmentTitle)&& (s.isUniquePublished(assessmentTitle))){
-	String description = author.getAssessmentDescription();
-	String typeId = author.getAssessmentTypeId();
-	String templateId = author.getAssessmentTemplateId();
+    boolean isUnique = assessmentService.assessmentTitleIsUnique("0", assessmentTitle, false);
+    if (!isUnique){
+      String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","duplicateName_error");
+      context.addMessage(null,new FacesMessage(err));
+      author.setOutcome("author");
+      return;
+    }
 
-	if (templateId == null){
-	    templateId = AssessmentTemplateFacade.DEFAULTTEMPLATE.toString();
-	}
+    String description = author.getAssessmentDescription();
+    String typeId = author.getAssessmentTypeId();
+    String templateId = author.getAssessmentTemplateId();
+
+    if (templateId == null){
+      templateId = AssessmentTemplateFacade.DEFAULTTEMPLATE.toString();
+    }
     
     // #2 - got all the info, create now
-	AssessmentFacade assessment = createAssessment(
-						       assessmentTitle, description, typeId, templateId);
+    AssessmentFacade assessment = createAssessment(
+       assessmentTitle, description, typeId, templateId);
 
     // #3a - goto editAssessment.jsp, so prepare assessmentBean
-	assessmentBean.setAssessment(assessment);
+    assessmentBean.setAssessment(assessment);
     // #3b - reset the following
-	author.setAssessTitle("");
-	author.setAssessmentDescription("");
-	author.setAssessmentTypeId("");
-	author.setAssessmentTemplateId(AssessmentTemplateFacade.DEFAULTTEMPLATE.toString());
+    author.setAssessTitle("");
+    author.setAssessmentDescription("");
+    author.setAssessmentTypeId("");
+    author.setAssessmentTemplateId(AssessmentTemplateFacade.DEFAULTTEMPLATE.toString());
 
     // #3c - update core AssessmentList
-	AssessmentService assessmentService = new AssessmentService();
-	ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(AssessmentFacadeQueries.TITLE,true);
+    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(AssessmentFacadeQueries.TITLE,true);
     // get the managed bean, author and set the list
-	author.setAssessments(list);
-	author.setOutcome("createAssessment");
-    }
-    else{
-	String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","duplicateName_error");
-context.addMessage(null,new FacesMessage(err));
-	author.setOutcome("author");
-	}
+    author.setAssessments(list);
+    author.setOutcome("createAssessment");
+
   }
 
   public AssessmentFacade createAssessment(

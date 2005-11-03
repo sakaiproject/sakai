@@ -950,7 +950,7 @@ public class AssessmentFacadeQueries
     else{ // assessments are site scoped 
       query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentData a, AuthorizationData z where "+
-                   " a.title=? and a.assessmentBaseId!=? and z.functionId='EDIT_ASSESSMENT'" +
+                   " a.title=? and a.assessmentBaseId!=? and z.functionId='EDIT_ASSESSMENT' and " +
                    " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
       list = getHibernateTemplate().find(query,
                   new Object[]{title,assessmentBaseId,currentSiteId},
