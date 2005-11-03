@@ -23,6 +23,9 @@
 
 package org.sakaiproject.tool.messageforums;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
@@ -34,6 +37,7 @@ import org.sakaiproject.api.app.messageforums.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
+import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.tool.messageforums.proxy.TopicProxyImpl;
 
 public class PrivateMessagesTool
@@ -146,7 +150,8 @@ public class PrivateMessagesTool
 
   public String processPvtMsgSettings()
   {
-
+    this.setSuperUser(SecurityService.isSuperUser());
+    //TODO get private message settings
     return "pvtMsgSettings";
   }
 
@@ -192,5 +197,84 @@ public class PrivateMessagesTool
     return "main";
   }
 
-  // htripath
+
+  public String processPvtMsgSettingRevise() {
+    
+    String email= getForwardPvtMsgEmail();
+    String test=getActivatePvtMsg() ;
+    //TODO - save private message settings here
+    return "main" ;
+  }
+  
+  //Received screen
+  public String processPvtMsgCompose() {    
+    return "compose" ;
+  }
+  public String processPvtMsgDispOtions() {
+    return "pvtMsgOrganize" ;
+  }
+  public String processPvtMsgFldrSettings() {
+    return "pvtMsgSettings" ;
+  }
+  
+  //////// GETTER AND SETTER  ///////////////////
+  //Setting Screen
+  private String activatePvtMsg="yes";
+  private boolean forwardPvtMsg;
+  private String forwardPvtMsgEmail;
+  private boolean superUser; 
+  
+  //Received Screen
+  private List receivedItems ;
+  //////////////////////////////////////////////////////////////
+  public String getActivatePvtMsg()
+  {
+    return activatePvtMsg;
+  }
+  public void setActivatePvtMsg(String activatePvtMsg)
+  {
+    this.activatePvtMsg = activatePvtMsg;
+  }
+  public boolean isForwardPvtMsg()
+  {
+    return forwardPvtMsg;
+  }
+  public void setForwardPvtMsg(boolean forwardPvtMsg)
+  {
+    this.forwardPvtMsg = forwardPvtMsg;
+  }
+  public String getForwardPvtMsgEmail()
+  {
+    return forwardPvtMsgEmail;
+  }
+  public void setForwardPvtMsgEmail(String forwardPvtMsgEmail)
+  {
+    this.forwardPvtMsgEmail = forwardPvtMsgEmail;
+  }
+  public boolean isSuperUser()
+  {
+    return superUser;
+  }
+  public void setSuperUser(boolean superUser)
+  {
+    this.superUser = superUser;
+  }
+  public List getReceivedItems()
+  {
+    return receivedItems;
+  }
+  public void setReceivedItems(List receivedItems)
+  {
+    this.receivedItems = receivedItems;
+  }
+
+  //List containing description for radio buttons in setting screen
+  public List getActivateMsgLs()
+  {
+    List a= new ArrayList();
+    a.add("yes");
+    a.add("no") ;
+    return a;
+  }
+
 }

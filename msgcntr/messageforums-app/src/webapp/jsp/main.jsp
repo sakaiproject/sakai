@@ -9,7 +9,7 @@
 	<sakai:view title="Messge Forums">
 		<h:form id="msgForum"> 
 			<@include file="/privateMsg/pvtArea.jsp"/>
-			<@include file="/privateMsg/dfArea.jsp"/>
+			<@include file="/discussionForum/dfArea.jsp"/>
 		</h:form>
 	</sakai:view>
 </f:view>  

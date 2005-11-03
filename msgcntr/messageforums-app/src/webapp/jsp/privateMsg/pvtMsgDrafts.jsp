@@ -3,14 +3,19 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 
 <f:view>
-<sakai:view title="alphaIndex tag - Sakai 2.0 JSF example">
-
-
+	<sakai:view_container title="Received Private Messages">
+	<sakai:view_content>
+		<h:form id="prefs_form">
+		
 <hr />
 <h2>Private message- Drafts</h2>
 <hr />
-<h:commandButton value="Cancel" action="#{PrivateMessagesTool.processPvtMsgCancel}"/> 
 
-    
-</sakai:view>
+        <sakai:button_bar>
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="Cancel" />
+        </sakai:button_bar>   
+           
+		 </h:form>
+	</sakai:view_content>
+	</sakai:view_container>
 </f:view>
