@@ -6,3 +6,9 @@ This directory contains the source for the provider.  The Sakai release
 ships with the LDAP provider commented out.  The components.xml file 
 above is where you choose which provider is active.
 
+You will also have to uncomment the appropriate dependencies in
+
+    ../component/project.xml
+
+To insure that the right jars are placed in the provider war.
+
