@@ -21,18 +21,27 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.api.app.messageforums;
+package org.sakaiproject.component.app.messageforums;
 
-import java.util.List;
-
-public interface MessageForumsTypeManager 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
+ 
+import org.sakaiproject.api.common.type.Type;
+ 
+public class MessageForumsManager //implements  MessageForumsAreaManager
 {
-  public List getAvailableTypes();
-  
-  public org.sakaiproject.api.common.type.Type getPrivateMessageType();
-  
-  public org.sakaiproject.api.common.type.Type getDiscussionForumType();
-  
-  public org.sakaiproject.api.common.type.Type getOpenDiscussionForumType();
-  
+
+  private static final Log LOG = LogFactory
+      .getLog(MessageForumsManager.class);
+
+  public MessageForumsManager()
+  {
+
+  }
+ 
+  public static String getCurrentUserId()
+  {
+    return null;
+  }
 }

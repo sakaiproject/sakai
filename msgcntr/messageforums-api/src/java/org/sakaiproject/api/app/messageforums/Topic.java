@@ -25,6 +25,8 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.Set;
 
+import org.sakaiproject.api.common.type.Type;
+
 
 public interface Topic extends MutableEntity {
 

@@ -29,8 +29,8 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+ 
+import org.sakaiproject.api.app.messageforums.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
@@ -41,8 +41,7 @@ public class PrivateMessagesTool
   private static final Log LOG = LogFactory.getLog(PrivateMessagesTool.class);
 
   private TopicProxy topicProxy; // TODO: can be deleted as soon as more of the backend works
-  private MessageForumsMessageManager messageForumsMessageManager;
-  private MessageForumsForumManager messageForumsForumManager;
+  private PrivateMessageManager prtMsgManager;
   private ErrorMessages errorMessages;
 
   public PrivateMessagesTool()
@@ -58,46 +57,34 @@ public class PrivateMessagesTool
     topicProxy = new TopicProxyImpl(topic);
   }
 
-  // start injections
-  public void setMessageForumsMessageManager(
-      MessageForumsMessageManager messageForumsMessageManager)
+ 
+  public PrivateMessageManager getPrtMsgManager()
   {
-    this.messageForumsMessageManager = messageForumsMessageManager;
+    return prtMsgManager;
   }
 
-  public void setMessageForumsForumManager(
-      MessageForumsForumManager messageForumsForumManager)
+
+  public void setPrtMsgManager(PrivateMessageManager prtMsgManager)
   {
-    this.messageForumsForumManager = messageForumsForumManager;
+    this.prtMsgManager = prtMsgManager;
   }
 
-  // end injections
-
-  public MessageForumsMessageManager getMessageForumsMessageManager()
-  {
-    return messageForumsMessageManager;
-  }
-
-  public MessageForumsForumManager getMessageForumsForumManager()
-  {
-    return messageForumsForumManager;
-  }
 
   //
   // start button process actions
   //
   public String processCDFMPostMessage()
   {
-    Message message = topicProxy.getMessageModel().createPersistible();
-    messageForumsMessageManager.saveMessage(message);
+//    Message message = topicProxy.getMessageModel().createPersistible();
+//    messageForumsMessageManager.saveMessage(message);
     return "compose";
   }
 
   public String processCDFMSaveDraft()
   {
-    Message message = topicProxy.getMessageModel().createPersistible();
-    message.setDraft(Boolean.TRUE);
-    messageForumsMessageManager.saveMessage(message);
+//    Message message = topicProxy.getMessageModel().createPersistible();
+//    message.setDraft(Boolean.TRUE);
+//    messageForumsMessageManager.saveMessage(message);
     return "compose";
   }
 

@@ -28,7 +28,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.app.messageforums.Type;
+import org.sakaiproject.api.common.type.Type;
+ 
  
 public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 

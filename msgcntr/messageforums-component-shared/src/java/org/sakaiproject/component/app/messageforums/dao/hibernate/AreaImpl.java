@@ -28,6 +28,7 @@ import java.awt.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
+ 
 
 public class AreaImpl extends MutableEntityImpl implements Area {
 
@@ -69,6 +70,26 @@ public class AreaImpl extends MutableEntityImpl implements Area {
     {
       // TODO Auto-generated method stub
       return null;
+    }
+
+    public String getTypeUuid()
+    {
+     
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    public void setTypeUuid(String typeUuid)
+    {
+      // org.sakaiproject.api.common.type.TypeManager getType(typeUuid)
+      // TODO Auto-generated method stub
+      
+    }
+
+    public void setForums(List forums)
+    {
+      // TODO Auto-generated method stub
+      
     }
     
 }

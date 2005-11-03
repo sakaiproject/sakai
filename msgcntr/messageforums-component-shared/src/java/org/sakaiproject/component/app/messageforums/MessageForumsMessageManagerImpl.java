@@ -28,10 +28,9 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class MessageForumsMessageManagerImpl extends HibernateDaoSupport implements MessageForumsMessageManager {
+public class MessageForumsMessageManagerImpl extends HibernateDaoSupport {//implements MessageForumsMessageManager {
 
     private static final Log LOG = LogFactory.getLog(MessageForumsMessageManagerImpl.class);    
 

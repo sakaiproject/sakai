@@ -23,13 +23,13 @@
 
 package org.sakaiproject.api.app.messageforums.proxy;
 
-import org.sakaiproject.api.app.messageforums.model.MessageModel;
+import org.sakaiproject.api.app.messageforums.Message;
 
 // just a dummy class to build up interface object before the real objects are ready
 
 public interface TopicProxy {
 
-    public MessageModel getMessageModel();
+    public Message getMessageModel();
     public String getCrumbTrail();
     public String getShortDescription();
 

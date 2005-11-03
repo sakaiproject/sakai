@@ -29,11 +29,11 @@ import java.util.TreeSet;
 
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.model.MessageModel;
+import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
-import org.sakaiproject.component.app.messageforums.model.MessageModelImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 
 /*
  * TopicProxy provides all methods needed by a jsf page.  It is merely
@@ -42,7 +42,7 @@ import org.sakaiproject.component.app.messageforums.model.MessageModelImpl;
 public class TopicProxyImpl implements TopicProxy {
 
     private Topic topic;
-    private MessageModel messageModel;   
+    private Message messageModel;   
     
     public TopicProxyImpl(Topic topic) {
         this.topic = topic;
@@ -68,10 +68,10 @@ public class TopicProxyImpl implements TopicProxy {
         attachments.add(attachment);
         message.setAttachments(attachments);
         
-        messageModel = new MessageModelImpl(message);
+      //  messageModel = new MessageImpl(message);
     }
     
-    public MessageModel getMessageModel() {
+    public Message getMessageModel() {
         return messageModel;
     }
     

@@ -28,7 +28,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.Type;
 
 public class TopicImpl extends MutableEntityImpl implements Topic {
 
@@ -40,7 +39,7 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
     private Set attachments;
     private Boolean mutable;
     private Integer sortIndex;
-    private Type type;
+    private org.sakaiproject.api.common.type.Type type;
     
     public Set getAttachments() {
         return attachments;
@@ -90,11 +89,11 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
         this.title = title;
     }
 
-    public Type getType() {
+    public org.sakaiproject.api.common.type.Type getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(org.sakaiproject.api.common.type.Type type) {
         this.type = type;
     }
         
