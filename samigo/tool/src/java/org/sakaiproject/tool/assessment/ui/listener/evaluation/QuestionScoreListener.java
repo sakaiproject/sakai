@@ -208,14 +208,15 @@ public class QuestionScoreListener
       // now we need filter by sections selected
       ArrayList scores = new ArrayList();  // filtered list
       Iterator allscores_iter = allscores.iterator();
+
+      // get the Map of all users(keyed on userid) belong to the selected sections
+      Map useridMap= totalBean.getUserIdMap();
       while (allscores_iter.hasNext())
       {
         // AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
         ItemGradingData idata = (ItemGradingData) allscores_iter.next();
         String agentid = idata.getAssessmentGrading().getAgentId();
 
-        // get the Map of all users(keyed on userid) belong to the selected sections
-        Map useridMap= totalBean.getUserIdMap();
 
         // now we only include scores of users belong to the selected sections
         if (useridMap.containsKey(agentid) ) {

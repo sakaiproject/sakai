@@ -211,13 +211,15 @@ System.out.println("changed submission pulldown ");
       // now we need filter by sections selected 
       ArrayList scores = new ArrayList();  // filtered list
       Iterator allscores_iter = allscores.iterator();
+
+      // get the Map of all users(keyed on userid) belong to the selected sections 
+      Map useridMap= bean.getUserIdMap(); 
+
       while (allscores_iter.hasNext())
       {
 	AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
         String agentid =  data.getAgentId();
         
-	// get the Map of all users(keyed on userid) belong to the selected sections 
-	Map useridMap= bean.getUserIdMap(); 
 
 	// now we only include scores of users belong to the selected sections
         if (useridMap.containsKey(agentid) ) {
