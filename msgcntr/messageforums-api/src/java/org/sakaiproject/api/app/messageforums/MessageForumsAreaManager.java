@@ -34,18 +34,18 @@ public interface MessageForumsAreaManager
    * @return boolean 
    * 
    */
-  boolean isPrivateAreaUnabled(); 
+  public boolean isPrivateAreaEnabled(); 
 
   /**
    * Retrieve private message area if it is enabled for the current user
    * @return
    */
-  Area getPrivateArea();  
+  public Area getPrivateArea();  
 
   /**
    * Retrieve discussion message area the current user
    * @return
    */
-  Area getDiscussionForumArea();  
+  public Area getDiscussionForumArea();  
   
 }
