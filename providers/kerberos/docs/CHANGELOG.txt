@@ -11,5 +11,5 @@ Changes/features:
  o Can use sakai.properties settings to reduce dependency on working
    systemwide Kerberos JAAS configuration (slt)
 
- o Documentation moved into separate directory (slt)
+ o Documentation improved and moved into separate directory (slt)
 

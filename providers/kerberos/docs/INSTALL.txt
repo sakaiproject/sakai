@@ -14,9 +14,16 @@ under ADVANCED OPTIONS.
 In addition, to protect the integrity of your Kerberos password, the 
 use of a secure Web front-end is HIGHLY recommended.
 
+Throughout this document, ${sakai.home} refers to the directory that
+contains Sakai's configuration information. By default, this is the
+"sakai" directory at the top-level of your Tomcat installation (known
+here as $TOMCAT_HOME). For more information on configuring
+${sakai.home}, refer to the configuration documentation in the top-level
+"docs" directory of the Sakai source tree.
+
 **GENERAL SETUP**
 
-To use this provider using $SAKAI_HOME/sakai.properties:
+To use this provider using ${sakai.home}/sakai.properties:
 
 1) Create a JAAS configuration file. A sample file -- sakai-jaas.conf 
 -- with the following content is included:
@@ -93,15 +100,29 @@ provider.kerberos.auth.login.config=/usr/local/sakai/sakai-jaas.conf
 For general use. the last two options do not need to be specified. An
 alternate Kerberos5 configuration file can specified using
 provider.kerberos.krb5.conf; otherwise, the system default
-(/etc/krb5.conf on Unix-based systems) is used.  Setting the
+(/etc/krb5.conf on Unix-based systems) is used. Setting the
 provider.kerberos.showconfig option to "true" provides extended
 configuration about the provider's settings in the catalina.out logs:
 
-- Standard information
-INFO: org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init() Domain=columbia.edu LoginContext=SakaiAuthentication RequireLocalAccount=true KnownUserMsg=Integrity check on decrypted field failed (2005-10-21 17:29:54,466 main_org.sakaiproject.component.framework.log.CommonsLogger)
+- Standard information (wrapped/edited for clarity)
 
-- Extended information
-INFO: org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init() SakaiHome=/spare/sakai-201/jakarta-tomcat-5.5.9/sakai/ SakaiPropertyKrb5Conf=null SakaiPropertyAuthLoginConfig=kerberos/sakai-jaas.conf SystemPropertyKrb5Conf=null SystemPropertyAuthLoginConfig=/spare/sakai-201/jakarta-tomcat-5.5.9/sakai/kerberos/sakai.jaas.conf (2005-10-21 17:29:54,466 main_org.sakaiproject.component.framework.log.CommonsLogger)
+INFO:
+org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init()
+Domain=mydomain.edu
+LoginContext=SakaiAuthentication
+RequireLocalAccount=true KnownUserMsg=Integrity check on decrypted field failed
+(2005-10-21 17:29:54,466 main_org.sakaiproject.component.framework.log.CommonsLogger)
+
+- Extended information (wrapped/edited for clarity)
+
+INFO:
+org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init()
+SakaiHome=/spare/sakai-201/jakarta-tomcat-5.5.9/sakai/
+SakaiPropertyKrb5Conf=null
+SakaiPropertyAuthLoginConfig=kerberos/sakai-jaas.conf
+SystemPropertyKrb5Conf=null
+SystemPropertyAuthLoginConfig=/spare/sakai-201/jakarta-tomcat-5.5.9/sakai/kerberos/sakai.jaas.conf
+(2005-10-21 17:29:54,466 main_org.sakaiproject.component.framework.log.CommonsLogger)
 
 In the above, "null" entries indicate the use of systemwide defaults.
 
@@ -155,5 +176,4 @@ string).
 
 where STRING is replaced by "Integrity check on decrypted field 
 failed" Note: This string is the default, culled from RFC 1510.
-
 
