@@ -184,7 +184,7 @@ public class DummyDataHelper {
         dfm1.setShortDescription("sort desc here...");
         dfm1.setTitle("disc forum 1");
         dfm1.setTopics(getDiscussionTopics());
-        dfm1.setType(new TypeModelImpl());
+     //   dfm1.setType(new Type());
         DiscussionForumModel dfm2 = new DiscussionForumModelImpl();
         dfm2.setActorPermissions(getActorPermissions());
         dfm2.setAttachments(getAttachments());
@@ -204,7 +204,7 @@ public class DummyDataHelper {
         dfm2.setShortDescription("sort desc here...");
         dfm2.setTitle("disc forum 2");
         dfm2.setTopics(getDiscussionTopics());
-        dfm2.setType(new TypeModelImpl());
+        //dfm2.setType(new TypeModelImpl());
         dicussionForums.add(dfm1);
         dicussionForums.add(dfm2);
         return dicussionForums;
@@ -227,7 +227,7 @@ public class DummyDataHelper {
         ofm1.setShortDescription("sort desc here...");
         ofm1.setTitle("disc forum 1");
         ofm1.setTopics(getDiscussionTopics());
-        ofm1.setType(new TypeModelImpl());
+       // ofm1.setType(new TypeModelImpl());
         ofm1.setSortIndex(new Integer(2));
         OpenForumModel ofm2 = new OpenForumModelImpl();
         ofm2.setAttachments(getAttachments());
@@ -244,7 +244,7 @@ public class DummyDataHelper {
         ofm2.setShortDescription("sort desc here...");
         ofm2.setTitle("disc forum 2");
         ofm2.setTopics(getDiscussionTopics());
-        ofm2.setType(new TypeModelImpl());
+        //ofm2.setType(new TypeModelImpl());
         ofm2.setSortIndex(new Integer(1));
         openForums.add(ofm1);
         openForums.add(ofm2);        
@@ -265,7 +265,7 @@ public class DummyDataHelper {
         pfm1.setShortDescription("sort desc here...");
         pfm1.setTitle("disc forum 1");
         pfm1.setTopics(getDiscussionTopics());
-        pfm1.setType(new TypeModelImpl());
+      //  pfm1.setType(new TypeModelImpl());
         pfm1.setAutoForward(Boolean.TRUE);
         pfm1.setAutoForwardEmail("fish@indiana.edu");
         pfm1.setPreviewPaneEnabled(Boolean.TRUE);
@@ -282,7 +282,7 @@ public class DummyDataHelper {
         pfm2.setShortDescription("sort desc here...");
         pfm2.setTitle("disc forum 2");
         pfm2.setTopics(getDiscussionTopics());
-        pfm2.setType(new TypeModelImpl());
+      //  pfm2.setType(new TypeModelImpl());
         pfm2.setAutoForward(Boolean.FALSE);
         pfm2.setAutoForwardEmail(null);
         pfm2.setPreviewPaneEnabled(Boolean.FALSE);
@@ -312,7 +312,7 @@ public class DummyDataHelper {
         dtm1.setModifiedBy("the moderator");
         dtm1.setShortDescription("sort desc here...");
         dtm1.setTitle("disc topic 1");
-        dtm1.setType(new TypeModelImpl());
+       // dtm1.setType(new TypeModelImpl());
         dtm1.setConfidentialResponses(Boolean.TRUE);
         dtm1.setGradebook("gb2-1");
         dtm1.setGradebookAssignment("asst2");
@@ -338,7 +338,7 @@ public class DummyDataHelper {
         dtm2.setModifiedBy("the moderator");
         dtm2.setShortDescription("sort desc here...");
         dtm2.setTitle("disc topic 2");
-        dtm2.setType(new TypeModelImpl());
+     //   dtm2.setType(new TypeModelImpl());
         dtm2.setConfidentialResponses(Boolean.FALSE);
         dtm2.setGradebook("gb2-1");
         dtm2.setGradebookAssignment("asst2");
@@ -367,7 +367,7 @@ public class DummyDataHelper {
         otm1.setModifiedBy("the moderator");
         otm1.setShortDescription("sort desc here...");
         otm1.setTitle("open topic 1");
-        otm1.setType(new TypeModelImpl());
+      //  otm1.setType(new TypeModelImpl());
         otm1.setMutable(Boolean.TRUE);
         otm1.setSortIndex(new Integer(1));
         OpenTopicModel otm2 = new OpenTopicModelImpl();
@@ -384,7 +384,7 @@ public class DummyDataHelper {
         otm2.setModifiedBy("the moderator");
         otm2.setShortDescription("sort desc here...");
         otm2.setTitle("open topic 2");
-        otm2.setType(new TypeModelImpl());
+      //  otm2.setType(new TypeModelImpl());
         otm2.setMutable(Boolean.FALSE);
         otm2.setSortIndex(new Integer(2));
         openTopics.add(otm1);
