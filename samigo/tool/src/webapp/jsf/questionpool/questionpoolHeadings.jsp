@@ -18,5 +18,5 @@
     <h:commandLink action="poolList" immediate="true">
       <h:outputText value="#{msg.qps}" />
     </h:commandLink>
-
+</h:panelGroup>
 </p>
