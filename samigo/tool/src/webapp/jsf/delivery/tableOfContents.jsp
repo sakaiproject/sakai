@@ -198,7 +198,7 @@ function saveTime()
 </div></div>
 <p class="act">
   <!-- check permisison to determine if the button should be displayed -->
-  <h:panelGroup rendered="#{authorization.takeAssessment && authorization.submitAssessmentForGrade}">
+  <h:panelGroup rendered="#{delivery.accessViaUrl or (authorization!=null &&  authorization.takeAssessment && authorization.submitAssessmentForGrade)}">
   <h:commandButton type="submit" value="#{msg.button_submit_grading}"
     action="#{delivery.submitForGrade}" styleClass="active"  rendered="#{!delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>
