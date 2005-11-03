@@ -52,9 +52,10 @@
     <property name="sortIndex">
       <column name="SORT_INDEX" length="10" not-null="true" />
     </property>
-    <many-to-one name="type" column="TYPE"
+ <!-- Fix me    
+     <many-to-one name="type" column="TYPE"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TypeImpl"
-      not-null="false" cascade="none" />    
+      not-null="false" cascade="none" />     -->
       
     <!-- OpenTopic fields -->
     <subclass

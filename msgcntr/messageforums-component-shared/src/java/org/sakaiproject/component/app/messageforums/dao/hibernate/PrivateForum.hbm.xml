@@ -35,9 +35,10 @@
     <property name="extendedDescription" type="text">
       <column name="EXTENDED_DESCRIPTION" not-null="true" />
     </property>
-    <many-to-one name="type" column="TYPE"
+    <!--Fixme -->
+    <!-- <many-to-one name="type" column="TYPE"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TypeImpl"
-      not-null="false" cascade="none" />
+      not-null="false" cascade="none" /> -->
     <set name="attachments" lazy="true" sort="natural"
          order-by="attachmentName asc" cascade="all-delete-orphan">
         <key column="surrogateKey"/>                        

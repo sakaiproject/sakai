@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean id="org.springframework.orm.hibernate.MessageForumsSessionFactory"
-		parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+		<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.messageforum"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="mappingResources">
 			<list>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>
@@ -17,48 +17,22 @@
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageImpl.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenForum.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateForum.hbm.xml</value>
-				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Type.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Label.hbm.xml</value>
 			</list>
 		</property>
-	</bean>
-
-	<bean id="messageForumsTransactionManager"
-		class="org.springframework.orm.hibernate.HibernateTransactionManager">
-		<property name="sessionFactory">
-			<ref bean="org.springframework.orm.hibernate.MessageForumsSessionFactory" />
-		</property>
-	</bean>
-
-<!-- 	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager">
-			<ref bean="messageForumsTransactionManager" />
-		</property>
-		<property name="target">
-			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsForumManagerImpl">
-				<property name="sessionFactory">
-					<ref bean="org.springframework.orm.hibernate.MessageForumsSessionFactory" />
-				</property>
-			</bean>
-		</property>
-		<property name="transactionAttributes">
-			<props>
-				<prop key="*">PROPAGATION_REQUIRED</prop>
-			</props>
-		</property>
-	</bean> -->
-
+	</bean> 
+	
 	<bean id="org.sakaiproject.api.app.messageforums.PrivateMessageManager"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
-			<ref bean="messageForumsTransactionManager" />
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		</property>
 		<property name="target">
-			<bean class="org.sakaiproject.api.app.messageforums.PrivateMessageManagerImpl">
+			<bean class="org.sakaiproject.component.app.messageforums.PrivateMessageManagerImpl" singleton="true">
 				<property name="sessionFactory">
-					<ref bean="org.springframework.orm.hibernate.MessageForumsSessionFactory" />
-				</property>
+					<ref
+						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+				</property>			 
 			</bean>
 		</property>
 		<property name="transactionAttributes">

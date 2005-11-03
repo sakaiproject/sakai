@@ -58,9 +58,10 @@
     <property name="gradebookAssignment">
       <column name="GRADEBOOK_ASSIGNMENT" length="255" not-null="false" />
     </property>
-    <many-to-one name="type" column="TYPE"
+<!--  FIX me   
+      <many-to-one name="type" column="TYPE"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TypeImpl"
-      not-null="false" cascade="none" />    
+      not-null="false" cascade="none" />     -->
     <property name="approved">
       <column name="APPROVED" not-null="true" />
     </property>
