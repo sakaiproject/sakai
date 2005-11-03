@@ -71,5 +71,29 @@ public interface MessageForumsForumManager {
      * Delete an open forum topic
      */
     public void deleteOpenForumTopic(OpenTopic topic);
+
+    /**
+     * Returns a given number of messages if available in the time 
+     * provided
+     * @param numberMessages the number of messages to retrieve
+     * @param numberDaysInPast the number days to look back
+     */
+    public List getRecentPrivateMessages(int numberMessages, int numberDaysInPast);
+    
+    /**
+     * Returns a given number of discussion forum messages if available in 
+     * the time provided
+     * @param numberMessages the number of forum messages to retrieve
+     * @param numberDaysInPast the number days to look back
+     */
+    public List getRecentDiscussionForumMessages(int numberMessages, int numberDaysInPast);
+    
+    /**
+     * Returns a given number of open forum messages if available in 
+     * the time provided
+     * @param numberMessages the number of forum messages to retrieve
+     * @param numberDaysInPast the number days to look back
+     */
+    public List getRecentOpenForumMessages(int numberMessages, int numberDaysInPast);
     
 }

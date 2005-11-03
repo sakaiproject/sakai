@@ -54,8 +54,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Retrieve the current user's discussion forums
      */
     public List getDiscussionForums() {
-        // TODO: implement me
-        return new ArrayList();
+        // TODO: Implement Me!
+       throw new UnsupportedOperationException();
     }
 
     /**
@@ -83,8 +83,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Retrieve topics the current user's open forums
      */
     public List getOpenForums() {
-        // TODO: implement me
-        return new ArrayList();
+        // TODO: Implement Me!
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -135,4 +135,36 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());        
     }
 
+    /**
+     * Returns a given number of messages if available in the time 
+     * provided
+     * @param numberMessages the number of messages to retrieve
+     * @param numberDaysInPast the number days to look back
+     */
+    public List getRecentPrivateMessages(int numberMessages, int numberDaysInPast) {
+        // TODO: Implement Me!
+        throw new UnsupportedOperationException();
+    }
+    
+    /**
+     * Returns a given number of discussion forum messages if available in 
+     * the time provided
+     * @param numberMessages the number of forum messages to retrieve
+     * @param numberDaysInPast the number days to look back
+     */
+    public List getRecentDiscussionForumMessages(int numberMessages, int numberDaysInPast) {
+        // TODO: Implement Me!
+        throw new UnsupportedOperationException();
+    }
+    
+    /**
+     * Returns a given number of open forum messages if available in 
+     * the time provided
+     * @param numberMessages the number of forum messages to retrieve
+     * @param numberDaysInPast the number days to look back
+     */
+    public List getRecentOpenForumMessages(int numberMessages, int numberDaysInPast) {
+        // TODO: Implement Me!
+        throw new UnsupportedOperationException();
+    }
 }
