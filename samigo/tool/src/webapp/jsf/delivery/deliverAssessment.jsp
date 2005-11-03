@@ -37,7 +37,9 @@
      var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.item_display_author}"/></title>
+      <title> <h:outputTex value="#{delivery.assessmentTitle}"/>
+            <!--h:outputText value="#{msg.item_display_author}"/-->
+      </title>
       </head>
       <h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" />
       <h:outputText value="<a name='top'></a>" escape="false" />

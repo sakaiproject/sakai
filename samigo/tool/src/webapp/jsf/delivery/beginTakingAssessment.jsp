@@ -39,7 +39,10 @@
      var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.begin_assessment_}" /></title>
+      <title><!-- h:outputText value="#{msg.begin_assessment_}" /-->
+      <h:outputTex value="#{delivery.assessmentTitle}"/>
+
+      </title>
       </head>
       <%--body onload="<%= request.getAttribute("html.body.onload") %>"--%>
  <h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" />
