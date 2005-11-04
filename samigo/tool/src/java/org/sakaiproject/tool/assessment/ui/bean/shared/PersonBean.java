@@ -24,6 +24,8 @@ package org.sakaiproject.tool.assessment.ui.bean.shared;
 
 import java.io.Serializable;
 
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
@@ -47,7 +49,11 @@ public class PersonBean implements Serializable
 
   public String getAgentString()
   {
-    return AgentFacade.getAgentString();
+    DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    if (deliveryBean.getAnonymousLogin())
+      return AgentFacade.getAnonymousId();
+    else
+      return AgentFacade.getAgentString();
   }
 
 

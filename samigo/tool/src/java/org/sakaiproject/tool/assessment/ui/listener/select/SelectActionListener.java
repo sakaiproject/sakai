@@ -85,9 +85,14 @@ public class SelectActionListener
       AbortProcessingException {
 
     //#0 - permission checking before proceeding - daisyf
+    // if it is anonymos login, let it pass 'cos there is no site and authz is 
+    // about permission in a site
     AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
-    if (!authzBean.getTakeAssessment())
+    DeliveryBean deliveryBean = (DeliveryBean) cu.lookupBean("delivery");
+    if (!deliveryBean.getAnonymousLogin() && !authzBean.getTakeAssessment())
       return;
+
+    deliveryBean = new DeliveryBean();
 
     // get service and managed bean
     PublishedAssessmentService publishedAssessmentService = new

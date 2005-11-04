@@ -1223,19 +1223,16 @@ public class DeliveryBean
       new SubmitToGradingActionListener();
     listener.processAction(null);
 
+    String returnValue="submitAssessment"; 
+    if (getAccessViaUrl()) // this is for accessing via published url
+    {
+      returnValue="anonymousThankYou";
+    }
     forGrade = false;
     SelectActionListener l2 = new SelectActionListener();
     l2.processAction(null);
     reload = true;
-
-    if (getAccessViaUrl()) // this is for accessing via published url
-    {
-      return "anonymousThankYou";
-    }
-    else
-    {
-      return "submitAssessment";
-    }
+    return returnValue;
   }
 
   public String saveAndExit()
@@ -1260,25 +1257,22 @@ public class DeliveryBean
       new SubmitToGradingActionListener();
     listener.processAction(null);
 
-    SelectActionListener l2 = new SelectActionListener();
-    l2.processAction(null);
-    reload = true;
-
+    String returnValue = "select";
     if (timeOutSubmission != null && timeOutSubmission.equals("true"))
     {
-      return "timeout";
+      returnValue = "timeout";
     }
 
     if (getAccessViaUrl())
     { // if this is access via url, display quit message
       log.debug("**anonymous login, go to quit");
-      return "anonymousQuit";
+      returnValue = "anonymousQuit";
     }
-    else
-    {
-      log.debug("**NOT anonymous login, go to select");
-      return "select";
-    }
+
+    SelectActionListener l2 = new SelectActionListener();
+    l2.processAction(null);
+    reload = true;
+    return returnValue;
   }
 
   public String next_page()
@@ -1609,6 +1603,7 @@ public class DeliveryBean
       agent = AgentFacade.getAnonymousId();
     }
 
+    System.out.println("****0 agent="+agent);
     // 0. submit other question 1st
     System.out.println("****1 submit otehr questions"+adata);
     SubmitToGradingActionListener listener =
