@@ -60,6 +60,7 @@ import org.sakaiproject.tool.assessment.qti.asi.ASIBaseClass;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.asi.Section;
+import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemTypeExtractionStrategy;
@@ -67,7 +68,6 @@ import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
-import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 
 /**
  * <p>Has helper methods for data extraction (import) from QTI</p>
@@ -1520,7 +1520,7 @@ public class ExtractionHelper
    * @param title the original
    * @return the title with versioning appended
    */
-  private static String renameDuplicate(String title)
+  public String renameDuplicate(String title)
   {
     if (title==null) title = "";
 
