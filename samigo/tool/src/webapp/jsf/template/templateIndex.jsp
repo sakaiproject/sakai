@@ -118,7 +118,8 @@
      </f:facet>
      <!--h:panelGrid columns="1"-->
        <!--h:panelGroup-->
-      <h:panelGroup rendered="#{(authorization.editOwnTemplate and (templateListItem.idString ne '1')) or (delivery.agentAccessString eq 'admin')}">
+
+      <h:panelGroup rendered="#{person.isAdmin || (authorization.editOwnTemplate && templateListItem.idString!='1')}">
         <h:commandLink id="editlink" action="editTemplate" immediate="true">
           <h:outputText value="#{templateListItem.templateName}" />
 
@@ -128,7 +129,7 @@
         </h:commandLink> <f:verbatim><br/></f:verbatim>
       </h:panelGroup>
 
-      <h:panelGroup rendered="#{!authorization.editOwnTemplate and (templateListItem.idString ne '1')}">
+      <h:panelGroup rendered="#{!authorization.editOwnTemplate && templateListItem.idString!='1'}">
           <h:outputText value="#{templateListItem.templateName}" />
           <f:verbatim><br/></f:verbatim>
       </h:panelGroup>
@@ -172,7 +173,7 @@
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{templateListItem.modifiedDate}" rendered="(templateListItem.idString ne '1') or (delivery.agentAccessString eq 'admin')">
+      <h:outputText value="#{templateListItem.modifiedDate}" rendered="#{person.isAdmin or (templateListItem.idString ne '1')}">
          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
       </h:outputText>
     </h:column>

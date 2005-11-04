@@ -611,7 +611,7 @@
   <h:inputHidden id="createdDate" value="#{template.createdDate}"/>
 
   <p class="act">
-  <h:panelGroup rendered="#{template.idString ne '1' || delivery.agentAccessString eq 'admin'}">
+  <h:panelGroup rendered="#{template.idString ne '1' || person.isAdmin}">
     <h:commandButton type="submit" id="Submit" value="#{msg.save}"
       action="#{template.getOutcome}" styleClass="active">
       <f:actionListener
@@ -621,7 +621,7 @@
     <h:commandButton type="submit" id="Cancel" value="#{msg.cancel}"
       action="template"/>
   </h:panelGroup>
-  <h:panelGroup rendered="#{template.idString eq '1' && delivery.agentAccessString ne 'admin'}">
+  <h:panelGroup rendered="#{template.idString eq '1' && !person.isAdmin}">
     <h:commandButton type="submit" id="Exit" value="#{msg.cancel}"
       action="template"/>
   </h:panelGroup>
