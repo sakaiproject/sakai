@@ -425,6 +425,8 @@ public class ExtractionHelper
 
     // access control
     String duration = (String) assessmentMap.get("duration");
+    log.info("duration: " + duration);
+
     makeAccessControl(assessment, duration);
 
     // evaluation model control
@@ -712,17 +714,21 @@ public class ExtractionHelper
       try
       {
         Iso8601TimeInterval tiso = new Iso8601TimeInterval(duration);
-        if(tiso==null || tiso.getSeconds()==null)
+        log.info("tiso.getDuration(): " + tiso.getDuration());
+
+        if(tiso==null)
         {
           throw new Iso8601FormatException("Assessment duration could not be resolved.");
         }
-        control.setTimeLimit(tiso.getSeconds());
+        long millisecondsDuration = tiso.getDuration();
+        int seconds = (int) millisecondsDuration /1000;
+        control.setTimeLimit(new Integer(seconds));
         control.setTimedAssessment(AssessmentAccessControl.TIMED_ASSESSMENT);
         assessment.getData().addAssessmentMetaData("hasTimeAssessment", "true");
       }
       catch (Iso8601FormatException ex)
       {
-        log.debug("Can't format assessment duration. " + ex);
+        log.warn("Can't format assessment duration. " + ex);
         control.setTimeLimit(new Integer(0));
         control.setTimedAssessment(AssessmentAccessControl.
                                    DO_NOT_TIMED_ASSESSMENT);
@@ -735,14 +741,14 @@ public class ExtractionHelper
                                  DO_NOT_TIMED_ASSESSMENT);
     }
 
-    log.debug(
-        "Set: control.getTimeLimit()="+control.getTimeLimit());
-    log.debug(
-        "Set: control.getTimedAssessment()="+ control.getTimedAssessment());
+    log.info("assessment.getAssessmentMetaDataByLabel(AUTO_SUBMIT): " +
+             assessment.getAssessmentMetaDataByLabel("AUTO_SUBMIT"));
+
 
     if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "AUTO_SUBMIT")))
     {
+      log.info("AUTO SUBMIT IS TRUE");
       control.setAutoSubmit(AssessmentAccessControl.AUTO_SUBMIT);
       assessment.getData().addAssessmentMetaData("hasAutoSubmit", "true");
     }
@@ -796,13 +802,13 @@ public class ExtractionHelper
     String maxAttempts =
         "" + assessment.getAssessmentMetaDataByLabel("MAX_ATTEMPTS");
     String unlimited = AuthoringConstantStrings.UNLIMITED_SUBMISSIONS;
-    log.info("maxAttempts: '" + maxAttempts + "'");
-    log.info("unlimited: '" + unlimited + "'");
+    log.debug("maxAttempts: '" + maxAttempts + "'");
+    log.debug("unlimited: '" + unlimited + "'");
 
     if (
         unlimited.equals(maxAttempts.trim()))
     {
-      log.info("unlimited.equals(maxAttempts.trim()");
+      log.debug("unlimited.equals(maxAttempts.trim()");
       control.setUnlimitedSubmissions(Boolean.TRUE);
       control.setSubmissionsAllowed(AssessmentAccessControlIfc.
                                     UNLIMITED_SUBMISSIONS);
@@ -840,11 +846,6 @@ public class ExtractionHelper
         "AUTO_SAVE")))
     {
       control.setAutoSubmit(control.AUTO_SAVE);
-    }
-    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
-        "AUTO_SAVE")))
-    {
-      control.setAutoSubmit(control.DO_NOT_AUTO_SUBMIT);
     }
 
     // Submission Message
@@ -885,7 +886,7 @@ public class ExtractionHelper
     {
       securedIPAddressSet = new HashSet();
     }
-    log.info("Getting securedIPAddressSet=" + securedIPAddressSet);
+    log.debug("Getting securedIPAddressSet=" + securedIPAddressSet);
 
     log.info("ipList: " + ipList);
 
