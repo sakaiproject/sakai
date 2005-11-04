@@ -424,14 +424,29 @@ function checkTimeSelect(){
   <!-- *** FEEDBACK *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
   <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
+
+  <!-- FEEDBACK AUTHORING-->
+<f:verbatim><div class="indnt2"><div class="longtext"></f:verbatim>
+  <h:outputLabel for="fb_deli" value="#{msg.feedback_authoring}"/>
+    <f:verbatim> </div> <div class="indnt3"></f:verbatim>
+  <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
+    <h:panelGrid columns="1">
+         <h:selectOneRadio layout="pageDirection" value="#{assessmentSettings.feedbackAuthoring}"
+            required="true">
+           <f:selectItem itemValue="1" itemLabel="#{msg.questionlevel_feedback}"/>
+           <f:selectItem itemValue="2" itemLabel="#{msg.sectionlevel_feedback}"/>
+           <f:selectItem itemValue="3" itemLabel="#{msg.both_feedback}"/>
+         </h:selectOneRadio>
+    </h:panelGrid>
+  </h:panelGroup>
+<f:verbatim></div></f:verbatim>
+
+
+ <!-- FEEDBACK DELIVERY -->
  <f:verbatim><div class="indnt2"><div class="longtext"></f:verbatim>
    <h:outputLabel value="#{msg.feedback_delivery}" /> <f:verbatim></div><div class="indnt3"></f:verbatim>
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
       <h:panelGrid border="0" columns="1"  >
-<%--
-<h:outputText value="debug: feedbackdelivery: #{assessmentSettings.feedbackDelivery}" />
-<h:outputText value="disabled: #{assessmentSettings.feedbackDelivery==3}" />
---%>
         <h:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}"
            layout="pageDirection" onclick="disableAllFeedbackCheck(this.value);">
           <f:selectItem itemValue="1" itemLabel="#{msg.immediate_feedback}"/>
@@ -448,12 +463,17 @@ function checkTimeSelect(){
       </h:panelGrid>
     </h:panelGroup>
 <f:verbatim></div></f:verbatim>
+
+
+    <!-- FEEDBACK COMPONENTS -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
      <f:verbatim> <div class="longtext"> </f:verbatim>  <h:outputLabel value="#{msg.feedback_components}" /> <f:verbatim> </div> <div class="indnt3"></f:verbatim>
       <h:panelGrid columns="2"  >
+
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionText}" disabled="true" id="disabledCheckbox1" />
-          <h:outputText value="#{msg.question_text}" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"
+            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+          <h:outputText value="#{msg.student_response}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2"
@@ -461,9 +481,9 @@ function checkTimeSelect(){
           <h:outputText value="#{msg.question_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox3"
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox3"
             disabled="#{assessmentSettings.feedbackDelivery==3}" />
-          <h:outputText value="#{msg.student_response}" />
+          <h:outputText value="#{msg.correct_response}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4"
@@ -471,19 +491,19 @@ function checkTimeSelect(){
           <h:outputText value="#{msg.selection_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox5"
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox5"
             disabled="#{assessmentSettings.feedbackDelivery==3}" />
-          <h:outputText value="#{msg.correct_response}" />
+          <h:outputText value="#{msg.student_assessment_score}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox6"
-            disabled="#{assessmentSettings.feedbackDelivery==3}" />
-          <h:outputText value="#{msg.student_score}" />
-        </h:panelGroup>
-        <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox7"
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox6"
             disabled="#{assessmentSettings.feedbackDelivery==3}" />
           <h:outputText value="#{msg.grader_comments}" />
+        </h:panelGroup>
+        <h:panelGroup>
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentQuestionScore}" id="feedbackCheckbox7"
+            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+          <h:outputText value="#{msg.student_question_score}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showStatistics}" id="feedbackCheckbox8"
