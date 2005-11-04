@@ -320,6 +320,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       <h:outputText value="#{msg.all_graded}" rendered="#{description.status == 2}"/>
       <h:outputText value=" " rendered="#{description.status == 3}"/>
       <h:outputText value="#{msg.late}" rendered="#{description.status == 4}"/>
+      <h:outputText value="#{msg.no_submission}" rendered="#{description.status == 5}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='status'}">

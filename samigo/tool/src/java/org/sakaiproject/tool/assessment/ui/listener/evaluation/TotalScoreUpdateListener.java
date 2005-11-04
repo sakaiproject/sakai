@@ -26,6 +26,9 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Date;
+import java.util.HashSet;
+
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -41,6 +44,8 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
 /**
  * <p>
@@ -96,23 +101,67 @@ public class TotalScoreUpdateListener
       {
         AgentResults agentResults = (AgentResults) iter.next();
 
-        // Add up new score
-        agentResults.setFinalScore(new Float(
-          new Float(agentResults.getTotalAutoScore()).floatValue() +
-          new Float(agentResults.getTotalOverrideScore()).floatValue())
-            .toString());
-        AssessmentGradingData data = new AssessmentGradingData();
-        BeanUtils.copyProperties(data, agentResults);
-        data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
-        data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
-        data.setFinalScore(new Float(agentResults.getFinalScore()));
-        data.setComments(agentResults.getComments());
-        log.info(
-          "SAVE: \ntotal score=" + data.getTotalAutoScore() +
-          "\nadjustment=" + data.getTotalOverrideScore() +
-          "\ngradingId=" + data.getAssessmentGradingId() +
-          "\ncomments=" + data.getComments());
-        grading.add(data);
+
+	if (!agentResults.getAssessmentGradingId().equals(new Long(-1)) ) {
+	  // these are students who have submitted for grades.
+          // Add up new score
+          agentResults.setFinalScore(new Float(
+            new Float(agentResults.getTotalAutoScore()).floatValue() +
+            new Float(agentResults.getTotalOverrideScore()).floatValue()).toString());
+
+          AssessmentGradingData data = new AssessmentGradingData();
+          BeanUtils.copyProperties(data, agentResults);
+
+          data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
+          data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
+          data.setFinalScore(new Float(agentResults.getFinalScore()));
+          data.setComments(agentResults.getComments());
+          grading.add(data);
+        }
+
+	else {
+
+	  boolean noOverrideScore =  false;
+          boolean noComment =  false;
+	  if ((new Float(0)).equals(new Float(agentResults.getTotalOverrideScore().trim())))
+	    noOverrideScore = true;
+	  if ("".equals(agentResults.getComments().trim()))
+	    noComment = true;
+
+
+          if (!(noOverrideScore && noComment )) {
+            // these are students who have not submitted for grades and instructor made adjustment to their scores
+
+	    // Add up new score
+	    agentResults.setFinalScore(new Float(
+              new Float(agentResults.getTotalAutoScore()).floatValue() +
+              new Float(agentResults.getTotalOverrideScore()).floatValue()).toString());
+
+
+	    AssessmentGradingData data = new AssessmentGradingData();
+            BeanUtils.copyProperties(data, agentResults);
+
+	    String publishedId = bean.getPublishedId();
+	    PublishedAssessmentService pubassessmentService = new PublishedAssessmentService();
+    	    PublishedAssessmentFacade pubassessment = pubassessmentService.getPublishedAssessment(publishedId);
+
+            data.setAgentId(agentResults.getIdString());
+  	    data.setForGrade(new Boolean(true));
+   	    data.setItemGradingSet(new HashSet());
+    	    data.setPublishedAssessment(pubassessment.getData());
+	    // tell hibernate this is a new record
+    	    data.setAssessmentGradingId(new Long(0));
+
+	    data.setSubmittedDate(new Date());
+            data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
+            data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
+            data.setFinalScore(new Float(agentResults.getFinalScore()));
+            data.setComments(agentResults.getComments());
+            grading.add(data);
+          }
+        }
+
+
       }
 
       GradingService delegate = new GradingService();

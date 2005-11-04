@@ -210,24 +210,33 @@ System.out.println("changed submission pulldown ");
 
       // now we need filter by sections selected 
       ArrayList scores = new ArrayList();  // filtered list
+      ArrayList students_submitted= new ArrayList();  // arraylist of students submitted test
       Iterator allscores_iter = allscores.iterator();
-
-      // get the Map of all users(keyed on userid) belong to the selected sections 
       Map useridMap= bean.getUserIdMap(); 
-
       while (allscores_iter.hasNext())
       {
 	AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
         String agentid =  data.getAgentId();
         
+	// get the Map of all users(keyed on userid) belong to the selected sections 
 
 	// now we only include scores of users belong to the selected sections
         if (useridMap.containsKey(agentid) ) {
-		scores.add(data);
+	  scores.add(data);
+      	  students_submitted.add(agentid);
 	  }
-
       }
-      
+
+
+      // now get the list of students that have not submitted for grades 
+      ArrayList students_not_submitted= new ArrayList();  
+      Iterator useridIterator = useridMap.keySet().iterator(); 
+      while (useridIterator.hasNext()) {
+	String userid = (String) useridIterator.next(); 	
+        if (!students_submitted.contains(userid)) {
+	  students_not_submitted.add(userid);
+        }
+      } 
 
       Iterator iter = scores.iterator();
       //log.info("Has this many agents: " + scores.size());
@@ -376,15 +385,14 @@ System.out.println("changed submission pulldown ");
 
       // Collect a list of all the users in the scores list
       ArrayList agentUserIds = new ArrayList();
-      //int z = 0;
-      //while(z++ < 5000) {
-      iter = scores.iterator();
+
+      iter = useridMap.keySet().iterator();
       while (iter.hasNext())
       {
-          AssessmentGradingData gdata = (AssessmentGradingData) iter.next();
-          agentUserIds.add(gdata.getAgentId());
+	String userid = (String)iter.next();
+        agentUserIds.add(userid);
       }
-      //}
+
       AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
       
@@ -441,6 +449,47 @@ System.out.println("changed submission pulldown ");
         agents.add(results);
       }
 
+
+
+      // now add those students that have not submitted scores, need to display them in the UI as well SAK-2234
+// students_not_submitted
+        Iterator notsubmitted_iter= students_not_submitted.iterator();
+        while (notsubmitted_iter.hasNext()){
+          String studentid = (String) notsubmitted_iter.next();
+          AgentResults results = new AgentResults();
+          AgentFacade agent = new AgentFacade(studentid);
+          results.setLastName(agent.getLastName());
+          results.setFirstName(agent.getFirstName());
+          if (results.getLastName() != null &&
+            results.getLastName().length() > 0)
+  	  {
+              results.setLastInitial(results.getLastName().substring(0,1));
+          }
+          else if (results.getFirstName() != null &&
+                 results.getFirstName().length() > 0)
+          {
+            results.setLastInitial(results.getFirstName().substring(0,1));
+          }
+          else
+          {
+            results.setLastInitial("Anonymous");
+          }
+          results.setIdString(agent.getIdString());
+          results.setRole((String)userRoles.get(studentid));
+	  // use -1 to indicate this is an unsubmitted agent
+          results.setAssessmentGradingId(new Long(-1));
+          results.setTotalAutoScore("0");
+          results.setTotalOverrideScore("0");
+          results.setSubmittedDate(null);
+          results.setFinalScore("0");
+          results.setComments("");
+          results.setStatus(new Integer(5));  //  no submission
+
+          agents.add(results);
+        }
+
+
+
       //log.info("Sort type is " + bean.getSortType() + ".");
       bs = new BeanSort(agents, bean.getSortType());
       if (
@@ -454,11 +503,11 @@ System.out.println("changed submission pulldown ");
         bs.toStringSort();
       }
 
-
       //bs.sort();
       //log.info("Listing agents.");
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+
     }
 
     catch (Exception e)
