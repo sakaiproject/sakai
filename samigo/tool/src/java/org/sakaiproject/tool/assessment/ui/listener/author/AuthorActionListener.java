@@ -35,6 +35,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
+import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
@@ -83,9 +84,17 @@ public class AuthorActionListener
 
     //#1 - prepare active template list. Note that we only need the title. We don't need the
     // full template object - be cheap.
+    author.setShowTemplateList(true);
     ArrayList templateList = assessmentService.getTitleOfAllActiveAssessmentTemplates();
     // get the managed bean, author and set the list
-    author.setAssessmentTemplateList(templateList);
+    if (templateList.size()==1){   //<= only contains Default Template
+	author.setShowTemplateList(false);
+    }
+    else{
+      // remove Default Template
+      removeDefaultTemplate(templateList);
+      author.setAssessmentTemplateList(templateList);
+    }
 
     //#2 - prepare core assessment list
     author.setCoreAssessmentOrderBy(AssessmentFacadeQueries.TITLE);
@@ -122,6 +131,16 @@ public class AuthorActionListener
       Integer size = (Integer) map.get(p.getPublishedAssessmentId());
       if (size != null){
         p.setSubmissionSize(size.intValue());
+      }
+    }
+  }
+
+  private void removeDefaultTemplate(ArrayList templateList){
+    for (int i=0; i<templateList.size();i++){
+      AssessmentTemplateFacade a = (AssessmentTemplateFacade) templateList.get(i);
+      if ((a.getAssessmentBaseId()).equals(new Long("1"))){
+        templateList.remove(a);
+        return;
       }
     }
   }

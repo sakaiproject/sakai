@@ -73,6 +73,7 @@ public class AuthorBean implements Serializable
   private String inactivePublishedAssessmentOrderBy = "title";
   private boolean inactivePublishedAscending = true;
   private String outcome;
+  private boolean showTemplateList;
 
   /**
    * @return the id
@@ -472,6 +473,16 @@ public class AuthorBean implements Serializable
   public void setOutcome(String outcome)
   {
     this.outcome = outcome;
+  }
+
+  public boolean getShowTemplateList()
+  {
+    return showTemplateList;
+  }
+
+  public void setShowTemplateList(boolean showTemplateList)
+  {
+    this.showTemplateList = showTemplateList;
   }
 
 }
