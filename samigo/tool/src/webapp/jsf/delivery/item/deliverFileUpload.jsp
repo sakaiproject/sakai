@@ -36,7 +36,7 @@ should be included in file importing DeliveryMessages
   <!-- assessmentXXX/questionXXX/agentId -->
   <!-- please check the valueChangeListener to get the final destination -->
   <corejsf:upload
-    target="jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{delivery.agentAccessString}"
+    target="jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}"
     valueChangeListener="#{delivery.addMediaToItemGrading}" />
   <f:verbatim>&nbsp;&nbsp;</f:verbatim>
   <h:commandButton value="Upload" action="submit"/>

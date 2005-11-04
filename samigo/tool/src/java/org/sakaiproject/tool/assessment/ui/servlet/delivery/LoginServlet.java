@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -113,6 +114,9 @@ public class LoginServlet
         isAuthenticated = true;
         isAuthorized = true;
         delivery.setAnonymousLogin(true);
+        PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
+                              "person", req, res);
+        person.setAnonymousId(agentIdString);
       }
       else { // check membership
 	agentIdString = req.getRemoteUser();

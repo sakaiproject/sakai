@@ -42,18 +42,34 @@ import org.apache.commons.logging.Log;
 public class PersonBean implements Serializable
 {
   private static Log log = LogFactory.getLog(PersonBean.class);
-
+  private String anonymousId;
+ 
   public PersonBean(){}
   {
   }
 
   public String getAgentString()
   {
-    DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    if (deliveryBean.getAnonymousLogin())
-      return AgentFacade.getAnonymousId();
+    return AgentFacade.getAgentString();
+  }
+
+  public String getAnonymousId()
+  {
+    return anonymousId;
+  }
+
+  public String getId()
+  {
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    if (delivery.getAnonymousLogin())
+      return getAnonymousId();
     else
-      return AgentFacade.getAgentString();
+      return getAgentString();
+  }
+
+  public void setAnonymousId(String anonymousId)
+  {
+    this.anonymousId=anonymousId;
   }
 
 

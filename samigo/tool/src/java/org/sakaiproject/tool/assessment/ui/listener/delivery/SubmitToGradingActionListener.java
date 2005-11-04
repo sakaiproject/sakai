@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -332,11 +333,9 @@ public class SubmitToGradingActionListener implements ActionListener
     PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery,
     HashSet itemData)
   {
+    PersonBean person = (PersonBean) ContextUtil.lookupBean("person");            
     AssessmentGradingData adata = new AssessmentGradingData();
-    if (publishedAssessment.getAssessmentAccessControl().getReleaseTo().indexOf("Anonymous Users")==-1)
-      adata.setAgentId(AgentFacade.getAgentString());
-    else
-      adata.setAgentId(AgentFacade.getAnonymousId());
+    adata.setAgentId(person.getId());
     adata.setForGrade(new Boolean(delivery.getForGrade()));
     adata.setItemGradingSet(itemData);
     adata.setPublishedAssessment(publishedAssessment.getData());

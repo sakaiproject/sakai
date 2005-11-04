@@ -57,6 +57,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
+
 //cwen
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.kernel.tool.Placement;
@@ -1596,12 +1598,8 @@ public class DeliveryBean
       PublishedAssessmentService();
     PublishedAssessmentFacade publishedAssessment = publishedService.
       getPublishedAssessment(assessmentId);
-    String agent = AgentFacade.getAgentString();
-    if (publishedAssessment.getAssessmentAccessControl().getReleaseTo().indexOf(
-      "Anonymous Users") > -1)
-    {
-      agent = AgentFacade.getAnonymousId();
-    }
+    PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
+    String agent = person.getId();
 
     System.out.println("****0 agent="+agent);
     // 0. submit other question 1st

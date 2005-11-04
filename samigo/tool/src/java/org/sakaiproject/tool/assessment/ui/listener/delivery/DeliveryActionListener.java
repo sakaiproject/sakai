@@ -60,6 +60,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 
@@ -138,7 +139,7 @@ public class DeliveryActionListener
         goToRightQuestionFromTOC(delivery);
       }
 
-      String agent = AgentFacade.getAgentString();
+      String agent = getAgentString();
       boolean forEvaluation = false;
       if (cu.lookupParam("studentid") != null &&
           !cu.lookupParam("studentid").trim().equals(""))
@@ -1013,7 +1014,7 @@ public class DeliveryActionListener
 */
           Collections.shuffle(shuffled,
                               new Random( (long) item.getText().hashCode() +
-                AgentFacade.getAgentString().hashCode()));
+                getAgentString().hashCode()));
         }
         else
         {
@@ -1022,7 +1023,7 @@ public class DeliveryActionListener
 /*
           Collections.shuffle(shuffled,
                               new Random( (long) item.getText().hashCode() +
-                                         AgentFacade.getAgentString().hashCode()));
+                                         getAgentString().hashCode()));
 */
         }
         key2 = shuffled.iterator();
@@ -1252,7 +1253,7 @@ public class DeliveryActionListener
       }
       Collections.shuffle(shuffled,
   new Random( (long) item.getText().hashCode() +
-  AgentFacade.getAgentString().hashCode()));
+  getAgentString().hashCode()));
 
 /*
       Collections.shuffle
@@ -1459,4 +1460,12 @@ public class DeliveryActionListener
     System.out.println("testExtractFIBTextArray result="+testExtractFIBTextArray(verbose));;
 
   }
+
+  public String getAgentString(){
+    PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
+    String agentString = person.getId();
+    log.info("***agentString="+agentString);
+    return agentString;
+  }
+
 }
