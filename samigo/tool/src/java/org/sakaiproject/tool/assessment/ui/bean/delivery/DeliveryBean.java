@@ -190,13 +190,14 @@ public class DeliveryBean
 
   // this instance tracks if the Agent is taking a test via URL, as well as
   // current agent string (if assigned). SAK-1927: esmiley
-  private static final AgentFacade deliveryAgent = new AgentFacade();
+  private AgentFacade deliveryAgent;
 
   /**
    * Creates a new DeliveryBean object.
    */
   public DeliveryBean()
   {
+    deliveryAgent = new AgentFacade();
   }
 
   /**
@@ -1710,7 +1711,7 @@ public class DeliveryBean
 
   }
 
-  public void saveMedia(String agent, String mediaLocation, ItemGradingData itemGradingData, 
+  public void saveMedia(String agent, String mediaLocation, ItemGradingData itemGradingData,
                         GradingService gradingService){
     // 1. create a media record
     File media = new File(mediaLocation);
@@ -1777,7 +1778,7 @@ public class DeliveryBean
       float maxSize_float = maxSize.floatValue()/1024;
       int tmp0 = Math.round(maxSize_float * 10.0f);
       maxSize_float = (float)tmp0 / 10.0f;
-      
+
       String err1=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "file_upload_error");
       String err2=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "file_uploaded");
       String err3=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "max_size_allowed");
