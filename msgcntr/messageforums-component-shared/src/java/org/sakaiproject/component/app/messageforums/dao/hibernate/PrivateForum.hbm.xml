@@ -35,10 +35,9 @@
     <property name="extendedDescription" type="text">
       <column name="EXTENDED_DESCRIPTION" not-null="true" />
     </property>
-    <!--Fixme -->
-    <!-- <many-to-one name="type" column="TYPE"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TypeImpl"
-      not-null="false" cascade="none" /> -->
+    <property name="typeUuid">
+      <column name="TYPE_UUID" length="36" not-null="true" />
+    </property>
     <set name="attachments" lazy="true" sort="natural"
          order-by="attachmentName asc" cascade="all-delete-orphan">
         <key column="surrogateKey"/>                        
@@ -63,6 +62,11 @@
     <property name="previewPaneEnabled">
       <column name="PREVIEW_PANE_ENABLED" length="10" not-null="true" />
     </property>
+ 
+    <many-to-one name="area" column="surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
+        not-null="false" index="MFR_PARENT_BASEFORUM_I" cascade="none" />
+      
   </class>
 
   <query name="findPrivateForumById">

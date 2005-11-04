@@ -27,8 +27,9 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.common.type.Type;
+import org.sakaiproject.api.app.messageforums.Topic;
  
  
 public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
@@ -38,9 +39,10 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     private String title;
     private String shortDescription;
     private String extendedDescription;
-    private Type type;
+    private String typeUuid;
     private Set attachments;
     private Set topics;
+    private Area area;
     private Integer sortIndex; 
     
     public Set getAttachments() {
@@ -91,12 +93,50 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         this.topics = topics;
     }
 
-    public Type getType() {
-        return type;
+    public String getTypeUuid() {
+        return typeUuid;
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    public void setTypeUuid(String typeUuid) {
+        this.typeUuid = typeUuid;
+    }
+
+    public Area getArea() {
+        return area;
+    }
+
+    public void setArea(Area area) {
+        this.area = area;
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    // helper methods for collections
+    ////////////////////////////////////////////////////////////////////////
+    
+    public void addTopic(Topic topic) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addForum(topic " + topic + ")");
+        }
+        
+        if (topic == null) {
+            throw new IllegalArgumentException("topic == null");
+        }
+        
+        topic.setBaseForum(this);
+        topics.add(topic);
+    }
+
+    public void removeTopic(Topic topic) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("removeForum(topic " + topic + ")");
+        }
+        
+        if (topic == null) {
+            throw new IllegalArgumentException("Illegal topic argument passed!");
+        }
+        
+        topic.setBaseForum(null);
+        topics.remove(topic);
     }
     
 }

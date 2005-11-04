@@ -23,7 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import java.awt.List;
+import java.util.Set;
 
 public interface Area extends MutableEntity
 {
@@ -54,16 +54,16 @@ public interface Area extends MutableEntity
   public void setTypeUuid(String typeUuid);
   
   /**
-   * Return list of forums in chronological order 
+   * Return set of forums in chronological order 
    * 
    * @return
    */
-  public List getForums();
+  public Set getForums();
   
   /**
-   * Set list of forums in chronological order 
+   * Set set of forums in chronological order 
    * 
    * @return
    */
-  public void setForums(List forums);
+  public void setForums(Set forums);
  }

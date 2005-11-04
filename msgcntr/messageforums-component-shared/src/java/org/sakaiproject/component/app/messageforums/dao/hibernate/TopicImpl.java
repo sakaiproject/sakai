@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
 
 public class TopicImpl extends MutableEntityImpl implements Topic {
@@ -39,8 +41,18 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
     private Set attachments;
     private Boolean mutable;
     private Integer sortIndex;
-    private org.sakaiproject.api.common.type.Type type;
+    private String typeUuid;
+    private BaseForum baseForum;
+    private Set messages;
     
+    public Set getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Set messages) {
+        this.messages = messages;
+    }
+
     public Set getAttachments() {
         return attachments;
     }
@@ -89,12 +101,50 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
         this.title = title;
     }
 
-    public org.sakaiproject.api.common.type.Type getType() {
-        return type;
+    public String getTypeUuid() {
+        return typeUuid;
     }
 
-    public void setType(org.sakaiproject.api.common.type.Type type) {
-        this.type = type;
+    public void setTypeUuid(String typeUuid) {
+        this.typeUuid = typeUuid;
+    }
+
+    public BaseForum getBaseForum() {
+        return baseForum;
+    }
+
+    public void setBaseForum(BaseForum forum) {
+        this.baseForum = forum;        
+    }
+    
+    ////////////////////////////////////////////////////////////////////////
+    // helper methods for collections
+    ////////////////////////////////////////////////////////////////////////
+    
+    public void addMessage(Message message) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addForum(message " + message + ")");
+        }
+        
+        if (message == null) {
+            throw new IllegalArgumentException("message == null");
+        }
+        
+        message.setTopic(this);
+        messages.add(message);
+    }
+
+    public void removeMessage(Message message) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("removeForum(message " + message + ")");
+        }
+        
+        if (message == null) {
+            throw new IllegalArgumentException("Illegal message argument passed!");
+        }
+        
+        message.setTopic(null);
+        messages.remove(message);
     }
         
 }

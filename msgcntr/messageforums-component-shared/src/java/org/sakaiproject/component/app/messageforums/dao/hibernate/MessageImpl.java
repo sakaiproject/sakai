@@ -30,9 +30,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.common.type.Type;
+import org.sakaiproject.api.app.messageforums.Topic;
  
-
 public class MessageImpl extends MutableEntityImpl implements Message {
 
     private static final Log LOG = LogFactory.getLog(MessageImpl.class);
@@ -45,9 +44,18 @@ public class MessageImpl extends MutableEntityImpl implements Message {
     private Message inReplyTo;
     private String gradebook;
     private String gradebookAssignment;
-    private Type type;
+    private String typeUuid;
     private Boolean approved;
     private Boolean draft;
+    private Topic topic;
+    
+    public Topic getTopic() {
+        return topic;
+    }
+
+    public void setTopic(Topic topic) {
+        this.topic = topic;
+    }
 
     public MessageImpl() {
         attachments = new TreeSet();
@@ -133,12 +141,12 @@ public class MessageImpl extends MutableEntityImpl implements Message {
         this.title = title;
     }
 
-    public Type getType() {
-        return type;
+    public String getTypeUuid() {
+        return typeUuid;
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    public void setTypeUuid(String typeUuid) {
+        this.typeUuid = typeUuid;
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -170,4 +178,5 @@ public class MessageImpl extends MutableEntityImpl implements Message {
         attachment.setParent(null);
         attachments.remove(attachment);
     }
+
 }

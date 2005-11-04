@@ -2,7 +2,7 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.util.List;
 
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager; 
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
 public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager

@@ -25,9 +25,6 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.Set;
 
-import org.sakaiproject.api.common.type.Type;
-
-
 public interface Topic extends MutableEntity {
 
     public Set getAttachments();
@@ -54,8 +51,16 @@ public interface Topic extends MutableEntity {
 
     public void setTitle(String title);
 
-    public Type getType();
+    public String getTypeUuid();
 
-    public void setType(Type type);
+    public void setTypeUuid(String typeUuid);
+    
+    public BaseForum getBaseForum();
+    
+    public void setBaseForum(BaseForum forum);
+    
+    public Set getMessages();
+    
+    public void setMessages(Set messages);
 
 }

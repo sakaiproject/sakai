@@ -52,7 +52,9 @@ public interface Message extends MutableEntity {
     public void setLabel(String label);
     public String getTitle();
     public void setTitle(String title);
-    //public Type getType();
-    //public void setType(Type type); 
+    public String getTypeUuid();
+    public void setTypeUuid(String typeUuid); 
+    public void setTopic(Topic topic);
+    public Topic getTopic();
 
 }

@@ -58,16 +58,19 @@
     <property name="gradebookAssignment">
       <column name="GRADEBOOK_ASSIGNMENT" length="255" not-null="false" />
     </property>
-<!--  FIX me   
-      <many-to-one name="type" column="TYPE"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TypeImpl"
-      not-null="false" cascade="none" />     -->
+    <property name="typeUuid">
+      <column name="TYPE_UUID" length="36" not-null="true" />
+    </property>
     <property name="approved">
       <column name="APPROVED" not-null="true" />
     </property>
     <property name="draft">
       <column name="DRAFT" not-null="true" />
     </property>
+    
+    <many-to-one name="topic" column="surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+      not-null="false" index="MFR_PARENT_TOPIC_I" cascade="none" />
         
     <!-- PrivateMessage fields -->
     <subclass 
