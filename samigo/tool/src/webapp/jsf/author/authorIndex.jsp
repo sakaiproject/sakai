@@ -72,15 +72,18 @@
     <h:outputText value="#{msg.assessment_create}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
    </h5>
    <div class="shorttext">
-    <h:outputLabel value="#{msg.assessment_choose}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
+    <h:outputLabel value="#{msg.assessment_choose}" styleClass="form_label" 
+       rendered="#{authorization.createAssessment && author.showTemplateList}" />
 
-      <h:selectOneMenu id="assessmentTemplate" rendered="#{authorization.createAssessment}"
+      <h:selectOneMenu id="assessmentTemplate" 
+         rendered="#{authorization.createAssessment && author.showTemplateList}"
         value="#{author.assessmentTemplateId}">
          <f:selectItem itemValue="" itemLabel="select..."/>
          <f:selectItems value="#{author.assessmentTemplateList}" />
       </h:selectOneMenu>
 
-      <h:outputText value="#{msg.optional_paren}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
+      <h:outputText value="#{msg.optional_paren}" styleClass="form_label"
+         rendered="#{authorization.createAssessment && author.showTemplateList}" />
       <br/>
    </div>
 <div class="shorttext">
