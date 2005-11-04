@@ -157,7 +157,6 @@ public class DeliveryActionListener
       PublishedAssessmentService publishedAssessmentService = new
         PublishedAssessmentService();
 
-      // beware that this parameter is used for both "preview" and "review" - daisyf
       String previewAssessment = (String) cu.lookupParam("previewAssessment");
       String assessmentId = (String) cu.lookupParam("assessmentId");
 
