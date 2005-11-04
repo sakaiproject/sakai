@@ -118,7 +118,7 @@
      </f:facet>
      <!--h:panelGrid columns="1"-->
        <!--h:panelGroup-->
-      <h:panelGroup rendered="#{authorization.editOwnTemplate or (delivery.agentAccessString eq 'admin')}">
+      <h:panelGroup rendered="#{(authorization.editOwnTemplate and (templateListItem.idString ne '1')) or (delivery.agentAccessString eq 'admin')}">
         <h:commandLink id="editlink" action="editTemplate" immediate="true">
           <h:outputText value="#{templateListItem.templateName}" />
 
@@ -128,7 +128,7 @@
         </h:commandLink> <f:verbatim><br/></f:verbatim>
       </h:panelGroup>
 
-      <h:panelGroup rendered="#{!authorization.editOwnTemplate and (templateListItem.idString ne 1)}">
+      <h:panelGroup rendered="#{!authorization.editOwnTemplate and (templateListItem.idString ne '1')}">
           <h:outputText value="#{templateListItem.templateName}" />
           <f:verbatim><br/></f:verbatim>
       </h:panelGroup>
@@ -148,7 +148,7 @@
      <!--/h:panelGrid-->
     </h:column>
 
-    <h:column>
+    <h:column >
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink  immediate="true" action="sort"  rendered="#{templateIndex.templateOrderBy!='lastModified'}">
@@ -172,7 +172,7 @@
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{templateListItem.modifiedDate}">
+      <h:outputText value="#{templateListItem.modifiedDate}" rendered="(templateListItem.idString ne '1') or (delivery.agentAccessString eq 'admin')">
          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
       </h:outputText>
     </h:column>
