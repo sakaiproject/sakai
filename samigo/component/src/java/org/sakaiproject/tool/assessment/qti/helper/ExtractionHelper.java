@@ -94,6 +94,9 @@ public class ExtractionHelper
   private String overridePath = null; // override defaults and settings
   private String FIB_BLANK_INDICATOR = " {} ";
 
+  // versioning title string that it will look for/use, followed by a number
+  private static final String VERSION_START = "  - ";
+
   /**
    * @deprecated
    */
@@ -1510,6 +1513,54 @@ public class ExtractionHelper
   {
     return s != null && s.trim().length() > 0 ?
         true : false;
+  }
+
+  /**
+   * Append "  - 2", "  - 3", etc. incrementing as you go.
+   * @param title the original
+   * @return the title with versioning appended
+   */
+  private static String renameDuplicate(String title)
+  {
+    if (title==null) title = "";
+
+    String rename = "";
+    int index = title.lastIndexOf(VERSION_START);
+
+    if (index>-1)//if is versioned
+    {
+      String mainPart = "";
+      String versionPart = title.substring(index);
+      if (index > 0)
+      {
+        mainPart = title.substring(0, index);
+      }
+
+      int nindex = index + VERSION_START.length();
+
+      String version = title.substring(nindex);
+
+      int versionNumber = 0;
+      try
+      {
+        versionNumber = Integer.parseInt(version);
+        if (versionNumber < 2) versionNumber = 2;
+        versionPart = VERSION_START + (versionNumber + 1);
+
+        rename = mainPart + versionPart;
+      }
+      catch (NumberFormatException ex)
+      {
+        rename = title + VERSION_START + "2";
+      }
+    }
+    else
+    {
+      rename = title + VERSION_START + "2";
+    }
+
+    return rename;
+
   }
 
   /**
