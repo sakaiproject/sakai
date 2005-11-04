@@ -415,20 +415,20 @@ public class ExtractionHelper
     // additional information
 
     // restricted IP address
-    log.info("ASSESSMENT updating access control, evaluation model, feedback");
+    log.debug("ASSESSMENT updating access control, evaluation model, feedback");
     String allowIp = assessment.getAssessmentMetaDataByLabel(
         "ALLOW_IP");
-    log.info("allowIp: " + allowIp);
+    log.debug("allowIp: " + allowIp);
 
     if (allowIp !=null)
     {
-      log.info("NOT NULL: " + allowIp);
+      log.debug("NOT NULL: " + allowIp);
       makeSecuredIPAddressSet(assessment, allowIp);
     }
 
     // access control
     String duration = (String) assessmentMap.get("duration");
-    log.info("duration: " + duration);
+    log.debug("duration: " + duration);
 
     makeAccessControl(assessment, duration);
 
@@ -694,7 +694,7 @@ public class ExtractionHelper
     // for backwards compatibility with version 1.5 exports.
     if (releasedTo != null && releasedTo.indexOf("Authenticated Users") > -1)
     {
-      log.info(
+      log.debug(
           "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
       releasedTo = "Anonymous Users";
     }
@@ -703,7 +703,7 @@ public class ExtractionHelper
       // for backwards compatibility with version 1.5 exports.
       if (releasedTo != null && releasedTo.indexOf("Authenticated Users") > -1)
       {
-        log.info(
+        log.debug(
           "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
         releasedTo = "Anonymous Users";
       }
@@ -717,7 +717,7 @@ public class ExtractionHelper
       try
       {
         Iso8601TimeInterval tiso = new Iso8601TimeInterval(duration);
-        log.info("tiso.getDuration(): " + tiso.getDuration());
+        log.debug("tiso.getDuration(): " + tiso.getDuration());
 
         if(tiso==null)
         {
@@ -744,14 +744,14 @@ public class ExtractionHelper
                                  DO_NOT_TIMED_ASSESSMENT);
     }
 
-    log.info("assessment.getAssessmentMetaDataByLabel(AUTO_SUBMIT): " +
+    log.debug("assessment.getAssessmentMetaDataByLabel(AUTO_SUBMIT): " +
              assessment.getAssessmentMetaDataByLabel("AUTO_SUBMIT"));
 
 
     if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "AUTO_SUBMIT")))
     {
-      log.info("AUTO SUBMIT IS TRUE");
+      log.debug("AUTO SUBMIT IS TRUE");
       control.setAutoSubmit(AssessmentAccessControl.AUTO_SUBMIT);
       assessment.getData().addAssessmentMetaData("hasAutoSubmit", "true");
     }
@@ -891,7 +891,7 @@ public class ExtractionHelper
     }
     log.debug("Getting securedIPAddressSet=" + securedIPAddressSet);
 
-    log.info("ipList: " + ipList);
+    log.debug("ipList: " + ipList);
 
     if (ipList == null)
       ipList = "";
@@ -899,16 +899,16 @@ public class ExtractionHelper
 
     for (int j = 0; j < ip.length; j++)
     {
-      log.info("ip # " + j + ip[j]);
+      log.debug("ip # " + j + ip[j]);
       if (ip[j] != null)
         securedIPAddressSet.add(new SecuredIPAddress(assessment.getData(), null,
             ip[j]));
     }
 
-    log.info("securedIPAddressSet.size()=" + securedIPAddressSet.size());
+    log.debug("securedIPAddressSet.size()=" + securedIPAddressSet.size());
     if (securedIPAddressSet.size()>0)
     {
-      log.info("Setting securedIPAddressSet;addAssessmentMetaData(hasIpAddress, true)");
+      log.debug("Setting securedIPAddressSet;addAssessmentMetaData(hasIpAddress, true)");
       assessment.getData().setSecuredIPAddressSet(securedIPAddressSet);
       assessment.getData().addAssessmentMetaData("hasIpAddress", "true");
       assessment.getData().addAssessmentMetaData("hasSpecificIP", "true");
@@ -1182,7 +1182,7 @@ public class ExtractionHelper
           // manual authoring disregards correctness
           // so we will do the same.
           score = getCorrectScore(item, 1);
-          log.info("setting answer" + label + " score to:" + score);
+          log.debug("setting answer" + label + " score to:" + score);
           answer.setScore(new Float(score));
 
           answer.setText(answerText);
@@ -1334,7 +1334,7 @@ public class ExtractionHelper
         float score = getCorrectScore(item, 1);
 //        float score = getCorrectScore(item, answerList.size());
 
-        log.info("setting answer " + label + " score to:" + score);
+        log.debug("setting answer " + label + " score to:" + score);
         answer.setScore(new Float(score));
 
         answer.setItem(item.getData());
@@ -1473,7 +1473,7 @@ public class ExtractionHelper
         {
           target.setIsCorrect(Boolean.FALSE);
         }
-        log.info("setting answer " + a + " score to:" + score);
+        log.debug("setting answer " + a + " score to:" + score);
         target.setScore(new Float(score));
 
         if (answerFeedbackList != null)
