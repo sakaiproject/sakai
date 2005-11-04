@@ -83,6 +83,27 @@ function hideUnhideAllDivs(action)
   }
 }
 
+function hideUnhideAllDivsExceptFirst(action)
+{
+  if(runHide==true)
+  {
+    runHide=false;
+    myDocumentElements=document.getElementsByTagName("div");
+    for (i=0;i<myDocumentElements.length;i++)
+    {
+      
+        if (i==0) Continue;
+          divisionNo = "" + myDocumentElements[i].id;
+          if (divisionNo.indexOf("__hide_division_")==0)
+          {
+            elem = document.getElementById(divisionNo);
+            if (elem){
+            elem.style.display =action;
+            }
+          }
+    }
+  }
+}
 
 //special handling if page has WYSIWYGs
 function hideUnhideAllDivsWithWysiwyg(action)

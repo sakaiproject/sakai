@@ -198,11 +198,9 @@ function saveTime()
     rendered="#{delivery.previewMode ne 'true' && delivery.continue}">
   </h:commandButton>
 
-  <h:commandButton type="submit" value="#{msg.save_and_continue}"
-    action="tableOfContents" styleClass="active"
+  <h:commandButton type="submit" value="#{msg.button_submit_grading}"
+    action="#{delivery.submitForGrade}" styleClass="active"
     rendered="#{delivery.previewAssessment ne 'true' && delivery.previewMode ne 'true' && delivery.navigation ne '1' && !delivery.continue}">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener" />
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
  </h:commandButton>
 
  <h:commandButton type="submit" value="#{msg.save_and_continue}"

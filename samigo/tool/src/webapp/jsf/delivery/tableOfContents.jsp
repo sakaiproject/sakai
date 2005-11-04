@@ -39,7 +39,7 @@
     <title><h:outputText value="#{msg.table_of_contents}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
     </head>
-    <body onload="hideUnhideAllDivs('none');;<%= request.getAttribute("html.body.onload") %>">
+    <body onload="hideUnhideAllDivsExceptFirst('none');;<%= request.getAttribute("html.body.onload") %>">
  <h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}'>" escape="false"/>
 
 <!-- content... -->
