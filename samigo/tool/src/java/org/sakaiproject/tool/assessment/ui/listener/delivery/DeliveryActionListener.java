@@ -216,9 +216,6 @@ public class DeliveryActionListener
         itemData = service.getSubmitData(id, agent);
         setAssessmentGradingFromItemData(delivery, itemData, false);
       }
-      else{
-        delivery.setReviewAssessment(false); // it is very IMPORTANT to reset it
-      }
     
       // If this is for grading a student's responses, get those
       // responses.
@@ -240,7 +237,8 @@ public class DeliveryActionListener
       }
       else  // taking assessment
       {
-    itemData = service.getLastItemGradingData(id, agent);
+        delivery.setReviewAssessment(false); // it is very IMPORTANT to reset it
+        itemData = service.getLastItemGradingData(id, agent);
           if (itemData!=null && itemData.size()>0)
             setAssessmentGradingFromItemData(delivery, itemData, true);
           else{
