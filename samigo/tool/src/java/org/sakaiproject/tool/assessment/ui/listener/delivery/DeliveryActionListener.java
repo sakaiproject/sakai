@@ -193,7 +193,8 @@ public class DeliveryActionListener
 	  publishedAssessment.getAssessmentFeedback().getShowStudentScore()))
       {
         
-        if (delivery.getFeedbackComponent().getShowDateFeedback() && !delivery.getFeedbackOnDate())
+        if (delivery.getFeedbackComponent()!=null && 
+          delivery.getFeedbackComponent().getShowDateFeedback() && !delivery.getFeedbackOnDate())
             delivery.setShowStudentScore(false);
         else
             delivery.setShowStudentScore(true);
@@ -211,10 +212,14 @@ public class DeliveryActionListener
       if (cu.lookupParam("review") != null &&
           cu.lookupParam("review").equals("true"))
       {
+        delivery.setReviewAssessment(true); // added By Daisy for SAK-1764
         itemData = service.getSubmitData(id, agent);
         setAssessmentGradingFromItemData(delivery, itemData, false);
       }
-
+      else{
+        delivery.setReviewAssessment(false); // it is very IMPORTANT to reset it
+      }
+    
       // If this is for grading a student's responses, get those
       // responses.
       else if (forEvaluation)

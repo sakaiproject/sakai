@@ -140,7 +140,6 @@ public class DeliveryBean
   private String instructorName;
   private ContentsDeliveryBean pageContents;
   private int submissionsRemaining;
-
   private boolean forGrade;
   private String password;
 
@@ -185,6 +184,9 @@ public class DeliveryBean
 
   //cwen
   private String siteId;
+
+  // daisy added this for SAK-1764
+  private boolean reviewAssessment=false;
 
   // this instance tracks if the Agent is taking a test via URL, as well as
   // current agent string (if assigned). SAK-1927: esmiley
@@ -2054,4 +2056,16 @@ public class DeliveryBean
     else
       return false;
   }
+
+  public boolean getReviewAssessment()
+  {
+    return reviewAssessment;
+  }
+
+  public void setReviewAssessment(boolean reviewAssessment)
+  {
+    this.reviewAssessment = reviewAssessment;
+  }
+
+
 }

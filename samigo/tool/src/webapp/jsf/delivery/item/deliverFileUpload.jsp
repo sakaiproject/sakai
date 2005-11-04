@@ -28,7 +28,7 @@ should be included in file importing DeliveryMessages
 --%>
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:panelGroup rendered="#{delivery.previewAssessment ne 'true'}">
+<h:panelGroup rendered="#{delivery.previewAssessment ne 'true' and !delivery.reviewAssessment}">
   <h:messages id="file_upload_error" layout="table" style="color:red"/>
   <h:outputText value="#{msg.file}" />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
@@ -42,7 +42,7 @@ should be included in file importing DeliveryMessages
   <h:commandButton value="Upload" action="submit"/>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true'}">
+<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' or delivery.reviewAssessment}">
   <h:outputText value="#{msg.file}" />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
   <!-- For ItemGradingData, it is very important that target must be in this format: -->
@@ -73,7 +73,7 @@ should be included in file importing DeliveryMessages
          </h:outputText>
          <h:outputText value=")"/>
         </h:column>
-        <h:column rendered="#{delivery.previewAssessment != 'true'}">
+        <h:column rendered="#{delivery.previewAssessment != 'true' && !delivery.reviewAssessment}">
           <h:commandLink action="confirmRemoveMedia" immediate="true">
             <h:outputText value="#{msg.remove}" />
             <f:param name="mediaId" value="#{media.mediaId}"/>
