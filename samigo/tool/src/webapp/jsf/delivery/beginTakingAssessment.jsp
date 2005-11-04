@@ -40,7 +40,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><!-- h:outputText value="#{msg.begin_assessment_}" /-->
-      <h:outputTex value="#{delivery.assessmentTitle}"/>
+      <h:outputText value="#{delivery.assessmentTitle}"/>
 
       </title>
       </head>
