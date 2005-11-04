@@ -31,21 +31,18 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Message;
- 
+
 import org.sakaiproject.api.app.messageforums.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.proxy.TopicProxy;
+
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.tool.messageforums.proxy.TopicProxyImpl;
 
 public class PrivateMessagesTool
 {
   private static final Log LOG = LogFactory.getLog(PrivateMessagesTool.class);
 
-  private TopicProxy topicProxy; // TODO: can be deleted as soon as more of the backend works
-  private PrivateMessageManager prtMsgManager;
+   private PrivateMessageManager prtMsgManager;
   private ErrorMessages errorMessages;
 
   public PrivateMessagesTool()
@@ -58,7 +55,7 @@ public class PrivateMessagesTool
     topic
         .setShortDescription("What scope and partners do you recommend for the proposed system?  Provide one sentence of support for your position.");
     topic.setExtendedDescription("...");
-    topicProxy = new TopicProxyImpl(topic);
+    
   }
 
  
@@ -129,13 +126,7 @@ public class PrivateMessagesTool
   {
     return errorMessages;
   }
-
-  public TopicProxy getTopicProxy()
-  {
-    return topicProxy;
-  }
-
-  // htripath
+ 
   public String processPvtMsgOrganize()
   {
 
@@ -169,38 +160,32 @@ public class PrivateMessagesTool
 
   public String processPvtMsgDelete()
   {
-
     return "pvtMsgDelete";
   }
 
   public String processPvtMsgDrafts()
   {
-
     return "pvtMsgDrafts";
   }
 
   public String processPvtMsgCase()
   {
-
     return "pvtMsgCase";
   }
 
   public String processPvtMsgGrpCorres()
   {
-
     return "pvtMsgGrpCorres";
   }
 
   public String processPvtMsgCancel()
   {
-
     return "main";
   }
 
 
   public String processPvtMsgSettingRevise() {
-    
-    String email= getForwardPvtMsgEmail();
+     String email= getForwardPvtMsgEmail();
     String test=getActivatePvtMsg() ;
     //TODO - save private message settings here
     return "main" ;

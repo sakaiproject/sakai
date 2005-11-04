@@ -2,16 +2,21 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.util.List;
 
-public class MessageForumsTypeManagerImpl
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.common.type.Type;
+import org.sakaiproject.api.common.type.TypeManager;
+public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
 {
+  private TypeManager typeManager;
   public List getAvailableTypes()
   {
     return null;
 
   }
 
-  public org.sakaiproject.api.common.type.Type getPrivateType()
+  public Type getPrivateType()
   {
+    //typeManager.getType();
     return null;
 
   }
