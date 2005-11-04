@@ -107,9 +107,9 @@ public class ItemTypeExtractionStrategy
                                String itemIntrospectItemType,
                                String qmdItemType)
   {
-    log.info("qmdItemType: " + qmdItemType);
-    log.info("titleItemType: " + titleItemType);
-    log.info("itemIntrospectItemType: " + itemIntrospectItemType);
+    log.debug("qmdItemType: " + qmdItemType);
+    log.debug("titleItemType: " + titleItemType);
+    log.debug("itemIntrospectItemType: " + itemIntrospectItemType);
 
     // if we can't find any other approach
     String itemType = itemIntrospectItemType;
@@ -130,7 +130,7 @@ public class ItemTypeExtractionStrategy
       if (qmdItemType != null) itemType = qmdItemType;
     }
 
-    log.info("returning itemType: " + itemType);
+    log.debug("returning itemType: " + itemType);
     return itemType;
   }
 
