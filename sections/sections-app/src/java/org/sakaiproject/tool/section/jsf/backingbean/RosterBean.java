@@ -190,7 +190,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 
 	public void search(ActionEvent event) {
-		firstRow = 0;
+//		firstRow = 0;
 	}
 
 	public void clearSearch(ActionEvent event) {
@@ -211,7 +211,14 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		return searchText;
 	}
 	public void setSearchText(String searchText) {
-		this.searchText = searchText;
+        if (StringUtils.trimToNull(searchText) == null) {
+        	searchText = JsfUtil.getLocalizedMessage("roster_search_text");
+        }
+    	if (!StringUtils.equals(searchText, this.searchText)) {
+	    	if (log.isDebugEnabled()) log.debug("setSearchString " + searchText);
+	        this.searchText = searchText;
+	        setFirstRow(0); // clear the paging when we update the search
+	    }
 	}
 	public int getFirstRow() {
 		return firstRow;
