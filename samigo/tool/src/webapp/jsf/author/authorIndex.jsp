@@ -420,7 +420,7 @@
           rendered="#{inactivePublishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"
       />
       <h:commandLink action="#{author.getOutcome}" immediate="true" 
-         rendered="#{publishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
+         rendered="#{inactivePublishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
         <h:outputText value="Scores" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="publishedId" value="#{inactivePublishedAssessment.publishedAssessmentId}" />
