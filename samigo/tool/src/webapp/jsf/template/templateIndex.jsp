@@ -118,7 +118,7 @@
      </f:facet>
      <!--h:panelGrid columns="1"-->
        <!--h:panelGroup-->
-      <h:panelGroup rendered="#{authorization.editOwnTemplate}">
+      <h:panelGroup rendered="#{authorization.editOwnTemplate or (delivery.agentAccessString eq 'admin')}">
         <h:commandLink id="editlink" action="editTemplate" immediate="true">
           <h:outputText value="#{templateListItem.templateName}" />
 
@@ -128,7 +128,7 @@
         </h:commandLink> <f:verbatim><br/></f:verbatim>
       </h:panelGroup>
 
-      <h:panelGroup rendered="#{!authorization.editOwnTemplate}">
+      <h:panelGroup rendered="#{!authorization.editOwnTemplate and (templateListItem.idString ne 1)}">
           <h:outputText value="#{templateListItem.templateName}" />
           <f:verbatim><br/></f:verbatim>
       </h:panelGroup>
