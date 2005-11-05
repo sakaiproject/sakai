@@ -193,8 +193,8 @@ public abstract class ItemHelperBase
       template = ax.SURVEY_10;
     }
 
-    log.info("scale: " + scaleName);
-    log.info("template: " + template);
+    log.debug("scale: " + scaleName);
+    log.debug("template: " + template);
 
     return template;
   }
@@ -252,8 +252,8 @@ public abstract class ItemHelperBase
       template = ax.ITEM_MATCHING;
     }
 
-    log.info("typeId: " + typeId);
-    log.info("template: " + template);
+    log.debug("typeId: " + typeId);
+    log.debug("template: " + template);
 
     return template;
   }

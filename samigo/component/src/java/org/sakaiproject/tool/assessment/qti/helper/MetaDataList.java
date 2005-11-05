@@ -195,7 +195,7 @@ public class MetaDataList
       if ("ASSESSMENT_RELEASED_TO".equals(key) &&
           value != null && value.indexOf("Authenticated Users") > -1)
       {
-        log.info(
+        log.debug(
           "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
         value = "Anonymous Users";
       }

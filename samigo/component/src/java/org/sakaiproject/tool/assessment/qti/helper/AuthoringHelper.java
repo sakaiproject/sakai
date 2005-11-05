@@ -470,13 +470,13 @@ public class AuthoringHelper
       {
         synchronized (title)
         {
-          log.info("Assessment "+ title + " is not unique.");
+          log.debug("Assessment "+ title + " is not unique.");
           int count = 0; // alternate exit condition
 
           while (notUnique)
           {
             title = exHelper.renameDuplicate(title);
-            log.info("renameDuplicate(title): " + title);
+            log.debug("renameDuplicate(title): " + title);
             assessment.setTitle(title);
             notUnique =
                !assessmentService.assessmentTitleIsUnique(baseId , title, false);
