@@ -461,6 +461,30 @@ public class AuthoringHelper
       assessment = assessmentService.createAssessmentWithoutDefaultSection(
         title, description, null, null);
 
+      // now make sure we have a unique name for the assessment
+      String baseId = assessment.getAssessmentBaseId().toString();
+      boolean notUnique =
+        !assessmentService.assessmentTitleIsUnique(baseId , title, false);
+
+      if (notUnique)
+      {
+        synchronized (title)
+        {
+          log.info("Assessment "+ title + " is not unique.");
+          int count = 0; // alternate exit condition
+
+          while (notUnique)
+          {
+            title = exHelper.renameDuplicate(title);
+            log.info("renameDuplicate(title): " + title);
+            assessment.setTitle(title);
+            notUnique =
+               !assessmentService.assessmentTitleIsUnique(baseId , title, false);
+            if (count++ > 99) break;// exit condition in case bug is introduced
+          }
+        }
+      }
+
       // update the remaining assessment properties
       exHelper.updateAssessment(assessment, assessmentMap);
 
