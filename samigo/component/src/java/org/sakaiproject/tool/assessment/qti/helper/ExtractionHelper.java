@@ -1133,6 +1133,9 @@ public class ExtractionHelper
       {
         text = "";
       }
+      text=text.replaceAll("\\?\\?"," ");//SAK-2298
+      log.debug("text: " + text);
+
       itemText.setText(text);
       itemText.setItem(item.getData());
       itemText.setSequence(new Long(i + 1));
@@ -1156,6 +1159,9 @@ public class ExtractionHelper
         // these are not supposed to be empty
         if (notNullOrEmpty(answerText))
         {
+          answerText=answerText.replaceAll("\\?\\?"," ");//SAK-2298
+          log.debug("answerText: " + answerText);
+
           // normalize all true/false questions
           if (answerList.size()==2)
           {
@@ -1308,13 +1314,13 @@ public class ExtractionHelper
         itemTextString += FIB_BLANK_INDICATOR;
       }
     }
+    itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
+    log.debug("itemTextString="+itemTextString);
     itemText.setText(itemTextString);
     itemText.setItem(item.getData());
     itemText.setSequence(new Long(0));
     HashSet answerSet = new HashSet();
     char answerLabel = 'A';
-    System.out.println("itemTextString="+itemTextString);
-
     for (int a = 0; a < answerList.size(); a++)
     {
       Answer answer = new Answer();
@@ -1322,6 +1328,9 @@ public class ExtractionHelper
       // these are not supposed to be empty
       if (notNullOrEmpty(answerText))
       {
+        answerText=answerText.replaceAll("\\?\\?"," ");//SAK-2298
+        log.debug("answerText="+answerText);
+
         String label = "" + answerLabel++;
         answer.setLabel(label); // up to 26, is this a problem?
         answer.setText(answerText);
@@ -1338,7 +1347,6 @@ public class ExtractionHelper
         answer.setScore(new Float(score));
 
         answer.setItem(item.getData());
-        System.out.println("answerText="+answerText);
         int sequence = a + 1;
         answer.setSequence(new Long(sequence));
         HashSet set = new HashSet();
@@ -1408,8 +1416,10 @@ public class ExtractionHelper
     HashSet itemTextSet = new HashSet();
 
     // first, add the question text
-    item.setInstruction(itemTextString);
+    if (itemTextString==null) itemTextString = "";
+    itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
     log.debug("item.setInstruction itemTextString: " + itemTextString);
+    item.setInstruction(itemTextString);
 
     // loop through source texts indicating answers (targets)
     for (int i = 0; i < sourceList.size(); i++)
@@ -1417,6 +1427,9 @@ public class ExtractionHelper
       // create the entry for the matching item (source)
       String sourceText = (String) sourceList.get(i);
       if (sourceText == null) sourceText="";
+      sourceText=sourceText.replaceAll("\\?\\?"," ");//SAK-2298
+      log.debug("sourceText: " + sourceText);
+
       ItemText sourceItemText = new ItemText();
       sourceItemText.setText(sourceText);
       sourceItemText.setItem(item.getData());
@@ -1447,6 +1460,9 @@ public class ExtractionHelper
         {
           targetString = "";
         }
+        targetString=targetString.replaceAll("\\?\\?"," ");//SAK-2298
+        log.debug("targetString: " + targetString);
+
         Answer target = new Answer();
 
         String label = "" + answerLabel++;
