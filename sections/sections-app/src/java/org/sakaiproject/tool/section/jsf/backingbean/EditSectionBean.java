@@ -25,13 +25,11 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -66,6 +64,9 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	private boolean startTimeAm;
 	private boolean endTimeAm;
 	
+	/**
+	 * @inheritDoc
+	 */
 	public void init() {
 		if(sectionUuid == null || isNotValidated()) {
 			String sectionUuidFromParam = JsfUtil.getStringFromParam("sectionUuid");
@@ -100,12 +101,20 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		}
 	}
 
-	public String update() {
-		// Since the validation and conversion rules rely on the *relative*
-		// values of one component to another, we can't use JSF validators and
-		// converters.  So we check everything here.
+	/**
+	 * Since the validation and conversion rules rely on the *relative*
+	 * values of one component to another, we can't use JSF validators and
+	 * converters.  So we check everything here.
+	 * 
+	 * @return
+	 */
+	private boolean validationFails() {
 		boolean validationFailure = false;
 		
+		// We also need to keep track of whether an invalid time was entered,
+		// so we can skip the time comparisons
+		boolean invalidTimeEntered = false;
+
 		// Ensure that this title isn't being used by another section
 		if(isDuplicateSectionTitle()) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + title);
@@ -114,21 +123,23 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			validationFailure = true;
 		}
 		
-		if(isInvalidTime(startTime)) {
+		if(JsfUtil.isInvalidTime(startTime)) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... start time is invalid");
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 					"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:startTime");
 			validationFailure = true;
+			invalidTimeEntered = true;
 		}
 		
-		if(isInvalidTime(endTime)) {
+		if(JsfUtil.isInvalidTime(endTime)) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... end time is invalid");
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 					"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:endTime");
 			validationFailure = true;
+			invalidTimeEntered = true;
 		}
 
-		if(isEndTimeWithoutStartTime()) {
+		if(JsfUtil.isEndTimeWithoutStartTime(startTime, endTime)) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 					"section_update_failure_end_without_start"), "editSectionForm:startTime");
@@ -143,14 +154,22 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			validationFailure = true;
 		}
 
-		if(isEndTimeBeforeStartTime()) {
+		if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(startTime, startTimeAm, endTime, endTimeAm)) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 					"section_update_failure_end_before_start"), "editSectionForm:endTime");
 			validationFailure = true;
 		}
+		return validationFailure;
+	}
 
-		if(validationFailure) {
+	/**
+	 * Updates the section in persistence.
+	 * 
+	 * @return
+	 */
+	public String update() {
+		if(validationFails()) {
 			return null;
 		}
 		
@@ -192,80 +211,6 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			}
 			if(section.getTitle().equals(title)) {
 				if(log.isDebugEnabled()) log.debug("Conflicting section name found.");
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Returns true if the string fails to represent a time.
-	 * 
-	 * @param str
-	 * @return
-	 */
-	private boolean isInvalidTime(String str) {
-		// Java's date formatters allow for impossible field values (eg hours > 12)
-		// so we do manual checks here.  Ugh.
-		if(StringUtils.trimToNull(str) == null) {
-			// Empty strings are ok
-			return false;
-		}
-		
-		if(str.indexOf(':') != -1) {
-			// This is a fully specified time
-			String[] sa = str.split(":");
-			if(sa.length != 2) {
-				if(log.isDebugEnabled()) log.debug("This is not a valid time... it has more than 1 ':'.");
-				return true;
-			}
-			return outOfRange(sa[0], 2, 1, 12) || outOfRange(sa[1], 2, 0, 59);
-		} else {
-			return outOfRange(str, 2, 1, 12);
-		}
-	}
-
-	/**
-	 * Returns true if the string is longer than len, less than low, or higher than high.
-	 * 
-	 * @param str The string
-	 * @param len The max length of the string
-	 * @param low The lowest possible numeric value
-	 * @param high The highest possible numeric value
-	 * @return
-	 */
-	private boolean outOfRange(String str, int len, int low, int high) {
-		if(str.length() > len) {
-			return true;
-		}
-		try {
-			int i = Integer.parseInt(str);
-			if(i < low || i > high) {
-				return true;
-			}
-		} catch (NumberFormatException nfe) {
-			if(log.isDebugEnabled()) log.debug("time must be a number");
-			return true;
-		}
-		return false;
-	}
-
-	private boolean isEndTimeWithoutStartTime() {
-		if(startTime == null & endTime != null) {
-			if(log.isDebugEnabled()) log.debug("You can not set an end time without setting a start time.");
-			return true;
-		}
-		return false;
-	}
-	
-	private boolean isEndTimeBeforeStartTime() {
-		if(startTime != null & endTime != null) {
-			Time start = JsfUtil.convertStringToTime(startTime, startTimeAm);
-			Time end = JsfUtil.convertStringToTime(endTime, endTimeAm);
-			if(start.after(end)) {
-				if(log.isDebugEnabled()) log.debug("You can not set an end time earlier than the start time.");
-				if(log.isDebugEnabled()) log.debug("start time = " + start.getTime());
-				if(log.isDebugEnabled()) log.debug("end time = " + end.getTime());
 				return true;
 			}
 		}

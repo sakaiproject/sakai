@@ -25,7 +25,6 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -58,6 +57,9 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	
 	private transient boolean sectionsChanged;
 	
+	/**
+	 * @inheritDoc
+	 */
 	public void init() {
 		if(sections == null || sectionsChanged) {
 			if(log.isDebugEnabled()) log.debug("initializing add sections bean");
@@ -71,11 +73,20 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		}
 	}
 
+	/**
+	 * Responds to a change in the sections selector in the UI.
+	 * 
+	 * @param event
+	 */
 	public void processChangeSections(ValueChangeEvent event) {
 		if(log.isDebugEnabled()) log.debug("processing a ui change in sections to add");
 		sectionsChanged = true;
 	}
 	
+	/**
+	 * Populates the section collection and row css classes.
+	 *
+	 */
 	private void populateSections() {
 		sections = new ArrayList();
 		StringBuffer rowClasses = new StringBuffer();
@@ -93,6 +104,13 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		}
 	}
 	
+	/**
+	 * Checks whether a string is currently being used as a title for another section.
+	 * 
+	 * @param title
+	 * @param existingSections
+	 * @return
+	 */
 	private boolean isDuplicateSectionTitle(String title, Collection existingSections) {
 		for(Iterator iter = existingSections.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
@@ -104,68 +122,13 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		return false;
 	}
 	
+	/**
+	 * Adds the sections, or generates validation messages for bad inputs.
+	 * 
+	 * @return
+	 */
 	public String addSections() {
-		Collection existingSections = getAllSiteSections();
-
-		// Since the validation and conversion rules rely on the *relative*
-		// values of one component to another, we can't use JSF validators and
-		// converters.  So we check everything here.
-		boolean validationFailure = false;
-		int index = 0;
-		for(Iterator iter = sections.iterator(); iter.hasNext(); index++) {
-			LocalSectionModel sectionModel = (LocalSectionModel)iter.next();
-			
-			// Ensure that this title isn't being used by another section
-			if(isDuplicateSectionTitle(sectionModel.getTitle(), existingSections)) {
-				if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + sectionModel.getTitle());
-				String componentId = "addSectionsForm:sectionTable_" + index + ":titleInput";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"section_add_failure_duplicate_title", new String[] {sectionModel.getTitle()}), componentId);
-				validationFailure = true;
-			}
-			
-			if(isInvalidTime(sectionModel.getStartTime())) {
-				if(log.isDebugEnabled()) log.debug("Failed to add section... start time is invalid");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
-				validationFailure = true;
-			}
-			
-			if(isInvalidTime(sectionModel.getEndTime())) {
-				if(log.isDebugEnabled()) log.debug("Failed to add section... end time is invalid");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
-				validationFailure = true;
-			}
-
-			if(isEndTimeWithoutStartTime(sectionModel)) {
-				if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"section_update_failure_end_without_start"), componentId);
-				validationFailure = true;
-			}
-			
-			if(isInvalidMaxEnrollments(sectionModel)) {
-				if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":maxEnrollmentInput";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}), componentId);
-				validationFailure = true;
-			}
-			
-			if(isEndTimeBeforeStartTime(sectionModel)) {
-				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"section_update_failure_end_before_start"), componentId);
-				validationFailure = true;
-			}
-		}
-		
-		if(validationFailure) {
+		if(validationFails()) {
 			setNotValidated(true);
 			return "failure";
 		}
@@ -204,78 +167,83 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		return "overview";
 	}
 	
-	/**
-	 * Returns true if the string fails to represent a time.
-	 * 
-	 * @param str
-	 * @return
-	 */
-	private boolean isInvalidTime(String str) {
-		// Java's date formatters allow for impossible field values (eg hours > 12)
-		// so we do manual checks here.  Ugh.
-		if(StringUtils.trimToNull(str) == null) {
-			// Empty strings are ok
-			return false;
-		}
-		
-		if(str.indexOf(':') != -1) {
-			// This is a fully specified time
-			String[] sa = str.split(":");
-			if(sa.length != 2) {
-				if(log.isDebugEnabled()) log.debug("This is not a valid time... it has more than 1 ':'.");
-				return true;
-			}
-			return outOfRange(sa[0], 2, 1, 12) || outOfRange(sa[1], 2, 0, 59);
-		} else {
-			return outOfRange(str, 2, 1, 12);
-		}
-	}
-
-	/**
-	 * Returns true if the string is longer than len, less than low, or higher than high.
-	 * 
-	 * @param str The string
-	 * @param len The max length of the string
-	 * @param low The lowest possible numeric value
-	 * @param high The highest possible numeric value
-	 * @return
-	 */
-	private boolean outOfRange(String str, int len, int low, int high) {
-		if(str.length() > len) {
-			return true;
-		}
-		try {
-			int i = Integer.parseInt(str);
-			if(i < low || i > high) {
-				return true;
-			}
-		} catch (NumberFormatException nfe) {
-			if(log.isDebugEnabled()) log.debug("time must be a number");
-			return true;
-		}
-		return false;
-	}
-
-	private boolean isEndTimeWithoutStartTime(LocalSectionModel sectionModel) {
-		if(sectionModel.getStartTime() == null & sectionModel.getEndTime() != null) {
-			if(log.isDebugEnabled()) log.debug("You can not set an end time without setting a start time.");
-			return true;
-		}
-		return false;
-	}
 	
-	private boolean isEndTimeBeforeStartTime(LocalSectionModel sectionModel) {
-		if(sectionModel.getStartTime() != null & sectionModel.getEndTime() != null) {
-			Time start = JsfUtil.convertStringToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm());
-			Time end = JsfUtil.convertStringToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm());
-			if(start.after(end)) {
-				if(log.isDebugEnabled()) log.debug("You can not set an end time earlier than the start time.");
-				return true;
+	/**
+	 * Since the validation and conversion rules rely on the *relative*
+	 * values of one component to another, we can't use JSF validators and
+	 * converters.  So we check everything here.
+	 * 
+	 * @return
+	 */
+	protected boolean validationFails() {
+		Collection existingSections = getAllSiteSections();
+
+		// Keep track of whether a validation failure occurs
+		boolean validationFailure = false;
+		
+		// We also need to keep track of whether an invalid time was entered,
+		// so we can skip the time comparisons
+		boolean invalidTimeEntered = false;
+
+		int index = 0;
+		for(Iterator iter = sections.iterator(); iter.hasNext(); index++) {
+			LocalSectionModel sectionModel = (LocalSectionModel)iter.next();
+			
+			// Ensure that this title isn't being used by another section
+			if(isDuplicateSectionTitle(sectionModel.getTitle(), existingSections)) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + sectionModel.getTitle());
+				String componentId = "addSectionsForm:sectionTable_" + index + ":titleInput";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"section_add_failure_duplicate_title", new String[] {sectionModel.getTitle()}), componentId);
+				validationFailure = true;
+			}
+			
+			if(JsfUtil.isInvalidTime(sectionModel.getStartTime())) {
+				if(log.isDebugEnabled()) log.debug("Failed to add section... start time is invalid");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
+				validationFailure = true;
+				invalidTimeEntered = true;
+			}
+			
+			if(JsfUtil.isInvalidTime(sectionModel.getEndTime())) {
+				if(log.isDebugEnabled()) log.debug("Failed to add section... end time is invalid");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
+				validationFailure = true;
+				invalidTimeEntered = true;
+			}
+
+			if(JsfUtil.isEndTimeWithoutStartTime(sectionModel.getStartTime(), sectionModel.getEndTime())) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"section_update_failure_end_without_start"), componentId);
+				validationFailure = true;
+			}
+			
+			if(isInvalidMaxEnrollments(sectionModel)) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":maxEnrollmentInput";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}), componentId);
+				validationFailure = true;
+			}
+			
+			// Don't bother checking if the time values are invalid
+			if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(sectionModel.getStartTime(),
+					sectionModel.isStartTimeAm(), sectionModel.getEndTime(), sectionModel.isEndTimeAm())) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
+				String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"section_update_failure_end_before_start"), componentId);
+				validationFailure = true;
 			}
 		}
-		return false;
+		return validationFailure;
 	}
-
 	
 	private boolean isInvalidMaxEnrollments(LocalSectionModel sectionModel) {
 		return sectionModel.getMaxEnrollments() != null && sectionModel.getMaxEnrollments().intValue() < 0;
