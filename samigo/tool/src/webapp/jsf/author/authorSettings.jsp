@@ -424,10 +424,10 @@ function checkTimeSelect(){
   <!-- *** FEEDBACK *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
   <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
-
+<%--
   <!-- FEEDBACK AUTHORING-->
 <f:verbatim><div class="indnt2"><div class="longtext"></f:verbatim>
-  <h:outputLabel for="fb_deli" value="#{msg.feedback_authoring}"/>
+  <h:outputLabel value="#{msg.feedback_authoring}"/>
     <f:verbatim> </div> <div class="indnt3"></f:verbatim>
   <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
     <h:panelGrid columns="1">
@@ -440,8 +440,7 @@ function checkTimeSelect(){
     </h:panelGrid>
   </h:panelGroup>
 <f:verbatim></div></f:verbatim>
-
-
+--%>
  <!-- FEEDBACK DELIVERY -->
  <f:verbatim><div class="indnt2"><div class="longtext"></f:verbatim>
    <h:outputLabel value="#{msg.feedback_delivery}" /> <f:verbatim></div><div class="indnt3"></f:verbatim>
