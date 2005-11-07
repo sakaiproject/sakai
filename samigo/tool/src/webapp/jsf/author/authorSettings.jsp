@@ -422,8 +422,8 @@ function checkTimeSelect(){
 </h:panelGroup>
 
   <!-- *** FEEDBACK *** -->
-<h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
   <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
+<h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
 <%--
   <!-- FEEDBACK AUTHORING-->
 <f:verbatim><div class="indnt2"><div class="longtext"></f:verbatim>
@@ -514,8 +514,8 @@ function checkTimeSelect(){
 <f:verbatim></div></f:verbatim>
     </h:panelGroup>
  <f:verbatim></div></f:verbatim>
-  </samigo:hideDivision>
 </h:panelGroup>
+  </samigo:hideDivision>
 
   <!-- *** GRADING *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true or assessmentSettings.valueMap.toGradebook_isInstructorEditable==true or assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}" >
