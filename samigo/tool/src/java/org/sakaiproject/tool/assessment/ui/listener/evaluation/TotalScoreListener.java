@@ -207,39 +207,55 @@ System.out.println("changed submission pulldown ");
 
 
       ArrayList allscores = delegate.getTotalScores(publishedId, which);
-
-      // now we need filter by sections selected 
       ArrayList scores = new ArrayList();  // filtered list
-      ArrayList students_submitted= new ArrayList();  // arraylist of students submitted test
-      Iterator allscores_iter = allscores.iterator();
-      Map useridMap= bean.getUserIdMap(); 
-      while (allscores_iter.hasNext())
-      {
-	AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
-        String agentid =  data.getAgentId();
-        
-	// get the Map of all users(keyed on userid) belong to the selected sections 
 
-	// now we only include scores of users belong to the selected sections
-        if (useridMap.containsKey(agentid) ) {
-	  scores.add(data);
-      	  students_submitted.add(agentid);
+      PublishedAssessmentService pubassessmentService = new PublishedAssessmentService();
+      PublishedAssessmentFacade pubassessment = pubassessmentService.getPublishedAssessment(publishedId);
+
+      ArrayList students_not_submitted= new ArrayList();  
+      Map useridMap= bean.getUserIdMap(); 
+
+      // only do section filter if it's published to authenticated users
+      String releaseTo = pubassessment.getAssessmentAccessControl().getReleaseTo(); 
+      if (releaseTo != null && releaseTo.indexOf("Anonymous Users")== -1){ 
+        bean.setReleaseToAnonymous(false);
+      
+        // now we need filter by sections selected 
+        ArrayList students_submitted= new ArrayList();  // arraylist of students submitted test
+        Iterator allscores_iter = allscores.iterator();
+        while (allscores_iter.hasNext())
+        {
+	  AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
+          String agentid =  data.getAgentId();
+        
+	  // get the Map of all users(keyed on userid) belong to the selected sections 
+
+	  // now we only include scores of users belong to the selected sections
+          if (useridMap.containsKey(agentid) ) {
+	    scores.add(data);
+      	    students_submitted.add(agentid);
 	  }
+        }
+
+
+        // now get the list of students that have not submitted for grades 
+        Iterator useridIterator = useridMap.keySet().iterator(); 
+        while (useridIterator.hasNext()) {
+	  String userid = (String) useridIterator.next(); 	
+          if (!students_submitted.contains(userid)) {
+	    students_not_submitted.add(userid);
+          }
+        } 
+
       }
 
-
-      // now get the list of students that have not submitted for grades 
-      ArrayList students_not_submitted= new ArrayList();  
-      Iterator useridIterator = useridMap.keySet().iterator(); 
-      while (useridIterator.hasNext()) {
-	String userid = (String) useridIterator.next(); 	
-        if (!students_submitted.contains(userid)) {
-	  students_not_submitted.add(userid);
-        }
-      } 
+      // skip section filter if it's published to anonymous users
+      else {
+        bean.setReleaseToAnonymous(true);
+        scores.addAll(allscores);
+      }
 
       Iterator iter = scores.iterator();
-      //log.info("Has this many agents: " + scores.size());
       ArrayList agents = new ArrayList();
 
       if (!iter.hasNext())

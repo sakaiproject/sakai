@@ -89,6 +89,7 @@ public class TotalScoresBean
   private String selectedSectionFilterValue = ALL_SECTIONS_SELECT_VALUE;
   private List sectionFilterSelectItems;
   private List availableSections;
+  private boolean releaseToAnonymous = false;
 
 
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
@@ -655,4 +656,11 @@ public class TotalScoresBean
         return enrollmentMap;
         }
 
+  public boolean getReleaseToAnonymous() {
+    return releaseToAnonymous;
+  }
+
+  public void setReleaseToAnonymous(boolean param) {
+    releaseToAnonymous = param;
+  }
 }
