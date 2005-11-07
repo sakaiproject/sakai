@@ -1,4 +1,5 @@
         <h:panelGrid
+            id="transferButtons"
             columns="1"
             columnClasses="transferButtonTable">
             <h:outputText value="#{msgs.transfer_membership_move_selected}"/>

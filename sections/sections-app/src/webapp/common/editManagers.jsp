@@ -15,7 +15,7 @@
 
         <%@include file="/inc/globalMessages.jspf"%>
 
-        <h:panelGrid columns="3" columnClasses="available,transferButtons,selected">
+        <h:panelGrid id="transferTable" columns="3" columnClasses="available,transferButtons,selected">
         
             <h:panelGroup>
                 <h:outputText value="#{msgs.edit_manager_available_label}"/>

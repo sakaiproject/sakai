@@ -13,7 +13,7 @@
 
         <%@include file="/inc/globalMessages.jspf"%>
 
-        <h:panelGrid columns="3" columnClasses="available,transferButtons,selected">
+        <h:panelGrid id="transferTable" columns="3" columnClasses="available,transferButtons,selected">
         
             <h:panelGroup>
                 <x:div>
@@ -35,8 +35,8 @@
                     <x:div>
                         <h:outputFormat value="#{editStudentsBean.sectionTitle}"/>
                     </x:div>
-                    <x:div id="max" rendered="#{editStudentsBean.sectionMax != null}">
-                        <h:outputFormat value="#{msgs.edit_student_selected_title}">
+                    <x:div id="max">
+                        <h:outputFormat value="#{msgs.edit_student_selected_title}" rendered="#{editStudentsBean.sectionMax != null}">
                             <f:param value="#{editStudentsBean.sectionMax}"/>
                         </h:outputFormat>
                     </x:div>
