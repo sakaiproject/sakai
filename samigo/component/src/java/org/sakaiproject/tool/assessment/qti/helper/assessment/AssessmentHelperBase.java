@@ -114,11 +114,11 @@ public abstract class AssessmentHelperBase
     Integer feedbackDelivery = feedback.getFeedbackDelivery();
     if (feedback.FEEDBACK_BY_DATE.equals(feedbackDelivery))
     {
-      assessmentXml.setFieldentry("FEEDBACK_DELIVERY", "IMMEDIATE");
+      assessmentXml.setFieldentry("FEEDBACK_DELIVERY", "DATED");
     }
     else if (feedback.IMMEDIATE_FEEDBACK.equals(feedbackDelivery))
     {
-      assessmentXml.setFieldentry("FEEDBACK_DELIVERY", "DATED");
+      assessmentXml.setFieldentry("FEEDBACK_DELIVERY", "IMMEDIATE");
     }
     else //feedback.NO_FEEDBACK
     {
@@ -195,7 +195,7 @@ public abstract class AssessmentHelperBase
       assessmentXml.setFieldentry("GRADEBOOK_OPTIONS", "DEFAULT");
     }
 
-    //highest or last 
+    //highest or last
     if (EvaluationModelIfc.HIGHEST_SCORE.equals(evaluationModel.getScoringType()))
     {
       assessmentXml.setFieldentry("GRADE_SCORE", "HIGHEST_SCORE");
