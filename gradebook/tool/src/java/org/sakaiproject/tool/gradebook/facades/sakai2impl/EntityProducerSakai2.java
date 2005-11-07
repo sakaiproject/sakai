@@ -65,11 +65,9 @@ public class EntityProducerSakai2 implements EntityProducer {
 			String[] toolsToSearchFor = {getToolId()};
 			Collection matchingTools = site.getTools(toolsToSearchFor);
 			if (matchingTools.isEmpty() && gradebookExists) {
-				try {
-					gradebookService.deleteGradebook(gradebookUid);
-				} catch (GradebookNotFoundException e) {
-					if (log.isWarnEnabled()) log.warn(e);
-				}
+				// We've been directed to leave Gradebook data in place when
+				// the tool is removed from a site.
+				if (log.isInfoEnabled()) log.info("Gradebook being removed from site " + gradebookUid + " but associated data will remain until site deletion");
 			} else if (!matchingTools.isEmpty() && !gradebookExists) {
 				if (log.isInfoEnabled()) log.info("Gradebook being added to site " + gradebookUid);
 				gradebookService.addGradebook(gradebookUid, gradebookUid);
