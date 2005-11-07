@@ -331,20 +331,20 @@ public class AssessmentSettingsBean
     //Huong adding for outcome error
     public String getOutcomeSave()
     {
-	return this.outcomeSave;
+  return this.outcomeSave;
     }
     public void setOutcomeSave(String outcomeSave)
     {
-	this.outcomeSave=outcomeSave;
+  this.outcomeSave=outcomeSave;
     }
 
  public String getOutcomePublish()
     {
-	return this.outcomePublish;
+  return this.outcomePublish;
     }
     public void setOutcomePublish(String outcomePublish)
     {
-	this.outcomePublish=outcomePublish;
+  this.outcomePublish=outcomePublish;
     }
 
   // properties from Assessment
@@ -821,6 +821,8 @@ public class AssessmentSettingsBean
   private static List days;
   private static SelectItem[] mins;
   private static SelectItem[] hours;
+  // don't know what this is for, had to add it --esmiley
+  private String feedbackAuthoring;// this was left out, but referenced in UI
 
   static{
     months = new ArrayList();
@@ -917,7 +919,7 @@ public class AssessmentSettingsBean
     }
   public void setStartDateString(String startDateString)
      {
-	 this.startDate= getDateFromDisplayFormat(startDateString);
+   this.startDate= getDateFromDisplayFormat(startDateString);
      }
 
   public String getDueDateString()
@@ -1070,22 +1072,30 @@ public class AssessmentSettingsBean
   }
 
     public String checkDate(){
-	FacesContext context=FacesContext.getCurrentInstance();
-	ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
+  FacesContext context=FacesContext.getCurrentInstance();
+  ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
         String err;
-	if(this.error)
-	    {
-		err=(String)rb.getObject("deliveryDate_error");
-		context.addMessage(null,new FacesMessage(err));
-		log.error("START DATE ADD MESSAGE");
-		return "deliveryDate_error";
-	    }
-	else
-	    {
-		return "saveSettings";
-	    }
+  if(this.error)
+      {
+    err=(String)rb.getObject("deliveryDate_error");
+    context.addMessage(null,new FacesMessage(err));
+    log.error("START DATE ADD MESSAGE");
+    return "deliveryDate_error";
+      }
+  else
+      {
+    return "saveSettings";
+      }
 
     }
+  public String getFeedbackAuthoring()
+  {
+    return feedbackAuthoring;
+  }
+  public void setFeedbackAuthoring(String feedbackAuthoring)
+  {
+    this.feedbackAuthoring = feedbackAuthoring;
+  }
 
 
 
