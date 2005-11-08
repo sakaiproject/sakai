@@ -3,28 +3,34 @@ package org.sakaiproject.component.app.messageforums;
  import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.PrivateMessageManager;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;;
 
 public class PrivateMessageManagerImpl extends HibernateDaoSupport implements PrivateMessageManager
 {
-
+ 
+  
+  DummyDataHelperApi helper =  new DummyDataHelper();
   public boolean isPrivateAreaUnabled()
   {
     // TODO Auto-generated method stub
     // return isPrivateAreaUnabled(MessageForumsManager.getCurrentUserId());
-    return false;
+    return helper.isPrivateAreaUnabled();
   }
 
   private boolean isPrivateAreaUnabled(String userId)
   {
-     
-    // TODO Auto-generated method stub
+     //TODO:     
     return false;
   }
   
   public Area getPrivateArea()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return helper.getPrivateArea();
+  }
+
+  public Area getDiscussionForumArea()
+  {    
+    return helper.getDiscussionForumArea();
   }
 
 }

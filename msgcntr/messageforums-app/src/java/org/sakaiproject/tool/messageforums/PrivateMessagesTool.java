@@ -32,6 +32,7 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 
@@ -42,20 +43,20 @@ public class PrivateMessagesTool
 {
   private static final Log LOG = LogFactory.getLog(PrivateMessagesTool.class);
 
-   private PrivateMessageManager prtMsgManager;
+  private PrivateMessageManager prtMsgManager;
   private ErrorMessages errorMessages;
 
   public PrivateMessagesTool()
   {
-    errorMessages = new ErrorMessages();
-    errorMessages.setDisplayTitleErrorMessage(false);
-
-    Topic topic = new TopicImpl();
-    topic.setTitle("Dubai Port Authority Case");
-    topic
-        .setShortDescription("What scope and partners do you recommend for the proposed system?  Provide one sentence of support for your position.");
-    topic.setExtendedDescription("...");
-    
+//    errorMessages = new ErrorMessages();
+//    errorMessages.setDisplayTitleErrorMessage(false);
+//
+//    Topic topic = new TopicImpl();
+//    topic.setTitle("Dubai Port Authority Case");
+//    topic
+//        .setShortDescription("What scope and partners do you recommend for the proposed system?  Provide one sentence of support for your position.");
+//    topic.setExtendedDescription("...");
+//    
   }
 
  
@@ -71,7 +72,11 @@ public class PrivateMessagesTool
   }
 
 
-  //
+  public Area getArea()
+  {
+   return prtMsgManager.getPrivateArea();
+  }
+    //
   // start button process actions
   //
   public String processCDFMPostMessage()
@@ -182,7 +187,10 @@ public class PrivateMessagesTool
   {
     return "main";
   }
-
+  public String getTest()
+  {
+    return "TESTING TOOL BEAN";
+  }
 
   public String processPvtMsgSettingRevise() {
      String email= getForwardPvtMsgEmail();

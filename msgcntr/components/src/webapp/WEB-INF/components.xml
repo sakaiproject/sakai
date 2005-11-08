@@ -22,13 +22,38 @@
 		</property>
 	</bean> 
 	
+	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl">
+				<property name="sessionFactory">
+					<ref
+						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+				</property>
+				<property name="typeManager">
+		          <ref bean="org.sakaiproject.api.common.type.TypeManager" />
+        		</property>			 
+			</bean>
+		</property>
+		
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+		
+	</bean>
+	
 	<bean id="org.sakaiproject.api.app.messageforums.PrivateMessageManager"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		</property>
 		<property name="target">
-			<bean class="org.sakaiproject.component.app.messageforums.PrivateMessageManagerImpl" singleton="true">
+			<bean class="org.sakaiproject.component.app.messageforums.PrivateMessageManagerImpl">
 				<property name="sessionFactory">
 					<ref
 						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />

@@ -9,7 +9,9 @@
 	<sakai:view title="Messge Forums">
 		<h:form id="msgForum">
 		<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
-			<%@include file="privateMsg/pvtArea.jsp"%>
+			<%--@include file="privateMsg/pvtArea.jsp"--%>
+			<h:outputText value="#{PrivateMessagesTool.test}" />
+			
 			<%@include file="discussionForum/dfArea.jsp"%>
 		</h:form>
 	</sakai:view>

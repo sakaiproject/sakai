@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface DummyDataHelperApi
 {
-
-  public List getAreas();
-
+  public Area getPrivateArea();
+  public Area getDiscussionForumArea();
+  public boolean isPrivateAreaUnabled();
 }

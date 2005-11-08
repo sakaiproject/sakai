@@ -15,5 +15,10 @@ public interface PrivateMessageManager
    */
   Area getPrivateArea();  
   
+  /**
+   * @return
+   */
+  Area getDiscussionForumArea();  
+  
 
 }

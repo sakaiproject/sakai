@@ -94,6 +94,11 @@
             <artifactId>sakai-common-type-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-manager-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
 	</dependencies>
 
     <build>

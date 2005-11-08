@@ -9,24 +9,24 @@ public interface MessageForumsTypeManager
   /**
    * @return
    */
-  public List getAvailableTypes();
+ // public List getAvailableTypes();
    
   /**
    * @return
    */
-  public Type getPrivateType();
+  public String getPrivateType();
  
 
   /**
    * @return
    */
-  public org.sakaiproject.api.common.type.Type getDiscussionForumType();
+  public String getDiscussionForumType();
    
 
   /**
    * @return
    */
-  public org.sakaiproject.api.common.type.Type getOpenDiscussionForumType();
+  public String getOpenDiscussionForumType();
    
 
 }
