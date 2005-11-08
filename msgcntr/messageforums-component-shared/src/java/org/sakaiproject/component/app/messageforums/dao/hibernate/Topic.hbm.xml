@@ -61,9 +61,9 @@
       <column name="TYPE_UUID" length="36" not-null="true" />
     </property>
     
-    <many-to-one name="baseForum" column="surrogateKey"
+   <!--   <many-to-one name="baseForum" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl"
-      not-null="false" index="MFR_PARENT_BASEFORUM_I" cascade="none" />
+      not-null="false" index="MFR_PARENT_BASEFORUM_I" cascade="none" />-- >
           
     <!-- OpenTopic fields -->
     <subclass
