@@ -67,6 +67,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlStringBuffer;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import java.util.Set;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -220,6 +221,14 @@ public class AuthoringHelper
         assessmentHelper.updateAccessControl(assessmentXml,
                                              assessmentAccessControl);
       }
+      Set securedIPAddressSet = (Set) assessment.getSecuredIPAddressSet();
+      if (securedIPAddressSet != null)
+      {
+        assessmentHelper.updateIPAddressSet(assessmentXml,
+                                             securedIPAddressSet);
+      }
+
+
       assessmentHelper.updateMetaData(assessmentXml, assessment);
 
       // sections
@@ -543,6 +552,16 @@ public class AuthoringHelper
         assessmentService.saveOrUpdateSection(section);
 
       } // ... end for each section
+
+      // and add ip address restriction, if any
+      String allowIp = assessment.getAssessmentMetaDataByLabel("ALLOW_IP");
+      log.info("allowIp: " + allowIp);
+
+      if (allowIp !=null)
+      {
+        log.info("NOT NULL: " + allowIp);
+        exHelper.makeSecuredIPAddressSet(assessment, allowIp);
+      }
 
       assessmentService.update(assessment);
       assessmentService.saveAssessment(assessment);

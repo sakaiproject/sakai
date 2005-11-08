@@ -30,6 +30,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
+import java.util.Set;
 
 /**
  * Interface for QTI-versioned assessment helper implementation.
@@ -74,6 +75,9 @@ public interface AssessmentHelperIfc
    */
   public void updateAccessControl(Assessment assessmentXml,
                                   AssessmentAccessControlIfc accessControl);
+
+  public void updateIPAddressSet(Assessment assessmentXml,
+                                  Set securedIPAddressSet);
 
   public void updateMetaData(Assessment assessmentXml,
                              AssessmentFacade assessment);

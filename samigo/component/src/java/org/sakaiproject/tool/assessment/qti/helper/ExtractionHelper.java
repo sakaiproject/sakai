@@ -68,6 +68,8 @@ import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 /**
  * <p>Has helper methods for data extraction (import) from QTI</p>
@@ -416,15 +418,6 @@ public class ExtractionHelper
 
     // restricted IP address
     log.debug("ASSESSMENT updating access control, evaluation model, feedback");
-    String allowIp = assessment.getAssessmentMetaDataByLabel(
-        "ALLOW_IP");
-    log.debug("allowIp: " + allowIp);
-
-    if (allowIp !=null)
-    {
-      log.debug("NOT NULL: " + allowIp);
-      makeSecuredIPAddressSet(assessment, allowIp);
-    }
 
     // access control
     String duration = (String) assessmentMap.get("duration");
@@ -437,6 +430,7 @@ public class ExtractionHelper
 
     // assessment feedback control
     makeAssessmentFeedback(assessment);
+
   }
 
   /**
@@ -882,16 +876,18 @@ public class ExtractionHelper
    * the ip address is in a newline delimited string
    * @param assessment
    */
-  private void makeSecuredIPAddressSet(AssessmentFacade assessment, String ipList)
+  public void makeSecuredIPAddressSet(AssessmentFacade assessment, String ipList)
   {
     Set securedIPAddressSet = (Set) assessment.getSecuredIPAddressSet();
+    AssessmentBaseIfc data = assessment.getData();
+
     if (securedIPAddressSet == null)
     {
       securedIPAddressSet = new HashSet();
     }
-    log.debug("Getting securedIPAddressSet=" + securedIPAddressSet);
+    log.info("Getting securedIPAddressSet=" + securedIPAddressSet);
 
-    log.debug("ipList: " + ipList);
+    log.info("ipList: " + ipList);
 
     if (ipList == null)
       ipList = "";
@@ -899,19 +895,29 @@ public class ExtractionHelper
 
     for (int j = 0; j < ip.length; j++)
     {
-      log.debug("ip # " + j + ip[j]);
+      log.info("ip # " + j + ": " + ip[j]);
       if (ip[j] != null)
-        securedIPAddressSet.add(new SecuredIPAddress(assessment.getData(), null,
-            ip[j]));
+      {
+        SecuredIPAddress sip = new SecuredIPAddress(data, null, ip[j]);
+        sip.setAssessment(data);
+        securedIPAddressSet.add(sip);
+      }
     }
 
-    log.debug("securedIPAddressSet.size()=" + securedIPAddressSet.size());
+    log.info("securedIPAddressSet.size()=" + securedIPAddressSet.size());
     if (securedIPAddressSet.size()>0)
     {
-      log.debug("Setting securedIPAddressSet;addAssessmentMetaData(hasIpAddress, true)");
-      assessment.getData().setSecuredIPAddressSet(securedIPAddressSet);
-      assessment.getData().addAssessmentMetaData("hasIpAddress", "true");
-      assessment.getData().addAssessmentMetaData("hasSpecificIP", "true");
+      log.info("Setting securedIPAddressSet;addAssessmentMetaData(hasIpAddress, true)");
+      AssessmentService assessmentService = new AssessmentService();
+//      assessment.getData().setSecuredIPAddressSet(securedIPAddressSet);
+//      assessment.getData().addAssessmentMetaData("hasIpAddress", "true");
+//      assessment.getData().addAssessmentMetaData("hasSpecificIP", "true");
+//      data.setSecuredIPAddressSet(securedIPAddressSet);
+      data.addAssessmentMetaData("hasIpAddress", "true");
+      data.addAssessmentMetaData("hasSpecificIP", "true");
+      assessment.updateData(data);
+      assessment.setSecuredIPAddressSet(securedIPAddressSet);
+
     }
   }
   /**

@@ -46,6 +46,8 @@ import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
+import java.util.Set;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 
 /**
  * <p>Copyright: Copyright (c) 2005/p>
@@ -359,6 +361,34 @@ public abstract class AssessmentHelperBase
       assessmentXml.setFieldentry("USERID", userName);
     }
   }
+
+  /**
+   * If there is IP address set put IP addresses into allowed IP field in XML.
+   * @param assessmentXml the XML
+   * @param securedIPAddressSet the Set
+   */
+  public void updateIPAddressSet(Assessment assessmentXml,
+                                 Set securedIPAddressSet)
+  {
+    if (securedIPAddressSet==null || securedIPAddressSet.size()==0)
+    {
+      return;
+    }
+
+    String ipAddresses = "";
+    Iterator iter = securedIPAddressSet.iterator();
+
+    while (iter.hasNext())
+    {
+      SecuredIPAddressIfc sip = (SecuredIPAddressIfc) iter.next();
+      String ipAddress = sip.getIpAddress();
+      ipAddresses += ipAddress + "\n";
+    }
+
+    assessmentXml.setFieldentry("ALLOW_IP", ipAddresses);
+
+  }
+
 
   /**
    * Look up and set metadata fields
