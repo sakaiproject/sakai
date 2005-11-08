@@ -28,29 +28,31 @@ label.formLabel {font-weight:bold;}
 
 /* Item property editing. THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.itemSummary td.itemName {
-	font-weight:bold;
-	white-space:nowrap;
-	vertical-align:top;
-	text-align:left;
-	padding:.3em 1em .3em .3em
+    font-weight:bold;
+    white-space:nowrap;
+    vertical-align:top;
+    text-align:left;
+    padding:.3em 1em .3em .3em
 }
 
 /* Create a container for filter/paging controls to enable bottom-alignment. */
 /* THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.sectionContainerNav {
-	width:100%;
+    width:100%;
 }
 /*
-	OVERRIDE NAV CONTROL SAKAI CSS DEFINITIONS FOR NOW.
-	They don't handle our situation, with search filters bottom-aligned
-	on the left and paging controls on the right.
+    OVERRIDE NAV CONTROL SAKAI CSS DEFINITIONS FOR NOW.
+    They don't handle our situation, with search filters bottom-aligned
+    on the left and paging controls on the right.
 */
 .sectionLeftNav  {
-	vertical-align:bottom;
+    vertical-align:bottom;
     text-align:left;
+    white-space:nowrap;
 }
 .sectionRightNav  {
     text-align:right;
+    white-space:nowrap;
 }
 
 /* Table columns change alignmnet depending on their data type (numbers vs. letters) */
@@ -61,26 +63,26 @@ td.rightpadded {text-align:right; vertical-align:bottom; padding-right:5em !impo
 
 /* Most but not all tables are shown 100% width in the spec. */
 table.wideTable {
-	width:100%;
+    width:100%;
 }
 table.narrowTable {
-	width:auto;
+    width:auto;
 }
 
 table.rosterTable {
-	width:auto;
+    width:auto;
 }
 
 table.rosterTable td {
-	padding-left:1.5em !important;
-	padding-right:1.5em !important;
+    padding-left:1.5em !important;
+    padding-right:1.5em !important;
 }
 
 /*
-	It would be better to use margin-right in a div or to apply this to specific
-	columns, but JSF can't manage either of those.
+    It would be better to use margin-right in a div or to apply this to specific
+    columns, but JSF can't manage either of those.
 */
 table.narrowTable tr th {
-	padding-right:5em;
+    padding-right:5em;
 }
 

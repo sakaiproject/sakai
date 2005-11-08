@@ -401,7 +401,7 @@ public class SectionManagerImpl implements SectionManager {
     private String getSectionStudentRole(AuthzGroup group) {
     	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
     	if(roleStrings.size() != 1) {
-    		if(log.isInfoEnabled()) log.info("Group " + group +
+    		if(log.isDebugEnabled()) log.debug("Group " + group +
     			" must have one and only one role with permission " +
     			SectionAwareness.STUDENT_MARKER);
     		return null;
@@ -412,7 +412,7 @@ public class SectionManagerImpl implements SectionManager {
     private String getSectionTaRole(Group group) {
     	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.TA_MARKER);
     	if(roleStrings.size() != 1) {
-    		if(log.isInfoEnabled()) log.info("Group " + group +
+    		if(log.isDebugEnabled()) log.debug("Group " + group +
     			" must have one and only one role with permission " +
     			SectionAwareness.TA_MARKER);
     		return null;
@@ -638,7 +638,7 @@ public class SectionManagerImpl implements SectionManager {
 		}
 		String studentRole = getSectionStudentRole(authzGroup);
 		if(studentRole == null) {
-			if(log.isInfoEnabled()) log.info("Can't get total enrollments, since there is no student-flagged role");
+			log.warn("Can't get total enrollments, since there is no student-flagged role in " + learningContextUuid);
 			return 0;
 		}
 		Set users = authzGroup.getUsersHasRole(studentRole);

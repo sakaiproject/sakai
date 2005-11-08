@@ -310,7 +310,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	private String getSectionStudentRole(AuthzGroup group) {
     	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
     	if(roleStrings.size() != 1) {
-    		if(log.isInfoEnabled()) log.info("Group " + group +
+    		if(log.isDebugEnabled()) log.debug("Group " + group +
     				" must have one and only one role with permission "
     				+ SectionAwareness.STUDENT_MARKER);
     		return null;
@@ -327,7 +327,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
     private String getSectionTaRole(Group group) {
     	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.TA_MARKER);
     	if(roleStrings.size() != 1) {
-    		if(log.isInfoEnabled()) log.info("Group " + group +
+    		if(log.isDebugEnabled()) log.debug("Group " + group +
     				" must have one and only one role with permission "
     				+ SectionAwareness.TA_MARKER);
     		return null;

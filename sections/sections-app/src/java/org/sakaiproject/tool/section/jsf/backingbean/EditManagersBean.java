@@ -213,4 +213,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		return sectionDescription;
 	}
 
+	public String getAbbreviatedSectionTitle() {
+		return StringUtils.abbreviate(sectionTitle, 15);
+	}
 }

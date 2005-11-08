@@ -18,10 +18,12 @@
         <h:panelGrid id="transferTable" columns="3" columnClasses="available,transferButtons,selected">
         
             <h:panelGroup>
-                <h:outputText value="#{msgs.edit_manager_available_label}"/>
+                <x:div>
+                    <h:outputText value="#{msgs.edit_manager_available_label}"/>
+                </x:div>
                         
                 <x:div>
-                    <h:selectManyListbox id="availableUsers" size="20" style="width:200px;">
+                    <h:selectManyListbox id="availableUsers" size="20" style="width:250px;">
                         <f:selectItems value="#{editManagersBean.availableUsers}"/>
                     </h:selectManyListbox>
                 </x:div>
@@ -30,12 +32,12 @@
             <%@include file="/inc/transferButtons.jspf"%>
             
             <h:panelGroup>
-                <h:outputFormat value="#{msgs.edit_manager_selected_label}">
-                    <f:param value="#{editManagersBean.sectionTitle}"/>
+                <h:outputFormat value="#{msgs.edit_manager_selected_label}" style="white-space:nowrap;">
+                    <f:param value="#{editManagersBean.abbreviatedSectionTitle}"/>
                 </h:outputFormat>
 
                 <x:div>
-                    <h:selectManyListbox id="selectedUsers" size="20" style="width:200px;">
+                    <h:selectManyListbox id="selectedUsers" size="20" style="width:250px;">
                         <f:selectItems value="#{editManagersBean.selectedUsers}"/>
                     </h:selectManyListbox>
                 </x:div>
