@@ -2,11 +2,7 @@
 <registration>
 	<tool id="sakai.sections" title="Section Info" description="For managing sections within a site.">
 		<category name="course" />
-
-        <!--
-        SAK-2679: Section Info Tool should be removed from available OOTB Project tools
-        -->
-		<!-- category name="project" / -->
+		<category name="project" />
 
 		<configuration name="help.id" value="sakai.sections" />
 	</tool>

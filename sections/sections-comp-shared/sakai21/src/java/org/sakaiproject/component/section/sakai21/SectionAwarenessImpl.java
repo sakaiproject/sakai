@@ -289,10 +289,10 @@ public class SectionAwarenessImpl implements SectionAwareness {
 			String roleString = member.getRole().getId();
 			User user = SakaiUtil.getUserFromSakai(member.getUserId());
 			ParticipationRecord record = null;
-			if(roleString.equals(taRole)) {
-				record = new TeachingAssistantRecordImpl(section, user);
-			} else if(roleString.equals(studentRole)) {
+			if(roleString.equals(studentRole)) {
 				record = new EnrollmentRecordImpl(section, null, user);
+			} else if(roleString.equals(taRole)) {
+				record = new TeachingAssistantRecordImpl(section, user);
 			}
 			if(record != null) {
 				sectionMembershipRecords.add(record);
@@ -301,24 +301,36 @@ public class SectionAwarenessImpl implements SectionAwareness {
 		return sectionMembershipRecords;		
 	}
 
-    private String getSectionStudentRole(AuthzGroup group) {
+    /**
+     * Gets the group-scoped role to use when adding a student to a group.
+     * 
+     * @param group The authzGroup
+     * @return The role id, or null if there is not role with the student marker.
+     */
+	private String getSectionStudentRole(AuthzGroup group) {
     	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
     	if(roleStrings.size() != 1) {
-    		String str = "Group " + group + " must have one and only one role with permission "
-			+ SectionAwareness.STUDENT_MARKER;
-    		log.error(str);
-    		throw new RuntimeException(str);
+    		if(log.isInfoEnabled()) log.info("Group " + group +
+    				" must have one and only one role with permission "
+    				+ SectionAwareness.STUDENT_MARKER);
+    		return null;
     	}
     	return (String)roleStrings.iterator().next();
     }
 
+    /**
+     * Gets the group-scoped role to use when adding a TA to a group.
+     * 
+     * @param group The authzGroup
+     * @return The role id, or null if there is not role with the TA marker.
+     */
     private String getSectionTaRole(Group group) {
     	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.TA_MARKER);
     	if(roleStrings.size() != 1) {
-    		String str = "Group " + group + " must have one and only one role with permission "
-			+ SectionAwareness.TA_MARKER;
-    		log.error(str);
-    		throw new RuntimeException(str);
+    		if(log.isInfoEnabled()) log.info("Group " + group +
+    				" must have one and only one role with permission "
+    				+ SectionAwareness.TA_MARKER);
+    		return null;
     	}
     	return (String)roleStrings.iterator().next();
     }
@@ -344,7 +356,11 @@ public class SectionAwarenessImpl implements SectionAwareness {
 			return new ArrayList();
 		}
 		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
-		Set sakaiUserUids = group.getUsersHasRole(getSectionStudentRole(group));
+		String studentRole = getSectionStudentRole(group);
+		if(studentRole == null) {
+			return new ArrayList();
+		}
+		Set sakaiUserUids = group.getUsersHasRole(studentRole);
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
         List membersList = new ArrayList();
@@ -363,7 +379,12 @@ public class SectionAwarenessImpl implements SectionAwareness {
 			return new ArrayList();
 		}
 		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
-		Set sakaiUserUids = group.getUsersHasRole(getSectionTaRole(group));
+		String taRole = getSectionTaRole(group);
+		if(taRole == null) {
+			if(log.isDebugEnabled()) log.debug("There is no role for TAs in this site... returning an empty list");
+			return new ArrayList();
+		}
+		Set sakaiUserUids = group.getUsersHasRole(taRole);
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
         List membersList = new ArrayList();

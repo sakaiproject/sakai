@@ -228,7 +228,11 @@ public class SectionManagerImpl implements SectionManager {
 			return new ArrayList();
 		}
 		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
-		Set sakaiUserUids = group.getUsersHasRole(getSectionTaRole(group));
+		String taRole = getSectionTaRole(group);
+		if(taRole == null) {
+			return new ArrayList();
+		}
+		Set sakaiUserUids = group.getUsersHasRole(taRole);
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
         List membersList = new ArrayList();
@@ -250,7 +254,11 @@ public class SectionManagerImpl implements SectionManager {
 			return new ArrayList();
 		}
 		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
-		Set sakaiUserUids = group.getUsersHasRole(getSectionStudentRole(group));
+		String studentRole = getSectionStudentRole(group);
+		if(studentRole == null) {
+			return new ArrayList();
+		}
+		Set sakaiUserUids = group.getUsersHasRole(studentRole);
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
         List membersList = new ArrayList();
@@ -368,6 +376,9 @@ public class SectionManagerImpl implements SectionManager {
     public EnrollmentRecord joinSection(String sectionUuid) {
     	Group group = siteService.findGroup(sectionUuid);
     	String role = getSectionStudentRole(group);
+    	if(role == null) {
+    		throw new RuntimeException("Can not join section, since there is no student-flagged role");
+    	}
 		try {
 			authzGroupService.joinGroup(sectionUuid, role);
 			postEvent("User joined section", sectionUuid);
@@ -390,10 +401,10 @@ public class SectionManagerImpl implements SectionManager {
     private String getSectionStudentRole(AuthzGroup group) {
     	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
     	if(roleStrings.size() != 1) {
-    		String str = "Group " + group + " must have one and only one role with permission "
-			+ SectionAwareness.STUDENT_MARKER;
-    		log.error(str);
-    		throw new RuntimeException(str);
+    		if(log.isInfoEnabled()) log.info("Group " + group +
+    			" must have one and only one role with permission " +
+    			SectionAwareness.STUDENT_MARKER);
+    		return null;
     	}
     	return (String)roleStrings.iterator().next();
     }
@@ -401,10 +412,10 @@ public class SectionManagerImpl implements SectionManager {
     private String getSectionTaRole(Group group) {
     	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.TA_MARKER);
     	if(roleStrings.size() != 1) {
-    		String str = "Group " + group + " must have one and only one role with permission "
-			+ SectionAwareness.TA_MARKER;
-    		log.error(str);
-    		throw new RuntimeException(str);
+    		if(log.isInfoEnabled()) log.info("Group " + group +
+    			" must have one and only one role with permission " +
+    			SectionAwareness.TA_MARKER);
+    		return null;
     	}
     	return (String)roleStrings.iterator().next();
     }
@@ -464,7 +475,11 @@ public class SectionManagerImpl implements SectionManager {
 
 		// Add the membership to the framework
     	String role = getSectionTaRole(group);
-		group.addMember(userUid, role, true, false);
+    	if(role == null) {
+    		throw new RuntimeException("Can't add a user to a section as a TA, since there is no TA-flagged role");
+    	}
+    	
+    	group.addMember(userUid, role, true, false);
 		
 		try {
 			siteService.saveGroupMembership(group.getContainingSite());
@@ -491,7 +506,11 @@ public class SectionManagerImpl implements SectionManager {
 		dropEnrollmentFromCategory(userUid, newSection.getCourse().getSiteContext(), newSection.getCategory());
 
 		// Add the membership to the framework
-		group.addMember(userUid, getSectionStudentRole(group), true, false);
+		String studentRole = getSectionStudentRole(group);
+		if(studentRole == null) {
+			throw new RuntimeException("Can't add a student to a section, since there is no student-flgagged role");
+		}
+		group.addMember(userUid, studentRole, true, false);
 
 		try {
 			siteService.saveGroupMembership(group.getContainingSite());
@@ -523,6 +542,11 @@ public class SectionManagerImpl implements SectionManager {
 			String str = "Only students and TAs can be added to sections";
 			log.error(str);
 			throw new RuntimeException(str);
+		}
+		
+		if(sakaiRoleString == null) {
+			throw new RuntimeException("Can't set memberships for role " + role +
+					".  No sakai role string can be found for this role.");
 		}
 
 		// Remove the current members in this role
@@ -612,7 +636,12 @@ public class SectionManagerImpl implements SectionManager {
 			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
 			return 0;
 		}
-		Set users = authzGroup.getUsersHasRole(getSectionStudentRole(authzGroup));
+		String studentRole = getSectionStudentRole(authzGroup);
+		if(studentRole == null) {
+			if(log.isInfoEnabled()) log.info("Can't get total enrollments, since there is no student-flagged role");
+			return 0;
+		}
+		Set users = authzGroup.getUsersHasRole(studentRole);
 		return users.size();
 	}
 
