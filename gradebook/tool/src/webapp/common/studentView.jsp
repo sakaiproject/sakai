@@ -23,6 +23,7 @@
 			<h:panelGroup>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
 				<h:outputText value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased}"/>
+				<h:outputText value="#{msgs.student_view_not_counted_assignments}" rendered="#{studentViewBean.anyNotCounted}" escape="false"/>
 			</h:panelGroup>
 		</h:panelGrid>
 
@@ -46,7 +47,7 @@
 						</x:commandSortHeader>
 					</f:facet>
 
-					<h:outputText value="#{row.name}" />
+					<h:outputText value="#{row.assignment.name}" />
 				</h:column>
 				<h:column>
 					<f:facet name="header">
@@ -55,10 +56,10 @@
 						</x:commandSortHeader>
 					</f:facet>
 
-					<h:outputText value="#{row.dueDate}" rendered="#{row.dueDate != null}">
+					<h:outputText value="#{row.assignment.dueDate}" rendered="#{row.assignment.dueDate != null}">
 						<f:convertDateTime />
 					</h:outputText>
-					<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{row.dueDate == null}"/>
+					<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{row.assignment.dueDate == null}"/>
 				</h:column>
 				<h:column>
 					<f:facet name="header">
@@ -66,9 +67,8 @@
 							<h:outputText value="#{msgs.student_view_score}"/>
 						</x:commandSortHeader>
 					</f:facet>
-
-					<h:outputText value="#{row.pointsEarned}">
-						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
+					<h:outputText value="#{row.gradeRecord}" escape="false">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
 					</h:outputText>
 				</h:column>
 				<h:column>
@@ -77,9 +77,8 @@
 							<h:outputText value="#{msgs.student_view_points}"/>
 						</x:commandSortHeader>
 					</f:facet>
-
-					<h:outputText value="#{row.pointsPossible}">
-						<f:convertNumber maxFractionDigits="2"/>
+					<h:outputText value="#{row.assignment}" escape="false">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
 					</h:outputText>
 				</h:column>
 				<h:column>
@@ -88,12 +87,10 @@
 							<h:outputText value="#{msgs.student_view_grade}"/>
 						</x:commandSortHeader>
 					</f:facet>
-
-					<h:outputText value="#{row.grade}" rendered="#{row.grade != null}"/>
-					<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{row.grade == null}"/>
+					<h:outputText value="#{row.displayGrade}"/>
 				</h:column>
 				<h:column>
-					<h:outputText value="#{row.externalAppName}" />
+					<h:outputText value="#{row.assignment.externalAppName}" />
 				</h:column>
 			</x:dataTable>
 

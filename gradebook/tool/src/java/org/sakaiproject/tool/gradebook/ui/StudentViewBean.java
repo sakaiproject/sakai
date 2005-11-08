@@ -41,6 +41,7 @@ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
  * Provides data for the student view of the gradebook.
@@ -58,6 +59,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     private boolean courseGradeReleased;
     private String courseGrade;
     private boolean assignmentsReleased;
+    private boolean anyNotCounted;
 
     private boolean sortAscending;
     private String sortColumn;
@@ -77,79 +79,69 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     public static Comparator dateComparator;
     public static Comparator pointsPossibleComparator;
     public static Comparator pointsEarnedComparator;
+    public static Comparator gradeAsPercentageComparator;
+    private static Comparator doubleOrNothingComparator;
     static {
         nameComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                AssignmentGradeRow row1 = (AssignmentGradeRow) o1;
-                AssignmentGradeRow row2 = (AssignmentGradeRow) o2;
-                return row1.getName().compareTo(row2.getName());
+                return Assignment.nameComparator.compare(((AssignmentGradeRow)o1).getAssignment(), ((AssignmentGradeRow)o2).getAssignment());
             }
         };
         dateComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                AssignmentGradeRow row1 = (AssignmentGradeRow) o1;
-                AssignmentGradeRow row2 = (AssignmentGradeRow) o2;
-                Date date1 = row1.getDueDate();
-                Date date2 = row2.getDueDate();
-
-                if(date1 == null && date2 == null) {
-                    return 0;
-                } else if(date1 == null && date2 != null) {
-                    return -1;
-                } else if(date1 != null && date2 == null) {
-                    return 1;
-                } else {
-                    int comp = date1.compareTo(date2);
-                    if(comp == 0) {
-                        return nameComparator.compare(row1, row2);
-                    } else {
-                    	return comp;
-                    }
-                }
+                return Assignment.dateComparator.compare(((AssignmentGradeRow)o1).getAssignment(), ((AssignmentGradeRow)o2).getAssignment());
             }
         };
         pointsPossibleComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                AssignmentGradeRow row1 = (AssignmentGradeRow) o1;
-                AssignmentGradeRow row2 = (AssignmentGradeRow) o2;
-                int comp = row1.getPointsPossible().compareTo(row2.getPointsPossible());
-                if(comp == 0) {
-                    return nameComparator.compare(row1, row2);
+                return Assignment.pointsComparator.compare(((AssignmentGradeRow)o1).getAssignment(), ((AssignmentGradeRow)o2).getAssignment());
+            }
+        };
+
+        doubleOrNothingComparator = new Comparator() {
+            public int compare(Object o1, Object o2) {
+                Double double1 = (Double)o1;
+                Double double2 = (Double)o2;
+
+                if(double1 == null && double2 == null) {
+                    return 0;
+                } else if(double1 == null && double2 != null) {
+                    return -1;
+                } else if(double1 != null && double2 == null) {
+                    return 1;
                 } else {
-                    return comp;
+                    return double1.compareTo(double2);
                 }
             }
         };
+
         pointsEarnedComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                AssignmentGradeRow row1 = (AssignmentGradeRow) o1;
-                AssignmentGradeRow row2 = (AssignmentGradeRow) o2;
-                Double pointsEarned1 = row1.getPointsEarned();
-                Double pointsEarned2 = row2.getPointsEarned();
-
-                if(pointsEarned1 == null && pointsEarned2 == null) {
-                    return 0;
-                } else if(pointsEarned1 == null && pointsEarned2 != null) {
-                    return -1;
-                } else if(pointsEarned1 != null && pointsEarned2 == null) {
-                    return 1;
-                } else {
-                    int comp = pointsEarned1.compareTo(pointsEarned2);
-                    if(comp == 0) {
-                        return nameComparator.compare(row1, row2);
-                    } else {
-                        return comp;
-                    }
-                }
+            	int comp = doubleOrNothingComparator.compare(((AssignmentGradeRow)o1).getPointsEarned(), ((AssignmentGradeRow)o2).getPointsEarned());
+                if (comp == 0) {
+					return nameComparator.compare(o1, o2);
+				} else {
+					return comp;
+				}
+            }
+        };
+        gradeAsPercentageComparator = new Comparator() {
+            public int compare(Object o1, Object o2) {
+            	int comp = doubleOrNothingComparator.compare(((AssignmentGradeRow)o1).getGradeAsPercentage(), ((AssignmentGradeRow)o2).getGradeAsPercentage());
+                if (comp == 0) {
+					return nameComparator.compare(o1, o2);
+				} else {
+					return comp;
+				}
             }
         };
 
         columnSortMap = new HashMap();
-        columnSortMap.put(StudentViewBean.SORT_BY_NAME, StudentViewBean.nameComparator);
-        columnSortMap.put(StudentViewBean.SORT_BY_DATE, StudentViewBean.dateComparator);
-        columnSortMap.put(StudentViewBean.SORT_BY_POINTS_POSSIBLE, StudentViewBean.pointsPossibleComparator);
-        columnSortMap.put(StudentViewBean.SORT_BY_POINTS_EARNED, StudentViewBean.pointsEarnedComparator);
-        columnSortMap.put(StudentViewBean.SORT_BY_GRADE, StudentViewBean.pointsEarnedComparator);
+        columnSortMap.put(SORT_BY_NAME, StudentViewBean.nameComparator);
+        columnSortMap.put(SORT_BY_DATE, StudentViewBean.dateComparator);
+        columnSortMap.put(SORT_BY_POINTS_POSSIBLE, StudentViewBean.pointsPossibleComparator);
+        columnSortMap.put(SORT_BY_POINTS_EARNED, StudentViewBean.pointsEarnedComparator);
+        columnSortMap.put(SORT_BY_GRADE, StudentViewBean.gradeAsPercentageComparator);
     }
 
     /**
@@ -158,70 +150,47 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
      */
     public StudentViewBean() {
         sortAscending = true;
-        sortColumn = Assignment.SORT_BY_DATE;
+        sortColumn = SORT_BY_DATE;
     }
 
     public class AssignmentGradeRow implements Serializable {
-        private String name;
-        private Date dueDate;
-        private Double pointsEarned;
-        private Double pointsPossible;
-        private String grade;
-        private boolean external;
-        private String externalAppName;
+        private Assignment assignment;
+        private AssignmentGradeRecord gradeRecord;
 
-        public AssignmentGradeRow(Assignment asn) {
-            name = asn.getName();
-            dueDate = asn.getDueDate();
-            pointsPossible = asn.getPointsPossible();
-            external = asn.isExternallyMaintained();
-            if(external) {
-                externalAppName = asn.getExternalAppName();
-            }
+        public AssignmentGradeRow(Assignment assignment) {
+        	this.assignment = assignment;
+        }
+        public void setGradeRecord(AssignmentGradeRecord gradeRecord) {
+        	this.gradeRecord = gradeRecord;
+        }
+        public Assignment getAssignment() {
+        	return assignment;
+        }
+        public AssignmentGradeRecord getGradeRecord() {
+        	return gradeRecord;
+        }
+        public String getDisplayGrade() {
+        	if (gradeRecord == null) {
+        		return FacesUtil.getLocalizedString("score_null_placeholder");
+        	} else {
+        		return gradeRecord.getDisplayGrade();
+        	}
         }
 
-		public Date getDueDate() {
-			return dueDate;
-		}
-		public void setDueDate(Date dueDate) {
-			this.dueDate = dueDate;
-		}
-		public String getGrade() {
-			return grade;
-		}
-		public void setGrade(String grade) {
-			this.grade = grade;
-		}
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		public Double getPointsEarned() {
-			return pointsEarned;
-		}
-		public void setPointsEarned(Double pointsEarned) {
-			this.pointsEarned = pointsEarned;
-		}
-		public Double getPointsPossible() {
-			return pointsPossible;
-		}
-		public void setPointsPossible(Double pointsPossible) {
-			this.pointsPossible = pointsPossible;
-		}
-		public boolean isExternal() {
-			return external;
-		}
-		public void setExternal(boolean external) {
-			this.external = external;
-		}
-		public String getExternalAppName() {
-			return externalAppName;
-		}
-		public void setExternalAppName(String externalAppName) {
-			this.externalAppName = externalAppName;
-		}
+        Double getPointsEarned() {
+        	if (gradeRecord == null) {
+        		return null;
+        	} else {
+        		return gradeRecord.getPointsEarned();
+        	}
+        }
+        Double getGradeAsPercentage() {
+        	if (gradeRecord == null) {
+        		return null;
+        	} else {
+        		return gradeRecord.getGradeAsPercentage();
+        	}
+        }
     }
 
     /**
@@ -268,6 +237,9 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             for(Iterator iter = assignments.iterator(); iter.hasNext();) {
                 Assignment asn = (Assignment)iter.next();
                 asnMap.put(asn, new AssignmentGradeRow(asn));
+                if (asn.isNotCounted()) {
+                	anyNotCounted = true;
+                }
             }
 
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
@@ -284,8 +256,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
 				// Update the AssignmentGradeRow in the map
 				AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
-				asnGradeRow.setPointsEarned(asnGr.getPointsEarned());
-				asnGradeRow.setGrade(asnGr.getDisplayGrade());
+				asnGradeRow.setGradeRecord(asnGr);
             }
 
             assignmentGradeRows = new ArrayList(asnMap.values());
@@ -298,7 +269,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             // Set the row css classes
             for(Iterator iter = assignmentGradeRows.iterator(); iter.hasNext();) {
                 AssignmentGradeRow gr = (AssignmentGradeRow)iter.next();
-                if(gr.isExternal()) {
+                if(gr.getAssignment().isExternallyMaintained()) {
                     rowStyles.append("external");
                 } else {
                     rowStyles.append("internal");
@@ -399,6 +370,14 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         } else {
             return rowStyles.toString();
         }
+    }
+
+    /**
+     * @return True if the gradebook contains any assignments not counted toward
+     *         the final course grade.
+     */
+    public boolean isAnyNotCounted() {
+    	return anyNotCounted;
     }
 
 }
