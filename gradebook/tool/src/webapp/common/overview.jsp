@@ -9,7 +9,17 @@
 
 		<h2><h:outputText value="#{msgs.appmenu_overview}"/></h2>
 
-		<div class="instruction"><h:outputText value="#{msgs.overview_instruction}" escape="false"/></div>
+		<div class="instruction">
+			<h:outputText value="#{msgs.overview_instruction}" escape="false"/>
+			<h:panelGroup rendered="#{overviewBean.userAbleToEditAssessments}">
+				<f:verbatim><p></f:verbatim>
+				<h:outputText value="#{overviewBean.gradeOptionSummary} "/>
+				<h:commandLink action="feedbackOptions" immediate="true">
+					<h:outputText value="#{msgs.overview_grade_option_change}"/>
+				</h:commandLink>
+				<f:verbatim></p></f:verbatim>
+			</h:panelGroup>
+		</div>
 
 		<%@include file="/inc/globalMessages.jspf"%>
 

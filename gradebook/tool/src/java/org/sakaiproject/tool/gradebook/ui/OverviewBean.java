@@ -33,6 +33,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -100,7 +102,23 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
         }
         return sb.toString();
     }
+
+    public String getGradeOptionSummary() {
+    	String gradeOptionSummary;
+    	Gradebook gradebook = getGradebook();
+    	String gradeMappingName = gradebook.getSelectedGradeMapping().getName();
+    	if (gradebook.isAssignmentsDisplayed()) {
+    		if (gradebook.isCourseGradeDisplayed()) {
+    			gradeOptionSummary = FacesUtil.getLocalizedString("overview_grade_option_all_viewable", new String[] {gradeMappingName});
+    		} else {
+    			gradeOptionSummary = FacesUtil.getLocalizedString("overview_grade_option_assignments_viewable", new String[] {gradeMappingName});
+    		}
+    	} else if (gradebook.isCourseGradeDisplayed()) {
+    		gradeOptionSummary = FacesUtil.getLocalizedString("overview_grade_option_course_grade_viewable", new String[] {gradeMappingName});
+    	} else {
+    		gradeOptionSummary = FacesUtil.getLocalizedString("overview_grade_option_none_viewable");
+    	}
+    	return gradeOptionSummary;
+    }
+
 }
-
-
-
