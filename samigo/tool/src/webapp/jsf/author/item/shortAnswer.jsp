@@ -61,7 +61,7 @@
 </h:inputText>
 <br/> <h:message for="answerptr" styleClass="validate"/>
   </div>
-
+<br/>
   <!-- 2 TEXT -->
 
   <span id="num2" class="number"></span>
@@ -69,7 +69,7 @@
   <br/>
   <!-- WYSIWYG -->
 
-  <h:panelGrid width="50%">
+  <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}">
      <f:validateLength minimum="1" maximum="4000"/>
    </samigo:wysiwyg>
@@ -104,19 +104,21 @@
  <!-- 5 ANSWER and ANSWERFEEDBACK -->
 
   <span id="num5" class="number"></span>
-   <div class="longtext indnt2">
-  <h:outputLabel value="#{msg.answer_provide_a_mo}" /> <br/><br/>
-  <h:outputLabel value="#{msg.model_short_answer}" /><br/>
+   <div class="longtext">
+  <h:outputLabel value="#{msg.answer_provide_a_mo}" />  </div><br/>
+<div class="indnt2">
+<h:outputText value="#{msg.model_short_answer}" /><br/>
+
  <!-- WYSIWYG -->
- <h:panelGrid width="50%">
+ <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
 <br/>
 
-  <h:outputLabel value="#{msg.feedback_optional}" /><br/>
- <h:panelGrid width="50%">
+  <h:outputText value="#{msg.feedback_optional}" />
+ <h:panelGrid>
    <!-- WYSIWYG  -->
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" >
      <f:validateLength maximum="4000"/>
@@ -131,17 +133,17 @@
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim><span id="num9" class="number"></span></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="indnt3"></f:verbatim>
+
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputLabel value="#{msg.objective}" />
-  <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputLabel value="#{msg.keyword}" />
-  <h:inputText id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputLabel value="#{msg.rubric_colon}" />
-  <h:inputText id="rubric" value="#{itemauthor.currentItem.rubric}" />
+<h:outputText value="#{msg.objective}" />
+  <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
+<h:outputText value="#{msg.keyword}" />
+  <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
+<h:outputText value="#{msg.rubric_colon}" />
+  <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
- <f:verbatim></div></f:verbatim>
+
 </h:panelGroup>
 </div>
 

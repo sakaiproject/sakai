@@ -63,6 +63,7 @@
 </h:inputText>
     <h:message for="answerptr" styleClass="validate"/><br/>
   </div>
+<br/>
   <!-- 2 TEXT -->
 
    <span id="num2" class="number"></span>
@@ -121,10 +122,11 @@
 
 
   <!-- WYSIWYG -->
-
+<h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+</h:panelGrid>
  </div>
 
 <!-- METADATA -->
@@ -135,12 +137,12 @@
 <f:verbatim><div class="indnt3"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputLabel value="#{msg.objective}" />
-  <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputLabel value="#{msg.keyword}" />
-  <h:inputText id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputLabel value="#{msg.rubric_colon}" />
-  <h:inputText id="rubric" value="#{itemauthor.currentItem.rubric}" />
+<h:outputText value="#{msg.objective}" />
+  <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
+<h:outputText value="#{msg.keyword}" />
+  <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
+<h:outputText value="#{msg.rubric_colon}" />
+  <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>

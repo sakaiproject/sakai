@@ -87,13 +87,14 @@
 </h:inputText>
 <br/><h:message for="answerptr" styleClass="validate"/>
   </div>
+<br/>
   <!-- 2 TEXT -->
 
     <span id="num2" class="number"></span>
   <div class="longtext"> <h:outputLabel for="qtextarea" value="#{msg.q_text}" />
   <br/>
   <!-- WYSIWYG -->
-  <h:panelGrid width="50%">
+  <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.instruction}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
@@ -105,7 +106,7 @@
 
       <span id="num3" class="number"></span>
     <div class="longtext"> <h:outputLabel value="#{msg.create_pairing} " /></div>
-
+<div class="indnt2">
   <!-- display existing pairs -->
 
 <h:dataTable styleClass="listHier" id="pairs" width="100%" headerClass="regHeading" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
@@ -155,17 +156,19 @@
       </h:column>
 
      </h:dataTable>
-
+</div>
         <!-- WYSIWYG -->
 <div class="indnt2">
-     <h:panelGrid columns="2" columnClasses="longtext">
-          <h:outputLabel value=" Choice: "/>
-          <h:outputLabel value=" Match: "/>
-
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.choice}">
+   
+          <h:outputText value=" Choice"/>
+<h:panelGrid>
+  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.choice}">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+</h:panelGrid>
+          <h:outputText value=" Match"/>
 
+ <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.match}">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
@@ -175,26 +178,29 @@
 
  <!-- Match FEEDBACK -->
 <div class="indnt2">
-  <h:panelGrid columns="2" columnClasses="longtext">
-  <h:outputLabel value="#{msg.correct_match_feedback_opt}" />
-  <h:outputLabel value="#{msg.incorrect_match_feedback_opt}" />
-
-
-  <!-- WYSIWYG -->
+ 
+  <h:outputText value="#{msg.correct_match_feedback_opt}" />
+<h:panelGrid>
+<!-- WYSIWYG -->
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.corrMatchFeedback}">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+  </h:panelGrid>
 
+  <h:outputText value="#{msg.incorrect_match_feedback_opt}" />
+
+
+  <h:panelGrid>
   <!-- WYSIWYG -->
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.incorrMatchFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 
 
-  </h:panelGrid>
+</h:panelGrid>
   </div>
 
-<f:verbatim><br/></f:verbatim>
+
 <f:verbatim><br/></f:verbatim>
 <f:verbatim><br/></f:verbatim>
   <h:commandButton value="#{msg.button_save_pair}" action="#{itemauthor.currentItem.addMatchPair}">
@@ -257,61 +263,43 @@
   </h:panelGrid>
 
 
- <!-- FEEDBACK -->
-
+ 
   <span id="num8" class="number"></span>
  <div class="longtext">
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
-  <h:panelGrid columns="2">
-  <h:outputLabel value="#{msg.correct_answer_opti}" />
-  <h:outputLabel value="#{msg.incorrect_answer_op}" />
-
-
-
-  <!-- WYSIWYG -->
-    <%--
-  <h:panelGrid columns="2">
-  <h:inputTextarea id="corrfdbk" value="#{itemauthor.currentItem.corrFeedback}" cols="30" rows="3"/>
-  <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
-  </h:panelGrid>
-    --%>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}"  >
+   </div><div class="indnt2">
+  <h:outputText value="#{msg.correct_answer_opti}" />
+ <h:panelGrid>
+  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}"  >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+</h:panelGrid>
 
-  <%--</h:panelGroup>
-
-  <h:panelGroup>--%>
-  <!-- WYSIWYG -->
-    <%--
-  <h:panelGrid columns="2">
-  <h:inputTextarea id="incorrfdbk" value="#{itemauthor.currentItem.incorrFeedback}" cols="30" rows="3"/>
-  <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
-  </h:panelGrid>
-    --%>
+  <h:outputText value="#{msg.incorrect_answer_op}" />
+ <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-
-<%--  </h:panelGroup> --%>
-
   </h:panelGrid>
-  </div>
+
+</div>
+
+ 
 
 <!-- METADATA -->
 
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim><span id="num9" class="number"></span></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="indnt3"></f:verbatim>
+<f:verbatim><div class="indnt2"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputLabel value="#{msg.objective}" />
-  <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputLabel value="#{msg.keyword}" />
-  <h:inputText id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputLabel value="#{msg.rubric_colon}" />
-  <h:inputText id="rubric" value="#{itemauthor.currentItem.rubric}" />
+<h:outputText value="#{msg.objective}" />
+  <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
+<h:outputText value="#{msg.keyword}" />
+  <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
+<h:outputText value="#{msg.rubric_colon}" />
+  <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
@@ -328,7 +316,6 @@
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-
 
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true"/>
  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_cancel}" action="editPool" immediate="true"/>

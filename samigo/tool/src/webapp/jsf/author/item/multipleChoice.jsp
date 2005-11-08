@@ -67,33 +67,27 @@
 
 <h:message for="answerptr" styleClass="validate"/>
 </div>
+<br/>
   <!-- 2 TEXT -->
 
   <span id="num2" class="number"></span>
    <div class="longtext"><h:outputLabel value="#{msg.q_text}" />
-
+</div>
   <!-- WYSIWYG -->
-    <%--
-  <h:panelGrid columns="2">
-    <h:inputTextarea id="qtextarea" value="#{itemauthor.currentItem.itemText}" cols="48" rows="8"/>
-
-
-    <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
-  </h:panelGrid>
-    --%>
-  <h:panelGrid width="50%">
+   
+  <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" >
      <f:validateLength minimum="1" maximum="4000"/>
    </samigo:wysiwyg>
 
   </h:panelGrid>
-</div>
+
   <!-- 3 ANSWER -->
  <span id="num3" class="number"></span>
   <div class="longtext">
     <h:outputLabel value="#{msg.answer} " />  </div>
   <!-- need to add a listener, for the radio button below,to toggle between single and multiple correct-->
-
+<div class="indnt2">
     <h:selectOneRadio layout="lineDirection"
 		onclick="this.form.onsubmit();this.form.submit();"
            value="#{itemauthor.currentItem.multipleCorrectString}"
@@ -103,25 +97,25 @@
       <f:selectItem itemValue="2"
         itemLabel="#{msg.multipl_mc}" />
     </h:selectOneRadio>
-
+</div>
 
 	<!-- dynamicaly generate rows of answers based on number of answers-->
-<div class="indnt3">
-    <h:dataTable id="mcchoices" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" width="100%" headerClass="alignLeft longtext">
-      <h:column>
-        <f:facet name="header">
+<div class="indnt2">
+ <h:dataTable id="mcchoices" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" headerClass="alignLeft longtext">
+<h:column>
+<h:panelGrid columns="2">
+<h:panelGroup>
+      
 
-          <h:outputLabel value="#{msg.correct_answer}"  />
-
-        </f:facet>
-
-
-	<!-- if multiple correct, use checkboxes -->
+	
+<h:outputText value="#{msg.correct_answer}"  />
+<f:verbatim><br/></f:verbatim>
+<!-- if multiple correct, use checkboxes -->
         <h:selectManyCheckbox value="#{itemauthor.currentItem.corrAnswers}" id="mccheckboxes"
 	rendered="#{itemauthor.currentItem.multipleCorrect}">
 	<f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
         </h:selectManyCheckbox>
-
+         
 	<!-- if single correct, use radiobuttons -->
 
 
@@ -135,48 +129,34 @@
 </h:selectOneRadio>
 
 
-
 <h:commandLink id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}">
   <h:outputText id="text" value="#{msg.button_remove}"/>
   <f:param name="answerid" value="#{answer.label}"/>
 </h:commandLink>
-
+ </h:panelGroup>
         <!-- WYSIWYG -->
-  <h:panelGrid width="50%">
+
    <samigo:wysiwyg rows="140" value="#{answer.text}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-
-  </h:panelGrid>
-
-<%--
-        <h:inputTextarea value="#{answer.text}" cols="30" rows="5"/>
-        <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
---%>
-      </h:column>
-
-      <h:column>
-        <f:facet name="header">
+ 
           <h:outputText value="#{msg.feedback_optional}" />
-        </f:facet>
+    
         <!-- WYSIWYG -->
-<%--
-        <h:inputTextarea value="#{answer.feedback}" cols="30" rows="5"/>
-        <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
---%>
-        <f:verbatim><br/><br/><br/></f:verbatim>
-        <h:panelGrid width="50%">
+
+
          <samigo:wysiwyg rows="140" value="#{answer.feedback}">
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
-
+ 
         </h:panelGrid>
-      </h:column>
-    </h:dataTable>
+</h:column>
+</h:dataTable>
+
 </div>
 <h:inputHidden id="selectedRadioBtn" value="#{itemauthor.currentItem.corrAnswer}" />
-<div class="longtext">
-  <h:outputLabel value="#{msg.insert_additional_a}" />
+<div class="shorttext indnt2">
+  <h:outputText value="#{msg.insert_additional_a}" />
 <h:selectOneMenu  id="insertAdditionalAnswerSelectMenu"  onchange="this.form.onsubmit(); clickAddChoiceLink();" value="#{itemauthor.currentItem.additionalChoices}" >
   <f:selectItem itemLabel="#{msg.select_menu}" itemValue="0"/>
   <f:selectItem itemLabel="1" itemValue="1"/>
@@ -185,9 +165,10 @@
   <f:selectItem itemLabel="4" itemValue="4"/>
   <f:selectItem itemLabel="5" itemValue="5"/>
   <f:selectItem itemLabel="6" itemValue="6"/>
-</h:selectOneMenu></div>
+</h:selectOneMenu>
 <h:commandLink id="hiddenAddChoicelink" action="#{itemauthor.currentItem.addChoicesAction}" value="">
 </h:commandLink>
+</div>
 <br/>
     <!-- 4 RANDOMIZE -->
  <span id="num4" class="number"></span>
@@ -235,53 +216,47 @@
 </h:panelGrid>
 
 
- <!-- FEEDBACK -->
+ <!-- 8 FEEDBACK -->
  <span id="num8" class="number"></span>
   <div class="longtext">
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
-<div class="indnt3">
-  <h:panelGrid columns="2">
-  <h:outputLabel value="#{msg.correct_answer_opti}" />
-  <h:outputLabel value="#{msg.incorrect_answer_op}" />
-
+</div>
+<div class="indnt2">
+  <h:outputText value="#{msg.correct_answer_opti}" />
+<br/>
   <!-- WYSIWYG -->
-    <%--
-  <h:inputTextarea id="corrfdbk" value="#{itemauthor.currentItem.corrFeedback}" cols="30" rows="3"/>
-  <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
-    --%>
+  
+
+<h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+</h:panelGrid>
+<br/>
+ <h:outputText value="#{msg.incorrect_answer_op}" />
 
   <!-- WYSIWYG -->
-    <%--
-  <h:inputTextarea id="incorrfdbk" value="#{itemauthor.currentItem.incorrFeedback}" cols="30" rows="3"/>
-  <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
-    --%>
+   <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-
-
-  </h:panelGrid>
-
-</div></div>
+</h:panelGrid>
+</div>
  <!-- METADATA -->
 
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim><span id="num9" class="number"></span></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="indnt3"></f:verbatim>
+
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputLabel value="#{msg.objective}" />
-  <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputLabel value="#{msg.keyword}" />
-  <h:inputText id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputLabel value="#{msg.rubric_colon}" />
-  <h:inputText id="rubric" value="#{itemauthor.currentItem.rubric}" />
+<h:outputText value="#{msg.objective}" />
+  <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
+<h:outputText value="#{msg.keyword}" />
+  <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
+<h:outputText value="#{msg.rubric_colon}" />
+  <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
- <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 </div>
 
