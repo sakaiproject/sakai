@@ -1334,14 +1334,6 @@ public class ItemHelper12Impl extends ItemHelperBase
     itemXml.addAttribute(respCond + "/setvar", "varname");
 
     updateItemXml(itemXml, respCond + "/setvar/@varname", "SCORE");
-    if (correct)
-    {
-      updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
-    }
-    else
-    {
-      updateItemXml(itemXml, respCond + "/setvar", "0");
-    }
 
     //Add display feedback
 
@@ -1350,6 +1342,20 @@ public class ItemHelper12Impl extends ItemHelperBase
     updateItemXml(
       itemXml, respCond + "/displayfeedback/@feedbacktype", "Response");
     itemXml.addAttribute(respCond + "/displayfeedback", "linkrefid");
+
+    if (correct)
+    {
+      updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
+      updateItemXml(itemXml,
+        respCond + "/displayfeedback/@linkrefid", "CorrectMatch");
+    }
+    else
+    {
+      updateItemXml(itemXml, respCond + "/setvar", "0");
+      updateItemXml(itemXml,
+        respCond + "/displayfeedback/@linkrefid", "InCorrectMatch");
+    }
+
   }
 
   /**
