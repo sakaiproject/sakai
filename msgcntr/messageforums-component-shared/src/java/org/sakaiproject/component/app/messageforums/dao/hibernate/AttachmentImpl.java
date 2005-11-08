@@ -31,18 +31,24 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 
-
 public class AttachmentImpl extends MutableEntityImpl implements Attachment {
 
     private static final Log LOG = LogFactory.getLog(AttachmentImpl.class);
 
     private String attachmentId;
+
     private String attachmentUrl;
+
     private String attachmentName;
+
     private String attachmentSize;
+
     private String attachmentType;
+
     private Message parent;
-    
+
+    private int indexFromSet;
+   
     public String getAttachmentId() {
         return attachmentId;
     }
@@ -91,11 +97,23 @@ public class AttachmentImpl extends MutableEntityImpl implements Attachment {
         this.parent = parent;
     }
 
+    public int getIndex() {
+        try {
+            return getParent().getAttachments().indexOf(this);
+        } catch (Exception e) {
+            return indexFromSet;
+        }
+    }
+
+    private void setIndex(int index) {
+        indexFromSet = index;
+    }
+
     public boolean equals(Object other) {
         if (!(other instanceof AttachmentImpl)) {
             return false;
         }
-        
+
         Attachment attachment = (Attachment) other;
         return new EqualsBuilder().append(attachmentId, attachment.getAttachmentId()).isEquals();
     }
@@ -105,11 +123,6 @@ public class AttachmentImpl extends MutableEntityImpl implements Attachment {
     }
 
     public String toString() {
-        return new ToStringBuilder(this).
-        append("attachmentId", attachmentId).
-        append("attachmentUrl", attachmentUrl).
-        append("attachmentName", attachmentName).
-        append("attachmentSize", attachmentSize).
-        append("attachmentType", attachmentType).toString();
+        return new ToStringBuilder(this).append("attachmentId", attachmentId).append("attachmentUrl", attachmentUrl).append("attachmentName", attachmentName).append("attachmentSize", attachmentSize).append("attachmentType", attachmentType).toString();
     }
 }

@@ -47,6 +47,7 @@
     <many-to-one name="parent" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
       not-null="false" index="MFR_NODE_PARENT_I" cascade="none" />
+    <property name="index" column="index_col" type="int" update="true" insert="true"/>
 
   </class>
 

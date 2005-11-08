@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UniqueArrayList;
  
 public class MessageImpl extends MutableEntityImpl implements Message {
 
@@ -39,7 +40,7 @@ public class MessageImpl extends MutableEntityImpl implements Message {
     private String title;
     private String body;
     private String author;
-    private List attachments = new ArrayList();
+    private List attachments = new UniqueArrayList();
     private String label;
     private Message inReplyTo;
     private String gradebook;

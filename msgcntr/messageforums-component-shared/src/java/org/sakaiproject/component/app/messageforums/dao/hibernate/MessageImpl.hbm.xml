@@ -41,11 +41,11 @@
     <property name="author">
       <column name="AUTHOR" length="255" not-null="true" />
     </property>
-    <set name="attachments" lazy="true" sort="natural" 
-         order-by="attachmentName asc" cascade="all">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
-    </set>
+	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
+		<key column="surrogateKey"/>
+		<index column="index_col"/>
+		<one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>
+	</list>    
     <property name="label">
       <column name="LABEL" length="255" not-null="false" />
     </property>

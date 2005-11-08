@@ -22,6 +22,15 @@
 <h3>timerBar usage:</h3>
 <pre>
 
+<h:dataTable id="testList"  value="#{TestTool.arrSet}" var="search">
+	<h:column >    
+    	<f:facet name="header">
+        	<h:outputText value="TESTING UNIQUEARRAYLIST CLASS" />
+        </f:facet>                                               
+		<h:outputText value="#{search.value}" />                        
+    </h:column>    
+</h:dataTable>   
+
 <FONT COLOR="#000000">  &lt;</FONT><FONT COLOR="#800080">h:outputText</FONT><FONT COLOR="#000000"> </FONT><FONT COLOR="#800000">value</FONT><FONT COLOR="#000000">=</FONT><FONT COLOR="#0000ff">"Timer bar test."</FONT><FONT COLOR="#000000">/&gt;
   &lt;</FONT><FONT COLOR="#800080">sakai:timerBar</FONT><FONT COLOR="#000000"> </FONT><FONT COLOR="#800000">height</FONT><FONT COLOR="#000000">=</FONT><FONT COLOR="#0000ff">"15"</FONT><FONT COLOR="#000000"> </FONT><FONT COLOR="#800000">width</FONT><FONT COLOR="#000000">=</FONT><FONT COLOR="#0000ff">"300"</FONT><FONT COLOR="#000000"> </FONT><FONT COLOR="#800000">wait</FONT><FONT COLOR="#000000">=</FONT><FONT COLOR="#0000ff">"60"</FONT><FONT COLOR="#000000"> </FONT><FONT COLOR="#800000">elapsed</FONT><FONT COLOR="#000000">=</FONT><FONT COLOR="#0000ff">"30"</FONT><FONT COLOR="#000000">
     </FONT><FONT COLOR="#800000">expireMessage</FONT><FONT COLOR="#000000">=</FONT><FONT COLOR="#0000ff">"this is the expire message"</FONT><FONT COLOR="#000000">

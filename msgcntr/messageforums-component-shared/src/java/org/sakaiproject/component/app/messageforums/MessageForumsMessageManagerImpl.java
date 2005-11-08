@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class MessageForumsMessageManagerImpl extends HibernateDaoSupport {//implements MessageForumsMessageManager {
+public class MessageForumsMessageManagerImpl extends HibernateDaoSupport {
 
     private static final Log LOG = LogFactory.getLog(MessageForumsMessageManagerImpl.class);    
 
@@ -54,6 +54,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport {//impl
         getHibernateTemplate().delete(message);
         LOG.info("message " + message.getId() + " deleted successfully");
     }
+    
+    
     
     // helpers
     

@@ -58,5 +58,7 @@ public interface Message extends MutableEntity {
     public void setTypeUuid(String typeUuid); 
     public void setTopic(Topic topic);
     public Topic getTopic();
+    public void addAttachment(Attachment attachment);
+    public void removeAttachment(Attachment attachment);
 
 }
