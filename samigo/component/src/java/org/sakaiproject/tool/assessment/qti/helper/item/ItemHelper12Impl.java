@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -370,6 +371,18 @@ public class ItemHelper12Impl extends ItemHelperBase
         String label = answer.getLabel();
         Long answerSequence = answer.getSequence();
         Boolean correct = answer.getIsCorrect();
+        String responseFeedback = "";
+        if (correct.booleanValue())
+        {
+          responseFeedback =
+           answer.getAnswerFeedback(AnswerFeedbackIfc.CORRECT_FEEDBACK);
+        }
+        else
+        {
+          responseFeedback =
+           answer.getAnswerFeedback(AnswerFeedbackIfc.INCORRECT_FEEDBACK);
+        }
+
         String responseNo = "" + (answerSequence.longValue() - noSources + 1);
         String respIdent = "MT-" + randomNumber + "-" + label;
 
@@ -382,13 +395,13 @@ public class ItemHelper12Impl extends ItemHelperBase
           allIdents.add(respIdent); // put in global (ewww) ident list
           allTargets.put(respIdent, answerText);
           addMatchingRespcondition(true, itemXml, respCondNo, respIdent,
-                                   responseLabelIdent);
+                             responseLabelIdent, responseFeedback);
         }
         else
         {
           log.debug("Matching: NOT matched.");
           addMatchingRespcondition(false, itemXml, respCondNo, respIdent,
-                                   responseLabelIdent);
+                             responseLabelIdent, responseFeedback);
           continue; // we skip adding the response label when false
         }
       }
@@ -1301,7 +1314,8 @@ public class ItemHelper12Impl extends ItemHelperBase
   private void addMatchingRespcondition(boolean correct,
                                         Item itemXml, String responseNo,
                                         String respident,
-                                        String responseLabelIdent)
+                                        String responseLabelIdent,
+                                        String responseFeedback)
   {
 
     String xpath = "item/resprocessing";
@@ -1356,6 +1370,7 @@ public class ItemHelper12Impl extends ItemHelperBase
         respCond + "/displayfeedback/@linkrefid", "InCorrectMatch");
     }
 
+    updateItemXml(itemXml, respCond + "/displayfeedback", responseFeedback);
   }
 
   /**
