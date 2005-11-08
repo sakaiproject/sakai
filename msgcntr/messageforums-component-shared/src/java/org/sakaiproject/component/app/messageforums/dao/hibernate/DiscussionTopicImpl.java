@@ -22,8 +22,8 @@
 **********************************************************************************/
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
-
-import java.util.Set;
+ 
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +40,7 @@ public class DiscussionTopicImpl extends OpenTopicImpl implements DiscussionTopi
     private Integer hourBeforeResponsesVisible;
     private DateRestrictions dateRestrictions;
     private ActorPermissions actorPermissions;
-    private Set labels;
+    private List labels;
     private Boolean moderated;
     private String gradebook;
     private String gradebookAssignment;
@@ -93,11 +93,11 @@ public class DiscussionTopicImpl extends OpenTopicImpl implements DiscussionTopi
         this.hourBeforeResponsesVisible = hourBeforeResponsesVisible;
     }
 
-    public Set getLabels() {
+    public List getLabels() {
         return labels;
     }
 
-    public void setLabels(Set labels) {
+    public void setLabels(List labels) {
         this.labels = labels;
     }
 

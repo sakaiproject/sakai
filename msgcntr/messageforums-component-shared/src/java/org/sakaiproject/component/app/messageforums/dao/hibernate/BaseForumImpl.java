@@ -23,8 +23,7 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.Set;
-
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -40,16 +39,16 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     private String shortDescription;
     private String extendedDescription;
     private String typeUuid;
-    private Set attachments;
-    private Set topics;
+    private List attachments;
+    private List topics;
     private Area area;
     private Integer sortIndex; 
     
-    public Set getAttachments() {
+    public List getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(Set attachments) {
+    public void setAttachments(List attachments) {
         this.attachments = attachments;
     }
 
@@ -85,11 +84,11 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         this.title = title;
     }
 
-    public Set getTopics() {
+    public List getTopics() {
         return topics;
     }
 
-    public void setTopics(Set topics) {
+    public void setTopics(List topics) {
         this.topics = topics;
     }
 

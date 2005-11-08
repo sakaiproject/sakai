@@ -23,8 +23,8 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.Set;
-
+import java.util.List;
+ 
 public interface PrivateMessage extends Message {
 
     public Boolean getExternalEmail();
@@ -35,8 +35,8 @@ public interface PrivateMessage extends Message {
 
     public void setExternalEmailAddress(String externalEmailAddress);
 
-    public Set getRecipients();
+    public List getRecipients();
 
-    public void setRecipients(Set recipients);
+    public void setRecipients(List recipients);
 
 }

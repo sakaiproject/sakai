@@ -23,9 +23,8 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.Set;
-import java.util.TreeSet;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -43,7 +42,7 @@ public class AreaImpl extends MutableEntityImpl implements Area {
 
     private String typeUuid; 
     
-    private Set forums = new TreeSet();
+    private List forums = new ArrayList();
 
     public void setVersion(Integer version) {
         this.version = version;
@@ -81,11 +80,11 @@ public class AreaImpl extends MutableEntityImpl implements Area {
         this.typeUuid = typeUuid;
     }
 
-    public Set getForums() {
+    public List getForums() {
         return forums;
     }
 
-    public void setForums(Set forums) {
+    public void setForums(List forums) {
         this.forums = forums;
     }
 

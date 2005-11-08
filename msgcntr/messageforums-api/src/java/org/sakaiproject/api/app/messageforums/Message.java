@@ -23,7 +23,9 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.Set;
+import java.util.List;
+
+ 
 
 //import org.sakaiproject.component.app.messageforums.dao.hibernate.Type;
 
@@ -36,8 +38,8 @@ public interface Message extends MutableEntity {
     public void setDraft(Boolean draft);
     public Boolean getApproved();
     public void setApproved(Boolean approved);
-    public Set getAttachments();
-    public void setAttachments(Set attachments);
+    public List getAttachments();
+    public void setAttachments(List attachments);
     public String getAuthor();
     public void setAuthor(String author);
     public String getBody();

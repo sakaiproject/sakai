@@ -23,7 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.Set;
+import java.util.List;
 
 public interface Area extends MutableEntity
 {
@@ -58,12 +58,12 @@ public interface Area extends MutableEntity
    * 
    * @return
    */
-  public Set getForums();
+  public List getForums();
   
   /**
    * Set set of forums in chronological order 
    * 
    * @return
    */
-  public void setForums(Set forums);
+  public void setForums(List forums);
  }

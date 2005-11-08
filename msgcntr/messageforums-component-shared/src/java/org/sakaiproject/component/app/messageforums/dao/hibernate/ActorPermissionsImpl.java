@@ -23,7 +23,8 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.Set;
+import java.util.List;
+ 
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,9 +34,9 @@ public class ActorPermissionsImpl implements ActorPermissions {
 
     private static final Log LOG = LogFactory.getLog(ActorPermissionsImpl.class);
     
-    private Set contributors;
-    private Set accessors;
-    private Set moderators;
+    private List contributors;
+    private List accessors;
+    private List moderators;
 
     private Long id;
     private Integer version; 
@@ -56,27 +57,27 @@ public class ActorPermissionsImpl implements ActorPermissions {
         this.version = version;
     }
                 
-    public Set getAccessors() {
+    public List getAccessors() {
         return accessors;
     }
 
-    public void setAccessors(Set accessors) {
+    public void setAccessors(List accessors) {
         this.accessors = accessors;
     }
 
-    public Set getContributors() {
+    public List getContributors() {
         return contributors;
     }
 
-    public void setContributors(Set contributors) {
+    public void setContributors(List contributors) {
         this.contributors = contributors;
     }
 
-    public Set getModerators() {
+    public List getModerators() {
         return moderators;
     }
 
-    public void setModerators(Set moderators) {
+    public void setModerators(List moderators) {
         this.moderators = moderators;
     }
 

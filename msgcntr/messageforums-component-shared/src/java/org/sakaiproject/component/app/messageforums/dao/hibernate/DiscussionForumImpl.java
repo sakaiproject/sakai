@@ -22,8 +22,8 @@
 **********************************************************************************/
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
-
-import java.util.Set;
+ 
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +35,7 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
 
     private static final Log LOG = LogFactory.getLog(DiscussionForumImpl.class);
 
-    private Set labels;
+    private List labels;
     private DateRestrictions dateRestrictions;
     private ActorPermissions actorPermissions;
     private Boolean moderated;
@@ -56,11 +56,11 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
         this.dateRestrictions = dateRestrictions;
     }
 
-    public Set getLabels() {
+    public List getLabels() {
         return labels;
     }
 
-    public void setLabels(Set labels) {
+    public void setLabels(List labels) {
         this.labels = labels;
     }
 

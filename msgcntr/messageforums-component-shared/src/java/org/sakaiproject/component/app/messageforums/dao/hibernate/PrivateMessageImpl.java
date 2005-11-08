@@ -23,7 +23,9 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.Set;
+ 
+
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +37,7 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
 
     private static final Log LOG = LogFactory.getLog(PrivateMessageImpl.class);
     
-    private Set recipients;
+    private List recipients;
     private Boolean externalEmail;
     private String externalEmailAddress;
     
@@ -55,11 +57,11 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
         this.externalEmailAddress = externalEmailAddress;
     }
 
-    public Set getRecipients() {
+    public List getRecipients() {
         return recipients;
     }
 
-    public void setRecipients(Set recipients) {
+    public void setRecipients(List recipients) {
         this.recipients = recipients;
     }
         

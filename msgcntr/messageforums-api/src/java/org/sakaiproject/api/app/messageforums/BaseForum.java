@@ -23,13 +23,14 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.Set;
+import java.util.List;
+ 
 
 public interface BaseForum extends MutableEntity {
 
-    public Set getAttachments();
+    public List getAttachments();
 
-    public void setAttachments(Set attachments);
+    public void setAttachments(List attachments);
 
     public String getExtendedDescription();
 
@@ -47,9 +48,9 @@ public interface BaseForum extends MutableEntity {
 
     public void setTitle(String title);
 
-    public Set getTopics();
+    public List getTopics();
 
-    public void setTopics(Set topics);
+    public void setTopics(List topics);
 
     public String getTypeUuid();
 

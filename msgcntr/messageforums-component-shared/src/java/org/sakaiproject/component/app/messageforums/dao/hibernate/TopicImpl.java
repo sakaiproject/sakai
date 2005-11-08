@@ -23,6 +23,7 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -38,26 +39,26 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
     private String title;
     private String shortDescription;
     private String extendedDescription;
-    private Set attachments;
+    private List attachments;
     private Boolean mutable;
     private Integer sortIndex;
     private String typeUuid;
     private BaseForum baseForum;
-    private Set messages;
+    private List messages;
     
-    public Set getMessages() {
+    public List getMessages() {
         return messages;
     }
 
-    public void setMessages(Set messages) {
+    public void setMessages(List messages) {
         this.messages = messages;
     }
 
-    public Set getAttachments() {
+    public List getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(Set attachments) {
+    public void setAttachments(List attachments) {
         this.attachments = attachments;
     }
 

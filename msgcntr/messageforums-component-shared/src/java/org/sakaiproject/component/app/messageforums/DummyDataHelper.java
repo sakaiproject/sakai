@@ -21,15 +21,13 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums;
+package org.sakaiproject.component.app.messageforums;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -37,6 +35,7 @@ import org.sakaiproject.api.app.messageforums.ControlPermissions;
 import org.sakaiproject.api.app.messageforums.DateRestrictions;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Label;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
@@ -63,36 +62,42 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage
  * which play nice in JSF tags.
  */
 
-public class DummyDataHelper {
+public class DummyDataHelper implements DummyDataHelperApi {
      
+    /* (non-Javadoc)
+     * @see org.sakaiproject.tool.messageforums.DummyDataHelperApi#getAreas()
+     */
     public List getAreas() {
         List areas = new ArrayList();
         Area a1 = new AreaImpl();
         a1.setContextId("context1");
         a1.setHidden(Boolean.FALSE);
-        a1.setName("My Areas");
+        a1.setName("Private Area");
         a1.setCreated(new Date());
         a1.setCreatedBy("joe smith");
         a1.setModified(new Date());
         a1.setModifiedBy("amy jones");
         a1.setId(new Long(1));
         a1.setUuid("1");
+        a1.setForums(getPrivateForums());
+        
         Area a2 = new AreaImpl();
         a2.setContextId("context2");
         a2.setHidden(Boolean.FALSE);
-        a2.setName("My Areas 2");
+        a2.setName("Discussion Forums");
         a2.setCreated(new Date());
         a2.setCreatedBy("john doe");
         a2.setModified(new Date());
         a2.setModifiedBy("mary jane");
         a2.setId(new Long(2));
         a2.setUuid("2");
+        a2.setForums(getDiscussionForums());
         areas.add(a1);
         areas.add(a2);
         return areas;
     }
     
-    public List getForumMessages() {
+    private List getForumMessages() {
         List forumMessages = new ArrayList();
         Message mm1 = new MessageImpl();
         mm1.setApproved(Boolean.TRUE);
@@ -131,7 +136,7 @@ public class DummyDataHelper {
         return forumMessages;
     }
     
-    public List getPrivateMessages() {
+    private List getPrivateMessages() {
         List privateMessages = new ArrayList();
         PrivateMessage pmm1 = new PrivateMessageImpl();
         pmm1.setApproved(Boolean.TRUE);
@@ -151,7 +156,7 @@ public class DummyDataHelper {
         pmm1.setUuid("3");
         pmm1.setExternalEmail(Boolean.TRUE);
         pmm1.setExternalEmailAddress("fun@hotmail.com");
-        pmm1.setRecipients(new HashSet()); // TODO: Real sakai users needed
+        pmm1.setRecipients(new ArrayList()); // TODO: Real sakai users needed
         PrivateMessage pmm2 = new PrivateMessageImpl();
         pmm2.setApproved(Boolean.TRUE);
         pmm2.setAttachments(getAttachments());
@@ -170,13 +175,13 @@ public class DummyDataHelper {
         pmm2.setUuid("4");
         pmm2.setExternalEmail(Boolean.FALSE);
         pmm2.setExternalEmailAddress(null);
-        pmm2.setRecipients(new HashSet()); // TODO: Real sakai users needed
+        pmm2.setRecipients(new ArrayList()); // TODO: Real sakai users needed
         privateMessages.add(pmm1);
         privateMessages.add(pmm2);       
         return privateMessages;
     }
     
-    public List getDiscussionForums() {
+    private List getDiscussionForums() {
         List dicussionForums = new ArrayList();
         DiscussionForum dfm1 = new DiscussionForumImpl();
         dfm1.setActorPermissions(getActorPermissions());
@@ -197,7 +202,8 @@ public class DummyDataHelper {
         dfm1.setShortDescription("sort desc here...");
         dfm1.setTitle("disc forum 1");
         dfm1.setTopics(list2set(getDiscussionTopics()));
-     //   dfm1.setType(new Type());
+     
+        //   dfm1.setType(new Type());
         DiscussionForum dfm2 = new DiscussionForumImpl();
         dfm2.setActorPermissions(getActorPermissions());
         dfm2.setAttachments(getAttachments());
@@ -223,7 +229,7 @@ public class DummyDataHelper {
         return dicussionForums;
     }
     
-    public List getPrivateForums() {
+    private List getPrivateForums() {
         List privateForums = new ArrayList();
         PrivateForum pfm1 = new PrivateForumImpl();
         pfm1.setAttachments(getAttachments());
@@ -236,12 +242,14 @@ public class DummyDataHelper {
         pfm1.setModifiedBy("the moderator");
         pfm1.setShortDescription("sort desc here...");
         pfm1.setTitle("disc forum 1");
-        pfm1.setTopics(list2set(getDiscussionTopics()));
+        pfm1.setTopics((getDiscussionTopics()));
       //  pfm1.setType(new TypeImpl());
         pfm1.setAutoForward(Boolean.TRUE);
         pfm1.setAutoForwardEmail("fish@indiana.edu");
         pfm1.setPreviewPaneEnabled(Boolean.TRUE);
         pfm1.setSortIndex(new Integer(2));
+        pfm1.setTopics(getPrivateTopics());
+        
         PrivateForum pfm2 = new PrivateForumImpl();
         pfm2.setAttachments(getAttachments());
         pfm2.setCreated(new Date());
@@ -253,19 +261,21 @@ public class DummyDataHelper {
         pfm2.setModifiedBy("the moderator");
         pfm2.setShortDescription("sort desc here...");
         pfm2.setTitle("disc forum 2");
-        pfm2.setTopics(list2set(getDiscussionTopics()));
+        pfm2.setTopics((getDiscussionTopics()));
       //  pfm2.setType(new TypeImpl());
         pfm2.setAutoForward(Boolean.FALSE);
         pfm2.setAutoForwardEmail(null);
         pfm2.setPreviewPaneEnabled(Boolean.FALSE);
         pfm2.setSortIndex(new Integer(1));
+        pfm2.setTopics(getPrivateTopics());
         privateForums.add(pfm1);
         privateForums.add(pfm2);       
         return privateForums;
     }
     
-    public List getDiscussionTopics() {
+    private List getDiscussionTopics() {
         List discussionTopics = new ArrayList();
+        
         DiscussionTopic dtm1 = new DiscussionTopicImpl();
         dtm1.setActorPermissions(getActorPermissions());
         dtm1.setAttachments(getAttachments());
@@ -292,6 +302,14 @@ public class DummyDataHelper {
         dtm1.setMustRespondBeforeReading(Boolean.TRUE);
         dtm1.setMutable(Boolean.TRUE);
         dtm1.setSortIndex(new Integer(1));
+        dtm1.setMessages(getForumMessages());
+        dtm1.setMessagePermissions(getMessgePermissions());
+        discussionTopics.add(dtm1);
+        return discussionTopics;
+    }
+    
+     private List getPrivateTopics() {
+         List discussionTopics = new ArrayList();
         DiscussionTopic dtm2 = new DiscussionTopicImpl();
         dtm2.setActorPermissions(getActorPermissions());
         dtm2.setAttachments(getAttachments());
@@ -318,7 +336,8 @@ public class DummyDataHelper {
         dtm2.setMustRespondBeforeReading(Boolean.FALSE);
         dtm2.setMutable(Boolean.FALSE);
         dtm2.setSortIndex(new Integer(2));
-        discussionTopics.add(dtm1);
+        dtm2.setMessages(getPrivateMessages());
+        dtm2.setMessagePermissions(getMessgePermissions());
         discussionTopics.add(dtm2);
         return discussionTopics;
     }
@@ -327,8 +346,8 @@ public class DummyDataHelper {
     // just make it public... they were created so these object are
     // easy to still in the lists above
     
-    private Set getAttachments() {
-        Set attachments = new HashSet();
+    private List getAttachments() {
+        List attachments = new ArrayList();
         Attachment a1 = new AttachmentImpl();
         a1.setAttachmentId("attach1");
         a1.setAttachmentName("file 1.doc");
@@ -346,8 +365,8 @@ public class DummyDataHelper {
         return attachments;
     }
     
-    private Set getLabels() {
-        Set labels = new HashSet();
+    private List getLabels() {
+        List labels = new ArrayList();
         Label l1 = new LabelImpl();
         l1.setKey("group-key");
         l1.setValue("group");
@@ -366,9 +385,9 @@ public class DummyDataHelper {
     private ActorPermissions getActorPermissions() {
         ActorPermissions apm = new ActorPermissionsImpl();
         // TODO: Not sure how sakai handles users - empty lists for now
-        apm.setAccessors(new HashSet());
-        apm.setContributors(new HashSet());
-        apm.setModerators(new HashSet());
+        apm.setAccessors(new ArrayList());
+        apm.setContributors(new ArrayList());
+        apm.setModerators(new ArrayList());
         apm.setId(new Long(123));
         return null;
     }
@@ -413,8 +432,8 @@ public class DummyDataHelper {
         return mpm;
     }
     
-    private Set list2set(List list) {
-        Set set = new HashSet();
+    private List list2set(List list) {
+        List set = new ArrayList();
         for (Iterator iter = list.iterator(); iter.hasNext();) {
             Object object = (Object) iter.next();
             set.add(object);

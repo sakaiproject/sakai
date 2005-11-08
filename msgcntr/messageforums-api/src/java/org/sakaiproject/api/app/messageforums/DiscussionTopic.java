@@ -23,8 +23,8 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.Set;
-
+import java.util.List;
+ 
 
 public interface DiscussionTopic extends OpenTopic {
 
@@ -52,9 +52,9 @@ public interface DiscussionTopic extends OpenTopic {
 
     public void setHourBeforeResponsesVisible(Integer hourBeforeResponsesVisible);
 
-    public Set getLabels();
+    public List getLabels();
 
-    public void setLabels(Set labels);
+    public void setLabels(List labels);
 
     public Boolean getModerated();
 

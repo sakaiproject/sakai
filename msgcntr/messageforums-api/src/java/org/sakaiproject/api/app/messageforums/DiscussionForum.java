@@ -23,8 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.Set;
-
+import java.util.List;
 
 public interface DiscussionForum extends OpenForum {
 
@@ -36,9 +35,9 @@ public interface DiscussionForum extends OpenForum {
 
     public void setDateRestrictions(DateRestrictions dateRestrictions);
 
-    public Set getLabels();
+    public List getLabels();
 
-    public void setLabels(Set labels);
+    public void setLabels(List labels);
 
     public Boolean getModerated();
 
