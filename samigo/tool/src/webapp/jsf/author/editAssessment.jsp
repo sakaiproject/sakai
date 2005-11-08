@@ -102,7 +102,7 @@ document.links[newindex].onclick();
     <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs}" />
     <h:outputText value=" | " />
     <h:outputText value="#{assessmentBean.totalScore}">
-	<f:convertNumber maxFractionDigits="2"/>
+	<f:convertNumber maxFractionDigits="1"/>
     </h:outputText>
     <h:outputText value="#{msg.total_pt}" />
  </div>
