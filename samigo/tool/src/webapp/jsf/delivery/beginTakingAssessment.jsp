@@ -75,21 +75,18 @@
 <div class="indnt2">
 <h:messages styleClass="validation"/>
   <h:outputText value="#{delivery.instructorMessage}" escape="false"/>
-<div class="shorttext">
-    <h:outputLabel value="#{msg.course}" />
+<h:panelGrid columns="2">
+    <h:outputLabel value="#{msg.course}" rendered="#{delivery.courseName ne ''}" />
     <h:outputText value="#{delivery.courseName} " />
- </div>
-<div class="shorttext">
-    <h:outputLabel value="#{msg.creator}" />
+ 
+    <h:outputLabel value="#{msg.creator}" rendered="#{delivery.creatorName ne ''}"/>
     <h:outputText value="#{delivery.creatorName}" />
- </div>
-<div class="shorttext">
-    <h:outputLabel value="#{msg.assessment_title}" />
-    <h:outputText value="#{delivery.assessmentTitle}" />
-</div>
 
- <div class="shorttext">
-    <h:outputLabel value="#{msg.time_limit}" />
+
+    <h:outputLabel value="#{msg.assessment_title}" rendered="#{delivery.assessmentTitle ne ''}" />
+    <h:outputText value="#{delivery.assessmentTitle}" />
+
+    <h:outputLabel value="#{msg.time_limit}"/>
     <h:panelGroup rendered="#{delivery.hasTimeLimit}">
        <h:outputText value="#{delivery.timeLimit_hour} " />
        <h:outputText value="#{msg.time_limit_hour} " />
@@ -99,24 +96,20 @@
     <h:panelGroup rendered="#{!delivery.hasTimeLimit}">
        <h:outputText value="No Time Limit" />
     </h:panelGroup>
-   </div>
-   <div class="shorttext">
+ 
+  
     <h:outputLabel value="#{msg.num_subs}" />
            <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
           rendered="#{!delivery.settings.unlimitedAttempts}"/>
         <h:outputText value="#{msg.unlimited_}"
           rendered="#{delivery.settings.unlimitedAttempts}"/>
-   </div>
-
-   <div class="shorttext"> 
+  
     <h:outputLabel value="#{msg.auto_exp}" />
         <h:outputText value="#{msg.enabled_}"
           rendered="#{delivery.settings.autoSubmit}"/>
         <h:outputText value="#{msg.disabled}"
           rendered="#{!delivery.settings.autoSubmit}"/>
-   </div>
-
-   <div class="shorttext">
+  
     <h:outputLabel value="#{msg.feedback}" />
         <h:outputText value="#{msg.immed}"
           rendered="#{delivery.feedbackComponent.showImmediate}"/>
@@ -126,29 +119,24 @@
         </h:outputText>
         <h:outputText value="#{msg.none}"
           rendered="#{delivery.feedbackComponent.showNoFeedback}"/>
-   </div>
-   <div class="shorttext">
+
     <h:outputLabel rendered="#{delivery.dueDate!=null}" value="#{msg.due_date}" />
       <h:outputText value="#{delivery.dueDate}" >
          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
       </h:outputText>
-   </div>
 
-   <div class="shorttext">
     <h:outputLabel value="#{msg.username}"
       rendered="#{delivery.settings.username ne ''}" />
     <h:inputText value="#{delivery.username}"
       rendered="#{delivery.settings.username ne ''}" />
-   </div>
-   <div class="shorttext">
+
     <h:outputLabel value="#{msg.password}"
       rendered="#{delivery.settings.username ne ''}" />
     <h:inputSecret value="#{delivery.password}"
       rendered="#{delivery.settings.username ne ''}" />
-   </div>
-
+</h:panelGrid>
  </div></div>
-<br/>
+
 <p class="act">
 
  <h:commandButton value="#{msg.begin_assessment_}" action="#{delivery.validate}" type="submit" styleClass="active" rendered="#{delivery.previewAssessment ne 'true'}">
