@@ -31,9 +31,12 @@
             <%@include file="/inc/transferButtons.jspf"%>
             
             <h:panelGroup>
-                <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">
+                <h:panelGrid styleClass="sectionContainerNav" columns="3" columnClasses="sectionLeftNav,sectionRightNav,sectionRightNav">
                     <x:div>
                         <h:outputFormat value="#{editStudentsBean.sectionTitle}"/>
+                    </x:div>
+                    <x:div>
+                        <h:outputFormat value="#{msgs.edit_student_section_size}"/>
                     </x:div>
                     <x:div id="max">
                         <h:outputFormat value="#{msgs.edit_student_selected_title}" rendered="#{editStudentsBean.sectionMax != null}">

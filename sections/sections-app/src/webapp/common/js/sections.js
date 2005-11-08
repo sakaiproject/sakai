@@ -26,8 +26,12 @@ function prepMemberForm() {
 function updateTotalMembers() {
     if(document.getElementById("memberForm:max")) {
 	    var currentNum = document.getElementById("memberForm:selectedUsers").length;
-	    htmlToKeep = document.getElementById("memberForm:max").innerHTML.split("/")[1];
-        document.getElementById("memberForm:max").innerHTML = currentNum + "/" + htmlToKeep;
+        if(document.getElementById("memberForm:max").innerHTML.indexOf("/") == -1) {
+            document.getElementById("memberForm:max").innerHTML = currentNum;
+        } else {
+	        htmlToKeep = document.getElementById("memberForm:max").innerHTML.split("/")[1];
+	        document.getElementById("memberForm:max").innerHTML = currentNum + "/" + htmlToKeep;
+        }
     }
 }
 
