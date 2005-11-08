@@ -101,7 +101,10 @@ document.links[newindex].onclick();
   </div><div align="right">
     <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs}" />
     <h:outputText value=" | " />
-    <h:outputText value="#{assessmentBean.totalScore} #{msg.total_pt}" />
+    <h:outputText value="#{assessmentBean.totalScore}">
+	<f:convertNumber maxFractionDigits="2"/>
+    </h:outputText>
+    <h:outputText value="#{msg.total_pt}" />
  </div>
   <p class="navModeAction">
     <h:commandLink id="addPart" action="editPart" immediate="true">
