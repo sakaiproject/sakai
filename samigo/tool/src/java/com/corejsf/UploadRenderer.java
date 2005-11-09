@@ -99,7 +99,7 @@ public class UploadRenderer extends Renderer {
     else target = component.getAttributes().get("target");
 
     String repositoryPath = (String)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_REPOSITORY_PATH");
-    System.out.println("****"+repositoryPath);
+    log.debug("****"+repositoryPath);
     if (target != null){
       File dir = new File(repositoryPath+target.toString()); //directory where file would be saved
       if (!dir.exists())
