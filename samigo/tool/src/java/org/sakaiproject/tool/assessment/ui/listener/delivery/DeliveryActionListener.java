@@ -1018,13 +1018,13 @@ public class DeliveryActionListener
         }
         else
         {
+/*
           Collections.shuffle(shuffled,
                               new Random( (long) item.getText().hashCode()));
-/*
+*/
           Collections.shuffle(shuffled,
                               new Random( (long) item.getText().hashCode() +
                                          getAgentString().hashCode()));
-*/
         }
         key2 = shuffled.iterator();
       }
