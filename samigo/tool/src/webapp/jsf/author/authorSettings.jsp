@@ -131,7 +131,7 @@ function checkTimeSelect(){
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
 
   <!-- HEADINGS -->
-  <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
+  <%@ include file="/jsf/author/allHeadings.jsp" %>
 
     <h3>
      <h:outputText value="#{msg.settings}" />

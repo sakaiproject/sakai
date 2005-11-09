@@ -90,7 +90,7 @@ document.links[newindex].onclick();
   <h:inputHidden id="ItemIdent" value="#{author.currentItem}"/>
 
   <!-- HEADINGS -->
-  <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
+  <%@ include file="/jsf/author/allHeadings.jsp" %>
 
   <div align="left">
     <h3>

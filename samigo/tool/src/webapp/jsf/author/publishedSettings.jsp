@@ -52,7 +52,7 @@
   <h:inputHidden id="assessmentId" value="#{publishedSettings.assessmentId}"/>
 
   <!-- HEADINGS -->
-  <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
+  <%@ include file="/jsf/author/allHeadings.jsp" %>
 
     <h3>
      <h:outputText id="x1"
