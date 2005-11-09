@@ -7,8 +7,7 @@
         class="org.sakaiproject.component.app.scheduler.SchedulerManagerImpl"
         init-method="init" destroy-method="destroy">        
         <property name="qrtzJobs">
-            <set>
-                <value>org.sakaiproject.component.app.scheduler.jobs.NoRelatedClassTestJob</value>
+            <set>                
                 <value>org.sakaiproject.component.app.scheduler.jobs.TestJob</value>
                 <value>org.sakaiproject.component.app.scheduler.jobs.TestJob2</value>
             </set>
