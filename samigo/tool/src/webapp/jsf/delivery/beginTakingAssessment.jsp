@@ -39,7 +39,7 @@
      var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><!-- h:outputText value="#{msg.begin_assessment_}" /-->
+      <title>
       <h:outputText value="#{delivery.assessmentTitle}"/>
 
       </title>
@@ -78,7 +78,7 @@
 <h:panelGrid columns="2">
     <h:outputLabel value="#{msg.course}" rendered="#{delivery.courseName ne ''}" />
     <h:outputText value="#{delivery.courseName} " />
- 
+
     <h:outputLabel value="#{msg.creator}" rendered="#{delivery.creatorName ne ''}"/>
     <h:outputText value="#{delivery.creatorName}" />
 
@@ -96,20 +96,20 @@
     <h:panelGroup rendered="#{!delivery.hasTimeLimit}">
        <h:outputText value="No Time Limit" />
     </h:panelGroup>
- 
-  
+
+
     <h:outputLabel value="#{msg.num_subs}" />
            <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
           rendered="#{!delivery.settings.unlimitedAttempts}"/>
         <h:outputText value="#{msg.unlimited_}"
           rendered="#{delivery.settings.unlimitedAttempts}"/>
-  
+
     <h:outputLabel value="#{msg.auto_exp}" />
         <h:outputText value="#{msg.enabled_}"
           rendered="#{delivery.settings.autoSubmit}"/>
         <h:outputText value="#{msg.disabled}"
           rendered="#{!delivery.settings.autoSubmit}"/>
-  
+
     <h:outputLabel value="#{msg.feedback}" />
         <h:outputText value="#{msg.immed}"
           rendered="#{delivery.feedbackComponent.showImmediate}"/>
