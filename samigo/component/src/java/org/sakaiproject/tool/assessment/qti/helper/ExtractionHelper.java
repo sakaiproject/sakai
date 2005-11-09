@@ -1390,6 +1390,10 @@ public class ExtractionHelper
     List targetList = (List) itemMap.get("itemMatchTargetText");
     List indexList = (List) itemMap.get("itemMatchIndex");
     List answerFeedbackList = (List) itemMap.get("itemFeedback");
+    List correctMatchFeedbackList = (List) itemMap.get(
+      "itemMatchCorrectFeedback");
+    List incorrectMatchFeedbackList = (List) itemMap.get(
+      "itemMatchIncorrectFeedback");
     List itemTextList = (List) itemMap.get("itemText");
 
     sourceList = sourceList == null ? new ArrayList() : sourceList;
@@ -1397,22 +1401,38 @@ public class ExtractionHelper
     indexList = indexList == null ? new ArrayList() : indexList;
     answerFeedbackList =
       answerFeedbackList == null ? new ArrayList() : answerFeedbackList;
+    correctMatchFeedbackList =
+      correctMatchFeedbackList ==
+      null ? new ArrayList() : correctMatchFeedbackList;
+    incorrectMatchFeedbackList =
+      incorrectMatchFeedbackList ==
+      null ? new ArrayList() : incorrectMatchFeedbackList;
+
+    log.debug("*** original order");
+    for (int i = 0; i < correctMatchFeedbackList.size(); i++) {
+      log.debug("incorrectMatchFeedbackList.get(" + i + ")="+
+                         incorrectMatchFeedbackList.get(i));
+    }
+    incorrectMatchFeedbackList =
+      reassembleIncorrectMatches(
+      incorrectMatchFeedbackList, correctMatchFeedbackList.size());
+
+    log.debug("*** NEW order");
+    for (int i = 0; i < correctMatchFeedbackList.size(); i++) {
+      log.debug("incorrectMatchFeedbackList.get(" + i + ")="+
+                         incorrectMatchFeedbackList.get(i));
+
+    }
+
     itemTextList =
       itemTextList == null ? new ArrayList() : itemTextList;
 
-    // hopefully will not happen
     if (targetList.size() <indexList.size())
     {
-      log.warn("Something is wrong, targetList.size() <indexList.size()");
-      log.warn("targetList.size(): " + targetList.size());
-      log.warn("indexList.size(): " + indexList.size());
-
-      // OK, I am going to NOT do this, see if it works OK
-//      for (int i = targetList.size(); i < indexList.size() + 1; i++)
-//      {
-//        targetList.add("  ");
-//      }
+      log.debug("targetList.size(): " + targetList.size());
+      log.debug("indexList.size(): " + indexList.size());
     }
+
     String itemTextString = "";
     if (itemTextList.size()>0)
     {
@@ -1469,7 +1489,27 @@ public class ExtractionHelper
         targetString=targetString.replaceAll("\\?\\?"," ");//SAK-2298
         log.debug("targetString: " + targetString);
 
+
         Answer target = new Answer();
+
+        //feedback
+        HashSet answerFeedbackSet = new HashSet();
+
+        if (correctMatchFeedbackList.size() > i)
+        {
+          String fb = (String) correctMatchFeedbackList.get(i);
+          answerFeedbackSet.add( new AnswerFeedback(
+            target, AnswerFeedbackIfc.CORRECT_FEEDBACK, fb));
+        }
+        if (incorrectMatchFeedbackList.size() > i)
+        {
+          String fb = (String) incorrectMatchFeedbackList.get(i);
+          log.debug("setting incorrect fb="+fb);
+          answerFeedbackSet.add( new AnswerFeedback(
+            target, AnswerFeedbackIfc.INCORRECT_FEEDBACK, fb));
+        }
+
+        target.setAnswerFeedbackSet(answerFeedbackSet);
 
         String label = "" + answerLabel++;
         target.setLabel(label); // up to 26, is this a problem?
@@ -1524,6 +1564,52 @@ public class ExtractionHelper
     }
 
     item.setItemTextSet(itemTextSet);
+  }
+
+  /**
+   * Helper method rotates the first n.
+   * This will work with Samigo matching where
+   * incorrect matches (n) = the square of the correct matches (n**2)
+   * and the 0th displayfeedback is correct and the next n are incorrect
+   * feedback.  In export Samigo uses the incorrect feedback redundantly.
+   *
+   * For example, if there are 5 matches, there are 25 matches and mismatched,
+   * 5 of which are correct and 20 of which are not, so there is redundancy in
+   * Samigo.
+   *
+   * In non-Samigo matching, there may be more than one incorrect
+   * feedback for a failed matching.
+   *
+   * @param list the list
+   * @return a reassembled list of size n
+   */
+  private List reassembleIncorrectMatches(List list, int n)
+  {
+    // make sure we have a reasonable value
+    if (n<0) n = -n;
+
+    // pad input list if too small or null
+    if (list == null)
+      list = new ArrayList();
+    for (int i = 0; i < n && list.size()<n +1; i++)
+    {
+      list.add("");
+    }
+
+    // our output value
+    List newList = new ArrayList();
+
+    // move the last of the n entries (0-index) up to the front
+    newList.add(list.get(n-1));
+
+    // add the 2nd entry and so forth
+    for (int i = 0; i < n-1 ; i++)
+    {
+      String s = (String) list.get(i);
+      newList.add(s);
+    }
+
+    return newList;
   }
 
   /**
