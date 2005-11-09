@@ -67,54 +67,36 @@ public class PoolSaveListener implements ActionListener
     log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     String currentName= qpoolbean.getCurrentPool().getDisplayName();
-    String currentId=""+ (qpoolbean.getCurrentPool().getId());
-    // System.out.println("NAME = "+ currentName);
-    QuestionPoolService delegate = new QuestionPoolService();
-    ArrayList qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
-    Iterator iter = qplist.iterator();
+    
     boolean nameDup=false;
-    int count=0;
-    String id="";
+   
     try {
-	while(iter.hasNext()){
-		QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();  
-		if ((pool.getDisplayName().trim()).equals(currentName)){
-		    if(((qpoolbean.getAddOrEdit()).equals("add"))|| (count==1))
-			{
-			    nameDup=true;
-			    break;
-			}
-		    else{
-                        id=String.valueOf(pool.getQuestionPoolId());
-                        System.out.println("Id string : "+id);
-                        System.out.println("Current Id : "+currentId);
-			if(!id.equals(currentId)){
-			    nameDup=true;
-			    break;
-			}
-			else{
-			    count++;
-			}
-		    }
-		}
+	if((qpoolbean.getAddOrEdit()).equals("add")){
+	    nameDup=isDuplicatePool(currentName,"0");
 	}
-	    
+	else {
+            String currentId=""+ (qpoolbean.getCurrentPool().getId());
+            nameDup=isDuplicatePool(currentName,currentId);
+	}
+       
 	if(nameDup){
 	   FacesContext context = FacesContext.getCurrentInstance();
-	String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","duplicateName_error");
+	   String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","duplicateName_error");
 	   
-	context.addMessage(null,new FacesMessage(error));
+	   context.addMessage(null,new FacesMessage(error));
           
-	qpoolbean.setOutcomeEdit("editPool");
-        qpoolbean.setOutcome("addPool");
-	//	System.out.println("NAMEDUP "+nameDup);
-	}
-	else{
-	    if (!savePool(qpoolbean)){
-		throw new RuntimeException("failed to populateItemBean.");
-	    }
+	   qpoolbean.setOutcomeEdit("editPool");
+	   qpoolbean.setOutcome("addPool");
+	 
+	   return;
+        }
 
+	
+	if (!savePool(qpoolbean)){
+		
+	    throw new RuntimeException("failed to populateItemBean.");   
 	}
+	   
     }
     catch(Exception e){
 	throw new Error(e);
@@ -188,7 +170,21 @@ public class PoolSaveListener implements ActionListener
 	return true;
   }
 
+    public boolean isDuplicatePool(String currentName,String currentId){
+	QuestionPoolService delegate = new QuestionPoolService();
+	ArrayList qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+	Iterator iter = qplist.iterator();
+	while(iter.hasNext()){
+		QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();  
+                String id=String.valueOf(pool.getQuestionPoolId());
+                String name=pool.getDisplayName().trim();
+		if ((name.equals(currentName))&&(!id.equals(currentId))){
+		    return true;                     		
+		}
+		   
+	}
+	return false;
 
-
+    }
 
 }

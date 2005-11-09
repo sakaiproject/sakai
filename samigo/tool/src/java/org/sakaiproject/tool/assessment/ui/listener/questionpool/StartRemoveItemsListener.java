@@ -70,44 +70,43 @@ public class StartRemoveItemsListener implements ActionListener
   }
 
 
-public boolean startRemoveItems(QuestionPoolBean qpoolbean){
+  public boolean startRemoveItems(QuestionPoolBean qpoolbean){
 // used by the editPool.jsp, to remove one or more items
-	try {
+    try {
       String itemId= "";
 
-        ArrayList destItems= ContextUtil.paramArrayValueLike("removeCheckbox");
+      ArrayList destItems= ContextUtil.paramArrayValueLike("removeCheckbox");
 
-        if (destItems.size() > 0) {
+      if (destItems.size() > 0) {
                 // only go to remove confirmatin page when at least one  checkbox is checked
 
         List items= new ArrayList();
-        Iterator iter = destItems.iterator();
+	Iterator iter = destItems.iterator();
         while(iter.hasNext())
         {
 
-        itemId = (String) iter.next();
+          itemId = (String) iter.next();
 
-        ItemService delegate = new ItemService();
-        ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-        items.add(itemfacade);
+          ItemService delegate = new ItemService();
+          ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+          items.add(itemfacade);
 
         }
 
-        qpoolbean.setItemsToDelete(items);
-        qpoolbean.setOutcome("removeQuestionFromPool");
-        }
-        else {
+      qpoolbean.setItemsToDelete(items);
+      qpoolbean.setOutcomeEdit("removeQuestionFromPool");
+      qpoolbean.setOutcome("removeQuestionFromPool");
+      }
+      else {
          // otherwise go to poollist
         qpoolbean.setOutcome("poolList");
         }
-	}
-	catch (Exception e) {
-		e.printStackTrace();
-		return false;
-	}
-
-
-	return true;
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      return false;	
+    }
+    return true;
   }
 
 

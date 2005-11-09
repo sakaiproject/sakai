@@ -469,7 +469,7 @@ function PopupWin(url)
 function checkUpdate(){
  var tables= document.getElementsByTagName("INPUT");
  for (var i = 0; i < tables.length; i++) {
-    if (tables[i].name.indexOf("removebox") >=0){
+    if (tables[i].name.indexOf("removeCheckbox") >=0){
          if(tables[i].checked){   
             abledButton();
              break;

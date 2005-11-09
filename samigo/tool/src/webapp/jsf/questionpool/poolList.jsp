@@ -46,7 +46,7 @@
 //-->
 </script>
       </head>
-<body onload="collapseAllRows();flagRows();;<%= request.getAttribute("html.body.onload") %>">
+<body onload="collapseAllRows();flagRows();;<%= request.getAttribute("html.body.onload") %>;disabledButton()">
  <div class="portletBody">
 <!-- content... -->
 <h:form id="questionpool">
@@ -103,12 +103,13 @@
 </div>
 
 <p class="act">
-  <h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}"  disabled="true" type="submit" immediate="true" id="Submit" value="#{msg.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
+ 
+<h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{msg.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
   </h:commandButton>
+
   <h:commandButton rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{msg.cancel}" action="#{questionpool.cancelImport}"  >
   </h:commandButton>
 </p>
-
 
 </h:form>
 </div>
