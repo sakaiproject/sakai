@@ -81,6 +81,7 @@ public class DeliveryActionListener
   static String alphabet = new String("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
   private static Log log = LogFactory.getLog(DeliveryActionListener.class);
   private static ContextUtil cu;
+  private boolean resetPageContents = true;
 
   /**
    * ACTION.
@@ -384,7 +385,9 @@ public class DeliveryActionListener
                                               delivery));
 
       // get current page contents
-      delivery.setPageContents(getPageContents(publishedAssessment,
+      log.debug("**** resetPageContents="+this.resetPageContents);
+      if (this.resetPageContents)
+        delivery.setPageContents(getPageContents(publishedAssessment,
                                                delivery, itemData));
     }
     catch (Exception e)
@@ -735,7 +738,10 @@ public class DeliveryActionListener
     float points = 0;
     int unansweredQuestions = 0;
 
-    SectionContentsBean sec = new SectionContentsBean();
+    //SectionContentsBean sec = new SectionContentsBean();
+    //sec.setSectionId(part.getSectionId().toString()); 
+    // daisy change to use this existing constructor instead 11/09/05
+    SectionContentsBean sec = new SectionContentsBean(part);
 
     ArrayList itemSet = null;
     if (delivery.getForGrading()) {
@@ -824,7 +830,8 @@ public class DeliveryActionListener
     int unansweredQuestions = 0;
     int itemCount = 0;
 
-    SectionContentsBean sec = new SectionContentsBean();
+    //SectionContentsBean sec = new SectionContentsBean();
+    SectionContentsBean sec = new SectionContentsBean(part);
     ArrayList itemSet = part.getItemArraySorted();
 
     sec.setQuestions(itemSet.size());
@@ -1466,6 +1473,13 @@ public class DeliveryActionListener
     String agentString = person.getId();
     log.info("***agentString="+agentString);
     return agentString;
+  }
+
+  //added by daisy, used by DeliverBean.addMediaToItemGrading
+  public void processAction(ActionEvent ae, boolean resetPageContents) throws
+    AbortProcessingException{
+    this.resetPageContents = resetPageContents;
+    processAction(null);
   }
 
 }

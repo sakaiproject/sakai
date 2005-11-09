@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
@@ -1601,14 +1602,6 @@ public class DeliveryBean
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agent = person.getId();
 
-    System.out.println("****0 agent="+agent);
-    // 0. submit other question 1st
-    System.out.println("****1 submit otehr questions"+adata);
-    SubmitToGradingActionListener listener =
-      new SubmitToGradingActionListener();
-    listener.processAction(null);
-
-    System.out.println("****2 submit media"+adata);
     // 1. create assessmentGrading if it is null
     if (this.adata == null)
     {
@@ -1652,8 +1645,10 @@ public class DeliveryBean
     PublishedItemText itemText = (PublishedItemText) item.
       getItemTextArraySorted().get(0);
     ItemGradingData itemGradingData = getItemGradingData(questionId);
+    boolean newItemGradingData = false;
     if (itemGradingData == null)
     {
+      newItemGradingData = true;
       itemGradingData = new ItemGradingData();
       itemGradingData.setAssessmentGrading(adata);
       itemGradingData.setPublishedItem(item);
@@ -1681,9 +1676,14 @@ public class DeliveryBean
       saveMedia(agent, mediaLocation, itemGradingData, gradingService);
 
     // 8. do whatever need doing
-    DeliveryActionListener l2 = new DeliveryActionListener();
-    l2.processAction(null);
-
+    DeliveryActionListener dlistener = new DeliveryActionListener();
+    // false => do not reset the entire current delivery.pageContents.
+    // we will do it ourselves and only update the question that this media 
+    // is attached to
+    dlistener.processAction(null, false); 
+    if (newItemGradingData)
+      attachToItemContentBean(itemGradingData, questionId);
+    
     // 9. do the timer thing
     Integer timeLimit = null;
     if (adata != null && adata.getPublishedAssessment() != null
@@ -1697,7 +1697,6 @@ public class DeliveryBean
       UpdateTimerListener l3 = new UpdateTimerListener();
       l3.processAction(null);
     }
-    System.out.println("****3 submit media"+adata);
 
     reload = true;
     return "takeAssessment";
@@ -2032,14 +2031,10 @@ public class DeliveryBean
 
   public String getAgentAccessString()
   {
-    log.info("getAgentAccessString(): " + deliveryAgent.getAgentInstanceString());
-
     return deliveryAgent.getAgentInstanceString();
   }
   public void setAgentAccessString(String agentString)
   {
-    log.info("setAgentAccessString() agentString: " + agentString);
-
     deliveryAgent.setAgentInstanceString(agentString);
   }
 
@@ -2061,5 +2056,40 @@ public class DeliveryBean
     this.reviewAssessment = reviewAssessment;
   }
 
+  public void attachToItemContentBean(ItemGradingData itemGradingData, String questionId){
+    ArrayList list = new ArrayList();
+    list.add(itemGradingData);
+    //find out sectionId from questionId
+    PublishedAssessmentService publishedService = new
+	PublishedAssessmentService();
+    PublishedItemData publishedItem = publishedService.
+	loadPublishedItem(questionId);
+    PublishedSectionData publishedSection = (PublishedSectionData) publishedItem.getSection();
+    String sectionId = publishedSection.getSectionId().toString();
+    SectionContentsBean partSelected = null;
+ 
+    //get all partContents
+    ArrayList parts = getPageContents().getPartsContents();
+    for (int i=0; i<parts.size(); i++){
+      SectionContentsBean part = (SectionContentsBean)parts.get(i);
+      log.debug("**** question's sectionId"+sectionId);
+      log.debug("**** partId"+part.getSectionId());
+      if (sectionId.equals(part.getSectionId())){
+        partSelected = part;
+        break;
+      }
+    } 
+    //locate the itemContentBean - the hard way, sigh...
+    ArrayList items = new ArrayList();
+    if (partSelected!=null)
+      items = partSelected.getItemContents();
+    for (int j=0; j<items.size(); j++){
+      ItemContentsBean item = (ItemContentsBean)items.get(j);
+      if ((publishedItem.getItemId()).equals(item.getItemData().getItemId())){ // comparing itemId not object
+        item.setItemGradingDataArray(list);
+        break;
+      }
+    }
+  }
 
 }

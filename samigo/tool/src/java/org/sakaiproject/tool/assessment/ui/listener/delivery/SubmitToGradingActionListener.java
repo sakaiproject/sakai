@@ -220,56 +220,65 @@ public class SubmitToGradingActionListener implements ActionListener
     PublishedAssessmentFacade publishedAssessment,
     DeliveryBean delivery) throws IllegalAccessException
   {
+    log.debug("****1a. inside submitToGradingService ");
     String submissionId = "";
     HashSet itemData = new HashSet();
-    AssessmentGradingData adata = delivery.getAssessmentGrading();
+    // daisyf decoding: get page contents contains SectionContentsBean, a wrapper for SectionDataIfc
     Iterator iter = delivery.getPageContents().getPartsContents().iterator();
+    log.debug("****1b. inside submitToGradingService, iter= "+iter);
     while (iter.hasNext())
     {
+      // daisyf decoding:
+      // looks like it is going through questions in each part.
+      // for each question, it look up all the answer ever saved
       SectionContentsBean part = (SectionContentsBean) iter.next();
+      log.debug("****1c. inside submitToGradingService, part "+part);
       Iterator iter2 = part.getItemContents().iterator();
       while (iter2.hasNext())
       {
         ItemContentsBean item = (ItemContentsBean) iter2.next();
+        log.debug("****1d. inside submitToGradingService, item= "+item);
         ArrayList grading = item.getItemGradingDataArray();
         if (grading.isEmpty())
         {
-          log.debug("No item grading data.");
+          log.info("No item grading data.");
         }
         else
-        {
+        { // found at least one valid existing answer, i.e. itemGradingData
+          // then it loops through them and gather up the one that has valid
+          // answers, i.e. not null
           Iterator iter3 = grading.iterator();
           while (iter3.hasNext())
           {
             ItemGradingData data = (ItemGradingData) iter3.next();
-
-            // Don't add the data if no item is selected
+            // for FIB and MC/TF/Matching question, don't add the data if no item is selected
+            log.debug("****1e. inside submitToGradingService, olddata= "+data);
             if (data.getPublishedAnswer() != null ||
                 data.getAnswerText() != null)
             itemData.add(data);
-
-            // If there's an existing assessmentgradingdata, use it
-            if (adata == null && data.getAssessmentGrading() != null)
-              adata = (AssessmentGradingData) data.getAssessmentGrading();
           }
         }
       }
     }
 
-
-
-    if (adata == null && delivery.getAssessmentGrading() != null)
+    AssessmentGradingData adata = null;
+    if (delivery.getAssessmentGrading() != null)
       adata = delivery.getAssessmentGrading();
+    log.debug("****** 1f. submitToGradingService, adata= "+adata);
 
     GradingService service = new GradingService();
     if (adata == null)
     {
       adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemData);
+      delivery.setAssessmentGrading(adata);
+      log.debug("****** 1g. submitToGradingService, itemData.size()= "+itemData.size());
     }
     else
     {
+      log.debug("****** 1h. submitToGradingService, old adata= "+adata);
       ArrayList adds = new ArrayList();
       ArrayList removes = new ArrayList();
+      // itemData contains all valid saved answers, itemGradingData
       integrateItemGradingDatas(itemData, adata, adds, removes);
 
       // Add and remove separately so we don't get concurrent modification
@@ -354,32 +363,38 @@ public class SubmitToGradingActionListener implements ActionListener
                                          AssessmentGradingData adata,
                                          ArrayList adds, ArrayList removes)
   {
+    // daisyf's question: why not just persist the currently submitted answer by 
+    // updating the existing one?
+    // why do you need to "replace" it by deleting and adding it again?
     Iterator i1 = itemData.iterator();
-
     while (i1.hasNext())
     {
       ItemGradingData data = (ItemGradingData) i1.next();
-      if (!adata.getItemGradingSet().contains(data))
+      if (!adata.getItemGradingSet().contains(data)) // wouldn't this always true? wouldn't they always have diff address even if the two objects contains the same properties value?
       {
+        log.debug("****** cc. data is new");
         Iterator iter2 = adata.getItemGradingSet().iterator();
         boolean added = false;
         if (data.getItemGradingId() != null)
         {
+          log.debug("****** ccc. data not saved to DB yet");
           while (iter2.hasNext())
           {
             ItemGradingData olddata = (ItemGradingData) iter2.next();
             if (data.getItemGradingId().equals(olddata.getItemGradingId()))
             {
+              log.debug("****** d. integrate"+data.getAssessmentGrading()+":"+data.getItemGradingId()+":"+data.getAnswerText());
+              log.debug("****** e. integrate"+olddata.getAssessmentGrading()+":"+olddata.getItemGradingId()+":"+olddata.getAnswerText());
               data.setAssessmentGrading(adata);
               removes.add(olddata);
               adds.add(data);
               added = true;
             }
           }
-        }
-        if (!added)
+        } //end if  (data.getItemGradingId() != null)
+        if (!added) // add last one?
           adds.add(data);
-      }
+      } //end if (!adata.getItemGradingSet().contains(data))
     }
   }
 
