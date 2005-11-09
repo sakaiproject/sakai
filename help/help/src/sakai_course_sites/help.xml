@@ -68,7 +68,7 @@
                       <ref bean="publishSite"/>
                      <ref bean="navigation"/>
 					 <ref bean="resetButton"/>
-					 <ref bean="reviewProfile">
+					 <ref bean="reviewProfile"/>
                   </list>
                </property>
             </bean>
