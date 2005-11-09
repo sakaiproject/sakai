@@ -114,15 +114,17 @@
        </h:outputText>
     </div>
    <div class="shorttext">
+     <h:outputLabel value="#{msg.released_to_2}" />
+     <h:outputText value="#{assessmentSettings.releaseTo}" />
+   </div>
+   <div class="shorttext">
 
      <h:outputLabel rendered="#{assessmentSettings.publishedUrl ne null}" value="#{msg.published_assessment_url}" />
      <h:outputText value="#{assessmentSettings.publishedUrl}" />
+     <p></p>
+     <h:outputText value="* #{msg.open_new_browser_for_publishedUrl}" />
 
-</div>
-   <div class="shorttext">
-     <h:outputLabel value="#{msg.released_to_2}" />
-     <h:outputText value="#{assessmentSettings.releaseTo}" />
- </div>
+   </div>
 </div>
      <p class="act">
        <h:commandButton value="#{msg.button_save_and_publish}" type="submit"
