@@ -71,13 +71,14 @@ character data, and will then accept non-XHTML and even bad HTML.
 Respondus questions have some non-Sakai-style QTI formatting issues.
 
 7. Images.
-In general, when authoring questions, you should not include images that may not
-be available (e.g transient, password protected, or https) when a test is
-modified later on, or when it is taken.  Specifically, you should not expect
-images to be visible on an imported assessment just because it was visible in the
-originally exported assessment unless you have access to the url
-of the original image from a new client on the new server.  Make sure that you
-observe all copyright and intellectual property restrictions when importing and
-exporting images.
+  a. Make sure that you observe all copyright and intellectual property
+restrictions when importing and exporting images.
+  b. In general, when authoring questions, you should not include images that
+may not be available (e.g transient, password protected, or https) when a test
+is modified later on, or when it is taken.
+  c. Specifically, you should not expect images to be visible on an imported
+assessment just because it was visible in the originally exported assessment
+unless you have access to the url of the original image from a new client on the
+new server.
 
 
