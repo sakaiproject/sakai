@@ -61,7 +61,7 @@
 				<h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}"/>
 				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
 			</h:column>
-			<h:column>
+			<h:column rendered="#{overviewBean.userAbleToGradeAll}">
 				<f:facet name="header">
 		            <x:commandSortHeader columnName="mean" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_average}"/>

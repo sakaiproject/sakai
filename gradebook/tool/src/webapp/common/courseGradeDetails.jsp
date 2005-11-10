@@ -25,8 +25,8 @@
 				<f:convertNumber maxFractionDigits="2"/>
 			</h:outputText>
 
-			<h:outputText id="averageLabel" value="#{msgs.course_grade_details_average}"/>
-			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean}">
+			<h:outputText id="averageLabel" value="#{msgs.course_grade_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
+			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
 				<f:convertNumber type="percentage" integerOnly="true" />
 			</h:outputText>
 		</h:panelGrid>

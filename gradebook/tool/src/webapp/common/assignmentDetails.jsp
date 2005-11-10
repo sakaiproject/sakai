@@ -55,8 +55,8 @@
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 				</h:outputText>
 
-				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}"/>
-				<h:outputText id="average" value="#{assignmentDetailsBean.assignment.formattedMean}">
+				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
+				<h:outputText id="average" value="#{assignmentDetailsBean.assignment.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE"/>
 				</h:outputText>
 
