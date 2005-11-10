@@ -25,6 +25,8 @@ package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -72,9 +74,7 @@ public class ShowMediaServlet extends HttpServlet
     // a. if you are the creator.
     // b. if you have a "maintain" role in the site where the media has been created.
     boolean accessDenied = true;
-    String agentIdString = req.getRemoteUser();
-    if (agentIdString == null) // try this
-      agentIdString = AgentFacade.getAgentString();
+    String agentIdString = getAgentString(req, res);
     String currentSiteId = AgentFacade.getCurrentSiteId();
     //cwen
     if((currentSiteId == null) || (currentSiteId.equals("")))
@@ -105,7 +105,7 @@ public class ShowMediaServlet extends HttpServlet
     else {
       String displayType="inline";
       if (mediaData.getMimeType()!=null){
-  res.setContentType(mediaData.getMimeType());
+        res.setContentType(mediaData.getMimeType());
       }
       else {
         displayType="attachment";
@@ -159,6 +159,19 @@ public class ShowMediaServlet extends HttpServlet
       log.warn("file not found="+ex.getMessage());
     }
     return inputStream;
+  }
+
+  public String getAgentString(HttpServletRequest req,  HttpServletResponse res){ 
+    String agentIdString = req.getRemoteUser();
+    if (agentIdString == null){ // try this
+      agentIdString = AgentFacade.getAgentString();
+    }
+    if (agentIdString == null || agentIdString.equals("")){ // try this
+      PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
+			   "person", req, res);
+      agentIdString = person.getAnonymousId();
+    }
+    return agentIdString;
   }
 
 }
