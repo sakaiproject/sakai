@@ -83,28 +83,22 @@ public class ShowMediaServlet extends HttpServlet
     // b. if you have a assessment.grade.any or assessment.grade.own permission
     boolean accessDenied = true;
     String agentIdString = getAgentString(req, res);
-    String currentSiteId = AgentFacade.getCurrentSiteId();
-    log.info("****current site Id ="+currentSiteId);
+    String currentSiteId;
+    if (mediaData != null){
+      currentSiteId = mediaData.getItemGradingData().getAssessmentGrading().getPublishedAssessment().getOwnerSiteId();
+    }
+    else{
+      currentSiteId = AgentFacade.getCurrentSiteId();
+    }
+
     //cwen
-    if((currentSiteId == null) || (currentSiteId.equals("")))
-    {
+    if((currentSiteId == null) || (currentSiteId.equals(""))){
       currentSiteId = req.getParameter("sam_fileupload_siteId");
     }
-    String mediaSiteId = mediaData.getItemGradingData().getAssessmentGrading().getPublishedAssessment().getOwnerSiteId();
 
     // some log checking
     log.info("agentIdString ="+agentIdString);
     log.info("****current site Id ="+currentSiteId);
-    log.info("****media site Id ="+mediaSiteId);
-
-    //cwen
-    /*
-    String role = AgentFacade.getRole(agentIdString);
-    if((role==null) || (role.equals("")) || (role.equals("anonymous_access")))
-    {
-      role = AgentFacade.getRoleForAgentAndSite(agentIdString, currentSiteId);
-    }
-    */
 
     if (agentIdString !=null && mediaData != null &&
          (agentIdString.equals(mediaData.getCreatedBy()) // user is creator
