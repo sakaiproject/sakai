@@ -52,80 +52,80 @@
 
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true" styleClass="validation" />
-
   <div class="validation">
        <h:outputText value="#{msg.publish_confirm_message}" />
    </div>
-   <div class="shorttext">
+
+<h:panelGrid columns="2" rowClasses="shorttext">
+
      <h:outputLabel value="#{msg.assessment_title}" rendered="#{assessmentSettings.title ne null}" />
-     <h:outputText value="#{assessmentSettings.title}" />
-</div>
-   <div class="shorttext">
+     <h:outputText value="#{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}" />
+
      <h:outputLabel value="#{msg.assessment_available_date}" />
+     <h:panelGroup>
        <h:outputText rendered="#{assessmentSettings.startDate ne null}" value="#{assessmentSettings.startDate}" >
           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
-
        </h:outputText>
        <h:outputText rendered="#{assessmentSettings.startDate eq null}" value="Immediate" />
-    </div>
-   <div class="shorttext">
-     <h:outputLabel rendered="#{assessmentSettings.dueDate ne null}" value="#{msg.assessment_due_date}" />
-     <h:outputText value="#{assessmentSettings.dueDate}" >
-       <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
-     </h:outputText>
-</div>
-   <div class="shorttext">
-     <h:outputLabel rendered="#{assessmentSettings.retractDate ne null}" value="#{msg.assessment_retract_date}" />
-     <h:outputText value="#{assessmentSettings.retractDate}" >
-       <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
-     </h:outputText>
-</div>
-   <div class="shorttext">
-     <h:outputLabel value="#{msg.time_limit}" />
-     <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true'}"
-        value="#{assessmentSettings.timedHours} hour,
-        #{assessmentSettings.timedMinutes} minutes, #{assessmentSettings.timedSeconds} seconds" />
-     <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment ne 'true'}"
-        value="No Time Limit" />
-</div>
-   <div class="shorttext">
-     <h:outputLabel value="#{msg.auto_submit}" />
+     </h:panelGroup>
 
+     <h:outputLabel rendered="#{assessmentSettings.dueDate ne null}" 
+        value="#{msg.assessment_due_date}" />
+     <h:outputText value="#{assessmentSettings.dueDate}" 
+        rendered="#{assessmentSettings.dueDate ne null}" >
+       <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+     </h:outputText>
+
+     <h:outputLabel rendered="#{assessmentSettings.retractDate ne null}" value="#{msg.assessment_retract_date}" />
+     <h:outputText value="#{assessmentSettings.retractDate}" rendered="#{assessmentSettings.retractDate ne null}">
+       <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+     </h:outputText>
+
+     <h:outputLabel value="#{msg.time_limit}" />
+     <h:panelGroup>
+       <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true'}"
+          value="#{assessmentSettings.timedHours} hour,
+          #{assessmentSettings.timedMinutes} minutes, #{assessmentSettings.timedSeconds} seconds" />
+       <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment ne 'true'}"
+          value="No Time Limit" />
+     </h:panelGroup>
+
+     <h:outputLabel value="#{msg.auto_submit}" />
+     <h:panelGroup>
        <h:outputText value="On" rendered="#{assessmentSettings.autoSubmit}" />
        <h:outputText value="Off" rendered="#{!assessmentSettings.autoSubmit}" />
-    </div>
-   <div class="shorttext">
+     </h:panelGroup>
+
 
      <h:outputLabel value="#{msg.submissions}" />
-
+     <h:panelGroup>
        <h:outputText value="Unlimited" rendered="#{assessmentSettings.unlimitedSubmissions eq '1'}" />
        <h:outputText value="#{assessmentSettings.submissionsAllowed}"
          rendered="#{assessmentSettings.unlimitedSubmissions eq '0'}" />
-     </div>
-   <div class="shorttext">
+     </h:panelGroup>
+
 
      <h:outputLabel value="#{msg.feedback_type}" />
-
+     <h:panelGroup>
        <h:outputText value="Immediate" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" />
        <h:outputText value="No Feedback" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" />
        <h:outputText value="Available on #{assessmentSettings.feedbackDate}"
           rendered="#{assessmentSettings.feedbackDelivery eq '2'}" >
          <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
        </h:outputText>
-    </div>
-   <div class="shorttext">
+     </h:panelGroup>
+
      <h:outputLabel value="#{msg.released_to_2}" />
      <h:outputText value="#{assessmentSettings.releaseTo}" />
-   </div>
-   <div class="shorttext">
+
 
      <h:outputLabel rendered="#{assessmentSettings.publishedUrl ne null}" value="#{msg.published_assessment_url}" />
      <h:outputText value="#{assessmentSettings.publishedUrl}" />
-     <p></p>
+</h:panelGrid>
+
+<f:verbatim><p></p></f:verbatim>
      <h:outputText value="* #{msg.open_new_browser_for_publishedUrl}" />
 
-   </div>
-</div>
      <p class="act">
        <h:commandButton value="#{msg.button_save_and_publish}" type="submit"
          styleClass="active" action="publishAssessment" >
