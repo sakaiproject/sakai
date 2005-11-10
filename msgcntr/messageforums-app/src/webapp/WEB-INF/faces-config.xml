@@ -78,46 +78,30 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
-            <from-outcome>pvtMsgReceived</from-outcome>
-            <to-view-id>/jsp/privateMsg/pvtMsgReceived.jsp</to-view-id>
+            <from-outcome>pvtMsg</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsg.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
-            <from-outcome>pvtMsgSent</from-outcome>
-            <to-view-id>/jsp/privateMsg/pvtMsgSent.jsp</to-view-id>
+            <from-outcome>pvtMsgCompose</from-outcome>
+            <to-view-id>/jsp/privateMsg/compose.jsp</to-view-id>
             <redirect/>
-        </navigation-case>
+        </navigation-case>  
         <navigation-case>
-            <from-outcome>pvtMsgDelete</from-outcome>
-            <to-view-id>/jsp/privateMsg/pvtMsgDelete.jsp</to-view-id>
+            <from-outcome>pvtMsgDetail</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgDetail.jsp</to-view-id>
             <redirect/>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>pvtMsgDrafts</from-outcome>
-            <to-view-id>/jsp/privateMsg/pvtMsgDrafts.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>pvtMsgCase</from-outcome>
-            <to-view-id>/jsp/privateMsg/pvtMsgCase.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>pvtMsgGrpCorres</from-outcome>
-            <to-view-id>/jsp/privateMsg/pvtMsgGrpCorres.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <!--htripath -->                                        
+        </navigation-case>  
+                                            
     </navigation-rule>
     
-    <!-- =================== Tool Beans ============== -->
+    <!-- =================== Tool Beans ============== 
     <managed-bean>
         <description>Discussion Forum Tool</description>
         <managed-bean-name>DiscussionForumTool</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.messageforums.DiscussionForumTool</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-        
-    </managed-bean>
+        <managed-bean-scope>session</managed-bean-scope>        
+    </managed-bean>-->
     
     <managed-bean>
         <description>Private Messages Tool</description>
@@ -129,6 +113,5 @@
             <property-name>prtMsgManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.PrivateMessageManager"]}</value>
         </managed-property>
-       
     </managed-bean>
 </faces-config>

@@ -1,6 +1,7 @@
 package org.sakaiproject.component.app.messageforums;
 
  import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateMessageManager;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;;
@@ -10,6 +11,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
  
   
   DummyDataHelperApi helper =  new DummyDataHelper();
+  
+  private MessageForumsTypeManager frmTypeManager ;
+ 
+  /**
+   * @param frmTypeManager The frmTypeManager to set.
+   */
+  public void setFrmTypeManager(MessageForumsTypeManager frmTypeManager)
+  {
+    this.frmTypeManager = frmTypeManager;
+  }
+
   public boolean isPrivateAreaUnabled()
   {
     // TODO Auto-generated method stub
@@ -17,6 +29,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     return helper.isPrivateAreaUnabled();
   }
 
+  public void init()
+  {
+    ;
+  }
+ 
   private boolean isPrivateAreaUnabled(String userId)
   {
      //TODO:     

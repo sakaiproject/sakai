@@ -53,11 +53,15 @@
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		</property>
 		<property name="target">
-			<bean class="org.sakaiproject.component.app.messageforums.PrivateMessageManagerImpl">
+			<bean class="org.sakaiproject.component.app.messageforums.PrivateMessageManagerImpl"  singleton="true" init-method="init">
 				<property name="sessionFactory">
 					<ref
 						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-				</property>			 
+				</property>
+				<property name="frmTypeManager">
+					<ref
+						bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" />
+				</property>		 
 			</bean>
 		</property>
 		<property name="transactionAttributes">

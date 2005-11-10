@@ -6,7 +6,7 @@
   <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
-      <h:form onsubmit="return false;">
+      <h:form >
 
         <sakai:tool_bar_message value="#{msgs.cdfm_tool_bar_message}" /> 
                 
@@ -137,12 +137,11 @@
         <sakai:button_bar>
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMPostMessage}" value="#{msgs.cdfm_button_bar_post_message}" />
           <sakai:button_bar_item action="#{MessageForumsTool.processCDFMSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" />
-          <sakai:button_bar_item action="#{MessageForumsTool.processCDFMCancel}" value="#{msgs.cdfm_button_bar_cancel}" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgComposeCancel}" value="Cancel" />
         </sakai:button_bar>
       </h:form>
      
     </sakai:view_content>
   </sakai:view_container>
 </f:view> 
-
 
