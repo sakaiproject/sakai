@@ -1413,9 +1413,15 @@ public class ExtractionHelper
       log.debug("incorrectMatchFeedbackList.get(" + i + ")="+
                          incorrectMatchFeedbackList.get(i));
     }
-    incorrectMatchFeedbackList =
-      reassembleIncorrectMatches(
-      incorrectMatchFeedbackList, correctMatchFeedbackList.size());
+    int maxNumCorrectFeedback = sourceList.size();
+    int numIncorrectFeedback = incorrectMatchFeedbackList.size();
+
+    if (maxNumCorrectFeedback>0 && numIncorrectFeedback>0)
+    {
+      incorrectMatchFeedbackList =
+        reassembleIncorrectMatches(
+          incorrectMatchFeedbackList, maxNumCorrectFeedback);
+    }
 
     log.debug("*** NEW order");
     for (int i = 0; i < correctMatchFeedbackList.size(); i++) {
@@ -1587,6 +1593,7 @@ public class ExtractionHelper
   {
     // make sure we have a reasonable value
     if (n<0) n = -n;
+    if (n==0) return list;
 
     // pad input list if too small or null
     if (list == null)
