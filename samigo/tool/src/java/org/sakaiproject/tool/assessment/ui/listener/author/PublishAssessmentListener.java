@@ -127,8 +127,9 @@ public class PublishAssessmentListener
         log.warn(e);
         e.printStackTrace();
         // Add a global message (not bound to any component) to the faces context indicating the failure
-        FacesMessage message = new FacesMessage("There was an error publishing this assessment.  Ensure that the name is unique.");
-        FacesContext.getCurrentInstance().addMessage(null, message);
+        String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+                                                 "gradebook_exception_error");
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(e);
     }
 
