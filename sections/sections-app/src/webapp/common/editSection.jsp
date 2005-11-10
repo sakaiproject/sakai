@@ -14,13 +14,15 @@
     
         <h:panelGrid columns="2">
             <h:outputLabel for="titleInput" value="#{msgs.section_title} #{msgs.section_required}" styleClass="formLabel"/>
-            <h:panelGrid columns="2">
+            <h:panelGroup>
+                <x:div>
+                    <h:message for="titleInput" styleClass="validationEmbedded"/>
+                </x:div>
                 <h:inputText
                     id="titleInput"
                     required="true"
                     value="#{editSectionBean.title}"/>
-                <h:message for="titleInput" styleClass="validationEmbedded"/>
-            </h:panelGrid>
+            </h:panelGroup>
             
             <h:outputLabel for="monday" value="#{msgs.section_days}" styleClass="formLabel"/>
             <h:panelGrid columns="14">
@@ -47,46 +49,52 @@
             </h:panelGrid>
     
             <h:outputLabel for="startTime" value="#{msgs.section_start_time}" styleClass="formLabel"/>
-            <h:panelGrid columns="3">
-                <h:panelGroup>
-                    <h:inputText id="startTime" value="#{editSectionBean.startTime}"/>
+            <h:panelGroup>
+                <x:div>
                     <h:message for="startTime" styleClass="validationEmbedded"/>
-                </h:panelGroup>
-                <h:outputText value="#{msgs.section_start_time_example}"/>
-                <h:selectOneRadio value="#{editSectionBean.startTimeAm}">
+                </x:div>
+                <h:inputText id="startTime" value="#{editSectionBean.startTime}"/>
+                <h:outputText value=" #{msgs.section_start_time_example} "/>
+                <x:selectOneRadio id="startTimeAm" layout="spread" value="#{editSectionBean.startTimeAm}">
                     <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                     <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
-                </h:selectOneRadio>
-            </h:panelGrid>
+                </x:selectOneRadio>
+                <x:radio for="startTimeAm" index="0" />
+                <x:radio for="startTimeAm" index="1" />
+            </h:panelGroup>
     
             <h:outputLabel for="endTime" value="#{msgs.section_end_time}" styleClass="formLabel"/>
-            <h:panelGrid columns="3">
-                <h:panelGroup>
-                    <h:inputText
-                        id="endTime"
-                        value="#{editSectionBean.endTime}"/>
+            <h:panelGroup>
+                <x:div>
                     <h:message for="endTime" styleClass="validationEmbedded"/>
-                </h:panelGroup>
-                <h:outputText value="#{msgs.section_end_time_example}"/>
-                <h:selectOneRadio value="#{editSectionBean.endTimeAm}">
+                </x:div>
+                <h:inputText
+                    id="endTime"
+                    value="#{editSectionBean.endTime}"/>
+                <h:outputText value=" #{msgs.section_end_time_example} "/>
+                <x:selectOneRadio id="endTimeAm" layout="spread" value="#{editSectionBean.endTimeAm}">
                     <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                     <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
-                </h:selectOneRadio>
-            </h:panelGrid>
+                </x:selectOneRadio>
+                <x:radio for="endTimeAm" index="0" />
+                <x:radio for="endTimeAm" index="1" />
+            </h:panelGroup>
     
             <h:outputLabel for="maxEnrollmentInput" value="#{msgs.section_max_size}" styleClass="formLabel"/>
-            <h:panelGrid columns="2">
+            <h:panelGroup>
+                <x:div>
+                    <h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
+                </x:div>
                 <h:inputText
                     id="maxEnrollmentInput"
                     value="#{editSectionBean.maxEnrollments}"/>
-                <h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
-            </h:panelGrid>
+            </h:panelGroup>
     
             <h:outputLabel value="#{msgs.section_location}" for="location" styleClass="formLabel"/>
-            <h:panelGrid columns="2">
+            <h:panelGroup>
                 <h:inputText id="location" value="#{editSectionBean.location}" maxlength="20" />
                 <h:outputText value="#{msgs.section_location_truncation}"/>
-            </h:panelGrid>
+            </h:panelGroup>
         </h:panelGrid>
 
         <x:div rendered="#{empty addSectionsBean.sections}" styleClass="verticalPadding">

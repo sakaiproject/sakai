@@ -169,6 +169,8 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	 * @return
 	 */
 	public String update() {
+		if(log.isInfoEnabled()) log.info("Updating section " + sectionUuid);
+		
 		if(validationFails()) {
 			return null;
 		}
@@ -248,12 +250,14 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		this.endTime = endTime;
 	}
 
-	public boolean isEndTimeAm() {
-		return endTimeAm;
+	// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
+	public String getEndTimeAm() {
+		return Boolean.toString(endTimeAm);
 	}
 
-	public void setEndTimeAm(boolean endTimeAm) {
-		this.endTimeAm = endTimeAm;
+	// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
+	public void setEndTimeAm(String endTimeAm) {
+		this.endTimeAm = Boolean.valueOf(endTimeAm).booleanValue();
 	}
 
 	public boolean isFriday() {
@@ -304,12 +308,14 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		this.startTime = startTime;
 	}
 
-	public boolean isStartTimeAm() {
-		return startTimeAm;
+	// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
+	public String getStartTimeAm() {
+		return Boolean.toString(startTimeAm);
 	}
 
-	public void setStartTimeAm(boolean startTimeAm) {
-		this.startTimeAm = startTimeAm;
+	// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
+	public void setStartTimeAm(String startTimeAm) {
+		this.startTimeAm = Boolean.valueOf(startTimeAm).booleanValue();
 	}
 
 	public boolean isSunday() {

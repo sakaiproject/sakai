@@ -58,13 +58,15 @@
             <h:column>
                 <h:panelGrid columns="2" rowClasses="sectionRow">
                     <h:outputLabel for="titleInput" value="#{msgs.section_title} #{msgs.section_required}" styleClass="formLabel"/>
-                    <h:panelGrid columns="2">
+                    <h:panelGroup>
+                        <x:div>
+                            <h:message for="titleInput" styleClass="validationEmbedded"/>
+                        </x:div>
                         <h:inputText
                             id="titleInput"
                             required="true"
                             value="#{section.title}"/>
-                        <h:message for="titleInput" styleClass="validationEmbedded"/>
-                    </h:panelGrid>
+                    </h:panelGroup>
                     
                     <h:outputLabel for="monday" value="#{msgs.section_days}" styleClass="formLabel"/>
                     <h:panelGrid columns="14">
@@ -91,44 +93,52 @@
                     </h:panelGrid>
             
                     <h:outputLabel for="startTime" value="#{msgs.section_start_time}" styleClass="formLabel"/>
-                    <h:panelGrid columns="3">
-                        <h:panelGroup>
-                            <h:inputText id="startTime" value="#{section.startTime}"/>
+                    <h:panelGroup>
+                        <x:div>
                             <h:message for="startTime" styleClass="validationEmbedded"/>
-                        </h:panelGroup>
-                        <h:outputText value="#{msgs.section_start_time_example}"/>
-                        <h:selectOneRadio value="#{section.startTimeAm}">
+                        </x:div>
+                        <h:inputText id="startTime" value="#{section.startTime}"/>
+                        <h:outputText value=" #{msgs.section_start_time_example} "/>
+                        <x:selectOneRadio id="startTimeAm" layout="spread" value="#{section.startTimeAm}">
                             <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                             <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
-                        </h:selectOneRadio>
-                    </h:panelGrid>
-            
+                        </x:selectOneRadio>
+                        <x:radio for="startTimeAm" index="0" />
+                        <x:radio for="startTimeAm" index="1" />
+                    </h:panelGroup>
+
                     <h:outputLabel for="endTime" value="#{msgs.section_end_time}" styleClass="formLabel"/>
-                    <h:panelGrid columns="3">
-                        <h:panelGroup>
-                            <h:inputText
-                                id="endTime"
-                                value="#{section.endTime}"/>
+                    <h:panelGroup>
+                        <x:div>
                             <h:message for="endTime" styleClass="validationEmbedded"/>
-                        </h:panelGroup>
-                        <h:outputText value="#{msgs.section_end_time_example}"/>
-                        <h:selectOneRadio value="#{section.endTimeAm}">
+                        </x:div>
+                        <h:inputText
+                            id="endTime"
+                            value="#{section.endTime}"/>
+                        <h:outputText value=" #{msgs.section_end_time_example} "/>
+                        <x:selectOneRadio id="endTimeAm" layout="spread" value="#{section.endTimeAm}">
                             <f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
                             <f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
-                        </h:selectOneRadio>
-                    </h:panelGrid>
+                        </x:selectOneRadio>
+                        <x:radio for="endTimeAm" index="0" />
+                        <x:radio for="endTimeAm" index="1" />
+                    </h:panelGroup>
             
                     <h:outputLabel for="maxEnrollmentInput" value="#{msgs.section_max_size}" styleClass="formLabel"/>
-                    <h:panelGrid columns="2">
+                    <h:panelGroup>
+                        <x:div>
+                            <h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
+                        </x:div>
                         <h:inputText id="maxEnrollmentInput" value="#{section.maxEnrollments}"/>
-                        <h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
-                    </h:panelGrid>
-            
+                    </h:panelGroup>
+
                     <h:outputLabel for="location" value="#{msgs.section_location}" styleClass="formLabel"/>
-                    <h:panelGrid columns="2">
+                    <h:panelGroup>
                         <h:inputText id="location" value="#{section.location}" maxlength="20" />
-                        <h:outputText value="#{msgs.section_location_truncation}"/>
-                    </h:panelGrid>
+                        <x:div>
+                            <h:outputText value=" #{msgs.section_location_truncation} "/>
+                        </x:div>
+                    </h:panelGroup>
                 </h:panelGrid>
             </h:column>
         </x:dataTable>

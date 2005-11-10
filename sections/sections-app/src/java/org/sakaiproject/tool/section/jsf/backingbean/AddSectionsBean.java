@@ -148,8 +148,8 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 
 			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
 					category, sectionModel.getMaxEnrollments(), sectionModel.getLocation(),
-					JsfUtil.convertStringToTime(sectionModel.getStartTime(), sectionModel.isStartTimeAm()),
-					JsfUtil.convertStringToTime(sectionModel.getEndTime(), sectionModel.isEndTimeAm()),
+					JsfUtil.convertStringToTime(sectionModel.getStartTime(), Boolean.valueOf(sectionModel.getStartTimeAm()).booleanValue()),
+					JsfUtil.convertStringToTime(sectionModel.getEndTime(), Boolean.valueOf(sectionModel.getEndTimeAm()).booleanValue()),
 					sectionModel.isMonday(), sectionModel.isTuesday(), sectionModel.isWednesday(),
 					sectionModel.isThursday(), sectionModel.isFriday(), sectionModel.isSaturday(),
 					sectionModel.isSunday());
@@ -234,7 +234,8 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 			
 			// Don't bother checking if the time values are invalid
 			if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(sectionModel.getStartTime(),
-					sectionModel.isStartTimeAm(), sectionModel.getEndTime(), sectionModel.isEndTimeAm())) {
+					Boolean.valueOf(sectionModel.getStartTimeAm()).booleanValue(),
+					sectionModel.getEndTime(), Boolean.valueOf(sectionModel.getEndTimeAm()).booleanValue())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
 				String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
@@ -286,11 +287,13 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		public void setEndTime(String endTime) {
 			this.endTime = endTime;
 		}
-		public boolean isEndTimeAm() {
-			return endTimeAm;
+		// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
+		public String getEndTimeAm() {
+			return Boolean.toString(endTimeAm);
 		}
-		public void setEndTimeAm(boolean endTimeAm) {
-			this.endTimeAm = endTimeAm;
+		// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
+		public void setEndTimeAm(String endTimeAm) {
+			this.endTimeAm = Boolean.valueOf(endTimeAm).booleanValue();
 		}
 		public boolean isFriday() {
 			return friday;
@@ -328,11 +331,13 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		public void setStartTime(String startTime) {
 			this.startTime = startTime;
 		}
-		public boolean isStartTimeAm() {
-			return startTimeAm;
+		// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
+		public String getStartTimeAm() {
+			return Boolean.toString(startTimeAm);
 		}
-		public void setStartTimeAm(boolean startTimeAm) {
-			this.startTimeAm = startTimeAm;
+		// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
+		public void setStartTimeAm(String startTimeAm) {
+			this.startTimeAm = Boolean.valueOf(startTimeAm).booleanValue();
 		}
 		public boolean isSunday() {
 			return sunday;
