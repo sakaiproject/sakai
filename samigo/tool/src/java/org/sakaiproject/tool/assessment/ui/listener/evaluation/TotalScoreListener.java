@@ -293,6 +293,7 @@ System.out.println("changed submission pulldown ");
         // answers, and the QuestionScores and Histograms pages don't
         // show.  This is a very weird case, but has to be handled.
         String firstitem = "";
+        bean.setFirstItem(firstitem);
         HashMap answeredItems = new HashMap();
         Iterator i2 = scores.iterator();
         while (i2.hasNext())
