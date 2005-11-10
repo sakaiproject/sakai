@@ -1,0 +1,11 @@
+GRADEBOOK RELEASE NOTES
+
+Changes in Sakai 2.1
+====================
+
+Database changes
+----------------
+
+* A new column was added to the GB_GRADABLE_OBJECT_T table to support "Not Counted" assignments. The SQL table definitions for supported databases have been updated. For existing installations, the following script may be used to update the table:
+
+	gradebook/component/src/sql/*/sakai_gradebook_2.0.1_to_2.1.sql
