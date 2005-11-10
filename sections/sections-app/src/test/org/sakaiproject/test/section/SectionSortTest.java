@@ -31,14 +31,13 @@ import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.component.section.CourseImpl;
 import org.sakaiproject.component.section.CourseSectionImpl;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
-import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 public class SectionSortTest extends TestCase {
 	private CourseSection sectionA;
