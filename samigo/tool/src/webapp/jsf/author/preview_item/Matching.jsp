@@ -62,7 +62,7 @@ should be included in file importing DeliveryMessages
             <h:column>
               <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFeedback!=null
                && answer.correctAnswerFeedback ne ''}" styleClass="longtext">
-                <h:outputLabel value="#{msg.correct}:" />
+                <h:outputLabel value="#{msg.correct}: " />
                 <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
               </h:panelGroup>
             </h:column>
@@ -74,7 +74,7 @@ should be included in file importing DeliveryMessages
             <h:column>
               <h:panelGroup rendered="#{answer.isCorrect && answer.inCorrectAnswerFeedback!=null
                && answer.inCorrectAnswerFeedback ne ''}" styleClass="longtext">
-                <h:outputLabel value="#{msg.incorrect}:" />
+                <h:outputLabel value="#{msg.incorrect}: " />
                 <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
               </h:panelGroup>
             </h:column>
