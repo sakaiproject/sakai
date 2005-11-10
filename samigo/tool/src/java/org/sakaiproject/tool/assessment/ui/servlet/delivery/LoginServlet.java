@@ -94,6 +94,10 @@ public class LoginServlet
     // both pages will set agentId and then direct user to BeginAssessment
     PublishedAssessmentService service = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = service.getPublishedAssessmentIdByAlias(alias);
+    delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
+    delivery.setAssessmentTitle(pub.getTitle());
+    delivery.setPublishedAssessment(pub);
+
     RequestDispatcher dispatcher = null;
     String contextPath = req.getContextPath();
     String path = "/jsf/delivery/invalidAssessment.faces";
@@ -135,7 +139,6 @@ public class LoginServlet
         }
         else {
           // if assessment is available, set it in delivery bean for display in deliverAssessment.jsp
-          delivery.setPublishedAssessment(pub);
           BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
           listener.processAction(null);
           path = "/jsf/delivery/beginTakingAssessment_viaurl.faces";
