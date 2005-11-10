@@ -158,13 +158,13 @@ document.links[newindex].onclick();
 </h:commandLink>
 
 <div class="indnt1">
-<h:dataTable id="parts" width="100%" headerClass="regHeading"
+<h:dataTable id="parts" width="95%" headerClass="regHeading"
       value="#{assessmentBean.sections}" var="partBean">
 
  <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
   <h:column>
 <f:verbatim><h4></f:verbatim>
-    <h:panelGrid columns="2" width="100%">
+    <h:panelGrid columns="2" columnClasses="alignLeft,alignRight" width="95%">
       <h:panelGroup>
        <f:verbatim><b></f:verbatim> <h:outputText value="#{msg.p} " /> <f:verbatim></b></f:verbatim>
         <h:selectOneMenu id="number" value="#{partBean.number}" onchange="document.forms[0].submit();" >
@@ -237,7 +237,7 @@ document.links[newindex].onclick();
 
       <h:column>
 <f:verbatim><h5></f:verbatim>
-        <h:panelGrid columns="2" width="100%">
+        <h:panelGrid columns="2" columnClasses="alignLeft,alignRight" width="95%">
           <h:panelGroup>
            <f:verbatim><b></f:verbatim>   <h:outputText value="#{msg.q} " /> <f:verbatim></b></f:verbatim>
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
@@ -247,8 +247,9 @@ document.links[newindex].onclick();
             </h:selectOneMenu>
             <h:outputText value=" #{question.itemData.type.keyword} -  #{question.itemData.score} #{msg.points_lower_case}" />
           </h:panelGroup>
+
           <h:panelGroup>
-            <h:commandLink styleClass="alignRight" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
+            <h:commandLink immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
               <h:outputText value="#{msg.button_remove}" />
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
             </h:commandLink>
@@ -261,6 +262,7 @@ document.links[newindex].onclick();
               <f:param name="target" value="assessment"/>
             </h:commandLink>
           </h:panelGroup>
+
         </h:panelGrid>
 <f:verbatim></h5></f:verbatim>
      <f:verbatim> <div class="indnt3"></f:verbatim>
