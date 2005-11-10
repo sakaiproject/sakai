@@ -292,4 +292,11 @@ public static ArrayList paramArrayValueLike(String paramPart)
     return rb.getString(key);
   }
 
+  public static String getLocalizedString(HttpServletRequest request,
+                                          String bundleName, String key) {
+    Locale locale = request.getLocale();
+    ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+    return rb.getString(key);
+  }
+
 }

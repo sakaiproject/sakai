@@ -25,11 +25,15 @@ package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +64,7 @@ public class ShowMediaServlet extends HttpServlet
   public void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
+    // get media
     String mediaId = req.getParameter("mediaId");
     log.info("**mediaId = "+mediaId);
     GradingService gradingService = new GradingService();
@@ -70,32 +75,40 @@ public class ShowMediaServlet extends HttpServlet
     log.info("****1. media file size="+mediaData.getFileSize());
     log.info("****2. media length="+media.length);
 
+    // get assessment's ownerId
+    String assessmentCreatedBy = req.getParameter("createdBy");
+
     // who can access the media? You can,
     // a. if you are the creator.
-    // b. if you have a "maintain" role in the site where the media has been created.
+    // b. if you have a assessment.grade.any or assessment.grade.own permission
     boolean accessDenied = true;
     String agentIdString = getAgentString(req, res);
     String currentSiteId = AgentFacade.getCurrentSiteId();
+    log.info("****current site Id ="+currentSiteId);
     //cwen
     if((currentSiteId == null) || (currentSiteId.equals("")))
     {
       currentSiteId = req.getParameter("sam_fileupload_siteId");
     }
     String mediaSiteId = mediaData.getItemGradingData().getAssessmentGrading().getPublishedAssessment().getOwnerSiteId();
+
+    // some log checking
     log.info("agentIdString ="+agentIdString);
     log.info("****current site Id ="+currentSiteId);
     log.info("****media site Id ="+mediaSiteId);
+
     //cwen
+    /*
     String role = AgentFacade.getRole(agentIdString);
     if((role==null) || (role.equals("")) || (role.equals("anonymous_access")))
     {
       role = AgentFacade.getRoleForAgentAndSite(agentIdString, currentSiteId);
     }
-    //cwen
+    */
+
     if (agentIdString !=null && mediaData != null &&
-        (agentIdString.equals(mediaData.getCreatedBy()) // user is creator
-            || (("maintain").equals(role) && currentSiteId.equals(mediaSiteId)))  // u have maintain role
-            || (("instructor").equals(role) && currentSiteId.equals(mediaSiteId)))
+         (agentIdString.equals(mediaData.getCreatedBy()) // user is creator
+	  || canGrade(req, res, agentIdString, currentSiteId, assessmentCreatedBy)))  
       accessDenied = false;
     if (accessDenied){
       String path = "/jsf/delivery/mediaAccessDenied.faces";
@@ -174,4 +187,21 @@ public class ShowMediaServlet extends HttpServlet
     return agentIdString;
   }
 
+  public boolean canGrade(HttpServletRequest req,  HttpServletResponse res,
+                          String agentId, String currentSiteId, String assessmentCreatedBy){
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet(
+			   "authorization", req, res);
+    boolean hasPrivilege_any = authzBean.getGradeAnyAssessment(req, currentSiteId);
+    boolean hasPrivilege_own0 = authzBean.getGradeOwnAssessment(req, currentSiteId);
+    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(agentId, assessmentCreatedBy));
+    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
+    return hasPrivilege;    
+  }
+
+
+  public boolean isOwner(String agentId, String ownerId){
+    boolean isOwner = false;
+    isOwner = agentId.equals(ownerId);
+    return isOwner;
+  }
 }

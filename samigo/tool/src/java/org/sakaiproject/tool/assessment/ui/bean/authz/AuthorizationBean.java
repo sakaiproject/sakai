@@ -29,6 +29,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.spring.SpringBeanLocator;
 import java.io.Serializable;
 import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class AuthorizationBean implements Serializable {
   private HashMap map = new HashMap();
@@ -308,6 +310,30 @@ public class AuthorizationBean implements Serializable {
     if (o!=null)
       privilege = ((Boolean)o).booleanValue();
     //System.out.println("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
+    return privilege;
+  }
+
+
+  // added the follwoing for ShowMediaServlet
+  public boolean getGradeAnyAssessment(HttpServletRequest req, 
+                                       String siteId) {
+    return getPrivilege(req, "grade_any_assessment", siteId);
+  } 
+
+  public boolean getGradeOwnAssessment(HttpServletRequest req, 
+                                       String siteId) {
+    return getPrivilege(req, "grade_own_assessment", siteId);
+  } 
+
+  public boolean getPrivilege(HttpServletRequest req,
+                              String functionKey, String siteId){
+    String functionName=(String)ContextUtil.getLocalizedString(req,
+                             "org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", 
+                              functionKey);
+    boolean privilege = false;
+    Object o = map.get(functionName+"_"+siteId);
+    if (o!=null)
+      privilege = ((Boolean)o).booleanValue();
     return privilege;
   }
 
