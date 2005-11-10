@@ -55,7 +55,7 @@
         </init-param>
    </servlet>
     <filter>
-        <filter-name>sakai.request.syllabus.filepicker</filter-name>
+        <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
         <init-param>
             <param-name>upload.enabled</param-name>
@@ -63,7 +63,7 @@
         </init-param>
     </filter>
     <filter-mapping>
-        <filter-name>sakai.request.syllabus.filepicker</filter-name>
+        <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
 <!--    <servlet-name>sakai.syllabus.filepicker</servlet-name>-->
         <servlet-name>sakai.syllabus</servlet-name>
         <dispatcher>REQUEST</dispatcher>
