@@ -199,7 +199,7 @@ function saveTime()
 
   <h:commandButton type="submit" value="#{msg.button_submit_grading}"
     action="#{delivery.submitForGrade}" styleClass="active"
-    rendered="#{!delivery.anonymousLogin && delivery.previewAssessment ne 'true' && delivery.previewMode ne 'true' && delivery.navigation ne '1' && !delivery.continue}">
+    rendered="#{!delivery.accessViaUrl && delivery.previewAssessment ne 'true' && delivery.previewMode ne 'true' && delivery.navigation ne '1' && !delivery.continue}">
  </h:commandButton>
 
  <h:commandButton type="submit" value="#{msg.save_and_continue}"
@@ -215,34 +215,34 @@ function saveTime()
 
   <!-- check for submit for grade permission to determine if button can be displayed -->
 
-  <h:panelGroup rendered="#{delivery.anonymousLogin or (authorization!=null && authorization.takeAssessment && authorization.submitAssessmentForGrade)}">
+  <h:panelGroup rendered="#{delivery.accessViaUrl or (authorization!=null && authorization.takeAssessment && authorization.submitAssessmentForGrade)}">
     <h:commandButton type="submit" value="#{msg.button_submit_grading}"
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
-      rendered="#{!delivery.anonymousLogin && delivery.previewMode ne 'true' && delivery.navigation eq '1' && !delivery.continue}" disabled="#{delivery.previewAssessment eq 'true'}"
+      rendered="#{!delivery.accessViaUrl && delivery.previewMode ne 'true' && delivery.navigation eq '1' && !delivery.continue}" disabled="#{delivery.previewAssessment eq 'true'}"
       onclick="pauseTiming='true'">
     </h:commandButton>
   </h:panelGroup>
 
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
-    rendered="#{delivery.anonymousLogin}"
+    rendered="#{delivery.accessViaUrl}"
     onclick="pauseTiming='true'">
   </h:commandButton>
 
 
   <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
-    rendered="#{delivery.previewMode ne 'true' && (delivery.navigation ne '1'&& delivery.continue) && !delivery.anonymousLogin}"  onclick="pauseTiming='true'" disabled="#{delivery.previewAssessment eq 'true'}">
+    rendered="#{delivery.previewMode ne 'true' && (delivery.navigation ne '1'&& delivery.continue) && !delivery.accessViaUrl}"  onclick="pauseTiming='true'" disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>
 
   <h:commandButton type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
-    rendered="#{delivery.previewMode ne 'true' && delivery.anonymousLogin}" onclick="pauseTiming='true'" disabled="#{delivery.previewAssessment eq 'true'}">
+    rendered="#{delivery.previewMode ne 'true' && delivery.accessViaUrl}" onclick="pauseTiming='true'" disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>
 
 <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
-    rendered="#{delivery.previewMode ne 'true' && (delivery.navigation eq '1'||!delivery.continue) && !delivery.anonymousLogin}" disabled="#{delivery.previewAssessment eq 'true'}">
+    rendered="#{delivery.previewMode ne 'true' && (delivery.navigation eq '1'||!delivery.continue) && !delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
   </h:commandButton>
 
 </p>

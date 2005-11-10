@@ -190,6 +190,8 @@ public class DeliveryBean
 
   // daisy added this for SAK-1764
   private boolean reviewAssessment=false;
+  // daisy added back for SAK-2738
+  private boolean accessViaUrl=false;
 
   // this instance tracks if the Agent is taking a test via URL, as well as
   // current agent string (if assigned). SAK-1927: esmiley
@@ -1914,12 +1916,12 @@ public class DeliveryBean
 
   public boolean getAccessViaUrl()
   {
-    return deliveryAgent.isAccessViaUrl();
+    return accessViaUrl;
   }
 
   public void setAccessViaUrl(boolean accessViaUrl)
   {
-    deliveryAgent.setAccessViaUrl(accessViaUrl);
+    this.accessViaUrl=accessViaUrl;
   }
 
   public ItemGradingData getItemGradingData(String publishedItemId)
