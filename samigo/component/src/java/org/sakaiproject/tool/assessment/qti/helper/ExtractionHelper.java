@@ -899,7 +899,7 @@ public class ExtractionHelper
       if (ip[j] != null)
       {
         SecuredIPAddress sip = new SecuredIPAddress(data, null, ip[j]);
-        sip.setAssessment(data);
+        //sip.setAssessment(data);
         securedIPAddressSet.add(sip);
       }
     }

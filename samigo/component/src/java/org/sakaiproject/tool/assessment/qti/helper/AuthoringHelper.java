@@ -563,7 +563,9 @@ public class AuthoringHelper
         exHelper.makeSecuredIPAddressSet(assessment, allowIp);
       }
 
-      assessmentService.update(assessment);
+      //assessmentService.update(assessment);
+      System.out.println("**** securedIpset="+assessment.getSecuredIPAddressSet());
+      System.out.println("**** securedIpset size="+assessment.getSecuredIPAddressSet().size());
       assessmentService.saveAssessment(assessment);
     }
     catch (Exception e)
