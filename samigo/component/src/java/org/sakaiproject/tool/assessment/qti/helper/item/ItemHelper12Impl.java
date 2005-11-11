@@ -1099,11 +1099,19 @@ public class ItemHelper12Impl extends ItemHelperBase
         first = false;
       }
 
+      log.info("Setting answer level feedback");
+
       answerSet = itemTextIfc.getAnswerSet();
+      log.info("answerSet.size(): " + answerSet.size());
+
       Iterator aiter = answerSet.iterator();
       while (aiter.hasNext())
       {
         AnswerIfc answer = (AnswerIfc) aiter.next();
+        log.info("Setting answer feedback for: " + answer.getText());
+        log.info("xpathIndex: " + xpathIndex);
+        log.info("label: " + label);
+
         addAnswerFeedback(itemXml, xpathIndex, nodeIter, label, answer);
         label++;
         xpathIndex++;
