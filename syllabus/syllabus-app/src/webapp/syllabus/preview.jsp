@@ -2,8 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/syllabus" prefix="syllabus" %>
-
-
+<% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
 <f:loadBundle basename="org.sakaiproject.tool.syllabus.bundle.Messages" var="msgs"/>
 	<sakai:view_container>
