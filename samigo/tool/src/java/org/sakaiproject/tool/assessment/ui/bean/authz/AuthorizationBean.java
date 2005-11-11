@@ -31,8 +31,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class AuthorizationBean implements Serializable {
+  private static Log log = LogFactory.getLog(AuthorizationBean.class);
+
   private HashMap map = new HashMap();
   private boolean adminPrivilege = false;
   private boolean adminNewAssessmentPrivilege = false;
@@ -221,14 +225,14 @@ public class AuthorizationBean implements Serializable {
      String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
      boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
      map.put(functionName+"_"+siteId, new Boolean(privilege));
-     System.out.println(functionName+"_"+siteId+"="+privilege);
+     log.info(functionName+"_"+siteId+"="+privilege);
      return privilege;
   }
 
   public void addAdminPrivilege(boolean privilege, String functionKey, String siteId){
      String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
      map.put(functionName+"_"+siteId, new Boolean(privilege));
-     System.out.println(functionName+"_"+siteId+"="+privilege);
+     log.info(functionName+"_"+siteId+"="+privilege);
   }
 
   public boolean getTakeAssessment(){
@@ -309,7 +313,7 @@ public class AuthorizationBean implements Serializable {
     Object o = map.get(functionName+"_"+siteId);
     if (o!=null)
       privilege = ((Boolean)o).booleanValue();
-    //System.out.println("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
+    //log.info("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
     return privilege;
   }
 

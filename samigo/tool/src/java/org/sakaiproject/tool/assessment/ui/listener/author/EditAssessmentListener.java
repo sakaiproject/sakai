@@ -124,7 +124,7 @@ public class EditAssessmentListener
     boolean isOwner = false;
     String agentId = AgentFacade.getAgentString();
     isOwner = agentId.equals(ownerId);
-    System.out.println("***isOwner="+isOwner);
+    log.debug("***isOwner="+isOwner);
     return isOwner;
   }
 }
