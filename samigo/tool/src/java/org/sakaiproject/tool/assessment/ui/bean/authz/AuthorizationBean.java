@@ -225,14 +225,14 @@ public class AuthorizationBean implements Serializable {
      String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
      boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
      map.put(functionName+"_"+siteId, new Boolean(privilege));
-     log.info(functionName+"_"+siteId+"="+privilege);
+     log.debug(functionName+"_"+siteId+"="+privilege);
      return privilege;
   }
 
   public void addAdminPrivilege(boolean privilege, String functionKey, String siteId){
      String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
      map.put(functionName+"_"+siteId, new Boolean(privilege));
-     log.info(functionName+"_"+siteId+"="+privilege);
+     log.debug(functionName+"_"+siteId+"="+privilege);
   }
 
   public boolean getTakeAssessment(){
@@ -313,7 +313,7 @@ public class AuthorizationBean implements Serializable {
     Object o = map.get(functionName+"_"+siteId);
     if (o!=null)
       privilege = ((Boolean)o).booleanValue();
-    //log.info("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
+    //log.debug("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
     return privilege;
   }
 
