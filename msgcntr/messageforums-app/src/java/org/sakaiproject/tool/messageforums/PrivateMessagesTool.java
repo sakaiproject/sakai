@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -67,9 +68,16 @@ public class PrivateMessagesTool
 {
   private static final Log LOG = LogFactory.getLog(PrivateMessagesTool.class);
 
+  /**
+   *Dependency Injected 
+   */
   private PrivateMessageManager prtMsgManager;
   private ErrorMessages errorMessages;
-  private DummyDataHelper dummyDataHelper;
+  
+  /**
+   * Dependency Injected 
+   */
+  private MessageForumsTypeManager typeManager;
   
   /** portlet configuration parameter values**/
   public static final String PVTMSG_MODE_RECEIVED = "Received";
@@ -113,31 +121,34 @@ public class PrivateMessagesTool
   
   public PrivateMessagesTool()
   {    
-   // dummyDataHelper=new DummyDataHelper() ;
-//    errorMessages = new ErrorMessages();
-//    errorMessages.setDisplayTitleErrorMessage(false);
-//
-//    Topic topic = new TopicImpl();
-//    topic.setTitle("Dubai Port Authority Case");
-//    topic
-//        .setShortDescription("What scope and partners do you recommend for the proposed system?  Provide one sentence of support for your position.");
-//    topic.setExtendedDescription("...");
-//   
-    //Added in constructor as required by default
-
   }
 
-  public PrivateMessageManager getPrtMsgManager()
+  
+  /**
+   * @return
+   */
+  public MessageForumsTypeManager getTypeManager()
   {
-    return prtMsgManager;
+    return typeManager;
   }
 
 
+  /**
+   * @param prtMsgManager
+   */
   public void setPrtMsgManager(PrivateMessageManager prtMsgManager)
   {
     this.prtMsgManager = prtMsgManager;
   }
 
+  
+  /**
+   * @param typeManager
+   */
+  public void setTypeManager(MessageForumsTypeManager typeManager)
+  {
+    this.typeManager = typeManager;
+  }
 
   public Area getArea()
   {

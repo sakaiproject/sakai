@@ -6,7 +6,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-public class MessageForumsTypeManagerImpl extends HibernateDaoSupport implements MessageForumsTypeManager
+public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
 {
   private static final Log LOG = LogFactory
   .getLog(MessageForumsTypeManagerImpl.class);
@@ -15,9 +15,27 @@ public class MessageForumsTypeManagerImpl extends HibernateDaoSupport implements
   private static final String PRIVATE ="privateForums";
   private static final String DISCUSSION ="discussionForums";
   private static final String OPEN ="openForums";
+  
+  private static final String RECEIVED ="ReceivedPrivateMassageType";
+  
+  private static final String SENT ="SentPrivateMassageType";
+  
+  private static final String DELETED ="DeletedPrivateMassageType";
+  
+  private static final String DRAFT ="DraftPrivateMassageType";
+  
  
   private TypeManager typeManager;
   
+  public void init()
+  {
+    ;
+  }
+  
+  public void setTypeManager(TypeManager typeManager)
+  {
+    this.typeManager = typeManager;
+  }
 
   public String getPrivateType()
   {
@@ -33,6 +51,8 @@ public class MessageForumsTypeManagerImpl extends HibernateDaoSupport implements
  
 
   }
+  
+  
 
   public String getDiscussionForumType()
   {
@@ -50,7 +70,7 @@ public class MessageForumsTypeManagerImpl extends HibernateDaoSupport implements
 
   public String getOpenDiscussionForumType()
   {
-    Type type = typeManager.getType(AUTHORITY,DOMAIN,DISCUSSION);
+    Type type = typeManager.getType(AUTHORITY,DOMAIN,OPEN);
     if(type!=null)
     {
       return type.getUuid();
@@ -61,9 +81,66 @@ public class MessageForumsTypeManagerImpl extends HibernateDaoSupport implements
     }
   }
 
-  public void setTypeManager(TypeManager typeManager)
+
+
+
+
+  public String getReceivedPrivateMessageType()
   {
-    this.typeManager = typeManager;
+    Type type = typeManager.getType(AUTHORITY,DOMAIN,RECEIVED);
+    if(type!=null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY,DOMAIN,RECEIVED,"Received Private Massage Type", "Received Private Massage Type").getUuid());
+    }
+  }
+
+
+
+  public String getSentPrivateMessageType()
+  {
+    Type type = typeManager.getType(AUTHORITY,DOMAIN,SENT);
+    if(type!=null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY,DOMAIN,SENT,"Sent Private MassageType", "Sent Private Massage Type").getUuid());
+    }
+  }
+
+
+
+  public String getDeletedPrivateMessageType()
+  {
+    Type type = typeManager.getType(AUTHORITY,DOMAIN,DELETED);
+    if(type!=null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY,DOMAIN,DELETED,"Deleted Private Massage Type", "Deleted Private Massage Type").getUuid());
+    }
+  }
+
+
+
+  public String getDraftPrivateMessageType()
+  {
+    Type type = typeManager.getType(AUTHORITY,DOMAIN,DRAFT);
+    if(type!=null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY,DOMAIN,DRAFT,"Draft Private Massage Type", "Draft Private Massage Type").getUuid());
+    }
   }
  
 }

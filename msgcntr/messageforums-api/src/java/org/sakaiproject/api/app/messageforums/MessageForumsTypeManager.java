@@ -28,5 +28,26 @@ public interface MessageForumsTypeManager
    */
   public String getOpenDiscussionForumType();
    
-
+  
+  /**
+   * @return
+   */
+  public String getReceivedPrivateMessageType();
+  
+  
+  /**
+   * @return
+   */
+  public String getSentPrivateMessageType();
+  
+  /**
+   * @return
+   */
+  public String getDeletedPrivateMessageType();
+  
+  /**
+   * @return
+   */
+  public String getDraftPrivateMessageType();
+  
 }

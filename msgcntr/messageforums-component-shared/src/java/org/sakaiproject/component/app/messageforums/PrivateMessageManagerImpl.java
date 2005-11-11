@@ -10,18 +10,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 {
  
   
-  DummyDataHelperApi helper =  new DummyDataHelper();
+//  DummyDataHelperApi helper =  new DummyDataHelper();
   
-  private MessageForumsTypeManager frmTypeManager ;
- 
-  /**
-   * @param frmTypeManager The frmTypeManager to set.
-   */
-  public void setFrmTypeManager(MessageForumsTypeManager frmTypeManager)
-  {
-    this.frmTypeManager = frmTypeManager;
-  }
-
+  private DummyDataHelperApi helper; 
   public boolean isPrivateAreaUnabled()
   {
     // TODO Auto-generated method stub
@@ -49,5 +40,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   {    
     return helper.getDiscussionForumArea();
   }
+  
+  public void setHelper(DummyDataHelperApi helper)
+  {
+    this.helper = helper;
+  }
+  
 
 }

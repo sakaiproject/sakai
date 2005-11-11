@@ -94,7 +94,7 @@
         </navigation-case>  
                                             
     </navigation-rule>
-    
+  
     <!-- =================== Tool Beans ============== 
     <managed-bean>
         <description>Discussion Forum Tool</description>
@@ -102,7 +102,6 @@
         <managed-bean-class>org.sakaiproject.tool.messageforums.DiscussionForumTool</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>        
     </managed-bean>-->
-    
     <managed-bean>
         <description>Private Messages Tool</description>
         <managed-bean-name>PrivateMessagesTool</managed-bean-name>
@@ -112,6 +111,11 @@
             <description>Private Message Manager</description>
             <property-name>prtMsgManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.PrivateMessageManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Message Type Manager</description>
+            <property-name>typeManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"]}</value>
         </managed-property>
     </managed-bean>
 </faces-config>

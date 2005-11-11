@@ -31,6 +31,8 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /*
  * This helper provides dummy data for use by interface developers It uses model objects. Models are
@@ -40,7 +42,11 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage
 
 public class DummyDataHelper implements DummyDataHelperApi
 {
-
+  private MessageForumsTypeManager typeMgr;
+  public void init()
+  {
+    ;
+  }
   public Area getPrivateArea()
   {
     Area a1 = new AreaImpl();
@@ -106,6 +112,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setShortDescription("sort desc here...");
     dtm.setTitle("Received");
     dtm.setConfidentialResponses(Boolean.TRUE);
+    dtm.setTypeUuid(typeMgr.getReceivedPrivateMessageType());
     dtm.setMutable(Boolean.FALSE);
     dtm.setSortIndex(new Integer(2));
     dtm.setMessages(getReceivedPrivateMessages());
@@ -131,6 +138,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setTitle("Sent");
     dtm1.setConfidentialResponses(Boolean.TRUE);
     dtm1.setMutable(Boolean.FALSE);
+    dtm.setTypeUuid(typeMgr.getSentPrivateMessageType());
     dtm1.setSortIndex(new Integer(222));
     dtm1.setMessages(getSentPrivateMessages());
     dtm1.setMessagePermissions(getMessgePermissions());
@@ -153,6 +161,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm2.setModifiedBy("the moderator");
     dtm2.setShortDescription("sort desc here...");
     dtm2.setTitle("Deleted");
+    dtm.setTypeUuid(typeMgr.getDeletedPrivateMessageType());
     dtm2.setConfidentialResponses(Boolean.TRUE);
     dtm2.setMutable(Boolean.FALSE);
     dtm2.setSortIndex(new Integer(2222));
@@ -178,6 +187,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm3.setModifiedBy("the moderator");
     dtm3.setShortDescription("sort desc here...");
     dtm3.setTitle("Drafts");
+    dtm.setTypeUuid(typeMgr.getDraftPrivateMessageType());
     dtm3.setConfidentialResponses(Boolean.TRUE);
     dtm3.setMutable(Boolean.FALSE);
     dtm3.setSortIndex(new Integer(2));
@@ -669,6 +679,12 @@ public class DummyDataHelper implements DummyDataHelperApi
   public boolean isPrivateAreaUnabled()
   {
      return true;
+  }
+ 
+ 
+  public void setTypeMgr(MessageForumsTypeManager typeMgr)
+  {
+    this.typeMgr = typeMgr;
   }
 
 }
