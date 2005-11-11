@@ -93,9 +93,12 @@ $Id$
 <div class="tier3">
 <h:panelGrid columns="2">
    <h:outputText value="Comments:"/>
+   <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30"/>
+   <%--
      <samigo:wysiwyg rows="140" value="#{studentScores.comments}" >
        <f:validateLength maximum="4000"/>
      </samigo:wysiwyg>
+    --%>
    </h:panelGrid>
 </div>
 <f:verbatim><h4></f:verbatim>
@@ -195,9 +198,12 @@ $Id$
           </h:panelGroup>
           <h:panelGrid columns="2">
             <h:outputText value="Comments:"/>
+            <h:inputTextarea value="#{question.gradingComment}" rows="3" cols="30"/>
+            <%--
             <samigo:wysiwyg rows="140" value="#{question.gradingComment}">
               <f:validateLength maximum="4000"/>
             </samigo:wysiwyg>
+            --%>
           </h:panelGrid>
         </h:column>
       </h:dataTable>
@@ -212,7 +218,7 @@ $Id$
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
-      <f:actionListener 
+      <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
    <h:commandButton value="#{msg.cancel}" action="totalScores" immediate="true">
