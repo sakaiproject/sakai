@@ -564,8 +564,6 @@ public class AuthoringHelper
       }
 
       //assessmentService.update(assessment);
-      System.out.println("**** securedIpset="+assessment.getSecuredIPAddressSet());
-      System.out.println("**** securedIpset size="+assessment.getSecuredIPAddressSet().size());
       assessmentService.saveAssessment(assessment);
     }
     catch (Exception e)
