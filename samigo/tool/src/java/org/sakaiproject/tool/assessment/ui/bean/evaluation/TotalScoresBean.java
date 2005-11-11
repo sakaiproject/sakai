@@ -61,6 +61,7 @@ public class TotalScoresBean
   private String publishedId;
 
   public static final String ALL_SECTIONS_SELECT_VALUE = "-1";
+  public static final String ALL_SUBMISSIONS = "3";
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
@@ -78,7 +79,7 @@ public class TotalScoresBean
   private String dueDate;
   private String sortType;
   private String roleSelection;
-  private String allSubmissions;
+  private String allSubmissions = ALL_SUBMISSIONS;
   private RecordingData recordingData;
   private String totalPeople;
   private String firstItem;
@@ -663,4 +664,14 @@ public class TotalScoresBean
   public void setReleaseToAnonymous(boolean param) {
     releaseToAnonymous = param;
   }
+
+    private String daisy="daisy";
+    public void setDaisy(String daisy){
+        this.daisy = daisy;
+    }
+
+    public String getDaisy(){
+        return daisy;
+    }
+
 }
