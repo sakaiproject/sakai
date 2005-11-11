@@ -21,20 +21,24 @@ are in correct format for importation.  (SAK-1203).
    h. If you inadvertantly import a non-QTI, or corrupted QTI file, you will be
 returned to the author index page and a warning will be displayed. (SAK-1201)
 
-3. Question format issues on import/export.
-  FIXED IN THIS VERSION
-  a. correct grading of imported assessments. SAK-1955.
-  b. correct import and export of timed assessment settings.  SAK-1898.
-  c. correct import and export of MCSC as MCSC, not as MCMC.  SAK-1779.
-  d. including rationale in import/export. SAK-1824.
-  e. unlimited reimporting as unlimited submissions, not 9999. SAK-2176.
-  f. match-level feedback now retained for matching questions. SAK-1874.
-  KNOWN ISSUES IN THIS VERSION
-  a. non-breaking space will be used to supply absent text between blanks in
-fill-in-the-blank questions.  (SAK-1872).
-  b. high security IP address settings are not retained. (SAK-1873)
-  c. blank space is lost in question text for the file upload question.
-  d. more than two successive question marks in imported/exported questions
+3. Format and settings issues on import/export.
+  FIXED IN THIS VERSION:
+  a. Correct grading of imported assessments. SAK-1955.
+  b. Correct import and export of timed assessment settings.  SAK-1898.
+  c. Correct import and export of MCSC as MCSC, not as MCMC.  SAK-1779.
+  d. Including rationale in import/export. SAK-1824.
+  e. "Unlimited" now reimporting as unlimited submissions, not 9999. SAK-2176.
+  f. Match-level feedback now retained for matching questions. SAK-1874.
+  g. High security IP address settings are now retained. SAK-1873.
+  h. Correct answers in multiple choice questions with more than four answers.
+Answers after the fourth now preserve their correctness on export.  SAK-2766.
+  KNOWN ISSUES IN THIS VERSION:
+  a. Non-breaking space will be used to supply absent text between blanks in
+fill-in-the-blank questions.  SAK-1872.
+  b. Multiple choice single correct and multiple correct questions lose
+answer-specific feedback. (Correct and incorrect feedback retained.) SAK-2777.
+  c. Blank space is lost in question text for the file upload question.
+  d. More than two successive question marks in imported/exported questions
 will be lost (e.g. "Does this question have too many question marks?????") will
 reimport as "Does this question have too many question marks???").
 
