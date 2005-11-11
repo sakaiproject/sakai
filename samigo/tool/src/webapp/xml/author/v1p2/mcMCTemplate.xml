@@ -22,7 +22,7 @@
         <fieldlabel>ITEM_KEYWORD</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
-      
+
       <qtimetadatafield>
         <fieldlabel>ITEM_RUBRIC</fieldlabel>
         <fieldentry/>
@@ -39,7 +39,7 @@
         <mattext/>
       </material>
     </rubric>
-  
+
   <presentation label="Resp003">
     <flow>
       <material>
@@ -127,6 +127,204 @@
     <respcondition continue="Yes">
       <conditionvar>
         <varequal case="Yes" respident="LID01">D</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">E</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">F</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">G</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">H</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">I</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">J</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">K</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">L</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">M</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">N</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">O</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">P</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">Q</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">R</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">S</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">T</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">U</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">V</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">W</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">X</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">Y</varequal>
+      </conditionvar>
+      <setvar action="Add" varname="SCORE">0</setvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+      <displayfeedback feedbacktype="Response" linkrefid="D1"/>
+    </respcondition>
+
+    <respcondition continue="Yes">
+      <conditionvar>
+        <varequal case="Yes" respident="LID01">Z</varequal>
       </conditionvar>
       <setvar action="Add" varname="SCORE">0</setvar>
       <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
