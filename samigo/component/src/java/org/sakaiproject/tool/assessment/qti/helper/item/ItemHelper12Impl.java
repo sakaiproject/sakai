@@ -1074,6 +1074,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 
   public void setFeedback(ArrayList itemTextList, Item itemXml)
   {
+    log.info("setFeedback()");
 
     // for any answers that are now in the template, create a feedback
     String xpath =
@@ -1180,7 +1181,12 @@ public class ItemHelper12Impl extends ItemHelperBase
                                  Iterator nodeIter, char label,
                                  AnswerIfc answer)
   {
+    log.info("addAnswerFeedback()");
+
     String value = answer.getGeneralAnswerFeedback();
+
+    log.info("answer feedback value: " + value);
+
     Node node = null;
     try
     {
