@@ -18,7 +18,7 @@ nodes of the XML document,and will cause errors on re-import.
 of your own with an xml extension (e.g. "mymultiplechoice.xml").
    g.  Tests and Quizzes will accept files with any extension as long as they
 are in correct format for importation.  (SAK-1203).
-   h. If you inadvertantly import a non-QTI, or corrupted QTI file, you will be
+   h. If you inadvertently import a non-QTI, or corrupted QTI file, you will be
 returned to the author index page and a warning will be displayed. (SAK-1201)
 
 3. Format and settings issues on import/export.
@@ -38,6 +38,8 @@ fill-in-the-blank questions.  SAK-1872.
   b. Multiple choice single correct and multiple correct questions lose
 answer-specific feedback. (Correct and incorrect feedback retained.) SAK-2777.
   c. Blank space is lost in question text for the file upload question.
+(E.g. " Blank space is lost in question text. " becomes "Blank space is lost in
+question text.")
   d. More than two successive question marks in imported/exported questions
 will be lost (e.g. "Does this question have too many question marks?????") will
 reimport as "Does this question have too many question marks???").
