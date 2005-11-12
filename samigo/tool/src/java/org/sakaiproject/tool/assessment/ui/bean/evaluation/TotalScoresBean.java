@@ -665,13 +665,4 @@ public class TotalScoresBean
     releaseToAnonymous = param;
   }
 
-    private String daisy="daisy";
-    public void setDaisy(String daisy){
-        this.daisy = daisy;
-    }
-
-    public String getDaisy(){
-        return daisy;
-    }
-
 }
