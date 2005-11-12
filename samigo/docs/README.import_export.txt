@@ -32,15 +32,15 @@ returned to the author index page and a warning will be displayed. (SAK-1201)
   g. High security IP address settings are now retained. SAK-1873.
   h. Correct answers in multiple choice questions with more than four answers.
 Answers after the fourth now preserve their correctness on export.  SAK-2766.
+  i. Multiple choice single correct and multiple correct questions now retain
+answer-specific feedback. SAK-2777.
   KNOWN ISSUES IN THIS VERSION:
   a. Non-breaking space will be used to supply absent text between blanks in
 fill-in-the-blank questions.  SAK-1872.
-  b. Multiple choice single correct and multiple correct questions lose
-answer-specific feedback. (Correct and incorrect feedback retained.) SAK-2777.
-  c. Blank space is lost in question text for the file upload question.
+  b. Blank space is lost in question text for the file upload question.
 (E.g. " Blank space is lost in question text. " becomes "Blank space is lost in
 question text.")
-  d. More than two successive question marks in imported/exported questions
+  c. More than two successive question marks in imported/exported questions
 will be lost (e.g. "Does this question have too many question marks?????") will
 reimport as "Does this question have too many question marks???").
 
