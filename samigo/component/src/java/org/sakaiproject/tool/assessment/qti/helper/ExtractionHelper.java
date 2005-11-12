@@ -1150,7 +1150,7 @@ public class ExtractionHelper
       answerList = aList == null ? answerList : aList;
       HashSet answerSet = new HashSet();
       char answerLabel = 'A';
-      List answerFeedbackList = (List) itemMap.get("itemFeedback");
+      List answerFeedbackList = (List) itemMap.get("itemAnswerFeedback");
 
       ArrayList correctLabels;
       correctLabels = (ArrayList) itemMap.get("itemAnswerCorrectLabel");
