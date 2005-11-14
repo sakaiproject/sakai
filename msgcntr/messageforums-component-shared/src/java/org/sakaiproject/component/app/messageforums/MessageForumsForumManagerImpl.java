@@ -24,7 +24,6 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.hibernate.Hibernate;
@@ -40,7 +39,7 @@ import org.sakaiproject.api.app.messageforums.OpenTopic;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class MessageForumsForumManagerImpl extends HibernateDaoSupport{// implements MessageForumsForumManager {
+public class MessageForumsForumManagerImpl extends HibernateDaoSupport implements MessageForumsForumManager {
 
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
 

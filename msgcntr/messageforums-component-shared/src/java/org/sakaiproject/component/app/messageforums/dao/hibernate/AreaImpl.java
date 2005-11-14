@@ -40,6 +40,8 @@ public class AreaImpl extends MutableEntityImpl implements Area {
 
     private Boolean hidden;
 
+    private Boolean enabled;
+
     private String typeUuid; 
     
     private List forums = new ArrayList();
@@ -79,7 +81,15 @@ public class AreaImpl extends MutableEntityImpl implements Area {
     public void setTypeUuid(String typeUuid) {
         this.typeUuid = typeUuid;
     }
+    
+    public Boolean getEnabled() {
+        return enabled;
+    }
 
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+    
     public List getForums() {
         return forums;
     }

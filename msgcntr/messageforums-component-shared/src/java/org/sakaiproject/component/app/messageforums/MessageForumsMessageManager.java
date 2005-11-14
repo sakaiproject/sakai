@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: $
+ * $Id:  $
  ***********************************************************************************
  *
  * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -21,53 +21,16 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.api.app.messageforums;
+package org.sakaiproject.component.app.messageforums;
 
-import java.util.List;
+import org.sakaiproject.api.app.messageforums.Message;
 
-public interface Area extends MutableEntity
-{
+public interface MessageForumsMessageManager {
 
-  public void setVersion(Integer version);
+    public void saveMessage(Message message);
 
-  public String getContextId();
+    public void deleteMessage(Message message);
+    
+    public Message getMessageById(final String messageId);
 
-  public void setContextId(String contextId);
-
-  public Boolean getHidden();
-
-  public void setHidden(Boolean hidden);
-
-  public String getName();
-
-  public void setName(String name);
-  
-  public Boolean getEnabled();
-
-  public void setEnabled(Boolean enabled);
-  
-  /**
-   * Get type of Area
-   * @return
-   */
-  public String getTypeUuid();
-  
-  /** 
-   * Set type of area
-   */   
-  public void setTypeUuid(String typeUuid);
-  
-  /**
-   * Return set of forums in chronological order 
-   * 
-   * @return
-   */
-  public List getForums();
-  
-  /**
-   * Set set of forums in chronological order 
-   * 
-   * @return
-   */
-  public void setForums(List forums);
- }
+}

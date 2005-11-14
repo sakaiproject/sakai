@@ -43,8 +43,8 @@
     </property>
 	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
 		<key column="surrogateKey"/>
-		<index column="index_col"/>
-		<one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>
+		<index column="index_col" />
+		<one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
 	</list>    
     <property name="label">
       <column name="LABEL" length="255" not-null="false" />

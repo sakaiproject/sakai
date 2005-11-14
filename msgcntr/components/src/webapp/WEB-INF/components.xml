@@ -29,13 +29,49 @@
         </property>          
     </bean>
      
-     <bean id="org.sakaiproject.api.app.messageforums.DummyDataHelperApi" class="org.sakaiproject.component.app.messageforums.DummyDataHelper">
+    <bean id="org.sakaiproject.api.app.messageforums.DummyDataHelperApi" class="org.sakaiproject.component.app.messageforums.DummyDataHelper">
         <property name="typeMgr">
             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
         </property>
     </bean>
-     
-    <bean id="org.sakaiproject.api.app.messageforums.PrivateMessageManager"  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+ 
+    <bean id="org.sakaiproject.component.app.messageforums.MessageForumsAreaManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.MessageForumsAreaManagerImpl" singleton="true" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+            </bean>            
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+    
+    <bean id="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.MessageForumsMessageManagerImpl" singleton="true" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+            </bean>            
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.PrivateMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
@@ -44,11 +80,16 @@
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
-                 <property name="helper">
+                <property name="helper">
                     <ref bean="org.sakaiproject.api.app.messageforums.DummyDataHelperApi"/>
                 </property>
-            </bean>
-            
+                <property name="areaManager">
+                    <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsAreaManager"/>
+                </property>
+                <property name="messageManager">
+                    <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager"/>
+                </property>
+            </bean>           
         </property>
          <property name="transactionAttributes">
             <props>

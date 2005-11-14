@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager"> 
+		<property name="dataSource"> 
+			<ref local="dataSource"/> 
+		</property> 
+		<property name="sessionFactory">
+			<ref bean="org.springframework.orm.hibernate.SessionFactory" />
+		</property>	
+	</bean> 
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName">
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:mysql://127.0.0.1:3306/sakai?useUnicode=true&amp;characterEncoding=UTF-8</value>
+		</property>
+		<property name="username">
+			<value>sakai</value>
+		</property>
+		<property name="password">
+			<value>sakai-1xdk23</value>
+		</property>
+	</bean>
+
+	<bean id="org.springframework.orm.hibernate.SessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePermissions.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/UnreadStatus.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Area.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Topic.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenForum.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateForum.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Label.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsForumManager"
+		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="transactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsForumManagerImpl">
+				<property name="sessionFactory">
+					<ref bean="org.springframework.orm.hibernate.SessionFactory" />
+				</property>				 
+			</bean>
+		</property>
+		
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>		
+	</bean>
+	
+	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager"
+		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="transactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsMessageManagerImpl">
+				<property name="sessionFactory">
+					<ref bean="org.springframework.orm.hibernate.SessionFactory" />
+				</property>				 
+			</bean>
+		</property>
+		
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>		
+	</bean>	
+
+</beans>

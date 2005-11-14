@@ -23,28 +23,45 @@
 
 package org.sakaiproject.component.app.messageforums;
 
+import java.sql.SQLException;
 import java.util.Date;
+
+import net.sf.hibernate.Hibernate;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class MessageForumsMessageManagerImpl extends HibernateDaoSupport {
+public class MessageForumsMessageManagerImpl extends HibernateDaoSupport implements MessageForumsMessageManager {
 
     private static final Log LOG = LogFactory.getLog(MessageForumsMessageManagerImpl.class);    
 
-    public MessageForumsMessageManagerImpl() {
+    private static final String QUERY_BY_MESSAGE_ID = "findMessageById";
+    private static final String ID = "id";
 
+    public void init() {
+        ;
     }
-
+    
     public void saveMessage(Message message) {
-        // TODO: this persistable info should come from somewhere in sakai???
-        message.setUuid("001");
-        message.setCreated(new Date());
-        message.setCreatedBy("nate");
+        // a new message
+        if (message.getUuid() == null) {
+            // TODO: get a uuid for this new message
+            message.setUuid("001");
+            message.setCreated(new Date());
+            message.setCreatedBy(getCurrentUser());
+            // TODO: Call into the sakai type manager - set by tool?
+            message.setTypeUuid("xxx");
+        } 
+        
+        // always need to update the last modified stuff
         message.setModified(new Date());
-        message.setModifiedBy("nate");
+        message.setModifiedBy(getCurrentUser());
         
         getHibernateTemplate().saveOrUpdate(message);
         LOG.info("message " + message.getId() + " saved successfully");
@@ -55,12 +72,29 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport {
         LOG.info("message " + message.getId() + " deleted successfully");
     }
     
-    
+    public Message getMessageById(final String messageId) {        
+        if (messageId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("getMessageById executing with messageId: " + messageId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_BY_MESSAGE_ID);
+                q.setParameter(ID, messageId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return (Message) getHibernateTemplate().execute(hcb);
+    }    
     
     // helpers
     
-//    private String getCurrentUser() {
-//        return SessionManager.getCurrentSession().getUserEid();
-//    }
+    private String getCurrentUser() {
+        // TODO: add the session manager back
+        return "joe"; //SessionManager.getCurrentSession().getUserEid();
+    }
     
 }
