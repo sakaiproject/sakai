@@ -3,13 +3,13 @@ package org.sakaiproject.component.app.messageforums;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.PrivateMessageManager;
+import org.sakaiproject.api.app.messageforums.DiscussionForumManager;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 ;
 
-public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
-    PrivateMessageManager
+public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
+    DiscussionForumManager
 {
 
   private MessageForumsAreaManager areaManager;
@@ -50,37 +50,29 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   // end injection
 
-  public boolean isPrivateAreaUnabled()
+  public Area getDiscussionForumArea()
   {
     if (usingHelper)
     {
-      return helper.isPrivateAreaUnabled();
+      return helper.getDiscussionForumArea();
     }
-    return areaManager.isPrivateAreaEnabled();
-  }
-
-  public Area getPrivateArea()
-  {
-    if (usingHelper)
-    {
-      return helper.getPrivateArea();
-    }
-    return areaManager.getPrivateArea();
-  }
-
-  public void savePrivateMessage(Message message)
-  {
-    messageManager.saveMessage(message);
-  }
-
-  public void deletePrivateMessage(Message message)
-  {
-    messageManager.deleteMessage(message);
+    // TODO: Implement Me!
+    throw new UnsupportedOperationException();
   }
 
   public Message getMessageById(String id)
   {
     return messageManager.getMessageById(id);
+  }
+
+  public void saveMessage(Message message)
+  {
+    messageManager.saveMessage(message);
+  }
+
+  public void deleteMessage(Message message)
+  {
+    messageManager.deleteMessage(message);
   }
 
 }

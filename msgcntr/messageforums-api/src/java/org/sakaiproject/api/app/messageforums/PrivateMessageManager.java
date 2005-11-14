@@ -16,11 +16,6 @@ public interface PrivateMessageManager {
      */
     Area getPrivateArea();
 
-    /**
-     * @return
-     */
-    Area getDiscussionForumArea();
-
     void savePrivateMessage(Message message);
 
     void deletePrivateMessage(Message message);

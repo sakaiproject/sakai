@@ -24,12 +24,10 @@
 package org.sakaiproject.tool.messageforums;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.faces.context.ExternalContext;
@@ -38,27 +36,19 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
-import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
-
-import org.sakaiproject.component.app.messageforums.DummyDataHelper;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.framework.session.SessionState;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.Member;
 import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.service.legacy.coursemanagement.CourseMember;
-import org.sakaiproject.service.legacy.coursemanagement.cover.CourseManagementService;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
