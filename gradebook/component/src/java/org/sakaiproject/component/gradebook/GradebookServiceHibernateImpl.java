@@ -213,7 +213,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 session.save(asn);
-                recalculateCourseGradeRecords(gradebook, getSession());
+                recalculateCourseGradeRecords(gradebook, session);
                 return null;
             }});
         if (log.isInfoEnabled()) log.info("External assessment added to gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + " from externalApp=" + externalServiceDescription);
