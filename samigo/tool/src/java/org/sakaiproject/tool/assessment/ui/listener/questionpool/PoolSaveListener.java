@@ -68,9 +68,10 @@ public class PoolSaveListener implements ActionListener
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     String currentName= qpoolbean.getCurrentPool().getDisplayName();
     
-    boolean nameDup=false;
+    // boolean nameDup=false;
    
     try {
+	/*
 	if((qpoolbean.getAddOrEdit()).equals("add")){
 	    nameDup=isDuplicatePool(currentName,"0");
 	}
@@ -90,7 +91,7 @@ public class PoolSaveListener implements ActionListener
 	 
 	   return;
         }
-
+	*/
 	
 	if (!savePool(qpoolbean)){
 		
