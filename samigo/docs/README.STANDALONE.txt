@@ -12,15 +12,34 @@ How to build and run:
 A. SETUP FOR BUILD
 1.  Install Maven and Subversion.
 
-2. Check out a fresh copy of the Section Tool from Subversion,
+2. If you have not ever built a copy of Sakai, you may need to build it once, so
+that maven has downloaded and/or built all required libraries.  You can skip
+this step, if you think you have them.  Otherwise--
+
+In your $HOME you can edit your build.properties file, so you direct the
+build to a scratch directory, so that your server does not get Sakai installed.
+ maven.repo.remote = http://www.ibiblio.org/maven/,http://cvs.sakaiproject.org/maven/
+ # SHOULD NOT be your tomcat directory: i.e. scratch/webapps, shared/lib
+ maven.tomcat.home=/usr/local/home/myusername/scratch
+ # this is the new line, change to your own directory
+ hibernate.properties.dir=/opt/sa_forms/java/dev/org/sakaiproject/security/sam/
+
+We don't want a Sakai installation, just making sure library dependencies get
+resolved....
+
+          svn checkout https://source.sakaiproject.org/svn/trunk/sakai
+          cd sakai
+          maven sakai
+
+3. Check out a fresh copy of the Section Tool from Subversion,
 
           svn checkout https://source.sakaiproject.org/svn/trunk/sakai/sections
 
-3. Check out a fresh copy of Samigo from Subversion,
+4. Check out a fresh copy of Samigo from Subversion,
 
           svn checkout https://source.sakaiproject.org/svn/trunk/sakai/sam
 
-4. Download and install tomcat with pre-1.5 compatibility, for example,
+5. Download and install tomcat with pre-1.5 compatibility, for example,
 
           jar xvfM apache-tomcat-5.5.12.zip
           jar xvfM apache-tomcat-5.5.12-compat.zip
@@ -34,7 +53,7 @@ B. BUILD AND DEPLOY THE SECTION TOOL
 1. Edit sections-app/project.properties file.
 
  # The directory containing your hibernate.properties file
- # uncomment this line to bypass the one in $HOME/build.prooperties
+ # uncomment this line to bypass the one in $HOME/build.properties
  #hibernate.properties.dir=${basedir}/src/hibernate/
 
  # The temp directory to use for the webapp
@@ -77,24 +96,34 @@ database users will use a similar setup.
 
 5. Change to the sections directory and build standalone.
 
-    maven -Dmode=standalone  cln bld"
+    maven -Dmode=standalone  cln bld
 
 Make sure all tests are successful.
 
-5. Start tomcat, for example
+6. Create the sections database schema
+
+If you are not using Hypersonic, make sure you uncomment your database driver (e.g. Oracle, mysql) in the
+sections-app/project.xml directory and that maven can find your database driver
+
+
+    maven -Dmode=standalone -Dmem=false schema loadData
+
+Make sure all tests are successful.
+
+7. Start tomcat, for example
 
           cd apache-tomcat-5.5.12/bin
           ./startup.sh (UNIX/Linux, startup.bat for Windows)
 
-6. Verify that you can access the Section Tool:
+8. Verify that you can access the Section Tool:
 
     http://[host}:{port}/sakai-sections-tool/
 
-7. Shut down tomcat.
+9. Shut down tomcat.
 
           ./shutdown.sh (UNIX/Linux, shutdown.bat for Windows)
 
-C. BUILD AND DEPLOY SAMIGO (TEST ANDF QUIZZES TOOL)
+C. BUILD AND DEPLOY SAMIGO (TEST AND QUIZZES TOOL)
 
 1. By default the standalone configuration database configuration file is
 specified in the bean with the id of "propertyConfigurer" in
