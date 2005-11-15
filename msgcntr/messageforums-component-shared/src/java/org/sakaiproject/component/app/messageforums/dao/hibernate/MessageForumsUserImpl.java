@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL$
-* $Id$
+* $URL: $
+* $Id:  $
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -23,13 +23,28 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import org.sakaiproject.api.app.messageforums.ActorPermissions;
+import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
 
 public class MessageForumsUserImpl implements MessageForumsUser {
     private Long id;
     private Integer version; 
     protected String uuid;    
 
+    // foreign keys for hibernate
+    private ActorPermissions apAccessors; 
+    private ActorPermissions apContributors; 
+    private ActorPermissions apModerators; 
+    private PrivateMessage privateMessage;            
+     
+    // indecies for hibernate
+    private int mesindex;    
+    private int apmoderatorsindex;
+    private int apcontributorsindex;
+    private int apaccessorsindex;
+    
     public Long getId() {
         return id;
     }
@@ -52,6 +67,86 @@ public class MessageForumsUserImpl implements MessageForumsUser {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public PrivateMessage getPrivateMessage() {
+        return privateMessage;
+    }
+
+    public void setPrivateMessage(PrivateMessage privateMessage) {
+        this.privateMessage = privateMessage;
+    }
+
+    public int getMesindex() {
+        try {
+            return getPrivateMessage().getRecipients().indexOf(this);
+        } catch (Exception e) {
+            return mesindex;
+        }
+    }
+
+    public void setMesindex(int mesindex) {
+        this.mesindex = mesindex;
+    }
+
+    public int getApaccessorsindex() {
+        try {
+            return getApAccessors().getAccessors().indexOf(this);
+        } catch (Exception e) {
+            return apaccessorsindex;
+        }
+    }
+
+    public void setApaccessorsindex(int apaccessorsindex) {
+        this.apaccessorsindex = apaccessorsindex;
+    }
+
+    public int getApcontributorsindex() {
+        try {
+            return getApContributors().getContributors().indexOf(this);
+        } catch (Exception e) {
+            return apcontributorsindex;
+        }
+    }
+
+    public void setApcontributorsindex(int apcontributorsindex) {
+        this.apcontributorsindex = apcontributorsindex;
+    }
+
+    public int getApmoderatorsindex() {
+        try {
+            return getApModerators().getModerators().indexOf(this);
+        } catch (Exception e) {
+            return apmoderatorsindex;
+        }
+    }
+
+    public void setApmoderatorsindex(int apmoderatorsindex) {
+        this.apmoderatorsindex = apmoderatorsindex;
+    }
+
+    public ActorPermissions getApAccessors() {
+        return apAccessors;
+    }
+
+    public void setApAccessors(ActorPermissions apAccessors) {
+        this.apAccessors = apAccessors;
+    }
+
+    public ActorPermissions getApContributors() {
+        return apContributors;
+    }
+
+    public void setApContributors(ActorPermissions apContributors) {
+        this.apContributors = apContributors;
+    }
+
+    public ActorPermissions getApModerators() {
+        return apModerators;
+    }
+
+    public void setApModerators(ActorPermissions apModerators) {
+        this.apModerators = apModerators;
     }
 
 }

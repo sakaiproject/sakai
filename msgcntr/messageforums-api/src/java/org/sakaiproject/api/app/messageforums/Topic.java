@@ -63,4 +63,7 @@ public interface Topic extends MutableEntity {
     
     public void setMessages(List messages);
 
+    public void addAttachment(Attachment attachment);
+    
+    public void removeAttachment(Attachment attachment);
 }

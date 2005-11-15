@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL$
-* $Id$
+* $URL: $
+* $Id:  $
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -30,4 +30,13 @@ public interface MessageForumsUser {
     //public void setVersion(Integer version);
     public String getUuid();
     public void setUuid(String uuid);
+    public PrivateMessage getPrivateMessage();
+    public void setPrivateMessage(PrivateMessage privateMessage);
+    public void setApmoderatorsindex(int apmoderatorsindex);
+    public ActorPermissions getApAccessors();
+    public void setApAccessors(ActorPermissions apAccessors);
+    public ActorPermissions getApContributors();
+    public void setApContributors(ActorPermissions apContributors);
+    public ActorPermissions getApModerators();
+    public void setApModerators(ActorPermissions apModerators);
 }

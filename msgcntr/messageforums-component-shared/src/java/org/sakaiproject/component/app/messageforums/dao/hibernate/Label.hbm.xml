@@ -32,6 +32,16 @@
     <property name="value">
       <column name="VALUE_C" length="255" not-null="true" />
     </property>
+
+    <many-to-one name="discussionForum" column="df_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl"
+      not-null="false" index="MFR_PARENT_I1" cascade="none" />
+    <property name="dfindex" column="df_index_col" type="int" update="true" insert="true"/>
+
+    <many-to-one name="discussionTopic" column="dt_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl"
+      not-null="false" index="MFR_PARENT_I2" cascade="none" />
+    <property name="dtindex" column="dt_index_col" type="int" update="true" insert="true"/>
   </class>
 
   <query name="findLabelById">

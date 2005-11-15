@@ -24,13 +24,16 @@
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class TopicImpl extends MutableEntityImpl implements Topic {
 
@@ -39,12 +42,20 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
     private String title;
     private String shortDescription;
     private String extendedDescription;
-    private List attachments;
+    private List attachments = new UniqueArrayList();
     private Boolean mutable;
     private Integer sortIndex;
     private String typeUuid;
     private BaseForum baseForum;
-    private List messages;
+    private List messages = new UniqueArrayList();
+    
+    // foreign keys for hibernate
+    private PrivateForum privateForum;
+    private OpenForum openForum;    
+    
+    // indecies for hibernate
+    private int ofindex;
+    private int pfindex;
     
     public List getMessages() {
         return messages;
@@ -118,6 +129,46 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
         this.baseForum = forum;        
     }
     
+    public OpenForum getOpenForum() {
+        return openForum;
+    }
+
+    public void setOpenForum(OpenForum openForum) {
+        this.openForum = openForum;
+    }
+
+    public PrivateForum getPrivateForum() {
+        return privateForum;
+    }
+
+    public void setPrivateForum(PrivateForum privateForum) {
+        this.privateForum = privateForum;
+    }
+
+    public int getOfindex() {
+        try {
+            return getOpenForum().getTopics().indexOf(this);
+        } catch (Exception e) {
+            return ofindex;
+        }
+    }
+
+    public void setOfindex(int ofindex) {
+        this.ofindex = ofindex;
+    }
+
+    public int getPfindex() {
+        try {
+            return getPrivateForum().getTopics().indexOf(this);
+        } catch (Exception e) {
+            return pfindex;
+        }
+    }
+
+    public void setPfindex(int pfindex) {
+        this.pfindex = pfindex;
+    }
+    
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////
@@ -147,5 +198,31 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
         message.setTopic(null);
         messages.remove(message);
     }
+   
+    public void addAttachment(Attachment attachment) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addAttachment(Attachment " + attachment + ")");
+        }
         
+        if (attachment == null) {
+            throw new IllegalArgumentException("attachment == null");
+        }
+        
+        attachment.setTopic(this);
+        attachments.add(attachment);
+    }
+
+    public void removeAttachment(Attachment attachment) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("removeAttachment(Attachment " + attachment + ")");
+        }
+        
+        if (attachment == null) {
+            throw new IllegalArgumentException("Illegal attachment argument passed!");
+        }
+        
+        attachment.setTopic(null);
+        attachments.remove(attachment);
+    }
+
 }

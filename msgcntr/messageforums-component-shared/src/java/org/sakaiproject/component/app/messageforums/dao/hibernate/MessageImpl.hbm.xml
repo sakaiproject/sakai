@@ -42,8 +42,8 @@
       <column name="AUTHOR" length="255" not-null="true" />
     </property>
 	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
-		<key column="surrogateKey"/>
-		<index column="index_col" />
+		<key column="m_surrogateKey"/>
+		<index column="mes_index_col" />
 		<one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
 	</list>    
     <property name="label">
@@ -71,16 +71,24 @@
     <many-to-one name="topic" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
       not-null="false" index="MFR_PARENT_TOPIC_I" cascade="none" />
+    <property name="tindex" column="t_index_col" type="int" update="true" insert="true"/>
         
     <!-- PrivateMessage fields -->
     <subclass 
       name="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl"
       discriminator-value="PM">
+	  <list name="recipients" lazy="true" table="MFR_MESSAGE_FORUMS_USER_T" cascade="all">
+	      <key column="mesSurrogateKey"/>
+	      <index column="mes_index_col" />
+	      <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl" />
+  	  </list>     
+	  <!-- 
       <set name="recipients" lazy="true" sort="natural"
            order-by="surname asc" cascade="all-delete-orphan">
           <key column="surrogateKey"/>                        
           <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"/>            
-      </set>     
+      </set>
+      -->     
       <property name="externalEmail">
         <column name="EXTERNAL_EMAIL" not-null="false" />
       </property>        

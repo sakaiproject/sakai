@@ -44,6 +44,17 @@
     <property name="typeUuid">
       <column name="TYPE_UUID" length="36" not-null="true" />
     </property>
+	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
+	    <key column="of_urrogateKey"/>
+	    <index column="f_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
+	</list>     
+	<list name="topics" lazy="true" table="MFR_TOPIC_T" cascade="all">
+	    <key column="of_surrogateKey"/>
+	    <index column="bf_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl" />
+	</list>     
+	<!-- 
     <set name="attachments" lazy="true" sort="natural"
          order-by="attachmentName asc" cascade="all-delete-orphan">
         <key column="surrogateKey"/>                        
@@ -53,7 +64,8 @@
          order-by="created desc" cascade="all-delete-orphan">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
-    </set> 
+    </set>
+    --> 
     <property name="sortIndex">
       <column name="SORT_INDEX" length="10" not-null="true" />
     </property>
@@ -72,16 +84,24 @@
     <many-to-one name="area" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
       not-null="false" index="MFR_PARENT_BASEFORUM_I" cascade="none" />
+    <property name="areaindex" column="area_index_col" type="int" update="true" insert="true"/>
       
     <!-- DiscussionForum fields -->
     <subclass 
       name="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl"
       discriminator-value="DF">
+	  <list name="labels" lazy="true" table="MFR_LABEL_T" cascade="all">
+	      <key column="df_surrogateKey"/>
+	      <index column="df_index_col" />
+	      <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
+	  </list>     
+	  <!-- 
       <set name="labels" lazy="true" sort="natural"
            cascade="all-delete-orphan">
           <key column="surrogateKey"/>                        
           <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl"/>            
-      </set>    
+      </set>
+      -->    
       <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"
         not-null="false" cascade="none" />

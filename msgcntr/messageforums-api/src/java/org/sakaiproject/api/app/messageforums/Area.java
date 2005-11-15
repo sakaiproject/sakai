@@ -46,6 +46,11 @@ public interface Area extends MutableEntity
 
   public void setEnabled(Boolean enabled);
   
+  public List getOpenForums();
+  public void setOpenForums(List openForums);
+  public List getPrivateForums();
+  public void setPrivateForums(List privateForums);
+  
   /**
    * Get type of Area
    * @return
@@ -57,17 +62,8 @@ public interface Area extends MutableEntity
    */   
   public void setTypeUuid(String typeUuid);
   
-  /**
-   * Return set of forums in chronological order 
-   * 
-   * @return
-   */
-  public List getForums();
-  
-  /**
-   * Set set of forums in chronological order 
-   * 
-   * @return
-   */
-  public void setForums(List forums);
- }
+  public void addOpenForum(OpenForum forum);
+  public void removeOpenForum(OpenForum forum);
+  public void addPrivateForum(PrivateForum forum);
+  public void removePrivateForum(PrivateForum forum);  
+}

@@ -44,10 +44,26 @@
       <column name="ATTACHMENT_TYPE" length="255" not-null="true" />
     </property>
 
-    <many-to-one name="parent" column="surrogateKey" not-null="false" cascade="none" 
-        class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>
-    <property name="index" column="index_col" type="int" update="true" insert="true"/>
-	
+    <many-to-one name="message" column="m_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
+      not-null="false" index="MFR_PARENT_I" cascade="none" />
+    <property name="mesindex" column="mes_index_col" type="int" update="true" insert="true"/>
+
+    <many-to-one name="openForum" column="of_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
+      not-null="false" index="MFR_PARENT_I2" cascade="none" />
+    <property name="ofindex" column="of_index_col" type="int" update="true" insert="true"/>
+
+    <many-to-one name="privateForum" column="pf_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl"
+      not-null="false" index="MFR_PARENT_I3" cascade="none" />
+    <property name="pfindex" column="pf_index_col" type="int" update="true" insert="true"/>
+
+    <many-to-one name="topic" column="t_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+      not-null="false" index="MFR_PARENT_I4" cascade="none" />
+    <property name="tindex" column="t_index_col" type="int" update="true" insert="true"/>
+
   </class>
 
   <query name="findAttachmentById">

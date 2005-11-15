@@ -27,8 +27,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UniqueArrayList;
  
  
 public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
@@ -39,8 +41,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     private String shortDescription;
     private String extendedDescription;
     private String typeUuid;
-    private List attachments;
-    private List topics;
+    private List attachments = new UniqueArrayList();
+    private List topics = new UniqueArrayList();
     private Area area;
     private Integer sortIndex; 
     
@@ -137,5 +139,32 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         topic.setBaseForum(null);
         topics.remove(topic);
     }
+       
+    public void addAttachment(Attachment attachment) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addAttachment(Attachment " + attachment + ")");
+        }
+        
+        if (attachment == null) {
+            throw new IllegalArgumentException("attachment == null");
+        }
+        
+        attachment.setForum(this);
+        attachments.add(attachment);
+    }
+
+    public void removeAttachment(Attachment attachment) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("removeAttachment(Attachment " + attachment + ")");
+        }
+        
+        if (attachment == null) {
+            throw new IllegalArgumentException("Illegal attachment argument passed!");
+        }
+        
+        attachment.setForum(null);
+        attachments.remove(attachment);
+    }
     
+
 }

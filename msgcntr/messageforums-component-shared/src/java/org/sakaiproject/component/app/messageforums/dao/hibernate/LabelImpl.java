@@ -25,6 +25,8 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Label;
 
 public class LabelImpl extends MutableEntityImpl implements Label {
@@ -34,6 +36,23 @@ public class LabelImpl extends MutableEntityImpl implements Label {
     private String key;
     private String value;
     
+    
+    // foreign keys for hibernate
+    private DiscussionForum discussionForum;
+    private DiscussionTopic discussionTopic;
+       
+    // indecies for hibernate
+    private int dtindex;
+    private int dfindex;
+
+    public DiscussionForum getDiscussionForum() {
+        return discussionForum;
+    }
+
+    public void setDiscussionForum(DiscussionForum discussionForum) {
+        this.discussionForum = discussionForum;
+    }
+
     public String getKey() {
         return key;
     }
@@ -41,13 +60,45 @@ public class LabelImpl extends MutableEntityImpl implements Label {
     public void setKey(String key) {
         this.key = key;
     }
-    
+     
     public String getValue() {
         return value;
     }
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public DiscussionTopic getDiscussionTopic() {
+        return discussionTopic;
+    }
+
+    public void setDiscussionTopic(DiscussionTopic discussionTopic) {
+        this.discussionTopic = discussionTopic;
+    }
+
+    public int getDfindex() {
+        try {
+            return getDiscussionForum().getLabels().indexOf(this);
+        } catch (Exception e) {
+            return dfindex;
+        }
+    }
+
+    public void setDfindex(int dfindex) {
+        this.dfindex = dfindex;
+    }
+
+    public int getDtindex() {
+        try {
+            return getDiscussionTopic().getLabels().indexOf(this);
+        } catch (Exception e) {
+            return dtindex;
+        }
+    }
+
+    public void setDtindex(int dtindex) {
+        this.dtindex = dtindex;
     }
     
 }

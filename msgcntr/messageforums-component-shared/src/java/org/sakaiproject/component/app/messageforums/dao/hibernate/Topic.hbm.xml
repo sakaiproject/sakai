@@ -41,6 +41,17 @@
     <property name="extendedDescription" type="text">
       <column name="EXTENDED_DESCRIPTION" not-null="true" />
     </property>
+	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
+	    <key column="t_surrogateKey"/>
+	    <index column="t_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
+	</list>     
+	<list name="messages" lazy="true" table="MFR_MESSAGE_T" cascade="all">
+	    <key column="surrogateKey"/>
+	    <index column="t_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl" />
+	</list>  
+	<!-- 	
     <set name="attachments" lazy="true" sort="natural"
          order-by="attachmentName asc" cascade="all-delete-orphan">
         <key column="surrogateKey"/>                        
@@ -50,7 +61,8 @@
         order-by="position asc" cascade="all-delete-orphan">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
-    </set> 
+    </set>
+    --> 
     <property name="mutable">
       <column name="MUTABLE" not-null="true" />
     </property>
@@ -61,9 +73,15 @@
       <column name="TYPE_UUID" length="36" not-null="true" />
     </property>
     
-   <!--   <many-to-one name="baseForum" column="surrogateKey"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl"
-      not-null="false" index="MFR_PARENT_BASEFORUM_I" cascade="none" />-->
+    <many-to-one name="openForum" column="of_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
+      not-null="false" index="MFR_PARENT_I1" cascade="none" />
+    <property name="ofindex" column="of_index_col" type="int" update="true" insert="true"/>
+
+    <many-to-one name="privateForum" column="pf_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl"
+      not-null="false" index="MFR_PARENT_I2" cascade="none" />
+    <property name="pfindex" column="pf_index_col" type="int" update="true" insert="true"/>
           
     <!-- OpenTopic fields -->
     <subclass
@@ -98,11 +116,18 @@
 	    <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
 	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
 	      not-null="false" cascade="none" />
+	    <list name="labels" lazy="true" table="MFR_LABEL_T" cascade="all">
+	        <key column="dt_surrogateKey"/>
+	        <index column="dt_index_col" />
+	        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
+	    </list> 
+		<!-- 
         <set name="labels" lazy="true" sort="natural"
              cascade="all-delete-orphan">
             <key column="surrogateKey"/>                        
             <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl"/>            
         </set>
+        -->
    	    <property name="moderated">
 	      <column name="MODERATED" not-null="false" />
 	    </property>        

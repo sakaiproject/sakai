@@ -29,7 +29,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
+import org.sakaiproject.api.app.messageforums.Topic;
 
 public class AttachmentImpl extends MutableEntityImpl implements Attachment {
 
@@ -45,9 +49,19 @@ public class AttachmentImpl extends MutableEntityImpl implements Attachment {
 
     private String attachmentType;
 
-    private Message parent;
 
-    private int indexFromSet;
+    // foreign keys for hibernate
+    private Message message;
+    private BaseForum forum;
+    private Topic topic;    
+    private OpenForum openForum;
+    private PrivateForum privateForum;
+    
+    // indecies for hibernate
+    private int mesindex;    
+    private int ofindex;
+    private int pfindex;
+    private int tindex;
    
     public String getAttachmentId() {
         return attachmentId;
@@ -89,26 +103,14 @@ public class AttachmentImpl extends MutableEntityImpl implements Attachment {
         this.attachmentUrl = attachmentUrl;
     }
 
-    public Message getParent() {
-        return parent;
+    public Message getMessage() {
+        return message;
     }
 
-    public void setParent(Message parent) {
-        this.parent = parent;
+    public void setMessage(Message message) {
+        this.message = message;
     }
-
-    public int getIndex() {
-        try {
-            return getParent().getAttachments().indexOf(this);
-        } catch (Exception e) {
-            return indexFromSet;
-        }
-    }
-
-    private void setIndex(int index) {
-        indexFromSet = index;
-    }
-
+    
     public boolean equals(Object other) {
         if (!(other instanceof AttachmentImpl)) {
             return false;
@@ -124,5 +126,85 @@ public class AttachmentImpl extends MutableEntityImpl implements Attachment {
 
     public String toString() {
         return new ToStringBuilder(this).append("attachmentId", attachmentId).append("attachmentUrl", attachmentUrl).append("attachmentName", attachmentName).append("attachmentSize", attachmentSize).append("attachmentType", attachmentType).toString();
+    }
+
+    public BaseForum getForum() {
+        return forum;
+    }
+
+    public void setForum(BaseForum forum) {
+        this.forum = forum;
+    }
+
+    public Topic getTopic() {
+        return topic;
+    }
+
+    public void setTopic(Topic topic) {
+        this.topic = topic;
+    }
+
+    public int getMesindex() {
+        try {
+            return getMessage().getAttachments().indexOf(this);
+        } catch (Exception e) {
+            return mesindex;
+        }
+    }
+
+    public void setMesindex(int mesindex) {
+        this.mesindex = mesindex;
+    }
+
+    public int getOfindex() {
+        try {
+            return getForum().getAttachments().indexOf(this);
+        } catch (Exception e) {
+            return ofindex;
+        }
+    }
+
+    public void setOfindex(int ofindex) {
+        this.ofindex = ofindex;
+    }
+
+    public int getPfindex() {
+        try {
+            return getForum().getAttachments().indexOf(this);
+        } catch (Exception e) {
+            return pfindex;
+        }
+    }
+
+    public void setPfindex(int pfindex) {
+        this.pfindex = pfindex;
+    }
+
+    public int getTindex() {
+        try {
+            return getTopic().getAttachments().indexOf(this);
+        } catch (Exception e) {
+            return tindex;
+        }
+    }
+
+    public void setTindex(int tindex) {
+        this.tindex = tindex;
+    }
+
+    public OpenForum getOpenForum() {
+        return openForum;
+    }
+
+    public void setOpenForum(OpenForum openForum) {
+        this.openForum = openForum;
+    }
+
+    public PrivateForum getPrivateForum() {
+        return privateForum;
+    }
+
+    public void setPrivateForum(PrivateForum privateForum) {
+        this.privateForum = privateForum;
     }
 }

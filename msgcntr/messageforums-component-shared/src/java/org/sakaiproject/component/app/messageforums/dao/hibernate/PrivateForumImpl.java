@@ -34,7 +34,10 @@ public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
     private Boolean autoForward;
     private String autoForwardEmail;
     private Boolean previewPaneEnabled;
-    
+
+    // indecies for hibernate
+    private int areaindex;
+
     public Boolean getAutoForward() {
         return autoForward;
     }
@@ -58,5 +61,17 @@ public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
     public void setPreviewPaneEnabled(Boolean previewPaneEnabled) {
         this.previewPaneEnabled = previewPaneEnabled;
     }
-   
+
+    public int getAreaindex() {
+        try {
+            return getArea().getOpenForums().indexOf(this);
+        } catch (Exception e) {
+            return areaindex;
+        }
+    }
+
+    public void setAreaindex(int areaindex) {
+        this.areaindex = areaindex;
+    }
+
 }

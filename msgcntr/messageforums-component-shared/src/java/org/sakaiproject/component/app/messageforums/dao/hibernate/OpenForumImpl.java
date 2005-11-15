@@ -37,6 +37,9 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
     private MessagePermissions messagePermissions;
     private Boolean locked;
     
+    // indecies for hibernate
+    private int areaindex;
+    
     public ControlPermissions getControlPermissions() {
         return controlPermissions;
     }
@@ -59,6 +62,18 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     public void setMessagePermissions(MessagePermissions messagePermissions) {
         this.messagePermissions = messagePermissions;
+    }
+
+    public int getAreaindex() {
+        try {
+            return getArea().getOpenForums().indexOf(this);
+        } catch (Exception e) {
+            return areaindex;
+        }
+    }
+
+    public void setAreaindex(int areaindex) {
+        this.areaindex = areaindex;
     }
 
 }

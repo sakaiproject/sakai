@@ -33,4 +33,11 @@ public interface Label extends MutableEntity {
 
     public void setValue(String value);
 
+    public DiscussionForum getDiscussionForum();
+
+    public void setDiscussionForum(DiscussionForum discussionForum);
+
+    public DiscussionTopic getDiscussionTopic();
+
+    public void setDiscussionTopic(DiscussionTopic discussionTopic);
 }

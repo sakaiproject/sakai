@@ -37,6 +37,9 @@ public class OpenTopicImpl extends TopicImpl implements OpenTopic {
     private MessagePermissions messagePermissions;
     private Boolean locked;
     
+    // indecies for hibernate
+    private int ofindex;
+    
     public ControlPermissions getControlPermissions() {
         return controlPermissions;
     }
@@ -59,6 +62,18 @@ public class OpenTopicImpl extends TopicImpl implements OpenTopic {
 
     public void setMessagePermissions(MessagePermissions messagePermissions) {
         this.messagePermissions = messagePermissions;
+    }
+
+    public int getOfindex() {
+        try {
+            return getOpenForum().getTopics().indexOf(this);
+        } catch (Exception e) {
+            return ofindex;
+        }
+    }
+
+    public void setOfindex(int ofindex) {
+        this.ofindex = ofindex;
     }
         
 }

@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL$
-* $Id$
+* $URL: $
+* $Id:  $
 ***********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -23,12 +23,11 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
- 
-
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 
 // TODO: External email address per message?  Seems like a more global preference per user.
@@ -41,6 +40,9 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
     private Boolean externalEmail;
     private String externalEmailAddress;
     
+    // indecies for hibernate
+    private int tindex;   
+
     public Boolean getExternalEmail() {
         return externalEmail;
     }
@@ -65,4 +67,45 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
         this.recipients = recipients;
     }
         
+    public int getTindex() {
+        try {
+            return getTopic().getMessages().indexOf(this);
+        } catch (Exception e) {
+            return tindex;
+        }
+    }
+
+    public void setTindex(int tindex) {
+        this.tindex = tindex;        
+    }
+    
+    ////////////////////////////////////////////////////////////////////////
+    // helper methods for collections
+    ////////////////////////////////////////////////////////////////////////
+    
+    public void addRecipient(MessageForumsUser user) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addRecipient(MessageForumsUser " + user + ")");
+        }
+        
+        if (user == null) {
+            throw new IllegalArgumentException("user == null");
+        }
+        
+        user.setPrivateMessage(this);
+        recipients.add(user);
+    }
+
+    public void removeRecipient(MessageForumsUser user) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("removeRecipient(MessageForumsUser " + user + ")");
+        }
+        
+        if (user == null) {
+            throw new IllegalArgumentException("Illegal attachment argument passed!");
+        }
+        
+        user.setPrivateMessage(null);
+        recipients.remove(user);
+    }
 }

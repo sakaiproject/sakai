@@ -63,5 +63,8 @@ public interface DiscussionTopic extends OpenTopic {
     public Boolean getMustRespondBeforeReading();
 
     public void setMustRespondBeforeReading(Boolean mustRespondBeforeReading);
-
+    
+    public void addLabel(Label label);
+    
+    public void removeLabel(Label label);
 }

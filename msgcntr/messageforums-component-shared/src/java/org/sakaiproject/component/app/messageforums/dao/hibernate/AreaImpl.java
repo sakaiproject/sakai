@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: $
+ * $Id:  $
  ***********************************************************************************
  *
  * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -23,12 +23,14 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
+import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class AreaImpl extends MutableEntityImpl implements Area {
 
@@ -44,7 +46,9 @@ public class AreaImpl extends MutableEntityImpl implements Area {
 
     private String typeUuid; 
     
-    private List forums = new ArrayList();
+    private List openForums = new UniqueArrayList();
+    
+    private List privateForums = new UniqueArrayList();
 
     public void setVersion(Integer version) {
         this.version = version;
@@ -90,21 +94,31 @@ public class AreaImpl extends MutableEntityImpl implements Area {
         this.enabled = enabled;
     }
     
-    public List getForums() {
-        return forums;
+    public List getOpenForums() {
+        return openForums;
     }
 
-    public void setForums(List forums) {
-        this.forums = forums;
+    public void setOpenForums(List openForums) {
+        this.openForums = openForums;
     }
+
+    public List getPrivateForums() {
+        return privateForums;
+    }
+
+    public void setPrivateForums(List privateForums) {
+        this.privateForums = privateForums;
+    }    
+
 
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////
-    
-    public void addForum(BaseForum forum) {
+
+
+    public void addOpenForum(OpenForum forum) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("addForum(Forum " + forum + ")");
+            LOG.debug("addOpenForum(Forum " + forum + ")");
         }
         
         if (forum == null) {
@@ -112,12 +126,12 @@ public class AreaImpl extends MutableEntityImpl implements Area {
         }
         
         forum.setArea(this);
-        forums.add(forum);
+        openForums.add(forum);
     }
 
-    public void removeAttachment(BaseForum forum) {
+    public void removeOpenForum(OpenForum forum) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("removeForum(Forum " + forum + ")");
+            LOG.debug("removeOpenForum(Forum " + forum + ")");
         }
         
         if (forum == null) {
@@ -125,7 +139,33 @@ public class AreaImpl extends MutableEntityImpl implements Area {
         }
         
         forum.setArea(null);
-        forums.remove(forum);
+        openForums.remove(forum);
     }
+    
+    public void addPrivateForum(PrivateForum forum) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addPrivateForum(Forum " + forum + ")");
+        }
+        
+        if (forum == null) {
+            throw new IllegalArgumentException("forum == null");
+        }
+        
+        forum.setArea(this);
+        privateForums.add(forum);
+    }
+
+    public void removePrivateForum(PrivateForum forum) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("removePrivateForum(Forum " + forum + ")");
+        }
+        
+        if (forum == null) {
+            throw new IllegalArgumentException("Illegal forum argument passed!");
+        }
+        
+        forum.setArea(null);
+        privateForums.remove(forum);
+    }    
 
 }

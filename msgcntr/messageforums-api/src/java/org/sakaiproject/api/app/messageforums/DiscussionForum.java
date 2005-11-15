@@ -42,5 +42,8 @@ public interface DiscussionForum extends OpenForum {
     public Boolean getModerated();
 
     public void setModerated(Boolean moderated);
+    
+    public void addLabel(Label label);
 
+    public void removeLabel(Label label);
 }

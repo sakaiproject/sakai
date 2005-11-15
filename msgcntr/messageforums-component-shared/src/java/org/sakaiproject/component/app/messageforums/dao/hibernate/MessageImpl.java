@@ -50,6 +50,9 @@ public class MessageImpl extends MutableEntityImpl implements Message {
     private Boolean draft;
     private Topic topic;
     
+    // indecies for hibernate
+    private int tindex;    
+    
     public Topic getTopic() {
         return topic;
     }
@@ -163,7 +166,7 @@ public class MessageImpl extends MutableEntityImpl implements Message {
             throw new IllegalArgumentException("attachment == null");
         }
         
-        attachment.setParent(this);
+        attachment.setMessage(this);
         attachments.add(attachment);
     }
 
@@ -176,8 +179,20 @@ public class MessageImpl extends MutableEntityImpl implements Message {
             throw new IllegalArgumentException("Illegal attachment argument passed!");
         }
         
-        attachment.setParent(null);
+        attachment.setMessage(null);
         attachments.remove(attachment);
     }
 
+    public int getTindex() {
+        try {
+            return getTopic().getMessages().indexOf(this);
+        } catch (Exception e) {
+            return tindex;
+        }
+    }
+
+    public void setTindex(int tindex) {
+        this.tindex = tindex;
+    }
+    
 }

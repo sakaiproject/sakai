@@ -144,7 +144,7 @@ public class PrivateMessagesTool
   {
     Area privateArea=prtMsgManager.getPrivateArea();
     if(privateArea != null ) {
-     List forums=privateArea.getForums();
+     List forums=privateArea.getPrivateForums();
       //Private message return ONLY ONE ELEMENT
       for (Iterator iter = forums.iterator(); iter.hasNext();)
       {
@@ -169,7 +169,7 @@ public class PrivateMessagesTool
   {
     Area privateArea=prtMsgManager.getPrivateArea();
     if(privateArea != null ) {
-     List forums=privateArea.getForums();
+     List forums=privateArea.getPrivateForums();
       //Private message return ONLY ONE ELEMENT
       for (Iterator iter = forums.iterator(); iter.hasNext();)
       {
@@ -777,7 +777,7 @@ public class PrivateMessagesTool
   {
     Area privateArea=prtMsgManager.getPrivateArea();
     if(privateArea != null ) {
-      List forums=privateArea.getForums();
+      List forums=privateArea.getPrivateForums();
       //Private message return ONLY ONE ELEMENT
       for (Iterator iter = forums.iterator(); iter.hasNext();)
       {
@@ -795,7 +795,7 @@ public class PrivateMessagesTool
   {
     Area privateArea=prtMsgManager.getPrivateArea();
     if(privateArea != null ) {
-      List forums=privateArea.getForums();
+      List forums=privateArea.getPrivateForums();
       //Private message return ONLY ONE ELEMENT
       for (Iterator iter = forums.iterator(); iter.hasNext();)
       {

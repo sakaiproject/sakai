@@ -23,7 +23,6 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-
 public interface Attachment extends MutableEntity {
 
     public String getAttachmentId();
@@ -46,14 +45,23 @@ public interface Attachment extends MutableEntity {
 
     public void setAttachmentUrl(String attachmentUrl);
 
-    public Message getParent();
+    public Message getMessage();
 
-    public void setParent(Message parent);
+    public void setMessage(Message parent);
 
-    public boolean equals(Object other);
+    public BaseForum getForum();
 
-    public int hashCode();
-
-    public String toString();
-
+    public void setForum(BaseForum forum);
+    
+    public Topic getTopic();
+    
+    public void setTopic(Topic topic);
+    
+    public OpenForum getOpenForum();
+    
+    public void setOpenForum(OpenForum openForum);
+    
+    public PrivateForum getPrivateForum();
+    
+    public void setPrivateForum(PrivateForum privateForum);    
 }

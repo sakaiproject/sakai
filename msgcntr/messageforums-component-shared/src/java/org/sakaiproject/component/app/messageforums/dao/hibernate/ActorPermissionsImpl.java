@@ -24,19 +24,20 @@
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import java.util.List;
- 
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
+import org.sakaiproject.api.app.messageforums.MessageForumsUser;
+import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class ActorPermissionsImpl implements ActorPermissions {
 
     private static final Log LOG = LogFactory.getLog(ActorPermissionsImpl.class);
     
-    private List contributors;
-    private List accessors;
-    private List moderators;
+    private List contributors = new UniqueArrayList();
+    private List accessors = new UniqueArrayList();
+    private List moderators = new UniqueArrayList();
 
     private Long id;
     private Integer version; 
@@ -81,4 +82,87 @@ public class ActorPermissionsImpl implements ActorPermissions {
         this.moderators = moderators;
     }
 
+    
+    ////////////////////////////////////////////////////////////////////////
+    // helper methods for collections
+    ////////////////////////////////////////////////////////////////////////
+    
+    public void addContributor(MessageForumsUser user) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addContributor(MessageForumsUser " + user + ")");
+        }
+        
+        if (user == null) {
+            throw new IllegalArgumentException("user == null");
+        }
+        
+        user.setApContributors(this);
+        contributors.add(user);
+    }
+
+    public void removeContributor(MessageForumsUser user) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("removeContributor(MessageForumsUser " + user + ")");
+        }
+        
+        if (user == null) {
+            throw new IllegalArgumentException("Illegal attachment argument passed!");
+        }
+        
+        user.setApContributors(null);
+        contributors.remove(user);
+    }
+    
+    public void addAccesssor(MessageForumsUser user) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addAccesssor(MessageForumsUser " + user + ")");
+        }
+        
+        if (user == null) {
+            throw new IllegalArgumentException("user == null");
+        }
+        
+        user.setApAccessors(this);
+        accessors.add(user);
+    }
+
+    public void removeAccessor(MessageForumsUser user) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("removeAccessor(MessageForumsUser " + user + ")");
+        }
+        
+        if (user == null) {
+            throw new IllegalArgumentException("Illegal attachment argument passed!");
+        }
+        
+        user.setApAccessors(null);
+        accessors.remove(user);
+    }    
+    
+    public void addModerator(MessageForumsUser user) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addModerator(MessageForumsUser " + user + ")");
+        }
+        
+        if (user == null) {
+            throw new IllegalArgumentException("user == null");
+        }
+        
+        user.setApModerators(this);
+        moderators.add(user);
+    }
+
+    public void removeModerator(MessageForumsUser user) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("removeModerator(MessageForumsUser " + user + ")");
+        }
+        
+        if (user == null) {
+            throw new IllegalArgumentException("Illegal attachment argument passed!");
+        }
+        
+        user.setApModerators(null);
+        moderators.remove(user);
+    }
+    
 }
