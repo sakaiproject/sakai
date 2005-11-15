@@ -211,11 +211,11 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 	 */
 	protected String getTag(String newline, String title)
 	{
-		// tag the message
+		// tag the message - HTML version
 		String rv = newline + rb.getString("separator") + newline + rb.getString("this") + " "
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " ("
-				+ ServerConfigurationService.getPortalUrl() + ") " + rb.getString("forthe") + " " + title
-				+ " " + rb.getString("site") + newline + rb.getString("youcan") + newline;
+				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
+				+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
+				+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan") + newline;
 		return rv;
 	}
 }
