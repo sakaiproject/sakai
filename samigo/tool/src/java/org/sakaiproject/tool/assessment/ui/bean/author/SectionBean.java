@@ -25,6 +25,9 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -36,6 +39,13 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+
 
 
 /**
@@ -272,16 +282,55 @@ private String outcome;
     return assessmentSectionIdents.size();
   }
 
-  /**List of available question pools.
+  /**List of available question pools for random draw. 
+   * returns a list of pools that have not been used by other random drawn parts 
    * @return ArrayList of QuestionPoolFacade objects
    */
   public ArrayList getPoolsAvailable()
   {
-    return poolsAvailable;
+    ArrayList resultPoolList= new ArrayList();
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+
+    QuestionPoolService delegate = new QuestionPoolService();
+    ArrayList allpoollist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+
+    HashMap allPoolsMap= new HashMap();
+    for (int i=0; i<allpoollist.size();i++){
+      QuestionPoolFacade apool = (QuestionPoolFacade) allpoollist.get(i);
+      allPoolsMap.put(apool.getQuestionPoolId().toString(), apool);
+    }
+
+    AssessmentService assessdelegate = new AssessmentService();
+    List sectionList = assessmentBean.getSectionList();
+    for (int i=0; i<sectionList.size();i++){
+      SelectItem s = (SelectItem) sectionList.get(i);
+
+      // need to remove the pools already used by random draw parts
+
+      SectionDataIfc section= assessdelegate.getSection(s.getValue().toString());
+      if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) &&
+ (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+	String poolid = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
+	if (allPoolsMap.containsKey(poolid) ) {
+	  allPoolsMap.remove(poolid);
+	}
+      }
+    }
+
+    Iterator pooliter = allPoolsMap.keySet().iterator();
+    while (pooliter.hasNext()) {
+      QuestionPoolFacade pool = (QuestionPoolFacade) allPoolsMap.get(pooliter.next());
+      resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()), pool.getDisplayName() ) );
+    }
+
+    return resultPoolList;
   }
 
+
+
   /**List of available question pools.
-   * @param list ArrayList of QuestionPoolFacade objects
+   * @param list ArrayList of selectItems
    */
   public void setPoolsAvailable(ArrayList list)
   {

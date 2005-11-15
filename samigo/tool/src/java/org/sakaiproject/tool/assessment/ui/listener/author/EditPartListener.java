@@ -25,11 +25,13 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,11 +39,15 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+
 
 /**
  * <p>Title: Samigo</p>
@@ -83,9 +89,21 @@ public class EditPartListener
     sectionBean.setSection(section);
     sectionBean.setSectionTitle(section.getTitle());
     sectionBean.setSectionDescription(section.getDescription());
-    sectionBean.setPoolsAvailable(itemauthorbean.getPoolSelectList());
+
     sectionBean.setNoOfItems(String.valueOf(section.getItemSet().size()));
     populateMetaData(section, sectionBean);
+// todo: get poolsavailable and then add the current pool used, because we need to show it as one of the choices.
+
+    ArrayList poolidlist = sectionBean.getPoolsAvailable();
+    String currpoolid= sectionBean.getSelectedPool();   // current pool used for random draw
+    if (!("".equals(currpoolid)) && (currpoolid !=null)) {
+    //now we need to get the poolid and displayName
+      QuestionPoolService delegate = new QuestionPoolService();
+      QuestionPoolFacade pool= delegate.getPool(new Long(currpoolid), AgentFacade.getAgentString());
+    // now add the current pool used  to the list, so it's available in the pulldown 
+      poolidlist.add(new SelectItem((pool.getQuestionPoolId().toString()), pool.getDisplayName()));
+      sectionBean.setPoolsAvailable(poolidlist);
+    }
 
     boolean hideRandom = false;
     if ((sectionBean.getType() == null) || sectionBean.getType().equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))

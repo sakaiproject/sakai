@@ -93,6 +93,7 @@ public class AssessmentBean  implements Serializable {
       setSectionList(sectionArray);
     }
     catch (Exception ex) {
+	ex.printStackTrace();
     }
   }
 

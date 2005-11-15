@@ -94,8 +94,10 @@ public class SavePartListener
       sectionBean.setSection(section);
       sectionId = section.getSectionId().toString();
     }
-    else
+    else {
+
       section = assessmentService.getSection(sectionId);
+    }
 
     //Long assessmentId = section.getAssessmentId();
 

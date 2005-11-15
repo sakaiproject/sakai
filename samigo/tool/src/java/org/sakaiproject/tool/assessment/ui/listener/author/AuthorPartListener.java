@@ -76,7 +76,7 @@ public class AuthorPartListener implements ActionListener
     String assessmentId = assessmentBean.getAssessmentId();
 
     // #1b. goto editPart.jsp
-    sectionBean.setPoolsAvailable(itemauthorbean.getPoolSelectList());
+    //sectionBean.setPoolsAvailable(itemauthorbean.getPoolSelectList());
     sectionBean.setHideRandom(false);
     // set default
     sectionBean.setType(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
