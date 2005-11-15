@@ -5,7 +5,7 @@
 <!--
 * $Id$
 <%--
-***********************************************************************************
+**********************************************************************************
 *
 * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
 *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
@@ -60,13 +60,18 @@
 
 </p>
 
-<div class="indnt1">
-	<h4><h:outputText value="#{msg.assessment_new}" rendered="#{authorization.createAssessment}" /></h4>
-  <div class="indnt2">
-<h5 class="plain">
+<h:message for="authorIndexForm:create_assessment_denied" styleClass="validate"/>
+<h:message for="authorIndexForm:edit_assessment_denied" styleClass="validate"/>
+<h:message for="authorIndexForm:grade_assessment_denied" styleClass="validate"/>
 
+<div class="indnt1">
+ <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h4>"/>	
+<h:outputText value="#{msg.assessment_new}" rendered="#{authorization.createAssessment}" />
+ <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h4>"/>
+ <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<div class=\"indnt2\">"/>
+<h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h5 class=\"plain\">"/>
     <h:outputText value="#{msg.assessment_create}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
-   </h5>
+   <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h5>"/>
    <div class="shorttext">
     <h:outputLabel value="#{msg.assessment_choose}" styleClass="form_label" 
        rendered="#{authorization.createAssessment && author.showTemplateList}" />
@@ -80,7 +85,7 @@
 
       <h:outputText value="#{msg.optional_paren}" styleClass="form_label"
          rendered="#{authorization.createAssessment && author.showTemplateList}" />
-      <br/>
+     <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<br/>"/>
    </div>
 <div class="shorttext">
     <h:outputLabel value="#{msg.assessment_title}" rendered="#{authorization.createAssessment}"/>
@@ -92,17 +97,22 @@
     <h:commandButton type="submit" value="#{msg.button_create}" action="#{author.getOutcome}" rendered="#{authorization.createAssessment}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
     </h:commandButton>
-    <br />
-    <br />
+  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<br/><br/>"/>
+
+   
     <h:outputLabel value="#{msg.assessment_import}" rendered="#{authorization.createAssessment}"/>
     <h:commandButton value="#{msg.button_import}" immediate="true" type="submit" 
       rendered="#{authorization.createAssessment}"
       action="importAssessment">
     </h:commandButton>
-</div></div>
+</div>
+
+ <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</div>"/>
 	<!-- CORE ASSESSMENTS-->
 
-  <h4><h:outputText value="#{msg.assessment_core}" rendered="#{authorization.adminCoreAssessment}"/></h4>
+  <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="<h4>"/>
+<h:outputText value="#{msg.assessment_core}" rendered="#{authorization.adminCoreAssessment}"/>
+ <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="</h4>"/>
 <div class="indnt2">
   <h:dataTable styleClass="listHier" id="coreAssessments" value="#{author.assessments}" 
      var="coreAssessment" rendered="#{authorization.adminCoreAssessment}">
@@ -137,8 +147,8 @@
       </h:commandLink>
       <h:outputText id="assessmentTitle2" value="#{coreAssessment.title}" 
         rendered="#{!authorization.editAnyAssessment and !authorization.editOwnAssessment}" />
+ <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value=" <f:verbatim> <br/></f:verbatim>"/>
 
-      <f:verbatim><br/></f:verbatim>
       <!-- AuthorBean.editAssessmentSettings() prepare the edit page -->
       <!-- action=editAssessmentSettings if pass authz -->
       <f:verbatim><span class="itemAction"></f:verbatim>
@@ -202,7 +212,9 @@
 </div>
 
 	<!-- PUBLISHED ASSESSMENTS-->
-  <h4><h:outputText value="#{msg.assessment_pub}" rendered="#{authorization.adminPublishedAssessment}"/></h4>
+ <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<h4>"/>
+  <h:outputText value="#{msg.assessment_pub}" rendered="#{authorization.adminPublishedAssessment}"/>
+ <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="</h4>"/>
   <!-- active -->
 <!--
   <p>
@@ -214,9 +226,9 @@
   </p>
 -->
 <div class="indnt2">
-<h5 class="plain">
+<h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<h5 class=\"plain\">"/>
   <h:outputText value="#{msg.assessment_active}" rendered="#{authorization.adminPublishedAssessment}"/>
-</h5>
+<h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="</h5>"/>
   <h:dataTable  styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
     value="#{author.publishedAssessments}" var="publishedAssessment">
     <h:column>
@@ -242,7 +254,7 @@
          </h:panelGroup>
       </f:facet>
       <h:outputText id="publishedAssessmentTitle" value="#{publishedAssessment.title}" />
-      <f:verbatim><br /></f:verbatim>
+      <f:verbatim><br/></f:verbatim>
  <f:verbatim><span class="itemAction"></f:verbatim>
       <!-- if passAuth, action=editPublishedAssessmentSettings -->
       <h:commandLink id="editPublishedAssessmentSettings" immediate="true"

@@ -91,11 +91,21 @@
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_poolmanager}"/>
 
 <div class="indnt1">
+<!--
 <h4 class="nav"><h:commandLink rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="add" immediate="true" action="#{questionpool.addPool}">
   <h:outputText value="#{msg.add_new_pool}"/>
   <f:param name="qpid" value="0"/>
 </h:commandLink>
 </h4>
+-->
+<h:outputText escape="false" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" value="<h4 class=\"nav\">"/>
+<h:commandLink rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="add" immediate="true" action="#{questionpool.addPool}">
+ <h:outputText value="#{msg.add_new_pool}"/>
+  <f:param name="qpid" value="0"/>
+</h:commandLink>
+<h:outputText rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" escape="false" value="</h4>"/>
+</div>
+
  <div class="indnt2">
 <%@ include file="/jsf/questionpool/poolTreeTable.jsp" %>
 
