@@ -4,203 +4,58 @@ import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.Topic;
-public class PrivateTopicBean implements Topic
+public class PrivateTopicBean
 {
-
   private Topic topic;
+  private int totalMessages;
+  private int unreadMessages;
   public PrivateTopicBean(Topic topic)
   {
    this.topic= topic;    
   }
-
-  public List getAttachments()
+  public Topic getTopic()
   {
-    return topic.getAttachments();
+    return topic;
   }
-
-  public void setAttachments(List attachments)
+  
+  /**
+   * @return
+   */
+  public int getTotalMessages()
   {
-    // TODO Auto-generated method stub
+    return totalMessages;
   }
-
-  public String getExtendedDescription()
+  
+  /**
+   * @param totalMessages
+   */
+  public void setTotalMessages(int totalMessages)
   {
-    // TODO Auto-generated method stub
-    return null;
+    this.totalMessages = totalMessages;
   }
-
-  public void setExtendedDescription(String extendedDescription)
+  
+  /**
+   * @return
+   */
+  public int getUnreadMessages()
   {
-    // TODO Auto-generated method stub
-    
+    return unreadMessages;
   }
-
-  public Boolean getMutable()
+  
+  /**
+   * @param unreadMessages
+   */
+  public void setUnreadMessages(int unreadMessages)
   {
-    // TODO Auto-generated method stub
-    return null;
+    this.unreadMessages = unreadMessages;
   }
-
-  public void setMutable(Boolean mutable)
+  
+  /**
+   * @param topic
+   */
+  public void setTopic(Topic topic)
   {
-    // TODO Auto-generated method stub
-    
+    this.topic = topic;
   }
-
-  public String getShortDescription()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setShortDescription(String shortDescription)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public Integer getSortIndex()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setSortIndex(Integer sortIndex)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public String getTitle()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setTitle(String title)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public String getTypeUuid()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setTypeUuid(String typeUuid)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public BaseForum getBaseForum()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setBaseForum(BaseForum forum)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public List getMessages()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setMessages(List messages)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public Date getCreated()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setCreated(Date created)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public String getCreatedBy()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setCreatedBy(String createdBy)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public Long getId()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setId(Long id)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public String getModifiedBy()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setModifiedBy(String modifiedBy)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public Date getModified()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setModified(Date modified)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public String getUuid()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setUuid(String uuid)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public Integer getVersion()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public void setVersion(Integer version)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
+  
 }
