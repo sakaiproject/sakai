@@ -32,6 +32,7 @@ import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.legacy.entity.Reference;
 import org.sakaiproject.service.legacy.event.Event;
 import org.sakaiproject.service.legacy.notification.NotificationAction;
@@ -203,5 +204,18 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 	protected boolean isBodyHTML(Event e)
 	{
 		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected String getTag(String newline, String title)
+	{
+		// tag the message
+		String rv = newline + rb.getString("separator") + newline + rb.getString("this") + " "
+				+ ServerConfigurationService.getString("ui.service", "Sakai") + " ("
+				+ ServerConfigurationService.getPortalUrl() + ") " + rb.getString("forthe") + " " + title
+				+ " " + rb.getString("site") + newline + rb.getString("youcan") + newline;
+		return rv;
 	}
 }
