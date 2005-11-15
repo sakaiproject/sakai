@@ -1,9 +1,11 @@
-package org.sakaiproject.component.app.messageforums;
+package org.sakaiproject.component.app.messageforums.ui;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.component.app.messageforums.MessageForumsAreaManager;
+import org.sakaiproject.component.app.messageforums.MessageForumsMessageManager;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 ;

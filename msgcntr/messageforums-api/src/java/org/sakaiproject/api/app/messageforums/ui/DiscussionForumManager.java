@@ -1,4 +1,7 @@
-package org.sakaiproject.api.app.messageforums;
+package org.sakaiproject.api.app.messageforums.ui;
+
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.Message;
 
 public interface DiscussionForumManager {
     /**

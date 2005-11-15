@@ -1,8 +1,5 @@
 package org.sakaiproject.tool.messageforums.ui;
-import java.util.Date;
-import java.util.List;
-
-import org.sakaiproject.api.app.messageforums.BaseForum;
+ 
 import org.sakaiproject.api.app.messageforums.Topic;
 public class PrivateTopicBean
 {

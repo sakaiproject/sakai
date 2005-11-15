@@ -1,13 +1,15 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
+<f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 
 <f:view>
-  <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
-      <h:form onsubmit="return false;">
-
+      <h:form id="msgForum">
+      	<%@include file="privateMsg/pvtArea.jsp"%>
+        <%@include file="discussionForum/dfArea.jsp"%>
         <sakai:group_box>
           <h:dataTable 
               id="messages-id" 
@@ -43,12 +45,9 @@
               </h:commandLink>
             </h:column>
           </h:dataTable>
-        </sakai:group_box>	
-		
+        </sakai:group_box>	        
+        
       </h:form>
-     
     </sakai:view_content>
   </sakai:view_container>
 </f:view> 
-
-

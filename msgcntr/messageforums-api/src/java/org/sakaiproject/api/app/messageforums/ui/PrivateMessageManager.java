@@ -1,4 +1,9 @@
-package org.sakaiproject.api.app.messageforums;
+package org.sakaiproject.api.app.messageforums.ui;
+
+import java.util.List;
+
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.Message;
 
 public interface PrivateMessageManager {
     /**
@@ -21,5 +26,5 @@ public interface PrivateMessageManager {
     void deletePrivateMessage(Message message);
 
     Message getMessageById(String id);
-
+    
 }

@@ -38,13 +38,18 @@
 		<%@include file="msgHeader.jsp"%>
 
 
-	  <h:dataTable value="#{PrivateMessagesTool.dispPvtMsgs}" var="rcvdItems">   
+	  <h:dataTable value="#{PrivateMessagesTool.displayPvtMsgs}" var="rcvdItems">   
 		  <h:column>
 		    <f:facet name="header">
 		     <h:outputText value="Check All"/>
 		    </f:facet>
-		    <h:selectBooleanCheckbox > </h:selectBooleanCheckbox> 
-  
+		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
+		    
+		<%--
+		    <h:selectManyCheckbox id="cars" value="#{PrivateMessagesTool.selectedDeleteItems}">
+		    	<f:selectItems value="#{PrivateMessagesTool.totalDisplayItems}"/>
+		    </h:selectManyCheckbox>
+  	--%>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">

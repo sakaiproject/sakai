@@ -8,7 +8,7 @@
     <sakai:view_content>
       <h:form >
 
-        <sakai:tool_bar_message value="Compose a Private Message" /> 
+        <sakai:tool_bar_message value="Reply to Private Message" /> 
         <sakai:group_box>
           <h:outputText value="#{msgs.cdfm_required}"/>
           <h:outputText value="*" style="color: red"/>
@@ -18,8 +18,15 @@
           <table width="80%" align="left">
             <tr>
               <td align="left" width="20%">
-                <h:outputText value="*" style="color: red"/>
           			<h:outputText value="To "/>		
+              </td>
+              <td align="left">   
+          				<h:outputText value="#{PrivateMessagesTool.detailMsg.author}" /> 
+              </td>                           
+            </tr>
+            <tr>
+              <td align="left" width="20%">
+          			<h:outputText value="Select Additional Recipients "/>		
               </td>
               <td align="left">
       
@@ -35,8 +42,8 @@
               </td>
               <td align="left">
               	<h:selectOneRadio value="#{PrivateMessagesTool.composeSendAs}">
-  			    			<f:selectItem itemValue="pvtmsg" itemLabel="As Private Messages"/><br />
-  			    			<f:selectItem itemValue="pvtmsg" itemLabel="To Recipients' Email Address(es)"/><br />
+  			    			<f:selectItem itemValue="pvtmsg" itemLabel="As Private Messages"/>
+  			    			<f:selectItem itemValue="pvtmsg" itemLabel="To Recipients' Email Address(es)"/>
 			    			</h:selectOneRadio>
               </td>
             </tr>
@@ -45,7 +52,7 @@
                 <h:outputText value="Subject" />
               </td>
               <td align="left">
-              	<h:inputText value="#{PrivateMessagesTool.composeSubject}" />
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.title}" />  
               </td>
             </tr>                                   
           </table>
@@ -55,10 +62,11 @@
 	        <sakai:panel_edit>
 	          <sakai:doc_section>       
 	            <h:outputText value="Message" />  
-	            <sakai:rich_text_area value="#{PrivateMessagesTool.composeBody}" rows="17" columns="70"/>
+	            <sakai:rich_text_area value="#{PrivateMessagesTool.detailMsg.body}" rows="17" columns="70"/>
 	          </sakai:doc_section>    
 	        </sakai:panel_edit>
 	      </sakai:group_box>
+
 <%--********************* Attachment *********************--%>	
 	      <sakai:group_box>
 	        <table width="100%" align="center">
@@ -69,15 +77,55 @@
 	          </tr>
 	        </table>
 	      </sakai:group_box>       
-		
+ 
+ <%--********************* Reply *********************--%>	
 	      <sakai:group_box>
-	        <sakai:doc_section>
-	          <sakai:button_bar>
-	          	<sakai:button_bar_item action="#{PrivateMessagesTool.processCDFMAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" />
-	          </sakai:button_bar>
-	        </sakai:doc_section>
+	        <table width="100%" align="center">
+	          <tr>
+	            <td align="center" style="font-weight:bold;background-color:#DDDFE4;color: #000;padding:.3em;margin:-.3em -2.2em;text-align:left;font-size: .9em;line-height:1.3em">
+	              <h:outputText value="Replying To"/>
+	            </td>
+	          </tr>
+	        </table>
+          <table width="80%" align="left">
+            <tr>
+              <td align="left" width="20%">
+          			<h:outputText value="From "/>		
+              </td>
+              <td align="left">   
+          			<h:outputText value="#{PrivateMessagesTool.userId}" />  
+              	<h:outputText value="(" />  
+              	
+              	<h:outputText value=")" />   
+              </td>                           
+            </tr>
+            <tr>
+              <td align="left" width="20%">
+          			<h:outputText value="Subject "/>		
+              </td>
+              <td align="left">    
+          			<h:outputText value="#{PrivateMessagesTool.detailMsg.title}" />  
+              </td>                           
+            </tr>
+            <tr>
+              <td align="left">
+                <h:outputText value="Label" />
+              </td>
+              <td align="left">
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.label}" />  
+              </td>
+            </tr>
+            <tr>
+              <td align="left">
+                <h:outputText value="Message" />
+              </td>
+              <td align="left">
+              	<h:inputTextarea value="#{PrivateMessagesTool.replyToBody}" />	
+              </td>
+            </tr>                                   
+          </table>
 	      </sakai:group_box>
-        		
+	             		
 <%--********************* Label *********************--%>		
 				<sakai:group_box>
           <table width="80%" align="left">
@@ -89,7 +137,7 @@
  							  <h:selectOneListbox size="1" id="viewlist">
             		  <f:selectItem itemLabel="Normal" itemValue="none"/>
           			</h:selectOneListbox>  
-              </td>                           
+              </td>                                       
             </tr>                                
           </table>
         </sakai:group_box>

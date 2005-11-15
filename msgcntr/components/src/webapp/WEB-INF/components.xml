@@ -71,12 +71,12 @@
         </property> 
     </bean>
     
-    <bean id="org.sakaiproject.api.app.messageforums.PrivateMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <bean id="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.PrivateMessageManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.ui.PrivateMessageManagerImpl" singleton="true" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
@@ -99,12 +99,12 @@
     </bean>
     
     
-        <bean id="org.sakaiproject.api.app.messageforums.DiscussionForumManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <bean id="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.DiscussionForumManagerImpl" singleton="true" init-method="init">
+            <bean class="org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl" singleton="true" init-method="init">
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
