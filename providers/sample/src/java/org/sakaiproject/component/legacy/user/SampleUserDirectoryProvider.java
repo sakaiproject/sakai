@@ -28,11 +28,14 @@ package org.sakaiproject.component.legacy.user;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
 import org.sakaiproject.service.legacy.user.UserEdit;
+import org.sakaiproject.service.legacy.user.UserFactory;
+import org.sakaiproject.service.legacy.user.UsersShareEmailUDP;
 
 /**
  * <p>
@@ -42,7 +45,7 @@ import org.sakaiproject.service.legacy.user.UserEdit;
  * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
  */
-public class SampleUserDirectoryProvider implements UserDirectoryProvider
+public class SampleUserDirectoryProvider implements UserDirectoryProvider, UsersShareEmailUDP
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SampleUserDirectoryProvider.class);
@@ -188,7 +191,9 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider
 	}
 
 	/**
-	 * Find a user object who has this email address. Update the object with the information found.
+	 * Find a user object who has this email address. Update the object with the information found. <br /> 
+	 * Note: this method won't be used, because we are a UsersShareEmailUPD.<br />
+	 * This is the sort of method to provide if your external source has only a single user for any email address.
 	 * 
 	 * @param email
 	 *        The email address string.
@@ -210,6 +215,34 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider
 		return false;
 
 	} // findUserByEmail
+
+	/**
+	 * Find all user objects which have this email address.
+	 * 
+	 * @param email
+	 *        The email address string.
+	 * @param factory
+	 *        Use this factory's newUser() method to create all the UserEdit objects you populate and return in the return collection.
+	 * @return Collection (UserEdit) of user objects that have this email address, or an empty Collection if there are none.
+	 */
+	public Collection findUsersByEmail(String email, UserFactory factory)
+	{
+		Collection rv = new Vector();
+
+		// get a UserEdit to populate
+		UserEdit edit = factory.newUser();
+
+		// assume a "@sakaiproject.org"
+		int pos = email.indexOf("@sakaiproject.org");
+		if (pos != -1)
+		{
+			String id = email.substring(0, pos);
+			edit.setId(id);
+			if (getUser(edit)) rv.add(edit);
+		}
+
+		return rv;
+	}
 
 	/**
 	 * Authenticate a user / password. If the user edit exists it may be modified, and will be stored if...
