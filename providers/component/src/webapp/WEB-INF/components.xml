@@ -18,14 +18,23 @@
  		<!-- <property name="xFile"><value>*some*path*/users.properties</value></property> -->
 	</bean>
 
-	
-	
 	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
 			class="org.sakaiproject.component.legacy.user.SampleUserDirectoryProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 	</bean>
+
+<!--    Uncomment to use the IMS Enterprise provider
+	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
+			class="org.sakaiproject.component.imsent.user.IMSEntUserDirectoryProvider"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="sqlService"><ref bean="org.sakaiproject.service.framework.sql.SqlService"/></property>
+                <property name="autoDdl"><value>true</value></property>
+	</bean>
+-->
 
 <!--    Uncomment and configure to use the JLDAP Provider.
                 Default values below point to a test account at nldap.com (free ldap test server). 

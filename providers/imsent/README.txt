@@ -10,7 +10,7 @@ wil continue on this under the auspices of the Sakai Enterprise
 Discussion Group.  
 
 If you are interested in working with this code and helping to
-complete its development please join that discussio group.
+complete its development please join that discussion group.
 
 To use this provider, it is necessary to uncommment the configuration information
 in the files
