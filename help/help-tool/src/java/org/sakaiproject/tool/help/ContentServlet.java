@@ -26,7 +26,7 @@ package org.sakaiproject.tool.help;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 
 import javax.servlet.ServletException;
@@ -59,7 +59,7 @@ public class ContentServlet extends HttpServlet
     getHelpManager().initialize();
     String docId = req.getParameter(DOC_ID);
 
-    PrintWriter writer = res.getWriter();
+    OutputStreamWriter writer = new OutputStreamWriter(res.getOutputStream(), "UTF-8");
     res.setContentType(TEXT_HTML);
 
     Resource resource = getHelpManager().getResourceByDocId(docId);
@@ -86,14 +86,15 @@ public class ContentServlet extends HttpServlet
             url = HelpManager.class.getResource(resource.getLocation());
           }
 
-          BufferedReader br = new BufferedReader(new InputStreamReader(url
-              .openStream()), 512);
+          BufferedReader br = new BufferedReader(
+                  new InputStreamReader(url.openStream(),"UTF-8"));
 
           int readReturn = 0;
-          char[] cbuf = new char[512];
-          while ((readReturn = br.read(cbuf, 0, 512)) != -1)
+          String sbuf = new String();
+          while ((sbuf = br.readLine()) != null)
           {
-            writer.write(cbuf, 0, readReturn);
+            writer.write( sbuf );
+            writer.write( System.getProperty("line.separator") );
           }
           br.close();
         }

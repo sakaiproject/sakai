@@ -441,8 +441,8 @@ public class RestContentProvider
 
       StringBuffer sBuffer = new StringBuffer();
 
-      BufferedReader br = new BufferedReader(new InputStreamReader(
-          urlConnection.getInputStream()), 512);
+      BufferedReader br = new BufferedReader(
+              new InputStreamReader(urlConnection.getInputStream(),"UTF-8"), 512);
       int readReturn = 0;
       char[] cbuf = new char[512];
       while ((readReturn = br.read(cbuf, 0, 512)) != -1)
