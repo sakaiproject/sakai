@@ -116,7 +116,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     
     public void addTopic(Topic topic) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("addForum(topic " + topic + ")");
+            LOG.debug("addTopic(topic " + topic + ")");
         }
         
         if (topic == null) {
@@ -129,7 +129,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
     public void removeTopic(Topic topic) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("removeForum(topic " + topic + ")");
+            LOG.debug("removeTopic(topic " + topic + ")");
         }
         
         if (topic == null) {

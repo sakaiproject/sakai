@@ -31,7 +31,6 @@ import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.DateRestrictions;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.Label;
-import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForum {
@@ -42,6 +41,9 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
     private DateRestrictions dateRestrictions;
     private ActorPermissions actorPermissions;
     private Boolean moderated;
+    
+    // indecies for hibernate
+    private int areaindex;
     
     public ActorPermissions getActorPermissions() {
         return actorPermissions;
@@ -75,6 +77,17 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
         this.moderated = moderated;
     }
 
+    public int getAreaindex() {
+        try {
+            return getArea().getOpenForums().indexOf(this);
+        } catch (Exception e) {
+            return areaindex;
+        }
+    }
+
+    public void setAreaindex(int areaindex) {
+        this.areaindex = areaindex;
+    }
     
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections

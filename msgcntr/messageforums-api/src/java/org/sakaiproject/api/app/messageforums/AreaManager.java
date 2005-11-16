@@ -31,11 +31,11 @@ public interface AreaManager
    * @param typeuuid
    */
   public void removeForum(BaseForum forum, String typeuuid);
-  
-  public void addOpenForum(OpenForum forum);
-  public void removeOpenForum(OpenForum forum);
-  public void addPrivateForum(PrivateForum forum);
-  public void removePrivateForum(PrivateForum forum);  
-  public void addDiscussionnForum(DiscussionForum forum);
-  public void removeDiscussionForum(DiscussionForum forum);
+
+  public boolean isPrivateAreaEnabled();
+  public void saveArea(Area area);
+  public void deleteArea(Area area);
+  public Area getPrivateArea();
+  public Area getDiscussionForumArea();
+
 }

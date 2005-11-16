@@ -66,7 +66,7 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     public int getAreaindex() {
         try {
-            return getArea().getOpenForums().indexOf(this);
+            return getArea().getDiscussionForums().indexOf(this);
         } catch (Exception e) {
             return areaindex;
         }

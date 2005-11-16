@@ -27,7 +27,7 @@ import java.util.List;
 
 public interface Area extends MutableEntity
 {
-
+ 
   public void setVersion(Integer version);
 
   public String getContextId();
@@ -40,7 +40,7 @@ public interface Area extends MutableEntity
 
   public String getName();
 
-  public void setName(String name);
+  public void setName(String name); 
   
   public Boolean getEnabled();
 
@@ -52,6 +52,8 @@ public interface Area extends MutableEntity
   public void setPrivateForums(List discussionForums);
   public List getDiscussionForums();
   public void setDiscussionForums(List discussionForums);
+
+  
   /**
    * Get type of Area
    * @return
@@ -63,11 +65,10 @@ public interface Area extends MutableEntity
    */   
   public void setTypeUuid(String typeUuid);
   
- 
-  /**
-   * @param typeuuid
-   * @return
-   */
-  public List getForums(String typeuuid); 
-
+  public void addPrivateForum(BaseForum forum);
+  public void removePrivateForum(BaseForum forum);
+  public void addDiscussionForum(BaseForum forum);
+  public void removeDiscussionForum(BaseForum forum);
+  public void addOpenForum(BaseForum forum);
+  public void removeOpenForum(BaseForum forum); 
 }

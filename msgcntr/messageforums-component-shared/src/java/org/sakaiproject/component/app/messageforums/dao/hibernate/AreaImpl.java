@@ -21,9 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.OpenForum;
-import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class AreaImpl extends MutableEntityImpl implements Area
@@ -132,12 +129,88 @@ public class AreaImpl extends MutableEntityImpl implements Area
     this.discussionForums = discussionForums;
   }
 
-  // rshastri : suggestion//
-  public List getForums(String typeuuid)
-  {
-    // TODO Auto-generated method stub
-    return null;
+
+  ////////////////////////////////////////////////////////////////////////
+  // helper methods for collections
+  ////////////////////////////////////////////////////////////////////////
+  
+  public void addPrivateForum(BaseForum forum) {
+      if (LOG.isDebugEnabled()) {
+          LOG.debug("addPrivateForum(forum " + forum + ")");
+      }
+      
+      if (forum == null) {
+          throw new IllegalArgumentException("forum == null");
+      }
+      
+      forum.setArea(this);
+      privateForums.add(forum);
   }
 
+  public void removePrivateForum(BaseForum forum) {
+      if (LOG.isDebugEnabled()) {
+          LOG.debug("removePrivateForum(forum " + forum + ")");
+      }
+      
+      if (forum == null) {
+          throw new IllegalArgumentException("Illegal topic argument passed!");
+      }
+      
+      forum.setArea(null);
+      privateForums.remove(forum);
+  }
+       
+  public void addDiscussionForum(BaseForum forum) {
+      if (LOG.isDebugEnabled()) {
+          LOG.debug("addForum(forum " + forum + ")");
+      }
+      
+      if (forum == null) {
+          throw new IllegalArgumentException("forum == null");
+      }
+      
+      forum.setArea(this);
+      discussionForums.add(forum);
+  }
+
+  public void removeDiscussionForum(BaseForum forum) {
+      if (LOG.isDebugEnabled()) {
+          LOG.debug("removeDiscussionForum(forum " + forum + ")");
+      }
+      
+      if (forum == null) {
+          throw new IllegalArgumentException("Illegal topic argument passed!");
+      }
+      
+      forum.setArea(null);
+      discussionForums.remove(forum);
+  }
+       
+  public void addOpenForum(BaseForum forum) {
+      if (LOG.isDebugEnabled()) {
+          LOG.debug("addOpenForum(forum " + forum + ")");
+      }
+      
+      if (forum == null) {
+          throw new IllegalArgumentException("forum == null");
+      }
+      
+      forum.setArea(this);
+      openForums.add(forum);
+  }
+
+  public void removeOpenForum(BaseForum forum) {
+      if (LOG.isDebugEnabled()) {
+          LOG.debug("removeOpenForum(forum " + forum + ")");
+      }
+      
+      if (forum == null) {
+          throw new IllegalArgumentException("Illegal topic argument passed!");
+      }
+      
+      forum.setArea(null);
+      openForums.remove(forum);
+  }
+       
 
 }

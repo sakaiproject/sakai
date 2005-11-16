@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -15,6 +16,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Label;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
@@ -30,7 +32,6 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 
 
 /*
@@ -437,7 +438,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     a2.setModifiedBy("mary jane");
     a2.setId(new Long(2));
     a2.setUuid("2");
-    a2.setOpenForums(getDiscussionForums());
+    a2.setDiscussionForums(getDiscussionForums());
 
     return a2;
   }

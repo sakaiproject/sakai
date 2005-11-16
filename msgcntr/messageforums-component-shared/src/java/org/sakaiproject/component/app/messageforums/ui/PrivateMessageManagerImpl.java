@@ -1,18 +1,10 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-
-
 import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.PrivateForum;
-import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
-import org.sakaiproject.component.app.messageforums.MessageForumsAreaManager;
 import org.sakaiproject.component.app.messageforums.MessageForumsMessageManager;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -22,7 +14,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageManager
 {
 
-  private MessageForumsAreaManager areaManager;
+  private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
   private DummyDataHelperApi helper;
   private boolean usingHelper = true; // just a flag until moved to database from helper
@@ -38,12 +30,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     this.helper = helper;
   }
 
-  public MessageForumsAreaManager getAreaManager()
+  public AreaManager getAreaManager()
   {
     return areaManager;
   }
 
-  public void setAreaManager(MessageForumsAreaManager areaManager)
+  public void setAreaManager(AreaManager areaManager)
   {
     this.areaManager = areaManager;
   }

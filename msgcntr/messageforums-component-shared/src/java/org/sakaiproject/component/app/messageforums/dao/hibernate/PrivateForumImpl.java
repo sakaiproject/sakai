@@ -64,7 +64,7 @@ public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
 
     public int getAreaindex() {
         try {
-            return getArea().getOpenForums().indexOf(this);
+            return getArea().getPrivateForums().indexOf(this);
         } catch (Exception e) {
             return areaindex;
         }

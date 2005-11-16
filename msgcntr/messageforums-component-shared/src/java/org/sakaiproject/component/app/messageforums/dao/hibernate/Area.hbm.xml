@@ -53,7 +53,7 @@
 	</list>
 	<list name="discussionForums" lazy="true" table="MFR_DISCUSSION_FORUM_T" cascade="all">
 	    <key column="surrogateKey"/>
-	    <index column="area_index_col_2" />
+	    <index column="area_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl" />
 	</list>
 	
