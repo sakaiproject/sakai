@@ -274,5 +274,12 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public String getPublishedAssessmentOwner(String publishedAssessmentId);
 
-    public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title);
+  public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title);
+
+  public boolean hasRandomPart(Long publishedAssessmentId);
+
+  public PublishedItemData getFirstPublishedItem(Long publishedAssessmentId);
+
+  public List getPublishedItemIds(Long publishedAssessmentId);
+
 }

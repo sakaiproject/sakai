@@ -99,7 +99,7 @@
       <column name="TIMEELAPSED" not-null="false" sql-type="integer" />
     </property>
     <set name="itemGradingSet" table="SAM_ITEMGRADING_T" cascade="all" order-by="itemGradingId asc"
-      inverse="true" lazy="false">
+      inverse="true" lazy="true">
       <key column="ASSESSMENTGRADINGID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"/>
     </set>

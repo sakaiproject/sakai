@@ -73,6 +73,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
@@ -1186,24 +1187,60 @@ public class PublishedAssessmentFacadeQueries
     return a.getAgentIdString();
   }
 
- public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title) {
+  public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title) {
     String currentSiteId = AgentFacade.getCurrentSiteId(); 
     String agentString = AgentFacade.getAgentString();
     List list;
     boolean isUnique = true;
     String query="";
-
- query = "select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate)"+
-                   " from PublishedAssessmentData a, AuthorizationData z where "+
-                   " a.title=? and a.publishedAssessmentId!=? and z.functionId='OWN_PUBLISHED_ASSESSMENT' and " +
-     " a.publishedAssessmentId=z.qualifierId and z.agentIdString=?";
- System.out.println("query" + query);
-      list = getHibernateTemplate().find(query,
-                  new Object[]{title,assessmentBaseId,currentSiteId},
-					 new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
+    query = "select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate)"+
+            " from PublishedAssessmentData a, AuthorizationData z where "+
+            " a.title=? and a.publishedAssessmentId!=? and z.functionId='OWN_PUBLISHED_ASSESSMENT' and " +
+            " a.publishedAssessmentId=z.qualifierId and z.agentIdString=?";
+    System.out.println("query" + query);
+    list = getHibernateTemplate().find(query,
+           new Object[]{title,assessmentBaseId,currentSiteId},
+           new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     if (list.size()>0)
       isUnique = false;
     return isUnique;
+  }
+  
+  public boolean hasRandomPart(Long publishedAssessmentId){
+    boolean hasRandomPart = false;
+    String key = SectionDataIfc.AUTHOR_TYPE;
+    String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+    String query =
+        "select s from PublishedSectionData s, PublishedSectionMetaData m where "+
+        " s = m.section and s.assessment.publishedAssessmentId=? and " +
+        " m.label=? and m.entry=?";
+    List l = getHibernateTemplate().find(query,
+      new Object[]{ publishedAssessmentId, key, value},
+      new net.sf.hibernate.type.Type[] {Hibernate.LONG, Hibernate.STRING, Hibernate.STRING});
+    if (l.size()>0)
+      hasRandomPart=true;
+    return hasRandomPart;
+  }
 
- }
+  public PublishedItemData getFirstPublishedItem(Long publishedAssessmentId){
+    String query =
+        "select i from PublishedAssessmentData p, PublishedSectionData s, "+
+        " PublishedItemData i where p.publishedAssessmentId=? and"+
+        " p.publishedAssessmentId=s.assessment.publishedAssessmentId and " +
+        " s=i.section and s.sequence=? and i.sequence=?";
+    List l = getHibernateTemplate().find(query,
+      new Object[]{ publishedAssessmentId, new Integer("1"), new Integer("1")},
+      new net.sf.hibernate.type.Type[] {Hibernate.LONG, Hibernate.INTEGER, Hibernate.INTEGER});
+    return (PublishedItemData)l.get(0);
+  }
+
+  public List getPublishedItemIds(Long publishedAssessmentId){
+    return getHibernateTemplate().find(
+         "select i.itemId from PublishedItemData i, PublishedSectionData s, "+
+         " PublishedAssessmentData p where p.publishedAssessmentId=? and "+
+         " p = s.assessment and i.section = s",
+         new Object[] { publishedAssessmentId },
+         new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+  }
+
 }

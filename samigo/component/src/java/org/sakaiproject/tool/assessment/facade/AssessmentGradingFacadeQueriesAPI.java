@@ -137,4 +137,6 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public void setIsLate(AssessmentGradingIfc assessment);
 
+  public List getAssessmentGradingIds(Long publishedItemId);
+
 }

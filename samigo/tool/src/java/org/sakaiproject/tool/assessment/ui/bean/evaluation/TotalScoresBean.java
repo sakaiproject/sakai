@@ -45,7 +45,11 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareSe
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
-
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 
 /**
  * <p>Description: class form for evaluating total scores</p>
@@ -91,7 +95,7 @@ public class TotalScoresBean
   private List sectionFilterSelectItems;
   private List availableSections;
   private boolean releaseToAnonymous = false;
-
+  private PublishedAssessmentData publishedAssessment; 
 
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
@@ -664,5 +668,55 @@ public class TotalScoresBean
   public void setReleaseToAnonymous(boolean param) {
     releaseToAnonymous = param;
   }
+
+  public PublishedAssessmentData getPublishedAssessment(){
+    return publishedAssessment;
+  }
+
+  public void setPublishedAssessment(PublishedAssessmentData publishedAssessment){
+    if (publishedAssessment!=null){
+	this.publishedAssessment = publishedAssessment;
+      setPublishedId(publishedAssessment.getPublishedAssessmentId().toString());
+      setAssessmentName(publishedAssessment.getTitle());
+
+      // set accessControl properties
+      PublishedAccessControl ac = (PublishedAccessControl) publishedAssessment.getAssessmentAccessControl();
+      setAccessControlProperties(ac);
+     
+      // set evaluation model properties
+      PublishedEvaluationModel eval = (PublishedEvaluationModel) publishedAssessment.getEvaluationModel();
+      setEvaluationModelProperties(eval);
+    }
+  }
+
+  public void setAccessControlProperties(PublishedAccessControl ac){
+    if (ac != null){
+      if (ac.getDueDate()!=null) setDueDate(ac.getDueDate().toString());
+      if (ac.getLateHandling()!=null) setLateHandling(ac.getLateHandling().toString());
+      // set ReleaseToAnonymous
+      String releaseTo = ac.getReleaseTo();
+      if (releaseTo != null && releaseTo.indexOf("Anonymous Users")== -1){
+        setReleaseToAnonymous(false);
+      }
+      else setReleaseToAnonymous(true);
+    }
+  }
+
+  public void setEvaluationModelProperties(PublishedEvaluationModel eval){
+    if (eval != null && eval.getScoringType()!=null )
+      setScoringOption(eval.getScoringType().toString());
+
+    if (eval != null){
+      String anon = eval.getAnonymousGrading().equals(
+                    EvaluationModelIfc.ANONYMOUS_GRADING)?"true":"false";
+      setAnonymous(anon);
+    }
+
+    if (eval != null && eval.getFixedTotalScore()!=null )
+      setMaxScore(eval.getFixedTotalScore().toString());
+    else if (publishedAssessment.getTotalScore()!=null)
+      setMaxScore(publishedAssessment.getTotalScore().toString());
+  }
+
 
 }

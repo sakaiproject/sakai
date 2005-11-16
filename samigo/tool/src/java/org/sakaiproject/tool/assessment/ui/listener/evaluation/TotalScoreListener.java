@@ -46,6 +46,8 @@ import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -104,23 +106,21 @@ public class TotalScoreListener
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
     //log.info("Got publishedId " + publishedId);
+    PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+    PublishedAssessmentFacade pubAssessment = pubAssessmentService.
+                                              getPublishedAssessment(publishedId);
 
    // checking for permission first
-
-    PublishedAssessmentService pubassessmentService = new PublishedAssessmentService();
-    PublishedAssessmentFacade pubassessment = pubassessmentService.getPublishedAssessment(
-        publishedId);
-
     FacesContext context = FacesContext.getCurrentInstance();
     AuthorBean author = (AuthorBean) cu.lookupBean("author");
     author.setOutcome("totalScores");
-    if (!passAuthz(context, pubassessment.getCreatedBy())){
+    if (!passAuthz(context, pubAssessment.getCreatedBy())){
       author.setOutcome("author");
       return;
     }
 
     log.info("Calling totalScores.");
-    if (!totalScores(publishedId, bean, false))
+    if (!totalScores(pubAssessment, bean, false))
     {
       //throw new RuntimeException("failed to call totalScores.");
     }
@@ -138,26 +138,26 @@ public class TotalScoreListener
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
-    //log.info("Got publishedId " + publishedId);
-
+    PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+    PublishedAssessmentFacade pubAssessment = pubAssessmentService.
+                                              getPublishedAssessment(publishedId);
 
     String selectedvalue= (String) event.getNewValue();
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
       if (event.getComponent().getId().indexOf("sectionpicker") >-1 ) 
       {
-System.out.println("changed section picker");
+        log.debug("changed section picker");
         bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
       }
       else 
       {
-System.out.println("changed submission pulldown ");
+        log.debug("changed submission pulldown ");
         bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
       }
     }
 
-
     log.info("Calling totalScores.");
-    if (!totalScores(publishedId, bean, true))
+    if (!totalScores(pubAssessment, bean, true))
     {
       //throw new RuntimeException("failed to call totalScores.");
     }
@@ -173,357 +173,67 @@ System.out.println("changed submission pulldown ");
    * @return boolean
    */
   public boolean totalScores(
-    String publishedId, TotalScoresBean bean, boolean isValueChange)
+    PublishedAssessmentFacade pubAssessment, TotalScoresBean bean, boolean isValueChange)
   {
+    if (cu.lookupParam("sortBy") != null &&
+	!cu.lookupParam("sortBy").trim().equals("")){
+      bean.setSortType(cu.lookupParam("sortBy"));
+    }
+
     log.debug("totalScores()");
     try
     {
-      GradingService delegate =	new GradingService();
+      boolean firstTime = true;
+      PublishedAssessmentData p = (PublishedAssessmentData)pubAssessment.getData();
+      if ((bean.getPublishedId()).equals(p.getPublishedAssessmentId().toString()))
+        firstTime = false;
+      bean.setPublishedAssessment(p);
 
-      if (cu.lookupParam("sortBy") != null &&
-          !cu.lookupParam("sortBy").trim().equals(""))
-        bean.setSortType(cu.lookupParam("sortBy"));
-
-
-
-      String which = bean.getAllSubmissions();
-      if (which == null)
-      {
-   	// coming from authorIndex.jsp
-      	String allSubmissionTparam= cu.lookupParam("allSubmissionsT");
-        if (allSubmissionTparam ==null) 
-		which = "3";
-	else 
-		which = allSubmissionTparam;
-      }
-
-
-      // bean.setAllSubmissions(which);
-      bean.setPublishedId(publishedId);
-
-      // get available sections 
-
-      String pulldownid = bean.getSelectedSectionFilterValue();
-
-
-      ArrayList allscores = delegate.getTotalScores(publishedId, which);
-      ArrayList scores = new ArrayList();  // filtered list
-
-      PublishedAssessmentService pubassessmentService = new PublishedAssessmentService();
-      PublishedAssessmentFacade pubassessment = pubassessmentService.getPublishedAssessment(publishedId);
-
+      //#1 - prepareAgentResultList prepare a list of AssesmentGradingData and set it as
+      // bean.agents later in step #4
+      // scores is a filtered list contains last AssessmentGradingData submitted for grade
+      ArrayList scores = new ArrayList();  
       ArrayList students_not_submitted= new ArrayList();  
       Map useridMap= bean.getUserIdMap(); 
+      prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);
+      if (scores.size()==0) // no submission, return
+        return true;
 
-      // only do section filter if it's published to authenticated users
-      String releaseTo = pubassessment.getAssessmentAccessControl().getReleaseTo(); 
-      if (releaseTo != null && releaseTo.indexOf("Anonymous Users")== -1){ 
-        bean.setReleaseToAnonymous(false);
-      
-        // now we need filter by sections selected 
-        ArrayList students_submitted= new ArrayList();  // arraylist of students submitted test
-        Iterator allscores_iter = allscores.iterator();
-        while (allscores_iter.hasNext())
-        {
-	  AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
-          String agentid =  data.getAgentId();
-        
-	  // get the Map of all users(keyed on userid) belong to the selected sections 
-
-	  // now we only include scores of users belong to the selected sections
-          if (useridMap.containsKey(agentid) ) {
-	    scores.add(data);
-      	    students_submitted.add(agentid);
-	  }
-        }
-
-
-        // now get the list of students that have not submitted for grades 
-        Iterator useridIterator = useridMap.keySet().iterator(); 
-        while (useridIterator.hasNext()) {
-	  String userid = (String) useridIterator.next(); 	
-          if (!students_submitted.contains(userid)) {
-	    students_not_submitted.add(userid);
-          }
-        } 
-
-      }
-
-      // skip section filter if it's published to anonymous users
-      else {
-        bean.setReleaseToAnonymous(true);
-        scores.addAll(allscores);
-      }
-
-      Iterator iter = scores.iterator();
-      ArrayList agents = new ArrayList();
-
-      if (!iter.hasNext())
-      {
-        // this section has no students
-      bean.setAgents(agents);
-      bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
-      return true;
-      }
-      Object next = iter.next();
-      Date dueDate = null;
-
-      // Okay, here we get the first result set, which has a summary of
-      // information and a pointer to the graded assessment we should be
-      // displaying.  We get the graded assessment.
-      AssessmentGradingData data = (AssessmentGradingData) next;
-
-      if (data.getPublishedAssessment() != null)
-      {
-        bean.setAssessmentName(data.getPublishedAssessment().getTitle());
-// get assessmentSettings and call bean.setScoringOption()
-        Integer scoringoption = data.getPublishedAssessment().getEvaluationModel().getScoringType(); 
-	bean.setScoringOption(scoringoption.toString());
-
+      // pass #1, proceed forward to prepare properties that set the link "Statistics"
+      //#2 - the following methods are used to determine if the link "Statistics"
+      // and "Questions" should be displayed in totalScore.jsp. Once set, they 
+      // need not be executed everytime
+      if (firstTime){
         // if section set is null, initialize it - daisyf , 01/31/05
-        PublishedAssessmentData pub = (PublishedAssessmentData)data.getPublishedAssessment();
         HashSet sectionSet = PersistenceService.getInstance().
-            getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(pub);
-        data.getPublishedAssessment().setSectionSet(sectionSet);
-
-        // Set first item for question scores.  This can be complicated.
-        // It's important because it simplifies Question Scores to do this
-        // once and keep track of it -- the data is available here, and
-        // not there.  If firstItem is "", there are no items with
-        // answers, and the QuestionScores and Histograms pages don't
-        // show.  This is a very weird case, but has to be handled.
-        String firstitem = "";
-        bean.setFirstItem(firstitem);
-        HashMap answeredItems = new HashMap();
-        Iterator i2 = scores.iterator();
-        while (i2.hasNext())
-        {
-          AssessmentGradingData agd = (AssessmentGradingData) i2.next();
-          Iterator i3 = agd.getItemGradingSet().iterator();
-          while (i3.hasNext())
-          {
-            ItemGradingData igd = (ItemGradingData) i3.next();
-            answeredItems.put(igd.getPublishedItem().getItemId(), "true");
-          }
-        }
-        bean.setAnsweredItems(answeredItems); // Save for QuestionScores
-
-        boolean foundid = false;
-	boolean hasRandompart = false;
-
-        i2 = data.getPublishedAssessment().getSectionArraySorted().iterator();
-        while (i2.hasNext() && !foundid)
-        {
-          SectionDataIfc sdata = (SectionDataIfc) i2.next();
-          String authortype = sdata.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
-          if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(new Integer(authortype))){
-            hasRandompart = true;
-          }
-
-          Iterator i3 = sdata.getItemArraySortedForGrading().iterator();
-          while (i3.hasNext() && !foundid)
-          {
-            ItemDataIfc idata = (ItemDataIfc) i3.next();
-            if (answeredItems.get(idata.getItemId()) != null)
-            {
-              bean.setFirstItem(idata.getItemId().toString());
-              foundid = true;
-            }
-          }
-        }
-
-        bean.setHasRandomDrawPart(hasRandompart);
-        //log.info("Rachel: Setting first item to " +
-        //  bean.getFirstItem());
-
-        try {
-          bean.setAnonymous((data.getPublishedAssessment().getEvaluationModel().getAnonymousGrading().equals(EvaluationModel.ANONYMOUS_GRADING)?"true":"false"));
-          //log.info("Set anonymous = " + bean.getAnonymous());
-        } catch (Exception e) {
-          //log.info("No evaluation model");
-          bean.setAnonymous("false");
-        }
-        try {
-          bean.setLateHandling(data.getPublishedAssessment().getAssessmentAccessControl().getLateHandling().toString());
-        } catch (Exception e) {
-          //log.info("No access control model.");
-          bean.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION.toString());
-        }
-        try {
-          bean.setDueDate(data.getPublishedAssessment().getAssessmentAccessControl().getDueDate().toString());
-          dueDate = data.getPublishedAssessment().getAssessmentAccessControl().getDueDate();
-        } catch (Exception e) {
-          //log.info("No due date.");
-          bean.setDueDate("");
-          dueDate = null;
-        }
-// need to change for random draw parts
-        try {
-          bean.setMaxScore(data.getPublishedAssessment().getEvaluationModel().getFixedTotalScore().toString());
-        } catch (Exception e) {
-          bean.setMaxScore(data.getPublishedAssessment().getTotalScore().toString());
-        }
+                     getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(p);
+        p.setSectionSet(sectionSet);
+        bean.setFirstItem(getFirstItem(p));
+        bean.setHasRandomDrawPart(hasRandomPart(p));
       }
-
-      if (cu.lookupParam("roleSelection") != null)
-      {
-        bean.setRoleSelection(cu.lookupParam("roleSelection"));
+      if (firstTime || (isValueChange)){
+        bean.setAnsweredItems(getAnsweredItems(scores, p)); // Save for QuestionScores
       }
+      log.debug("**firstTime="+firstTime);
+      log.debug("**isValueChange="+isValueChange);
 
-      if (bean.getSortType() == null)
-      {
-        if (bean.getAnonymous().equals("true"))
-        {
-          bean.setSortType("totalAutoScore");
-        }
-        else
-        {
-          bean.setSortType("lastName");
-        }
-      }
-
-      // recordingData encapsulates the inbeanation needed for recording.
-      // set recording agent, agent assessmentId,
-      // set course_assignment_context value
-      // set max tries (0=unlimited), and 30 seconds max length
-      String courseContext = bean.getAssessmentName() + " total ";
-// Note this is HTTP-centric right now, we can't use in Faces
-//      AuthoringHelper authoringHelper = new AuthoringHelper();
-//      authoringHelper.getRemoteUserID() needs servlet stuff
-//      authoringHelper.getRemoteUserName() needs servlet stuff
-
-      String userId = "";
-      String userName = "";
-      RecordingData recordingData =
-        new RecordingData( userId, userName,
-        courseContext, "0", "30");
-      // set this value in the requestMap for sound recorder
-      bean.setRecordingData(recordingData);
-
-      // Collect a list of all the users in the scores list
-      ArrayList agentUserIds = new ArrayList();
-
-      iter = useridMap.keySet().iterator();
-      while (iter.hasNext())
-      {
-	String userid = (String)iter.next();
-        agentUserIds.add(userid);
-      }
-
+      //#3 - Collect a list of all the users in the scores list
+      ArrayList agentUserIds = getAgentIds(useridMap);
       AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
-      
-      /* Dump the grading and agent information into AgentResults */
-      // ArrayList agents = new ArrayList();
-      iter = scores.iterator();
-      while (iter.hasNext())
-      {
-        AgentResults results = new AgentResults();
-        AssessmentGradingData gdata = (AssessmentGradingData) iter.next();
-        BeanUtils.copyProperties(results, gdata);
 
-        results.setAssessmentGradingId(gdata.getAssessmentGradingId());
-        results.setTotalAutoScore(gdata.getTotalAutoScore().toString());
-        results.setTotalOverrideScore(gdata.getTotalOverrideScore().toString());
-        results.setFinalScore(gdata.getFinalScore().toString());
-        results.setComments(gdata.getComments());
-
-        int graded=0;
-        Iterator i3 = gdata.getItemGradingSet().iterator();
-          while (i3.hasNext())
-          {
-            ItemGradingData igd = (ItemGradingData) i3.next();
-            if (igd.getAutoScore() != null)
-		graded++;
-          }
-
-        if (dueDate == null || gdata.getSubmittedDate().before(dueDate)) {
-          results.setIsLate(new Boolean(false));
-          if (gdata.getItemGradingSet().size()==graded)
-              results.setStatus(new Integer(2));
-          else
-              results.setStatus(new Integer(3));
-        }
-        else {
-
-          results.setIsLate(new Boolean(true));
-          results.setStatus(new Integer(4));
-        }
-        AgentFacade agent = new AgentFacade(gdata.getAgentId());
-        //log.info("Rachel: agentid = " + gdata.getAgentId());
-        results.setLastName(agent.getLastName());
-        results.setFirstName(agent.getFirstName());
-        if (results.getLastName() != null &&
-            results.getLastName().length() > 0)
-          results.setLastInitial(results.getLastName().substring(0,1));
-        else if (results.getFirstName() != null &&
-                 results.getFirstName().length() > 0)
-          results.setLastInitial(results.getFirstName().substring(0,1));
-        else
-          results.setLastInitial("Anonymous");
-        results.setIdString(agent.getIdString());
-	results.setRole((String)userRoles.get(gdata.getAgentId()));
-        agents.add(results);
-      }
-
-
-
-      // now add those students that have not submitted scores, need to display them in the UI as well SAK-2234
-// students_not_submitted
-        Iterator notsubmitted_iter= students_not_submitted.iterator();
-        while (notsubmitted_iter.hasNext()){
-          String studentid = (String) notsubmitted_iter.next();
-          AgentResults results = new AgentResults();
-          AgentFacade agent = new AgentFacade(studentid);
-          results.setLastName(agent.getLastName());
-          results.setFirstName(agent.getFirstName());
-          if (results.getLastName() != null &&
-            results.getLastName().length() > 0)
-  	  {
-              results.setLastInitial(results.getLastName().substring(0,1));
-          }
-          else if (results.getFirstName() != null &&
-                 results.getFirstName().length() > 0)
-          {
-            results.setLastInitial(results.getFirstName().substring(0,1));
-          }
-          else
-          {
-            results.setLastInitial("Anonymous");
-          }
-          results.setIdString(agent.getIdString());
-          results.setRole((String)userRoles.get(studentid));
-	  // use -1 to indicate this is an unsubmitted agent
-          results.setAssessmentGradingId(new Long(-1));
-          results.setTotalAutoScore("0");
-          results.setTotalOverrideScore("0");
-          results.setSubmittedDate(null);
-          results.setFinalScore("0");
-          results.setComments("");
-          results.setStatus(new Integer(5));  //  no submission
-
-          agents.add(results);
-        }
-
-
-
-      //log.info("Sort type is " + bean.getSortType() + ".");
-      bs = new BeanSort(agents, bean.getSortType());
-      if (
-        (bean.getSortType()).equals("assessmentGradingId") ||
-        (bean.getSortType()).equals("totalAutoScore") ||
-        (bean.getSortType()).equals("totalOverrideScore") ||
-        (bean.getSortType()).equals("finalScore"))
-      {
-        bs.toNumericSort();
-      } else {
-        bs.toStringSort();
-      }
-
-      //bs.sort();
-      //log.info("Listing agents.");
+      //#4 - prepare agentResult list
+      ArrayList agents = new ArrayList();
+      prepareAgentResult(p, scores.iterator(), agents, userRoles);
+      prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+
+      //#5 - set role & sort selection
+      setRoleAndSortSelection(bean, agents);
+
+      //#6 - this is for audio questions?
+      //setRecordingData(bean);
 
     }
 
@@ -554,8 +264,295 @@ System.out.println("changed submission pulldown ");
     boolean isOwner = false;
     String agentId = AgentFacade.getAgentString();
     isOwner = agentId.equals(ownerId);
-    System.out.println("***isOwner="+isOwner);
+    log.debug("***isOwner="+isOwner);
     return isOwner;
   }
+
+  // Set first item for question scores.  This can be complicated.
+  // It's important because it simplifies Question Scores to do this
+  // once and keep track of it -- the data is available here, and
+  // not there.  If firstItem is "", there are no items with
+  // answers, and the QuestionScores and Histograms pages don't
+  // show.  This is a very weird case, but has to be handled.
+  // ***daisyf: this is a slow way of doing it.
+    /*
+  public void setAnsweredItem(TotalScoresBean bean, ArrayList scores, PublishedAssessmentData pub){
+    HashMap answeredItems = new HashMap();
+    Iterator i2 = scores.iterator();
+    while (i2.hasNext())
+    {
+      AssessmentGradingData agd = (AssessmentGradingData) i2.next();
+      Iterator i3 = agd.getItemGradingSet().iterator();
+      while (i3.hasNext())
+      {
+        ItemGradingData igd = (ItemGradingData) i3.next();
+        answeredItems.put(igd.getPublishedItem().getItemId(), "true");
+      }
+    }
+  }
+    */
+ 
+  // this method is efficient especially in large class
+  public HashMap getAnsweredItems(ArrayList scores, PublishedAssessmentData pub){
+    HashMap answeredItems = new HashMap();
+    HashMap h = new HashMap();
+
+    // 0. build a Hashmap containing all the assessmentGradingId in the filtered list 
+    for (int m=0; m<scores.size(); m++){
+      AssessmentGradingData a = (AssessmentGradingData)scores.get(m);
+      h.put(a.getAssessmentGradingId(),"");
+    }
+
+    // 1. get list of publishedItemId
+    List list =PersistenceService.getInstance().
+      getPublishedAssessmentFacadeQueries().getPublishedItemIds(pub.getPublishedAssessmentId());
+
+    // 2. go through each publishedItemId and get all the submission of 
+    // assessmentGradingId for the item
+    for (int i=0; i<list.size(); i++){
+      Long itemId = (Long)list.get(i);
+      List l = PersistenceService.getInstance().
+        getAssessmentGradingFacadeQueries().getAssessmentGradingIds(itemId);
+      // check if the assessmentGradingId submitted is among the filtered list
+      for (int j=0; j<l.size(); j++){
+        Long assessmentGradingId = (Long) l.get(j);
+        if (h.get(assessmentGradingId) != null){
+          answeredItems.put(itemId, "true");
+          break;    
+	}
+      } 
+    }
+    return answeredItems;
+  }
+
+  public boolean hasRandomPart(PublishedAssessmentData pub){
+    return PersistenceService.getInstance().
+          getPublishedAssessmentFacadeQueries().hasRandomPart(pub.getPublishedAssessmentId());
+  }
+
+  public String getFirstItem(PublishedAssessmentData pub){
+    PublishedItemData item = PersistenceService.getInstance().
+          getPublishedAssessmentFacadeQueries().getFirstPublishedItem(pub.getPublishedAssessmentId());
+    if (item!=null)
+      return item.getItemId().toString();
+    else
+      return "";
+  }
+
+  public void getFilteredList(TotalScoresBean bean, ArrayList allscores,ArrayList scores, 
+                              ArrayList students_not_submitted, Map useridMap){
+    // only do section filter if it's published to authenticated users
+    if (bean.getReleaseToAnonymous()){
+    // skip section filter if it's published to anonymous users
+      scores.addAll(allscores);
+    }
+    else {
+      // now we need filter by sections selected 
+      ArrayList students_submitted= new ArrayList();  // arraylist of students submitted test
+      Iterator allscores_iter = allscores.iterator();
+      while (allscores_iter.hasNext())
+      {
+        AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
+        String agentid =  data.getAgentId();
+        
+        // get the Map of all users(keyed on userid) belong to the selected sections 
+        // now we only include scores of users belong to the selected sections
+        if (useridMap.containsKey(agentid) ) {
+          scores.add(data); // daisyf: #1b - what is the min set of info needed for data?
+          students_submitted.add(agentid);
+        }
+      }
+
+      // now get the list of students that have not submitted for grades 
+      Iterator useridIterator = useridMap.keySet().iterator(); 
+      while (useridIterator.hasNext()) {
+        String userid = (String) useridIterator.next(); 	
+        if (!students_submitted.contains(userid)) {
+          students_not_submitted.add(userid);
+        }
+      }
+    }
+  }
+
+  public void prepareAgentResultList(TotalScoresBean bean, PublishedAssessmentData p,
+                 ArrayList scores, ArrayList students_not_submitted, Map useridMap){ 
+
+    // get available sections 
+    String pulldownid = bean.getSelectedSectionFilterValue();
+
+    // daisyf: #1a - place for optimization. all score contains full object of
+    // AssessmentGradingData, do we need full?
+    GradingService delegate = new GradingService();
+    ArrayList allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions());
+    getFilteredList(bean, allscores, scores, students_not_submitted, useridMap);
+    bean.setTotalPeople(scores.size()+"");
+  }
+
+  /* Dump the grading and agent information into AgentResults */
+  // ArrayList agents = new ArrayList();
+  public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
+    while (iter.hasNext())
+    {
+      AgentResults results = new AgentResults();
+      AssessmentGradingData gdata = (AssessmentGradingData) iter.next();
+      try{
+        BeanUtils.copyProperties(results, gdata);
+      }
+      catch(Exception e){
+        log.warn(e.getMessage());
+      }
+
+      results.setAssessmentGradingId(gdata.getAssessmentGradingId());
+      results.setTotalAutoScore(gdata.getTotalAutoScore().toString());
+      results.setTotalOverrideScore(gdata.getTotalOverrideScore().toString());
+      results.setFinalScore(gdata.getFinalScore().toString());
+      results.setComments(gdata.getComments());
+
+      int graded=0;
+      Iterator i3 = gdata.getItemGradingSet().iterator();
+      while (i3.hasNext())
+      {
+        ItemGradingData igd = (ItemGradingData) i3.next();
+        if (igd.getAutoScore() != null)
+          graded++;
+      }
+        
+      Date dueDate = null;
+      PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
+      if (ac!=null)
+        dueDate = ac.getDueDate();
+      if (dueDate == null || gdata.getSubmittedDate().before(dueDate)) {
+        results.setIsLate(new Boolean(false));
+        if (gdata.getItemGradingSet().size()==graded)
+          results.setStatus(new Integer(2));
+        else
+          results.setStatus(new Integer(3));
+      }
+      else {
+        results.setIsLate(new Boolean(true));
+        results.setStatus(new Integer(4));
+      }
+      AgentFacade agent = new AgentFacade(gdata.getAgentId());
+      //log.info("Rachel: agentid = " + gdata.getAgentId());
+      results.setLastName(agent.getLastName());
+      results.setFirstName(agent.getFirstName());
+      if (results.getLastName() != null &&
+        results.getLastName().length() > 0)
+        results.setLastInitial(results.getLastName().substring(0,1));
+      else if (results.getFirstName() != null &&
+               results.getFirstName().length() > 0)
+             results.setLastInitial(results.getFirstName().substring(0,1));
+      else
+        results.setLastInitial("Anonymous");
+      results.setIdString(agent.getIdString());
+      results.setRole((String)userRoles.get(gdata.getAgentId()));
+      agents.add(results);
+    }
+  }
+
+  public ArrayList getAgentIds(Map useridMap){
+    ArrayList agentUserIds = new ArrayList();
+    Iterator iter = useridMap.keySet().iterator();
+    while (iter.hasNext())
+    {
+      String userid = (String)iter.next();
+      agentUserIds.add(userid);
+    }
+    return agentUserIds;
+  }
+
+
+  public void setRoleAndSortSelection(TotalScoresBean bean, ArrayList agents){
+    if (cu.lookupParam("roleSelection") != null)
+    {
+      bean.setRoleSelection(cu.lookupParam("roleSelection"));
+    }
+
+    if (bean.getSortType() == null)
+    {
+      if (bean.getAnonymous().equals("true"))
+      {
+        bean.setSortType("totalAutoScore");
+      }
+      else
+      {
+        bean.setSortType("lastName");
+      }
+    }
+    //log.info("Sort type is " + bean.getSortType() + ".");
+    bs = new BeanSort(agents, bean.getSortType());
+    if (
+      (bean.getSortType()).equals("assessmentGradingId") ||
+      (bean.getSortType()).equals("totalAutoScore") ||
+      (bean.getSortType()).equals("totalOverrideScore") ||
+      (bean.getSortType()).equals("finalScore"))
+    {
+      bs.toNumericSort();
+    } else {
+      bs.toStringSort();
+    }
+  }
+
+    public void setRecordingData(TotalScoresBean bean){
+      // recordingData encapsulates the inbeanation needed for recording.
+      // set recording agent, agent assessmentId,
+      // set course_assignment_context value
+      // set max tries (0=unlimited), and 30 seconds max length
+      String courseContext = bean.getAssessmentName() + " total ";
+      // Note this is HTTP-centric right now, we can't use in Faces
+      //      AuthoringHelper authoringHelper = new AuthoringHelper();
+      //      authoringHelper.getRemoteUserID() needs servlet stuff
+      //      authoringHelper.getRemoteUserName() needs servlet stuff
+
+      String userId = "";
+      String userName = "";
+      RecordingData recordingData =
+        new RecordingData( userId, userName,
+        courseContext, "0", "30");
+      // set this value in the requestMap for sound recorder
+      bean.setRecordingData(recordingData);
+
+    }
+
+  //add those students that have not submitted scores, need to display them 
+  // in the UI as well SAK-2234
+  // students_not_submitted
+  public void prepareNotSubmittedAgentResult(Iterator notsubmitted_iter,
+                                             ArrayList agents, Map userRoles){
+    while (notsubmitted_iter.hasNext()){
+      String studentid = (String) notsubmitted_iter.next();
+      AgentResults results = new AgentResults();
+      AgentFacade agent = new AgentFacade(studentid);
+      results.setLastName(agent.getLastName());
+      results.setFirstName(agent.getFirstName());
+      if (results.getLastName() != null &&
+        results.getLastName().length() > 0)
+      {
+        results.setLastInitial(results.getLastName().substring(0,1));
+      }
+      else if (results.getFirstName() != null &&
+               results.getFirstName().length() > 0)
+      {
+        results.setLastInitial(results.getFirstName().substring(0,1));
+      }
+      else
+      {
+        results.setLastInitial("Anonymous");
+      }
+      results.setIdString(agent.getIdString());
+      results.setRole((String)userRoles.get(studentid));
+      // use -1 to indicate this is an unsubmitted agent
+      results.setAssessmentGradingId(new Long(-1));
+      results.setTotalAutoScore("0");
+      results.setTotalOverrideScore("0");
+      results.setSubmittedDate(null);
+      results.setFinalScore("0");
+      results.setComments("");
+      results.setStatus(new Integer(5));  //  no submission
+      agents.add(results);
+    }
+  }
+
+
 
 }

@@ -968,4 +968,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return answer.getScore().floatValue();
   }
 
+  public List getAssessmentGradingIds(Long publishedItemId){
+    return getHibernateTemplate().find(
+         "select g.assessmentGrading.assessmentGradingId from "+
+         " ItemGradingData g where g.publishedItem.itemId=?",
+         new Object[] { publishedItemId },
+         new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+  }
+
 }
