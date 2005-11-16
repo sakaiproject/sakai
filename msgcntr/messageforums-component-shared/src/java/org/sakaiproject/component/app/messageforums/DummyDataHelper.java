@@ -1,11 +1,9 @@
-
 package org.sakaiproject.component.app.messageforums;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -16,7 +14,6 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Label;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
@@ -32,7 +29,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
-
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 
 /*
  * This helper provides dummy data for use by interface developers It uses model objects. Models are
@@ -43,10 +40,12 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage
 public class DummyDataHelper implements DummyDataHelperApi
 {
   private MessageForumsTypeManager typeMgr;
+
   public void init()
   {
     ;
   }
+
   public Area getPrivateArea()
   {
     Area a1 = new AreaImpl();
@@ -117,7 +116,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setSortIndex(new Integer(2));
     dtm.setMessages(getReceivedPrivateMessages());
     dtm.setMessagePermissions(getMessgePermissions());
-    
+
     DiscussionTopic dtm1 = new DiscussionTopicImpl();
     dtm1.setActorPermissions(getActorPermissions());
     dtm1.setAttachments(getAttachments());
@@ -142,7 +141,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setSortIndex(new Integer(222));
     dtm1.setMessages(getSentPrivateMessages());
     dtm1.setMessagePermissions(getMessgePermissions());
-    
+
     DiscussionTopic dtm2 = new DiscussionTopicImpl();
     dtm2.setActorPermissions(getActorPermissions());
     dtm2.setAttachments(getAttachments());
@@ -167,8 +166,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm2.setSortIndex(new Integer(2222));
     dtm2.setMessages(getDeletedPrivateMessages());
     dtm2.setMessagePermissions(getMessgePermissions());
-    
-    
+
     DiscussionTopic dtm3 = new DiscussionTopicImpl();
     dtm3.setActorPermissions(getActorPermissions());
     dtm3.setAttachments(getAttachments());
@@ -193,7 +191,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm3.setSortIndex(new Integer(2));
     dtm3.setMessages(getDraftedPrivateMessages());
     dtm3.setMessagePermissions(getMessgePermissions());
-    
+
     DiscussionTopic dtm13 = new DiscussionTopicImpl();
     dtm13.setActorPermissions(getActorPermissions());
     dtm13.setAttachments(getAttachments());
@@ -217,19 +215,16 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm13.setSortIndex(new Integer(2));
     dtm13.setMessages(null);
     dtm13.setMessagePermissions(getMessgePermissions());
-    
+
     discussionTopics.add(dtm);
     discussionTopics.add(dtm1);
     discussionTopics.add(dtm2);
     discussionTopics.add(dtm3);
     discussionTopics.add(dtm13);
-    
-    
-    
+
     return discussionTopics;
   }
 
-  
   private List getDraftedPrivateMessages()
   {
     List privateMessages = new ArrayList();
@@ -252,7 +247,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setExternalEmail(Boolean.TRUE);
     pmm1.setExternalEmailAddress("fun@hotmail.com");
     pmm1.setRecipients(new ArrayList()); // TODO: Real sakai users needed
-    
+
     PrivateMessage pmm2 = new PrivateMessageImpl();
     pmm2.setApproved(Boolean.TRUE);
     pmm2.setAttachments(getAttachments());
@@ -275,7 +270,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     privateMessages.add(pmm1);
     privateMessages.add(pmm2);
     return privateMessages;
-  
 
   }
 
@@ -301,7 +295,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setExternalEmail(Boolean.TRUE);
     pmm1.setExternalEmailAddress("fun@hotmail.com");
     pmm1.setRecipients(new ArrayList()); // TODO: Real sakai users needed
-    
+
     PrivateMessage pmm2 = new PrivateMessageImpl();
     pmm2.setApproved(Boolean.TRUE);
     pmm2.setAttachments(getAttachments());
@@ -349,7 +343,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setExternalEmail(Boolean.TRUE);
     pmm1.setExternalEmailAddress("fun@hotmail.com");
     pmm1.setRecipients(new ArrayList()); // TODO: Real sakai users needed
-    
+
     PrivateMessage pmm2 = new PrivateMessageImpl();
     pmm2.setApproved(Boolean.TRUE);
     pmm2.setAttachments(getAttachments());
@@ -397,7 +391,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setExternalEmail(Boolean.TRUE);
     pmm1.setExternalEmailAddress("fun@hotmail.com");
     pmm1.setRecipients(new ArrayList()); // TODO: Real sakai users needed
-    
+
     PrivateMessage pmm2 = new PrivateMessageImpl();
     pmm2.setApproved(Boolean.TRUE);
     pmm2.setAttachments(getAttachments());
@@ -422,10 +416,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     return privateMessages;
   }
 
-  
-  
-  
-  //**********************************************************************************
+  // **********************************************************************************
   public Area getDiscussionForumArea()
   {
     Area a2 = new AreaImpl();
@@ -439,10 +430,9 @@ public class DummyDataHelper implements DummyDataHelperApi
     a2.setId(new Long(2));
     a2.setUuid("2");
     a2.setDiscussionForums(getDiscussionForums());
-
     return a2;
   }
-  
+
   private List getDiscussionForums()
   {
     List dicussionForums = new ArrayList();
@@ -453,7 +443,8 @@ public class DummyDataHelper implements DummyDataHelperApi
     dfm1.setCreated(new Date());
     dfm1.setCreatedBy("admin");
     dfm1.setDateRestrictions(getDateRestrictions());
-    dfm1.setExtendedDescription("the extended description");
+    dfm1
+        .setExtendedDescription("This forum is used to discuss assigned case studies. You should follow the case study preparation instructions before posting.");
     dfm1.setId(new Long(5));
     dfm1.setUuid("5");
     dfm1.setLabels(getLabels());
@@ -461,9 +452,10 @@ public class DummyDataHelper implements DummyDataHelperApi
     dfm1.setMessagePermissions(getMessgePermissions());
     dfm1.setModerated(Boolean.TRUE);
     dfm1.setModified(new Date());
-    dfm1.setModifiedBy("the moderator");
-    dfm1.setShortDescription("sort desc here...");
-    dfm1.setTitle("disc forum 1");
+    dfm1.setModifiedBy("admin");
+    dfm1
+        .setShortDescription("This forum is used to discuss assigned case studies. You should follow the case study preparation instructions before posting.");
+    dfm1.setTitle("Case Studies");
     dfm1.setTopics(list2set(getDiscussionTopics()));
 
     // dfm1.setType(new Type());
@@ -532,7 +524,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     return forumMessages;
   }
 
-
   private List getDiscussionTopics()
   {
     List discussionTopics = new ArrayList();
@@ -544,7 +535,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setCreated(new Date());
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
-    dtm1.setExtendedDescription("the extended description");
+    dtm1.setExtendedDescription("The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
     dtm1.setId(new Long(11));
     dtm1.setUuid("11");
     dtm1.setLabels(getLabels());
@@ -554,7 +545,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
     dtm1.setShortDescription("sort desc here...");
-    dtm1.setTitle("disc topic 1");
+    dtm1.setTitle("Dubai Port Authority Case KPMG: One Giant Brain Case");
     // dtm1.setType(new TypeImpl());
     dtm1.setConfidentialResponses(Boolean.TRUE);
     dtm1.setGradebook("gb2-1");
@@ -678,10 +669,9 @@ public class DummyDataHelper implements DummyDataHelperApi
 
   public boolean isPrivateAreaUnabled()
   {
-     return true;
+    return true;
   }
- 
- 
+
   public void setTypeMgr(MessageForumsTypeManager typeMgr)
   {
     this.typeMgr = typeMgr;

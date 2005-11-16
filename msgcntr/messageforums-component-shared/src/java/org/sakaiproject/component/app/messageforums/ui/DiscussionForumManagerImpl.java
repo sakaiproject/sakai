@@ -1,5 +1,7 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.util.List;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
@@ -78,12 +80,26 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   public int getTotalNoMessages(Topic topic)
   {
-     return 20;
+//  TODO: Implement 
+    return 20;
   }
 
   public int getUnreadNoMessages(Topic topic)
   {
+//  TODO: Implement
     return 10;
   }
+
+  public List getDiscussionForums()
+  {
+    if (usingHelper)
+    {
+      return helper.getDiscussionForumArea().getDiscussionForums();
+    }
+    // TODO: Implement Me!
+    throw new UnsupportedOperationException();
+  }
+  
+  
 
 }

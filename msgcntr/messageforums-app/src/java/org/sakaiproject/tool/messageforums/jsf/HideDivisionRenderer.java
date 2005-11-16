@@ -88,7 +88,7 @@ public class HideDivisionRenderer extends Renderer
         title + "\"" + " onclick=\"javascript:showHideDiv('" + id +
         "', '" +  RESOURCE_PATH + "');\"");
     writer.write("    src=\""   + BARIMG + "\" style=\"" + CURSOR + "\" />");
-    writer.write("  " + title + "");
+    writer.write("  <b>" + title + "</b>");
     writer.write("</td><td width=\"100%\">&nbsp;</td>");
     writer.write("<td nowrap=\"nowrap\" align=\"right\">");
     List childrenList = component.getChildren();

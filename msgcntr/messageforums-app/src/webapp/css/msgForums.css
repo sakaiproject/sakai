@@ -1,1 +1,10 @@
 .forumsColumn{font-size:100%;color:#084A87;font-weight:normal;margin:.5em 0;background:transparent}
+/*#navIntraTool: text left aligned*/
+.forumsRow{color:#000;padding:.3em;text-align:left;font-size:.9em;line-height:1.3em;background:#DDDFE4}
+/* .forumsRow a:link,.navIntraTool a{border-bottom:1px dashed #90A1C6;background:#DDDFE4;padding:0px 2px 0px 3px;color:#000;text-decoration:none;margin:0 .5em}
+.forumsRow a:hover{border:none;text-decoration:none !important;color:#084A87 !important;padding:0px 2px 0px 3px;border-bottom:1px solid #FFF !important}
+.forumsRow a:visited{border-bottom:1px dashed #90A1C6;background:#DDDFE4;padding:0px 2px 0px 3px;color:#000;text-decoration:none}
+*/
+.topicRows{
+  border: none; float: right; margin: 0; padding: 0; width: 97%;text-align:left;
+}

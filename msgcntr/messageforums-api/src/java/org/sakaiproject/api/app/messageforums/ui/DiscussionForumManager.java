@@ -1,5 +1,7 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
+import java.util.List;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -40,5 +42,10 @@ public interface DiscussionForumManager
    * @return
    */
   int getUnreadNoMessages(Topic topic);
+
+  /**
+   * @return
+   */
+  public List getDiscussionForums();
 
 }
