@@ -153,7 +153,12 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
-       <h:commandLink action="studentScores">
+
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1'}" />
+         <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1'}"/>
+         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1'}" />
+         <h:outputText value="#{description.lastInitial}" rendered="#{description.lastInitial eq 'Anonymous' && description.assessmentGradingId eq '-1'}" />
+       <h:commandLink action="studentScores" rendered="#{description.assessmentGradingId ne '-1'}" >
          <h:outputText value="#{description.firstName}" />
          <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
@@ -183,7 +188,11 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
-       <h:commandLink action="studentScores" immediate="true">
+
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1'}" />
+         <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1'}"/>
+         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1'}" />
+       <h:commandLink action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}" >
          <h:outputText value="#{description.firstName}" />
          <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
@@ -210,7 +219,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         </h:commandLink>
      </f:facet>
      <h:panelGroup>
-       <h:commandLink action="studentScores">
+       <h:outputText value="" rendered="#{description.assessmentGradingId eq '-1'}"/>
+       <h:commandLink action="studentScores" rendered="#{description.assessmentGradingId ne '-1'}" >
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
@@ -229,7 +239,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
           <h:outputText value="#{msg.sub_id}" />
      </f:facet>
      <h:panelGroup>
-       <h:commandLink action="studentScores" immediate="true">
+       <h:outputText value="" rendered="#{description.assessmentGradingId eq '-1'}"/>
+       <h:commandLink action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}">
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
