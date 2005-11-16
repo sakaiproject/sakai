@@ -72,7 +72,7 @@ public class EntityProducerSakai2 implements EntityProducer {
 				if (log.isInfoEnabled()) log.info("Gradebook being added to site " + gradebookUid);
 				gradebookService.addGradebook(gradebookUid, gradebookUid);
 			}
-		} else if (change == EntityProducer.ChangeType.REMOVE) {
+		} else if ((change == EntityProducer.ChangeType.REMOVE) && gradebookExists) {
 			try {
 				gradebookService.deleteGradebook(gradebookUid);
 			} catch (GradebookNotFoundException e) {
