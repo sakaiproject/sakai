@@ -212,15 +212,12 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                     }
                 }
                 try {
-                    session.flush();
-                    session.clear();
+					// Update the course grade records for students with assignment grade record changes
+					recalculateCourseGradeRecords(gb, studentsWithUpdatedAssignmentGradeRecords, session);
                 } catch (StaleObjectStateException sose) {
                     if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update assignment grade records");
                     throw new StaleObjectModificationException(sose);
                 }
-
-                // Update the course grade records for students with assignment grade record changes
-                recalculateCourseGradeRecords(gb, studentsWithUpdatedAssignmentGradeRecords, session);
 
                 return studentsWithExcessiveScores;
 			}
@@ -640,13 +637,8 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 session.evict(asnFromDb);
                 session.update(assignment);
 
-                // Flush the session before calling on the course grade updates (we want data contention to happen here, not there)
-                session.flush();
-                session.clear();
-
                 if(pointsChanged) {
                 	recalculateCourseGradeRecords(assignment.getGradebook(), session);
-                    // updateCourseGradeRecordSortValues(assignment.getGradebook().getId(), false);
                 }
 
                 return null;

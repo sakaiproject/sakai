@@ -165,15 +165,21 @@ public class GradebookServiceTest extends GradebookTestBase {
     }
 
     public void testRemoveExternalAssignment() throws Exception {
+        Gradebook gb = gradebookManager.getGradebook(GRADEBOOK_UID);
+
         // Add an external assessment
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
 
         // Add the external assessment score
-        Gradebook gb = gradebookManager.getGradebook(GRADEBOOK_UID);
-        gradebookService.removeExternalAssessment(gb.getUid(), EXT_ID_1);
+        gradebookService.updateExternalAssessmentScore(GRADEBOOK_UID, EXT_ID_1, "student1", new Double(5));
+        CourseGradeRecord cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
+        Assert.assertTrue(cgr.getPointsEarned().equals(new Double(15)));// 10 points on internal, 10 points on external
+
+        // Remove the external assessment
+        gradebookService.removeExternalAssessment(GRADEBOOK_UID, EXT_ID_1);
 
         // Ensure that the course grade record for student1 has been updated
-        CourseGradeRecord cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
+        cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(10)));// 10 points on internal, 0 points on external
     }
 

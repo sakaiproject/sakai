@@ -111,12 +111,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Assignment asn = (Assignment)session.load(Assignment.class, assignmentId);
+                Gradebook gradebook = asn.getGradebook();
                 asn.setRemoved(true);
                 session.update(asn);
-                if(logger.isInfoEnabled()) logger.info("Assignment " + asn.getName() + " has been removed from " + asn.getGradebook());
+                if(logger.isInfoEnabled()) logger.info("Assignment " + asn.getName() + " has been removed from " + gradebook);
 
                 // Update the course grade records
-                Gradebook gradebook = asn.getGradebook();
                 recalculateCourseGradeRecords(gradebook, session);
 
                 return null;

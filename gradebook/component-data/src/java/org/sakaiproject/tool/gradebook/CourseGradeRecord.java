@@ -226,7 +226,8 @@ public class CourseGradeRecord extends AbstractGradeRecord {
      */
     public Double calculatePercent(double totalPointsPossible) {
         Double pointsEarned = getPointsEarned();
-        if(pointsEarned == null) {
+        if (log.isDebugEnabled()) log.debug("calculatePercent; totalPointsPossible=" + totalPointsPossible + ", pointsEarned=" + pointsEarned);
+        if ((pointsEarned == null) || (totalPointsPossible == 0.0)) {
             return null;
         } else {
             return new Double(pointsEarned.doubleValue() / totalPointsPossible * 100);

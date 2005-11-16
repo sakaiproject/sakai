@@ -284,8 +284,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
                 // Delete the scores
                 try {
-                    session.flush();
-                    session.clear();
                     recalculateCourseGradeRecords(asn.getGradebook(), studentsWithExternalScores, session);
                 } catch (StaleObjectStateException e) {
                     if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to remove an external assessment");
@@ -350,8 +348,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 Set set = new HashSet();
                 set.add(studentId);
                 try {
-                    session.flush();
-                    session.clear();
                     recalculateCourseGradeRecords(gradebook, set, session);
                 } catch (StaleObjectStateException e) {
                     if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
