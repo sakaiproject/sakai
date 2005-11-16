@@ -131,18 +131,5 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager
     // TODO: add the session manager back
     return "joe"; //SessionManager.getCurrentSession().getUserEid();
   }
-    
-  //rshastri suggestion//
-  public void addForum(BaseForum forum, String typeuuid)
-  { 
-    
-    // TODO Auto-generated method stub
-  }
-
-
-  public void removeForum(BaseForum forum, String typeuuid)
-  {
-    // TODO Auto-generated method stub
-  }
-  
+     
 }

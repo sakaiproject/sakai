@@ -20,18 +20,6 @@ public interface AreaManager
    */
   public Area getArea(String contextId);
   
-  /**
-   * @param forum
-   * @param typeuuid
-   */
-  public void addForum(BaseForum forum,String typeuuid);
-  
-  /**
-   * @param forum
-   * @param typeuuid
-   */
-  public void removeForum(BaseForum forum, String typeuuid);
-
   public boolean isPrivateAreaEnabled();
   public void saveArea(Area area);
   public void deleteArea(Area area);
