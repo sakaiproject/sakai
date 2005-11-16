@@ -22,8 +22,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   
   private static final String DELETED ="DeletedPrivateMassageType";
   
-  private static final String DRAFT ="DraftPrivateMassageType";
-  
+  private static final String DRAFT ="DraftPrivateMassageType";  
  
   private TypeManager typeManager;
   
@@ -48,11 +47,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     {
       return (typeManager.createType(AUTHORITY,DOMAIN,PRIVATE,"Private Forums", "Private Message Forums").getUuid());
     }
- 
-
   }
-  
-  
 
   public String getDiscussionForumType()
   {
@@ -80,10 +75,6 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
       return (typeManager.createType(AUTHORITY,DOMAIN,OPEN,"OPEN DISCUSSION FORUMS", "OPEN DISCUSSION Message Forums").getUuid());
     }
   }
-
-
-
-
 
   public String getReceivedPrivateMessageType()
   {
@@ -113,8 +104,6 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     }
   }
 
-
-
   public String getDeletedPrivateMessageType()
   {
     Type type = typeManager.getType(AUTHORITY,DOMAIN,DELETED);
@@ -127,8 +116,6 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
       return (typeManager.createType(AUTHORITY,DOMAIN,DELETED,"Deleted Private Massage Type", "Deleted Private Massage Type").getUuid());
     }
   }
-
-
 
   public String getDraftPrivateMessageType()
   {

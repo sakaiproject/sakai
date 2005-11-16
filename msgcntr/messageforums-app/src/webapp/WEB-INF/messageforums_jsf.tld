@@ -454,6 +454,14 @@
       <description>The displayed label of the toolbar item.</description>
     </attribute>
 
+	<attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>boolean</type>
+      <description></description>
+    </attribute>
+
     <attribute>
       <name>disabled</name>
       <required>false</required>

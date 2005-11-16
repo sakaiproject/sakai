@@ -1,9 +1,8 @@
- 
+
 package org.sakaiproject.component.app.messageforums;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
@@ -32,7 +31,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermiss
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+
 
 /*
  * This helper provides dummy data for use by interface developers It uses model objects. Models are

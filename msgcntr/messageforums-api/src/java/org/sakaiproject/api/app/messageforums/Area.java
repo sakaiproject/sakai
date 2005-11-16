@@ -49,8 +49,9 @@ public interface Area extends MutableEntity
   public List getOpenForums();
   public void setOpenForums(List openForums);
   public List getPrivateForums();
-  public void setPrivateForums(List privateForums);
-  
+  public void setPrivateForums(List discussionForums);
+  public List getDiscussionForums();
+  public void setDiscussionForums(List discussionForums);
   /**
    * Get type of Area
    * @return
@@ -62,8 +63,11 @@ public interface Area extends MutableEntity
    */   
   public void setTypeUuid(String typeUuid);
   
-  public void addOpenForum(OpenForum forum);
-  public void removeOpenForum(OpenForum forum);
-  public void addPrivateForum(PrivateForum forum);
-  public void removePrivateForum(PrivateForum forum);  
+ 
+  /**
+   * @param typeuuid
+   * @return
+   */
+  public List getForums(String typeuuid); 
+
 }

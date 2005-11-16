@@ -104,13 +104,18 @@
         </navigation-case>                                                       
     </navigation-rule>
   
-    <!-- =================== Tool Beans ============== 
+    <!-- =================== Tool Beans ============== -->
     <managed-bean>
         <description>Discussion Forum Tool</description>
         <managed-bean-name>DiscussionForumTool</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.messageforums.DiscussionForumTool</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>        
-    </managed-bean>-->
+        <managed-bean-scope>session</managed-bean-scope> 
+         <managed-property>
+            <description>Discussion Forum Manager</description>
+            <property-name>forumManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.DiscussionForumManager"]}</value>
+        </managed-property>         
+    </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>
         <managed-bean-name>PrivateMessagesTool</managed-bean-name>

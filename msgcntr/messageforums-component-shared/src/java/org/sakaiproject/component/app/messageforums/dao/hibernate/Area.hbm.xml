@@ -51,6 +51,12 @@
 	    <index column="area_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl" />
 	</list>
+	<list name="discussionForums" lazy="true" table="MFR_DISCUSSION_FORUM_T" cascade="all">
+	    <key column="surrogateKey"/>
+	    <index column="area_index_col_2" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl" />
+	</list>
+	
     <!--
     <set name="forums" lazy="true" sort="natural"
         order-by="position asc" cascade="all-delete-orphan">
@@ -75,5 +81,9 @@
   <query name="findAreaByUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.uuid = :uuid]]>
   </query>
+  
+  <query name="findAreaByContextId">
+     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as item where area.contextId = :contextId]]>
+  </query>    
 
 </hibernate-mapping>
