@@ -277,9 +277,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
                 String deleteExternalScoresHql = "from AssignmentGradeRecord as agr where agr.gradableObject=?";
                 int numScoresDeleted = session.delete(deleteExternalScoresHql, asn, Hibernate.entity(GradableObject.class));
-                log.warn(numScoresDeleted + " externally defined scores deleted from the gradebook");
+                if (log.isInfoEnabled()) log.info(numScoresDeleted + " externally defined scores deleted from the gradebook");
 
                 // Delete the assessment
+                session.flush();
+                session.clear();
                 session.delete(asn);
 
                 // Delete the scores
