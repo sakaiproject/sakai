@@ -25,6 +25,10 @@
 **********************************************************************************/
 --%>
 -->
+
+<%-- before going any further, we establish primitive standalone authz --%>
+<%@ include file="../security/roleCheckStandaloneStaticInclude.jsp"%>
+
   <f:view>
     <f:loadBundle
       basename="org.sakaiproject.tool.assessment.bundle.MainIndexMessages"
