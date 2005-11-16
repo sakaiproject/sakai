@@ -426,7 +426,7 @@
         <h:selectOneRadio id="scoringType"  disabled="true"
             value="#{publishedSettings.scoringType}"  layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{msg.highest_score}"/>
-          <f:selectItem itemValue="2" itemLabel="#{msg.average_score}"/>
+          <f:selectItem itemValue="2" itemLabel="#{msg.last_score}"/>
         </h:selectOneRadio>
       </h:panelGrid>
 </div></div>
