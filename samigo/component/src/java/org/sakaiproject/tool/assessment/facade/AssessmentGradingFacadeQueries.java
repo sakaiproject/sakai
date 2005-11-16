@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,18 +36,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import net.sf.hibernate.Criteria;
 import net.sf.hibernate.Hibernate;
+import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
+import net.sf.hibernate.expression.Criterion;
+import net.sf.hibernate.expression.Disjunction;
+import net.sf.hibernate.expression.Expression;
+import net.sf.hibernate.expression.Order;
 import net.sf.hibernate.type.Type;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -63,6 +68,8 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI{
   private static Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
@@ -145,45 +152,63 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       return list;
   }
 
-  public HashMap getItemScores(Long publishedId, Long itemId, String which)
+
+  
+  public HashMap getItemScores(Long publishedId, final Long itemId, String which)
   {
     try {
       ArrayList scores = (ArrayList)
         getTotalScores(publishedId.toString(), which);
       HashMap map = new HashMap();
       List list = new ArrayList();
-      Iterator iter = scores.iterator();
-      while (iter.hasNext())
+                                             
+      // make final for callback to access
+      final Iterator iter = scores.iterator();
+      
+      HibernateCallback hcb = new HibernateCallback()
       {
-        AssessmentGradingData data = (AssessmentGradingData) iter.next();
-        List temp = null;
-        if (itemId.equals(new Long(0)))
-          temp = getHibernateTemplate().find("from ItemGradingData a where a.assessmentGrading.assessmentGradingId=? order by agentId ASC, submittedDate DESC", data.getAssessmentGradingId(), Hibernate.LONG);
-        else
+        public Object doInHibernate(Session session) throws HibernateException,
+          SQLException
         {
-          Object[] objects = new Object[2];
-          objects[0] = data.getAssessmentGradingId();
-          objects[1] = itemId;
-          Type[] types = new Type[2];
-          types[0] = Hibernate.LONG;
-          types[1] = Hibernate.LONG;
-          temp = getHibernateTemplate().find("from ItemGradingData a where a.assessmentGrading.assessmentGradingId=? and a.publishedItem.itemId=? order by agentId ASC, submittedDate DESC", objects, types);
-
-          // To avoid lazy loading, load them with the objects that have
-          // the sections filled in already from total scores
-          Iterator tmp = temp.iterator();
-          while (tmp.hasNext())
-          {
-            ItemGradingData idata = (ItemGradingData) tmp.next();
-            idata.setAssessmentGrading(data);
+          Criteria criteria = session.createCriteria(ItemGradingData.class);
+          Disjunction disjunction = Expression.disjunction();
+                                                                                                 
+          /** make list from AssessmentGradingData ids */
+          List gradingIdList = new ArrayList();
+          while (iter.hasNext()){            
+            AssessmentGradingData data = (AssessmentGradingData) iter.next();
+            gradingIdList.add(data.getAssessmentGradingId());                               
           }
+          
+          /** create or disjunctive expression for (in clauses) */
+          List tempList;
+  		  for (int i = 0; i < gradingIdList.size(); i += 50){
+  		    if (i + 50 > gradingIdList.size()){
+  	          tempList = gradingIdList.subList(i, gradingIdList.size());
+  	          disjunction.add(Expression.in("assessmentGrading.assessmentGradingId", tempList));      
+  		    }
+  		    else{
+  		      tempList = gradingIdList.subList(i, i + 50);
+  		      disjunction.add(Expression.in("assessmentGrading.assessmentGradingId", tempList));
+  		    }
+  		  }                                                          
+          
+          Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);          
+          
+          /** create logical and between the pubCriterion and the disjunction criterion */
+          criteria.add(Expression.and(pubCriterion, disjunction));
+                       
+          criteria.addOrder(Order.asc("agentId"));
+          criteria.addOrder(Order.desc("submittedDate"));                    
+          return criteria.list();
         }
-        list.addAll(temp);
-      }
-      iter = list.iterator();
-      while (iter.hasNext())
+      };
+      List temp = (List) getHibernateTemplate().execute(hcb);
+        
+      Iterator iter2 = temp.iterator();
+      while (iter2.hasNext())
       {
-        ItemGradingData data = (ItemGradingData) iter.next();
+        ItemGradingData data = (ItemGradingData) iter2.next();
         ArrayList thisone = (ArrayList)
           map.get(data.getPublishedItem().getItemId());
         if (thisone == null)
