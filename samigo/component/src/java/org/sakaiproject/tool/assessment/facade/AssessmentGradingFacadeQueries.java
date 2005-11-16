@@ -46,6 +46,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -587,11 +588,33 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       e.printStackTrace();
     }
     getHibernateTemplate().saveOrUpdate(data);
-    // no need to notify gradebook if this submission is not for grade
-    if ((Boolean.TRUE).equals(data.getForGrade()))
-      notifyGradebook(data);
+   
+    notifyGradebookByScoringType(data);
   }
 
+  public void notifyGradebookByScoringType(AssessmentGradingIfc data){
+    // no need to notify gradebook if this submission is not for grade
+    boolean forGrade = (Boolean.TRUE).equals(data.getForGrade());
+
+    Integer scoringType = null;
+    boolean toGradebook = false;
+    EvaluationModelIfc e = data.getPublishedAssessment().getEvaluationModel();
+    if ( e!=null ){
+      scoringType = e.getScoringType(); 
+      String toGradebookString = e.getToGradeBook();
+      toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+    }
+
+    if (forGrade && toGradebook){
+      AssessmentGradingIfc d = data;
+      // need to decide what to tell gradebook
+      if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE))
+        d = getHighestAssessmentGrading(
+            data.getPublishedAssessment().getPublishedAssessmentId(), 
+            data.getAgentId());
+      notifyGradebook(d);
+    }
+  }
 
   /**
    * Notifies the gradebook that scores have been changed
@@ -976,4 +999,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
          new net.sf.hibernate.type.Type[] { Hibernate.LONG });
   }
 
+  public AssessmentGradingIfc getHighestAssessmentGrading(
+         Long publishedAssessmentId, String agentId)
+  {
+    String query ="from AssessmentGradingData a "+ 
+                  " where a.publishedAssessment.publishedAssessmentId=? and "+ 
+                  " a.agentId=? order by finalScore desc";
+    List l = getHibernateTemplate().find(query,
+        new Object[] { publishedAssessmentId, agentId },
+        new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
+    if (l.size() >0) 
+      return ((AssessmentGradingData)l.get(0));
+    else
+      return null;
+  }
 }

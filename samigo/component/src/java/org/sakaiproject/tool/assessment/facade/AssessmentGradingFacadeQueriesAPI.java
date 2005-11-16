@@ -139,4 +139,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public List getAssessmentGradingIds(Long publishedItemId);
 
+  public AssessmentGradingIfc getHighestAssessmentGrading(
+      Long publishedAssessmentId, String agentId);
+
 }

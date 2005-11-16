@@ -307,4 +307,15 @@ public class GradingService
     }
   }
 
+  public AssessmentGradingIfc getHighestAssessmentGrading(String publishedAssessmentId, String agentId){
+    try{
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+	      getHighestAssessmentGrading(new Long(publishedAssessmentId), agentId);
+    }
+    catch(Exception e)
+    {
+      log.error(e); throw new Error(e);
+    }
+  }
+
 }
