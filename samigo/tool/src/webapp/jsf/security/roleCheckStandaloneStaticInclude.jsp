@@ -10,9 +10,6 @@
 
   // debugging code
   System.out.println("***** standalone roleCheck: authzBean="+authzBean);
-  System.out.println(
-    "***** standalone roleCheck: authzBean.getAuthzMap().size()==0=" +
-    authzBean.getAuthzMap().size()==0);
 
   // in general, probably will be empty, but we provide for this
   // possibility
