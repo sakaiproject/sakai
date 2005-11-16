@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -321,6 +322,22 @@ public class PublishedAssessmentService {
  public boolean publishedAssessmentTitleIsUnique(String assessmentBaseId, String title) {
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
            publishedAssessmentTitleIsUnique(new Long(assessmentBaseId), title);
+  }
+
+  public boolean hasRandomPart(String publishedAssessmentId){
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+	  hasRandomPart(new Long(publishedAssessmentId));
+  }
+
+  public PublishedItemData getFirstPublishedItem(String publishedAssessmentId){
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+      getFirstPublishedItem(new Long(publishedAssessmentId));
+  }
+
+  public List getPublishedItemIds(String publishedAssessmentId){
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+      getPublishedItemIds(new Long(publishedAssessmentId));
+
   }
 
 }

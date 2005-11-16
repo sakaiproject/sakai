@@ -24,6 +24,10 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Map;
+import java.util.List;
+
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
+import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -80,8 +84,17 @@ public class DeleteTemplateListener extends TemplateBaseListener implements Acti
     try
     {
       AssessmentService delegate = new AssessmentService();
-      delegate.deleteAssessmentTemplate(new Long(deleteId));
-
+      //rules: if the template has been used by assessment, we set
+      // its status = 0 (inactive) instead of removing it from the DB
+      List l = delegate.getAssessmentByTemplate(deleteId);
+      if (l.size()==0){ // save to delete
+        delegate.deleteAssessmentTemplate(new Long(deleteId));
+      }
+      else{ // set status to "0"
+	AssessmentTemplateFacade t = delegate.getAssessmentTemplate(deleteId);
+        t.setStatus(AssessmentTemplateFacade.INACTIVE_STATUS);
+        delegate.save((AssessmentTemplateData)t.getData());
+      }
       return true;
     }
     catch(Exception e)

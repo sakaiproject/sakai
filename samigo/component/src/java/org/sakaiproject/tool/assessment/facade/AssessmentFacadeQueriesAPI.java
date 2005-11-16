@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
@@ -153,5 +154,7 @@ public interface AssessmentFacadeQueriesAPI
   public void removeAllItems(Long sourceSectionId);
 
   public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate);
+
+  public List getAssessmentByTemplate(Long templateId);
 
 }

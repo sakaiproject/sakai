@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -360,6 +361,11 @@ public void deleteAssessment(Id assessmentId)
   public boolean assessmentTitleIsUnique(String assessmentBaseId, String title, boolean isTemplate) {
     return PersistenceService.getInstance().getAssessmentFacadeQueries().
            assessmentTitleIsUnique(new Long(assessmentBaseId), title, new Boolean(isTemplate));
+  }
+
+  public List getAssessmentByTemplate(String templateId){
+    return PersistenceService.getInstance().getAssessmentFacadeQueries().
+           getAssessmentByTemplate(new Long(templateId));
   }
 
 }

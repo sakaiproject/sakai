@@ -42,6 +42,8 @@ public class AssessmentTemplateFacade
   public static String BGIMAGE = "ASSESSMENTTEMPLATE_BGIMAGE";
 
   public static Long DEFAULTTEMPLATE = new Long("1");
+  public static Integer INACTIVE_STATUS = new Integer("0");
+  public static Integer ACTIVE_STATUS = new Integer("1");
   private org.osid.assessment.Assessment assessment;
   private AssessmentTemplateIfc data;
   private Long assessmentTemplateId;
