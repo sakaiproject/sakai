@@ -3,6 +3,7 @@ package org.sakaiproject.component.app.messageforums.ui;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.component.app.messageforums.MessageForumsAreaManager;
 import org.sakaiproject.component.app.messageforums.MessageForumsMessageManager;
@@ -75,6 +76,16 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   public void deleteMessage(Message message)
   {
     messageManager.deleteMessage(message);
+  }
+
+  public int getTotalNoMessages(Topic topic)
+  {
+     return 20;
+  }
+
+  public int getUnreadNoMessages(Topic topic)
+  {
+    return 10;
   }
 
 }

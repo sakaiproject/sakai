@@ -23,11 +23,125 @@
 
 package org.sakaiproject.tool.messageforums;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory; 
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 
 public class DiscussionForumTool 
 {
     private static final Log LOG = LogFactory.getLog(DiscussionForumTool.class);
-   
+    /**
+     *Dependency Injected 
+     */
+    private DiscussionForumManager forumManager;
+    private List forums=new ArrayList();
+    /**
+     * @param forumManager
+     */
+    public void setForumManager(DiscussionForumManager forumManager)
+    {
+      if(LOG.isDebugEnabled())
+      {
+        LOG.debug("setForumManager(DiscussionForumManager "+forumManager+")");
+      }
+      this.forumManager = forumManager;
+    }
+    
+    /**
+     * @return
+     */
+    public List getForums()
+    {
+       List tempForum= forumManager.getDiscussionForumArea().getDiscussionForums();
+       if(tempForum!=null)
+       {
+         Iterator iter = tempForum.iterator();
+         while (iter.hasNext())
+        {
+          Topic topic = (Topic) iter.next();
+          if(topic!=null)
+          {
+            DiscussionTopicBean decoTopic= new DiscussionTopicBean(topic);
+            //TODO: remove this 
+            decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
+            decoTopic.setTotalNoMessages(forumManager.getUnreadNoMessages(topic));
+            forums.add(decoTopic);
+          }          
+        }
+       }
+       return forums;
+    }
+        
+    /**
+     * TODO:// complete featute
+     * @return
+     */
+    public boolean getUnderconstruction()
+    {
+      return true;
+    }
+    
+    /**
+     * @return
+     */
+    public String processCreateNewForum()
+    {
+      return "main";
+    }
+
+    /**
+     * @return
+     */
+    public String processOrganize()
+    {
+      return "main";
+    }
+
+    /**
+     * @return
+     */
+    public String processStatistics()
+    {
+      return "main";
+    }
+    
+    /**
+     * @return
+     */
+    public String processTemplateSettings()
+    {
+      return "main";
+    }
+    
+    /**
+     * @return
+     */
+    public String processForumSettings()
+    {
+      return "main";
+    }
+    
+    /**
+     * @return
+     */
+    public String processCreateNewTopic()
+    {
+      return "main";
+    }
+    
+    /**
+     * @return
+     */
+    public String processTopicSettings()
+    {
+      return "main";
+    }
+    
+    
 }
