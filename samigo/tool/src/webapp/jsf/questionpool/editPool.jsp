@@ -173,7 +173,7 @@
   <h:commandButton id="submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
         value="#{msg.update}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
-  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />
+ 
   </h:commandButton>
 
 <!-- for importing questions from pool to authoring -->

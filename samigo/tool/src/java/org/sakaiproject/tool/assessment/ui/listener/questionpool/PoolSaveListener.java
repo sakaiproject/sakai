@@ -24,8 +24,11 @@
 package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Collections;
 import java.util.Iterator;
+import org.osid.shared.Id;
+import org.osid.shared.SharedException;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -38,10 +41,14 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
+import org.sakaiproject.tool.assessment.data.model.Tree;
+import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -67,17 +74,27 @@ public class PoolSaveListener implements ActionListener
     log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     String currentName= qpoolbean.getCurrentPool().getDisplayName();
-    
-    // boolean nameDup=false;
-   
+    boolean nameDup=false;
+   QuestionPoolDataBean bean = qpoolbean.getCurrentPool();
+      Long currentId = new Long ("0");
+      if(bean.getId() != null)
+      {
+	  currentId = bean.getId();
+      }
+
+      Long currentParentId = new Long("0");
+      if(bean.getParentPoolId() != null)
+      {
+        currentParentId = bean.getParentPoolId();
+      }
+     
     try {
-	/*
+       
 	if((qpoolbean.getAddOrEdit()).equals("add")){
-	    nameDup=isDuplicatePool(currentName,"0");
+	     nameDup=isDuplicatePool(currentName,"0",""+currentParentId);
 	}
 	else {
-            String currentId=""+ (qpoolbean.getCurrentPool().getId());
-            nameDup=isDuplicatePool(currentName,currentId);
+	      nameDup=isDuplicatePool(currentName,""+currentId,""+currentParentId);
 	}
        
 	if(nameDup){
@@ -91,12 +108,19 @@ public class PoolSaveListener implements ActionListener
 	 
 	   return;
         }
-	*/
+       
 	
 	if (!savePool(qpoolbean)){
 		
 	    throw new RuntimeException("failed to populateItemBean.");   
 	}
+   
+        if((qpoolbean.getAddOrEdit()).equals("edit")){
+	    if (!startRemoveItems(qpoolbean)){
+		throw new RuntimeException("failed to populateItemBean.");
+	    }
+	}
+        
 	   
     }
     catch(Exception e){
@@ -109,7 +133,6 @@ public class PoolSaveListener implements ActionListener
 
     try
     {
-
       QuestionPoolDataBean bean = qpbean.getCurrentPool();
       Long beanid = new Long ("0");
       if(bean.getId() != null)
@@ -171,21 +194,63 @@ public class PoolSaveListener implements ActionListener
 	return true;
   }
 
-    public boolean isDuplicatePool(String currentName,String currentId){
+    public boolean isDuplicatePool(String currentName,String currentId,String currentParentId){
 	QuestionPoolService delegate = new QuestionPoolService();
-	ArrayList qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+	ArrayList qplist = delegate. getIdAllPools(AgentFacade.getAgentString());
 	Iterator iter = qplist.iterator();
 	while(iter.hasNext()){
-		QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();  
+	    	QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();  
+	   
                 String id=String.valueOf(pool.getQuestionPoolId());
+                String parentId=String.valueOf(pool.getParentPoolId());
                 String name=pool.getDisplayName().trim();
-		if ((name.equals(currentName))&&(!id.equals(currentId))){
-		    return true;                     		
+         
+		if((currentParentId.equals(parentId))&&(!id.equals(currentId))&&(name.equals(currentName))){                   
+		    return true;	              		
 		}
 		   
 	}
 	return false;
 
     }
+
+ public boolean startRemoveItems(QuestionPoolBean qpoolbean){
+// used by the editPool.jsp, to remove one or more items
+    try {
+      String itemId= "";
+
+      ArrayList destItems= ContextUtil.paramArrayValueLike("removeCheckbox");
+
+      if (destItems.size() > 0) {
+                // only go to remove confirmatin page when at least one  checkbox is checked
+
+        List items= new ArrayList();
+	Iterator iter = destItems.iterator();
+        while(iter.hasNext())
+        {
+
+          itemId = (String) iter.next();
+
+          ItemService delegate = new ItemService();
+          ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+          items.add(itemfacade);
+
+        }
+
+      qpoolbean.setItemsToDelete(items);
+      qpoolbean.setOutcomeEdit("removeQuestionFromPool");
+      qpoolbean.setOutcome("removeQuestionFromPool");
+      }
+      else {
+         // otherwise go to poollist
+        qpoolbean.setOutcome("poolList");
+        }
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      return false;	
+    }
+    return true;
+  }
 
 }

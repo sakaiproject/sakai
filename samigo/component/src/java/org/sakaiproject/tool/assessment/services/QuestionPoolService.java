@@ -79,6 +79,19 @@ public class QuestionPoolService
   }
 
 
+
+  /**
+   * Get basic info for pools(id,title and parent id)  for pool validation
+   */
+  public ArrayList getIdAllPools(String agentId)
+  {
+    ArrayList results = null;
+      results = PersistenceService.getInstance().
+           getQuestionPoolFacadeQueries().getIdAllPools(agentId);
+    return results;
+  }
+
+
   /**
    * Get a particular pool from the backend, with all questions.
    */
@@ -474,5 +487,6 @@ public class QuestionPoolService
     return PersistenceService.getInstance().getQuestionPoolFacadeQueries().
         getQuestionPoolItemMap();
   }
+
 
 }

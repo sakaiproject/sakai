@@ -214,7 +214,7 @@ public class QuestionPoolFacade
    * @param id
    * @param title
    */
-  public QuestionPoolFacade(Long id, String title) {
+    public QuestionPoolFacade(Long id, String title) {
     this.questionPoolId = id;
     this.title= title;
     this.data = new QuestionPoolData();
@@ -230,6 +230,35 @@ public class QuestionPoolFacade
     }
 
   }
+
+ /**
+   * IMPORTANT: this constructor do not have "data", this constructor is
+   * merely used for holding questionPoolId, Title, parentId
+   * for validation question pool
+   * This constructor does not persist data (which it has none) to DB
+   * @param id
+   * @param title
+   * @param parentid
+   */
+    public QuestionPoolFacade(Long id, String title, Long parentId) {
+    this.questionPoolId = id;
+    this.title= title;
+    this.parentPoolId=parentId;
+    this.data = new QuestionPoolData();
+    QuestionPoolImpl questionPoolImpl = new QuestionPoolImpl(); //<-- place holder
+    questionPool = (QuestionPool)questionPoolImpl;
+    try {
+      questionPool.updateData(this.data);
+      setParentPoolId(parentId);
+      setQuestionPoolId(id);
+      setTitle(title);
+    }
+    catch (QuestionPoolException ex) {
+      throw new DataFacadeException(ex.getMessage());
+    }
+
+  }
+
 
 
 

@@ -92,6 +92,12 @@ public class QuestionPoolData
     this.title = title;
   }
 
+    public QuestionPoolData(Long poolId, String title, Long parentPoolId){
+    this.questionPoolId= poolId;
+    this.parentPoolId=parentPoolId;
+    this.title = title;
+  }
+
 
   public Long getQuestionPoolId()
   {
