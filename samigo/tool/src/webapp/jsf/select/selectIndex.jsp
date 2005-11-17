@@ -245,7 +245,7 @@ sorting actions for table:
        </h:commandLink>
        <h:outputText value=" | " rendered="#{reviewable.feedback == 'true' && reviewable.statistics == 'true'}"/>
 --%>
-       <h:commandLink action="histogramScores" immediate="true"  rendered="#{reviewable.statistics == 'true'}">
+       <h:commandLink action="histogramScores" immediate="true"  rendered="#{reviewable.feedback ne 'false'}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="hasNav" value="false"/>
         <f:param name="allSubmissions" value="true" />
