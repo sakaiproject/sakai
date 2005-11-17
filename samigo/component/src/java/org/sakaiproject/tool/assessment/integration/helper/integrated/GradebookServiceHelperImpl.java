@@ -145,7 +145,7 @@ public void removeExternalAssessment(String gradebookUId,
                               publishedAssessment.getPublishedAssessmentId().
                               toString(), null,
                               publishedAssessment.getTitle(),
-                              publishedAssessment.getTotalScore().longValue(),
+                              publishedAssessment.getTotalScore().doubleValue(),
                               publishedAssessment.getAssessmentAccessControl().
                               getDueDate(),
                               appName); // Use the app name from sakai
