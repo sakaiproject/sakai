@@ -351,49 +351,56 @@
       </h:panelGrid>
     </h:panelGroup>
 </div><div class="longtext">
-   <h:outputLabel value="#{msg.feedback_components}" /></div><div class="indnt3">
+   <h:outputLabel value="#{summary_msg.select_feedback_comp}" /></div><div class="indnt3">
     <h:panelGroup>
       <h:panelGrid columns="2"  >
-        <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
-              value="#{publishedSettings.showQuestionText}"/>
-          <h:outputText value="#{msg.question_text}" />
-        </h:panelGroup>
-        <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
-              value="#{publishedSettings.showQuestionLevelFeedback}"/>
-          <h:outputText value="#{msg.question_level_feedback}" />
-        </h:panelGroup>
-        <h:panelGroup>
+       <h:panelGroup>
           <h:selectBooleanCheckbox  disabled="true"
               value="#{publishedSettings.showStudentResponse}"/>
           <h:outputText value="#{msg.student_response}" />
         </h:panelGroup>
-        <h:panelGroup>
+       <h:panelGroup>
           <h:selectBooleanCheckbox  disabled="true"
-             value="#{publishedSettings.showSelectionLevelFeedback}"/>
-          <h:outputText value="#{msg.selection_level_feedback}" />
-        </h:panelGroup>
+              value="#{publishedSettings.showQuestionLevelFeedback}"/>
+          <h:outputText value="#{msg.question_level_feedback}" />
+       </h:panelGroup>
+
         <h:panelGroup>
           <h:selectBooleanCheckbox  disabled="true"
               value="#{publishedSettings.showCorrectResponse}"/>
           <h:outputText value="#{msg.correct_response}" />
         </h:panelGroup>
+
+       <h:panelGroup>
+          <h:selectBooleanCheckbox  disabled="true"
+             value="#{publishedSettings.showSelectionLevelFeedback}"/>
+          <h:outputText value="#{msg.selection_level_feedback}" />
+        </h:panelGroup>
+
         <h:panelGroup>
           <h:selectBooleanCheckbox  disabled="true"
               value="#{publishedSettings.showStudentScore}"/>
-          <h:outputText value="#{msg.student_score}" />
+          <h:outputText value="#{msg.student_assessment_score}" />
         </h:panelGroup>
+
         <h:panelGroup>
           <h:selectBooleanCheckbox  disabled="true"
               value="#{publishedSettings.showGraderComments}"/>
           <h:outputText value="#{msg.grader_comments}" />
         </h:panelGroup>
+
+        <h:panelGroup>
+          <h:selectBooleanCheckbox  disabled="true"
+              value="#{publishedSettings.showStudentQuestionScore}"/>
+          <h:outputText value="#{msg.student_question_score}" />
+        </h:panelGroup>
+       
         <h:panelGroup>
           <h:selectBooleanCheckbox  disabled="true"
               value="#{publishedSettings.showStatistics}"/>
           <h:outputText value="#{msg.statistics_and_histogram}" />
         </h:panelGroup>
+   
       </h:panelGrid>
     </h:panelGroup></div></div>
   </samigo:hideDivision>
