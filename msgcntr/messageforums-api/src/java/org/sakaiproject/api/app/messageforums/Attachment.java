@@ -64,4 +64,9 @@ public interface Attachment extends MutableEntity {
     public PrivateForum getPrivateForum();
     
     public void setPrivateForum(PrivateForum privateForum);    
+    
+    //Is it required for editing attachment in Pvt Msg????
+    public Long getPvtMsgAttachId();
+    
+    public void setPvtMsgAttachId(Long pvtMsgAttachId);
 }

@@ -45,7 +45,7 @@
 	
 	<!--  Message Forums File Picker Filter -->
     <filter>
-        <filter-name>sakai.request.messageforums.filepicker</filter-name>
+        <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
         <init-param>
             <param-name>upload.enabled</param-name>
@@ -53,7 +53,7 @@
         </init-param>
     </filter>
     <filter-mapping>
-        <filter-name>sakai.request.messageforums.filepicker</filter-name>
+        <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
         <servlet-name>sakai.messageforums</servlet-name>
         <dispatcher>REQUEST</dispatcher> 
         <dispatcher>FORWARD</dispatcher>
@@ -91,8 +91,8 @@
 	<!--  Message Forums File Picker Servler -->
     <servlet>
       <servlet-name>sakai.messageforums</servlet-name>
-       <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
-     <!-- FIXME<servlet-class>org.sakaiproject.tool.messageforums.MessageForumsFilePickerServlet</servlet-class> -->
+       <!--<servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>-->
+     <servlet-class>org.sakaiproject.tool.messageforums.MessageForumsFilePickerServlet</servlet-class>
         <init-param>
             <param-name>path</param-name>
             <param-value>/jsp</param-value>

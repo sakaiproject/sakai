@@ -39,6 +39,8 @@ import org.sakaiproject.api.kernel.tool.cover.ActiveToolManager;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.util.web.Web;
 
+import sun.dc.pr.PathStroker;
+
 /**
  * @author <a href="mailto:cwen.iupui.edu">Chen Wen</a>
  * @version $Id$
@@ -170,11 +172,18 @@ public class MessageForumsFilePickerServlet extends JsfTool {
         if (parts.length < 2) {
             return false;
         }
-
+/*        if (parts.length < 3) {
+//          return false;
+     }*/
+        
         if (!parts[1].endsWith(HELPER_EXT)) {
             return false;
         }
-
+        /*
+        if (!parts[2].endsWith(HELPER_EXT)) {
+          return false;
+        }
+        */
         ToolSession toolSession = SessionManager.getCurrentToolSession();
 
         Enumeration params = req.getParameterNames();
@@ -188,8 +197,10 @@ public class MessageForumsFilePickerServlet extends JsfTool {
 
         // calc helper id
         int posEnd = parts[1].lastIndexOf(".");
+        ////int posEnd = parts[2].lastIndexOf(".");
 
         String helperId = target.substring(1, posEnd + 1);
+        ////String helperId = parts[2].substring(0, posEnd);
         ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
 
         if (toolSession.getAttribute(helperTool.getId() + Tool.HELPER_DONE_URL) == null) {
@@ -197,7 +208,9 @@ public class MessageForumsFilePickerServlet extends JsfTool {
         }
 
         String context = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2);
+        ////String context = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 2, 3);
         String toolPath = Web.makePath(parts, 2, parts.length);
+        ////String toolPath = Web.makePath(parts, 3, parts.length);
         helperTool.help(req, res, context, toolPath);
 
         return true; // was handled as helper call

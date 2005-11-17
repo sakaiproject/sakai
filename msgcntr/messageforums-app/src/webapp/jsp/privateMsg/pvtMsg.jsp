@@ -1,34 +1,29 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-<style>
-.bord-r-t {
-	border-top: 1px solid #C8C8C8;
-	border-right: 1px solid #C8C8C8;
-	border-bottom: 1px #C8C8C8;
-	border-left: 1px #C8C8C8;
-}
-.greyback1 {
-	background-color: #e6e6e6;
-	border-top: 1px #C8C8C8;
-	border-right: 1px #C8C8C8;
-	border-bottom: 1px solid #C8C8C8;
-	border-left: 1px solid #C8C8C8;
-	padding: 2px 8px 2px 2px;
-}
-.rosterGroupByRoleColumns_1{
-  width: 8%;
-  align:left;
-  
- }
+<SCRIPT LANGUAGE="JavaScript">
+<!-- Modified By:  Steve Robison, Jr. (stevejr@ce.net) -->
 
-.rosterGroupByRoleColumns_2{
-  width: 5%;
-  text-align:align:left;
-  valign-text:vlaign:middle; 
+<!-- This script and many more are available free online at -->
+<!-- The JavaScript Source!! http://javascript.internet.com -->
 
+<!-- Begin
+var checkflag = "false";
+function check(field) {
+if (checkflag == "false") {
+for (i = 0; i < field.length; i++) {
+field[i].checked = true;}
+checkflag = "true";
+return "Uncheck All"; }
+else {
+for (i = 0; i < field.length; i++) {
+field[i].checked = false; }
+checkflag = "false";
+return "Check All"; }
 }
-</style>
+//  End -->
+</script>
+
 <f:view>
 	<sakai:view_container title="Received Private Messages">
 	<sakai:view_content>
@@ -38,18 +33,13 @@
 		<%@include file="msgHeader.jsp"%>
 
 
-	  <h:dataTable value="#{PrivateMessagesTool.displayPvtMsgs}" var="rcvdItems">   
+	  <h:dataTable value="#{PrivateMessagesTool.displayPvtMsgs}" var="rcvdItems" styleClass="chefFlatListViewTable">   
 		  <h:column>
 		    <f:facet name="header">
-		     <h:outputText value="Check All"/>
+
+		     <h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>
 		    </f:facet>
 		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
-		    
-		<%--
-		    <h:selectManyCheckbox id="cars" value="#{PrivateMessagesTool.selectedDeleteItems}">
-		    	<f:selectItems value="#{PrivateMessagesTool.totalDisplayItems}"/>
-		    </h:selectManyCheckbox>
-  	--%>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">

@@ -23,9 +23,6 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -49,7 +46,8 @@ public class AttachmentImpl extends MutableEntityImpl implements Attachment {
 
     private String attachmentType;
 
-
+    private Long pvtMsgAttachId;
+    
     // foreign keys for hibernate
     private Message message;
     private BaseForum forum;
@@ -111,22 +109,22 @@ public class AttachmentImpl extends MutableEntityImpl implements Attachment {
         this.message = message;
     }
     
-    public boolean equals(Object other) {
-        if (!(other instanceof AttachmentImpl)) {
-            return false;
-        }
-
-        Attachment attachment = (Attachment) other;
-        return new EqualsBuilder().append(attachmentId, attachment.getAttachmentId()).isEquals();
-    }
-
-    public int hashCode() {
-        return new HashCodeBuilder().append(attachmentId).toHashCode();
-    }
-
-    public String toString() {
-        return new ToStringBuilder(this).append("attachmentId", attachmentId).append("attachmentUrl", attachmentUrl).append("attachmentName", attachmentName).append("attachmentSize", attachmentSize).append("attachmentType", attachmentType).toString();
-    }
+//    public boolean equals(Object other) {
+//        if (!(other instanceof AttachmentImpl)) {
+//            return false;
+//        }
+//
+//        Attachment attachment = (Attachment) other;
+//        return new EqualsBuilder().append(attachmentId, attachment.getAttachmentId()).isEquals();
+//    }
+//
+//    public int hashCode() {
+//        return new HashCodeBuilder().append(attachmentId).toHashCode();
+//    }
+//
+//    public String toString() {
+//        return new ToStringBuilder(this).append("attachmentId", attachmentId).append("attachmentUrl", attachmentUrl).append("attachmentName", attachmentName).append("attachmentSize", attachmentSize).append("attachmentType", attachmentType).toString();
+//    }
 
     public BaseForum getForum() {
         return forum;
@@ -206,5 +204,15 @@ public class AttachmentImpl extends MutableEntityImpl implements Attachment {
 
     public void setPrivateForum(PrivateForum privateForum) {
         this.privateForum = privateForum;
+    }
+
+    public Long getPvtMsgAttachId()
+    {
+      return pvtMsgAttachId;
+    }
+
+    public void setPvtMsgAttachId(Long pvtMsgAttachId)
+    {
+      this.pvtMsgAttachId=pvtMsgAttachId;
     }
 }

@@ -46,11 +46,13 @@
             <to-view-id>/jsp/main.jsp</to-view-id>
             <redirect/>
         </navigation-case>
+        <!--
         <navigation-case>
             <from-outcome>compose</from-outcome>
             <to-view-id>/jsp/compose.jsp</to-view-id>
             <redirect/>
         </navigation-case>
+        -->
         <navigation-case>
             <from-outcome>test</from-outcome>
             <to-view-id>/jsp/test.jsp</to-view-id>
@@ -84,7 +86,7 @@
         </navigation-case>
         <navigation-case>
             <from-outcome>pvtMsgCompose</from-outcome>
-            <to-view-id>/jsp/privateMsg/compose.jsp</to-view-id>
+            <to-view-id>/jsp/compose.jsp</to-view-id>
             <redirect/>
         </navigation-case>  
         <navigation-case>
@@ -101,7 +103,13 @@
             <from-outcome>pvtMsgDelete</from-outcome>
             <to-view-id>/jsp/privateMsg/pvtMsgDelete.jsp</to-view-id>
             <redirect/>
-        </navigation-case>                                                       
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>removeAttachConfirm</from-outcome>
+            <to-view-id>/jsp/privateMsg/removeAttachConfirm.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+                                                          
     </navigation-rule>
   
     <!-- =================== Tool Beans ============== -->

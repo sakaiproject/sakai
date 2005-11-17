@@ -23,26 +23,34 @@
 
 package org.sakaiproject.tool.messageforums;
 
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.event.PhaseId;
+import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
+import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
@@ -50,7 +58,12 @@ import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.Member;
 import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
+import org.sakaiproject.service.legacy.content.ContentResource;
+import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.sakaiproject.service.legacy.coursemanagement.CourseMember;
+import org.sakaiproject.service.legacy.entity.Reference;
+import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
+import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
@@ -79,7 +92,9 @@ public class PrivateMessagesTool
   public static final String PVTMSG_MODE_DRAFT = "Drafts";
   public static final String PVTMSG_MODE_CASE = "Personal Folders";
   
+  
   private String userId;
+  private Date time ;
   
   private PrivateForum forum; 
   private List pvtTopics=new ArrayList();
@@ -94,12 +109,16 @@ public class PrivateMessagesTool
   private boolean deleteConfirm=false ; //used for displaying delete confirmation message in same jsp
   
   //Compose Screen
-  private String[] selectedComposeToList;
+  private List selectedComposeToList;
   private String composeSendAs="pvtmsg"; // currently set as Default as change by user is allowed
   private String composeSubject ;
   private String composeBody ;
   private String composeLabel ;   
   private List totalComposeToList=new ArrayList();
+  
+  private ArrayList attachments = new ArrayList();
+  private String removeAttachId = null;
+  private ArrayList prepareRemoveAttach = new ArrayList();
   
   //Delete items - Checkbox display and selection - Multiple delete
   private List selectedDeleteItems;
@@ -115,7 +134,7 @@ public class PrivateMessagesTool
   private boolean superUser; 
   
   //message header screen
-  private String searchText;
+  private String searchText="Enter Search text here ..";
   private String selectView;
   //////////////////////
   /** The configuration mode, received, sent,delete, case etc ... */
@@ -174,6 +193,8 @@ public class PrivateMessagesTool
   
   public List getPvtTopics()
   {
+    //TODO add deocrated for display of counts
+    
     return pvtTopics;
   }
   
@@ -356,7 +377,7 @@ public class PrivateMessagesTool
     this.composeSubject = composeSubject;
   }
 
-  public void setSelectedComposeToList(String[] selectedComposeToList)
+  public void setSelectedComposeToList(List selectedComposeToList)
   {
     this.selectedComposeToList = selectedComposeToList;
   }
@@ -366,7 +387,7 @@ public class PrivateMessagesTool
     this.totalComposeToList = totalComposeToList;
   }
   
-  public String[] getSelectedComposeToList()
+  public List getSelectedComposeToList()
   {
     return selectedComposeToList;
   }
@@ -482,6 +503,12 @@ public class PrivateMessagesTool
    return userId;
    
   }
+  
+  //Reply time
+  public Date getTime()
+  {
+    return new Date();
+  }
   //Reply to page
   public String getReplyToBody() {
     return replyToBody;
@@ -527,6 +554,10 @@ public class PrivateMessagesTool
   public String getSearchText()
   {
     return searchText ;
+  }
+  public void setSeachText(String searchText)
+  {
+    this.searchText=searchText;
   }
   public String getSelectView()
   {
@@ -735,10 +766,58 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */ 
   public String processPvtMsgSend() {
+    
     //TODO - create new PrivateMessage Object and add user input and then save
-    //prtMsgManager.savePrivateMessage(getDetailMsg());
+    //prtMsgManager.savePrivateMessage(constructMessage());
     return "pvtMsg" ;
   }
+ 
+  /**
+   * process from Compose screen
+   * @return - pvtMsg
+   */
+  public String processPvtMsgSaveDraft() {
+    PrivateMessage dMsg=constructMessage() ;
+    dMsg.setDraft(Boolean.TRUE);
+    //TODO
+    prtMsgManager.savePrivateMessage(dMsg);
+    return "pvtMsg" ;    
+  }
+  // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
+  public PrivateMessage constructMessage()
+  {
+    PrivateMessage aMsg = (PrivateMessage)this.getDetailMsg();
+    aMsg.setRecipients(getSelectedComposeToList());
+    aMsg.setTitle(getComposeSubject());
+    aMsg.setBody(getComposeBody());
+    aMsg.setAttachments(getAttachments()) ;
+    aMsg.setCreatedBy(getUserId());
+    aMsg.setCreated(getTime()) ;
+    
+    return aMsg;    
+  }
+  
+  //////////////////////REPLY SEND  /////////////////
+  public String processPvtMsgReplySend() {
+    PrivateMessage rsMsg=constructMessage() ;
+    //TODO - add stuff include reply related things
+    prtMsgManager.savePrivateMessage(rsMsg);
+    return "pvtMsg" ;
+  }
+ 
+  /**
+   * process from Compose screen
+   * @return - pvtMsg
+   */
+  public String processPvtMsgReplySaveDraft() {
+    PrivateMessage drMsg=constructMessage() ;
+    drMsg.setDraft(Boolean.TRUE);
+    //TODO- add stuff include reply related things
+    //prtMsgManager.savePrivateMessage(drMsg);
+    return "pvtMsg" ;    
+  }
+  
+  ////////////////////////////////////////////////////////////////
   
   public String processPvtMsgEmptyDelete() {
     List delSelLs=new ArrayList() ;
@@ -771,13 +850,7 @@ public class PrivateMessagesTool
     }
     return "main" ;
   }
-  /**
-   * process from Compose screen
-   * @return - pvtMsg
-   */
-  public String processPvtMsgSaveDraft() {
-    return "pvtMsg" ;    
-  }
+
   
   public String processPvtMsgDispOtions() {
     return "pvtMsgOrganize" ;
@@ -785,8 +858,199 @@ public class PrivateMessagesTool
   public String processPvtMsgFldrSettings() {
     return "pvtMsgSettings" ;
   }
-  ////////////////////////////////////////////////////////
+
+  //select all
+  private boolean isSelectAllJobsSelected = false;  
+  public boolean isSelectAllJobsSelected()
+  {
+    return isSelectAllJobsSelected;
+  }
+  public void setSelectAllJobsSelected(boolean isSelectAllJobsSelected)
+  {
+    this.isSelectAllJobsSelected = isSelectAllJobsSelected;
+  }
   
+  public String processSelectAllJobs()
+  {
+
+    List newLs=new ArrayList() ;
+//    isSelectAllJobsSelected = !isSelectAllJobsSelected;
+//    processRefreshJobs();
+    for (Iterator iter = this.getDisplayPvtMsgs().iterator(); iter.hasNext();)
+    {
+      PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
+      element.setIsSelected(true);
+      newLs.add(element) ;
+      //TODO
+    }
+    this.setDisplayPvtMsgs(newLs) ;
+    return "pvtMsg";
+  }
+  
+  //////////////////////////////   ATTACHMENT PROCESSING        //////////////////////////
+  public ArrayList getAttachments()
+  {
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
+        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
+    {
+      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      Reference ref = (Reference)refs.get(0);
+      
+      for(int i=0; i<refs.size(); i++)
+      {
+        ref = (Reference) refs.get(i);
+        Attachment thisAttach = prtMsgManager.createPvtMsgAttachmentObject(
+            ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+        
+        attachments.add(thisAttach);
+        
+//        if(entry.justCreated != true)
+//        {
+//          allAttachments.add(thisAttach);
+//        }
+      }
+    }
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+    
+    return attachments;
+  }
+  
+  public void setAttachments(ArrayList attachments)
+  {
+    this.attachments = attachments;
+  }
+  public String getRemoveAttachId()
+  {
+    return removeAttachId;
+  }
+
+  public final void setRemoveAttachId(String removeAttachId)
+  {
+    this.removeAttachId = removeAttachId;
+  }
+  
+  public ArrayList getPrepareRemoveAttach()
+  {
+    if((removeAttachId != null) && (!removeAttachId.equals("")))
+    {
+      prepareRemoveAttach.add(prtMsgManager.getPvtMsgAttachment(removeAttachId));
+    }
+    
+    return prepareRemoveAttach;
+  }
+
+  public final void setPrepareRemoveAttach(ArrayList prepareRemoveAttach)
+  {
+    this.prepareRemoveAttach = prepareRemoveAttach;
+  }
+  
+  //Redirect to File picker
+  public String processAddAttachmentRedirect()
+  {
+    try
+    {
+      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+      context.redirect("sakai.filepicker.helper/tool");
+      return null;
+    }
+    catch(Exception e)
+    {
+      //logger.error(this + ".processAddAttachRedirect - " + e);
+      //e.printStackTrace();
+      return null;
+    }
+  }
+  //Process remove attachment 
+  public String processDeleteAttach()
+  {
+    ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+    String attachId = null;
+    
+    Map paramMap = context.getRequestParameterMap();
+    Iterator itr = paramMap.keySet().iterator();
+    while(itr.hasNext())
+    {
+      Object key = itr.next();
+      if( key instanceof String)
+      {
+        String name =  (String)key;
+        int pos = name.lastIndexOf("syllabus_current_attach");
+        
+        if(pos>=0 && name.length()==pos+"syllabus_current_attach".length())
+        {
+          attachId = (String)paramMap.get(key);
+          break;
+        }
+      }
+    }
+    
+    removeAttachId = attachId;
+    
+    if((removeAttachId != null) && (!removeAttachId.equals("")))
+      return "removeAttachConfirm";
+    else
+      return null;
+  }
+  
+  //process deleting
+  public String processRemoveAttach()
+  {
+    try
+    {
+      Attachment sa = prtMsgManager.getPvtMsgAttachment(removeAttachId);
+      String id = sa.getAttachmentId();
+      
+      for(int i=0; i<attachments.size(); i++)
+      {
+        Attachment thisAttach = (Attachment)attachments.get(i);
+        if(((Long)thisAttach.getPvtMsgAttachId()).toString().equals(removeAttachId))
+        {
+          attachments.remove(i);
+          break;
+        }
+      }
+      
+      ContentResource cr = ContentHostingService.getResource(id);
+      prtMsgManager.removePvtMsgAttachmentObject(sa);
+      if(id.toLowerCase().startsWith("/attachment"))
+        ContentHostingService.removeResource(id);
+    }
+    catch(Exception e)
+    {
+//      logger.error(this + ".processRemoveAttach() - " + e);
+//      e.printStackTrace();
+    }
+    
+    removeAttachId = null;
+    prepareRemoveAttach.clear();
+    return "compose";
+    
+  }
+  
+  public String processRemoveAttachCancel()
+  {
+    removeAttachId = null;
+    prepareRemoveAttach.clear();
+    return "compose" ;
+  }
+  
+  ////////////////////
+  public String processUpload(ValueChangeEvent event)
+  {
+    return "pvtMsg" ; 
+  }
+  
+  public String processUploadConfirm()
+  {
+    return "pvtMsg";
+  }
+  
+  public String processUploadCancel()
+  {
+    return "pvtMsg" ;
+  } 
   
   //
   // start button process actions
@@ -811,22 +1075,6 @@ public class PrivateMessagesTool
     return "compose";
   }
 
-  public String processCDFMAddAttachmentRedirect()
-  {
-    try
-    {
-      ExternalContext context = FacesContext.getCurrentInstance()
-          .getExternalContext();
-      context.redirect("sakai.filepicker.helper/tool");
-      return null;
-    }
-    catch (Exception e)
-    {
-      LOG.error(this + ".processAddAttachRedirect - " + e);
-      e.printStackTrace();
-      return null;
-    }
-  }
 
   public String processTestLinkCompose()
   {

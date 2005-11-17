@@ -95,7 +95,9 @@
               <td align="left">   
           			<h:outputText value="#{PrivateMessagesTool.userId}" />  
               	<h:outputText value="(" />  
-              	
+              	<h:outputText value="#{PrivateMessagesTool.time}">
+  	            	<f:convertDateTime pattern="MM/dd/yy 'at' HH:mm:ss"/>
+  	          	</h:outputText>
               	<h:outputText value=")" />   
               </td>                           
             </tr>
@@ -143,8 +145,8 @@
         </sakai:group_box>
         
       <sakai:button_bar>
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSend}" value="Send" />
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSaveDraft}" value="Save Draft" />
+        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySend}" value="Send" />
+        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySaveDraft}" value="Save Draft" />
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="Cancel" />
       </sakai:button_bar>
     </h:form>
