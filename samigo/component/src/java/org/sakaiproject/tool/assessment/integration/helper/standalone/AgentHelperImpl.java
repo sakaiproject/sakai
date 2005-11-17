@@ -32,10 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.Role;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
@@ -324,5 +320,17 @@ public class AgentHelperImpl implements AgentHelper
   {
     return null;
   }
+  /**
+   * This is a kludge to work around a JSF scriptlet dependency introduced by cwen
+   * on org.sakaiproject.service.framework.config.cover.ServerConfigurationService.
+   * @todo for 2.2 move item type support to properties in UI
+   * @todo for 2.2 deprecate and remove method.
+   *
+   * @return true unless it is turned off
+   */
 
+  public boolean isFileUploadAvailable()
+  {
+    return true;//always, in standalone
+  }
 }

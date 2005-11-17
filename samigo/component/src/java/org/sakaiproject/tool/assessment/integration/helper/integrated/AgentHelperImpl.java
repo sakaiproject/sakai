@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 //cwen
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 
 /**
  *
@@ -401,5 +402,21 @@ public class AgentHelperImpl implements AgentHelper
     }
     return role;
   }
+  /**
+   * This is a kludge to work around a JSF scriptlet dependency introduced by cwen
+   * on org.sakaiproject.service.framework.config.cover.ServerConfigurationService.
+   * @todo for 2.2 move item type support to properties in UI
+   * @todo for 2.2 deprecate and remove method.
+   *
+   * @return true unless it is turned off
+   */
+  public boolean isFileUploadAvailable()
+  {
+    String commentOutFileUpload =
+      ServerConfigurationService.getString("sam_file_upload_comment_out");
 
+    if (commentOutFileUpload==null) return true;
+
+    return !commentOutFileUpload.equalsIgnoreCase("true");
+  }
 }

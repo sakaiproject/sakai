@@ -73,7 +73,9 @@ document.links[newindex].onclick();
 <!-- content... -->
 <!-- some back end stuff stubbed -->
 <%
-	String commentOutFileUpload = org.sakaiproject.service.framework.config.cover.ServerConfigurationService.getString("sam_file_upload_comment_out");
+   boolean showFileUpload =
+      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
+%>
 %>
 <h:form id="assesssmentForm">
 <h:messages styleClass="validation"/>
@@ -102,7 +104,7 @@ document.links[newindex].onclick();
     <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs}" />
     <h:outputText value=" | " />
     <h:outputText value="#{assessmentBean.totalScore}">
-	<f:convertNumber maxFractionDigits="1"/>
+  <f:convertNumber maxFractionDigits="1"/>
     </h:outputText>
     <h:outputText value="#{msg.total_pt}" />
  </div>
@@ -146,9 +148,11 @@ document.links[newindex].onclick();
 <%--
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
 --%>
-<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
+<%
+   if(showFileUpload){
+%>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
-<%}  %>  
+<%}  %>
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
 </div>
@@ -219,9 +223,11 @@ document.links[newindex].onclick();
 <%--
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7,#{partBean.number},0"/>
 --%>
-<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
+<%
+   if(showFileUpload){
+%>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6,#{partBean.number},0"/>
-<%}  %>  
+<%}  %>
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10,#{partBean.number},0"/>
 
 </h:selectOneMenu>
@@ -321,9 +327,11 @@ document.links[newindex].onclick();
 <%--
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7,#{partBean.number},#{question.itemData.sequence}"/>
 --%>
-<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
+<%
+   if(showFileUpload){
+%>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6,#{partBean.number},#{question.itemData.sequence}"/>
-<%}  %>  
+<%}  %>
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
 
 </h:selectOneMenu>

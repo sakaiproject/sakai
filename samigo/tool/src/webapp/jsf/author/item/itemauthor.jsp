@@ -44,7 +44,8 @@
 <!-- content... -->
 <!-- FORM -->
 <%
-	String commentOutFileUpload = org.sakaiproject.service.framework.config.cover.ServerConfigurationService.getString("sam_file_upload_comment_out");
+   boolean showFileUpload =
+      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
 %>
 <h:form id="itemauthor">
 
@@ -95,9 +96,11 @@
   <f:selectItem itemLabel="#{msg.matching}" itemValue="9"/>
   <f:selectItem itemLabel="#{msg.true_false}" itemValue="4"/>
   <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
-<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
+<%
+  if(showFileUpload){
+%>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
-<%}  %> 
+<%}  %>
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
 

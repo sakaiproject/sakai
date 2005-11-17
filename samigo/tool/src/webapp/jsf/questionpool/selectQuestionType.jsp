@@ -58,11 +58,12 @@
   <f:selectItem itemLabel="#{msg.fill_in_the_blank}" itemValue="8"/>
   <f:selectItem itemLabel="#{msg.matching}" itemValue="9"/>
 <%
-	String commentOutFileUpload = org.sakaiproject.service.framework.config.cover.ServerConfigurationService.getString("sam_file_upload_comment_out");
+   boolean showFileUpload =
+      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
+   if(showFileUpload){
 %>
-<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
   <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
-<%}  %>  
+<%}  %>
   <f:selectItem itemLabel="#{msg.true_false}" itemValue="4"/>
 </h:selectOneMenu>
 <h:message for="selType" styleClass="validate"/>

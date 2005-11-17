@@ -98,11 +98,12 @@
      <h:outputText rendered="#{question.typeId== 4}" value="#{authmsg.true_false}"/>
      <h:outputText rendered="#{question.typeId== 5}" value="#{authmsg.short_answer_essay}"/>
 <%
-	String commentOutFileUpload = org.sakaiproject.service.framework.config.cover.ServerConfigurationService.getString("sam_file_upload_comment_out");
+   boolean showFileUpload =
+      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
+   if(showFileUpload){
 %>
-<% if(!commentOutFileUpload.equalsIgnoreCase("true")){ %>
      <h:outputText rendered="#{question.typeId== 6}" value="#{authmsg.file_upload}"/>
-<%}  %>  
+<%}  %>
      <h:outputText rendered="#{question.typeId== 7}" value="#{authmsg.audio_recording}"/>
      <h:outputText rendered="#{question.typeId== 8}" value="#{authmsg.fill_in_the_blank}"/>
      <h:outputText rendered="#{question.typeId== 9}" value="#{authmsg.matching}"/>
