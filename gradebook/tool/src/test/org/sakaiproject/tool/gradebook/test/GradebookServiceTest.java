@@ -114,6 +114,24 @@ public class GradebookServiceTest extends GradebookTestBase {
             exceptionThrown = true;
         }
         Assert.assertTrue(exceptionThrown);
+
+        // Test a floating value.
+        double floatingPoints = 10.66666;
+        String floatingExtId = "Just another external ID";
+        gradebookService.addExternalAssessment(GRADEBOOK_UID, floatingExtId, null, "AFractionalAssessment", floatingPoints, new Date(), "Samigo");
+
+        // Find the assessment and ensure that it has been updated
+        Long gbId = gradebookManager.getGradebook(GRADEBOOK_UID).getId();
+        Assignment asn = null;
+        List assignments = gradeManager.getAssignments(gbId);
+        for(Iterator iter = assignments.iterator(); iter.hasNext();) {
+            Assignment tmp = (Assignment)iter.next();
+            if(tmp.getExternalId() != null && tmp.getExternalId().equals(floatingExtId)) {
+                asn = tmp;
+                break;
+            }
+        }
+        Assert.assertEquals(asn.getPointsPossible(), new Double(floatingPoints));
     }
 
     public void testModifyExternalAssessment() throws Exception {

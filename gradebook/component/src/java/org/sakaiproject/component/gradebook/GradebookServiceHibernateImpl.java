@@ -157,7 +157,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#addExternalAssessment(java.lang.String, java.lang.String, java.lang.String, java.lang.String, long, java.util.Date, java.lang.String)
 	 */
 	public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
-			final String title, final long points, final Date dueDate, final String externalServiceDescription)
+			final String title, final double points, final Date dueDate, final String externalServiceDescription)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, GradebookNotFoundException {
 
         // Ensure that the required strings are not empty
@@ -223,7 +223,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#updateExternalAssessment(java.lang.String, java.lang.String, java.lang.String, java.lang.String, long, java.util.Date)
 	 */
 	public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
-			final String title, final long points, final Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException {
+			final String title, final double points, final Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException {
         final Assignment asn = getExternalAssignment(gradebookUid, externalId);
 
         if(asn == null) {

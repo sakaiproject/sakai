@@ -106,12 +106,12 @@ public interface GradebookService {
 	 *            what to display as the source of the assignment (e.g., "from Samigo")
 	 */
 	public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl,
-			String title, long points, Date dueDate, String externalServiceDescription)
+			String title, double points, Date dueDate, String externalServiceDescription)
             throws GradebookNotFoundException, ConflictingAssignmentNameException,
             ConflictingExternalIdException;
 
 	public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
-			String title, long points, Date dueDate)
+			String title, double points, Date dueDate)
 	        throws GradebookNotFoundException, AssessmentNotFoundException,
             ConflictingAssignmentNameException;
 
