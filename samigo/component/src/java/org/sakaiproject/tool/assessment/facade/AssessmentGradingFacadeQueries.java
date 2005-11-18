@@ -326,19 +326,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
-  public void saveTotalScores(ArrayList data) {
+  public void saveTotalScores(ArrayList gdataList) {
     try {
       AssessmentGradingData gdata = null;
-      Iterator iter = data.iterator();
+      Iterator iter = gdataList.iterator();
       while (iter.hasNext())
       {
         gdata = (AssessmentGradingData) iter.next();
         getHibernateTemplate().saveOrUpdate(gdata);
-        // no need to notify gradebook if this submission is not for grade
-        if ((Boolean.TRUE).equals(gdata.getForGrade()))
-          notifyGradebook(gdata);
       }
-      if (gdata !=null )
+      // no need to notify gradebook if this submission is not for grade
+      if (gdata !=null && (Boolean.TRUE).equals(gdata.getForGrade()))
         updateAllGradebookEntries(gdata);
     } catch (Exception e) {
       e.printStackTrace();
@@ -623,7 +621,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   private void notifyGradebookByScoringType(AssessmentGradingIfc data){
     Integer scoringType = getScoringType(data); 
     if (updateGradebook(data)){
-      AssessmentGradingIfc d = data;
+	AssessmentGradingIfc d = data; // data is the last submission
       // need to decide what to tell gradebook
       if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE))
         d = getHighestAssessmentGrading(
