@@ -76,7 +76,6 @@ document.links[newindex].onclick();
    boolean showFileUpload =
       org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
 %>
-%>
 <h:form id="assesssmentForm">
 <h:messages styleClass="validation"/>
   <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
