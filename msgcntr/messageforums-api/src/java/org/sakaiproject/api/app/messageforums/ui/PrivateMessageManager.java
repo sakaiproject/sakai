@@ -6,6 +6,7 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.Topic;
 
 public interface PrivateMessageManager {
     /**
@@ -28,6 +29,11 @@ public interface PrivateMessageManager {
     void deletePrivateMessage(Message message);
 
     Message getMessageById(String id);
+   
+    int getTotalNoMessages(Topic topic);
+    int getUnreadNoMessages(Topic topic);
+    
+    public void saveAreaSetting() ;
     
 ///
     public Attachment createPvtMsgAttachmentObject(String attachId, String name);      

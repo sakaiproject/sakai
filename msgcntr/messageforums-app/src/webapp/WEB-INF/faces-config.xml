@@ -109,7 +109,11 @@
             <to-view-id>/jsp/privateMsg/removeAttachConfirm.jsp</to-view-id>
             <redirect/>
         </navigation-case>  
-                                                          
+        <navigation-case>
+            <from-outcome>pvtMsgFolderSettings</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgFolderSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                    
     </navigation-rule>
   
     <!-- =================== Tool Beans ============== -->

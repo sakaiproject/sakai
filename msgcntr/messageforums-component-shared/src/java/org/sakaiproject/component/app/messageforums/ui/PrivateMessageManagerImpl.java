@@ -8,6 +8,7 @@ import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.component.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
@@ -173,6 +174,23 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return null;
   }
 
+  public int getTotalNoMessages(Topic topic)
+  {
+    //  TODO: Implement 
+    return 20;
+  }
+
+  public int getUnreadNoMessages(Topic topic)
+  {
+    //  TODO: Implement
+    return 10;
+  }
+
+  public void saveAreaSetting()
+  {
+    // TODO Sace settings like activate /forwarding email
+    
+  }
  
 
 }

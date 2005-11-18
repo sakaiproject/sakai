@@ -23,7 +23,6 @@
 
 package org.sakaiproject.tool.messageforums;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -32,14 +31,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -62,13 +58,14 @@ import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.sakaiproject.service.legacy.coursemanagement.CourseMember;
 import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
 import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
+import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
 
 public class PrivateMessagesTool
 {
@@ -105,6 +102,7 @@ public class PrivateMessagesTool
   private boolean navModeIsDelete=false ; // Delete mode to show up extra buttons in pvtMsg.jsp page
   private List selectedItems;
   
+  PrivateForumDecoratedBean decoratedForum;
   //delete confirmation screen - single delete 
   private boolean deleteConfirm=false ; //used for displaying delete confirmation message in same jsp
   
@@ -129,7 +127,7 @@ public class PrivateMessagesTool
   
   //Setting Screen
   private String activatePvtMsg="yes";
-  private boolean forwardPvtMsg;
+  private String forwardPvtMsg="no";
   private String forwardPvtMsgEmail;
   private boolean superUser; 
   
@@ -186,18 +184,36 @@ public class PrivateMessagesTool
    return privateArea;
   }
   
-  public PrivateForum getForum()
+//  public PrivateForum getForum()
+//  {
+//   return forum;
+//  }
+  
+  //Return decorated Forum
+  public PrivateForumDecoratedBean getDecoratedForum()
   {
-    return forum;
+    PrivateForumDecoratedBean decoratedForum = new PrivateForumDecoratedBean(forum) ;
+    for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
+    {
+      Topic topic = (Topic) iterator.next();
+      if (topic != null)
+      {
+        PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
+        decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
+        decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(topic)) ;
+        decoratedForum.addTopic(decoTopic);
+      }          
+    }
+    return decoratedForum ;
   }
   
-  public List getPvtTopics()
-  {
-    //TODO add deocrated for display of counts
-    
-    return pvtTopics;
-  }
-  
+  //TODO - area and forum is used only once as to display the title of private message
+  // May be 'area' and 'forum' to be deleted and and move all the code under getPvtTopics() 
+//  public List getPvtTopics()
+//  {
+//    return pvtTopics;
+//  }
+
   public List getDisplayPvtMsgs()
   {
     displayPvtMsgs=new ArrayList() ;
@@ -247,11 +263,11 @@ public class PrivateMessagesTool
         displayPvtMsgs = createDecoratedDisplay(displayPvtMsgs);
         
         // add selectItem for checkboxes
-        for (int i = 0; i < displayPvtMsgs.size(); i++)
-        {
-          totalDisplayItems.add(new SelectItem(((PrivateMessage)displayPvtMsgs.get(i)).getUuid(), 
-              ((PrivateMessage)displayPvtMsgs.get(i)).getUuid())) ;
-        }
+//        for (int i = 0; i < displayPvtMsgs.size(); i++)
+//        {
+//          totalDisplayItems.add(new SelectItem(((PrivateMessage)displayPvtMsgs.get(i)).getUuid(), 
+//              ((PrivateMessage)displayPvtMsgs.get(i)).getUuid())) ;
+//        }
         
       }
     }
@@ -516,39 +532,7 @@ public class PrivateMessagesTool
   public void setReplyToBody(String replyToBody) {
     this.replyToBody=replyToBody;
   }
-  //Setting Getter and Setter
-  public String getActivatePvtMsg()
-  {
-    return activatePvtMsg;
-  }
-  public void setActivatePvtMsg(String activatePvtMsg)
-  {
-    this.activatePvtMsg = activatePvtMsg;
-  }
-  public boolean isForwardPvtMsg()
-  {
-    return forwardPvtMsg;
-  }
-  public void setForwardPvtMsg(boolean forwardPvtMsg)
-  {
-    this.forwardPvtMsg = forwardPvtMsg;
-  }
-  public String getForwardPvtMsgEmail()
-  {
-    return forwardPvtMsgEmail;
-  }
-  public void setForwardPvtMsgEmail(String forwardPvtMsgEmail)
-  {
-    this.forwardPvtMsgEmail = forwardPvtMsgEmail;
-  }
-  public boolean isSuperUser()
-  {
-    return superUser;
-  }
-  public void setSuperUser(boolean superUser)
-  {
-    this.superUser = superUser;
-  }
+
 
   //message header Getter 
   public String getSearchText()
@@ -855,10 +839,28 @@ public class PrivateMessagesTool
   public String processPvtMsgDispOtions() {
     return "pvtMsgOrganize" ;
   }
-  public String processPvtMsgFldrSettings() {
-    return "pvtMsgSettings" ;
+  
+  
+  ///////////////////   FOLDER SETTINGS         ///////////////////////
+  private String folderTile="";
+  
+  public String getFolderTitle()
+  {
+    return getMsgNavMode() ;    
   }
-
+  public void setFolderTitle(String folderTitle)
+  {
+    this.folderTile=folderTitle;
+  }
+  public String processPvtMsgFolderSettings() {
+    //TODO
+    return "pvtMsgFolderSettings" ;
+  }
+  
+  public String processPvtMsgFolderSettingRevise() {
+    //TODO save revise 
+    return "pvtMsgFolderSettings" ;
+  }
   //select all
   private boolean isSelectAllJobsSelected = false;  
   public boolean isSelectAllJobsSelected()
@@ -1052,9 +1054,6 @@ public class PrivateMessagesTool
     return "pvtMsg" ;
   } 
   
-  //
-  // start button process actions
-  //
   public String processCDFMPostMessage()
   {
 //    Message message = topicProxy.getMessageModel().createPersistible();
@@ -1081,17 +1080,43 @@ public class PrivateMessagesTool
     return "compose";
   }
 
-  //
-  // end button process actions
-  //
 
-  // helpers
-
-  public ErrorMessages getErrorMessages()
+  ////////////  SETTINGS        //////////////////////////////
+  //Setting Getter and Setter
+  public String getActivatePvtMsg()
   {
-    return errorMessages;
+    return activatePvtMsg;
   }
- 
+  public void setActivatePvtMsg(String activatePvtMsg)
+  {
+    this.activatePvtMsg = activatePvtMsg;
+  }
+  public String getForwardPvtMsg()
+  {
+    return forwardPvtMsg;
+  }
+  public void setForwardPvtMsg(String forwardPvtMsg)
+  {
+    this.forwardPvtMsg = forwardPvtMsg;
+  }
+  public String getForwardPvtMsgEmail()
+  {
+    return forwardPvtMsgEmail;
+  }
+  public void setForwardPvtMsgEmail(String forwardPvtMsgEmail)
+  {
+    this.forwardPvtMsgEmail = forwardPvtMsgEmail;
+  }
+  public boolean getSuperUser()
+  {
+    superUser=SecurityService.isSuperUser();
+    return superUser;
+  }
+  public void setSuperUser(boolean superUser)
+  {
+    this.superUser = superUser;
+  }
+  
   public String processPvtMsgOrganize()
   {
 
@@ -1106,15 +1131,15 @@ public class PrivateMessagesTool
 
   public String processPvtMsgSettings()
   {
-    this.setSuperUser(SecurityService.isSuperUser());
-    //TODO get private message settings
     return "pvtMsgSettings";
   }
 
   public String processPvtMsgSettingRevise() {
-     String email= getForwardPvtMsgEmail();
-    String test=getActivatePvtMsg() ;
-    //TODO - save private message settings here
+    String email= getForwardPvtMsgEmail();
+    String act=getActivatePvtMsg() ;
+    String frd=getForwardPvtMsg() ;
+    //TODO save settings
+    //prtMsgManager.saveAreaSetting();
     return "main" ;
   }
   
@@ -1124,30 +1149,5 @@ public class PrivateMessagesTool
   
 
   //////// GETTER AND SETTER  ///////////////////  
-
-// public List getReceivedItems()
-//  {
-//    //receivedItems= (List) prtMsgManager.getPrivateArea();
-////    Area privateArea=prtMsgManager.getPrivateArea();
-////    List forums=privateArea.getForums();
-////    Iterator iter = forums.iterator();
-////    while(iter.hasNext())
-////    {
-////      PrivateForum forum = (PrivateForum)iter.next();
-////      List topics=forum.getTopics();
-////      Iterator iter1 = topics.iterator();
-////      while(iter1.hasNext())
-////      {
-////        Topic privateTopic = (Topic) iter1.next();
-////        List messages=privateTopic.getMessages();
-////        Iterator iter2 = messages.iterator();
-////         while (iter2.hasNext())
-////         {
-////           PrivateMessage msg = (PrivateMessage) iter2.next();
-////         }
-////      }      
-////    }
-//    return receivedItems;
-//  }
   
 }

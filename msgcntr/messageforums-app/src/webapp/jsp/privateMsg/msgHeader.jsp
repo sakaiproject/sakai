@@ -28,7 +28,7 @@
               
               <td align="right">
               <h:commandLink value="Display Options" action="#{PrivateMessagesTool.processPvtMsgDispOtions}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <h:commandLink value="Folder Settings" action="#{PrivateMessagesTool.processPvtMsgFldrSettings}"/>  
+              <h:commandLink value="Folder Settings" action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"/>  
               </td>
             </tr>                                    
           </table>
