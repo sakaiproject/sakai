@@ -329,18 +329,64 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public void saveTotalScores(ArrayList gdataList) {
     try {
       AssessmentGradingData gdata = null;
-      Iterator iter = gdataList.iterator();
-      while (iter.hasNext())
-      {
-        gdata = (AssessmentGradingData) iter.next();
-        getHibernateTemplate().saveOrUpdate(gdata);
-      }
+      if (gdataList.size()>0)
+        gdata = (AssessmentGradingData) gdataList.get(0);
+      else return;
+
+      Integer scoringType = getScoringType(gdata); 
+      ArrayList oldList = getAssessmentGradingsByScoringType(
+          scoringType, gdata.getPublishedAssessment().getPublishedAssessmentId());
+      getHibernateTemplate().saveOrUpdateAll(gdataList);
+
       // no need to notify gradebook if this submission is not for grade
-      if (gdata !=null && (Boolean.TRUE).equals(gdata.getForGrade()))
-        updateAllGradebookEntries(gdata);
+      if (updateGradebook(gdata)){
+        // we only want to notify GB when there are changes
+        ArrayList newList = getAssessmentGradingsByScoringType(
+          scoringType, gdata.getPublishedAssessment().getPublishedAssessmentId());
+        ArrayList l = getListForGradebookNotification(newList, oldList);
+        notifyGradebook(l);
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  private ArrayList getListForGradebookNotification(
+       ArrayList newList, ArrayList oldList){
+    ArrayList l = new ArrayList();
+    HashMap h = new HashMap(); 
+    for (int i=0; i<oldList.size(); i++){
+      AssessmentGradingData ag = (AssessmentGradingData)oldList.get(i);
+      h.put(ag.getAssessmentGradingId(), ag);
+    }
+
+    for (int i=0; i<newList.size(); i++){
+      AssessmentGradingData a = (AssessmentGradingData) newList.get(i);
+      Object o = h.get(a.getAssessmentGradingId());
+      if (o == null){ // this does not exist in old list, so include it for update
+        l.add(a); 
+      }
+      else{ // if new is different from old, include it for update
+        AssessmentGradingData b = (AssessmentGradingData) o;
+        if (!a.getFinalScore().equals(b.getFinalScore()))
+          l.add(a);
+      }
+    }
+    return l;
+  }
+
+  private ArrayList getAssessmentGradingsByScoringType(
+       Integer scoringType, Long publishedAssessmentId){
+    ArrayList l = new ArrayList();
+    // get the list of highest score
+    if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
+      l = getHighestAssessmentGradingList(publishedAssessmentId);
+    }
+    // get the list of last score
+    else {
+      l = getLastAssessmentGradingList(publishedAssessmentId);
+    }
+    return l;
   }
 
   public void saveItemScores(ArrayList data) {
@@ -651,26 +697,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
     }
     return (forGrade && toGradebook);
-  }
-
-  private void updateAllGradebookEntries(AssessmentGradingIfc data){
-
-    if (!updateGradebook(data))
-      return;
-
-    Integer scoringType = getScoringType(data); 
-    ArrayList l = new ArrayList();
-    // get the list of highest score
-    if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
-      l = getHighestAssessmentGradingList(
-          data.getPublishedAssessment().getPublishedAssessmentId());
-    }
-    // get the list of last score
-    else {
-      l = getLastAssessmentGradingList(
-          data.getPublishedAssessment().getPublishedAssessmentId());
-    }    
-    notifyGradebook(l);
   }
 
   private void notifyGradebook(ArrayList l){
