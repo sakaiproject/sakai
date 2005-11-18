@@ -308,12 +308,12 @@ public class TotalScoreListener
     // assessmentGradingId for the item
     for (int i=0; i<list.size(); i++){
       Long itemId = (Long)list.get(i);
-      log.info("****publishedItemId"+itemId);
+      log.debug("****publishedItemId"+itemId);
       ArrayList l = (ArrayList) itemIdHash.get(itemId);
       // check if the assessmentGradingId submitted is among the filtered list
       for (int j=0; j<l.size(); j++){
         Long assessmentGradingId = (Long) l.get(j);
-        log.info("****assessmentGradingId"+assessmentGradingId);
+        log.debug("****assessmentGradingId"+assessmentGradingId);
         if (h.get(assessmentGradingId) != null){
           answeredItems.put(itemId, "true");
           break;    

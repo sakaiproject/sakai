@@ -328,10 +328,14 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="status" />
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{msg.all_graded}" rendered="#{description.status == 2}"/>
-      <h:outputText value=" " rendered="#{description.status == 3}"/>
-      <h:outputText value="#{msg.late}" rendered="#{description.status == 4}"/>
-      <h:outputText value="#{msg.no_submission}" rendered="#{description.status == 5}"/>
+      <h:outputText value="#{msg.all_graded}" 
+         rendered="#{description.status == 2 && description.attemptDate != null}"/>
+      <h:outputText value=" " 
+         rendered="#{description.status == 3 && description.attemptDate != null}"/>
+      <h:outputText value="#{msg.late}" 
+         rendered="#{description.status == 4 && description.attemptDate != null}"/>
+      <h:outputText value="#{msg.no_submission}"
+         rendered="#{description.attemptDate == null}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='status'}">

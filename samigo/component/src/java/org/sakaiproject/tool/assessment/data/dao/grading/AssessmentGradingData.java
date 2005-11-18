@@ -43,6 +43,11 @@ public class AssessmentGradingData
 // need to implement org.osid.assessment.ItemTaken in the future
 // - daisyf 10/11/04
 {
+  public static Integer AUTO_GRADED = new Integer(2);
+  public static Integer NEED_HUMAN_ATTENTION = new Integer(3);
+  public static Integer LATE_SUBMISSION = new Integer(4);
+  public static Integer NO_SUBMISSION = new Integer(5);
+
   private Long assessmentGradingId;
   private String agentId;
   private PublishedAssessmentIfc publishedAssessment;
@@ -233,6 +238,7 @@ public class AssessmentGradingData
    * represent how well the student does overall. status = 1 means
    * this submitted assessment is selected.
    */
+  // daisy's comment: I am not sure Integer(1) is being used at all. 11/18/05
   public Integer getStatus() {
     return status;
   }
