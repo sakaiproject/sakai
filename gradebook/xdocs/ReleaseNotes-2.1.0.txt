@@ -81,15 +81,15 @@ Instead, the 2.1 Gradebook permissions are:
 
 For existing installations, the translation is:
 
-  gradebook.access = gradebook.viewOwnGrades
-  gradebook.maintain = gradebook.gradeAll + gradebook.editAssignments
+  gradebook.access -> gradebook.viewOwnGrades
+  gradebook.maintain -> gradebook.gradeAll + gradebook.editAssignments
 
 
 Standalone changes
 ------------------
 
 * The standalone Gradebook is now dependent on the SectionAwareness service to
-determine permissions, enrollments, and sections. (Or, to speak more
+determine permissions, enrollments, and sections. (Or, speaking more
 generically, to determine site memberships and groups.) As a result, some
 implementation of SectionAwareness must be built before the standalone
 Gradebook can run. See the standalone documentation for more information.
