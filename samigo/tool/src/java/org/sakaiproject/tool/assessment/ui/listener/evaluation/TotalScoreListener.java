@@ -52,6 +52,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -268,31 +269,24 @@ public class TotalScoreListener
     return isOwner;
   }
 
+  public Integer getScoringType(PublishedAssessmentData pub){
+    Integer scoringType = EvaluationModelIfc.HIGHEST_SCORE;
+    EvaluationModelIfc e = pub.getEvaluationModel();
+    if ( e!=null ){
+      scoringType = e.getScoringType();
+    }
+    return scoringType;
+  }
+
   // Set first item for question scores.  This can be complicated.
   // It's important because it simplifies Question Scores to do this
   // once and keep track of it -- the data is available here, and
   // not there.  If firstItem is "", there are no items with
   // answers, and the QuestionScores and Histograms pages don't
   // show.  This is a very weird case, but has to be handled.
-  // ***daisyf: this is a slow way of doing it.
-    /*
-  public void setAnsweredItem(TotalScoresBean bean, ArrayList scores, PublishedAssessmentData pub){
-    HashMap answeredItems = new HashMap();
-    Iterator i2 = scores.iterator();
-    while (i2.hasNext())
-    {
-      AssessmentGradingData agd = (AssessmentGradingData) i2.next();
-      Iterator i3 = agd.getItemGradingSet().iterator();
-      while (i3.hasNext())
-      {
-        ItemGradingData igd = (ItemGradingData) i3.next();
-        answeredItems.put(igd.getPublishedItem().getItemId(), "true");
-      }
-    }
-  }
-    */
- 
-  // this method is efficient especially in large class
+  /* daisy's  comment: Really? I don't really understand why but 
+     I have rewritten this method so it is more efficient. The old method
+     has trouble dealing with large class with large question set. */
   public HashMap getAnsweredItems(ArrayList scores, PublishedAssessmentData pub){
     HashMap answeredItems = new HashMap();
     HashMap h = new HashMap();
@@ -307,15 +301,19 @@ public class TotalScoreListener
     List list =PersistenceService.getInstance().
       getPublishedAssessmentFacadeQueries().getPublishedItemIds(pub.getPublishedAssessmentId());
 
-    // 2. go through each publishedItemId and get all the submission of 
+    // 2. build a HashMap (Long publishedItemId, ArrayList assessmentGradingIds)
+    HashMap itemIdHash = getPublishedItemIdHash(pub);
+
+    // 3. go through each publishedItemId and get all the submission of 
     // assessmentGradingId for the item
     for (int i=0; i<list.size(); i++){
       Long itemId = (Long)list.get(i);
-      List l = PersistenceService.getInstance().
-        getAssessmentGradingFacadeQueries().getAssessmentGradingIds(itemId);
+      log.info("****publishedItemId"+itemId);
+      ArrayList l = (ArrayList) itemIdHash.get(itemId);
       // check if the assessmentGradingId submitted is among the filtered list
       for (int j=0; j<l.size(); j++){
         Long assessmentGradingId = (Long) l.get(j);
+        log.info("****assessmentGradingId"+assessmentGradingId);
         if (h.get(assessmentGradingId) != null){
           answeredItems.put(itemId, "true");
           break;    
@@ -553,6 +551,26 @@ public class TotalScoreListener
     }
   }
 
+  // build a Hashmap (Long itemId, ArrayList assessmentGradingIds)
+  // containing the last/highest item submission 
+  // (regardless of users who submitted it) of a given published assessment
+  public HashMap getPublishedItemIdHash(PublishedAssessmentData pub){
+    HashMap publishedItemIdHash = new HashMap();
+    Integer scoringType = getScoringType(pub);
+    if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
+	publishedItemIdHash = PersistenceService.getInstance().
+            getAssessmentGradingFacadeQueries().
+            getHighestAssessmentGradingByPublishedItem(
+            pub.getPublishedAssessmentId());
+    }
+    else{
+	publishedItemIdHash = PersistenceService.getInstance().
+            getAssessmentGradingFacadeQueries().
+            getLastAssessmentGradingByPublishedItem(
+            pub.getPublishedAssessmentId());
+    }
+    return publishedItemIdHash;
+  }
 
 
 }

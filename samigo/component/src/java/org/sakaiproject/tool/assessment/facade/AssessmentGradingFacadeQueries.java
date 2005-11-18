@@ -1116,5 +1116,99 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return l;
   }
 
+  // build a Hashmap (Long publishedItemId, ArrayList assessmentGradingIds)
+  // containing the item submission of the last AssessmentGrading
+  // (regardless of users who submitted it) of a given published assessment
+  public HashMap getLastAssessmentGradingByPublishedItem(Long publishedAssessmentId){
+    HashMap h = new HashMap();
+    String query = "select new AssessmentGradingData("+
+                   " a.assessmentGradingId, p.itemId, "+ 
+                   " a.agentId, a.finalScore, a.submittedDate) "+
+                   " from ItemGradingData i, AssessmentGradingData a,"+
+                   " PublishedItemData p where "+ 
+                   " i.assessmentGrading = a and i.publishedItem = p and "+ 
+                   " a.publishedAssessment.publishedAssessmentId=? " +
+                   " order by a.agentId asc, a.submittedDate desc";
+    List assessmentGradings = getHibernateTemplate().find(query,
+         new Object[] { publishedAssessmentId },
+         new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+ 
+    ArrayList l = new ArrayList();
+    String currentAgent="";
+    Date submittedDate = null;
+    for (int i=0; i<assessmentGradings.size(); i++){
+      AssessmentGradingData g = (AssessmentGradingData)assessmentGradings.get(i);
+      Long itemId = g.getPublishedItemId();
+      Long gradingId = g.getAssessmentGradingId();
+      log.debug("**** itemId="+itemId+", gradingId="+gradingId+", agentId="+g.getAgentId()+", score="+g.getFinalScore());
+      if ( i==0 ){
+        currentAgent = g.getAgentId();
+        submittedDate = g.getSubmittedDate();
+      }
+      if (currentAgent.equals(g.getAgentId()) && submittedDate.equals(g.getSubmittedDate())){
+        Object o = h.get(itemId);
+        if (o != null)
+          ((ArrayList) o).add(gradingId);
+        else{
+          ArrayList gradingIds = new ArrayList();
+          gradingIds.add(gradingId);
+          h.put(itemId, gradingIds);
+	}
+      }
+      if (!currentAgent.equals(g.getAgentId())){
+        currentAgent = g.getAgentId();
+        submittedDate = g.getSubmittedDate();
+      }
+    }
+    return h;
+  }
+
+  // build a Hashmap (Long publishedItemId, ArrayList assessmentGradingIds)
+  // containing the item submission of the highest AssessmentGrading
+  // (regardless of users who submitted it) of a given published assessment
+  public HashMap getHighestAssessmentGradingByPublishedItem(Long publishedAssessmentId){
+    HashMap h = new HashMap();
+    String query = "select new AssessmentGradingData("+
+                   " a.assessmentGradingId, p.itemId, "+ 
+                   " a.agentId, a.finalScore, a.submittedDate) "+
+                   " from ItemGradingData i, AssessmentGradingData a, "+
+                   " PublishedItemData p where "+ 
+                   " i.assessmentGrading = a and i.publishedItem = p and "+ 
+                   " a.publishedAssessment.publishedAssessmentId=? " +
+                   " order by a.agentId asc, a.finalScore desc";
+    List assessmentGradings = getHibernateTemplate().find(query,
+         new Object[] { publishedAssessmentId },
+         new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+ 
+    ArrayList l = new ArrayList();
+    String currentAgent="";
+    Float finalScore = null;
+    for (int i=0; i<assessmentGradings.size(); i++){
+      AssessmentGradingData g = (AssessmentGradingData)assessmentGradings.get(i);
+      Long itemId = g.getPublishedItemId();
+      Long gradingId = g.getAssessmentGradingId();
+      log.debug("**** itemId="+itemId+", gradingId="+gradingId+", agentId="+g.getAgentId()+", score="+g.getFinalScore());
+      if ( i==0 ){
+        currentAgent = g.getAgentId();
+        finalScore = g.getFinalScore();
+      }
+      if (currentAgent.equals(g.getAgentId()) && finalScore.equals(g.getFinalScore())){
+        Object o = h.get(itemId);
+        if (o != null)
+          ((ArrayList) o).add(gradingId);
+        else{
+          ArrayList gradingIds = new ArrayList();
+          gradingIds.add(gradingId);
+          h.put(itemId, gradingIds);
+	}
+      }
+      if (!currentAgent.equals(g.getAgentId())){
+        currentAgent = g.getAgentId();
+        finalScore = g.getFinalScore();
+      }
+    }
+    return h;
+  }
+
 
 }

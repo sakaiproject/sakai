@@ -142,4 +142,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public AssessmentGradingIfc getHighestAssessmentGrading(
       Long publishedAssessmentId, String agentId);
 
+  public HashMap getLastAssessmentGradingByPublishedItem(Long publishedAssessmentId);
+
+  public HashMap getHighestAssessmentGradingByPublishedItem(Long publishedAssessmentId);
+
 }

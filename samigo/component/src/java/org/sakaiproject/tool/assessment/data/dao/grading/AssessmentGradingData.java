@@ -284,4 +284,28 @@ public class AssessmentGradingData
   public void setPublishedAssessmentTitle(String publishedAssessmentTitle) {
     this.publishedAssessmentTitle = publishedAssessmentTitle;
   }
+
+  // daisy added this for mining partial assessmentGradingData object
+  // 11/17/05
+  private Long publishedItemId;
+
+  public Long getPublishedItemId() {
+    return publishedItemId;
+  }
+
+  public void setItemGradingId(Long publishedItemId) {
+    this.publishedItemId =  publishedItemId;
+  }
+
+  public AssessmentGradingData(Long assessmentGradingId, Long publishedItemId,
+				 String agentId, Float finalScore, Date submittedDate) {
+    this.assessmentGradingId = assessmentGradingId;
+    this.publishedItemId = publishedItemId;
+    this.agentId = agentId;
+    this.finalScore = finalScore;
+    this.submittedDate = submittedDate;
+  }
+
+
+
 }
