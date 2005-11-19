@@ -106,7 +106,7 @@ public class ConfirmPublishAssessmentListener
     }
 
     if (error){
-      assessmentSettings.setOutcomePublish("edit_assessment");
+      assessmentSettings.setOutcomePublish("editAssessmentSettings");
       return;
     }
 

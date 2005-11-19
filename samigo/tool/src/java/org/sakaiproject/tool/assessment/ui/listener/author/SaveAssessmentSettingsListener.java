@@ -109,7 +109,7 @@ public class SaveAssessmentSettingsListener
       return;
     }
  
-    assessmentSettings.setOutcomeSave("saveSettings_success");
+    assessmentSettings.setOutcomeSave("author");
     SaveAssessmentSettings s= new SaveAssessmentSettings();
     s.save(assessmentSettings);
     // reset the core listing in case assessment title changes
