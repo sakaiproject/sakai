@@ -70,85 +70,98 @@ public class ConfirmPublishAssessmentListener
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
         "assessmentSettings");
-   //Huong's adding
-    SaveAssessmentSettings s = new SaveAssessmentSettings();
-    Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
-    boolean isTime=false;
+
+    //#1 - permission checking before proceeding - daisyf
+    String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
+    AssessmentService assessmentService = new AssessmentService();
+    AssessmentFacade assessment = assessmentService.getAssessment(
+        assessmentId);
+    if (!passAuthz(context, assessment.getCreatedBy())){
+      assessmentSettings.setOutcomePublish("editAssessmentSettings");
+      return;
+    }
+
+    //proceed to look for error, save assessment setting and confirm publish
+    //#2a - look for error: check if core assessment title is unique
     String err="";
     boolean error=false;
+
     String assessmentName=assessmentSettings.getTitle();
-    String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
-    System.out.println("assessmentId : "+assessmentId);
-    AssessmentService service = new AssessmentService();
-     PublishedAssessmentService publishedService = new PublishedAssessmentService();
-     
+    if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
+      err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+      context.addMessage(null,new FacesMessage(err));
+      error=true;
+    }
+
+    //#2b - validate if this is a time assessment, is there a time entry?
+    Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
+    boolean isTime=false;
     if (time!=null)
       isTime=((Boolean)time).booleanValue();
   
-    if((!service.assessmentTitleIsUnique(assessmentId,assessmentName,false)) || (!publishedService.publishedAssessmentTitleIsUnique(assessmentId,assessmentName))){
-	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
-	error=true;
+    if ((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
+      err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
+      context.addMessage(null,new FacesMessage(err));
+      error=true;
     }
-    if((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
 
-	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
-        error=true;
-       
+    if (error){
+      assessmentSettings.setOutcomePublish("edit_assessment");
+      return;
     }
-    if(error){
-	context.addMessage(null,new FacesMessage(err));
 
-       	assessmentSettings.setOutcomePublish("publish_fail");
-	return;
-    }
-  
-    	assessmentSettings.setOutcomePublish("publish_success");	
-    AssessmentFacade assessment = s.save(assessmentSettings);
+    //#3 now u can proceed to save core assessment
+    SaveAssessmentSettings s = new SaveAssessmentSettings();
+    assessment = s.save(assessmentSettings);
     assessmentSettings.setAssessment(assessment);
 
     //  we need a publishedUrl, this is the url used by anonymous user
     String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
     if (releaseTo != null) {
-           // generate an alias to the pub assessment
-	String alias = AgentFacade.getAgentString() + (new Date()).getTime();
-	assessmentSettings.setAlias(alias);
-           //log.info("servletPath=" + extContext.getRequestServletPath());
-            String server = ( (javax.servlet.http.HttpServletRequest) extContext.
+      // generate an alias to the pub assessment
+      String alias = AgentFacade.getAgentString() + (new Date()).getTime();
+      assessmentSettings.setAlias(alias);
+      //log.info("servletPath=" + extContext.getRequestServletPath());
+      String server = ( (javax.servlet.http.HttpServletRequest) extContext.
 			      getRequest()).getRequestURL().toString();
-	    int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo/"
-	    server = server.substring(0, index);
+      int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo/"
+      server = server.substring(0, index);
       //log.info("servletPath=" + server);
-	    String url = server + extContext.getRequestContextPath();
-	    assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
+      String url = server + extContext.getRequestContextPath();
+      assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
 
     }
-
-	//## - permission checking before proceeding - daisyf
-    if (!passAuthz(context, assessment.getCreatedBy())){
-	assessmentSettings.setOutcomePublish("editAssessmentSettings");
+   
+    //#4 - before going to confirm publishing, check if the title is unique
+    PublishedAssessmentService publishedService = new PublishedAssessmentService();
+    if ( !publishedService.publishedAssessmentTitleIsUnique(assessmentId,assessmentName)){
+      err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","published_assessment_title_not_unique_error");
+      context.addMessage(null,new FacesMessage(err));
+      assessmentSettings.setOutcomePublish("editAssessmentSettings");
+      return;
     }
-       
+    assessmentSettings.setOutcomePublish("saveSettingsAndConfirmPublish"); // finally goto confirm
   }
 
-    public boolean passAuthz(FacesContext context, String ownerId){
-	AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
-	boolean hasPrivilege_any = authzBean.getPublishAnyAssessment();
-	boolean hasPrivilege_own0 = authzBean.getPublishOwnAssessment();
-	boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
-	boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
-	if (!hasPrivilege){
-	    String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-						     "denied_publish_assessment_error");
-	    context.addMessage("authorIndexForm:publish_assessment_denied",new FacesMessage(err));
-	}
-	return hasPrivilege;
+  public boolean passAuthz(FacesContext context, String ownerId){
+    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+    boolean hasPrivilege_any = authzBean.getPublishAnyAssessment();
+    boolean hasPrivilege_own0 = authzBean.getPublishOwnAssessment();
+    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
+    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
+    if (!hasPrivilege){
+      String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+		     "denied_publish_assessment_error");
+      context.addMessage("authorIndexForm:publish_assessment_denied",new FacesMessage(err));
     }
+    return hasPrivilege;
+  }
 
-    public boolean isOwner(String ownerId){
-	boolean isOwner = false;
-	String agentId = AgentFacade.getAgentString();
-	isOwner = agentId.equals(ownerId);
-	return isOwner;
-    }
+  public boolean isOwner(String ownerId){
+    boolean isOwner = false;
+    String agentId = AgentFacade.getAgentString();
+    isOwner = agentId.equals(ownerId);
+    return isOwner;
+  }
   
 }

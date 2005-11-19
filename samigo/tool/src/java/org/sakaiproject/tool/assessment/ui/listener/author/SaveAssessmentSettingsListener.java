@@ -68,20 +68,23 @@ public class SaveAssessmentSettingsListener
 
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean("assessmentSettings");
-    SaveAssessmentSettings s= new SaveAssessmentSettings();
-    //Huong's adding
 
-    Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
-    boolean isTime=false;
     String err="";
     boolean error=false;
-    String assessmentName=assessmentSettings.getTitle();
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId()); 
     AssessmentService assessmentService = new AssessmentService();
-    PublishedAssessmentService publishedService = new PublishedAssessmentService();
   
-    // If something is in there that is not a Boolean object, keep default.
-    // I have seen this happen, this avoids ClassCastException --esmiley
+    //#2 - check if name is unique
+    String assessmentName=assessmentSettings.getTitle();
+    if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
+	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+	context.addMessage(null,new FacesMessage(err));
+	error=true;
+    }
+
+    //#3 if timed assessment, does it has value for time
+    Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
+    boolean isTime=false;
     try
     {
       if (time != null)
@@ -95,38 +98,32 @@ public class SaveAssessmentSettingsListener
       log.warn("Expecting Boolean hasTimeAssessment, got: " + time);
 
     }
-
-    if((!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)) || (!publishedService.publishedAssessmentTitleIsUnique(assessmentId,assessmentName))){
-	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
-	error=true;
-    }
     if((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
-
 	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
-        error=true;
-       
-    }
-    if(error){
 	context.addMessage(null,new FacesMessage(err));
-       	assessmentSettings.setOutcomePublish("publish_fail");
-        
-	return;
+        error=true;
+    }
+
+    if (error){
+      assessmentSettings.setOutcomePublish("editAssessmentSettings");
+      return;
     }
  
-   assessmentSettings.setOutcomeSave("saveSettings_success");
-  s.save(assessmentSettings);
- // reset the core listing in case assessment title changes
-  AuthorBean author = (AuthorBean) cu.lookupBean(
+    assessmentSettings.setOutcomeSave("saveSettings_success");
+    SaveAssessmentSettings s= new SaveAssessmentSettings();
+    s.save(assessmentSettings);
+    // reset the core listing in case assessment title changes
+    AuthorBean author = (AuthorBean) cu.lookupBean(
                        "author");
  
-  ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
+    ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
                       author.getCoreAssessmentOrderBy(),author.isCoreAscending());
     // get the managed bean, author and set the list
-  author.setAssessments(assessmentList);
+    author.setAssessments(assessmentList);
 
     // goto Question Authoring page
-  EditAssessmentListener editA= new EditAssessmentListener();
-  editA.processAction(null);
+    EditAssessmentListener editA= new EditAssessmentListener();
+    editA.processAction(null);
 
   }
 

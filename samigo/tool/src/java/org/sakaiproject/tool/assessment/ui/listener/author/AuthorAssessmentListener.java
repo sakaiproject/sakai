@@ -99,7 +99,7 @@ public class AuthorAssessmentListener
     //check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error
     boolean isUnique = assessmentService.assessmentTitleIsUnique("0", assessmentTitle, false);
     boolean isUniquePublish= publishedService.publishedAssessmentTitleIsUnique("0", assessmentTitle);
-    if (!(isUnique && isUniquePublish)){
+    if (!isUnique){
       String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","duplicateName_error");
       context.addMessage(null,new FacesMessage(err));
       author.setOutcome("author");
