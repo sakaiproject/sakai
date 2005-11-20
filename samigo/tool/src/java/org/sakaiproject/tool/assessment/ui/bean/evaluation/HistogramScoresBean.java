@@ -29,6 +29,8 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+
 /**
  * <p>$Id$</p>
  * Copyright: Copyright (c) 2003-2004
@@ -58,7 +60,7 @@ public class HistogramScoresBean
   private String totalPossibleScore; //total possible score
   private String adjustedScore;
   private String questionNumber;
-  private boolean allSubmissions;
+  private String allSubmissions;
   private String partNumber;
   private Integer parts;
   private String mean;
@@ -82,10 +84,10 @@ public class HistogramScoresBean
   private String q4;
   private HistogramBarBean[] histogramBars;
   private HistogramQuestionScoresBean[] histogramQuestions;
-
   private boolean randomType;   // true = has at least one random draw part
 
   private static Log log = LogFactory.getLog(HistogramScoresBean.class);
+
 
   /**
    * Creates a new HistogramScoresBean object.
@@ -269,7 +271,7 @@ publishedId = ppublishedId;
    *
    * @return all submissions
    */
-  public boolean getAllSubmissions()
+  public String getAllSubmissions()
   {
     return allSubmissions;
   }
@@ -279,7 +281,7 @@ publishedId = ppublishedId;
    *
    * @param pallSubmissions all submissions
    */
-  public void setAllSubmissions(boolean pallSubmissions)
+  public void setAllSubmissions(String pallSubmissions)
   {
     allSubmissions = pallSubmissions;
   }
@@ -803,4 +805,5 @@ publishedId = ppublishedId;
   {
     histogramBars = bars;
   }
+
 }

@@ -70,6 +70,7 @@
     <h:commandLink action="questionScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{msg.q_view}" />
+      <f:param name="allSubmissions" value="3"/>
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>

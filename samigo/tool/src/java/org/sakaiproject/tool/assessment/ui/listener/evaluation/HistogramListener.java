@@ -123,6 +123,17 @@ public class HistogramListener
 	publishedId = (String) cu.lookupParam("publishedId");
     }
 
+    String selectedvalue= (String) event.getNewValue();
+
+    if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
+        log.debug("changed submission pulldown ");
+        bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
+    }
+
+
+
+
+
     log.info("Calling histogramScores.");
     if (!histogramScores(publishedId, bean, totalBean))
     {
@@ -146,11 +157,18 @@ public class HistogramListener
       String assessmentName = "";
 
       // Get all submissions, or just the last?
-      String which = cu.lookupParam("allSubmissions");
-      //log.info("Rachel: allSubmissions = " + which);
-      if (which == null)
-        which = "false";
-      bean.setAllSubmissions(which.equals("true")?true:false);
+      // String which = cu.lookupParam("allSubmissions");
+      // bean.setAllSubmissions(which.equals("true")?true:false);
+
+
+      String which = bean.getAllSubmissions();
+      if (which == null && totalBean.getAllSubmissions() != null)
+      {
+        // use totalscore's selection
+        which = totalBean.getAllSubmissions();
+        bean.setAllSubmissions(which);    // changed submission pulldown
+      }
+
       bean.setItemId(cu.lookupParam("itemId"));
       bean.setHasNav(cu.lookupParam("hasNav"));
 
@@ -574,6 +592,7 @@ public class HistogramListener
 
         } catch (Exception e) {
           log.info("No results for " + answer.getId());
+	e.printStackTrace();
         }
         if (num == null)
           num = new Integer(0);

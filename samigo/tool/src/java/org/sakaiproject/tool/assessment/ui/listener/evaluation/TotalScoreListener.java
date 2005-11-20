@@ -60,6 +60,8 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
@@ -103,6 +105,7 @@ public class TotalScoreListener
     log.info("TotalScore LISTENER.");
 
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
+    bean.setAllSubmissions(TotalScoresBean.ALL_SUBMISSIONS);    // reset to All-submissions if coming from authorIndex 
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
@@ -136,6 +139,8 @@ public class TotalScoreListener
 
     log.info("TotalScore CHANGE LISTENER.");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
+    QuestionScoresBean questionbean = (QuestionScoresBean) cu.lookupBean("questionScores");
+    HistogramScoresBean histobean = (HistogramScoresBean) cu.lookupBean("histogramScores");
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
@@ -157,6 +162,8 @@ public class TotalScoreListener
       }
     }
 
+    questionbean.setAllSubmissions(null);    // reset questionScores pulldown  
+    histobean.setAllSubmissions(null);    // reset histogramScores pulldown  
     log.info("Calling totalScores.");
     if (!totalScores(pubAssessment, bean, true))
     {

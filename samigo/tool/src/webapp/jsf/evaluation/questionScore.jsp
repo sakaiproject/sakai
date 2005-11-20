@@ -186,7 +186,7 @@ $Id$
      <h:outputText value="#{msg.view}" />
       <h:outputText value=" : " />
 
-     <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker"
+     <h:selectOneMenu value="#{questionScores.selectedSectionFilterValue}" id="sectionpicker"
         required="true" onchange="document.forms[0].submit();" >
         <f:selectItems value="#{totalScores.sectionFilterSelectItems}" />
       <f:valueChangeListener
@@ -201,7 +201,7 @@ $Id$
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
      </h:selectOneMenu>
 
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH"
+     <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsH"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
       <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
       <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />

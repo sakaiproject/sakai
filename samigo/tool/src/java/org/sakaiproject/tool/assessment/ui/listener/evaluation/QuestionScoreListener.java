@@ -176,15 +176,9 @@ public class QuestionScoreListener
       if (which == null && totalBean.getAllSubmissions() != null)
       {
         // use totalscore's selection 
-         which = totalBean.getAllSubmissions();
+        which = totalBean.getAllSubmissions();
+        bean.setAllSubmissions(which);
       }
-      else {
-  	// default display all 
-        which = "3";
-      }
-
-
-
 
 
       totalBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());   // set section pulldown

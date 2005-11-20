@@ -79,13 +79,22 @@ $Id$
     <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
      <h:outputText value="#{msg.view} " />
       <h:outputText value=" : " />
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissions"
-        required="true" onchange="document.forms[0].submit();">
-      <f:selectItem itemValue="false" itemLabel="#{msg.last_sub}" />
-      <f:selectItem itemValue="true" itemLabel="#{msg.all_sub}" />
+
+     <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsL"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+      <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-      </h:selectOneMenu>
+     </h:selectOneMenu>
+
+     <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsH"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+      <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
+      <f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
+     </h:selectOneMenu>
     </h:panelGroup>
 
     <h:panelGroup rendered="#{histogramScores.randomType =='true'}">
