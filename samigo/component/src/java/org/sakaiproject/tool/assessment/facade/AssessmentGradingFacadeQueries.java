@@ -193,11 +193,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   		    }
   		  }                                                          
           
-          Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);          
-          
+if (itemId.equals(new Long(0))) {}
+else {
+          Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
+
           /** create logical and between the pubCriterion and the disjunction criterion */
           criteria.add(Expression.and(pubCriterion, disjunction));
-                       
+}
+
           criteria.addOrder(Order.asc("agentId"));
           criteria.addOrder(Order.desc("submittedDate"));                    
           return criteria.list();
