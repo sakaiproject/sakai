@@ -140,10 +140,10 @@ sorting actions for table:
       </f:facet>
       <h:outputText value="n/a" rendered="#{takeable.dueDate == null}" />
       <h:outputText value="#{takeable.dueDate}" style="color: red;" rendered="#{takeable.pastDue}">
-        <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}" />
       </h:outputText>
       <h:outputText value="#{takeable.dueDate}" rendered="#{!takeable.pastDue}">
-        <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}" />
       </h:outputText>
     </h:column>
   </h:dataTable>
@@ -301,7 +301,7 @@ sorting actions for table:
          </h:panelGroup>
       </f:facet>
       <h:outputText value="#{reviewable.feedbackDate} " rendered="#{reviewable.feedback eq 'true'}" >
-        <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}" />
       </h:outputText>
       <h:outputText value="Immediate" rendered="#{reviewable.feedback eq 'true'
         && reviewable.feedbackDate==null}" />
@@ -486,10 +486,9 @@ sorting actions for table:
         </h:panelGroup>
       </f:facet>
 
-      <h:outputText value="#{reviewable.submissionDate}" rendered="#{reviewable.feedback eq 'true'}" >
-        <f:convertDateTime pattern="#{genMsg.output_date_picker}"  />
+      <h:outputText value="#{reviewable.submissionDate}" >
+        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}"  />
       </h:outputText>
-      <h:outputText value="#{msg.not_applicable}" rendered="#{reviewable.feedback eq 'false'}" />
     </h:column>
   </h:dataTable>
   </div></div>
