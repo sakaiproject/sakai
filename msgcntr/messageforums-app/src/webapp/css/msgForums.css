@@ -8,3 +8,6 @@
 .topicRows{
   border: none; float: right; margin: 0; padding: 0; width: 97%;text-align:left;
 }
+.alertMsg{
+  background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;
+}

@@ -93,6 +93,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return messageManager.getMessageById(id);
   }
 
+  
+  //Attachment
   public Attachment createPvtMsgAttachmentObject(String attachId, String name)
   {
     try
@@ -186,9 +188,40 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return 10;
   }
 
+  /**
+   * Area Setting
+   */
   public void saveAreaSetting()
   {
     // TODO Sace settings like activate /forwarding email
+    
+  }
+  
+  /**
+   * Topic Folder Setting
+   */
+  
+  public boolean isMutableTopicFolder()
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  public void createTopicFolder(String topicTitle)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public void renameTopicFolder(String topicTitle)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public void deleteTopicFolder(String topicTitle)
+  {
+    // TODO Auto-generated method stub
     
   }
  

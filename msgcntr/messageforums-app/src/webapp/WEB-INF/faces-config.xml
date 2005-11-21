@@ -96,7 +96,7 @@
         </navigation-case>  
         <navigation-case>
             <from-outcome>pvtMsgReply</from-outcome>
-            <to-view-id>/jsp/privateMsg/pvtMsgReply.jsp</to-view-id>
+            <to-view-id>/jsp/pvtMsgReply.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
         <navigation-case>
@@ -113,7 +113,22 @@
             <from-outcome>pvtMsgFolderSettings</from-outcome>
             <to-view-id>/jsp/privateMsg/pvtMsgFolderSettings.jsp</to-view-id>
             <redirect/>
-        </navigation-case>                                                    
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>pvtMsgFolderAdd</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgFolderAdd.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgFolderRevise</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgFolderRevise.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgFolderDelete</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgFolderDelete.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                                           
     </navigation-rule>
   
     <!-- =================== Tool Beans ============== -->

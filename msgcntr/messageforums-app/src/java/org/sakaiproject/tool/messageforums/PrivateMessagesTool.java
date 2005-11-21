@@ -552,9 +552,19 @@ public class PrivateMessagesTool
    * called when any topic like Received/Sent/Deleted clicked
    * @return - pvtMsg
    */
+  private String selectedTopicTitle="";
+  public String getSelectedTopicTitle()
+  {
+    return selectedTopicTitle ;
+  }
+  public void setSelectedTopicTitle(String selectedTopicTitle) 
+  {
+    this.selectedTopicTitle=selectedTopicTitle;
+  }
+  
+  
   public String processPvtMsgTopic()
   {
-    String pvtMsgTopicTitle="";
     //get external parameter
     try
     {
@@ -566,7 +576,7 @@ public class PrivateMessagesTool
         String key = (String) itr.next();
         if (key != null && key.equals("pvtMsgTopicTitle"))
         {
-          pvtMsgTopicTitle = (String) paramMap.get(key);
+          selectedTopicTitle = (String) paramMap.get(key);
           break;
         }
       }
@@ -577,31 +587,31 @@ public class PrivateMessagesTool
       return "main"; 
     }
     //then set up navigation
-    if(pvtMsgTopicTitle.equals(PVTMSG_MODE_RECEIVED) || (this.getMsgNavMode().equals(PVTMSG_MODE_RECEIVED)))
+    if(selectedTopicTitle.equals(PVTMSG_MODE_RECEIVED) || (this.getMsgNavMode().equals(PVTMSG_MODE_RECEIVED)))
     {
       msgNavMode=PVTMSG_MODE_RECEIVED;
       this.setNavModeIsDelete(false); 
       return "pvtMsg";
     }
-    if(pvtMsgTopicTitle.equals(PVTMSG_MODE_SENT) ||(this.getMsgNavMode().equals(PVTMSG_MODE_SENT)))
+    if(selectedTopicTitle.equals(PVTMSG_MODE_SENT) ||(this.getMsgNavMode().equals(PVTMSG_MODE_SENT)))
     {
       msgNavMode=PVTMSG_MODE_SENT;
       this.setNavModeIsDelete(false); 
       return "pvtMsg";
     }
-    if(pvtMsgTopicTitle.equals(PVTMSG_MODE_DELETE)||(this.getMsgNavMode().equals(PVTMSG_MODE_DELETE)))
+    if(selectedTopicTitle.equals(PVTMSG_MODE_DELETE)||(this.getMsgNavMode().equals(PVTMSG_MODE_DELETE)))
     {
       msgNavMode=PVTMSG_MODE_DELETE;
       this.setNavModeIsDelete(true); 
       return "pvtMsg";
     }
-    if(pvtMsgTopicTitle.equals(PVTMSG_MODE_DRAFT)||(this.getMsgNavMode().equals(PVTMSG_MODE_DRAFT)))
+    if(selectedTopicTitle.equals(PVTMSG_MODE_DRAFT)||(this.getMsgNavMode().equals(PVTMSG_MODE_DRAFT)))
     {
       msgNavMode=PVTMSG_MODE_DRAFT;
       this.setNavModeIsDelete(false); 
       return "pvtMsg";
     }
-    if(pvtMsgTopicTitle.equals(PVTMSG_MODE_CASE)||(this.getMsgNavMode().equals(PVTMSG_MODE_CASE)))
+    if(selectedTopicTitle.equals(PVTMSG_MODE_CASE)||(this.getMsgNavMode().equals(PVTMSG_MODE_CASE)))
     {
       msgNavMode=PVTMSG_MODE_CASE;
       this.setNavModeIsDelete(false); 
@@ -785,7 +795,7 @@ public class PrivateMessagesTool
   public String processPvtMsgReplySend() {
     PrivateMessage rsMsg=constructMessage() ;
     //TODO - add stuff include reply related things
-    prtMsgManager.savePrivateMessage(rsMsg);
+    //prtMsgManager.savePrivateMessage(rsMsg);
     return "pvtMsg" ;
   }
  
@@ -841,26 +851,7 @@ public class PrivateMessagesTool
   }
   
   
-  ///////////////////   FOLDER SETTINGS         ///////////////////////
-  private String folderTile="";
-  
-  public String getFolderTitle()
-  {
-    return getMsgNavMode() ;    
-  }
-  public void setFolderTitle(String folderTitle)
-  {
-    this.folderTile=folderTitle;
-  }
-  public String processPvtMsgFolderSettings() {
-    //TODO
-    return "pvtMsgFolderSettings" ;
-  }
-  
-  public String processPvtMsgFolderSettingRevise() {
-    //TODO save revise 
-    return "pvtMsgFolderSettings" ;
-  }
+
   //select all
   private boolean isSelectAllJobsSelected = false;  
   public boolean isSelectAllJobsSelected()
@@ -1038,48 +1029,6 @@ public class PrivateMessagesTool
     return "compose" ;
   }
   
-  ////////////////////
-  public String processUpload(ValueChangeEvent event)
-  {
-    return "pvtMsg" ; 
-  }
-  
-  public String processUploadConfirm()
-  {
-    return "pvtMsg";
-  }
-  
-  public String processUploadCancel()
-  {
-    return "pvtMsg" ;
-  } 
-  
-  public String processCDFMPostMessage()
-  {
-//    Message message = topicProxy.getMessageModel().createPersistible();
-//    messageForumsMessageManager.saveMessage(message);
-    return "compose";
-  }
-
-  public String processCDFMSaveDraft()
-  {
-//    Message message = topicProxy.getMessageModel().createPersistible();
-//    message.setDraft(Boolean.TRUE);
-//    messageForumsMessageManager.saveMessage(message);
-    return "compose";
-  }
-
-  public String processCDFMCancel()
-  {
-    return "compose";
-  }
-
-
-  public String processTestLinkCompose()
-  {
-    return "compose";
-  }
-
 
   ////////////  SETTINGS        //////////////////////////////
   //Setting Getter and Setter
@@ -1138,16 +1087,121 @@ public class PrivateMessagesTool
     String email= getForwardPvtMsgEmail();
     String act=getActivatePvtMsg() ;
     String frd=getForwardPvtMsg() ;
-    //TODO save settings
     //prtMsgManager.saveAreaSetting();
     return "main" ;
   }
   
-  //Received screen
 
-
+  ///////////////////   FOLDER SETTINGS         ///////////////////////
+  //TODO - may add total number of messages with this folder.. 
+  //--getDecoratedForum() iteratae and when title eqauls selectedTopicTitle - then get total number of messages
+  private String addFolder;
+  private boolean ismutable;
   
-
+  public String getAddFolder()
+  {
+    return addFolder ;    
+  }
+  public void setAddFolder(String addFolder)
+  {
+    this.addFolder=addFolder;
+  }
+  
+  public boolean getIsmutable()
+  {
+    return prtMsgManager.isMutableTopicFolder();
+  }
+  //come from Header page 
+  public String processPvtMsgFolderSettings() {
+    return "pvtMsgFolderSettings" ;
+  }
+  
+  public String processPvtMsgFolderSettingRevise() {
+    return "pvtMsgFolderRevise" ;
+  }
+  
+  public String processPvtMsgFolderSettingAdd() {
+    return "pvtMsgFolderAdd" ;
+  }
+  public String processPvtMsgFolderSettingDelete() {
+    return "pvtMsgFolderDelete" ;
+  }
+  
+  public String processPvtMsgFolderSettingCancel() {
+    return "pvtMsg" ;
+  }
+  
+  //Create
+  public String processPvtMsgFldCreate() {
+    String createFolder=getAddFolder() ;
+    if(createFolder == null)
+    {
+      return null ;
+    } else {
+      //prtMsgManager.createTopicFolder(createFolder);
+      return "pvtMsgFolderSettings" ;
+    }
+  }
+  
+  //revise
+  public String processPvtMsgFldRevise() 
+  {
+    String newTopicTitle = this.getSelectedTopicTitle();
+    //prtMsgManager.renameTopicFolder(newTopicTitle) ;
+    return "pvtMsgFolderSettings" ;
+  }
+  
+  //Delete
+  public String processPvtMsgFldDelete() 
+  {
+    String delFolder=getSelectedTopicTitle();
+    //prtMsgManager.deleteTopicFolder(delFolder) ;
+    return "pvtMsgFolderSettings";
+  }
+  public String processPvtMsgFldAddCancel() {
+    return "pvtMsgFolderSettings";
+  }
   //////// GETTER AND SETTER  ///////////////////  
+  ////////////////////
+  public String processUpload(ValueChangeEvent event)
+  {
+    return "pvtMsg" ; 
+  }
   
+  public String processUploadConfirm()
+  {
+    return "pvtMsg";
+  }
+  
+  public String processUploadCancel()
+  {
+    return "pvtMsg" ;
+  } 
+  
+  public String processCDFMPostMessage()
+  {
+//    Message message = topicProxy.getMessageModel().createPersistible();
+//    messageForumsMessageManager.saveMessage(message);
+    return "compose";
+  }
+
+  public String processCDFMSaveDraft()
+  {
+//    Message message = topicProxy.getMessageModel().createPersistible();
+//    message.setDraft(Boolean.TRUE);
+//    messageForumsMessageManager.saveMessage(message);
+    return "compose";
+  }
+
+  public String processCDFMCancel()
+  {
+    return "compose";
+  }
+
+
+  public String processTestLinkCompose()
+  {
+    return "compose";
+  }
+
 }
