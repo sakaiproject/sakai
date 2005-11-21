@@ -304,8 +304,12 @@ public class AssessmentSettingsBean
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
 
-        GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-        getBean("org.sakaiproject.service.gradebook.GradebookService");
+        GradebookService g = null;
+        if (integrated)
+        {
+          g = (GradebookService) SpringBeanLocator.getInstance().
+            getBean("org.sakaiproject.service.gradebook.GradebookService");
+        }
 
         this.gradebookExists = gbsHelper.gradebookExists(
           GradebookFacade.getGradebookUId(), g);

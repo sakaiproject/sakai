@@ -99,13 +99,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       List list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, finalScore DESC", objects, types);
 
 /*
-      // highest score	
+      // highest score
       if (which.equals(EvaluationModelIfc.HIGHEST_SCORE.toString())) {
       list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, finalScore DESC", objects, types);
       }
 
 */
-      // last submission 
+      // last submission
       if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
       list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, submittedDate DESC", objects, types);
       }
@@ -114,7 +114,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return list;
       }
       else {
-        // only take highest or latest 
+        // only take highest or latest
         Iterator items = list.iterator();
         ArrayList newlist = new ArrayList();
         String agentid = null;
@@ -153,7 +153,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
 
-  
+
   public HashMap getItemScores(Long publishedId, final Long itemId, String which)
   {
     try {
@@ -161,10 +161,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         getTotalScores(publishedId.toString(), which);
       HashMap map = new HashMap();
       List list = new ArrayList();
-                                             
+
       // make final for callback to access
       final Iterator iter = scores.iterator();
-      
+
       HibernateCallback hcb = new HibernateCallback()
       {
         public Object doInHibernate(Session session) throws HibernateException,
@@ -172,27 +172,27 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         {
           Criteria criteria = session.createCriteria(ItemGradingData.class);
           Disjunction disjunction = Expression.disjunction();
-                                                                                                 
+
           /** make list from AssessmentGradingData ids */
           List gradingIdList = new ArrayList();
-          while (iter.hasNext()){            
+          while (iter.hasNext()){
             AssessmentGradingData data = (AssessmentGradingData) iter.next();
-            gradingIdList.add(data.getAssessmentGradingId());                               
+            gradingIdList.add(data.getAssessmentGradingId());
           }
-          
+
           /** create or disjunctive expression for (in clauses) */
           List tempList;
-  		  for (int i = 0; i < gradingIdList.size(); i += 50){
-  		    if (i + 50 > gradingIdList.size()){
-  	          tempList = gradingIdList.subList(i, gradingIdList.size());
-  	          disjunction.add(Expression.in("assessmentGrading.assessmentGradingId", tempList));      
-  		    }
-  		    else{
-  		      tempList = gradingIdList.subList(i, i + 50);
-  		      disjunction.add(Expression.in("assessmentGrading.assessmentGradingId", tempList));
-  		    }
-  		  }                                                          
-          
+        for (int i = 0; i < gradingIdList.size(); i += 50){
+          if (i + 50 > gradingIdList.size()){
+              tempList = gradingIdList.subList(i, gradingIdList.size());
+              disjunction.add(Expression.in("assessmentGrading.assessmentGradingId", tempList));
+          }
+          else{
+            tempList = gradingIdList.subList(i, i + 50);
+            disjunction.add(Expression.in("assessmentGrading.assessmentGradingId", tempList));
+          }
+        }
+
 if (itemId.equals(new Long(0))) {}
 else {
           Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
@@ -202,12 +202,12 @@ else {
 }
 
           criteria.addOrder(Order.asc("agentId"));
-          criteria.addOrder(Order.desc("submittedDate"));                    
+          criteria.addOrder(Order.desc("submittedDate"));
           return criteria.list();
         }
       };
       List temp = (List) getHibernateTemplate().execute(hcb);
-        
+
       Iterator iter2 = temp.iterator();
       while (iter2.hasNext())
       {
@@ -336,7 +336,7 @@ else {
         gdata = (AssessmentGradingData) gdataList.get(0);
       else return;
 
-      Integer scoringType = getScoringType(gdata); 
+      Integer scoringType = getScoringType(gdata);
       ArrayList oldList = getAssessmentGradingsByScoringType(
           scoringType, gdata.getPublishedAssessment().getPublishedAssessmentId());
       getHibernateTemplate().saveOrUpdateAll(gdataList);
@@ -357,7 +357,7 @@ else {
   private ArrayList getListForGradebookNotification(
        ArrayList newList, ArrayList oldList){
     ArrayList l = new ArrayList();
-    HashMap h = new HashMap(); 
+    HashMap h = new HashMap();
     for (int i=0; i<oldList.size(); i++){
       AssessmentGradingData ag = (AssessmentGradingData)oldList.get(i);
       h.put(ag.getAssessmentGradingId(), ag);
@@ -367,7 +367,7 @@ else {
       AssessmentGradingData a = (AssessmentGradingData) newList.get(i);
       Object o = h.get(a.getAssessmentGradingId());
       if (o == null){ // this does not exist in old list, so include it for update
-        l.add(a); 
+        l.add(a);
       }
       else{ // if new is different from old, include it for update
         AssessmentGradingData b = (AssessmentGradingData) o;
@@ -463,7 +463,7 @@ else {
       Set itemgrading = data.getItemGradingSet();
       Iterator iter = itemgrading.iterator();
       float totalAutoScore = 0;
-      
+
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
       HashMap totalItems = new HashMap();
       while(iter.hasNext())
@@ -472,38 +472,38 @@ else {
         ItemDataIfc item = (ItemDataIfc) itemdata.getPublishedItem();
         Long itemId = item.getItemId();
         float autoScore = (float) 0;
-        
+
         if (!regrade)
         {
           itemdata.setAssessmentGrading(data);
           itemdata.setSubmittedDate(new Date());
           itemdata.setAgentId(agent);
           itemdata.setOverrideScore(new Float(0));
-          
+
           if (item.getTypeId().intValue() == 1 || // MCSS
               item.getTypeId().intValue() == 3 || // MCSS
               item.getTypeId().intValue() == 4) // True/False
           {
             autoScore = getAnswerScore(itemdata);
-            
+
             //overridescore
             if (itemdata.getOverrideScore() != null)
             {
               autoScore += itemdata.getOverrideScore().floatValue();
             }
-            
+
             totalItems.put(itemId, new Float(autoScore));
           }
           else if (item.getTypeId().intValue() == 2) // MCMS
           {
             ArrayList answerArray = itemdata.getPublishedItemText().getAnswerArray();
             int correctAnswers = 0;
-            if (answerArray != null) 
+            if (answerArray != null)
             {
               for (int i =0; i<answerArray.size(); i++)
               {
                 PublishedAnswer a = (PublishedAnswer) answerArray.get(i);
-                if (a.getIsCorrect().booleanValue()) 
+                if (a.getIsCorrect().booleanValue())
                 {
                   correctAnswers++;
                 }
@@ -518,13 +518,13 @@ else {
             {
               autoScore = (getTotalCorrectScore(itemdata) / correctAnswers) * ((float) -1);
             }
-            
+
             //overridescore?
             if (itemdata.getOverrideScore() != null)
             {
               autoScore += itemdata.getOverrideScore().floatValue();
             }
-            
+
             if(!totalItems.containsKey(itemId))
             {
               totalItems.put(itemId, new Float(autoScore));
@@ -547,13 +547,13 @@ else {
             {
               autoScore = (getTotalCorrectScore(itemdata) / ((float) item.getItemTextSet().size())) * ((float) -1);
             }
-            
+
             //overridescore?
             if (itemdata.getOverrideScore() != null)
             {
               autoScore += itemdata.getOverrideScore().floatValue();
             }
-            
+
             if(!totalItems.containsKey(itemId))
             {
               totalItems.put(itemId, new Float(autoScore));
@@ -575,7 +575,7 @@ else {
             {
               autoScore += itemdata.getOverrideScore().floatValue();
             }
-            
+
             if(!totalItems.containsKey(itemId))
             {
               totalItems.put(itemId, new Float(autoScore));
@@ -593,7 +593,7 @@ else {
             if (itemdata.getOverrideScore() != null)
             {
               autoScore += itemdata.getOverrideScore().floatValue();
-            }	
+            }
             if(!totalItems.containsKey(itemId))
             {
               totalItems.put(itemId, new Float(autoScore));
@@ -603,13 +603,13 @@ else {
               float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
               accumelateScore += autoScore;
               totalItems.put(itemId, new Float(accumelateScore));
-            }            
+            }
           }
         }
         else
         {
           autoScore = itemdata.getAutoScore().floatValue();
-         
+
           //overridescore - cwen
           if (itemdata.getOverrideScore() != null)
           {
@@ -625,11 +625,11 @@ else {
             float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
             accumelateScore += autoScore;
             totalItems.put(itemId, new Float(accumelateScore));
-          }            
+          }
         }
         itemdata.setAutoScore(new Float(autoScore));
       }
-      
+
       Set keySet = totalItems.keySet();
       Iterator keyIter = keySet.iterator();
       while(keyIter.hasNext())
@@ -640,7 +640,7 @@ else {
           totalAutoScore += eachItemScore;
         }
       }
-      
+
       iter = itemgrading.iterator();
       while(iter.hasNext())
       {
@@ -655,7 +655,7 @@ else {
           itemdata.setAutoScore(new Float(0));
         }
       }
-      
+
       data.setTotalAutoScore(new Float(totalAutoScore));
       data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
 
@@ -663,18 +663,18 @@ else {
       e.printStackTrace();
     }
     getHibernateTemplate().saveOrUpdate(data);
-   
+
     notifyGradebookByScoringType(data);
   }
 
   private void notifyGradebookByScoringType(AssessmentGradingIfc data){
-    Integer scoringType = getScoringType(data); 
+    Integer scoringType = getScoringType(data);
     if (updateGradebook(data)){
-	AssessmentGradingIfc d = data; // data is the last submission
+  AssessmentGradingIfc d = data; // data is the last submission
       // need to decide what to tell gradebook
       if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE))
         d = getHighestAssessmentGrading(
-            data.getPublishedAssessment().getPublishedAssessmentId(), 
+            data.getPublishedAssessment().getPublishedAssessmentId(),
             data.getAgentId());
       notifyGradebook(d);
     }
@@ -718,8 +718,14 @@ else {
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = data.getPublishedAssessment().getEvaluationModel().getToGradeBook();
 
-    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-    getBean("org.sakaiproject.service.gradebook.GradebookService");
+    GradebookService g = null;
+    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+    if (integrated)
+    {
+      g = (GradebookService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.service.gradebook.GradebookService");
+    }
+
     GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 
@@ -985,7 +991,7 @@ else {
          new Object[] { publishedAssessmentId, agentIdString, Boolean.FALSE },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING, Hibernate.BOOLEAN });
       if (assessmentGradings.size() == 0)
-	  return null;
+    return null;
       return (AssessmentGradingData) assessmentGradings.get(0);
   }
 
@@ -995,7 +1001,7 @@ else {
          new Object[] { publishedAssessmentId, agentIdString },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
       if (assessmentGradings.size() == 0)
-	  return null;
+    return null;
       return (AssessmentGradingData) assessmentGradings.get(0);
   }
 
@@ -1053,13 +1059,13 @@ else {
           int ch;
           int len=0;
           while ((ch=in.read())!=-1)
-	      len++;
+        len++;
 
           b = new byte[len];
           in.reset();
           in.read(b,0,len);
           in.close();
-	}
+  }
       }
     }
     catch(Exception e){
@@ -1095,13 +1101,13 @@ else {
   public AssessmentGradingIfc getHighestAssessmentGrading(
          Long publishedAssessmentId, String agentId)
   {
-    String query ="from AssessmentGradingData a "+ 
-                  " where a.publishedAssessment.publishedAssessmentId=? and "+ 
+    String query ="from AssessmentGradingData a "+
+                  " where a.publishedAssessment.publishedAssessmentId=? and "+
                   " a.agentId=? order by a.finalScore desc";
     List l = getHibernateTemplate().find(query,
         new Object[] { publishedAssessmentId, agentId },
         new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
-    if (l.size() >0) 
+    if (l.size() >0)
       return ((AssessmentGradingData)l.get(0));
     else
       return null;
@@ -1112,7 +1118,7 @@ else {
     List assessmentGradings = getHibernateTemplate().find(query,
          new Object[] { publishedAssessmentId },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG });
- 
+
     ArrayList l = new ArrayList();
     String currentAgent="";
     for (int i=0; i<assessmentGradings.size(); i++){
@@ -1130,7 +1136,7 @@ else {
     List assessmentGradings = getHibernateTemplate().find(query,
          new Object[] { publishedAssessmentId },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG });
- 
+
     ArrayList l = new ArrayList();
     String currentAgent="";
     for (int i=0; i<assessmentGradings.size(); i++){
@@ -1149,17 +1155,17 @@ else {
   public HashMap getLastAssessmentGradingByPublishedItem(Long publishedAssessmentId){
     HashMap h = new HashMap();
     String query = "select new AssessmentGradingData("+
-                   " a.assessmentGradingId, p.itemId, "+ 
+                   " a.assessmentGradingId, p.itemId, "+
                    " a.agentId, a.finalScore, a.submittedDate) "+
                    " from ItemGradingData i, AssessmentGradingData a,"+
-                   " PublishedItemData p where "+ 
-                   " i.assessmentGrading = a and i.publishedItem = p and "+ 
+                   " PublishedItemData p where "+
+                   " i.assessmentGrading = a and i.publishedItem = p and "+
                    " a.publishedAssessment.publishedAssessmentId=? " +
                    " order by a.agentId asc, a.submittedDate desc";
     List assessmentGradings = getHibernateTemplate().find(query,
          new Object[] { publishedAssessmentId },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG });
- 
+
     ArrayList l = new ArrayList();
     String currentAgent="";
     Date submittedDate = null;
@@ -1180,7 +1186,7 @@ else {
           ArrayList gradingIds = new ArrayList();
           gradingIds.add(gradingId);
           h.put(itemId, gradingIds);
-	}
+  }
       }
       if (!currentAgent.equals(g.getAgentId())){
         currentAgent = g.getAgentId();
@@ -1196,17 +1202,17 @@ else {
   public HashMap getHighestAssessmentGradingByPublishedItem(Long publishedAssessmentId){
     HashMap h = new HashMap();
     String query = "select new AssessmentGradingData("+
-                   " a.assessmentGradingId, p.itemId, "+ 
+                   " a.assessmentGradingId, p.itemId, "+
                    " a.agentId, a.finalScore, a.submittedDate) "+
                    " from ItemGradingData i, AssessmentGradingData a, "+
-                   " PublishedItemData p where "+ 
-                   " i.assessmentGrading = a and i.publishedItem = p and "+ 
+                   " PublishedItemData p where "+
+                   " i.assessmentGrading = a and i.publishedItem = p and "+
                    " a.publishedAssessment.publishedAssessmentId=? " +
                    " order by a.agentId asc, a.finalScore desc";
     List assessmentGradings = getHibernateTemplate().find(query,
          new Object[] { publishedAssessmentId },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG });
- 
+
     ArrayList l = new ArrayList();
     String currentAgent="";
     Float finalScore = null;
@@ -1227,7 +1233,7 @@ else {
           ArrayList gradingIds = new ArrayList();
           gradingIds.add(gradingId);
           h.put(itemId, gradingIds);
-	}
+  }
       }
       if (!currentAgent.equals(g.getAgentId())){
         currentAgent = g.getAgentId();

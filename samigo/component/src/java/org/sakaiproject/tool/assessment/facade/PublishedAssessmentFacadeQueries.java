@@ -86,6 +86,7 @@ public class PublishedAssessmentFacadeQueries
 
   private static Log log = LogFactory.getLog(PublishedAssessmentFacadeQueries.class);
 
+
   public static String STARTDATE = "assessmentAccessControl.startDate";
   public static String DUEDATE = "assessmentAccessControl.dueDate";
   public static String RETRACTDATE = "assessmentAccessControl.retractDate";
@@ -101,7 +102,8 @@ public class PublishedAssessmentFacadeQueries
   public static String TIME = "timeElapsed";
   public static String SUBMITTED = "submittedDate";
 
-  public PublishedAssessmentFacadeQueries() {
+  public PublishedAssessmentFacadeQueries()
+  {
   }
 
   public IdImpl getId(String id) {
@@ -467,19 +469,19 @@ public class PublishedAssessmentFacadeQueries
     log.debug("**assessment title #" + a.getTitle());
     log.debug("**assessment is template? " + a.getIsTemplate());
     if (a.getIsTemplate().equals(Boolean.FALSE)) {
-	log.debug("**assessmentTemplateId #" +
+  log.debug("**assessmentTemplateId #" +
                          ( (AssessmentData) a).getAssessmentTemplateId());
-	log.debug("**section: " +
+  log.debug("**section: " +
                          ( (AssessmentData) a).getSectionSet());
     }
     if (a.getAssessmentAccessControl() != null) {
-	log.debug("**assessment due date: " +
+  log.debug("**assessment due date: " +
                          a.getAssessmentAccessControl().getDueDate());
     }
     if (a.getAssessmentMetaDataSet() != null) {
-	log.debug("**assessment metadata" +
+  log.debug("**assessment metadata" +
                          a.getAssessmentMetaDataSet());
-	log.debug("**Objective not lazy = " +
+  log.debug("**Objective not lazy = " +
                          a.getAssessmentMetaDataByLabel("ASSESSMENT_OBJECTIVE"));
     }
 
@@ -515,8 +517,14 @@ public class PublishedAssessmentFacadeQueries
     if (publishedAssessment.getEvaluationModel() != null){
       String toGradebook = publishedAssessment.getEvaluationModel().getToGradeBook();
 
-      GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-      getBean("org.sakaiproject.service.gradebook.GradebookService");
+      boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+      GradebookService g = null;
+      if (integrated)
+      {
+        g = (GradebookService) SpringBeanLocator.getInstance().
+          getBean("org.sakaiproject.service.gradebook.GradebookService");
+      }
+
       GradebookServiceHelper gbsHelper =
         IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 
@@ -1188,7 +1196,7 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title) {
-    String currentSiteId = AgentFacade.getCurrentSiteId(); 
+    String currentSiteId = AgentFacade.getCurrentSiteId();
     String agentString = AgentFacade.getAgentString();
     List list;
     boolean isUnique = true;
@@ -1205,7 +1213,7 @@ public class PublishedAssessmentFacadeQueries
       isUnique = false;
     return isUnique;
   }
-  
+
   public boolean hasRandomPart(Long publishedAssessmentId){
     boolean hasRandomPart = false;
     String key = SectionDataIfc.AUTHOR_TYPE;

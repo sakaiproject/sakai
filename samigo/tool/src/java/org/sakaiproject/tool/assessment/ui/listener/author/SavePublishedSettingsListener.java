@@ -110,8 +110,12 @@ public class SavePublishedSettingsListener
     // b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
     //    exception are indication that the assessment is already in the Gradebook or there is nothing
     //    to remove.
-    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-    getBean("org.sakaiproject.service.gradebook.GradebookService");
+    GradebookService g = null;
+    if (integrated)
+    {
+      g = (GradebookService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.service.gradebook.GradebookService");
+    }
 
     if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)){ // => something to do
       PublishedEvaluationModel evaluation = (PublishedEvaluationModel)assessment.getEvaluationModel();

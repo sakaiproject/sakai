@@ -67,7 +67,8 @@ public class AssessmentFacadeQueries
   public static String LASTMODIFIEDDATE = "lastModifiedDate";
   public static String TITLE = "title";
 
-  public AssessmentFacadeQueries() {
+  public AssessmentFacadeQueries()
+  {
   }
 
   public IdImpl getId(String id) {
@@ -287,9 +288,9 @@ public class AssessmentFacadeQueries
     String agent = AgentFacade.getAgentString();
     String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentTemplateData a where a.status=1 and (a.assessmentBaseId=1 or"+
-	" a.createdBy=?) order by a.title";
+  " a.createdBy=?) order by a.title";
     List list = getHibernateTemplate().find(query,
-	                                    new Object[]{agent},
+                                      new Object[]{agent},
                                             new net.sf.hibernate.type.Type[] {Hibernate.STRING});
     ArrayList templateList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
@@ -449,7 +450,7 @@ public class AssessmentFacadeQueries
           AgentFacade.getAgentString(), new Date());
       section.setAssessment(assessment);
 
-	// add default part type, and question Ordering
+  // add default part type, and question Ordering
       section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE,SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
       section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING,SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
 
@@ -493,8 +494,15 @@ public class AssessmentFacadeQueries
     if (evaluation == null) {
         evaluation = new EvaluationModel();
     }
-    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-    getBean("org.sakaiproject.service.gradebook.GradebookService");
+
+    GradebookService g = null;
+    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+    if (integrated)
+    {
+      g = (GradebookService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.service.gradebook.GradebookService");
+    }
+
     GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
     if (!gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g))
@@ -526,11 +534,17 @@ public class AssessmentFacadeQueries
     EvaluationModel evaluation = (EvaluationModel) assessment.
         getEvaluationModel();
     if (evaluation == null) {
-	evaluation = new EvaluationModel();
+  evaluation = new EvaluationModel();
     }
 
-    GradebookService g = (GradebookService) SpringBeanLocator.getInstance().
-    getBean("org.sakaiproject.service.gradebook.GradebookService");
+   GradebookService g = null;
+   boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+   if (integrated)
+    {
+      g = (GradebookService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.service.gradebook.GradebookService");
+    }
+
     GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();    if (!gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g))
     evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
@@ -802,7 +816,7 @@ public class AssessmentFacadeQueries
                            s.getSectionId());
         log.debug("** section Section no: " + section.getSequence() +
                            ":" + section.getSectionId());
-	*/
+  */
         if (! (s.getSectionId()).equals(section.getSectionId())) {
           s.setSequence(new Integer(count++));
           set.add(s);
@@ -886,7 +900,7 @@ public class AssessmentFacadeQueries
     String agent = AgentFacade.getAgentString();
     String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentTemplateData a where a.status=1 and (a.assessmentBaseId=1 or"+
-	" a.createdBy=?) order by a."+orderBy;
+  " a.createdBy=?) order by a."+orderBy;
     List list = getHibernateTemplate().find(query,
                                             new Object[]{agent},
                                             new net.sf.hibernate.type.Type[] {Hibernate.STRING});
@@ -934,8 +948,8 @@ public class AssessmentFacadeQueries
   }
 
   public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate) {
-    String currentSiteId = AgentFacade.getCurrentSiteId(); 
-    String agentString = AgentFacade.getAgentString(); 
+    String currentSiteId = AgentFacade.getCurrentSiteId();
+    String agentString = AgentFacade.getAgentString();
     List list;
     boolean isUnique = true;
     String query="";
@@ -947,7 +961,7 @@ public class AssessmentFacadeQueries
                   new Object[]{title,assessmentBaseId,agentString},
                   new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     }
-    else{ // assessments are site scoped 
+    else{ // assessments are site scoped
       query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
               " from AssessmentData a, AuthorizationData z where "+
               " a.title=? and a.assessmentBaseId!=? and z.functionId='EDIT_ASSESSMENT' and " +
