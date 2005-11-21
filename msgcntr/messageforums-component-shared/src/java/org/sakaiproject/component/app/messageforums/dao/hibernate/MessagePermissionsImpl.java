@@ -32,7 +32,6 @@ public class MessagePermissionsImpl implements MessagePermissions {
     private static final Log LOG = LogFactory.getLog(MessagePermissionsImpl.class);
      
     private String role;
-    private Boolean doNew;
     private Boolean read;
     private Boolean reviseAny;
     private Boolean reviseOwn;
@@ -72,14 +71,6 @@ public class MessagePermissionsImpl implements MessagePermissions {
 
     public void setDeleteOwn(Boolean deleteOwn) {
         this.deleteOwn = deleteOwn;
-    }
-
-    public Boolean getDoNew() {
-        return doNew;
-    }
-
-    public void setDoNew(Boolean doNew) {
-        this.doNew = doNew;
     }
 
     public Boolean getRead() {

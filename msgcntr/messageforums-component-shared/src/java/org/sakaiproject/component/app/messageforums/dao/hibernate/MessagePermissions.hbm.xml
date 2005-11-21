@@ -24,9 +24,6 @@
     <property name="role">
       <column name="ROLE_C" length="255" not-null="true" />
     </property>
-    <property name="doNew">
-      <column name="DO_NEW" not-null="true" />
-    </property>
     <property name="read">
       <column name="READ_C" not-null="true" />
     </property>

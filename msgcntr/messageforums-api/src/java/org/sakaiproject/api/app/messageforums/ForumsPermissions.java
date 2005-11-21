@@ -23,42 +23,37 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-public interface ControlPermissions {
+public interface ForumsPermissions {
 
-    public Long getId();
+    // Actor Permissions
+    public boolean isUserAccessor();
 
-    public void setId(Long id);
+    public boolean isUserContributor();
 
-    public Integer getVersion();
+    public boolean isUserModerator();
 
-    public void setVersion(Integer version);
+    // Control Permissions
+    public boolean isUserAbleToPostNewTopic(String uuid);
 
-    public Boolean getChangeSettings();
+    public boolean isUserAbleToPostNewResponse(String uuid);
 
-    public void setChangeSettings(Boolean changeSettings);
+    public boolean isUserAbleToPostResponseToResponse(String uuid);
 
-    public Boolean getMovePostings();
+    public boolean isUserAbleToMovePostings(String uuid);
 
-    public void setMovePostings(Boolean movePostings);
+    public boolean isUserAbleToChangeControlSettings(String uuid);
 
-    public Boolean getNewResponse();
+    // Message Permissions
+    public boolean isUserAbleToRead(String uuid);
 
-    public void setNewResponse(Boolean newResponse);
+    public boolean isUserAbleToReviseAny(String uuid);
 
-    public Boolean getNewTopic();
+    public boolean isUserAbleToReviseOwn(String uuid);
 
-    public void setNewTopic(Boolean newTopic);
+    public boolean isUserAbleToDeleteAny(String uuid);
 
-    public Boolean getResponseToResponse();
+    public boolean isUserAbleToDeleteOwn(String uuid);
 
-    public void setResponseToResponse(Boolean responseToResponse);
+    public boolean isUserAbleToReadDrafts(String uuid);
 
-    public String getRole();
-
-    public void setRole(String role);
-
-    public Boolean getNewForum();
-    
-    public void setNewForum(Boolean newForum);
-    
 }

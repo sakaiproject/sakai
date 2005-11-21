@@ -24,6 +24,9 @@
     <property name="role">
       <column name="ROLE" length="255" not-null="true" />
     </property>
+    <property name="newForum">
+      <column name="NEW_FORUM" not-null="true" />
+    </property>
     <property name="newTopic">
       <column name="NEW_TOPIC" not-null="true" />
     </property>

@@ -41,10 +41,6 @@ public interface MessagePermissions {
 
     public void setDeleteOwn(Boolean deleteOwn);
 
-    public Boolean getDoNew();
-
-    public void setDoNew(Boolean doNew);
-
     public Boolean getRead();
 
     public void setRead(Boolean read);

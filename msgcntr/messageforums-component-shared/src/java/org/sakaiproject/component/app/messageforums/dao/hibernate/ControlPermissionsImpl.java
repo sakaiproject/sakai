@@ -32,6 +32,7 @@ public class ControlPermissionsImpl implements ControlPermissions {
     private static final Log LOG = LogFactory.getLog(ControlPermissionsImpl.class);    
   
     private String role;
+    private Boolean newForum;
     private Boolean newTopic;
     private Boolean newResponse;
     private Boolean responseToResponse;
@@ -103,6 +104,14 @@ public class ControlPermissionsImpl implements ControlPermissions {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Boolean getNewForum() {
+        return newForum;
+    }
+
+    public void setNewForum(Boolean newForum) {
+        this.newForum = newForum;
     }
         
 }

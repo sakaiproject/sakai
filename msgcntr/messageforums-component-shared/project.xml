@@ -48,6 +48,12 @@
 			<artifactId>sakai-util-xml</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-function</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 		
 		<dependency>
 			<groupId>sakaiproject</groupId>

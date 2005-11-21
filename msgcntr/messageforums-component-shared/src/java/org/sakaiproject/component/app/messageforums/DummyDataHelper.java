@@ -646,7 +646,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     MessagePermissions mpm = new MessagePermissionsImpl();
     mpm.setDeleteAny(Boolean.TRUE);
     mpm.setDeleteOwn(Boolean.TRUE);
-    mpm.setDoNew(Boolean.TRUE);
     mpm.setId(new Long(22));
     mpm.setRead(Boolean.TRUE);
     mpm.setReadDrafts(Boolean.TRUE);
