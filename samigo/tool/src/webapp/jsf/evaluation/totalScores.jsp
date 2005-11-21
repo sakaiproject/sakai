@@ -330,7 +330,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="status" />
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{msg.all_graded}" 
+      <h:outputText value=" " 
          rendered="#{description.status == 2 && description.attemptDate != null}"/>
       <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null}"/>
