@@ -36,6 +36,9 @@
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
      var="msg"/>
+     <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
+     var="dmsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title> <h:outputText value="#{delivery.assessmentTitle}"/>
