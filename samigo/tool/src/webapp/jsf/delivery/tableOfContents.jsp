@@ -112,91 +112,80 @@ function saveTime()
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 
 <f:verbatim> <span id="bar"></f:verbatim>
-<samigo:timerBar height="15" width="300"
+  <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     expireMessage="Your session has expired."
     expireScript="document.forms[0].elements['takeAssessmentFormTOC:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentFormTOC:outoftime'].value='true'; document.forms[0].elements['takeAssessmentForm:saveAndExit'].click();" />
-
 <f:verbatim>  </span></f:verbatim>
+
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="Hide/Show Time Remaining" />
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 </h:panelGroup>
+
 <div class="indnt1">
-<f:verbatim><b></f:verbatim><h:outputText value="#{msg.warning}: "/><f:verbatim></b></f:verbatim>
-<h:outputText value="#{msg.instruction_submitGrading}" />
- </div>
+  <f:verbatim><b></f:verbatim><h:outputText value="#{msg.warning}: "/><f:verbatim></b></f:verbatim>
+  <h:outputText value="#{msg.instruction_submitGrading}" />
+</div>
+
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 
-<div class="indnt1"><h4>
-   <h:outputText value="#{msg.table_of_contents} " />
-  <h:outputText styleClass="tier10" value="#{msg.tot_score} " />
-
-  <h:outputText value="#{delivery.tableOfContents.maxScore} " />
-  <h:outputText value="#{msg.pt}" />
-</h4>
-<!-- h4 class="tier1">
+<div class="indnt1">
+  <h4>
+    <h:outputText value="#{msg.table_of_contents} " />
+    <h:outputText styleClass="tier10" value="#{msg.tot_score} " />
+    <h:outputText value="#{delivery.tableOfContents.maxScore} " />
+    <h:outputText value="#{msg.pt}" />
+  </h4>
   <h:outputText value="#{msg.table_of_contents} " />
   <h:outputText styleClass="tier10" value="#{msg.tot_score} " />
   <h:outputText value="#{delivery.tableOfContents.maxScore} " />
   <h:outputText value="#{msg.pt}" />
-</h4-->
+</div>
 
 <div class="indnt2">
-<h5 class="plain">
-  <h:outputLabel value="#{msg.key}"/>
- </h5>
-
-  <h:graphicImage
-   alt="#{msg.unans_q}"
-   url="/images/tree/blank.gif" />
+  <h5 class="plain">
+    <h:outputLabel value="#{msg.key}"/>
+  </h5>
+  <h:graphicImage  alt="#{msg.unans_q}" url="/images/tree/blank.gif" />
   <h:outputText value="#{msg.unans_q}" /><br>
-  <h:graphicImage
-   alt="#{msg.q_marked}"
-   url="/images/tree/marked.gif" />
+  <h:graphicImage  alt="#{msg.q_marked}" url="/images/tree/marked.gif" />
   <h:outputText value="#{msg.q_marked}" />
 
-<h:form id="tableOfContentsForm" onsubmit="saveTime()">
-
-<h:inputHidden id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
-
-<h:messages styleClass="validation"/>
-
-  <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
-  <h:column>
-<h:panelGroup>
- <samigo:hideDivision id="hidePartDiv" title = "#{msg.p} #{part.number} - #{part.nonDefaultText}  -
-       #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.pointsDisplayString}#{part.maxPoints} #{msg.pt}" >
-
-      <h:dataTable value="#{part.itemContents}" var="question">
+  <h:form id="tableOfContentsForm" onsubmit="saveTime()">
+    <h:inputHidden id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
+    <h:messages styleClass="validation"/>
+    <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
       <h:column>
-   <f:verbatim><div class="indnt3"></f:verbatim>
-        <h:panelGroup>
-          <h:graphicImage
-            alt="#{msg.unans_q}"
-            url="/images/tree/blank.gif" rendered="#{question.unanswered}"/>
-          <h:graphicImage
-            alt="#{msg.q_marked}"
-            url="/images/tree/marked.gif"  rendered="#{question.review}"/>
+      <h:panelGroup>
+        <samigo:hideDivision id="part" title = "#{msg.p} #{part.number} - #{part.nonDefaultText}  -
+       #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.pointsDisplayString}#{part.maxPoints} #{msg.pt}" >
+        <h:dataTable value="#{part.itemContents}" var="question">
+          <h:column>
+            <f:verbatim><div class="indnt3"></f:verbatim>
+            <h:panelGroup>
+            <h:graphicImage alt="#{msg.unans_q}" 
+               url="/images/tree/blank.gif" rendered="#{question.unanswered}"/>
+            <h:graphicImage alt="#{msg.q_marked}"
+               url="/images/tree/marked.gif"  rendered="#{question.review}"/>
+              <h:commandLink immediate="true" action="takeAssessment" onmouseup="saveTime();">
+                <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.maxPoints} #{msg.pt}) " escape="false" />
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                <f:param name="partnumber" value="#{part.number}" />
+                <f:param name="questionnumber" value="#{question.number}" />
+              </h:commandLink>
+            </h:panelGroup>
+            <f:verbatim></div></f:verbatim> 
+          </h:column>
+        </h:dataTable>
+        </samigo:hideDivision>
+      </h:panelGroup>
+      </h:column>
+    </h:dataTable>
+</div>
 
-            <h:commandLink immediate="true" action="takeAssessment" onmouseup="saveTime();">
-            <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.maxPoints} #{msg.pt}) " escape="false" />
-            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-            <f:param name="partnumber" value="#{part.number}" />
-            <f:param name="questionnumber" value="#{question.number}" />
-          </h:commandLink>
-        </h:panelGroup>
-  <f:verbatim></div></f:verbatim>
-       </h:column>
-      </h:dataTable>
-    </samigo:hideDivision>
-</h:panelGroup>
-<f:verbatim></div></f:verbatim>
-  </h:column>
-  </h:dataTable>
-</div></div>
 <p class="act">
   <!-- check permisison to determine if the button should be displayed -->
   <h:panelGroup rendered="#{delivery.accessViaUrl or (authorization!=null &&  authorization.takeAssessment && authorization.submitAssessmentForGrade)}">
