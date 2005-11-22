@@ -21,7 +21,6 @@
 *
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.ui.web.session;
-//package org.sakaiproject.tool.assessment.integration.delivery;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -32,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
 /**
  * <p>
@@ -74,6 +74,8 @@ public class SessionUtil {
    * @see org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean
    */
   public static void setSessionTimeout(FacesContext context, DeliveryBean delivery, boolean beginAssessment){
+    boolean standalone = !IntegrationContextFactory.getInstance().isIntegrated();
+    if (standalone) return;
 
     ExternalContext exContext = context.getExternalContext();
     HttpSession session = (HttpSession) exContext.getSession(false);
