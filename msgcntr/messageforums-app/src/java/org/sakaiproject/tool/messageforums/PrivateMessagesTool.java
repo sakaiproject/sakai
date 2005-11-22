@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.faces.context.ExternalContext;
@@ -114,10 +115,6 @@ public class PrivateMessagesTool
   private String composeLabel ;   
   private List totalComposeToList=new ArrayList();
   
-  private ArrayList attachments = new ArrayList();
-  private String removeAttachId = null;
-  private ArrayList prepareRemoveAttach = new ArrayList();
-  
   //Delete items - Checkbox display and selection - Multiple delete
   private List selectedDeleteItems;
   private List totalDisplayItems=new ArrayList() ;
@@ -132,7 +129,7 @@ public class PrivateMessagesTool
   private boolean superUser; 
   
   //message header screen
-  private String searchText="Enter Search text here ..";
+  private String searchText="";
   private String selectView;
   //////////////////////
   /** The configuration mode, received, sent,delete, case etc ... */
@@ -456,7 +453,12 @@ public class PrivateMessagesTool
                         {
                             participant.role = r.getId();
                         }
-                        participants.add(participant);
+                        //Don't add admin/admin 
+                        if(!(participant.uniqname).equals("admin"))
+                        {
+                          participants.add(participant);
+                        }
+                        
                     }
                     catch (IdUnusedException e)
                     {
@@ -479,7 +481,7 @@ public class PrivateMessagesTool
 //        }
         for (int i = 0; i < participants.size(); i++)
         {
-          totalComposeToList.add(new SelectItem(((Participant) participants.get(i)).getName(),((Participant) participants.get(i)).getUniqname()));
+          totalComposeToList.add(new SelectItem(((Participant) participants.get(i)).getName(),((Participant) participants.get(i)).getName()));
         }
         //return participants;
     return totalComposeToList;
@@ -516,6 +518,17 @@ public class PrivateMessagesTool
   public String getUserId() {
     
    String userId=SessionManager.getCurrentSessionUserId();
+   try
+  {
+    User user=UserDirectoryService.getUser(userId) ;
+    userId= user.getDisplayName();
+  }
+  catch (IdUnusedException e)
+  {
+    // TODO Auto-generated catch block
+    e.printStackTrace();
+  }
+   
    return userId;
    
   }
@@ -745,6 +758,9 @@ public class PrivateMessagesTool
     this.setNavModeIsDelete(false); 
     this.msgNavMode="" ;
     this.deleteConfirm=false;
+    
+    attachments.clear();
+    oldAttachments.clear();
   }
   
   /**
@@ -787,6 +803,17 @@ public class PrivateMessagesTool
     aMsg.setAttachments(getAttachments()) ;
     aMsg.setCreatedBy(getUserId());
     aMsg.setCreated(getTime()) ;
+    aMsg.setDraft(Boolean.FALSE);
+    
+    //Add attachments
+    for(int i=0; i<attachments.size(); i++)
+    {
+      prtMsgManager.addPvtMsgAttachToPvtMsgData(aMsg, (Attachment)attachments.get(i));         
+    }
+    
+    //clear
+    attachments.clear();
+    oldAttachments.clear();
     
     return aMsg;    
   }
@@ -881,6 +908,15 @@ public class PrivateMessagesTool
   }
   
   //////////////////////////////   ATTACHMENT PROCESSING        //////////////////////////
+  private ArrayList attachments = new ArrayList();
+  
+  private String removeAttachId = null;
+  private ArrayList prepareRemoveAttach = new ArrayList();
+  private boolean attachCaneled = false;
+  private ArrayList oldAttachments = new ArrayList();
+  private ArrayList allAttachments = new ArrayList();
+
+  
   public ArrayList getAttachments()
   {
     ToolSession session = SessionManager.getCurrentToolSession();
@@ -896,11 +932,14 @@ public class PrivateMessagesTool
         Attachment thisAttach = prtMsgManager.createPvtMsgAttachmentObject(
             ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
         
+        //Test 
+        thisAttach.setPvtMsgAttachId(new Long(1));
+        //Test
         attachments.add(thisAttach);
         
 //        if(entry.justCreated != true)
 //        {
-//          allAttachments.add(thisAttach);
+          allAttachments.add(thisAttach);
 //        }
       }
     }
@@ -969,9 +1008,9 @@ public class PrivateMessagesTool
       if( key instanceof String)
       {
         String name =  (String)key;
-        int pos = name.lastIndexOf("syllabus_current_attach");
+        int pos = name.lastIndexOf("pvtmsg_current_attach");
         
-        if(pos>=0 && name.length()==pos+"syllabus_current_attach".length())
+        if(pos>=0 && name.length()==pos+"pvtmsg_current_attach".length())
         {
           attachId = (String)paramMap.get(key);
           break;
@@ -981,13 +1020,26 @@ public class PrivateMessagesTool
     
     removeAttachId = attachId;
     
-    if((removeAttachId != null) && (!removeAttachId.equals("")))
-      return "removeAttachConfirm";
-    else
-      return null;
+    //separate screen
+//    if((removeAttachId != null) && (!removeAttachId.equals("")))
+//      return "removeAttachConfirm";
+//    else
+//      return null;
+    List newLs= new ArrayList();
+    for (Iterator iter = getAttachments().iterator(); iter.hasNext();)
+    {
+      Attachment element = (Attachment) iter.next();
+      if(!((element.getPvtMsgAttachId().toString()).equals(attachId)))
+      {
+        newLs.add(element);
+      }
+    }
+    this.setAttachments((ArrayList) newLs) ;
+    
+    return null ;
   }
   
-  //process deleting
+  //process deleting confirm from separate screen
   public String processRemoveAttach()
   {
     try
@@ -1161,6 +1213,41 @@ public class PrivateMessagesTool
   public String processPvtMsgFldAddCancel() {
     return "pvtMsgFolderSettings";
   }
+  
+  ///////////////   SEARCH      ///////////////////////
+  public String processSearch() 
+  {
+    List newls = new ArrayList() ;
+    for (Iterator iter = getDisplayPvtMsgs().iterator(); iter.hasNext();)
+    {
+      PrivateMessage element = (PrivateMessage) iter.next();
+      String message=element.getTitle();
+      StringTokenizer st = new StringTokenizer(message);
+      while (st.hasMoreTokens())
+      {
+        if(st.nextToken().equalsIgnoreCase(getSearchText()))
+        {
+          newls.add(element) ;
+        }
+      }
+    }
+    
+    newls = createDecoratedDisplay(newls);
+    setDisplayPvtMsgs(newls) ;
+    
+    
+    return null ;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   //////// GETTER AND SETTER  ///////////////////  
   ////////////////////
   public String processUpload(ValueChangeEvent event)

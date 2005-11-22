@@ -23,7 +23,7 @@
               </td>
               <td align="left">
       
-          			<h:selectManyListbox id="list1" style="width: 120px;" value="#{PrivateMessagesTool.selectedComposeToList}">
+          			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}">
             			<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
           			</h:selectManyListbox>      
           			
@@ -80,25 +80,25 @@
 								<h:outputText value="Title"/>
 							</f:facet>
 							<sakai:doc_section>
-								<h:graphicImage url="/sakai-messageforums-tool/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
+								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
+								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
+								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
 								<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
+								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
+								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
 							
 								<h:outputText value="#{eachAttach.attachmentName}"/>
 							</sakai:doc_section>
 							
-							<%--
+							
 							<sakai:doc_section>
 								<h:commandLink action="#{PrivateMessagesTool.processDeleteAttach}" 
 									onfocus="document.forms[0].onsubmit();">
 									<h:outputText value="     Remove"/>
-									<f:param value="#{eachAttach.pvtMsgAttachId}" name="syllabus_current_attach"/>
+									<f:param value="#{eachAttach.pvtMsgAttachId}" name="pvtmsg_current_attach"/>
 								</h:commandLink>
 							</sakai:doc_section>
-						 --%>
+						
 						</h:column>
 					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
 							<f:facet name="header">

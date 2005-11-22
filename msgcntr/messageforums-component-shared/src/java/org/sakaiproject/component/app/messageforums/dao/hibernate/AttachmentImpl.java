@@ -215,4 +215,10 @@ public class AttachmentImpl extends MutableEntityImpl implements Attachment {
     {
       this.pvtMsgAttachId=pvtMsgAttachId;
     }
+
+    public void setLastModifiedBy(String lastMOdifiedBy)
+    {
+      // TODO Auto-generated method stub
+      
+    }
 }

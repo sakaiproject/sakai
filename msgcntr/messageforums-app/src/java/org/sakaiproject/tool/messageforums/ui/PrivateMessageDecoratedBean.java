@@ -24,8 +24,11 @@
 
 package org.sakaiproject.tool.messageforums.ui;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -49,6 +52,9 @@ public class PrivateMessageDecoratedBean implements PrivateMessage
   public void setIsSelected(boolean isSelected) {
     this.isSelected=isSelected ;    
   }
+  
+  
+  
   
   
   public PrivateMessage getMessage()

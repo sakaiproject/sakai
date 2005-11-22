@@ -142,8 +142,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   public void savePvtMsgAttachment(Attachment attach)
   {
-    // TODO Auto-generated method stub
-    
+    //getHibernateTemplate().saveOrUpdate(attach);
   }
 
   public void addPvtMsgAttachToPvtMsgData(PrivateMessage pvtMsgData, Attachment pvtMsgAttach)

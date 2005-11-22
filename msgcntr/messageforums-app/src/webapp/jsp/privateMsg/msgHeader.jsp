@@ -9,7 +9,11 @@
           				</h:selectOneListbox>
           		</td>
           		<td align="right">
-          			<h:outputText value="Search" /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          		<%--
+          			<h:inputText value="#{PrivateMessagesTool.searchText}" onclick="this.value=''" />&nbsp;&nbsp;&nbsp;&nbsp;
+          			<h:commandButton value="Search" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          		--%>
+          			<h:outputText value="Search" />   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           			<h:outputText value="Advance Search" />          			
               </td>
             </tr>                                    
@@ -22,13 +26,13 @@
               </td>
               
               <td align="center" >
-	        			<h:commandButton value="Compose Message" action="#{PrivateMessagesTool.processPvtMsgCompose}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              	<h:commandButton action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.navModeIsDelete}" value="Empty Deleted Folder"/>  
+	        			<h:commandButton value="Compose Message" action="#{PrivateMessagesTool.processPvtMsgCompose}" onkeypress="document.forms[0].submit;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              	<h:commandButton action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.navModeIsDelete}" value="Empty Deleted Folder" onkeypress="document.forms[0].submit;"/>  
               </td>
               
               <td align="right">
-              <h:commandLink value="Display Options" action="#{PrivateMessagesTool.processPvtMsgDispOtions}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <h:commandLink value="Folder Settings" action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"/>  
+              <h:commandLink value="Display Options" action="#{PrivateMessagesTool.processPvtMsgDispOtions}" onkeypress="document.forms[0].submit;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <h:commandLink value="Folder Settings" action="#{PrivateMessagesTool.processPvtMsgFolderSettings}" onkeypress="document.forms[0].submit;"/>  
               </td>
             </tr>                                    
           </table>

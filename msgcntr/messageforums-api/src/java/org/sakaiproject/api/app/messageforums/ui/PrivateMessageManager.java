@@ -45,18 +45,19 @@ public interface PrivateMessageManager {
     public void deleteTopicFolder(String topicTitle);
     
 ///Attachment
-    public Attachment createPvtMsgAttachmentObject(String attachId, String name);      
-
-    public void savePvtMsgAttachment(Attachment attach);
-
+    
     public void addPvtMsgAttachToPvtMsgData(final PrivateMessage pvtMsgData, final Attachment pvtMsgAttach);
-
+    public Attachment createPvtMsgAttachmentObject(String attachId, String name);      
+    public void savePvtMsgAttachment(Attachment attach);
     public void removePvtMsgAttachmentObject(Attachment o);
+    public Attachment getPvtMsgAttachment(final String pvtMsgAttachId);
+    
+    
 
     public void removePvtMsgAttachPvtMsgData(final PrivateMessage pvtMsgData, final Attachment pvtMsgAttach);
 
     public Set getPvtMsgAttachmentsForPvtMsgData(final PrivateMessage pvtMsgData);
 
-    public Attachment getPvtMsgAttachment(final String pvtMsgAttachId);
+    
 ///
 }

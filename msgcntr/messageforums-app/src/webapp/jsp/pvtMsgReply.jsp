@@ -30,7 +30,7 @@
               </td>
               <td align="left">
       
-          			<h:selectManyListbox id="list1" style="width: 120px;" value="#{PrivateMessagesTool.selectedComposeToList}">
+          			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}">
             			<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
           			</h:selectManyListbox>      
           			
