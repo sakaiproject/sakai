@@ -15,7 +15,7 @@
     </bean>
     <bean id="gradebookAddAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>gradebookAddAssignment</value>
+            <value>aque</value>
         </property>
         <property name="name">
             <value>Creating/adding, editing, or deleting a Gradebook assignment</value>
@@ -26,7 +26,7 @@
     </bean>
     <bean id="gradebookAssignmentDetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>gradebookAssignmentDetails</value>
+            <value>aqur</value>
         </property>
         <property name="name">
             <value>Viewing assignment details</value>
@@ -37,7 +37,7 @@
     </bean>
     <bean id="gradebookEnteringScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>gradebookEnteringScores</value>
+            <value>aqud</value>
         </property>
         <property name="name">
             <value>Entering or editing assignment scores in the Gradebook</value>
@@ -48,7 +48,7 @@
     </bean>
     <bean id="gradebookSorting" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>gradebookSorting</value>
+            <value>aquq</value>
         </property>
         <property name="name">
             <value>Sorting Gradebook tables</value>
@@ -59,7 +59,7 @@
     </bean>
     <bean id="gradebookFeedbackOptions" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>gradebookFeedbackOptions</value>
+            <value>aqub</value>
         </property>
         <property name="name">
             <value>Setting student feedback options</value>
@@ -70,7 +70,7 @@
     </bean>
     <bean id="gradebookRoster" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>gradebookRoster</value>
+            <value>aquf</value>
         </property>
         <property name="name">
             <value>	Viewing and exporting a roster</value>
@@ -81,7 +81,7 @@
     </bean>
     <bean id="gradebookExportScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>gradebookExportScores</value>
+            <value>aqug</value>
         </property>
         <property name="name">
             <value>Exporting scores from the Gradebook</value>
@@ -92,7 +92,7 @@
     </bean>
     <bean id="gradebookCourseGradeOverride" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>gradebookCourseGradeOverride</value>
+            <value>aqul</value>
         </property>
         <property name="name">
             <value>Overriding an autocalculated course grade</value>
