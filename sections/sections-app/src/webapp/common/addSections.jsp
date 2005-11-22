@@ -146,14 +146,16 @@
         <x:div rendered="#{empty addSectionsBean.sections}" styleClass="verticalPadding">
             <%/* Add space if the table isn't rendered */%>
         </x:div>
-        
-        <h:commandButton
-            action="#{addSectionsBean.addSections}"
-            disabled="#{addSectionsBean.category == null}"
-            value="#{msgs.add_sections_add}"/>
-        
-        <h:commandButton action="overview" immediate="true" value="#{msgs.add_sections_cancel}"/>
 
+		<x:div styleClass="act">
+	        <h:commandButton
+	            action="#{addSectionsBean.addSections}"
+	            disabled="#{addSectionsBean.category == null}"
+	            value="#{msgs.add_sections_add}"
+	            styleClass="active" />
+	        
+	        <h:commandButton action="overview" immediate="true" value="#{msgs.add_sections_cancel}"/>
+		</x:div>
 </h:form>
 </div>
 </f:view>

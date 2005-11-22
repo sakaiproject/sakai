@@ -57,14 +57,17 @@
 
         </h:panelGrid>
         
-        <h:commandButton
-            action="#{editManagersBean.update}"
-            onclick="highlightUsers()"
-            value="#{msgs.edit_manager_update}"/>
-    
-        <h:commandButton
-            action="#{editManagersBean.cancel}"
-            value="#{msgs.edit_manager_cancel}"/>
+        <x:div styleClass="act">
+            <h:commandButton
+                action="#{editManagersBean.update}"
+                onclick="highlightUsers()"
+                value="#{msgs.edit_manager_update}"
+                styleClass="active" />
+        
+            <h:commandButton
+                action="#{editManagersBean.cancel}"
+                value="#{msgs.edit_manager_cancel}"/>
+        </x:div>
 </h:form>
 </div>
 </f:view>

@@ -21,7 +21,7 @@
         sortColumn="#{preferencesBean.overviewSortColumn}"
         sortAscending="#{preferencesBean.overviewSortAscending}"
         styleClass="listHier narrowTable"
-        columnClasses="left,left,left,left,rightpadded,rightpadded,left"
+        columnClasses="left,left,left,left,center,center,center"
         rowClasses="#{overviewBean.rowClasses}">
     
         <h:column>
@@ -125,16 +125,19 @@
         <%/* Add space before the buttons */%>
     </x:div>
 
-    <h:commandButton
-        action="#{overviewBean.confirmDelete}"
-        value="#{msgs.overview_delete}"
-        rendered="#{overviewBean.deleteRendered}"/>
-
-    <h:commandButton
-        action="overview"
-        value="#{msgs.overview_cancel}"
-        rendered="#{overviewBean.deleteRendered}"/>
+    <x:div styleClass="act">
+        <h:commandButton
+            action="#{overviewBean.confirmDelete}"
+            value="#{msgs.overview_delete}"
+            rendered="#{overviewBean.deleteRendered}"
+            styleClass="active"/>
     
+        <h:commandButton
+            action="overview"
+            value="#{msgs.overview_cancel}"
+            rendered="#{overviewBean.deleteRendered}"/>
+    </x:div>
+
 </h:form>
 </div>
 </f:view>

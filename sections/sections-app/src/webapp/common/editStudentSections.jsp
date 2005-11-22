@@ -30,8 +30,13 @@
             </h:column>
         </h:dataTable>
     
-        <h:commandButton action="#{editStudentSectionsBean.update}" value="#{msgs.edit_student_sections_update}"/>
+    <x:div styleClass="act">
+        <h:commandButton
+            action="#{editStudentSectionsBean.update}"
+            value="#{msgs.edit_student_sections_update}"
+            styleClass="active" />
         <h:commandButton action="roster" value="#{msgs.edit_student_sections_cancel}"/>
+    </x:div>
 </h:form>
 </div>
 </f:view>

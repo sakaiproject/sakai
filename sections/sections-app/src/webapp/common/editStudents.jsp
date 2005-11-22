@@ -48,14 +48,17 @@
     
         </h:panelGrid>
         
-        <h:commandButton
-            action="#{editStudentsBean.update}"
-            onclick="highlightUsers()"
-            value="#{msgs.edit_student_update}"/>
-    
-        <h:commandButton
-            action="overview"
-            value="#{msgs.edit_student_cancel}"/>
+        <x:div styleClass="act">
+            <h:commandButton
+                action="#{editStudentsBean.update}"
+                onclick="highlightUsers()"
+                value="#{msgs.edit_student_update}"
+                styleClass="active" />
+        
+            <h:commandButton
+                action="overview"
+                value="#{msgs.edit_student_cancel}"/>
+        </x:div>
 </h:form>
 </div>
 </f:view>

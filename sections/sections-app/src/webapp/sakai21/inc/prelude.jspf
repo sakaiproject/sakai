@@ -7,9 +7,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/xml; charset=UTF-8" />
-	<title>Sections</title>
+		<title>Sections</title>
 		<%= request.getAttribute("sakai.html.head.css.base") %>
 		<!-- Insert local css here -->
+		<link href="${pageContext.request.contextPath}/css/sections.css" type="text/css" rel="stylesheet" media="all" />
 		<%= request.getAttribute("sakai.html.head.css.skin") %>
 		<%= request.getAttribute("sakai.html.head.js") %>
 		<!-- Insert local js here -->
@@ -18,6 +19,5 @@
 			type="text/javascript"
 			src="${pageContext.request.contextPath}/js/sections.js">
 		</script>
-		<link href="${pageContext.request.contextPath}/css/sections.css" rel="stylesheet" type="text/css" />
 	</head>
 	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>;prepMemberForm()">

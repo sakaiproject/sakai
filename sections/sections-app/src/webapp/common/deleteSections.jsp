@@ -24,8 +24,11 @@
             <h:outputText value="#{msgs.overview_delete_section_confirmation_post}"/>
         </x:div>
     
-        <x:div styleClass="deleteButtons">
-            <h:commandButton action="#{overviewBean.deleteSections}" value="#{msgs.overview_delete_short}"/>
+        <x:div styleClass="act deleteButtons">
+            <h:commandButton
+                action="#{overviewBean.deleteSections}"
+                value="#{msgs.overview_delete_short}"
+                styleClass="active" />
             <h:commandButton action="overview" value="#{msgs.overview_cancel}"/>
         </x:div>        
     </x:div>

@@ -101,8 +101,13 @@
             <%/* Add space if the table isn't rendered */%>
         </x:div>
     
-        <h:commandButton action="#{editSectionBean.update}" value="#{msgs.section_update}"/>
+    <x:div styleClass="act">
+        <h:commandButton
+        	action="#{editSectionBean.update}"
+        	value="#{msgs.section_update}"
+        	styleClass="active" />
         <h:commandButton action="overview" value="#{msgs.section_cancel}" immediate="true" />
+    </x:div>
 </h:form>
 </div>
 </f:view>

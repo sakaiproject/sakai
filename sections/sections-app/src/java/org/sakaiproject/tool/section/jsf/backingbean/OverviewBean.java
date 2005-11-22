@@ -115,7 +115,7 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 				}
 				sb.append(",");
 			} else {
-				sb.append("section");
+				sb.append("sectionRow");
 			}
 		}
 		rowClasses = sb.toString();

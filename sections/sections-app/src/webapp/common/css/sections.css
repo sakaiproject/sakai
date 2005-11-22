@@ -18,9 +18,7 @@ tr.nonmember td {font-weight:normal;}
 tr.nonmemberPadRow td {font-weight:normal; padding-bottom:2em !important;}
 
 /* Keep space between section categories in section tables */
-tr.sectionPadRowHighlighted td {background-color:#FFC; padding-bottom:2em !important;}
 tr.sectionPadRow td {padding-bottom:2em !important;}
-tr.sectionRowHighlighted td {background-color:#FFC; padding-bottom:0em !important;}
 tr.sectionRow td {padding-bottom:0em !important;}
 
 /* Form labels should be bold */
@@ -56,10 +54,10 @@ table.sectionContainerNav {
 }
 
 /* Table columns change alignmnet depending on their data type (numbers vs. letters) */
-td.left {text-align:left; vertical-align:bottom;}
-td.center {text-align:center; vertical-align:bottom;}
-td.right {text-align:right; vertical-align:bottom; padding-right:2em !important;}
-td.rightpadded {text-align:right; vertical-align:bottom; padding-right:5em !important;}
+td.left {text-align:left; vertical-align:top;}
+td.center {text-align:center; vertical-align:top;}
+td.right {text-align:right; vertical-align:top; padding-right:2em !important;}
+td.rightpadded {text-align:right; vertical-align:top; padding-right:5em !important;}
 
 /* Most but not all tables are shown 100% width in the spec. */
 table.wideTable {
@@ -73,8 +71,11 @@ table.rosterTable {
     width:auto;
 }
 
+table.rosterTable th {
+    padding-right:1.5em !important;
+}
+
 table.rosterTable td {
-    padding-left:1.5em !important;
     padding-right:1.5em !important;
 }
 
@@ -83,6 +84,5 @@ table.rosterTable td {
     columns, but JSF can't manage either of those.
 */
 table.narrowTable tr th {
-    padding-right:5em;
+    padding-right:2em;
 }
-

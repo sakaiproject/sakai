@@ -23,10 +23,11 @@
             <h:outputLabel for="selfSwitch" value="#{msgs.options_self_switch_label}"/>
         </x:div>
     
-        <x:div styleClass="verticalPadding">
+        <x:div styleClass="act verticalPadding">
             <h:commandButton
                 action="#{optionsBean.update}"
                 value="#{msgs.options_update}"
+                styleClass="active"
                 rendered="#{optionsBean.sectionOptionsManagementEnabled}"/>
             <h:commandButton
                 action="overview"
