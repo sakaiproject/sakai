@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Vector;
 
 import org.apache.xerces.impl.dv.util.Base64;
 import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
@@ -175,10 +176,69 @@ public class SyllabusServiceImpl implements SyllabusService
 	}
 
 	/**
+	 * from StringUtil.java
+	 */
+	protected String[] split(String source, String splitter)
+	{
+		// hold the results as we find them
+		Vector rv = new Vector();
+		int last = 0;
+		int next = 0;
+		do
+		{
+			// find next splitter in source
+			next = source.indexOf(splitter, last);
+			if (next != -1)
+			{
+				// isolate from last thru before next
+				rv.add(source.substring(last, next));
+				last = next + splitter.length();
+			}
+		}
+		while (next != -1);
+		if (last < source.length())
+		{
+			rv.add(source.substring(last, source.length()));
+		}
+
+		// convert to array
+		return (String[]) rv.toArray(new String[rv.size()]);
+
+	} // split
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
+		if (reference.startsWith(REFERENCE_ROOT))
+		{
+			// /syllabus/siteid/syllabusid
+			String[] parts = split(reference, Entity.SEPARATOR);
+
+			String subType = null;
+			String context = null;
+			String id = null;
+			String container = null;
+
+			// the first part will be null, then next the service, the third will be "calendar" or "event"
+			if (parts.length > 2)
+			{
+				// the site/context
+				context = parts[2];
+
+				// the id
+				if (parts.length > 3)
+				{
+					id = parts[3];
+				}
+			}
+
+			ref.set(SERVICE_NAME, subType, id, container, context);
+
+			return true;
+		}
+
 		return false;
 	}
 

@@ -45,7 +45,6 @@ import org.sakaiproject.service.legacy.preference.cover.PreferencesService;
 import org.sakaiproject.service.legacy.resource.cover.EntityManager;
 import org.sakaiproject.service.legacy.time.cover.TimeService;
 import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.util.java.StringUtil;
 import org.w3c.dom.Element;
 
 /**
@@ -101,7 +100,7 @@ public class EmailNotification implements NotificationAction
 	 */
 	public void set(Element el)
 	{
-		m_siteId = StringUtil.trimToNull(el.getAttribute("site"));
+		m_siteId = trimToNull(el.getAttribute("site"));
 	}
 
 	/**
@@ -555,6 +554,15 @@ public class EmailNotification implements NotificationAction
 		if (line == null) return null;
 
 		String value = line.substring(header.length() + 2);
+		return value;
+	}
+
+	// From StringUtil.java
+	protected String trimToNull(String value)
+	{
+		if (value == null) return null;
+		value = value.trim();
+		if (value.length() == 0) return null;
 		return value;
 	}
 }
