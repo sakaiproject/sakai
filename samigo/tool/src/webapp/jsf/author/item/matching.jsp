@@ -108,15 +108,14 @@
 <div class="indnt2">
   <!-- display existing pairs -->
 
-<h:outputLabel value="<p>#{msg.no_matching_pair}</p>" rendered="#{itemauthor.currentItem.matchItemBeanList eq '[]'}"/>
-
-
-<h:dataTable rendered="#{itemauthor.currentItem.matchItemBeanList ne '[]'}" styleClass="listHier" id="pairs" width="100%" headerClass="regHeading" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
-
+<h:dataTable styleClass="listHier" id="pairs" width="100%" headerClass="regHeading" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
+      
       <h:column>
         <f:facet name="header">
+          
           <h:outputText value=""  />
         </f:facet>
+
           <h:outputText value="#{pair.sequence}"  />
       </h:column>
 
@@ -158,6 +157,8 @@
       </h:column>
 
      </h:dataTable>
+<h:outputLabel value="<p>#{msg.no_matching_pair}</p>" rendered="#{itemauthor.currentItem.matchItemBeanList eq '[]'}"/>
+
 </div>
         <!-- WYSIWYG -->
 <div class="indnt2">
