@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.Iterator;
+import java.text.NumberFormat;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -214,7 +215,17 @@ public class TotalScoresBean
    */
   public String getMaxScore()
   {
-    return Validator.check(maxScore, "N/A");
+    try {
+      Float oldmax = new Float(maxScore);
+      NumberFormat nf = NumberFormat.getInstance();
+      nf.setMaximumFractionDigits(1);
+      String newmax = nf.format(oldmax);
+      return Validator.check(newmax, "N/A");
+    }
+    catch (Exception e) {
+      // encountered some weird number format/locale
+      return Validator.check(maxScore, "N/A");
+    }
   }
 
   /**
