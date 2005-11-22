@@ -74,7 +74,9 @@ public class PoolSaveListener implements ActionListener
     log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     String currentName= qpoolbean.getCurrentPool().getDisplayName();
-    boolean nameDup=false;
+   
+    boolean isUnique=true;
+    QuestionPoolService service = new QuestionPoolService();
    QuestionPoolDataBean bean = qpoolbean.getCurrentPool();
       Long currentId = new Long ("0");
       if(bean.getId() != null)
@@ -91,13 +93,13 @@ public class PoolSaveListener implements ActionListener
     try {
        
 	if((qpoolbean.getAddOrEdit()).equals("add")){
-	     nameDup=isDuplicatePool(currentName,"0",""+currentParentId);
+	    isUnique=service.poolIsUnique("0",currentName,""+currentParentId);
 	}
 	else {
-	      nameDup=isDuplicatePool(currentName,""+currentId,""+currentParentId);
+	     isUnique=service.poolIsUnique(""+currentId,currentName,""+currentParentId);
 	}
        
-	if(nameDup){
+	if(!isUnique){
 	   FacesContext context = FacesContext.getCurrentInstance();
 	   String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","duplicateName_error");
 	   
@@ -194,26 +196,7 @@ public class PoolSaveListener implements ActionListener
 	return true;
   }
 
-    public boolean isDuplicatePool(String currentName,String currentId,String currentParentId){
-	QuestionPoolService delegate = new QuestionPoolService();
-	ArrayList qplist = delegate. getIdAllPools(AgentFacade.getAgentString());
-	Iterator iter = qplist.iterator();
-	while(iter.hasNext()){
-	    	QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();  
-	   
-                String id=String.valueOf(pool.getQuestionPoolId());
-                String parentId=String.valueOf(pool.getParentPoolId());
-                String name=pool.getDisplayName().trim();
-         
-		if((currentParentId.equals(parentId))&&(!id.equals(currentId))&&(name.equals(currentName))){                   
-		    return true;	              		
-		}
-		   
-	}
-	return false;
-
-    }
-
+   
  public boolean startRemoveItems(QuestionPoolBean qpoolbean){
 // used by the editPool.jsp, to remove one or more items
     try {

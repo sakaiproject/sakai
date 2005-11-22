@@ -572,27 +572,18 @@ public class QuestionPoolFacadeQueries
   }
 
 
-  /**
-   * Get id and parent Id for validation pool - Added by Huong
-   * @param agentId
-   */
-
- public ArrayList getIdAllPools(String agentId) {
-    List list = getHibernateTemplate().find(
-        "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.ownerId= ? ",
-        new Object[] {agentId}
-        , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
-    ArrayList poolList = new ArrayList();
-    for (int i = 0; i < list.size(); i++) {
-       QuestionPoolData a = (QuestionPoolData) list.get(i);
-      QuestionPoolFacade f = new QuestionPoolFacade(a.getQuestionPoolId(),
-						    a.getTitle(), a.getParentPoolId());
-      poolList.add(f);
-    }
-    return poolList;
-  }
-
+public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId) {
+    
+     List list = getHibernateTemplate().find(
+        "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=?",
+        new Object[] {questionPoolId,title,parentPoolId}
+       , new net.sf.hibernate.type.Type[] {Hibernate.LONG,Hibernate.STRING, Hibernate.LONG});
+ if(list.size()>0)
+     return false;
+ else return true;
  
+
+}
 
 
   /**

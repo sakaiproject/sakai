@@ -62,7 +62,8 @@ public interface QuestionPoolFacadeQueriesAPI
   public QuestionPoolIteratorFacade getAllPools(String agentId);
 
   public ArrayList getBasicInfoOfAllPools(String agentId);
- public ArrayList getIdAllPools(String agentId);
+ 
+  public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId);
 
   public List getAllItems(Long questionPoolId);
 

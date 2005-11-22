@@ -78,20 +78,6 @@ public class QuestionPoolService
     return results;
   }
 
-
-
-  /**
-   * Get basic info for pools(id,title and parent id)  for pool validation
-   */
-  public ArrayList getIdAllPools(String agentId)
-  {
-    ArrayList results = null;
-      results = PersistenceService.getInstance().
-           getQuestionPoolFacadeQueries().getIdAllPools(agentId);
-    return results;
-  }
-
-
   /**
    * Get a particular pool from the backend, with all questions.
    */
@@ -488,5 +474,9 @@ public class QuestionPoolService
         getQuestionPoolItemMap();
   }
 
+
+ public boolean poolIsUnique(String questionPoolId, String title, String parentPoolId) {
+    return PersistenceService.getInstance().getQuestionPoolFacadeQueries().poolIsUnique(new Long(questionPoolId), title, new Long(parentPoolId));
+  }
 
 }
