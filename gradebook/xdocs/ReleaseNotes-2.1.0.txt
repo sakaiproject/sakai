@@ -84,6 +84,10 @@ For existing installations, the translation is:
   gradebook.access -> gradebook.viewOwnGrades
   gradebook.maintain -> gradebook.gradeAll + gradebook.editAssignments
 
+Any existing realms with roles that include the "gradebook.access" or
+"gradebook.maintain" functions need to be changed to map to the new functions
+instead.
+
 
 Standalone changes
 ------------------

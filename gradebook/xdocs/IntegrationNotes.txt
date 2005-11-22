@@ -46,7 +46,7 @@ example, everything that's specific to the Sakai 2.1 framework can be found in:
 2. RESOURCES
 
 
-Web pages and configuration files that common across any deployment of the
+Web pages and configuration files common across any deployment of the
 application are kept in:
 
   gradebook/tool/src/webapp/common
@@ -59,5 +59,5 @@ Similarly, resources specific to the test standalone deployment are in:
 
   gradebook/tool/src/webapp/standalone
 
-Integrators will want to take special note of the configuation files in each
+Integrators will want to take special note of the configuration files in each
 directory's "WEB-INF".
