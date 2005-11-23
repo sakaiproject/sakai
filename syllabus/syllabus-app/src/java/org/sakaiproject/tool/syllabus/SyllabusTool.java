@@ -110,7 +110,7 @@ public class SyllabusTool
 
     public String processListRead()
     {
-      logger.info(this + ".processListRead() in SyllabusTool.");
+      //logger.info(this + ".processListRead() in SyllabusTool.");
       
       attachments.clear();
 
@@ -230,7 +230,7 @@ public class SyllabusTool
     if ((entries == null) || (entries.isEmpty())
         || ((currentSiteId != null) && (!currentSiteId.equals(siteId))))
     {
-      logger.info(this + ".getEntries() in SyllabusTool");
+      //logger.info(this + ".getEntries() in SyllabusTool");
 
       siteId = currentSiteId;
       try
@@ -436,13 +436,13 @@ public class SyllabusTool
 
   public String getFilename()
   {
-    logger.info(this + ".getFilename() in SyllabusTool");
+    //logger.info(this + ".getFilename() in SyllabusTool");
     return filename;
   }
 
   public void setFilename(String filename)
   {
-    logger.info(this + ".setFilename() in SyllabusTool");
+    //logger.info(this + ".setFilename() in SyllabusTool");
     this.filename = filename;
   }
 
@@ -523,7 +523,7 @@ public class SyllabusTool
 
 public String processDeleteCancel()
   {
-    logger.info(this + ".processDeleteCancel() in SyllabusTool.");
+    //logger.info(this + ".processDeleteCancel() in SyllabusTool.");
 
     entries.clear();
     entry = null;
@@ -534,7 +534,7 @@ public String processDeleteCancel()
   public String processDelete()
       throws org.sakaiproject.exception.PermissionException
   {
-    logger.info(this + ".processDelete() in SyllabusTool");
+    //logger.info(this + ".processDelete() in SyllabusTool");
 
     ArrayList selected = getSelectedEntries();
     try
@@ -594,7 +594,7 @@ public String processDeleteCancel()
 
   public String processEditCancel()
   {
-    logger.info(this + ".processEditCancel() in SyllabusTool ");
+    //logger.info(this + ".processEditCancel() in SyllabusTool ");
 
     try
     {
@@ -626,7 +626,7 @@ public String processDeleteCancel()
 
   public String processEditSave() throws PermissionException
   {
-    logger.info(this + ".processEditSave() in SyllabusTool");
+    //logger.info(this + ".processEditSave() in SyllabusTool");
 
     try
     {
@@ -699,7 +699,7 @@ public String processDeleteCancel()
 
   public String processEditPost() throws PermissionException
   {
-    logger.info(this + ".processEditPost() in SyllabusTool");
+    //logger.info(this + ".processEditPost() in SyllabusTool");
 
     try
     { 
@@ -777,7 +777,7 @@ public String processDeleteCancel()
 
   public String processListDelete() throws PermissionException
   {
-    logger.info(this + ".processListDelete() in SyllabusTool");
+    //logger.info(this + ".processListDelete() in SyllabusTool");
 
     try
     {
@@ -814,7 +814,7 @@ public String processDeleteCancel()
 
   public String processListNew() throws PermissionException
   {
-    logger.info(this + ".processListNew() in SyllabusTool");
+    //logger.info(this + ".processListNew() in SyllabusTool");
 
     try
     {
@@ -852,7 +852,7 @@ public String processDeleteCancel()
 
   public String processReadCancel()
   {
-    logger.info(this + ".processReadCancel() in SyllabusTool");
+    //logger.info(this + ".processReadCancel() in SyllabusTool");
 
     try
     {
@@ -882,7 +882,7 @@ public String processDeleteCancel()
 
   public String processReadSave() throws PermissionException
   {
-    logger.info(this + ".processReadSave() in SyllabusTool");
+    //logger.info(this + ".processReadSave() in SyllabusTool");
 
     try
     {
@@ -958,7 +958,7 @@ public String processDeleteCancel()
 
   public String processReadPost() throws PermissionException
   {
-    logger.info(this + ".processReadPost() in SyllabusTool");
+    //logger.info(this + ".processReadPost() in SyllabusTool");
 
     try
     {
@@ -1035,7 +1035,7 @@ public String processDeleteCancel()
 
   public void downOnePlace(SyllabusData en)
   {
-    logger.info(this + ".downOnePlace() in SyllabusTool");
+    //logger.info(this + ".downOnePlace() in SyllabusTool");
 
     SyllabusData swapData = null;
     Iterator iter = syllabusManager.getSyllabiForSyllabusItem(syllabusItem)
@@ -1059,7 +1059,7 @@ public String processDeleteCancel()
 
   public void upOnePlace(SyllabusData en)
   {
-    logger.info(this + ".upOnePlace() in SyllabusTool");
+    //logger.info(this + ".upOnePlace() in SyllabusTool");
 
     SyllabusData swapData = null;
     Iterator iter = syllabusManager.getSyllabiForSyllabusItem(syllabusItem)
@@ -1217,7 +1217,7 @@ public String processDeleteCancel()
 
   public String processEditCancelRedirect()
   {
-    logger.info(this + ".processEditCancelRedirect() in SyllabusTool ");
+    //logger.info(this + ".processEditCancelRedirect() in SyllabusTool ");
 
     entries.clear();
     entry = null;
@@ -1227,7 +1227,7 @@ public String processDeleteCancel()
 
   public String processEditSaveRedirect() throws PermissionException
   {
-    logger.info(this + ".processEditSaveRedirect() in SyllabusTool");
+    //logger.info(this + ".processEditSaveRedirect() in SyllabusTool");
 
     try
     {
@@ -1259,7 +1259,7 @@ public String processDeleteCancel()
 
   public String processCreateAndEdit()
   {
-    logger.info(this + ".processCreateAndEdit() in SyllabusTool");
+    //logger.info(this + ".processCreateAndEdit() in SyllabusTool");
 
     try
     {
@@ -1401,7 +1401,7 @@ public String processDeleteCancel()
         String fileName = item.getName();
         long fileSize = item.getSize();
         
-        logger.info(this + ".processUpload in SyllabusTool - " + fileName);
+        //logger.info(this + ".processUpload in SyllabusTool - " + fileName);
         
         InputStream fileAsStream = item.getInputStream();
         
@@ -1410,7 +1410,7 @@ public String processDeleteCancel()
         ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
         
         String tempS = fileName;
-        logger.info(tempS);
+        //logger.info(tempS);
         int lastSlash = tempS.lastIndexOf("/") > tempS.lastIndexOf("\\") ? 
             tempS.lastIndexOf("/") : tempS.lastIndexOf("\\");
         if(lastSlash > 0)
