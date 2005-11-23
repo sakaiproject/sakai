@@ -35,6 +35,7 @@ import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
+import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.api.section.facade.Role;
 
 /**
@@ -159,8 +160,10 @@ public interface SectionManager {
      * Adds the current user to a section as a student.  This is a convenience
      * method for addSectionMembership(currentUserId, Role.STUDENT, sectionId).
      * @param sectionUuid
+     * @throws RoleConfigurationException If there is no valid student role, or
+     * if there is more than one group-scoped role flagged as a student role.
      */
-    public EnrollmentRecord joinSection(String sectionUuid);
+    public EnrollmentRecord joinSection(String sectionUuid) throws RoleConfigurationException;
         
     /**
      * Switches a student's currently assigned section.  If the student is enrolled
@@ -169,8 +172,10 @@ public interface SectionManager {
      * This is a convenience method to allow a drop/add (a switch) in a single transaction.
      * 
      * @param newSectionUuid The new section uuid to which the student should be assigned
+     * @throws RoleConfigurationException If there is no valid student role, or
+     * if there is more than one group-scoped role flagged as a student role.
      */
-    public void switchSection(String newSectionUuid);
+    public void switchSection(String newSectionUuid) throws RoleConfigurationException;
     
     /**
      * Returns the total number of students enrolled in a learning context.  Useful for
@@ -193,9 +198,11 @@ public interface SectionManager {
      * @param sectionUuid
      * @throws MembershipException Only students and TAs can be members of a
      * section.  Instructor roles are assigned only at the course level.
+     * @throws RoleConfigurationException Thrown when no sakai role can be
+     * identified to represent the given role.
      */
     public ParticipationRecord addSectionMembership(String userUid, Role role, String sectionUuid)
-        throws MembershipException;
+        throws MembershipException, RoleConfigurationException;
     
     /**
      * Defines the complete set of users that make up the members of a section in
@@ -204,8 +211,12 @@ public interface SectionManager {
      * 
      * @param userUids The set of userUids as strings
      * @param sectionId The sectionId
+     * 
+     * @throws RoleConfigurationException If there is no properly configured role
+     * in the site matching the role specified.
      */
-    public void setSectionMemberships(Set userUids, Role role, String sectionId);
+    public void setSectionMemberships(Set userUids, Role role, String sectionId)
+    	throws RoleConfigurationException;
     
     /**
      * Removes a user from a section.

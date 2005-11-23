@@ -40,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -115,13 +116,23 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 	
 	public String update() {
 		Set selectedUserUuids = getHighlightedUsers("memberForm:selectedUsers");
-		getSectionManager().setSectionMemberships(selectedUserUuids, Role.STUDENT, sectionUuid);
+		try {
+			getSectionManager().setSectionMemberships(selectedUserUuids, Role.STUDENT, sectionUuid);
+		} catch (RoleConfigurationException rce) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+			return null;
+		}
 		
 		// If the "available" box is a section, update that section's members as well
 		Set availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
 		if(StringUtils.trimToNull(availableSectionUuid) != null) {
 			availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
-			getSectionManager().setSectionMemberships(availableUserUuids, Role.STUDENT, availableSectionUuid);
+			try {
+				getSectionManager().setSectionMemberships(availableUserUuids, Role.STUDENT, availableSectionUuid);
+			} catch (RoleConfigurationException rce) {
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+				return null;
+			}
 		}
 		StringBuffer titles = new StringBuffer();
 		titles.append(sectionTitle);

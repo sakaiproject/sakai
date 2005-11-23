@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -151,7 +152,12 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	
 	public String update() {
 		Set userUids = getHighlightedUsers("memberForm:selectedUsers");
-		getSectionManager().setSectionMemberships(userUids, Role.TA, sectionUuid);
+		try {
+			getSectionManager().setSectionMemberships(userUids, Role.TA, sectionUuid);
+		} catch (RoleConfigurationException rce) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+			return null;
+		}
 		
 		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
 				"edit_manager_successful", new String[] {sectionTitle}));

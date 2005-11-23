@@ -18,6 +18,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.EnrollmentRecordImpl;
 import org.sakaiproject.component.section.InstructorRecordImpl;
@@ -143,7 +144,13 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 	}
 
 	public ParticipationRecord addSectionMembership(String userUid, String sectionUuid, Role role) {
-		return sectionManager.addSectionMembership(userUid, role, sectionUuid);
+		ParticipationRecord record;
+		try {
+			record = sectionManager.addSectionMembership(userUid, role, sectionUuid);
+			return record;
+		} catch (RoleConfigurationException rce) {
+			throw new RuntimeException(rce);
+		}
 	}
 
 	public void removeSectionMembership(String userUid, String sectionUuid) {

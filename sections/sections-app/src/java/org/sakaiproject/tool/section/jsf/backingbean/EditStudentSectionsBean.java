@@ -43,6 +43,7 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -189,7 +190,12 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 				getSectionManager().dropEnrollmentFromCategory(studentUid, siteContext, category);
 			} else {
 				if(log.isDebugEnabled()) log.debug("Assigning " + studentUid + " to section " + sectionUuid);
-				getSectionManager().addSectionMembership(studentUid, Role.STUDENT, sectionUuid);
+				try {
+					getSectionManager().addSectionMembership(studentUid, Role.STUDENT, sectionUuid);
+				} catch (RoleConfigurationException rce) {
+					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+					return null;
+				}
 
 				// Add a warning if max enrollments has been exceeded
 				CourseSection section = getSectionManager().getSection(sectionUuid);

@@ -41,6 +41,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
+import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -242,13 +243,21 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	public void processJoinSection(ActionEvent event) {
 		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
 		.getRequestParameterMap().get("sectionUuid");
-		getSectionManager().joinSection(sectionUuid);
+		try {
+			getSectionManager().joinSection(sectionUuid);
+		} catch (RoleConfigurationException rce) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+		}
 	}
 	
 	public void processSwitchSection(ActionEvent event) {
 		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
 		.getRequestParameterMap().get("sectionUuid");
-		getSectionManager().switchSection(sectionUuid);
+		try {
+			getSectionManager().switchSection(sectionUuid);
+		} catch (RoleConfigurationException rce) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+		}
 	}
 
 	public List getSections() {

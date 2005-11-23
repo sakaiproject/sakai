@@ -37,6 +37,7 @@ import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.test.section.SectionsTestBase;
@@ -112,9 +113,14 @@ public class DataLoadTest extends SectionsTestBase {
 		}
 		
 		// Load enrollments into sections
-		sectionManager.addSectionMembership("studenta", Role.STUDENT, lab1.getUuid());
-		sectionManager.addSectionMembership("studentb", Role.STUDENT, lab2.getUuid());
-		sectionManager.addSectionMembership("studentc", Role.STUDENT, disc1.getUuid());
+		try {
+			sectionManager.addSectionMembership("studenta", Role.STUDENT, lab1.getUuid());
+			sectionManager.addSectionMembership("studentb", Role.STUDENT, lab2.getUuid());
+			sectionManager.addSectionMembership("studentc", Role.STUDENT, disc1.getUuid());
+		} catch (RoleConfigurationException rce) {
+			log.error(rce);
+			fail();
+		}
 		
 		// Load TAs into the course
 		courseManager.addTA(ta1, course1);
@@ -126,10 +132,15 @@ public class DataLoadTest extends SectionsTestBase {
 		courseManager.addTA(ta2, course3);
 		
 		// Load TAs into the sections
-		sectionManager.addSectionMembership("ta1", Role.TA, lab1.getUuid());
-		sectionManager.addSectionMembership("ta1", Role.TA, disc1.getUuid());
-		sectionManager.addSectionMembership("ta2", Role.TA, lab2.getUuid());
-		sectionManager.addSectionMembership("ta2", Role.TA, disc1.getUuid());
+		try {
+			sectionManager.addSectionMembership("ta1", Role.TA, lab1.getUuid());
+			sectionManager.addSectionMembership("ta1", Role.TA, disc1.getUuid());
+			sectionManager.addSectionMembership("ta2", Role.TA, lab2.getUuid());
+			sectionManager.addSectionMembership("ta2", Role.TA, disc1.getUuid());
+		} catch (RoleConfigurationException rce) {
+			log.error(rce);
+			fail();
+		}
 		
 		// Load instructors into the courses
 		courseManager.addInstructor(instructor1, course1);
