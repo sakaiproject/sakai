@@ -94,8 +94,7 @@ $Id$
     </h:column>
   </h:dataTable>
 
- <p class="navModeQuestion">
-<h:panelGrid columns="2" columnClasses="alignLeft,alignCenter">
+<h:panelGrid styleClass="navModeQuestion" columns="2" columnClasses="alignLeft,alignCenter" width="100%">
 
      <h:panelGroup rendered="#{questionScores.typeId == '7'}">
          <h:outputText value="AutoRecording"/>
@@ -127,7 +126,8 @@ $Id$
      <h:outputText value="#{questionScores.maxScore} Point" style="instruction"/>
 
  </h:panelGrid>
- </p>
+
+
   <h:dataTable value="#{questionScores.deliveryItem}" var="question">
   <h:column>
   <h:panelGroup rendered="#{questionScores.typeId == '7'}">
@@ -179,7 +179,8 @@ $Id$
 </p>
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
-  <span class="leftNav">
+ 
+ <div class="indnt1">
      <!-- h:outputText value="#{msg.max_score_poss}" style="instruction"/-->
      <!-- h:outputText value="#{questionScores.maxScore}" style="instruction"/-->
 
@@ -208,8 +209,8 @@ $Id$
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
      </h:selectOneMenu>
-  </span>
-
+ 
+  </div>
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 
   <span class="rightNav">
@@ -219,12 +220,13 @@ $Id$
       prevText="Previous" nextText="Next" numItems="10" />
  </span>
 END OF TEMPORARY OUT FOR THIS RELEASE --%>
-    <span class="abc">
+    <span class="abc rightNav">
       <samigo:alphaIndex initials="#{questionScores.agentInitials}" />
     </span>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
+<p class="indnt1">
   <h:dataTable id="questionScoreTable" value="#{questionScores.agents}"
     var="description" style="listHier indnt2" columnClasses="textTable">
 
@@ -494,7 +496,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 --%>
     </h:column>
   </h:dataTable>
-
+</p>
 <p class="act">
    <%-- <h:commandButton value="#{msg.save_exit}" action="author"/> --%>
    <h:commandButton styleClass="active" value="#{msg.save_cont}" action="questionScores" type="submit" >
