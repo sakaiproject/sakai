@@ -44,7 +44,7 @@ should be included in file importing DeliveryMessages
      <f:verbatim></b></f:verbatim>
 
     <h:outputLink  value="#" onclick="javascript:window.alert('#{question.strippedKey}');" >
-    <h:outputText value="#{dmsg.click}" />
+    <h:outputText rendered="#{question.modelAnswerIsNotEmpty}" value="#{dmsg.click}" />
     </h:outputLink>
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedback ne '' && question.feedback != null && !delivery.noFeedback=='true'}">

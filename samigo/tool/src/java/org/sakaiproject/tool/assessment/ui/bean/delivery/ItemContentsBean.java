@@ -67,6 +67,7 @@ public class ItemContentsBean
   private ArrayList shuffledAnswers;
   private ArrayList mediaArray;
 
+
   // for audio
 
   private Integer duration;
@@ -122,6 +123,24 @@ public class ItemContentsBean
       return getText().replaceAll("<.*?>", " ");
      
   }
+
+    public boolean getModelAnswerIsNotEmpty(){
+
+	String answer=getKey();
+	int index=0;
+	//  System.out.println("answer.length: "+answer.length());
+	while(index<answer.length()){ 
+	    char c=answer.charAt(index);
+	      if(Character.isLetterOrDigit(c)){
+		  //	System.out.println(" character Type: "+Character.getType(c));
+			return true; 
+		}
+	      index++;
+	
+	}
+	return false;
+
+    }
 
  public String getStrippedKey()
   {
