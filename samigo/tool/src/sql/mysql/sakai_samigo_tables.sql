@@ -204,6 +204,7 @@ create table SAM_ITEMMETADATA_T (
 create table SAM_PUBLISHEDFEEDBACK_T (
    ASSESSMENTID bigint not null,
    FEEDBACKDELIVERY integer,
+   FEEDBACKAUTHORING integer,
    EDITCOMPONENTS integer,
    SHOWQUESTIONTEXT integer,
    SHOWSTUDENTRESPONSE integer,
@@ -471,6 +472,7 @@ create table SAM_ITEM_T (
 create table SAM_ASSESSFEEDBACK_T (
    ASSESSMENTID bigint not null,
    FEEDBACKDELIVERY integer,
+   FEEDBACKAUTHORING integer,
    EDITCOMPONENTS integer,
    SHOWQUESTIONTEXT integer,
    SHOWSTUDENTRESPONSE integer,

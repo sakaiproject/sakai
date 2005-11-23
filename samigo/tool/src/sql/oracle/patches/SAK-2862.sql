@@ -1,0 +1,5 @@
+alter table SAM_ASSESSFEEDBACK_T
+add (FEEDBACKAUTHORING integer);
+alter table SAM_PUBLISHEDFEEDBACK_T
+add (FEEDBACKAUTHORING integer);
+
