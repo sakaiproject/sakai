@@ -32,6 +32,7 @@ public class PublishedFeedback
   private Long id;
   private AssessmentIfc assessment;
   private Integer feedbackDelivery; // 0 = cannot edit, 1=immediate, 2=on specific date , 3= no feedback
+  private Integer feedbackAuthoring; // 0 = cannot edit, 1=questionlevel, 2=sectionlevel, 3= both feedback
   private Integer editComponents; // 0 = cannot
   private Boolean showQuestionText;
   private Boolean showStudentResponse;
@@ -53,7 +54,7 @@ public class PublishedFeedback
 
   public PublishedFeedback(
       Long assessmentId,
-      Integer feedbackDelivery, Integer editComponents, Boolean showQuestionText,
+      Integer feedbackDelivery,Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
       Boolean showStudentResponse, Boolean showCorrectResponse,
       Boolean showStudentScore,  Boolean showStudentQuestionScore, 
       Boolean showQuestionLevelFeedback, Boolean showSelectionLevelFeedback,
@@ -61,6 +62,7 @@ public class PublishedFeedback
   {
     this.assessmentId = assessmentId;
     this.feedbackDelivery = feedbackDelivery;
+    this.feedbackAuthoring = feedbackAuthoring;
     this.editComponents = editComponents;
     this.showQuestionText = showQuestionText;
     this.showStudentResponse = showStudentResponse;
@@ -74,13 +76,14 @@ public class PublishedFeedback
   }
 
   public PublishedFeedback(
-      Integer feedbackDelivery, Integer editComponents, Boolean showQuestionText,
+      Integer feedbackDelivery,Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
       Boolean showStudentResponse, Boolean showCorrectResponse,
       Boolean showStudentScore,  Boolean showStudentQuestionScore,
       Boolean showQuestionLevelFeedback, Boolean showSelectionLevelFeedback,
       Boolean showGraderComments, Boolean showStatistics)
   {
     this.feedbackDelivery = feedbackDelivery;
+    this.feedbackAuthoring = feedbackAuthoring;
     this.editComponents = editComponents;
     this.showQuestionText = showQuestionText;
     this.showStudentResponse = showStudentResponse;
@@ -95,7 +98,7 @@ public class PublishedFeedback
 
   public Object clone() throws CloneNotSupportedException{
     Object cloned = new PublishedFeedback(
-        this.getFeedbackDelivery(), this.getEditComponents(),
+        this.getFeedbackDelivery(),  this.getFeedbackAuthoring(), this.getEditComponents(),
         this.getShowQuestionText(),
         this.getShowStudentResponse(), this.getShowCorrectResponse(),
         this.getShowStudentScore(),   this.getShowStudentQuestionScore(), 
@@ -143,6 +146,16 @@ public class PublishedFeedback
   public void setFeedbackDelivery(Integer feedbackDelivery)
   {
     this.feedbackDelivery = feedbackDelivery;
+  }
+
+  public Integer getFeedbackAuthoring()
+  {
+    return feedbackAuthoring;
+  }
+
+  public void setFeedbackAuthoring(Integer feedbackAuthoring)
+  {
+    this.feedbackAuthoring = feedbackAuthoring;
   }
 
   public Integer getEditComponents() {

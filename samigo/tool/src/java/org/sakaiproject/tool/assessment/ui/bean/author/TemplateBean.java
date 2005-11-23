@@ -180,16 +180,17 @@ public class TemplateBean implements Serializable
     return feedbackType;
   }
 
- /**
+ /*
    * feedback Authoring
    *
    * @param key
    * @param value
-   */
-  public void setFeedbackAuthoring(String newAuthoring)
+   
+  public void setFeedbackAuthoring(String key, Object value)
   {
-    feedbackAuthoring = newAuthoring;
+      values.put(key,value);
   }
+ */
 
   /**
    * feedback Authoring
@@ -197,11 +198,15 @@ public class TemplateBean implements Serializable
    * @param key
    *
    * @return
-   */
-  public String getFeedbackAuthoring()
-  {
-    return checker(feedbackAuthoring, "");
+   
+  public String getFeedbackAuthoring(String value)
+  { 
+    if (value == null || value.trim().equals(""))
+      return "2";
+    return feedbackAuthoring;
+   
   }
+  */
 
   /**
    * set feedback type map
@@ -222,6 +227,26 @@ public class TemplateBean implements Serializable
     return feedbackTypes;
   }
 
+  /**
+   * set feedback authoring map
+   * @param newMap
+   
+  public void setFeedbackAuthoringMap(String newAuthoring)
+  {
+    feedbackAuthoring = newAuthoring;
+  }
+  */
+
+  /**
+   * get feedback authoring mape
+   *
+   * @return
+   
+  public HashMap getFeedbackAuthoringMap()
+  {
+    return feedbackAuthorings;
+  }
+  */
 
   /**
    * template name
@@ -471,6 +496,24 @@ public class TemplateBean implements Serializable
     if (feedbackType.equals("0"))
       return "1";
     return checker(feedbackType, "1");
+  }
+
+  // FeedAuthoring
+  public void setFeedbackAuthoring(String newFeedbackAuthoring)
+  {
+    feedbackAuthoring = newFeedbackAuthoring;
+  }
+
+  /**
+   *
+   *
+   * @return feedback authoring
+   */
+  public String getFeedbackAuthoring()
+  {
+    if (feedbackAuthoring.equals("0"))
+      return "1";
+    return checker(feedbackAuthoring, "1");
   }
 
   /**

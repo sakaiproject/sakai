@@ -328,6 +328,22 @@
 
   <!-- *** FEEDBACK *** -->
   <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
+
+  <div class="indnt2">
+    <div class="longtext"><h:outputLabel value="#{msg.feedback_authoring}" /></div><div class="indnt3">
+    <h:panelGroup>
+      <h:panelGrid columns="1"  >
+        <h:selectOneRadio id="feedbackAuthoring"  disabled="true"
+             value="#{publishedSettings.feedbackAuthoring}"
+           layout="pageDirection">
+          <f:selectItem itemValue="1" itemLabel="#{msg.questionlevel_feedback}"/>
+          <f:selectItem itemValue="2" itemLabel="#{msg.sectionlevel_feedback}"/>
+          <f:selectItem itemValue="3" itemLabel="#{msg.both_feedback}"/>
+        </h:selectOneRadio>
+      </h:panelGrid>
+   </h:panelGroup>
+  </div>
+
    <div class="indnt2">
     <div class="longtext"><h:outputLabel value="#{msg.feedback_delivery}" /></div><div class="indnt3">
     <h:panelGroup>

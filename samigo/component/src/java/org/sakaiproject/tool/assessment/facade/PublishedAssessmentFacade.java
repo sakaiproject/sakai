@@ -85,6 +85,7 @@ public class PublishedAssessmentFacade
   private Boolean unlimitedSubmissions;
   private Integer submissionsAllowed;
   private Integer feedbackDelivery;
+  private Integer feedbackAuthoring;
   private Date feedbackDate;
   private String ownerSiteName;
 
@@ -104,7 +105,7 @@ public class PublishedAssessmentFacade
   // constructor that whole min. info, used for listing
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, Date retractDate,
-                                 Date feedbackDate, Integer feedbackDelivery,
+                                 Date feedbackDate, Integer feedbackDelivery, Integer feedbackAuthoring,
                                  Integer lateHandling, Boolean unlimitedSubmissions,
                                  Integer submissionsAllowed){
     this.publishedAssessmentId = id;
@@ -114,6 +115,7 @@ public class PublishedAssessmentFacade
     this.dueDate = dueDate;
     this.retractDate = retractDate;
     this.feedbackDelivery = feedbackDelivery; //=publishedFeedback.feedbackDelivery
+ this.feedbackAuthoring = feedbackAuthoring; //=publishedFeedback.feedbackAuthoring
     this.feedbackDate = feedbackDate;
     this.lateHandling = lateHandling;
     if (unlimitedSubmissions != null)
@@ -533,6 +535,11 @@ public class PublishedAssessmentFacade
   public Integer getFeedbackDelivery()
   {
     return feedbackDelivery;
+  }
+
+ public Integer getFeedbackAuthoring()
+  {
+    return feedbackAuthoring;
   }
 
   public Date getFeedbackDate() {

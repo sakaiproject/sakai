@@ -116,6 +116,7 @@ public class PublishedAssessmentSettingsBean
 
   // properties of PublishedFeedback
   private String feedbackDelivery; // immediate, on specific date , no feedback
+  private String feedbackAuthoring;
   private String editComponents; // 0 = cannot
   private boolean showQuestionText = false;
   private boolean showStudentResponse = false;
@@ -228,6 +229,8 @@ public class PublishedAssessmentSettingsBean
       if (feedback != null) {
         if (feedback.getFeedbackDelivery()!=null);
           this.feedbackDelivery = feedback.getFeedbackDelivery().toString();
+      if (feedback.getFeedbackAuthoring()!=null);
+          this.feedbackAuthoring = feedback.getFeedbackAuthoring().toString();
         if ((Boolean.TRUE).equals(feedback.getShowQuestionText()))
           this.showQuestionText = true;
         if ((Boolean.TRUE).equals(feedback.getShowStudentResponse()))
@@ -566,6 +569,14 @@ public class PublishedAssessmentSettingsBean
 
   public void setFeedbackDelivery(String feedbackDelivery) {
     this.feedbackDelivery = feedbackDelivery;
+  }
+
+  public String getFeedbackAuthoring() {
+    return feedbackAuthoring;
+  }
+
+  public void setFeedbackAuthoring(String feedbackAuthoring) {
+    this.feedbackAuthoring = feedbackAuthoring;
   }
 
   public boolean getShowQuestionText() {

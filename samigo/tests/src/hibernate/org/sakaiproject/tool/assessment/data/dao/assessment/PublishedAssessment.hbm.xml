@@ -207,6 +207,9 @@
     <property name="feedbackDelivery">
       <column name="FEEDBACKDELIVERY" not-null="false" sql-type="integer" />
     </property>
+    <property name="feedbackAuthoring">
+      <column name="FEEDBACKAUTHORING" not-null="false" sql-type="integer" />
+    </property>
     <property name="editComponents">
       <column name="EDITCOMPONENTS" not-null="false" sql-type="integer" />
     </property>

@@ -158,6 +158,7 @@ public class BeginDeliveryActionListener implements ActionListener
       feed.setShowStudentScore(new Boolean(false));
       feed.setShowStudentQuestionScore(new Boolean(false));
       feed.setFeedbackDelivery(feed.NO_FEEDBACK);
+      feed.setFeedbackAuthoring(feed.QUESTIONLEVEL_FEEDBACK);
       pub.setAssessmentFeedback(feed);
     }
     return pub;

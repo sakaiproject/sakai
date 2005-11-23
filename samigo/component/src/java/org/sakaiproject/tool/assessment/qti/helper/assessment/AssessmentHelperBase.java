@@ -127,6 +127,21 @@ public abstract class AssessmentHelperBase
       assessmentXml.setFieldentry("FEEDBACK_DELIVERY", "NONE");
     }
 
+    Integer feedbackAuthoring = feedback.getFeedbackAuthoring();
+    if (feedback.QUESTIONLEVEL_FEEDBACK.equals(feedbackAuthoring))
+    {
+      assessmentXml.setFieldentry("FEEDBACK_AUTHORING", "QUESTION");
+    }
+    else if (feedback.SECTIONLEVEL_FEEDBACK.equals(feedbackAuthoring))
+    {
+      assessmentXml.setFieldentry("FEEDBACK_AUTHORING", "SECTION");
+    }
+    else //feedback.BOTH_FEEDBACK
+    {
+      assessmentXml.setFieldentry("FEEDBACK_AUTHORING", "BOTH");
+    }
+
+
     assessmentXml.setFieldentry("FEEDBACK_SHOW_QUESTION",
                                 qtiBooleanString(feedback.getShowQuestionText()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_RESPONSE",

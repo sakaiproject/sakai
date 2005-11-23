@@ -213,7 +213,7 @@ public class PublishedAssessmentFacadeQueries
       return null;
     }
     PublishedFeedback publishedFeedback = new PublishedFeedback(
-        a.getFeedbackDelivery(), a.getEditComponents(), a.getShowQuestionText(),
+        a.getFeedbackDelivery(),a.getFeedbackAuthoring(), a.getEditComponents(), a.getShowQuestionText(),
         a.getShowStudentResponse(), a.getShowCorrectResponse(),
         a.getShowStudentScore(),
         a.getShowStudentQuestionScore(),
@@ -971,7 +971,7 @@ public class PublishedAssessmentFacadeQueries
     String query =
         "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, " +
         " c.releaseTo, c.startDate, c.dueDate, c.retractDate, " +
-        " c.feedbackDate, f.feedbackDelivery, c.lateHandling, " +
+        " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, " +
         " c.unlimitedSubmissions, c.submissionsAllowed) " +
         " from PublishedAssessmentData as p, PublishedAccessControl as c," +
         " PublishedFeedback as f" +
@@ -1008,7 +1008,7 @@ public class PublishedAssessmentFacadeQueries
       PublishedAssessmentFacade f = new PublishedAssessmentFacade(
           p.getPublishedAssessmentId(), p.getTitle(),
           p.getReleaseTo(), p.getStartDate(), p.getDueDate(),
-          p.getRetractDate(), p.getFeedbackDate(), p.getFeedbackDelivery(),
+          p.getRetractDate(), p.getFeedbackDate(), p.getFeedbackDelivery(), p.getFeedbackAuthoring(),
           p.getLateHandling(),
           p.getUnlimitedSubmissions(), p.getSubmissionsAllowed());
       pubList.add(f);
@@ -1147,7 +1147,7 @@ public class PublishedAssessmentFacadeQueries
     HashMap h = new HashMap();
     String query = "select new PublishedFeedback(" +
         " p.assessment.publishedAssessmentId," +
-        " p.feedbackDelivery, p.editComponents, p.showQuestionText," +
+        " p.feedbackDelivery,  p.feedbackAuthoring, p.editComponents, p.showQuestionText," +
         " p.showStudentResponse, p.showCorrectResponse," +
         " p.showStudentScore," +
         " p.showStudentQuestionScore," +

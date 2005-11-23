@@ -274,6 +274,8 @@ public class AssessmentSettingsBean
       if (feedback != null) {
         if (feedback.getFeedbackDelivery()!=null);
           this.feedbackDelivery = feedback.getFeedbackDelivery().toString();
+     if (feedback.getFeedbackAuthoring()!=null);
+          this.feedbackAuthoring = feedback.getFeedbackAuthoring().toString();
         if ((Boolean.TRUE).equals(feedback.getShowQuestionText()))
           this.showQuestionText = true;
         if ((Boolean.TRUE).equals(feedback.getShowStudentResponse()))

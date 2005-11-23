@@ -123,6 +123,7 @@ public class FakeBeginDeliveryActionListener implements ActionListener
       feed.setShowStudentScore(new Boolean(true));
       feed.setShowStudentQuestionScore(new Boolean(true));
       feed.setFeedbackDelivery(feed.FEEDBACK_BY_DATE);
+      feed.setFeedbackAuthoring(feed.QUESTIONLEVEL_FEEDBACK);
       pub.setAssessmentFeedback(feed);
       /*
       PublishedAccessControl control = new PublishedAccessControl();

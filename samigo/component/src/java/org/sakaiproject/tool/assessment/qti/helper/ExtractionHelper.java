@@ -545,7 +545,7 @@ public class ExtractionHelper
     {
       feedback.setFeedbackDelivery(feedback.FEEDBACK_BY_DATE);
     }
-    else   if ("IMMEDIATE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    else if ("IMMEDIATE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY")))
     {
       feedback.setFeedbackDelivery(feedback.IMMEDIATE_FEEDBACK);
@@ -553,6 +553,22 @@ public class ExtractionHelper
     else
     {
       feedback.setFeedbackDelivery(feedback.NO_FEEDBACK);
+    }
+
+ if (
+        "QUESTION".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_AUTHORING")))
+    {
+      feedback.setFeedbackAuthoring(feedback.QUESTIONLEVEL_FEEDBACK);
+    }
+    else if ("SECTION".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_AUTHORING")))
+    {
+      feedback.setFeedbackAuthoring(feedback.SECTIONLEVEL_FEEDBACK);
+    }
+    else
+    {
+      feedback.setFeedbackAuthoring(feedback.BOTH_FEEDBACK);
     }
 
     assessment.setAssessmentFeedback(feedback);

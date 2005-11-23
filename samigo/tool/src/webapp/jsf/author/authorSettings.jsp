@@ -465,7 +465,7 @@ function checkTimeSelect(){
 
     <!-- FEEDBACK COMPONENTS -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
-     <f:verbatim> <div class="longtext"> </f:verbatim>  <h:outputLabel value="#{summary_msg.select_feedback_comp}" /> <f:verbatim> </div> <div class="indnt3"></f:verbatim>
+     <f:verbatim> <div class="longtext"> </f:verbatim>  <h:outputLabel value="#{summary_msg.feedback_components_sub}" /> <f:verbatim> </div> <div class="indnt3"></f:verbatim>
       <h:panelGrid columns="2"  >
 
         <h:panelGroup>

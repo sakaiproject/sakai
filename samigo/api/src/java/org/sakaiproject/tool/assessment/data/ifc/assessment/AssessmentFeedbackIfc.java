@@ -30,6 +30,10 @@ public interface AssessmentFeedbackIfc
   public static Integer FEEDBACK_BY_DATE = new Integer(2);
   public static Integer NO_FEEDBACK = new Integer(3);
 
+  public static Integer QUESTIONLEVEL_FEEDBACK = new Integer(1);
+  public static Integer SECTIONLEVEL_FEEDBACK = new Integer(2);
+  public static Integer BOTH_FEEDBACK = new Integer(3);
+
   Long getId();
 
   void setId(Long id);
@@ -41,6 +45,10 @@ public interface AssessmentFeedbackIfc
   Integer getFeedbackDelivery();
 
   void setFeedbackDelivery(Integer feedbackDelivery);
+
+  Integer getFeedbackAuthoring();
+
+  void setFeedbackAuthoring(Integer feedbackAuthoring);
 
   Integer getEditComponents();
 

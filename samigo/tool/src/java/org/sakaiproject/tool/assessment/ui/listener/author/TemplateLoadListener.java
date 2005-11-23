@@ -152,6 +152,9 @@ public class TemplateLoadListener
         if (feedback.getFeedbackDelivery() != null)
           templateBean.setFeedbackType
             (feedback.getFeedbackDelivery().toString());
+        if (feedback.getFeedbackAuthoring() != null)
+          templateBean.setFeedbackAuthoring
+            (feedback.getFeedbackAuthoring().toString());
         templateBean.setFeedbackComponent_QuestionText
           (feedback.getShowQuestionText());
         templateBean.setFeedbackComponent_StudentResp
