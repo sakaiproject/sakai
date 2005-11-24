@@ -388,19 +388,19 @@ public class ItemHelper12Impl extends ItemHelperBase
 
         String respCondNo = "" + respCondCount;
 
-        // add source (addRespcondition())
+        // add source (addMatchingRespcondition())
         if (Boolean.TRUE.equals(correct))
         {
           log.debug("Matching: matched.");
           allIdents.add(respIdent); // put in global (ewww) ident list
           allTargets.put(respIdent, answerText);
-          addRespcondition(true, true, itemXml, respCondNo, respIdent,
+          addMatchingRespcondition(true, itemXml, respCondNo, respIdent,
                              responseLabelIdent, responseFeedback);
         }
         else
         {
           log.debug("Matching: NOT matched.");
-          addRespcondition(false, true, itemXml, respCondNo, respIdent,
+          addMatchingRespcondition(false, itemXml, respCondNo, respIdent,
                              responseLabelIdent, responseFeedback);
           continue; // we skip adding the response label when false
         }
@@ -1074,7 +1074,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 
   public void setFeedback(ArrayList itemTextList, Item itemXml)
   {
-    log.debug("setFeedback()");
+    log.info("setFeedback()");
 
     // for any answers that are now in the template, create a feedback
     String xpath =
@@ -1096,23 +1096,32 @@ public class ItemHelper12Impl extends ItemHelperBase
       if (first) // then do once
       {
         addCorrectAndIncorrectFeedback(itemXml, itemTextIfc);
+        xpathIndex = 3;
         first = false;
       }
 
-      log.debug("Setting answer level feedback");
+      log.info("Setting answer level feedback");
 
       answerSet = itemTextIfc.getAnswerSet();
-      log.debug("answerSet.size(): " + answerSet.size());
+      log.info("answerSet.size(): " + answerSet.size());
 
       Iterator aiter = answerSet.iterator();
       while (aiter.hasNext())
       {
         AnswerIfc answer = (AnswerIfc) aiter.next();
-        log.debug("Setting answer feedback for: " + answer.getText());
-        log.debug("xpathIndex: " + xpathIndex);
-        log.debug("label: " + label);
+        log.info("Setting answer feedback for: " + answer.getText());
+        log.info("xpathIndex: " + xpathIndex);
+        log.info("label: " + label);
 
-        addAnswerFeedback(itemXml, xpathIndex, label, answer);
+        String value = answer.getGeneralAnswerFeedback();
+        boolean isInsert = true;
+        if (nodeIter.hasNext())
+        {
+          isInsert = false;
+        }
+
+        addAnswerFeedback(itemXml, value,
+                          isInsert, 2*xpathIndex, "" + label);
         label++;
         xpathIndex++;
       }
@@ -1169,28 +1178,24 @@ public class ItemHelper12Impl extends ItemHelperBase
 
   /**
    * Adds feedback with ident referencing answer ident.
+   *
    * @param itemXml
-   * @param xpathIndex
-   * @param label
-   * @param answer
+   * @param value
+   * @param isInsert
+   * @param responseNo
+   * @param responseLabel
    */
-
-  private void addAnswerFeedback(Item itemXml, int xpathIndex,
-                                 char label, AnswerIfc answer)
+  private void addAnswerFeedback(Item itemXml, String value,
+                               boolean isInsert, int responseNo,
+                               String responseLabel)
   {
     log.debug("addAnswerFeedback()");
-
-    String answerFeedback="";
-
-    Boolean correct = answer.getIsCorrect();
-
-    answerFeedback = answer.getGeneralAnswerFeedback();
-
-    log.debug("answer feedback value: " + answerFeedback);
-
-    addRespcondition(
-      correct.booleanValue(), false, itemXml, "" + xpathIndex, "ANS-" + label,
-      ""+label, answerFeedback);
+    log.debug("answer feedback value: " + value);
+    String respCond = "item/resprocessing/respcondition[" + responseNo + "]";
+    updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
+    updateItemXml(itemXml,
+        respCond + "/displayfeedback/@linkrefid", "AnswerFeedback");
+    updateItemXml(itemXml, respCond + "/displayfeedback", value);
   }
 
   ////////////////////////////////////////////////////////////////
@@ -1309,13 +1314,12 @@ public class ItemHelper12Impl extends ItemHelperBase
 
   /**
    * Add matching response condition.
-   * This is used both by matching and by multiple choice.
    * @param itemXml
    * @param responseNo
    * @param respident
    * @param responseLabelIdent
    */
-  private void addRespcondition(boolean correct, boolean isMatching,
+  private void addMatchingRespcondition(boolean correct,
                                         Item itemXml, String responseNo,
                                         String respident,
                                         String responseLabelIdent,
@@ -1361,28 +1365,18 @@ public class ItemHelper12Impl extends ItemHelperBase
       itemXml, respCond + "/displayfeedback/@feedbacktype", "Response");
     itemXml.addAttribute(respCond + "/displayfeedback", "linkrefid");
 
-    if (isMatching)
+    if (correct)
     {
-      if (correct)
-      {
-        updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
-        updateItemXml(itemXml,
-          respCond + "/displayfeedback/@linkrefid", "CorrectMatch");
-      }
-      else
-      {
-        updateItemXml(itemXml, respCond + "/setvar", "0");
-        updateItemXml(itemXml,
-          respCond + "/displayfeedback/@linkrefid", "InCorrectMatch");
-      }
+      updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
+      updateItemXml(itemXml,
+        respCond + "/displayfeedback/@linkrefid", "CorrectMatch");
     }
     else
     {
-        updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
-        updateItemXml(itemXml,
-          respCond + "/displayfeedback/@linkrefid", "AnswerFeedback");
+      updateItemXml(itemXml, respCond + "/setvar", "0");
+      updateItemXml(itemXml,
+        respCond + "/displayfeedback/@linkrefid", "InCorrectMatch");
     }
-
 
     updateItemXml(itemXml, respCond + "/displayfeedback", responseFeedback);
   }
