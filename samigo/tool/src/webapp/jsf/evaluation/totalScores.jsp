@@ -159,12 +159,12 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1'}" />
          <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1'}"/>
          <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1'}" />
-         <h:outputText value="#{description.lastInitial}" rendered="#{description.lastInitial eq 'Anonymous' && description.assessmentGradingId eq '-1'}" />
+         <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous' && description.assessmentGradingId eq '-1'}" />
        <h:commandLink action="studentScores" rendered="#{description.assessmentGradingId ne '-1'}" >
          <h:outputText value="#{description.firstName}" />
          <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
-         <h:outputText value="#{description.lastInitial}" rendered="#{description.lastInitial eq 'Anonymous'}" />
+         <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
          <f:actionListener
