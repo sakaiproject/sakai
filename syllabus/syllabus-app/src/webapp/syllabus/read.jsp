@@ -90,23 +90,21 @@
 							<f:facet name="header">
 								<h:outputText value="Title" />
 							</f:facet>
-							<sakai:doc_section>
-								<h:graphicImage url="/syllabus/excel.gif" rendered="#{eachAttach.type == 'application/vnd.ms-excel'}"/>
-								<h:graphicImage url="/syllabus/html.gif" rendered="#{eachAttach.type == 'text/html'}"/>
-								<h:graphicImage url="/syllabus/pdf.gif" rendered="#{eachAttach.type == 'application/pdf'}"/>
-								<h:graphicImage url="/syllabus/ppt.gif" rendered="#{eachAttach.type == 'application/vnd.ms-powerpoint'}"/>
-								<h:graphicImage url="/syllabus/text.gif" rendered="#{eachAttach.type == 'text/plain'}"/>
-								<h:graphicImage url="/syllabus/word.gif" rendered="#{eachAttach.type == 'application/msword'}"/>
+							<h:graphicImage url="/syllabus/excel.gif" rendered="#{eachAttach.type == 'application/vnd.ms-excel'}"/>
+							<h:graphicImage url="/syllabus/html.gif" rendered="#{eachAttach.type == 'text/html'}"/>
+							<h:graphicImage url="/syllabus/pdf.gif" rendered="#{eachAttach.type == 'application/pdf'}"/>
+							<h:graphicImage url="/syllabus/ppt.gif" rendered="#{eachAttach.type == 'application/vnd.ms-powerpoint'}"/>
+							<h:graphicImage url="/syllabus/text.gif" rendered="#{eachAttach.type == 'text/plain'}"/>
+							<h:graphicImage url="/syllabus/word.gif" rendered="#{eachAttach.type == 'application/msword'}"/>
+							<h:outputText value="#{eachAttach.name}"/>
 
-								<h:outputText value="#{eachAttach.name}"/>
-							</sakai:doc_section>
-							<sakai:doc_section>
-								<h:commandLink action="#{SyllabusTool.processDeleteAttach}" 
-									onfocus="document.forms[0].onsubmit();">
-									<h:outputText value="     Remove"/>
-									<f:param value="#{eachAttach.syllabusAttachId}" name="syllabus_current_attach"/>
-								</h:commandLink>
-							</sakai:doc_section>
+							<f:verbatim><br/></f:verbatim>
+
+							<h:commandLink action="#{SyllabusTool.processDeleteAttach}" 
+								onfocus="document.forms[0].onsubmit();">
+								<h:outputText value="     Remove"/>
+								<f:param value="#{eachAttach.syllabusAttachId}" name="syllabus_current_attach"/>
+							</h:commandLink>
 						</h:column>
 					  <h:column rendered="#{!empty SyllabusTool.allAttachments}">
 							<f:facet name="header">
