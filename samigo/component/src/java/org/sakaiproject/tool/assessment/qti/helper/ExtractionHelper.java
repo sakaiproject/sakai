@@ -736,8 +736,17 @@ public class ExtractionHelper
         long millisecondsDuration = tiso.getDuration();
         int seconds = (int) millisecondsDuration /1000;
         control.setTimeLimit(new Integer(seconds));
-        control.setTimedAssessment(AssessmentAccessControl.TIMED_ASSESSMENT);
-        assessment.getData().addAssessmentMetaData("hasTimeAssessment", "true");
+        if (seconds !=0)
+        {
+          control.setTimedAssessment(AssessmentAccessControl.TIMED_ASSESSMENT);
+          assessment.getData().addAssessmentMetaData("hasTimeAssessment", "true");
+        }
+        else
+        {
+          control.setTimeLimit(new Integer(0));
+          control.setTimedAssessment(AssessmentAccessControl.
+                                     DO_NOT_TIMED_ASSESSMENT);
+        }
       }
       catch (Iso8601FormatException ex)
       {
