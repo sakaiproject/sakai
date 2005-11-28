@@ -272,9 +272,9 @@ public class AssessmentSettingsBean
       // properties of AssesmentFeedback
       AssessmentFeedbackIfc feedback = assessment.getAssessmentFeedback();
       if (feedback != null) {
-        if (feedback.getFeedbackDelivery()!=null);
+        if (feedback.getFeedbackDelivery()!=null)
           this.feedbackDelivery = feedback.getFeedbackDelivery().toString();
-     if (feedback.getFeedbackAuthoring()!=null);
+     if (feedback.getFeedbackAuthoring()!=null)
           this.feedbackAuthoring = feedback.getFeedbackAuthoring().toString();
         if ((Boolean.TRUE).equals(feedback.getShowQuestionText()))
           this.showQuestionText = true;
