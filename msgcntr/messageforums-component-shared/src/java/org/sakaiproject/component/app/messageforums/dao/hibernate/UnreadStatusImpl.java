@@ -33,9 +33,9 @@ public class UnreadStatusImpl implements UnreadStatus {
 
     private static final Log LOG = LogFactory.getLog(UnreadStatusImpl.class);
     
-    private Topic topic;
-    private Message message;
-    private String user;
+    private String topicId;
+    private String messageId;
+    private String userId;
     private Boolean read;
     private Long id;
     private Integer version; 
@@ -56,12 +56,12 @@ public class UnreadStatusImpl implements UnreadStatus {
         this.version = version;
     }
 
-    public Message getMessage() {
-        return message;
+    public String getMessageId() {
+        return messageId;
     }
 
-    public void setMessage(Message message) {
-        this.message = message;
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public Boolean getRead() {
@@ -72,20 +72,20 @@ public class UnreadStatusImpl implements UnreadStatus {
         this.read = read;
     }
 
-    public Topic getTopic() {
-        return topic;
+    public String getTopicId() {
+        return topicId;
     }
 
-    public void setTopic(Topic topic) {
-        this.topic = topic;
+    public void setTopicId(String topicId) {
+        this.topicId = topicId;
     }
 
-    public String getUser() {
-        return user;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
-        
+
 }

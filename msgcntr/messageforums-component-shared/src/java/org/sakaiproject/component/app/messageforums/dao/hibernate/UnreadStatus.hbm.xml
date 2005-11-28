@@ -21,19 +21,23 @@
     <version name="version" column="VERSION" />
 
     <!-- UnreadStatus fields -->
-    <many-to-one name="topic" column="TOPIC"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
-      not-null="false" cascade="none" />
-    <many-to-one name="message" column="MESSAGE"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
-      not-null="false" cascade="none" />
-    <property name="user">
+    <property name="topicId">
+      <column name="TOPIC_C" length="255" not-null="true" />
+    </property>
+    <property name="messageId">
+      <column name="MESSAGE_C" length="255" not-null="true" />
+    </property>
+    <property name="userId">
       <column name="USER_C" length="255" not-null="true" />
     </property>
     <property name="read">
       <column name="READ_C" not-null="true" />
     </property>      
   </class>
+
+  <query name="findUnreadStatusForMessage">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where us.messageId = :messageId and us.topicId = :topicId and us.userId = :userId]]>
+  </query>
 
 </hibernate-mapping>
 

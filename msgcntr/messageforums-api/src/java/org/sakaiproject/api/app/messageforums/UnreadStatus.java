@@ -23,7 +23,6 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-
 public interface UnreadStatus {
 
     public Long getId();
@@ -34,20 +33,20 @@ public interface UnreadStatus {
 
     public void setVersion(Integer version);
 
-    public Message getMessage();
+    public String getMessageId();
 
-    public void setMessage(Message message);
+    public void setMessageId(String messageId);
 
     public Boolean getRead();
 
     public void setRead(Boolean read);
 
-    public Topic getTopic();
+    public String getTopicId();
 
-    public void setTopic(Topic topic);
+    public void setTopicId(String topicId);
 
-    public String getUser();
+    public String getUserId();
 
-    public void setUser(String user);
+    public void setUserId(String userId);
 
 }
