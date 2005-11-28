@@ -6,7 +6,7 @@
   <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
-      <h:form >
+      <h:form id="pvtMsgDetail">
       	<sakai:tool_bar_message value="Private Message Details" /> 
       	
         <sakai:group_box>
@@ -16,7 +16,7 @@
                 <h:outputText style="font-weight:bold"  value="Subject "/>
               </td>
               <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.title}" />  
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
               </td>                           
             </tr>
             <tr>
@@ -24,9 +24,9 @@
                 <h:outputText style="font-weight:bold"  value="Authored By "/>
               </td>
               <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.author}" />  
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.createdBy}" />  
               	<h:outputText value="-" />  
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.created}" />  
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.created}" />  
               </td>
             </tr>
             <tr>
@@ -41,7 +41,7 @@
                 <h:outputText style="font-weight:bold"  value="Label "/>
               </td>
               <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.label}" />  
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
               </td>
             </tr>                                    
           </table>
@@ -66,7 +66,7 @@
         <sakai:group_box>
           <sakai:panel_edit>
             <sakai:doc_section>            
-              <h:inputTextarea value="#{PrivateMessagesTool.detailMsg.body}" style="width: 100%; align:left; height: 10%;" />
+              <h:inputTextarea value="#{PrivateMessagesTool.detailMsg.message.body}" style="width: 100%; align:left; height: 10%;" />
             </sakai:doc_section>    
           </sakai:panel_edit>
         </sakai:group_box>

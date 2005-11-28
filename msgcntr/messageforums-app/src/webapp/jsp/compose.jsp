@@ -6,7 +6,7 @@
   <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
-      <h:form >
+      <h:form id="compose">
 
         <sakai:tool_bar_message value="Compose a Private Message" /> 
         <sakai:group_box>

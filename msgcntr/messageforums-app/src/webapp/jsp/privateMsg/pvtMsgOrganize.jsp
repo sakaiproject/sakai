@@ -5,7 +5,7 @@
 <f:view>
 	<sakai:view_container title="Received Private Messages">
 	<sakai:view_content>
-		<h:form id="prefs_form">
+		<h:form id="pvtMsgOrganize">
 		
 <hr />
 <h2>Private message- Organize</h2>

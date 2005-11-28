@@ -6,7 +6,7 @@
   <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
-      <h:form >
+      <h:form id="pvtMsgReply">
 
         <sakai:tool_bar_message value="Reply to Private Message" /> 
         <sakai:group_box>
@@ -21,7 +21,7 @@
           			<h:outputText value="To "/>		
               </td>
               <td align="left">   
-          				<h:outputText value="#{PrivateMessagesTool.detailMsg.author}" /> 
+          				<h:outputText value="#{PrivateMessagesTool.detailMsg.message.createdBy}" /> 
               </td>                           
             </tr>
             <tr>
@@ -52,7 +52,7 @@
                 <h:outputText value="Subject" />
               </td>
               <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.title}" />  
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
               </td>
             </tr>                                   
           </table>
@@ -62,7 +62,7 @@
 	        <sakai:panel_edit>
 	          <sakai:doc_section>       
 	            <h:outputText value="Message" />  
-	            <sakai:rich_text_area value="#{PrivateMessagesTool.detailMsg.body}" rows="17" columns="70"/>
+	            <sakai:rich_text_area value="#{PrivateMessagesTool.detailMsg.message.body}" rows="17" columns="70"/>
 	          </sakai:doc_section>    
 	        </sakai:panel_edit>
 	      </sakai:group_box>
@@ -176,7 +176,7 @@
           			<h:outputText value="Subject "/>		
               </td>
               <td align="left">    
-          			<h:outputText value="#{PrivateMessagesTool.detailMsg.title}" />  
+          			<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
               </td>                           
             </tr>
             <tr>
@@ -184,7 +184,7 @@
                 <h:outputText value="Label" />
               </td>
               <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.label}" />  
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
               </td>
             </tr>
             <tr>

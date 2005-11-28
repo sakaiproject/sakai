@@ -30,10 +30,11 @@ return "Check All"; }
 		<h:form id="prefs_form">
 
 		<h2>Private message- <h:outputText value="#{PrivateMessagesTool.msgNavMode}" /> </h2>
+		
 		<%@include file="msgHeader.jsp"%>
 
 
-	  <h:dataTable value="#{PrivateMessagesTool.displayPvtMsgs}" var="rcvdItems" styleClass="chefFlatListViewTable">   
+	  <h:dataTable value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" styleClass="chefFlatListViewTable">   
 		  <h:column>
 		    <f:facet name="header">
 
@@ -46,8 +47,8 @@ return "Check All"; }
 		       <h:outputText value="Subject"/>
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
-            <h:outputText value=" #{rcvdItems.title}"/>
-            <f:param value="#{rcvdItems.uuid}" name="current_msg_detail"/>
+            <h:outputText value=" #{rcvdItems.message.title}"/>
+            <f:param value="#{rcvdItems.message.uuid}" name="current_msg_detail"/>
           </h:commandLink>
               
 		  </h:column>
@@ -55,13 +56,13 @@ return "Check All"; }
 		    <f:facet name="header">
 		       <h:outputText value="Authored By"/>
 		    </f:facet>		     		    
-		     <h:outputText value="#{rcvdItems.createdBy}"/>
+		     <h:outputText value="#{rcvdItems.message.createdBy}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Date"/>
 		    </f:facet>
-		     <h:outputText value="#{rcvdItems.created}"/>
+		     <h:outputText value="#{rcvdItems.message.created}"/>
 		  </h:column>
 		</h:dataTable>
 		

@@ -5,7 +5,7 @@
 <f:view>
 	<sakai:view_container title="Received Private Messages">
 	<sakai:view_content>
-		<h:form id="pvtMsgSetting_form">
+		<h:form id="pvtMsgSettings">
 		
 
 <h2>Private message- Settings</h2>

@@ -5,7 +5,7 @@
 <f:view>
 	<sakai:view_container title="Private Messages">
 	<sakai:view_content>
-		<h:form id="pvtMsgSetting_form">
+		<h:form id="pvtMsgFolderDelete">
 		
 
 <h2>Private Messages- Delete Confirmation</h2>

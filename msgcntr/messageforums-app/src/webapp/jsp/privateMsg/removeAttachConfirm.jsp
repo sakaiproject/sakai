@@ -6,7 +6,7 @@
 <f:view>
 	<sakai:view_container title="Attachment">
 		<sakai:view_content>
-			<h:form>
+			<h:form id="removeAttachConfirm">
 
 
 

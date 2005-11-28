@@ -5,7 +5,7 @@
 <f:view>
 	<sakai:view_container title="Delete Confirmation ...">
 	<sakai:view_content>
-		<h:form id="prefs_form">
+		<h:form id="pvtMsgDelete">
 
 		<h2>Delete Confirmation ...</h2>
 		

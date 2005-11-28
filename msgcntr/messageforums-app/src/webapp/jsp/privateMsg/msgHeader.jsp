@@ -9,11 +9,11 @@
           				</h:selectOneListbox>
           		</td>
           		<td align="right">
-          		<%--
-          			<h:inputText value="#{PrivateMessagesTool.searchText}" onclick="this.value=''" />&nbsp;&nbsp;&nbsp;&nbsp;
+          		
+          			<h:outputText value="#{PrivateMessagesTool.searchText}" />&nbsp;&nbsp;&nbsp;&nbsp;
           			<h:commandButton value="Search" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          		--%>
-          			<h:outputText value="Search" />   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          		
+          			<h:outputText value="Search" />   
           			<h:outputText value="Advance Search" />          			
               </td>
             </tr>                                    

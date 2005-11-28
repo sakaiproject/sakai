@@ -96,9 +96,9 @@ public class PrivateMessagesTool
   
   private PrivateForum forum; 
   private List pvtTopics=new ArrayList();
-  private List displayPvtMsgs;
+  private List decoratedPvtMsgs;
   private String msgNavMode="" ;
-  private Message detailMsg ;
+  private PrivateMessageDecoratedBean detailMsg ;
   private String currentMsgUuid; //this is the message which is being currently edited/displayed/deleted
   private boolean navModeIsDelete=false ; // Delete mode to show up extra buttons in pvtMsg.jsp page
   private List selectedItems;
@@ -129,7 +129,7 @@ public class PrivateMessagesTool
   private boolean superUser; 
   
   //message header screen
-  private String searchText="";
+  private String searchText="Pl. enter search text";
   private String selectView;
   //////////////////////
   /** The configuration mode, received, sent,delete, case etc ... */
@@ -203,17 +203,11 @@ public class PrivateMessagesTool
     }
     return decoratedForum ;
   }
-  
-  //TODO - area and forum is used only once as to display the title of private message
-  // May be 'area' and 'forum' to be deleted and and move all the code under getPvtTopics() 
-//  public List getPvtTopics()
-//  {
-//    return pvtTopics;
-//  }
 
-  public List getDisplayPvtMsgs()
+  public List getDecoratedPvtMsgs()
   {
-    displayPvtMsgs=new ArrayList() ;
+    
+    decoratedPvtMsgs=new ArrayList() ;
     
     Area privateArea=prtMsgManager.getPrivateArea();
     if(privateArea != null ) {
@@ -228,52 +222,56 @@ public class PrivateMessagesTool
         {
           //TODO -- should Topic be changed to PrivateTopic
           Topic topic = (Topic) iterator.next();
+          
           if(topic.getTitle().equals(PVTMSG_MODE_RECEIVED))
           {
             //TODO -- getMessages() should be changed to getReceivedMessages() ;
-            displayPvtMsgs=topic.getMessages() ;
+            decoratedPvtMsgs=topic.getMessages() ;
             break;
           } 
           if(topic.getTitle().equals(PVTMSG_MODE_SENT))
           {
-            displayPvtMsgs=topic.getMessages() ;
-            
+            decoratedPvtMsgs=topic.getMessages() ;
             break;
           }  
           if(topic.getTitle().equals(PVTMSG_MODE_DELETE))
           {
-            displayPvtMsgs=topic.getMessages() ;
+            decoratedPvtMsgs=topic.getMessages() ;
             break;
           }  
           if(topic.getTitle().equals(PVTMSG_MODE_DRAFT))
           {
-            displayPvtMsgs=topic.getMessages() ;
+            decoratedPvtMsgs=topic.getMessages() ;
             break;
           }  
           if(topic.getTitle().equals(PVTMSG_MODE_CASE))
           {
-            displayPvtMsgs=topic.getMessages() ;
+            decoratedPvtMsgs=topic.getMessages() ;
             break;
           }    
         }
         //create decorated List
-        displayPvtMsgs = createDecoratedDisplay(displayPvtMsgs);
-        
-        // add selectItem for checkboxes
-//        for (int i = 0; i < displayPvtMsgs.size(); i++)
-//        {
-//          totalDisplayItems.add(new SelectItem(((PrivateMessage)displayPvtMsgs.get(i)).getUuid(), 
-//              ((PrivateMessage)displayPvtMsgs.get(i)).getUuid())) ;
-//        }
-        
+        decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
       }
     }
-    return displayPvtMsgs ;
+    return decoratedPvtMsgs ;
   }
   
-  public void setDisplayPvtMsgs(List displayPvtMsgs)
+  //decorated display - from List of Message
+  public List createDecoratedDisplay(List msg)
   {
-    this.displayPvtMsgs=displayPvtMsgs;
+    List decLs= new ArrayList() ;
+    for (Iterator iter = msg.iterator(); iter.hasNext();)
+    {
+      PrivateMessage element = (PrivateMessage) iter.next();
+      decLs.add(new PrivateMessageDecoratedBean(element)) ;
+    }
+    return decLs;
+  }
+  
+  public void setDecoratedPvtMsgs(List displayPvtMsgs)
+  {
+    this.decoratedPvtMsgs=displayPvtMsgs;
   }
   
   public String getMsgNavMode() 
@@ -281,12 +279,12 @@ public class PrivateMessagesTool
     return msgNavMode ;
   }
  
-  public Message getDetailMsg()
+  public PrivateMessageDecoratedBean getDetailMsg()
   {
     return detailMsg ;
   }
 
-  public void setDetailMsg(Message detailMsg)
+  public void setDetailMsg(PrivateMessageDecoratedBean detailMsg)
   {
     this.detailMsg = detailMsg;
   }
@@ -504,17 +502,6 @@ public class PrivateMessagesTool
         
   } // Participant
   
-  //decorated display - from List of Message
-  public List createDecoratedDisplay(List msg)
-  {
-    List decLs= new ArrayList() ;
-    for (Iterator iter = msg.iterator(); iter.hasNext();)
-    {
-      PrivateMessage element = (PrivateMessage) iter.next();
-      decLs.add(new PrivateMessageDecoratedBean(element)) ;
-    }
-    return decLs;
-  }
   public String getUserId() {
     
    String userId=SessionManager.getCurrentSessionUserId();
@@ -559,6 +546,10 @@ public class PrivateMessagesTool
   public String getSelectView()
   {
     return selectView ;
+  }
+  public void setSelectView(String selectView)
+  {
+    this.selectView=selectView ;
   }
   //////////////////////////////////////////////////////////////////////////////////  
   /**
@@ -681,13 +672,18 @@ public class PrivateMessagesTool
         }
       }
       //retrive the detail for this message with currentMessageId
-      for (Iterator iter = this.getDisplayPvtMsgs().iterator(); iter.hasNext();)
+      for (Iterator iter = this.getDecoratedPvtMsgs().iterator(); iter.hasNext();)
       {
-        //Nov- 15th changed from Message to PrivateMessage
-        PrivateMessage aMsg = (PrivateMessage) iter.next();
-        if(((String)aMsg.getUuid()).equals(msgId)) {
-          this.setDetailMsg(aMsg) ;
+        PrivateMessageDecoratedBean dMsg= (PrivateMessageDecoratedBean) iter.next();
+        if (dMsg.getMessage().getUuid().equals(msgId))
+        {
+          this.setDetailMsg(dMsg);
         }
+//        //Nov- 15th changed from Message to PrivateMessage
+//        PrivateMessage aMsg = (PrivateMessage) iter.next();
+//        if(((String)aMsg.getUuid()).equals(msgId)) {
+//          this.setDetailMsg(aMsg) ;
+//        }
       }
       this.deleteConfirm=false; //reset this as used for multiple action in same JSP
       //TODO - retrives the details for this message with above Id.
@@ -705,13 +701,13 @@ public class PrivateMessagesTool
    */ 
   public String processPvtMsgReply() {
     
-    //from message detail screen
-    this.setDetailMsg(getDetailMsg()) ;
-    
-    //from compose screen
-    this.setComposeSendAs(getComposeSendAs()) ;
-    this.setTotalComposeToList(getTotalComposeToList()) ;
-    this.setSelectedComposeToList(getSelectedComposeToList()) ;
+//    //from message detail screen
+//    this.setDetailMsg(getDetailMsg()) ;
+//    
+//    //from compose screen
+//    this.setComposeSendAs(getComposeSendAs()) ;
+//    this.setTotalComposeToList(getTotalComposeToList()) ;
+//    this.setSelectedComposeToList(getSelectedComposeToList()) ;
     
     return "pvtMsgReply";
   }
@@ -796,7 +792,7 @@ public class PrivateMessagesTool
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
   public PrivateMessage constructMessage()
   {
-    PrivateMessage aMsg = (PrivateMessage)this.getDetailMsg();
+    PrivateMessage aMsg = (PrivateMessage)this.getDetailMsg().getMessage(); 
     aMsg.setRecipients(getSelectedComposeToList());
     aMsg.setTitle(getComposeSubject());
     aMsg.setBody(getComposeBody());
@@ -821,7 +817,6 @@ public class PrivateMessagesTool
   //////////////////////REPLY SEND  /////////////////
   public String processPvtMsgReplySend() {
     PrivateMessage rsMsg=constructMessage() ;
-    //TODO - add stuff include reply related things
     //prtMsgManager.savePrivateMessage(rsMsg);
     return "pvtMsg" ;
   }
@@ -833,7 +828,6 @@ public class PrivateMessagesTool
   public String processPvtMsgReplySaveDraft() {
     PrivateMessage drMsg=constructMessage() ;
     drMsg.setDraft(Boolean.TRUE);
-    //TODO- add stuff include reply related things
     //prtMsgManager.savePrivateMessage(drMsg);
     return "pvtMsg" ;    
   }
@@ -844,7 +838,7 @@ public class PrivateMessagesTool
     List delSelLs=new ArrayList() ;
     //this.setDisplayPvtMsgs(getDisplayPvtMsgs());
     
-    for (Iterator iter = this.displayPvtMsgs.iterator(); iter.hasNext();)
+    for (Iterator iter = this.decoratedPvtMsgs.iterator(); iter.hasNext();)
     {
       PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
       if(element.getIsSelected())
@@ -896,14 +890,14 @@ public class PrivateMessagesTool
     List newLs=new ArrayList() ;
 //    isSelectAllJobsSelected = !isSelectAllJobsSelected;
 //    processRefreshJobs();
-    for (Iterator iter = this.getDisplayPvtMsgs().iterator(); iter.hasNext();)
+    for (Iterator iter = this.getDecoratedPvtMsgs().iterator(); iter.hasNext();)
     {
       PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
       element.setIsSelected(true);
       newLs.add(element) ;
       //TODO
     }
-    this.setDisplayPvtMsgs(newLs) ;
+    this.setDecoratedPvtMsgs(newLs) ;
     return "pvtMsg";
   }
   
@@ -1218,7 +1212,7 @@ public class PrivateMessagesTool
   public String processSearch() 
   {
     List newls = new ArrayList() ;
-    for (Iterator iter = getDisplayPvtMsgs().iterator(); iter.hasNext();)
+    for (Iterator iter = getDecoratedPvtMsgs().iterator(); iter.hasNext();)
     {
       PrivateMessage element = (PrivateMessage) iter.next();
       String message=element.getTitle();
@@ -1231,12 +1225,9 @@ public class PrivateMessagesTool
         }
       }
     }
-    
-    newls = createDecoratedDisplay(newls);
-    setDisplayPvtMsgs(newls) ;
-    
-    
-    return null ;
+      setDecoratedPvtMsgs(newls) ;
+
+    return "pvtMsg" ;
   }
   
   
