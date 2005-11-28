@@ -24,6 +24,8 @@
 package org.sakaiproject.component.app.messageforums;
 
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.UnreadStatus;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 
 public interface MessageForumsMessageManager {
 
@@ -32,5 +34,13 @@ public interface MessageForumsMessageManager {
     public void deleteMessage(Message message);
     
     public Message getMessageById(final String messageId);
+
+    public void markMessageReadForUser(String userId, String topicId, String messageId);
+    
+    public boolean isMessageReadForUser(String userId, String topicId, String messageId);
+
+    public UnreadStatus findUnreadStatus(String userId, String topicId, String messageId);
+
+    public void deleteUnreadStatus(String userId, String topicId, String messageId);
 
 }

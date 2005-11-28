@@ -52,6 +52,41 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         ;
     }
 
+    public UnreadStatus findUnreadStatus(final String userId, final String topicId, final String messageId) {
+        if (messageId == null || topicId == null || userId == null) {
+            LOG.error("findUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_UNREAD_STATUS);
+                q.setParameter("topicId", topicId, Hibernate.STRING);
+                q.setParameter("messageId", messageId, Hibernate.STRING);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return (UnreadStatus) getHibernateTemplate().execute(hcb);        
+    }
+
+    public void deleteUnreadStatus(String userId, String topicId, String messageId) {
+        if (messageId == null || topicId == null || userId == null) {
+            LOG.error("deleteUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("deleteUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+
+        UnreadStatus status = findUnreadStatus(userId, topicId, messageId);
+        if (status != null) {
+            getHibernateTemplate().delete(status);
+        }
+    }
+
     public void markMessageReadForUser(String userId, String topicId, String messageId) {
         if (messageId == null || topicId == null || userId == null) {
             LOG.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
@@ -77,17 +112,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         LOG.debug("getMessageById executing with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
 
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_UNREAD_STATUS);
-                q.setParameter("topicId", topicId, Hibernate.STRING);
-                q.setParameter("messageId", messageId, Hibernate.STRING);
-                q.setParameter("userId", userId, Hibernate.STRING);
-                return q.uniqueResult();
-            }
-        };
-
-        UnreadStatus status = (UnreadStatus) getHibernateTemplate().execute(hcb);
+        UnreadStatus status = findUnreadStatus(userId, topicId, messageId);
         if (status == null) {
             return false; // not been saved yet, so it is unread
         }

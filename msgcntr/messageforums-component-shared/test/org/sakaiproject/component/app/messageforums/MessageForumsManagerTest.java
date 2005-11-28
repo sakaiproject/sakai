@@ -88,5 +88,14 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
         Message message2 = messageForumsMessageManager.getMessageById(id.toString());
         assertTrue("message2 should not exist", message2 == null);
     }
+    
+    public void testIsMessageReadForUser() {
+        assertFalse(messageForumsMessageManager.isMessageReadForUser("joesmith", "1", "2"));
+        messageForumsMessageManager.markMessageReadForUser("joesmith", "1", "2");
+        assertTrue(messageForumsMessageManager.isMessageReadForUser("joesmith", "1", "2"));
+        
+        // clean up
+        messageForumsMessageManager.deleteUnreadStatus("joesmith", "1", "2");
+    }
        
 }
