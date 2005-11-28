@@ -34,7 +34,6 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
@@ -122,12 +121,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public void saveMessage(Message message) {
         // a new message
         if (message.getUuid() == null) {
-            // TODO: get a uuid for this new message
-            message.setUuid("001");
+            message.setUuid(getNextUuid());
             message.setCreated(new Date());
             message.setCreatedBy(getCurrentUser());
-            // TODO: Call into the sakai type manager - set by tool?
-            message.setTypeUuid("xxx");
         } 
         
         // always need to update the last modified stuff
@@ -166,6 +162,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private String getCurrentUser() {
         // TODO: add the session manager back
         return "joe"; //SessionManager.getCurrentSession().getUserEid();
+    }
+    
+    private String getNextUuid() {
+        // TODO: get this from deep in sakai somewhere
+        return "001";
     }
     
 }

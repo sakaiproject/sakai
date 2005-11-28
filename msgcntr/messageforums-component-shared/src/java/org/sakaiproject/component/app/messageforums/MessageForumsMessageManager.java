@@ -25,7 +25,6 @@ package org.sakaiproject.component.app.messageforums;
 
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 
 public interface MessageForumsMessageManager {
 

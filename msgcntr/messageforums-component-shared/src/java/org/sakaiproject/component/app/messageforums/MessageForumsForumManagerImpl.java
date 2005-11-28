@@ -24,6 +24,7 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import net.sf.hibernate.Hibernate;
@@ -89,6 +90,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a discussion forum
      */
     public void saveDiscussionForum(DiscussionForum forum) {
+        // a new forum
+        if (forum.getUuid() == null) {
+            forum.setUuid(getNextUuid());
+            forum.setCreated(new Date());
+            forum.setCreatedBy(getCurrentUser());
+        } 
+        
+        // always need to update the last modified stuff
+        forum.setModified(new Date());
+        forum.setModifiedBy(getCurrentUser());
+        
         getHibernateTemplate().saveOrUpdate(forum);
         LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId());        
     }
@@ -97,6 +109,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a discussion forum topic
      */
     public void saveDiscussionForumTopic(DiscussionTopic topic) {
+        // a new topic
+        if (topic.getUuid() == null) {
+            topic.setUuid(getNextUuid());
+            topic.setCreated(new Date());
+            topic.setCreatedBy(getCurrentUser());
+        } 
+
+        // always need to update the last modified stuff
+        topic.setModified(new Date());
+        topic.setModifiedBy(getCurrentUser());
+        
         getHibernateTemplate().saveOrUpdate(topic);
         LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());        
     }
@@ -105,6 +128,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save an open forum topic
      */
     public void saveOpenForumTopic(OpenTopic topic) {
+        // a new topic
+        if (topic.getUuid() == null) {
+            topic.setUuid(getNextUuid());
+            topic.setCreated(new Date());
+            topic.setCreatedBy(getCurrentUser());
+        } 
+
+        // always need to update the last modified stuff
+        topic.setModified(new Date());
+        topic.setModifiedBy(getCurrentUser());
+        
         getHibernateTemplate().saveOrUpdate(topic);
         LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());        
     }
@@ -120,7 +154,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     /**
      * Delete a discussion forum topic
      */
-    public void deleteOpenForumTopic(DiscussionTopic topic) {
+    public void deleteDiscussionForumTopic(DiscussionTopic topic) {
         getHibernateTemplate().delete(topic);
         LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());        
     }
@@ -165,4 +199,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         // TODO: Implement Me!
         throw new UnsupportedOperationException();
     }
+
+    // helpers
+    
+    private String getCurrentUser() {
+        // TODO: add the session manager back
+        return "joe"; //SessionManager.getCurrentSession().getUserEid();
+    }
+    
+    private String getNextUuid() {
+        // TODO: get this from deep in sakai somewhere
+        return "001";
+    }
+
 }

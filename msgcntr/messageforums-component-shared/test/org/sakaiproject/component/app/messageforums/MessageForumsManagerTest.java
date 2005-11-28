@@ -26,17 +26,17 @@ package org.sakaiproject.component.app.messageforums;
 import java.util.Date;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 
 public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
     
     private MessageForumsForumManager messageForumsForumManager; 
     private MessageForumsMessageManager messageForumsMessageManager;
-    
-    private Message message;
-    
+ 
     public MessageForumsManagerTest() {
         super();
         init();
@@ -50,27 +50,6 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
     private void init() {
         messageForumsForumManager = (MessageForumsForumManager) getApplicationContext().getBean(MessageForumsForumManager.class.getName());
         messageForumsMessageManager = (MessageForumsMessageManager) getApplicationContext().getBean(MessageForumsMessageManager.class.getName());
-
-        message = new MessageImpl();        
-        message.setApproved(Boolean.TRUE);
-        message.setAuthor("nate");
-        message.setTitle("a message");
-        message.setBody("this is a test message");
-        message.setDraft(Boolean.FALSE);
-        
-        Attachment attachment = new AttachmentImpl();
-        attachment.setUuid("002");
-        attachment.setCreated(new Date());
-        attachment.setCreatedBy("nate");
-        attachment.setModified(new Date());
-        attachment.setModifiedBy("nate");
-        attachment.setAttachmentId("a_id1");
-        attachment.setAttachmentName("My First Doc.doc");
-        attachment.setAttachmentSize("407KB");
-        attachment.setAttachmentType("application/msword");
-        attachment.setAttachmentUrl("http://www.google.com");
-
-        message.addAttachment(attachment);        
     }
 
     protected void setUp() throws Exception {
@@ -80,13 +59,37 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-
+ 
     public void testSaveAndDeleteMessage() {
+        Message message = new MessageImpl();        
+        message.setApproved(Boolean.TRUE);
+        message.setAuthor("nate");
+        message.setTitle("a message");
+        message.setBody("this is a test message");
+        message.setDraft(Boolean.FALSE);
+        message.setTypeUuid("mess-type");
+        message.addAttachment(createAttachment());        
+
         messageForumsMessageManager.saveMessage(message);
         Long id = message.getId();
         messageForumsMessageManager.deleteMessage(message);
         Message message2 = messageForumsMessageManager.getMessageById(id.toString());
         assertTrue("message2 should not exist", message2 == null);
+    }
+
+    public void testSaveAndDeleteTopic() {
+        DiscussionTopic topic = new DiscussionTopicImpl();
+        topic.setTypeUuid("dt-type");
+        topic.setTitle("A test discussion topic");
+        topic.setShortDescription("short desc");
+        topic.setExtendedDescription("long desc");
+        topic.setMutable(Boolean.TRUE);
+        topic.setSortIndex(new Integer(1));
+        topic.addAttachment(createAttachment());
+        
+        messageForumsForumManager.saveDiscussionForumTopic(topic);
+        messageForumsForumManager.deleteDiscussionForumTopic(topic);
+        assertTrue(true);
     }
     
     public void testIsMessageReadForUser() {
@@ -98,4 +101,21 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
         messageForumsMessageManager.deleteUnreadStatus("joesmith", "1", "2");
     }
        
+    
+    // helpers
+    
+    private Attachment createAttachment() {
+        Attachment attachment = new AttachmentImpl();
+        attachment.setUuid("002");
+        attachment.setCreated(new Date());
+        attachment.setCreatedBy("nate");
+        attachment.setModified(new Date());
+        attachment.setModifiedBy("nate");
+        attachment.setAttachmentId("a_id1");
+        attachment.setAttachmentName("My First Doc.doc");
+        attachment.setAttachmentSize("407KB");
+        attachment.setAttachmentType("application/msword");
+        attachment.setAttachmentUrl("http://www.google.com");
+        return attachment;
+    }
 }
