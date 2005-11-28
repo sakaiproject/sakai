@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
 
@@ -14,8 +15,8 @@ public interface DiscussionForumManager
    * 
    * @return
    */
-  Area getDiscussionForumArea();  
-  
+  Area getDiscussionForumArea();
+
   /**
    * @param message
    */
@@ -31,13 +32,13 @@ public interface DiscussionForumManager
    * @return
    */
   Message getMessageById(String id);
-  
+
   /**
    * @param topic
    * @return
    */
   int getTotalNoMessages(Topic topic);
-  
+
   /**
    * @param topic
    * @return
@@ -55,6 +56,38 @@ public interface DiscussionForumManager
    */
   public DiscussionForum getForumById(String topicId);
 
-  List getMessagesByTopicId(String topicId);
+  /**
+   * @param topicId
+   * @return
+   */
+  public List getMessagesByTopicId(String topicId);
+
+  /**
+   * @param topicId
+   * @return
+   */
+  public DiscussionTopic getTopicById(String topicId);
+
+  /**
+   * @return
+   */
+  public boolean hasNextTopic(DiscussionTopic topic);
+
+  /**
+   * @return
+   */
+  public boolean hasPreviousTopic(DiscussionTopic topic);
+
+  /**
+   * @param topic
+   * @return
+   */
+  public DiscussionTopic getNextTopic(DiscussionTopic topic);
+
+  /**
+   * @param topic
+   * @return
+   */
+  public DiscussionTopic getPreviousTopic(DiscussionTopic topic);
 
 }

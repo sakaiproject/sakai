@@ -1,40 +1,70 @@
 package org.sakaiproject.tool.messageforums.ui;
 
-import org.sakaiproject.service.legacy.discussion.DiscussionMessage;
+import org.sakaiproject.api.app.messageforums.Message;
+
+
 
 public class DiscussionMessageBean
 {
-  private boolean isSelected;
-  private DiscussionMessage msg;
+  private boolean selected;
+  private Message message;
 
-  public DiscussionMessageBean(DiscussionMessage msg)
+  public DiscussionMessageBean(Message msg)
   {
-    this.msg = msg;
+    this.message = msg;
   }
 
-  /**
-   * @return
-   */
-  public boolean getIsSelected()
-  {
-    return isSelected;
-  }
+ 
 
   /**
-   * @param isSelected
-   *          The isSelected to set.
+   * @return Returns the selected.
    */
-  public void setSelected(boolean isSelected)
+  public boolean isSelected()
   {
-    this.isSelected = isSelected;
+    return selected;
   }
+
+
+
+  /**
+   * @param selected The selected to set.
+   */
+  public void setSelected(boolean selected)
+  {
+    this.selected = selected;
+  }
+
+
 
   /**
    * @return Returns the msg.
    */
-  public DiscussionMessage getMsg()
+  public Message getMessage()
   {
-    return msg;
+    return message;
   }
 
+  /**
+   * @return Returns the hasAttachment.
+   */
+  public boolean isHasAttachment()
+  {
+    if(message==null)
+    {
+      return false;
+    }
+    if(message.getAttachments()==null)
+    {
+      return false;
+    }
+    if(message.getAttachments().size()>0)
+    {
+      return true;
+    }
+    return false;
+  }
+
+ 
+
+  
 }

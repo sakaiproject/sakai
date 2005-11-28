@@ -13,7 +13,9 @@
 		 <h:dataTable id="topics" width="100%" value="#{ForumTool.selectedForum.topics}" var="topic">
 			<h:column>
 				<f:verbatim><div class="topicRows"></f:verbatim>
-				<h:commandLink action="#{ForumTool.processDisplayTopic}" id="topic_title" value="#{topic.topic.title}"/>
+				<h:commandLink action="#{ForumTool.processDisplayTopic}" id="topic_title" value="#{topic.topic.title}">
+					<f:param value="#{topic.topic.id}" name="topicId"/>
+				</h:commandLink>
 				<h:outputText id="topic_msg_count" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
 				<f:verbatim><br/></f:verbatim>
 				<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" />

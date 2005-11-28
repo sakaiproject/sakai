@@ -1,0 +1,77 @@
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
+<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
+<f:view>
+<sakai:view>
+	<h:form id="DF-1">
+		<div class="left-header-section">
+			<h3><h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> / 
+				<h:commandLink action="#{ForumTool.processDisplayForum}" value="#{ForumTool.selectedTopic.topic.baseForum.title}" >
+					<f:param value="#{ForumTool.selectedTopic.topic.baseForum.uuid}" name="forumId"/>
+				</h:commandLink> /
+				<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
+			</h3>
+			 <sakai:instruction_message value="#{ForumTool.selectedTopic.topic.shortDescription}" />
+		</div>
+		<div class="right-header-section">
+			<h:commandLink action="#{ForumTool.processDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}   "  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" >
+				<f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
+			</h:commandLink>
+			<h:commandLink action="#{ForumTool.processDisplayNextTopic}" value="#{msgs.cdfm_next_topic}   " rendered="#{ForumTool.selectedTopic.hasNextTopic}" >
+				<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>
+			</h:commandLink>
+			
+			<h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
+			<h:outputText   value="#{msgs.cdfm_next_topic}   " rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />		
+		</div>
+	
+      	<h:dataTable styleClass="listHier" id="messages" width="100%" value="#{ForumTool.selectedTopic.messages}" var="message">
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_checkall}" />
+				</f:facet>
+				<h:selectBooleanCheckbox value="#{message.selected}"/>
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:graphicImage value="/images/attachment.gif"/>								
+				</f:facet>
+				<h:graphicImage value="/images/attachment.gif" rendered="#{message.hasAttachment}"/>			 
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_subject}" />
+				</f:facet>
+				<h:commandLink action="#{ForumTool.processDisplayMessage}" immediate="true">
+    	        	<h:outputText value=" #{message.message.title}"/>
+        	    	<f:param value="#{message.message.uuid}" name="message_id"/>
+	          	</h:commandLink>
+			</h:column>
+			
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_authoredby}" />
+				</f:facet>
+				<h:outputText value="#{message.message.createdBy}"/>
+			</h:column>
+			
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_date}" />
+				</f:facet>
+				<h:outputText value="#{message.message.created}"/>
+			</h:column>
+		<%--TODO:// Implement me:	
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_label}" />
+				</f:facet>
+				<h:outputText value="#{message.message.label}"/>
+			</h:column>  	--%> 					
+		</h:dataTable>	
+	</h:form>
+</sakai:view>
+</f:view>
+ 

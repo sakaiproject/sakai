@@ -12,13 +12,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.service.legacy.discussion.DiscussionMessage;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 
+/**
+ * @author rshastri
+ *
+ */
 public class DiscussionForumTool
 {
   private static final Log LOG = LogFactory.getLog(DiscussionForumTool.class);
@@ -33,6 +36,7 @@ public class DiscussionForumTool
   private static final String MAIN =  "main";
   
   private DiscussionForumBean selectedForum;
+  private DiscussionTopicBean selectedTopic;
   /**
    * Dependency Injected
    */
@@ -44,6 +48,7 @@ public class DiscussionForumTool
    */
   public DiscussionForumTool()
   {
+    LOG.debug("DiscussionForumTool()");
     ;
   }
 
@@ -64,6 +69,7 @@ public class DiscussionForumTool
    */
   public List getForums()
   {
+    LOG.debug("getForums()");
     List forums = new ArrayList();
     List tempForum = forumManager.getDiscussionForums();         
     if (tempForum == null)
@@ -95,7 +101,17 @@ public class DiscussionForumTool
    */
   public DiscussionForumBean getSelectedForum()
   {
+    LOG.debug("getSelectedForum()");
     return selectedForum;
+  }
+
+  
+  /**
+   * @return Returns the selectedTopic.
+   */
+  public DiscussionTopicBean getSelectedTopic()
+  {
+    return selectedTopic;
   }
 
   /**
@@ -105,6 +121,7 @@ public class DiscussionForumTool
    */
   public boolean getUnderconstruction()
   {
+    LOG.debug("getUnderconstruction()");
     return true;
   }
 
@@ -113,6 +130,7 @@ public class DiscussionForumTool
    */
   public String processCreateNewForum()
   {
+    LOG.debug("processCreateNewForum()");
     return MAIN;
   }
 
@@ -121,6 +139,7 @@ public class DiscussionForumTool
    */
   public String processOrganize()
   {
+    LOG.debug("processOrganize()");
     return MAIN;
   }
 
@@ -129,6 +148,7 @@ public class DiscussionForumTool
    */
   public String processStatistics()
   {
+    LOG.debug("processStatistics()");
     return MAIN;
   }
 
@@ -137,6 +157,7 @@ public class DiscussionForumTool
    */
   public String processTemplateSettings()
   {
+    LOG.debug("processTemplateSettings()");
     return MAIN;
   }
 
@@ -145,6 +166,7 @@ public class DiscussionForumTool
    */
   public String processForumSettings()
   {
+    LOG.debug("processForumSettings()");
     return MAIN;
   }
 
@@ -153,6 +175,7 @@ public class DiscussionForumTool
    */
   public String processCreateNewTopic()
   {
+    LOG.debug("processCreateNewTopic()");
     return MAIN;
   }
 
@@ -161,6 +184,7 @@ public class DiscussionForumTool
    */
   public String processTopicSettings()
   {
+    LOG.debug("processTopicSettings()");
     return MAIN;
   }
   
@@ -170,6 +194,7 @@ public class DiscussionForumTool
    */
   public String processDisplayForum()
   {    
+    LOG.debug("processDisplayForum()");
     String forumId=null;
     try
     {
@@ -209,6 +234,8 @@ public class DiscussionForumTool
    */
   public String processDisplayTopic()
   {
+    LOG.debug("processDisplayTopic()");
+    
     return processDisplayTopicById("topicId");
   } 
   
@@ -217,7 +244,35 @@ public class DiscussionForumTool
    */
   public String processDisplayNextTopic()
   {
+    LOG.debug("processDisplayNextTopic()");
     return processDisplayTopicById("nextTopicId");
+  }
+  
+  /**
+   * @return
+   */
+  public String processDisplayPreviousTopic()
+  {
+    LOG.debug("processDisplayNextTopic()");
+    return processDisplayTopicById("previousTopicId");
+  }
+  
+  /**
+   * @return
+   */
+  public String processDisplayMessage()
+  {
+    LOG.debug("processDisplayMessage()");
+    return  MAIN;
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionHome()
+  {
+    LOG.debug("processActionHome()");
+    return  MAIN;
   }
   
   /**
@@ -226,6 +281,10 @@ public class DiscussionForumTool
    */
   private String processDisplayTopicById(String externalTopicId)
   {
+    if(LOG.isDebugEnabled())
+    {
+      LOG.debug("processDisplayTopicById(String"+ externalTopicId+")");
+    }
     String topicId=null;
     try
     {
@@ -243,8 +302,8 @@ public class DiscussionForumTool
       }
       if(topicId!=null)
       {
-        List messages = forumManager.getMessagesByTopicId(topicId);
-       // selectedForum = getDecoratedForum(forum);       
+        DiscussionTopic topic = forumManager.getTopicById(topicId);
+        selectedTopic = getDecoratedTopic(topic);       
       }
       else
       {
@@ -268,6 +327,10 @@ public class DiscussionForumTool
    */
   private DiscussionForumBean getDecoratedForum(DiscussionForum forum)
   {
+    if(LOG.isDebugEnabled())
+    {
+      LOG.debug("getDecoratedForum(DiscussionForum"+ forum+")");
+    }
     DiscussionForumBean decoForum = new DiscussionForumBean(forum);
     List temp_topics = forum.getTopics();
     if (temp_topics == null)
@@ -295,9 +358,25 @@ public class DiscussionForumTool
    */
   private DiscussionTopicBean getDecoratedTopic(DiscussionTopic topic)
   {
+    if(LOG.isDebugEnabled())
+    {
+      LOG.debug("getDecoratedTopic(DiscussionTopic "+ topic+ ")");
+    }
     DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic);
+    //TODO : implement me
+    decoTopic.getTopic().setBaseForum(forumManager.getForumById("5"));
     decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
     decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+    decoTopic.setHasNextTopic(forumManager.hasNextTopic(topic));
+    decoTopic.setHasPreviousTopic(forumManager.hasPreviousTopic(topic));
+    if(forumManager.hasNextTopic(topic))
+    {
+      decoTopic.setNextTopicId(forumManager.getNextTopic(topic).getUuid());
+    }
+    if(forumManager.hasPreviousTopic(topic))
+    {
+      decoTopic.setPreviousTopicId(forumManager.getPreviousTopic(topic).getUuid());
+    }
     List temp_messages = topic.getMessages();
     if(temp_messages == null)
     {
@@ -306,7 +385,7 @@ public class DiscussionForumTool
     Iterator iter = temp_messages.iterator();
     while (iter.hasNext())
     {
-      DiscussionMessage message = (DiscussionMessage) iter.next();
+      Message message = (Message) iter.next();
       if (topic != null)
       {
         DiscussionMessageBean decoMsg = new DiscussionMessageBean(message);

@@ -76,7 +76,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pfm1.setModifiedBy("the moderator");
     pfm1.setShortDescription("short description");
     pfm1.setTitle("Private Messages");
-    pfm1.setTopics((getDiscussionTopics()));
+    pfm1.setTopics((getPrivateTopics()));
     // pfm1.setType(new TypeImpl());
     pfm1.setAutoForward(Boolean.TRUE);
     pfm1.setAutoForwardEmail("fish@indiana.edu");
@@ -89,6 +89,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     return privateForums;
   }
 
+ 
   private List getPrivateTopics()
   {
     List discussionTopics = new ArrayList();
@@ -416,7 +417,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     return privateMessages;
   }
 
-  // **********************************************************************************
+//**********************************************************************************
   public Area getDiscussionForumArea()
   {
     Area a2 = new AreaImpl();
@@ -436,6 +437,13 @@ public class DummyDataHelper implements DummyDataHelperApi
   private List getDiscussionForums()
   {
     List dicussionForums = new ArrayList();
+    dicussionForums.add(getDiscussionForumByID5());
+   dicussionForums.add(getDiscussionForumByID6());
+    return dicussionForums;
+  }
+
+  private DiscussionForum getDiscussionForumByID5()
+  {
     DiscussionForum dfm1 = new DiscussionForumImpl();
     dfm1.setActorPermissions(getActorPermissions());
     dfm1.setAttachments(getAttachments());
@@ -457,8 +465,11 @@ public class DummyDataHelper implements DummyDataHelperApi
         .setShortDescription("This forum is used to discuss assigned case studies. You should follow the case study preparation instructions before posting.");
     dfm1.setTitle("Case Studies");
     dfm1.setTopics(list2set(getDiscussionTopics()));
+    return dfm1;
+  }
 
-    // dfm1.setType(new Type());
+  private DiscussionForum getDiscussionForumByID6()
+  {
     DiscussionForum dfm2 = new DiscussionForumImpl();
     dfm2.setActorPermissions(getActorPermissions());
     dfm2.setAttachments(getAttachments());
@@ -478,10 +489,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dfm2.setShortDescription("sort desc here...");
     dfm2.setTitle("disc forum 2");
     dfm2.setTopics(list2set(getDiscussionTopics()));
-    // dfm2.setType(new TypeImpl());
-    dicussionForums.add(dfm1);
-    dicussionForums.add(dfm2);
-    return dicussionForums;
+    return dfm2;
   }
 
   private List getForumMessages()
@@ -527,8 +535,17 @@ public class DummyDataHelper implements DummyDataHelperApi
   private List getDiscussionTopics()
   {
     List discussionTopics = new ArrayList();
+    discussionTopics.add(getDiscussionTopicByID11());
+    discussionTopics.add(getDiscussionTopicByID511());
+    discussionTopics.add(getDiscussionTopicByID521());
+    return discussionTopics;
+  }
 
+  //parent 5
+  private DiscussionTopic getDiscussionTopicByID11()
+  {
     DiscussionTopic dtm1 = new DiscussionTopicImpl();
+    //dtm1.setBaseForum(getForumById("5"));
     dtm1.setActorPermissions(getActorPermissions());
     dtm1.setAttachments(getAttachments());
     dtm1.setControlPermissions(getControlPermissions());
@@ -546,7 +563,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
     dtm1.setShortDescription("sort desc here...");
-    dtm1.setTitle("Dubai Port Authority Case KPMG: One Giant Brain Case");
+    dtm1.setTitle("Dubai Port Authority Case ");
     // dtm1.setType(new TypeImpl());
     dtm1.setConfidentialResponses(Boolean.TRUE);
     dtm1.setGradebook("gb2-1");
@@ -557,8 +574,79 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setSortIndex(new Integer(1));
     dtm1.setMessages(getForumMessages());
     dtm1.setMessagePermissions(getMessgePermissions());
-    discussionTopics.add(dtm1);
-    return discussionTopics;
+    return dtm1;
+  }
+  
+  //parent 5
+  private DiscussionTopic getDiscussionTopicByID511()
+  {
+    DiscussionTopic dtm1 = new DiscussionTopicImpl();
+   // dtm1.setBaseForum(getForumById("5"));
+    dtm1.setActorPermissions(getActorPermissions());
+    dtm1.setAttachments(getAttachments());
+    dtm1.setControlPermissions(getControlPermissions());
+    dtm1.setCreated(new Date());
+    dtm1.setCreatedBy("admin");
+    dtm1.setDateRestrictions(getDateRestrictions());
+    dtm1
+        .setExtendedDescription("The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
+    dtm1.setId(new Long(11));
+    dtm1.setUuid("511");
+    dtm1.setLabels(getLabels());
+    dtm1.setLocked(Boolean.FALSE);
+    dtm1.setMessagePermissions(getMessgePermissions());
+    dtm1.setModerated(Boolean.TRUE);
+    dtm1.setModified(new Date());
+    dtm1.setModifiedBy("the moderator");
+    dtm1.setShortDescription("Assess the technical choices rode by KPMG following the choice not to fund the Shadow Partner project. Do you believe they made wise or risky decisions? Why?");
+    dtm1.setTitle("KPMG: One Giant Brain Case");
+    // dtm1.setType(new TypeImpl());
+    dtm1.setConfidentialResponses(Boolean.TRUE);
+    dtm1.setGradebook("gb2-1");
+    dtm1.setGradebookAssignment("asst2");
+    dtm1.setHourBeforeResponsesVisible(new Integer(2));
+    dtm1.setMustRespondBeforeReading(Boolean.TRUE);
+    dtm1.setMutable(Boolean.TRUE);
+    dtm1.setSortIndex(new Integer(1));
+    dtm1.setMessages(getForumMessages());
+    dtm1.setMessagePermissions(getMessgePermissions());
+    return dtm1;
+  }
+  
+  //parent 5
+  private DiscussionTopic getDiscussionTopicByID521()
+  {
+    DiscussionTopic dtm1 = new DiscussionTopicImpl();
+    //dtm1.setBaseForum(getForumById("5"));
+    dtm1.setActorPermissions(getActorPermissions());
+    dtm1.setAttachments(getAttachments());
+    dtm1.setControlPermissions(getControlPermissions());
+    dtm1.setCreated(new Date());
+    dtm1.setCreatedBy("admin");
+    dtm1.setDateRestrictions(getDateRestrictions());
+    dtm1
+        .setExtendedDescription("The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
+    dtm1.setId(new Long(11));
+    dtm1.setUuid("521");
+    dtm1.setLabels(getLabels());
+    dtm1.setLocked(Boolean.FALSE);
+    dtm1.setMessagePermissions(getMessgePermissions());
+    dtm1.setModerated(Boolean.TRUE);
+    dtm1.setModified(new Date());
+    dtm1.setModifiedBy("the moderator");
+    dtm1.setShortDescription("What lessons, if any, should the Company learn from the Maxfli experience regarding future development?");
+    dtm1.setTitle("Maxfli Case");
+    // dtm1.setType(new TypeImpl());
+    dtm1.setConfidentialResponses(Boolean.TRUE);
+    dtm1.setGradebook("gb2-1");
+    dtm1.setGradebookAssignment("asst2");
+    dtm1.setHourBeforeResponsesVisible(new Integer(2));
+    dtm1.setMustRespondBeforeReading(Boolean.TRUE);
+    dtm1.setMutable(Boolean.TRUE);
+    dtm1.setSortIndex(new Integer(1));
+    dtm1.setMessages(getForumMessages());
+    dtm1.setMessagePermissions(getMessgePermissions());
+    return dtm1;
   }
 
   // helpers -- if someone needs to get access to one of these
@@ -681,52 +769,12 @@ public class DummyDataHelper implements DummyDataHelperApi
   {
     if (forumId != null && forumId.equals("5"))
     {
-      DiscussionForum dfm1 = new DiscussionForumImpl();
-      dfm1.setActorPermissions(getActorPermissions());
-      dfm1.setAttachments(getAttachments());
-      dfm1.setControlPermissions(getControlPermissions());
-      dfm1.setCreated(new Date());
-      dfm1.setCreatedBy("admin");
-      dfm1.setDateRestrictions(getDateRestrictions());
-      dfm1
-          .setExtendedDescription("This forum is used to discuss assigned case studies. You should follow the case study preparation instructions before posting.");
-      dfm1.setId(new Long(5));
-      dfm1.setUuid("5");
-      dfm1.setLabels(getLabels());
-      dfm1.setLocked(Boolean.FALSE);
-      dfm1.setMessagePermissions(getMessgePermissions());
-      dfm1.setModerated(Boolean.TRUE);
-      dfm1.setModified(new Date());
-      dfm1.setModifiedBy("admin");
-      dfm1
-          .setShortDescription("This forum is used to discuss assigned case studies. You should follow the case study preparation instructions before posting.");
-      dfm1.setTitle("Case Studies");
-      dfm1.setTopics(list2set(getDiscussionTopics()));
-      return dfm1;
+
+      return getDiscussionForumByID5();
     }
     else
     {
-      // dfm1.setType(new Type());
-      DiscussionForum dfm2 = new DiscussionForumImpl();
-      dfm2.setActorPermissions(getActorPermissions());
-      dfm2.setAttachments(getAttachments());
-      dfm2.setControlPermissions(getControlPermissions());
-      dfm2.setCreated(new Date());
-      dfm2.setCreatedBy("jim johnson");
-      dfm2.setDateRestrictions(getDateRestrictions());
-      dfm2.setExtendedDescription("the extended description 2");
-      dfm2.setId(new Long(6));
-      dfm2.setUuid("6");
-      dfm2.setLabels(getLabels());
-      dfm2.setLocked(Boolean.TRUE);
-      dfm2.setMessagePermissions(getMessgePermissions());
-      dfm2.setModerated(Boolean.FALSE);
-      dfm2.setModified(new Date());
-      dfm2.setModifiedBy("the moderator");
-      dfm2.setShortDescription("sort desc here...");
-      dfm2.setTitle("disc forum 2");
-      dfm2.setTopics(list2set(getDiscussionTopics()));
-      return dfm2;
+      return getDiscussionForumByID6();
     }
   }
 
@@ -736,5 +784,69 @@ public class DummyDataHelper implements DummyDataHelperApi
     return null;
   }
 
+  public DiscussionTopic getTopicById(String topicId)
+  {
+    if(topicId.equals("511"))
+    {
+      return getDiscussionTopicByID511();
+    }
+    if(topicId.equals("521"))
+    {
+      return getDiscussionTopicByID521();
+    }
+    return getDiscussionTopicByID11();
+  }
+
+  public boolean hasNextTopic(DiscussionTopic topic)
+  {
+    if(topic.getUuid().equals("11"))
+    {
+      return true;
+    }
+    if(topic.getUuid().equals("511"))
+    {
+      return true;
+    }
+    return false;
+  }
+
+  public boolean hasPreviousTopic(DiscussionTopic topic)
+  {
+    if(topic.getUuid().equals("521"))
+    {
+      return true;
+    }
+    if(topic.getUuid().equals("511"))
+    {
+      return true;
+    }
+    return false;
+  }
+
+  public DiscussionTopic getNextTopic(DiscussionTopic topic)
+  {
+    if(topic.getUuid().equals("11"))
+    {
+      return getDiscussionTopicByID511();
+    }
+    if(topic.getUuid().equals("511"))
+    {
+      return getDiscussionTopicByID521();
+    }
+    return null;
+  }
+
+  public DiscussionTopic getPreviousTopic(DiscussionTopic topic)
+  {
+    if(topic.getUuid().equals("512"))
+    {
+      return getDiscussionTopicByID511();
+    }
+    if(topic.getUuid().equals("511"))
+    {
+      return getDiscussionTopicByID11();
+    }
+    return null;
+  }
 
 }
