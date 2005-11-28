@@ -535,7 +535,8 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setCreated(new Date());
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
-    dtm1.setExtendedDescription("The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
+    dtm1
+        .setExtendedDescription("The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
     dtm1.setId(new Long(11));
     dtm1.setUuid("11");
     dtm1.setLabels(getLabels());
@@ -675,5 +676,65 @@ public class DummyDataHelper implements DummyDataHelperApi
   {
     this.typeMgr = typeMgr;
   }
+
+  public DiscussionForum getForumById(String forumId)
+  {
+    if (forumId != null && forumId.equals("5"))
+    {
+      DiscussionForum dfm1 = new DiscussionForumImpl();
+      dfm1.setActorPermissions(getActorPermissions());
+      dfm1.setAttachments(getAttachments());
+      dfm1.setControlPermissions(getControlPermissions());
+      dfm1.setCreated(new Date());
+      dfm1.setCreatedBy("admin");
+      dfm1.setDateRestrictions(getDateRestrictions());
+      dfm1
+          .setExtendedDescription("This forum is used to discuss assigned case studies. You should follow the case study preparation instructions before posting.");
+      dfm1.setId(new Long(5));
+      dfm1.setUuid("5");
+      dfm1.setLabels(getLabels());
+      dfm1.setLocked(Boolean.FALSE);
+      dfm1.setMessagePermissions(getMessgePermissions());
+      dfm1.setModerated(Boolean.TRUE);
+      dfm1.setModified(new Date());
+      dfm1.setModifiedBy("admin");
+      dfm1
+          .setShortDescription("This forum is used to discuss assigned case studies. You should follow the case study preparation instructions before posting.");
+      dfm1.setTitle("Case Studies");
+      dfm1.setTopics(list2set(getDiscussionTopics()));
+      return dfm1;
+    }
+    else
+    {
+      // dfm1.setType(new Type());
+      DiscussionForum dfm2 = new DiscussionForumImpl();
+      dfm2.setActorPermissions(getActorPermissions());
+      dfm2.setAttachments(getAttachments());
+      dfm2.setControlPermissions(getControlPermissions());
+      dfm2.setCreated(new Date());
+      dfm2.setCreatedBy("jim johnson");
+      dfm2.setDateRestrictions(getDateRestrictions());
+      dfm2.setExtendedDescription("the extended description 2");
+      dfm2.setId(new Long(6));
+      dfm2.setUuid("6");
+      dfm2.setLabels(getLabels());
+      dfm2.setLocked(Boolean.TRUE);
+      dfm2.setMessagePermissions(getMessgePermissions());
+      dfm2.setModerated(Boolean.FALSE);
+      dfm2.setModified(new Date());
+      dfm2.setModifiedBy("the moderator");
+      dfm2.setShortDescription("sort desc here...");
+      dfm2.setTitle("disc forum 2");
+      dfm2.setTopics(list2set(getDiscussionTopics()));
+      return dfm2;
+    }
+  }
+
+  public List getMessagesByTopicId(String topicId)
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 
 }

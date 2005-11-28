@@ -7,14 +7,17 @@
   <h:dataTable id="forums" width="100%" value="#{ForumTool.forums}" var="forum">
     <h:column >
     	<f:verbatim><div class="forumsRow"></f:verbatim>
-			<h:commandLink action="#{ForumTool.processDisplayForum}"  value="#{forum.forum.title}" /><f:verbatim></br></f:verbatim>
+			<h:commandLink action="#{ForumTool.processDisplayForum}"  value="#{forum.forum.title}" >
+				<f:param value="#{forum.forum.id}" name="forumId"/>
+			</h:commandLink>
+			<f:verbatim></br></f:verbatim>
 			<h:outputText id="forum_desc" value="#{forum.forum.shortDescription}" />
 			<f:verbatim></div></f:verbatim>
-		 <h:dataTable id="topics" value="#{forum.topics}" var="topic">
+		 <h:dataTable id="topics" width="100%" value="#{forum.topics}" var="topic">
 		    <h:column>
 				<f:verbatim><div class="topicRows"></f:verbatim>
 				<h:commandLink action="#{ForumTool.processDisplayTopic}" id="topic_title" value="#{topic.topic.title}"/>
-				<h:outputText id="topic_msg_count" value="(#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
+				<h:outputText id="topic_msg_count" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
 				<f:verbatim><br/></f:verbatim>
 				<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" />
 				<f:verbatim></div></f:verbatim>

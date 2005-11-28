@@ -3,6 +3,7 @@ package org.sakaiproject.api.app.messageforums.ui;
 import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
 
@@ -47,5 +48,13 @@ public interface DiscussionForumManager
    * @return
    */
   public List getDiscussionForums();
+
+  /**
+   * @param topicId
+   * @return
+   */
+  public DiscussionForum getForumById(String topicId);
+
+  List getMessagesByTopicId(String topicId);
 
 }

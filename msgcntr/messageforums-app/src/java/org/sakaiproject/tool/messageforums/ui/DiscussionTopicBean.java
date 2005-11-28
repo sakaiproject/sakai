@@ -1,10 +1,8 @@
 package org.sakaiproject.tool.messageforums.ui;
  
-import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.service.legacy.discussion.DiscussionMessage;
 public class DiscussionTopicBean
 {
   private Topic topic;
@@ -63,16 +61,16 @@ public class DiscussionTopicBean
    */
   public List getMessages()
   {
-    List tmpMessages = topic.getMessages();
-    if (tmpMessages !=null)
-    {
-      Iterator iter = tmpMessages.iterator();
-      while (iter.hasNext())
-      {
-        DiscussionMessage message = (DiscussionMessage) iter.next();
-        messages.add(new DiscussionMessageBean(message));
-      }
-    }
-    return messages ;
+     return messages ;
   }  
+  
+   
+
+  public void addMessage(DiscussionMessageBean decoMessage)
+  {
+    if(!messages.contains(decoMessage))
+    {
+      messages.add(decoMessage);    
+    }
+  } 
 }
