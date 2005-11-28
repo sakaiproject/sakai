@@ -24,7 +24,6 @@
 package org.sakaiproject.api.app.messageforums;
 
 import java.util.List;
- 
 
 public interface BaseForum extends MutableEntity {
 
@@ -55,9 +54,17 @@ public interface BaseForum extends MutableEntity {
     public String getTypeUuid();
 
     public void setTypeUuid(String typeUuid);
-    
+
     public Area getArea();
-    
+
     public void setArea(Area area);
+
+    public void addTopic(Topic topic);
+
+    public void removeTopic(Topic topic);
+
+    public void addAttachment(Attachment attachment);
+
+    public void removeAttachment(Attachment attachment);
 
 }

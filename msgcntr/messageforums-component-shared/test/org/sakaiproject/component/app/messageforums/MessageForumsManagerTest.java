@@ -26,9 +26,11 @@ package org.sakaiproject.component.app.messageforums;
 import java.util.Date;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 
@@ -68,7 +70,7 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
         message.setBody("this is a test message");
         message.setDraft(Boolean.FALSE);
         message.setTypeUuid("mess-type");
-        message.addAttachment(createAttachment());        
+        message.addAttachment(getAttachment());        
 
         messageForumsMessageManager.saveMessage(message);
         Long id = message.getId();
@@ -78,25 +80,39 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
     }
 
     public void testSaveAndDeleteTopic() {
-        DiscussionTopic topic = new DiscussionTopicImpl();
-        topic.setTypeUuid("dt-type");
-        topic.setTitle("A test discussion topic");
-        topic.setShortDescription("short desc");
-        topic.setExtendedDescription("long desc");
-        topic.setMutable(Boolean.TRUE);
-        topic.setSortIndex(new Integer(1));
-        topic.addAttachment(createAttachment());
-        
+        DiscussionTopic topic = getDiscussionTopic();        
         messageForumsForumManager.saveDiscussionForumTopic(topic);
         messageForumsForumManager.deleteDiscussionForumTopic(topic);
+        assertTrue(true);
+    }
+    
+    public void testSaveAndDeleteForum() {
+        DiscussionTopic topic = getDiscussionTopic();        
+        topic.setUuid("00322");
+        topic.setCreated(new Date());
+        topic.setCreatedBy("ed");
+        topic.setModified(new Date());
+        topic.setModifiedBy("jim");
+        
+        DiscussionForum forum = new DiscussionForumImpl();
+        forum.setTypeUuid("df-type");
+        forum.setTitle("A test discussion forum");
+        forum.setShortDescription("short desc");
+        forum.setExtendedDescription("long desc");
+        forum.setSortIndex(new Integer(1));
+        forum.setLocked(Boolean.FALSE);
+        forum.addAttachment(getAttachment());
+        forum.addTopic(topic);
+        
+        messageForumsForumManager.saveDiscussionForum(forum);
+        messageForumsForumManager.deleteDiscussionForum(forum);
         assertTrue(true);
     }
     
     public void testIsMessageReadForUser() {
         assertFalse(messageForumsMessageManager.isMessageReadForUser("joesmith", "1", "2"));
         messageForumsMessageManager.markMessageReadForUser("joesmith", "1", "2");
-        assertTrue(messageForumsMessageManager.isMessageReadForUser("joesmith", "1", "2"));
-        
+        assertTrue(messageForumsMessageManager.isMessageReadForUser("joesmith", "1", "2"));        
         // clean up
         messageForumsMessageManager.deleteUnreadStatus("joesmith", "1", "2");
     }
@@ -104,7 +120,19 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
     
     // helpers
     
-    private Attachment createAttachment() {
+    private DiscussionTopic getDiscussionTopic() {
+        DiscussionTopic topic = new DiscussionTopicImpl();
+        topic.setTypeUuid("dt-type");
+        topic.setTitle("A test discussion topic");
+        topic.setShortDescription("short desc");
+        topic.setExtendedDescription("long desc");
+        topic.setMutable(Boolean.TRUE);
+        topic.setSortIndex(new Integer(1));
+        topic.addAttachment(getAttachment());
+        return topic;
+    }
+    
+    private Attachment getAttachment() {
         Attachment attachment = new AttachmentImpl();
         attachment.setUuid("002");
         attachment.setCreated(new Date());
