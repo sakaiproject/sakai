@@ -223,7 +223,6 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         </h:commandLink>
      </f:facet>
      <h:panelGroup>
-       <h:outputText value="" rendered="#{description.assessmentGradingId eq '-1'}"/>
        <h:outputText value="Anonymous" rendered="#{description.assessmentGradingId eq '-1'}" />
        <h:commandLink action="studentScores" rendered="#{description.assessmentGradingId ne '-1'}" >
          <h:outputText value="#{description.assessmentGradingId}" />
@@ -244,7 +243,6 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
           <h:outputText value="#{msg.sub_id}" />
      </f:facet>
      <h:panelGroup>
-       <h:outputText value="" rendered="#{description.assessmentGradingId eq '-1'}"/>
        <h:outputText value="Anonymous" rendered="#{description.assessmentGradingId eq '-1'}" />
        <h:commandLink action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}">
          <h:outputText value="#{description.assessmentGradingId}" />
