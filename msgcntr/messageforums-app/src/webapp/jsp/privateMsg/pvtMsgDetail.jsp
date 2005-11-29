@@ -1,23 +1,45 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
+<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
 <f:view>
-  <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="pvtMsgDetail">
-      	<sakai:tool_bar_message value="Private Message Details" /> 
       	
-        <sakai:group_box>
-          <table width="100%" align="center" style="background-color:#DDDFE4;">
+      	<div class="left-header-section">
+					<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> / 
+					<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="Private Messages" >
+					</h:commandLink> /
+					<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
+			 	<sakai:instruction_message value="Private Message Details" />
+				</div>
+				<div class="right-header-section">
+					<h:outputText value="Previous Folder" />
+					<h:outputText value="Next Folder" />	
+					<sakai:instruction_message />
+				</div>
+      	
+      	
+      	
+      	<br>
+      	
+      	<div class="base-div">
+        
+          <table width="100%" align="left" style="background-color:#DDDFE4;">
             <tr>
               <td align="left">
                 <h:outputText style="font-weight:bold"  value="Subject "/>
               </td>
               <td align="left">
               	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
-              </td>                           
+              </td>  
+              <td align="left"><h:outputText style="font-weight:bold"  value="Previous Message" />
+		<h:outputText style="font-weight:bold"  value="Next Message" />	
+	      </td>
+        
             </tr>
             <tr>
               <td align="left">
@@ -28,6 +50,7 @@
               	<h:outputText value="-" />  
               	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.created}" />  
               </td>
+              <td></td>
             </tr>
             <tr>
               <td align="left">
@@ -35,6 +58,7 @@
               </td>
               <td align="left">
               </td>
+              <td></td>
             </tr>
             <tr>
               <td align="left">
@@ -43,9 +67,13 @@
               <td align="left">
               	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
               </td>
+              <td></td>
             </tr>                                    
-          </table>
-        </sakai:group_box>
+          </table>    
+        
+        <br/><br/>
+        
+        
 
 				<h:panelGroup rendered="#{PrivateMessagesTool.deleteConfirm}">
 					<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
@@ -70,7 +98,7 @@
             </sakai:doc_section>    
           </sakai:panel_edit>
         </sakai:group_box>
-                        
+         </div>               
 
       </h:form>
      

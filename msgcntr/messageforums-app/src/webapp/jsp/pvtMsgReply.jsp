@@ -1,6 +1,8 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
+<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
 <f:view>
   <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
@@ -93,7 +95,7 @@
 	          </sakai:button_bar>
 	        </sakai:doc_section>
 	        
-					<h:dataTable value="#{PrivateMessagesTool.attachments}" var="eachAttach" styleClass="chefFlatListViewTable">
+					<h:dataTable styleClass="listHier" id="attmsgrep" width="100%" value="#{PrivateMessagesTool.attachments}" var="eachAttach" >
 					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
 							<f:facet name="header">
 								<h:outputText value="Title"/>

@@ -102,6 +102,7 @@ public class PrivateMessagesTool
   private String currentMsgUuid; //this is the message which is being currently edited/displayed/deleted
   private boolean navModeIsDelete=false ; // Delete mode to show up extra buttons in pvtMsg.jsp page
   private List selectedItems;
+  private boolean pvtAreaEnabled= false;
   
   PrivateForumDecoratedBean decoratedForum;
   //delete confirmation screen - single delete 
@@ -185,7 +186,12 @@ public class PrivateMessagesTool
 //  {
 //   return forum;
 //  }
-  
+  public boolean getPvtAreaEnabled()
+  {
+    //TODO
+    return true ;
+    //return prtMsgManager.isPrivateAreaUnabled();
+  }
   //Return decorated Forum
   public PrivateForumDecoratedBean getDecoratedForum()
   {
@@ -539,7 +545,7 @@ public class PrivateMessagesTool
   {
     return searchText ;
   }
-  public void setSeachText(String searchText)
+  public void setSearchText(String searchText)
   {
     this.searchText=searchText;
   }
@@ -566,7 +572,14 @@ public class PrivateMessagesTool
     this.selectedTopicTitle=selectedTopicTitle;
   }
   
-  
+  public String processActionHome()
+  {
+    return  "main";
+  }
+  public String processDisplayForum()
+  {
+    return "pvtMsg" ;
+  }
   public String processPvtMsgTopic()
   {
     //get external parameter
@@ -701,8 +714,8 @@ public class PrivateMessagesTool
    */ 
   public String processPvtMsgReply() {
     
-//    //from message detail screen
-//    this.setDetailMsg(getDetailMsg()) ;
+    //from message detail screen
+    this.setDetailMsg(getDetailMsg()) ;
 //    
 //    //from compose screen
 //    this.setComposeSendAs(getComposeSendAs()) ;
@@ -783,28 +796,40 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */
   public String processPvtMsgSaveDraft() {
-    PrivateMessage dMsg=constructMessage() ;
-    dMsg.setDraft(Boolean.TRUE);
+    //PrivateMessage dMsg=constructMessage() ;
+    //dMsg.setDraft(Boolean.TRUE);
     //TODO
-    prtMsgManager.savePrivateMessage(dMsg);
+    //prtMsgManager.savePrivateMessage(dMsg);
     return "pvtMsg" ;    
   }
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
   public PrivateMessage constructMessage()
   {
-    PrivateMessage aMsg = (PrivateMessage)this.getDetailMsg().getMessage(); 
-    aMsg.setRecipients(getSelectedComposeToList());
-    aMsg.setTitle(getComposeSubject());
-    aMsg.setBody(getComposeBody());
-    aMsg.setAttachments(getAttachments()) ;
-    aMsg.setCreatedBy(getUserId());
-    aMsg.setCreated(getTime()) ;
-    aMsg.setDraft(Boolean.FALSE);
+    PrivateMessage aMsg;
+    // in case of compose this is a new message 
+    if (this.getDetailMsg() == null )
+    {
+      aMsg = prtMsgManager.createPrivateMessage() ;
+    }
+    //if reply to a message then message is existing
+    else {
+      aMsg = (PrivateMessage)this.getDetailMsg().getMessage();       
+    }
+    if (aMsg != null)
+    {
+      aMsg.setRecipients(getSelectedComposeToList());
+      aMsg.setTitle(getComposeSubject());
+      aMsg.setBody(getComposeBody());
+      aMsg.setCreatedBy(getUserId());
+      aMsg.setCreated(getTime()) ;
+      aMsg.setDraft(Boolean.FALSE);      
+    }
+
     
     //Add attachments
     for(int i=0; i<attachments.size(); i++)
     {
-      prtMsgManager.addPvtMsgAttachToPvtMsgData(aMsg, (Attachment)attachments.get(i));         
+      prtMsgManager.addAttachToPvtMsg(aMsg, (Attachment)attachments.get(i));         
     }
     
     //clear
@@ -816,7 +841,7 @@ public class PrivateMessagesTool
   
   //////////////////////REPLY SEND  /////////////////
   public String processPvtMsgReplySend() {
-    PrivateMessage rsMsg=constructMessage() ;
+    //PrivateMessage rsMsg=constructMessage() ;
     //prtMsgManager.savePrivateMessage(rsMsg);
     return "pvtMsg" ;
   }
@@ -826,8 +851,8 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */
   public String processPvtMsgReplySaveDraft() {
-    PrivateMessage drMsg=constructMessage() ;
-    drMsg.setDraft(Boolean.TRUE);
+    //PrivateMessage drMsg=constructMessage() ;
+    //drMsg.setDraft(Boolean.TRUE);
     //prtMsgManager.savePrivateMessage(drMsg);
     return "pvtMsg" ;    
   }
@@ -923,7 +948,7 @@ public class PrivateMessagesTool
       for(int i=0; i<refs.size(); i++)
       {
         ref = (Reference) refs.get(i);
-        Attachment thisAttach = prtMsgManager.createPvtMsgAttachmentObject(
+        Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
             ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
         
         //Test 
@@ -1052,7 +1077,7 @@ public class PrivateMessagesTool
       }
       
       ContentResource cr = ContentHostingService.getResource(id);
-      prtMsgManager.removePvtMsgAttachmentObject(sa);
+      prtMsgManager.removePvtMsgAttachment(sa);
       if(id.toLowerCase().startsWith("/attachment"))
         ContentHostingService.removeResource(id);
     }
@@ -1209,25 +1234,36 @@ public class PrivateMessagesTool
   }
   
   ///////////////   SEARCH      ///////////////////////
+  private List searchPvtMsgs;
+  public List getSearchPvtMsgs()
+  {
+    return searchPvtMsgs;
+  }
+  public void setSearchPvtMsgs(List searchPvtMsgs)
+  {
+    this.searchPvtMsgs=searchPvtMsgs ;
+  }
   public String processSearch() 
   {
     List newls = new ArrayList() ;
     for (Iterator iter = getDecoratedPvtMsgs().iterator(); iter.hasNext();)
     {
-      PrivateMessage element = (PrivateMessage) iter.next();
-      String message=element.getTitle();
+      PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
+      
+      String message=element.getMessage().getTitle();
       StringTokenizer st = new StringTokenizer(message);
       while (st.hasMoreTokens())
       {
         if(st.nextToken().equalsIgnoreCase(getSearchText()))
         {
           newls.add(element) ;
+          break;
         }
       }
     }
-      setDecoratedPvtMsgs(newls) ;
+      this.setSearchPvtMsgs(newls) ;
 
-    return "pvtMsg" ;
+    return "pvtMsgEx" ;
   }
   
   

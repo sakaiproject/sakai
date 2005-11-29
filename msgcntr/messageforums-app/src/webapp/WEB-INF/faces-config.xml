@@ -129,6 +129,11 @@
             <to-view-id>/jsp/privateMsg/pvtMsgFolderDelete.jsp</to-view-id>
             <redirect/>
         </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgEx</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgEx.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>          
         <!-- navigation cases for discussion forums-->
         <navigation-case>
             <from-outcome>dfForumDetail</from-outcome>

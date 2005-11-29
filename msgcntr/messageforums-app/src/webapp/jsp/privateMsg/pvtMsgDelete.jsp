@@ -17,24 +17,24 @@
 		</sakai:group_box>
 				
 
-	  <h:dataTable value="#{PrivateMessagesTool.selectedDeleteItems}" var="delItems">   
+	  <h:dataTable styleClass="listHier" id="pvtmsgdel" width="100%"  value="#{PrivateMessagesTool.selectedDeleteItems}" var="delItems">   
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Subject"/>
 		    </f:facet>
-		      <h:outputText value=" #{delItems.title}"/>              
+		      <h:outputText value=" #{delItems.message.title}"/>              
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Authored By"/>
 		    </f:facet>		     		    
-		     <h:outputText value="#{delItems.createdBy}"/>
+		     <h:outputText value="#{delItems.message.createdBy}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Date"/>
 		    </f:facet>
-		     <h:outputText value="#{delItems.created}"/>
+		     <h:outputText value="#{delItems.message.created}"/>
 		  </h:column>
 		</h:dataTable>
 

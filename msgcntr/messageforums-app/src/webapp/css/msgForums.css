@@ -19,3 +19,31 @@ div.left-header-section {
 div.right-header-section {
   border: none; float: right; margin: 0; padding: 0; width: 19%; text-align:left;
 }
+div.base-div {
+  
+  margin-top: 0; margin-right: auto; margin-bottom: 0; margin-left: auto;
+  padding: 0; text-align:left; height:300px; width: 100%;
+}
+
+.HEADING {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  color: black;
+  background-color: silver;
+  text-align: center;
+}
+.ROW1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: black;
+  background-color: white;
+  text-indent: 20px;
+}
+.ROW2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: white;
+  background-color: black;
+  text-indent: 20px;
+}

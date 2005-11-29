@@ -10,10 +10,9 @@
           		</td>
           		<td align="right">
           		
-          			<h:outputText value="#{PrivateMessagesTool.searchText}" />&nbsp;&nbsp;&nbsp;&nbsp;
+          			<h:inputText value="#{PrivateMessagesTool.searchText}" />&nbsp;&nbsp;&nbsp;&nbsp;
           			<h:commandButton value="Search" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          		
-          			<h:outputText value="Search" />   
+
           			<h:outputText value="Advance Search" />          			
               </td>
             </tr>                                    

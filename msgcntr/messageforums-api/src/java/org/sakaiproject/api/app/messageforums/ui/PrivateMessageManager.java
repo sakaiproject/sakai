@@ -33,6 +33,10 @@ public interface PrivateMessageManager {
     int getTotalNoMessages(Topic topic);
     int getUnreadNoMessages(Topic topic);
     
+    //create new instance of Privae Message --required before saving 
+    public PrivateMessage createPrivateMessage() ;
+    
+    
     public void saveAreaSetting() ;
     
     //Topic Folder Setting
@@ -46,10 +50,10 @@ public interface PrivateMessageManager {
     
 ///Attachment
     
-    public void addPvtMsgAttachToPvtMsgData(final PrivateMessage pvtMsgData, final Attachment pvtMsgAttach);
-    public Attachment createPvtMsgAttachmentObject(String attachId, String name);      
+    public void addAttachToPvtMsg(final PrivateMessage pvtMsgData, final Attachment pvtMsgAttach);
+    public Attachment createPvtMsgAttachment(String attachId, String name);      
     public void savePvtMsgAttachment(Attachment attach);
-    public void removePvtMsgAttachmentObject(Attachment o);
+    public void removePvtMsgAttachment(Attachment o);
     public Attachment getPvtMsgAttachment(final String pvtMsgAttachId);
     
     

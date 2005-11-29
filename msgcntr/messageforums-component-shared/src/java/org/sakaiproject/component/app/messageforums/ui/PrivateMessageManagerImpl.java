@@ -95,7 +95,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   
   //Attachment
-  public Attachment createPvtMsgAttachmentObject(String attachId, String name)
+  public Attachment createPvtMsgAttachment(String attachId, String name)
   {
     try
     {
@@ -145,13 +145,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     //getHibernateTemplate().saveOrUpdate(attach);
   }
 
-  public void addPvtMsgAttachToPvtMsgData(PrivateMessage pvtMsgData, Attachment pvtMsgAttach)
+  public void addAttachToPvtMsg(PrivateMessage pvtMsgData, Attachment pvtMsgAttach)
   {
     // TODO Auto-generated method stub
     
   }
 
-  public void removePvtMsgAttachmentObject(Attachment o)
+  public void removePvtMsgAttachment(Attachment o)
   {
     // TODO Auto-generated method stub
     
@@ -223,6 +223,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     // TODO Auto-generated method stub
     
   }
+
+  public PrivateMessage createPrivateMessage()
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
  
 
 }
