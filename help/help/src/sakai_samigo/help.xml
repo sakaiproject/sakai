@@ -160,6 +160,12 @@
    </bean>
    
    
+   <bean id="viewScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arha</value></property>
+      <property name="name"><value>View Student Scores And Answers</value></property>
+      <property name="location"><value>/sakai_samigo/arha.html</value></property>
+   </bean>
+
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       <property name="name"><value>root</value></property>
@@ -195,6 +201,7 @@
 					 <ref bean="createSurvey"/>
 					 <ref bean="takeAssessment"/>
 					 <ref bean="resumeAssessment"/>
+					 <ref bean="viewScores"/>
 					 <ref bean="modifyPublishedAssessment"/>
 					 <ref bean="modifyPublishedAssessment"/>
                   </list>
