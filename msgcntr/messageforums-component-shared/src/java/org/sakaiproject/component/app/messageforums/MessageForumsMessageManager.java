@@ -43,5 +43,11 @@ public interface MessageForumsMessageManager {
     public UnreadStatus findUnreadStatus(String userId, String topicId, String messageId);
 
     public void deleteUnreadStatus(String userId, String topicId, String messageId);
+    
+    public int findMessageCountByTopicId(String topicId);
+
+    public int findUnreadMessageCountByTopicId(String userId, String topicId);
+
+    public int findReadMessageCountByTopicId(String userId, String topicId);
 
 }

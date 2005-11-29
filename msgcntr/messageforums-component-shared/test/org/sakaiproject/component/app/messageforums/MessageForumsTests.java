@@ -157,6 +157,74 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         messageManager.deleteUnreadStatus("joesmith", "1", "2");
     }
        
+    public void testFindMessageCountByTopicId() {
+        DiscussionTopic topic = getDiscussionTopic();        
+        for (int i = 0; i < 10; i++) {
+            Message message = messageManager.createMessage();        
+            message.setApproved(Boolean.TRUE);
+            message.setAuthor("nate");
+            message.setTitle("a message");
+            message.setBody("this is a test message");
+            message.setDraft(Boolean.FALSE);
+            message.setModified(new Date());
+            message.setModifiedBy("jim");      
+            message.setTypeUuid("mess-type");
+            topic.addMessage(message);
+        }
+        forumManager.saveDiscussionForumTopic(topic);
+        
+        assertEquals(messageManager.findMessageCountByTopicId(""+topic.getId()), 10);
+                
+        forumManager.deleteDiscussionForumTopic(topic);        
+    }
+
+    public void testFindReadMessageCountByTopicId() {
+        DiscussionTopic topic = getDiscussionTopic();        
+        for (int i = 0; i < 10; i++) {
+            Message message = messageManager.createMessage();        
+            message.setApproved(Boolean.TRUE);
+            message.setAuthor("nate");
+            message.setTitle("a message");
+            message.setBody("this is a test message");
+            message.setDraft(Boolean.FALSE);
+            message.setModified(new Date());
+            message.setModifiedBy("jim");      
+            message.setTypeUuid("mess-type");
+            topic.addMessage(message);
+        }
+        forumManager.saveDiscussionForumTopic(topic);
+        
+        messageManager.markMessageReadForUser("nate", ""+topic.getId(), ""+((Message)topic.getMessages().get(2)).getId());
+        
+        assertEquals(messageManager.findReadMessageCountByTopicId("nate", ""+topic.getId()), 1);
+                
+        forumManager.deleteDiscussionForumTopic(topic);        
+    }
+
+    public void testFindUnreadMessageCountByTopicId() {
+        DiscussionTopic topic = getDiscussionTopic();        
+        for (int i = 0; i < 10; i++) {
+            Message message = messageManager.createMessage();        
+            message.setApproved(Boolean.TRUE);
+            message.setAuthor("nate");
+            message.setTitle("a message");
+            message.setBody("this is a test message");
+            message.setDraft(Boolean.FALSE);
+            message.setModified(new Date());
+            message.setModifiedBy("jim");      
+            message.setTypeUuid("mess-type");
+            topic.addMessage(message);
+        }
+        forumManager.saveDiscussionForumTopic(topic);
+        
+        messageManager.markMessageReadForUser("nate", ""+topic.getId(), ""+((Message)topic.getMessages().get(2)).getId());
+        messageManager.markMessageReadForUser("nate", ""+topic.getId(), ""+((Message)topic.getMessages().get(5)).getId());
+        
+        assertEquals(messageManager.findUnreadMessageCountByTopicId("nate", ""+topic.getId()), 8);
+                
+        forumManager.deleteDiscussionForumTopic(topic);        
+    }
+
     
     // helpers
     

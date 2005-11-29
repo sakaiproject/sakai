@@ -73,6 +73,56 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public SessionManager getSessionManager() {
         return sessionManager;
     }
+    
+    public int findUnreadMessageCountByTopicId(final String userId, final String topicId) {
+        if (topicId == null) {
+            LOG.error("findUnreadMessageCountByTopicId failed with topicId: " + topicId + ", userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findUnreadMessageCountByTopicId executing with topicId: " + topicId + ", userId: " + userId);
+
+        return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicId(userId, topicId);
+    }
+    
+    public int findReadMessageCountByTopicId(final String userId, final String topicId) {
+        if (topicId == null) {
+            LOG.error("findReadMessageCountByTopicId failed with topicId: " + topicId + ", userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findReadMessageCountByTopicId executing with topicId: " + topicId + ", userId: " + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findReadMessageCountByTopicId");
+                q.setParameter("topicId", topicId, Hibernate.STRING);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+
+    public int findMessageCountByTopicId(final String topicId) {
+        if (topicId == null) {
+            LOG.error("findMessageCountByTopicId failed with topicId: " + topicId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findMessageCountByTopicId executing with topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findMessageCountByTopicId");
+                q.setParameter("topicId", topicId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
 
     public UnreadStatus findUnreadStatus(final String userId, final String topicId, final String messageId) {
         if (messageId == null || topicId == null || userId == null) {

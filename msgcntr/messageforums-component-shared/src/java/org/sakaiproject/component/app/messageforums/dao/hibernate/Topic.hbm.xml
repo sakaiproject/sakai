@@ -131,5 +131,5 @@
   <query name="findTopicByUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic where topic.uuid = :uuid]]>
   </query>
-
+  
 </hibernate-mapping>
