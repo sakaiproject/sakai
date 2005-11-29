@@ -178,6 +178,27 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         forumManager.deleteDiscussionForumTopic(topic);        
     }
 
+    public void testFindMessagesByTopicId() {
+        DiscussionTopic topic = getDiscussionTopic();        
+        for (int i = 0; i < 10; i++) {
+            Message message = messageManager.createMessage();        
+            message.setApproved(Boolean.TRUE);
+            message.setAuthor("nate");
+            message.setTitle("a message");
+            message.setBody("this is a test message");
+            message.setDraft(Boolean.FALSE);
+            message.setModified(new Date());
+            message.setModifiedBy("jim");      
+            message.setTypeUuid("mess-type");
+            topic.addMessage(message);
+        }
+        forumManager.saveDiscussionForumTopic(topic);
+        
+        assertEquals(messageManager.findMessagesByTopicId(""+topic.getId()).size(), 10);
+                
+        forumManager.deleteDiscussionForumTopic(topic);        
+    }
+    
     public void testFindReadMessageCountByTopicId() {
         DiscussionTopic topic = getDiscussionTopic();        
         for (int i = 0; i < 10; i++) {

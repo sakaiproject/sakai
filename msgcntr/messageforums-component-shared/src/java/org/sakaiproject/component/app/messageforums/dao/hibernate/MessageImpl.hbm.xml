@@ -108,4 +108,8 @@
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message, org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where message.topic.id = :topicId and us.userId = :userId and message.id = us.messageId and us.read = true]]>
   </query>
 
+  <query name="findMessagesByTopicId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId]]>
+  </query>
+
 </hibernate-mapping>

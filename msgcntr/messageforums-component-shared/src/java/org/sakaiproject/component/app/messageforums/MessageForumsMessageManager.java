@@ -23,6 +23,8 @@
 
 package org.sakaiproject.component.app.messageforums;
 
+import java.util.List;
+
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 
@@ -49,5 +51,7 @@ public interface MessageForumsMessageManager {
     public int findUnreadMessageCountByTopicId(String userId, String topicId);
 
     public int findReadMessageCountByTopicId(String userId, String topicId);
+    
+    public List findMessagesByTopicId(String topicId);
 
 }

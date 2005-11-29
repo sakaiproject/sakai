@@ -25,6 +25,7 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
@@ -47,6 +48,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final Log LOG = LogFactory.getLog(MessageForumsMessageManagerImpl.class);    
 
     private static final String QUERY_BY_MESSAGE_ID = "findMessageById";
+    private static final String QUERY_COUNT_BY_READ = "findReadMessageCountByTopicId";
+    private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
+    private static final String QUERY_COUNT_BY_TOPIC_ID = "findMessageCountByTopicId";
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
     private static final String ID = "id";
 
@@ -95,7 +99,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery("findReadMessageCountByTopicId");
+                Query q = session.getNamedQuery(QUERY_COUNT_BY_READ);
                 q.setParameter("topicId", topicId, Hibernate.STRING);
                 q.setParameter("userId", userId, Hibernate.STRING);
                 return q.uniqueResult();
@@ -105,6 +109,25 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
     }
 
+    public List findMessagesByTopicId(final String topicId) {
+        if (topicId == null) {
+            LOG.error("findMessagesByTopicId failed with topicId: " + topicId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findMessagesByTopicId executing with topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
+                q.setParameter("topicId", topicId, Hibernate.STRING);
+                return q.list();
+            }
+        };
+
+        return (List) getHibernateTemplate().execute(hcb);        
+    }
+    
     public int findMessageCountByTopicId(final String topicId) {
         if (topicId == null) {
             LOG.error("findMessageCountByTopicId failed with topicId: " + topicId);
