@@ -163,6 +163,7 @@ function checkTimeSelect(){
 </h:panelGroup>
 
   <!-- *** ASSESSMENT INTRODUCTION *** -->
+<h:panelGroup>
   <samigo:hideDivision id="div1" title="#{msg.heading_assessment_introduction}" > <div class="indnt2">
     <h:panelGrid columns="2" columnClasses="shorttext" id="first"
       summary="#{summary_msg.enter_template_info_section}">
@@ -196,6 +197,7 @@ function checkTimeSelect(){
     </h:panelGrid>
 </div>
   </samigo:hideDivision>
+</h:panelGroup>
 
   <!-- *** DELIVERY DATES *** -->
   <samigo:hideDivision id="div2" title="#{msg.heading_assessment_delivery_dates}"> <div class="indnt2">
