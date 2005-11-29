@@ -56,14 +56,7 @@
 	    <index column="area_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl" />
 	</list>
-	
-    <!--
-    <set name="forums" lazy="true" sort="natural"
-        order-by="position asc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl"/>            
-    </set> 
-    -->
+
   </class>
 
   <query name="findPrivateAreaByCurrentUser">

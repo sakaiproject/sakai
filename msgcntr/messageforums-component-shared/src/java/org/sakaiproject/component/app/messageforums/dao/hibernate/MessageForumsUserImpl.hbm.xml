@@ -44,8 +44,6 @@
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl"
       not-null="false" index="MFR_PARENT_I4" cascade="none" />                
     <property name="mesindex" column="mes_index_col" type="int" update="true" insert="true"/>
-    
-    
 
   </class>
 

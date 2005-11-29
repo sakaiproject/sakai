@@ -36,23 +36,7 @@
 	    <index column="ap3_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl" />
 	</list>     
-	<!--          
-    <set name="contributors" lazy="true" sort="natural"
-         order-by="uuid asc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"/>            
-    </set>  
-    <set name="accessors" lazy="true" sort="natural"
-         order-by="uuid asc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"/>            
-    </set>  
-    <set name="moderators" lazy="true" sort="natural"
-         order-by="uuid asc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"/>            
-    </set>  
-	-->
+
   </class>
 
 </hibernate-mapping>

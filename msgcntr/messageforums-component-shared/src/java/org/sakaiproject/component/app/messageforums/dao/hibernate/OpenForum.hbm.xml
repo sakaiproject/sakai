@@ -54,18 +54,6 @@
 	    <index column="bf_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl" />
 	</list>     
-	<!-- 
-    <set name="attachments" lazy="true" sort="natural"
-         order-by="attachmentName asc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
-    </set>     
-    <set name="topics" lazy="true" sort="natural"
-         order-by="created desc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
-    </set>
-    --> 
     <property name="sortIndex">
       <column name="SORT_INDEX" length="10" not-null="true" />
     </property>
@@ -95,13 +83,6 @@
 	      <index column="df_index_col" />
 	      <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
 	  </list>     
-	  <!-- 
-      <set name="labels" lazy="true" sort="natural"
-           cascade="all-delete-orphan">
-          <key column="surrogateKey"/>                        
-          <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl"/>            
-      </set>
-      -->    
       <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"
         not-null="false" cascade="none" />

@@ -81,14 +81,7 @@
 	      <key column="mesSurrogateKey"/>
 	      <index column="mes_index_col" />
 	      <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl" />
-  	  </list>     
-	  <!-- 
-      <set name="recipients" lazy="true" sort="natural"
-           order-by="surname asc" cascade="all-delete-orphan">
-          <key column="surrogateKey"/>                        
-          <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"/>            
-      </set>
-      -->     
+  	  </list>         
       <property name="externalEmail">
         <column name="EXTERNAL_EMAIL" not-null="false" />
       </property>        

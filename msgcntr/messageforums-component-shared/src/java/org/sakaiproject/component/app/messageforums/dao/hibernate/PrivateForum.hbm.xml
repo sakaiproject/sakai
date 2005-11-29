@@ -47,19 +47,7 @@
 	    <key column="pf_surrogateKey"/>
 	    <index column="bf_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl" />
-	</list>  
-	<!-- 
-	<set name="attachments" lazy="true" sort="natural"
-         order-by="attachmentName asc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
-    </set>     
-    <set name="topics" lazy="true" sort="natural"
-         order-by="created desc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
-    </set> 
-    -->
+	</list> 
     <property name="sortIndex">
       <column name="SORT_INDEX" not-null="true" />
     </property>

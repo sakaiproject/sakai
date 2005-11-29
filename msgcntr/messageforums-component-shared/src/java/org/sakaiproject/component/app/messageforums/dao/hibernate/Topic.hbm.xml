@@ -51,18 +51,6 @@
 	    <index column="t_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl" />
 	</list>  
-	<!-- 	
-    <set name="attachments" lazy="true" sort="natural"
-         order-by="attachmentName asc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
-    </set>     
-    <set name="messages" lazy="true" sort="natural"
-        order-by="position asc" cascade="all-delete-orphan">
-        <key column="surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
-    </set>
-    --> 
     <property name="mutable">
       <column name="MUTABLE" not-null="true" />
     </property>
@@ -121,13 +109,6 @@
 	        <index column="dt_index_col" />
 	        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
 	    </list> 
-		<!-- 
-        <set name="labels" lazy="true" sort="natural"
-             cascade="all-delete-orphan">
-            <key column="surrogateKey"/>                        
-            <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl"/>            
-        </set>
-        -->
    	    <property name="moderated">
 	      <column name="MODERATED" not-null="false" />
 	    </property>        
