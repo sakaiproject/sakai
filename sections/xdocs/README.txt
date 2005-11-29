@@ -11,7 +11,11 @@ III. Authorization and Section Awareness rules
 I.  Building and deploying the application and its shared services
 
 	The section info tool can be built as either a standalone web application,
-	or as a tool to be embedded in a sakai portal.
+	or as a tool to be embedded in a sakai portal.  The tool depends on several
+	sakai artifacts, even when building standalone.  You must therefore build the
+	entire sakai project prior to building the Section Info tool either in
+	embedded or standalone mode.
+	
 
 	Sakai Embedded
 		Just run 'maven sakai', or build a default (as of Sakai 2.1) sakai
