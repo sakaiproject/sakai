@@ -89,4 +89,23 @@
 		</property>		
 	</bean>	
 
+	<bean id="org.sakaiproject.api.app.messageforums.AreaManager"
+		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="transactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.component.app.messageforums.AreaManagerImpl">
+				<property name="sessionFactory">
+					<ref bean="org.springframework.orm.hibernate.SessionFactory" />
+				</property>				 
+			</bean>
+		</property>
+		
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>		
+	</bean>
 </beans>

@@ -25,10 +25,13 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.util.Date;
 
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
@@ -38,6 +41,7 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
     
     private MessageForumsForumManager messageForumsForumManager; 
     private MessageForumsMessageManager messageForumsMessageManager;
+    private AreaManager messageForumsAreaManager;
  
     public MessageForumsManagerTest() {
         super();
@@ -52,6 +56,7 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
     private void init() {
         messageForumsForumManager = (MessageForumsForumManager) getApplicationContext().getBean(MessageForumsForumManager.class.getName());
         messageForumsMessageManager = (MessageForumsMessageManager) getApplicationContext().getBean(MessageForumsMessageManager.class.getName());
+        messageForumsAreaManager = (AreaManager) getApplicationContext().getBean(AreaManager.class.getName());
     }
 
     protected void setUp() throws Exception {
@@ -106,6 +111,42 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
         
         messageForumsForumManager.saveDiscussionForum(forum);
         messageForumsForumManager.deleteDiscussionForum(forum);
+        assertTrue(true);
+    }
+    
+    public void testSaveAndDeleteArea() {
+        DiscussionTopic topic = getDiscussionTopic();        
+        topic.setUuid("00322");
+        topic.setCreated(new Date());
+        topic.setCreatedBy("ed");
+        topic.setModified(new Date());
+        topic.setModifiedBy("jim");
+        
+        DiscussionForum forum = new DiscussionForumImpl();
+        forum.setUuid("00222");
+        forum.setCreated(new Date());
+        forum.setCreatedBy("ed");
+        forum.setModified(new Date());
+        forum.setModifiedBy("jim");        
+        forum.setTypeUuid("df-type");
+        forum.setTitle("A test discussion forum");
+        forum.setShortDescription("short desc");
+        forum.setExtendedDescription("long desc");
+        forum.setSortIndex(new Integer(1));
+        forum.setLocked(Boolean.FALSE);
+        forum.addAttachment(getAttachment());
+        forum.addTopic(topic);
+
+        Area area = new AreaImpl();   
+        area.setContextId("area-context-id");
+        area.setEnabled(Boolean.TRUE);
+        area.setHidden(Boolean.FALSE);
+        area.setName("a test area");
+        area.setTypeUuid("discussion area type");
+        area.addDiscussionForum(forum);
+                
+        messageForumsAreaManager.saveArea(area);
+        messageForumsAreaManager.deleteArea(area);
         assertTrue(true);
     }
     

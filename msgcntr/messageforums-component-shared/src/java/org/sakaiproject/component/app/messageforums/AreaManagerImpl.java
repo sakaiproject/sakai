@@ -1,6 +1,7 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
+import java.util.Date;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
@@ -72,6 +73,17 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager
   }
 
   public void saveArea(Area area) {
+      // a new area
+      if (area.getUuid() == null) {
+          area.setUuid(getNextUuid());
+          area.setCreated(new Date());
+          area.setCreatedBy(getCurrentUser());
+      } 
+      
+      // always need to update the last modified stuff
+      area.setModified(new Date());
+      area.setModifiedBy(getCurrentUser());
+      
       getHibernateTemplate().saveOrUpdate(area);
       LOG.debug("saveArea executed with areaId: " + area.getId());                
   }
@@ -125,10 +137,14 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager
   
   // helpers
   
-  private String getCurrentUser() 
-  {
-    // TODO: add the session manager back
-    return "joe"; //SessionManager.getCurrentSession().getUserEid();
+  private String getCurrentUser() {
+      // TODO: add the session manager back
+      return "joe"; //SessionManager.getCurrentSession().getUserEid();
+  }
+  
+  private String getNextUuid() {
+      // TODO: get this from deep in sakai somewhere
+      return "001";
   }
      
 }
