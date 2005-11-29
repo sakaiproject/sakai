@@ -2,344 +2,489 @@
 <html><head>
 <link type="text/css" href="/library/skin/tool_base.css" rel="stylesheet" />
 <link type="text/css" href="/library/skin/default/tool.css" rel="stylesheet" />
-</head><body>
-
-<h2>Accessibility information</h2>
-
-<p>This page is provided for persons using assistive technology, such
-as the JAWS and Window-Eyes screen readers.</p>
-
-<p><strong>Note:</strong> Suggested screen reader settings for JAWS
-and Window-Eyes follow each description.</p>
-
-<p><strong>Note:</strong> The <code>&#160;-&#160;</code> (hyphen) used
-in the instructions below signifies to press the keys
-simultaneously.</p>
-
-<hr>
-
-<a name="config"></a>
-
-<h3>How to configure JAWS and Window-Eyes settings</h3>
-
-<p>You can execute most of the recommended settings in Internet
-Explorer through the <code>Insert-v</code> command, followed by
-the relevant letter for MSAA commands (such as
-<code>&#160;h&#160;</code> for headings) and then using the up arrow
-or down arrow. </p>
-
-<p>To access HTML settings within JAWS itself (for example,
-to have JAWS ignore layout tables), follow the steps below:</p>
-<ol id="id44969331">
-<li>Go to <strong><code>Utilities</code></strong> by pressing <code>Alt-u&#160;</code>.
-<br><br>
-</li>
-<li>Select <strong><code>JAWS Configuration Manager</code></strong> by pressing
-<code>&#160;c&#160;</code>.  <br><br>
-</li>
-<li>Select <strong><code>Set Options</code></strong>
-by pressing <code>Alt-s&#160;</code>.  <br><br>
-</li>
-<li>Choose <strong><code>HTML
-Options</code></strong> by pressing <code>&#160;h&#160;</code>.
-<br><br>
-</li>
-<li>Press <code>Ctrl-Tab</code> to move between pages.</li>
-</ol>
-
-<p>To access HTML settings within Window-Eyes, follow the steps below: </p>
-<ol id="id44857497">
-<li>Choose <strong><code>Control panel</code></strong> by pressing
-<code>Ctrl-\&#160;</code>.  <br><br>
-</li>
-<li>Select the <strong><code>Global
-Menu</code></strong> by pressing <code>Alt-l&#160;</code>.  <br><br>
-</li>
-<li>Choose
-the <strong><code>Verbosity Menu</code></strong> by pressing <code>&#160;v&#160;</code>.
-<br><br>
-</li>
-<li>Select <strong><code>MSAA</code></strong> by pressing
-<code>&#160;m&#160;</code>.</li>
-</ol>
-
-<a name="headings"></a>
-
-<h3>Headings</h3>
-
-<p>Use headings to navigate through Sakai. Links to
-worksites, tools, and content appear as headings to facilitate
-navigation. Content within tools is also structured
-hierarchically.</p>
-
-<p>To set JAWS and Window-Eyes to "Headings with Level": follow the steps below:</p>
-<ol id="id44976713">
-<li>While in Internet Explorer, press <code>Insert-v</code> to
-go to the <strong><code>MSAA</code></strong> menu.
-<br><br>
-</li>
-<li>Press <code>&#160;h&#160;</code> for <strong><code>Headings</code></strong>.</li>
-</ol>
-
-<p><strong>Note:</strong>  This feature is enabled by default in Window-Eyes.</p>
-
-<a name="frames"></a>
-
-<h3>Frames</h3>
-
-<p>Sakai uses I-Frames to display content. Frames are labeled with
-descriptive titles to improve context.</p>
-
-<p>To set JAWS and Window-Eyes to "Say Frame Name at Beginning and
-End": follow the steps below: </p> <ol id="id45070405">
-<li>While in Internet Explorer,
-press <code>Insert-v</code> to go to the <strong><code>MSAA</code></strong> menu.
-<br><br>
-</li>
-<li>Type <code>&#160;f&#160;f&#160;</code>.</li>
-</ol>
-<p>Window-Eyes automatically indicates frame names if they exist at
-the start of new frames.</p>
-
-<a name="keys"></a>
-
-<h3>Accesskeys</h3>
-
-<p>Accesskeys are mnemonic wherever possible. They are announced in
-the title tag for each link:</p>
-
-<ul>
-<li>Home page = <code>Alt-0&#160;</code><br><br>
-</li>
-<li>Accessibility information page = <code>Alt-a</code><br><br>
-</li>
-<li>Help page = <code>Alt-h</code><br><br>
-</li>
-<li>Worksites = <code>Alt-w</code><br><br>
-</li>
-<li>Content = <code>Alt-c</code><br><br>
-</li>
-<li>Tools list = <code>Alt-l</code><br><br>
-</li>
-<li>Tools have numeric alt tags, assigned by Sakai according to
-sequence = First tool is <code>Alt-1&#160;</code>, second tool is
-<code>Alt-2&#160;</code>, etc.
-</li>
-</ul>
-
-<p>When using a Macintosh, use <code>Ctrl-Accesskey&#160;</code>.</p>
-
-<a name="refresh"></a>
-
-<h3>Screen refresh</h3>
-
-<p>Users control page refreshes in Sakai 2.0 by default. To refresh
-page content, press <code>F5</code>. 
+<title>Accessibility Information for Sakai 2.1</title>
+</head>
+<body>
+<div class="Section1">
+  <h2>Accessibility information</h2>
+  <p>This page is provided
+    for persons using assistive
+    technology and includes
+    the following topics:</p>
+  <ul>
+    <li><a href="#issues">Known Accessibility Issues in Sakai 2.1</a></li>
+    <li><a href="#tips">Tips and Tricks for      Navigating Sakai</a> </li>
+    <li><a href="#configure">How to configure JAWS and Window-Eyes settings</a></li>
+    <li><a href="#headings" title=" Navigate using headings">Headings</a></li>
+    <li><a href="#frames" title="Navigate using frames">Frames</a></li>
+    <li><a href="#keys" title="Accesskeys list">Accesskeys</a></li>
+    <li><a href="#refresh" title="Screen refresh is manual">Screen Refresh</a></li>
+    <li><a href="#title" title="Add context by reading titles">Title Tags</a></li>
+    <li><a href="#form" title="Form tags are compliant">Form Tags</a></li>
+    <li><a href="#table" title="Table cells and headings">Table Tags</a></li>
+    <li><a href="#SettingsSummary">Recommended JAWS and Window-Eyes Settings</a></li>
+    <li><a href="#compliance" title="Sakai 2.1 compliance with Section 508 and WCAG Priorities One and Two">Sakai 2.1 Compliance</a></li>
+    <li><a href="#AT" title="Adaptive technology tested with Sakai 2.1">Compatible Adaptive Technology</a></li>
+  </ul>
+  <p><strong>Note:</strong> Suggested
+    screen reader settings
+    for JAWS and Window-Eyes
+    follow each description.</p>
+  <p><strong>Note:</strong> The &nbsp;- (hyphen)
+    used in the instructions
+    below signifies to press
+    the keys simultaneously.</p>
+  <div align="center" style='text-align:center'>
+    <hr size="2" width="100%" align="center" />
+  </div>
+  <h3><a name="issues" id="issues"></a>Known
+    Accessibility Issues in
+    Sakai 2.1</h3>
+  <p>Sakai 2.1 contains
+      a number of accessibility
+      issues yet to be resolved:</p>
+  <ul>
+    <li>JavaScript must
+          be enabled for Sakai
+        to function.</li>
+    <li>Items in dropdown
+      menus in gradebook,
+      profile, preferences,
+      syllabus, samigo, presentation,
+      roster, wiki, and section
+      load when pressing the
+      up or down keys. Press <code>Alt
+      - Up and down arrows</code> to
+      scroll though menu instead.</li>
+    <li>Tool headings are
+      often redundant due
+      to separate page title
+      and content frames.</li>
+  </ul>
+  <p>Please
+      notify the Sakai Accessibility
+      Team Lead (<a href="mailto:melledge@umich.edu">melledge@umich.edu</a>)
+      if you find other problems,
+      using the heading &quot;Sakai
+      2.1 Accessibility Issues.&quot;
 </p>
-
-<p>To set JAWS to turn off page refresh, follow the steps below:</p><ol id="id45065662">
-<li>While in Internet Explorer, press <code>Insert-v</code> to go to the <strong><code>MSAA</code></strong> menu.
-<br><br>
-</li>
-<li>Press <code>&#160;f&#160;f&#160;</code>.
-<br><br>
-</li>
-<li>Type <code>&#160;r&#160;r&#160;</code>.</li>
-</ol>
-<p>To set Window-Eyes, press <code>Alt-Shift-m</code> until you hear
-"suspend all".</p>
-
-<a name="title"></a>
-
-<h3>Title tags</h3>
-
-<p>Title tags help comprehension of action buttons and links by
-providing additional information.</p>
-
-<p>To set JAWS to "Use Title": follow the steps below:</p>
-<ol id="id45064327">
-<li>While in JAWS, go to <strong><code>Utilities</code></strong> by pressing
-<code>Alt-u&#160;</code>.  <br><br>
-</li>
-<li>Go to <strong><code>Configuration Manager</code></strong> by pressing
-<code>&#160;c&#160;</code>.  <br><br>
-</li>
-<li>Select <strong><code>Set Options</code></strong> by pressing <code>Alt-s&#160;</code>.
-<br><br>
-</li>
-<li>Choose <strong><code>HTML Settings</code></strong> by pressing
-<code>&#160;h&#160;</code>.  <br><br>
-</li>
-<li>Select <strong><code>Graphics Verbosity</code></strong> by pressing
-<code>Ctrl-Tab&#160;Ctrl-Tab</code>.  <br><br>
-</li>
-<li>Press <code>Tab</code> once, and then press the up arrow until you
-hear "Use title".
-
-<br><br>
-</li>
-<li>Press <code>Enter</code>.</li>
-</ol>
-
-<p>In Window-Eyes, title tags are
-automatically indicated.</p>
-
-<a name="form"></a>
-
-<h3>Form tags</h3>
-
-<p>Forms contain common accessibility elements, including fieldset,
-legend, label for, and id tags.</p>
-
-<a name="table"></a>
-
-<h3>Table tags</h3>
-
-<p>To set JAWS to ignore layout tables, follow the instructions below:</p>
-<ol id="id45071187">
-<li>While in JAWS, go to <strong><code>Utilities</code></strong> by pressing <code>Alt-u&#160;</code>.  
-<br><br>
-</li>
-<li>Select <strong><code>Configuration Manager</code></strong> by pressing <code>&#160;c&#160;</code>.  
-<br><br>
-</li>
-<li>Choose <strong><code>Set Options</code></strong> by pressing <code>Alt-s&#160;</code>.  
-<br><br>
-</li>
-<li>Select <strong><code>HTML Settings</code></strong> by pressing
-<code>&#160;h&#160;</code>.
-
-<br><br>
-</li>
-<li>Select <strong><code>Lists and tables</code></strong> by pressing
-<code>Ctrl-Tab&#160;Ctrl-Tab&#160;Ctrl-Tab</code>.  
-<br><br>
-</li>
-<li>Choose <strong><code>Data tables</code></strong> by pressing <code>Alt-y&#160;</code>. 
-<br><br>
-</li>
-<li>Press the Spacebar to check this option if not
-already checked. By default, it is checked already. </li>
-</ol>
-<p>To ignore layout tables in Window-Eyes, follow the steps below:</p>
-<ol id="id45064893">
-<li>Go to the <strong><code>MSAA Verbosity Settings</code></strong> by pressing <code>Insert-v&#160;</code>.
-<br><br>
-</li>
-<li>Select <strong><code>Tables</code></strong> by pressing <code>&#160;t&#160;</code>.
-<br><br>
-</li>
-<li>Press <code>Tab</code> once to go to the radio button.
-<br><br>
-</li>
-<li>Use the up arrow or down arrow until "insert beginning/end message" is selected.  </li>
-</ol>
-<p>Note that this is enabled
-by default.</p>
-
-
-<a name="table2"></a>
-
-<h3>Recommended JAWS and Window-Eyes settings</h3>
-
-<table class="kbtable" cellpadding="4">
-<col>
-<col>
-<col>
-<tr valign="top">
-<th align="left" class="kbtd" id="id45065130">Item </th>
-<th align="left" class="kbtd" id="id45065133">Suggested setting </th>
-<th align="left" class="kbtd" id="id45065136">Shortcut keys in<br>Internet
-Explorer
-</th>
-</tr>
-<tr valign="top">
-<td align="left" class="kbtd" id="id45065421">Headings </td>
-<td align="left" class="kbtd" id="id45065424">Headings with level </td>
-<td align="left" class="kbtd" id="id45065427">Press <code>Insert-v</code> and then press 
-<code>&#160;h&#160;</code>.
-</td>
-</tr>
-<tr valign="top">
-<td align="left" class="kbtd" id="id45065443">Titles </td>
-<td align="left" class="kbtd" id="id45065445">Read title tag </td>
-<td align="left" class="kbtd" id="id45065448">Press <code>Insert-v</code> and then press 
-<code>&#160;l&#160;l&#160;l&#160;</code>.
-</td>
-</tr>
-<tr valign="top">
-<td align="left" class="kbtd" id="id45065462">Frames </td>
-<td align="left" class="kbtd" id="id45065465">Say "frame" at beginning and end </td>
-<td align="left" class="kbtd" id="id45065456">Press <code>Insert-v</code> and press 
-then <code>&#160;f&#160;f&#160;</code>.
-</td>
-</tr>
-<tr valign="top">
-<td align="left" class="kbtd" id="id45065482">Tables (JAWS) </td>
-<td align="left" class="kbtd" id="id45065484">Recognize data tables only </td>
-<td align="left" class="kbtd" id="id45065488"> 
-Press <code>Alt-u&#160;</code> for <strong><code>Utilities</code></strong>,
-then press <code>&#160;c&#160;</code> for <strong><code>Configuration
-Manager</code></strong>. Select <code>Alt-s&#160;</code> for <strong><code>Set
-Options</code></strong>, and then press <code>&#160;h&#160;</code> for <strong><code>HTML
-Options</code></strong>. Press <code>Ctrl-Tab</code> to go to <strong><code>Lists and
-Tables</code></strong>. Then, press <code>Alt-y</code> for <strong><code>Detect Table
-Type</code></strong>.
-</td>
-</tr>
-<tr valign="top">
-<td align="left" class="kbtd" id="id45065747">Tables (Window-Eyes) </td>
-<td align="left" class="kbtd" id="id45065749">Recognize data tables only </td>
-<td align="left" class="kbtd" id="id45065752">Press
-<code>Insert-v</code> to to go to <strong><code>Verbosity
-Settings</code></strong>. Press <code>&#160;t&#160;</code>. Press <code>Tab</code> to
-go to the radio button. Use the up arrow or down arrow until "insert beginning/end
-message" is selected.  Note that this is enabled by default.
-</td>
-</tr>
-<tr valign="top">
-<td align="left" class="kbtd" id="id45065773">Refresh </td>
-<td align="left" class="kbtd" id="id45065776">Suppress refreshes </td>
-<td align="left" class="kbtd" id="id45065779">Press
-<code>Insert-v</code>. Press <code>&#160;r&#160;r&#160;</code>.
-</td>
-</tr>
-</table>
-
-<a name="compliance"></a>
-
-<h3>Sakai 2.0 compliance</h3>
-
-<p>Cascading style sheets using relative sizing control Sakai 2.0 presentation. 
-Most tools follow W3C accessibility guidelines
-for headings, forms, tables, links, and images, but do not yet include
-non-script alternatives to Javascript, user messages for pop-ups or
-completed actions, or keyboard alternatives for mouse-based
-actions. Tools following most guidelines include:</p>
-
-<ul>
-<li>Announcements</li>
-<li>Assignments</li>
-<li>Chat Room</li>
-<li>Discussion</li>
-<li>Email Archive</li>
-<li>Gateway</li>
-<li>Home</li>
-<li>My Workspace--Membership</li>
-<li>My Workspace--Preferences</li>
-<li>Page Wrapper</li>
-<li>Permissions</li>
-<li>Sakai News</li>
-<li>Schedule</li>
-<li>Site Info</li>
-<li>Web Content</li>
-<li>Worksite Setup
-</li>
-</ul>
-
-<p>The following tools have not been revised to include accessibility
-elements: Administrative Tools (including Users, Aliases, Sites,
-Realms, M, On-Line, Memory, Site Archive), Drop Box, and Resources.</p>
-
+  <p>Also, please note that
+    it is highly recommended
+    that JAWS version 6.1
+    and Window-Eyes version
+    xx or later be used with
+    Sakai, since performance
+    will be significantly
+    better. <a href="http://www.freedomscientific.com/fs_downloads/jaws.asp" title="JAWS download page at Freedom-Scientific">Download new version of JAWS</a>. <a href="http://www.gwmicro.com/upgrade/" title="Window-Eyes upgrade page at GW-Micro">Check for Window-Eyes upgrades</a>.</p>
+  <h3><a name="tips" id="tips"></a>Tips and Tricks for
+    Navigating Sakai</h3>
+  <p>Here are some tips for
+    navigating Sakai:</p>
+  <ul>
+    <li>To scroll in dropdown
+      menus, press <code>Alt-up
+      or down arrows</code>.</li>
+    <li>After selecting
+      a tool, move focus to
+      tool content with <code>Alt-c</code> .</li>
+    <li>If you get lost, press <code>Alt-c</code>
+      to return focus to the
+      top of the tool.</li>
+    <li>Go to the bottom buttons,
+      like &ldquo;cancel,&rdquo;      on
+      a page, with <code>Page
+      Down</code>.</li>
+    <li>Use headings
+        (with the letter
+      <code>h</code>) to navigate
+      through Sakai. The worksite
+      and tool sections,
+      as well as page content,
+      are marked with headings.</li>
+    <li>To see
+      the all the headings
+      for a page, press <code>Insert-F6</code>
+      for a list, then scroll
+      up and down using arrows.</li>
+    <li>Press <code>Insert-down arrow</code> to repeat
+      the text.</li>
+    <li>If links to tools,
+      content or worksites
+      do not work, press <code>Insert-F6</code>
+      to pull up the headings
+      list, and navigate using
+      headings.</li>
+  </ul>
+  <h3><a name="configure" id="configure"></a>How to
+      configure JAWS and Window-Eyes
+      settings</h3>
+  <p>You can execute most
+    of the recommended settings
+    in Internet Explorer through
+    the <code>Insert-v</code> command,
+    followed by the relevant
+    letter for MSAA commands
+    (such as <code> h </code>for headings)
+    and then using the up
+    arrow or down arrow. </p>
+  <p>To access HTML settings
+    within JAWS itself (for
+    example, to change default
+    settings for JAWS), follow
+    the steps below:</p>
+  <ol start="1" type="1">
+    <li>Go to <code><b>Utilities</b></code> by
+      pressing <code>Alt-u&nbsp;</code>. </li>
+    <li>Select <code><b>JAWS Configuration Manager</b></code> by pressing <code>&nbsp;c</code><code>&nbsp;</code>. </li>
+    <li>Select <code><b>Set
+            Options</b></code> by
+            pressing <code>s&nbsp;</code>. </li>
+    <li>Choose <code><b>HTML
+            Options</b></code> by pressing <code>&nbsp;h</code><code>&nbsp;</code>. </li>
+    <li>Press <b><code>Ctrl-Tab</code></b> to
+      move between pages.</li>
+  </ol>
+  <p>To access HTML settings
+    within Window-Eyes, follow
+    the steps below: </p>
+  <ol start="1" type="1">
+    <li>Choose <code><b>Control
+            panel</b></code> by
+            pressing <code>Ctrl-\&nbsp;</code>. </li>
+    <li>Select the <code><b>Global
+            Menu</b></code> by
+            pressing <code>Alt-l&nbsp;</code>. </li>
+    <li>Choose the <code><b>Verbosity
+            Menu</b></code> by pressing <code>&nbsp;v</code><code>&nbsp;</code>. </li>
+    <li>Select <code><b>MSAA</b></code> by pressing <code>&nbsp;m</code><code>&nbsp;</code>.</li>
+  </ol>
+  <h3><a name="headings" id="headings"></a>Headings</h3>
+  <p>Use headings to navigate
+    through Sakai. Links to
+    worksites, tools, and
+    content appear as headings
+    to facilitate navigation.
+    Content within tools is
+    also structured hierarchically
+    using h1, h2, h3, etc.
+    tags.</p>
+  <p>To set JAWS and Window-Eyes
+    to read &quot;Headings
+    with Level&quot;, follow
+    the steps below:</p>
+  <ol start="1" type="1">
+    <li>While in Internet
+      Explorer, press <code>Insert-v</code> to
+      go to the <code><b>MSAA</b></code> menu. </li>
+    <li>Press <code>&nbsp;h</code><code>&nbsp;</code> for <code><b>Headings,</b></code> then <code>&nbsp;e&nbsp;</code>
+          to execute.</li>
+  </ol>
+  <p><strong>Note:</strong> This
+    feature is enabled by
+    default in Window-Eyes.</p>
+  <h3><a name="frames" id="frames"></a>Frames</h3>
+  <p>Because frame titles
+    are frequently repeated,
+     it is recommended that
+    you do <strong>not</strong> have
+    them announced by screen
+    readers unnecessarily.
+    The default setting for
+    JAWS is not to say frame
+    names.</p>
+  <p>If you wish to set JAWS
+    to &quot;Say Frame Name
+    at Beginning and End&quot; anyway,
+    follow the steps below: </p>
+  <ol start="1" type="1">
+    <li>While in Internet
+      Explorer, press <code>Insert-v</code> to
+      go to the <code><b>MSAA</b></code> menu. </li>
+    <li>Type <code>&nbsp;f</code><code>&nbsp;f&nbsp;</code>then <code>&nbsp;e&nbsp;</code>
+          to execute..</li>
+  </ol>
+  <p>Window-Eyes automatically
+    indicates frame names
+    if they exist at the start
+    of new frames. To turn
+    them off, follow the steps
+    below:</p>
+  <ol>
+    <li>While in Internet
+      Explorer, press <code>Insert-v</code> to
+    go to the <code><b>MSAA</b></code> menu.</li>
+    <li>xxx </li>
+  </ol>
+  <h3><a name="keys" id="keys"></a>Accesskeys</h3>
+  <p>Accesskeys are
+    mnemonic wherever possible.
+    They are announced in
+    the title tag for each
+    link:</p>
+  <ul type="disc">
+    <li>Home page = <code>Alt-0&nbsp;</code></li>
+    <li>Accessibility information
+      page = <code>Alt-a</code>. This must
+      be set in permissions
+      by your institution. It is also
+      available in the Help
+      tool under &quot;Accessibility&quot;.</li>
+    <li>Help page = <code>Alt-h</code></li>
+    <li>Worksites = <code>Alt-w</code></li>
+    <li>Content = <code>Alt-c</code></li>
+    <li>Tools list = <code>Alt-l</code></li>
+    <li>Tools have numeric
+      alt tags, assigned by
+      Sakai according to sequence
+      = First tool is <code>Alt-1&nbsp;,</code> second
+      tool is <code>Alt-2&nbsp;</code>,
+      etc. </li>
+  </ul>
+  <p>When using a Macintosh,
+    use <code>Ctrl-Accesskey&nbsp;.</code></p>
+  <h3><a name="refresh" id="refresh"></a>Screen
+    refresh</h3>
+  <p>Users control page refreshes
+    in Sakai 2.1.
+    To refresh page content,
+    press <code>F5</code>. </p>
+  <p>To set JAWS to turn off
+    page refresh, follow the
+    steps below:</p>
+  <ol start="1" type="1">
+    <li>While in Internet
+      Explorer, press <code>Insert-v</code> to
+      go to the <code><b>MSAA</b></code> menu. </li>
+    <li>Type <code>&nbsp;r</code><code>&nbsp;r&nbsp;</code>then <code>&nbsp;e&nbsp;</code>
+          to execute..</li>
+  </ol>
+  <p>To set Window-Eyes, press <code>Alt-Shift-m</code> until
+    you hear &quot;suspend
+    all&quot;.</p>
+  <h3><a name="title" id="title"></a>Title
+    tags</h3>
+  <p>Title tags help comprehension
+    of action buttons and
+    links by providing additional
+    information.</p>
+  <p>To set JAWS to &quot;Use
+    Title&quot;, follow the
+    steps below:</p>
+  <ol start="1" type="1">
+    <li>While in JAWS, go
+      to <code><b>Utilities</b></code> by
+      pressing <code>Alt-u&nbsp;.</code> </li>
+    <li>Go to <code><b>Configuration
+            Manager</b></code> by pressing <code>&nbsp;c</code><code>&nbsp;</code>. </li>
+    <li>Select <code><b>Set
+            Options</b></code> by
+            pressing <code>Alt-s&nbsp;.</code> </li>
+    <li>Choose <code><b>HTML
+            Settings</b></code> by pressing <code>&nbsp;h</code><code>&nbsp;</code>. </li>
+    <li>Select <code><b>Graphics
+            Verbosity</b></code> by
+            pressing <code>Ctrl-Tab&nbsp;Ctrl-Tab</code>. </li>
+    <li>Press <code>Tab</code> once,
+      and then press the up
+      arrow until you hear &quot;Use
+      title&quot;. </li>
+    <li>Press <code>Enter</code>.</li>
+  </ol>
+  <p>In Window-Eyes, title
+    tags are automatically
+    spoken.</p>
+  <h3><a name="form" id="form"></a>Form
+    tags</h3>
+  <p>Forms contain common
+    accessibility elements,
+    including fieldset,
+    legend, label for, and
+    id tags.</p>
+  <h3><a name="table" id="table"></a>Table
+    tags</h3>
+  <p>To set JAWS to ignore
+    layout tables, follow
+    the instructions below:</p>
+  <ol start="1" type="1">
+    <li>While in JAWS, go
+      to <code><b>Utilities</b></code> by
+      pressing <code>Alt-u&nbsp;.</code> </li>
+    <li>Select <code><b>Configuration
+            Manager</b></code> by pressing <code>&nbsp;c</code><code>&nbsp;</code>. </li>
+    <li>Choose <code><b>Set
+            Options</b></code> by
+            pressing <code>Alt-s&nbsp;.</code> </li>
+    <li>Select <code><b>HTML
+            Settings</b></code> by pressing <code>&nbsp;h</code><code>&nbsp;</code>. </li>
+    <li>Select <code><b>Lists
+            and tables</b></code> by
+            pressing <code>Ctrl-Tab&nbsp;Ctrl-Tab&nbsp;Ctrl-Tab</code>. </li>
+    <li>Choose <code><b>Data
+            tables</b></code> by
+            pressing <code>Alt-y&nbsp;.</code> </li>
+    <li>Press the Spacebar
+      to check this option
+      if not already checked.
+      By default, it is checked
+      already. </li>
+  </ol>
+  <p>To ignore layout tables
+    in Window-Eyes, follow
+    the steps below:</p>
+  <ol start="1" type="1">
+    <li>Go to the <code><b>MSAA
+            Verbosity Settings</b></code> by
+            pressing <code>Insert-v&nbsp;.</code> </li>
+    <li>Select <code><b>Tables</b></code> by pressing <code>&nbsp;t</code><code>&nbsp;</code>. </li>
+    <li>Press <code>Tab</code> once
+      to go to the radio button. </li>
+    <li>Use the up arrow or
+      down arrow until &quot;insert
+      beginning/end message&quot; is
+      selected. </li>
+  </ol>
+  <p>Note that this is enabled
+    by default.</p>
+  <h3><a name="SettingsSummary" id="SettingsSummary"></a>Recommended
+    JAWS and Window-Eyes settings</h3>
+  <table border="1" cellpadding="0" summary="The first column of this table contains page elements, the second column provides suggested screen reader settings, and the third column contains short cut keys in Internet Explorer to create settings.">
+   <caption>
+   JAWS and Window-Eyes Settings by
+   Element
+   </caption>
+	<tr>
+      <td valign="top" scope="col" class="Normal"><p><b>Element</b></p></td>
+      <td valign="top" scope="col" class="Normal"><p><b>Suggested
+screen reader           setting </b></p></td>
+      <td valign="top" class="Normal" scope="col"><p><b>Shortcut keys in Internet Explorer </b></p></td>
+    </tr>
+    <tr>
+      <td valign="top" class="Normal"><p>Headings </p></td>
+      <td valign="top" class="Normal"><p>Headings
+          with level </p></td>
+      <td valign="top" class="Normal"><p>Press <code>&nbsp;Insert-v,</code> press <code>&nbsp;h </code>then <code>&nbsp;e&nbsp;</code>
+          to execute. </p></td>
+    </tr>
+    <tr>
+      <td valign="top" class="Normal"><p>Titles </p></td>
+      <td valign="top" class="Normal"><p>Read
+          title tag </p></td>
+      <td valign="top" class="Normal"><p>Press <code>&nbsp;Insert-v</code>, press <code>&nbsp;l</code><code>&nbsp;l&nbsp;l&nbsp;</code>, then <code>&nbsp;e&nbsp;</code>
+          to execute.</p></td>
+    </tr>
+    <tr>
+      <td valign="top" class="Normal"><p>Frames </p></td>
+      <td valign="top" class="Normal"><p>Announcement
+          off </p></td>
+      <td valign="top" class="Normal"><p>Default
+          Press <code>&nbsp;Insert-v,&nbsp;</code>press<code>&nbsp;f </code>then <code>&nbsp;e&nbsp;</code>
+          to execute. </p></td>
+    </tr>
+    <tr>
+      <td valign="top" class="Normal"><p>Tables
+          (JAWS) </p></td>
+      <td valign="top" class="Normal"><p>Recognize
+          data tables only </p></td>
+      <td valign="top" class="Normal"><p>Press <code>&nbsp;Alt-u&nbsp; for</code> <code><b>Utilities</b></code>,
+          then press <code>&nbsp;c&nbsp;</code> for <code><b>Configuration
+          Manager</b></code>.
+          Select <code>&nbsp;Alt-s&nbsp; for</code> <code><b>Set
+          Options</b></code>,
+          and then press <code>&nbsp;h&nbsp;</code> for <code><b>HTML
+          Options</b></code>.
+          Press <code>Ctrl-Tab</code> to
+          go to <code><b>Lists
+          and Tables</b></code>.
+          Then, press <code>&nbsp;Alt-y&nbsp;</code> for <code><b>Detect
+          Table Type</b></code>.</p></td>
+    </tr>
+    <tr>
+      <td valign="top" class="Normal"><p>Tables
+          (Window-Eyes) </p></td>
+      <td valign="top" class="Normal"><p>Recognize
+          data tables only </p></td>
+      <td valign="top" class="Normal"><p>Press <code>&nbsp;Insert-v&nbsp;</code> to to go
+          to <code><b>Verbosity
+          Settings</b></code>. Press <code>&nbsp;t</code>.
+          Press <code>Tab</code> to
+          go to the radio
+          button. Use the
+          up arrow or down
+          arrow until &quot;insert
+          beginning/end message&quot; is
+          selected. Note that
+          this is enabled
+          by default. </p></td>
+    </tr>
+    <tr>
+      <td valign="top" class="Normal"><p>Refresh </p></td>
+      <td valign="top" class="Normal"><p>Suppress
+          refreshes </p></td>
+      <td valign="top" class="Normal"><p>Press <code>&nbsp;Insert-v</code>. Press <code>&nbsp;r</code><code>&nbsp;r&nbsp;</code> then <code>&nbsp;e&nbsp;</code>
+          to execute. </p></td>
+    </tr>
+  </table>
+  <h3><a name="compliance" id="compliance"></a>Sakai
+    2.1 compliance</h3>
+  <p>Our objective has been
+    to make Sakai 2.1 compliant
+    with Section 508 and WCAG
+    1.0 Priorities One and
+    Two, as well as usable
+    for persons using adaptive
+    technology. We're not
+    there yet, but making
+    progress.  Most tools
+    follow W3C accessibility
+    guidelines for headings,
+    forms, tables, links,
+    and images, but do not
+    include non-script alternatives
+    to Javascript, or user
+    messages for pop-ups or
+    completed actions. Tools
+    following most guidelines
+    include:</p>
+  <ul type="disc">
+    <li>Announcements</li>
+    <li>Chat Room</li>
+    <li>Discussion</li>
+    <li>Email Archive</li>
+    <li>Gateway</li>
+    <li>Home</li>
+    <li>My Workspace--Membership</li>
+    <li>My Workspace--Preferences</li>
+    <li>Page Wrapper</li>
+    <li>Permissions</li>
+    <li>Sakai News</li>
+    <li>Schedule</li>
+    <li>Site Info</li>
+    <li>Web Content</li>
+    <li>Worksite Setup </li>
+  </ul>
+  <p>JSF (Java Server Faces)
+    tools have not been revised
+    to include all accessibility
+    elements, and include
+    the following: Administrative
+    Tools (including Users,
+    Aliases, Sites, Realms,
+    M, On-Line, Memory, Site
+    Archive), Gradebook,
+      Profile, Preferences,
+      Syllabus, Samigo, Presentation,
+      Roster, Wiki, Section,
+    Drop Box, Sections, Assignments
+    and Resources.</p>
+  <p><b><a name="AT" id="AT"></a>Compatible
+        Adaptive Technology</b></p>
+  <p>Sakai 2.1 has been tested
+    with JAWS version 6.1
+    and Window-Eyes version
+    x.x. Compliance has been
+    evaluated using A-Prompt,
+    WebXACT and W3C Validator,
+    but is not guaranteed.</p>
+</div>
 </body>
 </html>
