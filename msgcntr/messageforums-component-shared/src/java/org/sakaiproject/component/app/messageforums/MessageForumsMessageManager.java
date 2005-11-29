@@ -28,6 +28,8 @@ import org.sakaiproject.api.app.messageforums.UnreadStatus;
 
 public interface MessageForumsMessageManager {
 
+    public Message createMessage();
+
     public void saveMessage(Message message);
 
     public void deleteMessage(Message message);

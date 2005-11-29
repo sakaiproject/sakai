@@ -47,14 +47,29 @@ public interface MessageForumsForumManager {
     public List getOpenForums();
 
     /**
+     * Create and save an empty discussion forum
+     */
+    public DiscussionForum createDiscussionForum();
+
+    /**
      * Save a discussion forum
      */
     public void saveDiscussionForum(DiscussionForum forum);
 
     /**
+     * Create and save an empty discussion forum topic
+     */
+    public DiscussionTopic createDiscussionForumTopic();
+
+    /**
      * Save a discussion forum topic
      */
     public void saveDiscussionForumTopic(DiscussionTopic topic);
+
+    /**
+     * Create and save an empty open discussion forum topic
+     */
+    public OpenTopic createOpenForumTopic();
 
     /**
      * Save an open forum topic

@@ -37,6 +37,11 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
+import org.sakaiproject.api.kernel.id.IdManager;
+import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -45,22 +50,35 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
 
     private static final String QUERY_BY_DISCUSSION_FORUM_ID = "findDiscussionForumById";
+
     private static final String ID = "ID";
-    
+
+    private IdManager idManager;
+
+    private SessionManager sessionManager;
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
     public MessageForumsForumManagerImpl() {}
+
+    public void setIdManager(IdManager idManager) {
+        this.idManager = idManager;
+    }
 
     /**
      * Retrieve the current user's discussion forums
      */
     public List getDiscussionForums() {
         // TODO: Implement Me!
-       throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     /**
      * Retrieve a given discussion forum for the current user
      */
-    public DiscussionForum getDiscussionForumById(final String forumId) {        
+    public DiscussionForum getDiscussionForumById(final String forumId) {
         if (forumId == null) {
             throw new IllegalArgumentException("Null Argument");
         }
@@ -86,61 +104,61 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         throw new UnsupportedOperationException();
     }
 
+    public DiscussionForum createDiscussionForum() {
+        DiscussionForum forum = new DiscussionForumImpl();
+        forum.setUuid(getNextUuid());
+        forum.setCreated(new Date());
+        forum.setCreatedBy(getCurrentUser());
+        LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId());
+        return forum;
+    }
+
     /**
      * Save a discussion forum
      */
     public void saveDiscussionForum(DiscussionForum forum) {
-        // a new forum
-        if (forum.getUuid() == null) {
-            forum.setUuid(getNextUuid());
-            forum.setCreated(new Date());
-            forum.setCreatedBy(getCurrentUser());
-        } 
-        
-        // always need to update the last modified stuff
         forum.setModified(new Date());
         forum.setModifiedBy(getCurrentUser());
-        
         getHibernateTemplate().saveOrUpdate(forum);
-        LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId());        
+        LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId());
+    }
+
+    public DiscussionTopic createDiscussionForumTopic() {
+        DiscussionTopic topic = new DiscussionTopicImpl();
+        topic.setUuid(getNextUuid());
+        topic.setCreated(new Date());
+        topic.setCreatedBy(getCurrentUser());
+        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
+        return topic;
     }
 
     /**
      * Save a discussion forum topic
      */
     public void saveDiscussionForumTopic(DiscussionTopic topic) {
-        // a new topic
-        if (topic.getUuid() == null) {
-            topic.setUuid(getNextUuid());
-            topic.setCreated(new Date());
-            topic.setCreatedBy(getCurrentUser());
-        } 
-
-        // always need to update the last modified stuff
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
-        
         getHibernateTemplate().saveOrUpdate(topic);
-        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());        
+        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
+    }
+
+    public OpenTopic createOpenForumTopic() {
+        OpenTopic topic = new OpenTopicImpl();
+        topic.setUuid(getNextUuid());
+        topic.setCreated(new Date());
+        topic.setCreatedBy(getCurrentUser());
+        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
+        return topic;
     }
 
     /**
      * Save an open forum topic
      */
     public void saveOpenForumTopic(OpenTopic topic) {
-        // a new topic
-        if (topic.getUuid() == null) {
-            topic.setUuid(getNextUuid());
-            topic.setCreated(new Date());
-            topic.setCreatedBy(getCurrentUser());
-        } 
-
-        // always need to update the last modified stuff
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
-        
         getHibernateTemplate().saveOrUpdate(topic);
-        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());        
+        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
     }
 
     /**
@@ -148,7 +166,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      */
     public void deleteDiscussionForum(DiscussionForum forum) {
         getHibernateTemplate().delete(forum);
-        LOG.debug("deleteDiscussionForum executed with forumId: " + forum.getId());        
+        LOG.debug("deleteDiscussionForum executed with forumId: " + forum.getId());
     }
 
     /**
@@ -156,7 +174,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      */
     public void deleteDiscussionForumTopic(DiscussionTopic topic) {
         getHibernateTemplate().delete(topic);
-        LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());        
+        LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());
     }
 
     /**
@@ -164,36 +182,44 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      */
     public void deleteOpenForumTopic(OpenTopic topic) {
         getHibernateTemplate().delete(topic);
-        LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());        
+        LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());
     }
 
     /**
-     * Returns a given number of messages if available in the time 
-     * provided
-     * @param numberMessages the number of messages to retrieve
-     * @param numberDaysInPast the number days to look back
+     * Returns a given number of messages if available in the time provided
+     * 
+     * @param numberMessages
+     *            the number of messages to retrieve
+     * @param numberDaysInPast
+     *            the number days to look back
      */
     public List getRecentPrivateMessages(int numberMessages, int numberDaysInPast) {
         // TODO: Implement Me!
         throw new UnsupportedOperationException();
     }
-    
+
     /**
-     * Returns a given number of discussion forum messages if available in 
-     * the time provided
-     * @param numberMessages the number of forum messages to retrieve
-     * @param numberDaysInPast the number days to look back
+     * Returns a given number of discussion forum messages if available in the
+     * time provided
+     * 
+     * @param numberMessages
+     *            the number of forum messages to retrieve
+     * @param numberDaysInPast
+     *            the number days to look back
      */
     public List getRecentDiscussionForumMessages(int numberMessages, int numberDaysInPast) {
         // TODO: Implement Me!
         throw new UnsupportedOperationException();
     }
-    
+
     /**
-     * Returns a given number of open forum messages if available in 
-     * the time provided
-     * @param numberMessages the number of forum messages to retrieve
-     * @param numberDaysInPast the number days to look back
+     * Returns a given number of open forum messages if available in the time
+     * provided
+     * 
+     * @param numberMessages
+     *            the number of forum messages to retrieve
+     * @param numberDaysInPast
+     *            the number days to look back
      */
     public List getRecentOpenForumMessages(int numberMessages, int numberDaysInPast) {
         // TODO: Implement Me!
@@ -201,15 +227,26 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     // helpers
-    
+
     private String getCurrentUser() {
-        // TODO: add the session manager back
-        return "joe"; //SessionManager.getCurrentSession().getUserEid();
+        try {
+            return sessionManager.getCurrentSessionUserId();
+        } catch (Exception e) {
+            // TODO: remove after done testing
+            return "testuser";
+        }
     }
-    
+
     private String getNextUuid() {
-        // TODO: get this from deep in sakai somewhere
-        return "001";
+        return idManager.createUuid();
+    }
+
+    public IdManager getIdManager() {
+        return idManager;
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager;
     }
 
 }

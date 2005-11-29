@@ -33,6 +33,30 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-id</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>		
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-session</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-id-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>		
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-session-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-component</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -60,7 +84,7 @@
 			<artifactId>sakai-component</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>		
-		
+				
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool</artifactId>

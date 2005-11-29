@@ -35,6 +35,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
+import org.sakaiproject.api.kernel.id.IdManager;
+import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -47,8 +50,28 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
     private static final String ID = "id";
 
+    private IdManager idManager;                             
+
+    private SessionManager sessionManager;
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
+    public void setIdManager(IdManager idManager) {
+        this.idManager = idManager;
+    }
+
     public void init() {
         ;
+    }
+
+    public IdManager getIdManager() {
+        return idManager;
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager;
     }
 
     public UnreadStatus findUnreadStatus(final String userId, final String topicId, final String messageId) {
@@ -117,19 +140,20 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
         return status.getRead().booleanValue();        
     }
-    
+
+    public Message createMessage() {
+        Message message = new MessageImpl();
+        message.setUuid(getNextUuid());
+        message.setCreated(new Date());
+        message.setCreatedBy(getCurrentUser());
+
+        LOG.info("message " + message.getId() + " saved successfully");
+        return message;        
+    }
+
     public void saveMessage(Message message) {
-        // a new message
-        if (message.getUuid() == null) {
-            message.setUuid(getNextUuid());
-            message.setCreated(new Date());
-            message.setCreatedBy(getCurrentUser());
-        } 
-        
-        // always need to update the last modified stuff
         message.setModified(new Date());
-        message.setModifiedBy(getCurrentUser());
-        
+        message.setModifiedBy(getCurrentUser());        
         getHibernateTemplate().saveOrUpdate(message);
         LOG.info("message " + message.getId() + " saved successfully");
     }
@@ -159,14 +183,17 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     // helpers
     
-    private String getCurrentUser() {
-        // TODO: add the session manager back
-        return "joe"; //SessionManager.getCurrentSession().getUserEid();
+    private String getCurrentUser() {        
+        try {
+            return sessionManager.getCurrentSessionUserId();
+        } catch (Exception e) {
+            // TODO: remove after done testing
+            return "testuser";
+        }
     }
     
-    private String getNextUuid() {
-        // TODO: get this from deep in sakai somewhere
-        return "001";
+    private String getNextUuid() {        
+        return idManager.createUuid();
     }
     
 }

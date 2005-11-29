@@ -7,10 +7,10 @@
             <list>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserImpl.hbm.xml</value>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePermissions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePermissions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/UnreadStatus.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Area.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Topic.hbm.xml</value>
@@ -21,7 +21,7 @@
             </list>
         </property>
     </bean>
-    
+	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 
         class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl">
         <property name="typeManager">
@@ -44,6 +44,12 @@
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
+				<property name="idManager">
+					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+				</property>				 				
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+				</property>				 								
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -62,6 +68,12 @@
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
+				<property name="idManager">
+					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+				</property>				 				
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+				</property>				 								
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -97,9 +109,8 @@
             </props>
         </property> 
     </bean>
-    
-    
-        <bean id="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+       
+    <bean id="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
@@ -116,7 +127,7 @@
                 </property>
                 <property name="messageManager">
                     <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager"/>
-                </property>
+                </property>							
             </bean>           
         </property>
          <property name="transactionAttributes">

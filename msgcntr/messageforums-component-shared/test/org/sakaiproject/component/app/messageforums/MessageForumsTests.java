@@ -68,7 +68,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     }
  
     public void testSaveAndDeleteMessage() {
-        Message message = new MessageImpl();        
+        Message message = messageManager.createMessage();        
         message.setApproved(Boolean.TRUE);
         message.setAuthor("nate");
         message.setTitle("a message");
@@ -99,7 +99,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         topic.setModified(new Date());
         topic.setModifiedBy("jim");
         
-        DiscussionForum forum = new DiscussionForumImpl();
+        DiscussionForum forum = forumManager.createDiscussionForum();
         forum.setTypeUuid("df-type");
         forum.setTitle("A test discussion forum");
         forum.setShortDescription("short desc");
@@ -122,7 +122,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         topic.setModified(new Date());
         topic.setModifiedBy("jim");
         
-        DiscussionForum forum = new DiscussionForumImpl();
+        DiscussionForum forum = forumManager.createDiscussionForum();
         forum.setUuid("00222");
         forum.setCreated(new Date());
         forum.setCreatedBy("ed");
@@ -137,7 +137,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         forum.addAttachment(getAttachment());
         forum.addTopic(topic);
 
-        Area area = new AreaImpl();   
+        Area area = areaManager.createArea();   
         area.setContextId("area-context-id");
         area.setEnabled(Boolean.TRUE);
         area.setHidden(Boolean.FALSE);
@@ -161,7 +161,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     // helpers
     
     private DiscussionTopic getDiscussionTopic() {
-        DiscussionTopic topic = new DiscussionTopicImpl();
+        DiscussionTopic topic = forumManager.createDiscussionForumTopic();
         topic.setTypeUuid("dt-type");
         topic.setTitle("A test discussion topic");
         topic.setShortDescription("short desc");

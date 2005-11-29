@@ -22,6 +22,7 @@ public interface AreaManager
   
   public boolean isPrivateAreaEnabled();
   public void saveArea(Area area);
+  public Area createArea();
   public void deleteArea(Area area);
   public Area getPrivateArea();
   public Area getDiscussionForumArea();
