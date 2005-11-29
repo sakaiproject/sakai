@@ -37,26 +37,26 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForu
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 
-public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
+public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     
-    private MessageForumsForumManager messageForumsForumManager; 
-    private MessageForumsMessageManager messageForumsMessageManager;
-    private AreaManager messageForumsAreaManager;
+    private MessageForumsForumManager forumManager; 
+    private MessageForumsMessageManager messageManager;
+    private AreaManager areaManager;
  
-    public MessageForumsManagerTest() {
+    public MessageForumsTests() {
         super();
         init();
     }
 
-    public MessageForumsManagerTest(String name) {
+    public MessageForumsTests(String name) {
         super(name);
         init();
     }
 
     private void init() {
-        messageForumsForumManager = (MessageForumsForumManager) getApplicationContext().getBean(MessageForumsForumManager.class.getName());
-        messageForumsMessageManager = (MessageForumsMessageManager) getApplicationContext().getBean(MessageForumsMessageManager.class.getName());
-        messageForumsAreaManager = (AreaManager) getApplicationContext().getBean(AreaManager.class.getName());
+        forumManager = (MessageForumsForumManager) getApplicationContext().getBean(MessageForumsForumManager.class.getName());
+        messageManager = (MessageForumsMessageManager) getApplicationContext().getBean(MessageForumsMessageManager.class.getName());
+        areaManager = (AreaManager) getApplicationContext().getBean(AreaManager.class.getName());
     }
 
     protected void setUp() throws Exception {
@@ -77,17 +77,17 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
         message.setTypeUuid("mess-type");
         message.addAttachment(getAttachment());        
 
-        messageForumsMessageManager.saveMessage(message);
+        messageManager.saveMessage(message);
         Long id = message.getId();
-        messageForumsMessageManager.deleteMessage(message);
-        Message message2 = messageForumsMessageManager.getMessageById(id.toString());
+        messageManager.deleteMessage(message);
+        Message message2 = messageManager.getMessageById(id.toString());
         assertTrue("message2 should not exist", message2 == null);
     }
 
     public void testSaveAndDeleteTopic() {
         DiscussionTopic topic = getDiscussionTopic();        
-        messageForumsForumManager.saveDiscussionForumTopic(topic);
-        messageForumsForumManager.deleteDiscussionForumTopic(topic);
+        forumManager.saveDiscussionForumTopic(topic);
+        forumManager.deleteDiscussionForumTopic(topic);
         assertTrue(true);
     }
     
@@ -109,8 +109,8 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
         forum.addAttachment(getAttachment());
         forum.addTopic(topic);
         
-        messageForumsForumManager.saveDiscussionForum(forum);
-        messageForumsForumManager.deleteDiscussionForum(forum);
+        forumManager.saveDiscussionForum(forum);
+        forumManager.deleteDiscussionForum(forum);
         assertTrue(true);
     }
     
@@ -145,17 +145,16 @@ public class MessageForumsManagerTest extends ForumsApplicationContextBaseTest {
         area.setTypeUuid("discussion area type");
         area.addDiscussionForum(forum);
                 
-        messageForumsAreaManager.saveArea(area);
-        messageForumsAreaManager.deleteArea(area);
+        areaManager.saveArea(area);
+        areaManager.deleteArea(area);
         assertTrue(true);
     }
     
     public void testIsMessageReadForUser() {
-        assertFalse(messageForumsMessageManager.isMessageReadForUser("joesmith", "1", "2"));
-        messageForumsMessageManager.markMessageReadForUser("joesmith", "1", "2");
-        assertTrue(messageForumsMessageManager.isMessageReadForUser("joesmith", "1", "2"));        
-        // clean up
-        messageForumsMessageManager.deleteUnreadStatus("joesmith", "1", "2");
+        assertFalse(messageManager.isMessageReadForUser("joesmith", "1", "2"));
+        messageManager.markMessageReadForUser("joesmith", "1", "2");
+        assertTrue(messageManager.isMessageReadForUser("joesmith", "1", "2"));        
+        messageManager.deleteUnreadStatus("joesmith", "1", "2");
     }
        
     
