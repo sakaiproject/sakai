@@ -1203,7 +1203,8 @@ public class PublishedAssessmentFacadeQueries
     String query="";
     query = "select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate)"+
             " from PublishedAssessmentData a, AuthorizationData z where "+
-            " a.title=? and a.publishedAssessmentId!=? and z.functionId='OWN_PUBLISHED_ASSESSMENT' and " +
+            " a.title=? and a.publishedAssessmentId!=? and a.status!=2 and "+
+            " z.functionId='OWN_PUBLISHED_ASSESSMENT' and " +
             " a.publishedAssessmentId=z.qualifierId and z.agentIdString=?";
     System.out.println("query" + query);
     list = getHibernateTemplate().find(query,
@@ -1211,6 +1212,7 @@ public class PublishedAssessmentFacadeQueries
            new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     if (list.size()>0)
       isUnique = false;
+    System.out.println("*** list size="+list.size());
     return isUnique;
   }
 
