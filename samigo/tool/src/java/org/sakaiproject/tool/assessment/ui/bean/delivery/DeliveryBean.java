@@ -1386,15 +1386,9 @@ public class DeliveryBean
     if (password.equals(getSettings().getPassword()) &&
         username.equals(getSettings().getUsername()))
     {
-      if (getNavigation().equals
-          (AssessmentAccessControl.RANDOM_ACCESS.toString()))
-      {
-        return "tableOfContents";
-      }
-      else
-      {
-        return "takeAssessment";
-      }
+      // in post 2.1, clicking at Begin Assessment takes users to the
+      // 1st question.
+      return "takeAssessment";
     }
     else
     {
@@ -1419,15 +1413,9 @@ public class DeliveryBean
       if (next == null || next.trim().equals("") ||
           thisIp.trim().startsWith(next.trim()))
       {
-        if (getNavigation().equals
-            (AssessmentAccessControl.RANDOM_ACCESS.toString()))
-        {
-          return "tableOfContents";
-        }
-        else
-        {
-          return "takeAssessment";
-        }
+        // in post 2.1, clicking at Begin Assessment takes users to the
+        // 1st question.
+        return "takeAssessment";
       }
     }
     return "ipAccessError";
@@ -1450,15 +1438,9 @@ public class DeliveryBean
       }
       if (results.equals(""))
       {
-        if (getNavigation().equals
-            (AssessmentAccessControl.RANDOM_ACCESS.toString()))
-        {
-          return "tableOfContents";
-        }
-        else
-        {
-          return "takeAssessment";
-        }
+        // in post 2.1, clicking at Begin Assessment takes users to the
+        // 1st question.
+        return "takeAssessment";
       }
       return results;
     }
@@ -1471,24 +1453,9 @@ public class DeliveryBean
 
   public String pvalidate()
   {
-    try
-    {
-      if (getNavigation().equals
-          (AssessmentAccessControl.RANDOM_ACCESS.toString()))
-      {
-        return "tableOfContents";
-      }
-      else
-      {
-        return "takeAssessment";
-      }
-
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-      return "accessError";
-    }
+    // in post 2.1, clicking at Begin Assessment takes users to the
+    // 1st question.
+    return "takeAssessment";
   }
 
   // Skipped paging methods
