@@ -771,8 +771,12 @@ else {
      {
       String answer = st.nextToken().trim();
       if (data.getAnswerText() != null &&
-          data.getAnswerText().trim().equalsIgnoreCase(answer))
+          data.getAnswerText().trim().equalsIgnoreCase(answer)){
         totalScore += data.getPublishedAnswer().getScore().floatValue();
+        break; 
+        // SAK-3005: quit if answer is correct, e.g. if u answered A for {a|A}
+        // u already scored
+      }
      }
     }
     return totalScore;
