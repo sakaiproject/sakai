@@ -51,6 +51,19 @@
 			<artifactId>sakai-session-component</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>		
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
 		      	
     	<dependency>
             <groupId>commons-lang</groupId>

@@ -24,7 +24,6 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.util.Date;
-import java.util.Iterator;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -41,7 +40,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     private MessageForumsMessageManager messageManager;
 
     private AreaManager areaManager;
-
+    
     public MessageForumsTests() {
         super();
         init();
@@ -60,10 +59,12 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
 
     protected void setUp() throws Exception {
         super.setUp();
+        TestUtil.setRunningTests(true);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
+        TestUtil.setRunningTests(false);
     }
 
     public void testSaveAndDeleteMessage() {
@@ -297,4 +298,5 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         attachment.setAttachmentUrl("http://www.google.com");
         return attachment;
     }
+
 }

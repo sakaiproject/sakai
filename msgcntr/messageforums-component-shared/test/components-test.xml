@@ -63,6 +63,21 @@
 			singleton="true">
 	</bean>
 	
+	<bean id="org.sakaiproject.api.kernel.tool.ToolManager"
+			class="org.sakaiproject.component.kernel.tool.ToolComponent"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.api.kernel.thread_local.ThreadLocalManager"/></property>
+	</bean>
+	
+	<bean id="org.sakaiproject.api.kernel.thread_local.ThreadLocalManager"
+			class="org.sakaiproject.component.kernel.thread_local.ThreadLocalComponent"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
+
 	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsForumManager"
 		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
@@ -130,6 +145,9 @@
 				</property>				 				
 				<property name="sessionManager">
 					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+				</property>				 								
+				<property name="toolManager">
+					<ref bean="org.sakaiproject.api.kernel.tool.ToolManager" />
 				</property>				 								
 			</bean>
 		</property>

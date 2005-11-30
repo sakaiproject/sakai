@@ -15,15 +15,11 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.api.kernel.tool.ToolManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-/**
- * @author rshastri
- * 
- */
 public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager {
     private static final Log LOG = LogFactory.getLog(AreaManagerImpl.class);
 
@@ -33,8 +29,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     private static final String QUERY_AREA_BY_CONTEXT_ID = "findAreaByContextId";
 
-    private static final String CURRENT_USER = "id";
-
+    private ToolManager toolManager;
+    
     private IdManager idManager;
 
     private SessionManager sessionManager;
@@ -108,7 +104,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         area.setUuid(getNextUuid());
         area.setCreated(new Date());
         area.setCreatedBy(getCurrentUser());
-        //area.setContextId(getContextId());
+        area.setContextId(getContextId());
         LOG.debug("createArea executed with areaId: " + area.getId());
         return area;
     }
@@ -127,11 +123,12 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     /**
      * ContextId is present site id for now.
-     * 
-     * @return
      */
     private String getContextId() {
-        Placement placement = ToolManager.getCurrentPlacement();
+        if (TestUtil.isRunningTests()) {
+            return "test-context";
+        }
+        Placement placement = toolManager.getCurrentPlacement();
         String presentSiteId = placement.getContext();
         return presentSiteId;
     }
@@ -149,21 +146,26 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return (Area) getHibernateTemplate().execute(hcb);
     }
 
+    private String getNextUuid() {
+        return idManager.createUuid();
+    }
+
+    public ToolManager getToolManager() {
+        return toolManager;
+    }
+
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
+    }
+
     
     // helpers
 
     private String getCurrentUser() {
-        try {
-            return sessionManager.getCurrentSessionUserId();
-        } catch (Exception e) {
-            // TODO: remove after done testing -- needed for unit testing
-            // is there a better way to get this when there is no session?
-            return "testuser";
+        if (TestUtil.isRunningTests()) {
+            return "test-user";
         }
-    }
-
-    private String getNextUuid() {
-        return idManager.createUuid();
+        return sessionManager.getCurrentSessionUserId();
     }
 
 }
