@@ -24,7 +24,8 @@ public interface AreaManager
   public void saveArea(Area area);
   public Area createArea();
   public void deleteArea(Area area);
+  public Area getAreaByContextId();
   public Area getPrivateArea();
-  public Area getDiscussionForumArea();
+  public Area getDiscusionArea();
 
 }

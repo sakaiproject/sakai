@@ -31,9 +31,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     private static final String CONTEXT_ID = "contextId";
 
-    private static final String QUERY_PRIVATE_AREA_BY_CURRENT_USER = "findPrivateAreaByCurrentUser";
-
-    private static final String QUERY_DISCUSSION_AREA_BY_CURRENT_USER = "findDiscussionAreaByCurrentUser";
+    private static final String QUERY_AREA_BY_CONTEXT_ID = "findAreaByContextId";
 
     private static final String CURRENT_USER = "id";
 
@@ -59,6 +57,16 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     public void init() {
         ;
+    }
+
+    // TODO: do we need to restrict by type here?
+    public Area getPrivateArea() {
+        return getAreaByContextId();
+    }
+    
+    // TODO: do we need to restrict by type here?
+    public Area getDiscusionArea() {
+        return getAreaByContextId();        
     }
 
     public boolean isPrivateAreaEnabled() {
@@ -127,29 +135,12 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return presentSiteId;
     }
 
-    // TODO: how do we tell hibernate to get the private area type and only for
-    // a
-    // certain user (the current user)?
-    public Area getPrivateArea() {
+    public Area getAreaByContextId() {
         LOG.debug("getPrivateArea executing for current user: " + getCurrentUser());
-        return getAreaByQuery(QUERY_PRIVATE_AREA_BY_CURRENT_USER);
-    }
-
-    // TODO: how do we tell hibernate to get the discussion area type and only
-    // for a
-    // certain user (the current user)?
-    public Area getDiscussionForumArea() {
-        LOG.debug("getDiscussionForumArea executing for current user: " + getCurrentUser());
-        return getAreaByQuery(QUERY_DISCUSSION_AREA_BY_CURRENT_USER);
-    }
-
-    private Area getAreaByQuery(final String query) {
-        LOG.debug("getArea executing for current user: " + getCurrentUser());
-
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(query);
-                q.setParameter(CURRENT_USER, getCurrentUser(), Hibernate.STRING);
+                Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_ID);
+                q.setParameter(CONTEXT_ID, getContextId(), Hibernate.STRING);
                 return q.uniqueResult();
             }
         };
@@ -157,6 +148,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return (Area) getHibernateTemplate().execute(hcb);
     }
 
+    
     // helpers
 
     private String getCurrentUser() {

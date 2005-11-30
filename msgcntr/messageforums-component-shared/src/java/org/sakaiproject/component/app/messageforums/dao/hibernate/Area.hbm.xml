@@ -59,14 +59,6 @@
 
   </class>
 
-  <query name="findPrivateAreaByCurrentUser">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.id = :id]]>
-  </query>
-
-  <query name="findDiscussionAreaByCurrentUser">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.id = :id]]>
-  </query>
-
   <query name="findAreaById">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.id = :id]]>
   </query>
