@@ -46,15 +46,14 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:dataTable value="#{itemText.answerArray}" var="answer">
         <h:column>
-          <h:outputText escape="false" value="#{msg.preview_model_short_answer}" />
-          <h:outputText escape="false" value="#{answer.text}" />
+          <h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{msg.preview_model_short_answer}" />
+          <h:outputText rendered="#{answer.textIsNotEmpty}" escape="false" value="#{answer.text}" />
         </h:column>
       </h:dataTable>
  </h:column>
   </h:dataTable>
-<f:verbatim> <div class="longtext"></f:verbatim>
-
- <h:outputLabel rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}" value="#{msg.feedback}: " />
+<h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty}">
+ <h:outputLabel value="#{msg.feedback}: " />
   <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
-<f:verbatim> </div></f:verbatim>
+</h:panelGroup>
 

@@ -662,4 +662,33 @@ public class ItemData
       ItemData a = (ItemData)o;
       return sequence.compareTo(a.sequence);
   }
+
+  public boolean getGeneralItemFbIsNotEmpty(){
+     return isNotEmpty(getGeneralItemFeedback());
+  }
+
+  public boolean getCorrectItemFbIsNotEmpty(){
+     return isNotEmpty(getCorrectItemFeedback());
+  }
+
+  public boolean getIncorrectItemFbIsNotEmpty(){
+    return isNotEmpty(getInCorrectItemFeedback());
+  }
+
+  
+ public boolean isNotEmpty(String wyzText){
+    
+   if(wyzText!=null){
+      int index=0;
+      String t=(wyzText.replaceAll("<.*?>", " ")).trim();
+      while(index<t.length()){ 
+        char c=t.charAt(index);
+        if(Character.isLetterOrDigit(c)){
+	  return true; 
+	}
+	index++;
+      }
+   }
+   return false;
+ }
 }

@@ -60,8 +60,7 @@ should be included in file importing DeliveryMessages
              better -daisyf --%>
         <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
-              <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFeedback!=null
-               && answer.correctAnswerFeedback ne ''}" styleClass="longtext">
+              <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFbIsNotEmpty}" styleClass="longtext">
                 <h:outputLabel value="#{msg.correct}: " />
                 <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
               </h:panelGroup>
@@ -72,8 +71,7 @@ should be included in file importing DeliveryMessages
 
         <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
-              <h:panelGroup rendered="#{answer.isCorrect && answer.inCorrectAnswerFeedback!=null
-               && answer.inCorrectAnswerFeedback ne ''}" styleClass="longtext">
+              <h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty}" styleClass="longtext">
                 <h:outputLabel value="#{msg.incorrect}: " />
                 <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
               </h:panelGroup>
@@ -85,15 +83,17 @@ should be included in file importing DeliveryMessages
   </h:dataTable>
 
       <%-- answer key --%>
- <h:panelGrid columns="2" styleClass="longtext">
+ <h:panelGroup>
       <h:outputLabel value="#{msg.answerKey}: "/>
       <h:outputText escape="false" value="#{question.itemData.answerKey}" />
-
-      <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correct}:"/>
-      <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}"
-        value="#{question.itemData.correctItemFeedback}" escape="false" />
-
-     <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{msg.incorrect}:"/>
-      <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}"
-        value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
-</h:panelGrid>
+<f:verbatim><br/></f:verbatim>
+</h:panelGroup>
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty}">
+      <h:outputLabel value="#{msg.correct}:"/>
+      <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
+<f:verbatim><br/></f:verbatim>
+</h:panelGroup>
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty}">
+     <h:outputLabel value="#{msg.incorrect}:"/>
+      <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+</h:panelGroup>

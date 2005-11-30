@@ -26,6 +26,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.apache.log4j.*;
 import java.io.Serializable;
 import java.io.IOException;
@@ -51,7 +52,7 @@ public class Answer
   private Float score;
   private Set answerFeedbackSet;
   private HashMap answerFeedbackMap;
-
+  private ItemData dat=new ItemData();
   public Answer() {}
 
   public Answer(ItemTextIfc itemText, String text, Long sequence, String label,
@@ -214,6 +215,29 @@ public class Answer
   public int compareTo(Object o) {
       Answer a = (Answer)o;
       return sequence.compareTo(a.sequence);
+  }
+
+    //Huong's adding for checking not empty feedback
+ public boolean getGeneralAnswerFbIsNotEmpty(){
+
+   return dat.isNotEmpty(getGeneralAnswerFeedback());
+     
+  }
+
+public boolean getCorrectAnswerFbIsNotEmpty(){
+
+   return dat.isNotEmpty(getCorrectAnswerFeedback());
+     
+  }
+public boolean getIncorrectAnswerFbIsNotEmpty(){
+
+   return dat.isNotEmpty(getInCorrectAnswerFeedback());
+     
+  }
+
+ public boolean getTextIsNotEmpty(){
+  
+    return dat.isNotEmpty(getText());
   }
 
 

@@ -119,34 +119,30 @@ public class ItemContentsBean
    */
   public String getStrippedText()
   {
-      // String s1=getText().replaceAll("<P></P>",".    ");
-      return getText().replaceAll("<.*?>", " ");
+      return strip(getText());
      
   }
-
-    public boolean getModelAnswerIsNotEmpty(){
-
-	String answer=getKey();
-	int index=0;
-	//  System.out.println("answer.length: "+answer.length());
-	while(index<answer.length()){ 
-	    char c=answer.charAt(index);
-	      if(Character.isLetterOrDigit(c)){
-		  //	System.out.println(" character Type: "+Character.getType(c));
-			return true; 
-		}
-	      index++;
-	
-	}
+    //Huong added to test empty feedback
+  public boolean getModelAnswerIsNotEmpty(){
+      String k=getKey();
+      if(k!="null")
+        return isNotEmpty(strip(k));
+      else 
 	return false;
+  }
 
-    }
+  public boolean getFeedbackIsNotEmpty(){
+      return isNotEmpty(strip(getFeedback()));
+  }
 
- public String getStrippedKey()
+  public boolean getGradingCommentIsNotEmpty(){
+    return isNotEmpty(strip(getGradingComment()));
+  }
+ 
+
+  public String getStrippedKey()
   {
-   
-      return getKey().replaceAll("<.*?>", " ");
-     
+      return strip(getKey());  
   }
 
   /**
@@ -819,5 +815,28 @@ public class ItemContentsBean
     }
     return pointsDisplayString;
   }
+
+ public String strip(String text)
+  {  if(text!=null)
+      text= text.replaceAll("<.*?>", " ");
+     return text;
+     
+  }
+  public boolean isNotEmpty(String wyzText){
+    
+      if(wyzText!=null && !wyzText.equals("null")){
+	int index=0;
+	String t=wyzText.trim();
+	while(index<t.length()){ 
+	    char c=t.charAt(index);
+	      if(Character.isLetterOrDigit(c)){
+		return true; 
+		}
+	      index++;
+	}
+      }
+      return false;
+  }
+
 
 }

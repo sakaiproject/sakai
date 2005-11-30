@@ -39,12 +39,11 @@ should be included in file importing DeliveryMessages
         </h:column>
       </h:dataTable>
 
-<f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}" value="#{msg.generalItemFeedback}: " />
-  <h:outputText rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback ne ''}"
-    value="#{question.itemData.generalItemFeedback}" escape="false" />
+<h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty}">
+  <h:outputLabel value="#{msg.generalItemFeedback}: " />
+  <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
 
-<f:verbatim><div class="longtext"></f:verbatim>
+</h:panelGroup>
 
 </h:column>
 </h:dataTable>

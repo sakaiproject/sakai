@@ -43,18 +43,19 @@ should be included in file importing DeliveryMessages
  </h:column>
   </h:dataTable>
 
-
-
-<h:panelGrid columns="2" styleClass="longtext">
+<h:panelGroup>
   <h:outputLabel value="#{msg.answerKey}: "/>
   <h:outputText escape="false" value="#{question.itemData.answerKey}" />
-
-
-  <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correctItemFeedback}: "/>
-  <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}"
-    value="#{question.itemData.correctItemFeedback}" escape="false"/>
-  <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{msg.incorrectItemFeedback}: "/>
-  <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}"
-    value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
-</h:panelGrid>
+<f:verbatim><br/></f:verbatim>
+</h:panelGroup>
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty}">
+  <h:outputLabel value="#{msg.correctItemFeedback}: "/>
+  <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
+<f:verbatim><br/></f:verbatim>
+</h:panelGroup>
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty}">
+  <h:outputLabel value="#{msg.incorrectItemFeedback}: "/>
+  <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
+<f:verbatim><br/></f:verbatim>
+</h:panelGroup>
 

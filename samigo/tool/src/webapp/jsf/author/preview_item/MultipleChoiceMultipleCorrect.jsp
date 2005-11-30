@@ -37,29 +37,30 @@ should be included in file importing DeliveryMessages
              alt="#{msg.not_correct}" url="/images/unchecked.gif" >
           </h:graphicImage>
           <h:outputText escape="false" value="#{answer.label}. #{answer.text}" /> </h:column><h:column>
-       <f:verbatim><b></f:verbatim>
-         <h:outputText escape="false"
-          rendered="#{answer.generalAnswerFeedback != null && answer.generalAnswerFeedback ne ''}" value="#{          msg.feedback}: " />
-         <f:verbatim></b></f:verbatim>
+        <h:panelGroup rendered="#{answer.generalAnswerFbIsNotEmpty}">
+         <h:outputLabel value="#{          msg.feedback}: " />
 
          <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" />
+</h:panelGroup>
         </h:column>
       </h:dataTable>
 
     </h:column>
   </h:dataTable>
 
-<h:panelGrid columns="2" styleClass="longtext">
+
+<h:panelGroup>
   <h:outputLabel value="#{msg.answerKey}: "/>
   <h:outputText escape="false" value="#{question.itemData.answerKey}" />
-
-   <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correctItemFeedback}: "/>
-   <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}"
-     value="#{question.itemData.correctItemFeedback}" escape="false" />
-
-   <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{msg.incorrectItemFeedback}: "/>
-   <h:outputText  rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}"
-     value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
-
-</h:panelGrid>
+  <f:verbatim><br/></f:verbatim>
+</h:panelGroup>
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty}">
+  <h:outputLabel value="#{msg.correctItemFeedback}: "/>
+  <h:outputText  value="#{question.itemData.correctItemFeedback}" escape="false" />
+ <f:verbatim><br/></f:verbatim>
+</h:panelGroup>
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty}">
+  <h:outputLabel value="#{msg.incorrectItemFeedback}: "/>
+  <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+</h:panelGroup>
 

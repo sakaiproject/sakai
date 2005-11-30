@@ -38,23 +38,22 @@ should be included in file importing DeliveryMessages
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <f:verbatim><br /></f:verbatim>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'&& question.modelAnswerIsNotEmpty}" >
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="answerKeyMC" value="#{msg.model} " />
      <f:verbatim></b></f:verbatim>
-
-    <h:outputLink  value="#" onclick="javascript:window.alert('#{question.strippedKey}');" >
-    <h:outputText rendered="#{question.modelAnswerIsNotEmpty}" value="#{dmsg.click}" />
+    <h:outputLink value="#" onclick="javascript:window.alert('#{question.strippedKey}');" >
+    <h:outputText  value="#{dmsg.click}" />
     </h:outputLink>
   </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedback ne '' && question.feedback != null && !delivery.noFeedback=='true'}">
+  <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="feedSC" value="#{msg.feedback}: " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && question.gradingComment ne ''&& question.gradingComment != null && !delivery.noFeedback=='true'}">
+  <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="commentSC" value="#{msg.comment}: " />
