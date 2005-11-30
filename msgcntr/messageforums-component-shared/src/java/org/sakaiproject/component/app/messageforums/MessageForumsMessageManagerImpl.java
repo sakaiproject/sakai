@@ -41,6 +41,7 @@ import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
@@ -256,6 +257,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         LOG.info("message " + message.getId() + " saved successfully");
         return message;        
+    }
+
+    public Attachment createAttachment() {
+        Attachment attachment = new AttachmentImpl();
+        attachment.setUuid(getNextUuid());
+        attachment.setCreated(new Date());
+        attachment.setCreatedBy(getCurrentUser());
+        attachment.setModified(new Date());
+        attachment.setModifiedBy(getCurrentUser());
+
+        LOG.info("attachment " + attachment.getId() + " saved successfully");
+        return attachment;        
     }
 
     public void saveMessage(Message message) {

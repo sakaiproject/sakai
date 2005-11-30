@@ -100,7 +100,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     try
     {
-      Attachment attach = new AttachmentImpl();
+      Attachment attach = messageManager.createAttachment();
       
       attach.setAttachmentId(attachId);
       
@@ -130,7 +130,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       //tempString.replaceAll(" ", "%20");
       attach.setAttachmentUrl(newString);
 
-      savePvtMsgAttachment(attach);
+      // Himansu: This is bad.  You should save attachments by telling the message to be saved, not one at a time.
+      //savePvtMsgAttachment(attach);
       
       return attach;
     }

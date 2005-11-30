@@ -32,6 +32,8 @@ import org.sakaiproject.api.app.messageforums.UnreadStatus;
 
 public interface MessageForumsMessageManager {
 
+    public Attachment createAttachment();
+
     public Message createMessage(String typeId);
 
     public PrivateMessage createPrivateMessage();
