@@ -14,6 +14,12 @@ public class PrivateTopicDecoratedBean
   private int unreadNoMessages;
   private List messages;
 
+  private boolean hasNextTopic=false;
+  private boolean hasPreviousTopic=false;
+  private String nextTopicId;
+  private String previousTopicId;
+  
+  
   public PrivateTopicDecoratedBean(Topic topic)
   {
    this.topic= topic;    
@@ -84,7 +90,82 @@ public class PrivateTopicDecoratedBean
       msgs.add(decomsg);    
     }
   }
+ 
   
+
+  
+  /**
+   * @return Returns the hasNextTopic.
+   */
+  public boolean isHasNextTopic()
+  {
+    return hasNextTopic;
+  }
+
+
+  /**
+   * @param hasNextTopic The hasNextTopic to set.
+   */
+  public void setHasNextTopic(boolean hasNextTopic)
+  {
+    this.hasNextTopic = hasNextTopic;
+  }
+
+
+  /**
+   * @return Returns the hasPreviousTopic.
+   */
+  public boolean isHasPreviousTopic()
+  {
+    return hasPreviousTopic;
+  }
+
+
+  /**
+   * @param hasPreviousTopic The hasPreviousTopic to set.
+   */
+  public void setHasPreviousTopic(boolean hasPreviousTopic)
+  {
+    this.hasPreviousTopic = hasPreviousTopic;
+  }
+
+
+  /**
+   * @return Returns the nextTopicId.
+   */
+  public String getNextTopicId()
+  {
+    return nextTopicId;
+  }
+
+
+  /**
+   * @param nextTopicId The nextTopicId to set.
+   */
+  public void setNextTopicId(String nextTopicId)
+  {
+    this.nextTopicId = nextTopicId;
+  }
+
+
+  /**
+   * @return Returns the previousTopicId.
+   */
+  public String getPreviousTopicId()
+  {
+    return previousTopicId;
+  }
+
+
+  /**
+   * @param previousTopicId The previousTopicId to set.
+   */
+  public void setPreviousTopicId(String previousTopicId)
+  {
+    this.previousTopicId = previousTopicId;
+  }
+
+
 }
 
 

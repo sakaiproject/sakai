@@ -24,6 +24,9 @@
 
 package org.sakaiproject.tool.messageforums.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 
 
@@ -45,10 +48,85 @@ public class PrivateMessageDecoratedBean
     this.isSelected=isSelected ;    
   }
   
+  private boolean hasNextMsg=false;
+  private boolean hasPreviousMsg=false;
+  private String nextMsgId;
+  private String previousMsgId;
+  
+  
+  
   public PrivateMessage getMessage()
   {
     return msg;
   }
+  /**
+   * @return Returns the hasNextMsg.
+   */
+  public boolean isHasNextMsg()
+  {
+    return hasNextMsg;
+  }
+  /**
+   * @param hasNextMsg The hasNextMsg to set.
+   */
+  public void setHasNextMsg(boolean hasNextMsg)
+  {
+    this.hasNextMsg = hasNextMsg;
+  }
+  /**
+   * @return Returns the hasPreviousMsg.
+   */
+  public boolean isHasPreviousMsg()
+  {
+    return hasPreviousMsg;
+  }
+  /**
+   * @param hasPreviousMsg The hasPreviousMsg to set.
+   */
+  public void setHasPreviousMsg(boolean hasPreviousMsg)
+  {
+    this.hasPreviousMsg = hasPreviousMsg;
+  }
+  /**
+   * @return Returns the nextMsgId.
+   */
+  public String getNextMsgId()
+  {
+    return nextMsgId;
+  }
+  /**
+   * @param nextMsgId The nextMsgId to set.
+   */
+  public void setNextMsgId(String nextMsgId)
+  {
+    this.nextMsgId = nextMsgId;
+  }
+  /**
+   * @return Returns the previousMsgId.
+   */
+  public String getPreviousMsgId()
+  {
+    return previousMsgId;
+  }
+  /**
+   * @param previousMsgId The previousMsgId to set.
+   */
+  public void setPreviousMsgId(String previousMsgId)
+  {
+    this.previousMsgId = previousMsgId;
+  }
+  
+ 
+  private List msgs=new ArrayList();
+  public void addPvtMessage(PrivateMessageDecoratedBean decomsg)
+  {
+    if(!msgs.contains(decomsg))
+    {
+      msgs.add(decomsg);    
+    }
+  }
+  
+  
   
 }
 

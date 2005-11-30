@@ -23,6 +23,12 @@
 		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
 		  </h:column>
 		  <h:column>
+				<f:facet name="header">
+					<h:graphicImage value="/images/attachment.gif"/>								
+				</f:facet>
+				<h:graphicImage value="/images/attachment.gif" rendered="#{!empty rcvdItems.message.attachments}"/>			 
+			</h:column>
+		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Subject"/>
 		    </f:facet>
@@ -30,8 +36,7 @@
             <h:outputText value=" #{rcvdItems.message.title}"/>
             <f:param value="#{rcvdItems.message.uuid}" name="current_msg_detail"/>
           </h:commandLink>
-              
-		  </h:column>
+		  </h:column>			
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Authored By"/>

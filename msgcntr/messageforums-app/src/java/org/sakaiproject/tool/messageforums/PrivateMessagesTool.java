@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
@@ -90,21 +91,23 @@ public class PrivateMessagesTool
   public static final String PVTMSG_MODE_DRAFT = "Drafts";
   public static final String PVTMSG_MODE_CASE = "Personal Folders";
   
+  private boolean pvtAreaEnabled= false;
   
-  private String userId;
-  private Date time ;
+  PrivateForumDecoratedBean decoratedForum;
   
   private PrivateForum forum; 
   private List pvtTopics=new ArrayList();
   private List decoratedPvtMsgs;
   private String msgNavMode="" ;
   private PrivateMessageDecoratedBean detailMsg ;
+  
   private String currentMsgUuid; //this is the message which is being currently edited/displayed/deleted
   private boolean navModeIsDelete=false ; // Delete mode to show up extra buttons in pvtMsg.jsp page
   private List selectedItems;
-  private boolean pvtAreaEnabled= false;
   
-  PrivateForumDecoratedBean decoratedForum;
+  private String userId;    //current user
+  private Date time ;       //current time
+  
   //delete confirmation screen - single delete 
   private boolean deleteConfirm=false ; //used for displaying delete confirmation message in same jsp
   
@@ -699,7 +702,7 @@ public class PrivateMessagesTool
 //        }
       }
       this.deleteConfirm=false; //reset this as used for multiple action in same JSP
-      //TODO - retrives the details for this message with above Id.
+      
       return "pvtMsgDetail";
     }
     catch (Exception e)
@@ -787,7 +790,7 @@ public class PrivateMessagesTool
   public String processPvtMsgSend() {
     
     //TODO - create new PrivateMessage Object and add user input and then save
-    //prtMsgManager.savePrivateMessage(constructMessage());
+    prtMsgManager.savePrivateMessage(constructMessage());
     return "pvtMsg" ;
   }
  
@@ -838,11 +841,71 @@ public class PrivateMessagesTool
     
     return aMsg;    
   }
+  ///////////////////// Previous/Next topic and message on Detail message page
+
+  public String processDisplayNextMsg()
+  {
+    return processDisplayMsgById("nextMsgId");
+  }
+  
+  /**
+   * @return
+   */
+  public String processDisplayPreviousMsg()
+  {
+    return processDisplayMsgById("previousMsgId");
+  }
+  /**
+   * @param externalTopicId
+   * @return
+   */
+  private String processDisplayMsgById(String externalMsgId)
+  {
+    String msgId=null;
+    try
+    {
+      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+      Map paramMap = context.getRequestParameterMap();
+      Iterator itr = paramMap.keySet().iterator();
+      while (itr.hasNext())
+      {
+        String key = (String) itr.next();
+        if (key != null && key.equals(externalMsgId))
+        {
+          msgId = (String) paramMap.get(key);
+          break;
+        }
+      }
+      if(msgId!=null)
+      {
+        PrivateMessageDecoratedBean dbean=null;
+        PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(msgId) ;
+        if(msg != null)
+        {
+          dbean.addPvtMessage(new PrivateMessageDecoratedBean(msg)) ;
+          detailMsg = dbean;
+        }
+
+      }
+      else
+      {
+        //TODO :  appropriate error page
+        return "main";
+      }
+    }
+    catch (Exception e)
+    {
+      //TODO  appropriate error page
+      return "main"; 
+    }
+    return "pvtMsgDetail";
+  }
   
   //////////////////////REPLY SEND  /////////////////
   public String processPvtMsgReplySend() {
-    //PrivateMessage rsMsg=constructMessage() ;
-    //prtMsgManager.savePrivateMessage(rsMsg);
+    PrivateMessage rsMsg=constructMessage() ;
+    
+    prtMsgManager.savePrivateMessage(rsMsg);
     return "pvtMsg" ;
   }
  
@@ -933,7 +996,7 @@ public class PrivateMessagesTool
   private ArrayList prepareRemoveAttach = new ArrayList();
   private boolean attachCaneled = false;
   private ArrayList oldAttachments = new ArrayList();
-  private ArrayList allAttachments = new ArrayList();
+  private List allAttachments = new ArrayList();
 
   
   public ArrayList getAttachments()
@@ -956,10 +1019,6 @@ public class PrivateMessagesTool
         //Test
         attachments.add(thisAttach);
         
-//        if(entry.justCreated != true)
-//        {
-          allAttachments.add(thisAttach);
-//        }
       }
     }
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
@@ -968,6 +1027,38 @@ public class PrivateMessagesTool
     return attachments;
   }
   
+  public List getAllAttachments()
+  {
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
+        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
+    {
+      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      Reference ref = (Reference)refs.get(0);
+      
+      for(int i=0; i<refs.size(); i++)
+      {
+        ref = (Reference) refs.get(i);
+        Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
+            ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+        
+        //Test for delete -- pvtMsgAttachId should generated from hibernate
+        thisAttach.setPvtMsgAttachId(new Long(1));
+        //Test
+        allAttachments.add(thisAttach);
+      }
+    }
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+    
+    if( allAttachments == null || (allAttachments.size()<1))
+    {
+      allAttachments.addAll(this.getDetailMsg().getMessage().getAttachments()) ;
+    }
+   
+    return allAttachments;
+    
+  }
   public void setAttachments(ArrayList attachments)
   {
     this.attachments = attachments;
@@ -1139,14 +1230,14 @@ public class PrivateMessagesTool
   
   public String processPvtMsgOrganize()
   {
-
-    return "pvtMsgOrganize";
+    return null ;
+    //return "pvtMsgOrganize";
   }
 
   public String processPvtMsgStatistics()
   {
-
-    return "pvtMsgStatistics";
+    return null ;
+    //return "pvtMsgStatistics";
   }
 
   public String processPvtMsgSettings()
@@ -1266,15 +1357,7 @@ public class PrivateMessagesTool
     return "pvtMsgEx" ;
   }
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
+ 
   //////// GETTER AND SETTER  ///////////////////  
   ////////////////////
   public String processUpload(ValueChangeEvent event)

@@ -69,17 +69,7 @@
 	        </sakai:panel_edit>
 	      </sakai:group_box>
 
-<%--********************* Attachment *********************	
-	      <sakai:group_box>
-	        <table width="100%" align="center">
-	          <tr>
-	            <td align="center" style="font-weight:bold;background-color:#DDDFE4;color: #000;padding:.3em;margin:-.3em -2.2em;text-align:left;font-size: .9em;line-height:1.3em">
-	              <h:outputText value="Attachments"/>
-	            </td>
-	          </tr>
-	        </table>
-	      </sakai:group_box>       
---%>
+
 <%--********************* Attachment *********************--%>	
 	      <sakai:group_box>
 	        <table width="100%" align="center">
@@ -89,29 +79,44 @@
 	            </td>
 	          </tr>
 	        </table>
+	          <%-- Existing Attachments 
+              <h:dataTable value="#{PrivateMessagesTool.detailMsg.message.attachments}" var="existAttach" >
+					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.message.attachments}">
+								<h:graphicImage url="/images/excel.gif" rendered="#{existAttach.attachmentType == 'application/vnd.ms-excel'}"/>
+								<h:graphicImage url="/images/html.gif" rendered="#{existAttach.attachmentType == 'text/html'}"/>
+								<h:graphicImage url="/images/pdf.gif" rendered="#{existAttach.attachmentType == 'application/pdf'}"/>
+								<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{existAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
+								<h:graphicImage url="/images/text.gif" rendered="#{existAttach.attachmentType == 'text/plain'}"/>
+								<h:graphicImage url="/images/word.gif" rendered="#{existAttach.attachmentType == 'application/msword'}"/>
+							
+								<h:outputText value="#{existAttach.attachmentName}"/>
+						
+								</h:column>
+							</h:dataTable>  
+					--%>	
 	        <sakai:doc_section>
 	          <sakai:button_bar>
 	          	<sakai:button_bar_item action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" />
 	          </sakai:button_bar>
 	        </sakai:doc_section>
 	        
-					<h:dataTable styleClass="listHier" id="attmsgrep" width="100%" value="#{PrivateMessagesTool.attachments}" var="eachAttach" >
-					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
+					<h:dataTable styleClass="listHier" id="attmsgrep" width="100%" rendered="#{!empty PrivateMessagesTool.allAttachments}" value="#{PrivateMessagesTool.allAttachments}" var="eachAttach" >
+					  <h:column >
 							<f:facet name="header">
 								<h:outputText value="Title"/>
 							</f:facet>
 							<sakai:doc_section>
-								<h:graphicImage url="/sakai-messageforums-tool/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
+								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
+								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
+								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
+								<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
+								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
+								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
 							
 								<h:outputText value="#{eachAttach.attachmentName}"/>
 							</sakai:doc_section>
 							
-							<%--
+						
 							<sakai:doc_section>
 								<h:commandLink action="#{PrivateMessagesTool.processDeleteAttach}" 
 									onfocus="document.forms[0].onsubmit();">
@@ -119,34 +124,20 @@
 									<f:param value="#{eachAttach.pvtMsgAttachId}" name="syllabus_current_attach"/>
 								</h:commandLink>
 							</sakai:doc_section>
-						 --%>
+
 						</h:column>
-					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
+					  <h:column >
 							<f:facet name="header">
 								<h:outputText value="Size" />
 							</f:facet>
 							<h:outputText value="#{eachAttach.attachmentSize}"/>
 						</h:column>
-					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
+					  <h:column >
 							<f:facet name="header">
 		  			    <h:outputText value="Type" />
 							</f:facet>
 							<h:outputText value="#{eachAttach.attachmentType}"/>
 						</h:column>
-						<%--
-					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
-							<f:facet name="header">
-								<h:outputText value="Created by" />
-							</f:facet>
-							<h:outputText value="#{eachAttach.createdBy}"/>
-						</h:column>
-					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
-							<f:facet name="header">
-								<h:outputText value="Last modified by" />
-							</f:facet>
-							<h:outputText value="#{eachAttach.lastModifiedBy}"/>
-						</h:column>
-						--%>
 						</h:dataTable>   
 					</sakai:group_box>  
 					 

@@ -9,25 +9,19 @@
     <sakai:view_content>
       <h:form id="pvtMsgDetail">
       	
-      	<div class="left-header-section">
+      
 					<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> / 
 					<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="Private Messages" >
 					</h:commandLink> /
 					<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
 			 	<sakai:instruction_message value="Private Message Details" />
-				</div>
-				<div class="right-header-section">
-					<h:outputText value="Previous Folder" />
-					<h:outputText value="Next Folder" />	
-					<sakai:instruction_message />
-				</div>
-      	
+				
+
       	
       	
       	<br>
       	
-      	<div class="base-div">
-        
+      	
           <table width="100%" align="left" style="background-color:#DDDFE4;">
             <tr>
               <td align="left">
@@ -36,8 +30,18 @@
               <td align="left">
               	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
               </td>  
-              <td align="left"><h:outputText style="font-weight:bold"  value="Previous Message" />
-		<h:outputText style="font-weight:bold"  value="Next Message" />	
+              <td align="left">
+             							<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message   "  rendered="#{PrivateMessagesTool.detailMsg.hasPreviousMsg}" >
+				<f:param value="#{PrivateMessagesTool.detailMsg.previousMsgId}" name="previousMsgId"/>
+			</h:commandLink>
+			<h:commandLink action="#{PrivateMessagesTool.processDisplayNextMsg}" value="Next Message   " rendered="#{PrivateMessagesTool.detailMsg.hasNextMsg}" >
+				<f:param value="#{PrivateMessagesTool.detailMsg.nextMsgId}" name="nextTopicId"/>
+			</h:commandLink>
+			
+			<h:outputText   value="Previous Message   "  rendered="#{!PrivateMessagesTool.detailMsg.hasPreviousMsg}" />
+			<h:outputText   value="Next Message   " rendered="#{!PrivateMessagesTool.detailMsg.hasNextMsg}" />		
+
+      	
 	      </td>
         
             </tr>
@@ -57,6 +61,33 @@
                 <h:outputText style="font-weight:bold"  value="Attachments "/>
               </td>
               <td align="left">
+              <%-- Attachments --%>
+              <h:dataTable value="#{PrivateMessagesTool.detailMsg.message.attachments}" var="eachAttach" >
+					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.message.attachments}">
+								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
+								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
+								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
+								<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
+								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
+								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
+							
+								<h:outputText value="#{eachAttach.attachmentName}"/>
+						
+								</h:column>
+							</h:dataTable>   
+						
+              
+              <%-- Attachments --%>
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
               </td>
               <td></td>
             </tr>
@@ -98,7 +129,7 @@
             </sakai:doc_section>    
           </sakai:panel_edit>
         </sakai:group_box>
-         </div>               
+             
 
       </h:form>
      

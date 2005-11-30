@@ -25,6 +25,13 @@
 		      <h:outputText value=" #{delItems.message.title}"/>              
 		  </h:column>
 		  <h:column>
+				<f:facet name="header">
+					<h:graphicImage value="/images/attachment.gif"/>								
+				</f:facet>
+				<h:graphicImage value="/images/attachment.gif" rendered="#{!empty delItems.message.attachments}"/>			 
+			</h:column>
+			
+		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Authored By"/>
 		    </f:facet>		     		    
