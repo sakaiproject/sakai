@@ -175,6 +175,8 @@ public class SelectActionListener
         DeliveryBean delivery = new DeliveryBean();
         delivery.setAssessmentId(g.getPublishedAssessmentId().toString());
         delivery.setAssessmentTitle(g.getPublishedAssessmentTitle());
+        delivery.setFeedbackDelivery(getFeedbackDelivery(g.getPublishedAssessmentId(),
+                                                 publishedAssessmentHash));
         delivery.setFeedbackDate(getFeedbackDate(g.getPublishedAssessmentId(),
                                                  publishedAssessmentHash));
         if (g.getFinalScore() != null) {
@@ -483,6 +485,15 @@ public class SelectActionListener
         get(publishedAssessmentId);
     if (p!=null)
       return p.getFeedbackDate();
+    else
+      return null;
+  }
+
+  private String getFeedbackDelivery(Long publishedAssessmentId, HashMap publishedAssessmentHash){
+    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
+        get(publishedAssessmentId);
+    if (p!=null)
+      return p.getFeedbackDelivery().toString();
     else
       return null;
   }

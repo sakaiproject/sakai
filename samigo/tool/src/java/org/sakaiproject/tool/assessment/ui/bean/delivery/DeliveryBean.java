@@ -162,6 +162,7 @@ public class DeliveryBean
   private AssessmentGradingData adata;
   private PublishedAssessmentFacade publishedAssessment;
   private java.util.Date feedbackDate;
+  private String feedbackDelivery;
   private String showScore;
   private boolean hasTimeLimit;
 
@@ -1854,6 +1855,16 @@ public class DeliveryBean
   public void setFeedbackDate(java.util.Date feedbackDate)
   {
     this.feedbackDate = feedbackDate;
+  }
+
+  public String getFeedbackDelivery()
+  {
+    return feedbackDelivery;
+  }
+
+  public void setFeedbackDelivery(String feedbackDelivery)
+  {
+    this.feedbackDelivery = feedbackDelivery;
   }
 
   public String getShowScore()

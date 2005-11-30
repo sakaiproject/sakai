@@ -300,12 +300,14 @@ sorting actions for table:
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{reviewable.feedbackDate} " rendered="#{reviewable.feedback eq 'true'}" >
-        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}" />
+      <h:outputText value="#{reviewable.feedbackDate}" 
+        rendered="#{reviewable.feedbackDelivery eq '2'}" >
+        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}"  />
       </h:outputText>
-      <h:outputText value="Immediate" rendered="#{reviewable.feedback eq 'true'
-        && reviewable.feedbackDate==null}" />
-       <h:outputText value="#{msg.not_applicable}" rendered="#{reviewable.feedback eq 'false'}" />
+      <h:outputText value="Immediate" 
+        rendered="#{reviewable.feedbackDelivery eq '1'}" />
+       <h:outputText value="#{msg.not_applicable}" 
+        rendered="#{reviewable.feedbackDelivery==null || reviewable.feedbackDelivery eq '3'}" />
     </h:column>
 
 <%-- STATISTICS --%>
