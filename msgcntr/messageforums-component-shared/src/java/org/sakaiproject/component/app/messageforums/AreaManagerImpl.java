@@ -108,6 +108,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         area.setUuid(getNextUuid());
         area.setCreated(new Date());
         area.setCreatedBy(getCurrentUser());
+        area.setContextId(getContextId());
         LOG.debug("createArea executed with areaId: " + area.getId());
         return area;
     }
@@ -155,7 +156,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         try {
             return sessionManager.getCurrentSessionUserId();
         } catch (Exception e) {
-            // TODO: remove after done testing
+            // TODO: remove after done testing -- needed for unit testing
+            // is there a better way to get this when there is no session?
             return "testuser";
         }
     }
