@@ -203,7 +203,7 @@ public class PrivateMessagesTool
       {
         PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
         decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
-        decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(topic)) ;
+        decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic)) ;
         decoratedForum.addTopic(decoTopic);
       }          
     }

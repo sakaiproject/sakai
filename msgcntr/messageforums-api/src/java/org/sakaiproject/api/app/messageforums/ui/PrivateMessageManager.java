@@ -31,7 +31,7 @@ public interface PrivateMessageManager {
     Message getMessageById(String id);
    
     int getTotalNoMessages(Topic topic);
-    int getUnreadNoMessages(Topic topic);
+    int getUnreadNoMessages(String userId, Topic topic);
     
     //create new instance of Privae Message --required before saving 
     public PrivateMessage createPrivateMessage() ;

@@ -26,32 +26,39 @@ package org.sakaiproject.component.app.messageforums;
 import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 
 public interface MessageForumsMessageManager {
 
     public Message createMessage(String typeId);
 
+    public PrivateMessage createPrivateMessage();
+
+    public Message createDiscussionMessage();
+
+    public Message createOpendMessage();
+
     public void saveMessage(Message message);
 
     public void deleteMessage(Message message);
-    
+
     public Message getMessageById(final String messageId);
 
     public void markMessageReadForUser(String userId, String topicId, String messageId);
-    
+
     public boolean isMessageReadForUser(String userId, String topicId, String messageId);
 
     public UnreadStatus findUnreadStatus(String userId, String topicId, String messageId);
 
     public void deleteUnreadStatus(String userId, String topicId, String messageId);
-    
+
     public int findMessageCountByTopicId(String topicId);
 
     public int findUnreadMessageCountByTopicId(String userId, String topicId);
 
     public int findReadMessageCountByTopicId(String userId, String topicId);
-    
+
     public List findMessagesByTopicId(String topicId);
 
 }

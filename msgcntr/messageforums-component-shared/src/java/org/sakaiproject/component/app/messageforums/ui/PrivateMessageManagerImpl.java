@@ -1,5 +1,6 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
@@ -140,33 +141,37 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     }
   }
 
+  // Himansu: I am not quite sure this is what you want... let me know.  All you 
+  // have to do to save attachments is add them to the message they belong to and
+  // save the message.
   public void savePvtMsgAttachment(Attachment attach)
   {
-    //getHibernateTemplate().saveOrUpdate(attach);
+    Message message = attach.getMessage();
+    messageManager.saveMessage(message);
   }
 
+  // Himansu: I am not quite sure this is what you want... let me know.
   public void addAttachToPvtMsg(PrivateMessage pvtMsgData, Attachment pvtMsgAttach)
   {
-    // TODO Auto-generated method stub
-    
+    pvtMsgData.addAttachment(pvtMsgAttach);    
   }
 
+  // Himansu: I am not quite sure this is what you want... let me know.
   public void removePvtMsgAttachment(Attachment o)
   {
-    // TODO Auto-generated method stub
-    
+    o.getMessage().removeAttachment(o);    
   }
 
+  // Himansu: I am not quite sure this is what you want... let me know.
   public void removePvtMsgAttachPvtMsgData(PrivateMessage pvtMsgData, Attachment pvtMsgAttach)
   {
-    // TODO Auto-generated method stub
-    
+    pvtMsgData.removeAttachment(pvtMsgAttach);
   }
 
+  // Himansu: You should probably change the return type here to be a List
   public Set getPvtMsgAttachmentsForPvtMsgData(PrivateMessage pvtMsgData)
   {
-    // TODO Auto-generated method stub
-    return null;
+    return new HashSet(pvtMsgData.getAttachments());
   }
 
   public Attachment getPvtMsgAttachment(String pvtMsgAttachId)
@@ -177,14 +182,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   public int getTotalNoMessages(Topic topic)
   {
-    //  TODO: Implement 
-    return 20;
+    return messageManager.findMessageCountByTopicId(topic.getId().toString());
   }
 
-  public int getUnreadNoMessages(Topic topic)
+  public int getUnreadNoMessages(String userId, Topic topic)
   {
-    //  TODO: Implement
-    return 10;
+    return messageManager.findUnreadMessageCountByTopicId(userId, topic.getId().toString());
   }
 
   /**
@@ -199,7 +202,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   /**
    * Topic Folder Setting
    */
-  
+  // Himansu: I think you need to pass a topic title or something here.  If not, 
+  // how do I know which topic you are currently on?
   public boolean isMutableTopicFolder()
   {
     // TODO Auto-generated method stub
@@ -226,10 +230,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   public PrivateMessage createPrivateMessage()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return messageManager.createPrivateMessage();
   }
-
- 
 
 }

@@ -36,10 +36,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -222,6 +224,25 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             return false; // not been saved yet, so it is unread
         }
         return status.getRead().booleanValue();        
+    }
+
+    public PrivateMessage createPrivateMessage() {
+        PrivateMessage message = new PrivateMessageImpl();
+        message.setUuid(getNextUuid());
+        message.setTypeUuid(typeManager.getPrivateType());
+        message.setCreated(new Date());
+        message.setCreatedBy(getCurrentUser());
+
+        LOG.info("message " + message.getId() + " saved successfully");
+        return message;        
+    }
+
+    public Message createDiscussionMessage() {
+        return createMessage(typeManager.getDiscussionForumType());
+    }
+
+    public Message createOpendMessage() {
+        return createMessage(typeManager.getOpenDiscussionForumType());
     }
 
     public Message createMessage(String typeId) {
