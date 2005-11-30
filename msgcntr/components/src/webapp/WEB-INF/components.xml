@@ -163,6 +163,9 @@
                 <property name="messageManager">
                     <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager"/>
                 </property>							
+                <property name="forumManager">
+                    <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsForumManager"/>
+                </property>							
             </bean>           
         </property>
          <property name="transactionAttributes">

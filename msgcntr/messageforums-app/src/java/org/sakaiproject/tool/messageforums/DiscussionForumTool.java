@@ -14,6 +14,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
@@ -407,7 +408,7 @@ public class DiscussionForumTool
       {
         DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic);
         decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic));
         decoForum.addTopic(decoTopic);
       }
     }
@@ -444,7 +445,7 @@ public class DiscussionForumTool
     // TODO : implement me
     decoTopic.getTopic().setBaseForum(forumManager.getForumById("5"));
     decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-    decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+    decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic));
     decoTopic.setHasNextTopic(forumManager.hasNextTopic(topic));
     decoTopic.setHasPreviousTopic(forumManager.hasPreviousTopic(topic));
     if (forumManager.hasNextTopic(topic))
@@ -469,7 +470,7 @@ public class DiscussionForumTool
       {
         DiscussionMessageBean decoMsg = new DiscussionMessageBean(message);
         decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic));
         decoTopic.addMessage(decoMsg);
       }
     }

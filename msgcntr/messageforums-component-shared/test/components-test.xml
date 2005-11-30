@@ -108,7 +108,7 @@
 		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsForumManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsForumManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
 			<ref bean="transactionManager" />
 		</property>

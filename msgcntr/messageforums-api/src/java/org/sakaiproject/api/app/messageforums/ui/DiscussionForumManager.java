@@ -47,7 +47,7 @@ public interface DiscussionForumManager
    * @param topic
    * @return
    */
-  int getUnreadNoMessages(Topic topic);
+  int getUnreadNoMessages(String userId, Topic topic);
 
   /**
    * @return

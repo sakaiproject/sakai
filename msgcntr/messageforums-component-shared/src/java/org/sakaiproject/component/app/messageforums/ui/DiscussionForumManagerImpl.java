@@ -10,6 +10,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
@@ -28,6 +29,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 {
   private static final Log LOG = LogFactory.getLog(DiscussionForumManagerImpl.class);
   private AreaManager areaManager;
+  private MessageForumsForumManager forumManager;
   private MessageForumsMessageManager messageManager;
   private DummyDataHelperApi helper;
   private boolean usingHelper = true; // just a flag until moved to database from helper
@@ -91,8 +93,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getDiscussionForumArea();
     }
-    // TODO: Implement Me!
-    throw new UnsupportedOperationException();
+    return areaManager.getDiscusionArea();
   }
 
   /*
@@ -132,8 +133,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public int getTotalNoMessages(Topic topic)
   {
-    // TODO: Implement
-    return 20;
+    return messageManager.findMessageCountByTopicId(topic.getId().toString());
   }
 
   /*
@@ -141,10 +141,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getUnreadNoMessages(org.sakaiproject.api.app.messageforums.Topic)
    */
-  public int getUnreadNoMessages(Topic topic)
+  public int getUnreadNoMessages(String userId, Topic topic)
   {
-    // TODO: Implement
-    return 10;
+    return messageManager.findUnreadMessageCountByTopicId(userId, topic.getId().toString());
   }
 
   /*
@@ -158,8 +157,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getDiscussionForumArea().getDiscussionForums();
     }
-    // TODO: Implement Me!
-    throw new UnsupportedOperationException();
+    return getDiscussionForumArea().getDiscussionForums();
   }
 
   /*
@@ -173,8 +171,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getForumById(forumId);
     }
-    // TODO: Implement Me!
-    throw new UnsupportedOperationException();
+    return (DiscussionForum) forumManager.getForumById(forumId);
   }
 
   /*
@@ -188,8 +185,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getMessagesByTopicId(topicId);
     }
-    // TODO: Implement Me!
-    throw new UnsupportedOperationException();
+    return messageManager.findMessagesByTopicId(topicId);
   }
 
   /* (non-Javadoc)
@@ -201,8 +197,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getTopicById(topicId);
     }
-    // TODO: Implement Me!
-    throw new UnsupportedOperationException();
+    return (DiscussionTopic) forumManager.getTopicById(topicId);
   }
 
   /* (non-Javadoc)
@@ -303,5 +298,13 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   {
     LOG.debug("getContextSiteId()");
     return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+  }
+  
+  public MessageForumsForumManager getForumManager() {
+    return forumManager;
+  }
+
+  public void setForumManager(MessageForumsForumManager forumManager) {
+    this.forumManager = forumManager;
   }
 }

@@ -21,15 +21,10 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.component.app.messageforums;
+package org.sakaiproject.api.app.messageforums;
 
 import java.util.List;
 
-import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.OpenTopic;
-import org.sakaiproject.api.app.messageforums.Topic;
 
 public interface MessageForumsForumManager {
 
