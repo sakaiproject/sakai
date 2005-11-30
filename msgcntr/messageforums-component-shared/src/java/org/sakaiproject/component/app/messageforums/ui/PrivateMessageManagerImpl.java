@@ -176,8 +176,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   public Attachment getPvtMsgAttachment(String pvtMsgAttachId)
   {
-    // TODO Auto-generated method stub
-    return null;
+    return messageManager.getAttachmentById(pvtMsgAttachId);
   }
 
   public int getTotalNoMessages(Topic topic)

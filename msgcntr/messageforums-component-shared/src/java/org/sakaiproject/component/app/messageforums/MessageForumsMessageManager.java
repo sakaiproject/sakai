@@ -25,6 +25,7 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.util.List;
 
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
@@ -61,4 +62,6 @@ public interface MessageForumsMessageManager {
 
     public List findMessagesByTopicId(String topicId);
 
-}
+    public Attachment getAttachmentById(String attachmentId);
+
+    }

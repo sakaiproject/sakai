@@ -34,6 +34,7 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
@@ -51,6 +52,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final Log LOG = LogFactory.getLog(MessageForumsMessageManagerImpl.class);    
 
     private static final String QUERY_BY_MESSAGE_ID = "findMessageById";
+    private static final String QUERY_ATTACHMENT_BY_ID = "findAttachmentById";    
     private static final String QUERY_COUNT_BY_READ = "findReadMessageCountByTopicId";
     private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
@@ -285,6 +287,26 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         return (Message) getHibernateTemplate().execute(hcb);
     }    
+    
+    public Attachment getAttachmentById(final String attachmentId) {        
+        if (attachmentId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("getAttachmentById executing with attachmentId: " + attachmentId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_ATTACHMENT_BY_ID);
+                q.setParameter(ID, attachmentId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return (Attachment) getHibernateTemplate().execute(hcb);
+    }    
+    
+
     
     // helpers
     
