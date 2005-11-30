@@ -16,7 +16,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.ToolManager;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -27,8 +27,6 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private static final String CONTEXT_ID = "contextId";
 
     private static final String QUERY_AREA_BY_CONTEXT_ID = "findAreaByContextIdAndTypeId";
-
-    private ToolManager toolManager;
     
     private IdManager idManager;
 
@@ -39,7 +37,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     public void init() {
         ;
     }
-    
+        
     public MessageForumsTypeManager getTypeManager() {
         return typeManager;
     }
@@ -65,11 +63,21 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public Area getPrivateArea() {
-        return getAreaByContextIdAndTypeId(typeManager.getPrivateType());
+        Area area = getAreaByContextIdAndTypeId(typeManager.getPrivateType());
+        if (area == null) {
+            area = createArea(typeManager.getPrivateType());
+            saveArea(area);
+        }
+        return area;
     }
     
     public Area getDiscusionArea() {
-        return getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());        
+        Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
+        if (area == null) {
+            area = createArea(typeManager.getDiscussionForumType());
+            saveArea(area);
+        }
+        return area;
     }
 
     public boolean isPrivateAreaEnabled() {
@@ -106,7 +114,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         if (TestUtil.isRunningTests()) {
             return "test-context";
         }
-        Placement placement = toolManager.getCurrentPlacement();
+        Placement placement = ToolManager.getCurrentPlacement();
         String presentSiteId = placement.getContext();
         return presentSiteId;
     }
@@ -128,15 +136,6 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private String getNextUuid() {
         return idManager.createUuid();
     }
-
-    public ToolManager getToolManager() {
-        return toolManager;
-    }
-
-    public void setToolManager(ToolManager toolManager) {
-        this.toolManager = toolManager;
-    }
-
     
     // helpers
 
