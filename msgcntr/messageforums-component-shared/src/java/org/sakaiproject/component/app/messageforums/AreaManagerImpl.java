@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
@@ -23,17 +24,29 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager {
     private static final Log LOG = LogFactory.getLog(AreaManagerImpl.class);
 
-    private static final String QUERY_BY_CONTEXTID = "findAreaByContextId";
-
     private static final String CONTEXT_ID = "contextId";
 
-    private static final String QUERY_AREA_BY_CONTEXT_ID = "findAreaByContextId";
+    private static final String QUERY_AREA_BY_CONTEXT_ID = "findAreaByContextIdAndTypeId";
 
     private ToolManager toolManager;
     
     private IdManager idManager;
 
     private SessionManager sessionManager;
+
+    private MessageForumsTypeManager typeManager;
+
+    public void init() {
+        ;
+    }
+    
+    public MessageForumsTypeManager getTypeManager() {
+        return typeManager;
+    }
+
+    public void setTypeManager(MessageForumsTypeManager typeManager) {
+        this.typeManager = typeManager;
+    }
 
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
@@ -51,57 +64,22 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         this.idManager = idManager;
     }
 
-    public void init() {
-        ;
-    }
-
-    // TODO: do we need to restrict by type here?
     public Area getPrivateArea() {
-        return getAreaByContextId();
+        return getAreaByContextIdAndTypeId(typeManager.getPrivateType());
     }
     
-    // TODO: do we need to restrict by type here?
     public Area getDiscusionArea() {
-        return getAreaByContextId();        
+        return getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());        
     }
 
     public boolean isPrivateAreaEnabled() {
         return getPrivateArea().getEnabled().booleanValue();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.sakaiproject.api.app.messageforums.AreaManager#getArea()
-     */
-    public Area getArea() {
-        return getArea(getContextId());
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.sakaiproject.api.app.messageforums.AreaManager#getArea(java.lang.String)
-     */
-    public Area getArea(final String contextId) {
-        if (contextId == null) {
-            throw new IllegalArgumentException("Null Argument");
-        }
-
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_BY_CONTEXTID);
-                q.setParameter(CONTEXT_ID, contextId, Hibernate.STRING);
-                return q.uniqueResult();
-            }
-        };
-
-        return (AreaImpl) getHibernateTemplate().execute(hcb);
-    }
-
-    public Area createArea() {
+    public Area createArea(String typeId) {
         Area area = new AreaImpl();
         area.setUuid(getNextUuid());
+        area.setTypeUuid(typeId);
         area.setCreated(new Date());
         area.setCreatedBy(getCurrentUser());
         area.setContextId(getContextId());
@@ -133,12 +111,13 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return presentSiteId;
     }
 
-    public Area getAreaByContextId() {
+    public Area getAreaByContextIdAndTypeId(final String typeId) {
         LOG.debug("getPrivateArea executing for current user: " + getCurrentUser());
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_ID);
                 q.setParameter(CONTEXT_ID, getContextId(), Hibernate.STRING);
+                q.setParameter("typeId", typeId, Hibernate.STRING);
                 return q.uniqueResult();
             }
         };

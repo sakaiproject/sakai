@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.kernel.id.IdManager;
@@ -58,14 +59,36 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private SessionManager sessionManager;
 
+    private MessageForumsTypeManager typeManager;
+
+    public MessageForumsForumManagerImpl() {}
+    
+    public void init() {
+        ;
+    }
+    
+    public MessageForumsTypeManager getTypeManager() {
+        return typeManager;
+    }
+
+    public void setTypeManager(MessageForumsTypeManager typeManager) {
+        this.typeManager = typeManager;
+    }
+    
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
-    public MessageForumsForumManagerImpl() {}
-
     public void setIdManager(IdManager idManager) {
         this.idManager = idManager;
+    }
+
+    public IdManager getIdManager() {
+        return idManager;
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager;
     }
 
     /**
@@ -129,6 +152,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setUuid(getNextUuid());
         forum.setCreated(new Date());
         forum.setCreatedBy(getCurrentUser());
+        forum.setTypeUuid(typeManager.getDiscussionForumType());
         LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId());
         return forum;
     }
@@ -146,6 +170,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public DiscussionTopic createDiscussionForumTopic() {
         DiscussionTopic topic = new DiscussionTopicImpl();
         topic.setUuid(getNextUuid());
+        topic.setTypeUuid(typeManager.getDiscussionForumType());
         topic.setCreated(new Date());
         topic.setCreatedBy(getCurrentUser());
         LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
@@ -165,6 +190,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public OpenTopic createOpenForumTopic() {
         OpenTopic topic = new OpenTopicImpl();
         topic.setUuid(getNextUuid());
+        topic.setTypeUuid(typeManager.getOpenDiscussionForumType());
         topic.setCreated(new Date());
         topic.setCreatedBy(getCurrentUser());
         LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
@@ -259,14 +285,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private String getNextUuid() {
         return idManager.createUuid();
-    }
-
-    public IdManager getIdManager() {
-        return idManager;
-    }
-
-    public SessionManager getSessionManager() {
-        return sessionManager;
     }
 
 }

@@ -30,7 +30,7 @@ import org.sakaiproject.api.app.messageforums.UnreadStatus;
 
 public interface MessageForumsMessageManager {
 
-    public Message createMessage();
+    public Message createMessage(String typeId);
 
     public void saveMessage(Message message);
 

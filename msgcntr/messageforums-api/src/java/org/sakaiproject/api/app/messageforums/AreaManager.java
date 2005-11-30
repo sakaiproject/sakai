@@ -9,22 +9,12 @@ package org.sakaiproject.api.app.messageforums;
  */
 public interface AreaManager
 {
-  /**
-   * @return
-   */
-  public Area getArea();
-  
-  /**
-   * @param contextId
-   * @return
-   */
-  public Area getArea(String contextId);
-  
+ 
   public boolean isPrivateAreaEnabled();
   public void saveArea(Area area);
-  public Area createArea();
+  public Area createArea(String typeId);
   public void deleteArea(Area area);
-  public Area getAreaByContextId();
+  public Area getAreaByContextIdAndTypeId(String typeId);
   public Area getPrivateArea();
   public Area getDiscusionArea();
 

@@ -35,6 +35,7 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
@@ -50,24 +51,33 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_BY_MESSAGE_ID = "findMessageById";
     private static final String QUERY_COUNT_BY_READ = "findReadMessageCountByTopicId";
     private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
-    private static final String QUERY_COUNT_BY_TOPIC_ID = "findMessageCountByTopicId";
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
     private static final String ID = "id";
 
     private IdManager idManager;                             
 
+    private MessageForumsTypeManager typeManager;
+
     private SessionManager sessionManager;
 
+    public void init() {
+        ;
+    }
+    
+    public MessageForumsTypeManager getTypeManager() {
+        return typeManager;
+    }
+
+    public void setTypeManager(MessageForumsTypeManager typeManager) {
+        this.typeManager = typeManager;
+    }
+    
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
     public void setIdManager(IdManager idManager) {
         this.idManager = idManager;
-    }
-
-    public void init() {
-        ;
     }
 
     public IdManager getIdManager() {
@@ -214,9 +224,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return status.getRead().booleanValue();        
     }
 
-    public Message createMessage() {
+    public Message createMessage(String typeId) {
         Message message = new MessageImpl();
         message.setUuid(getNextUuid());
+        message.setTypeUuid(typeId);
         message.setCreated(new Date());
         message.setCreatedBy(getCurrentUser());
 

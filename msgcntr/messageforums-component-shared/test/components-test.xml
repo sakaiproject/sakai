@@ -2,15 +2,15 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-    <bean id="transactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager"> 
-		<property name="dataSource"> 
-			<ref local="dataSource"/> 
-		</property> 
+	<bean id="transactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager">
+		<property name="dataSource">
+			<ref local="dataSource" />
+		</property>
 		<property name="sessionFactory">
 			<ref bean="org.springframework.orm.hibernate.SessionFactory" />
-		</property>	
-	</bean> 
-	
+		</property>
+	</bean>
+
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 		<property name="driverClassName">
 			<value>com.mysql.jdbc.Driver</value>
@@ -35,8 +35,8 @@
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserImpl.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePermissions.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>
+				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePermissions.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/UnreadStatus.hbm.xml</value>
 				<value>org/sakaiproject/component/app/messageforums/dao/hibernate/Area.hbm.xml</value>
@@ -49,37 +49,66 @@
 		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.api.kernel.id.IdManager"
-			class="org.sakaiproject.component.kernel.id.UuidV4IdComponent"
-			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+	<bean id="org.sakaiproject.api.kernel.id.IdManager" class="org.sakaiproject.component.kernel.id.UuidV4IdComponent" init-method="init" destroy-method="destroy" singleton="true"></bean>
+
+	<bean id="org.sakaiproject.api.kernel.session.SessionManager" class="org.sakaiproject.component.kernel.session.SessionComponent" init-method="init" destroy-method="destroy" singleton="true"></bean>
+
+	<bean id="org.sakaiproject.api.kernel.tool.ToolManager" class="org.sakaiproject.component.kernel.tool.ToolComponent" init-method="init" destroy-method="destroy" singleton="true">
+		<property name="threadLocalManager">
+			<ref bean="org.sakaiproject.api.kernel.thread_local.ThreadLocalManager" />
+		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.api.kernel.session.SessionManager"
-			class="org.sakaiproject.component.kernel.session.SessionComponent"
-			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
-	</bean>
-	
-	<bean id="org.sakaiproject.api.kernel.tool.ToolManager"
-			class="org.sakaiproject.component.kernel.tool.ToolComponent"
-			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
-		<property name="threadLocalManager"><ref bean="org.sakaiproject.api.kernel.thread_local.ThreadLocalManager"/></property>
-	</bean>
-	
-	<bean id="org.sakaiproject.api.kernel.thread_local.ThreadLocalManager"
-			class="org.sakaiproject.component.kernel.thread_local.ThreadLocalComponent"
-			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+	<bean id="org.sakaiproject.api.kernel.thread_local.ThreadLocalManager" class="org.sakaiproject.component.kernel.thread_local.ThreadLocalComponent" init-method="init" destroy-method="destroy" singleton="true"></bean>
+
+	<bean id="org.sakaiproject.api.common.uuid.UuidManager" class="org.sakaiproject.component.common.uuid.UuidManagerCommonsImpl"></bean>
+
+	<bean id="org.sakaiproject.component.common.manager.PersistableHelper" class="org.sakaiproject.component.common.manager.PersistableHelper">
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsForumManager"
-		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+	<bean name="org.sakaiproject.api.common.agent.AgentGroupManager" class="org.sakaiproject.component.common.agent.AgentGroupManagerUserDirectoryProxy">
+		<property name="userDirectoryService">
+			<ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService" />
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.common.type.TypeManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.component.common.type.TypeManagerImpl">
+				<property name="sessionFactory">
+					<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+				</property>
+				<property name="uuidManager">
+					<ref bean="org.sakaiproject.api.common.uuid.UuidManager" />
+				</property>
+				<property name="agentGroupManager">
+					<ref bean="org.sakaiproject.api.common.agent.AgentGroupManager" />
+				</property>
+				<property name="persistableHelper">
+					<ref bean="org.sakaiproject.component.common.manager.PersistableHelper" />
+				</property>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl">
+		<property name="typeManager">
+			<ref bean="org.sakaiproject.api.common.type.TypeManager" />
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsForumManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
 			<ref bean="transactionManager" />
 		</property>
@@ -87,25 +116,27 @@
 			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsForumManagerImpl">
 				<property name="sessionFactory">
 					<ref bean="org.springframework.orm.hibernate.SessionFactory" />
-				</property>   
+				</property>
 				<property name="idManager">
 					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
-				</property>				 				
+				</property>
 				<property name="sessionManager">
 					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
-				</property>				 								
-        	</bean>
+				</property>
+				<property name="typeManager">
+					<ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" />
+				</property>
+			</bean>
 		</property>
-		
+
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>
 			</props>
-		</property>		
+		</property>
 	</bean>
-	
-	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager"
-		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+
+	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
 			<ref bean="transactionManager" />
 		</property>
@@ -113,25 +144,27 @@
 			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsMessageManagerImpl">
 				<property name="sessionFactory">
 					<ref bean="org.springframework.orm.hibernate.SessionFactory" />
-				</property>				 
+				</property>
 				<property name="idManager">
 					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
-				</property>				 				
+				</property>
 				<property name="sessionManager">
 					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
-				</property>				 								
+				</property>
+				<property name="typeManager">
+					<ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" />
+				</property>
 			</bean>
 		</property>
-		
+
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>
 			</props>
-		</property>		
-	</bean>	
+		</property>
+	</bean>
 
-	<bean id="org.sakaiproject.api.app.messageforums.AreaManager"
-		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+	<bean id="org.sakaiproject.api.app.messageforums.AreaManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
 			<ref bean="transactionManager" />
 		</property>
@@ -139,23 +172,26 @@
 			<bean class="org.sakaiproject.component.app.messageforums.AreaManagerImpl">
 				<property name="sessionFactory">
 					<ref bean="org.springframework.orm.hibernate.SessionFactory" />
-				</property>				 
+				</property>
 				<property name="idManager">
 					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
-				</property>				 				
+				</property>
 				<property name="sessionManager">
 					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
-				</property>				 								
+				</property>
 				<property name="toolManager">
 					<ref bean="org.sakaiproject.api.kernel.tool.ToolManager" />
-				</property>				 								
+				</property>
+				<property name="typeManager">
+					<ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" />
+				</property>
 			</bean>
 		</property>
-		
+
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>
 			</props>
-		</property>		
+		</property>
 	</bean>
 </beans>

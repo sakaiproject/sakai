@@ -31,6 +31,7 @@ import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 
 public class MessageForumsTests extends ForumsApplicationContextBaseTest {
@@ -40,6 +41,8 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     private MessageForumsMessageManager messageManager;
 
     private AreaManager areaManager;
+    
+    private MessageForumsTypeManager typeManager;
     
     public MessageForumsTests() {
         super();
@@ -55,6 +58,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         forumManager = (MessageForumsForumManager) getApplicationContext().getBean(MessageForumsForumManager.class.getName());
         messageManager = (MessageForumsMessageManager) getApplicationContext().getBean(MessageForumsMessageManager.class.getName());
         areaManager = (AreaManager) getApplicationContext().getBean(AreaManager.class.getName());
+        typeManager = new MessageForumsTypeManagerImpl();
     }
 
     protected void setUp() throws Exception {
@@ -68,7 +72,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     }
 
     public void testSaveAndDeleteMessage() {
-        Message message = messageManager.createMessage();
+        Message message = messageManager.createMessage(typeManager.getPrivateType());
         message.setApproved(Boolean.TRUE);
         message.setAuthor("nate");
         message.setTitle("a message");
@@ -137,7 +141,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         forum.addAttachment(getAttachment());
         forum.addTopic(topic);
 
-        Area area = areaManager.createArea();
+        Area area = areaManager.createArea(typeManager.getPrivateType());
         area.setContextId("area-context-id");
         area.setEnabled(Boolean.TRUE);
         area.setHidden(Boolean.FALSE);
@@ -160,7 +164,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     public void testFindMessageCountByTopicId() {
         DiscussionTopic topic = getDiscussionTopic();
         for (int i = 0; i < 10; i++) {
-            Message message = messageManager.createMessage();
+            Message message = messageManager.createMessage(typeManager.getDiscussionForumType());
             message.setApproved(Boolean.TRUE);
             message.setAuthor("nate");
             message.setTitle("a message");
@@ -181,7 +185,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     public void testFindMessagesByTopicId() {
         DiscussionTopic topic = getDiscussionTopic();
         for (int i = 0; i < 10; i++) {
-            Message message = messageManager.createMessage();
+            Message message = messageManager.createMessage(typeManager.getDiscussionForumType());
             message.setApproved(Boolean.TRUE);
             message.setAuthor("nate");
             message.setTitle("a message");
@@ -202,7 +206,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     public void testFindReadMessageCountByTopicId() {
         DiscussionTopic topic = getDiscussionTopic();
         for (int i = 0; i < 10; i++) {
-            Message message = messageManager.createMessage();
+            Message message = messageManager.createMessage(typeManager.getDiscussionForumType());
             message.setApproved(Boolean.TRUE);
             message.setAuthor("nate");
             message.setTitle("a message");
@@ -225,7 +229,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     public void testFindUnreadMessageCountByTopicId() {
         DiscussionTopic topic = getDiscussionTopic();
         for (int i = 0; i < 10; i++) {
-            Message message = messageManager.createMessage();
+            Message message = messageManager.createMessage(typeManager.getDiscussionForumType());
             message.setApproved(Boolean.TRUE);
             message.setAuthor("nate");
             message.setTitle("a message");

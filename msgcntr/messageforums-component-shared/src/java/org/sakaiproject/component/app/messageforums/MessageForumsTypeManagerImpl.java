@@ -2,10 +2,10 @@ package org.sakaiproject.component.app.messageforums;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager; 
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+
 public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
 {
   private static final Log LOG = LogFactory

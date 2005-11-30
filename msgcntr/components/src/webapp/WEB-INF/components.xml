@@ -50,6 +50,9 @@
 				<property name="sessionManager">
 					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
 				</property>				 								
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -58,7 +61,36 @@
             </props>
         </property> 
     </bean>
-    
+
+	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsForumManager"
+		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+		<property name="target">
+			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsForumManagerImpl" singleton="true" init-method="init">
+				<property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+				</property>   
+				<property name="idManager">
+					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+				</property>				 				
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+				</property>				 								
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
+        	</bean>
+		</property>
+		
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>		
+	</bean>
+
     <bean id="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
