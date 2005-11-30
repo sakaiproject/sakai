@@ -823,9 +823,12 @@ public class PrivateMessagesTool
       aMsg.setRecipients(getSelectedComposeToList());
       aMsg.setTitle(getComposeSubject());
       aMsg.setBody(getComposeBody());
-      aMsg.setCreatedBy(getUserId());
-      aMsg.setCreated(getTime()) ;
+      // these are set by the create method above -- you can remove them or keep them if you really want :)
+      //aMsg.setCreatedBy(getUserId());
+      //aMsg.setCreated(getTime()) ;
+      aMsg.setAuthor(getUserId());
       aMsg.setDraft(Boolean.FALSE);      
+      aMsg.setApproved(Boolean.TRUE);      
     }
 
     

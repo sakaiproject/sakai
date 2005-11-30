@@ -275,12 +275,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     // helpers
 
     private String getCurrentUser() {
-        try {
-            return sessionManager.getCurrentSessionUserId();
-        } catch (Exception e) {
-            // TODO: remove after done testing
-            return "testuser";
+        if (TestUtil.isRunningTests()) {
+            return "test-user";
         }
+        return sessionManager.getCurrentSessionUserId();
     }
 
     private String getNextUuid() {

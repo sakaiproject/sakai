@@ -106,6 +106,9 @@
 				<property name="sessionManager">
 					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
 				</property>				 								
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
             </bean>            
         </property>
          <property name="transactionAttributes">

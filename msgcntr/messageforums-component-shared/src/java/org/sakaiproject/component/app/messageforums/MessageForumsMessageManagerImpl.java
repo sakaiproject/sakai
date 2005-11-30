@@ -243,7 +243,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return createMessage(typeManager.getDiscussionForumType());
     }
 
-    public Message createOpendMessage() {
+    public Message createOpenMessage() {
         return createMessage(typeManager.getOpenDiscussionForumType());
     }
 
@@ -311,12 +311,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     // helpers
     
     private String getCurrentUser() {        
-        try {
-            return sessionManager.getCurrentSessionUserId();
-        } catch (Exception e) {
-            // TODO: remove after done testing
-            return "testuser";
+        if (TestUtil.isRunningTests()) {
+            return "test-user";
         }
+        return sessionManager.getCurrentSessionUserId();
     }
     
     private String getNextUuid() {        

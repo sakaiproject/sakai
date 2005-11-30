@@ -38,7 +38,7 @@ public interface MessageForumsMessageManager {
 
     public Message createDiscussionMessage();
 
-    public Message createOpendMessage();
+    public Message createOpenMessage();
 
     public void saveMessage(Message message);
 
