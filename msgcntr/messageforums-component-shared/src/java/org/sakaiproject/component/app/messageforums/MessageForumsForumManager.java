@@ -28,6 +28,7 @@ import java.util.List;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
+import org.sakaiproject.api.app.messageforums.Topic;
 
 public interface MessageForumsForumManager {
 
@@ -114,5 +115,7 @@ public interface MessageForumsForumManager {
      * @param numberDaysInPast the number days to look back
      */
     public List getRecentOpenForumMessages(int numberMessages, int numberDaysInPast);
+    
+    public Topic getTopicById(String topicId);
 
 }

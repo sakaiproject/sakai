@@ -31,11 +31,7 @@ import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 
 public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     
@@ -242,6 +238,15 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         messageManager.markMessageReadForUser("nate", ""+topic.getId(), ""+((Message)topic.getMessages().get(5)).getId());
         
         assertEquals(messageManager.findUnreadMessageCountByTopicId("nate", ""+topic.getId()), 8);
+                
+        forumManager.deleteDiscussionForumTopic(topic);        
+    }
+
+    public void testFindTopicById() {
+        DiscussionTopic topic = getDiscussionTopic();        
+        forumManager.saveDiscussionForumTopic(topic);
+                
+        assertNotNull(forumManager.getTopicById(""+topic.getId()));
                 
         forumManager.deleteDiscussionForumTopic(topic);        
     }

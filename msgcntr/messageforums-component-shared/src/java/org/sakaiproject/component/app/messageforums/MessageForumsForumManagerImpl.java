@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
@@ -50,7 +51,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
 
     private static final String QUERY_BY_DISCUSSION_FORUM_ID = "findDiscussionForumById";
-
+    private static final String QUERY_BY_TOPIC_ID = "findTopicById";
+    
     private static final String ID = "ID";
 
     private IdManager idManager;
@@ -96,6 +98,25 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return (DiscussionForum) getHibernateTemplate().execute(hcb);
     }
 
+    public Topic getTopicById(final String topicId) {
+        if (topicId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("getDiscussionForumById executing with topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
+                q.setParameter("id", topicId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return (Topic) getHibernateTemplate().execute(hcb);
+    }
+
+    
     /**
      * Retrieve topics the current user's open forums
      */
