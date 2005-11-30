@@ -8,6 +8,10 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
 
+/**
+ * @author <a href="mailto:rshastri.iupui.edu">Rashmi Shastri</a>
+ *
+ */
 public interface DiscussionForumManager
 {
   /**
@@ -89,5 +93,9 @@ public interface DiscussionForumManager
    * @return
    */
   public DiscussionTopic getPreviousTopic(DiscussionTopic topic);
-
+  
+  /**
+   * @return
+   */
+  public boolean isInstructor();
 }

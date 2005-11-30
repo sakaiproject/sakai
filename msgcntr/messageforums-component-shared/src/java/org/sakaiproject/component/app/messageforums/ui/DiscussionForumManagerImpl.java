@@ -2,6 +2,8 @@ package org.sakaiproject.component.app.messageforums.ui;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -10,13 +12,21 @@ import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
+/**
+ * @author <a href="mailto:rshastri.iupui.edu">Rashmi Shastri</a>
+ *
+ */
 public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     DiscussionForumManager
 {
-
+  private static final Log LOG = LogFactory.getLog(DiscussionForumManagerImpl.class);
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
   private DummyDataHelperApi helper;
@@ -262,4 +272,36 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     throw new UnsupportedOperationException();
   }
 
+  
+  public boolean isInstructor()
+  {
+    LOG.debug("isInstructor()");
+    return isInstructor(UserDirectoryService.getCurrentUser());
+  }
+  
+  /**
+   * Check if the given user has site.upd access
+   * @param user
+   * @return
+   */
+  private boolean isInstructor(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isInstructor(User " + user + ")");
+    }
+    if (user != null)
+      return SecurityService.unlock(user, "site.upd", getContextSiteId());
+    else
+      return false;
+  }
+
+  /**
+   * @return siteId
+   */
+  private String getContextSiteId()
+  {
+    LOG.debug("getContextSiteId()");
+    return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+  }
 }

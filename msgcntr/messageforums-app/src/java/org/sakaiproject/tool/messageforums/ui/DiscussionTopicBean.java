@@ -1,26 +1,31 @@
 package org.sakaiproject.tool.messageforums.ui;
- 
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Topic;
+
+/**
+ * @author <a href="mailto:rshastri.iupui.edu">Rashmi Shastri</a>
+ */
 public class DiscussionTopicBean
 {
   private Topic topic;
   private int totalNoMessages;
   private int unreadNoMessages;
-  private boolean hasNextTopic=false;
-  private boolean hasPreviousTopic=false;
+  private boolean hasNextTopic = false;
+  private boolean hasPreviousTopic = false;
   private String nextTopicId;
   private String previousTopicId;
- 
-  private List messages=new ArrayList();
-  
+  private boolean readFullDesciption=false;
+
+  private List messages = new ArrayList();
+
   public DiscussionTopicBean(Topic topic)
   {
-   this.topic= topic;    
+    this.topic = topic;
   }
-    
+
   /**
    * @return
    */
@@ -28,7 +33,7 @@ public class DiscussionTopicBean
   {
     return topic;
   }
-  
+
   /**
    * @return
    */
@@ -36,7 +41,7 @@ public class DiscussionTopicBean
   {
     return totalNoMessages;
   }
-  
+
   /**
    * @param totalMessages
    */
@@ -44,7 +49,7 @@ public class DiscussionTopicBean
   {
     this.totalNoMessages = totalMessages;
   }
-  
+
   /**
    * @return
    */
@@ -52,7 +57,7 @@ public class DiscussionTopicBean
   {
     return unreadNoMessages;
   }
-  
+
   /**
    * @param unreadMessages
    */
@@ -60,9 +65,7 @@ public class DiscussionTopicBean
   {
     this.unreadNoMessages = unreadMessages;
   }
-  
-  
-   
+
   /**
    * @return Returns the hasNextTopic.
    */
@@ -71,15 +74,14 @@ public class DiscussionTopicBean
     return hasNextTopic;
   }
 
-
   /**
-   * @param hasNextTopic The hasNextTopic to set.
+   * @param hasNextTopic
+   *          The hasNextTopic to set.
    */
   public void setHasNextTopic(boolean hasNextTopic)
   {
     this.hasNextTopic = hasNextTopic;
   }
-
 
   /**
    * @return Returns the hasPreviousTopic.
@@ -89,15 +91,14 @@ public class DiscussionTopicBean
     return hasPreviousTopic;
   }
 
-
   /**
-   * @param hasPreviousTopic The hasPreviousTopic to set.
+   * @param hasPreviousTopic
+   *          The hasPreviousTopic to set.
    */
   public void setHasPreviousTopic(boolean hasPreviousTopic)
   {
     this.hasPreviousTopic = hasPreviousTopic;
   }
-
 
   /**
    * @return Returns the nextTopicId.
@@ -107,15 +108,14 @@ public class DiscussionTopicBean
     return nextTopicId;
   }
 
-
   /**
-   * @param nextTopicId The nextTopicId to set.
+   * @param nextTopicId
+   *          The nextTopicId to set.
    */
   public void setNextTopicId(String nextTopicId)
   {
     this.nextTopicId = nextTopicId;
   }
-
 
   /**
    * @return Returns the previousTopicId.
@@ -125,31 +125,61 @@ public class DiscussionTopicBean
     return previousTopicId;
   }
 
-
   /**
-   * @param previousTopicId The previousTopicId to set.
+   * @param previousTopicId
+   *          The previousTopicId to set.
    */
   public void setPreviousTopicId(String previousTopicId)
   {
     this.previousTopicId = previousTopicId;
   }
 
-
   /**
    * @return Returns the decorated messages.
    */
   public List getMessages()
   {
-     return messages ;
-  }  
-  
-   
+    return messages;
+  }
 
   public void addMessage(DiscussionMessageBean decoMessage)
   {
-    if(!messages.contains(decoMessage))
+    if (!messages.contains(decoMessage))
     {
-      messages.add(decoMessage);    
+      messages.add(decoMessage);
     }
-  } 
+  }
+
+  /**
+   * @return Returns the if ExtendedDesciption is available
+   */
+  public boolean isHasExtendedDesciption()
+  {
+    if (topic.getExtendedDescription() != null
+        && topic.getExtendedDescription().trim().length() > 0 && (!readFullDesciption))
+    {
+      return true;
+    }
+    return false;
+  }
+  
+  /**
+   * @return Returns the readFullDesciption.
+   */
+  public boolean isReadFullDesciption()
+  {
+    return readFullDesciption;
+  }
+
+  /**
+   * @param readFullDesciption The readFullDesciption to set.
+   */
+  public void setReadFullDesciption(boolean readFullDesciption)
+  {
+    this.readFullDesciption = readFullDesciption;
+  }
+  
+  
+  
+
 }

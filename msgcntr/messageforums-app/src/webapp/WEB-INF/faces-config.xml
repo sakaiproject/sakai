@@ -155,6 +155,26 @@
             <to-view-id>/jsp/discussionForum/dfCompose.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfTemplateSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/dfTemplateSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfForumSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/dfForumSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfTopicSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/dfTopicSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfReviseForumSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/dfReviseForumSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
     </navigation-rule>
   
     <!-- =================== Tool Beans ============== -->
