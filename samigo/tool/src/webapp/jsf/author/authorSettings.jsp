@@ -425,26 +425,27 @@ function checkTimeSelect(){
   <!-- *** FEEDBACK *** -->
   <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
 <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
-<%--
-  <!-- FEEDBACK AUTHORING-->
-<f:verbatim><div class="indnt2"><div class="longtext"></f:verbatim>
+
+  <!-- FEEDBACK AUTHORING -->
+   <f:verbatim> <div class="indnt2"><div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.feedback_authoring}"/>
-    <f:verbatim> </div> <div class="indnt3"></f:verbatim>
-  <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
-    <h:panelGrid columns="1">
-         <h:selectOneRadio layout="pageDirection" value="#{assessmentSettings.feedbackAuthoring}"
-            required="true">
+    <f:verbatim> </div> </f:verbatim>
+     <f:verbatim> <div class="indnt3"> </f:verbatim>
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
+     <h:panelGrid border="0" columns="1">
+         <h:selectOneRadio id="feedbackAuthoring" value="#{assessmentSettings.feedbackAuthoring}" layout="pageDirection">
            <f:selectItem itemValue="1" itemLabel="#{msg.questionlevel_feedback}"/>
            <f:selectItem itemValue="2" itemLabel="#{msg.sectionlevel_feedback}"/>
            <f:selectItem itemValue="3" itemLabel="#{msg.both_feedback}"/>
          </h:selectOneRadio>
-    </h:panelGrid>
-  </h:panelGroup>
-<f:verbatim></div></f:verbatim>
---%>
+     </h:panelGrid>
+    </h:panelGroup>
+    <f:verbatim> </div> </f:verbatim>
+
  <!-- FEEDBACK DELIVERY -->
- <f:verbatim><div class="indnt2"><div class="longtext"></f:verbatim>
-   <h:outputLabel value="#{msg.feedback_delivery}" /> <f:verbatim></div><div class="indnt3"></f:verbatim>
+ <f:verbatim><div class="longtext"></f:verbatim>
+   <h:outputLabel value="#{msg.feedback_delivery}" /> 
+    <f:verbatim></div><div class="indnt3"></f:verbatim>
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
       <h:panelGrid border="0" columns="1"  >
         <h:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}"
@@ -516,7 +517,7 @@ function checkTimeSelect(){
     </h:panelGroup>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
-  </samigo:hideDivision>
+ </samigo:hideDivision>
 
   <!-- *** GRADING *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true or assessmentSettings.valueMap.toGradebook_isInstructorEditable==true or assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}" >

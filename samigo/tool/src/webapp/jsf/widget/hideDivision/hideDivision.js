@@ -92,7 +92,7 @@ function hideUnhideAllDivsExceptFirst(action)
     for (i=0;i<myDocumentElements.length;i++)
     {
       
-        if (i==0) Continue;
+        if (i==0) continue;
           divisionNo = "" + myDocumentElements[i].id;
           if (divisionNo.indexOf("__hide_division_")==0)
           {

@@ -328,7 +328,8 @@
 
   <!-- *** FEEDBACK *** -->
   <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
-
+ 
+ <!-- FEEDBACK AUTHORING -->
   <div class="indnt2">
     <div class="longtext"><h:outputLabel value="#{msg.feedback_authoring}" /></div><div class="indnt3">
     <h:panelGroup>
@@ -344,7 +345,6 @@
    </h:panelGroup>
   </div>
 
-   <div class="indnt2">
     <div class="longtext"><h:outputLabel value="#{msg.feedback_delivery}" /></div><div class="indnt3">
     <h:panelGroup>
       <h:panelGrid columns="1"  >
