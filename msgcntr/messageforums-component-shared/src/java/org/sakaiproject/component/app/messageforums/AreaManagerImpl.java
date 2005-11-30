@@ -108,7 +108,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         area.setUuid(getNextUuid());
         area.setCreated(new Date());
         area.setCreatedBy(getCurrentUser());
-        area.setContextId(getContextId());
+        //area.setContextId(getContextId());
         LOG.debug("createArea executed with areaId: " + area.getId());
         return area;
     }

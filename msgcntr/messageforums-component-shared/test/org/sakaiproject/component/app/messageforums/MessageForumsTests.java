@@ -24,6 +24,7 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.util.Date;
+import java.util.Iterator;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -216,7 +217,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         messageManager.markMessageReadForUser("nate", "" + topic.getId(), "" + ((Message) topic.getMessages().get(2)).getId());
 
         assertEquals(messageManager.findReadMessageCountByTopicId("nate", "" + topic.getId()), 1);
-
+        
         forumManager.deleteDiscussionForumTopic(topic);
     }
 
