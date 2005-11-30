@@ -237,6 +237,8 @@ public class AssessmentSettingsBean
         this.timeLimit = accessControl.getTimeLimit(); // in seconds
         if (timeLimit !=null && timeLimit.intValue()>0)
           setTimeLimitDisplay(timeLimit.intValue());
+        else 
+          resetTimeLimitDisplay();
         if ((new Integer(1)).equals(accessControl.getTimedAssessment()))
           this.timedAssessment = true;
         if ((new Integer(1)).equals(accessControl.getAutoSubmit()))
@@ -804,6 +806,12 @@ public class AssessmentSettingsBean
     this.timedHours=new Integer(time/60/60);
     this.timedMinutes = new Integer((time/60)%60);
     this.timedSeconds = new Integer(time % 60);
+  }
+
+  public void resetTimeLimitDisplay(){
+    this.timedHours=new Integer(0);
+    this.timedMinutes = new Integer(0);
+    this.timedSeconds = new Integer(0);
   }
 
   // followings are set of SelectItem[] used in authorSettings.jsp
