@@ -34,6 +34,7 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
@@ -50,11 +51,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
 
-    private static final String QUERY_BY_DISCUSSION_FORUM_ID = "findDiscussionForumById";
+    private static final String QUERY_BY_FORUM_ID = "findForumById";
     private static final String QUERY_BY_TOPIC_ID = "findTopicById";
-    
-    private static final String ID = "ID";
-
+  
     private IdManager idManager;
 
     private SessionManager sessionManager;
@@ -78,9 +77,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     /**
-     * Retrieve a given discussion forum for the current user
+     * Retrieve a given forum for the current user
      */
-    public DiscussionForum getDiscussionForumById(final String forumId) {
+    public BaseForum getForumById(final String forumId) {
         if (forumId == null) {
             throw new IllegalArgumentException("Null Argument");
         }
@@ -89,13 +88,13 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_BY_DISCUSSION_FORUM_ID);
-                q.setParameter(ID, forumId, Hibernate.STRING);
+                Query q = session.getNamedQuery(QUERY_BY_FORUM_ID);
+                q.setParameter("id", forumId, Hibernate.STRING);
                 return q.uniqueResult();
             }
         };
 
-        return (DiscussionForum) getHibernateTemplate().execute(hcb);
+        return (BaseForum) getHibernateTemplate().execute(hcb);
     }
 
     public Topic getTopicById(final String topicId) {

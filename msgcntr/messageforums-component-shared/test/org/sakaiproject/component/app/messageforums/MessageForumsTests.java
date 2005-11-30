@@ -34,11 +34,13 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 
 public class MessageForumsTests extends ForumsApplicationContextBaseTest {
-    
-    private MessageForumsForumManager forumManager; 
+
+    private MessageForumsForumManager forumManager;
+
     private MessageForumsMessageManager messageManager;
+
     private AreaManager areaManager;
- 
+
     public MessageForumsTests() {
         super();
         init();
@@ -62,16 +64,16 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
- 
+
     public void testSaveAndDeleteMessage() {
-        Message message = messageManager.createMessage();        
+        Message message = messageManager.createMessage();
         message.setApproved(Boolean.TRUE);
         message.setAuthor("nate");
         message.setTitle("a message");
         message.setBody("this is a test message");
         message.setDraft(Boolean.FALSE);
         message.setTypeUuid("mess-type");
-        message.addAttachment(getAttachment());        
+        message.addAttachment(getAttachment());
 
         messageManager.saveMessage(message);
         Long id = message.getId();
@@ -81,49 +83,21 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     }
 
     public void testSaveAndDeleteTopic() {
-        DiscussionTopic topic = getDiscussionTopic();        
+        DiscussionTopic topic = getDiscussionTopic();
         forumManager.saveDiscussionForumTopic(topic);
         forumManager.deleteDiscussionForumTopic(topic);
         assertTrue(true);
     }
-    
+
     public void testSaveAndDeleteForum() {
-        DiscussionTopic topic = getDiscussionTopic();        
+        DiscussionTopic topic = getDiscussionTopic();
         topic.setUuid("00322");
         topic.setCreated(new Date());
         topic.setCreatedBy("ed");
         topic.setModified(new Date());
         topic.setModifiedBy("jim");
-        
+
         DiscussionForum forum = forumManager.createDiscussionForum();
-        forum.setTypeUuid("df-type");
-        forum.setTitle("A test discussion forum");
-        forum.setShortDescription("short desc");
-        forum.setExtendedDescription("long desc");
-        forum.setSortIndex(new Integer(1));
-        forum.setLocked(Boolean.FALSE);
-        forum.addAttachment(getAttachment());
-        forum.addTopic(topic);
-        
-        forumManager.saveDiscussionForum(forum);
-        forumManager.deleteDiscussionForum(forum);
-        assertTrue(true);
-    }
-    
-    public void testSaveAndDeleteArea() {
-        DiscussionTopic topic = getDiscussionTopic();        
-        topic.setUuid("00322");
-        topic.setCreated(new Date());
-        topic.setCreatedBy("ed");
-        topic.setModified(new Date());
-        topic.setModifiedBy("jim");
-        
-        DiscussionForum forum = forumManager.createDiscussionForum();
-        forum.setUuid("00222");
-        forum.setCreated(new Date());
-        forum.setCreatedBy("ed");
-        forum.setModified(new Date());
-        forum.setModifiedBy("jim");        
         forum.setTypeUuid("df-type");
         forum.setTitle("A test discussion forum");
         forum.setShortDescription("short desc");
@@ -133,127 +107,169 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         forum.addAttachment(getAttachment());
         forum.addTopic(topic);
 
-        Area area = areaManager.createArea();   
+        forumManager.saveDiscussionForum(forum);
+        forumManager.deleteDiscussionForum(forum);
+        assertTrue(true);
+    }
+
+    public void testSaveAndDeleteArea() {
+        DiscussionTopic topic = getDiscussionTopic();
+        topic.setUuid("00322");
+        topic.setCreated(new Date());
+        topic.setCreatedBy("ed");
+        topic.setModified(new Date());
+        topic.setModifiedBy("jim");
+
+        DiscussionForum forum = forumManager.createDiscussionForum();
+        forum.setUuid("00222");
+        forum.setCreated(new Date());
+        forum.setCreatedBy("ed");
+        forum.setModified(new Date());
+        forum.setModifiedBy("jim");
+        forum.setTypeUuid("df-type");
+        forum.setTitle("A test discussion forum");
+        forum.setShortDescription("short desc");
+        forum.setExtendedDescription("long desc");
+        forum.setSortIndex(new Integer(1));
+        forum.setLocked(Boolean.FALSE);
+        forum.addAttachment(getAttachment());
+        forum.addTopic(topic);
+
+        Area area = areaManager.createArea();
         area.setContextId("area-context-id");
         area.setEnabled(Boolean.TRUE);
         area.setHidden(Boolean.FALSE);
         area.setName("a test area");
         area.setTypeUuid("discussion area type");
         area.addDiscussionForum(forum);
-                
+
         areaManager.saveArea(area);
         areaManager.deleteArea(area);
         assertTrue(true);
     }
-    
+
     public void testIsMessageReadForUser() {
         assertFalse(messageManager.isMessageReadForUser("joesmith", "1", "2"));
         messageManager.markMessageReadForUser("joesmith", "1", "2");
-        assertTrue(messageManager.isMessageReadForUser("joesmith", "1", "2"));        
+        assertTrue(messageManager.isMessageReadForUser("joesmith", "1", "2"));
         messageManager.deleteUnreadStatus("joesmith", "1", "2");
     }
-       
+
     public void testFindMessageCountByTopicId() {
-        DiscussionTopic topic = getDiscussionTopic();        
+        DiscussionTopic topic = getDiscussionTopic();
         for (int i = 0; i < 10; i++) {
-            Message message = messageManager.createMessage();        
+            Message message = messageManager.createMessage();
             message.setApproved(Boolean.TRUE);
             message.setAuthor("nate");
             message.setTitle("a message");
             message.setBody("this is a test message");
             message.setDraft(Boolean.FALSE);
             message.setModified(new Date());
-            message.setModifiedBy("jim");      
+            message.setModifiedBy("jim");
             message.setTypeUuid("mess-type");
             topic.addMessage(message);
         }
         forumManager.saveDiscussionForumTopic(topic);
-        
-        assertEquals(messageManager.findMessageCountByTopicId(""+topic.getId()), 10);
-                
-        forumManager.deleteDiscussionForumTopic(topic);        
+
+        assertEquals(messageManager.findMessageCountByTopicId("" + topic.getId()), 10);
+
+        forumManager.deleteDiscussionForumTopic(topic);
     }
 
     public void testFindMessagesByTopicId() {
-        DiscussionTopic topic = getDiscussionTopic();        
+        DiscussionTopic topic = getDiscussionTopic();
         for (int i = 0; i < 10; i++) {
-            Message message = messageManager.createMessage();        
+            Message message = messageManager.createMessage();
             message.setApproved(Boolean.TRUE);
             message.setAuthor("nate");
             message.setTitle("a message");
             message.setBody("this is a test message");
             message.setDraft(Boolean.FALSE);
             message.setModified(new Date());
-            message.setModifiedBy("jim");      
+            message.setModifiedBy("jim");
             message.setTypeUuid("mess-type");
             topic.addMessage(message);
         }
         forumManager.saveDiscussionForumTopic(topic);
-        
-        assertEquals(messageManager.findMessagesByTopicId(""+topic.getId()).size(), 10);
-                
-        forumManager.deleteDiscussionForumTopic(topic);        
+
+        assertEquals(messageManager.findMessagesByTopicId("" + topic.getId()).size(), 10);
+
+        forumManager.deleteDiscussionForumTopic(topic);
     }
-    
+
     public void testFindReadMessageCountByTopicId() {
-        DiscussionTopic topic = getDiscussionTopic();        
+        DiscussionTopic topic = getDiscussionTopic();
         for (int i = 0; i < 10; i++) {
-            Message message = messageManager.createMessage();        
+            Message message = messageManager.createMessage();
             message.setApproved(Boolean.TRUE);
             message.setAuthor("nate");
             message.setTitle("a message");
             message.setBody("this is a test message");
             message.setDraft(Boolean.FALSE);
             message.setModified(new Date());
-            message.setModifiedBy("jim");      
+            message.setModifiedBy("jim");
             message.setTypeUuid("mess-type");
             topic.addMessage(message);
         }
         forumManager.saveDiscussionForumTopic(topic);
-        
-        messageManager.markMessageReadForUser("nate", ""+topic.getId(), ""+((Message)topic.getMessages().get(2)).getId());
-        
-        assertEquals(messageManager.findReadMessageCountByTopicId("nate", ""+topic.getId()), 1);
-                
-        forumManager.deleteDiscussionForumTopic(topic);        
+
+        messageManager.markMessageReadForUser("nate", "" + topic.getId(), "" + ((Message) topic.getMessages().get(2)).getId());
+
+        assertEquals(messageManager.findReadMessageCountByTopicId("nate", "" + topic.getId()), 1);
+
+        forumManager.deleteDiscussionForumTopic(topic);
     }
 
     public void testFindUnreadMessageCountByTopicId() {
-        DiscussionTopic topic = getDiscussionTopic();        
+        DiscussionTopic topic = getDiscussionTopic();
         for (int i = 0; i < 10; i++) {
-            Message message = messageManager.createMessage();        
+            Message message = messageManager.createMessage();
             message.setApproved(Boolean.TRUE);
             message.setAuthor("nate");
             message.setTitle("a message");
             message.setBody("this is a test message");
             message.setDraft(Boolean.FALSE);
             message.setModified(new Date());
-            message.setModifiedBy("jim");      
+            message.setModifiedBy("jim");
             message.setTypeUuid("mess-type");
             topic.addMessage(message);
         }
         forumManager.saveDiscussionForumTopic(topic);
-        
-        messageManager.markMessageReadForUser("nate", ""+topic.getId(), ""+((Message)topic.getMessages().get(2)).getId());
-        messageManager.markMessageReadForUser("nate", ""+topic.getId(), ""+((Message)topic.getMessages().get(5)).getId());
-        
-        assertEquals(messageManager.findUnreadMessageCountByTopicId("nate", ""+topic.getId()), 8);
-                
-        forumManager.deleteDiscussionForumTopic(topic);        
+
+        messageManager.markMessageReadForUser("nate", "" + topic.getId(), "" + ((Message) topic.getMessages().get(2)).getId());
+        messageManager.markMessageReadForUser("nate", "" + topic.getId(), "" + ((Message) topic.getMessages().get(5)).getId());
+
+        assertEquals(messageManager.findUnreadMessageCountByTopicId("nate", "" + topic.getId()), 8);
+
+        forumManager.deleteDiscussionForumTopic(topic);
     }
 
     public void testFindTopicById() {
-        DiscussionTopic topic = getDiscussionTopic();        
+        DiscussionTopic topic = getDiscussionTopic();
         forumManager.saveDiscussionForumTopic(topic);
-                
-        assertNotNull(forumManager.getTopicById(""+topic.getId()));
-                
-        forumManager.deleteDiscussionForumTopic(topic);        
+
+        assertNotNull(forumManager.getTopicById("" + topic.getId()));
+
+        forumManager.deleteDiscussionForumTopic(topic);
     }
 
-    
+    public void testFindForumById() {
+        DiscussionForum forum = forumManager.createDiscussionForum();
+        forum.setTypeUuid("df-type");
+        forum.setTitle("A test discussion forum");
+        forum.setShortDescription("short desc");
+        forum.setExtendedDescription("long desc");
+        forum.setSortIndex(new Integer(1));
+        forum.setLocked(Boolean.FALSE);
+        forumManager.saveDiscussionForum(forum);
+
+        assertNotNull(forumManager.getForumById("" + forum.getId()));
+
+        forumManager.deleteDiscussionForum(forum);
+    }
+
     // helpers
-    
+
     private DiscussionTopic getDiscussionTopic() {
         DiscussionTopic topic = forumManager.createDiscussionForumTopic();
         topic.setTypeUuid("dt-type");
@@ -265,7 +281,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         topic.addAttachment(getAttachment());
         return topic;
     }
-    
+
     private Attachment getAttachment() {
         Attachment attachment = new AttachmentImpl();
         attachment.setUuid("002");

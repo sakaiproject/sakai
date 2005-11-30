@@ -25,6 +25,7 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.util.List;
 
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
@@ -38,9 +39,9 @@ public interface MessageForumsForumManager {
     public List getDiscussionForums();
 
     /**
-     * Retrieve a given discussion forum for the current user
+     * Retrieve a given forum for the current user
      */
-    public DiscussionForum getDiscussionForumById(final String forumId);
+    public BaseForum getForumById(String forumId);
 
     /**
      * Retrieve topics the current user's open forums

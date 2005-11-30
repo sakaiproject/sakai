@@ -96,16 +96,12 @@
 
   </class>
 
-  <query name="findOpenForumById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as of where of.id = :id]]>
+  <query name="findForumById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl as of where of.id = :id]]>
   </query>
 
-  <query name="findOpenForumByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as of where of.uuid = :uuid]]>
-  </query>
-
-  <query name="findDiscussionForumById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl as df where df.id = :id]]>
+  <query name="findForumByUuid">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl as of where of.uuid = :uuid]]>
   </query>
 
 </hibernate-mapping>
