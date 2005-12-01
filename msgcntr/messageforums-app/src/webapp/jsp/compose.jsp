@@ -131,7 +131,7 @@
 						</h:dataTable>   
 					</sakai:group_box>   
         		
-<%--********************* Label *********************--%>		
+<%--********************* Label *********************
 				<sakai:group_box>
           <table width="80%" align="left">
             <tr>
@@ -146,7 +146,7 @@
             </tr>                                
           </table>
         </sakai:group_box>
-        
+--%>		        
       <sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSend}" value="Send" />
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSaveDraft}" value="Save Draft" />

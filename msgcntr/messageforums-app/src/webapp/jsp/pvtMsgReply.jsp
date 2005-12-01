@@ -112,8 +112,11 @@
 								<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
 								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
 								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
-							
-								<h:outputText value="#{eachAttach.attachmentName}"/>
+							 
+							  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
+									<h:outputText value="#{eachAttach.attachmentName}"/>
+								</h:outputLink>
+
 							</sakai:doc_section>
 							
 						
@@ -172,6 +175,7 @@
           			<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
               </td>                           
             </tr>
+            <%--
             <tr>
               <td align="left">
                 <h:outputText value="Label" />
@@ -180,6 +184,7 @@
               	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
               </td>
             </tr>
+            --%>
             <tr>
               <td align="left">
                 <h:outputText value="Message" />

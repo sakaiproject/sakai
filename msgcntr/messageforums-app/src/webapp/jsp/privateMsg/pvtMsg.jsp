@@ -49,12 +49,14 @@
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.message.created}"/>
 		  </h:column>
+		  <%--
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Label"/>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.message.label}"/>
 		  </h:column>
+		  --%>
 		</h:dataTable>
 		
            

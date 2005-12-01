@@ -198,17 +198,20 @@ public class PrivateMessagesTool
   //Return decorated Forum
   public PrivateForumDecoratedBean getDecoratedForum()
   {
-    PrivateForumDecoratedBean decoratedForum = new PrivateForumDecoratedBean(forum) ;
-    for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
+    if (forum != null)
     {
-      Topic topic = (Topic) iterator.next();
-      if (topic != null)
+      PrivateForumDecoratedBean decoratedForum = new PrivateForumDecoratedBean(forum) ;
+      for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
       {
-        PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
-        decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
-        decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic)) ;
-        decoratedForum.addTopic(decoTopic);
-      }          
+        Topic topic = (Topic) iterator.next();
+        if (topic != null)
+        {
+          PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
+          decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
+          decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic)) ;
+          decoratedForum.addTopic(decoTopic);
+        }          
+      }
     }
     return decoratedForum ;
   }
@@ -671,19 +674,6 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */  
   public String processPvtMsgCancel() {
-    //reset properties as this managed bean is in session    
-//    if (this.getMsgNavMode().equals(PVTMSG_MODE_RECEIVED)||
-//        this.getMsgNavMode().equals(PVTMSG_MODE_SENT)||
-//        this.getMsgNavMode().equals(PVTMSG_MODE_DELETE)||
-//        this.getMsgNavMode().equals(PVTMSG_MODE_DRAFT)||
-//        this.getMsgNavMode().equals(PVTMSG_MODE_CASE))
-//    {
-//      resetFormVariable() ;
-//      return "pvtMsg" ;
-//    }else {
-//      resetFormVariable() ;
-//      return "main" ;
-//    }
     return processPvtMsgTopic();
     
   }
@@ -781,8 +771,7 @@ public class PrivateMessagesTool
   public String processPvtMsgDeleteConfirmYes() {
     if(getDetailMsg() != null)
     {
-      //TODO
-      //prtMsgManager.deletePrivateMessage(getDetailMsg()) ;
+      prtMsgManager.deletePrivateMessage(getDetailMsg().getMessage()) ;
     }
     return "main" ;
   }
@@ -811,9 +800,7 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */ 
   public String processPvtMsgSend() {
-    
-    //TODO - create new PrivateMessage Object and add user input and then save
-    //prtMsgManager.savePrivateMessage(constructMessage());
+    prtMsgManager.savePrivateMessage(constructMessage());
     return "pvtMsg" ;
   }
  
@@ -822,10 +809,9 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */
   public String processPvtMsgSaveDraft() {
-    //PrivateMessage dMsg=constructMessage() ;
-    //dMsg.setDraft(Boolean.TRUE);
-    //TODO
-    //prtMsgManager.savePrivateMessage(dMsg);
+    PrivateMessage dMsg=constructMessage() ;
+    dMsg.setDraft(Boolean.TRUE);
+    prtMsgManager.savePrivateMessage(dMsg);
     return "pvtMsg" ;    
   }
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
@@ -843,7 +829,8 @@ public class PrivateMessagesTool
     }
     if (aMsg != null)
     {
-      aMsg.setRecipients(getSelectedComposeToList());
+      //TODO - check where recipiants are stored
+      //aMsg.setRecipients(getSelectedComposeToList());
       aMsg.setTitle(getComposeSubject());
       aMsg.setBody(getComposeBody());
       // these are set by the create method above -- you can remove them or keep them if you really want :)
@@ -916,22 +903,26 @@ public class PrivateMessagesTool
       else
       {
         //TODO :  appropriate error page
-        return "main";
+        return "pvtMsg";
       }
     }
     catch (Exception e)
     {
       //TODO  appropriate error page
-      return "main"; 
+      return "pvtMsg"; 
     }
     return "pvtMsgDetail";
   }
   
   //////////////////////REPLY SEND  /////////////////
   public String processPvtMsgReplySend() {
-    //PrivateMessage rsMsg=constructMessage() ;
+    PrivateMessage rsMsg=constructMessage() ;
+    //add replyTo message
+    PrivateMessage rsrepMsg = prtMsgManager.createPrivateMessage() ;
+    //do settings from jsp    
+    rsMsg.setInReplyTo(rsrepMsg) ;
+    prtMsgManager.savePrivateMessage(rsMsg);
     
-    //prtMsgManager.savePrivateMessage(rsMsg);
     return "pvtMsg" ;
   }
  
@@ -940,9 +931,12 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */
   public String processPvtMsgReplySaveDraft() {
-    //PrivateMessage drMsg=constructMessage() ;
-    //drMsg.setDraft(Boolean.TRUE);
-    //prtMsgManager.savePrivateMessage(drMsg);
+    PrivateMessage drMsg=constructMessage() ;
+    drMsg.setDraft(Boolean.TRUE);
+    PrivateMessage drrepMsg = prtMsgManager.createPrivateMessage() ;
+    drMsg.setInReplyTo(drrepMsg) ;
+    prtMsgManager.savePrivateMessage(drMsg);
+    
     return "pvtMsg" ;    
   }
   
@@ -973,8 +967,7 @@ public class PrivateMessagesTool
       PrivateMessage element = ((PrivateMessageDecoratedBean) iter.next()).getMessage();
       if (element != null) 
       {
-        //TODO 
-        //prtMsgManager.deletePrivateMessage(element) ;
+        prtMsgManager.deletePrivateMessage(element) ;
       }      
     }
     return "main" ;

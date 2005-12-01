@@ -59,13 +59,18 @@
 								  <h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
 								  <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
 								  <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
-								  <h:outputText value="#{eachAttach.attachmentName}"/>
+								  
+								  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
+								  	<h:outputText value="#{eachAttach.attachmentName}"/>
+									</h:outputLink>
+							
 								</h:column>
 							</h:dataTable>   
               <%-- Attachments --%>
             </td>
             <td></td>
           </tr>
+          <%--
           <tr>
             <td align="left">
               <h:outputText style="font-weight:bold"  value="Label "/>
@@ -74,7 +79,8 @@
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
             </td>
             <td></td>
-          </tr>                                    
+          </tr> 
+          --%>                                   
         </table>    
         
         <br/><br/>
