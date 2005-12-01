@@ -553,7 +553,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
     dtm1
-        .setExtendedDescription("The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
+        .setExtendedDescription("Extended: The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
     dtm1.setId(new Long(11));
     dtm1.setUuid("11");
     dtm1.setLabels(getLabels());
@@ -589,7 +589,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
     dtm1
-        .setExtendedDescription("The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
+        .setExtendedDescription("Extended: The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
     dtm1.setId(new Long(11));
     dtm1.setUuid("511");
     dtm1.setLabels(getLabels());
@@ -625,7 +625,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
     dtm1
-        .setExtendedDescription("The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
+        .setExtendedDescription("Extended: The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
     dtm1.setId(new Long(11));
     dtm1.setUuid("521");
     dtm1.setLabels(getLabels());
