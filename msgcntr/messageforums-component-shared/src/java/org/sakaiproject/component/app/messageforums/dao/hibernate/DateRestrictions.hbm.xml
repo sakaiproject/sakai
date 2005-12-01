@@ -31,7 +31,7 @@
       <column name="POSTING_ALLOWED" not-null="true"/>
 	</property>
     <property name="postingAllowedPostOnSchedule">
-      <column name="POSTING_ALLOWED_POST_ON_SCHEDULE" not-null="true" />
+      <column name="PSTNG_ALLWD_PST_ON_SCHD" not-null="true" />
     </property>
     <property name="readOnly">
       <column name="READ_ONLY" not-null="true"/>
