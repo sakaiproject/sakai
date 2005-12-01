@@ -68,7 +68,7 @@
   </query>
   
   <query name="findAreaByContextIdAndTypeId">
-     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as item where area.contextId = :contextId and area.typeUuid = :typeId]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.contextId = :contextId and area.typeUuid = :typeId]]>
   </query>    
 
 </hibernate-mapping>
