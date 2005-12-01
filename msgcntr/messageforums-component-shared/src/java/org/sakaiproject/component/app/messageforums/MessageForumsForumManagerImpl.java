@@ -40,12 +40,14 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
+import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -154,7 +156,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setCreated(new Date());
         forum.setCreatedBy(getCurrentUser());
         forum.setTypeUuid(typeManager.getDiscussionForumType());
-        LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId());
+        LOG.debug("createDiscussionForum executed");
         return forum;
     }
 
@@ -174,7 +176,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setTypeUuid(typeManager.getDiscussionForumType());
         topic.setCreated(new Date());
         topic.setCreatedBy(getCurrentUser());
-        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
+        LOG.debug("createDiscussionForumTopic executed");
         return topic;
     }
 
@@ -185,7 +187,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(topic);
-        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
+        LOG.debug("saveDiscussionForumTopic executed with topicId: " + topic.getId());
     }
 
     public OpenTopic createOpenForumTopic() {
@@ -194,7 +196,23 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setTypeUuid(typeManager.getOpenDiscussionForumType());
         topic.setCreated(new Date());
         topic.setCreatedBy(getCurrentUser());
-        LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
+        LOG.debug("createOpenForumTopic executed");
+        return topic;
+    }
+    
+    public PrivateTopic createPrivateTopic(boolean forumIsParent, String userId, String parentId) {
+        PrivateTopic topic = new PrivateTopicImpl();
+        topic.setUuid(getNextUuid());
+        topic.setTypeUuid(typeManager.getOpenDiscussionForumType());
+        topic.setCreated(new Date());
+        topic.setCreatedBy(getCurrentUser());
+        topic.setUserId(userId);
+        if (forumIsParent) {
+            topic.setBaseForum(getForumById(parentId));
+        } else {
+            topic.setParentTopic((PrivateTopic)getTopicById(parentId));
+        }
+        LOG.debug("createPrivateTopic executed");
         return topic;
     }
 

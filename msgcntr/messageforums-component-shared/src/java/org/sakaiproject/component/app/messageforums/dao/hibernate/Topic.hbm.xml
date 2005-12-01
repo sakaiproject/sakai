@@ -70,6 +70,25 @@
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl"
       not-null="false" index="MFR_PARENT_I2" cascade="none" />
     <property name="pfindex" column="pf_index_col" type="int" update="true" insert="true"/>
+
+    <!-- PrivateTopic fields -->
+    <subclass 
+        name="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl"
+        discriminator-value="PT">
+      <property name="userId">
+        <column name="USER_ID" not-null="false" />
+      </property>      
+      <!-- The list and many-to-one below are for the private folder parent/child relationship -->
+	  <list name="childrenFolders" lazy="true" table="MFR_TOPIC_T" cascade="all">
+	    <key column="pt_surrogateKey"/>
+	    <index column="pt_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl" />
+  	  </list>     
+      <many-to-one name="parentTopic" column="pt_surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl"
+        not-null="false" index="MFR_PRI_PARENT_I" cascade="none" />
+      <property name="ptindex" column="pt_index_col" type="int" update="true" insert="true"/>
+	</subclass>
           
     <!-- OpenTopic fields -->
     <subclass

@@ -12,7 +12,6 @@ import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.component.app.messageforums.MessageForumsMessageManager;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -211,11 +210,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   }
 
   
-  public String createTopicFolderInForum(String parentForumId, String name) {
+  public String createTopicFolderInForum(String parentForumId, String userId, String name) {
       return null;
   }
   
-  public String createTopicFolderInTopic(String parentTopicId, String name) {
+  public String createTopicFolderInTopic(String parentTopicId, String userId, String name) {
       return null;
   }
   

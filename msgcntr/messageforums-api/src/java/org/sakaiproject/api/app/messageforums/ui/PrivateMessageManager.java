@@ -44,8 +44,8 @@ public interface PrivateMessageManager {
     // so method signature is as below.. But question is can't the user have same name for different private topics.
     // As I understand thet I believe there are some unmutable topics like Received/Deleted/Sent etc ..    
     public boolean isMutableTopicFolder();
-    public String createTopicFolderInForum(String parentForumId, String name);
-    public String createTopicFolderInTopic(String parentTopicId, String name);
+    public String createTopicFolderInForum(String parentForumId, String userId, String name);
+    public String createTopicFolderInTopic(String parentTopicId, String userId, String name);
     public void deleteTopicFolder(String topicId);
 
     

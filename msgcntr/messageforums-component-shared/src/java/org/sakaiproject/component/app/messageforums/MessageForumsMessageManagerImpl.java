@@ -236,7 +236,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         message.setCreated(new Date());
         message.setCreatedBy(getCurrentUser());
 
-        LOG.info("message " + message.getId() + " saved successfully");
+        LOG.info("message " + message.getUuid() + " created successfully");
         return message;        
     }
 
@@ -255,7 +255,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         message.setCreated(new Date());
         message.setCreatedBy(getCurrentUser());
 
-        LOG.info("message " + message.getId() + " saved successfully");
+        LOG.info("message " + message.getUuid() + " created successfully");
         return message;        
     }
 
@@ -267,7 +267,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         attachment.setModified(new Date());
         attachment.setModifiedBy(getCurrentUser());
 
-        LOG.info("attachment " + attachment.getId() + " saved successfully");
+        LOG.info("attachment " + attachment.getUuid() + " created successfully");
         return attachment;        
     }
 
