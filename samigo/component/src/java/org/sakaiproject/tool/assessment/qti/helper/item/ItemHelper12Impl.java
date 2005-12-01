@@ -1076,6 +1076,10 @@ public class ItemHelper12Impl extends ItemHelperBase
   {
     log.info("setFeedback()");
 
+    boolean hasAnswerLevelFeedback = itemXml.isMCMC() || itemXml.isMCSC();
+    log.info("itemXml.getItemType(): " + itemXml.getItemType());
+    log.info("hasAnswerLevelFeedback: " + hasAnswerLevelFeedback);
+
     // for any answers that are now in the template, create a feedback
     String xpath =
       "item/itemfeedback/flow/response_lid/render_choice";
@@ -1100,30 +1104,33 @@ public class ItemHelper12Impl extends ItemHelperBase
         first = false;
       }
 
-      log.info("Setting answer level feedback");
-
-      answerSet = itemTextIfc.getAnswerSet();
-      log.info("answerSet.size(): " + answerSet.size());
-
-      Iterator aiter = answerSet.iterator();
-      while (aiter.hasNext())
+      if (hasAnswerLevelFeedback)
       {
-        AnswerIfc answer = (AnswerIfc) aiter.next();
-        log.info("Setting answer feedback for: " + answer.getText());
-        log.info("xpathIndex: " + xpathIndex);
-        log.info("label: " + label);
+        log.debug("Setting answer level feedback");
 
-        String value = answer.getGeneralAnswerFeedback();
-        boolean isInsert = true;
-        if (nodeIter.hasNext())
+        answerSet = itemTextIfc.getAnswerSet();
+        log.debug("answerSet.size(): " + answerSet.size());
+
+        Iterator aiter = answerSet.iterator();
+        while (aiter.hasNext())
         {
-          isInsert = false;
-        }
+          AnswerIfc answer = (AnswerIfc) aiter.next();
+          log.debug("Setting answer feedback for: " + answer.getText());
+          log.debug("xpathIndex: " + xpathIndex);
+          log.debug("label: " + label);
 
-        addAnswerFeedback(itemXml, value,
-                          isInsert, 2*xpathIndex, "" + label);
-        label++;
-        xpathIndex++;
+          String value = answer.getGeneralAnswerFeedback();
+          boolean isInsert = true;
+          if (nodeIter.hasNext())
+          {
+            isInsert = false;
+          }
+
+          addAnswerFeedback(itemXml, value,
+                            isInsert, 2*xpathIndex, "" + label);
+          label++;
+          xpathIndex++;
+        }
       }
 
       addGeneralFeedback(itemXml, xpathIndex, itemTextIfc);
