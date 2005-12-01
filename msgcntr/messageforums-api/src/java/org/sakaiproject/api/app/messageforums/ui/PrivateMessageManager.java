@@ -43,10 +43,11 @@ public interface PrivateMessageManager {
     //TODO - As per UI pg 37 -39 user is asked to manipulate revise/delete/rename topic title 
     // so method signature is as below.. But question is can't the user have same name for different private topics.
     // As I understand thet I believe there are some unmutable topics like Received/Deleted/Sent etc ..    
-    public boolean isMutableTopicFolder() ;
-    public void createTopicFolder(String topicTitle) ;
-    public void renameTopicFolder(String topicTitle);
-    public void deleteTopicFolder(String topicTitle);
+    public boolean isMutableTopicFolder();
+    public String createTopicFolderInForum(String parentForumId, String name);
+    public String createTopicFolderInTopic(String parentTopicId, String name);
+    public void deleteTopicFolder(String topicId);
+
     
 ///Attachment
     

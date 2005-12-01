@@ -211,26 +211,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   }
 
   
-//  public String createTopicFolder(String parentForumId);
-//  public String createTopicFolder(String parentTopicId);
-//  public void deleteTopicFolder(String topicId);
+  public String createTopicFolderInForum(String parentForumId, String name) {
+      return null;
+  }
   
-  public void createTopicFolder(String topicTitle)
-  {
-    // TODO Auto-generated method stub
-    
+  public String createTopicFolderInTopic(String parentTopicId, String name) {
+      return null;
   }
-
-  public void renameTopicFolder(String topicTitle)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public void deleteTopicFolder(String topicTitle)
-  {
-    // TODO Auto-generated method stub
-    
+  
+  public void deleteTopicFolder(String topicId) {
+      
   }
 
   public PrivateMessage createPrivateMessage()
