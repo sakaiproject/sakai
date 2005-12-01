@@ -21,6 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.ControlPermissions;
+import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class AreaImpl extends MutableEntityImpl implements Area
@@ -28,6 +30,10 @@ public class AreaImpl extends MutableEntityImpl implements Area
 
   private static final Log LOG = LogFactory.getLog(AreaImpl.class);
 
+  private ControlPermissions controlPermissions;
+  
+  private MessagePermissions messagePermissions;
+  
   private String contextId;
 
   private String name;
@@ -129,6 +135,21 @@ public class AreaImpl extends MutableEntityImpl implements Area
     this.discussionForums = discussionForums;
   }
 
+  public ControlPermissions getControlPermissions() {
+      return controlPermissions;
+  }
+
+  public void setControlPermissions(ControlPermissions controlPermissions) {
+      this.controlPermissions = controlPermissions;
+  }
+
+  public MessagePermissions getMessagePermissions() {
+      return messagePermissions;
+  }
+
+  public void setMessagePermissions(MessagePermissions messagePermissions) {
+      this.messagePermissions = messagePermissions;
+  }
 
   ////////////////////////////////////////////////////////////////////////
   // helper methods for collections

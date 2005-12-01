@@ -46,6 +46,15 @@ public interface Area extends MutableEntity
 
   public void setEnabled(Boolean enabled);
   
+  public ControlPermissions getControlPermissions();
+
+  public void setControlPermissions(ControlPermissions controlPermissions);
+
+  public MessagePermissions getMessagePermissions();
+
+  public void setMessagePermissions(MessagePermissions messagePermissions);
+
+  
   public List getOpenForums();
   public void setOpenForums(List openForums);
   public List getPrivateForums();
@@ -71,4 +80,5 @@ public interface Area extends MutableEntity
   public void removeDiscussionForum(BaseForum forum);
   public void addOpenForum(BaseForum forum);
   public void removeOpenForum(BaseForum forum); 
+  
 }
