@@ -6,7 +6,7 @@ import java.util.List;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 
 /**
- * @author <a href="mailto:rshastri.iupui.edu">Rashmi Shastri</a>
+ * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  *
  */
 public class DiscussionForumBean

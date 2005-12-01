@@ -6,7 +6,7 @@ import java.util.List;
 import org.sakaiproject.api.app.messageforums.Topic;
 
 /**
- * @author <a href="mailto:rshastri.iupui.edu">Rashmi Shastri</a>
+ * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
 public class DiscussionTopicBean
 {
@@ -18,6 +18,7 @@ public class DiscussionTopicBean
   private String nextTopicId;
   private String previousTopicId;
   private boolean readFullDesciption=false;
+  private String parentForumId;
 
   private List messages = new ArrayList();
 
@@ -177,6 +178,22 @@ public class DiscussionTopicBean
   public void setReadFullDesciption(boolean readFullDesciption)
   {
     this.readFullDesciption = readFullDesciption;
+  }
+
+  /**
+   * @return Returns the parentForumId.
+   */
+  public String getParentForumId()
+  {
+    return parentForumId;
+  }
+
+  /**
+   * @param parentForumId The parentForumId to set.
+   */
+  public void setParentForumId(String parentForumId)
+  {
+    this.parentForumId = parentForumId;
   }
   
   

@@ -37,7 +37,7 @@
 				</h:commandLink>
 				<f:verbatim><br/></f:verbatim>
 				<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" />
-				<f:verbatim></div></f:verbatim>
+				<f:verbatim><hr/></div></f:verbatim>
 				<h:dataTable id="messages" value="#{topics.messages}" var="message">
 					<h:column>
 						<h:outputText id="message_title" value="#{message.message.title}"/>

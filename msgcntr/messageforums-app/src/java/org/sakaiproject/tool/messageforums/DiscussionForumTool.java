@@ -20,7 +20,7 @@ import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 
 /**
- * @author <a href="mailto:rshastri.iupui.edu">Rashmi Shastri</a>
+ * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
 public class DiscussionForumTool
 {
@@ -36,9 +36,11 @@ public class DiscussionForumTool
   private static final String THREADED_VIEW = "dfThreadedView";
   private static final String TEMPLATE_SETTING = "dfTemplateSettings";
   private static final String FORUM_SETTING = "dfForumSettings";
+  private static final String FORUM_SETTING_REVISE = "dfReviseForumSettings";
+  private static final String FORUM_CONFIRM_DELETE = "dfConfirmForumDelete";
   private static final String TOPIC_SETTING = "dfTopicSettings";
-  private static final String FORUM_SETTING_REVICE = "dfReviseForumSettings";
-
+  private static final String TOPIC_SETTING_REVISE = "dfReviseTopicSettings";
+  
   private DiscussionForumBean selectedForum;
   private DiscussionTopicBean selectedTopic;
   private List forums = new ArrayList();
@@ -66,6 +68,24 @@ public class DiscussionForumTool
       LOG.debug("setForumManager(DiscussionForumManager " + forumManager + ")");
     }
     this.forumManager = forumManager;
+  }
+
+  /**
+   * @return
+   */
+  public String processActionHome()
+  {
+    LOG.debug("processActionHome()");
+    return MAIN;
+  }
+
+  /**
+   * @return
+   */
+  public boolean isInstructor()
+  {
+    LOG.debug("isInstructor()");
+    return forumManager.isInstructor();
   }
 
   /**
@@ -111,14 +131,6 @@ public class DiscussionForumTool
   }
 
   /**
-   * @return Returns the selectedTopic.
-   */
-  public DiscussionTopicBean getSelectedTopic()
-  {
-    return selectedTopic;
-  }
-
-  /**
    * TODO:// complete featute
    * 
    * @return
@@ -127,15 +139,6 @@ public class DiscussionForumTool
   {
     LOG.debug("getUnderconstruction()");
     return true;
-  }
-
-  /**
-   * @return
-   */
-  public String processActionNewForum()
-  {
-    LOG.debug("processActionNewForum()");
-    return MAIN;
   }
 
   /**
@@ -162,7 +165,50 @@ public class DiscussionForumTool
   public String processActionTemplateSettings()
   {
     LOG.debug("processActionTemplateSettings()");
-    return MAIN;//TEMPLATE_SETTING;
+    return TEMPLATE_SETTING;
+  }
+
+  /**
+   * Display Individual forum
+   * 
+   * @return
+   */
+  public String processActionDisplayForum()
+  {
+    LOG.debug("processDisplayForum()");
+    if (decorateSelectedForum() == null)
+    {
+      // TODO : appropriate error page
+      return MAIN;
+    }
+    return FORUM_DETAILS;
+  }
+
+  /**
+   * @return
+   */
+  public String processActionDeleteForumConfirm()
+  {
+    return MAIN;
+  }
+
+  /**
+   * @return
+   */
+  public String processActionDeleteForum()
+  {
+    return MAIN;
+  }
+
+  /**
+   * @return
+   */
+  public String processActionNewForum()
+  {
+    LOG.debug("processActionNewForum()");
+    DiscussionForum forum = forumManager.createForum();
+    selectedForum = new DiscussionForumBean(forum);
+    return FORUM_SETTING_REVISE;
   }
 
   /**
@@ -171,16 +217,16 @@ public class DiscussionForumTool
   public String processActionForumSettings()
   {
     LOG.debug("processForumSettings()");
-    String forumId=getExternalParameterByKey("forumId");
+    String forumId = getExternalParameterByKey("forumId");
     if ((forumId) == null)
     {
       // TODO : appropriate error page
-      return MAIN;      
+      return MAIN;
     }
     DiscussionForum forum = forumManager.getForumById(forumId);
     selectedForum = new DiscussionForumBean(forum);
-    
-    return FORUM_SETTING; 
+
+    return FORUM_SETTING;
   }
 
   /**
@@ -188,17 +234,136 @@ public class DiscussionForumTool
    */
   public String processActionReviseForumSettings()
   {
-    LOG.debug("processForumSettings()");
-    return FORUM_SETTING_REVICE; //
+    LOG.debug("processActionReviseForumSettings()");
+   
+    if ((selectedForum) == null)
+    {
+      // TODO : appropriate error page
+      return MAIN;
+    }
+//    DiscussionForum forum = forumManager.getForumById(forumId);
+//    selectedForum = new DiscussionForumBean(forum);
+    return FORUM_SETTING_REVISE; //
   }
   
+  /**
+   * @return
+   */
+  public String processActionSaveForumAndAddTopic()
+  {
+    LOG.debug("processActionSaveForumAndAddTopic()");
+    //TODO : save forum
+    prepareForReviseTopicSettings();
+    return TOPIC_SETTING_REVISE;  
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionSaveForumSettings()
+  {
+    LOG.debug("processActionSaveForumAsDraft()");
+    return MAIN;
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionSaveForumAsDraft()
+  {
+    LOG.debug("processActionSaveForumAsDraft()");
+    return MAIN;
+  }
+  
+
   /**
    * @return
    */
   public String processActionNewTopic()
   {
     LOG.debug("processActionNewTopic()");
+    prepareForReviseTopicSettings();
+    return TOPIC_SETTING_REVISE;  
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionReviseTopicSettings()
+  {
+    LOG.debug("processActionReviseTopicSettings()");
+    DiscussionTopic topic = forumManager.getTopicById(getExternalParameterByKey("topicId"));
+    if(topic==null)
+    {
+      return MAIN;
+    }
+    selectedTopic = new DiscussionTopicBean(topic);
+    selectedTopic.setParentForumId(getExternalParameterByKey("forumId"));
+    return TOPIC_SETTING_REVISE;  
+  }
+  
+  
+  /**
+   * 
+   */
+  private void prepareForReviseTopicSettings()
+  {
+    DiscussionTopic topic = forumManager.createTopic();
+    selectedTopic = new DiscussionTopicBean(topic);
+    selectedTopic.setParentForumId(getExternalParameterByKey("forumId"));
+  }
+  /**
+   * @return
+   */
+  public String processActionSaveTopicAndAddTopic()
+  {
+    LOG.debug("processActionSaveTopicAndAddTopic()");
+    //TODO : save topic
+    prepareForReviseTopicSettings();
+    return TOPIC_SETTING_REVISE;     
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionSaveTopicSettings()
+  {
+    LOG.debug("processActionSaveTopicSettings()");
     return MAIN;
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionSaveTopicAsDraft()
+  {
+    LOG.debug("processActionSaveTopicAsDraft()");
+    return MAIN;
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionDeleteTopicConfirm()
+  {
+    return MAIN;
+  }
+
+  /**
+   * @return
+   */
+  public String processActionDeleteTopic()
+  {
+    return MAIN;
+  }
+
+  
+  /**
+   * @return Returns the selectedTopic.
+   */
+  public DiscussionTopicBean getSelectedTopic()
+  {
+    return selectedTopic;
   }
 
   /**
@@ -207,7 +372,14 @@ public class DiscussionForumTool
   public String processActionTopicSettings()
   {
     LOG.debug("processActionTopicSettings()");
-    return MAIN;
+    DiscussionTopic topic = forumManager.getTopicById(getExternalParameterByKey("topicId"));
+    if(topic==null)
+    {
+      return MAIN;
+    }
+    selectedTopic = new DiscussionTopicBean(topic);
+    selectedTopic.setParentForumId(getExternalParameterByKey("forumId"));
+    return TOPIC_SETTING;
   }
 
   /**
@@ -257,24 +429,6 @@ public class DiscussionForumTool
   }
 
   /**
-   * Display Individual forum
-   * 
-   * @return
-   */
-  public String processActionDisplayForum()
-  {
-    LOG.debug("processDisplayForum()");
-      if(decorateSelectedForum() == null)
-      {
-        // TODO : appropriate error page
-        return MAIN;
-      }
-     return FORUM_DETAILS;
-  }
-
-
-
-  /**
    * @return
    */
   public String processActionDisplayTopic()
@@ -311,55 +465,7 @@ public class DiscussionForumTool
     return MAIN;
   }
 
-  /**
-   * @return
-   */
-  public String processActionHome()
-  {
-    LOG.debug("processActionHome()");
-    return MAIN;
-  }
-  
-  public boolean isInstructor()
-  {
-    LOG.debug("isInstructor()");
-    return forumManager.isInstructor();
-  }
-
-  /**
-   * @param externalTopicId
-   * @return
-   */
-  private String processActionDisplayTopicById(String externalTopicId)
-  {
-    if (LOG.isDebugEnabled())
-    {
-      LOG.debug("processActionDisplayTopicById(String" + externalTopicId + ")");
-    }
-    String topicId = null;
-    try
-    {
-      topicId = getExternalParameterByKey(externalTopicId);
-      if (topicId != null)
-      {
-        DiscussionTopic topic = forumManager.getTopicById(topicId);
-        selectedTopic = getDecoratedTopic(topic);
-      }
-      else
-      {
-        // TODO : appropriate error page
-        return MAIN;
-      }
-    }
-    catch (Exception e)
-    {
-      // TODO appropriate error page
-      return "main";
-    }
-    return ALL_MESSAGES;
-  }
-
-  // helper methods
+  // **************************************** helper methods**********************************
 
   /**
    * @return
@@ -408,7 +514,8 @@ public class DiscussionForumTool
       {
         DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic);
         decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic));
+        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(
+            SessionManager.getCurrentSessionUserId(), topic));
         decoForum.addTopic(decoTopic);
       }
     }
@@ -421,7 +528,7 @@ public class DiscussionForumTool
   private DiscussionForumBean decorateSelectedForum()
   {
     LOG.debug("decorateSelectedForum()");
-    String forumId=getExternalParameterByKey("forumId");
+    String forumId = getExternalParameterByKey("forumId");
     if ((forumId) != null)
     {
       DiscussionForum forum = forumManager.getForumById(forumId);
@@ -430,7 +537,7 @@ public class DiscussionForumTool
     }
     return null;
   }
-  
+
   /**
    * @param topic
    * @return
@@ -445,7 +552,8 @@ public class DiscussionForumTool
     // TODO : implement me
     decoTopic.getTopic().setBaseForum(forumManager.getForumById("5"));
     decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-    decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic));
+    decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(
+        SessionManager.getCurrentSessionUserId(), topic));
     decoTopic.setHasNextTopic(forumManager.hasNextTopic(topic));
     decoTopic.setHasPreviousTopic(forumManager.hasPreviousTopic(topic));
     if (forumManager.hasNextTopic(topic))
@@ -470,10 +578,45 @@ public class DiscussionForumTool
       {
         DiscussionMessageBean decoMsg = new DiscussionMessageBean(message);
         decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic));
+        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(
+            SessionManager.getCurrentSessionUserId(), topic));
         decoTopic.addMessage(decoMsg);
       }
     }
     return decoTopic;
   }
+
+  /**
+   * @param externalTopicId
+   * @return
+   */
+  private String processActionDisplayTopicById(String externalTopicId)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("processActionDisplayTopicById(String" + externalTopicId + ")");
+    }
+    String topicId = null;
+    try
+    {
+      topicId = getExternalParameterByKey(externalTopicId);
+      if (topicId != null)
+      {
+        DiscussionTopic topic = forumManager.getTopicById(topicId);
+        selectedTopic = getDecoratedTopic(topic);
+      }
+      else
+      {
+        // TODO : appropriate error page
+        return MAIN;
+      }
+    }
+    catch (Exception e)
+    {
+      // TODO appropriate error page
+      return "main";
+    }
+    return ALL_MESSAGES;
+  }
+
 }

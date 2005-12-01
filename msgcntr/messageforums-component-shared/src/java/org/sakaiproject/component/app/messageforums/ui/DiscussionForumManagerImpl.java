@@ -22,7 +22,7 @@ import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
- * @author <a href="mailto:rshastri.iupui.edu">Rashmi Shastri</a>
+ * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  *
  */
 public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
@@ -369,5 +369,19 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   public void setForumManager(MessageForumsForumManager forumManager) {
     this.forumManager = forumManager;
+  }
+
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#createForum()
+   */
+  public DiscussionForum createForum()
+  {
+    LOG.debug("createForum()");
+    return forumManager.createDiscussionForum();
+  }
+
+  public DiscussionTopic createTopic()
+  {
+    return forumManager.createDiscussionForumTopic();
   }
 }

@@ -9,7 +9,7 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
 
 /**
- * @author <a href="mailto:rshastri.iupui.edu">Rashmi Shastri</a>
+ * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  *
  */
 public interface DiscussionForumManager
@@ -98,4 +98,14 @@ public interface DiscussionForumManager
    * @return
    */
   public boolean isInstructor();
+
+  /**
+   * @return
+   */
+  DiscussionForum createForum();
+
+  /**
+   * @return
+   */
+  DiscussionTopic createTopic();
 }

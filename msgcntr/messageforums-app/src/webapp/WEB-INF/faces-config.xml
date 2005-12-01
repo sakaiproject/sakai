@@ -161,18 +161,28 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
-            <from-outcome>dfForumSettings</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfForumSettings.jsp</to-view-id>
-            <redirect/>
-        </navigation-case> 
-        <navigation-case>
             <from-outcome>dfTopicSettings</from-outcome>
             <to-view-id>/jsp/discussionForum/dfTopicSettings.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
+            <from-outcome>dfReviseTopicSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/dfReviseTopicSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        <navigation-case>
+            <from-outcome>dfForumSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/dfForumSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
             <from-outcome>dfReviseForumSettings</from-outcome>
             <to-view-id>/jsp/discussionForum/dfReviseForumSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfConfirmForumDelete</from-outcome>
+            <to-view-id>/jsp/discussionForum/dfConfirmForumDelete.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
     </navigation-rule>

@@ -5,7 +5,7 @@ import org.sakaiproject.api.app.messageforums.Message;
 
 
 /**
- * @author <a href="mailto:rshastri.iupui.edu">Rashmi Shastri</a>
+ * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  *
  */
 public class DiscussionMessageBean

@@ -32,6 +32,7 @@
 				<h:outputText id="topic_msg_count" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
 				<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" styleClass="rightAlign" value="#{msgs.cdfm_topic_settings}" rendered="#{ForumTool.instructor}">
 					<f:param value="#{topic.topic.uuid}" name="topicId"/>
+					<f:param value="#{forum.forum.uuid}" name="forumId"/>
 				</h:commandLink>
 				<f:verbatim><br/></f:verbatim>
 					<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" />
@@ -46,7 +47,7 @@
 						 value="#{msgs.cdfm_hide_full_description}" rendered="#{topic.readFullDesciption}">
 						<f:param value="#{topic.topic.uuid}" name="topicId_hideExtended"/>
 					</h:commandLink>					
-				<f:verbatim></div></f:verbatim>
+				<f:verbatim><hr/></div></f:verbatim>
 				<h:dataTable id="messages" value="#{topics.messages}" var="message">
 				    <h:column>
 						<h:outputText id="message_title" value="#{message.message.title}"/>
