@@ -12,6 +12,15 @@ div.forumsRow{margin-left:0;color:#000;text-align:left; width:95%; line-height:1
 div.forumsRowLeft{float:left;text-align:left; width:65%;background:#DDDFE4}
 
 div.forumsRowRight{float:right;color:#000; text-align:right; width:35%;line-height:1.3em;background:#DDDFE4}
+.textfield
+{
+	background-color: #FFFFFF;
+	border: 1px solid #999999;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	color: #000000;
+	font-weight: normal;
+}
 
 div.topicRows{border:true; margin: 0; margin-left:15px; padding: 0; text-align:left; width=95%;}
 

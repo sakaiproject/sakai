@@ -40,6 +40,11 @@
     <h:commandButton action="#{PrivateMessagesTool.processPvtMsgFolderSettingCancel}" value="Cancel" />
  </p>
  --%>   
+ 	<h:panelGroup rendered="#{PrivateMessagesTool.ismutable}">
+	  <h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
+		value="! You cann't Revise or Delete this folder." />
+	</h:panelGroup>   
+				
 	<sakai:button_bar>
   	<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingRevise}" value="Revise" />
     <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}" value="Add" />

@@ -418,7 +418,26 @@ public class PrivateMessagesTool
   {
     //TODO add all participants to this site
         List members = new Vector();
+        
+        //Add Entire class and all participants item for display in JSP
+        List ps = new Vector();
+        Participant ec= new Participant();
+        ec.name="Entire Class";
+        ps.add(ec) ;
+
+        Participant ep= new Participant();
+        ep.name="All Instructors";
+        ps.add(ep) ;
+        
+        List totalComposeToList=new ArrayList() ;
+        for (int i = 0; i < ps.size(); i++)
+        {
+          totalComposeToList.add(new SelectItem(((Participant) ps.get(i)).getName(),((Participant) ps.get(i)).getName()));
+        }
+        
+        
         List participants = new Vector();
+        
         String realmId = SiteService.siteReference(PortalService.getCurrentSiteId());//SiteService.siteReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
         
         
@@ -478,8 +497,9 @@ public class PrivateMessagesTool
         {
             //Log.warn("chef", this + "  IdUnusedException " + realmId);
         }
-                
-        List totalComposeToList=new ArrayList() ;
+             
+        
+        
 //        for (Iterator iter = participants.iterator(); iter.hasNext();)
 //        {
 //          Participant element = (Participant) iter.next();
@@ -490,6 +510,7 @@ public class PrivateMessagesTool
         {
           totalComposeToList.add(new SelectItem(((Participant) participants.get(i)).getName(),((Participant) participants.get(i)).getName()));
         }
+        
         //return participants;
     return totalComposeToList;
   }
@@ -508,7 +529,9 @@ public class PrivateMessagesTool
     public String getUniqname() {return uniqname; }
     public String getRole() { return role; } // cast to Role
     public boolean isRemoveable(){return true;}
-        
+    
+    
+    
   } // Participant
   
   public String getUserId() {
@@ -790,7 +813,7 @@ public class PrivateMessagesTool
   public String processPvtMsgSend() {
     
     //TODO - create new PrivateMessage Object and add user input and then save
-    prtMsgManager.savePrivateMessage(constructMessage());
+    //prtMsgManager.savePrivateMessage(constructMessage());
     return "pvtMsg" ;
   }
  
@@ -906,9 +929,9 @@ public class PrivateMessagesTool
   
   //////////////////////REPLY SEND  /////////////////
   public String processPvtMsgReplySend() {
-    PrivateMessage rsMsg=constructMessage() ;
+    //PrivateMessage rsMsg=constructMessage() ;
     
-    prtMsgManager.savePrivateMessage(rsMsg);
+    //prtMsgManager.savePrivateMessage(rsMsg);
     return "pvtMsg" ;
   }
  
@@ -1282,14 +1305,25 @@ public class PrivateMessagesTool
   }
   
   public String processPvtMsgFolderSettingRevise() {
-    return "pvtMsgFolderRevise" ;
+    if(this.ismutable)
+    {
+      return null;
+    }else 
+    {
+      return "pvtMsgFolderRevise" ;
+    }    
   }
   
   public String processPvtMsgFolderSettingAdd() {
     return "pvtMsgFolderAdd" ;
   }
   public String processPvtMsgFolderSettingDelete() {
-    return "pvtMsgFolderDelete" ;
+    if(this.ismutable)
+    {
+      return null;
+    }else {
+      return "pvtMsgFolderDelete" ;
+    }    
   }
   
   public String processPvtMsgFolderSettingCancel() {

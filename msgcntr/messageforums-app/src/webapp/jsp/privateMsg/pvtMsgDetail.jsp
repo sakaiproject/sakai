@@ -8,103 +8,82 @@
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="pvtMsgDetail">
-      	
-      
-					<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> / 
-					<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="Private Messages" >
-					</h:commandLink> /
-					<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
+  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> / 
+				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="Private Messages" >
+				</h:commandLink> /
+				<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
+
 			 	<sakai:instruction_message value="Private Message Details" />
-				
-
-      	
-      	
       	<br>
-      	
-      	
-          <table width="100%" align="left" style="background-color:#DDDFE4;">
-            <tr>
-              <td align="left">
-                <h:outputText style="font-weight:bold"  value="Subject "/>
-              </td>
-              <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
-              </td>  
-              <td align="left">
-             							<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message   "  rendered="#{PrivateMessagesTool.detailMsg.hasPreviousMsg}" >
-				<f:param value="#{PrivateMessagesTool.detailMsg.previousMsgId}" name="previousMsgId"/>
-			</h:commandLink>
-			<h:commandLink action="#{PrivateMessagesTool.processDisplayNextMsg}" value="Next Message   " rendered="#{PrivateMessagesTool.detailMsg.hasNextMsg}" >
-				<f:param value="#{PrivateMessagesTool.detailMsg.nextMsgId}" name="nextTopicId"/>
-			</h:commandLink>
-			
-			<h:outputText   value="Previous Message   "  rendered="#{!PrivateMessagesTool.detailMsg.hasPreviousMsg}" />
-			<h:outputText   value="Next Message   " rendered="#{!PrivateMessagesTool.detailMsg.hasNextMsg}" />		
-
-      	
-	      </td>
-        
-            </tr>
-            <tr>
-              <td align="left">
-                <h:outputText style="font-weight:bold"  value="Authored By "/>
-              </td>
-              <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.createdBy}" />  
-              	<h:outputText value="-" />  
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.created}" />  
-              </td>
-              <td></td>
-            </tr>
-            <tr>
-              <td align="left">
-                <h:outputText style="font-weight:bold"  value="Attachments "/>
-              </td>
-              <td align="left">
+        <table width="100%" align="left" style="background-color:#DDDFE4;">
+          <tr>
+            <td align="left">
+              <h:outputText style="font-weight:bold"  value="Subject "/>
+            </td>
+            <td align="left">
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
+            </td>  
+            <td align="left">
+  						<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message   "  rendered="#{PrivateMessagesTool.detailMsg.hasPreviousMsg}" >
+	      				<f:param value="#{PrivateMessagesTool.detailMsg.previousMsgId}" name="previousMsgId"/>
+							</h:commandLink>
+							<h:commandLink action="#{PrivateMessagesTool.processDisplayNextMsg}" value="Next Message   " rendered="#{PrivateMessagesTool.detailMsg.hasNextMsg}" >
+								<f:param value="#{PrivateMessagesTool.detailMsg.nextMsgId}" name="nextTopicId"/>
+							</h:commandLink>
+							<h:outputText   value="Previous Message   "  rendered="#{!PrivateMessagesTool.detailMsg.hasPreviousMsg}" />
+							<h:outputText   value="Next Message   " rendered="#{!PrivateMessagesTool.detailMsg.hasNextMsg}" />		
+			      </td>
+          </tr>
+          <tr>
+            <td align="left">
+              <h:outputText style="font-weight:bold"  value="Authored By "/>
+            </td>
+            <td align="left">
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.createdBy}" />  
+            	<h:outputText value="-" />  
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.created}" />  
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td align="left">
+              <h:outputText style="font-weight:bold"  value="Attachments "/>
+            </td>
+            <td align="left">
               <%-- Attachments --%>
               <h:dataTable value="#{PrivateMessagesTool.detailMsg.message.attachments}" var="eachAttach" >
 					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.message.attachments}">
-								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
-								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
-								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
-								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
-								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
-							
-								<h:outputText value="#{eachAttach.attachmentName}"/>
-						
+								  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
+								  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
+								  <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
+								  <h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
+								  <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
+								  <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
+								  <h:outputText value="#{eachAttach.attachmentName}"/>
 								</h:column>
 							</h:dataTable>   
-						
-              
               <%-- Attachments --%>
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              </td>
-              <td></td>
-            </tr>
-            <tr>
-              <td align="left">
-                <h:outputText style="font-weight:bold"  value="Label "/>
-              </td>
-              <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
-              </td>
-              <td></td>
-            </tr>                                    
-          </table>    
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td align="left">
+              <h:outputText style="font-weight:bold"  value="Label "/>
+            </td>
+            <td align="left">
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
+            </td>
+            <td></td>
+          </tr>                                    
+        </table>    
         
         <br/><br/>
-        
-        
+        <sakai:group_box>
+          <sakai:panel_edit>
+            <sakai:doc_section>  
+            </sakai:doc_section>    
+          </sakai:panel_edit>
+        </sakai:group_box>
 
 				<h:panelGroup rendered="#{PrivateMessagesTool.deleteConfirm}">
 					<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
@@ -125,15 +104,13 @@
         <sakai:group_box>
           <sakai:panel_edit>
             <sakai:doc_section>            
-              <h:inputTextarea value="#{PrivateMessagesTool.detailMsg.message.body}" style="width: 100%; align:left; height: 10%;" />
+              <h:inputTextarea value="#{PrivateMessagesTool.detailMsg.message.body}" cols="100" rows="5" style="textfield" />
             </sakai:doc_section>    
           </sakai:panel_edit>
         </sakai:group_box>
-             
 
       </h:form>
-     
     </sakai:view_content>
   </sakai:view_container>
 </f:view> 
-
+                    

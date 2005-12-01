@@ -240,7 +240,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setGradebookAssignment("asst1");
     pmm1.setId(new Long(3));
     pmm1.setInReplyTo(null);
-    pmm1.setLabel("fun stuff");
+    pmm1.setLabel("Normal");
     pmm1.setModified(new Date());
     pmm1.setModifiedBy("joe davis");
     pmm1.setTitle("Drafted the first message posted");
@@ -260,7 +260,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setGradebookAssignment("asst1");
     pmm2.setId(new Long(42));
     pmm2.setInReplyTo(pmm1);
-    pmm2.setLabel("fun stuff");
+    pmm2.setLabel("Normal");
     pmm2.setModified(new Date());
     pmm2.setModifiedBy("joe davis");
     pmm2.setTitle("the second message posted");
@@ -288,7 +288,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setGradebookAssignment("asst1");
     pmm1.setId(new Long(1213));
     pmm1.setInReplyTo(null);
-    pmm1.setLabel("fun stuff");
+    pmm1.setLabel("Normal");
     pmm1.setModified(new Date());
     pmm1.setModifiedBy("joe davis");
     pmm1.setTitle("getDeletedPrivateMessages the first message posted");
@@ -308,7 +308,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setGradebookAssignment("asst1");
     pmm2.setId(new Long(1214));
     pmm2.setInReplyTo(pmm1);
-    pmm2.setLabel("getDeletedPrivateMessages fun stuff");
+    pmm2.setLabel("getDeletedPrivateMessages Normal");
     pmm2.setModified(new Date());
     pmm2.setModifiedBy("joe davis");
     pmm2.setTitle("getDeletedPrivateMessages the second message posted");
@@ -336,7 +336,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setGradebookAssignment("asst1");
     pmm1.setId(new Long(13));
     pmm1.setInReplyTo(null);
-    pmm1.setLabel("fun stuff");
+    pmm1.setLabel("Normal");
     pmm1.setModified(new Date());
     pmm1.setModifiedBy("joe davis");
     pmm1.setTitle("the first message posted");
@@ -356,7 +356,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setGradebookAssignment("asst1");
     pmm2.setId(new Long(4));
     pmm2.setInReplyTo(pmm1);
-    pmm2.setLabel("fun stuff");
+    pmm2.setLabel("Normal");
     pmm2.setModified(new Date());
     pmm2.setModifiedBy("joe davis");
     pmm2.setTitle("the second message posted");
@@ -384,7 +384,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setGradebookAssignment("asst1");
     pmm1.setId(new Long(13));
     pmm1.setInReplyTo(null);
-    pmm1.setLabel("fun stuff");
+    pmm1.setLabel("Normal");
     pmm1.setModified(new Date());
     pmm1.setModifiedBy("joe davis");
     pmm1.setTitle("the first message posted");
@@ -404,7 +404,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setGradebookAssignment("asst1");
     pmm2.setId(new Long(4));
     pmm2.setInReplyTo(pmm1);
-    pmm2.setLabel("fun stuff");
+    pmm2.setLabel("Normal");
     pmm2.setModified(new Date());
     pmm2.setModifiedBy("joe davis");
     pmm2.setTitle("the second message posted");
@@ -506,7 +506,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     mm1.setGradebookAssignment("asst1");
     mm1.setId(new Long(3));
     mm1.setInReplyTo(null);
-    mm1.setLabel("fun stuff");
+    mm1.setLabel("Normal");
     mm1.setModified(new Date());
     mm1.setModifiedBy("joe davis");
     mm1.setTitle("the first message posted");
@@ -522,7 +522,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     mm2.setGradebookAssignment("asst1");
     mm2.setId(new Long(4));
     mm2.setInReplyTo(mm1);
-    mm2.setLabel("fun stuff");
+    mm2.setLabel("Normal");
     mm2.setModified(new Date());
     mm2.setModifiedBy("joe davis");
     mm2.setTitle("the second message posted");

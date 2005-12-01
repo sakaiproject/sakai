@@ -32,7 +32,7 @@
               </td>
               <td align="left">
       
-          			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}">
+          			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width:150px;">
             			<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
           			</h:selectManyListbox>      
           			
@@ -54,7 +54,7 @@
                 <h:outputText value="Subject" />
               </td>
               <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
+              	<h:outputText value="Re: #{PrivateMessagesTool.detailMsg.message.title}" />  
               </td>
             </tr>                                   
           </table>
