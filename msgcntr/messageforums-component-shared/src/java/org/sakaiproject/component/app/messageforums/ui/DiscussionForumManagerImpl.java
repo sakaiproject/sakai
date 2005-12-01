@@ -1,5 +1,6 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -209,8 +210,24 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.hasNextTopic(topic);
     }
-    // TODO: Implement Me!
-    throw new UnsupportedOperationException();
+    
+    // TODO: Needs optimized
+    boolean next = false;
+    DiscussionForum forum = getForumById(topic.getBaseForum().getId().toString());
+    if (forum != null && forum.getTopics() != null) {
+        for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();) {
+            Topic t = (Topic) iter.next();
+            if (next) {
+                return true;
+            }
+            if (t.getId().equals(topic.getId())) {
+                next = true;
+            }
+        }
+    }
+
+    // if we get here, there is no next topic
+    return false;
   }
 
   /* (non-Javadoc)
@@ -222,8 +239,24 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.hasPreviousTopic(topic);
     }
-    // TODO: Implement Me!
-    throw new UnsupportedOperationException();
+
+    // TODO: Needs optimized
+    DiscussionTopic prev = null;        
+    DiscussionForum forum = getForumById(topic.getBaseForum().getId().toString());
+    if (forum != null && forum.getTopics() != null) {
+        for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();) {
+        Topic t = (Topic) iter.next();
+            if (t.getId().equals(topic.getId())) {
+                // need to check null because we might be on the first topic
+                // which means there is no previous one
+                return prev != null;
+            }
+            prev = (DiscussionTopic) t;
+        }
+    }
+        
+    // if we get here, there is no previous topic
+    return false;
   }
 
   /* (non-Javadoc)
@@ -242,8 +275,24 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         return null;
       }
     }
-    // TODO: Implement Me!
-    throw new UnsupportedOperationException();
+
+    // TODO: Needs optimized
+    boolean next = false;
+    DiscussionForum forum = getForumById(topic.getBaseForum().getId().toString());
+    if (forum != null && forum.getTopics() != null) {
+        for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();) {
+            Topic t = (Topic) iter.next();
+            if (next) {
+                return (DiscussionTopic) t;
+            }
+            if (t.getId().equals(topic.getId())) {
+                next = true;
+            }
+        }
+    }
+    
+    // if we get here, there is no next topic
+    return null;
   }
 
   /* (non-Javadoc)
@@ -263,8 +312,22 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       }
      
     }
-    // TODO: Implement Me!
-    throw new UnsupportedOperationException();
+    
+    // TODO: Needs optimized
+    DiscussionTopic prev = null;        
+    DiscussionForum forum = getForumById(topic.getBaseForum().getId().toString());
+    if (forum != null && forum.getTopics() != null) {
+        for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();) {
+        Topic t = (Topic) iter.next();
+            if (t.getId().equals(topic.getId())) {
+                return prev;
+            }
+            prev = (DiscussionTopic) t;
+        }
+    }
+        
+    // if we get here, there is no previous topic
+    return null;
   }
 
   
