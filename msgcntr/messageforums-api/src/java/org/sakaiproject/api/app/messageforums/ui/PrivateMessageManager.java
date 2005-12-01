@@ -1,5 +1,6 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
@@ -63,6 +64,10 @@ public interface PrivateMessageManager {
 
     public Set getPvtMsgAttachmentsForPvtMsgData(final PrivateMessage pvtMsgData);
 
+    public boolean hasNextMessage(PrivateMessage message);
+    public boolean hasPreviousMessage(PrivateMessage message);
+    public PrivateMessage getNextMessage(PrivateMessage message);
+    public PrivateMessage getPreviousMessage(PrivateMessage message);
     
 ///
 }

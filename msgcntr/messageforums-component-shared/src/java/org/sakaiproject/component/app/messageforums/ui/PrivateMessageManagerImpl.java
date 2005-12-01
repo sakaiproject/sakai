@@ -1,11 +1,14 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
@@ -227,4 +230,86 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return messageManager.createPrivateMessage();
   }
 
+  
+  
+  
+  
+  public boolean hasNextMessage(PrivateMessage message)
+  {
+    // TODO: Needs optimized
+    boolean next = false;
+    if (message != null && message.getTopic() != null && message.getTopic().getMessages() != null) {
+        for (Iterator iter = message.getTopic().getMessages().iterator(); iter.hasNext();) {
+            Message m = (Message) iter.next();
+            if (next) {
+                return true;
+            }
+            if (m.getId().equals(message.getId())) {
+                next = true;
+            }
+        }
+    }
+
+    // if we get here, there is no next message
+    return false;
+  }
+
+  public boolean hasPreviousMessage(PrivateMessage message)
+  {
+      // TODO: Needs optimized
+      PrivateMessage prev = null;
+      if (message != null && message.getTopic() != null && message.getTopic().getMessages() != null) {
+          for (Iterator iter = message.getTopic().getMessages().iterator(); iter.hasNext();) {
+              Message m = (Message) iter.next();
+              if (m.getId().equals(message.getId())) {
+                  // need to check null because we might be on the first message
+                  // which means there is no previous one
+                  return prev != null;
+              }
+              prev = (PrivateMessage)m;
+          }
+      }
+
+      // if we get here, there is no previous message
+      return false; 
+  }
+
+  public PrivateMessage getNextMessage(PrivateMessage message)
+  {
+      // TODO: Needs optimized
+      boolean next = false;
+      if (message != null && message.getTopic() != null && message.getTopic().getMessages() != null) {
+          for (Iterator iter = message.getTopic().getMessages().iterator(); iter.hasNext();) {
+              Message m = (Message) iter.next();
+              if (next) {
+                  return (PrivateMessage) m;
+              }
+              if (m.getId().equals(message.getId())) {
+                  next = true;
+              }
+          }
+      }
+
+      // if we get here, there is no next message
+      return null;
+  }
+
+  public PrivateMessage getPreviousMessage(PrivateMessage message)
+  {
+      // TODO: Needs optimized
+      PrivateMessage prev = null;
+      if (message != null && message.getTopic() != null && message.getTopic().getMessages() != null) {
+          for (Iterator iter = message.getTopic().getMessages().iterator(); iter.hasNext();) {
+              Message m = (Message) iter.next();
+              if (m.getId().equals(message.getId())) {
+                  return prev;
+              }
+              prev = (PrivateMessage)m;
+          }
+      }
+
+      // if we get here, there is no previous message
+      return null; 
+  }
+  
 }
