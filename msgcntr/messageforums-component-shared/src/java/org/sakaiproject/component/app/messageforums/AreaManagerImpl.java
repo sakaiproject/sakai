@@ -66,6 +66,9 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         Area area = getAreaByContextIdAndTypeId(typeManager.getPrivateType());
         if (area == null) {
             area = createArea(typeManager.getPrivateType());
+            area.setName("Private Area");
+            area.setEnabled(Boolean.TRUE);
+            area.setHidden(Boolean.TRUE);
             saveArea(area);
         }
         return area;
@@ -75,6 +78,9 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
         if (area == null) {
             area = createArea(typeManager.getDiscussionForumType());
+            area.setName("Disucssion Area");
+            area.setEnabled(Boolean.TRUE);
+            area.setHidden(Boolean.TRUE);
             saveArea(area);
         }
         return area;
