@@ -198,8 +198,7 @@ public class PrivateMessagesTool
   //Return decorated Forum
   public PrivateForumDecoratedBean getDecoratedForum()
   {
-    if (forum != null)
-    {
+
       PrivateForumDecoratedBean decoratedForum = new PrivateForumDecoratedBean(forum) ;
       for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
       {
@@ -212,7 +211,7 @@ public class PrivateMessagesTool
           decoratedForum.addTopic(decoTopic);
         }          
       }
-    }
+
     return decoratedForum ;
   }
 
