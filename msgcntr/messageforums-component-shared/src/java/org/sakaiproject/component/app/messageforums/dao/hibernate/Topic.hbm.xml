@@ -63,12 +63,12 @@
     
     <many-to-one name="openForum" column="of_surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
-      not-null="false" index="MFR_PARENT_I1" cascade="none" />
+      not-null="false" index="MFR_TOPIC_PARENT_I1" cascade="none" />
     <property name="ofindex" column="of_index_col" type="int" update="true" insert="true"/>
 
     <many-to-one name="privateForum" column="pf_surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl"
-      not-null="false" index="MFR_PARENT_I2" cascade="none" />
+      not-null="false" index="MFR_TOPIC_PARENT_I2" cascade="none" />
     <property name="pfindex" column="pf_index_col" type="int" update="true" insert="true"/>
 
     <!-- PrivateTopic fields -->
@@ -86,7 +86,7 @@
   	  </list>     
       <many-to-one name="parentTopic" column="pt_surrogateKey"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl"
-        not-null="false" index="MFR_PRI_PARENT_I" cascade="none" />
+        not-null="false" index="MFR_TOPIC_PRI_PARENT_I" cascade="none" />
       <property name="ptindex" column="pt_index_col" type="int" update="true" insert="true"/>
 	</subclass>
           

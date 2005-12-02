@@ -65,7 +65,7 @@
  
     <many-to-one name="area" column="surrogateKey"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
-        not-null="false" index="MFR_PARENT_BASEFORUM_I" cascade="none" />
+        not-null="false" index="MFR_PF_PARENT_BASEFORUM_I" cascade="none" />
     <property name="areaindex" column="area_index_col" type="int" update="true" insert="true"/>
       
   </class>
