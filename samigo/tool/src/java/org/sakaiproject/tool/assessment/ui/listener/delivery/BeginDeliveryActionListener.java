@@ -34,7 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -79,54 +79,57 @@ public class BeginDeliveryActionListener implements ActionListener
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     delivery.setTimeRunning(true);
 
+    // ** Important**: this decides what buttons to displayed
+    delivery.setMode(delivery.TAKE_ASSESSMENT); // default
+    
     // get service
-    PublishedAssessmentService publishedAssessmentService = new
-        PublishedAssessmentService();
+    AssessmentService assessmentService = new AssessmentService();
+    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
-
-    // if this page is access through selectAssessment, publishedId should
-    // not be null
     String publishedId = cu.lookupParam("publishedId");
-
-    // if this page is accessed through assessment preview, previewAssessment should be true and assessmentId should not be null
     String previewAssessment = (String)cu.lookupParam("previewAssessment");
     String assessmentId = (String)cu.lookupParam("assessmentId");
+    
+    boolean takingAssessment = takingAssessment(publishedId, previewAssessment);
+    boolean previewingAssessment = previewingAssessment(previewAssessment, assessmentId);
 
-    if (previewAssessment != null)
-    {
-	delivery.setPreviewAssessment(previewAssessment);
+    // Note: this listener is called by 3 action: Take assessment, Take assessment via url
+    // and Preview assessment.
+    // the goal is to find the publishedAssessment via teh publishedId
+    // then we can set the deliveryBean with the publishedassessment properties
+    // and hence able to do teh display
+    // If the action calling this listener is to take assessment, we already have the 
+    // publishedId. For the other 2 cases, we need to find it, so proceed...
+    //# case : Previewing assessment
+    if (!takingAssessment && previewingAssessment){
+      // this is accessed via assessment preview link
+      //now always publish and get a new publishedId for preview assessment
+      delivery.setMode(delivery.PREVIEW_ASSESSMENT);
+      AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+      try {
+        pub = publishedAssessmentService.publishPreviewAssessment(assessment);
+      } 
+      catch (Exception e) {
+        log.error(e);
+        e.printStackTrace();
+      }
+      publishedId = pub.getPublishedAssessmentId().toString();
+      //always set "true" since will generate a new publisheId for every preview assessment now
+      delivery.setNotPublished("true"); 
     }
 
-    if (publishedId == null || publishedId.trim().equals(""))
-    {
-	     // this is accessed via assessment preview link
-       if ("true".equals(delivery.getPreviewAssessment()) && assessmentId !=null)
-       {
-        //now always publish and get a new publishedId for preview assessment
-         AssessmentService assessmentService = new AssessmentService();
-         AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
-         try {
-          pub = publishedAssessmentService.publishPreviewAssessment(assessment);
-         } catch (Exception e) {
-          log.error(e);
-          e.printStackTrace();
-         }
-         publishedId = pub.getPublishedAssessmentId().toString();
-       }
-       else
-       {
-         // this is accessed via publishedUrl so pubishedId==null
-         pub = delivery.getPublishedAssessment();
-         if (pub == null)
-           throw new AbortProcessingException(
-            "taking: publishedAsessmentId null or blank");
-         else
-           publishedId = pub.getPublishedAssessmentId().toString();
-       }
+    //# case : Taking assessment via url
+    if (!takingAssessment && !previewingAssessment){
+      // this is accessed via publishedUrl so pubishedId==null
+      pub = delivery.getPublishedAssessment();
+      if (pub == null)
+        throw new AbortProcessingException(
+        "taking: publishedAsessmentId null or blank");
+      else
+        publishedId = pub.getPublishedAssessmentId().toString();
     }
-    delivery.setNotPublished("true"); //always set "true" since will generate a new publisheId for every preview assessment now
 
-    // get assessment, this includes some dummy code as well
+    System.out.println("****pubishedId="+publishedId);        
     pub = lookupPublishedAssessment(publishedId, publishedAssessmentService);
     delivery.setPublishedAssessment(pub);
 
@@ -135,7 +138,7 @@ public class BeginDeliveryActionListener implements ActionListener
 
     // add in course management system info
     CourseManagementBean course = (CourseManagementBean) cu.lookupBean("course");
-    populateBeanFromCourse(pub,delivery, course);
+    populateBeanFromCourse(pub, delivery, course);
 
   }
 
@@ -148,18 +151,7 @@ public class BeginDeliveryActionListener implements ActionListener
     pub = assessmentService.getPublishedAssessment(id);
     if (pub.getAssessmentFeedback()==null)
     {
-      AssessmentFeedback feed = new AssessmentFeedback();
-      feed.setShowCorrectResponse(new Boolean(false));
-      feed.setShowGraderComments(new Boolean(false));
-      feed.setShowQuestionLevelFeedback(new Boolean(false));
-      feed.setShowQuestionText(new Boolean(true));
-      feed.setShowSelectionLevelFeedback(new Boolean(false));
-      feed.setShowStatistics(new Boolean(false));
-      feed.setShowStudentScore(new Boolean(false));
-      feed.setShowStudentQuestionScore(new Boolean(false));
-      feed.setFeedbackDelivery(feed.NO_FEEDBACK);
-      feed.setFeedbackAuthoring(feed.QUESTIONLEVEL_FEEDBACK);
-      pub.setAssessmentFeedback(feed);
+      pub.setAssessmentFeedback(new PublishedFeedback());
     }
     return pub;
   }
@@ -175,42 +167,24 @@ public class BeginDeliveryActionListener implements ActionListener
   public void populateBeanFromPub(DeliveryBean delivery,
     PublishedAssessmentFacade pubAssessment)
   {
-    // global information
-
-
-    delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
-    delivery.setAssessmentTitle(pubAssessment.getTitle());
-    delivery.setInstructorMessage(pubAssessment.getDescription());
-    // for now instructor is the creator 'cos sakai don't have instructor role in 1.5
-    delivery.setCourseName(pubAssessment.getOwnerSite());
-    delivery.setCreatorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
-    delivery.setInstructorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
-    delivery.setSubmitted(false);
-    delivery.setGraded(false);
-    delivery.setPreviewMode(false);
-    delivery.setPartIndex(0);
-    delivery.setQuestionIndex(0);
-    delivery.setBeginTime(null);
-    delivery.setFeedbackOnDate(false);
-
     AssessmentAccessControlIfc control = (AssessmentAccessControlIfc)pubAssessment.getAssessmentAccessControl();
-    delivery.setDueDate(control.getDueDate());
+
+    // populate deliveryBean, settingsBean and feedbackComponent .
+    // deliveryBean contains settingsBean & feedbackComponent)
+    populateDelivery(delivery, pubAssessment);
+
+    SettingsDeliveryBean settings = populateSettings(pubAssessment);
+    delivery.setSettings(settings);
 
     // feedback
-    FeedbackComponent feedback = new FeedbackComponent();
-    populateFeedbackComponent(feedback, pubAssessment);
-    delivery.setFeedbackComponent(feedback);
-   
+    FeedbackComponent component = populateFeedbackComponent(pubAssessment);
+    delivery.setFeedbackComponent(component);
+
+    // important: set feedbackOnDate last
     Date currentDate = new Date();
-    if (feedback.getShowDateFeedback() && control.getFeedbackDate()!= null && currentDate.after(control.getFeedbackDate()))
-    {
-        delivery.setFeedbackOnDate(true); 
+    if (component.getShowDateFeedback() && control.getFeedbackDate()!= null && currentDate.after(control.getFeedbackDate())) {
+      delivery.setFeedbackOnDate(true); 
     }
-    
-    // settings
-    SettingsDeliveryBean settings = new SettingsDeliveryBean();
-    populateSettings(settings, pubAssessment, delivery);
-    delivery.setSettings(settings);
   }
 
   /**
@@ -231,28 +205,14 @@ public class BeginDeliveryActionListener implements ActionListener
    * @param feedback
    * @param pubAssessment
    */
-  private void populateFeedbackComponent(FeedbackComponent feedback,
-    PublishedAssessmentFacade pubAssessment)
+  private FeedbackComponent populateFeedbackComponent(PublishedAssessmentFacade pubAssessment)
   {
+    FeedbackComponent component = new FeedbackComponent();
     AssessmentFeedbackIfc info =  (AssessmentFeedbackIfc) pubAssessment.getAssessmentFeedback();
     if ( info != null) {
-       feedback.setShowCorrectResponse(info.getShowCorrectResponse().booleanValue());
-       feedback.setShowGraderComment(info.getShowGraderComments().booleanValue());
-       feedback.setShowItemLevel(info.getShowQuestionLevelFeedback().booleanValue());
-       feedback.setShowQuestion(info.getShowQuestionText().booleanValue());
-       feedback.setShowResponse(info.getShowStudentResponse().booleanValue());
-       feedback.setShowSelectionLevel(info.getShowSelectionLevelFeedback().booleanValue());
-       feedback.setShowStats(info.getShowStatistics().booleanValue());
-       feedback.setShowStudentScore(info.getShowStudentScore().booleanValue());
-       if (info.getShowStudentQuestionScore()!=null)
-         feedback.setShowStudentQuestionScore(info.getShowStudentQuestionScore().booleanValue());
-       else
-         feedback.setShowStudentQuestionScore(false);
-       Integer feedbackDelivery = info.getFeedbackDelivery();
-       feedback.setShowDateFeedback(info.FEEDBACK_BY_DATE.equals(feedbackDelivery));
-       feedback.setShowImmediate(info.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
-       feedback.setShowNoFeedback(info.NO_FEEDBACK.equals(feedbackDelivery));
+      component.setAssessmentFeedback(info);
     }
+    return component;
   }
 
   /**
@@ -261,59 +221,14 @@ public class BeginDeliveryActionListener implements ActionListener
    * @param settings
    * @param pubAssessment
    */
-  private void populateSettings(SettingsDeliveryBean settings,
-    PublishedAssessmentIfc pubAssessment, DeliveryBean delivery)
+  private SettingsDeliveryBean populateSettings(PublishedAssessmentIfc pubAssessment)
   {
-    settings.setIpAddresses(pubAssessment.getSecuredIPAddressSet());
-    AssessmentAccessControlIfc   control =
-      pubAssessment.getAssessmentAccessControl();
-    constructControlSettings(delivery,settings, control, pubAssessment.getPublishedAssessmentId());
-    if (control.getItemNavigation() == null)
-      delivery.setNavigation(AssessmentAccessControl.RANDOM_ACCESS.toString());
-    else
-      delivery.setNavigation(control.getItemNavigation().toString());
-
-    // check if we need to time the assessment, i.e.hasTimeassessment="true"
-    String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
-    if (hasTimeLimit!=null && hasTimeLimit.equals("true"))
-      delivery.setHasTimeLimit(true);
-    else
-      delivery.setHasTimeLimit(false);
-
-    try
-    {
-      if (control.getTimeLimit() != null)
-      {
-           delivery.setTimeLimit(control.getTimeLimit().toString());
-           int seconds = control.getTimeLimit().intValue();
-           int hour = 0;
-           int minute = 0;
-           if (seconds>=3600)
-	   {
-               hour = Math.abs(seconds/3600);
-               minute =Math.abs((seconds-hour*3600)/60);
-           }
-           else
-	   {
-               minute = Math.abs(seconds/60);
-           }
-           delivery.setTimeLimit_hour(hour);
-           delivery.setTimeLimit_minute(minute);
-      }
-    } catch (Exception e)
-    {
-      delivery.setTimeLimit("");
-    }
-    Set set = pubAssessment.getAssessmentMetaDataSet();
-    Iterator iter = set.iterator();
-    while (iter.hasNext())
-    {
-      AssessmentMetaDataIfc data = (AssessmentMetaDataIfc) iter.next();
-      if (data.getLabel().equals(AssessmentMetaDataIfc.BGCOLOR))
-        settings.setBgcolor(data.getEntry());
-      else if (data.getLabel().equals(AssessmentMetaDataIfc.BGIMAGE))
-        settings.setBackground(data.getEntry());
-    }
+    // #1 - poplulate control properties such as dueDate, feedbackDate, autoSubmit, autoSave
+    //      max. no. of attempt, display format, username & password - mostly info 
+    //      on the BeginAssessment page. And deliveryBean contains settingsBean
+    SettingsDeliveryBean settings = new SettingsDeliveryBean();
+    settings.setAssessmentAccessControl(pubAssessment);
+    return settings;
   }
 
   /**
@@ -321,36 +236,96 @@ public class BeginDeliveryActionListener implements ActionListener
    * @param settings target SettingsDeliveryBean
    * @param control the AssessmentAccessControlIfc
    */
-  private void constructControlSettings(DeliveryBean delivery,SettingsDeliveryBean settings,
-    AssessmentAccessControlIfc  control, Long publishedAssessmentId )
-  {
+  private void populateDelivery(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment){
+
+    Long publishedAssessmentId = pubAssessment.getPublishedAssessmentId();
+    AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
     PublishedAssessmentService service = new PublishedAssessmentService();
+
+    // #0 - global information
+    delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
+    delivery.setAssessmentTitle(pubAssessment.getTitle());
+    delivery.setInstructorMessage(pubAssessment.getDescription());
+    // for now instructor is the creator 'cos sakai don't have instructor role in 1.5
+    delivery.setCourseName(pubAssessment.getOwnerSite());
+    delivery.setCreatorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
+    delivery.setInstructorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
+    delivery.setSubmitted(false);
+    delivery.setGraded(false);
+    delivery.setPreviewMode(false);
+    delivery.setPartIndex(0);
+    delivery.setQuestionIndex(0);
+    delivery.setBeginTime(null);
+    delivery.setFeedbackOnDate(false);
+    delivery.setDueDate(control.getDueDate());
+
+    // #1 - set submission remains
     int totalSubmissions = (service.getTotalSubmission(AgentFacade.getAgentString(),
         publishedAssessmentId.toString())).intValue();
-    settings.setAutoSubmit(control.AUTO_SUBMIT.equals(control.getAutoSubmit()));
-    settings.setAutoSave(control.AUTO_SAVE.equals(control.getSubmissionsSaved()));
-    settings.setDueDate(control.getDueDate());
-    if ((Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
-      settings.setUnlimitedAttempts(true);
+    if (!(Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
+      delivery.setSubmissionsRemaining(control.getSubmissionsAllowed().intValue() - totalSubmissions);
     }
-    else{
-      settings.setUnlimitedAttempts(false);
-      if (control.getSubmissionsAllowed() != null) {
-        settings.setMaxAttempts(control.getSubmissionsAllowed().intValue());
-        delivery.setSubmissionsRemaining(control.getSubmissionsAllowed().
-                                         intValue() - totalSubmissions);
-      }
-    }
-    settings.setSubmissionMessage(control.getSubmissionMessage());
-    settings.setFeedbackDate(control.getFeedbackDate());
-    Integer format = control.getAssessmentFormat();
-    if (format == null)
-      format = new Integer(1);
-    settings.setFormatByAssessment(control.BY_ASSESSMENT.equals(format));
-    settings.setFormatByPart(control.BY_PART.equals(format));
-    settings.setFormatByQuestion(control.BY_QUESTION.equals(format));
-    settings.setUsername(control.getUsername());
-    settings.setPassword(control.getPassword());
-    settings.setItemNumbering(control.getItemNumbering().toString());
+
+    // #2 - check if TOC should be made avaliable
+    if (control.getItemNavigation() == null)
+      delivery.setNavigation(AssessmentAccessControl.RANDOM_ACCESS.toString());
+    else
+      delivery.setNavigation(control.getItemNavigation().toString());
+
+    // #3 - if this is a timed assessment, set the time limit in hr, min & sec.
+    setTimedAssessment(delivery, pubAssessment);
+
   }
+
+  private void setTimedAssessment(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment){
+
+    AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
+    // check if we need to time the assessment, i.e.hasTimeassessment="true"
+    String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
+    if (hasTimeLimit!=null && hasTimeLimit.equals("true"))
+      delivery.setHasTimeLimit(true);
+    else
+      delivery.setHasTimeLimit(false);
+
+    try {
+      if (control.getTimeLimit() != null) {
+        delivery.setTimeLimit(control.getTimeLimit().toString());
+        int seconds = control.getTimeLimit().intValue();
+        int hour = 0;
+        int minute = 0;
+        if (seconds>=3600) {
+          hour = Math.abs(seconds/3600);
+          minute =Math.abs((seconds-hour*3600)/60);
+        }
+        else {
+          minute = Math.abs(seconds/60);
+        }
+        delivery.setTimeLimit_hour(hour);
+        delivery.setTimeLimit_minute(minute);
+      }
+    } catch (Exception e)
+    {
+      delivery.setTimeLimit("");
+    }
+  }
+
+  private boolean takingAssessment(String publishedId, String previewAssessment){
+    boolean takingAssessment = false;
+    // if this page is access through selectAssessment, publishedId should
+    // not be null
+    if (publishedId != null)
+      takingAssessment = true;
+    return takingAssessment;
+  }
+
+  private boolean previewingAssessment(String previewAssessment, String assessmentId){
+    boolean previewingAssessment = false;
+    // if this page is accessed through assessment preview, 
+    // previewAssessment should be true and assessmentId should not be null
+    if (previewAssessment!=null && ("true").equals(previewAssessment) && assessmentId !=null)
+      previewingAssessment = true;
+    return previewingAssessment;
+  }
+ 
+
 }

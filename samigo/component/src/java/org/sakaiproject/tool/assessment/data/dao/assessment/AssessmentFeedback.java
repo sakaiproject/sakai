@@ -51,6 +51,16 @@ public class AssessmentFeedback
    */
   public AssessmentFeedback()
   {
+    setShowCorrectResponse(Boolean.FALSE);
+    setShowGraderComments(Boolean.FALSE);
+    setShowQuestionLevelFeedback(Boolean.FALSE);
+    setShowQuestionText(Boolean.TRUE);
+    setShowSelectionLevelFeedback(Boolean.FALSE);
+    setShowStatistics(Boolean.FALSE);
+    setShowStudentScore(Boolean.FALSE);
+    setShowStudentQuestionScore(Boolean.FALSE);
+    setFeedbackDelivery(AssessmentFeedbackIfc.NO_FEEDBACK);
+    setFeedbackAuthoring(AssessmentFeedbackIfc.QUESTIONLEVEL_FEEDBACK);
   }
 
   public AssessmentFeedback(

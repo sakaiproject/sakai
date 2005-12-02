@@ -22,6 +22,7 @@
 **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 
 /**
  * @author casong
@@ -240,6 +241,25 @@ public class FeedbackComponent
   public void setShowStudentQuestionScore(boolean showStudentQuestionScore)
   {
     this.showStudentQuestionScore = showStudentQuestionScore;
+  }
+
+  public void setAssessmentFeedback(AssessmentFeedbackIfc feedback){
+    setShowCorrectResponse(feedback.getShowCorrectResponse().booleanValue());
+    setShowGraderComment(feedback.getShowGraderComments().booleanValue());
+    setShowItemLevel(feedback.getShowQuestionLevelFeedback().booleanValue());
+    setShowQuestion(feedback.getShowQuestionText().booleanValue());
+    setShowResponse(feedback.getShowStudentResponse().booleanValue());
+    setShowSelectionLevel(feedback.getShowSelectionLevelFeedback().booleanValue());
+    setShowStats(feedback.getShowStatistics().booleanValue());
+    setShowStudentScore(feedback.getShowStudentScore().booleanValue());
+    if (feedback.getShowStudentQuestionScore()!=null)
+      setShowStudentQuestionScore(feedback.getShowStudentQuestionScore().booleanValue());
+    else
+      setShowStudentQuestionScore(false);
+    Integer feedbackDelivery = feedback.getFeedbackDelivery();
+    setShowDateFeedback(AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackDelivery));
+    setShowImmediate(AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
+    setShowNoFeedback(AssessmentFeedbackIfc.NO_FEEDBACK.equals(feedbackDelivery));
   }
 
 }

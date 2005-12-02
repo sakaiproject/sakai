@@ -2072,4 +2072,29 @@ public class DeliveryBean
     }
   }
 
+  // delivery mode
+  public static int TAKE_ASSESSMENT = 1;
+  public static int PREVIEW_ASSESSMENT = 2;
+  public static int REVIEW_ASSESSMENT = 3;
+  public static int GRADE_ASSESSMENT = 4;
+  private int mode;
+
+  public void setMode(int mode){
+    // reset mode
+    setPreviewAssessment("false");
+    setReviewAssessment(false);
+    this.mode = mode;
+
+    if (mode == PREVIEW_ASSESSMENT){
+      setPreviewAssessment("true");
+    }
+    else if (mode == REVIEW_ASSESSMENT){
+      setReviewAssessment(true);
+    }
+  }
+
+  public int getMode(){
+    return mode;
+  }
+
 }

@@ -24,7 +24,11 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Created on May 28, 2004
@@ -334,4 +338,45 @@ public class SettingsDeliveryBean
   {
     itemNumbering = numbering;
   }
+
+  public void setAssessmentAccessControl(PublishedAssessmentIfc pubAssessment){
+
+    AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
+    setAutoSubmit(control.AUTO_SUBMIT.equals(control.getAutoSubmit()));
+    setAutoSave(control.AUTO_SAVE.equals(control.getSubmissionsSaved()));
+    setDueDate(control.getDueDate());
+    if ((Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
+      setUnlimitedAttempts(true);
+    }
+    else{
+      setUnlimitedAttempts(false);
+      if (control.getSubmissionsAllowed() != null) {
+        setMaxAttempts(control.getSubmissionsAllowed().intValue());
+      }
+    }
+    setSubmissionMessage(control.getSubmissionMessage());
+    setFeedbackDate(control.getFeedbackDate());
+    Integer format = control.getAssessmentFormat();
+    if (format == null)
+      format = new Integer(1);
+    setFormatByAssessment(control.BY_ASSESSMENT.equals(format));
+    setFormatByPart(control.BY_PART.equals(format));
+    setFormatByQuestion(control.BY_QUESTION.equals(format));
+    setUsername(control.getUsername());
+    setPassword(control.getPassword());
+    setItemNumbering(control.getItemNumbering().toString());
+
+    setIpAddresses(pubAssessment.getSecuredIPAddressSet());
+
+    Set set = pubAssessment.getAssessmentMetaDataSet();
+    Iterator iter = set.iterator();
+    while (iter.hasNext()) {
+      AssessmentMetaDataIfc data = (AssessmentMetaDataIfc) iter.next();
+      if (data.getLabel().equals(AssessmentMetaDataIfc.BGCOLOR))
+        setBgcolor(data.getEntry());
+      else if (data.getLabel().equals(AssessmentMetaDataIfc.BGIMAGE))
+        setBackground(data.getEntry());
+    }
+  }
+
 }
