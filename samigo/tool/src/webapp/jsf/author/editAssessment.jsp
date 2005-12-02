@@ -126,7 +126,6 @@ document.links[newindex].onclick();
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
         <f:param name="previewAssessment" value="true"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
       </h:commandLink>
   </p>
 <div class="longtext">
