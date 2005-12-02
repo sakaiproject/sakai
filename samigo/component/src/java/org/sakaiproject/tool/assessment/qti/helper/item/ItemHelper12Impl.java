@@ -1100,7 +1100,7 @@ public class ItemHelper12Impl extends ItemHelperBase
       if (first) // then do once
       {
         addCorrectAndIncorrectFeedback(itemXml, itemTextIfc);
-        xpathIndex = 3;
+        xpathIndex = 1;
         first = false;
       }
 
@@ -1115,9 +1115,9 @@ public class ItemHelper12Impl extends ItemHelperBase
         while (aiter.hasNext())
         {
           AnswerIfc answer = (AnswerIfc) aiter.next();
-          log.debug("Setting answer feedback for: " + answer.getText());
-          log.debug("xpathIndex: " + xpathIndex);
-          log.debug("label: " + label);
+          log.info("Setting answer feedback for: " + answer.getText());
+          log.info("xpathIndex: " + xpathIndex);
+          log.info("label: " + label);
 
           String value = answer.getGeneralAnswerFeedback();
           boolean isInsert = true;
@@ -1127,7 +1127,7 @@ public class ItemHelper12Impl extends ItemHelperBase
           }
 
           addAnswerFeedback(itemXml, value,
-                            isInsert, 2*xpathIndex, "" + label);
+                            isInsert, xpathIndex, "" + label);
           label++;
           xpathIndex++;
         }
@@ -1201,8 +1201,8 @@ public class ItemHelper12Impl extends ItemHelperBase
     String respCond = "item/resprocessing/respcondition[" + responseNo + "]";
     updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
     updateItemXml(itemXml,
-        respCond + "/displayfeedback/@linkrefid", "AnswerFeedback");
-    updateItemXml(itemXml, respCond + "/displayfeedback", value);
+        respCond + "/displayfeedback[2]/@linkrefid", "AnswerFeedback");
+    updateItemXml(itemXml, respCond + "/displayfeedback[2]", value);
   }
 
   ////////////////////////////////////////////////////////////////

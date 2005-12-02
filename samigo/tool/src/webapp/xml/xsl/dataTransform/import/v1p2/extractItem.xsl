@@ -106,10 +106,15 @@
     <xsl:if test="displayfeedback/@linkrefid='InCorrectMatch'">
       <itemMatchIncorrectFeedback type="list"><xsl:value-of select="displayfeedback"/></itemMatchIncorrectFeedback>
     </xsl:if>
-    <xsl:if test="displayfeedback/@linkrefid='AnswerFeedback'">
-      <itemAnswerFeedback type="list"><xsl:value-of select="displayfeedback"/></itemAnswerFeedback>
-    </xsl:if>
   </xsl:for-each>
+
+  <!-- answer feedback -->
+  <xsl:for-each select="//respcondition/displayfeedback">
+   <xsl:if test="@linkrefid='AnswerFeedback'">
+     <itemAnswerFeedback type="list"><xsl:value-of select="."/></itemAnswerFeedback>
+   </xsl:if>
+  </xsl:for-each>
+
   <!-- answers -->
   <xsl:for-each select="//presentation//response_lid/render_choice/response_label/material/mattext" >
       <itemAnswer type="list"><xsl:apply-templates mode="itemRichText" /></itemAnswer>
