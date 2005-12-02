@@ -213,7 +213,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     
     // TODO: Needs optimized
     boolean next = false;
-    DiscussionForum forum = getForumById(topic.getBaseForum().getId().toString());
+    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum != null && forum.getTopics() != null) {
         for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();) {
             Topic t = (Topic) iter.next();
@@ -242,7 +242,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     // TODO: Needs optimized
     DiscussionTopic prev = null;        
-    DiscussionForum forum = getForumById(topic.getBaseForum().getId().toString());
+    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum != null && forum.getTopics() != null) {
         for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();) {
         Topic t = (Topic) iter.next();
@@ -278,7 +278,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     // TODO: Needs optimized
     boolean next = false;
-    DiscussionForum forum = getForumById(topic.getBaseForum().getId().toString());
+    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum != null && forum.getTopics() != null) {
         for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();) {
             Topic t = (Topic) iter.next();
@@ -315,7 +315,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     
     // TODO: Needs optimized
     DiscussionTopic prev = null;        
-    DiscussionForum forum = getForumById(topic.getBaseForum().getId().toString());
+    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum != null && forum.getTopics() != null) {
         for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();) {
         Topic t = (Topic) iter.next();
