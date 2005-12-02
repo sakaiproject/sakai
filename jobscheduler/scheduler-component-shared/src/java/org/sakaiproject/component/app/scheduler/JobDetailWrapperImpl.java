@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.JobDetail;
 import org.sakaiproject.api.app.scheduler.JobDetailWrapper;
+import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 
 public class JobDetailWrapperImpl implements JobDetailWrapper
 {
@@ -107,4 +108,12 @@ public class JobDetailWrapperImpl implements JobDetailWrapper
   {
     this.isSelected = isSelected;
   }
+
+   public String getJobType() {
+      String jobType = (String) getJobDetail().getJobDataMap().get(JobBeanWrapper.JOB_TYPE);
+      if (jobType != null) {
+         return jobType;
+      }
+      return getJobDetail().getJobClass().getName();
+   }
 }

@@ -109,5 +109,11 @@ public interface SchedulerManager
    * set autoDdl
    */
   public void setAutoDdl(Boolean b);
+
+   public Map getBeanJobs();
+
+   public void registerBeanJob(String jobName, JobBeanWrapper job);
+
+   public JobBeanWrapper getJobBeanWrapper(String beanWrapperId);
 }
 

@@ -21,8 +21,9 @@
   					  <h:message for="job_name" styleClass="chefRequiredInline"/>
   					</h:panelGroup>  					
   					  					  					
-						<h:outputText value="#{msgs.job_class}"/>
+						<h:outputText value="#{msgs.job_type}"/>
   					<h:selectOneMenu value="#{schedulerTool.selectedClass}">
+	   				  <f:selectItems value="#{schedulerTool.beanJobs}"/>
 	   				  <f:selectItems value="#{schedulerTool.jobClasses}"/>
 			  		</h:selectOneMenu>
 

@@ -72,5 +72,10 @@ public interface JobDetailWrapper
    * @param isSelected The isSelected to set.
    */
   public void setIsSelected(boolean isSelected);
+
+   /**
+    * @return bean name if this is a Bean Job or class if not
+    */
+   public String getJobType();
 }
 

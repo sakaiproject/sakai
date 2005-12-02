@@ -24,11 +24,7 @@
 package org.sakaiproject.component.app.scheduler;
 
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.Log;
@@ -40,6 +36,7 @@ import org.quartz.SchedulerFactory;
 import org.quartz.TriggerListener;
 import org.quartz.impl.StdSchedulerFactory;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.service.framework.sql.SqlService;
 
 public class SchedulerManagerImpl implements SchedulerManager
@@ -53,12 +50,14 @@ public class SchedulerManagerImpl implements SchedulerManager
   private Properties qrtzProperties;
   private TriggerListener globalTriggerListener;
   private Boolean autoDdl;
+   private Map beanJobs = new Hashtable();
 
   private static final String JOB_INTERFACE = "org.quartz.Job";
 
   private SchedulerFactory schedFactory;
   private Scheduler scheduler;
   private static final Log LOG = LogFactory.getLog(SchedulerManagerImpl.class);
+
 
 public void init()
   {
@@ -325,4 +324,16 @@ public void init()
   {
     autoDdl = b;
   }
+
+   public Map getBeanJobs() {
+      return beanJobs;
+   }
+
+   public void registerBeanJob(String jobName, JobBeanWrapper job) {
+      getBeanJobs().put(jobName, job);
+   }
+
+   public JobBeanWrapper getJobBeanWrapper(String beanWrapperId) {
+      return (JobBeanWrapper) getBeanJobs().get(beanWrapperId);
+   }
 }

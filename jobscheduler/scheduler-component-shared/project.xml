@@ -42,6 +42,12 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
+      <dependency>
+        <groupId>sakaiproject</groupId>
+        <artifactId>sakai-component</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>

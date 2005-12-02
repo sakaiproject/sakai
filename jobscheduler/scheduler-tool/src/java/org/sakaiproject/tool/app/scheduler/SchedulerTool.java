@@ -24,11 +24,7 @@
 package org.sakaiproject.tool.app.scheduler;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -46,6 +42,7 @@ import org.quartz.Trigger;
 import org.sakaiproject.api.app.scheduler.JobDetailWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.api.app.scheduler.TriggerWrapper;
+import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.component.app.scheduler.JobDetailWrapperImpl;
 import org.sakaiproject.component.app.scheduler.TriggerWrapperImpl;
 
@@ -262,8 +259,18 @@ public class SchedulerTool
     }
     try
     {
-      JobDetail jd = new JobDetail(jobName, Scheduler.DEFAULT_GROUP, Class
-          .forName(selectedClass), false, true, true);
+       JobDetail jd = null;
+       JobBeanWrapper job = getSchedulerManager().getJobBeanWrapper(selectedClass);
+       if (job != null) {
+          jd = new JobDetail(jobName, Scheduler.DEFAULT_GROUP,
+             job.getJobClass(), false, true, true);
+          jd.getJobDataMap().put(JobBeanWrapper.SPRING_BEAN_NAME, job.getBeanId());
+          jd.getJobDataMap().put(JobBeanWrapper.JOB_TYPE, job.getJobType());
+       }
+       else {
+          jd = new JobDetail(jobName, Scheduler.DEFAULT_GROUP,
+             Class.forName(selectedClass.toString()), false, true, true);
+       }
       scheduler.addJob(jd, false);
       processRefreshJobs();
       return "jobs";
@@ -555,5 +562,16 @@ public class SchedulerTool
       }
     }
   }
+
+   public Map getBeanJobs() {
+      Map beanJobs = new Hashtable();
+      Map serverJobs = getSchedulerManager().getBeanJobs();
+      for (Iterator i=serverJobs.keySet().iterator();i.hasNext();) {
+         Object job = i.next();
+         beanJobs.put(job, job);
+      }
+      return beanJobs;
+   }
+
 }
 

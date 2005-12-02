@@ -35,6 +35,34 @@
         <property name="autoDdl">
           <value>${auto.ddl}</value>
         </property>
-    </bean>    
-            
+    </bean>
+
+   <!-- sample bean job... this sample shows how to install a bean into quartz for scheduling -->
+
+   <!-- this is the actual bean to execute.  This will have all
+   spring injected values intact when executed -->
+   <bean id="schedulerSampleTest"
+      class="org.sakaiproject.component.app.scheduler.jobs.TestBeanJob">
+      <property name="configMessage">
+         <value>Hello from spring and quartz!</value>
+      </property>
+   </bean>
+
+   <!-- this is the helper that will register the above bean with the schedule manager
+        things to set here are the beanId (from bean above) and the jobName
+   -->
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.schedulerSampleTest"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>schedulerSampleTest</value>
+      </property>
+      <property name="jobName">
+         <value>Sample Bean Test</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+   <!-- sample bean job -->
 </beans>

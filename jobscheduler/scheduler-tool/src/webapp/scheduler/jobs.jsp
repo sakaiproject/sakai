@@ -48,9 +48,9 @@
   	      </h:column>  	      
   	      <h:column>
     	      <f:facet name="header">
-    	        <h:outputText value="Job Class"/>
+    	        <h:outputText value="Job Type"/>
     	      </f:facet>
-  	        <h:outputText value="#{job.jobDetail.jobClass}"/>
+  	        <h:outputText value="#{job.jobType}"/>
   	      </h:column>            	      
         </h:dataTable>
 		  </sakai:view_content>
