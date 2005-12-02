@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS `sakai`.`mfr_actor_persmissions_t`;
-CREATE TABLE `mfr_actor_persmissions_t` (
+DROP TABLE IF EXISTS `sakai`.`mfr_actor_permissions_t`;
+CREATE TABLE `mfr_actor_permissions_t` (
   `ID` bigint(20) NOT NULL auto_increment,
   `VERSION` int(11) NOT NULL default '0',
   PRIMARY KEY  (`ID`)
@@ -59,8 +59,8 @@ CREATE TABLE `mfr_attachment_t` (
   CONSTRAINT `FK7B2D5CDEFDEB22F9` FOREIGN KEY (`m_surrogateKey`) REFERENCES `mfr_message_t` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `sakai`.`mfr_control_persmissions_t`;
-CREATE TABLE `mfr_control_persmissions_t` (
+DROP TABLE IF EXISTS `sakai`.`mfr_control_permissions_t`;
+CREATE TABLE `mfr_control_permissions_t` (
   `ID` bigint(20) NOT NULL auto_increment,
   `VERSION` int(11) NOT NULL default '0',
   `ROLE` varchar(255) NOT NULL default '',
@@ -128,14 +128,14 @@ CREATE TABLE `mfr_message_forums_user_t` (
   KEY `FKF3B8460FC49D71A5` (`apmSurrogateKey`),
   KEY `FKF3B8460F96792399` (`apaSurrogateKey`),
   KEY `FKF3B8460FDD70E9E2` (`mesSurrogateKey`),
-  CONSTRAINT `FKF3B8460F737F309B` FOREIGN KEY (`apcSurrogateKey`) REFERENCES `mfr_actor_persmissions_t` (`ID`),
-  CONSTRAINT `FKF3B8460F96792399` FOREIGN KEY (`apaSurrogateKey`) REFERENCES `mfr_actor_persmissions_t` (`ID`),
-  CONSTRAINT `FKF3B8460FC49D71A5` FOREIGN KEY (`apmSurrogateKey`) REFERENCES `mfr_actor_persmissions_t` (`ID`),
+  CONSTRAINT `FKF3B8460F737F309B` FOREIGN KEY (`apcSurrogateKey`) REFERENCES `mfr_actor_permissions_t` (`ID`),
+  CONSTRAINT `FKF3B8460F96792399` FOREIGN KEY (`apaSurrogateKey`) REFERENCES `mfr_actor_permissions_t` (`ID`),
+  CONSTRAINT `FKF3B8460FC49D71A5` FOREIGN KEY (`apmSurrogateKey`) REFERENCES `mfr_actor_permissions_t` (`ID`),
   CONSTRAINT `FKF3B8460FDD70E9E2` FOREIGN KEY (`mesSurrogateKey`) REFERENCES `mfr_message_t` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `sakai`.`mfr_message_persmissions_t`;
-CREATE TABLE `mfr_message_persmissions_t` (
+DROP TABLE IF EXISTS `sakai`.`mfr_message_permissions_t`;
+CREATE TABLE `mfr_message_permissions_t` (
   `ID` bigint(20) NOT NULL auto_increment,
   `VERSION` int(11) NOT NULL default '0',
   `ROLE_C` varchar(255) NOT NULL default '',
@@ -210,10 +210,10 @@ CREATE TABLE `mfr_open_forum_t` (
   KEY `FKC1760847D83B3B18` (`DATE_RESTRICTIONS`),
   KEY `FKC1760847B88980FA` (`ACTOR_PERMISSIONS`),
   CONSTRAINT `FKC17608474FDCE067` FOREIGN KEY (`surrogateKey`) REFERENCES `mfr_area_t` (`ID`),
-  CONSTRAINT `FKC17608477E4BD00C` FOREIGN KEY (`MESSAGE_PERMISSIONS`) REFERENCES `mfr_message_persmissions_t` (`ID`),
-  CONSTRAINT `FKC1760847B88980FA` FOREIGN KEY (`ACTOR_PERMISSIONS`) REFERENCES `mfr_actor_persmissions_t` (`ID`),
+  CONSTRAINT `FKC17608477E4BD00C` FOREIGN KEY (`MESSAGE_PERMISSIONS`) REFERENCES `mfr_message_permissions_t` (`ID`),
+  CONSTRAINT `FKC1760847B88980FA` FOREIGN KEY (`ACTOR_PERMISSIONS`) REFERENCES `mfr_actor_permissions_t` (`ID`),
   CONSTRAINT `FKC1760847D83B3B18` FOREIGN KEY (`DATE_RESTRICTIONS`) REFERENCES `mfr_date_restrictions_t` (`ID`),
-  CONSTRAINT `FKC1760847FDACE462` FOREIGN KEY (`CONTROL_PERMISSIONS`) REFERENCES `mfr_control_persmissions_t` (`ID`)
+  CONSTRAINT `FKC1760847FDACE462` FOREIGN KEY (`CONTROL_PERMISSIONS`) REFERENCES `mfr_control_permissions_t` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `sakai`.`mfr_private_forum_t`;
@@ -280,11 +280,11 @@ CREATE TABLE `mfr_topic_t` (
   KEY `FK863DC0BE20D91C10` (`pf_surrogateKey`),
   KEY `FK863DC0BED83B3B18` (`DATE_RESTRICTIONS`),
   CONSTRAINT `FK863DC0BE20D91C10` FOREIGN KEY (`pf_surrogateKey`) REFERENCES `mfr_private_forum_t` (`ID`),
-  CONSTRAINT `FK863DC0BE7E4BD00C` FOREIGN KEY (`MESSAGE_PERMISSIONS`) REFERENCES `mfr_message_persmissions_t` (`ID`),
-  CONSTRAINT `FK863DC0BEB88980FA` FOREIGN KEY (`ACTOR_PERMISSIONS`) REFERENCES `mfr_actor_persmissions_t` (`ID`),
+  CONSTRAINT `FK863DC0BE7E4BD00C` FOREIGN KEY (`MESSAGE_PERMISSIONS`) REFERENCES `mfr_message_permissions_t` (`ID`),
+  CONSTRAINT `FK863DC0BEB88980FA` FOREIGN KEY (`ACTOR_PERMISSIONS`) REFERENCES `mfr_actor_permissions_t` (`ID`),
   CONSTRAINT `FK863DC0BEC6FDB1CF` FOREIGN KEY (`of_surrogateKey`) REFERENCES `mfr_open_forum_t` (`ID`),
   CONSTRAINT `FK863DC0BED83B3B18` FOREIGN KEY (`DATE_RESTRICTIONS`) REFERENCES `mfr_date_restrictions_t` (`ID`),
-  CONSTRAINT `FK863DC0BEFDACE462` FOREIGN KEY (`CONTROL_PERMISSIONS`) REFERENCES `mfr_control_persmissions_t` (`ID`)
+  CONSTRAINT `FK863DC0BEFDACE462` FOREIGN KEY (`CONTROL_PERMISSIONS`) REFERENCES `mfr_control_permissions_t` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `sakai`.`mfr_unread_status_t`;
