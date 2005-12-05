@@ -87,6 +87,49 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <description>For author: Item configuration backing bean.</description>
+    <managed-bean-name>itemConfig</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.ItemConfigBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <!-- to disable a particular question type, set to false -->
+    <managed-property>
+      <property-name>showFileUpload</property-name>
+      <value>true</value>
+    </managed-property>
+    <managed-property>
+      <property-name>showEssay</property-name>
+      <value>true</value>
+    </managed-property>
+    <managed-property>
+      <property-name>showAudio</property-name>
+      <value>true</value>
+    </managed-property>
+    <managed-property>
+      <property-name>showMatching</property-name>
+      <value>true</value>
+    </managed-property>
+    <managed-property>
+      <property-name>showTrueFalse</property-name>
+      <value>true</value>
+    </managed-property>
+    <managed-property>
+      <property-name>showMultipleChoiceSingleCorrect</property-name>
+      <value>true</value>
+    </managed-property>
+    <managed-property>
+      <property-name>showMultipleChoiceMultipleCorrect</property-name>
+      <value>true</value>
+    </managed-property>
+    <managed-property>
+      <property-name>showSurvey</property-name>
+      <value>true</value>
+    </managed-property>
+    <managed-property>
+      <property-name>showFillInTheBlank</property-name>
+      <value>true</value>
+    </managed-property>
+  </managed-bean>
+  <managed-bean>
     <description>For authorization</description>
     <managed-bean-name>authorization</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean</managed-bean-class>
@@ -367,7 +410,7 @@
     </navigation-case>
 
 
-	<!-- AUTHOR -->
+  <!-- AUTHOR -->
     <navigation-case>
       <from-outcome>createAssessment</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
@@ -489,7 +532,7 @@
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
     </navigation-case>
 
-	<!-- ITEM AUTHORING -->
+  <!-- ITEM AUTHORING -->
     <navigation-case>
       <from-outcome>trueFalseItem</from-outcome>
       <to-view-id>/jsf/author/item/trueFalse.jsp</to-view-id>
@@ -524,7 +567,7 @@
     </navigation-case>
 
 
-	<!-- QUESTION POOL	 -->
+  <!-- QUESTION POOL	 -->
     <navigation-case>
       <from-outcome>poolList</from-outcome>
       <to-view-id>/jsf/questionpool/poolList.jsp</to-view-id>
