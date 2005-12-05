@@ -26,9 +26,11 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 -->
 
 <%-- TITLE --%>
+<p>
 <h3 style="insColor insBak">
    <h:outputText value="#{delivery.assessmentTitle}" />
 </h3>
+</p>
 <%-- NAV BAR --%>
 <p class="navIntraTool">
   <h:panelGroup rendered="#{(delivery.feedbackComponent.showImmediate || delivery.feedbackOnDate) && delivery.previewMode ne 'true'}">
@@ -64,6 +66,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
   </h:commandLink>
 </p>
 
+<p>
 <h:outputText rendered="#{delivery.feedbackComponent.showGraderComment && delivery.previewMode eq 'true' && delivery.graderComment ne ''}" value="<b>#{msg.comments}</b> #{delivery.graderComment}" escape="false" />
 
 <h:panelGroup rendered="#{delivery.previewMode eq 'false' && delivery.hasTimeLimit}" >
@@ -82,4 +85,4 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 </h:panelGroup>
-
+</p>
