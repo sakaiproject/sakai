@@ -9,11 +9,9 @@
     <sakai:view_content>
       <h:form id="pvtMsgDetail">
   			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> / 
-				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="Private Messages" >
-				</h:commandLink> /
-				<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
-
-			 	<sakai:instruction_message value="Private Message Details" />
+				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
+				<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />
+				<sakai:instruction_message value="Reply to Private Message" /> 
       	<br>
         <table width="100%" align="left" style="background-color:#DDDFE4;">
           <tr>
@@ -110,7 +108,7 @@
         <sakai:group_box>
           <sakai:panel_edit>
             <sakai:doc_section>            
-              <h:inputTextarea value="#{PrivateMessagesTool.detailMsg.message.body}" cols="100" rows="5" style="textfield" />
+              <h:inputTextarea value="#{PrivateMessagesTool.detailMsg.message.body}" cols="100" rows="5" />
             </sakai:doc_section>    
           </sakai:panel_edit>
         </sakai:group_box>

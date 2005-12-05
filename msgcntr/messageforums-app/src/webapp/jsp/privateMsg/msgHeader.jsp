@@ -20,8 +20,10 @@
           <table width="100%" align="center">
             <tr>
               <td align="left" >
+              <%--
                 <h:outputText value="Mark Checked as Read "/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               	<h:outputText value="  Printer Friendly Format"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              --%>
               </td>
               
               <td align="center" >
@@ -30,8 +32,12 @@
               </td>
               
               <td align="right">
+              <%--
               <h:commandLink value="Display Options" action="#{PrivateMessagesTool.processPvtMsgDispOtions}" onkeypress="document.forms[0].submit;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <h:commandLink value="Folder Settings" action="#{PrivateMessagesTool.processPvtMsgFolderSettings}" onkeypress="document.forms[0].submit;"/>  
+              --%>
+              <h:commandLink value="Folder Settings" action="#{PrivateMessagesTool.processPvtMsgFolderSettings}" onkeypress="document.forms[0].submit;">  
+					    </h:commandLink>
+					 
               </td>
             </tr>                                    
           </table>

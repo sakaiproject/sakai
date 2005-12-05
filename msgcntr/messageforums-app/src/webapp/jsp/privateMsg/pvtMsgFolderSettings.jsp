@@ -1,18 +1,8 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-
-
-<script type="text/javascript" language="JavaScript">
-	function RemoveContent(d) {
-		document.getElementById(d).style.display = "none";
-	}
-
-	function InsertContent(d) {
-		document.getElementById(d).style.display = "";
-	}
-</script>
-
+<f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
+<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
 
 <f:view>
@@ -41,8 +31,7 @@
  </p>
  --%>   
  	<h:panelGroup rendered="#{PrivateMessagesTool.ismutable}">
-	  <h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
-		value="! You cann't Revise or Delete this folder." />
+	  <h:outputText style="alertMsg" value="! You cann't Revise or Delete this folder." />
 	</h:panelGroup>   
 				
 	<sakai:button_bar>

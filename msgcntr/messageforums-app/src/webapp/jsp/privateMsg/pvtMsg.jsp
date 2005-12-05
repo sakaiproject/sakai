@@ -8,7 +8,9 @@
 	<sakai:view_container title="Received Private Messages">
 	<sakai:view_content>
 		<h:form id="prefs_form">
-
+  		<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> /
+			<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
+				
 		<h2>Private message- <h:outputText value="#{PrivateMessagesTool.msgNavMode}" /> </h2>
 		
 		<%@include file="msgHeader.jsp"%>

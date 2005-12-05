@@ -9,7 +9,9 @@
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="compose">
-
+  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> 
+				<h:outputText value="/ Compose" />
+				
         <sakai:tool_bar_message value="Compose a Private Message" /> 
         <sakai:group_box>
           <h:outputText value="#{msgs.cdfm_required}"/>
@@ -74,6 +76,10 @@
 	          <sakai:button_bar>
 	          	<sakai:button_bar_item action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" />
 	          </sakai:button_bar>
+	        </sakai:doc_section>
+
+	        <sakai:doc_section>	        
+	        <h:outputText value="No Attachments Yet" rendered="#{empty PrivateMessagesTool.attachments}"/>
 	        </sakai:doc_section>
 	        
 					<h:dataTable styleClass="listHier" id="attmsg" width="100%" value="#{PrivateMessagesTool.attachments}" var="eachAttach" >

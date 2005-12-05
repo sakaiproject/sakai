@@ -9,7 +9,8 @@
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="pvtMsgReply">
-
+  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> 
+				<h:outputText value="/ Reply to Private Message" />
         <sakai:tool_bar_message value="Reply to Private Message" /> 
         <sakai:group_box>
           <h:outputText value="#{msgs.cdfm_required}"/>
@@ -190,13 +191,13 @@
                 <h:outputText value="Message" />
               </td>
               <td align="left">
-              	<h:inputTextarea value="#{PrivateMessagesTool.replyToBody}" />	
+              	<h:inputTextarea rows="5" cols="60"  value="#{PrivateMessagesTool.replyToBody}" />	
               </td>
             </tr>                                   
           </table>
 	      </sakai:group_box>
 	             		
-<%--********************* Label *********************--%>		
+<%--********************* Label *********************
 				<sakai:group_box>
           <table width="80%" align="left">
             <tr>
@@ -211,7 +212,7 @@
             </tr>                                
           </table>
         </sakai:group_box>
-        
+--%>		        
       <sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySend}" value="Send" />
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySaveDraft}" value="Save Draft" />
