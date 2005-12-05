@@ -27,7 +27,7 @@
 
 			<h:outputText id="averageLabel" value="#{msgs.course_grade_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
 			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
-				<f:convertNumber type="percentage" integerOnly="true" />
+				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE"/>
 			</h:outputText>
 		</h:panelGrid>
 		</div>
