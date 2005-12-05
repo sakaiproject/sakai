@@ -324,8 +324,8 @@ public class AgentFacade implements Serializable, AgentDataIfc
   /**
    * This is a kludge to work around a JSF scriptlet dependency introduced by cwen
    * on org.sakaiproject.service.framework.config.cover.ServerConfigurationService.
-   * @todo for 2.2 move item type support to properties in UI
-   * @todo for 2.2 deprecate and remove method.
+   * @todo for 2.2 remove method when done with refactor.
+   * @deprecated
    *
    * @return true unless it is turned off
    */
