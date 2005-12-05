@@ -23,6 +23,11 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import javax.faces.model.SelectItem;
+import java.util.ResourceBundle;
+import java.util.Locale;
 
 /**
  *
@@ -38,6 +43,9 @@ import java.io.Serializable;
  */
 public class ItemConfigBean implements Serializable
 {
+  private static final String msgResource =
+    "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
+
   private boolean showFileUpload;
   private boolean showEssay;
   private boolean showAudio;
@@ -47,6 +55,7 @@ public class ItemConfigBean implements Serializable
   private boolean showMultipleChoiceMultipleCorrect;
   private boolean showSurvey;
   private boolean showFillInTheBlank;
+  private boolean selectFromQuestionPool;
 
   /**
    * Should we show file upload question?
@@ -203,5 +212,124 @@ public class ItemConfigBean implements Serializable
   public void setShowSurvey(boolean showSurvey)
   {
     this.showSurvey = showSurvey;
+  }
+
+  /**
+   * Derived property.  Get arraylist of item type SelectItems.
+   * We are not lazy loading this so that we can change these dynamically.
+   * Most are being injected from the faces-config, but whether we select from
+   * question pools is always dynamic.
+   *
+   * @return ArrayList of model SelectItems
+   */
+
+  public ArrayList getItemTypeSelectList()
+  {
+    ArrayList list = new ArrayList();
+
+    list.add(new SelectItem("", getResourceDisplayName("select_qtype")));
+
+    if (isShowAllMultipleChoice())
+      list.add(new SelectItem("1",
+        getResourceDisplayName("multiple_choice_type")));
+    if (showSurvey)
+      list.add(new SelectItem("3",
+        getResourceDisplayName("multiple_choice_surv")));
+    if (showEssay)
+      list.add(new SelectItem("5", getResourceDisplayName("short_answer_essay")));
+    if (showFillInTheBlank)
+      list.add(new SelectItem("8", getResourceDisplayName("fill_in_the_blank")));
+    if (showMatching)
+      list.add(new SelectItem("9", getResourceDisplayName("matching")));
+    if (showTrueFalse)
+      list.add(new SelectItem("4", getResourceDisplayName("true_false")));
+    if (showAudio)
+      list.add(new SelectItem("7", getResourceDisplayName("audio_recording")));
+    if (showFileUpload)
+      list.add(new SelectItem("6", getResourceDisplayName("file_upload")));
+    if (selectFromQuestionPool)
+      list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
+
+    return list;
+  }
+
+
+  // test the item accessors and mutators and the selectItem list
+  public static void main (String[] args)
+  {
+    ItemConfigBean bean = new ItemConfigBean();
+    ArrayList list = bean.getItemTypeSelectList();
+    System.out.println("test 1: prompt only");
+    for (int i = 0; i < list.size(); i++)
+    {
+      SelectItem sitem = (SelectItem)list.get(i);
+      System.out.println("sitem.getLabel()="+sitem.getLabel());
+      System.out.println("sitem.getValue()="+sitem.getValue());
+    }
+
+    bean.setSelectFromQuestionPool(true);
+    bean.setShowAudio(true);
+    bean.setShowEssay(true);
+    bean.setShowFileUpload(true);
+    bean.setShowFillInTheBlank(true);
+    bean.setShowMatching(true);
+    bean.setShowMultipleChoiceMultipleCorrect(true);
+    bean.setShowMultipleChoiceSingleCorrect(true);
+    bean.setShowSurvey(true);
+    bean.setShowTrueFalse(true);
+    System.out.println("test 2: all on");
+    list = bean.getItemTypeSelectList();
+    for (int i = 0; i < list.size(); i++)
+    {
+      SelectItem sitem = (SelectItem)list.get(i);
+      System.out.println("sitem.getLabel()="+sitem.getLabel());
+      System.out.println("sitem.getValue()="+sitem.getValue());
+    }
+    System.out.println("test 3: turn off audio and upload");
+    bean.setShowAudio(false);
+    bean.setShowFileUpload(false);
+    list = bean.getItemTypeSelectList();
+    for (int i = 0; i < list.size(); i++)
+    {
+      SelectItem sitem = (SelectItem)list.get(i);
+      System.out.println("sitem.getLabel()="+sitem.getLabel());
+      System.out.println("sitem.getValue()="+sitem.getValue());
+    }
+
+
+  }
+
+  /**
+   * Can we select items from a question pool?
+   * If we are in question pools we cannot select items from pool.
+   * If we are not in question pools we can select items from pool.
+   * @return if we can select from question pool.
+   */
+  public boolean isSelectFromQuestionPool()
+  {
+    return selectFromQuestionPool;
+  }
+
+  /**
+   * Set whether we can select items from a question pool.
+   * If we are in question pools we cannot select items from pool.
+   * If we are not in question pools we can select items from pool.
+   * @return if we can select from question pool.
+   */
+
+  public void setSelectFromQuestionPool(boolean selectFromQuestionPool)
+  {
+    this.selectFromQuestionPool = selectFromQuestionPool;
+  }
+
+  /**
+   * Utility for looking up item resources.
+   * @param resName name to look up
+   * @return the localized name.
+   */
+  private String getResourceDisplayName(String resName)
+  {
+    ResourceBundle res = ResourceBundle.getBundle(msgResource, Locale.getDefault());
+    return res.getString(resName);
   }
 }
