@@ -154,7 +154,7 @@ public class DiscussionTopicBean
   /**
    * @return Returns the if ExtendedDesciption is available
    */
-  public boolean isHasExtendedDesciption()
+  public boolean getHasExtendedDesciption()
   {
     if (topic.getExtendedDescription() != null
         && topic.getExtendedDescription().trim().length() > 0 && (!readFullDesciption))

@@ -105,7 +105,10 @@ public interface DiscussionForumManager
   DiscussionForum createForum();
 
   /**
+   *
    * @return
    */
   DiscussionTopic createTopic();
+
+ 
 }

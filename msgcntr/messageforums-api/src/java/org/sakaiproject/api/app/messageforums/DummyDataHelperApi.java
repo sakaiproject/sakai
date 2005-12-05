@@ -14,4 +14,6 @@ public interface DummyDataHelperApi
   public boolean hasPreviousTopic(DiscussionTopic topic);
   public DiscussionTopic getNextTopic(DiscussionTopic topic);
   public DiscussionTopic getPreviousTopic(DiscussionTopic topic);
+  public Message getMessageById(String id);
+ 
 }
