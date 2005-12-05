@@ -232,21 +232,29 @@ public class ItemConfigBean implements Serializable
     if (isShowAllMultipleChoice())
       list.add(new SelectItem("1",
         getResourceDisplayName("multiple_choice_type")));
+
     if (showSurvey)
       list.add(new SelectItem("3",
         getResourceDisplayName("multiple_choice_surv")));
+
     if (showEssay)
       list.add(new SelectItem("5", getResourceDisplayName("short_answer_essay")));
+
     if (showFillInTheBlank)
       list.add(new SelectItem("8", getResourceDisplayName("fill_in_the_blank")));
+
     if (showMatching)
       list.add(new SelectItem("9", getResourceDisplayName("matching")));
+
     if (showTrueFalse)
       list.add(new SelectItem("4", getResourceDisplayName("true_false")));
+
     if (showAudio)
       list.add(new SelectItem("7", getResourceDisplayName("audio_recording")));
+
     if (showFileUpload)
       list.add(new SelectItem("6", getResourceDisplayName("file_upload")));
+
     if (selectFromQuestionPool)
       list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
 
