@@ -30,7 +30,7 @@
 --%>
 -->
   <f:view>
-   
+
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
      var="qpmsg"/>
@@ -52,29 +52,13 @@
 
 <h:outputText value="#{qpmsg.sel_q_type}"/>
 <h:selectOneMenu id="selType" value="#{itemauthor.itemType}" required="true">
-  <f:selectItem itemLabel="#{msg.select_qtype}" itemValue=""/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_type}" itemValue="1"/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_surv}" itemValue="3"/>
-  <f:selectItem itemLabel="#{msg.short_answer_essay}" itemValue="5"/>
-  <f:selectItem itemLabel="#{msg.fill_in_the_blank}" itemValue="8"/>
-  <f:selectItem itemLabel="#{msg.matching}" itemValue="9"/>
-<%
-   boolean showFileUpload =
-      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
-   if(showFileUpload){
-%>
-  <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
-<%}  %>
-  <f:selectItem itemLabel="#{msg.true_false}" itemValue="4"/>
+  <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
 </h:selectOneMenu>
 <h:message for="selType" styleClass="validate"/>
 </div>
  <div class="shorttext indnt1">
   <h:outputText styleClass="number" value="2" />
 </div>
-
-
-
 
 <h:outputText value="#{qpmsg.click_save}"/>
 <p class="act">
@@ -87,9 +71,6 @@
   <h:commandButton type="button" id="Cancel" value="#{msg.button_cancel}" immediate="true"
     onclick="document.location='editPool.faces'"/>
 </p>
-
-
-
 
 </h:form>
 

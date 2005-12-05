@@ -97,13 +97,7 @@
      <h:outputText rendered="#{question.typeId== 3}" value="#{authmsg.multiple_choice_surv}"/>
      <h:outputText rendered="#{question.typeId== 4}" value="#{authmsg.true_false}"/>
      <h:outputText rendered="#{question.typeId== 5}" value="#{authmsg.short_answer_essay}"/>
-<%
-   boolean showFileUpload =
-      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
-   if(showFileUpload){
-%>
      <h:outputText rendered="#{question.typeId== 6}" value="#{authmsg.file_upload}"/>
-<%}  %>
      <h:outputText rendered="#{question.typeId== 7}" value="#{authmsg.audio_recording}"/>
      <h:outputText rendered="#{question.typeId== 8}" value="#{authmsg.fill_in_the_blank}"/>
      <h:outputText rendered="#{question.typeId== 9}" value="#{authmsg.matching}"/>

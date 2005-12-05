@@ -30,7 +30,7 @@
 --%>
 -->
   <f:view>
-   
+
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
@@ -43,10 +43,6 @@
 <div class="portletBody">
 <!-- content... -->
 <!-- FORM -->
-<%
-   boolean showFileUpload =
-      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
-%>
 <h:form id="itemauthor">
 
 <!-- CHANGE TYPE -->
@@ -88,19 +84,8 @@
 <h:selectOneMenu  id="pulldown" onchange="document.links[0].onclick();"  value="#{itemauthor.itemType}" >
       <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
-  <f:selectItem itemLabel="#{msg.select_qtype}" itemValue=""/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_type}" itemValue="1"/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_surv}" itemValue="3"/>
-  <f:selectItem itemLabel="#{msg.short_answer_essay}" itemValue="5"/>
-  <f:selectItem itemLabel="#{msg.fill_in_the_blank}" itemValue="8"/>
-  <f:selectItem itemLabel="#{msg.matching}" itemValue="9"/>
-  <f:selectItem itemLabel="#{msg.true_false}" itemValue="4"/>
-  <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
-<%
-  if(showFileUpload){
-%>
-  <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
-<%}  %>
+
+  <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
 

@@ -31,7 +31,7 @@
 --%>
 -->
   <f:view>
-   
+
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
@@ -73,10 +73,6 @@ document.links[newindex].onclick();
 <div class="portletBody">
 <!-- content... -->
 <!-- some back end stuff stubbed -->
-<%
-   boolean showFileUpload =
-      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
-%>
 <h:form id="assesssmentForm">
 <h:messages styleClass="validation"/>
   <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
@@ -132,26 +128,7 @@ document.links[newindex].onclick();
   <h:outputLabel value="#{msg.add_q}   "/>
 <h:selectOneMenu onchange="clickInsertLink(this);"
   value="#{itemauthor.itemType}" id="changeQType">
-<%--
-  <f:valueChangeListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
---%>
-
-  <f:selectItem itemLabel="#{msg.select_qtype}" itemValue="" />
-  <f:selectItem itemLabel="#{msg.multiple_choice_type}" itemValue="1"/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_surv}" itemValue="3"/>
-  <f:selectItem itemLabel="#{msg.short_answer_essay}" itemValue="5"/>
-  <f:selectItem itemLabel="#{msg.fill_in_the_blank}" itemValue="8"/>
-  <f:selectItem itemLabel="#{msg.matching}" itemValue="9"/>
-  <f:selectItem itemLabel="#{msg.true_false}" itemValue="4"/>
-<%--
-  <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
---%>
-<%
-   if(showFileUpload){
-%>
-  <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
-<%}  %>
+  <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
 </div>
@@ -212,23 +189,8 @@ document.links[newindex].onclick();
 
   <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
 
-  <f:selectItem itemLabel="#{msg.select_qtype}" itemValue=""/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_type}" itemValue="1,#{partBean.number},0"/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_surv}" itemValue="3,#{partBean.number},0"/>
-  <f:selectItem itemLabel="#{msg.short_answer_essay}" itemValue="5,#{partBean.number},0"/>
-  <f:selectItem itemLabel="#{msg.fill_in_the_blank}" itemValue="8,#{partBean.number},0"/>
-  <f:selectItem itemLabel="#{msg.matching}" itemValue="9, #{partBean.number},0"/>
-  <f:selectItem itemLabel="#{msg.true_false}" itemValue="4,#{partBean.number},0"/>
-<%--
-  <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7,#{partBean.number},0"/>
---%>
-<%
-   if(showFileUpload){
-%>
-  <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6,#{partBean.number},0"/>
-<%}  %>
+  <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10,#{partBean.number},0"/>
-
 </h:selectOneMenu>
  <f:verbatim>    </div> </f:verbatim>
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
@@ -316,23 +278,8 @@ document.links[newindex].onclick();
 
   <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
 
-  <f:selectItem itemLabel="#{msg.select_qtype}" itemValue=""/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_type}" itemValue="1,#{partBean.number},#{question.itemData.sequence}"/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_surv}" itemValue="3,#{partBean.number},#{question.itemData.sequence}"/>
-  <f:selectItem itemLabel="#{msg.short_answer_essay}" itemValue="5,#{partBean.number},#{question.itemData.sequence}"/>
-  <f:selectItem itemLabel="#{msg.fill_in_the_blank}" itemValue="8,#{partBean.number},#{question.itemData.sequence}"/>
-  <f:selectItem itemLabel="#{msg.matching}" itemValue="9, #{partBean.number},#{question.itemData.sequence}"/>
-  <f:selectItem itemLabel="#{msg.true_false}" itemValue="4,#{partBean.number},#{question.itemData.sequence}"/>
-<%--
-  <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7,#{partBean.number},#{question.itemData.sequence}"/>
---%>
-<%
-   if(showFileUpload){
-%>
-  <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6,#{partBean.number},#{question.itemData.sequence}"/>
-<%}  %>
+  <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
-
 </h:selectOneMenu>
  <f:verbatim>    </div> </f:verbatim>
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
