@@ -111,57 +111,28 @@ document.links[newindex].onclick();
 <!-- CHANGE TYPE -->
 <div class="indnt1">
 <div class=" shorttext"><h:outputLabel value="#{msg.change_q_type}"/>
+<%-- todo:
+listener set selectFromQuestionPool, eliminating the rendered attribute
+--%>
 
+<%-- from question pool context, do not show question pool as option --%>
 <h:selectOneMenu rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || itemauthor.target == 'questionpool'}" onchange="changeTypeLink(this);"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType1">
   <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
 
-  <f:selectItem itemLabel="#{msg.select_qtype}" itemValue=""/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_type}" itemValue="1"/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_surv}" itemValue="3"/>
-  <f:selectItem itemLabel="#{msg.short_answer_essay}" itemValue="5"/>
-  <f:selectItem itemLabel="#{msg.fill_in_the_blank}" itemValue="8"/>
-  <f:selectItem itemLabel="#{msg.matching}" itemValue="9"/>
-  <f:selectItem itemLabel="#{msg.true_false}" itemValue="4"/>
-<%--
-  <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
---%>
-<%
-   boolean showFileUpload =
-      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
-   if(showFileUpload){
-%>
-  <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
-<%} %>
+  <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
 </h:selectOneMenu>
 
-<!-- if not from qpool , show the last option: copy from question pool-->
+<%-- not from qpool , show the last option: copy from question pool --%>
 <h:selectOneMenu onchange="changeTypeLink(this);" rendered="#{itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'false'}"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2">
   <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
 
-  <f:selectItem itemLabel="#{msg.select_qtype}" itemValue=""/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_type}" itemValue="1"/>
-  <f:selectItem itemLabel="#{msg.multiple_choice_surv}" itemValue="3"/>
-  <f:selectItem itemLabel="#{msg.short_answer_essay}" itemValue="5"/>
-  <f:selectItem itemLabel="#{msg.fill_in_the_blank}" itemValue="8"/>
-  <f:selectItem itemLabel="#{msg.matching}" itemValue="9"/>
-  <f:selectItem itemLabel="#{msg.true_false}" itemValue="4"/>
-<%--
-  <f:selectItem itemLabel="#{msg.audio_recording}" itemValue="7"/>
---%>
-<%
-   boolean showFileUpload =
-      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
-   if(showFileUpload){
-%>
-  <f:selectItem itemLabel="#{msg.file_upload}" itemValue="6"/>
-<% }  %>
+  <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
-
 
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
 </h:commandLink>
@@ -184,13 +155,7 @@ document.links[newindex].onclick();
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 8}" value="#{msg.fill_in_the_blank}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 9}" value="#{msg.matching}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 7}" value="#{msg.audio_recording}"/>
-<%
-   boolean showFileUpload =
-      org.sakaiproject.tool.assessment.facade.AgentFacade.isFileUploadAvailable();
-   if(showFileUpload){
-%>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 6}" value="#{msg.file_upload}"/>
-<%}  %>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 10}" value="#{msg.import_from_q}"/>
    </b>
  </span>
