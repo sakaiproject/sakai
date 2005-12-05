@@ -17,6 +17,7 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
@@ -495,6 +496,12 @@ public class DummyDataHelper implements DummyDataHelperApi
   private List getForumMessages()
   {
     List forumMessages = new ArrayList();
+    forumMessages.add(getMessageByID3());
+    forumMessages.add(getMessageByID4());
+    return forumMessages;
+  }
+  private Message getMessageByID3()
+  {
     Message mm1 = new MessageImpl();
     mm1.setApproved(Boolean.TRUE);
     mm1.setAttachments(getAttachments());
@@ -511,6 +518,10 @@ public class DummyDataHelper implements DummyDataHelperApi
     mm1.setModifiedBy("joe davis");
     mm1.setTitle("the first message posted");
     mm1.setUuid("3");
+    return mm1;
+  }
+  private Message getMessageByID4()
+  {
     Message mm2 = new MessageImpl();
     mm2.setApproved(Boolean.TRUE);
     mm2.setAttachments(getAttachments());
@@ -521,17 +532,14 @@ public class DummyDataHelper implements DummyDataHelperApi
     mm2.setGradebook("gb1");
     mm2.setGradebookAssignment("asst1");
     mm2.setId(new Long(4));
-    mm2.setInReplyTo(mm1);
+    mm2.setInReplyTo(getMessageByID3());
     mm2.setLabel("Normal");
     mm2.setModified(new Date());
     mm2.setModifiedBy("joe davis");
     mm2.setTitle("the second message posted");
     mm2.setUuid("4");
-    forumMessages.add(mm1);
-    forumMessages.add(mm2);
-    return forumMessages;
+     return mm2;
   }
-
   private List getDiscussionTopics()
   {
     List discussionTopics = new ArrayList();
@@ -848,5 +856,14 @@ public class DummyDataHelper implements DummyDataHelperApi
     }
     return null;
   }
+
+  public Message getMessageById(String id)
+  {
+    if(id.equals("3"))
+      return getMessageByID3();
+    else
+      return getMessageByID4();
+  }
+  
 
 }

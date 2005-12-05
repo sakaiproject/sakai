@@ -104,6 +104,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public Message getMessageById(String id)
   {
+    if (usingHelper)
+    {
+      return helper.getMessageById(id);
+    }
     return messageManager.getMessageById(id);
   }
 
@@ -384,4 +388,5 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   {
     return forumManager.createDiscussionForumTopic();
   }
+ 
 }

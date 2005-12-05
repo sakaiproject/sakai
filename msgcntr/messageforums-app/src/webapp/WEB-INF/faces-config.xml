@@ -134,57 +134,66 @@
             <to-view-id>/jsp/privateMsg/pvtMsgEx.jsp</to-view-id>
             <redirect/>
         </navigation-case>          
-        <!-- navigation cases for discussion forums-->
-        <navigation-case>
-            <from-outcome>dfForumDetail</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfForumDetail.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>  
-        <navigation-case>
-            <from-outcome>dfAllMessages</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfAllMessages.jsp</to-view-id>
-            <redirect/>
-        </navigation-case> 
-        <navigation-case>
-            <from-outcome>dfThreadedView</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfThreadedView.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>                                                                     
-       <navigation-case>
-            <from-outcome>dfCompose</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfCompose.jsp</to-view-id>
-            <redirect/>
-        </navigation-case> 
+        <!--******************* navigation cases for discussion forums***************************-->
         <navigation-case>
             <from-outcome>dfTemplateSettings</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfTemplateSettings.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>dfTopicSettings</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfTopicSettings.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>dfReviseTopicSettings</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfReviseTopicSettings.jsp</to-view-id>
+            <to-view-id>/jsp/discussionForum/area/dfTemplateSettings.jsp</to-view-id>
             <redirect/>
         </navigation-case>        
+        <!--forum -->
         <navigation-case>
             <from-outcome>dfForumSettings</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfForumSettings.jsp</to-view-id>
+            <to-view-id>/jsp/discussionForum/forums/dfForumSettings.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
         <navigation-case>
             <from-outcome>dfReviseForumSettings</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfReviseForumSettings.jsp</to-view-id>
+            <to-view-id>/jsp/discussionForum/forums/dfReviseForumSettings.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
         <navigation-case>
             <from-outcome>dfConfirmForumDelete</from-outcome>
-            <to-view-id>/jsp/discussionForum/dfConfirmForumDelete.jsp</to-view-id>
+            <to-view-id>/jsp/discussionForum/forums/dfConfirmForumDelete.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfForumDetail</from-outcome>
+            <to-view-id>/jsp/discussionForum/forums/dfForumDetail.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <!--topic -->
+         <navigation-case>
+            <from-outcome>dfTopicSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/topics/dfTopicSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfReviseTopicSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/topics/dfReviseTopicSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <!--messages -->
+        <navigation-case>
+            <from-outcome>dfCompose</from-outcome>
+            <to-view-id>/jsp/discussionForum/messages/dfCompose.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfViewMessage</from-outcome>
+            <to-view-id>/jsp/discussionForum/messages/dfViewMessage.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfAllMessages</from-outcome>
+            <to-view-id>/jsp/discussionForum/messages/dfAllMessages.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfThreadedView</from-outcome>
+            <to-view-id>/jsp/discussionForum/messages/dfThreadedView.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                                     
+     
     </navigation-rule>
   
     <!-- =================== Tool Beans ============== -->
