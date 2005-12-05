@@ -9,7 +9,7 @@
       <h:form id="msgForum">
       	<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <%@include file="privateMsg/pvtArea.jsp"%>
-        <%@include file="discussionForum/dfArea.jsp"%>
+        <%@include file="discussionForum/area/dfArea.jsp"%>
       </h:form>
   </sakai:view>
 </f:view> 
