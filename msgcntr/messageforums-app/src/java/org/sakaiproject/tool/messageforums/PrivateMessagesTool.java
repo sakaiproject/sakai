@@ -114,7 +114,7 @@ public class PrivateMessagesTool
   private boolean navModeIsDelete=false ; // Delete mode to show up extra buttons in pvtMsg.jsp page
   private List selectedItems;
   
-  private String userId;    //current user
+  private String userName;    //current user
   private Date time ;       //current time
   
   //delete confirmation screen - single delete 
@@ -240,26 +240,31 @@ public class PrivateMessagesTool
           if(topic.getTitle().equals(PVTMSG_MODE_RECEIVED))
           {
             //TODO -- getMessages() should be changed to getReceivedMessages() ;
+            //decoratedPvtMsgs=prtMsgManager.getReceivedMessages(getUserId()) ;
             decoratedPvtMsgs=topic.getMessages() ;
             break;
           } 
           if(topic.getTitle().equals(PVTMSG_MODE_SENT))
           {
+            //decoratedPvtMsgs=prtMsgManager.getSentMessages(getUserId()) ;
             decoratedPvtMsgs=topic.getMessages() ;
             break;
           }  
           if(topic.getTitle().equals(PVTMSG_MODE_DELETE))
           {
+            //decoratedPvtMsgs=prtMsgManager.getDeletedMessages(getUserId()) ;
             decoratedPvtMsgs=topic.getMessages() ;
             break;
           }  
           if(topic.getTitle().equals(PVTMSG_MODE_DRAFT))
           {
+            //decoratedPvtMsgs=prtMsgManager.getDraftedMessages(getUserId()) ;
             decoratedPvtMsgs=topic.getMessages() ;
             break;
           }  
           if(topic.getTitle().equals(PVTMSG_MODE_CASE))
           {
+            //decoratedPvtMsgs=prtMsgManager.getMessagesByTopic(getUserId(), getSelectedTopicId()) ;
             decoratedPvtMsgs=topic.getMessages() ;
             break;
           }    
@@ -522,21 +527,24 @@ public class PrivateMessagesTool
     
   } // Participant
   
-  public String getUserId() {
-    
+  public String getUserName() {
    String userId=SessionManager.getCurrentSessionUserId();
    try
    {
      User user=UserDirectoryService.getUser(userId) ;
-     userId= user.getDisplayName();
+     userName= user.getDisplayName();
    }
    catch (IdUnusedException e)
    {
     //e.printStackTrace();
    }
-   return userId;
+   return userName;
   }
   
+  public String getUserId()
+  {
+    return SessionManager.getCurrentSessionUserId();
+  }
   //Reply time
   public Date getTime()
   {
@@ -574,6 +582,7 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */
   private String selectedTopicTitle="";
+  private String selectedTopicId="";
   public String getSelectedTopicTitle()
   {
     return selectedTopicTitle ;
@@ -581,6 +590,14 @@ public class PrivateMessagesTool
   public void setSelectedTopicTitle(String selectedTopicTitle) 
   {
     this.selectedTopicTitle=selectedTopicTitle;
+  }
+  public String getSelectedTopicId()
+  {
+    return selectedTopicId;
+  }
+  private void setSelectedTopicId(String selectedTopicId)
+  {
+    this.selectedTopicId=selectedTopicId;    
   }
   
   public String processActionHome()
@@ -597,26 +614,9 @@ public class PrivateMessagesTool
   {
     LOG.debug("processPvtMsgTopic()");
     //get external parameter
-    try
-    {
-      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-      Map paramMap = context.getRequestParameterMap();
-      Iterator itr = paramMap.keySet().iterator();
-      while (itr.hasNext())
-      {
-        String key = (String) itr.next();
-        if (key != null && key.equals("pvtMsgTopicTitle"))
-        {
-          selectedTopicTitle = (String) paramMap.get(key);
-          break;
-        }
-      }
-    }
-    catch (Exception e)
-    {
-      //TODO create error JSp
-      return "main"; 
-    }
+    selectedTopicTitle = getExternalParameterByKey("pvtMsgTopicTitle") ;
+    setSelectedTopicId(getExternalParameterByKey("pvtMsgTopicId")) ;
+    
     //then set up navigation
     if(selectedTopicTitle.equals(PVTMSG_MODE_RECEIVED) || (this.getMsgNavMode().equals(PVTMSG_MODE_RECEIVED)))
     {
@@ -670,40 +670,20 @@ public class PrivateMessagesTool
   public String processPvtMsgDetail() {
     LOG.debug("processPvtMsgDetail()");
     
-    String msgId="";
-    try
+    String msgId=getExternalParameterByKey("current_msg_detail");
+    setCurrentMsgUuid(msgId) ; 
+    //retrive the detail for this message with currentMessageId
+    for (Iterator iter = this.getDecoratedPvtMsgs().iterator(); iter.hasNext();)
     {
-      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-      Map paramMap = context.getRequestParameterMap();
-      Iterator itr = paramMap.keySet().iterator();
-      while (itr.hasNext())
+      PrivateMessageDecoratedBean dMsg= (PrivateMessageDecoratedBean) iter.next();
+      if (dMsg.getMessage().getUuid().equals(msgId))
       {
-        String key = (String) itr.next();
-        if (key != null && key.equals("current_msg_detail"))
-        {
-          msgId = (String) paramMap.get(key);
-          //set the current messageUuid for other methods
-          this.setCurrentMsgUuid(msgId) ; 
-          break;
-        }
+        this.setDetailMsg(dMsg);
       }
-      //retrive the detail for this message with currentMessageId
-      for (Iterator iter = this.getDecoratedPvtMsgs().iterator(); iter.hasNext();)
-      {
-        PrivateMessageDecoratedBean dMsg= (PrivateMessageDecoratedBean) iter.next();
-        if (dMsg.getMessage().getUuid().equals(msgId))
-        {
-          this.setDetailMsg(dMsg);
-        }
-      }
-      this.deleteConfirm=false; //reset this as used for multiple action in same JSP
-      
-      return "pvtMsgDetail";
     }
-    catch (Exception e)
-    {
-      return "pvtMsgDetail";
-    }
+    this.deleteConfirm=false; //reset this as used for multiple action in same JSP
+    
+    return "pvtMsgDetail";
   }
 
   /**
@@ -794,8 +774,8 @@ public class PrivateMessagesTool
   public String processPvtMsgSend() {
     LOG.debug("processPvtMsgSend()");
     
-    List recipiants = getSelectedComposeToList();
-    prtMsgManager.savePrivateMessage(constructMessage());
+    PrivateMessage pMsg= constructMessage() ;
+    prtMsgManager.savePrivateMessage(pMsg,getUserId(),getSelectedComposeToList());
     return "pvtMsg" ;
   }
  
@@ -806,11 +786,10 @@ public class PrivateMessagesTool
   public String processPvtMsgSaveDraft() {
     LOG.debug("processPvtMsgSaveDraft()");
     
-    List recipiants=getSelectedComposeToList();
-    
     PrivateMessage dMsg=constructMessage() ;
     dMsg.setDraft(Boolean.TRUE);
-    prtMsgManager.savePrivateMessage(dMsg);
+    prtMsgManager.savePrivateMessage(dMsg,getUserId(),getSelectedComposeToList());
+
     return "pvtMsg" ;    
   }
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
@@ -916,12 +895,12 @@ public class PrivateMessagesTool
   public String processPvtMsgReplySend() {
     LOG.debug("processPvtMsgReplySend()");
     
-    PrivateMessage rsMsg=constructMessage() ;
+    PrivateMessage rMsg=constructMessage() ;
     //add replyTo message
-    PrivateMessage rsrepMsg = prtMsgManager.createPrivateMessage() ;
+    PrivateMessage rrepMsg = prtMsgManager.createPrivateMessage() ;
     //TODO settings from jsp    
-    rsMsg.setInReplyTo(rsrepMsg) ;
-    prtMsgManager.savePrivateMessage(rsMsg);
+    rMsg.setInReplyTo(rrepMsg) ;
+    prtMsgManager.savePrivateMessage(rMsg,getUserId(),getSelectedComposeToList());
     
     return "pvtMsg" ;
   }
@@ -937,7 +916,7 @@ public class PrivateMessagesTool
     drMsg.setDraft(Boolean.TRUE);
     PrivateMessage drrepMsg = prtMsgManager.createPrivateMessage() ;
     drMsg.setInReplyTo(drrepMsg) ;
-    prtMsgManager.savePrivateMessage(drMsg);
+    prtMsgManager.savePrivateMessage(drMsg,getUserId(),getSelectedComposeToList());
     
     return "pvtMsg" ;    
   }
@@ -1319,23 +1298,20 @@ public class PrivateMessagesTool
   
   public boolean getIsmutable()
   {
-    return prtMsgManager.isMutableTopicFolder();
+    return prtMsgManager.isMutableTopicFolder(getSelectedTopicId());
   }
   
   //navigated from header pagecome from Header page 
   public String processPvtMsgFolderSettings() {
     LOG.debug("processPvtMsgFolderSettings()");
+    String topicTitle= getExternalParameterByKey("pvtMsgTopicTitle");
+    setSelectedTopicTitle(topicTitle) ;
+    String topicId=getExternalParameterByKey("pvtMsgTopicId") ;
+    setSelectedTopicId(topicId);
     
     return "pvtMsgFolderSettings" ;
   }
-  
-  //navigated from main page
-  public String processPvtMsgFolderSecSetting() {    
-    String topicTitle= getExternalParameterByKey("pvtMsgTopicTitle");
-    setSelectedTopicTitle(topicTitle) ;
-    return "pvtMsgFolderSettings" ;    
-  }
-  
+
   public String processPvtMsgFolderSettingRevise() {
     LOG.debug("processPvtMsgFolderSettingRevise()");
     
@@ -1349,8 +1325,7 @@ public class PrivateMessagesTool
   }
   
   public String processPvtMsgFolderSettingAdd() {
-    LOG.debug("processPvtMsgFolderSettingAdd()");
-    
+    LOG.debug("processPvtMsgFolderSettingAdd()");    
     return "pvtMsgFolderAdd" ;
   }
   public String processPvtMsgFolderSettingDelete() {
@@ -1371,7 +1346,7 @@ public class PrivateMessagesTool
     return "main" ;
   }
   
-  //Create
+  //Create a folder within a forum
   public String processPvtMsgFldCreate() 
   {
     LOG.debug("processPvtMsgFldCreate()");
@@ -1381,7 +1356,7 @@ public class PrivateMessagesTool
     {
       return null ;
     } else {
-      //prtMsgManager.createTopicFolder(createFolder);
+      prtMsgManager.createTopicFolderInForum(this.getDecoratedForum().getForum().getId().toString(), this.getUserId(), createFolder);
       return "main" ;
     }
   }
@@ -1391,8 +1366,9 @@ public class PrivateMessagesTool
   {
     LOG.debug("processPvtMsgFldRevise()");
     
-    String newTopicTitle = this.getSelectedTopicTitle();
-    //prtMsgManager.renameTopicFolder(newTopicTitle) ;
+    String newTopicTitle = this.getSelectedTopicTitle();    
+    prtMsgManager.renameTopicFolder(getSelectedTopicId(), getUserId(), newTopicTitle);
+    
     return "main" ;
   }
   
@@ -1401,8 +1377,8 @@ public class PrivateMessagesTool
   {
     LOG.debug("processPvtMsgFldDelete()");
     
-    String delFolder=getSelectedTopicTitle();
-    //prtMsgManager.deleteTopicFolder(delFolder) ;
+    prtMsgManager.deleteTopicFolder(getSelectedTopicId()) ;
+    
     return "main";
   }
   public String processPvtMsgFldAddCancel() 

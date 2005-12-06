@@ -43,7 +43,7 @@
 	    		 <h:outputText id="topic_msg_count1" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
 					 <f:verbatim></div></f:verbatim>
 					 <f:verbatim><div class="rightAlign"></f:verbatim>
-					 <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSecSetting}"  value="Folder Settings">
+					 <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"  value="Folder Settings">
 					   <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
 	    			 <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
 					 </h:commandLink>

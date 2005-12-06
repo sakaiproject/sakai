@@ -2,6 +2,7 @@ package org.sakaiproject.component.app.messageforums.ui;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
@@ -81,7 +82,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return areaManager.getPrivateArea();
   }
 
-  public void savePrivateMessage(Message message)
+  public void savePrivateMessage(Message message, String userId, List recipients)
   {
     messageManager.saveMessage(message);
   }
@@ -132,9 +133,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       //tempString.replaceAll(" ", "%20");
       attach.setAttachmentUrl(newString);
 
-      // Himansu: This is bad.  You should save attachments by telling the message to be saved, not one at a time.
-      //savePvtMsgAttachment(attach);
-      
       return attach;
     }
     catch(Exception e)
@@ -144,37 +142,18 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     }
   }
 
-  // Himansu: I am not quite sure this is what you want... let me know.  All you 
-  // have to do to save attachments is add them to the message they belong to and
-  // save the message.
-  public void savePvtMsgAttachment(Attachment attach)
-  {
-    Message message = attach.getMessage();
-    messageManager.saveMessage(message);
-  }
-
   // Himansu: I am not quite sure this is what you want... let me know.
+  // Before saving a message, we need to add all the attachmnets to a perticular message
   public void addAttachToPvtMsg(PrivateMessage pvtMsgData, Attachment pvtMsgAttach)
   {
     pvtMsgData.addAttachment(pvtMsgAttach);    
   }
 
-  // Himansu: I am not quite sure this is what you want... let me know.
+  // Required for editing multiple attachments to a message. 
+  // When you reply to a message, you do have option to edit attachments to a message
   public void removePvtMsgAttachment(Attachment o)
   {
     o.getMessage().removeAttachment(o);    
-  }
-
-  // Himansu: I am not quite sure this is what you want... let me know.
-  public void removePvtMsgAttachPvtMsgData(PrivateMessage pvtMsgData, Attachment pvtMsgAttach)
-  {
-    pvtMsgData.removeAttachment(pvtMsgAttach);
-  }
-
-  // Himansu: You should probably change the return type here to be a List
-  public Set getPvtMsgAttachmentsForPvtMsgData(PrivateMessage pvtMsgData)
-  {
-    return new HashSet(pvtMsgData.getAttachments());
   }
 
   public Attachment getPvtMsgAttachment(String pvtMsgAttachId)
@@ -204,11 +183,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   /**
    * Topic Folder Setting
    */
-  // Himansu: I think you need to pass a topic title or something here.  If not, 
-  // how do I know which topic you are currently on?
-  public boolean isMutableTopicFolder()
+  public boolean isMutableTopicFolder(String parentTopicId)
   {
-    // TODO Auto-generated method stub
     return false;
   }
 
@@ -219,6 +195,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   
   public String createTopicFolderInTopic(String parentTopicId, String userId, String name) {
       return null;
+  }
+  
+  public String renameTopicFolder(String parentTopicId, String userId, String newName)
+  {
+    return null;
   }
   
   public void deleteTopicFolder(String topicId) {
@@ -310,6 +291,36 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
       // if we get here, there is no previous message
       return null; 
+  }
+
+  public List getReceivedMessages(String userId)
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public List getSentMessages(String userId)
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public List getDeletedMessages(String userId)
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public List getDraftedMessages(String userId)
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public List getMessagesByTopic(String userId, String topicId)
+  {
+    // TODO Auto-generated method stub
+    return null;
   }
   
 }

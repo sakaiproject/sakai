@@ -1,6 +1,7 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
@@ -25,49 +26,41 @@ public interface PrivateMessageManager {
      */
     Area getPrivateArea();
 
-    void savePrivateMessage(Message message);
+    void savePrivateMessage(Message message,String userId, List recipients);
 
     void deletePrivateMessage(Message message);
 
-    Message getMessageById(String id);
-   
+    public Message getMessageById(String messageId);
+    
+    public List getReceivedMessages(String userId);
+    public List getSentMessages(String userId);
+    public List getDeletedMessages(String userId);
+    public List getDraftedMessages(String userId);
+    // will the below be helpful for displaying messages related to other mutable topics. 
+    public List getMessagesByTopic(String userId, String topicId);
+    
     int getTotalNoMessages(Topic topic);
     int getUnreadNoMessages(String userId, Topic topic);
     
     //create new instance of Privae Message --required before saving 
     public PrivateMessage createPrivateMessage() ;
     
-    
+    //Topic Setting
     public void saveAreaSetting() ;
     
     //Topic Folder Setting
-    //TODO - As per UI pg 37 -39 user is asked to manipulate revise/delete/rename topic title 
-    // so method signature is as below.. But question is can't the user have same name for different private topics.
-    // As I understand thet I believe there are some unmutable topics like Received/Deleted/Sent etc ..    
-    public boolean isMutableTopicFolder();
+    public boolean isMutableTopicFolder(String parentTopicId);
     public String createTopicFolderInForum(String parentForumId, String userId, String name);
     public String createTopicFolderInTopic(String parentTopicId, String userId, String name);
+    //I don't know why I include userId, may be for uniformity purpose or may be to keep track who made changes
+    public String renameTopicFolder(String parentTopicId, String userId, String newName);
     public void deleteTopicFolder(String topicId);
 
     
-///Attachment
-    
+    //Attachment
     public void addAttachToPvtMsg(final PrivateMessage pvtMsgData, final Attachment pvtMsgAttach);
-    public Attachment createPvtMsgAttachment(String attachId, String name);      
-    public void savePvtMsgAttachment(Attachment attach);
+    public Attachment createPvtMsgAttachment(String attachId, String name);
     public void removePvtMsgAttachment(Attachment o);
     public Attachment getPvtMsgAttachment(final String pvtMsgAttachId);
     
-    
-
-    public void removePvtMsgAttachPvtMsgData(final PrivateMessage pvtMsgData, final Attachment pvtMsgAttach);
-
-    public Set getPvtMsgAttachmentsForPvtMsgData(final PrivateMessage pvtMsgData);
-
-    public boolean hasNextMessage(PrivateMessage message);
-    public boolean hasPreviousMessage(PrivateMessage message);
-    public PrivateMessage getNextMessage(PrivateMessage message);
-    public PrivateMessage getPreviousMessage(PrivateMessage message);
-    
-///
 }

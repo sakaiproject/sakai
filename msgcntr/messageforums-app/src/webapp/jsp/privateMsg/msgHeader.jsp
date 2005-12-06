@@ -36,6 +36,8 @@
               <h:commandLink value="Display Options" action="#{PrivateMessagesTool.processPvtMsgDispOtions}" onkeypress="document.forms[0].submit;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               --%>
               <h:commandLink value="Folder Settings" action="#{PrivateMessagesTool.processPvtMsgFolderSettings}" onkeypress="document.forms[0].submit;">  
+					    	<f:param value="#{PrivateMessagesTool.selectedTopicTitle}" name="pvtMsgTopicTitle"/>
+    						<f:param value="#{PrivateMessagesTool.selectedTopicId}" name="pvtMsgTopicId"/>
 					    </h:commandLink>
 					 
               </td>
