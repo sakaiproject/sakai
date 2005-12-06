@@ -77,8 +77,9 @@ public class PoolSaveListener implements ActionListener
    
     boolean isUnique=true;
     QuestionPoolService service = new QuestionPoolService();
-   QuestionPoolDataBean bean = qpoolbean.getCurrentPool();
-      Long currentId = new Long ("0");
+    QuestionPoolDataBean bean = qpoolbean.getCurrentPool();
+    Long currentId = new Long ("0");
+    FacesContext context = FacesContext.getCurrentInstance();
       if(bean.getId() != null)
       {
 	  currentId = bean.getId();
@@ -89,6 +90,13 @@ public class PoolSaveListener implements ActionListener
       {
         currentParentId = bean.getParentPoolId();
       }
+     if(currentName!=null &&(currentName.trim()).equals("")){
+     	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","poolName_empty");
+	context.addMessage(null,new FacesMessage(err1));
+        qpoolbean.setOutcomeEdit("editPool");
+	qpoolbean.setOutcome("addPool");
+	return;
+    }
      
     try {
        
@@ -100,7 +108,7 @@ public class PoolSaveListener implements ActionListener
 	}
        
 	if(!isUnique){
-	   FacesContext context = FacesContext.getCurrentInstance();
+	   
 	   String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","duplicateName_error");
 	   
 	   context.addMessage(null,new FacesMessage(error));

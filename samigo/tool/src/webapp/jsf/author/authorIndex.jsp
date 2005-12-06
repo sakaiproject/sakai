@@ -90,7 +90,7 @@
    </div>
 <div class="shorttext">
     <h:outputLabel value="#{msg.assessment_title}" rendered="#{authorization.createAssessment}"/>
-    <h:inputText id="title" value="#{author.assessTitle}" size="32" required="true" rendered="#{authorization.createAssessment}">
+    <h:inputText id="title" value="#{author.assessTitle}" size="32" rendered="#{authorization.createAssessment}">
     <!-- AuthorAssessmentListener.createAssessment() read param from AuthorBean to
       create the assessment  -->
     </h:inputText>

@@ -83,13 +83,17 @@ public class ConfirmPublishAssessmentListener
 
     //proceed to look for error, save assessment setting and confirm publish
     //#2a - look for error: check if core assessment title is unique
-    String err="";
     boolean error=false;
 
     String assessmentName=assessmentSettings.getTitle();
+    if(assessmentName!=null &&(assessmentName.trim()).equals("")){
+     	String nameEmpty_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
+	context.addMessage(null,new FacesMessage(nameEmpty_err));
+	error=true;
+    }
     if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
-      err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
-      context.addMessage(null,new FacesMessage(err));
+      String nameUnique_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+      context.addMessage(null,new FacesMessage(nameUnique_err));
       error=true;
     }
 
@@ -100,8 +104,8 @@ public class ConfirmPublishAssessmentListener
       isTime=((Boolean)time).booleanValue();
   
     if ((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
-      err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
-      context.addMessage(null,new FacesMessage(err));
+      String time_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
+      context.addMessage(null,new FacesMessage(time_err));
       error=true;
     }
 
@@ -135,7 +139,7 @@ public class ConfirmPublishAssessmentListener
     //#4 - before going to confirm publishing, check if the title is unique
     PublishedAssessmentService publishedService = new PublishedAssessmentService();
     if ( !publishedService.publishedAssessmentTitleIsUnique(assessmentId,assessmentName)){
-      err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","published_assessment_title_not_unique_error");
+      String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","published_assessment_title_not_unique_error");
       context.addMessage(null,new FacesMessage(err));
       assessmentSettings.setOutcomePublish("editAssessmentSettings");
       return;

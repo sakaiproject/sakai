@@ -76,10 +76,15 @@ public class EditTemplateListener
     ArrayList templates = new ArrayList();
     // id=0 => new template
     boolean isUnique=assessmentService.assessmentTitleIsUnique("0",tempName,true);
-    System.out.println("*** is unique="+isUnique);
+     FacesContext context = FacesContext.getCurrentInstance();
+    if(tempName!=null && (tempName.trim()).equals("")){
+     	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","templateName_empty");
+	context.addMessage(null,new FacesMessage(err1));
+        templateBean.setOutcome("template");
+	return;
+    }
     if (!isUnique){
       String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","duplicateName_error");
-      FacesContext context = FacesContext.getCurrentInstance();
       context.addMessage(null,new FacesMessage(error));
       templateBean.setOutcome("template");
       return;

@@ -68,7 +68,7 @@
       <h:outputLabel for="newName" value="#{msg.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
       <!--h:outputText value="#{msg.index_templates_title}" /-->
 
-      <h:inputText id="tempName" value="#{template.newName}" size="60" required="true" rendered="#{authorization.createTemplate}"/>
+      <h:inputText id="tempName" value="#{template.newName}" size="60" rendered="#{authorization.createTemplate}"/>
 
       <h:commandButton type="submit" id="Submit" value="#{msg.index_button_create}"
         rendered="#{authorization.createTemplate}"

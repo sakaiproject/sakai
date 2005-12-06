@@ -76,7 +76,7 @@
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_editpool}"/>
  <div class="shorttext indnt2">
   <h:outputLabel for="namefield" value="#{msg.p_name}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}"  id="namefield" size="30" value="#{questionpool.currentPool.displayName}" required="true"/>
+  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}"  id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
 <h:message for="namefield" styleClass="validate"/>
  </div>
  <div class="shorttext indnt2">

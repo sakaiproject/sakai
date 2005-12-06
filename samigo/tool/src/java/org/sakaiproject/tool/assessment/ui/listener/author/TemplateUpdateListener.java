@@ -88,17 +88,25 @@ public class TemplateUpdateListener
     log.info("debug requestParams: " + requestParams);
     log.info("debug reqMap: " + reqMap);
     TemplateBean templateBean = lookupTemplateBean(context);
-    templateBean.setOutcome("template");
+    
     String tempName=templateBean.getTemplateName();
     AssessmentService assessmentService = new AssessmentService();
 
     boolean isUnique=assessmentService.assessmentTitleIsUnique(templateBean.getIdString(),tempName,true);
     System.out.println("*** is unique="+isUnique);
+    if(tempName!=null && (tempName.trim()).equals("")){
+     	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","templateName_empty");
+	context.addMessage(null,new FacesMessage(err1));
+        templateBean.setOutcome("editTemplate");
+	return;
+    }
     if (!isUnique){
       String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","duplicateName_error");
       context.addMessage(null,new FacesMessage(error));
+       templateBean.setOutcome("editTemplate");
       return;
     }
+    templateBean.setOutcome("template");
     updateAssessment(templateBean);
   }
 

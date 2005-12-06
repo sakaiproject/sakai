@@ -51,7 +51,7 @@
 
  <div class="shorttext indnt1">
   <h:outputLabel for="namefield" value="#{msg.p_name}*"/>
-  <h:inputText id="namefield" size="30" value="#{questionpool.currentPool.displayName}" required="true"/>
+  <h:inputText id="namefield" size="30" value="#{questionpool.currentPool.displayName}"/>
 <h:message for="namefield" styleClass="validate"/>
  </div>
 

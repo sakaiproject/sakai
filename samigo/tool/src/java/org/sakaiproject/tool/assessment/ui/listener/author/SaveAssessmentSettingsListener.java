@@ -68,17 +68,21 @@ public class SaveAssessmentSettingsListener
 
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean("assessmentSettings");
-
-    String err="";
     boolean error=false;
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId()); 
     AssessmentService assessmentService = new AssessmentService();
   
-    //#2 - check if name is unique
     String assessmentName=assessmentSettings.getTitle();
+// check if name is empty
+    if(assessmentName!=null &&(assessmentName.trim()).equals("")){
+     	String nameEmpty_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
+	context.addMessage(null,new FacesMessage(nameEmpty_err));
+	error=true;
+    }
+      //#2 - check if name is unique
     if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
-	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
-	context.addMessage(null,new FacesMessage(err));
+	String nameUnique_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+	context.addMessage(null,new FacesMessage(nameUnique_err));
 	error=true;
     }
 
@@ -99,13 +103,13 @@ public class SaveAssessmentSettingsListener
 
     }
     if((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
-	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
-	context.addMessage(null,new FacesMessage(err));
+	String time_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
+	context.addMessage(null,new FacesMessage(time_err));
         error=true;
     }
 
     if (error){
-      assessmentSettings.setOutcomePublish("editAssessmentSettings");
+      assessmentSettings.setOutcomeSave("editAssessmentSettings");
       return;
     }
  
