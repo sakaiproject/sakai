@@ -120,7 +120,8 @@ document.links[newindex].onclick();
       <h:commandLink  action="beginAssessment">
         <h:outputText value="#{msg.subnav_preview}"/>
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
-        <f:param name="previewAssessment" value="true"/>
+<!--        <f:param name="previewAssessment" value="true"/> -->
+        <f:param name="actionString" value="previewAssessment" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
       </h:commandLink>
   </p>

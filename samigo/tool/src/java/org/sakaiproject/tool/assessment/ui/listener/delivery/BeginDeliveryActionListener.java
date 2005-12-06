@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SettingsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
+import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
 /**
  * <p>Title: Samigo</p>
  * <p>Purpose:  this module handles the beginning of the assessment
@@ -75,62 +75,20 @@ public class BeginDeliveryActionListener implements ActionListener
   {
     log.debug("BeginDeliveryActionListener.processAction() ");
 
-    // get managed bean
+    // get managed bean and set its action accordingly
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+    String actionString = cu.lookupParam("actionString");
+    if (actionString != null && delivery.getActionString()==null ) { 
+      // if actionString is null, likely that action & actionString has been set already, 
+      // e.g. take assessment via url, actionString is set by LoginServlet.
+      // preview and take assessment is set by the parameter in the jsp pages
+      delivery.setActionString(actionString);
+    }
+    int action = delivery.getActionMode();
+
     delivery.setTimeRunning(true);
 
-    // ** Important**: this decides what buttons to displayed
-    delivery.setMode(delivery.TAKE_ASSESSMENT); // default
-    
-    // get service
-    AssessmentService assessmentService = new AssessmentService();
-    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-    PublishedAssessmentFacade pub = null;
-    String publishedId = cu.lookupParam("publishedId");
-    String previewAssessment = (String)cu.lookupParam("previewAssessment");
-    String assessmentId = (String)cu.lookupParam("assessmentId");
-    
-    boolean takingAssessment = takingAssessment(publishedId, previewAssessment);
-    boolean previewingAssessment = previewingAssessment(previewAssessment, assessmentId);
-
-    // Note: this listener is called by 3 action: Take assessment, Take assessment via url
-    // and Preview assessment.
-    // the goal is to find the publishedAssessment via teh publishedId
-    // then we can set the deliveryBean with the publishedassessment properties
-    // and hence able to do teh display
-    // If the action calling this listener is to take assessment, we already have the 
-    // publishedId. For the other 2 cases, we need to find it, so proceed...
-    //# case : Previewing assessment
-    if (!takingAssessment && previewingAssessment){
-      // this is accessed via assessment preview link
-      //now always publish and get a new publishedId for preview assessment
-      delivery.setMode(delivery.PREVIEW_ASSESSMENT);
-      AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
-      try {
-        pub = publishedAssessmentService.publishPreviewAssessment(assessment);
-      } 
-      catch (Exception e) {
-        log.error(e);
-        e.printStackTrace();
-      }
-      publishedId = pub.getPublishedAssessmentId().toString();
-      //always set "true" since will generate a new publisheId for every preview assessment now
-      delivery.setNotPublished("true"); 
-    }
-
-    //# case : Taking assessment via url
-    if (!takingAssessment && !previewingAssessment){
-      // this is accessed via publishedUrl so pubishedId==null
-      pub = delivery.getPublishedAssessment();
-      if (pub == null)
-        throw new AbortProcessingException(
-        "taking: publishedAsessmentId null or blank");
-      else
-        publishedId = pub.getPublishedAssessmentId().toString();
-    }
-
-    System.out.println("****pubishedId="+publishedId);        
-    pub = lookupPublishedAssessment(publishedId, publishedAssessmentService);
+    PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
     delivery.setPublishedAssessment(pub);
 
     // populate backing bean from published assessment
@@ -309,23 +267,54 @@ public class BeginDeliveryActionListener implements ActionListener
     }
   }
 
-  private boolean takingAssessment(String publishedId, String previewAssessment){
-    boolean takingAssessment = false;
-    // if this page is access through selectAssessment, publishedId should
-    // not be null
-    if (publishedId != null)
-      takingAssessment = true;
-    return takingAssessment;
-  }
+  public PublishedAssessmentFacade getPublishedAssessmentBasedOnAction(int action, DeliveryBean delivery){
+    AssessmentService assessmentService = new AssessmentService();
+    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+    PublishedAssessmentFacade pub = null;
+    String publishedId = cu.lookupParam("publishedId");
+    String assessmentId = (String)cu.lookupParam("assessmentId");
 
-  private boolean previewingAssessment(String previewAssessment, String assessmentId){
-    boolean previewingAssessment = false;
-    // if this page is accessed through assessment preview, 
-    // previewAssessment should be true and assessmentId should not be null
-    if (previewAssessment!=null && ("true").equals(previewAssessment) && assessmentId !=null)
-      previewingAssessment = true;
-    return previewingAssessment;
+    switch (action){
+    case 2: // delivery.PREVIEW_ASSESSMENT
+        // we would publish to create the publishedAssessment which we would use to populate
+        // properties in delivery. However, for previewing, we do not need to keep this 
+        // publishedAssessment record in DB at all, so we would delete it from DB right away.
+        AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+        try {
+          pub = publishedAssessmentService.publishPreviewAssessment(assessment);
+          publishedId = pub.getPublishedAssessmentId().toString();
+          log.info("****publishedId="+publishedId);
+          RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId);
+          thread.start();
+        } 
+        catch (Exception e) {
+          log.error(e);
+          e.printStackTrace();
+        }
+        break;
+
+    case 5: //delivery.TAKE_ASSESSMENT_VIA_URL:
+        // this is accessed via publishedUrl so pubishedId==null
+        pub = delivery.getPublishedAssessment();
+        if (pub == null)
+          throw new AbortProcessingException(
+             "taking: publishedAsessmentId null or blank");
+        else
+          publishedId = pub.getPublishedAssessmentId().toString();
+        break;
+
+    case 1: //delivery.TAKE_ASSESSMENT
+    case 3: //delivery.REVIEW_ASSESSMENT
+        pub = lookupPublishedAssessment(publishedId, publishedAssessmentService);
+        break;
+
+    case 4: //delivery.GRADE_ASSESSMENT
+        break;
+
+    default: 
+        break;
+    }   
+    return pub;
   }
- 
 
 }

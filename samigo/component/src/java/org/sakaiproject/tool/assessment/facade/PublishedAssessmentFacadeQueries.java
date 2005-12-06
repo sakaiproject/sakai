@@ -1132,7 +1132,10 @@ public class PublishedAssessmentFacadeQueries
                                          new net.sf.hibernate.type.Type[] {
                                          Hibernate.STRING, Hibernate.STRING});
     if (l.size() > 0) {
-      return new PublishedAssessmentFacade( (PublishedAssessmentData) l.get(0));
+      PublishedAssessmentData p = (PublishedAssessmentData) l.get(0);   
+      p.setSectionSet(getSectionSetForAssessment(p));
+      PublishedAssessmentFacade f = new PublishedAssessmentFacade(p);
+      return f;
     }
     else {
       return null;

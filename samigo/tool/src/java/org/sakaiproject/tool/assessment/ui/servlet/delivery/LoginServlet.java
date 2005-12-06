@@ -82,7 +82,8 @@ public class LoginServlet
     // button to display - daisyf
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet(
        "delivery", req, res);
-    delivery.setAccessViaUrl(true);
+    //delivery.setAccessViaUrl(true);
+    delivery.setActionString("takeAssessmentViaUrl");
 
     // set path
     delivery.setContextPath(req.getContextPath());
@@ -94,6 +95,7 @@ public class LoginServlet
     // both pages will set agentId and then direct user to BeginAssessment
     PublishedAssessmentService service = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = service.getPublishedAssessmentIdByAlias(alias);
+
     delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
     delivery.setAssessmentTitle(pub.getTitle());
     delivery.setPublishedAssessment(pub);

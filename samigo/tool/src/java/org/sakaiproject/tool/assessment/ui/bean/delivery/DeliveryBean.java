@@ -2072,29 +2072,53 @@ public class DeliveryBean
     }
   }
 
-  // delivery mode
+  // delivery action
   public static int TAKE_ASSESSMENT = 1;
   public static int PREVIEW_ASSESSMENT = 2;
   public static int REVIEW_ASSESSMENT = 3;
   public static int GRADE_ASSESSMENT = 4;
-  private int mode;
+  public static int TAKE_ASSESSMENT_VIA_URL = 5;
+  private int actionMode;
+  private String actionString;
 
-  public void setMode(int mode){
-    // reset mode
+  public void setActionString(String actionString){
+    this.actionString = actionString;
     setPreviewAssessment("false");
     setReviewAssessment(false);
-    this.mode = mode;
+    setNotPublished("false");
+    setAccessViaUrl(false);
 
-    if (mode == PREVIEW_ASSESSMENT){
+    if (("previewAssessment").equals(actionString)){
       setPreviewAssessment("true");
+      setNotPublished("true");
+      setActionMode(PREVIEW_ASSESSMENT);
     }
-    else if (mode == REVIEW_ASSESSMENT){
+    else if (("reviewAssessment").equals(actionString)){
       setReviewAssessment(true);
+      setActionMode(REVIEW_ASSESSMENT);
+    }
+    else if (("gradeAssessment").equals(actionString)){
+      setActionMode(GRADE_ASSESSMENT);
+    }
+    else if (("takeAssessment").equals(actionString)){
+      setActionMode(TAKE_ASSESSMENT);
+    }
+    else if (("takeAssessmentViaUrl").equals(actionString)){
+      setAccessViaUrl(true);
+      setActionMode(TAKE_ASSESSMENT_VIA_URL);
     }
   }
 
-  public int getMode(){
-    return mode;
+  public String getActionString(){
+    return actionString;
+  }
+
+  public void setActionMode(int actionMode){
+    this.actionMode = actionMode;
+  }
+
+  public int getActionMode(){
+    return actionMode;
   }
 
 }
