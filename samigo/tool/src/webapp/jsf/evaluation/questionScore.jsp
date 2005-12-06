@@ -451,6 +451,10 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       </f:facet>
       <!-- display of answer to file upload question is diffenent from other types - daisyf -->
       <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6'}" />
+     <f:verbatim><br/></f:verbatim>
+     <h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.answer}');" >
+    <h:outputText  value="Click to see student response" />
+    </h:outputLink>
       <h:panelGroup rendered="#{questionScores.typeId == '6'}">
         <f:subview id="displayFileUpload2">
           <%@ include file="/jsf/evaluation/item/displayFileUploadAnswer.jsp" %>
