@@ -45,8 +45,8 @@
 
       </title>
       </head>
-      <%--body onload="<%= request.getAttribute("html.body.onload") %>"--%>
- <h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" />
+      <body onload="<%= request.getAttribute("html.body.onload") %>">
+ <!--h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" /-->
 
  <h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}'>" escape="false"/>
  <!-- content... -->
@@ -63,7 +63,9 @@
 <h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished eq 'true'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment"/>
+     <h:commandButton value="#{msg.done}" action="editAssessment">
+       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
+     </h:commandButton>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -165,7 +167,9 @@
 <h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished eq 'true'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment"/>
+     <h:commandButton value="#{msg.done}" action="editAssessment">
+       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
+     </h:commandButton>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
