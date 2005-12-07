@@ -44,10 +44,12 @@
       <title> <h:outputText value="#{delivery.assessmentTitle}"/>
       </title>
       </head>
-       <body onload="<%= request.getAttribute("html.body.onload") %>">
+       <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio();">
       <!--h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" /-->
+<div class="portletBody">
       <h:outputText value="<a name='top'></a>" escape="false" />
- <h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}'>" escape="false"/>
+ <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}'>" escape="false"/-->
+
 
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
