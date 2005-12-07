@@ -135,7 +135,6 @@ public class DeliveryBean
   private int timeLimit_hour;
   private int timeLimit_minute;
   private ContentsDeliveryBean tableOfContents;
-  private String previewAssessment;
   private String submissionId;
   private String submissionMessage;
   private String instructorName;
@@ -174,9 +173,6 @@ public class DeliveryBean
   private final static long serialVersionUID = -1090852048737428722L;
   private boolean showStudentScore;
 
-  // lydial added for allowing studentScore view for random draw parts
-  private boolean forGrading; // to reuse deliveryActionListener for grading pages
-
   // SAM-387
   // esmiley added to track if timer has been started in timed assessments
   private boolean timeRunning;
@@ -186,9 +182,6 @@ public class DeliveryBean
 
   //cwen
   private String siteId;
-
-  // daisy added this for SAK-1764
-  private boolean reviewAssessment=false;
 
   // this instance tracks if the Agent is taking a test via URL, as well as
   // current agent string (if assigned). SAK-1927: esmiley
@@ -1126,16 +1119,6 @@ public class DeliveryBean
     this.pageContents = pageContents;
   }
 
-  public String getPreviewAssessment()
-  {
-    return previewAssessment;
-  }
-
-  public void setPreviewAssessment(String previewAssessment)
-  {
-    this.previewAssessment = previewAssessment;
-  }
-
   public String getSubmissionId()
   {
     return submissionId;
@@ -1260,7 +1243,8 @@ public class DeliveryBean
     }
     forGrade = false;
 
-    if (! ("true").equals(previewAssessment))
+    if (this.actionMode == TAKE_ASSESSMENT 
+        || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     {
       SubmitToGradingActionListener listener =
         new SubmitToGradingActionListener();
@@ -1287,7 +1271,8 @@ public class DeliveryBean
     }
     forGrade = false;
 
-    if (! ("true").equals(previewAssessment))
+    if (this.actionMode == TAKE_ASSESSMENT 
+        || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     {
       SubmitToGradingActionListener listener =
         new SubmitToGradingActionListener();
@@ -1915,16 +1900,6 @@ public class DeliveryBean
     this.showStudentScore = showStudentScore;
   }
 
-  public boolean getForGrading()
-  {
-    return forGrading;
-  }
-
-  public void setForGrading(boolean param)
-  {
-    this.forGrading = param;
-  }
-
   public boolean isTimeRunning()
   {
     return timeRunning;
@@ -1982,16 +1957,6 @@ public class DeliveryBean
       return false;
   }
 
-  public boolean getReviewAssessment()
-  {
-    return reviewAssessment;
-  }
-
-  public void setReviewAssessment(boolean reviewAssessment)
-  {
-    this.reviewAssessment = reviewAssessment;
-  }
-
   public void attachToItemContentBean(ItemGradingData itemGradingData, String questionId){
     ArrayList list = new ArrayList();
     list.add(itemGradingData);
@@ -2039,16 +2004,12 @@ public class DeliveryBean
 
   public void setActionString(String actionString){
     this.actionString = actionString;
-    setPreviewAssessment("false");
-    setReviewAssessment(false);
-    setForGrading(false);
     // the follwoing two values will be evaluated when reviewing assessment
     // based on PublishedFeedback settings
     setFeedback("false"); 
     setNoFeedback("true"); 
 
     if (("previewAssessment").equals(actionString)){
-      setPreviewAssessment("true");
       setActionMode(PREVIEW_ASSESSMENT);
     }
     else if (("reviewAssessment").equals(actionString)){
@@ -2057,7 +2018,6 @@ public class DeliveryBean
     else if (("gradeAssessment").equals(actionString)){
       setFeedback("true");
       setNoFeedback("false");
-      setForGrading(true);
       setActionMode(GRADE_ASSESSMENT);
     }
     else if (("takeAssessment").equals(actionString)){

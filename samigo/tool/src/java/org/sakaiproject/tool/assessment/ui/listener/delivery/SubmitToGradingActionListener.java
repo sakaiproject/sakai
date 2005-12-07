@@ -77,8 +77,9 @@ public class SubmitToGradingActionListener implements ActionListener
       // get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");            
 
-      if ((cu.lookupParam("showfeedbacknow") != null &&
-	   "true".equals(cu.lookupParam("showfeedbacknow")) || "true".equals(delivery.getPreviewAssessment())))
+      if ((cu.lookupParam("showfeedbacknow") != null 
+           && "true".equals(cu.lookupParam("showfeedbacknow")) 
+           || delivery.getActionMode()==delivery.PREVIEW_ASSESSMENT))
         delivery.setForGrade(false);
 
       // get service

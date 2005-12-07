@@ -187,7 +187,7 @@ public class DeliveryActionListener
         SectionDataIfc section = (SectionDataIfc) i1.next();
         Iterator i2 = null;
 
-        if (delivery.getForGrading()) {
+        if (delivery.getActionMode()==delivery.GRADE_ASSESSMENT) {
           StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
           long seed = (long) studentscorebean.getStudentId().hashCode();
           i2 = section.getItemArraySortedWithRandom(seed).iterator();
@@ -610,8 +610,7 @@ public class DeliveryActionListener
     SectionContentsBean sec = new SectionContentsBean(part);
 
     ArrayList itemSet = null;
-    if (delivery.getForGrading()) {
-
+    if (delivery.getActionMode()==delivery.GRADE_ASSESSMENT) {
       StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
       long seed = (long) studentscorebean.getStudentId().hashCode();
       itemSet = part.getItemArraySortedWithRandom(seed);
@@ -1399,30 +1398,6 @@ public class DeliveryActionListener
     if (nofeedback != null && nofeedback.equals("true")) {
       delivery.setNoFeedback("true");
     }
-  }
-
-  //looks like the parameter "studentid" signals that we are in the grading mode
-  private int gradeAssessment(DeliveryBean delivery, int action, String id, String agent){
-    if (cu.lookupParam("studentid") != null &&
-        !cu.lookupParam("studentid").trim().equals("")) {
-      agent = cu.lookupParam("studentid");
-      action = delivery.GRADE_ASSESSMENT;
-      if (cu.lookupParam("publishedIdd") != null) {
-        id = cu.lookupParam("publishedIdd");
-      }
-    }
-    return action;  
-  }
-
-  public int reviewAssessment(DeliveryBean delivery , int action){
-    // If this is a review, get everything submitted
-    if (cu.lookupParam("review") != null &&
-        cu.lookupParam("review").equals("true"))
-    {
-      delivery.setReviewAssessment(true); // added By Daisy for SAK-1764
-      action = delivery.REVIEW_ASSESSMENT;
-    }
-    return action;
   }
 
   public PublishedAssessmentFacade getPublishedAssessment(DeliveryBean delivery, String id){
