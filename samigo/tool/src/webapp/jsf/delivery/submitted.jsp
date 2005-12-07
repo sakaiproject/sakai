@@ -102,8 +102,9 @@
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
     <h:commandButton type="submit" value="#{msg.button_return}" action="select"
-       rendered="#{!delivery.accessViaUrl}" />
-    <h:commandButton value="#{msg.button_ok}" type="button" rendered="#{delivery.accessViaUrl}"
+       rendered="#{delivery.actionString=='takeAssessment'}" />
+    <h:commandButton value="#{msg.button_ok}" type="button" 
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
        style="act" onclick="javascript:window.open('login.faces','_top')" />
   </h:panelGrid>
 </div>

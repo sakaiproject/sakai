@@ -66,7 +66,7 @@
 <div class="indnt2">
 <h:messages styleClass="validation"/>
   <h:outputText value="#{delivery.instructorMessage}" escape="false"/>
-<h:panelGrid columns="2">
+<h:panelGrid columns="2" cellpadding="2">
     <h:outputLabel value="#{msg.course}" rendered="#{delivery.courseName ne ''}" />
     <h:outputText value="#{delivery.courseName} " />
 
@@ -90,40 +90,46 @@
 
 
     <h:outputLabel value="#{msg.num_subs}" />
-           <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
-          rendered="#{!delivery.settings.unlimitedAttempts}"/>
-        <h:outputText value="#{msg.unlimited_}"
-          rendered="#{delivery.settings.unlimitedAttempts}"/>
+    <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
+       rendered="#{!delivery.settings.unlimitedAttempts}"/>
+    <h:outputText value="#{msg.unlimited_}"
+       rendered="#{delivery.settings.unlimitedAttempts}"/>
 
     <h:outputLabel value="#{msg.auto_exp}" />
-        <h:outputText value="#{msg.enabled_}"
-          rendered="#{delivery.settings.autoSubmit}"/>
-        <h:outputText value="#{msg.disabled}"
-          rendered="#{!delivery.settings.autoSubmit}"/>
+    <h:outputText value="#{msg.enabled_}"
+       rendered="#{delivery.settings.autoSubmit}"/>
+    <h:outputText value="#{msg.disabled}"
+       rendered="#{!delivery.settings.autoSubmit}"/>
 
     <h:outputLabel value="#{msg.feedback}" />
-        <h:outputText value="#{msg.immed}"
-          rendered="#{delivery.feedbackComponent.showImmediate}"/>
-        <h:outputText value="#{delivery.settings.feedbackDate}"
-            rendered="#{delivery.feedbackComponent.showDateFeedback}">
-          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
-        </h:outputText>
-        <h:outputText value="#{msg.none}"
-          rendered="#{delivery.feedbackComponent.showNoFeedback}"/>
-
-    <h:outputLabel rendered="#{delivery.dueDate!=null}" value="#{msg.due_date}" />
-      <h:outputText value="#{delivery.dueDate}" >
-         <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+    <h:panelGroup>
+      <h:outputText value="#{msg.immed}"
+         rendered="#{delivery.feedbackComponent.showImmediate}"/>
+      <h:outputText value="#{delivery.settings.feedbackDate}"
+         rendered="#{delivery.feedbackComponent.showDateFeedback}">
+        <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
       </h:outputText>
+      <h:outputText value="#{msg.none}"
+         rendered="#{delivery.feedbackComponent.showNoFeedback}"/>
+    </h:panelGroup>
+
+    <h:panelGroup>
+      <h:outputLabel rendered="#{delivery.dueDate!=null}" value="#{msg.due_date}" />
+    </h:panelGroup>
+    <h:panelGroup>
+      <h:outputText value="#{delivery.dueDate}" >
+        <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+      </h:outputText>
+    </h:panelGroup>
 
     <h:outputLabel value="#{msg.username}"
       rendered="#{delivery.settings.username ne ''}" />
-    <h:inputText value="#{delivery.username}"
+    <h:inputText value="#{delivery.username}" size="20"
       rendered="#{delivery.settings.username ne ''}" />
 
     <h:outputLabel value="#{msg.password}"
       rendered="#{delivery.settings.username ne ''}" />
-    <h:inputSecret value="#{delivery.password}"
+    <h:inputSecret value="#{delivery.password}" size="20"
       rendered="#{delivery.settings.username ne ''}" />
 </h:panelGrid>
  </div></div>

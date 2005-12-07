@@ -156,7 +156,9 @@ public class DeliveryActionListener
               //delivery.setFeedback("true");
               setDeliveryFeedbackOnforEvaluation(delivery);
               break;
-      default: // Take assessment
+
+      case 1: // Take assessment
+      case 5: // Take assessment via url
                itemData = service.getLastItemGradingData(id, agent);
                if (itemData!=null && itemData.size()>0)
                  setAssessmentGradingFromItemData(delivery, itemData, true);
@@ -164,9 +166,12 @@ public class DeliveryActionListener
                  AssessmentGradingData ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
                  delivery.setAssessmentGrading(ag);
                }
+               setFeedbackMode(delivery);
                System.out.println("**** feedback="+delivery.getFeedback());
                System.out.println("**** noFeedback="+delivery.getNoFeedback());
                break;
+
+      default: break;
       }
 
 
@@ -1362,29 +1367,37 @@ public class DeliveryActionListener
     }
   }
 
-
   private void setFeedbackMode(DeliveryBean delivery){
+    int action = delivery.getActionMode();
     String showfeedbacknow = cu.lookupParam("showfeedbacknow");
-    if (showfeedbacknow != null && showfeedbacknow.equals("true")) {
-      delivery.setFeedback("true");
+    delivery.setFeedback("false");
+    delivery.setNoFeedback("false");
+    switch (action){
+    case 1: // take assessment
+    case 5: // take assessment via url
+            if (showfeedbacknow != null && showfeedbacknow.equals("true")) {
+              delivery.setFeedback("true");
+            }
+            break;
+
+    case 3: // review assessment
+    case 4: // grade assessment
+            if (delivery.getFeedbackComponent()!=null 
+                && (delivery.getFeedbackComponent().getShowImmediate() 
+                    || (delivery.getFeedbackComponent().getShowDateFeedback())
+                        && delivery.getSettings()!=null
+                        && delivery.getSettings().getFeedbackDate()!=null
+                        && delivery.getSettings().getFeedbackDate().before(new Date()))) {
+              delivery.setFeedback("true");
+            }
+            break;
+
+    default:break;
     }
-    else if (delivery.getFeedbackComponent()!=null &&
-      (delivery.getFeedbackComponent().getShowImmediate() ||
-        (delivery.getFeedbackComponent().getShowDateFeedback()) &&
-         delivery.getSettings()!=null &&
-         delivery.getSettings().getFeedbackDate()!=null &&
-         delivery.getSettings().getFeedbackDate().before(new Date()))) {
-       delivery.setFeedback("true");
-    }
-    else {
-      delivery.setFeedback("false");
-    }
+
     String nofeedback = cu.lookupParam("nofeedback");
     if (nofeedback != null && nofeedback.equals("true")) {
       delivery.setNoFeedback("true");
-    }
-    else {
-      delivery.setNoFeedback("false");
     }
   }
 

@@ -82,24 +82,16 @@ function saveTime()
 
 </script>
 
+
+<!-- DONE BUTTON FOR PREVIEW ASSESSMENT -->
 <h:form id="takeAssessmentFormTOCTop">
-
-
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'
-                       && delivery.notPublished ne 'true'}">
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'
-                       && delivery.notPublished eq 'true'}">
- <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment"/>
- <f:verbatim></div></f:verbatim>
-</h:panelGroup>
 </h:form>
 
 <%-- <h:form onsubmit="saveTime()"> --%>
@@ -190,40 +182,42 @@ function saveTime()
 </div>
 
 <p class="act">
+<!-- SUBMIT FOR GRADE BUTTON FOR TAKE ASSESSMENT AND PREVIEW ASSESSMENT -->
   <!-- check permisison to determine if the button should be displayed -->
-  <h:panelGroup rendered="#{delivery.accessViaUrl or (authorization!=null &&  authorization.takeAssessment && authorization.submitAssessmentForGrade)}">
-  <h:commandButton type="submit" value="#{msg.button_submit_grading}"
-    action="#{delivery.submitForGrade}" styleClass="active"  
-    rendered="#{!delivery.accessViaUrl}" disabled="#{delivery.actionString=='previewAssessment'}">
-  </h:commandButton>
+  <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'
+                         || (delivery.actionString=='takeAssessment' 
+                             && authorization!=null 
+                             && authorization.takeAssessment 
+                             && authorization.submitAssessmentForGrade)}">
+    <h:commandButton type="submit" value="#{msg.button_submit_grading}"
+      action="#{delivery.submitForGrade}" styleClass="active"  
+      disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
 
- <h:commandButton type="submit" value="#{msg.button_submit}"
-    action="#{delivery.submitForGrade}" styleClass="active"   rendered="#{delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
-  </h:commandButton>
+<!-- SUBMIT BUTTON FOR TAKE ASSESSMENT VIA URL ONLY -->
+  <h:commandButton type="submit" value="#{msg.button_submit}"
+    action="#{delivery.submitForGrade}" styleClass="active"   
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
 
+<!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
   <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}"
-    rendered="#{!delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
-  </h:commandButton>
+    rendered="#{delivery.actionString=='takeAssessment'
+             || delivery.actionString=='previewAssessment'}" 
+    disabled="#{delivery.actionString=='previewAssessment'}" />
 
+<!-- QUIT BUTTON FOR TAKE ASSESSMENT VIA URL -->
   <h:commandButton type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
-    rendered="#{delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" >
   </h:commandButton>
 </p>
 
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished ne 'true'}">
+<!-- DONE BUTTON FOR PREVIEW ASSESSMENT ONLY -->
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
- <f:verbatim></div></f:verbatim>
-</h:panelGroup>
-
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished eq 'true'}">
- <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

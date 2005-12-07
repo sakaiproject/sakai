@@ -137,7 +137,6 @@ public class DeliveryBean
   private ContentsDeliveryBean tableOfContents;
   private String previewMode;
   private String previewAssessment;
-  private String notPublished;
   private String submissionId;
   private String submissionMessage;
   private String instructorName;
@@ -191,8 +190,6 @@ public class DeliveryBean
 
   // daisy added this for SAK-1764
   private boolean reviewAssessment=false;
-  // daisy added back for SAK-2738
-  private boolean accessViaUrl=false;
 
   // this instance tracks if the Agent is taking a test via URL, as well as
   // current agent string (if assigned). SAK-1927: esmiley
@@ -1160,16 +1157,6 @@ public class DeliveryBean
     this.previewAssessment = previewAssessment;
   }
 
-  public String getNotPublished()
-  {
-    return notPublished;
-  }
-
-  public void setNotPublished(String notPublished)
-  {
-    this.notPublished = notPublished;
-  }
-
   public String getSubmissionId()
   {
     return submissionId;
@@ -1230,7 +1217,7 @@ public class DeliveryBean
     listener.processAction(null);
 
     String returnValue="submitAssessment"; 
-    if (getAccessViaUrl()) // this is for accessing via published url
+    if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
     {
       returnValue="anonymousThankYou";
     }
@@ -1269,7 +1256,7 @@ public class DeliveryBean
       returnValue = "timeout";
     }
 
-    if (getAccessViaUrl())
+    if (this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     { // if this is access via url, display quit message
       log.debug("**anonymous login, go to quit");
       returnValue = "anonymousQuit";
@@ -1892,16 +1879,6 @@ public class DeliveryBean
     this.anonymousLogin = anonymousLogin;
   }
 
-  public boolean getAccessViaUrl()
-  {
-    return accessViaUrl;
-  }
-
-  public void setAccessViaUrl(boolean accessViaUrl)
-  {
-    this.accessViaUrl=accessViaUrl;
-  }
-
   public ItemGradingData getItemGradingData(String publishedItemId)
   {
     ItemGradingData selected = null;
@@ -2085,8 +2062,6 @@ public class DeliveryBean
     this.actionString = actionString;
     setPreviewAssessment("false");
     setReviewAssessment(false);
-    setNotPublished("false");
-    setAccessViaUrl(false);
     setForGrading(false);
     // the follwoing two values will be evaluated when reviewing assessment
     // based on PublishedFeedback settings
@@ -2095,7 +2070,6 @@ public class DeliveryBean
 
     if (("previewAssessment").equals(actionString)){
       setPreviewAssessment("true");
-      setNotPublished("true");
       setActionMode(PREVIEW_ASSESSMENT);
     }
     else if (("reviewAssessment").equals(actionString)){
@@ -2111,7 +2085,6 @@ public class DeliveryBean
       setActionMode(TAKE_ASSESSMENT);
     }
     else if (("takeAssessmentViaUrl").equals(actionString)){
-      setAccessViaUrl(true);
       setActionMode(TAKE_ASSESSMENT_VIA_URL);
     }
   }

@@ -529,6 +529,7 @@ public class PublishedAssessmentFacadeQueries
         IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 
       if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g) &&
+          toGradebook !=null &&
           toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
         try {
             addedToGradebook = gbsHelper.addToGradebook(publishedAssessment, g);

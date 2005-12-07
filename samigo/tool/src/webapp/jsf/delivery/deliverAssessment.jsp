@@ -94,19 +94,10 @@ function saveTime()
 
 </script>
 
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished ne 'true'}">
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
- <f:verbatim></div></f:verbatim>
-</h:panelGroup>
-
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished eq 'true'}">
- <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment">
-       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
-     </h:commandButton>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -269,21 +260,10 @@ function saveTime()
 
 </p>
 
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
-                       && delivery.notPublished ne 'true'}">
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
- <f:verbatim></div></f:verbatim>
-</h:panelGroup>
-
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'
-                       && delivery.notPublished eq 'true'}">
- <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment">
-       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
-     </h:commandButton>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
