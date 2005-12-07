@@ -107,7 +107,6 @@ sorting actions for table:
       </f:facet>
       <h:commandLink action="beginAssessment" >
         <f:param name="publishedId" value="#{takeable.assessmentId}" />
-<!--        <f:param name="previewAssessment" value="false"/> -->
         <f:param name="actionString" value="takeAssessment"/>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
@@ -216,39 +215,30 @@ sorting actions for table:
           </h:commandLink>
       </h:panelGroup>
       </f:facet>
-      <h:commandLink action="takeAssessment"> 
+      <h:commandLink action="takeAssessment"  rendered="#{reviewable.feedback != 'true'}"> 
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="nofeedback" value="true"/>
-        <f:param name="review" value="true"/> 
         <f:param name="actionString" value="reviewAssessment"/>
         <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
+        <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-        <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback != 'true'}"/>
+        <h:outputText value="#{reviewable.assessmentTitle}" />
       </h:commandLink>
     
 
  <h:commandLink action="takeAssessment" rendered="#{reviewable.feedback == 'true'}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
-<!--        <f:param name="review" value="true" /> -->
         <f:param name="nofeedback" value="false"/>
         <f:param name="actionString" value="reviewAssessment"/>
         <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
+        <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-        <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback == 'true'}"/>
+        <h:outputText value="#{reviewable.assessmentTitle}" />
        </h:commandLink>
 
   <f:verbatim><br/></f:verbatim>
-<%--
-       <h:commandLink action="takeAssessment" rendered="#{reviewable.feedback == 'true'}">
-        <f:param name="publishedId" value="#{reviewable.assessmentId}" />
-        <f:param name="review" value="true" />
-        <f:param name="nofeedback" value="false"/>
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-        <h:outputText value="#{msg.feedback} "/>
-       </h:commandLink>
-       <h:outputText value=" | " rendered="#{reviewable.feedback == 'true' && reviewable.statistics == 'true'}"/>
---%>
        <h:commandLink action="histogramScores" immediate="true"  rendered="#{reviewable.feedback ne 'false'}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="hasNav" value="false"/>

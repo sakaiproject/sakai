@@ -85,14 +85,16 @@ function saveTime()
 <h:form id="takeAssessmentFormTOCTop">
 
 
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished ne 'true'}">
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'
+                       && delivery.notPublished ne 'true'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished eq 'true'}">
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'
+                       && delivery.notPublished eq 'true'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment"/>
@@ -105,7 +107,10 @@ function saveTime()
 
 <h3><h:outputText value="#{delivery.assessmentTitle} " /></h3>
 
-<h:panelGroup rendered="#{delivery.previewMode eq 'false' && delivery.hasTimeLimit}" >
+<h:panelGroup rendered="#{(delivery.actionString=='takeAssessment'
+                           || delivery.actionString=='takeAssessmentViaUrl' 
+                           || delivery.actionString=='previewAssessment')
+                        && delivery.hasTimeLimit}" >
 <f:verbatim><span id="remText"></f:verbatim><h:outputText value="Time Remaining: "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 
@@ -188,7 +193,8 @@ function saveTime()
   <!-- check permisison to determine if the button should be displayed -->
   <h:panelGroup rendered="#{delivery.accessViaUrl or (authorization!=null &&  authorization.takeAssessment && authorization.submitAssessmentForGrade)}">
   <h:commandButton type="submit" value="#{msg.button_submit_grading}"
-    action="#{delivery.submitForGrade}" styleClass="active"  rendered="#{!delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
+    action="#{delivery.submitForGrade}" styleClass="active"  
+    rendered="#{!delivery.accessViaUrl}" disabled="#{delivery.actionString=='previewAssessment'}">
   </h:commandButton>
   </h:panelGroup>
 

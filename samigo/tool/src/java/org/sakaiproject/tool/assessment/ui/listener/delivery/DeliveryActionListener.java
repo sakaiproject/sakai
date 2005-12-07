@@ -95,211 +95,81 @@ public class DeliveryActionListener
 
     try
     {
-      // get managed bean
+      // 1. get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-
-      // this is to be reset to true on the saveTime() JavaScript when submitted
-      delivery.setJavaScriptEnabledCheck("false");
-
-      // Clear elapsed time, set not timed out
-      if (!delivery.isTimeRunning())
-      {
-        delivery.setTimeElapse(null);
-      }
-      delivery.setTimeOutSubmission("false");
-
-      String id = cu.lookupParam("publishedId");
-      if (id == null)
-      {
-        id = delivery.getAssessmentId();
-
-      }
-      String showfeedbacknow = cu.lookupParam("showfeedbacknow");
-      if (showfeedbacknow != null && showfeedbacknow.equals("true"))
-      {
-        delivery.setFeedback("true");
-      }
-      else
-      {
-        delivery.setFeedback("false");
-
-      }
-      String nofeedback = cu.lookupParam("nofeedback");
-      if (nofeedback != null && nofeedback.equals("true"))
-      {
-        delivery.setNoFeedback("true");
-      }
-      else
-      {
-        delivery.setNoFeedback("false");
-
-      }
-      if (cu.lookupParam("partnumber") != null &&
-          !cu.lookupParam("partnumber").trim().equals(""))
-      {
-        goToRightQuestionFromTOC(delivery);
-      }
-
+      // a. set publishedId, note that id can be changed by isPreviewingMode()
+      String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
-      boolean forEvaluation = false;
-      if (cu.lookupParam("studentid") != null &&
-          !cu.lookupParam("studentid").trim().equals(""))
-      {
-        agent = cu.lookupParam("studentid");
-        forEvaluation = true;
-        if (cu.lookupParam("publishedIdd") != null)
-        {
-          id = cu.lookupParam("publishedIdd");
 
-          // Reset all feedback to true, since this is the grader view
-        }
-      }
+      // b. this is to be reset to true on the saveTime() JavaScript when submitted
+      delivery.setJavaScriptEnabledCheck("false");
+      // c. Clear elapsed time, set not timed out
+      clearElapsedTime(delivery);
 
-      // get service
-      PublishedAssessmentService publishedAssessmentService = new
-        PublishedAssessmentService();
+      // 3. get assessment from deliveryBean if id matches. otherwise, this is the 1st time
+      // that DeliveryActionListener is called, so pull it from DB
+      PublishedAssessmentFacade publishedAssessment = getPublishedAssessment(delivery, id);
+      // e. set show student score
+      setShowStudentScore(delivery, publishedAssessment);
+      setDeliverySettings(delivery, publishedAssessment);
 
-      String previewAssessment = (String) cu.lookupParam("previewAssessment");
-      String assessmentId = (String) cu.lookupParam("assessmentId");
+      // 2. there 3 types of navigation: by question (question will be displayed one at a time), 
+      // by part (questions in a part will be displayed together) or by assessment (i.e. 
+      // all questions will be displayed on one page). When navigating from TOC, a part number
+      // signal that the navigation is either by question or by part. We then must set the 
+      // delivery bean to the right place.
+      goToRightQuestionFromTOC(delivery);
 
-      if (previewAssessment != null)
-      {
-        delivery.setPreviewAssessment(previewAssessment);
+      // 4. this purpose of this listener is to integrated itemGradingData and 
+      //    assessmentGradingData to the publishedAssessment during these 3 processes:
+      //    taking assessment, reviewing assessment and grading assessment by question. 
+      //    When taking or reviewing an assessment, BeginDeliveryActionListener is called
+      //    by an event in the jsf page to retrieve the publishedAssessment. When grading
+      //    assessment, StudentScoreListener is called to retrieve the published Assessment.
+      int action = delivery.getActionMode();
 
-      }
-      if ("true".equals(delivery.getPreviewAssessment()) && assessmentId != null)
-      {
-
-        id = publishedAssessmentService.getPublishedAssessmentId(assessmentId).
-          toString();
-      }
-
-      // get assessment
-      // Daisy, you need to check if it's null and if it's the right
-      // one. :) --rmg
-      PublishedAssessmentFacade publishedAssessment = null;
-      if (delivery.getPublishedAssessment() != null &&
-          delivery.getPublishedAssessment().getPublishedAssessmentId().toString().
-          equals(id))
-      {
-        publishedAssessment = delivery.getPublishedAssessment();
-      }
-      else
-      {
-        publishedAssessment =
-          publishedAssessmentService.getPublishedAssessment(id);
-
-        // determine if scores will display to student
-      }
-      if (Boolean.TRUE.equals(
-	  publishedAssessment.getAssessmentFeedback().getShowStudentScore()))
-      {
-        
-        if (delivery.getFeedbackComponent()!=null && 
-          delivery.getFeedbackComponent().getShowDateFeedback() && !delivery.getFeedbackOnDate())
-            delivery.setShowStudentScore(false);
-        else
-            delivery.setShowStudentScore(true);
-      }
-      else
-      {
-        delivery.setShowStudentScore(false);
-      }
-
+      HashMap itemData = new HashMap();
       GradingService service = new GradingService();
+      System.out.println("**** DeliveryActionListener:actionString"+delivery.getActionString());
+      System.out.println("**** DeliveryActionListener:action"+delivery.getActionMode());
 
-      HashMap itemData = null;
-
-      // If this is a review, get everything submitted
-      if (cu.lookupParam("review") != null &&
-          cu.lookupParam("review").equals("true"))
-      {
-        delivery.setReviewAssessment(true); // added By Daisy for SAK-1764
-        itemData = service.getSubmitData(id, agent);
-        setAssessmentGradingFromItemData(delivery, itemData, false);
-      }
-    
-      // If this is for grading a student's responses, get those
-      // responses.
-      else if (forEvaluation)
-      {
-        itemData = service.getStudentGradingData
-          (cu.lookupParam("gradingData"));
-        setAssessmentGradingFromItemData(delivery, itemData, false);
-      }
-
-      // If we're reviewing an assessment and we're not showing
-      // student responses, don't get them from the database.
-      else if (delivery.getPreviewMode().equals("true") &&
-               !delivery.getFeedbackComponent().getShowResponse())
-      {
-        itemData = new HashMap();
-
-        // Otherwise, get them if they exist.
-      }
-      else  // taking assessment
-      {
-        delivery.setReviewAssessment(false); // it is very IMPORTANT to reset it
-        itemData = service.getLastItemGradingData(id, agent);
-          if (itemData!=null && itemData.size()>0)
-            setAssessmentGradingFromItemData(delivery, itemData, true);
-          else{
-            AssessmentGradingData ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
-            delivery.setAssessmentGrading(ag);
-            if (ag!=null){
-              log.debug("**** assessment grading id ="+ag.getAssessmentGradingId());
-              log.debug("**** assessment forGrade ="+ag.getForGrade());
-      }
-    }
-      }
-      if (delivery.getTimeElapse() == null)
-      {
-        log.debug("delivery.getTimeElapse() == null");
-        log.debug("delivery.setTimeElapse(\"0\")");
-        delivery.setTimeElapse("0");
-
-        // If this was called instead of Begin
-      }
-      if (forEvaluation || delivery.getSettings() == null ||
-          !delivery.getAssessmentId().equals
-          (publishedAssessment.getPublishedAssessmentId().toString()))
-      {
-        BeginDeliveryActionListener listener =
-          new BeginDeliveryActionListener();
-        listener.populateBeanFromPub(delivery, publishedAssessment);
+      switch (action){
+      case 3: // Review assessment
+              setFeedbackMode(delivery);
+              itemData = new HashMap();
+              System.out.println("**** revieAssessment: delivery.getFeedbackComponent().getShowResponse()="+delivery.getFeedbackComponent().getShowResponse());
+              if (delivery.getFeedbackComponent().getShowResponse())
+                itemData = service.getSubmitData(id, agent);
+              System.out.println("**** itemData.size ="+itemData.size());
+              System.out.println("**** feedback="+delivery.getFeedback());
+              System.out.println("**** noFeedback="+delivery.getNoFeedback());
+              setAssessmentGradingFromItemData(delivery, itemData, false);
+              setDisplayByAssessment(delivery);
+              break;
+ 
+      case 4: // Grade assessment
+              itemData = service.getStudentGradingData(cu.lookupParam("gradingData"));
+              System.out.println("**** gradingData ="+cu.lookupParam("gradingData"));
+              System.out.println("**** itemData.size ="+itemData.size());
+              setAssessmentGradingFromItemData(delivery, itemData, false);
+              setDisplayByAssessment(delivery);
+              //delivery.setFeedback("true");
+              setDeliveryFeedbackOnforEvaluation(delivery);
+              break;
+      default: // Take assessment
+               itemData = service.getLastItemGradingData(id, agent);
+               if (itemData!=null && itemData.size()>0)
+                 setAssessmentGradingFromItemData(delivery, itemData, true);
+               else{
+                 AssessmentGradingData ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
+                 delivery.setAssessmentGrading(ag);
+               }
+               System.out.println("**** feedback="+delivery.getFeedback());
+               System.out.println("**** noFeedback="+delivery.getNoFeedback());
+               break;
       }
 
-      // If we're reviewing an assessment, set things differently
-      String review = cu.lookupParam("review");
-      if (forEvaluation || (review != null && review.equals("true")))
-      {
-        delivery.getSettings().setFormatByAssessment(true);
-        delivery.getSettings().setFormatByPart(false);
-        delivery.getSettings().setFormatByQuestion(false);
 
-        delivery.setPreviewMode(true);
-
-        if (forEvaluation ||
-            (delivery.getFeedbackComponent().getShowImmediate() ||
-             (delivery.getFeedbackComponent().getShowDateFeedback() &&
-              delivery.getSettings().getFeedbackDate() != null &&
-              delivery.getSettings().getFeedbackDate().before(new Date()))))
-        {
-          delivery.setFeedback("true");
-
-        }
-        if (forEvaluation)
-        {
-          setDeliveryFeedbackOnforEvaluation(delivery);
-        }
-        else
-        {
-          if (!delivery.getFeedbackComponent().getShowResponse())
-          {
-            itemData = new HashMap();
-          }
-        }
-      }
 
       // We're going to overload itemData with the sequence in case
       // renumbering is turned off.
@@ -310,24 +180,18 @@ public class DeliveryActionListener
       while (i1.hasNext())
       {
         SectionDataIfc section = (SectionDataIfc) i1.next();
-
-        //    items += section.getItemSet().size();  // bug 464
         Iterator i2 = null;
 
-      if (delivery.getForGrading()) {
-
+        if (delivery.getForGrading()) {
           StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
           long seed = (long) studentscorebean.getStudentId().hashCode();
           i2 = section.getItemArraySortedWithRandom(seed).iterator();
         }
         else {
           i2 = section.getItemArraySorted().iterator();
-    }
+        }
 
-
-
-        while (i2.hasNext())
-        {
+        while (i2.hasNext()) {
           items = items + 1; // bug 464
           ItemDataIfc item = (ItemDataIfc) i2.next();
           itemData.put("sequence" + item.getItemId().toString(),
@@ -336,33 +200,27 @@ public class DeliveryActionListener
       }
       itemData.put("items", new Long(items));
 
-      if (delivery.getAssessmentGrading() != null)
-      {
+      if (delivery.getAssessmentGrading() != null) {
         delivery.setGraderComment
           (delivery.getAssessmentGrading().getComments());
       }
-      else
-      {
+      else {
         delivery.setGraderComment(null);
-
-
-        // Set the begin time if we're just starting
       }
-      if (delivery.getBeginTime() == null)
-      {
+
+      // Set the begin time if we're just starting
+      if (delivery.getBeginTime() == null) {
         if (delivery.getAssessmentGrading() != null &&
-            delivery.getAssessmentGrading().getAttemptDate() != null)
-        {
-          delivery.setBeginTime(delivery.getAssessmentGrading()
-                                .getAttemptDate());
+            delivery.getAssessmentGrading().getAttemptDate() != null) {
+          delivery.setBeginTime(delivery.getAssessmentGrading().getAttemptDate());
           // add the following line to fix SAK-1781
           if (delivery.getAssessmentGrading().getTimeElapsed() != null){
             delivery.setTimeElapse(delivery.getAssessmentGrading()
                                 .getTimeElapsed().toString());
-    }
+          }
           else{
             delivery.setTimeElapse("0");
-    }
+          }
         }
         else
         {
@@ -457,17 +315,20 @@ public class DeliveryActionListener
   private void goToRightQuestionFromTOC(DeliveryBean delivery) throws
     NumberFormatException
   {
-    if (delivery.getSettings().isFormatByPart() ||
+    if (cu.lookupParam("partnumber") != null &&
+          !cu.lookupParam("partnumber").trim().equals(""))
+    {
+      if (delivery.getSettings().isFormatByPart() ||
         delivery.getSettings().isFormatByQuestion())
-    {
-      delivery.setPartIndex(new Integer
+      {
+        delivery.setPartIndex(new Integer
                             (cu.lookupParam("partnumber")).intValue() - 1);
-    }
-    if (delivery.getSettings().isFormatByQuestion())
-    {
-      delivery.setQuestionIndex(new Integer
+      }
+      if (delivery.getSettings().isFormatByQuestion())
+      {
+        delivery.setQuestionIndex(new Integer
           (cu.lookupParam("questionnumber")).intValue() - 1);
-
+      }
     }
   }
 
@@ -1471,7 +1332,7 @@ public class DeliveryActionListener
   public String getAgentString(){
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agentString = person.getId();
-    log.info("***agentString="+agentString);
+    //log.info("***agentString="+agentString);
     return agentString;
   }
 
@@ -1481,5 +1342,116 @@ public class DeliveryActionListener
     this.resetPageContents = resetPageContents;
     processAction(null);
   }
+
+  public String getPublishedAssessmentId(DeliveryBean delivery){
+    String id = cu.lookupParam("publishedId");
+    if (id == null){
+      id = delivery.getAssessmentId();
+    }
+    return id;
+  }
+
+  private void clearElapsedTime(DeliveryBean delivery){
+    if (!delivery.isTimeRunning()) {
+      delivery.setTimeElapse(null);
+    }
+    delivery.setTimeOutSubmission("false");
+
+    if (delivery.getTimeElapse() == null){
+      delivery.setTimeElapse("0");
+    }
+  }
+
+
+  private void setFeedbackMode(DeliveryBean delivery){
+    String showfeedbacknow = cu.lookupParam("showfeedbacknow");
+    if (showfeedbacknow != null && showfeedbacknow.equals("true")) {
+      delivery.setFeedback("true");
+    }
+    else if (delivery.getFeedbackComponent()!=null &&
+      (delivery.getFeedbackComponent().getShowImmediate() ||
+        (delivery.getFeedbackComponent().getShowDateFeedback()) &&
+         delivery.getSettings()!=null &&
+         delivery.getSettings().getFeedbackDate()!=null &&
+         delivery.getSettings().getFeedbackDate().before(new Date()))) {
+       delivery.setFeedback("true");
+    }
+    else {
+      delivery.setFeedback("false");
+    }
+    String nofeedback = cu.lookupParam("nofeedback");
+    if (nofeedback != null && nofeedback.equals("true")) {
+      delivery.setNoFeedback("true");
+    }
+    else {
+      delivery.setNoFeedback("false");
+    }
+  }
+
+  //looks like the parameter "studentid" signals that we are in the grading mode
+  private int gradeAssessment(DeliveryBean delivery, int action, String id, String agent){
+    if (cu.lookupParam("studentid") != null &&
+        !cu.lookupParam("studentid").trim().equals("")) {
+      agent = cu.lookupParam("studentid");
+      action = delivery.GRADE_ASSESSMENT;
+      if (cu.lookupParam("publishedIdd") != null) {
+        id = cu.lookupParam("publishedIdd");
+      }
+    }
+    return action;  
+  }
+
+  public int reviewAssessment(DeliveryBean delivery , int action){
+    // If this is a review, get everything submitted
+    if (cu.lookupParam("review") != null &&
+        cu.lookupParam("review").equals("true"))
+    {
+      delivery.setReviewAssessment(true); // added By Daisy for SAK-1764
+      action = delivery.REVIEW_ASSESSMENT;
+    }
+    return action;
+  }
+
+  public PublishedAssessmentFacade getPublishedAssessment(DeliveryBean delivery, String id){
+    PublishedAssessmentFacade publishedAssessment = null;
+    if (delivery.getPublishedAssessment() != null &&
+        delivery.getPublishedAssessment().getPublishedAssessmentId().toString().
+        equals(id)) {
+      publishedAssessment = delivery.getPublishedAssessment();
+    }
+    else {
+      publishedAssessment =
+        (new PublishedAssessmentService()).getPublishedAssessment(id);
+    }
+    return publishedAssessment;
+  }
+
+  public void setShowStudentScore(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
+    if (Boolean.TRUE.equals(
+        publishedAssessment.getAssessmentFeedback().getShowStudentScore())) {
+      if (delivery.getFeedbackComponent()!=null && 
+          delivery.getFeedbackComponent().getShowDateFeedback() && !delivery.getFeedbackOnDate())
+        delivery.setShowStudentScore(false);
+      else
+        delivery.setShowStudentScore(true);
+    }
+    else {
+      delivery.setShowStudentScore(false);
+    }
+  }
+
+  private void setDisplayByAssessment(DeliveryBean delivery){
+    delivery.getSettings().setFormatByAssessment(true);
+    delivery.getSettings().setFormatByPart(false);
+    delivery.getSettings().setFormatByQuestion(false);
+  }
+
+  private void setDeliverySettings(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
+    if (delivery.getSettings() == null){
+      BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
+      listener.populateBeanFromPub(delivery, publishedAssessment);
+    }
+  }
+
 
 }

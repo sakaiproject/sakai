@@ -29,12 +29,22 @@ should be included in file importing DeliveryMessages
 <h:outputText value="#{question.text}"  escape="false"/>
 
 <f:verbatim><br/></f:verbatim>
-<h:inputTextarea rows="20" cols="80" value="#{question.responseText}" disabled="#{delivery.previewMode eq 'true'}" />
+<h:inputTextarea rows="20" cols="80" value="#{question.responseText}" 
+   disabled="#{delivery.actionString=='reviewAssessment'
+            || delivery.actionString=='gradeAssessment'}" />
 
 <f:verbatim><br /></f:verbatim>
-<h:selectBooleanCheckbox value="#{question.review}" rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" id="mark_for_review" />
+<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
+   rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}" />
+
 <h:outputLabel for="mark_for_review" value="#{msg.mark}"
-  rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" />
+  rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}" />
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <f:verbatim><br /></f:verbatim>

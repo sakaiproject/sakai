@@ -41,7 +41,8 @@ resizable=no');">
 --%>
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:outputLink rendered="#{delivery.previewMode ne 'true'}"
+<h:outputLink rendered="#{delivery.actionString=='takeAssessment' 
+                       || delivery.actionString=='takeAssessmentViaUrl'}"
  value="javascript:window.open('/samigo/jsp/aam/applet/soundRecorder.jsp'
          +'?filename='+'lydiattest'+'_1.au'
          +'&amp;seconds='+'#{question.duration}'

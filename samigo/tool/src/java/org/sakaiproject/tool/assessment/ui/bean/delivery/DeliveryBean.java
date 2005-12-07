@@ -2087,6 +2087,11 @@ public class DeliveryBean
     setReviewAssessment(false);
     setNotPublished("false");
     setAccessViaUrl(false);
+    setForGrading(false);
+    // the follwoing two values will be evaluated when reviewing assessment
+    // based on PublishedFeedback settings
+    setFeedback("false"); 
+    setNoFeedback("true"); 
 
     if (("previewAssessment").equals(actionString)){
       setPreviewAssessment("true");
@@ -2094,10 +2099,12 @@ public class DeliveryBean
       setActionMode(PREVIEW_ASSESSMENT);
     }
     else if (("reviewAssessment").equals(actionString)){
-      setReviewAssessment(true);
       setActionMode(REVIEW_ASSESSMENT);
     }
     else if (("gradeAssessment").equals(actionString)){
+      setFeedback("true");
+      setNoFeedback("false");
+      setForGrading(true);
       setActionMode(GRADE_ASSESSMENT);
     }
     else if (("takeAssessment").equals(actionString)){

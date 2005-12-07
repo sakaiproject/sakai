@@ -78,13 +78,15 @@ public class BeginDeliveryActionListener implements ActionListener
     // get managed bean and set its action accordingly
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     String actionString = cu.lookupParam("actionString");
-    if (actionString != null && delivery.getActionString()==null ) { 
+    if (actionString != null) {
       // if actionString is null, likely that action & actionString has been set already, 
       // e.g. take assessment via url, actionString is set by LoginServlet.
       // preview and take assessment is set by the parameter in the jsp pages
       delivery.setActionString(actionString);
     }
     int action = delivery.getActionMode();
+    System.out.println("**** BeginDeliveryActionListener:actionString"+delivery.getActionString());
+    System.out.println("**** BeginDeliveryActionListener:action"+delivery.getActionMode());
 
     delivery.setTimeRunning(true);
 
@@ -306,9 +308,6 @@ public class BeginDeliveryActionListener implements ActionListener
     case 1: //delivery.TAKE_ASSESSMENT
     case 3: //delivery.REVIEW_ASSESSMENT
         pub = lookupPublishedAssessment(publishedId, publishedAssessmentService);
-        break;
-
-    case 4: //delivery.GRADE_ASSESSMENT
         break;
 
     default: 

@@ -33,43 +33,64 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 </p>
 <%-- NAV BAR --%>
 <p class="navIntraTool">
-  <h:panelGroup rendered="#{(delivery.feedbackComponent.showImmediate || delivery.feedbackOnDate) && delivery.previewMode ne 'true'}">
-    <h:commandLink action="takeAssessment" onmouseup="saveTime();" rendered="#{delivery.previewAssessment ne 'true'}" >
+  <h:panelGroup rendered="#{(delivery.feedbackComponent.showImmediate || delivery.feedbackOnDate) 
+                         && (delivery.actionString=='previewAssessment'
+                             || delivery.actionString=='takeAssessment'
+                             || delivery.actionString=='takeAssessmentViaUrl')}">
+
+    <h:commandLink action="takeAssessment" onmouseup="saveTime();" 
+       rendered="#{delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl'}" >
      <h:outputText value="#{msg.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener" />
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
     </h:commandLink>
-    <h:commandLink action="takeAssessment" onmouseup="saveTime();" rendered="#{delivery.previewAssessment eq 'true'}" >
+
+    <h:commandLink action="takeAssessment" onmouseup="saveTime();" 
+       rendered="#{delivery.actionString=='previewAssessment'}" >
      <h:outputText value="#{msg.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
     </h:commandLink>
 
     <h:outputText value=" | "
-      rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}"/>
+      rendered="#{(delivery.actionString=='previewAssessment'
+                   || delivery.actionString=='takeAssessment'
+                   || delivery.actionString=='takeAssessmentViaUrl')
+                && delivery.navigation ne '1'}"/>
   </h:panelGroup >
   <h:commandLink action="tableOfContents" onmouseup="saveTime();"
-    rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'&& delivery.previewAssessment ne 'true'}">
+     rendered="#{(delivery.actionString=='takeAssessment'
+                   || delivery.actionString=='takeAssessmentViaUrl')
+               && delivery.navigation ne '1'}">
     <h:outputText value="#{msg.table_of_contents}" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandLink>
  <h:commandLink action="tableOfContents" onmouseup="saveTime();"
-    rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'&& delivery.previewAssessment eq 'true'}">
+    rendered="#{delivery.actionString=='previewAssessment'
+             && delivery.navigation ne '1'}">
     <h:outputText value="#{msg.table_of_contents}" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandLink>
-  <h:commandLink action="select" rendered="#{delivery.previewMode eq 'true'}">
+  <h:commandLink action="select" 
+     rendered="#{delivery.actionString=='reviewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
     <h:outputText value="#{msg.button_return_select}" />
   </h:commandLink>
 </p>
 
 <p>
-<h:outputText rendered="#{delivery.feedbackComponent.showGraderComment && delivery.previewMode eq 'true' && delivery.graderComment ne ''}" value="<b>#{msg.comments}</b> #{delivery.graderComment}" escape="false" />
+<h:outputText rendered="#{delivery.feedbackComponent.showGraderComment 
+                       && delivery.actionString=='reviewAssessment'
+                       && delivery.graderComment ne ''}" 
+   value="<b>#{msg.comments}</b> #{delivery.graderComment}" escape="false" />
 
-<h:panelGroup rendered="#{delivery.previewMode eq 'false' && delivery.hasTimeLimit}" >
+<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
+                           || delivery.actionString=='takeAssessment'
+                           || delivery.actionString=='takeAssessmentViaUrl')
+                        && delivery.hasTimeLimit}" >
 <f:verbatim><span id="remText"></f:verbatim><h:outputText value="Time Remaining: "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 

@@ -38,15 +38,24 @@ should be included in file importing DeliveryMessages
         alt="#{msg.correct}" url="/images/checkmark.gif">
       </h:graphicImage>
       <h:inputText size="10" rendered="#{answer.hasInput}"
-         disabled="#{delivery.previewMode eq 'true'}"
+         disabled="#{delivery.actionString=='previewAssessment' 
+                  || delivery.actionString=='reviewAssessment'
+                  || delivery.actionString=='gradeAssessment'}"
          value="#{answer.response}" onkeypress="return noenter()"/>
   </h:column>
 </samigo:dataLine>
 
 <f:verbatim><br /></f:verbatim>
-<h:selectBooleanCheckbox value="#{question.review}" rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" id="mark_for_review" />
+<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
+   rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment' 
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}" />
 <h:outputLabel for="mark_for_review" value="#{msg.mark}"
-  rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}"/>
+   rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment' 
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}"/>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <f:verbatim><br /></f:verbatim>

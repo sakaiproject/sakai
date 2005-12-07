@@ -44,7 +44,9 @@ should be included in file importing DeliveryMessages
      </h:dataTable>
    </h:column>
    <h:column>
-      <h:selectOneRadio id="question" value="#{question.responseId}" layout="pagedirection" disabled="#{delivery.previewMode eq 'true'}" >
+      <h:selectOneRadio id="question" value="#{question.responseId}" layout="pagedirection" 
+        disabled="#{delivery.actionString=='reviewAssessment'
+                 || delivery.actionString=='gradeAssessment'}" >
         <f:selectItems value="#{question.answers}" />
       </h:selectOneRadio>
    </h:column>
@@ -54,12 +56,21 @@ should be included in file importing DeliveryMessages
     <f:verbatim><br /></f:verbatim>
     <h:outputLabel for="rationale" value="#{msg.rationale}" />
     <f:verbatim><br /></f:verbatim>
-    <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" disabled="#{delivery.previewMode eq 'true'}" />
+    <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
+        disabled="#{delivery.actionString=='reviewAssessment'
+                 || delivery.actionString=='gradeAssessment'}" />
   </h:panelGroup>
 
-<h:selectBooleanCheckbox value="#{question.review}" rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" id="mark_for_review" />
+<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
+   rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment' 
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}" />
 <h:outputLabel for="mark_for_review" value="#{msg.mark}"
-  rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" />
+  rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}" />
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
 

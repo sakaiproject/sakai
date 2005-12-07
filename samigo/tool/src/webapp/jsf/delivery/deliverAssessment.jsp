@@ -199,67 +199,84 @@ function saveTime()
 
   <h:commandButton type="submit" value="#{msg.save_and_continue}"
     action="#{delivery.next_page}" styleClass="active"
-    rendered="#{delivery.previewMode ne 'true' && delivery.continue}">
-  </h:commandButton>
+    rendered="#{(delivery.actionString=='previewAssessment'
+                 || delivery.actionString=='takeAssessment' 
+                 || delivery.actionString=='takeAssessmentViaUrl')
+              && delivery.continue}"/>
 
   <h:commandButton type="submit" value="#{msg.button_submit_grading}"
     action="#{delivery.submitForGrade}" styleClass="active"
-    rendered="#{!delivery.accessViaUrl && delivery.previewAssessment ne 'true' && delivery.previewMode ne 'true' && delivery.navigation ne '1' && !delivery.continue}">
- </h:commandButton>
+    rendered="#{delivery.actionString=='takeAssessment'
+             && delivery.navigation ne '1' 
+             && !delivery.continue}"/>
 
+<!--
  <h:commandButton type="submit" value="#{msg.save_and_continue}"
     action="tableOfContents" styleClass="active"
-    rendered="#{delivery.previewAssessment eq 'true' && delivery.previewMode ne 'true' && delivery.navigation ne '1' && !delivery.continue}">
+    rendered="#{(delivery.actionString=='previewAssessment'
+                 || delivery.actionString=='takeAssessment'
+                 || delivery.actionString=='takeAssessmentViaUrl')
+              && delivery.navigation ne '1' && !delivery.continue}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
  </h:commandButton>
-
+-->
   <h:commandButton type="submit" value="#{msg.previous}"
     action="#{delivery.previous}"
-    rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1' && delivery.previous}">
-  </h:commandButton>
+    rendered="#{(delivery.actionString=='previewAssessment'
+                 || delivery.actionString=='takeAssessment'
+                 || delivery.actionString=='takeAssessmentViaUrl')
+              && delivery.navigation ne '1' && delivery.previous}" />
 
   <!-- check for submit for grade permission to determine if button can be displayed -->
 
-  <h:panelGroup rendered="#{delivery.accessViaUrl or (authorization!=null && authorization.takeAssessment && authorization.submitAssessmentForGrade)}">
+  <h:panelGroup rendered="#{delivery.actionString=='takeAssessmentViaUrl' 
+                        || (authorization!=null && authorization.takeAssessment 
+                            && authorization.submitAssessmentForGrade)}">
     <h:commandButton type="submit" value="#{msg.button_submit_grading}"
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
-      rendered="#{!delivery.accessViaUrl && delivery.previewMode ne 'true' && delivery.navigation eq '1' && !delivery.continue}" disabled="#{delivery.previewAssessment eq 'true'}"
-      onclick="pauseTiming='true'">
-    </h:commandButton>
+      rendered="#{(delivery.actionString=='takeAssessment'
+                   || delivery.actionString=='takeAssessmentViaUrl')
+                && delivery.navigation eq '1' && !delivery.continue}" 
+      disabled="#{delivery.actionString=='previewAssessment'}"
+      onclick="pauseTiming='true'"/>
   </h:panelGroup>
 
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
-    rendered="#{delivery.accessViaUrl}"
-    onclick="pauseTiming='true'">
-  </h:commandButton>
-
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
+    onclick="pauseTiming='true'"/>
 
   <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
-    rendered="#{delivery.previewMode ne 'true' && (delivery.navigation ne '1'&& delivery.continue) && !delivery.accessViaUrl}"  onclick="pauseTiming='true'" disabled="#{delivery.previewAssessment eq 'true'}">
-  </h:commandButton>
+    rendered="#{(delivery.actionString=='previewAssessment'  
+                 || delivery.actionString=='takeAssessment')
+              && delivery.navigation ne '1' && delivery.continue}"  
+    onclick="pauseTiming='true'" 
+    disabled="#{delivery.actionString=='previewAssessment'}" />
 
   <h:commandButton type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
-    rendered="#{delivery.previewMode ne 'true' && delivery.accessViaUrl}" onclick="pauseTiming='true'" disabled="#{delivery.previewAssessment eq 'true'}">
-  </h:commandButton>
+    rendered="#{(delivery.actionString=='takeAssessmentViaUrl')}"
+    onclick="pauseTiming='true'" /> 
 
 <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
-    rendered="#{delivery.previewMode ne 'true' && (delivery.navigation eq '1'||!delivery.continue) && !delivery.accessViaUrl}" disabled="#{delivery.previewAssessment eq 'true'}">
-  </h:commandButton>
+    rendered="#{delivery.actionString=='takeAssessment'
+            && (delivery.navigation eq '1'|| ! delivery.continue)}"
+    disabled="#{delivery.actionString=='previewAssessment'}"/>
 
 </p>
 
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished ne 'true'}">
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
+                       && delivery.notPublished ne 'true'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' && delivery.notPublished eq 'true'}">
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'
+                       && delivery.notPublished eq 'true'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment">

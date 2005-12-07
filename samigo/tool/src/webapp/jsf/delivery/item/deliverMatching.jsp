@@ -47,7 +47,9 @@ should be included in file importing DeliveryMessages
    </h:column>
    <h:column>
     <h:selectOneMenu value="#{matching.response}"
-      disabled="#{delivery.previewMode eq 'true'}" >
+      disabled="#{delivery.actionString=='previewAssessment'
+               || delivery.actionString=='reviewAssessment'
+               || delivery.actionString=='gradeAssessment'}">
         <f:selectItems value="#{matching.choices}" />
     </h:selectOneMenu>
    </h:column>
@@ -63,8 +65,16 @@ should be included in file importing DeliveryMessages
   </h:dataTable>
 
 <f:verbatim><br /></f:verbatim>
-<h:selectBooleanCheckbox value="#{question.review}" rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" id="mark_for_review" />
-<h:outputLabel for="mark_for_review" rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" value="#{msg.mark}" />
+<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
+   rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}" />
+<h:outputLabel for="mark_for_review" value="#{msg.mark}"
+  rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}" />
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <f:verbatim><br /></f:verbatim>

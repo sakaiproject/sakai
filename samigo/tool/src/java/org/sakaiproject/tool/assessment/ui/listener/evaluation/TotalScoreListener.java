@@ -58,12 +58,13 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
-import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -104,6 +105,7 @@ public class TotalScoreListener
 
     log.info("TotalScore LISTENER.");
 
+    DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
     bean.setAllSubmissions(TotalScoresBean.ALL_SUBMISSIONS);    // reset to All-submissions if coming from authorIndex 
 
@@ -122,6 +124,9 @@ public class TotalScoreListener
       author.setOutcome("author");
       return;
     }
+
+    // set action mode
+    delivery.setActionString("gradeAssessment");
 
     log.info("Calling totalScores.");
     if (!totalScores(pubAssessment, bean, false))

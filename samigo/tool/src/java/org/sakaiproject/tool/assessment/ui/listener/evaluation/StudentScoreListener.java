@@ -100,7 +100,8 @@ public class StudentScoreListener
       bean.setItemId(cu.lookupParam("itemId"));
 
       DeliveryBean dbean = (DeliveryBean) cu.lookupBean("delivery");
-      dbean.setForGrading(true);
+      dbean.setActionString("gradeAssessment");
+      //dbean.setForGrading(true);
 
       GradingService service = new GradingService();
       AssessmentGradingData adata= (AssessmentGradingData) service.load(bean.getAssessmentGradingId());
@@ -111,7 +112,7 @@ public class StudentScoreListener
       if (adata.getComments() != null)
           bean.setComments(adata.getComments());
 
-      dbean.setForGrading(false);
+      //dbean.setForGrading(false);
       return true;
     } catch (Exception e) {
       e.printStackTrace();

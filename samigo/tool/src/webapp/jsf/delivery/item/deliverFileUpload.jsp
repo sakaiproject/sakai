@@ -28,7 +28,8 @@ should be included in file importing DeliveryMessages
 --%>
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:panelGroup rendered="#{delivery.previewAssessment ne 'true' and !delivery.reviewAssessment}">
+<h:panelGroup rendered="#{delivery.actionString=='takeAssessment' 
+                       || delivery.actionString=='takeAssessmentViaUrl'}">
   <h:messages id="file_upload_error" layout="table" style="color:red"/>
   <h:outputText value="#{msg.file}" />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
@@ -42,7 +43,9 @@ should be included in file importing DeliveryMessages
   <h:commandButton value="Upload" action="submit"/>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.previewAssessment eq 'true' or delivery.reviewAssessment}">
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
+                       || delivery.actionString=='reviewAssessment' 
+                       || delivery.actionString=='gradeAssessment'}">
   <h:outputText value="#{msg.file}" />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
   <!-- For ItemGradingData, it is very important that target must be in this format: -->
@@ -73,7 +76,8 @@ should be included in file importing DeliveryMessages
          </h:outputText>
          <h:outputText value=")"/>
         </h:column>
-        <h:column rendered="#{delivery.previewAssessment != 'true' && !delivery.reviewAssessment}">
+        <h:column rendered="#{delivery.actionString=='takeAssessment' 
+                           || delivery.actionString=='takeAssessmentViaUrl'}">
           <h:commandLink action="confirmRemoveMedia" immediate="true">
             <h:outputText value="#{msg.remove}" />
             <f:param name="mediaId" value="#{media.mediaId}"/>
@@ -85,9 +89,12 @@ should be included in file importing DeliveryMessages
       </h:dataTable>
 </h:panelGroup>
 
-<h:selectBooleanCheckbox value="#{question.review}" rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" id="mark_for_review" />
+<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" 
+   rendered="#{delivery.actionString=='takeAssessment'
+            || delivery.actionString=='takeAssessmentViaUrl'}" />
 <h:outputLabel for="mark_for_review" value="#{msg.mark}"
-  rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" />
+  rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
+            && delivery.navigation ne '1'}" />
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">

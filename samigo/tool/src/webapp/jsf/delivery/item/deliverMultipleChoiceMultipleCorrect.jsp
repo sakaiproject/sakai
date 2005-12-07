@@ -41,7 +41,8 @@ should be included in file importing DeliveryMessages
     </h:column>
     <h:column>
      <h:selectBooleanCheckbox value="#{selection.response}"
-       disabled="#{delivery.previewMode eq 'true'}" />
+        disabled="#{delivery.actionString=='reviewAssessment'
+                 || delivery.actionString=='gradeAssessment'}" />
      <h:outputText value=" #{selection.answer.label}" escape="false" />
      <h:outputText value="." rendered="#{selection.answer.label ne ''}" />
      <h:outputText value=" #{selection.answer.text}" escape="false" />
@@ -60,13 +61,22 @@ should be included in file importing DeliveryMessages
     <f:verbatim><br /></f:verbatim>
     <h:outputLabel for="rationale" value="#{msg.rationale}" />
     <f:verbatim><br /></f:verbatim>
-    <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" disabled="#{delivery.previewMode eq 'true'}" />
+    <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
+       disabled="#{delivery.actionString=='reviewAssessment'
+                || delivery.actionString=='gradeAssessment'}" />
   </h:panelGroup>
 
 <f:verbatim><br /></f:verbatim>
-<h:selectBooleanCheckbox value="#{question.review}" rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" id="mark_for_review" />
+<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
+   rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}" />
 <h:outputLabel for="mark_for_review" value="#{msg.mark}"
-  rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}" />
+  rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}" />
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <f:verbatim><br /></f:verbatim>
