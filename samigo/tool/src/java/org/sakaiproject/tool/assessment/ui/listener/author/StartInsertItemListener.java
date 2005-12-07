@@ -31,6 +31,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UISelectOne;
+import java.util.List;
+import javax.faces.component.UISelectItem;
+import javax.faces.component.UISelectItems;
 
 /**
  * <p>Title: Samigo</p>
@@ -64,9 +69,49 @@ public class StartInsertItemListener implements ValueChangeListener
     // only set itemtype when the value has indeed changed.
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
       String[] strArray = selectedvalue.split(",");
-      newitemtype = strArray[0].trim();
-      insertToSection = strArray[1].trim();
-      insertItemPosition= strArray[2].trim();
+
+      try
+      {
+        newitemtype = strArray[0].trim();
+        ///////// SAK-3114: ///////////////////////////////////////////
+        // note: you must include at least one selectItem in the form
+        // type#,p#,q#
+        // the rest, in a selectItems will get the p#,q# added in.
+        ///////////////////////////////////////////////////////////////
+        if (strArray.length < 2)
+        {
+          UISelectOne comp = (UISelectOne) ae.getComponent();
+          List children = comp.getChildren();
+          // right now there are two kids selectItems & selectItem
+          // we use loop to keep this flexible
+          for (int i = 0; i < children.size(); i++) {
+
+            if (children.get(i) instanceof UISelectItem)
+            {
+              UISelectItem selectItem = (UISelectItem) children.get(i);
+              log.info("***" + i + "***");
+              log.info("selectItem.getItemValue()="+selectItem.getItemValue());
+              String itemValue =  (String) selectItem.getItemValue();
+              String[] insertArray = itemValue.split(",");
+              // add in p#,q#
+              insertToSection = insertArray[1].trim();
+              insertItemPosition = insertArray[2].trim();
+              break;
+            }
+          }
+        }
+        else
+        {
+          insertToSection = strArray[1].trim();
+          insertItemPosition = strArray[2].trim();
+        }
+      }
+      catch (Exception ex)
+      {
+        log.warn("unable to process value change: " + ex);
+        ex.printStackTrace();
+        return;
+      }
       itemauthorbean.setItemType(newitemtype);
       itemauthorbean.setInsertToSection(insertToSection);
       itemauthorbean.setInsertPosition(insertItemPosition);
