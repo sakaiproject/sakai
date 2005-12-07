@@ -166,7 +166,7 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     delivery.setCreatorName(pubAssessment.getCreatedBy());
     delivery.setSubmitted(false);
     delivery.setGraded(false);
-    delivery.setPreviewMode(false);
+    //delivery.setPreviewMode(false);
     delivery.setFeedbackOnDate(false);
 
     // initialize current position in taking assessment to start

@@ -135,7 +135,6 @@ public class DeliveryBean
   private int timeLimit_hour;
   private int timeLimit_minute;
   private ContentsDeliveryBean tableOfContents;
-  private String previewMode;
   private String previewAssessment;
   private String submissionId;
   private String submissionMessage;
@@ -1125,26 +1124,6 @@ public class DeliveryBean
   public void setPageContents(ContentsDeliveryBean pageContents)
   {
     this.pageContents = pageContents;
-  }
-
-  /**
-   * track whether delivery is "live" with update of database allowed and
-   * whether the Ui components are disabled.
-   * @return true if preview only
-   */
-  public String getPreviewMode()
-  {
-    return Validator.check(previewMode, "false");
-  }
-
-  /**
-   * track whether delivery is "live" with update of database allowed and
-   * whether the UI components are disabled.
-   * @param previewMode true if preview only
-   */
-  public void setPreviewMode(boolean previewMode)
-  {
-    this.previewMode = new Boolean(previewMode).toString();
   }
 
   public String getPreviewAssessment()

@@ -90,9 +90,7 @@ public class ReviewActionListener implements ActionListener
       {
         DeliveryActionListener listener = new DeliveryActionListener();
         delivery.setPageContents(listener.getPageContents(publishedAssessment, delivery, itemData));
-    }
-
-        delivery.setPreviewMode(true);
+      }
 
       Iterator iter = delivery.getPageContents().getPartsContents().iterator();
       while (iter.hasNext()) {
