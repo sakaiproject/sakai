@@ -110,5 +110,7 @@ public interface DiscussionForumManager
    */
   DiscussionTopic createTopic();
 
- 
+  void saveForum(DiscussionForum forum);
+  
+  void saveTopic(DiscussionTopic topic);
 }

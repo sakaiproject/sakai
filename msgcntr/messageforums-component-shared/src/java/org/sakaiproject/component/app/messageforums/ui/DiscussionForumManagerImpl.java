@@ -375,9 +375,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     this.forumManager = forumManager;
   }
 
-  /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#createForum()
-   */
   public DiscussionForum createForum()
   {
     LOG.debug("createForum()");
@@ -386,7 +383,20 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   public DiscussionTopic createTopic()
   {
+    LOG.debug("createTopic()");
     return forumManager.createDiscussionForumTopic();
   }
- 
+
+  public void saveForum(DiscussionForum forum)
+  {
+    LOG.debug("saveForum()");
+    forumManager.saveDiscussionForum(forum);
+  }
+
+  public void saveTopic(DiscussionTopic topic)
+  {
+    LOG.debug("saveTopic()");
+    forumManager.saveDiscussionForumTopic(topic);
+  }
+  
 }

@@ -270,7 +270,7 @@ public class DiscussionForumTool
    */
   public String processActionSaveForumSettings()
   {
-    LOG.debug("processActionSaveForumAsDraft()");
+    LOG.debug("processActionSaveForumSettings()");
     return MAIN;
   }
 
