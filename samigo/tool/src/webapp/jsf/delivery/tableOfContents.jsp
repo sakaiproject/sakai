@@ -41,7 +41,8 @@
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
     </head>
     <body onload="hideUnhideAllDivsExceptFirst('none');;<%= request.getAttribute("html.body.onload") %>">
- <h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}'>" escape="false"/>
+<div class="portletBody">
+ <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}'>" escape="false"/-->
 
 <!-- content... -->
 <script language="javascript">

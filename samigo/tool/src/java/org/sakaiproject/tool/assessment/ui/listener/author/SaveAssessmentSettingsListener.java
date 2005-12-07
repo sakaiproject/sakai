@@ -108,6 +108,30 @@ public class SaveAssessmentSettingsListener
         error=true;
     }
 
+    Object userName=assessmentSettings.getValueMap().get("hasUsernamePassword");
+    boolean hasUserName=false;
+    try
+    {
+      if (userName != null)
+      {
+	  hasUserName = ( (Boolean) userName).booleanValue();
+      }
+    }
+    catch (Exception ex)
+    {
+      // keep default
+      log.warn("Expecting Boolean hasUswerNamePassword, got: " + userName);
+
+    }
+
+    if((hasUserName) &&((assessmentSettings.getUsername().trim()).equals(""))){
+	String userName_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","userName_error");
+	context.addMessage(null,new FacesMessage(userName_err));
+        error=true;
+    }
+    
+   
+
     if (error){
       assessmentSettings.setOutcomeSave("editAssessmentSettings");
       return;
