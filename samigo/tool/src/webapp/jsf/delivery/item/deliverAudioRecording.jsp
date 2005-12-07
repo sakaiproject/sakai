@@ -66,9 +66,12 @@ resizable=no');">
 
 
 <f:verbatim><br /></f:verbatim>
-<h:selectBooleanCheckbox value="#{question.review}" rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1' }" id="mark_for_review" />
+<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
+   rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
+            && delivery.navigation ne '1' }" />
 <h:outputLabel for="mark_for_review" value="#{msg.mark}"
-  rendered="#{delivery.previewMode ne 'true' && delivery.navigation ne '1'}"/>
+  rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
+            && delivery.navigation ne '1'}" />
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
