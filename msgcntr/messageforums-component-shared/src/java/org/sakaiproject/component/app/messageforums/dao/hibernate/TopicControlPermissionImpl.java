@@ -21,55 +21,61 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.api.app.messageforums;
+package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-public interface ControlPermissions {
+import org.sakaiproject.api.app.messageforums.TopicControlPermission;
 
-    public Long getId();
 
-    public void setId(Long id);
+public class TopicControlPermissionImpl implements TopicControlPermission {
 
-    public Integer getVersion();
+    private String role;
 
-    public void setVersion(Integer version);
+    private Boolean newResponse;
 
-    public Boolean getChangeSettings();
+    private Boolean responseToResponse;
 
-    public void setChangeSettings(Boolean changeSettings);
+    private Boolean movePostings;
 
-    public Boolean getMovePostings();
+    private Boolean changeSettings;
 
-    public void setMovePostings(Boolean movePostings);
+    public Boolean getChangeSettings() {
+        return changeSettings;
+    }
 
-    public Boolean getNewResponse();
+    public void setChangeSettings(Boolean changeSettings) {
+        this.changeSettings = changeSettings;
+    }
 
-    public void setNewResponse(Boolean newResponse);
+    public Boolean getMovePostings() {
+        return movePostings;
+    }
 
-    public Boolean getNewTopic();
+    public void setMovePostings(Boolean movePostings) {
+        this.movePostings = movePostings;
+    }
 
-    public void setNewTopic(Boolean newTopic);
+    public Boolean getNewResponse() {
+        return newResponse;
+    }
 
-    public Boolean getResponseToResponse();
+    public void setNewResponse(Boolean newResponse) {
+        this.newResponse = newResponse;
+    }
 
-    public void setResponseToResponse(Boolean responseToResponse);
+    public Boolean getResponseToResponse() {
+        return responseToResponse;
+    }
 
-    public String getRole();
+    public void setResponseToResponse(Boolean responseToResponse) {
+        this.responseToResponse = responseToResponse;
+    }
 
-    public void setRole(String role);
+    public String getRole() {
+        return role;
+    }
 
-    public Boolean getNewForum();
-    
-    public void setNewForum(Boolean newForum);
+    public void setRole(String role) {
+        this.role = role;
+    }
 
-    public Area getArea();
-    
-    public void setArea(Area area);
-    
-    public BaseForum getForum();
-    
-    public void setForum(BaseForum forum);
-    
-    public Topic getTopic();
-    
-    public void setTopic(Topic topic);
 }

@@ -41,23 +41,27 @@
     <property name="enabled">
       <column name="ENABLED" not-null="true" />
     </property>
-    <many-to-one name="controlPermissions" column="CONTROL_PERMISSIONS"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl"
-      not-null="false" cascade="none" />
+	<list name="controlPermissions" lazy="true" table="MFR_CONTROL_PERMISSIONS_T" cascade="all">
+	    <key column="areaSurrogateKey"/>
+	    <index column="area_cp_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl" />
+	</list>       
+	<!-- 
     <many-to-one name="messagePermissions" column="MESSAGE_PERMISSIONS"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl"
       not-null="false" cascade="none" />
-   	<list name="openForums" lazy="true" table="MFR_OPEN_FORUM_T" cascade="all">
+    -->
+   	<list name="openForums" lazy="false" table="MFR_OPEN_FORUM_T" cascade="all">
 	    <key column="surrogateKey"/>
 	    <index column="area_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl" />
 	</list>
-	<list name="privateForums" lazy="true" table="MFR_PRIVATE_FORUM_T" cascade="all">
+	<list name="privateForums" lazy="false" table="MFR_PRIVATE_FORUM_T" cascade="all">
 	    <key column="surrogateKey"/>
 	    <index column="area_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl" />
 	</list>
-	<list name="discussionForums" lazy="true" table="MFR_DISCUSSION_FORUM_T" cascade="all">
+	<list name="discussionForums" lazy="false" table="MFR_DISCUSSION_FORUM_T" cascade="all">
 	    <key column="surrogateKey"/>
 	    <index column="area_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl" />

@@ -23,15 +23,7 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-public interface ControlPermissions {
-
-    public Long getId();
-
-    public void setId(Long id);
-
-    public Integer getVersion();
-
-    public void setVersion(Integer version);
+public interface TopicControlPermission {
 
     public Boolean getChangeSettings();
 
@@ -45,10 +37,6 @@ public interface ControlPermissions {
 
     public void setNewResponse(Boolean newResponse);
 
-    public Boolean getNewTopic();
-
-    public void setNewTopic(Boolean newTopic);
-
     public Boolean getResponseToResponse();
 
     public void setResponseToResponse(Boolean responseToResponse);
@@ -57,19 +45,4 @@ public interface ControlPermissions {
 
     public void setRole(String role);
 
-    public Boolean getNewForum();
-    
-    public void setNewForum(Boolean newForum);
-
-    public Area getArea();
-    
-    public void setArea(Area area);
-    
-    public BaseForum getForum();
-    
-    public void setForum(BaseForum forum);
-    
-    public Topic getTopic();
-    
-    public void setTopic(Topic topic);
 }

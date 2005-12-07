@@ -25,60 +25,59 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.List;
 
-public interface Area extends MutableEntity
-{
- 
-  public void setVersion(Integer version);
+public interface Area extends MutableEntity {
 
-  public String getContextId();
+    public void setVersion(Integer version);
 
-  public void setContextId(String contextId);
+    public String getContextId();
 
-  public Boolean getHidden();
+    public void setContextId(String contextId);
 
-  public void setHidden(Boolean hidden);
+    public Boolean getHidden();
 
-  public String getName();
+    public void setHidden(Boolean hidden);
 
-  public void setName(String name); 
-  
-  public Boolean getEnabled();
+    public String getName();
 
-  public void setEnabled(Boolean enabled);
-  
-  public ControlPermissions getControlPermissions();
+    public void setName(String name);
 
-  public void setControlPermissions(ControlPermissions controlPermissions);
+    public Boolean getEnabled();
 
-  public MessagePermissions getMessagePermissions();
+    public void setEnabled(Boolean enabled);
 
-  public void setMessagePermissions(MessagePermissions messagePermissions);
+    public List getOpenForums();
 
-  
-  public List getOpenForums();
-  public void setOpenForums(List openForums);
-  public List getPrivateForums();
-  public void setPrivateForums(List discussionForums);
-  public List getDiscussionForums();
-  public void setDiscussionForums(List discussionForums);
+    public void setOpenForums(List openForums);
 
-  
-  /**
-   * Get type of Area
-   * @return
-   */
-  public String getTypeUuid();
-  
-  /** 
-   * Set type of area
-   */   
-  public void setTypeUuid(String typeUuid);
-  
-  public void addPrivateForum(BaseForum forum);
-  public void removePrivateForum(BaseForum forum);
-  public void addDiscussionForum(BaseForum forum);
-  public void removeDiscussionForum(BaseForum forum);
-  public void addOpenForum(BaseForum forum);
-  public void removeOpenForum(BaseForum forum); 
-  
+    public List getPrivateForums();
+
+    public void setPrivateForums(List discussionForums);
+
+    public List getDiscussionForums();
+
+    public void setDiscussionForums(List discussionForums);
+
+    public String getTypeUuid();
+
+    public void setTypeUuid(String typeUuid);
+
+    public void addPrivateForum(BaseForum forum);
+
+    public void removePrivateForum(BaseForum forum);
+
+    public void addDiscussionForum(BaseForum forum);
+
+    public void removeDiscussionForum(BaseForum forum);
+
+    public void addOpenForum(BaseForum forum);
+
+    public void removeOpenForum(BaseForum forum);
+
+    public void addControlPermission(ControlPermissions permissions);
+
+    public void removeControlPermission(ControlPermissions permissions);
+
+    public List getControlPermissions();
+    
+    public void setControlPermissions(List controlPermissions);
 }

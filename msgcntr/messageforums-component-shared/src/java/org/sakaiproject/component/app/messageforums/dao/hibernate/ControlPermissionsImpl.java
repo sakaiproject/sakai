@@ -25,7 +25,10 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.ControlPermissions;
+import org.sakaiproject.api.app.messageforums.Topic;
 
 public class ControlPermissionsImpl implements ControlPermissions {
 
@@ -39,6 +42,14 @@ public class ControlPermissionsImpl implements ControlPermissions {
     private Boolean movePostings;
     private Boolean changeSettings;
 
+    private Area area;
+    private BaseForum forum;
+    private Topic topic;
+
+    private int areaindex;
+    private int forumindex;
+    private int topicindex;
+    
     private Long id;
     private Integer version; 
 
@@ -112,6 +123,66 @@ public class ControlPermissionsImpl implements ControlPermissions {
 
     public void setNewForum(Boolean newForum) {
         this.newForum = newForum;
+    }
+
+    public Area getArea() {
+        return area;
+    }
+
+    public void setArea(Area area) {
+        this.area = area;
+    }
+
+    public BaseForum getForum() {
+        return forum;
+    }
+
+    public void setForum(BaseForum forum) {
+        this.forum = forum;
+    }
+
+    public Topic getTopic() {
+        return topic;
+    }
+
+    public void setTopic(Topic topic) {
+        this.topic = topic;
+    }
+    
+    public int getAreaindex() {
+        try {
+            return getArea().getOpenForums().indexOf(this);
+        } catch (Exception e) {
+            return areaindex;
+        }
+    }
+
+    public void setAreaindex(int areaindex) {
+        this.areaindex = areaindex;
+    }
+    
+    public int getForumindex() {
+        try {
+            return getForum().getTopics().indexOf(this);
+        } catch (Exception e) {
+            return forumindex;
+        }
+    }
+
+    public void setForumindex(int forumindex) {
+        this.forumindex = forumindex;
+    }
+    
+    public int getTopicindex() {
+        try {
+            return getTopic().getMessages().indexOf(this);
+        } catch (Exception e) {
+            return topicindex;
+        }
+    }
+
+    public void setTopicindex(int topicindex) {
+        this.topicindex = topicindex;
     }
         
 }
