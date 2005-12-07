@@ -130,7 +130,29 @@ public class SaveAssessmentSettingsListener
         error=true;
     }
     
-   
+   // check ip address not empty if only allow specific IP addresses
+    Object ip=assessmentSettings.getValueMap().get("hasSpecificIP");
+    boolean hasIp=false;
+    try
+    {
+      if (ip != null)
+      {
+	  hasIp = ( (Boolean) ip).booleanValue();
+      }
+    }
+    catch (Exception ex)
+    {
+      // keep default
+      log.warn("Expecting Boolean hasSpecificIP, got: " + ip);
+
+    }
+
+    if((hasIp) &&((assessmentSettings.getIpAddresses().trim()).equals(""))){
+	String ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
+	context.addMessage(null,new FacesMessage(ip_err));
+        error=true;
+
+    }
 
     if (error){
       assessmentSettings.setOutcomeSave("editAssessmentSettings");

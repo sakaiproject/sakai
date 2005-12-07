@@ -108,7 +108,8 @@ public class ConfirmPublishAssessmentListener
       context.addMessage(null,new FacesMessage(time_err));
       error=true;
     }
-     
+
+    // check username not empty if Secondary ID and Password is checked
     Object userName=assessmentSettings.getValueMap().get("hasUsernamePassword");
     boolean hasUserName=false;
     try
@@ -131,6 +132,31 @@ public class ConfirmPublishAssessmentListener
         error=true;
 
     }
+
+  // check ip address not empty if allow specific IP addresses
+    Object ip=assessmentSettings.getValueMap().get("hasSpecificIP");
+    boolean hasIp=false;
+    try
+    {
+      if (ip != null)
+      {
+	  hasIp = ( (Boolean) ip).booleanValue();
+      }
+    }
+    catch (Exception ex)
+    {
+      // keep default
+      log.warn("Expecting Boolean hasSpecificIP, got: " + ip);
+
+    }
+
+    if((hasIp) &&((assessmentSettings.getIpAddresses().trim()).equals(""))){
+	String ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
+	context.addMessage(null,new FacesMessage(ip_err));
+        error=true;
+
+    }
+
 
    
     if (error){
