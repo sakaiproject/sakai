@@ -179,6 +179,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return (DiscussionForum) forumManager.getForumById(forumId);
   }
 
+  public DiscussionForum getForumByUuid(String forumId)
+  {
+    return (DiscussionForum) forumManager.getForumByUuid(forumId);
+  }
+
+  
   /*
    * (non-Javadoc)
    * 
@@ -390,13 +396,20 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   public void saveForum(DiscussionForum forum)
   {
     LOG.debug("saveForum()");
+    Area area = getDiscussionForumArea();
+    forum.setArea(area);    
+    area.addDiscussionForum(forum);
     forumManager.saveDiscussionForum(forum);
+    areaManager.saveArea(area);
   }
 
   public void saveTopic(DiscussionTopic topic)
   {
     LOG.debug("saveTopic()");
+    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+    forum.addTopic(topic);
     forumManager.saveDiscussionForumTopic(topic);
+    forumManager.saveDiscussionForum(forum);
   }
   
 }

@@ -51,7 +51,7 @@
 				<h:panelGroup><h:outputLabel id="outputLabel4" for="topic_reading"  value="Users must post a response before reading others"/>	</h:panelGroup>
 				<h:panelGroup>
 					<h:selectOneRadio layout="pageDirection"  id="topic_reading"  value="true">
-    					<f:selectItem itemValue="true" itemLabel="Yes"/>
+    					<f:selectItem itemValue="false" itemLabel="Yes"/>
     					<f:selectItem itemValue="false" itemLabel="No"/>
   					</h:selectOneRadio>
 				</h:panelGroup>

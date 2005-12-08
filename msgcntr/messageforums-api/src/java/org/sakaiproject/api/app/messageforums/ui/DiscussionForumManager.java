@@ -58,7 +58,8 @@ public interface DiscussionForumManager
    * @param topicId
    * @return
    */
-  public DiscussionForum getForumById(String topicId);
+  public DiscussionForum getForumById(String forumId);
+  public DiscussionForum getForumByUuid(String forumId);
 
   /**
    * @param topicId

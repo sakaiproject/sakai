@@ -271,6 +271,10 @@ public class DiscussionForumTool
   public String processActionSaveForumSettings()
   {
     LOG.debug("processActionSaveForumSettings()");
+    if (selectedForum != null) {
+        DiscussionForum forum = selectedForum.getForum();
+        forumManager.saveForum(forum);
+    }
     return MAIN;
   }
 
@@ -334,6 +338,13 @@ public class DiscussionForumTool
   public String processActionSaveTopicSettings()
   {
     LOG.debug("processActionSaveTopicSettings()");
+    
+    if (selectedTopic != null) {
+        DiscussionTopic topic = (DiscussionTopic)selectedTopic.getTopic();
+        topic.setBaseForum(forumManager.getForumByUuid(selectedTopic.getParentForumId()));
+        forumManager.saveTopic(topic);
+    }    
+    
     return MAIN;
   }
 
@@ -552,7 +563,7 @@ public class DiscussionForumTool
     String forumId = getExternalParameterByKey(FORUM_ID);
     if ((forumId) != null)
     {
-      DiscussionForum forum = forumManager.getForumById(forumId);
+      DiscussionForum forum = forumManager.getForumByUuid(forumId);
       selectedForum = getDecoratedForum(forum);
       return selectedForum;
     }

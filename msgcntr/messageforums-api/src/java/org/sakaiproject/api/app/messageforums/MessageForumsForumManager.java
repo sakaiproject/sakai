@@ -37,6 +37,7 @@ public interface MessageForumsForumManager {
      * Retrieve a given forum for the current user
      */
     public BaseForum getForumById(String forumId);
+    public BaseForum getForumByUuid(String forumId);
 
     /**
      * Retrieve topics the current user's open forums

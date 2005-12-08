@@ -56,7 +56,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
 
     private static final String QUERY_BY_FORUM_ID = "findForumById";
-    private static final String QUERY_BY_TOPIC_ID = "findTopicById";
+    private static final String QUERY_BY_FORUM_UUID = "findForumByUuid";
+    private static final String QUERY_BY_TOPIC_ID = "findTopicById";    
   
     private IdManager idManager;
 
@@ -123,6 +124,24 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return (BaseForum) getHibernateTemplate().execute(hcb);
     }
 
+    public BaseForum getForumByUuid(final String forumId) {
+        if (forumId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("getForumByUuid executing with forumId: " + forumId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_BY_FORUM_UUID);
+                q.setParameter("uuid", forumId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return (BaseForum) getHibernateTemplate().execute(hcb);
+    }
+    
     public Topic getTopicById(final String topicId) {
         if (topicId == null) {
             throw new IllegalArgumentException("Null Argument");
@@ -164,6 +183,12 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a discussion forum
      */
     public void saveDiscussionForum(DiscussionForum forum) {
+        if (forum.getSortIndex() == null) {
+            forum.setSortIndex(new Integer(0));
+        }
+        if (forum.getLocked() == null) {
+            forum.setLocked(Boolean.FALSE);
+        }        
         forum.setModified(new Date());
         forum.setModifiedBy(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(forum);
@@ -184,6 +209,12 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a discussion forum topic
      */
     public void saveDiscussionForumTopic(DiscussionTopic topic) {
+        if (topic.getMutable() == null) {
+            topic.setMutable(Boolean.FALSE);
+        }
+        if (topic.getSortIndex() == null) {
+            topic.setSortIndex(new Integer(0));
+        }
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(topic);
