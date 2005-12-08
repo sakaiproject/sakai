@@ -139,11 +139,12 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return (Area) getHibernateTemplate().execute(hcb);
     }
 
+    
+    // helpers
+
     private String getNextUuid() {
         return idManager.createUuid();
     }
-    
-    // helpers
 
     private String getCurrentUser() {
         if (TestUtil.isRunningTests()) {

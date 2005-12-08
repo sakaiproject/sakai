@@ -72,4 +72,9 @@ public interface ControlPermissions {
     public Topic getTopic();
     
     public void setTopic(Topic topic);
+    
+    public Boolean getDefaultValue();
+
+    public void setDefaultValue(Boolean defaultValue);
+    
 }

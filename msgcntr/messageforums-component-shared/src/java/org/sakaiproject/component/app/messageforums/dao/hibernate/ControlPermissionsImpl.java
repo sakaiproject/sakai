@@ -41,6 +41,7 @@ public class ControlPermissionsImpl implements ControlPermissions {
     private Boolean responseToResponse;
     private Boolean movePostings;
     private Boolean changeSettings;
+    private Boolean defaultValue;
 
     private Area area;
     private BaseForum forum;
@@ -107,6 +108,14 @@ public class ControlPermissionsImpl implements ControlPermissions {
 
     public void setResponseToResponse(Boolean responseToResponse) {
         this.responseToResponse = responseToResponse;
+    }
+
+    public Boolean getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(Boolean defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     public String getRole() {

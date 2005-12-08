@@ -42,7 +42,10 @@
     <property name="changeSettings">
       <column name="CHANGE_SETTINGS" not-null="true" />
     </property>
-
+    <property name="defaultValue">
+      <column name="DEFAULT_VALUE" not-null="true" />
+    </property>
+    
     <many-to-one name="area" column="areaSurrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
       not-null="false" index="MFR_CP_PARENT_AREA_I" cascade="none" />
@@ -60,8 +63,8 @@
 
   </class>
 
-  <query name="findControlPermissionByRole">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.roleId = :roleId]]>
+  <query name="findAreaControlPermissionByRole">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionImpl cp where cp.roleId = :roleId and cp.area.id = :areaId and cp.defaultValue = :defaultValue]]>
   </query>
   
 </hibernate-mapping>

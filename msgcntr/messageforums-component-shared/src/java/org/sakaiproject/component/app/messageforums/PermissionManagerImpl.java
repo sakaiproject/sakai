@@ -23,85 +23,293 @@
 
 package org.sakaiproject.component.app.messageforums;
 
-import java.util.List;
+import java.sql.SQLException;
 
+import net.sf.hibernate.Hibernate;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.Session;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
+import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.ControlPermissions;
 import org.sakaiproject.api.app.messageforums.ForumControlPermission;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
+import org.sakaiproject.api.kernel.id.IdManager;
+import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaControlPermissionImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.ForumControlPermissionImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicControlPermissionImpl;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class PermissionManagerImpl implements PermissionManager {
+public class PermissionManagerImpl extends HibernateDaoSupport implements PermissionManager {
 
-    public AreaControlPermission getAreaControlPermissionForRole(String role) {
-        return null;
+    private static final Log LOG = LogFactory.getLog(PermissionManagerImpl.class);
+
+    private static final String QUERY_CP_BY_ROLE = "findAreaControlPermissionByRole";
+
+    private IdManager idManager;
+
+    private SessionManager sessionManager;
+
+    private MessageForumsTypeManager typeManager;
+
+    private AreaManager areaManager;
+
+    public void init() {
+        ;
     }
 
-    public List getDefaultAreaControlPermissions() {
-        return null;
+    public AreaManager getAreaManager() {
+        return areaManager;
     }
 
-    public AreaControlPermission getDefaultAreaControlPermissionForRole(String role) {
-        return null;
+    public void setAreaManager(AreaManager areaManager) {
+        this.areaManager = areaManager;
     }
 
-    public AreaControlPermission createAreaControlPermissionForRole() {
-        return null;
+    public MessageForumsTypeManager getTypeManager() {
+        return typeManager;
     }
 
-    public void saveAreaControlPermissionForRole(AreaControlPermission permission) {}
-
-    public AreaControlPermission createDefaultAreaControlPermissionForRole() {
-        return null;
+    public void setTypeManager(MessageForumsTypeManager typeManager) {
+        this.typeManager = typeManager;
     }
 
-    public void saveDefaultAreaControlPermissionForRole(AreaControlPermission permission) {}
-
-    public ForumControlPermission getForumControlPermissionForRole(String role) {
-        return null;
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 
-    public List getDefaultForumControlPermissions() {
-        return null;
+    public IdManager getIdManager() {
+        return idManager;
     }
 
-    public ForumControlPermission getDefaultForumControlPermissionForRole(String role) {
-        return null;
+    public SessionManager getSessionManager() {
+        return sessionManager;
     }
 
-    public ForumControlPermission createForumControlPermissionForRole() {
-        return null;
+    public void setIdManager(IdManager idManager) {
+        this.idManager = idManager;
     }
 
-    public void saveForumControlPermissionForRole(ForumControlPermission permission) {}
-
-    public ForumControlPermission createDefaultForumControlPermissionForRole() {
-        return null;
+    public AreaControlPermission getAreaControlPermissionForRole(String role, String typeId) {
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, false);
+        AreaControlPermission cp = new AreaControlPermissionImpl();
+        cp.setChangeSettings(permissions.getChangeSettings());
+        cp.setMovePostings(permissions.getMovePostings());
+        cp.setNewForum(permissions.getNewForum());
+        cp.setNewResponse(permissions.getNewResponse());
+        cp.setNewTopic(permissions.getNewTopic());
+        cp.setResponseToResponse(permissions.getResponseToResponse());
+        cp.setRole(role);
+        return cp;
     }
 
-    public void saveDefaultForumControlPermissionForRole(ForumControlPermission permission) {}
-
-    public TopicControlPermission getTopicControlPermissionForRole(String role) {
-        return null;
+    public AreaControlPermission getDefaultAreaControlPermissionForRole(String role, String typeId) {
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, true);
+        AreaControlPermission cp = new AreaControlPermissionImpl();
+        cp.setChangeSettings(permissions.getChangeSettings());
+        cp.setMovePostings(permissions.getMovePostings());
+        cp.setNewForum(permissions.getNewForum());
+        cp.setNewResponse(permissions.getNewResponse());
+        cp.setNewTopic(permissions.getNewTopic());
+        cp.setResponseToResponse(permissions.getResponseToResponse());
+        cp.setRole(role);
+        return cp;
     }
 
-    public List getDefaultTopicControlPermissions() {
-        return null;
+    public AreaControlPermission createAreaControlPermissionForRole(String role) {
+        AreaControlPermission permission = new AreaControlPermissionImpl();
+        permission.setRole(role);
+        return permission;
     }
 
-    public TopicControlPermission getDefaultTopicControlPermissionForRole(String role) {
-        return null;
+    public void saveAreaControlPermissionForRole(Area area, AreaControlPermission permission) {
+        ControlPermissions permissions = new ControlPermissionsImpl();
+        permissions.setArea(area);
+        permissions.setDefaultValue(Boolean.FALSE);
+        permissions.setChangeSettings(permission.getChangeSettings());
+        permissions.setMovePostings(permission.getMovePostings());
+        permissions.setNewForum(permission.getNewForum());
+        permissions.setNewResponse(permission.getNewResponse());
+        permissions.setNewTopic(permission.getNewTopic());
+        permissions.setResponseToResponse(permission.getResponseToResponse());
+        getHibernateTemplate().saveOrUpdate(permissions);                
     }
 
-    public TopicControlPermission createTopicControlPermissionForRole() {
-        return null;
+    public AreaControlPermission createDefaultAreaControlPermissionForRole(String role) {
+        AreaControlPermission permission = new AreaControlPermissionImpl();
+        permission.setRole(role);
+        return permission;
     }
 
-    public void saveTopicControlPermissionForRole(TopicControlPermission permission) {}
-
-    public TopicControlPermission createDefaultTopicControlPermissionForRole() {
-        return null;
+    public void saveDefaultAreaControlPermissionForRole(Area area, AreaControlPermission permission) {
+        ControlPermissions permissions = new ControlPermissionsImpl();
+        permissions.setArea(area);
+        permissions.setDefaultValue(Boolean.TRUE);
+        permissions.setChangeSettings(permission.getChangeSettings());
+        permissions.setMovePostings(permission.getMovePostings());
+        permissions.setNewForum(permission.getNewForum());
+        permissions.setNewResponse(permission.getNewResponse());
+        permissions.setNewTopic(permission.getNewTopic());
+        permissions.setResponseToResponse(permission.getResponseToResponse());
+        getHibernateTemplate().saveOrUpdate(permissions);        
     }
 
-    public void saveDefaultTopicControlPermissionForRole(TopicControlPermission permission) {}
+    public ForumControlPermission getForumControlPermissionForRole(String role, String typeId) {
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, false);
+        ForumControlPermission cp = new ForumControlPermissionImpl();
+        cp.setChangeSettings(permissions.getChangeSettings());
+        cp.setMovePostings(permissions.getMovePostings());
+        cp.setNewResponse(permissions.getNewResponse());
+        cp.setNewTopic(permissions.getNewTopic());
+        cp.setResponseToResponse(permissions.getResponseToResponse());
+        cp.setRole(role);
+        return cp;
+    }
+
+    public ForumControlPermission getDefaultForumControlPermissionForRole(String role, String typeId) {
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, true);
+        ForumControlPermission cp = new ForumControlPermissionImpl();
+        cp.setChangeSettings(permissions.getChangeSettings());
+        cp.setMovePostings(permissions.getMovePostings());
+        cp.setNewResponse(permissions.getNewResponse());
+        cp.setNewTopic(permissions.getNewTopic());
+        cp.setResponseToResponse(permissions.getResponseToResponse());
+        cp.setRole(role);
+        return cp;
+    }
+
+    public ForumControlPermission createForumControlPermissionForRole(String role) {
+        ForumControlPermission permission = new ForumControlPermissionImpl();
+        permission.setRole(role);
+        return permission;
+    }
+
+    public void saveForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
+        ControlPermissions permissions = new ControlPermissionsImpl();
+        permissions.setForum(forum);
+        permissions.setDefaultValue(Boolean.FALSE);
+        permissions.setChangeSettings(permission.getChangeSettings());
+        permissions.setMovePostings(permission.getMovePostings());
+        permissions.setNewForum(Boolean.FALSE);
+        permissions.setNewResponse(permission.getNewResponse());
+        permissions.setNewTopic(permission.getNewTopic());
+        permissions.setResponseToResponse(permission.getResponseToResponse());
+        getHibernateTemplate().saveOrUpdate(permissions);        
+        
+    }
+
+    public ForumControlPermission createDefaultForumControlPermissionForRole(String role) {
+        ForumControlPermission permission = new ForumControlPermissionImpl();
+        permission.setRole(role);
+        return permission;
+    }
+
+    public void saveDefaultForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
+        ControlPermissions permissions = new ControlPermissionsImpl();
+        permissions.setForum(forum);
+        permissions.setDefaultValue(Boolean.TRUE);
+        permissions.setChangeSettings(permission.getChangeSettings());
+        permissions.setMovePostings(permission.getMovePostings());
+        permissions.setNewForum(Boolean.FALSE);
+        permissions.setNewResponse(permission.getNewResponse());
+        permissions.setNewTopic(permission.getNewTopic());
+        permissions.setResponseToResponse(permission.getResponseToResponse());
+        getHibernateTemplate().saveOrUpdate(permissions);        
+    }
+
+    public TopicControlPermission getTopicControlPermissionForRole(String role, String typeId) {
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, false);
+        TopicControlPermission cp = new TopicControlPermissionImpl();
+        cp.setChangeSettings(permissions.getChangeSettings());
+        cp.setMovePostings(permissions.getMovePostings());
+        cp.setNewResponse(permissions.getNewResponse());
+        cp.setResponseToResponse(permissions.getResponseToResponse());
+        cp.setRole(role);
+        return cp;
+    }
+
+    public TopicControlPermission getDefaultTopicControlPermissionForRole(String role, String typeId) {
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, true);
+        TopicControlPermission cp = new TopicControlPermissionImpl();
+        cp.setChangeSettings(permissions.getChangeSettings());
+        cp.setMovePostings(permissions.getMovePostings());
+        cp.setNewResponse(permissions.getNewResponse());
+        cp.setResponseToResponse(permissions.getResponseToResponse());
+        cp.setRole(role);
+        return cp;
+    }
+
+    public TopicControlPermission createTopicControlPermissionForRole(String role) {
+        TopicControlPermission permission = new TopicControlPermissionImpl();
+        permission.setRole(role);
+        return permission;
+    }
+
+    public void saveTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
+        ControlPermissions permissions = new ControlPermissionsImpl();
+        permissions.setTopic(topic);
+        permissions.setDefaultValue(Boolean.FALSE);
+        permissions.setChangeSettings(permission.getChangeSettings());
+        permissions.setMovePostings(permission.getMovePostings());
+        permissions.setNewForum(Boolean.FALSE);
+        permissions.setNewResponse(permission.getNewResponse());
+        permissions.setNewTopic(Boolean.FALSE);
+        permissions.setResponseToResponse(permission.getResponseToResponse());
+        getHibernateTemplate().saveOrUpdate(permissions);
+    }
+
+    public TopicControlPermission createDefaultTopicControlPermissionForRole(String role) {
+        TopicControlPermission permission = new TopicControlPermissionImpl();
+        permission.setRole(role);
+        return permission;
+    }
+
+    public void saveDefaultTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
+        ControlPermissions permissions = new ControlPermissionsImpl();
+        permissions.setTopic(topic);
+        permissions.setDefaultValue(Boolean.TRUE);
+        permissions.setChangeSettings(permission.getChangeSettings());
+        permissions.setMovePostings(permission.getMovePostings());
+        permissions.setNewForum(Boolean.FALSE);
+        permissions.setNewResponse(permission.getNewResponse());
+        permissions.setNewTopic(Boolean.FALSE);
+        permissions.setResponseToResponse(permission.getResponseToResponse());
+        getHibernateTemplate().saveOrUpdate(permissions);
+    }
+
+    public ControlPermissions getAreaControlPermissionByRoleAndType(final String roleId, final String typeId, final boolean defaultValue) {
+        LOG.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
+        final Area area = areaManager.getAreaByContextIdAndTypeId(typeId);
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_CP_BY_ROLE);
+                q.setParameter("roleId", roleId, Hibernate.STRING);
+                q.setParameter("areaId", area.getId().toString(), Hibernate.STRING);
+                q.setParameter("defaultValue", new Boolean(defaultValue), Hibernate.BOOLEAN);
+                return q.uniqueResult();
+            }
+        };
+        return (ControlPermissions) getHibernateTemplate().execute(hcb);
+    }
+
+    // helpers
+
+    private String getCurrentUser() {
+        if (TestUtil.isRunningTests()) {
+            return "test-user";
+        }
+        return sessionManager.getCurrentSessionUserId();
+    }
 
 }

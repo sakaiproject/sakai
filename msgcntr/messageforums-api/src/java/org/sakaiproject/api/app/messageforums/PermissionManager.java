@@ -23,130 +23,116 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.List;
-
 public interface PermissionManager {
 
     /**
      * Get the area control permission for a given role.  This provides the permissions
      * that the role currently has.
      */
-    public AreaControlPermission getAreaControlPermissionForRole(String role);
-
-    /**
-     * Get the default area control permission for all roles.
-     */
-    public List getDefaultAreaControlPermissions();
+    public AreaControlPermission getAreaControlPermissionForRole(String role, String typeId);
 
     /**
      * Get the default area control permission for a given role.  This provides the 
      * permissions that the role currently has.
      */
-    public AreaControlPermission getDefaultAreaControlPermissionForRole(String role);
+    public AreaControlPermission getDefaultAreaControlPermissionForRole(String role, String typeId);
 
     /**
      * Create an empty area control permission with system properties 
      * populated (ie: uuid).
      */
-    public AreaControlPermission createAreaControlPermissionForRole();
+    public AreaControlPermission createAreaControlPermissionForRole(String role);
     
     /**
      * Save an area control permission.  This is backed in the database by a single
      * Control permission (used for areas, forums, and topics).
      */
-    public void saveAreaControlPermissionForRole(AreaControlPermission permission);
+    public void saveAreaControlPermissionForRole(Area area, AreaControlPermission permission);
 
     /**
      * Create an empty default area control permission with system properties 
      * populated (ie: uuid).
      */
-    public AreaControlPermission createDefaultAreaControlPermissionForRole();
+    public AreaControlPermission createDefaultAreaControlPermissionForRole(String role);
 
     /**
      * Save a default area control permission.  This is backed in the database by a 
      * single Control permission (used for areas, forums, and topics).
      */
-    public void saveDefaultAreaControlPermissionForRole(AreaControlPermission permission);
+    public void saveDefaultAreaControlPermissionForRole(Area area, AreaControlPermission permission);
 
     /**
      * Get the forum control permission for a given role.  This provides the permissions
      * that the role currently has.
      */
-    public ForumControlPermission getForumControlPermissionForRole(String role);
-
-    /**
-     * Get the default forum control permission for all roles.
-     */
-    public List getDefaultForumControlPermissions();
+    public ForumControlPermission getForumControlPermissionForRole(String role, String typeId);
 
     /**
      * Get the default forum control permission for a given role.  This provides the 
      * permissions that the role currently has.
      */
-    public ForumControlPermission getDefaultForumControlPermissionForRole(String role);
+    public ForumControlPermission getDefaultForumControlPermissionForRole(String role, String typeId);
 
     /**
      * Create an empty forum control permission with system properties 
      * populated (ie: uuid).
      */
-    public ForumControlPermission createForumControlPermissionForRole();
+    public ForumControlPermission createForumControlPermissionForRole(String role);
     
     /**
      * Save an forum control permission.  This is backed in the database by a single
      * Control permission (used for topics, forums, and topics).
      */
-    public void saveForumControlPermissionForRole(ForumControlPermission permission);
+    public void saveForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission);
 
     /**
      * Create an empty default forum control permission with system properties 
      * populated (ie: uuid).
      */
-    public ForumControlPermission createDefaultForumControlPermissionForRole();
+    public ForumControlPermission createDefaultForumControlPermissionForRole(String role);
 
     /**
      * Save a default forum control permission.  This is backed in the database by a 
      * single Control permission (used for topics, forums, and topics).
      */
-    public void saveDefaultForumControlPermissionForRole(ForumControlPermission permission);
+    public void saveDefaultForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission);
     
     /**
      * Get the topic control permission for a given role.  This provides the permissions
      * that the role currently has.
      */
-    public TopicControlPermission getTopicControlPermissionForRole(String role);
-
-    /**
-     * Get the default topic control permission for all roles.
-     */
-    public List getDefaultTopicControlPermissions();
+    public TopicControlPermission getTopicControlPermissionForRole(String role, String typeId);
 
     /**
      * Get the default topic control permission for a given role.  This provides the 
      * permissions that the role currently has.
      */
-    public TopicControlPermission getDefaultTopicControlPermissionForRole(String role);
+    public TopicControlPermission getDefaultTopicControlPermissionForRole(String role, String typeId);
 
     /**
      * Create an empty topic control permission with system properties 
      * populated (ie: uuid).
      */
-    public TopicControlPermission createTopicControlPermissionForRole();
+    public TopicControlPermission createTopicControlPermissionForRole(String role);
     
     /**
      * Save an topic control permission.  This is backed in the database by a single
      * Control permission (used for areas, forums, and topics).
      */
-    public void saveTopicControlPermissionForRole(TopicControlPermission permission);
+    public void saveTopicControlPermissionForRole(Topic topic, TopicControlPermission permission);
 
     /**
      * Create an empty default topic control permission with system properties 
      * populated (ie: uuid).
      */
-    public TopicControlPermission createDefaultTopicControlPermissionForRole();
+    public TopicControlPermission createDefaultTopicControlPermissionForRole(String role);
 
     /**
      * Save a default topic control permission.  This is backed in the database by a 
      * single Control permission (used for areas, forums, and topics).
      */
-    public void saveDefaultTopicControlPermissionForRole(TopicControlPermission permission);
+    public void saveDefaultTopicControlPermissionForRole(Topic topic, TopicControlPermission permission);
+    
+    public ControlPermissions getAreaControlPermissionByRoleAndType(String roleId, String typeId, boolean defaultValue);
+
 }
