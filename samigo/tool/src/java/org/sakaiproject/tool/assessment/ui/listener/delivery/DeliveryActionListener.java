@@ -145,6 +145,7 @@ public class DeliveryActionListener
               System.out.println("**** noFeedback="+delivery.getNoFeedback());
               setAssessmentGradingFromItemData(delivery, itemData, false);
               setDisplayByAssessment(delivery);
+              setGraderComment(delivery);
               break;
  
       case 4: // Grade assessment
@@ -155,6 +156,7 @@ public class DeliveryActionListener
               setDisplayByAssessment(delivery);
               //delivery.setFeedback("true");
               setDeliveryFeedbackOnforEvaluation(delivery);
+              setGraderComment(delivery);
               break;
 
       case 1: // Take assessment
@@ -167,6 +169,9 @@ public class DeliveryActionListener
                  delivery.setAssessmentGrading(ag);
                }
                setFeedbackMode(delivery);
+               setTimer(delivery);
+               // extend session time out
+               SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
                System.out.println("**** feedback="+delivery.getFeedback());
                System.out.println("**** noFeedback="+delivery.getNoFeedback());
                break;
@@ -174,79 +179,12 @@ public class DeliveryActionListener
       default: break;
       }
 
-
-
-      // We're going to overload itemData with the sequence in case
-      // renumbering is turned off.
-      itemData.put("sequence", new Long(0));
-      long items = 0;
-      int sequenceno = 1;
-      Iterator i1 = publishedAssessment.getSectionArraySorted().iterator();
-      while (i1.hasNext())
-      {
-        SectionDataIfc section = (SectionDataIfc) i1.next();
-        Iterator i2 = null;
-
-        if (delivery.getActionMode()==delivery.GRADE_ASSESSMENT) {
-          StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
-          long seed = (long) studentscorebean.getStudentId().hashCode();
-          i2 = section.getItemArraySortedWithRandom(seed).iterator();
-        }
-        else {
-          i2 = section.getItemArraySorted().iterator();
-        }
-
-        while (i2.hasNext()) {
-          items = items + 1; // bug 464
-          ItemDataIfc item = (ItemDataIfc) i2.next();
-          itemData.put("sequence" + item.getItemId().toString(),
-                       new Integer(sequenceno++));
-        }
-      }
-      itemData.put("items", new Long(items));
-
-      if (delivery.getAssessmentGrading() != null) {
-        delivery.setGraderComment
-          (delivery.getAssessmentGrading().getComments());
-      }
-      else {
-        delivery.setGraderComment(null);
-      }
-
-      // Set the begin time if we're just starting
-      if (delivery.getBeginTime() == null) {
-        if (delivery.getAssessmentGrading() != null &&
-            delivery.getAssessmentGrading().getAttemptDate() != null) {
-          delivery.setBeginTime(delivery.getAssessmentGrading().getAttemptDate());
-          // add the following line to fix SAK-1781
-          if (delivery.getAssessmentGrading().getTimeElapsed() != null){
-            delivery.setTimeElapse(delivery.getAssessmentGrading()
-                                .getTimeElapsed().toString());
-          }
-          else{
-            delivery.setTimeElapse("0");
-          }
-        }
-        else
-        {
-          delivery.setBeginTime(new Date());
-          delivery.setTimeElapse("0");  // fix SAK-1781
-        }
-      }
-
-      log.debug("****Set begin time " + delivery.getBeginTime());
-      log.debug("****Set elapsed time " + delivery.getTimeElapse());
-
-      /** if taking assessment, modify session intactive interval */
-      if (!("true".equals(cu.lookupParam("review")) || "true".equals(cu.lookupParam("previewAssessment"))))
-      {
-        SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
-      }
+      // overload itemData with the sequence in case renumbering is turned off.
+      overloadItemData(delivery, itemData, publishedAssessment);
 
       // get table of contents
       delivery.setTableOfContents(getContents(publishedAssessment, itemData,
                                               delivery));
-
       // get current page contents
       log.debug("**** resetPageContents="+this.resetPageContents);
       if (this.resetPageContents)
@@ -1441,5 +1379,73 @@ public class DeliveryActionListener
     }
   }
 
+  public void overloadItemData(DeliveryBean delivery, HashMap itemData, 
+                               PublishedAssessmentFacade publishedAssessment){
+
+    // We're going to overload itemData with the sequence in case
+    // renumbering is turned off.
+    itemData.put("sequence", new Long(0));
+    long items = 0;
+    int sequenceno = 1;
+    Iterator i1 = publishedAssessment.getSectionArraySorted().iterator();
+    while (i1.hasNext())
+    {
+      SectionDataIfc section = (SectionDataIfc) i1.next();
+      Iterator i2 = null;
+
+      if (delivery.getActionMode()==delivery.GRADE_ASSESSMENT) {
+        StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
+        long seed = (long) studentscorebean.getStudentId().hashCode();
+        i2 = section.getItemArraySortedWithRandom(seed).iterator();
+      }
+      else {
+        i2 = section.getItemArraySorted().iterator();
+      }
+
+      while (i2.hasNext()) {
+        items = items + 1; // bug 464
+        ItemDataIfc item = (ItemDataIfc) i2.next();
+        itemData.put("sequence" + item.getItemId().toString(),
+                     new Integer(sequenceno++));
+      }
+    }
+    itemData.put("items", new Long(items));
+  }
+
+  public void setGraderComment(DeliveryBean delivery){
+    if (delivery.getAssessmentGrading() != null) {
+      delivery.setGraderComment
+        (delivery.getAssessmentGrading().getComments());
+    }
+    else {
+      delivery.setGraderComment(null);
+    }
+  }
+
+  public void setTimer(DeliveryBean delivery){
+    // Set the begin time if we're just starting
+    if (delivery.getBeginTime() == null) {
+      if (delivery.getAssessmentGrading() != null &&
+          delivery.getAssessmentGrading().getAttemptDate() != null) {
+        delivery.setBeginTime(delivery.getAssessmentGrading().getAttemptDate());
+        // add the following line to fix SAK-1781
+        if (delivery.getAssessmentGrading().getTimeElapsed() != null){
+          delivery.setTimeElapse(delivery.getAssessmentGrading()
+                              .getTimeElapsed().toString());
+        }
+        else{
+          delivery.setTimeElapse("0");
+        }
+      }
+      else
+      {
+        delivery.setBeginTime(new Date());
+        delivery.setTimeElapse("0");  // fix SAK-1781
+      }
+    }
+
+    log.debug("****Set begin time " + delivery.getBeginTime());
+    log.debug("****Set elapsed time " + delivery.getTimeElapse());
+  }
 
 }
