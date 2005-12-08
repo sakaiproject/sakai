@@ -2032,7 +2032,7 @@ public class DeliveryBean
     return actionString;
   }
 
-  public void setActionMode(int actionMode){
+  private void setActionMode(int actionMode){
     this.actionMode = actionMode;
   }
 
