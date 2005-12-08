@@ -1344,10 +1344,11 @@ public String startRemoveQuestions(){
 
       Long sourceId = new Long(0);
       String destId= "";
+      boolean isUnique=true;
 
 	ArrayList destpools= ContextUtil.paramArrayValueLike("checkboxes");
  	sourceId = this.getCurrentPool().getId();
-
+        String currentName=this.getCurrentPool().getDisplayName();
 	Iterator iter = destpools.iterator();
       while(iter.hasNext())
       {
@@ -1358,6 +1359,16 @@ public String startRemoveQuestions(){
             try
             {
               QuestionPoolService delegate = new QuestionPoolService();
+	      //Huong's adding
+              isUnique=delegate.poolIsUnique("0",currentName,destId);
+              if(!isUnique){
+	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","copy_duplicateName_error");
+       FacesContext context=FacesContext.getCurrentInstance();
+	context.addMessage(null,new FacesMessage(err1));
+       
+	return "copyPool";
+	      }
+
 		// TODO Uncomment the line below to test copyPool,
 		delegate.copyPool(tree, AgentFacade.getAgentString(),
                   sourceId, new Long(destId));
@@ -1380,7 +1391,8 @@ public String startRemoveQuestions(){
      String sourceId = "";
       String destId = "";
       sourceId = this.getCurrentPool().getId().toString();
-
+      String currentName=this.getCurrentPool().getDisplayName();
+      boolean isUnique=true;
 	destId= ContextUtil.lookupParam("movePool:selectedRadioBtn");
 
         if((sourceId != null) && (destId != null))
@@ -1388,10 +1400,19 @@ public String startRemoveQuestions(){
           try
           {
             QuestionPoolService delegate = new QuestionPoolService();
+ isUnique=delegate.poolIsUnique("0",currentName,destId);
+              if(!isUnique){
+	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","move_duplicateName_error");
+         FacesContext context = FacesContext.getCurrentInstance();
+	context.addMessage(null,new FacesMessage(err1));
+       
+	return "movePool";
+	      }
             delegate.movePool(
               AgentFacade.getAgentString(),
               new Long(sourceId), new Long(destId));
-          }
+       
+	  }
           catch(Exception e)
           {
             e.printStackTrace();
