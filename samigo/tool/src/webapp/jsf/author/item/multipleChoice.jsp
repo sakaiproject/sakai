@@ -139,6 +139,7 @@
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
  
+ <h:panelGroup rendered="#{itemauthor.showFeedbackAuthoring== 'true'}">
           <h:outputText value="#{msg.feedback_optional}" />
     
         <!-- WYSIWYG -->
@@ -148,6 +149,7 @@
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
  
+ </h:panelGroup>
         </h:panelGrid>
 </h:column>
 </h:dataTable>

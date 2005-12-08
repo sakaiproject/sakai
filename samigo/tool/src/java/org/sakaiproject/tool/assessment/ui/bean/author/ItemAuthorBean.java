@@ -86,6 +86,7 @@ public class ItemAuthorBean
   private String showOverallFeedback;
   private String showQuestionLevelFeedback;
   private String showSelectionLevelFeedback;
+  private String showFeedbackAuthoring;
   private ArrayList trueFalseAnswerSelectList;
   private ItemBean currentItem;
   private ItemFacade itemToDelete;
@@ -980,6 +981,22 @@ ItemService delegate = new ItemService();
 
   }
 
+
+  /**
+   * @return
+   */
+  public String getShowFeedbackAuthoring()
+  {
+    return showFeedbackAuthoring;
+  }
+
+  /**
+   * @param string
+   */
+  public void setShowFeedbackAuthoring(String string)
+  {
+    showFeedbackAuthoring= string;
+  }
 
 
 }

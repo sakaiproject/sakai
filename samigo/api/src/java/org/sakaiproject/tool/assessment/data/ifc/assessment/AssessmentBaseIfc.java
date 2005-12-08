@@ -35,6 +35,7 @@ public interface AssessmentBaseIfc
   public static Integer DEAD_STATUS = new Integer(2);
   public static String METADATAQUESTIONS_ISINSTRUCTOREDITABLE = "metadataQuestions_isInstructorEditable";
   public static String HASMETADATAFORQUESTIONS= "hasMetaDataForQuestions";
+  public static String SHOWFEEDBACKAUTHORING= "showFeedbackAuthoring";
 
   Long getAssessmentBaseId();
 

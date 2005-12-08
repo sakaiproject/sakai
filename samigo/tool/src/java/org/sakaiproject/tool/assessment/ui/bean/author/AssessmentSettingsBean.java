@@ -332,6 +332,7 @@ public class AssessmentSettingsBean
       }
     }
     catch (Exception ex) {
+	ex.printStackTrace();
     }
   }
 

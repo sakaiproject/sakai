@@ -324,6 +324,11 @@ INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL"
     "ENTRY")
     VALUES(sam_assessMetaData_id_s.nextVal, 1, 'lateHandling_isInstructorEditable', 'true');
 
+INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
+    "ENTRY")
+    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'feedbackAuthoring_isInstructorEditable', 'true');
+
+
 
 -- 3. populate sam_functionData_t
 INSERT INTO SAM_FUNCTIONDATA_T

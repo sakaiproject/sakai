@@ -749,6 +749,10 @@ public class AssessmentBaseFacade
     return (String)this.assessmentMetaDataMap.get(HASMETADATAFORQUESTIONS);
   }
 
+  public String getShowFeedbackAuthoring() {
+    return (String)this.assessmentMetaDataMap.get(SHOWFEEDBACKAUTHORING);
+  }
+
   /**
    * Add a Meta Data to AssessmentFacade
    * @param label

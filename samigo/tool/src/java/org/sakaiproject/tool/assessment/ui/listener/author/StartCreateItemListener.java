@@ -222,6 +222,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
       AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean("assessmentBean");
       AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
       itemauthorbean.setShowMetadata(assessment.getHasMetaDataForQuestions());
+      itemauthorbean.setShowFeedbackAuthoring(assessment.getShowFeedbackAuthoring());
 
       // set section
 
