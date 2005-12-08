@@ -19,12 +19,12 @@ also become less manageble.
 a. functions: take assessment, take assessment via url, preview assessment, 
    review assessment, grade assessment
 
-b. listeners involved: BeginDeliveryActionListener.java, DeliveryActionListener.java, 
+b. listeners: BeginDeliveryActionListener.java, DeliveryActionListener.java, 
    SubmitToGradingActionListener, TotalScoreListener, StudentScoreListener and 
    SelectActionListener. The focus of this rewriting is on BeginDeliveryActionListener.java,
    DeliveryActionListener.java which were being used by most of teh functions above.
 
-c. bean involved: DeliveryBean resides the properties that control the display.
+c. bean: DeliveryBean resides the properties that control the display.
 
 ----------------------------------------------------------------------------------------
 3. Tasks
@@ -36,14 +36,18 @@ a. The task of DeliveryActionListener is to attach the answer submitted by a use
 
 b. In the case of grading an assessment, TotalScoreListener prepares an index page with a
    summary of total score. When an instructor grade a particular person, StudentScoreListener
-   prepares the published assessment and DeliveryActionListener is then called to attach the
+   prepares the published assessment. DeliveryActionListener is then called to attach the
    answers.
 
 c. In the case of reviewing an assessment, previewing an assessment, taking an assessment and
    taking an assessment via url, the published assessment is prepared by 
    BeginDeliveryActionListener.
+
+d. When reviewing an assessment, DeliveryActionListener is called after 
+   BeginDeliveryActionListener. The display for review is complicated by the published
+   assessment feedback setting and this is resolved by DeliveryActionListener.
  
-d. When taking an assessment, the following events would trigger SubmitToGradingActionListener
+f. When taking an assessment, the following events would trigger SubmitToGradingActionListener
    which create AssessmentGradingData and ItemGradingData that would persist to the database.
    SubmitToGradingActionListener knows the end stage of the assessment taking and hence it is 
    also used for preparing the submission confirmation page. 
@@ -54,7 +58,7 @@ d. When taking an assessment, the following events would trigger SubmitToGrading
    ii. Save And Exit & Submit ForGrade: 
        goto SubmitToGradingActionListener then SelectActionListener
  
-f. Previewing an assessment is the simplest task. BeginDeliveryActionListener creates a
+g. Previewing an assessment is the simplest function. BeginDeliveryActionListener creates a
    published assessment, persists it to the DB so each object will then have an id. The
    published assessment is then deleted right away. The published assessment is now a
    java object freed of the DB tied and remains in the JVM memory for us to manipulate.
@@ -68,7 +72,7 @@ DeliveryActionListener, I have eliminated the following properties in the Delive
 notPublished, accessViaUrl, previewMode, previewAssessment, reviewAssessment, forGrading. 
  
 The two properties in DeliveryBean, actionString and actionMode are used to replaced all
-the above properties. Note that actionMode can only set by actionString.
+the above properties. Note that actionMode can only be set by actionString.
  
   deliveryBean.getActionMode ()         deliveryBean.getActionSring() 
     TAKE_ASSESSMENT = 1;                      "takeAssessment"  
