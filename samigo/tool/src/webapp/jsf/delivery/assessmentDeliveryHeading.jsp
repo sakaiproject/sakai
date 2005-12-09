@@ -38,6 +38,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
                              || delivery.actionString=='takeAssessment'
                              || delivery.actionString=='takeAssessmentViaUrl')}">
 
+<!-- SHOW FEEDBACK LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
     <h:commandLink action="takeAssessment" onmouseup="saveTime();" 
        rendered="#{delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl'}" >
@@ -47,6 +48,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
     </h:commandLink>
 
+<!-- SHOW FEEDBACK LINK FOR PREVIEW ASSESSMENT -->
     <h:commandLink action="takeAssessment" onmouseup="saveTime();" 
        rendered="#{delivery.actionString=='previewAssessment'}" >
      <h:outputText value="#{msg.show_feedback}" />
@@ -60,6 +62,9 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
                    || delivery.actionString=='takeAssessmentViaUrl')
                 && delivery.navigation ne '1'}"/>
   </h:panelGroup >
+
+
+<!-- TABLE OF CONTENT LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
   <h:commandLink action="tableOfContents" onmouseup="saveTime();"
      rendered="#{(delivery.actionString=='takeAssessment'
                    || delivery.actionString=='takeAssessmentViaUrl')
@@ -68,12 +73,18 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandLink>
+
+
+<!-- TABLE OF CONTENT LINK FOR PREVIEW ASSESSMENT -->
  <h:commandLink action="tableOfContents" onmouseup="saveTime();"
     rendered="#{delivery.actionString=='previewAssessment'
              && delivery.navigation ne '1'}">
     <h:outputText value="#{msg.table_of_contents}" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandLink>
+
+
+<!-- RETURN TO ASSESSMENT PAGE LINK FOR REVIEW ASSESSMENT -->
   <h:commandLink action="select" 
      rendered="#{delivery.actionString=='reviewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
@@ -82,11 +93,17 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 </p>
 
 <p>
+
+
+<!-- GRADER COMMENT FOR REVIEW ASSESSMENT -->
 <h:outputText rendered="#{delivery.feedbackComponent.showGraderComment 
                        && delivery.actionString=='reviewAssessment'
                        && delivery.graderComment ne ''}" 
    value="<b>#{msg.comments}</b> #{delivery.graderComment}" escape="false" />
 
+
+
+<!-- BEGIN OF TIMER -->
 <h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
                            || delivery.actionString=='takeAssessment'
                            || delivery.actionString=='takeAssessmentViaUrl')
@@ -102,7 +119,12 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; document.forms[0].elements['takeAssessmentForm:saveAndExit'].click();" />
 
 <f:verbatim>  </span></f:verbatim>
+
+<!-- HIDE / SHOW TIMER BAR -->
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="Hide/Show Time Remaining" />
+<!-- END OF TIMER -->
+
+
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 </h:panelGroup>
