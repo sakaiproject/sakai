@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+  <class
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserMessageImpl"
+      table="MFR_MESSAGE_FORUMS_USER_MSG_T"
+      optimistic-lock="version">
+
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_MESSAGE_FORUMS_USER_MSG_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
+    <many-to-one name="user" column="userSurrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
+      index="MFR_USER_MSG_PARENT_I1" cascade="none" />
+
+    <many-to-one name="message" column="messageSurrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl"
+      index="MFR_USER_MSG_PARENT_I2" cascade="none" />
+
+    <property name="typeUuid">
+      <column name="TYPE_UUID" length="36" not-null="true" />
+    </property>
+
+  </class>
+
+</hibernate-mapping>

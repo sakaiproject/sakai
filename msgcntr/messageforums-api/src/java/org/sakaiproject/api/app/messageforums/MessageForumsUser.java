@@ -24,10 +24,9 @@
 package org.sakaiproject.api.app.messageforums;
 
 public interface MessageForumsUser {
-    //public Long getId();
-    //public void setId(Long id);
-    //public Integer getVersion();
-    //public void setVersion(Integer version);
+      
+    public String getUserId();
+    public void setUserId(String userId);
     public String getUuid();
     public void setUuid(String uuid);
     public PrivateMessage getPrivateMessage();

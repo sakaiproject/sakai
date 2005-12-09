@@ -24,7 +24,6 @@
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
-import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 
@@ -32,6 +31,7 @@ public class MessageForumsUserImpl implements MessageForumsUser {
     private Long id;
     private Integer version; 
     protected String uuid;    
+    protected String userId;
 
     // foreign keys for hibernate
     private ActorPermissions apAccessors; 
@@ -59,6 +59,16 @@ public class MessageForumsUserImpl implements MessageForumsUser {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+    
+    public String getUserId()
+    {
+      return userId;
+    }
+
+    public void setUserId(String userId)
+    {
+      this.userId = userId;
     }
 
     public Integer getVersion() {

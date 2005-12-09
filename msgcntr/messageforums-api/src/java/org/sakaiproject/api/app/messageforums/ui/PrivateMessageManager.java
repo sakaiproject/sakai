@@ -1,14 +1,13 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.exception.IdUnusedException;
 
 public interface PrivateMessageManager {
     /**
@@ -25,9 +24,23 @@ public interface PrivateMessageManager {
      * @return
      */
     Area getPrivateArea();
+    
+    /**
+     * Send private message to recipients
+     * @param message
+     * @param recipients
+     */
+    public void sendPrivateMessage(PrivateMessage message, List recipients) throws IdUnusedException;
 
-    void savePrivateMessage(Message message,String userId, List recipients);
+    /**
+     * Save private message
+     * @param message
+     * @param recipients
+     */
+    void savePrivateMessage(Message message);
 
+    
+    
     void deletePrivateMessage(Message message);
 
     public Message getMessageById(String messageId);

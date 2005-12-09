@@ -775,7 +775,15 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgSend()");
     
     PrivateMessage pMsg= constructMessage() ;
-    prtMsgManager.savePrivateMessage(pMsg,getUserId(),getSelectedComposeToList());
+    try
+    {
+      prtMsgManager.sendPrivateMessage(pMsg, getSelectedComposeToList());
+    }
+    catch (IdUnusedException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }    
     return "pvtMsg" ;
   }
  
@@ -788,7 +796,15 @@ public class PrivateMessagesTool
     
     PrivateMessage dMsg=constructMessage() ;
     dMsg.setDraft(Boolean.TRUE);
-    prtMsgManager.savePrivateMessage(dMsg,getUserId(),getSelectedComposeToList());
+    try
+    {
+      prtMsgManager.sendPrivateMessage(dMsg, getSelectedComposeToList());
+    }
+    catch (IdUnusedException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }    
 
     return "pvtMsg" ;    
   }
@@ -900,7 +916,15 @@ public class PrivateMessagesTool
     PrivateMessage rrepMsg = prtMsgManager.createPrivateMessage() ;
     //TODO settings from jsp    
     rMsg.setInReplyTo(rrepMsg) ;
-    prtMsgManager.savePrivateMessage(rMsg,getUserId(),getSelectedComposeToList());
+    try
+    {
+      prtMsgManager.sendPrivateMessage(rMsg, getSelectedComposeToList());
+    }
+    catch (IdUnusedException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }    
     
     return "pvtMsg" ;
   }
@@ -916,7 +940,15 @@ public class PrivateMessagesTool
     drMsg.setDraft(Boolean.TRUE);
     PrivateMessage drrepMsg = prtMsgManager.createPrivateMessage() ;
     drMsg.setInReplyTo(drrepMsg) ;
-    prtMsgManager.savePrivateMessage(drMsg,getUserId(),getSelectedComposeToList());
+    try
+    {
+      prtMsgManager.sendPrivateMessage(drMsg, getSelectedComposeToList());
+    }
+    catch (IdUnusedException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     
     return "pvtMsg" ;    
   }

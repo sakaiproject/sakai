@@ -1,21 +1,21 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsUserManager;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.component.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -26,8 +26,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageManager
 {
 
+  private static final Log LOG = LogFactory.getLog(PrivateMessageManagerImpl.class);
+  
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
+  private MessageForumsUserManager userManager;
   private DummyDataHelperApi helper;
   private boolean usingHelper = true; // just a flag until moved to database from helper
 
@@ -61,6 +64,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     this.messageManager = messageManager;
   }
+  
+  public void setUserManager(MessageForumsUserManager userManager)
+  {
+    this.userManager = userManager;
+  }
 
   // end injection
 
@@ -82,7 +90,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return areaManager.getPrivateArea();
   }
 
-  public void savePrivateMessage(Message message, String userId, List recipients)
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#savePrivateMessage(org.sakaiproject.api.app.messageforums.Message)
+   */
+  public void savePrivateMessage(Message message)
   {
     messageManager.saveMessage(message);
   }
@@ -322,5 +333,35 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     // TODO Auto-generated method stub
     return null;
   }
-  
+
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.List)
+   */
+  public void sendPrivateMessage(PrivateMessage message, List recipients) throws IdUnusedException
+  {
+    
+    if (LOG.isDebugEnabled()){
+      LOG.debug("sendPrivateMessage(message: " + message + ", recipients: " + recipients + ")");
+    }
+    
+    if (message == null || recipients == null){
+      throw new IllegalArgumentException("Null Argument");
+    }
+    
+    if (recipients.size() == 0){
+      throw new IllegalArgumentException("Empty recipient list");
+    }
+        
+    Iterator i = recipients.iterator();
+    while (i.hasNext()){
+      String userId = (String) i.next();
+      
+      /** getForumUser will create user if forums user does not exist */
+      message.addRecipient(userManager.getForumUser(userId.trim()));            
+    }
+    
+    savePrivateMessage(message);
+    
+  }
+
 }

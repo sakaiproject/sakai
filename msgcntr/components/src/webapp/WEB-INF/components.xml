@@ -7,6 +7,7 @@
             <list>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserMessageImpl.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>
@@ -166,6 +167,9 @@
                 <property name="messageManager">
                     <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager"/>
                 </property>
+   				<property name="userManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsUserManager"/>
+                </property>					 
             </bean>           
         </property>
          <property name="transactionAttributes">
@@ -196,6 +200,30 @@
                 <property name="forumManager">
                     <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsForumManager"/>
                 </property>							
+            </bean>           
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.MessageForumsUserManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.MessageForumsUserManagerImpl" singleton="true" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+                <property name="idManager">
+					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+				</property>
+				<property name="userDirectoryService">
+				    <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
+				</property>				
             </bean>           
         </property>
          <property name="transactionAttributes">

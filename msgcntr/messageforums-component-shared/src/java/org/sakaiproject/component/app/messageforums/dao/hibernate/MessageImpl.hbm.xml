@@ -77,10 +77,11 @@
     <subclass 
       name="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl"
       discriminator-value="PM">
-	  <list name="recipients" lazy="true" table="MFR_MESSAGE_FORUMS_USER_T" cascade="all">
-	      <key column="mesSurrogateKey"/>
-	      <index column="mes_index_col" />
-	      <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl" />
+	  <list name="recipients" lazy="true" table="MFR_MESSAGE_FORUMS_USER_MSG_T" cascade="all">	  
+	      <key column="messageSurrogateKey"/>
+	      <index column="user_index_col" />
+	      <many-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
+	                    column="userSurrogateKey"/>
   	  </list>         
       <property name="externalEmail">
         <column name="EXTERNAL_EMAIL" not-null="false" />

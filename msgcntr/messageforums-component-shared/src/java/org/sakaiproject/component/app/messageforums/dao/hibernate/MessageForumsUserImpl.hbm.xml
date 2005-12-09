@@ -25,6 +25,10 @@
       <column name="UUID" length="36" not-null="true" />
     </property>
     
+    <property name="userId">
+      <column name="USER_ID" length="255" not-null="true" />
+    </property>
+    
     <many-to-one name="apAccessors" column="apaSurrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
       not-null="false" index="MFR_USER_PARENT_I1" cascade="none" />                
@@ -38,13 +42,12 @@
     <many-to-one name="apContributors" column="apcSurrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
       not-null="false" index="MFR_USER_PARENT_I3" cascade="none" />                
-    <property name="apcontributorsindex" column="ap3_index_col" type="int" update="true" insert="true"/>
-
-    <many-to-one name="privateMessage" column="mesSurrogateKey"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl"
-      not-null="false" index="MFR_USER_PARENT_I4" cascade="none" />                
-    <property name="mesindex" column="mes_index_col" type="int" update="true" insert="true"/>
+    <property name="apcontributorsindex" column="ap3_index_col" type="int" update="true" insert="true"/>        
 
   </class>
-
+  
+  <query name="findUserByUserId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl user where user.userid = :userId]]>
+  </query>
+  
 </hibernate-mapping>

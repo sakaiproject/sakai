@@ -38,5 +38,9 @@ public interface PrivateMessage extends Message {
     public List getRecipients();
 
     public void setRecipients(List recipients);
+    
+    public void addRecipient(MessageForumsUser user);
+    
+    public void removeRecipient(MessageForumsUser user);
 
 }
