@@ -34,15 +34,18 @@
         </h:commandLink>
 
       </f:facet>
-
+<%-- SAK-3109 added modify link so that question text that is a link will not lock out edit --%>
+<h:outputText escape="false" value="#{question.text}" />
+<f:verbatim><span class="itemAction"></f:verbatim>
 <h:commandLink id="modify" action="#{itemauthor.doit}">
-  <h:outputText escape="false" value="#{question.text}" />
+    <h:outputText id="modify_pool_question" value="#{msg.modify}"/>
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
     <f:param name="itemid" value="#{question.itemId}"/>
     <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
     <f:param name="target" value="questionpool"/>
 </h:commandLink>
+<f:verbatim></span></f:verbatim>
 
 <f:verbatim><br/></f:verbatim>
 
