@@ -34,6 +34,16 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+    <!-- Samigo AUDIO applet jar -->
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-samigo-audio</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.target.path>applets</war.target.path>
+      </properties>
+    </dependency>
+
 
                 <!-- Section Awareness -->
                 <dependency>
