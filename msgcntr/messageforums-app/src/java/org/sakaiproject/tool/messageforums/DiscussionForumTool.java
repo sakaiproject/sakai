@@ -84,11 +84,10 @@ public class DiscussionForumTool
   public String processActionHome()
   {
     LOG.debug("processActionHome()");
-    selectedForum=null;
-    selectedTopic=null;
-    selectedMessage=null;
+    reset();
     return MAIN;
   }
+
 
   /**
    * @return
@@ -318,6 +317,7 @@ public class DiscussionForumTool
       //TODO : redirect to a error page
       return MAIN;
     }
+ 
     return TOPIC_SETTING_REVISE;
   }
 
@@ -327,8 +327,13 @@ public class DiscussionForumTool
   public String processActionReviseTopicSettings()
   {
     LOG.debug("processActionReviseTopicSettings()");
-    DiscussionTopic topic = forumManager
+    DiscussionTopic topic=selectedTopic.getTopic();
+    
+    if(topic==null)
+      {
+      topic = forumManager     
         .getTopicById(new Long(getExternalParameterByKey(TOPIC_ID)));
+      }
     if (topic == null)
     {
       return MAIN;
@@ -356,10 +361,14 @@ public class DiscussionForumTool
     LOG.debug("processActionSaveTopicSettings()");
     
     if (selectedTopic != null) {
-        DiscussionTopic topic = (DiscussionTopic)selectedTopic.getTopic();
-        forumManager.saveTopic(topic);
+        DiscussionTopic topic = selectedTopic.getTopic();
+        if(selectedForum!=null)
+        {
+          topic.setBaseForum(selectedForum.getForum());
+          forumManager.saveTopic(topic);
+        }
     }    
-    
+    reset();
     return MAIN;
   }
 
@@ -394,13 +403,21 @@ public class DiscussionForumTool
   public String processActionTopicSettings()
   {
     LOG.debug("processActionTopicSettings()");
+    DiscussionForum forum = forumManager
+    .getForumById(new Long(getExternalParameterByKey(FORUM_ID)));
+    if (forum == null)
+    {
+      return MAIN;
+    }
     DiscussionTopic topic = forumManager
         .getTopicById(new Long(getExternalParameterByKey(TOPIC_ID)));
     if (topic == null)
     {
       return MAIN;
     }
+    
     selectedTopic = new DiscussionTopicBean(topic);
+    selectedForum= new DiscussionForumBean(forum);
     return TOPIC_SETTING;
   }
 
@@ -662,7 +679,7 @@ public class DiscussionForumTool
           .getUuid());
     }
     List temp_messages = topic.getMessages();
-    if (temp_messages == null)
+    if (temp_messages == null || temp_messages.size()<1)
     {
       return decoTopic;
     }
@@ -714,24 +731,33 @@ public class DiscussionForumTool
     }
     return ALL_MESSAGES;
   }
+  
+  private void reset()
+  {
+    selectedForum=null;
+    selectedTopic=null;
+    selectedMessage=null;    
+  }
 
   /**
-   * @return TODO
+   * @return newly created topic
    * 
    */
   private DiscussionTopicBean createTopic()
   {
     DiscussionForum forum=forumManager.getForumById(new Long(getExternalParameterByKey(FORUM_ID)));
+    
     if(forum==null)
     {
       return null;
     }
+    selectedForum= new DiscussionForumBean(forum);
     DiscussionTopic topic = forumManager.createTopic(forum);
     if(topic==null)
       {
         return null;
       }
-    
+    selectedTopic= new DiscussionTopicBean(topic);
     return new DiscussionTopicBean(topic);
     
   }

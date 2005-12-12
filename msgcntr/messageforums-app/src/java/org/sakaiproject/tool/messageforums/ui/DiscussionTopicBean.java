@@ -30,7 +30,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public Topic getTopic()
+  public DiscussionTopic getTopic()
   {
     return topic;
   }
@@ -206,7 +206,7 @@ public class DiscussionTopicBean
    */
   public void setMustRespondBeforeReading(String mustRespondBeforeReading)
   {
-    if(mustRespondBeforeReading==Boolean.TRUE.toString())
+    if(mustRespondBeforeReading.equals(Boolean.TRUE.toString()))
     {
       topic.setMustRespondBeforeReading(new Boolean(true));
     }
@@ -234,7 +234,7 @@ public class DiscussionTopicBean
    */
   public void setLocked(String locked)
   {
-    if(locked==Boolean.TRUE.toString())
+    if(locked.equals(Boolean.TRUE.toString()))
     {
        topic.setLocked(new Boolean(true));
     }

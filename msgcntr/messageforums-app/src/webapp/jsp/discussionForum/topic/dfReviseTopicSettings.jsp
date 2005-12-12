@@ -64,7 +64,8 @@
       
       <p class="act">
           <h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" value="#{msgs.cdfm_button_bar_save_setting}"> 
-    	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>         
+    	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>    
+    	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>

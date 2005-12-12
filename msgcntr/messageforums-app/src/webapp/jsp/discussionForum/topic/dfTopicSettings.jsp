@@ -41,8 +41,24 @@
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel id="outputLabel4" for="topic_posting"  value="#{msgs.cdfm_lock_topic}"/>	</h:panelGroup>
 				<h:panelGroup>
-					<h:selectOneRadio layout="pageDirection" disabled="true" id="topic_posting"  value="#{ForumTool.selectedTopic.locked}">
+					<h:selectOneRadio  layout="pageDirection" disabled="true" id="topic_posting"  value="#{ForumTool.selectedTopic.locked}">
     					<f:selectItem itemValue="true" itemLabel="Yes"/>
+    					<f:selectItem itemValue="false" itemLabel="No"/>
+  					</h:selectOneRadio>
+				</h:panelGroup>
+			</h:panelGrid>
+		</p>
+	   <h4><h:outputText  value="Anonymous Responses"/></h4>
+	   <h:selectBooleanCheckbox   title= "Allow anonymous postings (Identity known to administrative users)" disabled="true" value="false" /><h:outputText   value="  Allow anonymous postings (Identity known to administrative users)" /> 
+	   <br/>
+	   <h:selectBooleanCheckbox  disabled="true" title= "I do not wish to know the authors identity"  value="false" /><h:outputText   value="  I do not wish to know the author identity" />
+       <h4><h:outputText  value="Post Before Reading"/></h4>
+    	   <p class="shorttext">
+			<h:panelGrid columns="2">
+				<h:panelGroup><h:outputLabel id="outputLabel5" for="topic_reading"  value="Users must post a response before reading others"/>	</h:panelGroup>
+				<h:panelGroup>
+					<h:selectOneRadio disabled ="true" layout="pageDirection"  id="topic_reading" value="#{ForumTool.selectedTopic.mustRespondBeforeReading}">
+    					<f:selectItem itemValue="false" itemLabel="Yes"/>
     					<f:selectItem itemValue="false" itemLabel="No"/>
   					</h:selectOneRadio>
 				</h:panelGroup>
