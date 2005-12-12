@@ -583,5 +583,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     this.idManager = idManager;
   }
-
+  public boolean isInstructor(String userId)
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
 }

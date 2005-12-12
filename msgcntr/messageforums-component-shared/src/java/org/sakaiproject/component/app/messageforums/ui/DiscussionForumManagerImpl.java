@@ -33,7 +33,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private MessageForumsForumManager forumManager;
   private MessageForumsMessageManager messageManager;
   private DummyDataHelperApi helper;
-  private boolean usingHelper = false; // just a flag until moved to database from helper
+  private boolean usingHelper = true; // just a flag until moved to database from helper
 
   public void init()
   {

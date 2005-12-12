@@ -100,6 +100,9 @@ public class PrivateMessagesTool
   public static final String PVTMSG_MODE_DRAFT = "Drafts";
   public static final String PVTMSG_MODE_CASE = "Personal Folders";
   
+  public static final String RECIPIANTS_ENTIRE_CLASS= "Entire Class";
+  public static final String RECIPIANTS_ALL_INSTRUCTORS= "All Instructors";
+  
   private boolean pvtAreaEnabled= false;
   
   PrivateForumDecoratedBean decoratedForum;
@@ -247,6 +250,7 @@ public class PrivateMessagesTool
           Topic topic = (Topic) iterator.next();          
           if(topic.getTitle().equals(PVTMSG_MODE_RECEIVED))
           {
+            
             //TODO -- getMessages() should be changed to getReceivedMessages() ;
             //decoratedPvtMsgs=prtMsgManager.getReceivedMessages(getUserId()) ;
             decoratedPvtMsgs=topic.getMessages() ;
@@ -439,11 +443,11 @@ public class PrivateMessagesTool
     //Add Entire class and all participants item for display in JSP
     List ps = new Vector();
     Participant ec= new Participant();
-    ec.name="Entire Class";
+    ec.name=RECIPIANTS_ENTIRE_CLASS;
     ps.add(ec) ;
 
     Participant ep= new Participant();
-    ep.name="All Instructors";
+    ep.name=RECIPIANTS_ALL_INSTRUCTORS;
     ps.add(ep) ;
     
     List totalComposeToList=new ArrayList() ;
@@ -452,65 +456,7 @@ public class PrivateMessagesTool
       totalComposeToList.add(new SelectItem(((Participant) ps.get(i)).getName(),((Participant) ps.get(i)).getName()));
     }
     
-    List participants = new Vector();    
-    String realmId = SiteService.siteReference(PortalService.getCurrentSiteId());//SiteService.siteReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
- 
-    try
-    {
-      
-        AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
-        Set grants = realm.getMembers();
-        //Collections.sort(users);
-        for (Iterator i = grants.iterator(); i.hasNext();)
-        {
-          Member g = (Member) i.next();
-          String userString = g.getUserId();
-          Role r = g.getRole();
-          
-          boolean alreadyInList = false;
-          for (Iterator p = members.iterator(); p.hasNext() && !alreadyInList;)
-          {
-            CourseMember member = (CourseMember) p.next();
-            String memberUniqname = member.getUniqname();
-            if (userString.equalsIgnoreCase(memberUniqname))
-            {
-                alreadyInList = true;
-                if (r != null)
-                {
-                    member.setRole(r.getId());
-                }
-                participants.add(member);
-            }
-          }
-          if (!alreadyInList)
-          {
-            try
-            {
-              User user = UserDirectoryService.getUser(userString);
-              Participant participant = new Participant();
-              participant.name = user.getSortName();
-              participant.uniqname = userString;
-              if (r != null)
-              {
-                  participant.role = r.getId();
-              }
-              //Don't add admin/admin 
-              if(!(participant.uniqname).equals("admin"))
-              {
-                participants.add(participant);
-              }                
-            }
-            catch (IdUnusedException e)
-            {
-              // deal with missing user quietly without throwing a warning message
-            }
-          }
-        }
-    }
-    catch (IdUnusedException e)
-    {
-      //Log.warn("chef", this + "  IdUnusedException " + realmId);
-    }  
+    List participants = getAllParticipants();  
     for (int i = 0; i < participants.size(); i++)
     {
       totalComposeToList.add(new SelectItem(((Participant) participants.get(i)).getName(),((Participant) participants.get(i)).getName()));
@@ -518,23 +464,6 @@ public class PrivateMessagesTool
     return totalComposeToList;
   }
 
-    /**
-    * Participant in site access roles
-    *
-    */
-  public class Participant
-  {
-    public String name = "";
-    public String uniqname = "";
-    public String role = ""; 
-        
-    public String getName() {return name; }
-    public String getUniqname() {return uniqname; }
-    public String getRole() { return role; } // cast to Role
-    public boolean isRemoveable(){return true;}
-    
-  } // Participant
-  
   public String getUserName() {
    String userId=SessionManager.getCurrentSessionUserId();
    try
@@ -784,7 +713,7 @@ public class PrivateMessagesTool
     
     PrivateMessage pMsg= constructMessage() ;
     
-    prtMsgManager.sendPrivateMessage(pMsg, getSelectedComposeToList());            
+    prtMsgManager.sendPrivateMessage(pMsg, getRecipiants());            
     return "pvtMsg" ;
   }
  
@@ -798,7 +727,7 @@ public class PrivateMessagesTool
     PrivateMessage dMsg=constructMessage() ;
     dMsg.setDraft(Boolean.TRUE);
 
-    prtMsgManager.sendPrivateMessage(dMsg, getSelectedComposeToList());    
+    prtMsgManager.sendPrivateMessage(dMsg, getRecipiants());    
     return "pvtMsg" ;    
   }
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
@@ -860,42 +789,21 @@ public class PrivateMessagesTool
   private String processDisplayMsgById(String externalMsgId)
   {
     LOG.debug("processDisplayMsgById()");
-    String msgId=null;
-    try
+    String msgId=getExternalParameterByKey(externalMsgId);
+    if(msgId!=null)
     {
-      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-      Map paramMap = context.getRequestParameterMap();
-      Iterator itr = paramMap.keySet().iterator();
-      while (itr.hasNext())
+      PrivateMessageDecoratedBean dbean=null;
+      PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(new Long(msgId)) ;
+      if(msg != null)
       {
-        String key = (String) itr.next();
-        if (key != null && key.equals(externalMsgId))
-        {
-          msgId = (String) paramMap.get(key);
-          break;
-        }
-      }
-      if(msgId!=null)
-      {
-        PrivateMessageDecoratedBean dbean=null;
-        PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(new Long(msgId)) ;
-        if(msg != null)
-        {
-          dbean.addPvtMessage(new PrivateMessageDecoratedBean(msg)) ;
-          detailMsg = dbean;
-        }
-
-      }
-      else
-      {
-        //TODO :  appropriate error page
-        return "pvtMsg";
+        dbean.addPvtMessage(new PrivateMessageDecoratedBean(msg)) ;
+        detailMsg = dbean;
       }
     }
-    catch (Exception e)
+    else
     {
-      //TODO  appropriate error page
-      return "pvtMsg"; 
+      //TODO :  appropriate error page
+      return "pvtMsg";
     }
     return "pvtMsgDetail";
   }
@@ -909,7 +817,7 @@ public class PrivateMessagesTool
     PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
     //TODO settings from jsp    
     rMsg.setInReplyTo(rrepMsg) ;    
-    prtMsgManager.sendPrivateMessage(rMsg, getSelectedComposeToList());    
+    prtMsgManager.sendPrivateMessage(rMsg, getRecipiants());    
     return "pvtMsg" ;
   }
  
@@ -925,7 +833,7 @@ public class PrivateMessagesTool
     PrivateMessage drrepMsg = messageManager.createPrivateMessage() ;
     drMsg.setInReplyTo(drrepMsg) ;
     
-    prtMsgManager.sendPrivateMessage(drMsg, getSelectedComposeToList());    
+    prtMsgManager.sendPrivateMessage(drMsg, getRecipiants());    
     return "pvtMsg" ;    
   }
   
@@ -996,7 +904,6 @@ public class PrivateMessagesTool
   
   public String processSelectAllJobs()
   {
-
     List newLs=new ArrayList() ;
 //    isSelectAllJobsSelected = !isSelectAllJobsSelected;
 //    processRefreshJobs();
@@ -1454,7 +1361,195 @@ public class PrivateMessagesTool
     }
     return parameterValue;
   }
+
   
+  private List getRecipiants()
+  {
+    List retLs = new Vector() ;
+    List selLs = getSelectedComposeToList();
+    for (int i = 0; i < selLs.size(); i++)
+    {
+      if (selLs.get(i).equals(RECIPIANTS_ENTIRE_CLASS))
+      {
+        for (Iterator iterator = getAllParticipants().iterator(); iterator.hasNext();)
+        {
+          Participant p = (Participant) iterator.next();
+          retLs.add(p.uniqname); // uniqname is the userId
+        }
+        break;
+      }
+      // instructors
+      if (selLs.get(i).equals(RECIPIANTS_ALL_INSTRUCTORS))
+      {
+        for (Iterator iterator = getAllInstructorParticipants().iterator(); iterator.hasNext();)
+        {
+          Participant p = (Participant) iterator.next();
+          retLs.add(p.uniqname); // uniqname is the userId
+        }
+        break;
+      }
+      else 
+      {
+        retLs.add(selLs.get(i));
+      }
+    }
+    return retLs ;
+  }
+  /*
+   * return all participants
+   */
+  private List getAllParticipants()
+  {
+    List members = new Vector();
+    
+    List participants = new Vector();    
+    String realmId = SiteService.siteReference(PortalService.getCurrentSiteId());//SiteService.siteReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
+ 
+    try
+    {
+      AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+      Set grants = realm.getMembers();
+      //Collections.sort(users);
+      for (Iterator i = grants.iterator(); i.hasNext();)
+      {
+        Member g = (Member) i.next();
+        String userString = g.getUserId();
+        Role r = g.getRole();
+        
+        boolean alreadyInList = false;
+        for (Iterator p = members.iterator(); p.hasNext() && !alreadyInList;)
+        {
+          CourseMember member = (CourseMember) p.next();
+          String memberUniqname = member.getUniqname();
+          if (userString.equalsIgnoreCase(memberUniqname))
+          {
+              alreadyInList = true;
+              if (r != null)
+              {
+                  member.setRole(r.getId());
+              }
+              participants.add(member);
+          }
+        }
+        if (!alreadyInList)
+        {
+          try
+          {
+            User user = UserDirectoryService.getUser(userString);
+            Participant participant = new Participant();
+            participant.name = user.getSortName();
+            participant.uniqname = userString;
+            if (r != null)
+            {
+                participant.role = r.getId();
+            }
+            //Don't add admin/admin 
+            if(!(participant.uniqname).equals("admin"))
+            {
+              participants.add(participant);
+            }                
+          }
+          catch (IdUnusedException e)
+          {
+            // deal with missing user quietly without throwing a warning message
+          }
+        }
+      }
+    }
+    catch (IdUnusedException e)
+    {
+      //Log.warn("chef", this + "  IdUnusedException " + realmId);
+    } 
+    return participants ;
+  }  
+
+  
+  /*
+   * return all participants
+   */
+  private List getAllInstructorParticipants()
+  {
+    List members = new Vector();
+    
+    List participants = new Vector();    
+    String realmId = SiteService.siteReference(PortalService.getCurrentSiteId());//SiteService.siteReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
+ 
+    try
+    {
+      AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+      Set grants = realm.getMembers();
+      //Collections.sort(users);
+      for (Iterator i = grants.iterator(); i.hasNext();)
+      {
+        Member g = (Member) i.next();
+        String userString = g.getUserId();
+        Role r = g.getRole();
+        
+        boolean alreadyInList = false;
+        for (Iterator p = members.iterator(); p.hasNext() && !alreadyInList;)
+        {
+          CourseMember member = (CourseMember) p.next();
+          String memberUniqname = member.getUniqname();
+          if (userString.equalsIgnoreCase(memberUniqname))
+          {
+              alreadyInList = true;
+              if (r != null)
+              {
+                  member.setRole(r.getId());
+              }
+              participants.add(member);
+          }
+        }
+        if (!alreadyInList)
+        {
+          try
+          {
+            User user = UserDirectoryService.getUser(userString);
+            Participant participant = new Participant();
+            participant.name = user.getSortName();
+            participant.uniqname = userString;
+            if (r != null)
+            {
+                participant.role = r.getId();
+            }
+            //Don't add admin/admin 
+            if(!(participant.uniqname).equals("admin") && prtMsgManager.isInstructor(participant.uniqname))
+            {
+              participants.add(participant);
+            }                
+          }
+          catch (IdUnusedException e)
+          {
+            // deal with missing user quietly without throwing a warning message
+          }
+        }
+      }
+    }
+    catch (IdUnusedException e)
+    {
+      //Log.warn("chef", this + "  IdUnusedException " + realmId);
+    } 
+    return participants ;
+  }
+  
+  /**
+   * Participant in site access roles
+   *
+   */
+ public class Participant
+ {
+   public String name = "";
+   public String uniqname = "";
+   public String role = ""; 
+       
+   public String getName() {return name; }
+   public String getUniqname() {return uniqname; }
+   public String getRole() { return role; } // cast to Role
+   public boolean isRemoveable(){return true;}
+   
+ } // Participant
+ 
+ 
   //////// GETTER AND SETTER  ///////////////////  
   public String processUpload(ValueChangeEvent event)
   {

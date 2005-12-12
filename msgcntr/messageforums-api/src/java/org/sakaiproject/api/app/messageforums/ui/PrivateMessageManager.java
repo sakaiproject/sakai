@@ -108,4 +108,6 @@ public interface PrivateMessageManager {
     public void removePvtMsgAttachment(Attachment o);
     public Attachment getPvtMsgAttachment(final Long pvtMsgAttachId);
     
+    
+    public boolean isInstructor(String userId);
 }
