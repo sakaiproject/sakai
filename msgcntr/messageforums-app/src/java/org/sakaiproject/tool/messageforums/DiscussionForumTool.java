@@ -84,6 +84,9 @@ public class DiscussionForumTool
   public String processActionHome()
   {
     LOG.debug("processActionHome()");
+    selectedForum=null;
+    selectedTopic=null;
+    selectedMessage=null;
     return MAIN;
   }
 
@@ -215,6 +218,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionNewForum()");
     DiscussionForum forum = forumManager.createForum();
+    selectedForum=null;
     selectedForum = new DiscussionForumBean(forum);
     return FORUM_SETTING_REVISE;
   }
@@ -232,7 +236,10 @@ public class DiscussionForumTool
       return MAIN;
     }
     DiscussionForum forum = forumManager.getForumById(new Long(forumId));
+    //TODO:way around lazy initialization
+//    List attachment=forum.getAttachments();
     selectedForum = new DiscussionForumBean(forum);
+//    selectedForum.getForum().setAttachments(attachment);
 
     return FORUM_SETTING;
   }
@@ -249,8 +256,8 @@ public class DiscussionForumTool
       // TODO : appropriate error page
       return MAIN;
     }
-    // DiscussionForum forum = forumManager.getForumById(forumId);
-    // selectedForum = new DiscussionForumBean(forum);
+//     DiscussionForum forum = forumManager.getForumById(forumId);
+//     selectedForum = new DiscussionForumBean(forum);
     return FORUM_SETTING_REVISE; //
   }
 
@@ -531,7 +538,6 @@ public class DiscussionForumTool
     {
       LOG.debug("getDecoratedForum(DiscussionForum" + forum + ")");
     }
-
     DiscussionForumBean decoForum = new DiscussionForumBean(forum);
     List temp_topics = forum.getTopics();
     if (temp_topics == null)
@@ -564,6 +570,10 @@ public class DiscussionForumTool
     if ((forumId) != null)
     {
       DiscussionForum forum = forumManager.getForumByUuid(forumId);
+      if(forum==null)
+      {
+        return null;
+      }
       selectedForum = getDecoratedForum(forum);
       return selectedForum;
     }
@@ -706,5 +716,6 @@ public class DiscussionForumTool
     DiscussionTopic topic = forumManager.createTopic();
     selectedTopic = new DiscussionTopicBean(topic);
     selectedTopic.setParentForumId(getExternalParameterByKey(FORUM_ID));
+ 
   }
 }

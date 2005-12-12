@@ -21,7 +21,7 @@
 				<h:panelGroup><h:outputText id="topic_fullDescription"  value="#{ForumTool.selectedTopic.topic.extendedDescription}"/></h:panelGroup>
 				
 				<h:panelGroup><h:outputLabel id="outputLabel3" for="topic_attachments"  value="#{msgs.cdfm_attachments}"/>	</h:panelGroup>
-				<h:panelGroup>
+				<%--<h:panelGroup>
 					 <h:dataTable id="topic_attachments"  value="#{ForumTool.selectedTopic.topic.attachments}" var="attachment" >
 					  		<h:column rendered="#{!empty ForumTool.selectedTopic.topic.attachments}">
 								<h:graphicImage url="/images/excel.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-excel'}"/>
@@ -33,7 +33,7 @@
 								<h:outputText value="#{attachment.attachmentName}"/>
 						</h:column>
 					</h:dataTable> 			 
-				</h:panelGroup>
+				</h:panelGroup>--%>
       		</h:panelGrid>
 		</p>
         <h4><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h4>
@@ -41,7 +41,7 @@
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel id="outputLabel4" for="topic_posting"  value="#{msgs.cdfm_lock_topic}"/>	</h:panelGroup>
 				<h:panelGroup>
-					<h:selectOneRadio layout="pageDirection" disabled="true" id="topic_posting"  value="#{ForumTool.selectedTopic.topic.locked}">
+					<h:selectOneRadio layout="pageDirection" disabled="true" id="topic_posting"  value="#{ForumTool.selectedTopic.locked}">
     					<f:selectItem itemValue="true" itemLabel="Yes"/>
     					<f:selectItem itemValue="false" itemLabel="No"/>
   					</h:selectOneRadio>
@@ -55,10 +55,10 @@
       
        <p class="act">
           <h:commandButton action="#{ForumTool.processActionReviseTopicSettings}" value="#{msgs.cdfm_button_bar_revise}"> 
-    	 	  	<f:param value="#{ForumTool.selectedTopic.topic.uuid}" name="topicId"/>         
+    	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>         
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionDeleteTopicConfirm}" value="#{msgs.cdfm_button_bar_delete}">
-	        	<f:param value="#{ForumTool.selectedTopic.topic.uuid}" name="topicId"/>
+	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
        </p>

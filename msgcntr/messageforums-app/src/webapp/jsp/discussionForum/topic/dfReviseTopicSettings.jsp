@@ -34,7 +34,7 @@
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel id="outputLabel3" for="topic_posting"  value="#{msgs.cdfm_lock_topic}"/>	</h:panelGroup>
 				<h:panelGroup>
-					<h:selectOneRadio layout="pageDirection"  id="topic_posting"  value="#{ForumTool.selectedTopic.topic.locked}">
+					<h:selectOneRadio layout="pageDirection"  id="topic_posting"  value="#{ForumTool.selectedTopic.locked}">
     					<f:selectItem itemValue="true" itemLabel="Yes"/>
     					<f:selectItem itemValue="false" itemLabel="No"/>
   					</h:selectOneRadio>
@@ -50,7 +50,7 @@
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel id="outputLabel4" for="topic_reading"  value="Users must post a response before reading others"/>	</h:panelGroup>
 				<h:panelGroup>
-					<h:selectOneRadio layout="pageDirection"  id="topic_reading"  value="true">
+					<h:selectOneRadio layout="pageDirection"  id="topic_reading" value="#{ForumTool.selectedTopic.mustRespondBeforeReading}">
     					<f:selectItem itemValue="false" itemLabel="Yes"/>
     					<f:selectItem itemValue="false" itemLabel="No"/>
   					</h:selectOneRadio>
@@ -64,13 +64,13 @@
       
       <p class="act">
           <h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" value="#{msgs.cdfm_button_bar_save_setting}"> 
-    	 	  	<f:param value="#{ForumTool.selectedTopic.topic.uuid}" name="topicId"/>         
+    	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>         
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}">
-	        	<f:param value="#{ForumTool.selectedTopic.topic.uuid}" name="topicId"/>
+	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionSaveTopicAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}">
-	        	<f:param value="#{ForumTool.selectedTopic.topic.uuid}" name="topicId"/>
+	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
        </p>

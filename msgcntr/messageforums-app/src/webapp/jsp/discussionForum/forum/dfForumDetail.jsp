@@ -16,11 +16,11 @@
 			</div>
 			<div class="right-header-section">
 				<h:commandLink action="#{ForumTool.processActionNewTopic}"  value="#{msgs.cdfm_new_topic}" >
-					<f:param value="#{ForumTool.selectedForum.forum.uuid}" name="forumId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 				<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
 				<h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}" >
-					<f:param value="#{ForumTool.selectedForum.forum.uuid}" name="forumId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 		 	</div>
 		</div>
@@ -29,11 +29,11 @@
 			<h:column>
 				<f:verbatim><div class="topicRows"></f:verbatim>
 				<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{topic.topic.title}">
-					<f:param value="#{topic.topic.uuid}" name="topicId"/>
+					<f:param value="#{topic.topic.id}" name="topicId"/>
 				</h:commandLink>
 				<h:outputText id="topic_msg_count" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
 				<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" styleClass="rightAlign" value="#{msgs.cdfm_topic_settings}">
-					<f:param value="#{topic.topic.uuid}" name="topicId"/>
+					<f:param value="#{topic.topic.id}" name="topicId"/>
 				</h:commandLink>
 				<f:verbatim><br/></f:verbatim>
 				<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" />

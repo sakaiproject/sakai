@@ -34,7 +34,7 @@
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel id="outputLabel3" for="forum_posting"  value="#{msgs.cdfm_lock_forum}"/>	</h:panelGroup>
 				<h:panelGroup>
-					<h:selectOneRadio layout="pageDirection"  id="forum_posting"  value="#{ForumTool.selectedForum.forum.locked}">
+					<h:selectOneRadio layout="pageDirection"  id="forum_posting"  value="#{ForumTool.selectedForum.locked}">
     					<f:selectItem itemValue="true" itemLabel="Yes"/>
     					<f:selectItem itemValue="false" itemLabel="No"/>
   					</h:selectOneRadio>
@@ -48,13 +48,13 @@
       
       <p class="act">
           <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" value="#{msgs.cdfm_button_bar_save_setting}"> 
-    	 	  	<f:param value="#{ForumTool.selectedForum.forum.uuid}" name="forumId"/>         
+    	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionSaveForumAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}">
-	        	<f:param value="#{ForumTool.selectedForum.forum.uuid}" name="forumId"/>
+	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}">
-	        	<f:param value="#{ForumTool.selectedForum.forum.uuid}" name="forumId"/>
+	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
        </p>

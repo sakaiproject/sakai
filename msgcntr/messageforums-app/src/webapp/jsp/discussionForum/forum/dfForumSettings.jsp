@@ -21,7 +21,7 @@
 				<h:panelGroup><h:outputText id="forum_fullDescription"  value="#{ForumTool.selectedForum.forum.extendedDescription}"/></h:panelGroup>
 				
 				<h:panelGroup><h:outputLabel id="outputLabel3" for="forum_attachments"  value="#{msgs.cdfm_attachments}"/>	</h:panelGroup>
-				<h:panelGroup>
+				<%--<h:panelGroup>
 					 <h:dataTable id="forum_attachments"  value="#{ForumTool.selectedForum.forum.attachments}" var="attachment" >
 					  		<h:column rendered="#{!empty ForumTool.selectedForum.forum.attachments}">
 								<h:graphicImage url="/images/excel.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-excel'}"/>
@@ -33,7 +33,7 @@
 								<h:outputText value="#{attachment.attachmentName}"/>
 						</h:column>
 					</h:dataTable> 			 
-				</h:panelGroup>
+				</h:panelGroup>--%>
       		</h:panelGrid>
 		</p>
         <h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>
@@ -41,7 +41,7 @@
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel id="outputLabel4" for="forum_posting"  value="#{msgs.cdfm_lock_forum}"/>	</h:panelGroup>
 				<h:panelGroup>
-					<h:selectOneRadio layout="pageDirection" disabled="true" id="forum_posting"  value="#{ForumTool.selectedForum.forum.locked}">
+					<h:selectOneRadio layout="pageDirection" disabled="true" id="forum_posting"  value="#{ForumTool.selectedForum.locked}">
     					<f:selectItem itemValue="true" itemLabel="Yes"/>
     					<f:selectItem itemValue="false" itemLabel="No"/>
   					</h:selectOneRadio>
@@ -55,10 +55,10 @@
       
        <p class="act">
           <h:commandButton id ="revise" action="#{ForumTool.processActionReviseForumSettings}" value="#{msgs.cdfm_button_bar_revise}"> 
-    	 	  	<f:param value="#{ForumTool.selectedForum.forum.uuid}" name="forumId"/>         
+    	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
           <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForumConfirm}" value="#{msgs.cdfm_button_bar_delete}">
-	        	<f:param value="#{ForumTool.selectedForum.forum.uuid}" name="forumId"/>
+	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           <h:commandButton id="cancel" immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
        </p>

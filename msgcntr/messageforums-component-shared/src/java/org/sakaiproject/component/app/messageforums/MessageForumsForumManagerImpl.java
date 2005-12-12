@@ -98,13 +98,38 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return sessionManager;
     }
 
-    /**
-     * Retrieve the current user's discussion forums
-     */
-    public List getDiscussionForums() {
-        // TODO: Implement Me!
-        throw new UnsupportedOperationException();
-    }
+//  /**
+//  * Retrieve the current user's discussion forums
+//  */
+// public List getDiscussionForums(final Area area) {
+//   if (area == null)
+//   {
+//     throw new IllegalArgumentException("Null Argument");
+//   }
+//   else
+//   {                 
+//     HibernateCallback hcb = new HibernateCallback()
+//     {                
+//       public Object doInHibernate(Session session) throws HibernateException,
+//           SQLException
+//       {            
+//         // get syllabi in an eager fetch mode
+//         Criteria crit = session.createCriteria(DiscussionForumImpl.class)
+//                     .add(Expression.eq("id", area.getId()))
+//                     .setFetchMode("discussionForums", FetchMode.EAGER);
+//                     
+//         
+//         AreaImpl area = (AreaImpl) crit.uniqueResult();
+//         
+//         if (area != null){            
+//           return area.getDiscussionForums();                                           
+//         }     
+//         return new TreeSet();
+//       }
+//     };             
+//     return (List) getHibernateTemplate().execute(hcb);     
+//   }        
+// }
 
     /**
      * Retrieve a given forum for the current user

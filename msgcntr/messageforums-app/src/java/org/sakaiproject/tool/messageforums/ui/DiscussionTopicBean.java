@@ -3,6 +3,7 @@ package org.sakaiproject.tool.messageforums.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 
 /**
@@ -10,7 +11,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
  */
 public class DiscussionTopicBean
 {
-  private Topic topic;
+  private DiscussionTopic topic;
   private int totalNoMessages;
   private int unreadNoMessages;
   private boolean hasNextTopic = false;
@@ -22,7 +23,7 @@ public class DiscussionTopicBean
 
   private List messages = new ArrayList();
 
-  public DiscussionTopicBean(Topic topic)
+  public DiscussionTopicBean(DiscussionTopic topic)
   {
     this.topic = topic;
   }
@@ -197,6 +198,60 @@ public class DiscussionTopicBean
   }
   
   
+  /**
+   * @return Returns the mustRespondBeforeReading.
+   */
+  public String getMustRespondBeforeReading()
+  {
+   if(topic==null || topic.getMustRespondBeforeReading()==null||topic.getMustRespondBeforeReading().booleanValue()==false)
+    {
+      return Boolean.FALSE.toString();      
+    }
+   return  Boolean.TRUE.toString();
+  }
+
+  /**
+   * @param mustRespondBeforeReading 
+   */
+  public void setMustRespondBeforeReading(String mustRespondBeforeReading)
+  {
+    if(mustRespondBeforeReading==Boolean.TRUE.toString())
+    {
+      topic.setMustRespondBeforeReading(new Boolean(true));
+    }
+    else
+    {
+      topic.setMustRespondBeforeReading(new Boolean(false));
+    }
+  } 
   
 
+  /**
+   * @return Returns the locked.
+   */
+  public String getLocked()
+  {
+     if(topic==null || topic.getLocked()==null||topic.getLocked().booleanValue()==false)
+    {
+      return Boolean.FALSE.toString();      
+    }
+    return  Boolean.TRUE.toString();
+  }
+
+  /**
+   * @param locked The locked to set.
+   */
+  public void setLocked(String locked)
+  {
+    if(locked==Boolean.TRUE.toString())
+    {
+       topic.setLocked(new Boolean(true));
+    }
+    else
+    {
+       topic.setLocked(new Boolean(false));
+    }
+  } 
+ 
+  
 }

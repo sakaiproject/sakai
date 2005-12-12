@@ -31,7 +31,7 @@ public interface MessageForumsForumManager {
     /**
      * Retrieve the current user's discussion forums
      */
-    public List getDiscussionForums();
+//    public List getDiscussionForums();
 
     /**
      * Retrieve a given forum for the current user

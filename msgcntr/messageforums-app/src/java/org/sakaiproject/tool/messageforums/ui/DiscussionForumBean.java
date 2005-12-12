@@ -12,7 +12,6 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 public class DiscussionForumBean
 {
   private DiscussionForum forum;
-
   /**
    * List of decorated topics
    */
@@ -46,4 +45,31 @@ public class DiscussionForumBean
       topics.add(decoTopic);
     }
   }
+
+  /**
+   * @return Returns the locked.
+   */
+  public String getLocked()
+  {
+    if(forum==null || forum.getLocked()==null||forum.getLocked().booleanValue()==false)
+    {
+      return Boolean.FALSE.toString();      
+    }
+    return  Boolean.TRUE.toString();
+  }
+
+  /**
+   * @param locked The locked to set.
+   */
+  public void setLocked(String locked)
+  {
+    if(locked==Boolean.TRUE.toString())
+    {
+      forum.setLocked(new Boolean(true));
+    }
+    else
+    {
+      forum.setLocked(new Boolean(false));
+    }
+  } 
 }
