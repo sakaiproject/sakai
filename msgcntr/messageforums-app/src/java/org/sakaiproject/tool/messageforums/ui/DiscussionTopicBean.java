@@ -19,8 +19,7 @@ public class DiscussionTopicBean
   private String nextTopicId;
   private String previousTopicId;
   private boolean readFullDesciption=false;
-  private String parentForumId;
-
+  
   private List messages = new ArrayList();
 
   public DiscussionTopicBean(DiscussionTopic topic)
@@ -186,17 +185,9 @@ public class DiscussionTopicBean
    */
   public String getParentForumId()
   {
-    return parentForumId;
+    return topic.getBaseForum().getId().toString();
   }
 
-  /**
-   * @param parentForumId The parentForumId to set.
-   */
-  public void setParentForumId(String parentForumId)
-  {
-    this.parentForumId = parentForumId;
-  }
-  
   
   /**
    * @return Returns the mustRespondBeforeReading.

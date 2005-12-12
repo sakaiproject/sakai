@@ -80,7 +80,7 @@ public interface MessageForumsForumManager {
     /**
      * Create and save an empty discussion forum topic
      */
-    public DiscussionTopic createDiscussionForumTopic();
+    public DiscussionTopic createDiscussionForumTopic(DiscussionForum forum);
 
     /**
      * Save a discussion forum topic

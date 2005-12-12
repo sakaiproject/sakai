@@ -107,9 +107,10 @@ public interface DiscussionForumManager
 
   /**
    *
+   * @param forum TODO
    * @return
    */
-  DiscussionTopic createTopic();
+  DiscussionTopic createTopic(DiscussionForum forum);
 
   void saveForum(DiscussionForum forum);
   

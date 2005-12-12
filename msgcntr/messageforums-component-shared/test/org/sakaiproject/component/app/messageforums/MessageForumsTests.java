@@ -279,7 +279,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     // helpers
 
     private DiscussionTopic getDiscussionTopic() {
-        DiscussionTopic topic = forumManager.createDiscussionForumTopic();
+        DiscussionTopic topic = forumManager.createDiscussionForumTopic(null);
         topic.setTypeUuid("dt-type");
         topic.setTitle("A test discussion topic");
         topic.setShortDescription("short desc");

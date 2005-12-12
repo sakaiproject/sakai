@@ -33,7 +33,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private MessageForumsForumManager forumManager;
   private MessageForumsMessageManager messageManager;
   private DummyDataHelperApi helper;
-  private boolean usingHelper = true; // just a flag until moved to database from helper
+  private boolean usingHelper = false; // just a flag until moved to database from helper
 
   public void init()
   {
@@ -138,6 +138,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public int getTotalNoMessages(Topic topic)
   {
+    if (usingHelper)
+    {
+      return 20;
+    }
     return messageManager.findMessageCountByTopicId(topic.getId());
   }
 
@@ -148,6 +152,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public int getUnreadNoMessages(String userId, Topic topic)
   {
+    if (usingHelper)
+    {
+      return 10;
+    }
     return messageManager.findUnreadMessageCountByTopicId(userId, topic.getId());
   }
 
@@ -387,10 +395,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return forumManager.createDiscussionForum();
   }
 
-  public DiscussionTopic createTopic()
+  public DiscussionTopic createTopic(DiscussionForum forum)
   {
     LOG.debug("createTopic()");
-    return forumManager.createDiscussionForumTopic();
+    if(forum==null)
+    {
+      LOG.debug("Attempt to create topic with out forum");
+      return null;
+    }
+    return forumManager.createDiscussionForumTopic(forum);
   }
 
   public void saveForum(DiscussionForum forum)
@@ -412,4 +425,5 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     forumManager.saveDiscussionForum(forum);
   }
   
+
 }

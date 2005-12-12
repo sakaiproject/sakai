@@ -268,7 +268,12 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveForumAndAddTopic()");
     // TODO : save forum
-    createTopic();
+    selectedTopic=createTopic();
+    if(selectedTopic==null)
+    {
+      //TODO : redirect to a error page
+      return MAIN;
+    }
     return TOPIC_SETTING_REVISE;
   }
 
@@ -307,7 +312,12 @@ public class DiscussionForumTool
   public String processActionNewTopic()
   {
     LOG.debug("processActionNewTopic()");
-    createTopic();
+    selectedTopic=createTopic();
+    if(selectedTopic==null)
+    {
+      //TODO : redirect to a error page
+      return MAIN;
+    }
     return TOPIC_SETTING_REVISE;
   }
 
@@ -324,7 +334,6 @@ public class DiscussionForumTool
       return MAIN;
     }
     selectedTopic = new DiscussionTopicBean(topic);
-    selectedTopic.setParentForumId(getExternalParameterByKey(FORUM_ID));
     return TOPIC_SETTING_REVISE;
   }
 
@@ -348,7 +357,6 @@ public class DiscussionForumTool
     
     if (selectedTopic != null) {
         DiscussionTopic topic = (DiscussionTopic)selectedTopic.getTopic();
-        topic.setBaseForum(forumManager.getForumByUuid(selectedTopic.getParentForumId()));
         forumManager.saveTopic(topic);
     }    
     
@@ -393,7 +401,6 @@ public class DiscussionForumTool
       return MAIN;
     }
     selectedTopic = new DiscussionTopicBean(topic);
-    selectedTopic.setParentForumId(getExternalParameterByKey(FORUM_ID));
     return TOPIC_SETTING;
   }
 
@@ -709,13 +716,23 @@ public class DiscussionForumTool
   }
 
   /**
+   * @return TODO
    * 
    */
-  private void createTopic()
+  private DiscussionTopicBean createTopic()
   {
-    DiscussionTopic topic = forumManager.createTopic();
-    selectedTopic = new DiscussionTopicBean(topic);
-    selectedTopic.setParentForumId(getExternalParameterByKey(FORUM_ID));
- 
+    DiscussionForum forum=forumManager.getForumById(new Long(getExternalParameterByKey(FORUM_ID)));
+    if(forum==null)
+    {
+      return null;
+    }
+    DiscussionTopic topic = forumManager.createTopic(forum);
+    if(topic==null)
+      {
+        return null;
+      }
+    
+    return new DiscussionTopicBean(topic);
+    
   }
 }

@@ -280,15 +280,16 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId());
     }
 
-    public DiscussionTopic createDiscussionForumTopic() {
-        DiscussionTopic topic = new DiscussionTopicImpl();
-        topic.setUuid(getNextUuid());
-        topic.setTypeUuid(typeManager.getDiscussionForumType());
-        topic.setCreated(new Date());
-        topic.setCreatedBy(getCurrentUser());
-        LOG.debug("createDiscussionForumTopic executed");
-        return topic;
-    }
+    public DiscussionTopic createDiscussionForumTopic(DiscussionForum forum) {
+      DiscussionTopic topic = new DiscussionTopicImpl();
+      topic.setUuid(getNextUuid());
+      topic.setTypeUuid(typeManager.getDiscussionForumType());
+      topic.setCreated(new Date());
+      topic.setCreatedBy(getCurrentUser());
+      topic.setBaseForum(forum);
+      LOG.debug("createDiscussionForumTopic executed");
+      return topic;
+  }
 
     /**
      * Save a discussion forum topic
