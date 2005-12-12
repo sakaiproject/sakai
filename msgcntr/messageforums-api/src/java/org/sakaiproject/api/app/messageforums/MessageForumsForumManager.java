@@ -36,7 +36,7 @@ public interface MessageForumsForumManager {
     /**
      * Retrieve a given forum for the current user
      */
-    public BaseForum getForumById(String forumId);
+    public BaseForum getForumById(Long forumId);
     public BaseForum getForumByUuid(String forumId);
 
     /**
@@ -63,7 +63,23 @@ public interface MessageForumsForumManager {
      * Save a discussion forum topic
      */
     public void saveDiscussionForumTopic(DiscussionTopic topic);
+    
+    /**
+     * Create and save an empty private discussion forum topic
+     */
+    public PrivateTopic createPrivateForumTopic(boolean forumIsParent, String userId, Long parentId);    
 
+    /**
+     * Save a discussion forum topic
+     */
+    public void savePrivateForumTopic(PrivateTopic topic);
+    
+    /**
+     * Delete a private forum topic
+     */
+    public void deletePrivateForumTopic(PrivateTopic topic);
+    
+    
     /**
      * Create and save an empty open discussion forum topic
      */
@@ -113,6 +129,6 @@ public interface MessageForumsForumManager {
      */
     public List getRecentOpenForumMessages(int numberMessages, int numberDaysInPast);
     
-    public Topic getTopicById(String topicId);
+    public Topic getTopicById(Long topicId);
 
 }

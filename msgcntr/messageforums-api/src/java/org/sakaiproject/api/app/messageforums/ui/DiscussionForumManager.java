@@ -35,7 +35,7 @@ public interface DiscussionForumManager
    * @param id
    * @return
    */
-  Message getMessageById(String id);
+  Message getMessageById(Long id);
 
   /**
    * @param topic
@@ -58,20 +58,20 @@ public interface DiscussionForumManager
    * @param topicId
    * @return
    */
-  public DiscussionForum getForumById(String forumId);
+  public DiscussionForum getForumById(Long forumId);
   public DiscussionForum getForumByUuid(String forumId);
 
   /**
    * @param topicId
    * @return
    */
-  public List getMessagesByTopicId(String topicId);
+  public List getMessagesByTopicId(Long topicId);
 
   /**
    * @param topicId
    * @return
    */
-  public DiscussionTopic getTopicById(String topicId);
+  public DiscussionTopic getTopicById(Long topicId);
 
   /**
    * @return

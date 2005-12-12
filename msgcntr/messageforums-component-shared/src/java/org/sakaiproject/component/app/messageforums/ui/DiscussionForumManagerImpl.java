@@ -12,10 +12,10 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.component.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
@@ -100,9 +100,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getMessageById(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getMessageById(java.lang.Long)
    */
-  public Message getMessageById(String id)
+  public Message getMessageById(Long id)
   {
     if (usingHelper)
     {
@@ -138,7 +138,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public int getTotalNoMessages(Topic topic)
   {
-    return messageManager.findMessageCountByTopicId(topic.getId().toString());
+    return messageManager.findMessageCountByTopicId(topic.getId());
   }
 
   /*
@@ -148,7 +148,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public int getUnreadNoMessages(String userId, Topic topic)
   {
-    return messageManager.findUnreadMessageCountByTopicId(userId, topic.getId().toString());
+    return messageManager.findUnreadMessageCountByTopicId(userId, topic.getId());
   }
 
   /*
@@ -168,9 +168,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getForumById(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getForumById(java.lang.Long)
    */
-  public DiscussionForum getForumById(String forumId)
+  public DiscussionForum getForumById(Long forumId)
   {
     if (usingHelper)
     {
@@ -188,9 +188,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getMessagesByTopicId(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getMessagesByTopicId(java.lang.Long)
    */
-  public List getMessagesByTopicId(String topicId)
+  public List getMessagesByTopicId(Long topicId)
   {
     if (usingHelper)
     {
@@ -200,9 +200,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getTopicById(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getTopicById(java.lang.Long)
    */
-  public DiscussionTopic getTopicById(String topicId)
+  public DiscussionTopic getTopicById(Long topicId)
   {
     if (usingHelper)
     {

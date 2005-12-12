@@ -25,16 +25,14 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 
 public class UnreadStatusImpl implements UnreadStatus {
 
     private static final Log LOG = LogFactory.getLog(UnreadStatusImpl.class);
     
-    private String topicId;
-    private String messageId;
+    private Long topicId;
+    private Long messageId;
     private String userId;
     private Boolean read;
     private Long id;
@@ -56,11 +54,11 @@ public class UnreadStatusImpl implements UnreadStatus {
         this.version = version;
     }
 
-    public String getMessageId() {
+    public Long getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(String messageId) {
+    public void setMessageId(Long messageId) {
         this.messageId = messageId;
     }
 
@@ -72,11 +70,11 @@ public class UnreadStatusImpl implements UnreadStatus {
         this.read = read;
     }
 
-    public String getTopicId() {
+    public Long getTopicId() {
         return topicId;
     }
 
-    public void setTopicId(String topicId) {
+    public void setTopicId(Long topicId) {
         this.topicId = topicId;
     }
 

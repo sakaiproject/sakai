@@ -26,8 +26,6 @@ package org.sakaiproject.component.app.messageforums;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
  
-import org.sakaiproject.api.common.type.Type;
- 
 public class MessageForumsManager //implements  MessageForumsAreaManager
 {
 

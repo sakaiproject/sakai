@@ -48,6 +48,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForu
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -106,7 +107,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     /**
      * Retrieve a given forum for the current user
      */
-    public BaseForum getForumById(final String forumId) {
+    public BaseForum getForumById(final Long forumId) {
         if (forumId == null) {
             throw new IllegalArgumentException("Null Argument");
         }
@@ -116,7 +117,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery(QUERY_BY_FORUM_ID);
-                q.setParameter("id", forumId, Hibernate.STRING);
+                q.setParameter("id", forumId, Hibernate.LONG);
                 return q.uniqueResult();
             }
         };
@@ -142,22 +143,24 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return (BaseForum) getHibernateTemplate().execute(hcb);
     }
     
-    public Topic getTopicById(final String topicId) {
+    public Topic getTopicById(final Long topicId) {
         if (topicId == null) {
             throw new IllegalArgumentException("Null Argument");
         }
-
+               
         LOG.debug("getDiscussionForumById executing with topicId: " + topicId);
+        
+        return (Topic) getHibernateTemplate().get(TopicImpl.class, topicId);
 
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
-                q.setParameter("id", topicId, Hibernate.STRING);
-                return q.uniqueResult();
-            }
-        };
-
-        return (Topic) getHibernateTemplate().execute(hcb);
+//        HibernateCallback hcb = new HibernateCallback() {
+//            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+//                Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
+//                q.setParameter("id", topicId, Hibernate.STRING);
+//                return q.uniqueResult();
+//            }
+//        };
+//
+//        return (Topic) getHibernateTemplate().execute(hcb);
     }
 
     
@@ -229,23 +232,35 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setCreatedBy(getCurrentUser());
         LOG.debug("createOpenForumTopic executed");
         return topic;
+    }        
+    
+    public PrivateTopic createPrivateForumTopic(boolean forumIsParent, String userId, Long parentId) {
+      PrivateTopic topic = new PrivateTopicImpl();
+      topic.setUuid(getNextUuid());
+      topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
+      topic.setCreated(new Date());
+      topic.setCreatedBy(getCurrentUser());
+      topic.setUserId(userId);
+      if (forumIsParent) {
+          topic.setBaseForum(getForumById(parentId));
+      } else {
+          topic.setParentTopic((PrivateTopic)getTopicById(parentId));
+      }
+      LOG.debug("createPrivateForumTopic executed");
+      return topic;
     }
     
-    public PrivateTopic createPrivateTopic(boolean forumIsParent, String userId, String parentId) {
-        PrivateTopic topic = new PrivateTopicImpl();
-        topic.setUuid(getNextUuid());
-        topic.setTypeUuid(typeManager.getOpenDiscussionForumType());
-        topic.setCreated(new Date());
-        topic.setCreatedBy(getCurrentUser());
-        topic.setUserId(userId);
-        if (forumIsParent) {
-            topic.setBaseForum(getForumById(parentId));
-        } else {
-            topic.setParentTopic((PrivateTopic)getTopicById(parentId));
-        }
-        LOG.debug("createPrivateTopic executed");
-        return topic;
+    /**
+     * Save a private forum topic
+     */
+    public void savePrivateForumTopic(PrivateTopic topic) {
+        topic.setModified(new Date());
+        topic.setModifiedBy(getCurrentUser());
+        getHibernateTemplate().saveOrUpdate(topic);
+        LOG.debug("savePrivateForumTopic executed with forumId: " + topic.getId());
     }
+    
+   
 
     /**
      * Save an open forum topic
@@ -279,6 +294,14 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void deleteOpenForumTopic(OpenTopic topic) {
         getHibernateTemplate().delete(topic);
         LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());
+    }
+    
+    /**
+     * Delete a private forum topic
+     */
+    public void deletePrivateForumTopic(PrivateTopic topic) {
+        getHibernateTemplate().delete(topic);
+        LOG.debug("deletePrivateForumTopic executed with forumId: " + topic.getId());
     }
 
     /**

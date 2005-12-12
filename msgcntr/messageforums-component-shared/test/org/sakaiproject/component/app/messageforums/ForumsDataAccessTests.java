@@ -27,11 +27,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
+import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
-import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 
 public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
         
@@ -60,8 +61,9 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
 
         
     public void testSendPrivateMessage(){
-      DiscussionTopic topic = getDiscussionTopic();      
-      PrivateMessage message = privateMessageManager.createPrivateMessage();
+      PrivateTopic topic = getPrivateTopic();      
+      PrivateMessage message = privateMessageManager.createPrivateMessage(
+        typeManager.getDraftPrivateMessageType());
       message.setApproved(Boolean.TRUE);
       message.setAuthor("jlannan");
       message.setTitle("a message");
@@ -72,35 +74,56 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
       message.setTypeUuid("mess-type");
       topic.addMessage(message);
       
-      forumManager.saveDiscussionForumTopic(topic);
-      
+      forumManager.savePrivateForumTopic(topic);
+                  
       List recipients = new UniqueArrayList();
       
       recipients.add("dman");
       recipients.add("pman");
-      recipients.add("qman");
+      recipients.add("qman"); 
+      /** add sender as recipient */
+      recipients.add("test-user");
+                              
+      privateMessageManager.sendPrivateMessage(message, recipients);                  
+      assertEquals(privateMessageManager.findMessageCount(topic.getId(),
+        typeManager.getSentPrivateMessageType()),1);
       
-      try{
-        privateMessageManager.sendPrivateMessage(message, recipients);  
-      }
-      catch (IdUnusedException e){
-        e.printStackTrace();
-      }
+      assertEquals(privateMessageManager.findMessageCount(topic.getId(),
+          typeManager.getReceivedPrivateMessageType()),1);
       
-                 
+      privateMessageManager.deletePrivateMessage(message);
+      assertEquals(privateMessageManager.findMessageCount(topic.getId(),
+          typeManager.getDeletedPrivateMessageType()),1);
+      
+      /** test getMessagesByType */
+      // todo: add sorting fields as constnats
+      List messages = privateMessageManager.getDeletedMessages(
+        PrivateMessageManager.SORT_COLUMN_DATE, PrivateMessageManager.SORT_ASC);
+      
+      System.out.println(messages);
+      
     }
 
     // helpers        
 
-    private DiscussionTopic getDiscussionTopic() {
-        DiscussionTopic topic = forumManager.createDiscussionForumTopic();
+    private PrivateTopic getPrivateTopic() {
+      
+        PrivateTopic topic = new PrivateTopicImpl();
+        //PrivateTopic topic = forumManager.savePrivateForumTopic(            
+        //  false, "jlannan", null);
+        topic.setUuid("00001");
+        topic.setCreated(new Date());
+        topic.setCreatedBy("jlannan");
+        topic.setModified(new Date());
+        topic.setModifiedBy("jlannan");
         topic.setTypeUuid("dt-type");
-        topic.setTitle("A test discussion topic");
+        topic.setTitle("A test private topic");
         topic.setShortDescription("short desc");
         topic.setExtendedDescription("long desc");
         topic.setMutable(Boolean.TRUE);
         topic.setSortIndex(new Integer(1));
         topic.addAttachment(getAttachment());
+        forumManager.savePrivateForumTopic(topic);
         return topic;
     }
 
@@ -118,7 +141,5 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
         attachment.setAttachmentUrl("http://www.google.com");
         return attachment;
     }
-    
-        
-
+                 
 }

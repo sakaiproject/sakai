@@ -41,8 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
@@ -77,6 +76,7 @@ public class PrivateMessagesTool
    *Dependency Injected 
    */
   private PrivateMessageManager prtMsgManager;
+  private MessageForumsMessageManager messageManager;
   private ErrorMessages errorMessages;
   
   /** Dependency Injected   */
@@ -169,6 +169,14 @@ public class PrivateMessagesTool
   {
     this.prtMsgManager = prtMsgManager;
   }
+  
+  /**
+   * @param messageManager
+   */
+  public void setMessageManager(MessageForumsMessageManager messageManager)
+  {
+    this.messageManager = messageManager;
+  }
 
   
   /**
@@ -181,7 +189,7 @@ public class PrivateMessagesTool
 
   public Area getArea()
   {
-    Area privateArea=prtMsgManager.getPrivateArea();
+    Area privateArea=prtMsgManager.getPrivateMessageArea();
     if(privateArea != null ) {
      List forums=privateArea.getPrivateForums();
       //Private message return ONLY ONE ELEMENT
@@ -225,7 +233,7 @@ public class PrivateMessagesTool
   {
     decoratedPvtMsgs=new ArrayList() ;
     
-    Area privateArea=prtMsgManager.getPrivateArea();
+    Area privateArea=prtMsgManager.getPrivateMessageArea();
     if(privateArea != null ) {
      List forums=privateArea.getPrivateForums();
       //Private message return ONLY ONE ELEMENT
@@ -738,7 +746,7 @@ public class PrivateMessagesTool
     if(getDetailMsg() != null)
     {
       //TODO - remove getMessageById()- not required if we remove dummy data
-      PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(getDetailMsg().getMessage().getId().toString()) ;
+      PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(getDetailMsg().getMessage().getId()) ;
       if(msg != null)
       {
         prtMsgManager.deletePrivateMessage(msg) ;
@@ -775,15 +783,8 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgSend()");
     
     PrivateMessage pMsg= constructMessage() ;
-    try
-    {
-      prtMsgManager.sendPrivateMessage(pMsg, getSelectedComposeToList());
-    }
-    catch (IdUnusedException e)
-    {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }    
+    
+    prtMsgManager.sendPrivateMessage(pMsg, getSelectedComposeToList());            
     return "pvtMsg" ;
   }
  
@@ -796,16 +797,8 @@ public class PrivateMessagesTool
     
     PrivateMessage dMsg=constructMessage() ;
     dMsg.setDraft(Boolean.TRUE);
-    try
-    {
-      prtMsgManager.sendPrivateMessage(dMsg, getSelectedComposeToList());
-    }
-    catch (IdUnusedException e)
-    {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }    
 
+    prtMsgManager.sendPrivateMessage(dMsg, getSelectedComposeToList());    
     return "pvtMsg" ;    
   }
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
@@ -815,7 +808,7 @@ public class PrivateMessagesTool
     // in case of compose this is a new message 
     if (this.getDetailMsg() == null )
     {
-      aMsg = prtMsgManager.createPrivateMessage() ;
+      aMsg = messageManager.createPrivateMessage() ;
     }
     //if reply to a message then message is existing
     else {
@@ -885,7 +878,7 @@ public class PrivateMessagesTool
       if(msgId!=null)
       {
         PrivateMessageDecoratedBean dbean=null;
-        PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(msgId) ;
+        PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(new Long(msgId)) ;
         if(msg != null)
         {
           dbean.addPvtMessage(new PrivateMessageDecoratedBean(msg)) ;
@@ -913,19 +906,10 @@ public class PrivateMessagesTool
     
     PrivateMessage rMsg=constructMessage() ;
     //add replyTo message
-    PrivateMessage rrepMsg = prtMsgManager.createPrivateMessage() ;
+    PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
     //TODO settings from jsp    
-    rMsg.setInReplyTo(rrepMsg) ;
-    try
-    {
-      prtMsgManager.sendPrivateMessage(rMsg, getSelectedComposeToList());
-    }
-    catch (IdUnusedException e)
-    {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }    
-    
+    rMsg.setInReplyTo(rrepMsg) ;    
+    prtMsgManager.sendPrivateMessage(rMsg, getSelectedComposeToList());    
     return "pvtMsg" ;
   }
  
@@ -938,18 +922,10 @@ public class PrivateMessagesTool
     
     PrivateMessage drMsg=constructMessage() ;
     drMsg.setDraft(Boolean.TRUE);
-    PrivateMessage drrepMsg = prtMsgManager.createPrivateMessage() ;
+    PrivateMessage drrepMsg = messageManager.createPrivateMessage() ;
     drMsg.setInReplyTo(drrepMsg) ;
-    try
-    {
-      prtMsgManager.sendPrivateMessage(drMsg, getSelectedComposeToList());
-    }
-    catch (IdUnusedException e)
-    {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
     
+    prtMsgManager.sendPrivateMessage(drMsg, getSelectedComposeToList());    
     return "pvtMsg" ;    
   }
   
@@ -987,7 +963,7 @@ public class PrivateMessagesTool
       if (element != null) 
       {
         //TODO - remove getMessageById()- not required if we remove dummy data
-        PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(element.getId().toString()) ;
+        PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(element.getId()) ;
         if(msg != null)
         {
           prtMsgManager.deletePrivateMessage(element) ;
@@ -1122,7 +1098,7 @@ public class PrivateMessagesTool
   {
     if((removeAttachId != null) && (!removeAttachId.equals("")))
     {
-      prepareRemoveAttach.add(prtMsgManager.getPvtMsgAttachment(removeAttachId));
+      prepareRemoveAttach.add(prtMsgManager.getPvtMsgAttachment(new Long(removeAttachId)));
     }
     
     return prepareRemoveAttach;
@@ -1204,7 +1180,7 @@ public class PrivateMessagesTool
     
     try
     {
-      Attachment sa = prtMsgManager.getPvtMsgAttachment(removeAttachId);
+      Attachment sa = prtMsgManager.getPvtMsgAttachment(new Long(removeAttachId));
       String id = sa.getAttachmentId();
       
       for(int i=0; i<attachments.size(); i++)

@@ -33,17 +33,17 @@ public interface UnreadStatus {
 
     public void setVersion(Integer version);
 
-    public String getMessageId();
+    public Long getMessageId();
 
-    public void setMessageId(String messageId);
+    public void setMessageId(Long messageId);
 
     public Boolean getRead();
 
     public void setRead(Boolean read);
 
-    public String getTopicId();
+    public Long getTopicId();
 
-    public void setTopicId(String topicId);
+    public void setTopicId(Long topicId);
 
     public String getUserId();
 

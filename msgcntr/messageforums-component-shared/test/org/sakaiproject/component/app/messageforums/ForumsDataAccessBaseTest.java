@@ -27,8 +27,10 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.BasicConfigurator;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsUserManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
@@ -59,13 +61,15 @@ public class ForumsDataAccessBaseTest extends TestCase {
   
   static{
     
+    BasicConfigurator.configure();
+    
     /** Set sakai.components.root property .. used by SpringCompMrg */
     System.setProperty("sakai.components.root", TOMCAT_HOME + "/components");
           
     componentManager = new SpringCompMgr(null);
     ((SpringCompMgr) componentManager).init();
     
-    forumManager = (MessageForumsForumManager) componentManager.get("org.sakaiproject.component.app.messageforums.MessageForumsForumManager");
+    forumManager = (MessageForumsForumManager) componentManager.get(MessageForumsForumManager.class.getName());
     messageManager = (MessageForumsMessageManager) componentManager.get(MessageForumsMessageManager.class.getName());
     areaManager = (AreaManager) componentManager.get(AreaManager.class.getName());
     typeManager = (MessageForumsTypeManager) componentManager.get(MessageForumsTypeManager.class.getName());

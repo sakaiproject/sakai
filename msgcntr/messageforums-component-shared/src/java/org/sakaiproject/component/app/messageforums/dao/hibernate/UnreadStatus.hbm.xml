@@ -21,17 +21,27 @@
     <version name="version" column="VERSION" />
 
     <!-- UnreadStatus fields -->
+    <!-- 
+    <many-to-one name="topicId" column="TOPIC_C"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+      not-null="false" index="MFR_UNREAD_PARENT_I1" cascade="none" />
+      
+    <many-to-one name="messageId" column="MESSAGE_C"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
+      not-null="false" index="MFR_UNREAD_PARENT_I1" cascade="none" />
+    -->
+    
     <property name="topicId">
-      <column name="TOPIC_C" length="255" not-null="true" />
+      <column name="TOPIC_C" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
     </property>
     <property name="messageId">
-      <column name="MESSAGE_C" length="255" not-null="true" />
+      <column name="MESSAGE_C" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
     </property>
     <property name="userId">
-      <column name="USER_C" length="255" not-null="true" />
+      <column name="USER_C" length="255" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
     </property>
     <property name="read">
-      <column name="READ_C" not-null="true" />
+      <column name="READ_C" not-null="true" index="MFR_UNREAD_STATUS_I1" />
     </property>      
   </class>
 

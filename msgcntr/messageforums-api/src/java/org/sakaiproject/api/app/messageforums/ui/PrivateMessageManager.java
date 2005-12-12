@@ -7,30 +7,50 @@ import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.exception.IdUnusedException;
 
 public interface PrivateMessageManager {
+    
+    public static String SORT_COLUMN_SUBJECT = "title";
+    public static String SORT_COLUMN_AUTHOR = "author";
+    public static String SORT_COLUMN_DATE = "created";
+    public static String SORT_COLUMN_LABEL = "label";
+    
+    public static String SORT_ASC = "asc";
+    public static String SORT_DESC = "desc";
+  
     /**
-     * Check if private message area is enabled for the current user
-     * 
+     * check if private message area is enabled for the current user
      * @return boolean
-     * 
      */
     boolean isPrivateAreaUnabled();
 
     /**
-     * Retrieve private message area if it is enabled for the current user
-     * 
-     * @return
+     * retrieve private message area if it is enabled for the current user
+     * @return area
      */
-    Area getPrivateArea();
+    Area getPrivateMessageArea();    
+    
+    
+    /** 
+     * create private message with type
+     * @param typeUuid
+     * @return private message
+     */
+    public PrivateMessage createPrivateMessage(String typeUuid);
     
     /**
-     * Send private message to recipients
+     * send private message to recipients
      * @param message
      * @param recipients
      */
-    public void sendPrivateMessage(PrivateMessage message, List recipients) throws IdUnusedException;
+    public void sendPrivateMessage(PrivateMessage message, List recipients);
+    
+    
+    /**
+     * mark message as deleted for user
+     * @param message
+     */
+    public void deletePrivateMessage(Message message);
 
     /**
      * Save private message
@@ -38,25 +58,37 @@ public interface PrivateMessageManager {
      * @param recipients
      */
     void savePrivateMessage(Message message);
+    
+    /**
+     * find unread message count for topic and type
+     * @param topicId
+     * @param typeUuid
+     * @return count
+     */
+    public int findUnreadMessageCount(final Long topicId, final String typeUuid);
+    
+    /**
+     * find message count for topic and type
+     * @param topicId
+     * @param typeUuid
+     * @return
+     */
+    public int findMessageCount(final Long topicId, final String typeUuid);
 
-    
-    
-    void deletePrivateMessage(Message message);
+        
 
-    public Message getMessageById(String messageId);
+    public Message getMessageById(Long messageId);
     
-    public List getReceivedMessages(String userId);
-    public List getSentMessages(String userId);
-    public List getDeletedMessages(String userId);
-    public List getDraftedMessages(String userId);
+    public List getReceivedMessages(String orderField, String order);
+    public List getSentMessages(String orderField, String order);
+    public List getDeletedMessages(String orderField, String order);
+    public List getDraftedMessages(String orderField, String order);    
+    
     // will the below be helpful for displaying messages related to other mutable topics. 
-    public List getMessagesByTopic(String userId, String topicId);
+    public List getMessagesByTopic(String userId, Long topicId);
     
     int getTotalNoMessages(Topic topic);
-    int getUnreadNoMessages(String userId, Topic topic);
-    
-    //create new instance of Privae Message --required before saving 
-    public PrivateMessage createPrivateMessage() ;
+    int getUnreadNoMessages(String userId, Topic topic);    
     
     //Topic Setting
     public void saveAreaSetting() ;
@@ -74,6 +106,6 @@ public interface PrivateMessageManager {
     public void addAttachToPvtMsg(final PrivateMessage pvtMsgData, final Attachment pvtMsgAttach);
     public Attachment createPvtMsgAttachment(String attachId, String name);
     public void removePvtMsgAttachment(Attachment o);
-    public Attachment getPvtMsgAttachment(final String pvtMsgAttachId);
+    public Attachment getPvtMsgAttachment(final Long pvtMsgAttachId);
     
 }

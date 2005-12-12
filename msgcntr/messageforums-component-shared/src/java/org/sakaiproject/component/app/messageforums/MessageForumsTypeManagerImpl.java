@@ -16,13 +16,13 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String DISCUSSION ="discussionForums";
   private static final String OPEN ="openForums";
   
-  private static final String RECEIVED ="ReceivedPrivateMassageType";
+  private static final String RECEIVED ="ReceivedPrivateMessageType";
   
-  private static final String SENT ="SentPrivateMassageType";
+  private static final String SENT ="SentPrivateMessageType";
   
-  private static final String DELETED ="DeletedPrivateMassageType";
+  private static final String DELETED ="DeletedPrivateMessageType";
   
-  private static final String DRAFT ="DraftPrivateMassageType";  
+  private static final String DRAFT ="DraftPrivateMessageType";  
  
   private TypeManager typeManager;
   
@@ -36,7 +36,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     this.typeManager = typeManager;
   }
 
-  public String getPrivateType()
+  public String getPrivateMessageAreaType()
   {
     Type type = typeManager.getType(AUTHORITY,DOMAIN,PRIVATE);
     if(type!=null)

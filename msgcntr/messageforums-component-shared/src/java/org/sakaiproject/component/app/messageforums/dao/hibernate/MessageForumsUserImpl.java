@@ -87,17 +87,17 @@ public class MessageForumsUserImpl implements MessageForumsUser {
         this.privateMessage = privateMessage;
     }
 
-    public int getMesindex() {
-        try {
-            return getPrivateMessage().getRecipients().indexOf(this);
-        } catch (Exception e) {
-            return mesindex;
-        }
-    }
-
-    public void setMesindex(int mesindex) {
-        this.mesindex = mesindex;
-    }
+//    public int getMesindex() {
+//        try {
+//            return getPrivateMessage().getRecipients().indexOf(this);
+//        } catch (Exception e) {
+//            return mesindex;
+//        }
+//    }
+//
+//    public void setMesindex(int mesindex) {
+//        this.mesindex = mesindex;
+//    }
 
     public int getApaccessorsindex() {
         try {

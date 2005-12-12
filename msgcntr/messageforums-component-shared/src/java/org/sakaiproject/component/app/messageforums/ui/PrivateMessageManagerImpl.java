@@ -1,7 +1,14 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.sql.SQLException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import net.sf.hibernate.Hibernate;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,27 +17,41 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsUserManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
-import org.sakaiproject.component.app.messageforums.MessageForumsMessageManager;
-import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.api.kernel.id.IdManager;
+import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.component.app.messageforums.TestUtil;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
+import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 
 
 public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageManager
-{
-
+{  
+  
   private static final Log LOG = LogFactory.getLog(PrivateMessageManagerImpl.class);
+  
+  private static final String QUERY_COUNT = "findPvtMsgCntByTopicIdAndTypeUuid";
+  private static final String QUERY_COUNT_BY_UNREAD = "findUnreadPvtMsgCntByTopicIdAndTypeUuid";
+  private static final String QUERY_MESSAGES_BY_TYPE = "findPrivateMessagesByTypeUuid";
+     
   
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
-  private MessageForumsUserManager userManager;
+  private MessageForumsTypeManager typeManager;
+  private IdManager idManager;
+  private SessionManager sessionManager;
   private DummyDataHelperApi helper;
   private boolean usingHelper = true; // just a flag until moved to database from helper
 
@@ -38,39 +59,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     ;
   }
-
-  // start injection
-  public void setHelper(DummyDataHelperApi helper)
-  {
-    this.helper = helper;
-  }
-
-  public AreaManager getAreaManager()
-  {
-    return areaManager;
-  }
-
-  public void setAreaManager(AreaManager areaManager)
-  {
-    this.areaManager = areaManager;
-  }
-
-  public MessageForumsMessageManager getMessageManager()
-  {
-    return messageManager;
-  }
-
-  public void setMessageManager(MessageForumsMessageManager messageManager)
-  {
-    this.messageManager = messageManager;
-  }
-  
-  public void setUserManager(MessageForumsUserManager userManager)
-  {
-    this.userManager = userManager;
-  }
-
-  // end injection
 
   public boolean isPrivateAreaUnabled()
   {
@@ -81,7 +69,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return areaManager.isPrivateAreaEnabled();
   }
 
-  public Area getPrivateArea()
+  public Area getPrivateMessageArea()
   {
     if (usingHelper)
     {
@@ -98,12 +86,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     messageManager.saveMessage(message);
   }
 
-  public void deletePrivateMessage(Message message)
-  {
-    messageManager.deleteMessage(message);
-  }
-
-  public Message getMessageById(String id)
+  public Message getMessageById(Long id)
   {
     return messageManager.getMessageById(id);
   }
@@ -167,19 +150,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     o.getMessage().removeAttachment(o);    
   }
 
-  public Attachment getPvtMsgAttachment(String pvtMsgAttachId)
+  public Attachment getPvtMsgAttachment(Long pvtMsgAttachId)
   {
     return messageManager.getAttachmentById(pvtMsgAttachId);
   }
 
   public int getTotalNoMessages(Topic topic)
   {
-    return messageManager.findMessageCountByTopicId(topic.getId().toString());
+    return messageManager.findMessageCountByTopicId(topic.getId());
   }
 
   public int getUnreadNoMessages(String userId, Topic topic)
   {
-    return messageManager.findUnreadMessageCountByTopicId(userId, topic.getId().toString());
+    return messageManager.findUnreadMessageCountByTopicId(userId, topic.getId());
   }
 
   /**
@@ -216,16 +199,22 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public void deleteTopicFolder(String topicId) {
       
   }
+  
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#createPrivateMessage(java.lang.String)
+   */
+  public PrivateMessage createPrivateMessage(String typeUuid) {
+    PrivateMessage message = new PrivateMessageImpl();
+    message.setUuid(idManager.createUuid());
+    message.setTypeUuid(typeUuid);
+    message.setCreated(new Date());
+    message.setCreatedBy(getCurrentUser());
 
-  public PrivateMessage createPrivateMessage()
-  {
-    return messageManager.createPrivateMessage();
+    LOG.info("message " + message.getUuid() + " created successfully");
+    return message;        
   }
 
-  
-  
-  
-  
+    
   public boolean hasNextMessage(PrivateMessage message)
   {
     // TODO: Needs optimized
@@ -304,40 +293,198 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       return null; 
   }
 
-  public List getReceivedMessages(String userId)
+  public List getMessagesByTopic(String userId, Long topicId)
   {
     // TODO Auto-generated method stub
     return null;
   }
-
-  public List getSentMessages(String userId)
+  
+  public List getReceivedMessages(String orderField, String order)
   {
-    // TODO Auto-generated method stub
-    return null;
+    return getMessagesByType(typeManager.getReceivedPrivateMessageType(),
+      orderField, order);
   }
 
-  public List getDeletedMessages(String userId)
+  public List getSentMessages(String orderField, String order)
   {
-    // TODO Auto-generated method stub
-    return null;
+    return getMessagesByType(typeManager.getSentPrivateMessageType(),
+      orderField, order);
   }
 
-  public List getDraftedMessages(String userId)
+  public List getDeletedMessages(String orderField, String order)
   {
-    // TODO Auto-generated method stub
-    return null;
+    return getMessagesByType(typeManager.getDeletedPrivateMessageType(),
+      orderField, order);
   }
 
-  public List getMessagesByTopic(String userId, String topicId)
+  public List getDraftedMessages(String orderField, String order)
   {
-    // TODO Auto-generated method stub
-    return null;
-  }
+    return getMessagesByType(typeManager.getDraftPrivateMessageType(),
+      orderField, order);
+  }  
+  
+  /**
+   * helper method to get messages by type
+   * @param typeUuid
+   * @return message list
+   */
+  private List getMessagesByType(final String typeUuid, final String orderField,
+    final String order){
 
+    if (LOG.isDebugEnabled()){
+      LOG.debug("getMessagesByType(typeUuid:" + typeUuid + ", orderField: " + orderField +
+        ", order:" + order + ")");
+    }
+    
+    
+//    HibernateCallback hcb = new HibernateCallback() {
+//      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+//        Criteria messageCriteria = session.createCriteria(PrivateMessageImpl.class);
+//        Criteria recipientCriteria = messageCriteria.createCriteria("recipients");
+//        
+//        Conjunction conjunction = Expression.conjunction();
+//        conjunction.add(Expression.eq("userId", getCurrentUser()));
+//        conjunction.add(Expression.eq("typeUuid", typeUuid));        
+//        
+//        recipientCriteria.add(conjunction);
+//        
+//        if ("asc".equalsIgnoreCase(order)){
+//          messageCriteria.addOrder(Order.asc(orderField));
+//        }
+//        else if ("desc".equalsIgnoreCase(order)){
+//          messageCriteria.addOrder(Order.desc(orderField));
+//        }
+//        else{
+//          LOG.debug("getMessagesByType failed with (typeUuid:" + typeUuid + ", orderField: " + orderField +
+//              ", order:" + order + ")");
+//          throw new IllegalArgumentException("order must have value asc or desc");          
+//        }
+//        
+//        //todo: parameterize fetch mode
+//        messageCriteria.setFetchMode("recipients", FetchMode.LAZY);
+//        
+//        return messageCriteria.list();
+//        
+//      }
+//    };
+    
+    HibernateCallback hcb = new HibernateCallback() {
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_TYPE);
+        Query qOrdered= session.createQuery(
+          q.getQueryString() + " order by " + orderField + " " + order);
+                
+        qOrdered.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);                        
+        //q.setParameter("orderField", orderField, Hibernate.STRING);
+        //q.setParameter("order", order, Hibernate.STRING);        
+        return qOrdered.list();
+      }
+    };
+
+    return (List) getHibernateTemplate().execute(hcb);     
+  }
+  
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findMessageCount(java.lang.Long, java.lang.String)
+   */
+  public int findMessageCount(final Long topicId, final String typeUuid) {
+    
+    String userId = getCurrentUser();
+    
+    if (LOG.isDebugEnabled()){
+      LOG.debug("findMessageCount executing with topicId: "
+        + topicId + ", userId: " + userId + ", typeUuid: " + typeUuid);
+    }
+    
+    if (topicId == null || userId == null || typeUuid == null) {
+      LOG.error("findMessageCount failed with topicId: " 
+          + topicId + ", uerId: " + userId + ", typeUuid: " + typeUuid);
+      throw new IllegalArgumentException("Null Argument");
+    }
+        
+    HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Query q = session.getNamedQuery(QUERY_COUNT);
+            q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
+            q.setParameter("topicId", topicId, Hibernate.LONG);
+            q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+            return q.uniqueResult();
+        }
+    };
+
+    return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
+    
+  }
+  
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findUnreadMessageCount(java.lang.Long, java.lang.String)
+   */
+  public int findUnreadMessageCount(final Long topicId, final String typeUuid) {
+                   
+    String userId = getCurrentUser();
+    
+    if (topicId == null || userId == null || typeUuid == null) {
+      LOG.error("findUnreadMessageCount failed with topicId: " 
+          + topicId + ", userId: " + userId + ", typeUuid: " + typeUuid);
+      throw new IllegalArgumentException("Null Argument");
+    }
+    
+    LOG.debug("findUnreadMessageCount executing with topicId: "
+        + topicId + ", userId: " + userId + ", typeUuid: " + typeUuid);
+
+    HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Query q = session.getNamedQuery(QUERY_COUNT_BY_UNREAD);
+            q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
+            q.setParameter("topicId", topicId, Hibernate.LONG);
+            q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+            return q.uniqueResult();
+        }
+    };
+
+    return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
+    
+  }
+  
+  public void deletePrivateMessage(Message message){
+    
+    if (LOG.isDebugEnabled()){
+      LOG.debug("deletePrivateMessage(" + message + ")");
+    }    
+    
+    /**
+     *  create PrivateMessageRecipient to search
+     *  protects against user sending message to herself (both sent and rcvd status)  
+     */
+    PrivateMessageRecipient pmr = new PrivateMessageRecipientImpl(
+      getCurrentUser(),
+      typeManager.getSentPrivateMessageType(),
+      Boolean.TRUE
+    );
+        
+    PrivateMessage pm = (PrivateMessage) message;
+    int userIndex = pm.getRecipients().indexOf(pmr);
+    
+    if (userIndex == -1){
+      LOG.error("deletePrivateMessage -- cannot find sent message for user: " + 
+          getCurrentUser() + ", typeUuid: " + typeManager.getSentPrivateMessageType());            
+    }
+    else{
+      PrivateMessageRecipient pmrReturned = (PrivateMessageRecipient)
+        pm.getRecipients().get(userIndex);
+    
+      if (pmrReturned != null){
+        pmrReturned.setTypeUuid(typeManager.getDeletedPrivateMessageType());
+        messageManager.saveMessage(pm);
+      }
+    }
+  }
+    
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.List)
    */
-  public void sendPrivateMessage(PrivateMessage message, List recipients) throws IdUnusedException
+  public void sendPrivateMessage(PrivateMessage message, List recipients)
   {
     
     if (LOG.isDebugEnabled()){
@@ -351,17 +498,90 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     if (recipients.size() == 0){
       throw new IllegalArgumentException("Empty recipient list");
     }
-        
-    Iterator i = recipients.iterator();
-    while (i.hasNext()){
+    
+    List recipientList = new UniqueArrayList();
+    
+    for (Iterator i = recipients.iterator(); i.hasNext();){
       String userId = (String) i.next();
       
-      /** getForumUser will create user if forums user does not exist */
-      message.addRecipient(userManager.getForumUser(userId.trim()));            
+      PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
+          userId,
+          typeManager.getReceivedPrivateMessageType(),
+          Boolean.FALSE
+      );
+      recipientList.add(receiver);      
     }
     
+    /** add sender as a saved recipient */
+    PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
+        getCurrentUser(),
+        typeManager.getSentPrivateMessageType(),
+        Boolean.TRUE
+    );
+    
+    recipientList.add(sender);
+    
+    message.setRecipients(recipientList);
     savePrivateMessage(message);
     
+    /** enable if users are stored in message forums user table
+      Iterator i = recipients.iterator();
+      while (i.hasNext()){
+        String userId = (String) i.next();
+      
+        //getForumUser will create user if forums user does not exist
+        message.addRecipient(userManager.getForumUser(userId.trim()));
+      }
+    **/        
+    
+  }
+  
+  private String getCurrentUser() {        
+    if (TestUtil.isRunningTests()) {
+      return "test-user";
+    }
+    return sessionManager.getCurrentSessionUserId();
+  }
+  
+  // start injection
+  public void setHelper(DummyDataHelperApi helper)
+  {
+    this.helper = helper;
+  }
+
+  public AreaManager getAreaManager()
+  {
+    return areaManager;
+  }
+
+  public void setAreaManager(AreaManager areaManager)
+  {
+    this.areaManager = areaManager;
+  }
+
+  public MessageForumsMessageManager getMessageManager()
+  {
+    return messageManager;
+  }
+
+  public void setMessageManager(MessageForumsMessageManager messageManager)
+  {
+    this.messageManager = messageManager;
+  }
+  
+  public void setTypeManager(MessageForumsTypeManager typeManager)
+  {
+    this.typeManager = typeManager;
+  }
+
+  public void setSessionManager(SessionManager sessionManager)
+  {
+    this.sessionManager = sessionManager;
+  }
+
+  public void setIdManager(IdManager idManager)
+  {
+    this.idManager = idManager;
   }
 
 }

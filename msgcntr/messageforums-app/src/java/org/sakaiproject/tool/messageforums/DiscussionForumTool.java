@@ -231,7 +231,7 @@ public class DiscussionForumTool
       // TODO : appropriate error page
       return MAIN;
     }
-    DiscussionForum forum = forumManager.getForumById(forumId);
+    DiscussionForum forum = forumManager.getForumById(new Long(forumId));
     selectedForum = new DiscussionForumBean(forum);
 
     return FORUM_SETTING;
@@ -311,7 +311,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionReviseTopicSettings()");
     DiscussionTopic topic = forumManager
-        .getTopicById(getExternalParameterByKey(TOPIC_ID));
+        .getTopicById(new Long(getExternalParameterByKey(TOPIC_ID)));
     if (topic == null)
     {
       return MAIN;
@@ -380,7 +380,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionTopicSettings()");
     DiscussionTopic topic = forumManager
-        .getTopicById(getExternalParameterByKey(TOPIC_ID));
+        .getTopicById(new Long(getExternalParameterByKey(TOPIC_ID)));
     if (topic == null)
     {
       return MAIN;
@@ -484,7 +484,7 @@ public class DiscussionForumTool
       //TODO: direct me 
       return MAIN;
     }
-    Message message=forumManager.getMessageById(messageId);
+    Message message=forumManager.getMessageById(new Long(messageId));
     if(message==null)
     {
 //    TODO: direct me 
@@ -492,7 +492,7 @@ public class DiscussionForumTool
     }
     selectedMessage= new DiscussionMessageBean(message);
 //    TODO:remove this after real data is in there
-    selectedTopic= new DiscussionTopicBean(forumManager.getTopicById(getExternalParameterByKey(TOPIC_ID)));
+    selectedTopic= new DiscussionTopicBean(forumManager.getTopicById(new Long(getExternalParameterByKey(TOPIC_ID))));
 //    selectedTopic= new DiscussionTopicBean(message.getTopic());
     return MESSAGE_VIEW;
   }
@@ -629,7 +629,7 @@ public class DiscussionForumTool
     }
     DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic);
     // TODO : implement me
-    decoTopic.getTopic().setBaseForum(forumManager.getForumById("5"));
+    decoTopic.getTopic().setBaseForum(forumManager.getForumById(new Long(5)));
     decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
     decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(
         SessionManager.getCurrentSessionUserId(), topic));
@@ -681,7 +681,7 @@ public class DiscussionForumTool
       topicId = getExternalParameterByKey(externalTopicId);
       if (topicId != null)
       {
-        DiscussionTopic topic = forumManager.getTopicById(topicId);
+        DiscussionTopic topic = forumManager.getTopicById(new Long(topicId));
         selectedTopic = getDecoratedTopic(topic);
       }
       else

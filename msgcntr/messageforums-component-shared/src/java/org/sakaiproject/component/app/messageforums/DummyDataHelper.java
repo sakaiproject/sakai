@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -14,10 +15,10 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Label;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
-import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
@@ -30,7 +31,6 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 
 /*
  * This helper provides dummy data for use by interface developers It uses model objects. Models are
@@ -773,9 +773,9 @@ public class DummyDataHelper implements DummyDataHelperApi
     this.typeMgr = typeMgr;
   }
 
-  public DiscussionForum getForumById(String forumId)
+  public DiscussionForum getForumById(Long forumId)
   {
-    if (forumId != null && forumId.equals("5"))
+    if (forumId != null && forumId.equals(new Long(5)))
     {
 
       return getDiscussionForumByID5();
@@ -786,19 +786,19 @@ public class DummyDataHelper implements DummyDataHelperApi
     }
   }
 
-  public List getMessagesByTopicId(String topicId)
+  public List getMessagesByTopicId(Long topicId)
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public DiscussionTopic getTopicById(String topicId)
+  public DiscussionTopic getTopicById(Long topicId)
   {
-    if(topicId.equals("511"))
+    if(topicId.equals(new Long(511)))
     {
       return getDiscussionTopicByID511();
     }
-    if(topicId.equals("521"))
+    if(topicId.equals(new Long(521)))
     {
       return getDiscussionTopicByID521();
     }
@@ -857,9 +857,9 @@ public class DummyDataHelper implements DummyDataHelperApi
     return null;
   }
 
-  public Message getMessageById(String id)
+  public Message getMessageById(Long id)
   {
-    if(id.equals("3"))
+    if(id.equals(new Long(3)))
       return getMessageByID3();
     else
       return getMessageByID4();

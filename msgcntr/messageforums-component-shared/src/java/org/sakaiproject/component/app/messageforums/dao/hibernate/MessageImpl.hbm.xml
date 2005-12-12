@@ -77,12 +77,30 @@
     <subclass 
       name="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl"
       discriminator-value="PM">
-	  <list name="recipients" lazy="true" table="MFR_MESSAGE_FORUMS_USER_MSG_T" cascade="all">	  
+      <!-- enable list if joining with forum user -->
+	  <!-- <list name="recipients" lazy="true" table="MFR_MESSAGE_FORUMS_USER_MSG_T" cascade="all">	  
 	      <key column="messageSurrogateKey"/>
 	      <index column="user_index_col" />
 	      <many-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
 	                    column="userSurrogateKey"/>
   	  </list>         
+  	  -->
+  	  <list name="recipients" lazy="true" table="MFR_PVT_MSG_USR_T" cascade="all">
+  	    <key column="messageSurrogateKey"/>
+  	    <index column="user_index_col"/>
+  	    <composite-element class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl">
+          <property name="userId" >
+            <column name="USER_ID" not-null="true" index="MFR_PVT_MSG_USR_I1"/>                        
+          </property>
+          <property name="typeUuid">
+            <column name="TYPE_UUID" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
+          </property>
+          <property name="read">
+            <column name="READ_STATUS" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
+          </property>
+  	    </composite-element>  	    
+  	  </list>
+  	  
       <property name="externalEmail">
         <column name="EXTERNAL_EMAIL" not-null="false" />
       </property>        
@@ -111,6 +129,36 @@
 
   <query name="findMessagesByTopicId">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId]]>
+  </query>
+  
+  <query name="findPvtMsgCntByTopicIdAndTypeUuid">
+    <![CDATA[select count(*) 
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             join message.recipients recipient
+             where 
+                   recipient.userId = :userId and
+                   recipient.typeUuid = :typeUuid and
+                   message.topic.id = :topicId
+    ]]>
+  </query>
+  
+  <query name="findUnreadPvtMsgCntByTopicIdAndTypeUuid">
+    <![CDATA[select count(*) 
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             join message.recipients recipient
+             where recipient.userId = :userId and
+                   recipient.typeUuid = :typeUuid and
+                   recipients.read = false and
+                   message.topic.id = :topicId
+    ]]>
+  </query>
+  
+  <query name="findPrivateMessagesByTypeUuid">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join fetch message.recipients recipient
+             where recipient.userId = :userId and
+                   recipient.typeUuid = :typeUuid                                
+    ]]>    
   </query>
 
 </hibernate-mapping>

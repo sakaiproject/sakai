@@ -32,6 +32,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 
@@ -73,7 +74,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     }
 
     public void testSaveAndDeleteMessage() {
-        Message message = messageManager.createMessage(typeManager.getPrivateType());
+        Message message = messageManager.createMessage(typeManager.getPrivateMessageAreaType());
         message.setApproved(Boolean.TRUE);
         message.setAuthor("nate");
         message.setTitle("a message");
@@ -85,7 +86,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         messageManager.saveMessage(message);
         Long id = message.getId();
         messageManager.deleteMessage(message);
-        Message message2 = messageManager.getMessageById(id.toString());
+        Message message2 = messageManager.getMessageById(id);
         assertTrue("message2 should not exist", message2 == null);
     }
 
@@ -142,7 +143,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         forum.addAttachment(getAttachment());
         forum.addTopic(topic);
 
-        Area area = areaManager.createArea(typeManager.getPrivateType());
+        Area area = areaManager.createArea(typeManager.getPrivateMessageAreaType());
         area.setContextId("area-context-id");
         area.setEnabled(Boolean.TRUE);
         area.setHidden(Boolean.FALSE);
@@ -156,10 +157,10 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     }
 
     public void testIsMessageReadForUser() {
-        assertFalse(messageManager.isMessageReadForUser("joesmith", "1", "2"));
-        messageManager.markMessageReadForUser("joesmith", "1", "2");
-        assertTrue(messageManager.isMessageReadForUser("joesmith", "1", "2"));
-        messageManager.deleteUnreadStatus("joesmith", "1", "2");
+        assertFalse(messageManager.isMessageReadForUser("joesmith", new Long(1), new Long(2)));
+        messageManager.markMessageReadForUser("joesmith", new Long(1), new Long(2));
+        assertTrue(messageManager.isMessageReadForUser("joesmith", new Long(1), new Long(2)));
+        messageManager.deleteUnreadStatus("joesmith", new Long(1), new Long(2));
     }
 
     public void testFindMessageCountByTopicId() {
@@ -178,7 +179,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         }
         forumManager.saveDiscussionForumTopic(topic);
 
-        assertEquals(messageManager.findMessageCountByTopicId("" + topic.getId()), 10);
+        assertEquals(messageManager.findMessageCountByTopicId(topic.getId()), 10);
 
         forumManager.deleteDiscussionForumTopic(topic);
     }
@@ -199,7 +200,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         }
         forumManager.saveDiscussionForumTopic(topic);
 
-        assertEquals(messageManager.findMessagesByTopicId("" + topic.getId()).size(), 10);
+        assertEquals(messageManager.findMessagesByTopicId(topic.getId()).size(), 10);
 
         forumManager.deleteDiscussionForumTopic(topic);
     }
@@ -220,9 +221,9 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         }
         forumManager.saveDiscussionForumTopic(topic);
 
-        messageManager.markMessageReadForUser("nate", "" + topic.getId(), "" + ((Message) topic.getMessages().get(2)).getId());
+        messageManager.markMessageReadForUser("nate", topic.getId(), ((Message) topic.getMessages().get(2)).getId());
 
-        assertEquals(messageManager.findReadMessageCountByTopicId("nate", "" + topic.getId()), 1);
+        assertEquals(messageManager.findReadMessageCountByTopicId("nate", topic.getId()), 1);
         
         forumManager.deleteDiscussionForumTopic(topic);
     }
@@ -243,10 +244,10 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         }
         forumManager.saveDiscussionForumTopic(topic);
 
-        messageManager.markMessageReadForUser("nate", "" + topic.getId(), "" + ((Message) topic.getMessages().get(2)).getId());
-        messageManager.markMessageReadForUser("nate", "" + topic.getId(), "" + ((Message) topic.getMessages().get(5)).getId());
+        messageManager.markMessageReadForUser("nate", topic.getId(), ((Message) topic.getMessages().get(2)).getId());
+        messageManager.markMessageReadForUser("nate", topic.getId(), ((Message) topic.getMessages().get(5)).getId());
 
-        assertEquals(messageManager.findUnreadMessageCountByTopicId("nate", "" + topic.getId()), 8);
+        assertEquals(messageManager.findUnreadMessageCountByTopicId("nate", topic.getId()), 8);
 
         forumManager.deleteDiscussionForumTopic(topic);
     }
@@ -255,7 +256,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         DiscussionTopic topic = getDiscussionTopic();
         forumManager.saveDiscussionForumTopic(topic);
 
-        assertNotNull(forumManager.getTopicById("" + topic.getId()));
+        assertNotNull(forumManager.getTopicById(topic.getId()));
 
         forumManager.deleteDiscussionForumTopic(topic);
     }
@@ -270,7 +271,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         forum.setLocked(Boolean.FALSE);
         forumManager.saveDiscussionForum(forum);
 
-        assertNotNull(forumManager.getForumById("" + forum.getId()));
+        assertNotNull(forumManager.getForumById(forum.getId()));
 
         forumManager.deleteDiscussionForum(forum);
     }

@@ -10,7 +10,7 @@ public interface MessageForumsTypeManager
   /**
    * @return
    */
-  public String getPrivateType();
+  public String getPrivateMessageAreaType();
  
 
   /**

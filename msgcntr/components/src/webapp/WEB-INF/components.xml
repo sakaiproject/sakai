@@ -7,7 +7,6 @@
             <list>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserImpl.hbm.xml</value>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserMessageImpl.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>
@@ -93,7 +92,7 @@
         </property> 
     </bean>
 
-	<bean id="org.sakaiproject.component.app.messageforums.MessageForumsForumManager"
+	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"
 		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
@@ -122,7 +121,7 @@
 		</property>		
 	</bean>
 
-    <bean id="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <bean id="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
@@ -165,11 +164,17 @@
                     <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
                 </property>
                 <property name="messageManager">
-                    <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager"/>
+                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
                 </property>
-   				<property name="userManager">
-                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsUserManager"/>
-                </property>					 
+   				<property name="sessionManager">
+					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+				</property>		
+				<property name="idManager">
+					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+				</property>		 								
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>			 
             </bean>           
         </property>
          <property name="transactionAttributes">
@@ -195,10 +200,10 @@
                     <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
                 </property>
                 <property name="messageManager">
-                    <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsMessageManager"/>
+                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
                 </property>							
                 <property name="forumManager">
-                    <ref bean="org.sakaiproject.component.app.messageforums.MessageForumsForumManager"/>
+                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
                 </property>							
             </bean>           
         </property>
