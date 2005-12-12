@@ -193,6 +193,9 @@ public class PrivateMessagesTool
   public Area getArea()
   {
     Area privateArea=prtMsgManager.getPrivateMessageArea();
+    PrivateForum pf = prtMsgManager.initializePrivateMessageArea(privateArea);
+    prtMsgManager.initializePrivateMessageForumTopics(pf);
+    
     if(privateArea != null ) {
      List forums=privateArea.getPrivateForums();
       //Private message return ONLY ONE ELEMENT

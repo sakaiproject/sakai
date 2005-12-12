@@ -17,10 +17,13 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
+import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
@@ -49,6 +52,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
+  private MessageForumsForumManager forumManager;
   private MessageForumsTypeManager typeManager;
   private IdManager idManager;
   private SessionManager sessionManager;
@@ -77,7 +81,59 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     }
     return areaManager.getPrivateArea();
   }
-
+  
+  public PrivateForum initializePrivateMessageArea(Area area){
+        
+    String userId = getCurrentUser();
+    
+    PrivateForum pfReturn;
+    
+    /** create default user forum/topics if none exist */
+    if ((pfReturn = forumManager.getForumByOwner(getCurrentUser())) == null){
+                  
+      PrivateForum pf = forumManager.createPrivateForum();
+      pf.setTitle(userId + " private forum");
+      pf.setUuid(idManager.createUuid());
+      pf.setOwner(userId);
+      
+      forumManager.savePrivateForum(pf);      
+      area.addPrivateForum(pf);
+      pf.setArea(area);
+      
+      return pf;
+      
+    }
+    
+    return pfReturn;
+    
+  }
+  
+  public void initializePrivateMessageForumTopics(PrivateForum pf){
+    
+    String userId = getCurrentUser();
+    
+    PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+    receivedTopic.setTitle("Received");
+    forumManager.savePrivateForumTopic(receivedTopic);
+    
+    PrivateTopic sentTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+    sentTopic.setTitle("Sent");
+    forumManager.savePrivateForumTopic(receivedTopic);
+    
+    PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+    deletedTopic.setTitle("Deleted");
+    forumManager.savePrivateForumTopic(receivedTopic);
+    
+    PrivateTopic draftTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+    draftTopic.setTitle("Drafts");
+    
+    forumManager.savePrivateForumTopic(receivedTopic);
+    forumManager.savePrivateForumTopic(sentTopic);
+    forumManager.savePrivateForumTopic(deletedTopic);
+    forumManager.savePrivateForumTopic(draftTopic);
+       
+  }
+    
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#savePrivateMessage(org.sakaiproject.api.app.messageforums.Message)
    */
@@ -588,5 +644,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     // TODO Auto-generated method stub
     return false;
+  }
+
+  public void setForumManager(MessageForumsForumManager forumManager)
+  {
+    this.forumManager = forumManager;
   }
 }

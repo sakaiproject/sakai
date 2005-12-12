@@ -81,43 +81,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setEnabled(Boolean.TRUE);
             area.setHidden(Boolean.TRUE);
             saveArea(area);
-        }
-        
-        /** create default user forum/topics if none exist */
-        if (forumManager.getForumByOwner(getCurrentUser()) == null){
-          
-          String userId = getCurrentUser();
-          
-          PrivateForum pf = forumManager.createPrivateForum();
-          pf.setTitle(userId + " private forum");
-          pf.setUuid(getNextUuid());
-          pf.setOwner(userId);
-          
-          forumManager.savePrivateForum(pf);
-          area.addPrivateForum(pf);
-          pf.setArea(area);
-          
-          
-          PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
-          receivedTopic.setTitle("Received");
-          forumManager.savePrivateForumTopic(receivedTopic);
-          
-          PrivateTopic sentTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
-          sentTopic.setTitle("Sent");
-          forumManager.savePrivateForumTopic(receivedTopic);
-          
-          PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
-          deletedTopic.setTitle("Deleted");
-          forumManager.savePrivateForumTopic(receivedTopic);
-          
-          PrivateTopic draftTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
-          draftTopic.setTitle("Drafts");
-          
-          forumManager.savePrivateForumTopic(receivedTopic);
-          forumManager.savePrivateForumTopic(sentTopic);
-          forumManager.savePrivateForumTopic(deletedTopic);
-          forumManager.savePrivateForumTopic(draftTopic);
-        }
+        }                                                      
         
         return area;
     }
@@ -152,7 +116,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     public void saveArea(Area area) {
         area.setModified(new Date());
         area.setModifiedBy(getCurrentUser());
-        getHibernateTemplate().saveOrUpdate(area);
+        getHibernateTemplate().saveOrUpdate(area);        
         LOG.debug("saveArea executed with areaId: " + area.getId());
     }
 

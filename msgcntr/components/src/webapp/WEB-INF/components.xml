@@ -169,6 +169,9 @@
                 <property name="messageManager">
                     <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
                 </property>
+                <property name="forumManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+                </property>						
    				<property name="sessionManager">
 					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
 				</property>		
