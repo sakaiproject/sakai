@@ -258,7 +258,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
         
         forum.setModified(new Date());
-        forum.setModifiedBy(getCurrentUser());                        
+        forum.setModifiedBy(getCurrentUser());
+        forum.setOwner(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(forum);
         LOG.debug("savePrivateForum executed with forumId: " + forum.getId());
     }
