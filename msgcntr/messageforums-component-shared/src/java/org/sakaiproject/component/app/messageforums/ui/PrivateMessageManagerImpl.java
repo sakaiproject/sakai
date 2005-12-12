@@ -375,7 +375,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           q.getQueryString() + " order by " + orderField + " " + order);
                 
         qOrdered.setParameter("userId", getCurrentUser(), Hibernate.STRING);
-        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);                        
+        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);
+        
         //q.setParameter("orderField", orderField, Hibernate.STRING);
         //q.setParameter("order", order, Hibernate.STRING);        
         return qOrdered.list();

@@ -46,8 +46,23 @@ public interface MessageForumsForumManager {
 
     /**
      * Create and save an empty discussion forum
+     * @return discussion forum
      */
     public DiscussionForum createDiscussionForum();
+    
+    /**
+     * create private forum 
+     * @return private forum
+     */
+    public PrivateForum createPrivateForum();
+    
+    /**
+     * save private forum
+     * @param forum to save
+     */
+    public void savePrivateForum(PrivateForum forum);
+      
+    
 
     /**
      * Save a discussion forum

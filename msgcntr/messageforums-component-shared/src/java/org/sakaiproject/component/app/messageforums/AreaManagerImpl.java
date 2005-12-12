@@ -12,7 +12,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
+import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
@@ -29,6 +32,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private static final String QUERY_AREA_BY_CONTEXT_ID = "findAreaByContextIdAndTypeId";
     
     private IdManager idManager;
+    
+    private MessageForumsForumManager forumManager;
 
     private SessionManager sessionManager;
 
@@ -61,8 +66,14 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     public void setIdManager(IdManager idManager) {
         this.idManager = idManager;
     }
+    
+    public void setForumManager(MessageForumsForumManager forumManager)
+    {
+      this.forumManager = forumManager;
+    }
 
     public Area getPrivateArea() {
+      
         Area area = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
         if (area == null) {
             area = createArea(typeManager.getPrivateMessageAreaType());
@@ -71,6 +82,40 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setHidden(Boolean.TRUE);
             saveArea(area);
         }
+        
+        /** create default user forum/topics if none exist */
+        if (forumManager.getForumByUuid(getCurrentUser()) == null){
+          
+          String userId = getCurrentUser();
+          
+          PrivateForum pf = forumManager.createPrivateForum();
+          pf.setTitle(userId + " private forum");
+          pf.setUuid(userId);
+          
+          forumManager.savePrivateForum(pf);
+          area.addPrivateForum(pf);
+                          
+          PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+          receivedTopic.setTitle("Received");
+          forumManager.savePrivateForumTopic(receivedTopic);
+          
+          PrivateTopic sentTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+          sentTopic.setTitle("Sent");
+          forumManager.savePrivateForumTopic(receivedTopic);
+          
+          PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+          deletedTopic.setTitle("Deleted");
+          forumManager.savePrivateForumTopic(receivedTopic);
+          
+          PrivateTopic draftTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+          draftTopic.setTitle("Drafts");
+          
+          forumManager.savePrivateForumTopic(receivedTopic);
+          forumManager.savePrivateForumTopic(sentTopic);
+          forumManager.savePrivateForumTopic(deletedTopic);
+          forumManager.savePrivateForumTopic(draftTopic);
+        }
+        
         return area;
     }
     
@@ -151,6 +196,6 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             return "test-user";
         }
         return sessionManager.getCurrentSessionUserId();
-    }
+    }    
 
 }

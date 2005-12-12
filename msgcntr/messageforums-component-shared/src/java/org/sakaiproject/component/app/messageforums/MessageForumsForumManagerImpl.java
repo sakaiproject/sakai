@@ -40,6 +40,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.kernel.id.IdManager;
@@ -47,6 +48,7 @@ import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.springframework.orm.hibernate.HibernateCallback;
@@ -181,6 +183,40 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         LOG.debug("createDiscussionForum executed");
         return forum;
     }
+    
+    
+    /**
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#createPrivateForum()
+     */
+    public PrivateForum createPrivateForum() {
+      PrivateForum forum = new PrivateForumImpl();
+      forum.setUuid(getNextUuid());
+      forum.setCreated(new Date());
+      forum.setCreatedBy(getCurrentUser());
+      forum.setTypeUuid(typeManager.getPrivateMessageAreaType());
+      forum.setShortDescription("short-desc");
+      forum.setExtendedDescription("ext desc");
+      forum.setAutoForward(Boolean.FALSE);
+      forum.setAutoForwardEmail("");
+      forum.setPreviewPaneEnabled(Boolean.FALSE);
+      LOG.debug("createPrivateForum executed");
+      return forum;
+    }
+    
+    /**
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#savePrivateForum(org.sakaiproject.api.app.messageforums.PrivateForum)
+     */
+    public void savePrivateForum(PrivateForum forum) {
+        if (forum.getSortIndex() == null) {
+            forum.setSortIndex(new Integer(0));
+        }
+        
+        forum.setModified(new Date());
+        forum.setModifiedBy(getCurrentUser());                        
+        getHibernateTemplate().saveOrUpdate(forum);
+        LOG.debug("savePrivateForum executed with forumId: " + forum.getId());
+    }
+
 
     /**
      * Save a discussion forum
@@ -241,6 +277,12 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       topic.setCreated(new Date());
       topic.setCreatedBy(getCurrentUser());
       topic.setUserId(userId);
+      topic.setShortDescription("short-desc");
+      topic.setExtendedDescription("ext-desc");
+      topic.setMutable(Boolean.FALSE);
+      topic.setSortIndex(new Integer(0));            
+      
+      
       if (forumIsParent) {
           topic.setBaseForum(getForumById(parentId));
       } else {
