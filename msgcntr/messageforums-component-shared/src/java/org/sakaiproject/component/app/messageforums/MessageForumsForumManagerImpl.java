@@ -58,6 +58,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
 
+    private static final String QUERY_BY_FORUM_OWNER = "findPrivateForumByOwner";
     private static final String QUERY_BY_FORUM_ID = "findForumById";
     private static final String QUERY_BY_FORUM_UUID = "findForumByUuid";
     private static final String QUERY_BY_TOPIC_ID = "findTopicById";    
@@ -130,6 +131,26 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 //     return (List) getHibernateTemplate().execute(hcb);     
 //   }        
 // }
+        
+    public PrivateForum getForumByOwner(final String owner) {
+     
+      if (owner == null) {
+        throw new IllegalArgumentException("Null Argument");
+      }
+
+      LOG.debug("getForumByOwner executing with owner: " + owner);
+
+      HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER);
+            q.setParameter("owner", owner, Hibernate.STRING);
+            return q.uniqueResult();
+          }
+      };
+
+      return (PrivateForum) getHibernateTemplate().execute(hcb);
+      
+    }    
 
     /**
      * Retrieve a given forum for the current user

@@ -53,6 +53,9 @@
     </property>
         
     <!-- PrivateForum fields -->
+    <property name="owner">
+      <column name="OWNER" length="255" not-null="true"/>
+    </property>
     <property name="autoForward">
       <column name="AUTO_FORWARD" not-null="true" />
     </property>
@@ -69,6 +72,10 @@
     <property name="areaindex" column="area_index_col" type="int" update="true" insert="true"/>
       
   </class>
+
+  <query name="findPrivateForumByOwner">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.owner = :owner]]>
+  </query>
 
   <query name="findPrivateForumById">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.id = :id]]>

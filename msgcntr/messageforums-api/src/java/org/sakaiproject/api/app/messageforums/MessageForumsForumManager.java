@@ -33,6 +33,14 @@ public interface MessageForumsForumManager {
      */
 //    public List getDiscussionForums();
 
+    
+    /**
+     * get forum by owner
+     * @param owner
+     * @return private forum
+     */
+    public PrivateForum getForumByOwner(final String owner);
+    
     /**
      * Retrieve a given forum for the current user
      */

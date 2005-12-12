@@ -31,6 +31,7 @@ public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
 
     private static final Log LOG = LogFactory.getLog(PrivateForumImpl.class);
     
+    private String owner;
     private Boolean autoForward;
     private String autoForwardEmail;
     private Boolean previewPaneEnabled;
@@ -72,6 +73,16 @@ public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
 
     public void setAreaindex(int areaindex) {
         this.areaindex = areaindex;
+    }
+
+    public String getOwner()
+    {
+      return owner;
+    }
+
+    public void setOwner(String owner)
+    {
+      this.owner = owner;
     }
 
 }

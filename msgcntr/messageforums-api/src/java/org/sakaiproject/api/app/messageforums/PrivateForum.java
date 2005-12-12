@@ -25,6 +25,10 @@ package org.sakaiproject.api.app.messageforums;
 
 public interface PrivateForum extends BaseForum {
 
+    public String getOwner();
+    
+    public void setOwner(String owner);
+  
     public Boolean getAutoForward();
 
     public void setAutoForward(Boolean autoForward);

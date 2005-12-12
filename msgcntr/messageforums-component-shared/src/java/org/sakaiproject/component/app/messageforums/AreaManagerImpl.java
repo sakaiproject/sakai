@@ -84,17 +84,20 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         }
         
         /** create default user forum/topics if none exist */
-        if (forumManager.getForumByUuid(getCurrentUser()) == null){
+        if (forumManager.getForumByOwner(getCurrentUser()) == null){
           
           String userId = getCurrentUser();
           
           PrivateForum pf = forumManager.createPrivateForum();
           pf.setTitle(userId + " private forum");
-          pf.setUuid(userId);
+          pf.setUuid(getNextUuid());
+          pf.setOwner(userId);
           
           forumManager.savePrivateForum(pf);
           area.addPrivateForum(pf);
-                          
+          pf.setArea(area);
+          
+          
           PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
           receivedTopic.setTitle("Received");
           forumManager.savePrivateForumTopic(receivedTopic);
