@@ -1,20 +1,28 @@
 package org.sakaiproject.tool.messageforums;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
+import org.sakaiproject.service.legacy.authzGroup.Role;
+import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
@@ -760,5 +768,41 @@ public class DiscussionForumTool
     selectedTopic= new DiscussionTopicBean(topic);
     return new DiscussionTopicBean(topic);
     
+  }
+ 
+  
+  public List getRoles()
+  {
+    LOG.debug("getRoles()");
+    List roleList = new ArrayList();
+    AuthzGroup realm;
+    try
+    {
+      realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
+      Set roles = realm.getRoles();
+      if (roles != null && roles.size() > 0)
+      {
+        Iterator roleIter = roles.iterator();
+        while (roleIter.hasNext())
+        {
+          Role role = (Role) roleIter.next();
+          if (role != null ) roleList.add(role.getId());
+        }
+      }
+    }
+    catch (IdUnusedException e)
+    {
+      LOG.error(e.getMessage(), e);
+    }
+    Collections.sort(roleList);
+    return roleList;
+  }
+  /**
+   * @return siteId
+   */
+  private String getContextSiteId()
+  {
+    LOG.debug("getContextSiteId()");
+    return ("/site/" + ToolManager.getCurrentPlacement().getContext());
   }
 }
