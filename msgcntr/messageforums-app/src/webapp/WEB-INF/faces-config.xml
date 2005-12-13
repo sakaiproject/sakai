@@ -175,7 +175,7 @@
         <!--messages -->
         <navigation-case>
             <from-outcome>dfCompose</from-outcome>
-            <to-view-id>/jsp/discussionForum/message/dfCompose.jsp</to-view-id>
+            <to-view-id>/jsp/dfCompose.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
         <navigation-case>
@@ -193,7 +193,7 @@
             <to-view-id>/jsp/discussionForum/message/dfThreadedView.jsp</to-view-id>
             <redirect/>
         </navigation-case>                                                                     
-     
+    
     </navigation-rule>
   
     <!-- =================== Tool Beans ============== -->
@@ -207,6 +207,11 @@
             <property-name>forumManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"]}</value>
         </managed-property>         
+        <managed-property>
+            <description>Message Manager</description>
+            <property-name>messageManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
+        </managed-property>
     </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>
