@@ -210,7 +210,13 @@
                 </property>							
                 <property name="forumManager">
                     <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
-                </property>							
+                </property>	
+                <property name="permissionManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
+                </property>
+                <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
             </bean>           
         </property>
          <property name="transactionAttributes">
