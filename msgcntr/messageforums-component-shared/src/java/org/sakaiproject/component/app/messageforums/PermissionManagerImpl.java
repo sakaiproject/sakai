@@ -42,12 +42,15 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
+import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaControlPermissionImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ForumControlPermissionImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicControlPermissionImpl;
+import org.sakaiproject.service.legacy.content.ContentHostingService;
+import org.sakaiproject.service.legacy.event.EventTrackingService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -64,9 +67,19 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     private MessageForumsTypeManager typeManager;
 
     private AreaManager areaManager;
+    
+    private EventTrackingService eventTrackingService;
 
     public void init() {
         ;
+    }
+
+    public EventTrackingService getEventTrackingService() {
+        return eventTrackingService;
+    }
+
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
+        this.eventTrackingService = eventTrackingService;
     }
 
     public AreaManager getAreaManager() {
@@ -157,8 +170,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         return permission;
     }
 
-    public void saveAreaControlPermissionForRole(Area area, AreaControlPermission permission) {
-        ControlPermissions permissions = new ControlPermissionsImpl();
+    public void saveAreaControlPermissionForRole(Area area, AreaControlPermission permission) {        
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), area.getTypeUuid(), false); 
+        if (permissions == null) {
+            permissions = new ControlPermissionsImpl();
+        }
+        boolean isNew = permissions.getId() == null;
+        
         permissions.setArea(area);
         permissions.setDefaultValue(Boolean.FALSE);
         permissions.setChangeSettings(permission.getChangeSettings());
@@ -170,6 +188,12 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
+        
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
+        }
     }
 
     public AreaControlPermission createDefaultAreaControlPermissionForRole(String role) {
@@ -179,7 +203,12 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveDefaultAreaControlPermissionForRole(Area area, AreaControlPermission permission) {
-        ControlPermissions permissions = new ControlPermissionsImpl();
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), area.getTypeUuid(), false); 
+        if (permissions == null) {
+            permissions = new ControlPermissionsImpl();
+        }
+        boolean isNew = permissions.getId() == null;
+
         permissions.setArea(area);
         permissions.setDefaultValue(Boolean.TRUE);
         permissions.setChangeSettings(permission.getChangeSettings());
@@ -191,6 +220,12 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setRole(permission.getRole());        
         getHibernateTemplate().saveOrUpdate(permissions);        
+    
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
+        }        
     }
 
     public ForumControlPermission getForumControlPermissionForRole(String role, String typeId) {
@@ -242,7 +277,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
-        ControlPermissions permissions = new ControlPermissionsImpl();
+        // TODO: Change to use the right getter
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), forum.getTypeUuid(), false); 
+        if (permissions == null) {
+            permissions = new ControlPermissionsImpl();
+        }
+        boolean isNew = permissions.getId() == null;
+
         permissions.setForum(forum);
         permissions.setDefaultValue(Boolean.FALSE);
         permissions.setChangeSettings(permission.getChangeSettings());
@@ -255,6 +296,11 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);        
         
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
+        }        
     }
 
     public ForumControlPermission createDefaultForumControlPermissionForRole(String role) {
@@ -264,7 +310,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveDefaultForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
-        ControlPermissions permissions = new ControlPermissionsImpl();
+        // TODO: Change to use the right getter
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), forum.getTypeUuid(), false); 
+        if (permissions == null) {
+            permissions = new ControlPermissionsImpl();
+        }
+        boolean isNew = permissions.getId() == null;
+
         permissions.setForum(forum);
         permissions.setDefaultValue(Boolean.TRUE);
         permissions.setChangeSettings(permission.getChangeSettings());
@@ -276,6 +328,12 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setPostToGradebook(Boolean.FALSE);
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);        
+
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
+        }        
     }
 
     public TopicControlPermission getTopicControlPermissionForRole(String role, String typeId) {
@@ -323,7 +381,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
-        ControlPermissions permissions = new ControlPermissionsImpl();
+        // TODO: Change to use the right getter
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), topic.getTypeUuid(), false); 
+        if (permissions == null) {
+            permissions = new ControlPermissionsImpl();
+        }
+        boolean isNew = permissions.getId() == null;
+
         permissions.setTopic(topic);
         permissions.setDefaultValue(Boolean.FALSE);
         permissions.setChangeSettings(permission.getChangeSettings());
@@ -335,6 +399,12 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setPostToGradebook(Boolean.FALSE);
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);
+
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
+        }
     }
 
     public TopicControlPermission createDefaultTopicControlPermissionForRole(String role) {
@@ -344,7 +414,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveDefaultTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
-        ControlPermissions permissions = new ControlPermissionsImpl();
+        // TODO: Change to use the right getter
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), topic.getTypeUuid(), false); 
+        if (permissions == null) {
+            permissions = new ControlPermissionsImpl();
+        }
+        boolean isNew = permissions.getId() == null;
+
         permissions.setTopic(topic);
         permissions.setDefaultValue(Boolean.TRUE);
         permissions.setChangeSettings(permission.getChangeSettings());
@@ -356,7 +432,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setPostToGradebook(Boolean.FALSE);
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);
-    }
+
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
+        }        
+    }    
 
     public ControlPermissions getAreaControlPermissionByRoleAndType(final String roleId, final String typeId, final boolean defaultValue) {
         LOG.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
@@ -372,7 +454,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         };
         return (ControlPermissions) getHibernateTemplate().execute(hcb);
     }
-
+   
+    
     // helpers
 
     private String getCurrentUser() {
@@ -382,4 +465,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         return sessionManager.getCurrentSessionUserId();
     }
 
+    private String getEventMessage(Object parent, Object child) {
+        return "MessageCenter::" + getCurrentUser() + "::" + parent.toString() + "::" + child.toString();
+    }
 }

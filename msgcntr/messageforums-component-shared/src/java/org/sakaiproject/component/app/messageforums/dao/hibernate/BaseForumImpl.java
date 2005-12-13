@@ -110,6 +110,10 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         this.area = area;
     }
 
+    public String toString() {
+        return "Forum.id:" + id;
+    }
+    
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////

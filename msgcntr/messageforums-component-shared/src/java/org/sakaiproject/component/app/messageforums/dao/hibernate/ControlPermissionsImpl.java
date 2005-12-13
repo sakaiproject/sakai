@@ -202,5 +202,9 @@ public class ControlPermissionsImpl implements ControlPermissions {
     public void setTopicindex(int topicindex) {
         this.topicindex = topicindex;
     }
-        
+      
+    public String toString() {
+        return "ControlPermissions.id:" + id;
+    }
+
 }

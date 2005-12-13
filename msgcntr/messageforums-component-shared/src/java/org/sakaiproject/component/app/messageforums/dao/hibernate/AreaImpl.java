@@ -141,7 +141,9 @@ public class AreaImpl extends MutableEntityImpl implements Area
       this.controlPermissions = controlPermissions;
   }
          
-
+  public String toString() {
+      return "Area.id:" + id;
+  }
 
   ////////////////////////////////////////////////////////////////////////
   // helper methods for collections

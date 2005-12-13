@@ -56,6 +56,9 @@
                 <property name="areaManager">
                     <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
                 </property>
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+		        </property>
             </bean>            
         </property>
          <property name="transactionAttributes">

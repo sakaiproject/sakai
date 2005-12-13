@@ -152,6 +152,10 @@ public class MessageImpl extends MutableEntityImpl implements Message {
     public void setTypeUuid(String typeUuid) {
         this.typeUuid = typeUuid;
     }
+    
+    public String toString() {
+        return "Message.id:" + id;
+    }
 
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections

@@ -169,6 +169,10 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
         this.pfindex = pfindex;
     }
     
+    public String toString() {
+        return "Topic.id:" + id;
+    }
+    
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////
