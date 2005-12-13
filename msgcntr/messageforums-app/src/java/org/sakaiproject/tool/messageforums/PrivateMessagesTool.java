@@ -258,56 +258,58 @@ public class PrivateMessagesTool
   public List getDecoratedPvtMsgs()
   {
     decoratedPvtMsgs=new ArrayList() ;
+    //Shouldn't we be doing like this only 
+    decoratedPvtMsgs= prtMsgManager.getMessagesByTopic(getUserId(), new Long(getSelectedTopicId())) ;
     
-    Area privateArea=prtMsgManager.getPrivateMessageArea();
-    if(privateArea != null ) {
-     List forums=privateArea.getPrivateForums();
-      //Private message return ONLY ONE ELEMENT
-      for (Iterator iter = forums.iterator(); iter.hasNext();)
-      {
-        forum = (PrivateForum) iter.next();
-        pvtTopics=forum.getTopics();
-        
-        //now get messages for each topics
-        for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
-        {
-          Topic topic = (Topic) iterator.next();          
-          if(topic.getTitle().equals(PVTMSG_MODE_RECEIVED))
-          {            
-            //TODO -- getMessages() should be changed to getReceivedMessages() ;
-            //decoratedPvtMsgs=prtMsgManager.getReceivedMessages(getUserId()) ;
-            decoratedPvtMsgs=topic.getMessages() ;
-            break;
-          } 
-          if(topic.getTitle().equals(PVTMSG_MODE_SENT))
-          {
-            //decoratedPvtMsgs=prtMsgManager.getSentMessages(getUserId()) ;
-            decoratedPvtMsgs=topic.getMessages() ;
-            break;
-          }  
-          if(topic.getTitle().equals(PVTMSG_MODE_DELETE))
-          {
-            //decoratedPvtMsgs=prtMsgManager.getDeletedMessages(getUserId()) ;
-            decoratedPvtMsgs=topic.getMessages() ;
-            break;
-          }  
-          if(topic.getTitle().equals(PVTMSG_MODE_DRAFT))
-          {
-            //decoratedPvtMsgs=prtMsgManager.getDraftedMessages(getUserId()) ;
-            decoratedPvtMsgs=topic.getMessages() ;
-            break;
-          }  
-          if(topic.getTitle().equals(PVTMSG_MODE_CASE))
-          {
-            //decoratedPvtMsgs=prtMsgManager.getMessagesByTopic(getUserId(), getSelectedTopicId()) ;
-            decoratedPvtMsgs=topic.getMessages() ;
-            break;
-          }    
-        }
+//    Area privateArea=prtMsgManager.getPrivateMessageArea();
+//    if(privateArea != null ) {
+//     List forums=privateArea.getPrivateForums();
+//      //Private message return ONLY ONE ELEMENT
+//      for (Iterator iter = forums.iterator(); iter.hasNext();)
+//      {
+//        forum = (PrivateForum) iter.next();
+//        pvtTopics=forum.getTopics();
+//        
+//        //now get messages for each topics
+//        for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
+//        {
+//          Topic topic = (Topic) iterator.next();          
+//          if(topic.getTitle().equals(PVTMSG_MODE_RECEIVED))
+//          {            
+//            //TODO -- getMessages() should be changed to getReceivedMessages() ;
+//            //decoratedPvtMsgs=prtMsgManager.getReceivedMessages(getUserId()) ;
+//            decoratedPvtMsgs=topic.getMessages() ;
+//            break;
+//          } 
+//          if(topic.getTitle().equals(PVTMSG_MODE_SENT))
+//          {
+//            //decoratedPvtMsgs=prtMsgManager.getSentMessages(getUserId()) ;
+//            decoratedPvtMsgs=topic.getMessages() ;
+//            break;
+//          }  
+//          if(topic.getTitle().equals(PVTMSG_MODE_DELETE))
+//          {
+//            //decoratedPvtMsgs=prtMsgManager.getDeletedMessages(getUserId()) ;
+//            decoratedPvtMsgs=topic.getMessages() ;
+//            break;
+//          }  
+//          if(topic.getTitle().equals(PVTMSG_MODE_DRAFT))
+//          {
+//            //decoratedPvtMsgs=prtMsgManager.getDraftedMessages(getUserId()) ;
+//            decoratedPvtMsgs=topic.getMessages() ;
+//            break;
+//          }  
+//          if(topic.getTitle().equals(PVTMSG_MODE_CASE))
+//          {
+//            //decoratedPvtMsgs=prtMsgManager.getMessagesByTopic(getUserId(), getSelectedTopicId()) ;
+//            decoratedPvtMsgs=topic.getMessages() ;
+//            break;
+//          }    
+//        }
         //create decorated List
         decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
-      }
-    }
+//      }
+//    }
     return decoratedPvtMsgs ;
   }
   
@@ -576,42 +578,9 @@ public class PrivateMessagesTool
     //get external parameter
     selectedTopicTitle = getExternalParameterByKey("pvtMsgTopicTitle") ;
     setSelectedTopicId(getExternalParameterByKey("pvtMsgTopicId")) ;
-    
-    //then set up navigation
-    if(selectedTopicTitle.equals(PVTMSG_MODE_RECEIVED) || (this.getMsgNavMode().equals(PVTMSG_MODE_RECEIVED)))
-    {
-      msgNavMode=PVTMSG_MODE_RECEIVED;
-      this.setNavModeIsDelete(false); 
-      return "pvtMsg";
-    }
-    if(selectedTopicTitle.equals(PVTMSG_MODE_SENT) ||(this.getMsgNavMode().equals(PVTMSG_MODE_SENT)))
-    {
-      msgNavMode=PVTMSG_MODE_SENT;
-      this.setNavModeIsDelete(false); 
-      return "pvtMsg";
-    }
-    if(selectedTopicTitle.equals(PVTMSG_MODE_DELETE)||(this.getMsgNavMode().equals(PVTMSG_MODE_DELETE)))
-    {
-      msgNavMode=PVTMSG_MODE_DELETE;
-      this.setNavModeIsDelete(true); 
-      return "pvtMsg";
-    }
-    if(selectedTopicTitle.equals(PVTMSG_MODE_DRAFT)||(this.getMsgNavMode().equals(PVTMSG_MODE_DRAFT)))
-    {
-      msgNavMode=PVTMSG_MODE_DRAFT;
-      this.setNavModeIsDelete(false); 
-      return "pvtMsg";
-    }
-    if(selectedTopicTitle.equals(PVTMSG_MODE_CASE)||(this.getMsgNavMode().equals(PVTMSG_MODE_CASE)))
-    {
-      msgNavMode=PVTMSG_MODE_CASE;
-      this.setNavModeIsDelete(false); 
-      return "pvtMsg";
-    }
-    else
-    {
-      return "main" ;
-    }
+    msgNavMode=getSelectedTopicTitle();
+    //TODO - getPvtMessages based on topicId
+    return "pvtMsg";
   }
   
   /**
@@ -620,7 +589,16 @@ public class PrivateMessagesTool
    */  
   public String processPvtMsgCancel() {
     LOG.debug("processPvtMsgCancel()");
-    return processPvtMsgTopic();    
+
+    if(getMsgNavMode().equals(""))
+    {
+      return "main" ; // if navigation is from main page
+    }
+    else
+    {
+      return "pvtMsg";
+      //return processPvtMsgTopic();   
+    }  
   }
   
   /**
@@ -737,7 +715,16 @@ public class PrivateMessagesTool
     PrivateMessage pMsg= constructMessage() ;
     
     prtMsgManager.sendPrivateMessage(pMsg, getRecipiants());            
-    return "pvtMsg" ;
+
+    if(getMsgNavMode().equals(""))
+    {
+      return "main" ; // if navigation is from main page
+    }
+    else
+    {
+      return "pvtMsg";
+      //return processPvtMsgTopic();   
+    }
   }
  
   /**
@@ -751,7 +738,16 @@ public class PrivateMessagesTool
     dMsg.setDraft(Boolean.TRUE);
 
     prtMsgManager.sendPrivateMessage(dMsg, getRecipiants());    
-    return "pvtMsg" ;    
+
+    if(getMsgNavMode().equals(""))
+    {
+      return "main" ; // if navigation is from main page
+    }
+    else
+    {
+      return "pvtMsg";
+      //return processPvtMsgTopic();   
+    } 
   }
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
   public PrivateMessage constructMessage()
