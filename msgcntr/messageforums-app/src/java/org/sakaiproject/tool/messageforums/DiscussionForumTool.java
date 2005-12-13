@@ -12,12 +12,17 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.service.legacy.entity.Reference;
+import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
@@ -60,6 +65,21 @@ public class DiscussionForumTool
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
   
   private List forums = new ArrayList();
+  
+  //compose - cwen
+  private MessageForumsMessageManager messageManager;
+  private String composeTitle;
+  private String composeBody;
+  private String composeLabel;   
+  //attachment
+  private ArrayList attachments = new ArrayList();
+  private String removeAttachId = null;
+  private ArrayList prepareRemoveAttach = new ArrayList();
+  private boolean attachCaneled = false;
+  private ArrayList oldAttachments = new ArrayList();
+  private List allAttachments = new ArrayList();
+  
+  
   /**
    * Dependency Injected
    */
@@ -469,6 +489,7 @@ public class DiscussionForumTool
       }
       return MESSAGE_VIEW;
     }
+
     return MAIN;
   
   }
@@ -769,7 +790,232 @@ public class DiscussionForumTool
     return new DiscussionTopicBean(topic);
     
   }
+  
+  //compose - cwen
+  public String processAddMessage()
+  {
+  	return MESSAGE_COMPOSE;
+  }
+  
+  public String processAddAttachmentRedirect()
+  {
+    LOG.debug("processAddAttachmentRedirect()");
+    try
+    {
+      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+      context.redirect("sakai.filepicker.helper/tool");
+      return null;
+    }
+    catch(Exception e)
+    {
+      return null;
+    }
+  }
+  
+  public void setMessageManager(MessageForumsMessageManager messageManager)
+  {
+    this.messageManager = messageManager;
+  }
+  
+  public String getComposeTitle()
+  {
+  	return composeTitle;
+  }
+  
+  public void setComposeTitle(String composeTitle)
+  {
+  	this.composeTitle = composeTitle;
+  }
+  
+  public String getComposeBody()
+  {
+  	return composeBody;
+  }
+  
+  public void setComposeBody(String composeBody)
+  {
+  	this.composeBody = composeBody;
+  }
+  
+  
+  public String getComposeLabel()
+  {
+  	return composeLabel;
+  }
+  
+  public void setComposeLabel(String composeLabel)
+  {
+  	this.composeLabel = composeLabel;
+  }
+
+  public ArrayList getAttachments()
+  {
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
+        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
+    {
+      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      Reference ref = (Reference)refs.get(0);
+      
+      for(int i=0; i<refs.size(); i++)
+      {
+/*        ref = (Reference) refs.get(i);
+        Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
+            ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+        
+        //TODO - remove this as being set for test only  
+        thisAttach.setPvtMsgAttachId(new Long(1));
+        
+        attachments.add(thisAttach);
+*/        
+      }
+    }
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+    
+    return attachments;
+  }
+
+  public void setAttachments(ArrayList attachments)
+  {
+    this.attachments = attachments;
+  }
+
+  public String processDeleteAttach()
+  {
+    LOG.debug("processDeleteAttach()");
+    
+    ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+    String attachId = null;
+    
+    Map paramMap = context.getRequestParameterMap();
+    Iterator itr = paramMap.keySet().iterator();
+    while(itr.hasNext())
+    {
+      Object key = itr.next();
+      if( key instanceof String)
+      {
+        String name =  (String)key;
+        int pos = name.lastIndexOf("dfmsg_current_attach");
+        
+        if(pos>=0 && name.length()==pos+"dfmsg_current_attach".length())
+        {
+          attachId = (String)paramMap.get(key);
+          break;
+        }
+      }
+    }
+    
+    removeAttachId = attachId;
+    
+    //separate screen
+//    if((removeAttachId != null) && (!removeAttachId.equals("")))
+//      return "removeAttachConfirm";
+//    else
+//      return null;
+    List newLs= new ArrayList();
+    for (Iterator iter = getAttachments().iterator(); iter.hasNext();)
+    {
+      Attachment element = (Attachment) iter.next();
+      if(!((element.getPvtMsgAttachId().toString()).equals(attachId)))
+      {
+        newLs.add(element);
+      }
+    }
+    this.setAttachments((ArrayList) newLs) ;
+    
+    return null ;
+  }
  
+  public String processDfMsgCancel()
+  {
+  	this.composeBody = null;
+  	this.composeLabel = null;
+  	this.composeTitle = null;
+  	
+  	return ALL_MESSAGES;
+  }
+  
+  public String processDfMsgPost()
+  {
+    Message dMsg=constructMessage();
+
+    forumManager.saveMessage(dMsg);
+
+    this.composeBody = null;
+  	this.composeLabel = null;
+  	this.composeTitle = null;
+    
+  	return ALL_MESSAGES;    
+  }
+  
+  public String processDfMsgSaveDraft() 
+  {
+    Message dMsg=constructMessage() ;
+    dMsg.setDraft(Boolean.TRUE);
+
+    forumManager.saveMessage(dMsg);
+    
+  	this.composeBody = null;
+  	this.composeLabel = null;
+  	this.composeTitle = null;
+
+    return ALL_MESSAGES;    
+  }
+
+  public Message constructMessage()
+  {
+    Message aMsg;
+    
+    aMsg = messageManager.createDiscussionMessage();
+
+    if (aMsg != null)
+    {
+      aMsg.setTitle(getComposeTitle());
+      aMsg.setBody(getComposeBody());
+      aMsg.setAuthor(getUserId());
+      aMsg.setDraft(Boolean.FALSE);      
+      aMsg.setApproved(Boolean.TRUE);      
+    }
+    for(int i=0; i<attachments.size(); i++)
+    {
+//      forumManager.addAttachToPvtMsg(aMsg, (Attachment)attachments.get(i));         
+    }    
+    attachments.clear();
+    oldAttachments.clear();
+    
+    return aMsg;    
+  }
+  
+  public String processDfComposeToggle()
+  {
+    String redirectTo = getExternalParameterByKey(REDIRECT_PROCESS_ACTION);
+    String expand = getExternalParameterByKey("composeExpand");
+    
+    if(redirectTo==null)
+    {
+      return MAIN;
+    }
+    if(redirectTo.equals("dfCompose"))
+    {
+      if((expand != null) && (expand.equalsIgnoreCase("true")))
+      {
+      	selectedTopic.setReadFullDesciption(true);
+      }
+      else
+      {
+        selectedTopic.setReadFullDesciption(false);
+      }
+      return MESSAGE_COMPOSE;
+    }
+    
+    return MAIN;
+  }
+  
+  public String getUserId()
+  {
+    return SessionManager.getCurrentSessionUserId();
+  }
   
   public List getRoles()
   {
