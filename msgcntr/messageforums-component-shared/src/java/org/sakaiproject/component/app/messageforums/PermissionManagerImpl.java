@@ -104,12 +104,22 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public AreaControlPermission getAreaControlPermissionForRole(String role, String typeId) {
         ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, false);
         AreaControlPermission cp = new AreaControlPermissionImpl();
-        cp.setChangeSettings(permissions.getChangeSettings());
-        cp.setMovePostings(permissions.getMovePostings());
-        cp.setNewForum(permissions.getNewForum());
-        cp.setNewResponse(permissions.getNewResponse());
-        cp.setNewTopic(permissions.getNewTopic());
-        cp.setResponseToResponse(permissions.getResponseToResponse());
+
+        if (permissions == null) {
+            cp.setChangeSettings(Boolean.FALSE);
+            cp.setMovePostings(Boolean.FALSE);
+            cp.setNewForum(Boolean.FALSE);
+            cp.setNewResponse(Boolean.FALSE);
+            cp.setNewTopic(Boolean.FALSE);
+            cp.setResponseToResponse(Boolean.FALSE);
+        } else {
+            cp.setChangeSettings(permissions.getChangeSettings());        
+            cp.setMovePostings(permissions.getMovePostings());
+            cp.setNewForum(permissions.getNewForum());
+            cp.setNewResponse(permissions.getNewResponse());
+            cp.setNewTopic(permissions.getNewTopic());
+            cp.setResponseToResponse(permissions.getResponseToResponse());
+        }
         cp.setRole(role);
         return cp;
     }
@@ -117,12 +127,22 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public AreaControlPermission getDefaultAreaControlPermissionForRole(String role, String typeId) {
         ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, true);
         AreaControlPermission cp = new AreaControlPermissionImpl();
-        cp.setChangeSettings(permissions.getChangeSettings());
-        cp.setMovePostings(permissions.getMovePostings());
-        cp.setNewForum(permissions.getNewForum());
-        cp.setNewResponse(permissions.getNewResponse());
-        cp.setNewTopic(permissions.getNewTopic());
-        cp.setResponseToResponse(permissions.getResponseToResponse());
+        
+        if (permissions == null) {
+            cp.setChangeSettings(Boolean.FALSE);
+            cp.setMovePostings(Boolean.FALSE);
+            cp.setNewForum(Boolean.FALSE);
+            cp.setNewResponse(Boolean.FALSE);
+            cp.setNewTopic(Boolean.FALSE);
+            cp.setResponseToResponse(Boolean.FALSE);
+        } else {
+            cp.setChangeSettings(permissions.getChangeSettings());
+            cp.setMovePostings(permissions.getMovePostings());
+            cp.setNewForum(permissions.getNewForum());
+            cp.setNewResponse(permissions.getNewResponse());
+            cp.setNewTopic(permissions.getNewTopic());
+            cp.setResponseToResponse(permissions.getResponseToResponse());
+        }
         cp.setRole(role);
         return cp;
     }
@@ -168,11 +188,20 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public ForumControlPermission getForumControlPermissionForRole(String role, String typeId) {
         ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, false);
         ForumControlPermission cp = new ForumControlPermissionImpl();
-        cp.setChangeSettings(permissions.getChangeSettings());
-        cp.setMovePostings(permissions.getMovePostings());
-        cp.setNewResponse(permissions.getNewResponse());
-        cp.setNewTopic(permissions.getNewTopic());
-        cp.setResponseToResponse(permissions.getResponseToResponse());
+
+        if (permissions == null) {
+            cp.setChangeSettings(Boolean.FALSE);
+            cp.setMovePostings(Boolean.FALSE);
+            cp.setNewResponse(Boolean.FALSE);
+            cp.setNewTopic(Boolean.FALSE);
+            cp.setResponseToResponse(Boolean.FALSE);
+        } else {
+            cp.setChangeSettings(permissions.getChangeSettings());
+            cp.setMovePostings(permissions.getMovePostings());
+            cp.setNewResponse(permissions.getNewResponse());
+            cp.setNewTopic(permissions.getNewTopic());
+            cp.setResponseToResponse(permissions.getResponseToResponse());
+        }
         cp.setRole(role);
         return cp;
     }
@@ -180,11 +209,20 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public ForumControlPermission getDefaultForumControlPermissionForRole(String role, String typeId) {
         ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, true);
         ForumControlPermission cp = new ForumControlPermissionImpl();
-        cp.setChangeSettings(permissions.getChangeSettings());
-        cp.setMovePostings(permissions.getMovePostings());
-        cp.setNewResponse(permissions.getNewResponse());
-        cp.setNewTopic(permissions.getNewTopic());
-        cp.setResponseToResponse(permissions.getResponseToResponse());
+
+        if (permissions == null) {
+            cp.setChangeSettings(Boolean.FALSE);
+            cp.setMovePostings(Boolean.FALSE);
+            cp.setNewResponse(Boolean.FALSE);
+            cp.setNewTopic(Boolean.FALSE);
+            cp.setResponseToResponse(Boolean.FALSE);
+        } else {
+            cp.setChangeSettings(permissions.getChangeSettings());
+            cp.setMovePostings(permissions.getMovePostings());
+            cp.setNewResponse(permissions.getNewResponse());
+            cp.setNewTopic(permissions.getNewTopic());
+            cp.setResponseToResponse(permissions.getResponseToResponse());
+        }
         cp.setRole(role);
         return cp;
     }
@@ -231,10 +269,18 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public TopicControlPermission getTopicControlPermissionForRole(String role, String typeId) {
         ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, false);
         TopicControlPermission cp = new TopicControlPermissionImpl();
-        cp.setChangeSettings(permissions.getChangeSettings());
-        cp.setMovePostings(permissions.getMovePostings());
-        cp.setNewResponse(permissions.getNewResponse());
-        cp.setResponseToResponse(permissions.getResponseToResponse());
+
+        if (permissions == null) {
+            cp.setChangeSettings(Boolean.FALSE);
+            cp.setMovePostings(Boolean.FALSE);
+            cp.setNewResponse(Boolean.FALSE);
+            cp.setResponseToResponse(Boolean.FALSE);
+        } else {
+            cp.setChangeSettings(permissions.getChangeSettings());
+            cp.setMovePostings(permissions.getMovePostings());
+            cp.setNewResponse(permissions.getNewResponse());
+            cp.setResponseToResponse(permissions.getResponseToResponse());
+        }
         cp.setRole(role);
         return cp;
     }
@@ -242,10 +288,18 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public TopicControlPermission getDefaultTopicControlPermissionForRole(String role, String typeId) {
         ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, true);
         TopicControlPermission cp = new TopicControlPermissionImpl();
-        cp.setChangeSettings(permissions.getChangeSettings());
-        cp.setMovePostings(permissions.getMovePostings());
-        cp.setNewResponse(permissions.getNewResponse());
-        cp.setResponseToResponse(permissions.getResponseToResponse());
+
+        if (permissions == null) {
+            cp.setChangeSettings(Boolean.FALSE);
+            cp.setMovePostings(Boolean.FALSE);
+            cp.setNewResponse(Boolean.FALSE);
+            cp.setResponseToResponse(Boolean.FALSE);
+        } else {
+            cp.setChangeSettings(permissions.getChangeSettings());
+            cp.setMovePostings(permissions.getMovePostings());
+            cp.setNewResponse(permissions.getNewResponse());
+            cp.setResponseToResponse(permissions.getResponseToResponse());
+        }
         cp.setRole(role);
         return cp;
     }
