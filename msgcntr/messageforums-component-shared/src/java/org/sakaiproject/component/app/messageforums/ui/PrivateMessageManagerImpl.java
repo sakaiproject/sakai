@@ -57,7 +57,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private IdManager idManager;
   private SessionManager sessionManager;
   private DummyDataHelperApi helper;
-  private boolean usingHelper = true; // just a flag until moved to database from helper
+  private boolean usingHelper = false; // just a flag until moved to database from helper
 
   public void init()
   {
@@ -79,19 +79,23 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getPrivateArea();
     }
-    return areaManager.getPrivateArea();
+    
+    Area privateArea = areaManager.getPrivateArea();                
+    
+    return privateArea;
+    //return areaManager.getPrivateArea();
   }
   
   public PrivateForum initializePrivateMessageArea(Area area){
         
     String userId = getCurrentUser();
     
-    PrivateForum pfReturn;
+    PrivateForum pf;
     
     /** create default user forum/topics if none exist */
-    if ((pfReturn = forumManager.getForumByOwner(getCurrentUser())) == null){
+    if ((pf = forumManager.getForumByOwner(getCurrentUser())) == null){
                   
-      PrivateForum pf = forumManager.createPrivateForum();
+      pf = forumManager.createPrivateForum();
       pf.setTitle(userId + " private forum");
       pf.setUuid(idManager.createUuid());
       pf.setOwner(userId);
@@ -100,39 +104,35 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       area.addPrivateForum(pf);
       pf.setArea(area);
       
-      return pf;
+      PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+      receivedTopic.setTitle("Received");
+      forumManager.savePrivateForumTopic(receivedTopic);
+              
+      PrivateTopic sentTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+      sentTopic.setTitle("Sent");    
+      forumManager.savePrivateForumTopic(sentTopic);
+       
+      PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+      deletedTopic.setTitle("Deleted");    
+      forumManager.savePrivateForumTopic(deletedTopic);
+        
+      PrivateTopic draftTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
+      draftTopic.setTitle("Drafts");    
+      forumManager.savePrivateForumTopic(draftTopic);
+    
+    
+      pf.addTopic(receivedTopic);
+      pf.addTopic(sentTopic);
+      pf.addTopic(deletedTopic);
+      pf.addTopic(draftTopic);
+      
+      forumManager.savePrivateForum(pf);                  
       
     }
-    
-    return pfReturn;
-    
+            
+    return pf;
   }
-  
-  public void initializePrivateMessageForumTopics(PrivateForum pf){
-    
-    String userId = getCurrentUser();
-    
-    PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
-    receivedTopic.setTitle("Received");
-    forumManager.savePrivateForumTopic(receivedTopic);
-    
-    PrivateTopic sentTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
-    sentTopic.setTitle("Sent");
-    forumManager.savePrivateForumTopic(receivedTopic);
-    
-    PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
-    deletedTopic.setTitle("Deleted");
-    forumManager.savePrivateForumTopic(receivedTopic);
-    
-    PrivateTopic draftTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
-    draftTopic.setTitle("Drafts");
-    
-    forumManager.savePrivateForumTopic(receivedTopic);
-    forumManager.savePrivateForumTopic(sentTopic);
-    forumManager.savePrivateForumTopic(deletedTopic);
-    forumManager.savePrivateForumTopic(draftTopic);
-       
-  }
+               
     
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#savePrivateMessage(org.sakaiproject.api.app.messageforums.Message)

@@ -57,7 +57,8 @@ import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 public class MessageForumsForumManagerImpl extends HibernateDaoSupport implements MessageForumsForumManager {
 
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
-
+    
+    private static final String QUERY_FOR_PRIVATE_TOPICS = "findPrivateTopicsByForumId";
     private static final String QUERY_BY_FORUM_OWNER = "findPrivateForumByOwner";
     private static final String QUERY_BY_FORUM_ID = "findForumById";
     private static final String QUERY_BY_FORUM_UUID = "findForumByUuid";
@@ -97,6 +98,18 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     public SessionManager getSessionManager() {
         return sessionManager;
+    }
+    
+    public List getPrivateTopicsForForum(final PrivateForum forum){
+      HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+          Query q = session.getNamedQuery(QUERY_FOR_PRIVATE_TOPICS);
+          q.setParameter("id", forum.getId(), Hibernate.LONG);
+          return q.list();
+        }
+    };
+
+    return (List) getHibernateTemplate().execute(hcb);
     }
 
 //  /**
@@ -324,7 +337,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
       topic.setCreated(new Date());
       topic.setCreatedBy(getCurrentUser());
-      topic.setUserId(userId);
+      topic.setUserId(userId);      
       topic.setShortDescription("short-desc");
       topic.setExtendedDescription("ext-desc");
       topic.setMutable(Boolean.FALSE);

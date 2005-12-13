@@ -106,50 +106,71 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
 //      
 //    }
     
-    public void testCreateUserPrivateForumAndDefaultTopics(){
-      
-      //Area area = areaManager.getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
+    
+    public void testRelation(){
       Area area = areaManager.getPrivateArea();
-      //Area area = areaManager.createArea(typeManager.getPrivateMessageAreaType());
-//      area.setName("PrivateMessageArea");
-//      area.setName("Private Area");
-//      area.setEnabled(Boolean.TRUE);
-//      area.setHidden(Boolean.TRUE);
-//      areaManager.saveArea(area);
+      area.setName("aaaaaaaaaaaaaa");      
+      area.setEnabled(Boolean.TRUE);
+      area.setHidden(Boolean.TRUE);
+      areaManager.saveArea(area);
       
-      // subst getCurrentUser() for test-user
-           
-      if (forumManager.getForumByOwner("test-user") == null)      
-      {
-        PrivateForum pf = forumManager.createPrivateForum();
-        pf.setTitle("test-user" + " private forum");
-        pf.setUuid("test-user");
-        
-        forumManager.savePrivateForum(pf);
-                        
-        PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
-        receivedTopic.setTitle("Received");
-        forumManager.savePrivateForumTopic(receivedTopic);
-        
-        PrivateTopic sentTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
-        sentTopic.setTitle("Sent");
-        forumManager.savePrivateForumTopic(receivedTopic);
-        
-        PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
-        deletedTopic.setTitle("Deleted");
-        forumManager.savePrivateForumTopic(receivedTopic);
-        
-        PrivateTopic draftTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
-        draftTopic.setTitle("Drafts");
-        
-        forumManager.savePrivateForumTopic(receivedTopic);
-        forumManager.savePrivateForumTopic(sentTopic);
-        forumManager.savePrivateForumTopic(deletedTopic);
-        forumManager.savePrivateForumTopic(draftTopic);        
-                                                        
-      }            
+      PrivateForum pf = forumManager.createPrivateForum();
+      pf.setTitle("test-user" + " private forum");
+      pf.setUuid("test-user");
+      
+      forumManager.savePrivateForum(pf);
+      
+      area.addPrivateForum(pf);
+      
+      areaManager.saveArea(area);
+      
       
     }
+    
+//    public void testCreateUserPrivateForumAndDefaultTopics(){
+//      
+//      //Area area = areaManager.getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
+//      Area area = areaManager.getPrivateArea();
+//      //Area area = areaManager.createArea(typeManager.getPrivateMessageAreaType());
+////      area.setName("PrivateMessageArea");
+////      area.setName("Private Area");
+////      area.setEnabled(Boolean.TRUE);
+////      area.setHidden(Boolean.TRUE);
+////      areaManager.saveArea(area);
+//      
+//      // subst getCurrentUser() for test-user
+//           
+//      if (forumManager.getForumByOwner("test-user") == null)      
+//      {
+//        PrivateForum pf = forumManager.createPrivateForum();
+//        pf.setTitle("test-user" + " private forum");
+//        pf.setUuid("test-user");
+//        
+//        forumManager.savePrivateForum(pf);
+//                        
+//        PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
+//        receivedTopic.setTitle("Received");
+//        forumManager.savePrivateForumTopic(receivedTopic);
+//        
+//        PrivateTopic sentTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
+//        sentTopic.setTitle("Sent");
+//        forumManager.savePrivateForumTopic(receivedTopic);
+//        
+//        PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
+//        deletedTopic.setTitle("Deleted");
+//        forumManager.savePrivateForumTopic(receivedTopic);
+//        
+//        PrivateTopic draftTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
+//        draftTopic.setTitle("Drafts");
+//        
+//        forumManager.savePrivateForumTopic(receivedTopic);
+//        forumManager.savePrivateForumTopic(sentTopic);
+//        forumManager.savePrivateForumTopic(deletedTopic);
+//        forumManager.savePrivateForumTopic(draftTopic);        
+//                                                        
+//      }            
+//      
+//    }
 
     // helpers        
 

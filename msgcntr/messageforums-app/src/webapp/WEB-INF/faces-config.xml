@@ -228,5 +228,11 @@
             <property-name>typeManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"]}</value>
         </managed-property>
+        <managed-property>
+            <description>Message Forum Manager</description>
+            <property-name>forumManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
+        </managed-property>
+                        
     </managed-bean>
 </faces-config>

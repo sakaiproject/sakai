@@ -34,6 +34,8 @@ public interface MessageForumsForumManager {
 //    public List getDiscussionForums();
 
     
+   public List getPrivateTopicsForForum(final PrivateForum forum);
+  
     /**
      * get forum by owner
      * @param owner

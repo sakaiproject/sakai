@@ -43,7 +43,7 @@
 	    <index column="f_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
 	</list>     
-	<list name="topics" lazy="true" table="MFR_TOPIC_T" cascade="all">
+	<list name="topics" lazy="false" table="MFR_TOPIC_T" cascade="all">
 	    <key column="pf_surrogateKey"/>
 	    <index column="bf_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl" />
@@ -72,6 +72,12 @@
     <property name="areaindex" column="area_index_col" type="int" update="true" insert="true"/>
       
   </class>
+
+  <query name="findPrivateTopicsByForumId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl
+             where pf_surrogateKey = :id
+    ]]>
+  </query>
 
   <query name="findPrivateForumByOwner">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.owner = :owner]]>

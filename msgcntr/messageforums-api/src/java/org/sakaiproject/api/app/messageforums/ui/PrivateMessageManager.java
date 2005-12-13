@@ -31,9 +31,7 @@ public interface PrivateMessageManager {
      */
     Area getPrivateMessageArea();
     
-    public PrivateForum initializePrivateMessageArea(Area area);
-    
-    public void initializePrivateMessageForumTopics(PrivateForum pf);
+    public PrivateForum initializePrivateMessageArea(Area area);        
     
     
     /** 

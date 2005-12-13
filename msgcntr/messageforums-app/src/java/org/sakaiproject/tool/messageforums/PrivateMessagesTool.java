@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
@@ -77,6 +78,7 @@ public class PrivateMessagesTool
    */
   private PrivateMessageManager prtMsgManager;
   private MessageForumsMessageManager messageManager;
+  private MessageForumsForumManager forumManager;
   private ErrorMessages errorMessages;
   
   /** Dependency Injected   */
@@ -194,18 +196,24 @@ public class PrivateMessagesTool
   {
     Area privateArea=prtMsgManager.getPrivateMessageArea();
     PrivateForum pf = prtMsgManager.initializePrivateMessageArea(privateArea);
-    prtMsgManager.initializePrivateMessageForumTopics(pf);
+    //prtMsgManager.initializePrivateMessageForumTopics(pf);
     
-    if(privateArea != null ) {
-     List forums=privateArea.getPrivateForums();
-      //Private message return ONLY ONE ELEMENT
-      for (Iterator iter = forums.iterator(); iter.hasNext();)
-      {
-        forum = (PrivateForum) iter.next();
-        pvtTopics=forum.getTopics();   
-      }
-    }
-   return privateArea;
+    
+    pvtTopics = forumManager.getPrivateTopicsForForum(pf);
+    
+    
+//    if(privateArea != null ) {
+//     List forums=privateArea.getPrivateForums();
+//      //Private message return ONLY ONE ELEMENT
+//      for (Iterator iter = forums.iterator(); iter.hasNext();)
+//      {
+//        forum = (PrivateForum) iter.next();
+//        pvtTopics=forum.getTopics();   
+//      }
+//    }
+//   return null;
+    
+    return privateArea;
   }
   
   public boolean getPvtAreaEnabled()
@@ -226,8 +234,31 @@ public class PrivateMessagesTool
         if (topic != null)
         {
           PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
-          decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
-          decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic)) ;
+          //decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
+          //decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic)) ;
+          
+          String typeUuid = null;
+          if ("Received".equalsIgnoreCase(topic.getTitle())){
+            typeUuid = typeManager.getReceivedPrivateMessageType();
+          }
+          else if ("Sent".equalsIgnoreCase(topic.getTitle())){
+            typeUuid = typeManager.getSentPrivateMessageType();
+          }
+          else if ("Deleted".equalsIgnoreCase(topic.getTitle())){
+            typeUuid = typeManager.getDeletedPrivateMessageType();
+          }
+          else if ("Drafts".equalsIgnoreCase(topic.getTitle())){
+            typeUuid = typeManager.getDraftPrivateMessageType();
+          }
+          else {
+            // 
+          }
+          
+          decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(topic.getId(),
+              typeUuid));
+          decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(topic.getId(),
+              typeUuid));
+          
           decoratedForum.addTopic(decoTopic);
         }          
       }
@@ -246,7 +277,8 @@ public class PrivateMessagesTool
       for (Iterator iter = forums.iterator(); iter.hasNext();)
       {
         forum = (PrivateForum) iter.next();
-        pvtTopics=forum.getTopics();   
+        //pvtTopics=forum.getTopics();
+        pvtTopics = forumManager.getPrivateTopicsForForum(forum);
         //now get messages for each topics
         for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
         {
@@ -1567,6 +1599,12 @@ public class PrivateMessagesTool
   public String processUploadCancel()
   {
     return "pvtMsg" ;
+  }
+
+
+  public void setForumManager(MessageForumsForumManager forumManager)
+  {
+    this.forumManager = forumManager;
   } 
 
 }
