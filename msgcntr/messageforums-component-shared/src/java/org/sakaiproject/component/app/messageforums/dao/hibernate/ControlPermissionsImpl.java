@@ -35,6 +35,7 @@ public class ControlPermissionsImpl implements ControlPermissions {
     private static final Log LOG = LogFactory.getLog(ControlPermissionsImpl.class);    
   
     private String role;
+    private Boolean postToGradebook;
     private Boolean newForum;
     private Boolean newTopic;
     private Boolean newResponse;
@@ -70,6 +71,14 @@ public class ControlPermissionsImpl implements ControlPermissions {
         this.version = version;
     }
     
+    public Boolean getPostToGradebook() {
+        return postToGradebook;
+    }
+
+    public void setPostToGradebook(Boolean postToGradebook) {
+        this.postToGradebook = postToGradebook;
+    }
+
     public Boolean getChangeSettings() {
         return changeSettings;
     }

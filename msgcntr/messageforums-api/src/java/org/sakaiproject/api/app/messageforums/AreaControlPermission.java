@@ -25,6 +25,10 @@ package org.sakaiproject.api.app.messageforums;
 
 public interface AreaControlPermission {
 
+    public Boolean getPostToGradebook();
+    
+    public void setPostToGradebook(Boolean postToGradebook);
+    
     public Boolean getChangeSettings();
 
     public void setChangeSettings(Boolean changeSettings);

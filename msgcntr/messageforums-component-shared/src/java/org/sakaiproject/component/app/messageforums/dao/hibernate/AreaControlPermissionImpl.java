@@ -29,6 +29,8 @@ public class AreaControlPermissionImpl implements AreaControlPermission {
 
     private String role;
 
+    private Boolean postToGradebook;
+    
     private Boolean newForum;
 
     private Boolean newTopic;
@@ -40,6 +42,15 @@ public class AreaControlPermissionImpl implements AreaControlPermission {
     private Boolean movePostings;
 
     private Boolean changeSettings;
+
+
+    public Boolean getPostToGradebook() {
+        return postToGradebook;
+    }
+
+    public void setPostToGradebook(Boolean postToGradebook) {
+        this.postToGradebook = postToGradebook;
+    }
 
     public Boolean getChangeSettings() {
         return changeSettings;

@@ -27,6 +27,9 @@
     <property name="newForum">
       <column name="NEW_FORUM" not-null="true" />
     </property>
+    <property name="postToGradebook">
+      <column name="POST_TO_GRADEBOOK" not-null="true" />
+    </property>
     <property name="newTopic">
       <column name="NEW_TOPIC" not-null="true" />
     </property>

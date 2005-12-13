@@ -112,6 +112,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             cp.setNewResponse(Boolean.FALSE);
             cp.setNewTopic(Boolean.FALSE);
             cp.setResponseToResponse(Boolean.FALSE);
+            cp.setPostToGradebook(Boolean.FALSE);
         } else {
             cp.setChangeSettings(permissions.getChangeSettings());        
             cp.setMovePostings(permissions.getMovePostings());
@@ -119,6 +120,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             cp.setNewResponse(permissions.getNewResponse());
             cp.setNewTopic(permissions.getNewTopic());
             cp.setResponseToResponse(permissions.getResponseToResponse());
+            cp.setPostToGradebook(permissions.getPostToGradebook());
         }
         cp.setRole(role);
         return cp;
@@ -135,6 +137,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             cp.setNewResponse(Boolean.FALSE);
             cp.setNewTopic(Boolean.FALSE);
             cp.setResponseToResponse(Boolean.FALSE);
+            cp.setPostToGradebook(Boolean.FALSE);
         } else {
             cp.setChangeSettings(permissions.getChangeSettings());
             cp.setMovePostings(permissions.getMovePostings());
@@ -142,6 +145,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             cp.setNewResponse(permissions.getNewResponse());
             cp.setNewTopic(permissions.getNewTopic());
             cp.setResponseToResponse(permissions.getResponseToResponse());
+            cp.setPostToGradebook(permissions.getPostToGradebook());
         }
         cp.setRole(role);
         return cp;

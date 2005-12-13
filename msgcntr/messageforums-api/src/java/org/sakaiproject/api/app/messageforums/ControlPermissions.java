@@ -29,6 +29,10 @@ public interface ControlPermissions {
 
     public void setId(Long id);
 
+    public Boolean getPostToGradebook();
+    
+    public void setPostToGradebook(Boolean postToGradebook);
+    
     public Integer getVersion();
 
     public void setVersion(Integer version);
