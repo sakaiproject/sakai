@@ -167,6 +167,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewResponse(permission.getNewResponse());
         permissions.setNewTopic(permission.getNewTopic());
         permissions.setResponseToResponse(permission.getResponseToResponse());
+        permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
     }
 
@@ -186,6 +187,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewResponse(permission.getNewResponse());
         permissions.setNewTopic(permission.getNewTopic());
         permissions.setResponseToResponse(permission.getResponseToResponse());
+        permissions.setRole(permission.getRole());        
         getHibernateTemplate().saveOrUpdate(permissions);        
     }
 
@@ -247,6 +249,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewResponse(permission.getNewResponse());
         permissions.setNewTopic(permission.getNewTopic());
         permissions.setResponseToResponse(permission.getResponseToResponse());
+        permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);        
         
     }
@@ -267,6 +270,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewResponse(permission.getNewResponse());
         permissions.setNewTopic(permission.getNewTopic());
         permissions.setResponseToResponse(permission.getResponseToResponse());
+        permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);        
     }
 
@@ -324,6 +328,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewResponse(permission.getNewResponse());
         permissions.setNewTopic(Boolean.FALSE);
         permissions.setResponseToResponse(permission.getResponseToResponse());
+        permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);
     }
 
@@ -343,6 +348,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewResponse(permission.getNewResponse());
         permissions.setNewTopic(Boolean.FALSE);
         permissions.setResponseToResponse(permission.getResponseToResponse());
+        permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);
     }
 
