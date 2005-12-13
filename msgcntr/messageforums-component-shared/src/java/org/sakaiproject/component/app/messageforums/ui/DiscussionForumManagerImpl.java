@@ -394,6 +394,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#isInstructor()
+   */
   public boolean isInstructor()
   {
     LOG.debug("isInstructor()");
@@ -426,23 +429,37 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     LOG.debug("getContextSiteId()");
     return ("/site/" + ToolManager.getCurrentPlacement().getContext());
   }
+ 
 
-  public MessageForumsForumManager getForumManager()
-  {
-    return forumManager;
-  }
-
+  /**
+   * @param forumManager
+   */
   public void setForumManager(MessageForumsForumManager forumManager)
   {
     this.forumManager = forumManager;
   }
 
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#createForum()
+   */
   public DiscussionForum createForum()
   {
     LOG.debug("createForum()");
     return forumManager.createDiscussionForum();
   }
 
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#deleteForum(org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
+  public void deleteForum(DiscussionForum forum)
+  {
+    LOG.debug("deleteForum()");
+    forumManager.deleteDiscussionForum(forum);
+  }
+  
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#createTopic(org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
   public DiscussionTopic createTopic(DiscussionForum forum)
   {
     LOG.debug("createTopic()");
@@ -454,6 +471,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return forumManager.createDiscussionForumTopic(forum);
   }
 
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForum(org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
   public void saveForum(DiscussionForum forum)
   {
     LOG.debug("saveForum()");
@@ -471,7 +491,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   public void saveTopic(DiscussionTopic topic)
   {
-    LOG.debug("saveTopic()");
+    LOG.debug("saveTopic(DiscussionTopic "+topic+")");
     
     boolean saveForum = topic.getId() == null;
     
@@ -482,9 +502,22 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         forumManager.saveDiscussionForum(forum);
     }
   }
-
+  
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#deleteTopic(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   */
+  public void deleteTopic(DiscussionTopic topic)
+  {
+    LOG.debug("deleteTopic(DiscussionTopic "+topic+")");
+    forumManager.deleteDiscussionForumTopic(topic);
+  }
+  
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getDefaultControlPermissions()
+   */
   public List getDefaultControlPermissions()
   {
+    LOG.debug("getDefaultControlPermissions()");
     List defaultControlPermissions = new ArrayList();
     Iterator roles = getRoles();
     while (roles.hasNext())
@@ -503,8 +536,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return defaultControlPermissions;
   }
 
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getDefaultMessagePermissions()
+   */
   public List getDefaultMessagePermissions()
   {
+    LOG.debug("getDefaultMessagePermissions()");
     List defaultMessagePermissions = new ArrayList();
     Iterator roles = getRoles();
     while (roles.hasNext())
@@ -523,6 +560,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return defaultMessagePermissions;
   }
 
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveDefaultMessagePermissions(java.util.List)
+   */
   public void saveDefaultMessagePermissions(List controlpermissions)
   {
     if(controlpermissions !=null && controlpermissions.size()>0)
@@ -536,8 +576,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
   }
   
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getForumControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
   public List getForumControlPermissions(DiscussionForum forum)
   {
+    
     // TODO Auto-generated method stub
     return null;
   }
@@ -560,7 +604,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return null;
   }
 
-  public Iterator getRoles()
+  /**
+   * @return Roles for the current site
+   */
+  private Iterator getRoles()
   {
     LOG.debug("getRoles()");
     List roleList = new ArrayList();

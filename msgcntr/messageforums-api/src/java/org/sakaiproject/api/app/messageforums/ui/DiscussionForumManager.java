@@ -109,7 +109,11 @@ public interface DiscussionForumManager
    * @return
    */
   public DiscussionForum createForum();
-
+  
+  /**
+   * @param forum
+   */
+  public void deleteForum(DiscussionForum forum);
   /**
    *
    * @param forum TODO
@@ -126,6 +130,11 @@ public interface DiscussionForumManager
    * @param topic
    */
   public void saveTopic(DiscussionTopic topic);
+  
+  /**
+   * @param topic
+   */
+  public void deleteTopic(DiscussionTopic topic);
   
   /**
    * @param area

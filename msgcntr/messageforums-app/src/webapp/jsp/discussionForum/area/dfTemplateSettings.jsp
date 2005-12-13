@@ -46,7 +46,7 @@ specific Forum or Topic after it has been created."/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.changeSettings}"/>
+				<h:selectBooleanCheckbox value="#{cntrl_settings.postToGradebook}"/>
 			</h:column>			
 		</h:dataTable>
       </mf:forumHideDivision>
