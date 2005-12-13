@@ -59,6 +59,8 @@ public class DiscussionForumTool
   private DiscussionTopicBean selectedTopic;
   private DiscussionMessageBean selectedMessage;
   
+  private List templateSettings;
+  
   private static final String TOPIC_ID = "topicId";
   private static final String FORUM_ID = "forumId";
   private static final String MESSAGE_ID = "messageId";
@@ -205,7 +207,37 @@ public class DiscussionForumTool
     LOG.debug("processActionTemplateSettings()");
     return TEMPLATE_SETTING;
   }
-
+  
+  /**
+   * @return
+   */
+  public List getTemplateSettings()
+  {
+    templateSettings=forumManager.getDefaultControlPermissions();
+    return templateSettings;
+  }
+  
+  /**
+   * @return
+   */
+  public void setTemplateSettings(List templateSettings)
+  {
+    this.templateSettings= templateSettings;
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionSaveTemplateSettings()
+  {
+    LOG.debug("processActionSaveForumSettings()");
+    if (selectedForum != null) {
+        DiscussionForum forum = selectedForum.getForum();
+        forumManager.saveForum(forum);
+    }
+    return MAIN;
+  }
+  
   /**
    * Display Individual forum
    * 

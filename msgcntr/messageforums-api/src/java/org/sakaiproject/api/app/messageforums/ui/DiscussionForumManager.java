@@ -3,6 +3,7 @@ package org.sakaiproject.api.app.messageforums.ui;
 import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -59,6 +60,10 @@ public interface DiscussionForumManager
    * @return
    */
   public DiscussionForum getForumById(Long forumId);
+  /**
+   * @param forumId
+   * @return
+   */
   public DiscussionForum getForumByUuid(String forumId);
 
   /**
@@ -103,16 +108,64 @@ public interface DiscussionForumManager
   /**
    * @return
    */
-  DiscussionForum createForum();
+  public DiscussionForum createForum();
 
   /**
    *
    * @param forum TODO
    * @return
    */
-  DiscussionTopic createTopic(DiscussionForum forum);
+  public DiscussionTopic createTopic(DiscussionForum forum);
 
-  void saveForum(DiscussionForum forum);
+  /**
+   * @param forum
+   */
+  public void saveForum(DiscussionForum forum);
   
-  void saveTopic(DiscussionTopic topic);
+  /**
+   * @param topic
+   */
+  public void saveTopic(DiscussionTopic topic);
+  
+  /**
+   * @param area
+   * @return
+   */
+  public List getDefaultControlPermissions();
+  
+  /**
+   * @param area
+   * @return
+   */
+  public List getDefaultMessagePermissions();
+  
+  /**
+   * @param forum
+   * @return
+   */
+  public List getForumControlPermissions(DiscussionForum forum);
+  
+  /**
+   * @param forum
+   * @return
+   */
+  public List getForumMessagePermissions(DiscussionForum forum);
+  
+  /**
+   * @param topic
+   * @return
+   */
+  public List getTopicControlPermissions(DiscussionTopic topic);
+  
+  /**
+   * @param topic
+   * @return
+   */
+  public List getTopicMessagePermissions(DiscussionTopic topic);
+  
+  /**
+   * @param controlPermission
+   */
+  public void saveDefaultMessagePermissions(AreaControlPermission controlPermission);
+  
 }
