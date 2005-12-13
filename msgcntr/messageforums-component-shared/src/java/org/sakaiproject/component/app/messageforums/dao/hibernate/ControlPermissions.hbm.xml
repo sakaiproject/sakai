@@ -64,7 +64,7 @@
   </class>
 
   <query name="findAreaControlPermissionByRole">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionImpl cp where cp.roleId = :roleId and cp.area.id = :areaId and cp.defaultValue = :defaultValue]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl cp where cp.roleId = :roleId and cp.area.id = :areaId and cp.defaultValue = :defaultValue]]>
   </query>
   
 </hibernate-mapping>
