@@ -354,11 +354,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       topic.setSortIndex(new Integer(0));            
       
       
-      if (forumIsParent) {
-          topic.setBaseForum(getForumById(parentId));
-      } else {
-          topic.setParentTopic((PrivateTopic)getTopicById(parentId));
-      }
+//      if (forumIsParent) {
+//          topic.setBaseForum(getForumById(parentId));
+//      } else {
+//          topic.setParentTopic((PrivateTopic)getTopicById(parentId));
+//      }
       LOG.debug("createPrivateForumTopic executed");
       return topic;
     }

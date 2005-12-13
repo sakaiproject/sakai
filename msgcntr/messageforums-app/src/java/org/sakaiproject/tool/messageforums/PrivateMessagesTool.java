@@ -110,6 +110,7 @@ public class PrivateMessagesTool
   PrivateForumDecoratedBean decoratedForum;
   
   private PrivateForum forum; 
+  private Area pvtArea;
   private List pvtTopics=new ArrayList();
   private List decoratedPvtMsgs;
   private String msgNavMode="" ;
@@ -199,7 +200,7 @@ public class PrivateMessagesTool
     PrivateForum pf = prtMsgManager.initializePrivateMessageArea(privateArea);    
     
     pvtTopics = pf.getTopics();
-                
+    forum=pf;           
         
     return privateArea;
   }

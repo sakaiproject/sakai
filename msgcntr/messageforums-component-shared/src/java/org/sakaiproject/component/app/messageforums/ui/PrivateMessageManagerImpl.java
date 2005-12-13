@@ -58,7 +58,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private SessionManager sessionManager;
   private DummyDataHelperApi helper;
   private boolean usingHelper = false; // just a flag until moved to database from helper
-
+  private Area privateArea =null;
   public void init()
   {
     ;
@@ -79,9 +79,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getPrivateArea();
     }
-    
-    Area privateArea = areaManager.getPrivateArea();                
-    
+
+      privateArea = areaManager.getPrivateArea();   
     return privateArea;
     //return areaManager.getPrivateArea();
   }
@@ -103,6 +102,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       forumManager.savePrivateForum(pf);      
       area.addPrivateForum(pf);
       pf.setArea(area);
+      areaManager.saveArea(area) ;
       
       PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, userId, pf.getId());
       receivedTopic.setTitle("Received");
