@@ -326,6 +326,13 @@
       <!-- IMMEDIATE, DATED, NONE-->
 
       <qtimetadatafield>
+        <fieldlabel>FEEDBACK_AUTHORING</fieldlabel>
+        <fieldentry>BOTH</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- QUESTION, SECTION, BOTH-->
+
+      <qtimetadatafield>
         <fieldlabel>FEEDBACK_DELIVERY_DATE</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
@@ -414,7 +421,7 @@
         <fieldentry>HIGHEST</fieldentry>
       </qtimetadatafield>
       <!--Possible Values -->
-      <!--HIGHEST, LAST SUBMISSION -->
+      <!--HIGHEST, LAST SUBMISSION-->
 
       <qtimetadatafield>
         <fieldlabel>GRADEBOOK_OPTIONS</fieldlabel>
