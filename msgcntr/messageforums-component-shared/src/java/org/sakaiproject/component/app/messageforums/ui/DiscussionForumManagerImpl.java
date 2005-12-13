@@ -460,11 +460,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     boolean saveArea = forum.getId() == null;
 
-    Area area = getDiscussionForumArea();
-    forum.setArea(area);
-    area.addDiscussionForum(forum);
     forumManager.saveDiscussionForum(forum);
     if (saveArea) {
+        Area area = getDiscussionForumArea();
+        forum.setArea(area);    
+        area.addDiscussionForum(forum);
         areaManager.saveArea(area);
     }
   }
@@ -475,10 +475,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     
     boolean saveForum = topic.getId() == null;
     
-    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
-    forum.addTopic(topic);
     forumManager.saveDiscussionForumTopic(topic);
     if (saveForum) {
+        DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+        forum.addTopic(topic);
         forumManager.saveDiscussionForum(forum);
     }
   }
