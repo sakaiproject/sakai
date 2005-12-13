@@ -44,7 +44,7 @@
     <property name="typeUuid">
       <column name="TYPE_UUID" length="36" not-null="true" />
     </property>
-	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
+	<list name="attachments" lazy="false" table="MFR_ATTACHMENT_T" cascade="all">
 	    <key column="of_urrogateKey"/>
 	    <index column="f_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
@@ -78,7 +78,7 @@
     <subclass 
       name="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl"
       discriminator-value="DF">
-	  <list name="labels" lazy="true" table="MFR_LABEL_T" cascade="all">
+	  <list name="labels" lazy="false" table="MFR_LABEL_T" cascade="all">
 	      <key column="df_surrogateKey"/>
 	      <index column="df_index_col" />
 	      <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />

@@ -47,7 +47,7 @@ public interface MessageForumsForumManager {
     /**
      * Retrieve a given forum for the current user
      */
-    public BaseForum getForumById(Long forumId);
+    public BaseForum getForumById(boolean open, Long forumId);
     public BaseForum getForumByUuid(String forumId);
 
     /**

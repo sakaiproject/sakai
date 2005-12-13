@@ -271,7 +271,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         forum.setLocked(Boolean.FALSE);
         forumManager.saveDiscussionForum(forum);
 
-        assertNotNull(forumManager.getForumById(forum.getId()));
+        assertNotNull(forumManager.getForumById(true, forum.getId()));
 
         forumManager.deleteDiscussionForum(forum);
     }

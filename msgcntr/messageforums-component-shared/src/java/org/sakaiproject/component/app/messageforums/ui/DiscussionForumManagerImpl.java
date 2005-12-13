@@ -16,6 +16,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
@@ -184,7 +185,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getForumById(forumId);
     }
-    return (DiscussionForum) forumManager.getForumById(forumId);
+    return (DiscussionForum) forumManager.getForumById(true, forumId);
   }
 
   public DiscussionForum getForumByUuid(String forumId)
@@ -409,20 +410,30 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   public void saveForum(DiscussionForum forum)
   {
     LOG.debug("saveForum()");
+
+    boolean saveArea = forum.getId() == null;
+
     Area area = getDiscussionForumArea();
     forum.setArea(area);    
     area.addDiscussionForum(forum);
     forumManager.saveDiscussionForum(forum);
-    areaManager.saveArea(area);
+    if (saveArea) {
+        areaManager.saveArea(area);
+    }
   }
 
   public void saveTopic(DiscussionTopic topic)
   {
     LOG.debug("saveTopic()");
+    
+    boolean saveForum = topic.getId() == null;
+    
     DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     forum.addTopic(topic);
     forumManager.saveDiscussionForumTopic(topic);
-    forumManager.saveDiscussionForum(forum);
+    if (saveForum) {
+        forumManager.saveDiscussionForum(forum);
+    }
   }
   
 

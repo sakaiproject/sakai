@@ -41,12 +41,12 @@
     <property name="extendedDescription" type="text">
       <column name="EXTENDED_DESCRIPTION" not-null="true" />
     </property>
-	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
+	<list name="attachments" lazy="false" table="MFR_ATTACHMENT_T" cascade="all">
 	    <key column="t_surrogateKey"/>
 	    <index column="t_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
 	</list>     
-	<list name="messages" lazy="true" table="MFR_MESSAGE_T" cascade="all">
+	<list name="messages" lazy="false" table="MFR_MESSAGE_T" cascade="all">
 	    <key column="surrogateKey"/>
 	    <index column="t_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl" />
@@ -123,7 +123,7 @@
 	    <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
 	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
 	      not-null="false" cascade="none" />
-	    <list name="labels" lazy="true" table="MFR_LABEL_T" cascade="all">
+	    <list name="labels" lazy="false" table="MFR_LABEL_T" cascade="all">
 	        <key column="dt_surrogateKey"/>
 	        <index column="dt_index_col" />
 	        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
