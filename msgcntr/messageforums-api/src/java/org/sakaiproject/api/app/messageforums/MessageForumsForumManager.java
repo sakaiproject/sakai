@@ -33,8 +33,7 @@ public interface MessageForumsForumManager {
      */
 //    public List getDiscussionForums();
 
-    
-   public List getPrivateTopicsForForum(final PrivateForum forum);
+       
   
     /**
      * get forum by owner
@@ -42,6 +41,8 @@ public interface MessageForumsForumManager {
      * @return private forum
      */
     public PrivateForum getForumByOwner(final String owner);
+    
+    public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId);
     
     /**
      * Retrieve a given forum for the current user

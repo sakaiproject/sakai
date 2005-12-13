@@ -142,6 +142,22 @@
     </subclass>
             
   </class>
+  
+  <query name="findTopicByIdWithAttachmentsAndMessages">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.messages message
+             left join fetch topic.attachments attachment
+             where topic.id = :id
+    ]]>
+  </query>
+  
+  <query name="findTopicByUuidWithAttachmentsAndMessages">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.messages message
+             left join fetch topic.attachments attachment
+             where topic.id = :id
+    ]]>
+  </query>
 
   <query name="findTopicById">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic where topic.id = :id]]>

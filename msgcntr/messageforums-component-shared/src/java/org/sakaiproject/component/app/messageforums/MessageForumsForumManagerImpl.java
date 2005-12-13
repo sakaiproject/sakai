@@ -58,11 +58,13 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
     
+    
     private static final String QUERY_FOR_PRIVATE_TOPICS = "findPrivateTopicsByForumId";
     private static final String QUERY_BY_FORUM_OWNER = "findPrivateForumByOwner";
     private static final String QUERY_BY_FORUM_ID = "findForumById";
     private static final String QUERY_BY_FORUM_UUID = "findForumByUuid";
-    private static final String QUERY_BY_TOPIC_ID = "findTopicById";    
+    private static final String QUERY_BY_TOPIC_ID = "findTopicById";
+    private static final String QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS = "findTopicByIdWithAttachmentsAndMessages";
   
     private IdManager idManager;
 
@@ -98,19 +100,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     public SessionManager getSessionManager() {
         return sessionManager;
-    }
-    
-    public List getPrivateTopicsForForum(final PrivateForum forum){
-      HibernateCallback hcb = new HibernateCallback() {
-        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-          Query q = session.getNamedQuery(QUERY_FOR_PRIVATE_TOPICS);
-          q.setParameter("id", forum.getId(), Hibernate.LONG);
-          return q.list();
-        }
-    };
-
-    return (List) getHibernateTemplate().execute(hcb);
-    }
+    }        
 
 //  /**
 //  * Retrieve the current user's discussion forums
@@ -144,6 +134,26 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 //     return (List) getHibernateTemplate().execute(hcb);     
 //   }        
 // }
+    
+    public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId) {
+      
+      if (topicId == null) {
+        throw new IllegalArgumentException("Null Argument");
+      }
+
+      LOG.debug("getTopicByIdWithMessagesAndAttachments executing with topicId: " + topicId);
+
+      HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS);
+            q.setParameter("id", topicId, Hibernate.LONG);
+            return q.list();
+          }
+      };
+
+      return (Topic) getHibernateTemplate().execute(hcb);
+      
+    }    
         
     public PrivateForum getForumByOwner(final String owner) {
      

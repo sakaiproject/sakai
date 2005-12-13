@@ -195,24 +195,12 @@ public class PrivateMessagesTool
   public Area getArea()
   {
     Area privateArea=prtMsgManager.getPrivateMessageArea();
-    PrivateForum pf = prtMsgManager.initializePrivateMessageArea(privateArea);
-    //prtMsgManager.initializePrivateMessageForumTopics(pf);
+        
+    PrivateForum pf = prtMsgManager.initializePrivateMessageArea(privateArea);    
     
-    
-    pvtTopics = forumManager.getPrivateTopicsForForum(pf);
-    
-    
-//    if(privateArea != null ) {
-//     List forums=privateArea.getPrivateForums();
-//      //Private message return ONLY ONE ELEMENT
-//      for (Iterator iter = forums.iterator(); iter.hasNext();)
-//      {
-//        forum = (PrivateForum) iter.next();
-//        pvtTopics=forum.getTopics();   
-//      }
-//    }
-//   return null;
-    
+    pvtTopics = pf.getTopics();
+                
+        
     return privateArea;
   }
   
@@ -277,15 +265,14 @@ public class PrivateMessagesTool
       for (Iterator iter = forums.iterator(); iter.hasNext();)
       {
         forum = (PrivateForum) iter.next();
-        //pvtTopics=forum.getTopics();
-        pvtTopics = forumManager.getPrivateTopicsForForum(forum);
+        pvtTopics=forum.getTopics();
+        
         //now get messages for each topics
         for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
         {
           Topic topic = (Topic) iterator.next();          
           if(topic.getTitle().equals(PVTMSG_MODE_RECEIVED))
-          {
-            
+          {            
             //TODO -- getMessages() should be changed to getReceivedMessages() ;
             //decoratedPvtMsgs=prtMsgManager.getReceivedMessages(getUserId()) ;
             decoratedPvtMsgs=topic.getMessages() ;
