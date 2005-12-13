@@ -523,9 +523,17 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return defaultMessagePermissions;
   }
 
-  public void saveDefaultMessagePermissions(AreaControlPermission controlPermission)
+  public void saveDefaultMessagePermissions(List controlpermissions)
   {
-    permissionManager.saveDefaultAreaControlPermissionForRole(getDiscussionForumArea(),controlPermission);
+    if(controlpermissions !=null && controlpermissions.size()>0)
+    {
+      Iterator iterator= controlpermissions.iterator();
+      while (iterator.hasNext())
+      {
+        AreaControlPermission controlPermission = (AreaControlPermission) iterator.next();
+        permissionManager.saveDefaultAreaControlPermissionForRole(getDiscussionForumArea(),controlPermission);
+      }
+    }
   }
   
   public List getForumControlPermissions(DiscussionForum forum)

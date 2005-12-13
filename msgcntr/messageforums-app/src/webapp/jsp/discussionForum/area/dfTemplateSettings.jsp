@@ -15,38 +15,38 @@ specific Forum or Topic after it has been created."/>
 			 </div>
  
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm">
-        <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.roles}" var="role">
+        <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.templateSettings}" var="cntrl_settings">
    			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
-				<h:outputText value="#{role}"/>
+				<h:outputText value="#{cntrl_settings.role}"/>
 			</h:column>
 			 <h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_new_forum}" /></f:facet>
-				<h:selectBooleanCheckbox value="false"/>
+				<h:selectBooleanCheckbox value="#{cntrl_settings.newForum}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_new_topic}" /></f:facet>
-				<h:selectBooleanCheckbox value="false"/>
+				<h:selectBooleanCheckbox value="#{cntrl_settings.newTopic}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_new_response}" /></f:facet>
-				<h:selectBooleanCheckbox value="false"/>
+				<h:selectBooleanCheckbox value="#{cntrl_settings.newResponse}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_response_to_response}" /></f:facet>
-				<h:selectBooleanCheckbox value="false"/>
+				<h:selectBooleanCheckbox value="#{cntrl_settings.responseToResponse}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">	<h:outputText value="#{msgs.perm_move_postings}" /></f:facet>
-				<h:selectBooleanCheckbox value="false"/>
+				<h:selectBooleanCheckbox value="#{cntrl_settings.movePostings}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_change_settings}" /></f:facet>
-				<h:selectBooleanCheckbox value="false"/>
+				<h:selectBooleanCheckbox value="#{cntrl_settings.changeSettings}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></f:facet>
-				<h:selectBooleanCheckbox value="false"/>
+				<h:selectBooleanCheckbox value="#{cntrl_settings.changeSettings}"/>
 			</h:column>			
 		</h:dataTable>
       </mf:forumHideDivision>
@@ -84,8 +84,8 @@ specific Forum or Topic after it has been created."/>
       </mf:forumHideDivision>
       
       <p class="act">
-          <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" value="#{msgs.cdfm_button_bar_save_setting}"/> 
-          <h:commandButton action="#{ForumTool.processActionSaveForumAsDraft}" value="Restore Defaults"/> 
+          <h:commandButton action="#{ForumTool.processActionSaveTemplateSettings}" value="#{msgs.cdfm_button_bar_save_setting}"/> 
+          <h:commandButton action="#{ForumTool.processActionSaveTemplateAsDraft}" value="Restore Defaults"/> 
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
        </p>
        

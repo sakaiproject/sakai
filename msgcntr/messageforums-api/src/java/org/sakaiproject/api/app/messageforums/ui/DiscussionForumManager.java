@@ -166,6 +166,6 @@ public interface DiscussionForumManager
   /**
    * @param controlPermission
    */
-  public void saveDefaultMessagePermissions(AreaControlPermission controlPermission);
+  public void saveDefaultMessagePermissions(List controlpermissions);
   
 }

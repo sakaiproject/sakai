@@ -231,10 +231,7 @@ public class DiscussionForumTool
   public String processActionSaveTemplateSettings()
   {
     LOG.debug("processActionSaveForumSettings()");
-    if (selectedForum != null) {
-        DiscussionForum forum = selectedForum.getForum();
-        forumManager.saveForum(forum);
-    }
+    forumManager.saveDefaultMessagePermissions(templateSettings); 
     return MAIN;
   }
   
@@ -692,15 +689,17 @@ public class DiscussionForumTool
             {
               // if this topic is selected to display full desciption
               if (getExternalParameterByKey("topicId_displayExtended") != null
-                  && decoTopicBean.getTopic().getUuid().equals(
-                      getExternalParameterByKey("topicId_displayExtended")))
+                  && getExternalParameterByKey("topicId_displayExtended").trim().length()>0
+                  && decoTopicBean.getTopic().getId().equals(new Long(
+                      getExternalParameterByKey("topicId_displayExtended"))))
               {
                 decoTopicBean.setReadFullDesciption(true);
               }
               // if this topic is selected to display hide extended desciption
               if (getExternalParameterByKey("topicId_hideExtended") != null
-                  && decoTopicBean.getTopic().getUuid().equals(
-                      getExternalParameterByKey("topicId_hideExtended")))
+                  && getExternalParameterByKey("topicId_hideExtended").trim().length()>0
+                  && decoTopicBean.getTopic().getId().equals(new Long(
+                      getExternalParameterByKey("topicId_hideExtended"))))
               {
                 decoTopicBean.setReadFullDesciption(false);
               }
