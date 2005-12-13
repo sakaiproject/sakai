@@ -73,12 +73,15 @@
 				<sakai:group_box>
           <table width="80%" align="left">
             <tr>
-              <td align="left">
+              <td align="left" width="10%">
                 <h:outputText value="#{msgs.cdfm_title}" />
 			          <h:outputText value="*" style="color: red"/>                
               </td>
-              <td align="left">
-              	<h:inputText value="#{ForumTool.composeTitle}" style="width:200px;"/>
+              <td align="left" width="30%">
+              	<h:inputText value="#{ForumTool.composeTitle}" style="width:200px;" required="true" id="df_compose_title"/>
+              </td>
+              <td align="left" width="60%">
+              	<h:message for="df_compose_title" warnStyle="WARN" style="color: red;"/>
               </td>
             </tr>                                   
           </table>
@@ -103,7 +106,7 @@
 	        </table>
 	        <sakai:doc_section>
 	          <sakai:button_bar>
-	          	<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" />
+	          	<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" immediate="true"/>
 	          </sakai:button_bar>
 	        </sakai:doc_section>
 
@@ -129,8 +132,10 @@
 							
 							<sakai:doc_section>
 								<h:commandLink action="#{ForumTool.processDeleteAttach}" 
+									immediate="true"
 									onfocus="document.forms[0].onsubmit();">
 									<h:outputText value="     Remove"/>
+<%--									<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>--%>
 									<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>
 								</h:commandLink>
 							</sakai:doc_section>
@@ -170,7 +175,7 @@
       <sakai:button_bar>
         <sakai:button_bar_item action="#{ForumTool.processDfMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" />
         <sakai:button_bar_item action="#{ForumTool.processDfMsgSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" />
-        <sakai:button_bar_item action="#{ForumTool.processDfMsgCancel}" value="#{msgs.cdfm_button_bar_cancel}" />
+        <sakai:button_bar_item action="#{ForumTool.processDfMsgCancel}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true"/>
       </sakai:button_bar>
     </h:form>
      

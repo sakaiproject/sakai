@@ -13,7 +13,6 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -75,11 +74,10 @@ public class DiscussionForumTool
   private String composeLabel;   
   //attachment
   private ArrayList attachments = new ArrayList();
-  private String removeAttachId = null;
   private ArrayList prepareRemoveAttach = new ArrayList();
-  private boolean attachCaneled = false;
-  private ArrayList oldAttachments = new ArrayList();
-  private List allAttachments = new ArrayList();
+  //private boolean attachCaneled = false;
+  //private ArrayList oldAttachments = new ArrayList();
+  //private List allAttachments = new ArrayList();
   
   
   /**
@@ -890,15 +888,15 @@ public class DiscussionForumTool
       
       for(int i=0; i<refs.size(); i++)
       {
-/*        ref = (Reference) refs.get(i);
-        Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
-            ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
-        
-        //TODO - remove this as being set for test only  
-        thisAttach.setPvtMsgAttachId(new Long(1));
-        
+        ref = (Reference) refs.get(i);
+        Attachment thisAttach = messageManager.createAttachment();
+        thisAttach.setAttachmentName(ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+        thisAttach.setAttachmentSize(ref.getProperties().getProperty(ref.getProperties().getNamePropContentLength()));
+        thisAttach.setAttachmentType(ref.getProperties().getProperty(ref.getProperties().getNamePropContentType()));
+        thisAttach.setAttachmentId(ref.getId());
+        thisAttach.setAttachmentUrl(ref.getUrl());
+
         attachments.add(thisAttach);
-*/        
       }
     }
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
@@ -937,24 +935,18 @@ public class DiscussionForumTool
       }
     }
     
-    removeAttachId = attachId;
-    
-    //separate screen
-//    if((removeAttachId != null) && (!removeAttachId.equals("")))
-//      return "removeAttachConfirm";
-//    else
-//      return null;
-    List newLs= new ArrayList();
-    for (Iterator iter = getAttachments().iterator(); iter.hasNext();)
+    if((attachId != null) && (!attachId.equals("")))
     {
-      Attachment element = (Attachment) iter.next();
-      if(!((element.getPvtMsgAttachId().toString()).equals(attachId)))
+      for(int i=0; i<attachments.size(); i++)
       {
-        newLs.add(element);
+      	if(attachId.equalsIgnoreCase(((Attachment)attachments.get(i)).getAttachmentId()))
+      	{
+      		attachments.remove(i);
+      		break;
+      	}
       }
     }
-    this.setAttachments((ArrayList) newLs) ;
-    
+        
     return null ;
   }
  
@@ -964,6 +956,8 @@ public class DiscussionForumTool
   	this.composeLabel = null;
   	this.composeTitle = null;
   	
+  	this.attachments.clear();
+  	
   	return ALL_MESSAGES;
   }
   
@@ -972,10 +966,15 @@ public class DiscussionForumTool
     Message dMsg=constructMessage();
 
     forumManager.saveMessage(dMsg);
-
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.getTopic().addMessage(dMsg);
+    forumManager.saveTopic(selectedTopic.getTopic());
+    
     this.composeBody = null;
   	this.composeLabel = null;
   	this.composeTitle = null;
+  	
+  	this.attachments.clear();
     
   	return ALL_MESSAGES;    
   }
@@ -984,12 +983,17 @@ public class DiscussionForumTool
   {
     Message dMsg=constructMessage() ;
     dMsg.setDraft(Boolean.TRUE);
-
+    
     forumManager.saveMessage(dMsg);
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.getTopic().addMessage(dMsg);
+    forumManager.saveTopic(selectedTopic.getTopic());
     
   	this.composeBody = null;
   	this.composeLabel = null;
   	this.composeTitle = null;
+  	
+  	this.attachments.clear();
 
     return ALL_MESSAGES;    
   }
@@ -1006,14 +1010,14 @@ public class DiscussionForumTool
       aMsg.setBody(getComposeBody());
       aMsg.setAuthor(getUserId());
       aMsg.setDraft(Boolean.FALSE);      
-      aMsg.setApproved(Boolean.TRUE);      
+      aMsg.setApproved(Boolean.TRUE);
     }
     for(int i=0; i<attachments.size(); i++)
     {
-//      forumManager.addAttachToPvtMsg(aMsg, (Attachment)attachments.get(i));         
+      aMsg.addAttachment((Attachment)attachments.get(i));
     }    
     attachments.clear();
-    oldAttachments.clear();
+    //oldAttachments.clear();
     
     return aMsg;    
   }
