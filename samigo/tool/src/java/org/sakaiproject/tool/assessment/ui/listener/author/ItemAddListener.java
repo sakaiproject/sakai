@@ -72,7 +72,7 @@ public class ItemAddListener
   private static Log log = LogFactory.getLog(ItemAddListener.class);
   private static ContextUtil cu;
   private String scalename; // used for multiple choice Survey
-
+  private boolean error=false;
   /**
    * Standard process action method.
    * @param ae ActionEvent
@@ -83,74 +83,133 @@ public class ItemAddListener
     log.info("ItemAdd LISTENER.");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
     ItemBean item =itemauthorbean.getCurrentItem();
-    String answer=item.getCorrAnswer();
     String iType=item.getItemType();
-    //if((!iType.equals("1"))&&(!iType.equals("2"))){
-    // only check this for Single Correct MC questions
+    String err="";
+    FacesContext context=FacesContext.getCurrentInstance();
    
-    if(iType.equals(TypeFacade.MULTIPLE_CHOICE.toString())){
-	if(!answer.equals("")&& answer!=null){
-	    if (!saveItem(itemauthorbean)){
-		throw new RuntimeException("failed to saveItem.");
-	    }//end save
+    if(iType.equals(TypeFacade.MULTIPLE_CHOICE.toString()))
+	checkMC(true);
 
-	}//end answer
-    }//end if
-    else if(iType.equals(TypeFacade.MULTIPLE_CORRECT.toString())){
+    if(iType.equals(TypeFacade.MULTIPLE_CORRECT.toString()))
+	checkMC(false);
+    if(error)
+	return;
+    
+    if(iType.equals(TypeFacade.FILL_IN_BLANK.toString())){
 	
-	Iterator iter = item.getMultipleChoiceAnswers().iterator();
-	if(item.getMultipleChoiceAnswers()!=null){
-	    while (iter.hasNext()) {
-		AnswerBean answerbean = (AnswerBean) iter.next();
-		if (isCorrectChoice(item, answerbean.getLabel().trim()))
-		    {
-			correct=true;
+	if(isErrorFIB()){
+	    err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
+	    context.addMessage(null,new FacesMessage(err));
+	    item.setOutcome("fillInBlackItem");
+	    item.setPoolOutcome("fillInBlackItem");
+	    return;
 
-			break;
-		    }//end if isCorrect
-	    }//end while
-	    if(correct){
-		if (!saveItem(itemauthorbean)) {
-		    throw new RuntimeException("failed to saveItem.");
-		}//end save
-	    }//end correct
-	}//end item test
-    }//end else if
-    else if(iType.equals(TypeFacade.FILL_IN_BLANK.toString())){
-		FacesContext context=FacesContext.getCurrentInstance();
-		ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-		if(!isErrorFIB()){
-
-		    item.setOutcomeFIB("FIBSuccess");
-		    item.setOutcomePoolFIB("FIBPoolSuccess");
-		    if(!saveItem(itemauthorbean)){
-           
-			throw new RuntimeException("failed to saveItem");
-		    }
-            
-		}
-		else{
-		   String err=(String)rb.getObject("pool_missingBracket_error");
-		    context.addMessage(null,new FacesMessage(err));
-		    item.setOutcomeFIB("FIBFailure");
-		    item.setOutcomePoolFIB("FIBPoolFailure");
-
-		}
-    }
-    else{
-	
-	if (!saveItem(itemauthorbean)){
-	    throw new RuntimeException("failed to saveItem.");
 	}
     }
+  
+	
+    if (!saveItem(itemauthorbean)){
+	throw new RuntimeException("failed to saveItem.");
+    }
+    item.setOutcome("editAssessment");
+    item.setPoolOutcome("editPool");
   }
     
 	
+    public void checkMC(boolean isSingleSelect){
+	ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+	ItemBean item =itemauthorbean.getCurrentItem();
+        boolean correct=false;
+        int countAnswerText=0;
+        String[] choiceLabels= {"A", "B", "C", "D", "E", "F","G", "H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+	int indexLabel= 0;
+	//   List label = new List();
+	Iterator iter = item.getMultipleChoiceAnswers().iterator();
+        boolean missingchoices=false;
+        String missingLabel="";
+        String txt="";
+        String label="";
+	FacesContext context=FacesContext.getCurrentInstance();
+ 
+        
+	if(item.getMultipleChoiceAnswers()!=null){
+	    while (iter.hasNext()) {
+		AnswerBean answerbean = (AnswerBean) iter.next();
+		if (answerbean.getText()!=null){
+                    txt = (answerbean.getText().replaceAll("<.*?>", "")).trim();
+		    if(!txt.equals("")){
+			countAnswerText++;
+                        label = answerbean.getLabel();
+			if (isCorrectChoice(item,label))
+			    correct=true;
+                        if(!label.equals(choiceLabels[indexLabel])){
+			    missingchoices= true;
+                            break;
+			}
+			indexLabel++;
+			  
+		    }
+		}
+		
+	    }
+	    
+	    if(correct==false){
+                if(isSingleSelect){
+		    String singleCorrect_error=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","singleCorrect_error");
+                    context.addMessage(null,new FacesMessage(singleCorrect_error));
+	
+		}
+                else{
+		    String multiCorrect_error=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","multiCorrect_error");
+		    context.addMessage(null,new FacesMessage(multiCorrect_error));
+                
+		}
+		error=true;
+
+	    }
+	    if(countAnswerText<=1){
+		String answerList_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","answerList_error");
+		context.addMessage(null,new FacesMessage(answerList_err));
+		error=true;
+
+	    }
+	
+            if(missingchoices){
+      
+                int count=countAnswerText-1;
+                while(count<=choiceLabels.length){
+		    if(!choiceLabels[count].equals(label)){
+			if(missingLabel.equals(""))
+			    missingLabel=missingLabel+choiceLabels[count];
+		    
+			else
+
+			    missingLabel=missingLabel+", "+choiceLabels[count];
+		    }
+		    else break;
+		    count++;
+
+		}
+		String selectionError="Please enter the text for selection "+ missingLabel;
+		context.addMessage(null,new FacesMessage(selectionError));
+		error=true;
+	
+	    }
+	
+	}
+	if(error){
+	    item.setOutcome("multipleChoiceItem");
+            item.setPoolOutcome("multipleChoiceItem");
+	}
+
+
+    }
+
     public boolean isErrorFIB() {
 	ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
 	ItemBean item =itemauthorbean.getCurrentItem();
 	int index=0;
-	boolean error=false;
+	boolean FIBerror=false;
 	String err="";
 	boolean hasOpen=false;
 	int opencount=0;
@@ -163,7 +222,7 @@ public class ItemAddListener
 	    if(c=='{'){
 		opencount++;
 		if(hasOpen){
-		    error=true;
+		    FIBerror=true;
 		    break;
 		}
 		else{
@@ -174,7 +233,7 @@ public class ItemAddListener
 	    else if(c=='}'){
 		closecount++;
 		if(!hasOpen){
-		    error=true;
+		    FIBerror=true;
 		    break;
 		}
 		else{
@@ -184,7 +243,7 @@ public class ItemAddListener
 		    }
 		    else{
 		    //error for emptyString
-			error=true;
+			FIBerror=true;
 			break;
 		   }
 
@@ -201,7 +260,7 @@ public class ItemAddListener
 	
 	    index++;
      }//end while
-    if((hasOpen==true)||(opencount<1)||(opencount!=closecount)||(error==true)){
+    if((hasOpen==true)||(opencount<1)||(opencount!=closecount)||(FIBerror==true)){
 	return true;
     }
     else{ 
@@ -869,7 +928,7 @@ public class ItemAddListener
   public boolean isCorrectChoice(ItemBean bean, String label) {
     boolean returnvalue = false;
     if (!bean.getMultipleCorrect()) {
-      String corranswer = ContextUtil.lookupParam("itemForm:selectedRadioBtn");
+      String corranswer = cu.lookupParam("itemForm:selectedRadioBtn");
       if (corranswer.equals(label)) {
         returnvalue = true;
       }
@@ -878,7 +937,7 @@ public class ItemAddListener
       }
     }
     else {
-      ArrayList corranswersList = ContextUtil.paramArrayValueLike(
+      ArrayList corranswersList = cu.paramArrayValueLike(
           "mccheckboxes");
       Iterator iter = corranswersList.iterator();
       while (iter.hasNext()) {

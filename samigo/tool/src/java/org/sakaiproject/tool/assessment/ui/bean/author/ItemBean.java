@@ -101,9 +101,9 @@ public class ItemBean
   private String timeAllowed;
   private String numAttempts;
  
-    //Huong adding for outcome to check errors
-    private String outcomeFIB;
-    private String outcomePoolFIB;
+   
+  private String outcome;
+  private String poolOutcome;
 
   private String selectedPool;  // pool id for the item to be added to
   private String origPool;  // pool id for the item to be added to
@@ -123,22 +123,21 @@ public class ItemBean
    * @return
    */
 
-    public String getOutcomeFIB()
+ public String getOutcome()
     {
-	return outcomeFIB;
+	return outcome;
     }
-    public void setOutcomeFIB(String outcomeFIB)
+    public void setOutcome(String outcome)
     {
-	this.outcomeFIB=outcomeFIB;
+	this.outcome=outcome;
     }
-
-     public String getOutcomePoolFIB()
+ public String getPoolOutcome()
     {
-	return outcomePoolFIB;
+	return poolOutcome;
     }
-    public void setOutcomePoolFIB(String outcomePoolFIB)
+    public void setPoolOutcome(String poolOutcome)
     {
-	this.outcomePoolFIB=outcomePoolFIB;
+	this.poolOutcome=poolOutcome;
     }
 
   public String getItemId()
@@ -898,15 +897,16 @@ public class ItemBean
 	// for modify
  	}
 	else {
-
 	int defaultlength = 4;
 	for (int i=0; i<defaultlength; i++){
 		AnswerBean answerbean = new AnswerBean();
        		answerbean.setSequence(new Long(i+1));
        		answerbean.setLabel(AnswerBean.choiceLabels[i]);
+                
       		list.add(answerbean);
-
+             
     	}
+	
 	setMultipleChoiceAnswers(list);
 	}// else
 
@@ -1146,86 +1146,7 @@ public boolean checkMatch(){
     return "matchingItem";
   }
 
-    //Huong added for validation of answers
-    public String checkAnswer(){
-	return checkError(false);
-
-}
-    public String checkPoolAnswer(){
-        return checkError(true);
-}
-
-
-public String checkError(boolean isPool){
-
-    String returnValue;
-    boolean correct=false;
-     FacesContext context=FacesContext.getCurrentInstance();
-	 ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-
-    String err1,err2;
-
-            if(itemType.equals(TypeFacade.MULTIPLE_CHOICE.toString())){
-	     if(corrAnswer==null ||corrAnswer.equals(""))
-		 {
-                     err1=(String)rb.getObject("MC_SingleSelect_error");
-		     context.addMessage(null,new FacesMessage(err1));
-                     if(isPool){
-		     returnValue="MCPoolAddFailure";
-		     }
-		     else{
-			 returnValue="MCAddFailure";
-		     }
-		 }
-	     else
-		 {
-                     if(isPool){
-		     returnValue= "MCPoolAddSuccess";
-		     }
-		     else{
-			 returnValue="MCAddSuccess";
-		     }
-		 }
-	 }
-	 else
-	     {   Iterator iter = multipleChoiceAnswers.iterator();
-		 if (multipleChoiceAnswers!=null) {
-		     while (iter.hasNext()) {
-			 AnswerBean answerbean = (AnswerBean) iter.next();
-
-			 if (isCorrectChoice(answerbean.getLabel().trim())){
-			     correct=true;
-                             break;
-			 }
-		     }
-		 }
-
-		  if(!correct){
-
-                     err2=(String)rb.getObject("MC_MultiSelect_error");
-		     context.addMessage(null,new FacesMessage(err2));
-                     if(isPool){
-			 returnValue="MCPoolAddFailure";
-		     }
-                     else{
-			 returnValue="MCAddFailure";
-		     }
-		 }
-	     else
-		 {
-		     if(isPool){
-			 returnValue="MCPoolAddSuccess";
-		     }
-                     else{
-			 returnValue="MCAddSuccess";
-		     }
-
-		 }
-	     }
-	 return returnValue;
-
-    }
-
+  
 
 
 /* not used
