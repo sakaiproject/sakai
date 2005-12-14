@@ -451,12 +451,11 @@ public class DiscussionForumTool
   public List getTopicControlPermissions()
   {  if(selectedTopic!=null)
     {
-      return forumManager.getTopicControlPermissions(selectedTopic.getTopic());
+        topicControlPermissions= forumManager.getTopicControlPermissions(selectedTopic.getTopic());
     }
-    else
-    {
-      return null;
-    }   
+     
+      return topicControlPermissions;
+        
   }
 
   /**
@@ -474,12 +473,11 @@ public class DiscussionForumTool
   {
     if(selectedTopic!=null)
     {
-      return forumManager.getTopicMessagePermissions(selectedTopic.getTopic());
+      topicMessagePermissions= forumManager.getTopicMessagePermissions(selectedTopic.getTopic());
     }
-    else
-    {
-      return null;
-    }   
+   
+      return topicMessagePermissions;
+        
   }
 
   /**
@@ -552,6 +550,7 @@ public class DiscussionForumTool
         {
           topic.setBaseForum(selectedForum.getForum());
           forumManager.saveTopic(topic);
+          forumManager.saveTopicControlPermissions(topic,topicControlPermissions);          
         }
     }    
     reset();
