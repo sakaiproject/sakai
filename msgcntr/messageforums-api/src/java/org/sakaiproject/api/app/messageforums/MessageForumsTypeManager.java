@@ -45,5 +45,5 @@ public interface MessageForumsTypeManager
    * @return
    */
   public String getDraftPrivateMessageType();
-  
+ 
 }

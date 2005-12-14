@@ -47,7 +47,7 @@ public interface PermissionManager {
      * Save an area control permission.  This is backed in the database by a single
      * Control permission (used for areas, forums, and topics).
      */
-    public void saveAreaControlPermissionForRole(Area area, AreaControlPermission permission);
+    public void saveAreaControlPermissionForRole(Area area, AreaControlPermission permission, String typeId);
 
     /**
      * Create an empty default area control permission with system properties 
@@ -59,7 +59,7 @@ public interface PermissionManager {
      * Save a default area control permission.  This is backed in the database by a 
      * single Control permission (used for areas, forums, and topics).
      */
-    public void saveDefaultAreaControlPermissionForRole(Area area, AreaControlPermission permission);
+    public void saveDefaultAreaControlPermissionForRole(Area area, AreaControlPermission permission, String typeId);
 
     /**
      * Get the forum control permission for a given role.  This provides the permissions

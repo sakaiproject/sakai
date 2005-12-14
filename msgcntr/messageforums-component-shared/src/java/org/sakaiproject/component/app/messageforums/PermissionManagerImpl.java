@@ -42,7 +42,6 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
-import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaControlPermissionImpl;
@@ -170,8 +169,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         return permission;
     }
 
-    public void saveAreaControlPermissionForRole(Area area, AreaControlPermission permission) {        
-        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), area.getTypeUuid(), false); 
+    public void saveAreaControlPermissionForRole(Area area, AreaControlPermission permission, String typeId) {        
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), typeId, false); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -202,8 +201,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         return permission;
     }
 
-    public void saveDefaultAreaControlPermissionForRole(Area area, AreaControlPermission permission) {
-        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), area.getTypeUuid(), false); 
+    public void saveDefaultAreaControlPermissionForRole(Area area, AreaControlPermission permission, String typeId) {
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), typeId, true); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -311,7 +310,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 
     public void saveDefaultForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
         // TODO: Change to use the right getter
-        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), forum.getTypeUuid(), false); 
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), forum.getTypeUuid(), true); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -415,7 +414,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 
     public void saveDefaultTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
         // TODO: Change to use the right getter
-        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), topic.getTypeUuid(), false); 
+        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), topic.getTypeUuid(), true); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -443,6 +442,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public ControlPermissions getAreaControlPermissionByRoleAndType(final String roleId, final String typeId, final boolean defaultValue) {
         LOG.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
         final Area area = areaManager.getAreaByContextIdAndTypeId(typeId);
+        if (area == null) {
+            return null;
+        }
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery(QUERY_CP_BY_ROLE);

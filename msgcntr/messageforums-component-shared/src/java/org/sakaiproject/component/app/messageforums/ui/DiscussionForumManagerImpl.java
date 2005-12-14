@@ -571,7 +571,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       while (iterator.hasNext())
       {
         AreaControlPermission controlPermission = (AreaControlPermission) iterator.next();
-        permissionManager.saveDefaultAreaControlPermissionForRole(getDiscussionForumArea(),controlPermission);
+        permissionManager.saveDefaultAreaControlPermissionForRole(getDiscussionForumArea(),controlPermission, typeManager.getDiscussionForumType());
       }
     }
   }

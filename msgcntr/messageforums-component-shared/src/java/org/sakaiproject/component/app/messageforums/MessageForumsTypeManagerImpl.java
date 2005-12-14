@@ -129,5 +129,5 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
       return (typeManager.createType(AUTHORITY,DOMAIN,DRAFT,"Draft Private Massage Type", "Draft Private Massage Type").getUuid());
     }
   }
- 
+   
 }
