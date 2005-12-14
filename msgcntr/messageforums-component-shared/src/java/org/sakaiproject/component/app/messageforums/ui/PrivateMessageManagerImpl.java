@@ -273,6 +273,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   }
 
     
+  
+  
   public boolean hasNextMessage(PrivateMessage message)
   {
     // TODO: Needs optimized
@@ -563,6 +565,22 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     }
     
     List recipientList = new UniqueArrayList();
+    
+    /** test for draft message */
+    if (message.getDraft().booleanValue()){
+      PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
+          getCurrentUser(),
+          typeManager.getDraftPrivateMessageType(),
+          Boolean.TRUE
+      );
+      
+      recipientList.add(receiver);
+      message.setRecipients(recipientList);
+      savePrivateMessage(message);
+      return;
+    }
+    
+    
     
     for (Iterator i = recipients.iterator(); i.hasNext();){
       String userId = (String) i.next();

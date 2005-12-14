@@ -114,6 +114,12 @@
   <query name="findMessageById">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.id = :id]]>
   </query>
+  
+  <query name="findMessageByIdWithAttachments">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+             left join fetch message.attachments
+             where message.id = :id]]>
+  </query>
 
   <query name="findMessageByUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.uuid = :uuid]]>

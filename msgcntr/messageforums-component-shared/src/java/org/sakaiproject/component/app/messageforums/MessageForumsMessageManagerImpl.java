@@ -54,7 +54,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final Log LOG = LogFactory.getLog(MessageForumsMessageManagerImpl.class);    
 
     //private static final String QUERY_BY_MESSAGE_ID = "findMessageById";
-    //private static final String QUERY_ATTACHMENT_BY_ID = "findAttachmentById";    
+    //private static final String QUERY_ATTACHMENT_BY_ID = "findAttachmentById";
+    private static final String QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS = "findMessageByIdWithAttachments";
     private static final String QUERY_COUNT_BY_READ = "findReadMessageCountByTopicId";
     private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
@@ -302,7 +303,30 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 //        };
 //
 //        return (Message) getHibernateTemplate().execute(hcb);
-    }    
+    }   
+    
+    /**
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#getMessageByIdWithAttachments(java.lang.Long)
+     */
+    public Message getMessageByIdWithAttachments(final Long messageId){
+      
+      if (messageId == null) {
+        throw new IllegalArgumentException("Null Argument");
+       }
+
+       LOG.debug("getMessageByIdWithAttachments executing with messageId: " + messageId);
+        
+
+      HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+          Query q = session.getNamedQuery(QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS);
+          q.setParameter("id", messageId, Hibernate.STRING);
+          return q.uniqueResult();
+        }
+      };    
+
+      return (Message) getHibernateTemplate().execute(hcb);
+    }
     
     public Attachment getAttachmentById(final Long attachmentId) {        
         if (attachmentId == null) {

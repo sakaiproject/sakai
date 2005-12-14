@@ -47,6 +47,8 @@ public interface MessageForumsMessageManager {
     public void deleteMessage(Message message);
 
     public Message getMessageById(final Long messageId);
+    
+    public Message getMessageByIdWithAttachments(final Long messageId);
 
     public void markMessageReadForUser(String userId, Long topicId, Long messageId);
 
