@@ -55,6 +55,10 @@ public interface MessagePermissions {
 
     public Boolean getReviseOwn();
 
+    public Boolean getMarkAsRead();
+
+    public void setMarkAsRead(Boolean markAsRead);
+    
     public void setReviseOwn(Boolean reviseOwn);
 
     public String getRole();

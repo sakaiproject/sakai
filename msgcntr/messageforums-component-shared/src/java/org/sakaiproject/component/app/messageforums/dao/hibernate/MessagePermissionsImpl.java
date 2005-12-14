@@ -52,7 +52,9 @@ public class MessagePermissionsImpl implements MessagePermissions {
     private int topicindex;
     
     private Long id;
-    private Integer version; 
+    private Integer version;
+
+    private Boolean markAsRead; 
 
     public Long getId() {
         return id;
@@ -196,6 +198,17 @@ public class MessagePermissionsImpl implements MessagePermissions {
 
     public void setDefaultValue(Boolean defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public Boolean getMarkAsRead()
+    {
+     return this.markAsRead;
+    }
+
+    public void setMarkAsRead(Boolean markAsRead)
+    {
+      this.markAsRead = markAsRead;
+      
     }
 
 }
