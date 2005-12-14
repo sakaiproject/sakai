@@ -241,11 +241,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         ForumControlPermission cp = new ForumControlPermissionImpl();
 
         if (permissions == null) {
-            cp.setChangeSettings(Boolean.FALSE);
-            cp.setMovePostings(Boolean.FALSE);
-            cp.setNewResponse(Boolean.FALSE);
-            cp.setNewTopic(Boolean.FALSE);
-            cp.setResponseToResponse(Boolean.FALSE);
+            return null;
         } else {
             cp.setChangeSettings(permissions.getChangeSettings());
             cp.setMovePostings(permissions.getMovePostings());
@@ -262,12 +258,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         ForumControlPermission cp = new ForumControlPermissionImpl();
 
         if (permissions == null) {
-            cp.setChangeSettings(Boolean.FALSE);
-            cp.setMovePostings(Boolean.FALSE);
-            cp.setNewResponse(Boolean.FALSE);
-            cp.setNewTopic(Boolean.FALSE);
-            cp.setResponseToResponse(Boolean.FALSE);
-            cp.setPostToGradebook(Boolean.FALSE);
+            return null;
         } else {
             cp.setPostToGradebook(permissions.getPostToGradebook());
             cp.setChangeSettings(permissions.getChangeSettings());
@@ -350,10 +341,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         TopicControlPermission cp = new TopicControlPermissionImpl();
 
         if (permissions == null) {
-            cp.setChangeSettings(Boolean.FALSE);
-            cp.setMovePostings(Boolean.FALSE);
-            cp.setNewResponse(Boolean.FALSE);
-            cp.setResponseToResponse(Boolean.FALSE);
+            return null;
         } else {
             cp.setChangeSettings(permissions.getChangeSettings());
             cp.setMovePostings(permissions.getMovePostings());
@@ -369,11 +357,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         TopicControlPermission cp = new TopicControlPermissionImpl();
 
         if (permissions == null) {
-            cp.setChangeSettings(Boolean.FALSE);
-            cp.setMovePostings(Boolean.FALSE);
-            cp.setNewResponse(Boolean.FALSE);
-            cp.setResponseToResponse(Boolean.FALSE);
-            cp.setPostToGradebook(Boolean.FALSE);
+            return null;
         } else {
             cp.setPostToGradebook(permissions.getPostToGradebook());
             cp.setChangeSettings(permissions.getChangeSettings());
@@ -631,12 +615,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         MessagePermissions mp = new MessagePermissionsImpl();
 
         if (permissions == null) {
-            mp.setDeleteAny(Boolean.FALSE);
-            mp.setDeleteOwn(Boolean.FALSE);
-            mp.setRead(Boolean.FALSE);
-            mp.setReadDrafts(Boolean.FALSE);
-            mp.setReviseAny(Boolean.FALSE);
-            mp.setReviseOwn(Boolean.FALSE);
+            return null;
         } else {
             mp.setDeleteAny(permissions.getDeleteAny());
             mp.setDeleteOwn(permissions.getDeleteOwn());
@@ -659,12 +638,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         MessagePermissions mp = new MessagePermissionsImpl();
 
         if (permissions == null) {
-            mp.setDeleteAny(Boolean.FALSE);
-            mp.setDeleteOwn(Boolean.FALSE);
-            mp.setRead(Boolean.FALSE);
-            mp.setReadDrafts(Boolean.FALSE);
-            mp.setReviseAny(Boolean.FALSE);
-            mp.setReviseOwn(Boolean.FALSE);
+            return null;
         } else {
             mp.setDeleteAny(permissions.getDeleteAny());
             mp.setDeleteOwn(permissions.getDeleteOwn());
@@ -755,12 +729,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         MessagePermissions mp = new MessagePermissionsImpl();
 
         if (permissions == null) {
-            mp.setDeleteAny(Boolean.FALSE);
-            mp.setDeleteOwn(Boolean.FALSE);
-            mp.setRead(Boolean.FALSE);
-            mp.setReadDrafts(Boolean.FALSE);
-            mp.setReviseAny(Boolean.FALSE);
-            mp.setReviseOwn(Boolean.FALSE);
+            return null;
         } else {
             mp.setDeleteAny(permissions.getDeleteAny());
             mp.setDeleteOwn(permissions.getDeleteOwn());
@@ -783,12 +752,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         MessagePermissions mp = new MessagePermissionsImpl();
 
         if (permissions == null) {
-            mp.setDeleteAny(Boolean.FALSE);
-            mp.setDeleteOwn(Boolean.FALSE);
-            mp.setRead(Boolean.FALSE);
-            mp.setReadDrafts(Boolean.FALSE);
-            mp.setReviseAny(Boolean.FALSE);
-            mp.setReviseOwn(Boolean.FALSE);
+            return null;
         } else {
             mp.setDeleteAny(permissions.getDeleteAny());
             mp.setDeleteOwn(permissions.getDeleteOwn());
