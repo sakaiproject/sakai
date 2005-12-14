@@ -506,7 +506,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     
   }
   
-  public void deletePrivateMessage(Message message){
+  public void deletePrivateMessage(PrivateMessage message){
     
     String userId = getCurrentUser();
     
@@ -514,18 +514,20 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       LOG.debug("deletePrivateMessage(" + message + ")");
     }    
     
+    /** fetch recipients for message */
+    PrivateMessage pvtMessage = getPrivateMessageWithRecipients(message);
+            
     /**
      *  create PrivateMessageRecipient to search
      *  protects against user sending message to herself (both sent and rcvd status)  
      */
-    PrivateMessageRecipient pmr = new PrivateMessageRecipientImpl(
+    PrivateMessageRecipient pmrSearch = new PrivateMessageRecipientImpl(
         userId,
       typeManager.getSentPrivateMessageType(),
       Boolean.TRUE
     );
-        
-    PrivateMessage pm = (PrivateMessage) message;
-    int userIndex = pm.getRecipients().indexOf(pmr);
+            
+    int userIndex = pvtMessage.getRecipients().indexOf(pmrSearch);
     
     if (userIndex == -1){
       LOG.error("deletePrivateMessage -- cannot find sent message for user: " + 
@@ -533,11 +535,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     }
     else{
       PrivateMessageRecipient pmrReturned = (PrivateMessageRecipient)
-        pm.getRecipients().get(userIndex);
+        pvtMessage.getRecipients().get(userIndex);
     
       if (pmrReturned != null){
         pmrReturned.setTypeUuid(typeManager.getDeletedPrivateMessageType());
-        messageManager.saveMessage(pm);
+        //messageManager.saveMessage(pm);
       }
     }
   }
@@ -597,7 +599,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     **/        
     
   }
-  
+    
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#markMessageAsReadForUser(org.sakaiproject.api.app.messageforums.PrivateMessage)
+   */
   public void markMessageAsReadForUser(final PrivateMessage message){
     
     if (LOG.isDebugEnabled()){
@@ -610,21 +615,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     
     final String userId = getCurrentUser();
     
-    HibernateCallback hcb = new HibernateCallback() {
-      public Object doInHibernate(Session session) throws HibernateException, SQLException {
-          Query q = session.getNamedQuery(QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS);          
-          q.setParameter("id", message.getId(), Hibernate.LONG);          
-          return q.uniqueResult();
-      }
-    };
-
-    PrivateMessage pvtMessage = (PrivateMessage) getHibernateTemplate().execute(hcb);
-    
-    if (pvtMessage == null){
-      LOG.error("markMessageAsReadForUser(message: " + message + ") could not find message");
-      throw new Error("markMessageAsReadForUser(message: " + message + ") could not find message");
-    }
-    
+    /** fetch recipients for message */
+    PrivateMessage pvtMessage = getPrivateMessageWithRecipients(message);
+            
     /** create PrivateMessageRecipientImpl to search for recipient to update */
     PrivateMessageRecipientImpl searchRecipient = new PrivateMessageRecipientImpl(
         userId,
@@ -638,7 +631,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       LOG.error("markMessageAsReadForUser(message: " + message + ") has empty recipient list");
       throw new Error("markMessageAsReadForUser(message: " + message + ") has empty recipient list");
     }
-    
+           
     int recordIndex = pvtMessage.getRecipients().indexOf(searchRecipient);
     
     if (recordIndex == -1){
@@ -648,6 +641,34 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     else{
       ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setRead(Boolean.TRUE);
     }                    
+  }
+  
+  private PrivateMessage getPrivateMessageWithRecipients(final PrivateMessage message){
+    
+    if (LOG.isDebugEnabled()){
+      LOG.debug("getPrivateMessageWithRecipients(message: " + message + ")");
+    }        
+    
+    if (message == null){
+      throw new IllegalArgumentException("Null Argument");
+    }
+    
+    HibernateCallback hcb = new HibernateCallback() {
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+          Query q = session.getNamedQuery(QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS);          
+          q.setParameter("id", message.getId(), Hibernate.LONG);          
+          return q.uniqueResult();
+      }
+    };
+
+    PrivateMessage pvtMessage = (PrivateMessage) getHibernateTemplate().execute(hcb);
+    
+    if (pvtMessage == null){
+      LOG.error("getPrivateMessageWithRecipients(message: " + message + ") could not find message");
+      throw new Error("getPrivateMessageWithRecipients(message: " + message + ") could not find message");
+    }
+    
+    return pvtMessage;
   }
   
   private String getCurrentUser() {        
