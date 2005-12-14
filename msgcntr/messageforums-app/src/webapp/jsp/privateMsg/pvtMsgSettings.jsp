@@ -19,7 +19,7 @@
           			<h:outputText rendered="#{PrivateMessagesTool.superUser}" value="Activate Private Messages: "/>		
               </td>
               <td>
-                <h:selectOneRadio rendered="#{PrivateMessagesTool.superUser}" value="#{PrivateMessagesTool.activatePvtMsg}">
+                <h:selectOneRadio rendered="#{PrivateMessagesTool.superUser}" value="#{PrivateMessagesTool.activatePvtMsg}" layout="pageDirection">
     							<f:selectItem itemValue="yes" itemLabel="Yes"/>
     							<f:selectItem itemValue="no" itemLabel="No"/>
   							</h:selectOneRadio>
@@ -34,7 +34,7 @@
 							<h:outputText value="Activate Private Messages: "/>						
 						</h:column>
 						<h:column >
-							<h:selectOneRadio value="#{PrivateMessagesTool.activatePvtMsg}">
+							<h:selectOneRadio value="#{PrivateMessagesTool.activatePvtMsg}" layout="pageDirection">
     						<f:selectItem itemValue="yes" itemLabel="Yes"/>
     						<f:selectItem itemValue="no" itemLabel="No"/>
   						</h:selectOneRadio>						
@@ -51,7 +51,7 @@
           			<h:outputText value="Auto Forward Private Messages:"/>		
               </td>
               <td>
-                <h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}">
+                <h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}" layout="pageDirection">
     							<f:selectItem itemValue="yes" itemLabel="Yes"/>
     							<f:selectItem itemValue="no" itemLabel="No"/>
   							</h:selectOneRadio>

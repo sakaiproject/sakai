@@ -38,18 +38,19 @@
                 <h:outputText value="Send" />
               </td>
               <td align="left">
-              	<h:selectOneRadio value="#{PrivateMessagesTool.composeSendAs}">
-  			    			<f:selectItem itemValue="pvtmsg" itemLabel="As Private Messages"/><br />
-  			    			<f:selectItem itemValue="pvtmsg" itemLabel="To Recipients' Email Address(es)"/><br />
+              	<h:selectOneRadio value="#{PrivateMessagesTool.composeSendAsPvtMsg}" layout="pageDirection">
+  			    			<f:selectItem itemValue="yes" itemLabel="As Private Messages"/>
+  			    			<f:selectItem itemValue="no" itemLabel="To Recipients' Email Address(es)"/>
 			    			</h:selectOneRadio>
               </td>
             </tr>
             <tr>
               <td align="left">
+              	<h:outputText value="*" style="color: red"/>
                 <h:outputText value="Subject" />
               </td>
               <td align="left">
-              	<h:inputText value="#{PrivateMessagesTool.composeSubject}" style="width:200px;"/>
+              	<h:inputText value="#{PrivateMessagesTool.composeSubject}" style="width:250px;"/>
               </td>
             </tr>                                   
           </table>
@@ -57,7 +58,8 @@
 
 	      <sakai:group_box>
 	        <sakai:panel_edit>
-	          <sakai:doc_section>       
+	          <sakai:doc_section> 
+	          	<h:outputText value="*" style="color: red"/>      
 	            <h:outputText value="Message" />  
 	            <sakai:rich_text_area value="#{PrivateMessagesTool.composeBody}" rows="17" columns="70"/>
 	          </sakai:doc_section>    

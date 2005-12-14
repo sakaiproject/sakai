@@ -29,6 +29,7 @@
             </tr>
             <tr>
               <td align="left" width="20%">
+              	<h:outputText value="*" style="color: red"/>
           			<h:outputText value="Select Additional Recipients "/>		
               </td>
               <td align="left">
@@ -44,18 +45,22 @@
                 <h:outputText value="Send" />
               </td>
               <td align="left">
-              	<h:selectOneRadio value="#{PrivateMessagesTool.composeSendAs}">
-  			    			<f:selectItem itemValue="pvtmsg" itemLabel="As Private Messages"/>
-  			    			<f:selectItem itemValue="pvtmsg" itemLabel="To Recipients' Email Address(es)"/>
+              	<h:selectOneRadio value="#{PrivateMessagesTool.composeSendAsPvtMsg}" layout="pageDirection">
+  			    			<f:selectItem itemValue="yes" itemLabel="As Private Messages"/>
+  			    			<f:selectItem itemValue="no" itemLabel="To Recipients' Email Address(es)"/>
 			    			</h:selectOneRadio>
               </td>
             </tr>
             <tr>
               <td align="left">
+              	<h:outputText value="*" style="color: red"/>
                 <h:outputText value="Subject" />
               </td>
               <td align="left">
+              	<%--
               	<h:outputText value="Re: #{PrivateMessagesTool.detailMsg.msg.title}" />  
+              	--%>
+              	<h:inputText value="#{PrivateMessagesTool.replyToSubject}" style="width:250px;"/>	
               </td>
             </tr>                                   
           </table>
@@ -161,7 +166,7 @@
               </td>
               <td align="left">   
           			<h:outputText value="#{PrivateMessagesTool.userId}" />  
-              	<h:outputText value="(" />  
+              	<h:outputText value=" (" />  
               	<h:outputText value="#{PrivateMessagesTool.time}">
   	            	<f:convertDateTime pattern="MM/dd/yy 'at' HH:mm:ss"/>
   	          	</h:outputText>
@@ -172,7 +177,7 @@
               <td align="left" width="20%">
           			<h:outputText value="Subject "/>		
               </td>
-              <td align="left">    
+              <td align="left">   
           			<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />  
               </td>                           
             </tr>
@@ -188,6 +193,7 @@
             --%>
             <tr>
               <td align="left">
+              	<h:outputText value="*" style="color: red"/> 
                 <h:outputText value="Message" />
               </td>
               <td align="left">

@@ -38,8 +38,9 @@
             </td>
             <td align="left">
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.createdBy}" />  
-            	<h:outputText value="-" />  
+            	<h:outputText value=" (" />  
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" />  
+            	<h:outputText value=" )" /> 
             </td>
             <td></td>
           </tr>
@@ -96,7 +97,9 @@
         
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="Reply to Message" />
+          <%--
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="Move" />
+          --%>
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="Delete" />
         </sakai:button_bar>
         

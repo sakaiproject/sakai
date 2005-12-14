@@ -28,7 +28,7 @@
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
             <h:outputText value=" #{rcvdItems.msg.title}"/>
-            <f:param value="#{rcvdItems.msg.uuid}" name="current_msg_detail"/>
+            <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
               
 		  </h:column>

@@ -57,13 +57,13 @@
       <column name="OWNER" length="255" not-null="true" index = "MFR_PRIVATE_FORUM_OWNER_I"/>
     </property>
     <property name="autoForward">
-      <column name="AUTO_FORWARD" not-null="true" />
+      <column name="AUTO_FORWARD" not-null="false" />
     </property>
     <property name="autoForwardEmail">
-      <column name="AUTO_FORWARD_EMAIL" length="255" not-null="true" />
+      <column name="AUTO_FORWARD_EMAIL" length="255" not-null="false" />
     </property>
     <property name="previewPaneEnabled">
-      <column name="PREVIEW_PANE_ENABLED" length="10" not-null="true" />
+      <column name="PREVIEW_PANE_ENABLED" length="10" not-null="false" />
     </property>
  
     <many-to-one name="area" column="surrogateKey"

@@ -105,6 +105,9 @@ public class PrivateMessagesTool
   public static final String RECIPIANTS_ENTIRE_CLASS= "Entire Class";
   public static final String RECIPIANTS_ALL_INSTRUCTORS= "All Instructors";
   
+  public static final String SET_AS_YES="yes";
+  public static final String SET_AS_NO="no";
+  
   private boolean pvtAreaEnabled= false;
   
   PrivateForumDecoratedBean decoratedForum;
@@ -128,7 +131,7 @@ public class PrivateMessagesTool
   
   //Compose Screen
   private List selectedComposeToList;
-  private String composeSendAs="pvtmsg"; // currently set as Default as change by user is allowed
+  private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
   private String composeSubject ;
   private String composeBody ;
   private String composeLabel ;   
@@ -140,15 +143,15 @@ public class PrivateMessagesTool
   
   //reply to 
   private String replyToBody ;
-  
+  private String replyToSubject;
   //Setting Screen
-  private String activatePvtMsg="yes";
-  private String forwardPvtMsg="no";
+  private String activatePvtMsg=SET_AS_YES; //default set as yes
+  private String forwardPvtMsg=SET_AS_NO;   //default set as no
   private String forwardPvtMsgEmail;
   private boolean superUser; 
   
   //message header screen
-  private String searchText="Pl. enter search text";
+  private String searchText="";
   private String selectView;
   //////////////////////
   /** The configuration mode, received, sent,delete, case etc ... */
@@ -258,7 +261,6 @@ public class PrivateMessagesTool
   public List getDecoratedPvtMsgs()
   {
     decoratedPvtMsgs=new ArrayList() ;
-    //Shouldn't we be doing like this only 
     
     String typeUuid = null;
     
@@ -280,6 +282,8 @@ public class PrivateMessagesTool
     
     decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
         PrivateMessageManager.SORT_ASC);
+    
+    decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
     
 //    Area privateArea=prtMsgManager.getPrivateMessageArea();
 //    if(privateArea != null ) {
@@ -327,7 +331,7 @@ public class PrivateMessagesTool
 //          }    
 //        }
 //        //create decorated List
-        decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
+//        decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
 //      }
 //    }
     return decoratedPvtMsgs ;
@@ -444,14 +448,14 @@ public class PrivateMessagesTool
     this.composeLabel = composeLabel;
   }
 
-  public String getComposeSendAs()
+  public String getComposeSendAsPvtMsg()
   {
-    return composeSendAs;
+    return composeSendAsPvtMsg;
   }
 
-  public void setComposeSendAs(String composeSendAs)
+  public void setComposeSendAsPvtMsg(String composeSendAsPvtMsg)
   {
-    this.composeSendAs = composeSendAs;
+    this.composeSendAsPvtMsg = composeSendAsPvtMsg;
   }
 
   public String getComposeSubject()
@@ -518,7 +522,7 @@ public class PrivateMessagesTool
    }
    catch (IdUnusedException e)
    {
-    //e.printStackTrace();
+     LOG.debug("getUserName() - Error");
    }
    return userName;
   }
@@ -538,6 +542,18 @@ public class PrivateMessagesTool
   }
   public void setReplyToBody(String replyToBody) {
     this.replyToBody=replyToBody;
+  }
+  public String getReplyToSubject()
+  {
+    if(getDetailMsg() != null)
+    {
+      replyToSubject="Re:" +getDetailMsg().getMsg().getTitle();
+    }
+    return replyToSubject;
+  }
+  public void setReplyToSubject(String replyToSubject)
+  {
+    this.replyToSubject = replyToSubject;
   }
 
 
@@ -617,7 +633,6 @@ public class PrivateMessagesTool
     else
     {
       return "pvtMsg";
-      //return processPvtMsgTopic();   
     }  
   }
   
@@ -695,12 +710,8 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgDeleteConfirmYes()");
     if(getDetailMsg() != null)
     {
-      //TODO - remove getMessageById()- not required if we remove dummy data
-      PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(getDetailMsg().getMsg().getId()) ;
-      if(msg != null)
-      {
-        prtMsgManager.deletePrivateMessage(msg) ;
-      }
+      prtMsgManager.deletePrivateMessage(getDetailMsg().getMsg()) ;
+      
     }
     return "main" ;
   }
@@ -735,7 +746,10 @@ public class PrivateMessagesTool
     
     PrivateMessage pMsg= constructMessage() ;
     
-    prtMsgManager.sendPrivateMessage(pMsg, getRecipiants());            
+    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    {
+      prtMsgManager.sendPrivateMessage(pMsg, getRecipiants()); 
+    }
 
     if(getMsgNavMode().equals(""))
     {
@@ -744,7 +758,6 @@ public class PrivateMessagesTool
     else
     {
       return "pvtMsg";
-      //return processPvtMsgTopic();   
     }
   }
  
@@ -757,8 +770,11 @@ public class PrivateMessagesTool
     
     PrivateMessage dMsg=constructMessage() ;
     dMsg.setDraft(Boolean.TRUE);
-
-    prtMsgManager.sendPrivateMessage(dMsg, getRecipiants());    
+    
+    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    {
+      prtMsgManager.sendPrivateMessage(dMsg, getRecipiants()); 
+    }
 
     if(getMsgNavMode().equals(""))
     {
@@ -767,7 +783,6 @@ public class PrivateMessagesTool
     else
     {
       return "pvtMsg";
-      //return processPvtMsgTopic();   
     } 
   }
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
@@ -785,8 +800,6 @@ public class PrivateMessagesTool
     }
     if (aMsg != null)
     {
-      //TODO - check where recipiants are stored
-      //aMsg.setRecipients(getSelectedComposeToList());
       aMsg.setTitle(getComposeSubject());
       aMsg.setBody(getComposeBody());
       // these are set by the create method above -- you can remove them or keep them if you really want :)
@@ -794,7 +807,7 @@ public class PrivateMessagesTool
       //aMsg.setCreated(getTime()) ;
       aMsg.setAuthor(getUserId());
       aMsg.setDraft(Boolean.FALSE);      
-      aMsg.setApproved(Boolean.TRUE);      
+      aMsg.setApproved(Boolean.FALSE);      
     }
     //Add attachments
     for(int i=0; i<attachments.size(); i++)
@@ -842,7 +855,7 @@ public class PrivateMessagesTool
     }
     else
     {
-      //TODO :  appropriate error page
+      LOG.debug("processDisplayMsgById() - Error");
       return "pvtMsg";
     }
     return "pvtMsgDetail";
@@ -853,18 +866,21 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgReplySend()");
     
     PrivateMessage rMsg=getDetailMsg().getMsg() ;
-    //add replyTo message
     PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
-    //TODO settings from jsp    
-    rrepMsg.setTitle(rMsg.getTitle()) ;
+       
+    rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
     rrepMsg.setDraft(Boolean.TRUE);
     rrepMsg.setAuthor(getUserId());
     rrepMsg.setApproved(Boolean.TRUE);
     rrepMsg.setBody(getReplyToBody()) ;
     
     rrepMsg.setInReplyTo(rMsg) ;
+    this.getRecipiants().add(rMsg.getCreatedBy());
     
-    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipiants());    
+    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    {
+      prtMsgManager.sendPrivateMessage(rrepMsg, getRecipiants());
+    }
     return "pvtMsg" ;
   }
  
@@ -885,7 +901,10 @@ public class PrivateMessagesTool
     drrepMsg.setApproved(Boolean.TRUE);
     drrepMsg.setBody(getReplyToBody()) ;
     
-    prtMsgManager.sendPrivateMessage(drMsg, getRecipiants());    
+    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    {
+      prtMsgManager.sendPrivateMessage(drMsg, getRecipiants());  
+    }
     return "pvtMsg" ;    
   }
   
@@ -912,22 +931,17 @@ public class PrivateMessagesTool
     }
   }
   
+  //delete private message 
   public String processPvtMsgMultiDelete()
   { 
     LOG.debug("processPvtMsgMultiDelete()");
   
     for (Iterator iter = getSelectedDeleteItems().iterator(); iter.hasNext();)
     {
-      //We don't need decorated at this point as we will be deleting PrivateMessage object
       PrivateMessage element = ((PrivateMessageDecoratedBean) iter.next()).getMsg();
       if (element != null) 
       {
-        //TODO - remove getMessageById()- not required if we remove dummy data
-        PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(element.getId()) ;
-        if(msg != null)
-        {
-          prtMsgManager.deletePrivateMessage(element) ;
-        }        
+        prtMsgManager.deletePrivateMessage(element) ;        
       }      
     }
     return "main" ;
@@ -996,7 +1010,7 @@ public class PrivateMessagesTool
             ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
         
         //TODO - remove this as being set for test only  
-        thisAttach.setPvtMsgAttachId(new Long(1));
+        //thisAttach.setPvtMsgAttachId(new Long(1));
         
         attachments.add(thisAttach);
         
@@ -1024,7 +1038,7 @@ public class PrivateMessagesTool
             ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
         
         //TODO - remove this as being set for test only
-        thisAttach.setPvtMsgAttachId(new Long(1));
+        //thisAttach.setPvtMsgAttachId(new Long(1));
         allAttachments.add(thisAttach);
       }
     }
@@ -1080,8 +1094,7 @@ public class PrivateMessagesTool
     }
     catch(Exception e)
     {
-      //logger.error(this + ".processAddAttachRedirect - " + e);
-      //e.printStackTrace();
+      LOG.debug("processAddAttachmentRedirect() - Exception");
       return null;
     }
   }
@@ -1159,8 +1172,7 @@ public class PrivateMessagesTool
     }
     catch(Exception e)
     {
-//      logger.error(this + ".processRemoveAttach() - " + e);
-//      e.printStackTrace();
+      LOG.debug("processRemoveAttach() - Exception");
     }
     
     removeAttachId = null;
@@ -1517,7 +1529,7 @@ public class PrivateMessagesTool
 
   
   /*
-   * return all participants
+   * return all instructor participants
    */
   private List getAllInstructorParticipants()
   {
