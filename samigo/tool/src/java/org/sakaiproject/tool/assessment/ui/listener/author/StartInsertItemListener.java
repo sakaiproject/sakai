@@ -89,13 +89,34 @@ public class StartInsertItemListener implements ValueChangeListener
             if (children.get(i) instanceof UISelectItem)
             {
               UISelectItem selectItem = (UISelectItem) children.get(i);
-              log.info("***" + i + "***");
+//              log.info("***" + i + "***");
               log.info("selectItem.getItemValue()="+selectItem.getItemValue());
               String itemValue =  (String) selectItem.getItemValue();
               String[] insertArray = itemValue.split(",");
               // add in p#,q#
               insertToSection = insertArray[1].trim();
-              insertItemPosition = insertArray[2].trim();
+              // SAK-3160: workaround
+              /*
+               It seems very difficult to track down why the sequence number is
+               getting lost in the JSF lifecycle in the nested lists in the
+               backing beans (it appears) when there is more than one part.
+
+               Therefore I have added a workaround fix that supplies 0 for the
+               sequence number if it is not available.
+
+               This fixes two things.
+                1. No error or warning is logged
+                2. The type of item chosen is retained, and in the correct part.
+                */
+
+              if (insertArray.length > 2)
+              {
+                insertItemPosition = insertArray[2].trim();
+              }
+              else
+              {
+                insertItemPosition = "0";
+              }
               break;
             }
           }
@@ -109,7 +130,7 @@ public class StartInsertItemListener implements ValueChangeListener
       catch (Exception ex)
       {
         log.warn("unable to process value change: " + ex);
-        ex.printStackTrace();
+//        ex.printStackTrace();
         return;
       }
       itemauthorbean.setItemType(newitemtype);
