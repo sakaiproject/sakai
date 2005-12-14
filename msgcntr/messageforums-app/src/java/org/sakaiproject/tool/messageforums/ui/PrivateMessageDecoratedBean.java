@@ -52,7 +52,7 @@ public class PrivateMessageDecoratedBean
   private boolean hasPreviousMsg=false;
   private String nextMsgId;
   private String previousMsgId;
-  
+  private boolean hasRead = false;
   
   
   public PrivateMessage getMsg()
@@ -124,6 +124,15 @@ public class PrivateMessageDecoratedBean
     {
       msgs.add(decomsg);    
     }
+  }
+
+  public boolean isHasRead()
+  {
+    return hasRead;
+  }
+  public void setHasRead(boolean hasRead)
+  {
+    this.hasRead = hasRead;
   }
   
   

@@ -119,4 +119,10 @@ public interface PrivateMessageManager {
     
     
     public boolean isInstructor(String userId);
+    
+    public PrivateMessage getNextMessage(PrivateMessage message);
+    public PrivateMessage getPreviousMessage(PrivateMessage message);
+    public boolean hasPreviousMessage(PrivateMessage message);
+    public boolean hasNextMessage(PrivateMessage message);
+    
 }

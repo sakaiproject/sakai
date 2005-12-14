@@ -344,10 +344,18 @@ public class PrivateMessagesTool
     for (Iterator iter = msg.iterator(); iter.hasNext();)
     {
       PrivateMessage element = (PrivateMessage) iter.next();
-      decLs.add(new PrivateMessageDecoratedBean(element)) ;
+      
+      boolean prev = prtMsgManager.hasPreviousMessage(element);
+      boolean next = prtMsgManager.hasNextMessage(element);
+      PrivateMessageDecoratedBean dbean= new PrivateMessageDecoratedBean(element);
+      dbean.setHasPreviousMsg(prev);
+      dbean.setHasNextMsg(next);
+      
+      decLs.add(dbean) ;
     }
     return decLs;
   }
+  
   
   public void setDecoratedPvtMsgs(List displayPvtMsgs)
   {
@@ -652,6 +660,8 @@ public class PrivateMessagesTool
       if (dMsg.getMsg().getId().equals(new Long(msgId)))
       {
         this.setDetailMsg(dMsg);
+        //TODO - set isHasRead property of decorated bean as message read
+        //prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
       }
     }
     this.deleteConfirm=false; //reset this as used for multiple action in same JSP
@@ -824,7 +834,18 @@ public class PrivateMessagesTool
   public String processDisplayNextMsg()
   {
     LOG.debug("processDisplayNextMsg()");
-    return processDisplayMsgById("nextMsgId");
+    //return processDisplayMsgById("nextMsgId");
+    PrivateMessage pmsg = (PrivateMessage) prtMsgManager.getNextMessage(getDetailMsg().getMsg());
+    boolean prev = prtMsgManager.hasPreviousMessage(getDetailMsg().getMsg());
+    boolean next = prtMsgManager.hasNextMessage(getDetailMsg().getMsg());
+    
+    this.setDetailMsg(new PrivateMessageDecoratedBean(pmsg)) ;
+    
+    //set boolean in decoratedbean 
+    getDetailMsg().setHasPreviousMsg(prev);
+    getDetailMsg().setHasNextMsg(next);
+    
+    return "pvtMsgDetail";
   }
   
   /**
@@ -833,7 +854,18 @@ public class PrivateMessagesTool
   public String processDisplayPreviousMsg()
   {
     LOG.debug("processDisplayPreviousMsg()");
-    return processDisplayMsgById("previousMsgId");
+    //return processDisplayMsgById("previousMsgId");
+    PrivateMessage pmsg = (PrivateMessage) prtMsgManager.getPreviousMessage(getDetailMsg().getMsg());
+    boolean prev = prtMsgManager.hasPreviousMessage(getDetailMsg().getMsg());
+    boolean next = prtMsgManager.hasNextMessage(getDetailMsg().getMsg());
+    
+    this.setDetailMsg(new PrivateMessageDecoratedBean(pmsg)) ;
+    
+    //set boolean in decoratedbean 
+    getDetailMsg().setHasPreviousMsg(prev);
+    getDetailMsg().setHasNextMsg(next);
+    
+    return "pvtMsgDetail";
   }
   /**
    * @param externalTopicId
