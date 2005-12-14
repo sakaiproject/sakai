@@ -29,7 +29,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     private static final String CONTEXT_ID = "contextId";
 
-    private static final String QUERY_AREA_BY_CONTEXT_ID = "findAreaByContextIdAndTypeId";
+    private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_ID = "findAreaByContextIdAndTypeId";
+    private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER = "findAreaByContextAndTypeForUser";        
     
     private IdManager idManager;
     
@@ -138,11 +139,11 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public Area getAreaByContextIdAndTypeId(final String typeId) {
-        LOG.debug("getPrivateArea executing for current user: " + getCurrentUser());
+        LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_ID);
-                q.setParameter(CONTEXT_ID, getContextId(), Hibernate.STRING);
+                Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_ID);
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
                 q.setParameter("typeId", typeId, Hibernate.STRING);
                 return q.uniqueResult();
             }
@@ -150,6 +151,22 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
         return (Area) getHibernateTemplate().execute(hcb);
     }
+    
+    public Area getAreaByContextAndTypeForUser(final String typeId) {
+      final String currentUser = getCurrentUser();
+      LOG.debug("getAreaByContextAndTypeForUser executing for current user: " + currentUser);
+      HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+              Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER);
+              q.setParameter("contextId", getContextId(), Hibernate.STRING);
+              q.setParameter("typeId", typeId, Hibernate.STRING);
+              q.setParameter("userId", currentUser, Hibernate.STRING);
+              return q.uniqueResult();
+          }
+      };
+
+      return (Area) getHibernateTemplate().execute(hcb);
+  }
 
     
     // helpers
