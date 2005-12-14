@@ -60,5 +60,21 @@ public interface MessagePermissions {
     public String getRole();
 
     public void setRole(String role);
+    
+    public Boolean getDefaultValue();
+    
+    public void setDefaultValue(Boolean defaultValue);
 
+    public Area getArea();
+    
+    public void setArea(Area area);
+    
+    public BaseForum getForum();
+    
+    public void setForum(BaseForum forum);
+    
+    public Topic getTopic();
+
+    public void setTopic(Topic topic);
+    
 }
