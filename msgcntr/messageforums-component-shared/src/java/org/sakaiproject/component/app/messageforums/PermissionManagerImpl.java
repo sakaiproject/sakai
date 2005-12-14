@@ -300,7 +300,6 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setNewTopic(permission.getNewTopic());
         permissions.setResponseToResponse(permission.getResponseToResponse());
-        permissions.setPostToGradebook(Boolean.FALSE);
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);        
         
@@ -333,7 +332,6 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setNewTopic(permission.getNewTopic());
         permissions.setResponseToResponse(permission.getResponseToResponse());
-        permissions.setPostToGradebook(Boolean.FALSE);
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);        
 
@@ -406,7 +404,6 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewTopic(Boolean.FALSE);
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setResponseToResponse(permission.getResponseToResponse());
-        permissions.setPostToGradebook(Boolean.FALSE);
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);
 
@@ -438,7 +435,6 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewResponse(permission.getNewResponse());
         permissions.setNewTopic(Boolean.FALSE);
         permissions.setResponseToResponse(permission.getResponseToResponse());
-        permissions.setPostToGradebook(Boolean.FALSE);
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);
