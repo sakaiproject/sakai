@@ -1802,7 +1802,9 @@ String poolid = ContextUtil.lookupParam("poolId");
 
   public String cancelImport(){
 
+    ItemAuthorBean itemauthorbean= (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     this.setImportToAuthoring(false);
+    itemauthorbean.setItemTypeString("");
     return "editAssessment";
 
   }

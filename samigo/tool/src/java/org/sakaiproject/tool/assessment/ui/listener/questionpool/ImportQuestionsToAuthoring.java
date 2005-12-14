@@ -157,6 +157,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
 
       // reset InsertPosition
       itemauthor.setInsertPosition("");
+      itemauthor.setItemTypeString("");
       // reset checkbox, otherwise if the last question is checked, it stays checked. 
       String[] emptyArr= {};	
       qpoolbean.setDestItems(emptyArr);
