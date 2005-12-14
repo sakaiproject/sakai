@@ -175,13 +175,13 @@ public interface PermissionManager {
      * Get the forum message permission for a given role.  This provides the permissions
      * that the role currently has.
      */
-    public MessagePermissions getForumMessagePermissionForRole(String role, String typeId);
+    public MessagePermissions getForumMessagePermissionForRole(BaseForum forum, String role, String typeId);
 
     /**
      * Get the default forum message permission for a given role.  This provides the 
      * permissions that the role currently has.
      */
-    public MessagePermissions getDefaultForumMessagePermissionForRole(String role, String typeId);
+    public MessagePermissions getDefaultForumMessagePermissionForRole(BaseForum forum, String role, String typeId);
 
     /**
      * Create an empty forum message permission with system properties 
@@ -211,13 +211,13 @@ public interface PermissionManager {
      * Get the topic message permission for a given role.  This provides the permissions
      * that the role currently has.
      */
-    public MessagePermissions getTopicMessagePermissionForRole(String role, String typeId);
+    public MessagePermissions getTopicMessagePermissionForRole(Topic topic, String role, String typeId);
 
     /**
      * Get the default topic message permission for a given role.  This provides the 
      * permissions that the role currently has.
      */
-    public MessagePermissions getDefaultTopicMessagePermissionForRole(String role, String typeId);
+    public MessagePermissions getDefaultTopicMessagePermissionForRole(Topic topic, String role, String typeId);
 
     /**
      * Create an empty topic message permission with system properties 

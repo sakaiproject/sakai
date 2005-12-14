@@ -522,7 +522,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * Get the forum message permission for a given role.  This provides the permissions
      * that the role currently has.
      */
-    public MessagePermissions getForumMessagePermissionForRole(String role, String typeId) {
+    public MessagePermissions getForumMessagePermissionForRole(BaseForum forum, String role, String typeId) {
         return null;
     }
 
@@ -530,7 +530,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * Get the default forum message permission for a given role.  This provides the 
      * permissions that the role currently has.
      */
-    public MessagePermissions getDefaultForumMessagePermissionForRole(String role, String typeId) {
+    public MessagePermissions getDefaultForumMessagePermissionForRole(BaseForum forum, String role, String typeId) {
         return null;
     }
 
@@ -570,7 +570,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * Get the topic message permission for a given role.  This provides the permissions
      * that the role currently has.
      */
-    public MessagePermissions getTopicMessagePermissionForRole(String role, String typeId) {
+    public MessagePermissions getTopicMessagePermissionForRole(Topic topic, String role, String typeId) {
         return null;
     }
 
@@ -578,7 +578,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * Get the default topic message permission for a given role.  This provides the 
      * permissions that the role currently has.
      */
-    public MessagePermissions getDefaultTopicMessagePermissionForRole(String role, String typeId) {
+    public MessagePermissions getDefaultTopicMessagePermissionForRole(Topic topic, String role, String typeId) {
         return null;
     }
 
