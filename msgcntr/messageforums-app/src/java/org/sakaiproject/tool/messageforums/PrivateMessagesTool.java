@@ -46,6 +46,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.kernel.session.ToolSession;
@@ -660,8 +661,19 @@ public class PrivateMessagesTool
       if (dMsg.getMsg().getId().equals(new Long(msgId)))
       {
         this.setDetailMsg(dMsg);
-        //TODO - set isHasRead property of decorated bean as message read
+        //set isHasRead property of decorated bean as message read
+        //TODO Error - markMessageAsReadForUser(message: Message.id:5) could not find user in recipient list
         //prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
+        //TODO Error - Failed to lazily initialize a collection -
+//        List recLs= dMsg.getMsg().getRecipients();
+//        for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
+//        {
+//          PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
+//          if((element.getRead().booleanValue()) || (element.getUserId().equals(getUserId())) )
+//          {
+//           getDetailMsg().setHasRead(true) ;
+//          }
+//        }
       }
     }
     this.deleteConfirm=false; //reset this as used for multiple action in same JSP
@@ -901,9 +913,9 @@ public class PrivateMessagesTool
     PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
        
     rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
-    rrepMsg.setDraft(Boolean.TRUE);
+    rrepMsg.setDraft(Boolean.FALSE);
     rrepMsg.setAuthor(getUserId());
-    rrepMsg.setApproved(Boolean.TRUE);
+    rrepMsg.setApproved(Boolean.FALSE);
     rrepMsg.setBody(getReplyToBody()) ;
     
     rrepMsg.setInReplyTo(rMsg) ;
@@ -924,18 +936,20 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgReplySaveDraft()");
     
     PrivateMessage drMsg=getDetailMsg().getMsg() ;
-    drMsg.setDraft(Boolean.TRUE);
+    //drMsg.setDraft(Boolean.TRUE);
     PrivateMessage drrepMsg = messageManager.createPrivateMessage() ;
-    drrepMsg.setTitle(drMsg.getTitle()) ;
+    drrepMsg.setTitle(getReplyToSubject()) ;
     drrepMsg.setDraft(Boolean.TRUE);
     drrepMsg.setAuthor(getUserId());
-    drrepMsg.setInReplyTo(drMsg) ;
-    drrepMsg.setApproved(Boolean.TRUE);
+    drrepMsg.setApproved(Boolean.FALSE);
     drrepMsg.setBody(getReplyToBody()) ;
+    
+    drrepMsg.setInReplyTo(drMsg) ;
+    this.getRecipiants().add(drMsg.getCreatedBy());
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
-      prtMsgManager.sendPrivateMessage(drMsg, getRecipiants());  
+      prtMsgManager.sendPrivateMessage(drrepMsg, getRecipiants());  
     }
     return "pvtMsg" ;    
   }
