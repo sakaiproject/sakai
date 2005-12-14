@@ -41,19 +41,13 @@ public interface PermissionManager {
      * Create an empty area control permission with system properties 
      * populated (ie: uuid).
      */
-    public AreaControlPermission createAreaControlPermissionForRole(String role);
+    public AreaControlPermission createAreaControlPermissionForRole(String role, String typeId);
     
     /**
      * Save an area control permission.  This is backed in the database by a single
      * Control permission (used for areas, forums, and topics).
      */
     public void saveAreaControlPermissionForRole(Area area, AreaControlPermission permission, String typeId);
-
-    /**
-     * Create an empty default area control permission with system properties 
-     * populated (ie: uuid).
-     */
-    public AreaControlPermission createDefaultAreaControlPermissionForRole(String role);
 
     /**
      * Save a default area control permission.  This is backed in the database by a 
@@ -77,19 +71,13 @@ public interface PermissionManager {
      * Create an empty forum control permission with system properties 
      * populated (ie: uuid).
      */
-    public ForumControlPermission createForumControlPermissionForRole(String role);
+    public ForumControlPermission createForumControlPermissionForRole(String role, String typeId);
     
     /**
      * Save an forum control permission.  This is backed in the database by a single
      * Control permission (used for topics, forums, and topics).
      */
     public void saveForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission);
-
-    /**
-     * Create an empty default forum control permission with system properties 
-     * populated (ie: uuid).
-     */
-    public ForumControlPermission createDefaultForumControlPermissionForRole(String role);
 
     /**
      * Save a default forum control permission.  This is backed in the database by a 
@@ -113,19 +101,13 @@ public interface PermissionManager {
      * Create an empty topic control permission with system properties 
      * populated (ie: uuid).
      */
-    public TopicControlPermission createTopicControlPermissionForRole(String role);
+    public TopicControlPermission createTopicControlPermissionForRole(BaseForum forum, String role, String typeId);
     
     /**
      * Save an topic control permission.  This is backed in the database by a single
      * Control permission (used for areas, forums, and topics).
      */
     public void saveTopicControlPermissionForRole(Topic topic, TopicControlPermission permission);
-
-    /**
-     * Create an empty default topic control permission with system properties 
-     * populated (ie: uuid).
-     */
-    public TopicControlPermission createDefaultTopicControlPermissionForRole(String role);
 
     /**
      * Save a default topic control permission.  This is backed in the database by a 
@@ -160,12 +142,6 @@ public interface PermissionManager {
     public void saveAreaMessagePermissionForRole(Area area, MessagePermissions permission, String typeId);
 
     /**
-     * Create an empty default area message permission with system properties 
-     * populated (ie: uuid).
-     */
-    public MessagePermissions createDefaultAreaMessagePermissionForRole(String role);
-
-    /**
      * Save a default area message permission.  This is backed in the database by a 
      * single message permission (used for areas, forums, and topics).
      */
@@ -196,12 +172,6 @@ public interface PermissionManager {
     public void saveForumMessagePermissionForRole(BaseForum forum, MessagePermissions permission);
 
     /**
-     * Create an empty default forum message permission with system properties 
-     * populated (ie: uuid).
-     */
-    public MessagePermissions createDefaultForumMessagePermissionForRole(String role);
-
-    /**
      * Save a default forum message permission.  This is backed in the database by a 
      * single message permission (used for topics, forums, and topics).
      */
@@ -230,12 +200,6 @@ public interface PermissionManager {
      * message permission (used for areas, forums, and topics).
      */
     public void saveTopicMessagePermissionForRole(Topic topic, MessagePermissions permission);
-
-    /**
-     * Create an empty default topic message permission with system properties 
-     * populated (ie: uuid).
-     */
-    public MessagePermissions createDefaultTopicMessagePermissionForRole(String role);
 
     /**
      * Save a default topic message permission.  This is backed in the database by a 

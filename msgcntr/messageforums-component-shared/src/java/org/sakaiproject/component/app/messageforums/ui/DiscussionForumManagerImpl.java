@@ -531,7 +531,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       if (controlPermission == null)
       {
         controlPermission = permissionManager
-            .createDefaultAreaControlPermissionForRole(roleId);
+            .createAreaControlPermissionForRole(roleId, typeManager.getDiscussionForumType());
       }
       defaultControlPermissions.add(controlPermission);
     }
@@ -555,7 +555,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       if (messagePermission == null)
       {
         messagePermission = permissionManager
-            .createDefaultAreaMessagePermissionForRole(roleId);
+            .createAreaMessagePermissionForRole(roleId);
       }
       defaultMessagePermissions.add(messagePermission);
     }
@@ -598,7 +598,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       if (controlPermission == null)
       {
         controlPermission = permissionManager
-            .createForumControlPermissionForRole(roleId);
+            .createForumControlPermissionForRole(roleId, typeManager.getDiscussionForumType());
       }
       forumControlPermissions.add(controlPermission);
     }
@@ -646,7 +646,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       if (controlPermission == null)
       {
         controlPermission = permissionManager
-            .createTopicControlPermissionForRole(roleId);
+            .createTopicControlPermissionForRole(topic.getBaseForum(), roleId, typeManager.getDiscussionForumType());
       }
       topicControlPermissions.add(controlPermission);
     }

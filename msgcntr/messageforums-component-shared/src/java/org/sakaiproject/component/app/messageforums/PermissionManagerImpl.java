@@ -170,8 +170,16 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         return cp;
     }
 
-    public AreaControlPermission createAreaControlPermissionForRole(String role) {
+    public AreaControlPermission createAreaControlPermissionForRole(String role, String typeId) {
         AreaControlPermission permission = new AreaControlPermissionImpl();
+        AreaControlPermission acp = getDefaultAreaControlPermissionForRole(role, typeId);
+        permission.setChangeSettings(acp.getChangeSettings());
+        permission.setMovePostings(acp.getMovePostings());
+        permission.setNewForum(acp.getNewForum());
+        permission.setNewResponse(acp.getNewResponse());
+        permission.setNewTopic(acp.getNewTopic());
+        permission.setResponseToResponse(acp.getResponseToResponse());
+        permission.setPostToGradebook(acp.getPostToGradebook());
         permission.setRole(role);
         return permission;
     }
@@ -200,12 +208,6 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         } else {
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
         }
-    }
-
-    public AreaControlPermission createDefaultAreaControlPermissionForRole(String role) {
-        AreaControlPermission permission = new AreaControlPermissionImpl();
-        permission.setRole(role);
-        return permission;
     }
 
     public void saveDefaultAreaControlPermissionForRole(Area area, AreaControlPermission permission, String typeId) {
@@ -278,8 +280,15 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         return cp;
     }
 
-    public ForumControlPermission createForumControlPermissionForRole(String role) {
+    public ForumControlPermission createForumControlPermissionForRole(String role, String typeId) {
         ForumControlPermission permission = new ForumControlPermissionImpl();
+        AreaControlPermission acp = getDefaultAreaControlPermissionForRole(role, typeId);
+        permission.setChangeSettings(acp.getChangeSettings());
+        permission.setMovePostings(acp.getMovePostings());
+        permission.setNewResponse(acp.getNewResponse());
+        permission.setNewTopic(acp.getNewTopic());
+        permission.setResponseToResponse(acp.getResponseToResponse());
+        permission.setPostToGradebook(acp.getPostToGradebook());
         permission.setRole(role);
         return permission;
     }
@@ -308,12 +317,6 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         } else {
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
         }        
-    }
-
-    public ForumControlPermission createDefaultForumControlPermissionForRole(String role) {
-        ForumControlPermission permission = new ForumControlPermissionImpl();
-        permission.setRole(role);
-        return permission;
     }
 
     public void saveDefaultForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
@@ -382,8 +385,14 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         return cp;
     }
 
-    public TopicControlPermission createTopicControlPermissionForRole(String role) {
+    public TopicControlPermission createTopicControlPermissionForRole(BaseForum forum, String role, String typeId) {
         TopicControlPermission permission = new TopicControlPermissionImpl();
+        ForumControlPermission fcp = getDefaultForumControlPermissionForRole(forum, role, typeId);
+        permission.setChangeSettings(fcp.getChangeSettings());
+        permission.setMovePostings(fcp.getMovePostings());
+        permission.setNewResponse(fcp.getNewResponse());
+        permission.setResponseToResponse(fcp.getResponseToResponse());
+        permission.setPostToGradebook(fcp.getPostToGradebook());
         permission.setRole(role);
         return permission;
     }
@@ -412,12 +421,6 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         } else {
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
         }
-    }
-
-    public TopicControlPermission createDefaultTopicControlPermissionForRole(String role) {
-        TopicControlPermission permission = new TopicControlPermissionImpl();
-        permission.setRole(role);
-        return permission;
     }
 
     public void saveDefaultTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
@@ -591,16 +594,6 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     /**
-     * Create an empty default area message permission with system properties 
-     * populated (ie: uuid).
-     */
-    public MessagePermissions createDefaultAreaMessagePermissionForRole(String role) {
-        MessagePermissions permissions = new MessagePermissionsImpl();
-        permissions.setRole(role);
-        return permissions;
-    }
-
-    /**
      * Save a default area message permission.  This is backed in the database by a 
      * single message permission (used for areas, forums, and topics).
      */
@@ -722,16 +715,6 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         } else {
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
         }         
-    }
-
-    /**
-     * Create an empty default forum message permission with system properties 
-     * populated (ie: uuid).
-     */
-    public MessagePermissions createDefaultForumMessagePermissionForRole(String role) {
-        MessagePermissions permissions = new MessagePermissionsImpl();
-        permissions.setRole(role);
-        return permissions;
     }
 
     /**
@@ -857,17 +840,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
         }                 
     }
-
-    /**
-     * Create an empty default topic message permission with system properties 
-     * populated (ie: uuid).
-     */
-    public MessagePermissions createDefaultTopicMessagePermissionForRole(String role) {
-        MessagePermissions permissions = new MessagePermissionsImpl();
-        permissions.setRole(role);
-        return permissions;
-    }
-
+    
     /**
      * Save a default topic message permission.  This is backed in the database by a 
      * single message permission (used for areas, forums, and topics).
