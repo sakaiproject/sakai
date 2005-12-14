@@ -49,35 +49,35 @@
 			</h:panelGrid>
 		</p>
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm">
-         <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.roles}" var="role">
+          <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.forumControlPermissions}" var="cntrl_settings">
    			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
-				<h:outputText value="#{role}"/>
+				<h:outputText value="#{cntrl_settings.role}"/>
 			</h:column>
-			<h:column>
+ 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_new_topic}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.newTopic}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_new_response}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.newResponse}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_response_to_response}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.responseToResponse}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">	<h:outputText value="#{msgs.perm_move_postings}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.movePostings}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_change_settings}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.changeSettings}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
-			</h:column>			
+				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.postToGradebook}"/>
+			</h:column>					
 		</h:dataTable>
       </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_message_permissions}" id="msg_perm">

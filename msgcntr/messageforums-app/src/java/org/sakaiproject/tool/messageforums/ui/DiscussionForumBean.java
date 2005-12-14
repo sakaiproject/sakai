@@ -63,7 +63,7 @@ public class DiscussionForumBean
    */
   public void setLocked(String locked)
   {
-    if(locked==Boolean.TRUE.toString())
+    if(locked.equals(Boolean.TRUE.toString()))
     {
       forum.setLocked(new Boolean(true));
     }

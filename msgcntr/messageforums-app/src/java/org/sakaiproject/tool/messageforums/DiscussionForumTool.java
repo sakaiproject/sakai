@@ -275,12 +275,11 @@ public class DiscussionForumTool
   {
     if(selectedForum!=null)
     {
-      return forumManager.getForumControlPermissions(selectedForum.getForum());
+      
+      forumControlPermissions=forumManager.getForumControlPermissions(selectedForum.getForum());
+      
     }
-    else
-    {
-      return null;
-    }
+    return forumControlPermissions;
   }
 
   /**
@@ -298,12 +297,10 @@ public class DiscussionForumTool
   {
     if(selectedForum!=null)
     {
-      return forumManager.getForumMessagePermissions(selectedForum.getForum());
+      forumMessagePermissions= forumManager.getForumMessagePermissions(selectedForum.getForum());
     }
-    else
-    {
-      return null;
-    }    
+      return forumControlPermissions;
+        
   }
 
   /**
@@ -420,6 +417,11 @@ public class DiscussionForumTool
     LOG.debug("processActionSaveForumSettings()");
     if (selectedForum != null) {
         DiscussionForum forum = selectedForum.getForum();
+        if(forum!=null)
+        {
+          forumManager.saveForumControlPermissions(forum,forumControlPermissions);
+//          forumManager.saveForumMessagePermissions(forum,forumMessagePermissions);
+        }
         forumManager.saveForum(forum);
     }
     return MAIN;
@@ -532,6 +534,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
     // TODO : save topic
+    forumManager.saveTopic(selectedTopic.getTopic());
     createTopic();
     return TOPIC_SETTING_REVISE;
   }

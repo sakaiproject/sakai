@@ -201,7 +201,7 @@ public interface DiscussionForumManager
    * @param topic
    * @param controlPermissions
    */
-  public void saveTopicControlPermissions(DiscussionForum forum,
+  public void saveTopicControlPermissions(DiscussionTopic topic,
       List controlPermissions);
 
   /**
