@@ -14,20 +14,18 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.PrivateForum;
-import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
+import org.sakaiproject.service.legacy.content.ContentHostingService;
+import org.sakaiproject.service.legacy.event.EventTrackingService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager {
     private static final Log LOG = LogFactory.getLog(AreaManagerImpl.class);
-
-    private static final String CONTEXT_ID = "contextId";
 
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_ID = "findAreaByContextIdAndTypeId";
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER = "findAreaByContextAndTypeForUser";        
@@ -40,8 +38,18 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     private MessageForumsTypeManager typeManager;
 
+    private EventTrackingService eventTrackingService;
+
     public void init() {
         ;
+    }
+
+    public EventTrackingService getEventTrackingService() {
+        return eventTrackingService;
+    }
+
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
+        this.eventTrackingService = eventTrackingService;
     }
         
     public MessageForumsTypeManager getTypeManager() {
@@ -74,7 +82,6 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public Area getPrivateArea() {
-      
         Area area = getAreaByContextAndTypeForUser(typeManager.getPrivateMessageAreaType());
         if (area == null) {
             area = createArea(typeManager.getPrivateMessageAreaType());
@@ -115,13 +122,23 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public void saveArea(Area area) {
+        boolean isNew = area.getId() == null;
+        
         area.setModified(new Date());
         area.setModifiedBy(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(area);        
+        
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(area), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area), false));
+        }
+            
         LOG.debug("saveArea executed with areaId: " + area.getId());
     }
 
     public void deleteArea(Area area) {
+        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(area), false));
         getHibernateTemplate().delete(area);
         LOG.debug("deleteArea executed with areaId: " + area.getId());
     }
@@ -182,4 +199,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return sessionManager.getCurrentSessionUserId();
     }    
 
+    private String getEventMessage(Object object) {
+        return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
+    }
+    
 }

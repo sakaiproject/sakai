@@ -417,12 +417,12 @@ public class DiscussionForumTool
     LOG.debug("processActionSaveForumSettings()");
     if (selectedForum != null) {
         DiscussionForum forum = selectedForum.getForum();
+        forumManager.saveForum(forum);
         if(forum!=null)
         {
           forumManager.saveForumControlPermissions(forum,forumControlPermissions);
 //          forumManager.saveForumMessagePermissions(forum,forumMessagePermissions);
         }
-        forumManager.saveForum(forum);
     }
     return MAIN;
   }

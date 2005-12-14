@@ -235,7 +235,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public ForumControlPermission getForumControlPermissionForRole(BaseForum forum, String role, String typeId) {
-        ControlPermissions permissions = getControlPermissionByKeyValue(role, "forumId", forum.getId().toString(), false); 
+        ControlPermissions permissions = forum == null || forum.getId() == null ? null : getControlPermissionByKeyValue(role, "forumId", forum.getId().toString(), false); 
         ForumControlPermission cp = new ForumControlPermissionImpl();
 
         if (permissions == null) {
@@ -256,7 +256,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public ForumControlPermission getDefaultForumControlPermissionForRole(BaseForum forum, String role, String typeId) {
-        ControlPermissions permissions = getControlPermissionByKeyValue(role, "forumId", forum.getId().toString(), true); 
+        ControlPermissions permissions = forum == null || forum.getId() == null ? null : getControlPermissionByKeyValue(role, "forumId", forum.getId().toString(), true); 
         ForumControlPermission cp = new ForumControlPermissionImpl();
 
         if (permissions == null) {
@@ -285,7 +285,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
-        ControlPermissions permissions = getControlPermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), false); 
+        ControlPermissions permissions = forum == null || forum.getId() == null ? null : getControlPermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), false); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -317,7 +317,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveDefaultForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
-        ControlPermissions permissions = getControlPermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), false); 
+        ControlPermissions permissions = forum == null || forum.getId() == null ? null : getControlPermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), false); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -343,7 +343,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public TopicControlPermission getTopicControlPermissionForRole(Topic topic, String role, String typeId) {
-        ControlPermissions permissions = getControlPermissionByKeyValue(role, "topicId", topic.getId().toString(), false); 
+        ControlPermissions permissions = topic == null || topic.getId() == null ? null : getControlPermissionByKeyValue(role, "topicId", topic.getId().toString(), false); 
         TopicControlPermission cp = new TopicControlPermissionImpl();
 
         if (permissions == null) {
@@ -362,7 +362,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public TopicControlPermission getDefaultTopicControlPermissionForRole(Topic topic, String role, String typeId) {
-        ControlPermissions permissions = getControlPermissionByKeyValue(role, "topicId", topic.getId().toString(), true); 
+        ControlPermissions permissions = topic == null || topic.getId() == null ? null : getControlPermissionByKeyValue(role, "topicId", topic.getId().toString(), true); 
         TopicControlPermission cp = new TopicControlPermissionImpl();
 
         if (permissions == null) {
@@ -389,7 +389,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
-        ControlPermissions permissions = getControlPermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), false); 
+        ControlPermissions permissions = topic == null || topic.getId() == null ? null : getControlPermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), false); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -421,7 +421,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveDefaultTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
-        ControlPermissions permissions = getControlPermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), false); 
+        ControlPermissions permissions = topic == null || topic.getId() == null ? null : getControlPermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), false); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -634,7 +634,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * that the role currently has.
      */
     public MessagePermissions getForumMessagePermissionForRole(BaseForum forum, String role, String typeId) {
-        MessagePermissions permissions = getMessagePermissionByKeyValue(role, "forumId", forum.getId().toString(), false);
+        MessagePermissions permissions = forum == null || forum.getId() == null ? null : getMessagePermissionByKeyValue(role, "forumId", forum.getId().toString(), false);
         MessagePermissions mp = new MessagePermissionsImpl();
 
         if (permissions == null) {
@@ -662,7 +662,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * permissions that the role currently has.
      */
     public MessagePermissions getDefaultForumMessagePermissionForRole(BaseForum forum, String role, String typeId) {
-        MessagePermissions permissions = getMessagePermissionByKeyValue(role, "forumId", forum.getId().toString(), true);
+        MessagePermissions permissions = forum == null || forum.getId() == null ? null : getMessagePermissionByKeyValue(role, "forumId", forum.getId().toString(), true);
         MessagePermissions mp = new MessagePermissionsImpl();
 
         if (permissions == null) {
@@ -700,7 +700,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * message permission (used for topics, forums, and topics).
      */
     public void saveForumMessagePermissionForRole(BaseForum forum, MessagePermissions permission) {
-        MessagePermissions permissions = getMessagePermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), false); 
+        MessagePermissions permissions = forum == null || forum.getId() == null ? null : getMessagePermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), false); 
         if (permissions == null) {
             permissions = new MessagePermissionsImpl();
         }
@@ -739,7 +739,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * single message permission (used for topics, forums, and topics).
      */
     public void saveDefaultForumMessagePermissionForRole(BaseForum forum, MessagePermissions permission) {
-        MessagePermissions permissions = getMessagePermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), true); 
+        MessagePermissions permissions = forum == null || forum.getId() == null ? null : getMessagePermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), true); 
         if (permissions == null) {
             permissions = new MessagePermissionsImpl();
         }
@@ -768,7 +768,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * that the role currently has.
      */
     public MessagePermissions getTopicMessagePermissionForRole(Topic topic, String role, String typeId) {
-        MessagePermissions permissions = getMessagePermissionByKeyValue(role, "topicId", topic.getId().toString(), false);
+        MessagePermissions permissions = topic == null || topic.getId() == null ? null : getMessagePermissionByKeyValue(role, "topicId", topic.getId().toString(), false);
         MessagePermissions mp = new MessagePermissionsImpl();
 
         if (permissions == null) {
@@ -796,7 +796,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * permissions that the role currently has.
      */
     public MessagePermissions getDefaultTopicMessagePermissionForRole(Topic topic, String role, String typeId) {
-        MessagePermissions permissions = getMessagePermissionByKeyValue(role, "topicId", topic.getId().toString(), true);
+        MessagePermissions permissions = topic == null || topic.getId() == null ? null : getMessagePermissionByKeyValue(role, "topicId", topic.getId().toString(), true);
         MessagePermissions mp = new MessagePermissionsImpl();
 
         if (permissions == null) {
@@ -834,7 +834,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * message permission (used for areas, forums, and topics).
      */
     public void saveTopicMessagePermissionForRole(Topic topic, MessagePermissions permission) {
-        MessagePermissions permissions = getMessagePermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), false); 
+        MessagePermissions permissions = topic == null || topic.getId() == null ? null : getMessagePermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), false); 
         if (permissions == null) {
             permissions = new MessagePermissionsImpl();
         }
@@ -873,7 +873,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * single message permission (used for areas, forums, and topics).
      */
     public void saveDefaultTopicMessagePermissionForRole(Topic topic, MessagePermissions permission) {
-        MessagePermissions permissions = getMessagePermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), true); 
+        MessagePermissions permissions = topic == null || topic.getId() == null ? null : getMessagePermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), true); 
         if (permissions == null) {
             permissions = new MessagePermissionsImpl();
         }
