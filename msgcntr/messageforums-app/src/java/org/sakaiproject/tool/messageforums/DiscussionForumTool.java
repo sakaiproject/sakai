@@ -58,7 +58,12 @@ public class DiscussionForumTool
   private DiscussionTopicBean selectedTopic;
   private DiscussionMessageBean selectedMessage;
   
-  private List templateSettings;
+  private List templateControlPermissions; //control settings
+  private List templateMessagePermissions;
+  private List forumControlPermissions; //control settings
+  private List forumMessagePermissions;
+  private List topicControlPermissions; //control settings
+  private List topicMessagePermissions;
   
   private static final String TOPIC_ID = "topicId";
   private static final String FORUM_ID = "forumId";
@@ -209,30 +214,106 @@ public class DiscussionForumTool
   /**
    * @return
    */
-  public List getTemplateSettings()
+  public List getTemplateControlPermissions()
   {
-    templateSettings=forumManager.getDefaultControlPermissions();
-    return templateSettings;
+    templateControlPermissions=forumManager.getDefaultControlPermissions();
+    return templateControlPermissions;
   }
   
   /**
    * @return
    */
-  public void setTemplateSettings(List templateSettings)
+  public void setTemplateControlPermissions(List templateSettings)
   {
-    this.templateSettings= templateSettings;
+    this.templateControlPermissions= templateSettings;
   }
   
+  
+  /**
+   * @return Returns the templateMessagePermissions.
+   */
+  public List getTemplateMessagePermissions()
+  {
+    return forumManager.getDefaultMessagePermissions();
+  }
+
+  /**
+   * @param templateMessagePermissions The templateMessagePermissions to set.
+   */
+  public void setTemplateMessagePermissions(List templateMessagePermissions)
+  {
+    this.templateMessagePermissions = templateMessagePermissions;
+  }
+
   /**
    * @return
    */
   public String processActionSaveTemplateSettings()
   {
     LOG.debug("processActionSaveForumSettings()");
-    forumManager.saveDefaultMessagePermissions(templateSettings); 
+    forumManager.saveDefaultControlPermissions(templateControlPermissions); 
+    //forumManager.saveDefaultMessagePermissions(templateMessagePermissions);
     return MAIN;
   }
   
+  /**
+   * @return
+   */
+  public String processActionRestoreDefaultTemplate()
+  {
+    templateControlPermissions=null;
+    return TEMPLATE_SETTING;
+  }
+  
+  
+  
+  
+  /**
+   * @return Returns the forumControlPermissions.
+   */
+  public List getForumControlPermissions()
+  {
+    if(selectedForum!=null)
+    {
+      return forumManager.getForumControlPermissions(selectedForum.getForum());
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  /**
+   * @param forumControlPermissions The forumControlPermissions to set.
+   */
+  public void setForumControlPermissions(List forumControlPermissions)
+  {
+    this.forumControlPermissions = forumControlPermissions;
+  }
+
+  /**
+   * @return Returns the forumMessagePermissions.
+   */
+  public List getForumMessagePermissions()
+  {
+    if(selectedForum!=null)
+    {
+      return forumManager.getForumMessagePermissions(selectedForum.getForum());
+    }
+    else
+    {
+      return null;
+    }    
+  }
+
+  /**
+   * @param forumMessagePermissions The forumMessagePermissions to set.
+   */
+  public void setForumMessagePermissions(List forumMessagePermissions)
+  {
+    this.forumMessagePermissions = forumMessagePermissions;
+  }
+
   /**
    * Display Individual forum
    * 
@@ -360,6 +441,53 @@ public class DiscussionForumTool
   {
     return selectedTopic;
   }
+  
+  
+  /**
+   * @return Returns the topicControlPermissions.
+   */
+  public List getTopicControlPermissions()
+  {  if(selectedTopic!=null)
+    {
+      return forumManager.getTopicControlPermissions(selectedTopic.getTopic());
+    }
+    else
+    {
+      return null;
+    }   
+  }
+
+  /**
+   * @param topicControlPermissions The topicControlPermissions to set.
+   */
+  public void setTopicControlPermissions(List topicControlPermissions)
+  {
+    this.topicControlPermissions = topicControlPermissions;
+  }
+
+  /**
+   * @return Returns the topicMessagePermissions.
+   */
+  public List getTopicMessagePermissions()
+  {
+    if(selectedTopic!=null)
+    {
+      return forumManager.getTopicMessagePermissions(selectedTopic.getTopic());
+    }
+    else
+    {
+      return null;
+    }   
+  }
+
+  /**
+   * @param topicMessagePermissions The topicMessagePermissions to set.
+   */
+  public void setTopicMessagePermissions(List topicMessagePermissions)
+  {
+    this.topicMessagePermissions = topicMessagePermissions;
+  }
+
   /**
    * @return
    */

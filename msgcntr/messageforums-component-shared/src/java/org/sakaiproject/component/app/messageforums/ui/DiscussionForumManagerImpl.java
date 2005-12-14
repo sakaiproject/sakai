@@ -14,12 +14,14 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
+import org.sakaiproject.api.app.messageforums.ForumControlPermission;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.TopicControlPermission;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -541,29 +543,79 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public List getDefaultMessagePermissions()
   {
-    LOG.debug("getDefaultMessagePermissions()");
-    List defaultMessagePermissions = new ArrayList();
-    Iterator roles = getRoles();
-    while (roles.hasNext())
-    {
-      String roleId = (String) roles.next();
-      AreaControlPermission MessagePermission = permissionManager
-          .getDefaultAreaControlPermissionForRole(roleId, typeManager
-              .getDiscussionForumType());
-      if (MessagePermission == null)
-      {
-        MessagePermission = permissionManager
-            .createDefaultAreaControlPermissionForRole(roleId);
-      }
-      defaultMessagePermissions.add(MessagePermission);
-    }
-    return defaultMessagePermissions;
+    return null;
   }
 
+  
   /* (non-Javadoc)
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveDefaultMessagePermissions(java.util.List)
    */
   public void saveDefaultMessagePermissions(List controlpermissions)
+  {
+ 
+    //  TODO Auto-generated method stub
+ 
+  }
+  
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getForumControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
+  public List getForumControlPermissions(DiscussionForum forum)
+  {
+    
+    LOG.debug("getForumControlPermissions(DiscussionForum "+forum+")");
+    List forumControlPermissions = new ArrayList();
+    Iterator roles = getRoles();
+    while (roles.hasNext())
+    {
+      String roleId = (String) roles.next();
+      ForumControlPermission controlPermission = permissionManager.getForumControlPermissionForRole(forum, roleId,typeManager.getDiscussionForumType());
+          
+      if (controlPermission == null)
+      {
+        controlPermission = permissionManager
+            .createForumControlPermissionForRole(roleId);
+      }
+      forumControlPermissions.add(controlPermission);
+    }
+    return forumControlPermissions;
+  }
+   
+  public List getForumMessagePermissions(DiscussionForum forum)
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public List getTopicControlPermissions(DiscussionTopic topic)
+  {
+    List topicControlPermissions = new ArrayList();
+    Iterator roles = getRoles();
+    while (roles.hasNext())
+    {
+      String roleId = (String) roles.next();
+      TopicControlPermission controlPermission = permissionManager.getTopicControlPermissionForRole(topic,roleId,typeManager.getDiscussionForumType());
+          
+      if (controlPermission == null)
+      {
+        controlPermission = permissionManager
+            .createTopicControlPermissionForRole(roleId);
+      }
+      topicControlPermissions.add(controlPermission);
+    }
+    return topicControlPermissions;
+    
+  }
+
+  public List getTopicMessagePermissions(DiscussionTopic topic)
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+
+  public void saveDefaultControlPermissions(List controlpermissions)
   {
     if(controlpermissions !=null && controlpermissions.size()>0)
     {
@@ -574,36 +626,45 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         permissionManager.saveDefaultAreaControlPermissionForRole(getDiscussionForumArea(),controlPermission, typeManager.getDiscussionForumType());
       }
     }
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForumControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum, java.util.List)
+   */
+  public void saveForumControlPermissions(DiscussionForum forum, List controlPermissions)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForumMessagePermissions(org.sakaiproject.api.app.messageforums.DiscussionForum, java.util.List)
+   */
+  public void saveForumMessagePermissions(DiscussionForum forum, List messagePermissions)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopicControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum, java.util.List)
+   */
+  public void saveTopicControlPermissions(DiscussionForum forum, List controlPermissions)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopicMessagePermissions(org.sakaiproject.api.app.messageforums.DiscussionTopic, java.util.List)
+   */
+  public void saveTopicMessagePermissions(DiscussionTopic topic, List messagePermissions)
+  {
+    // TODO Auto-generated method stub
+    
   }
   
-  /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getForumControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum)
-   */
-  public List getForumControlPermissions(DiscussionForum forum)
-  {
-    
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public List getForumMessagePermissions(DiscussionForum forum)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public List getTopicControlPermissions(DiscussionTopic topic)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public List getTopicMessagePermissions(DiscussionTopic topic)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
   /**
    * @return Roles for the current site
    */

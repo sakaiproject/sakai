@@ -15,7 +15,7 @@ specific Forum or Topic after it has been created."/>
 			 </div>
  
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm">
-        <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.templateSettings}" var="cntrl_settings">
+        <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.templateControlPermissions}" var="cntrl_settings">
    			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
 				<h:outputText value="#{cntrl_settings.role}"/>
@@ -85,7 +85,7 @@ specific Forum or Topic after it has been created."/>
       
       <p class="act">
           <h:commandButton action="#{ForumTool.processActionSaveTemplateSettings}" value="#{msgs.cdfm_button_bar_save_setting}"/> 
-          <h:commandButton action="#{ForumTool.processActionSaveTemplateAsDraft}" value="Restore Defaults"/> 
+          <h:commandButton action="#{ForumTool.processActionRestoreDefaultTemplate}" value="Restore Defaults"/> 
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
        </p>
        

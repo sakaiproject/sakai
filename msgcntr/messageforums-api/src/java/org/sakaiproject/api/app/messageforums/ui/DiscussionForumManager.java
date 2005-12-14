@@ -11,7 +11,6 @@ import org.sakaiproject.api.app.messageforums.Topic;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
- *
  */
 public interface DiscussionForumManager
 {
@@ -60,6 +59,7 @@ public interface DiscussionForumManager
    * @return
    */
   public DiscussionForum getForumById(Long forumId);
+
   /**
    * @param forumId
    * @return
@@ -99,7 +99,7 @@ public interface DiscussionForumManager
    * @return
    */
   public DiscussionTopic getPreviousTopic(DiscussionTopic topic);
-  
+
   /**
    * @return
    */
@@ -109,14 +109,15 @@ public interface DiscussionForumManager
    * @return
    */
   public DiscussionForum createForum();
-  
+
   /**
    * @param forum
    */
   public void deleteForum(DiscussionForum forum);
+
   /**
-   *
-   * @param forum TODO
+   * @param forum
+   *          TODO
    * @return
    */
   public DiscussionTopic createTopic(DiscussionForum forum);
@@ -125,56 +126,89 @@ public interface DiscussionForumManager
    * @param forum
    */
   public void saveForum(DiscussionForum forum);
-  
+
   /**
    * @param topic
    */
   public void saveTopic(DiscussionTopic topic);
-  
+
   /**
    * @param topic
    */
   public void deleteTopic(DiscussionTopic topic);
-  
+
   /**
    * @param area
    * @return
    */
   public List getDefaultControlPermissions();
-  
+
   /**
    * @param area
    * @return
    */
   public List getDefaultMessagePermissions();
-  
+
   /**
    * @param forum
    * @return
    */
   public List getForumControlPermissions(DiscussionForum forum);
-  
+
   /**
    * @param forum
    * @return
    */
   public List getForumMessagePermissions(DiscussionForum forum);
-  
+
   /**
    * @param topic
    * @return
    */
   public List getTopicControlPermissions(DiscussionTopic topic);
-  
+
   /**
    * @param topic
    * @return
    */
   public List getTopicMessagePermissions(DiscussionTopic topic);
-  
+
   /**
    * @param controlPermission
    */
-  public void saveDefaultMessagePermissions(List controlpermissions);
-  
+  public void saveDefaultControlPermissions(List controlpermissions);
+
+  /**
+   * @param messagePermissions
+   */
+  public void saveDefaultMessagePermissions(List messagePermissions);
+
+  /**
+   * @param forum
+   * @param controlPermissions
+   */
+  public void saveForumControlPermissions(DiscussionForum forum,
+      List controlPermissions);
+
+  /**
+   * @param forum
+   * @param messagePermissions
+   */
+  public void saveForumMessagePermissions(DiscussionForum forum,
+      List messagePermissions);
+
+  /**
+   * @param topic
+   * @param controlPermissions
+   */
+  public void saveTopicControlPermissions(DiscussionForum forum,
+      List controlPermissions);
+
+  /**
+   * @param topic
+   * @param messagePermissions
+   */
+  public void saveTopicMessagePermissions(DiscussionTopic topic,
+      List messagePermissions);
+
 }
