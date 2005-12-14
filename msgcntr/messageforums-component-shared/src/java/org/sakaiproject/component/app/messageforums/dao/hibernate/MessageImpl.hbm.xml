@@ -159,6 +159,15 @@
                    recipient.typeUuid = :typeUuid                                
     ]]>    
   </query>
+  
+  <query name="findPrivateMessageByIdWithRecipients">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join fetch message.recipients recipient
+             where message.id = :id                        
+    ]]>    
+  </query>
+  
+  
 
 </hibernate-mapping>
 

@@ -48,7 +48,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private static final String QUERY_COUNT = "findPvtMsgCntByTopicIdAndTypeUuid";
   private static final String QUERY_COUNT_BY_UNREAD = "findUnreadPvtMsgCntByTopicIdAndTypeUuid";
   private static final String QUERY_MESSAGES_BY_TYPE = "findPrivateMessagesByTypeUuid";
-     
+  private static final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
+  
   
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
@@ -507,6 +508,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   
   public void deletePrivateMessage(Message message){
     
+    String userId = getCurrentUser();
+    
     if (LOG.isDebugEnabled()){
       LOG.debug("deletePrivateMessage(" + message + ")");
     }    
@@ -516,7 +519,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
      *  protects against user sending message to herself (both sent and rcvd status)  
      */
     PrivateMessageRecipient pmr = new PrivateMessageRecipientImpl(
-      getCurrentUser(),
+        userId,
       typeManager.getSentPrivateMessageType(),
       Boolean.TRUE
     );
@@ -526,7 +529,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     
     if (userIndex == -1){
       LOG.error("deletePrivateMessage -- cannot find sent message for user: " + 
-          getCurrentUser() + ", typeUuid: " + typeManager.getSentPrivateMessageType());            
+          userId + ", typeUuid: " + typeManager.getSentPrivateMessageType());            
     }
     else{
       PrivateMessageRecipient pmrReturned = (PrivateMessageRecipient)
@@ -593,6 +596,58 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       }
     **/        
     
+  }
+  
+  public void markMessageAsReadForUser(final PrivateMessage message){
+    
+    if (LOG.isDebugEnabled()){
+      LOG.debug("markMessageAsReadForUser(message: " + message + ")");
+    }        
+    
+    if (message == null){
+      throw new IllegalArgumentException("Null Argument");
+    }
+    
+    final String userId = getCurrentUser();
+    
+    HibernateCallback hcb = new HibernateCallback() {
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+          Query q = session.getNamedQuery(QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS);          
+          q.setParameter("id", message.getId(), Hibernate.LONG);          
+          return q.uniqueResult();
+      }
+    };
+
+    PrivateMessage pvtMessage = (PrivateMessage) getHibernateTemplate().execute(hcb);
+    
+    if (pvtMessage == null){
+      LOG.error("markMessageAsReadForUser(message: " + message + ") could not find message");
+      throw new Error("markMessageAsReadForUser(message: " + message + ") could not find message");
+    }
+    
+    /** create PrivateMessageRecipientImpl to search for recipient to update */
+    PrivateMessageRecipientImpl searchRecipient = new PrivateMessageRecipientImpl(
+        userId,
+        typeManager.getReceivedPrivateMessageType(),
+        Boolean.FALSE
+    );
+    
+    List recipientList = pvtMessage.getRecipients();
+    
+    if (recipientList == null || recipientList.size() == 0){
+      LOG.error("markMessageAsReadForUser(message: " + message + ") has empty recipient list");
+      throw new Error("markMessageAsReadForUser(message: " + message + ") has empty recipient list");
+    }
+    
+    int recordIndex = pvtMessage.getRecipients().indexOf(searchRecipient);
+    
+    if (recordIndex == -1){
+      LOG.error("markMessageAsReadForUser(message: " + message + ") could not find user in recipient list");
+      throw new Error("markMessageAsReadForUser(message: " + message + ") could not find user in recipient list");          
+    }
+    else{
+      ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setRead(Boolean.TRUE);
+    }                    
   }
   
   private String getCurrentUser() {        

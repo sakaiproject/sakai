@@ -20,6 +20,8 @@ public interface PrivateMessageManager {
     public static String SORT_DESC = "desc";
           
     
+    public void markMessageAsReadForUser(final PrivateMessage message);
+    
     public List getMessagesByType(final String typeUuid, final String orderField,
         final String order);
     
