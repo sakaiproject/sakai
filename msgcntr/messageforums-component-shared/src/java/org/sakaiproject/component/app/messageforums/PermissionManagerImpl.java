@@ -276,8 +276,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
-        // TODO: Change to use the right getter
-        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), forum.getTypeUuid(), false); 
+        ControlPermissions permissions = getControlPermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), false); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -309,8 +308,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveDefaultForumControlPermissionForRole(BaseForum forum, ForumControlPermission permission) {
-        // TODO: Change to use the right getter
-        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), forum.getTypeUuid(), true); 
+        ControlPermissions permissions = getControlPermissionByKeyValue(permission.getRole(), "forumId", forum.getId().toString(), false); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -380,8 +378,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
-        // TODO: Change to use the right getter
-        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), topic.getTypeUuid(), false); 
+        ControlPermissions permissions = getControlPermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), false); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -413,8 +410,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void saveDefaultTopicControlPermissionForRole(Topic topic, TopicControlPermission permission) {
-        // TODO: Change to use the right getter
-        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(permission.getRole(), topic.getTypeUuid(), true); 
+        ControlPermissions permissions = getControlPermissionByKeyValue(permission.getRole(), "topicId", topic.getId().toString(), false); 
         if (permissions == null) {
             permissions = new ControlPermissionsImpl();
         }
@@ -456,7 +452,20 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         };
         return (ControlPermissions) getHibernateTemplate().execute(hcb);
     }
-   
+
+    private ControlPermissions getControlPermissionByKeyValue(final String roleId, final String key, final String value, final boolean defaultValue) {
+        LOG.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_CP_BY_ROLE);
+                q.setParameter("roleId", roleId, Hibernate.STRING);
+                q.setParameter(key, value, Hibernate.STRING);
+                q.setParameter("defaultValue", new Boolean(defaultValue), Hibernate.BOOLEAN);
+                return q.uniqueResult();
+            }
+        };
+        return (ControlPermissions) getHibernateTemplate().execute(hcb);
+    }
     
     // helpers
 
