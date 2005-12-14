@@ -38,6 +38,16 @@ public class TopicControlPermissionImpl implements TopicControlPermission {
 
     private Boolean changeSettings;
 
+    private Boolean postToGradebook;
+    
+    public Boolean getPostToGradebook() {
+        return postToGradebook;
+    }
+
+    public void setPostToGradebook(Boolean postToGradebook) {
+        this.postToGradebook = postToGradebook;
+    }
+
     public Boolean getChangeSettings() {
         return changeSettings;
     }

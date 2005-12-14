@@ -42,6 +42,36 @@
     <property name="readDrafts">
       <column name="READ_DRAFTS" not-null="true" />
     </property>
+    <property name="defaultValue">
+      <column name="DEFAULT_VALUE" not-null="true" />
+    </property>
+    
+    <many-to-one name="area" column="areaSurrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
+      not-null="false" index="MFR_CP_PARENT_AREA_I" cascade="none" />
+    <property name="areaindex" column="area_mp_index_col" type="int" update="true" insert="true"/>
+    
+    <many-to-one name="forum" column="forumSurrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
+      not-null="false" index="MFR_CP_PARENT_FORUM_I" cascade="none" />
+    <property name="forumindex" column="forum_mp_index_col" type="int" update="true" insert="true"/>
+    
+    <many-to-one name="topic" column="topicSurrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+      not-null="false" index="MFR_CP_PARENT_TOPIC_I" cascade="none" />
+    <property name="topicindex" column="topic_mp_index_col" type="int" update="true" insert="true"/>
   </class>
 
+  <query name="findAreaMessagePermissionByRole">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl mp where mp.role = :roleId and mp.area.id = :areaId and mp.defaultValue = :defaultValue]]>
+  </query>
+
+  <query name="findForumMessagePermissionByRole">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl mp where mp.role = :roleId and mp.forum.id = :forumId and mp.defaultValue = :defaultValue]]>
+  </query>
+
+  <query name="findTopicMessagePermissionByRole">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl mp where mp.role = :roleId and mp.topic.id = :topicId and mp.defaultValue = :defaultValue]]>
+  </query>
+  
 </hibernate-mapping>

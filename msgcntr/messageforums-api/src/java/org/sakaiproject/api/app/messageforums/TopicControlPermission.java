@@ -45,4 +45,8 @@ public interface TopicControlPermission {
 
     public void setRole(String role);
 
+    public Boolean getPostToGradebook();
+    
+    public void setPostToGradebook(Boolean postToGradebook);
+
 }

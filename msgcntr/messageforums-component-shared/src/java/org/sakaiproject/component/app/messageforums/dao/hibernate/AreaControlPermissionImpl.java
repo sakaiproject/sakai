@@ -43,7 +43,6 @@ public class AreaControlPermissionImpl implements AreaControlPermission {
 
     private Boolean changeSettings;
 
-
     public Boolean getPostToGradebook() {
         return postToGradebook;
     }
