@@ -27,8 +27,8 @@
 		       <h:outputText value="Subject"/>
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
-            <h:outputText value=" #{rcvdItems.message.title}"/>
-            <f:param value="#{rcvdItems.message.uuid}" name="current_msg_detail"/>
+            <h:outputText value=" #{rcvdItems.msg.title}"/>
+            <f:param value="#{rcvdItems.msg.uuid}" name="current_msg_detail"/>
           </h:commandLink>
               
 		  </h:column>
@@ -36,19 +36,19 @@
 		    <f:facet name="header">
 		       <h:outputText value="Authored By"/>
 		    </f:facet>		     		    
-		     <h:outputText value="#{rcvdItems.message.createdBy}"/>
+		     <h:outputText value="#{rcvdItems.msg.createdBy}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Date"/>
 		    </f:facet>
-		     <h:outputText value="#{rcvdItems.message.created}"/>
+		     <h:outputText value="#{rcvdItems.msg.created}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="Label"/>
 		    </f:facet>
-		     <h:outputText value="#{rcvdItems.message.label}"/>
+		     <h:outputText value="#{rcvdItems.msg.label}"/>
 		  </h:column>
 		</h:dataTable>
 		

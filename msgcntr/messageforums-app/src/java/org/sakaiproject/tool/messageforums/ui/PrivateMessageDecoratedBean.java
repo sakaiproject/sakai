@@ -55,7 +55,7 @@ public class PrivateMessageDecoratedBean
   
   
   
-  public PrivateMessage getMessage()
+  public PrivateMessage getMsg()
   {
     return msg;
   }

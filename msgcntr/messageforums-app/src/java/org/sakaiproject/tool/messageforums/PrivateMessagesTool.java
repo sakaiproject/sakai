@@ -259,7 +259,27 @@ public class PrivateMessagesTool
   {
     decoratedPvtMsgs=new ArrayList() ;
     //Shouldn't we be doing like this only 
-    decoratedPvtMsgs= prtMsgManager.getMessagesByTopic(getUserId(), new Long(getSelectedTopicId())) ;
+    
+    String typeUuid = null;
+    
+    if (PVTMSG_MODE_RECEIVED.equals(getSelectedTopicTitle())){
+      typeUuid = typeManager.getReceivedPrivateMessageType();  
+    }
+    else if (PVTMSG_MODE_SENT.equals(getSelectedTopicTitle())){
+      typeUuid = typeManager.getSentPrivateMessageType();  
+    }
+    else if (PVTMSG_MODE_DELETE.equals(getSelectedTopicTitle())){
+      typeUuid = typeManager.getDeletedPrivateMessageType();  
+    }
+    else if (PVTMSG_MODE_DRAFT.equals(getSelectedTopicTitle())){
+      typeUuid = typeManager.getDraftPrivateMessageType();  
+    }
+    else{
+      //
+    }
+    
+    decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
+        PrivateMessageManager.SORT_ASC);
     
 //    Area privateArea=prtMsgManager.getPrivateMessageArea();
 //    if(privateArea != null ) {
@@ -306,7 +326,7 @@ public class PrivateMessagesTool
 //            break;
 //          }    
 //        }
-        //create decorated List
+//        //create decorated List
         decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
 //      }
 //    }
@@ -530,7 +550,7 @@ public class PrivateMessagesTool
   {
     this.searchText=searchText;
   }
-  public String getSelectView()
+  public String getSelectView() 
   {
     return selectView ;
   }
@@ -614,7 +634,7 @@ public class PrivateMessagesTool
     for (Iterator iter = this.getDecoratedPvtMsgs().iterator(); iter.hasNext();)
     {
       PrivateMessageDecoratedBean dMsg= (PrivateMessageDecoratedBean) iter.next();
-      if (dMsg.getMessage().getUuid().equals(msgId))
+      if (dMsg.getMsg().getId().equals(new Long(msgId)))
       {
         this.setDetailMsg(dMsg);
       }
@@ -676,7 +696,7 @@ public class PrivateMessagesTool
     if(getDetailMsg() != null)
     {
       //TODO - remove getMessageById()- not required if we remove dummy data
-      PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(getDetailMsg().getMessage().getId()) ;
+      PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(getDetailMsg().getMsg().getId()) ;
       if(msg != null)
       {
         prtMsgManager.deletePrivateMessage(msg) ;
@@ -700,7 +720,8 @@ public class PrivateMessagesTool
    * process Compose action from different JSP'S
    * @return - pvtMsgCompose
    */ 
-  public String processPvtMsgCompose() {   
+  public String processPvtMsgCompose() {
+    this.setDetailMsg(new PrivateMessageDecoratedBean(messageManager.createPrivateMessage()));
     LOG.debug("processPvtMsgCompose()");
     return "pvtMsgCompose" ;
   }
@@ -760,7 +781,7 @@ public class PrivateMessagesTool
     }
     //if reply to a message then message is existing
     else {
-      aMsg = (PrivateMessage)this.getDetailMsg().getMessage();       
+      aMsg = (PrivateMessage)this.getDetailMsg().getMsg();       
     }
     if (aMsg != null)
     {
@@ -831,12 +852,19 @@ public class PrivateMessagesTool
   public String processPvtMsgReplySend() {
     LOG.debug("processPvtMsgReplySend()");
     
-    PrivateMessage rMsg=constructMessage() ;
+    PrivateMessage rMsg=getDetailMsg().getMsg() ;
     //add replyTo message
     PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
     //TODO settings from jsp    
-    rMsg.setInReplyTo(rrepMsg) ;    
-    prtMsgManager.sendPrivateMessage(rMsg, getRecipiants());    
+    rrepMsg.setTitle(rMsg.getTitle()) ;
+    rrepMsg.setDraft(Boolean.TRUE);
+    rrepMsg.setAuthor(getUserId());
+    rrepMsg.setApproved(Boolean.TRUE);
+    rrepMsg.setBody(getReplyToBody()) ;
+    
+    rrepMsg.setInReplyTo(rMsg) ;
+    
+    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipiants());    
     return "pvtMsg" ;
   }
  
@@ -847,10 +875,15 @@ public class PrivateMessagesTool
   public String processPvtMsgReplySaveDraft() {
     LOG.debug("processPvtMsgReplySaveDraft()");
     
-    PrivateMessage drMsg=constructMessage() ;
+    PrivateMessage drMsg=getDetailMsg().getMsg() ;
     drMsg.setDraft(Boolean.TRUE);
     PrivateMessage drrepMsg = messageManager.createPrivateMessage() ;
-    drMsg.setInReplyTo(drrepMsg) ;
+    drrepMsg.setTitle(drMsg.getTitle()) ;
+    drrepMsg.setDraft(Boolean.TRUE);
+    drrepMsg.setAuthor(getUserId());
+    drrepMsg.setInReplyTo(drMsg) ;
+    drrepMsg.setApproved(Boolean.TRUE);
+    drrepMsg.setBody(getReplyToBody()) ;
     
     prtMsgManager.sendPrivateMessage(drMsg, getRecipiants());    
     return "pvtMsg" ;    
@@ -886,7 +919,7 @@ public class PrivateMessagesTool
     for (Iterator iter = getSelectedDeleteItems().iterator(); iter.hasNext();)
     {
       //We don't need decorated at this point as we will be deleting PrivateMessage object
-      PrivateMessage element = ((PrivateMessageDecoratedBean) iter.next()).getMessage();
+      PrivateMessage element = ((PrivateMessageDecoratedBean) iter.next()).getMsg();
       if (element != null) 
       {
         //TODO - remove getMessageById()- not required if we remove dummy data
@@ -1000,7 +1033,7 @@ public class PrivateMessagesTool
     
     if( allAttachments == null || (allAttachments.size()<1))
     {
-      allAttachments.addAll(this.getDetailMsg().getMessage().getAttachments()) ;
+      allAttachments.addAll(this.getDetailMsg().getMsg().getAttachments()) ;
     }
     return allAttachments;
   }
@@ -1341,7 +1374,7 @@ public class PrivateMessagesTool
     {
       PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
       
-      String message=element.getMessage().getTitle();
+      String message=element.getMsg().getTitle();
       StringTokenizer st = new StringTokenizer(message);
       while (st.hasMoreTokens())
       {

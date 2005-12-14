@@ -24,7 +24,7 @@
           			<h:outputText value="To "/>		
               </td>
               <td align="left">   
-          				<h:outputText value="#{PrivateMessagesTool.detailMsg.message.createdBy}" /> 
+          				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.createdBy}" /> 
               </td>                           
             </tr>
             <tr>
@@ -55,7 +55,7 @@
                 <h:outputText value="Subject" />
               </td>
               <td align="left">
-              	<h:outputText value="Re: #{PrivateMessagesTool.detailMsg.message.title}" />  
+              	<h:outputText value="Re: #{PrivateMessagesTool.detailMsg.msg.title}" />  
               </td>
             </tr>                                   
           </table>
@@ -65,7 +65,7 @@
 	        <sakai:panel_edit>
 	          <sakai:doc_section>       
 	            <h:outputText value="Message" />  
-	            <sakai:rich_text_area value="#{PrivateMessagesTool.detailMsg.message.body}" rows="17" columns="70"/>
+	            <sakai:rich_text_area value="#{PrivateMessagesTool.detailMsg.msg.body}" rows="17" columns="70"/>
 	          </sakai:doc_section>    
 	        </sakai:panel_edit>
 	      </sakai:group_box>
@@ -81,7 +81,7 @@
 	          </tr>
 	        </table>
 	          <%-- Existing Attachments 
-              <h:dataTable value="#{PrivateMessagesTool.detailMsg.message.attachments}" var="existAttach" >
+              <h:dataTable value="#{PrivateMessagesTool.detailMsg.msg.attachments}" var="existAttach" >
 					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.message.attachments}">
 								<h:graphicImage url="/images/excel.gif" rendered="#{existAttach.attachmentType == 'application/vnd.ms-excel'}"/>
 								<h:graphicImage url="/images/html.gif" rendered="#{existAttach.attachmentType == 'text/html'}"/>
@@ -173,7 +173,7 @@
           			<h:outputText value="Subject "/>		
               </td>
               <td align="left">    
-          			<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
+          			<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />  
               </td>                           
             </tr>
             <%--
@@ -182,7 +182,7 @@
                 <h:outputText value="Label" />
               </td>
               <td align="left">
-              	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.label}" />  
               </td>
             </tr>
             --%>

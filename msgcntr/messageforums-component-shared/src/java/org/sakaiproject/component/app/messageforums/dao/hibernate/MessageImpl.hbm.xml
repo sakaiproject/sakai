@@ -134,27 +134,27 @@
   <query name="findPvtMsgCntByTopicIdAndTypeUuid">
     <![CDATA[select count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
-             join message.recipients recipient
+             left join message.recipients recipient
              where recipient.userId = :userId and
-                   recipient.typeUuid = :typeUuid and
-                   message.topic.id = :topicId
+                   recipient.typeUuid = :typeUuid
+
     ]]>
   </query>
   
   <query name="findUnreadPvtMsgCntByTopicIdAndTypeUuid">
     <![CDATA[select count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
-             join message.recipients recipient
+             left join message.recipients recipient
              where recipient.userId = :userId and
                    recipient.typeUuid = :typeUuid and
-                   recipient.read = false and
-                   message.topic.id = :topicId
+                   recipient.read = false               
     ]]>
   </query>
   
   <query name="findPrivateMessagesByTypeUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join fetch message.recipients recipient
+             left join fetch message.attachments attachments
              where recipient.userId = :userId and
                    recipient.typeUuid = :typeUuid                                
     ]]>    

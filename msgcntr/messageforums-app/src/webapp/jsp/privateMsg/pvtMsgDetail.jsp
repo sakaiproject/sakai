@@ -10,7 +10,7 @@
       <h:form id="pvtMsgDetail">
   			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> / 
 				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
-				<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />
+				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />
 				<sakai:instruction_message value="Reply to Private Message" /> 
       	<br>
         <table width="100%" align="left" style="background-color:#DDDFE4;">
@@ -19,7 +19,7 @@
               <h:outputText style="font-weight:bold"  value="Subject "/>
             </td>
             <td align="left">
-            	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.title}" />  
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />  
             </td>  
             <td align="left">
   						<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message   "  rendered="#{PrivateMessagesTool.detailMsg.hasPreviousMsg}" >
@@ -37,9 +37,9 @@
               <h:outputText style="font-weight:bold"  value="Authored By "/>
             </td>
             <td align="left">
-            	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.createdBy}" />  
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.createdBy}" />  
             	<h:outputText value="-" />  
-            	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.created}" />  
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" />  
             </td>
             <td></td>
           </tr>
@@ -49,8 +49,8 @@
             </td>
             <td align="left">
               <%-- Attachments --%>
-              <h:dataTable value="#{PrivateMessagesTool.detailMsg.message.attachments}" var="eachAttach" >
-					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.message.attachments}">
+              <h:dataTable value="#{PrivateMessagesTool.detailMsg.msg.attachments}" var="eachAttach" >
+					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.msg.attachments}">
 								  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
 								  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
 								  <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
@@ -108,7 +108,7 @@
         <sakai:group_box>
           <sakai:panel_edit>
             <sakai:doc_section>            
-              <h:inputTextarea value="#{PrivateMessagesTool.detailMsg.message.body}" cols="100" rows="5" />
+              <h:inputTextarea value="#{PrivateMessagesTool.detailMsg.msg.body}" cols="100" rows="5" />
             </sakai:doc_section>    
           </sakai:panel_edit>
         </sakai:group_box>

@@ -13,12 +13,16 @@ public interface PrivateMessageManager {
     
     public static String SORT_COLUMN_SUBJECT = "title";
     public static String SORT_COLUMN_AUTHOR = "author";
-    public static String SORT_COLUMN_DATE = "created";
+    public static String SORT_COLUMN_DATE = "message.created";
     public static String SORT_COLUMN_LABEL = "label";
     
     public static String SORT_ASC = "asc";
     public static String SORT_DESC = "desc";
-  
+          
+    
+    public List getMessagesByType(final String typeUuid, final String orderField,
+        final String order);
+    
     /**
      * check if private message area is enabled for the current user
      * @return boolean

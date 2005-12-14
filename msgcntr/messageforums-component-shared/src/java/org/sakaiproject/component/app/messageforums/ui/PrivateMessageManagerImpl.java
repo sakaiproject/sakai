@@ -384,7 +384,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
    * @param typeUuid
    * @return message list
    */
-  private List getMessagesByType(final String typeUuid, final String orderField,
+  public List getMessagesByType(final String typeUuid, final String orderField,
     final String order){
 
     if (LOG.isDebugEnabled()){
@@ -464,7 +464,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         public Object doInHibernate(Session session) throws HibernateException, SQLException {
             Query q = session.getNamedQuery(QUERY_COUNT);
             q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-            q.setParameter("topicId", topicId, Hibernate.LONG);
+            //q.setParameter("topicId", topicId, Hibernate.LONG);
             q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
             return q.uniqueResult();
         }
@@ -494,7 +494,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         public Object doInHibernate(Session session) throws HibernateException, SQLException {
             Query q = session.getNamedQuery(QUERY_COUNT_BY_UNREAD);
             q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-            q.setParameter("topicId", topicId, Hibernate.LONG);
+            //q.setParameter("topicId", topicId, Hibernate.LONG);
             q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
             return q.uniqueResult();
         }
@@ -578,7 +578,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     
     recipientList.add(sender);
     
-    message.setRecipients(recipientList);
+    message.setRecipients(recipientList);        
+    
     savePrivateMessage(message);
     
     /** enable if users are stored in message forums user table
