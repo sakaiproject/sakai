@@ -97,6 +97,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       pf = forumManager.createPrivateForum();
       pf.setTitle(userId + " private forum");
       pf.setUuid(idManager.createUuid());
+      pf.setAutoForwardEmail("");
       pf.setOwner(userId);
       
       forumManager.savePrivateForum(pf);      
