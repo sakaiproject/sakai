@@ -141,7 +141,10 @@ public class SubmitToGradingActionListener implements ActionListener
 
   private boolean isForGrade(AssessmentGradingData aData)
   {
-    return (Boolean.TRUE).equals(aData.getForGrade());
+    if (aData !=null) 
+      return (Boolean.TRUE).equals(aData.getForGrade());
+    else
+      return false;
   }
 
   private boolean isUnlimited(PublishedAssessmentFacade publishedAssessment)
