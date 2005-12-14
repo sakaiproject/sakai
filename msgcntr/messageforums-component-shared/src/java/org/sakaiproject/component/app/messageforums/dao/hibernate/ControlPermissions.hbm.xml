@@ -69,5 +69,13 @@
   <query name="findAreaControlPermissionByRole">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl cp where cp.role = :roleId and cp.area.id = :areaId and cp.defaultValue = :defaultValue]]>
   </query>
+
+  <query name="findForumControlPermissionByRole">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl cp where cp.role = :roleId and cp.forum.id = :forumId and cp.defaultValue = :defaultValue]]>
+  </query>
+
+  <query name="findTopicControlPermissionByRole">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl cp where cp.role = :roleId and cp.topic.id = :topicId and cp.defaultValue = :defaultValue]]>
+  </query>
   
 </hibernate-mapping>

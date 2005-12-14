@@ -59,6 +59,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     private static final Log LOG = LogFactory.getLog(PermissionManagerImpl.class);
 
     private static final String QUERY_CP_BY_ROLE = "findAreaControlPermissionByRole";
+    private static final String QUERY_CP_BY_FORUM = "findForumControlPermissionByRole";
+    private static final String QUERY_CP_BY_TOPIC = "findTopicControlPermissionByRole";
 
     private IdManager idManager;
 
@@ -458,7 +460,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         LOG.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_CP_BY_ROLE);
+                String queryString = "forumId".equals(key) ? QUERY_CP_BY_FORUM : QUERY_CP_BY_TOPIC;                
+                Query q = session.getNamedQuery(queryString);
                 q.setParameter("roleId", roleId, Hibernate.STRING);
                 q.setParameter(key, value, Hibernate.STRING);
                 q.setParameter("defaultValue", new Boolean(defaultValue), Hibernate.BOOLEAN);
