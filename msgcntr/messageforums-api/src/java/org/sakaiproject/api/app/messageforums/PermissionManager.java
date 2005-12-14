@@ -65,13 +65,13 @@ public interface PermissionManager {
      * Get the forum control permission for a given role.  This provides the permissions
      * that the role currently has.
      */
-    public ForumControlPermission getForumControlPermissionForRole(String role, String typeId);
+    public ForumControlPermission getForumControlPermissionForRole(BaseForum forum, String role, String typeId);
 
     /**
      * Get the default forum control permission for a given role.  This provides the 
      * permissions that the role currently has.
      */
-    public ForumControlPermission getDefaultForumControlPermissionForRole(String role, String typeId);
+    public ForumControlPermission getDefaultForumControlPermissionForRole(BaseForum forum, String role, String typeId);
 
     /**
      * Create an empty forum control permission with system properties 
@@ -101,13 +101,13 @@ public interface PermissionManager {
      * Get the topic control permission for a given role.  This provides the permissions
      * that the role currently has.
      */
-    public TopicControlPermission getTopicControlPermissionForRole(String role, String typeId);
+    public TopicControlPermission getTopicControlPermissionForRole(Topic topic, String role, String typeId);
 
     /**
      * Get the default topic control permission for a given role.  This provides the 
      * permissions that the role currently has.
      */
-    public TopicControlPermission getDefaultTopicControlPermissionForRole(String role, String typeId);
+    public TopicControlPermission getDefaultTopicControlPermissionForRole(Topic topic, String role, String typeId);
 
     /**
      * Create an empty topic control permission with system properties 
@@ -134,5 +134,115 @@ public interface PermissionManager {
     public void saveDefaultTopicControlPermissionForRole(Topic topic, TopicControlPermission permission);
     
     public ControlPermissions getAreaControlPermissionByRoleAndType(String roleId, String typeId, boolean defaultValue);
+
+    /**
+     * Get the area message permission for a given role.  This provides the permissions
+     * that the role currently has.
+     */
+    public MessagePermissions getAreaMessagePermissionForRole(String role, String typeId);
+
+    /**
+     * Get the default area message permission for a given role.  This provides the 
+     * permissions that the role currently has.
+     */
+    public MessagePermissions getDefaultAreaMessagePermissionForRole(String role, String typeId);
+
+    /**
+     * Create an empty area message permission with system properties 
+     * populated (ie: uuid).
+     */
+    public MessagePermissions createAreaMessagePermissionForRole(String role);
+    
+    /**
+     * Save an area message permission.  This is backed in the database by a single
+     * message permission (used for areas, forums, and topics).
+     */
+    public void saveAreaMessagePermissionForRole(Area area, MessagePermissions permission, String typeId);
+
+    /**
+     * Create an empty default area message permission with system properties 
+     * populated (ie: uuid).
+     */
+    public MessagePermissions createDefaultAreaMessagePermissionForRole(String role);
+
+    /**
+     * Save a default area message permission.  This is backed in the database by a 
+     * single message permission (used for areas, forums, and topics).
+     */
+    public void saveDefaultAreaMessagePermissionForRole(Area area, MessagePermissions permission, String typeId);
+
+    /**
+     * Get the forum message permission for a given role.  This provides the permissions
+     * that the role currently has.
+     */
+    public MessagePermissions getForumMessagePermissionForRole(String role, String typeId);
+
+    /**
+     * Get the default forum message permission for a given role.  This provides the 
+     * permissions that the role currently has.
+     */
+    public MessagePermissions getDefaultForumMessagePermissionForRole(String role, String typeId);
+
+    /**
+     * Create an empty forum message permission with system properties 
+     * populated (ie: uuid).
+     */
+    public MessagePermissions createForumMessagePermissionForRole(String role);
+    
+    /**
+     * Save an forum message permission.  This is backed in the database by a single
+     * message permission (used for topics, forums, and topics).
+     */
+    public void saveForumMessagePermissionForRole(BaseForum forum, MessagePermissions permission);
+
+    /**
+     * Create an empty default forum message permission with system properties 
+     * populated (ie: uuid).
+     */
+    public MessagePermissions createDefaultForumMessagePermissionForRole(String role);
+
+    /**
+     * Save a default forum message permission.  This is backed in the database by a 
+     * single message permission (used for topics, forums, and topics).
+     */
+    public void saveDefaultForumMessagePermissionForRole(BaseForum forum, MessagePermissions permission);
+    
+    /**
+     * Get the topic message permission for a given role.  This provides the permissions
+     * that the role currently has.
+     */
+    public MessagePermissions getTopicMessagePermissionForRole(String role, String typeId);
+
+    /**
+     * Get the default topic message permission for a given role.  This provides the 
+     * permissions that the role currently has.
+     */
+    public MessagePermissions getDefaultTopicMessagePermissionForRole(String role, String typeId);
+
+    /**
+     * Create an empty topic message permission with system properties 
+     * populated (ie: uuid).
+     */
+    public MessagePermissions createTopicMessagePermissionForRole(String role);
+    
+    /**
+     * Save an topic message permission.  This is backed in the database by a single
+     * message permission (used for areas, forums, and topics).
+     */
+    public void saveTopicMessagePermissionForRole(Topic topic, MessagePermissions permission);
+
+    /**
+     * Create an empty default topic message permission with system properties 
+     * populated (ie: uuid).
+     */
+    public MessagePermissions createDefaultTopicMessagePermissionForRole(String role);
+
+    /**
+     * Save a default topic message permission.  This is backed in the database by a 
+     * single message permission (used for areas, forums, and topics).
+     */
+    public void saveDefaultTopicMessagePermissionForRole(Topic topic, MessagePermissions permission);
+    
+    public MessagePermissions getAreaMessagePermissionByRoleAndType(String roleId, String typeId, boolean defaultValue);
 
 }
