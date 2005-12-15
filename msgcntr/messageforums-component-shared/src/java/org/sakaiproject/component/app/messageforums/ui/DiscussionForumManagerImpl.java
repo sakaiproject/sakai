@@ -622,7 +622,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       if (messagePermission == null)
       {
         messagePermission = permissionManager
-            .createTopicMessagePermissionForRole(forum, roleId, typeManager.getDiscussionForumType());
+            .createForumMessagePermissionForRole(roleId, typeManager.getDiscussionForumType());
       }
       forumMessagePermissions.add(messagePermission);
     }
