@@ -273,7 +273,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 
     public ForumControlPermission createForumControlPermissionForRole(String role, String typeId) {
         ForumControlPermission permission = new ForumControlPermissionImpl();
-        AreaControlPermission acp = getDefaultAreaControlPermissionForRole(role, typeId);
+        AreaControlPermission acp = getAreaControlPermissionForRole(role, typeId);
         permission.setChangeSettings(acp.getChangeSettings());
         permission.setMovePostings(acp.getMovePostings());
         permission.setNewResponse(acp.getNewResponse());
@@ -371,7 +371,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 
     public TopicControlPermission createTopicControlPermissionForRole(BaseForum forum, String role, String typeId) {
         TopicControlPermission permission = new TopicControlPermissionImpl();
-        ForumControlPermission fcp = getDefaultForumControlPermissionForRole(forum, role, typeId);
+        ForumControlPermission fcp = getForumControlPermissionForRole(forum, role, typeId);
         permission.setChangeSettings(fcp.getChangeSettings());
         permission.setMovePostings(fcp.getMovePostings());
         permission.setNewResponse(fcp.getNewResponse());
