@@ -20,13 +20,13 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
+import org.sakaiproject.service.legacy.entity.Reference;
+import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
@@ -917,7 +917,13 @@ public class DiscussionForumTool
       topicId = getExternalParameterByKey(externalTopicId);
       if (topicId != null)
       {
-        DiscussionTopic topic = forumManager.getTopicById(new Long(topicId));
+        DiscussionTopic topic;
+        try { 
+            Long.parseLong(topicId);
+            topic = forumManager.getTopicById(new Long(topicId));
+        } catch (NumberFormatException e) {
+            topic= forumManager.getTopicByUuid(topicId);            
+        }
         if(forum != null)
         	topic.setBaseForum(forum);
         selectedTopic = getDecoratedTopic(topic);

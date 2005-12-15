@@ -245,6 +245,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     return (DiscussionTopic) forumManager.getTopicById(topicId);
   }
+  
+  public DiscussionTopic getTopicByUuid(String topicId) {
+      return (DiscussionTopic) forumManager.getTopicByUuid(topicId);      
+  }
+
 
   /*
    * (non-Javadoc)
@@ -270,12 +275,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         {
           return true;
         }
-        if (t == null) {
-            return false;
-        }
-        if (t.getId().equals(topic.getId()))
-        {
-          next = true;
+        if (t != null) {
+          if (t.getId().equals(topic.getId()))
+          {
+            next = true;
+          }
         }
       }
     }
@@ -305,13 +309,13 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         Topic t = (Topic) iter.next();
         if (t != null) {
-            if (t.getId().equals(topic.getId()))
-            {
-              // need to check null because we might be on the first topic
-              // which means there is no previous one
-              return prev != null;
-            }
-            prev = (DiscussionTopic) t;
+          if (t.getId().equals(topic.getId()))
+          {
+            // need to check null because we might be on the first topic
+            // which means there is no previous one
+            return prev != null;
+          }
+          prev = (DiscussionTopic) t;
         }
       }
     }
@@ -339,7 +343,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       }
     }
 
-    // TODO: Needs optimized
+    // TODO: Needs optimized and re-written to take advantage of the db... this is really horrible.
     boolean next = false;
     DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum != null && forum.getTopics() != null)
@@ -349,11 +353,18 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         Topic t = (Topic) iter.next();
         if (next)
         {
+          if (t == null) {
+            do {
+              t = (Topic) iter.next();
+            } while (t == null);
+          }
           return (DiscussionTopic) t;
         }
-        if (t.getId().equals(topic.getId()))
-        {
-          next = true;
+        if (t != null) {
+          if (t.getId().equals(topic.getId()))
+          {
+            next = true;
+          }
         }
       }
     }
@@ -379,7 +390,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         return null;
       }
-
     }
     // TODO: Needs optimized
     DiscussionTopic prev = null;
@@ -389,11 +399,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
         Topic t = (Topic) iter.next();
-        if (t.getId().equals(topic.getId()))
-        {
-          return prev;
+        if (t != null) {
+          if (t.getId().equals(topic.getId()))
+          {
+            return prev;
+          }
+          if (t != null) {
+            prev = (DiscussionTopic) t;
+          }
         }
-        prev = (DiscussionTopic) t;
       }
     }
 

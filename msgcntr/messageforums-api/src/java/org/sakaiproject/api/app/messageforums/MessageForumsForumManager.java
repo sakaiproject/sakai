@@ -141,5 +141,6 @@ public interface MessageForumsForumManager {
     public List getRecentOpenForumMessages(int numberMessages, int numberDaysInPast);
     
     public Topic getTopicById(Long topicId);
+    public Topic getTopicByUuid(String uuid);
 
 }

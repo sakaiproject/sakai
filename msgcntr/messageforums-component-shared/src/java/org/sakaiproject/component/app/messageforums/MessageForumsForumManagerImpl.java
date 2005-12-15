@@ -67,6 +67,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_BY_FORUM_ID = "findForumById";
     private static final String QUERY_BY_FORUM_UUID = "findForumByUuid";
     private static final String QUERY_BY_TOPIC_ID = "findTopicById";
+    private static final String QUERY_BY_TOPIC_UUID = "findTopicByUuid";
     private static final String QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS = "findTopicByIdWithAttachmentsAndMessages";
   
     private IdManager idManager;
@@ -151,8 +152,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           }
       };
 
-      return (PrivateForum) getHibernateTemplate().execute(hcb);
-      
+      return (PrivateForum) getHibernateTemplate().execute(hcb);      
     }    
 
     /**
@@ -199,6 +199,23 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         LOG.debug("getDiscussionForumById executing with topicId: " + topicId);
         
         return (Topic) getHibernateTemplate().get(TopicImpl.class, topicId);
+    }
+    
+    public Topic getTopicByUuid(final String uuid) {
+        if (uuid == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+               
+        LOG.debug("getDiscussionForumById executing with topicId: " + uuid);
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_BY_TOPIC_UUID);
+                q.setParameter("uuid", uuid, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+        
+        return (Topic) getHibernateTemplate().execute(hcb);
     }
     
     public DiscussionForum createDiscussionForum() {

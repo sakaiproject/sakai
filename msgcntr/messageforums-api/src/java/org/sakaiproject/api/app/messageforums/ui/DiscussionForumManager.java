@@ -77,6 +77,7 @@ public interface DiscussionForumManager
    * @return
    */
   public DiscussionTopic getTopicById(Long topicId);
+  public DiscussionTopic getTopicByUuid(String uuid);
 
   /**
    * @return
