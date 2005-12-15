@@ -57,6 +57,8 @@ import org.sakaiproject.service.legacy.event.EventTrackingService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
+import sun.security.action.GetBooleanAction;
+
 public class MessageForumsForumManagerImpl extends HibernateDaoSupport implements MessageForumsForumManager {
 
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
@@ -347,7 +349,12 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
-        getHibernateTemplate().saveOrUpdate(topic);
+        if (topic.getId() == null) {
+            topic.getBaseForum().addTopic(topic);
+            saveDiscussionForum((DiscussionForum)topic.getBaseForum());
+        } else {
+            getHibernateTemplate().saveOrUpdate(topic);
+        }
 
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
