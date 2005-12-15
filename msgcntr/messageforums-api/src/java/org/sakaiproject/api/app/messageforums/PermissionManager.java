@@ -133,7 +133,7 @@ public interface PermissionManager {
      * Create an empty area message permission with system properties 
      * populated (ie: uuid).
      */
-    public MessagePermissions createAreaMessagePermissionForRole(String role);
+    public MessagePermissions createAreaMessagePermissionForRole(String role, String typeId);
     
     /**
      * Save an area message permission.  This is backed in the database by a single
@@ -163,7 +163,7 @@ public interface PermissionManager {
      * Create an empty forum message permission with system properties 
      * populated (ie: uuid).
      */
-    public MessagePermissions createForumMessagePermissionForRole(String role);
+    public MessagePermissions createForumMessagePermissionForRole(String role, String typeId);
     
     /**
      * Save an forum message permission.  This is backed in the database by a single
@@ -193,7 +193,7 @@ public interface PermissionManager {
      * Create an empty topic message permission with system properties 
      * populated (ie: uuid).
      */
-    public MessagePermissions createTopicMessagePermissionForRole(String role);
+    public MessagePermissions createTopicMessagePermissionForRole(BaseForum forum, String role, String typeId);
     
     /**
      * Save an topic message permission.  This is backed in the database by a single

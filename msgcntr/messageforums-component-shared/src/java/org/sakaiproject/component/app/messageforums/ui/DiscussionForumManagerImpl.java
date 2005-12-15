@@ -555,7 +555,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       if (messagePermission == null)
       {
         messagePermission = permissionManager
-            .createAreaMessagePermissionForRole(roleId);
+            .createAreaMessagePermissionForRole(roleId, typeManager.getDiscussionForumType());
       }
       defaultMessagePermissions.add(messagePermission);
     }
@@ -622,7 +622,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       if (messagePermission == null)
       {
         messagePermission = permissionManager
-            .createTopicMessagePermissionForRole(roleId);
+            .createTopicMessagePermissionForRole(forum, roleId, typeManager.getDiscussionForumType());
       }
       forumMessagePermissions.add(messagePermission);
     }
@@ -671,7 +671,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       if (messagePermission == null)
       {
         messagePermission = permissionManager
-            .createTopicMessagePermissionForRole(roleId);
+            .createTopicMessagePermissionForRole(topic.getBaseForum(), roleId, typeManager.getDiscussionForumType());
       }
       topicMessagePermissions.add(messagePermission);
     }

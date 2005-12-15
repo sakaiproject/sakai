@@ -546,8 +546,17 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * Create an empty area message permission with system properties 
      * populated (ie: uuid).
      */
-    public MessagePermissions createAreaMessagePermissionForRole(String role) {
+    public MessagePermissions createAreaMessagePermissionForRole(String role, String typeId) {
         MessagePermissions permissions = new MessagePermissionsImpl();
+        MessagePermissions mp = getDefaultAreaMessagePermissionForRole(role, typeId);
+        permissions.setDefaultValue(mp.getDefaultValue());
+        permissions.setDeleteAny(mp.getDeleteAny());
+        permissions.setDeleteOwn(mp.getDeleteOwn());
+        permissions.setRead(mp.getRead());
+        permissions.setReadDrafts(mp.getReadDrafts());
+        permissions.setReviseAny(mp.getReviseAny());
+        permissions.setReviseOwn(mp.getReviseOwn());
+        permissions.setMarkAsRead(mp.getMarkAsRead());
         permissions.setRole(role);
         return permissions;
     }
@@ -565,14 +574,14 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         
         permissions.setArea(area);
         permissions.setDefaultValue(Boolean.FALSE);
-        permissions.setDeleteAny(permissions.getDeleteAny());
-        permissions.setDeleteOwn(permissions.getDeleteOwn());
-        permissions.setRead(permissions.getRead());
-        permissions.setReadDrafts(permissions.getReadDrafts());
-        permissions.setReviseAny(permissions.getReviseAny());
-        permissions.setReviseOwn(permissions.getReviseOwn());
+        permissions.setDeleteAny(permission.getDeleteAny());
+        permissions.setDeleteOwn(permission.getDeleteOwn());
+        permissions.setRead(permission.getRead());
+        permissions.setReadDrafts(permission.getReadDrafts());
+        permissions.setReviseAny(permission.getReviseAny());
+        permissions.setReviseOwn(permission.getReviseOwn());
         permissions.setRole(permission.getRole());
-        permissions.setMarkAsRead(permissions.getMarkAsRead());
+        permissions.setMarkAsRead(permission.getMarkAsRead());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
         if (isNew) {
@@ -595,13 +604,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         
         permissions.setArea(area);
         permissions.setDefaultValue(Boolean.TRUE);
-        permissions.setDeleteAny(permissions.getDeleteAny());
-        permissions.setDeleteOwn(permissions.getDeleteOwn());
-        permissions.setRead(permissions.getRead());
-        permissions.setReadDrafts(permissions.getReadDrafts());
-        permissions.setReviseAny(permissions.getReviseAny());
-        permissions.setReviseOwn(permissions.getReviseOwn());
-        permissions.setMarkAsRead(permissions.getMarkAsRead());
+        permissions.setDeleteAny(permission.getDeleteAny());
+        permissions.setDeleteOwn(permission.getDeleteOwn());
+        permissions.setRead(permission.getRead());
+        permissions.setReadDrafts(permission.getReadDrafts());
+        permissions.setReviseAny(permission.getReviseAny());
+        permissions.setReviseOwn(permission.getReviseOwn());
+        permissions.setMarkAsRead(permission.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
@@ -664,8 +673,17 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * Create an empty forum message permission with system properties 
      * populated (ie: uuid).
      */
-    public MessagePermissions createForumMessagePermissionForRole(String role) {
+    public MessagePermissions createForumMessagePermissionForRole(String role, String typeId) {
         MessagePermissions permissions = new MessagePermissionsImpl();
+        MessagePermissions mp = getAreaMessagePermissionForRole(role, typeId);
+        permissions.setDefaultValue(mp.getDefaultValue());
+        permissions.setDeleteAny(mp.getDeleteAny());
+        permissions.setDeleteOwn(mp.getDeleteOwn());
+        permissions.setRead(mp.getRead());
+        permissions.setReadDrafts(mp.getReadDrafts());
+        permissions.setReviseAny(mp.getReviseAny());
+        permissions.setReviseOwn(mp.getReviseOwn());
+        permissions.setMarkAsRead(mp.getMarkAsRead());
         permissions.setRole(role);
         return permissions;
     }
@@ -683,13 +701,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         
         permissions.setForum(forum);
         permissions.setDefaultValue(Boolean.FALSE);
-        permissions.setDeleteAny(permissions.getDeleteAny());
-        permissions.setDeleteOwn(permissions.getDeleteOwn());
-        permissions.setRead(permissions.getRead());
-        permissions.setReadDrafts(permissions.getReadDrafts());
-        permissions.setReviseAny(permissions.getReviseAny());
-        permissions.setReviseOwn(permissions.getReviseOwn());
-        permissions.setMarkAsRead(permissions.getMarkAsRead());
+        permissions.setDeleteAny(permission.getDeleteAny());
+        permissions.setDeleteOwn(permission.getDeleteOwn());
+        permissions.setRead(permission.getRead());
+        permissions.setReadDrafts(permission.getReadDrafts());
+        permissions.setReviseAny(permission.getReviseAny());
+        permissions.setReviseOwn(permission.getReviseOwn());
+        permissions.setMarkAsRead(permission.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
@@ -713,13 +731,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         
         permissions.setForum(forum);
         permissions.setDefaultValue(Boolean.TRUE);
-        permissions.setDeleteAny(permissions.getDeleteAny());
-        permissions.setDeleteOwn(permissions.getDeleteOwn());
-        permissions.setRead(permissions.getRead());
-        permissions.setReadDrafts(permissions.getReadDrafts());
-        permissions.setReviseAny(permissions.getReviseAny());
-        permissions.setReviseOwn(permissions.getReviseOwn());
-        permissions.setMarkAsRead(permissions.getMarkAsRead());
+        permissions.setDeleteAny(permission.getDeleteAny());
+        permissions.setDeleteOwn(permission.getDeleteOwn());
+        permissions.setRead(permission.getRead());
+        permissions.setReadDrafts(permission.getReadDrafts());
+        permissions.setReviseAny(permission.getReviseAny());
+        permissions.setReviseOwn(permission.getReviseOwn());
+        permissions.setMarkAsRead(permission.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
@@ -782,8 +800,18 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * Create an empty topic message permission with system properties 
      * populated (ie: uuid).
      */
-    public MessagePermissions createTopicMessagePermissionForRole(String role) {
+    public MessagePermissions createTopicMessagePermissionForRole(BaseForum forum, String role, String typeId) {
         MessagePermissions permissions = new MessagePermissionsImpl();
+        MessagePermissions mp = getForumMessagePermissionForRole(forum, role, typeId);
+        permissions.setDefaultValue(mp.getDefaultValue());
+        permissions.setDeleteAny(mp.getDeleteAny());
+        permissions.setDeleteOwn(mp.getDeleteOwn());
+        permissions.setRead(mp.getRead());
+        permissions.setReadDrafts(mp.getReadDrafts());
+        permissions.setReviseAny(mp.getReviseAny());
+        permissions.setReviseOwn(mp.getReviseOwn());
+        permissions.setMarkAsRead(mp.getMarkAsRead());
+        permissions.setRole(role);
         permissions.setRole(role);
         return permissions;
     }
@@ -801,13 +829,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         
         permissions.setTopic(topic);
         permissions.setDefaultValue(Boolean.FALSE);
-        permissions.setDeleteAny(permissions.getDeleteAny());
-        permissions.setDeleteOwn(permissions.getDeleteOwn());
-        permissions.setRead(permissions.getRead());
-        permissions.setReadDrafts(permissions.getReadDrafts());
-        permissions.setReviseAny(permissions.getReviseAny());
-        permissions.setReviseOwn(permissions.getReviseOwn());
-        permissions.setMarkAsRead(permissions.getMarkAsRead());
+        permissions.setDeleteAny(permission.getDeleteAny());
+        permissions.setDeleteOwn(permission.getDeleteOwn());
+        permissions.setRead(permission.getRead());
+        permissions.setReadDrafts(permission.getReadDrafts());
+        permissions.setReviseAny(permission.getReviseAny());
+        permissions.setReviseOwn(permission.getReviseOwn());
+        permissions.setMarkAsRead(permission.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
@@ -831,13 +859,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         
         permissions.setTopic(topic);
         permissions.setDefaultValue(Boolean.TRUE);
-        permissions.setDeleteAny(permissions.getDeleteAny());
-        permissions.setDeleteOwn(permissions.getDeleteOwn());
+        permissions.setDeleteAny(permission.getDeleteAny());
+        permissions.setDeleteOwn(permission.getDeleteOwn());
         permissions.setRead(permissions.getRead());
-        permissions.setReadDrafts(permissions.getReadDrafts());
-        permissions.setReviseAny(permissions.getReviseAny());
-        permissions.setReviseOwn(permissions.getReviseOwn());
-        permissions.setMarkAsRead(permissions.getMarkAsRead());
+        permissions.setReadDrafts(permission.getReadDrafts());
+        permissions.setReviseAny(permission.getReviseAny());
+        permissions.setReviseOwn(permission.getReviseOwn());
+        permissions.setMarkAsRead(permission.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
