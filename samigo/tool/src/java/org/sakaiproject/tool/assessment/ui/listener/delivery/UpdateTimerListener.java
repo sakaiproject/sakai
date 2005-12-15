@@ -59,28 +59,7 @@ public class UpdateTimerListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    GradingService gradingService = new GradingService();
-    // get managed bean
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-    String elapsedString = (String) FacesContext.getCurrentInstance().
-        getExternalContext().getRequestParameterMap().get("takeAssessmentForm:assessmentDeliveryHeading:elapsed");
-
-    try{
-      if (elapsedString != null){
-         int elapsed = Integer.parseInt(elapsedString);
-         log.debug("**** DeliveryBean 1: elapsed="+elapsed);
-         delivery.setTimeElapse("" +
-	   new Integer(elapsed / 10));
-         log.debug("**** DeliveryBean 2: time elapsed="+delivery.getTimeElapse());
-         AssessmentGradingData adata = delivery.getAssessmentGrading();
-         adata.setTimeElapsed(new Integer(elapsed / 10));
-         gradingService.saveOrUpdateAssessmentGrading(adata);
-         delivery.setTimeRunning(true);
-      }
-    }
-    catch (NumberFormatException ex)
-    {
-      log.warn(ex.getMessage());
-    }
+    delivery.recordTimeElapsed();
   }
 }

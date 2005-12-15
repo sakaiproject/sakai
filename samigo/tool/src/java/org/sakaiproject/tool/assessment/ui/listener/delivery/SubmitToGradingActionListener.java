@@ -286,8 +286,10 @@ public class SubmitToGradingActionListener implements ActionListener
       integrateItemGradingDatas(itemData, adata, adds, removes);
 
       // Add and remove separately so we don't get concurrent modification
-      adata.getItemGradingSet().removeAll(removes);
-      adata.getItemGradingSet().addAll(adds);
+      if (adata.getItemGradingSet()!=null){
+        adata.getItemGradingSet().removeAll(removes);
+        adata.getItemGradingSet().addAll(adds);
+      }
       adata.setForGrade(new Boolean(delivery.getForGrade()));
     }
 
@@ -298,32 +300,6 @@ public class SubmitToGradingActionListener implements ActionListener
       String msg = "The agent has not successfully set the JavaScript flag.";
       throw new IllegalAccessException(msg);
     }
-
-    log.debug("Before time elapsed " + adata.getTimeElapsed());
-    // Set time elapsed if this is a timed test
-    if (adata.getTimeElapsed() == null)
-    {
-      adata.setTimeElapsed(new Integer(0));
-    }
-    // Don't divide by 10 again if we were at the TOC
-    if (delivery.getTimeElapse() != null &&
-        !delivery.getTimeElapse().equals("0")  && // Don't save resets.
-        !delivery.getTimeElapse().equals( "" +adata.getTimeElapsed().toString()))
- //        !delivery.getTimeElapse().equals(adata.getTimeElapsed().toString()))
-    {
-	log.debug("**** Delivery time elapse="+delivery.getTimeElapse());
-      String a = delivery.getTimeElapse();
-      if (a.lastIndexOf(".") > 0)
-        a = a.substring(0, a.lastIndexOf("."));
-      adata.setTimeElapsed(new Integer(a));
-      delivery.setTimeRunning(true);
-    }
-
-    log.debug("Set time elapsed " + adata.getTimeElapsed());
-    log.debug("Get delivery.getTimeElapse(): " + delivery.getTimeElapse());
-
-    // Store the date you started this attempt.
-    adata.setAttemptDate(delivery.getBeginTime());
 
     service.storeGrades(adata);
 

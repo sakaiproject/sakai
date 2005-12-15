@@ -45,6 +45,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
      <h:outputText value="#{msg.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener" />
+     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
     </h:commandLink>
 
@@ -71,6 +72,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
                && delivery.navigation ne '1'}">
     <h:outputText value="#{msg.table_of_contents}" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener" />
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandLink>
 

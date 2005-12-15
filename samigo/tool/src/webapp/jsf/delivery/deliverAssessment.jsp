@@ -77,6 +77,10 @@ function noenter(){
 return!(window.event && window.event.keyCode == 13);
 }
 
+function saveTime(){
+  pauseTiming = 'true';
+}
+
 function saveTime()
 {
   if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){

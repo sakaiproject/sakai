@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -137,12 +138,8 @@ public class DeliveryActionListener
       case 3: // Review assessment
               setFeedbackMode(delivery);
               itemData = new HashMap();
-              System.out.println("**** revieAssessment: delivery.getFeedbackComponent().getShowResponse()="+delivery.getFeedbackComponent().getShowResponse());
               if (delivery.getFeedbackComponent().getShowResponse())
                 itemData = service.getSubmitData(id, agent);
-              System.out.println("**** itemData.size ="+itemData.size());
-              System.out.println("**** feedback="+delivery.getFeedback());
-              System.out.println("**** noFeedback="+delivery.getNoFeedback());
               setAssessmentGradingFromItemData(delivery, itemData, false);
               setDisplayByAssessment(delivery);
               setGraderComment(delivery);
@@ -161,20 +158,27 @@ public class DeliveryActionListener
 
       case 1: // Take assessment
       case 5: // Take assessment via url
-               itemData = service.getLastItemGradingData(id, agent);
-               if (itemData!=null && itemData.size()>0)
-                 setAssessmentGradingFromItemData(delivery, itemData, true);
-               else{
-                 AssessmentGradingData ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
-                 delivery.setAssessmentGrading(ag);
-               }
-               setFeedbackMode(delivery);
-               setTimer(delivery);
-               // extend session time out
-               SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
-               System.out.println("**** feedback="+delivery.getFeedback());
-               System.out.println("**** noFeedback="+delivery.getNoFeedback());
-               break;
+              AssessmentGradingData ag = service.getLastSavedAssessmentGradingByAgentId(
+                                         id, agent);
+
+              System.out.println("****1. assesmemtGrading="+ag); 
+              // if ag is null, we need to create it
+              if (ag == null){
+                 ag = createAssessmentGrading(publishedAssessment);
+              }
+              delivery.setAssessmentGrading(ag);
+              System.out.println("****2. assesmemtGrading="+ag); 
+              System.out.println("****3. time running="+delivery.isTimeRunning()); 
+              // ag can't be null beyond this point and must have persisted to DB
+              // version 2.1.1 requirement
+              setFeedbackMode(delivery);
+              setTimer(delivery, publishedAssessment);
+
+              // extend session time out
+              SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
+              log.info("****Set begin time " + delivery.getBeginTime());
+              log.info("****Set elapsed time " + delivery.getTimeElapse());
+              break;
 
       default: break;
       }
@@ -1412,7 +1416,7 @@ public class DeliveryActionListener
     itemData.put("items", new Long(items));
   }
 
-  public void setGraderComment(DeliveryBean delivery){
+  private void setGraderComment(DeliveryBean delivery){
     if (delivery.getAssessmentGrading() != null) {
       delivery.setGraderComment
         (delivery.getAssessmentGrading().getComments());
@@ -1422,30 +1426,38 @@ public class DeliveryActionListener
     }
   }
 
-  public void setTimer(DeliveryBean delivery){
-    // Set the begin time if we're just starting
-    if (delivery.getBeginTime() == null) {
-      if (delivery.getAssessmentGrading() != null &&
-          delivery.getAssessmentGrading().getAttemptDate() != null) {
-        delivery.setBeginTime(delivery.getAssessmentGrading().getAttemptDate());
-        // add the following line to fix SAK-1781
-        if (delivery.getAssessmentGrading().getTimeElapsed() != null){
-          delivery.setTimeElapse(delivery.getAssessmentGrading()
-                              .getTimeElapsed().toString());
-        }
-        else{
-          delivery.setTimeElapse("0");
-        }
-      }
-      else
-      {
-        delivery.setBeginTime(new Date());
-        delivery.setTimeElapse("0");  // fix SAK-1781
-      }
-    }
 
-    log.debug("****Set begin time " + delivery.getBeginTime());
-    log.debug("****Set elapsed time " + delivery.getTimeElapse());
+
+  private void setTimer(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
+    // i hope to use the property timedAssessment but it appears that this property
+    // is not recorded properly in DB - daisyf
+    if (publishedAssessment.getAssessmentAccessControl().getTimeLimit().intValue() ==0) 
+      delivery.setTimeRunning(false);
+    else{
+      delivery.setTimeRunning(true);
+      //assessment is half done, load setting saved in DB
+      AssessmentGradingData ag = delivery.getAssessmentGrading();
+      if (ag.getTimeElapsed() != null) 
+        delivery.setTimeElapse(ag.getTimeElapsed().toString());
+      else
+        delivery.setTimeElapse("0");
+
+      delivery.setBeginTime(ag.getAttemptDate());
+      if (delivery.getLastTimer()==0)
+        delivery.setLastTimer((new Date()).getTime()); //set the time when the user click Begin Assessment
+    }
   }
 
+  private AssessmentGradingData createAssessmentGrading(
+                                PublishedAssessmentFacade publishedAssessment){
+    AssessmentGradingData adata = new AssessmentGradingData();
+    adata.setAgentId(getAgentString());
+    adata.setPublishedAssessment(publishedAssessment.getData());
+    adata.setForGrade(Boolean.FALSE);
+    adata.setAttemptDate(new Date());
+    adata.setTimeElapsed(new Integer("0"));
+    GradingService gradingService = new GradingService();
+    gradingService.saveOrUpdateAssessmentGrading(adata);
+    return adata;
+  }
 }

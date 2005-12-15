@@ -46,57 +46,44 @@
 
 <!-- content... -->
 <script language="javascript">
-function checkRadio()
-{
-  for (i=0; i<document.forms[0].elements.length; i++)
-  {
-    if (document.forms[0].elements[i].type == "radio")
-    {
-      if (document.forms[0].elements[i].defaultChecked == true)
-      {
-        document.forms[0].elements[i].click();
-      }
-    }
-  }
-
-}
 
 function noenter(){
 return!(window.event && window.event.keyCode == 13);
 }
 
+function showElements(theForm) {
+  str = "Form Elements of form " + theForm.name + ": \n "
+  for (i = 0; i < theForm.length; i++)
+    str += theForm.elements[i].name + "\n"
+  alert(str)
+}
+
 function saveTime()
 {
-  if((typeof (document.forms[0].elements['takeAssessmentFormTOC:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentFormTOC:elapsed'])!=null) ){
+  //showElements(document.forms[0]);
+  if((typeof (document.forms[0].elements['tableOfContentsForm:elapsed'])!=undefined) && ((document.forms[0].elements['tableOfContentsForm:elapsed'])!=null) ){
   pauseTiming = 'true';
-  document.forms[0].elements['takeAssessmentFormTOC:elapsed'].value=loaded;
+  // loaded is in 1/10th sec and elapsed is in sec, so need to divide by 10
+  document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded/10;
  }
- if( (typeof (document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx']))!=undefined
-  && (document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'])!=null ){
-  document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'].value='true';
-
+ if( (typeof (document.forms[0].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx']))!=undefined
+  && (document.forms[0].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'])!=null ){
+  document.forms[0].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'].value='true';
   }
-//alert("document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'].value=" +
-//document.forms[1].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'].value);
-
 }
 
 </script>
 
 
 <!-- DONE BUTTON FOR PREVIEW ASSESSMENT -->
-<h:form id="takeAssessmentFormTOCTop">
+<h:form id="tableOfContentsForm">
+
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
-
-</h:form>
-
-<%-- <h:form onsubmit="saveTime()"> --%>
-<%-- </h:form>  --%>
 
 <h3><h:outputText value="#{delivery.assessmentTitle} " /></h3>
 
@@ -112,21 +99,17 @@ function saveTime()
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     expireMessage="Your session has expired."
-    expireScript="document.forms[0].elements['takeAssessmentFormTOC:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentFormTOC:outoftime'].value='true'; document.forms[0].elements['takeAssessmentForm:saveAndExit'].click();" />
+    expireScript="document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded; document.forms[0].elements['tableOfContentsForm:outoftime'].value='true'; document.forms[0].elements['tableOfContentsForm:saveAndExit'].click();" />
 <f:verbatim>  </span></f:verbatim>
 
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="Hide/Show Time Remaining" />
-<h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
-<h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 </h:panelGroup>
+
 
 <div class="indnt1">
   <f:verbatim><b></f:verbatim><h:outputText value="#{msg.warning}: "/><f:verbatim></b></f:verbatim>
   <h:outputText value="#{msg.instruction_submitGrading}" />
 </div>
-
-<h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
-<h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 
 <div class="indnt1">
   <h4>
@@ -150,14 +133,18 @@ function saveTime()
   <h:graphicImage  alt="#{msg.q_marked}" url="/images/tree/marked.gif" />
   <h:outputText value="#{msg.q_marked}" />
 
-  <h:form id="tableOfContentsForm" onsubmit="saveTime()">
+<h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
+<h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
+<h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
+<h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
+
     <h:inputHidden id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
     <h:messages styleClass="validation"/>
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
       <h:column>
       <h:panelGroup>
         <samigo:hideDivision id="part" title = "#{msg.p} #{part.number} - #{part.nonDefaultText}  -
-       #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.pointsDisplayString}#{part.maxPoints} #{msg.pt}" >
+       #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.pointsDisplayString}#{part.maxPoints} #{msg.pt}" > 
         <h:dataTable value="#{part.itemContents}" var="question">
           <h:column>
             <f:verbatim><div class="indnt3"></f:verbatim>
@@ -166,9 +153,8 @@ function saveTime()
                url="/images/tree/blank.gif" rendered="#{question.unanswered}"/>
             <h:graphicImage alt="#{msg.q_marked}"
                url="/images/tree/marked.gif"  rendered="#{question.review}"/>
-              <h:commandLink immediate="true" action="takeAssessment" onmouseup="saveTime();">
-                <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.maxPoints} #{msg.pt}) " escape="false" />
-                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+              <h:commandLink immediate="true" action="#{delivery.gotoQuestion}"> 
+                <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.maxPoints} #{msg.pt}) "/>
                 <f:param name="partnumber" value="#{part.number}" />
                 <f:param name="questionnumber" value="#{question.number}" />
               </h:commandLink>
@@ -176,7 +162,7 @@ function saveTime()
             <f:verbatim></div></f:verbatim> 
           </h:column>
         </h:dataTable>
-        </samigo:hideDivision>
+       </samigo:hideDivision>
       </h:panelGroup>
       </h:column>
     </h:dataTable>
@@ -192,6 +178,7 @@ function saveTime()
                              && authorization.submitAssessmentForGrade)}">
     <h:commandButton type="submit" value="#{msg.button_submit_grading}"
       action="#{delivery.submitForGrade}" styleClass="active"  
+      onclick="javascript:saveTime()"
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
 
@@ -203,6 +190,7 @@ function saveTime()
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
   <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}"
+    onclick="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessment'
              || delivery.actionString=='previewAssessment'}" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
@@ -210,6 +198,7 @@ function saveTime()
 <!-- QUIT BUTTON FOR TAKE ASSESSMENT VIA URL -->
   <h:commandButton type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
+    onclick="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" >
   </h:commandButton>
 </p>

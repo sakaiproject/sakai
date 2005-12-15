@@ -82,8 +82,11 @@ public class LoginServlet
     // button to display - daisyf
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet(
        "delivery", req, res);
-    //delivery.setAccessViaUrl(true);
     delivery.setActionString("takeAssessmentViaUrl");
+
+    // reset timer in case this is a timed assessment
+    delivery.setTimeElapse("0");
+    delivery.setLastTimer(0);
 
     // set path
     delivery.setContextPath(req.getContextPath());

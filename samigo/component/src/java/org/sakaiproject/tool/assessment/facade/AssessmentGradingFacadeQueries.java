@@ -461,6 +461,8 @@ else {
         setIsLate(data);
       }
       Set itemgrading = data.getItemGradingSet();
+      if (itemgrading == null)
+        itemgrading = new HashSet();
       Iterator iter = itemgrading.iterator();
       float totalAutoScore = 0;
 

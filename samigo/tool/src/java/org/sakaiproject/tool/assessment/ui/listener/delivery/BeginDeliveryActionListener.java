@@ -88,7 +88,9 @@ public class BeginDeliveryActionListener implements ActionListener
     System.out.println("**** BeginDeliveryActionListener:actionString"+delivery.getActionString());
     System.out.println("**** BeginDeliveryActionListener:action"+delivery.getActionMode());
 
-    delivery.setTimeRunning(true);
+    // reset timer before begin
+    delivery.setTimeElapse("0");
+    delivery.setLastTimer(0);
 
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
     delivery.setPublishedAssessment(pub);

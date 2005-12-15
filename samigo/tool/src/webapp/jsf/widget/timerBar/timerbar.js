@@ -67,9 +67,9 @@ function incrCount(){
   last_epoch_milliseconds = epoch_milliseconds;
 
   window.status="Loaded....";
-  if(waitTime>300){
+  if(waitTime>300){ //waitTime is the timeLimit and it is in second
      warnTime=10*(waitTime-300);
-  if (loaded==warnTime){
+  if (loaded==warnTime){ // loaded is in 1/10th s
      alert('You have 5 minutes left');
      if(ns4){
       document.tbar.bgColor="red";
@@ -90,10 +90,10 @@ function incrCount(){
  if(loaded<0)loaded=0;
  if(loaded>=waitTime*10){
   clearInterval(Pid);
-  loaded=waitTime*10;
+  loaded=waitTime*10; // loaded is in 1/10th of a second here
   setTimeout('hidebar()',100);
-
  }
+
 resizeEl(PBdone, 0, blocksize*loaded, barheight-2, 0);
 }
 
@@ -139,17 +139,17 @@ id.clip.bottom=b;
 
 
 function startTimer(){
-  var timeLeft=waitTime-Math.floor(loaded/10);
+ var timeLeft=waitTime-Math.floor(loaded/10);  //loaded is in 1/10th second so divide 10. 
  var hours=Math.floor(timeLeft/3600);
- var  minutes=Math.floor((timeLeft%3600)/60);
+ var minutes=Math.floor((timeLeft%3600)/60);
  var seconds=(timeLeft%3600)%60;
   running =true;
-  begin=new Date();
+  begin=new Date(); // get start time
   var setTime=1000*3600*hours+1000*60*minutes+1000*seconds;
-  beginH=begin.getHours();
+  beginH=begin.getHours(); // set start hour, min, sec
   beginM=begin.getMinutes();
   beginS=begin.getSeconds();
-  endH=beginH+hours;
+  endH=beginH+hours; // set end hour, min, sec.
   endM=beginM+minutes;
   endS=beginS+seconds;
   if(endM>=60){
@@ -169,7 +169,7 @@ function showCountDown(){
   var presentM=present.getMinutes();
   var presentS=present.getSeconds();
 
-  if((endH==presentH)&&(endM==presentM)&&(endS==presentS)){
+  if((endH==presentH)&&(endM==presentM)&&(endS==presentS)){ // reaches end time
     stopTimer();
 
   }else{
@@ -181,7 +181,7 @@ function showCountDown(){
     if(remainH<=9) h='0';
     if(remainM<=9) m='0';
     if(remainS<=9) s='0';
-    remainTime=remainH+':'+m+remainM+':'+s+remainS;
+    remainTime=remainH+':'+m+remainM+':'+s+remainS; // remaining time
     document.getElementById('timer').innerHTML=remainTime;
     if(running){
       if(!pauseTiming==true)

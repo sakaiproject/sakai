@@ -1171,6 +1171,7 @@ public class DeliveryBean
 
   public String submitForGrade()
   {
+    recordTimeElapsed();
     SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
 
     forGrade = true;
@@ -1192,6 +1193,7 @@ public class DeliveryBean
 
   public String saveAndExit()
   {
+    recordTimeElapsed();
     FacesContext context = FacesContext.getCurrentInstance();
     SessionUtil.setSessionTimeout(context, this, false);
     log.debug("***DeliverBean.saveAndEXit face context =" + context);
@@ -1230,8 +1232,19 @@ public class DeliveryBean
     return returnValue;
   }
 
+  public String gotoQuestion()
+  {
+    System.out.println("****got straigh to question");
+    recordTimeElapsed();
+    DeliveryActionListener l2 = new DeliveryActionListener();
+    l2.processAction(null);
+    reload = false;
+    return "takeAssessment";
+  }
+
   public String next_page()
   {
+    recordTimeElapsed();
     if (getSettings().isFormatByPart())
     {
       partIndex++;
@@ -1260,6 +1273,7 @@ public class DeliveryBean
 
   public String previous()
   {
+    recordTimeElapsed();
     if (getSettings().isFormatByPart())
     {
       partIndex--;
@@ -2038,6 +2052,35 @@ public class DeliveryBean
 
   public int getActionMode(){
     return actionMode;
+  }
+
+  private long time=0;
+  public void setLastTimer(long time){
+    this.time = time;
+  }
+
+  public long getLastTimer(){
+    return time;
+  }
+
+  public void recordTimeElapsed(){
+    AssessmentGradingData adata = getAssessmentGrading();
+    long currentTime = (new Date()).getTime();
+    if (isTimeRunning() && adata != null){ // adata can't be null at this point
+      float diff = (currentTime - getLastTimer())/1000;
+
+      String a = getTimeElapse();
+      float f = (new Float(a)).floatValue();
+
+      int sum_int = Math.round(diff+f); 
+      adata.setTimeElapsed(new Integer(sum_int));
+      GradingService gradingService = new GradingService();
+      gradingService.saveOrUpdateAssessmentGrading(adata);
+
+      setTimeElapse(diff+f+"");
+      setLastTimer(currentTime);
+      System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
+    }
   }
 
 }
