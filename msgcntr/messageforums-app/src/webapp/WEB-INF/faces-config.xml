@@ -193,6 +193,16 @@
             <to-view-id>/jsp/discussionForum/message/dfThreadedView.jsp</to-view-id>
             <redirect/>
         </navigation-case>                                                                     
+        <navigation-case>
+            <from-outcome>dfMessageReply</from-outcome>
+            <to-view-id>/jsp/dfMessageReply.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                                     
+        <navigation-case>
+            <from-outcome>dfTopicReply</from-outcome>
+            <to-view-id>/jsp/dfTopicReply.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                                     
     
     </navigation-rule>
   

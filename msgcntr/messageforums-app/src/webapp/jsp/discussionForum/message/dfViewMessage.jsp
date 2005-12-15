@@ -132,6 +132,15 @@
       <sakai:button_bar_item action="#{ForumTOol.processDfMsgCancel}" value="Cancel" />
     </sakai:button_bar>--%>
 
+    <sakai:button_bar>
+	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyMsg}" value="Reply to Message" />
+	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyTp}" value="Reply to Topic" />
+<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="Grade" />
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="Revise" />
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgMove}" value="Move" />
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" />--%>
+    </sakai:button_bar>
+
     <sakai:group_box>
       <sakai:panel_edit>
         <sakai:doc_section>            
