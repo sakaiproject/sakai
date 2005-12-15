@@ -81,36 +81,36 @@
 		</h:dataTable>
       </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_message_permissions}" id="msg_perm">
-     	 <h:dataTable styleClass="listHier" id="message_permissions" value="#{ForumTool.roles}" var="role">
+     	 <h:dataTable styleClass="listHier" id="message_permissions" value="#{ForumTool.forumMessagePermissions}" var="msg_settings">
    			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
-				<h:outputText value="#{role}"/>
+				<h:outputText value="#{msg_settings.role}"/>
 			</h:column>
 			 <h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_read}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.read}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_revise_any}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.reviseAny}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">	<h:outputText value="#{msgs.perm_revise_own}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.reviseOwn}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_delete_any}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.deleteAny}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">	<h:outputText value="#{msgs.perm_delete_own}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.deleteOwn}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_mark_as_read}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="false"/>
-			</h:column>	
-			</h:dataTable>		 	
+				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.markAsRead}"/>
+			</h:column>			 		
+		</h:dataTable>		 	
       </mf:forumHideDivision>
       
        <p class="act">

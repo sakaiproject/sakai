@@ -174,17 +174,6 @@ public class DiscussionForumTool
   }
 
   /**
-   * TODO:// complete featute
-   * 
-   * @return
-   */
-  public boolean getUnderconstruction()
-  {
-    LOG.debug("getUnderconstruction()");
-    return true;
-  }
-
-  /**
    * @return
    */
   public String processActionOrganize()
@@ -234,7 +223,8 @@ public class DiscussionForumTool
    */
   public List getTemplateMessagePermissions()
   {
-    return forumManager.getDefaultMessagePermissions();
+   templateMessagePermissions= forumManager.getDefaultMessagePermissions();
+   return templateMessagePermissions;
   }
 
   /**
@@ -252,7 +242,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveForumSettings()");
     forumManager.saveDefaultControlPermissions(templateControlPermissions); 
-    //forumManager.saveDefaultMessagePermissions(templateMessagePermissions);
+    forumManager.saveDefaultMessagePermissions(templateMessagePermissions);
     return MAIN;
   }
   
@@ -265,9 +255,6 @@ public class DiscussionForumTool
     return TEMPLATE_SETTING;
   }
   
-  
-  
-  
   /**
    * @return Returns the forumControlPermissions.
    */
@@ -275,9 +262,7 @@ public class DiscussionForumTool
   {
     if(selectedForum!=null)
     {
-      
-      forumControlPermissions=forumManager.getForumControlPermissions(selectedForum.getForum());
-      
+         forumControlPermissions=forumManager.getForumControlPermissions(selectedForum.getForum());
     }
     return forumControlPermissions;
   }
@@ -290,6 +275,7 @@ public class DiscussionForumTool
     this.forumControlPermissions = forumControlPermissions;
   }
 
+  
   /**
    * @return Returns the forumMessagePermissions.
    */
@@ -321,7 +307,7 @@ public class DiscussionForumTool
     LOG.debug("processDisplayForum()");
     if (getDecoratedForum() == null)
     {
-      // TODO : appropriate error page
+      LOG.error("Forum not found");
       return MAIN;
     }
     return FORUM_DETAILS;
@@ -421,7 +407,7 @@ public class DiscussionForumTool
         if(forum!=null)
         {
           forumManager.saveForumControlPermissions(forum,forumControlPermissions);
-//          forumManager.saveForumMessagePermissions(forum,forumMessagePermissions);
+          forumManager.saveForumMessagePermissions(forum,forumMessagePermissions);
         }
     }
     return MAIN;
@@ -550,7 +536,8 @@ public class DiscussionForumTool
         {
           topic.setBaseForum(selectedForum.getForum());
           forumManager.saveTopic(topic);
-          forumManager.saveTopicControlPermissions(topic,topicControlPermissions);          
+          forumManager.saveTopicControlPermissions(topic,topicControlPermissions); 
+          forumManager.saveTopicMessagePermissions(topic, topicMessagePermissions);
         }
     }    
     reset();
@@ -588,8 +575,13 @@ public class DiscussionForumTool
   public String processActionTopicSettings()
   {
     LOG.debug("processActionTopicSettings()");
+    String forumId = getExternalParameterByKey(FORUM_ID);
+    if(forumId==null || forumId.trim().length()<1)
+    {
+      return MAIN;
+    }
     DiscussionForum forum = forumManager
-    .getForumById(new Long(getExternalParameterByKey(FORUM_ID)));
+    .getForumById(new Long(forumId));
     if (forum == null)
     {
       return MAIN;
@@ -860,8 +852,9 @@ public class DiscussionForumTool
       LOG.debug("getDecoratedTopic(DiscussionTopic " + topic + ")");
     }
     DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic);
-    // TODO : implement me
-    //decoTopic.getTopic().setBaseForum(forumManager.getForumById(new Long(5)));
+    // TODO : implement me 
+   // decoTopic.getTopic().setBaseForum(forumManager.getForumById(new Long(5)));
+ 
     decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
     decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(
         SessionManager.getCurrentSessionUserId(), topic));
@@ -931,12 +924,14 @@ public class DiscussionForumTool
       }
       else
       {
+        LOG.error("Topic with id '"+ externalTopicId +"'not found");
         // TODO : appropriate error page
         return MAIN;
       }
     }
     catch (Exception e)
     {
+      LOG.error(e.getMessage(),e);
       // TODO appropriate error page
       return "main";
     }
@@ -1215,40 +1210,5 @@ public class DiscussionForumTool
   public String getUserId()
   {
     return SessionManager.getCurrentSessionUserId();
-  }
-  
-  public List getRoles()
-  {
-    LOG.debug("getRoles()");
-    List roleList = new ArrayList();
-    AuthzGroup realm;
-    try
-    {
-      realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
-      Set roles = realm.getRoles();
-      if (roles != null && roles.size() > 0)
-      {
-        Iterator roleIter = roles.iterator();
-        while (roleIter.hasNext())
-        {
-          Role role = (Role) roleIter.next();
-          if (role != null ) roleList.add(role.getId());
-        }
-      }
-    }
-    catch (IdUnusedException e)
-    {
-      LOG.error(e.getMessage(), e);
-    }
-    Collections.sort(roleList);
-    return roleList;
-  }
-  /**
-   * @return siteId
-   */
-  private String getContextSiteId()
-  {
-    LOG.debug("getContextSiteId()");
-    return ("/site/" + ToolManager.getCurrentPlacement().getContext());
   }
 }

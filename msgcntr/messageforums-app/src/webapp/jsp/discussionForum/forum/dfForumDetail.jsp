@@ -34,6 +34,7 @@
 				<h:outputText id="topic_msg_count" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
 				<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" styleClass="rightAlign" value="#{msgs.cdfm_topic_settings}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 				<f:verbatim><br/></f:verbatim>
 				<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" />
