@@ -1,5 +1,5 @@
 <%--********************* Private Message Area*********************--%>
-<mf:forumHideDivision title="#{PrivateMessagesTool.area.name}" id="_test_div">
+<mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div">
 <%--
   <mf:forum_bar_link value="Organize " action="#{PrivateMessagesTool.processPvtMsgOrganize}"/> &nbsp;
   <mf:forum_bar_link value=" Statistics " action="#{PrivateMessagesTool.processPvtMsgStatistics}"/> &nbsp;
