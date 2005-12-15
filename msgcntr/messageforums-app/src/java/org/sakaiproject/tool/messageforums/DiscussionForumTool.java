@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Date;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -76,10 +77,11 @@ public class DiscussionForumTool
   private MessageForumsMessageManager messageManager;
   private String composeTitle;
   private String composeBody;
-  private String composeLabel;   
+  private String composeLabel;
+  private boolean deleteMsg = false;
   //attachment
   private ArrayList attachments = new ArrayList();
-  //private ArrayList prepareRemoveAttach = new ArrayList();
+  private ArrayList prepareRemoveAttach = new ArrayList();
   //private boolean attachCaneled = false;
   //private ArrayList oldAttachments = new ArrayList();
   //private List allAttachments = new ArrayList();
@@ -1247,7 +1249,21 @@ public class DiscussionForumTool
 	
 	public String processDfMsgRvs()
   {
-  	return null;
+		attachments.clear();
+		
+		composeBody = selectedMessage.getMessage().getBody();
+		composeLabel = selectedMessage.getMessage().getLabel();
+		composeTitle = selectedMessage.getMessage().getTitle();
+		List attachList = selectedMessage.getMessage().getAttachments();
+		if(attachList != null)
+		{
+			for(int i=0; i<attachList.size(); i++)
+			{
+				attachments.add((Attachment)attachList.get(i));
+			}
+		}
+		
+  	return "dfMsgRevise";
   }
 
 	public String processDfMsgMove()
@@ -1257,6 +1273,7 @@ public class DiscussionForumTool
 	
 	public String processDfMsgDeleteConfirm()
   {
+		deleteMsg = true;
   	return null;
   }
 	
@@ -1297,6 +1314,159 @@ public class DiscussionForumTool
   	this.attachments.clear();
 
     return ALL_MESSAGES;    
+  }
+  
+	public String processDeleteAttachRevise()
+	{
+    ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+    String attachId = null;
+    
+    Map paramMap = context.getRequestParameterMap();
+    Iterator itr = paramMap.keySet().iterator();
+    while(itr.hasNext())
+    {
+      Object key = itr.next();
+      if( key instanceof String)
+      {
+        String name =  (String)key;
+        int pos = name.lastIndexOf("dfmsg_current_attach");
+        
+        if(pos>=0 && name.length()==pos+"dfmsg_current_attach".length())
+        {
+          attachId = (String)paramMap.get(key);
+          break;
+        }
+      }
+    }
+    
+    if((attachId != null) && (!attachId.equals("")))
+    {
+      for(int i=0; i<attachments.size(); i++)
+      {
+      	if(attachId.equalsIgnoreCase(((Attachment)attachments.get(i)).getAttachmentId()))
+      	{
+      		prepareRemoveAttach.add((Attachment)attachments.get(i));
+      		attachments.remove(i);
+      		break;
+      	}
+      }
+    }
+
+		return null;
+	}
+	
+	public String processDfMsgRevisedPost()
+  {
+    Message dMsg = selectedMessage.getMessage();
+    
+    for(int i=0; i<prepareRemoveAttach.size(); i++)
+    {
+    	Attachment removeAttach = (Attachment)prepareRemoveAttach.get(i);
+    	dMsg.removeAttachment(removeAttach);
+    }
+
+    List oldList = dMsg.getAttachments();
+    for(int i=0; i<attachments.size(); i++)
+    {
+    	Attachment thisAttach = (Attachment)attachments.get(i);
+    	boolean existed = false;
+    	for(int j=0; j<oldList.size(); j++)
+    	{
+    		Attachment existedAttach = (Attachment)oldList.get(j);
+    		if(existedAttach.getAttachmentId().equals(thisAttach.getAttachmentId()))
+    		{
+    			existed = true;
+    			break;
+    		}
+    	}
+    	if(!existed)
+    	{
+    		dMsg.addAttachment(thisAttach);
+    	}
+    }    
+    dMsg.setTitle(getComposeTitle());
+    dMsg.setBody(getComposeBody());
+    dMsg.setDraft(Boolean.FALSE);
+    dMsg.setModified(new Date());
+    dMsg.setModifiedBy(getUserId());
+    //dMsg.setApproved(Boolean.TRUE);
+    
+    forumManager.saveMessage(dMsg);
+    
+    List messageList = selectedTopic.getMessages();
+    for(int i=0; i<messageList.size(); i++)
+    {
+    	DiscussionMessageBean dmb = (DiscussionMessageBean)messageList.get(i);
+    	if(dmb.getMessage().getId().equals(dMsg.getId()))
+    	{
+    		selectedTopic.getMessages().set(i, new DiscussionMessageBean(dMsg));
+    	}
+    }
+    
+    prepareRemoveAttach.clear();
+  	composeBody = null;
+  	composeLabel = null;
+  	composeTitle = null;
+  	attachments.clear();
+    
+  	return ALL_MESSAGES;    
+  }
+
+	public String processDfMsgSaveRevisedDraft()
+  {
+    Message dMsg = selectedMessage.getMessage();
+    
+    for(int i=0; i<prepareRemoveAttach.size(); i++)
+    {
+    	Attachment removeAttach = (Attachment)prepareRemoveAttach.get(i);
+    	dMsg.removeAttachment(removeAttach);
+    }
+
+    List oldList = dMsg.getAttachments();
+    for(int i=0; i<attachments.size(); i++)
+    {
+    	Attachment thisAttach = (Attachment)attachments.get(i);
+    	boolean existed = false;
+    	for(int j=0; j<oldList.size(); j++)
+    	{
+    		Attachment existedAttach = (Attachment)oldList.get(j);
+    		if(existedAttach.getAttachmentId().equals(thisAttach.getAttachmentId()))
+    		{
+    			existed = true;
+    			break;
+    		}
+    	}
+    	if(!existed)
+    	{
+    		dMsg.addAttachment(thisAttach);
+    	}
+    }    
+    dMsg.setTitle(getComposeTitle());
+    dMsg.setBody(getComposeBody());
+    dMsg.setDraft(Boolean.TRUE);
+    dMsg.setModified(new Date());
+    dMsg.setModifiedBy(getUserId());
+    //dMsg.setApproved(Boolean.TRUE);
+
+    forumManager.saveMessage(dMsg);
+    
+    List messageList = selectedTopic.getMessages();
+    for(int i=0; i<messageList.size(); i++)
+    {
+    	DiscussionMessageBean dmb = (DiscussionMessageBean)messageList.get(i);
+    	if(dmb.getMessage().getId().equals(dMsg.getId()))
+    	{
+    		selectedTopic.getMessages().set(i, new DiscussionMessageBean(dMsg));
+    	}
+    }
+
+    prepareRemoveAttach.clear();
+  	composeBody = null;
+  	composeLabel = null;
+  	composeTitle = null;
+  	attachments.clear();
+    
+  	return ALL_MESSAGES;    
   }
 
 	public String processDfReplyMsgCancel()
@@ -1357,7 +1527,29 @@ public class DiscussionForumTool
   	
   	return ALL_MESSAGES;
   }
-  
+	
+	public boolean getDeleteMsg()
+	{
+		return deleteMsg;
+	}
+
+	public String processDfMsgDeleteConfirmYes()
+	{
+		//TODO: manager to be implemented
+		//messageManager.deleteMessage(selectedMessage.getMessage());
+		
+		this.deleteMsg = false;
+		
+		return ALL_MESSAGES;
+	}
+
+	public String processDfMsgDeleteCancel()
+	{
+		this.deleteMsg = false;
+		
+		return null;
+	}
+	
 	public List getRoles()
   {
     LOG.debug("getRoles()");

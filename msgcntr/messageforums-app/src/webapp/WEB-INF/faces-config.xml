@@ -203,6 +203,11 @@
             <to-view-id>/jsp/dfTopicReply.jsp</to-view-id>
             <redirect/>
         </navigation-case>                                                                     
+        <navigation-case>
+            <from-outcome>dfMsgRevise</from-outcome>
+            <to-view-id>/jsp/dfMsgRevise.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                                     
     
     </navigation-rule>
   

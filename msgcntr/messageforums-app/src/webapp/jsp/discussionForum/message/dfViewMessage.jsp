@@ -108,8 +108,7 @@
     </table>    
     </sakai:group_box>
 		
-		
-		<br/><br/>
+		<br/>
     <sakai:group_box>
     	<sakai:panel_edit>
       	<sakai:doc_section>  
@@ -117,28 +116,23 @@
       </sakai:panel_edit>
     </sakai:group_box>
 
-		<%--<h:panelGroup rendered="#{ForumTool.deleteConfirm}">
-			<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
-				value="! Are you sure you want to delete this message? If yes, click Delete to delete the message." />
-		</h:panelGroup>--%>
-        
-<%--    <sakai:button_bar rendered="#{!ForumTool.deleteConfirm}" >
-	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReply}" value="Reply to Message" />
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" />
-    </sakai:button_bar>--%>
-        
-<%--    <sakai:button_bar rendered="#{ForumTool.deleteConfirm}" >  
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="Delete" />
-      <sakai:button_bar_item action="#{ForumTOol.processDfMsgCancel}" value="Cancel" />
-    </sakai:button_bar>--%>
-
-    <sakai:button_bar>
+    <sakai:button_bar rendered="#{!ForumTool.deleteMsg}">
 	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyMsg}" value="Reply to Message" />
 	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyTp}" value="Reply to Topic" />
-<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="Grade" />
+<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="Grade" />--%>
       <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="Revise" />
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgMove}" value="Move" />
+<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgMove}" value="Move" />
       <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" />--%>
+    </sakai:button_bar>
+
+		<h:panelGroup rendered="#{ForumTool.deleteMsg}">
+			<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
+			value="! Are you sure you want to delete this message and any replies? If yes, click Delete to permanently delete this message and its replies." />
+		</h:panelGroup>        
+
+    <sakai:button_bar rendered="#{ForumTool.deleteMsg}" >  
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="Delete" />
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteCancel}" value="Cancel" />
     </sakai:button_bar>
 
     <sakai:group_box>
