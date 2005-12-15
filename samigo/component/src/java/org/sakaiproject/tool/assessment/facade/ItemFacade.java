@@ -149,8 +149,8 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
 
   public Object clone() throws CloneNotSupportedException{
         ItemData itemdataOrig = (ItemData) this.data;
-	ItemData cloneditemdata = (ItemData) itemdataOrig.clone();
- 	// set itemId and itemIdString = 0
+  ItemData cloneditemdata = (ItemData) itemdataOrig.clone();
+  // set itemId and itemIdString = 0
         cloneditemdata.setItemId(new Long(0));
         cloneditemdata.setItemIdString("0");
         Object cloned = new ItemFacade(cloneditemdata);
@@ -891,8 +891,10 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   }
 
   /**
+   * Utility method.
    * In the case of an ordinary question, this will obtain the a set of text with
-   * one element and return it; in FIB return multiple elements separated by underscores.
+   * one element and return it; in FIB return multiple elements separated by
+   * underscores.
    * @return text of question
    */
 
@@ -905,6 +907,22 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
       throw new DataFacadeException(ex.getMessage());
     }
     return this.data.getText();
+  }
+
+  /**
+   * Utility method.
+   * Obeys the semantics and rules of the getText() but removes
+   * HTML tags.
+   *
+   * @see getText()
+   * @return text of question, removes
+   * HTML tags.
+   * @throws DataFacadeException
+   */
+  public String getTextHtmlStripped() throws DataFacadeException
+  {
+    String regex = "\\<.*?\\>";
+    return getText().replaceAll(regex," ");
   }
 
   public ArrayList getItemTextArray() {
