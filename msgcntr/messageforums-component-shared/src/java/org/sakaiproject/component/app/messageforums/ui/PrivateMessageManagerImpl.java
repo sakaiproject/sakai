@@ -27,6 +27,7 @@ import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
+import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
@@ -508,12 +509,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     
   }
   
-  public void deletePrivateMessage(PrivateMessage message){
-    
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#deletePrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.lang.String)
+   */
+  public void deletePrivateMessage(PrivateMessage message, String typeUuid){
+            
     String userId = getCurrentUser();
     
     if (LOG.isDebugEnabled()){
-      LOG.debug("deletePrivateMessage(" + message + ")");
+      LOG.debug("deletePrivateMessage(message:" + message + ", typeUuid:" + typeUuid + ")");
     }    
     
     /** fetch recipients for message */
@@ -521,27 +525,44 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
             
     /**
      *  create PrivateMessageRecipient to search
-     *  protects against user sending message to herself (both sent and rcvd status)  
      */
     PrivateMessageRecipient pmrSearch = new PrivateMessageRecipientImpl(
         userId,
-      typeManager.getSentPrivateMessageType(),
+      typeUuid,
       Boolean.TRUE
     );
             
     int userIndex = pvtMessage.getRecipients().indexOf(pmrSearch);
     
     if (userIndex == -1){
-      LOG.error("deletePrivateMessage -- cannot find sent message for user: " + 
-          userId + ", typeUuid: " + typeManager.getSentPrivateMessageType());            
+      LOG.error("deletePrivateMessage -- cannot find private message for user: " + 
+          userId + ", typeUuid: " + typeUuid);            
     }
     else{
       PrivateMessageRecipient pmrReturned = (PrivateMessageRecipient)
         pvtMessage.getRecipients().get(userIndex);
     
       if (pmrReturned != null){
-        pmrReturned.setTypeUuid(typeManager.getDeletedPrivateMessageType());
-        //messageManager.saveMessage(pm);
+        
+        /** check for existing deleted message from user */
+        PrivateMessageRecipient pmrDeletedReadSearch = new PrivateMessageRecipientImpl(
+          userId,
+          typeManager.getDeletedPrivateMessageType(),
+          Boolean.TRUE
+        );
+        
+        PrivateMessageRecipient pmrDeletedNonReadSearch = new PrivateMessageRecipientImpl(
+            userId,
+            typeManager.getDeletedPrivateMessageType(),
+            Boolean.FALSE
+          );
+        
+        int indexRead = pvtMessage.getRecipients().indexOf(pmrDeletedReadSearch);
+        int indexNonRead = pvtMessage.getRecipients().indexOf(pmrDeletedNonReadSearch);
+        
+        if (indexRead == -1 && indexNonRead == -1){
+          pmrReturned.setTypeUuid(typeManager.getDeletedPrivateMessageType());                    
+        }                        
       }
     }
   }
@@ -659,8 +680,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     else{
       ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setRead(Boolean.TRUE);
     }                    
-  }
-  
+  }    
+    
   private PrivateMessage getPrivateMessageWithRecipients(final PrivateMessage message){
     
     if (LOG.isDebugEnabled()){

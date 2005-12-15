@@ -263,23 +263,7 @@ public class PrivateMessagesTool
   {
     decoratedPvtMsgs=new ArrayList() ;
     
-    String typeUuid = null;
-    
-    if (PVTMSG_MODE_RECEIVED.equals(getSelectedTopicTitle())){
-      typeUuid = typeManager.getReceivedPrivateMessageType();  
-    }
-    else if (PVTMSG_MODE_SENT.equals(getSelectedTopicTitle())){
-      typeUuid = typeManager.getSentPrivateMessageType();  
-    }
-    else if (PVTMSG_MODE_DELETE.equals(getSelectedTopicTitle())){
-      typeUuid = typeManager.getDeletedPrivateMessageType();  
-    }
-    else if (PVTMSG_MODE_DRAFT.equals(getSelectedTopicTitle())){
-      typeUuid = typeManager.getDraftPrivateMessageType();  
-    }
-    else{
-      //
-    }
+    String typeUuid = getPrivateMessageTypeFromContext();        
     
     decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
         PrivateMessageManager.SORT_ASC);
@@ -731,9 +715,8 @@ public class PrivateMessagesTool
   public String processPvtMsgDeleteConfirmYes() {
     LOG.debug("processPvtMsgDeleteConfirmYes()");
     if(getDetailMsg() != null)
-    {
-      prtMsgManager.deletePrivateMessage(getDetailMsg().getMsg()) ;
-      
+    {      
+      prtMsgManager.deletePrivateMessage(getDetailMsg().getMsg(), getPrivateMessageTypeFromContext());      
     }
     return "main" ;
   }
@@ -987,7 +970,7 @@ public class PrivateMessagesTool
       PrivateMessage element = ((PrivateMessageDecoratedBean) iter.next()).getMsg();
       if (element != null) 
       {
-        prtMsgManager.deletePrivateMessage(element) ;        
+        prtMsgManager.deletePrivateMessage(element, getPrivateMessageTypeFromContext()) ;        
       }      
     }
     return "main" ;
@@ -1572,6 +1555,25 @@ public class PrivateMessagesTool
     } 
     return participants ;
   }  
+  
+  private String getPrivateMessageTypeFromContext(){
+    
+    if (PVTMSG_MODE_RECEIVED.equalsIgnoreCase(msgNavMode)){
+      return typeManager.getReceivedPrivateMessageType();
+    }
+    else if (PVTMSG_MODE_SENT.equalsIgnoreCase(msgNavMode)){
+      return typeManager.getSentPrivateMessageType();
+    }
+    else if (PVTMSG_MODE_DELETE.equalsIgnoreCase(msgNavMode)){
+      return typeManager.getDeletedPrivateMessageType(); 
+    }
+    else if (PVTMSG_MODE_DRAFT.equalsIgnoreCase(msgNavMode)){
+      return typeManager.getDraftPrivateMessageType();
+    }
+    else{
+      return "";
+    }    
+  }
 
   
   /*

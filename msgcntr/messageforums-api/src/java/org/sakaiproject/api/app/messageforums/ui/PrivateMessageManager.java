@@ -59,7 +59,7 @@ public interface PrivateMessageManager {
      * mark message as deleted for user
      * @param message
      */
-    public void deletePrivateMessage(PrivateMessage message);
+    public void deletePrivateMessage(PrivateMessage message, String typeUuid);
 
     /**
      * Save private message

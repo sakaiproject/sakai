@@ -26,6 +26,8 @@ package org.sakaiproject.component.app.messageforums;
 import java.util.Date;
 import java.util.List;
 
+import net.sf.hibernate.Hibernate;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
@@ -93,7 +95,7 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
       assertEquals(privateMessageManager.findMessageCount(topic.getId(),
           typeManager.getReceivedPrivateMessageType()),1);
       
-      privateMessageManager.deletePrivateMessage(message);
+      privateMessageManager.deletePrivateMessage(message, typeManager.getSentPrivateMessageType());
       assertEquals(privateMessageManager.findMessageCount(topic.getId(),
           typeManager.getDeletedPrivateMessageType()),1);
       
