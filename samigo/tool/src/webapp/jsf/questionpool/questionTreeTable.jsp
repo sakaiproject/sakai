@@ -36,7 +36,7 @@
       </f:facet>
 
 <h:commandLink id="modify" action="#{itemauthor.doit}">
-  <h:outputText escape="false" value="#{question.text}" />
+    <h:outputText escape="false" value="#{question.textHtmlStripped}" />
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
     <f:param name="itemid" value="#{question.itemId}"/>
