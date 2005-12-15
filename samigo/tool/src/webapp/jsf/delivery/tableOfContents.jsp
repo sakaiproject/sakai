@@ -153,10 +153,12 @@ function saveTime()
                url="/images/tree/blank.gif" rendered="#{question.unanswered}"/>
             <h:graphicImage alt="#{msg.q_marked}"
                url="/images/tree/marked.gif"  rendered="#{question.review}"/>
-              <h:commandLink immediate="true" action="#{delivery.gotoQuestion}"> 
+              <h:commandLink immediate="true" action="takeAssessment"> 
                 <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.maxPoints} #{msg.pt}) "/>
                 <f:param name="partnumber" value="#{part.number}" />
                 <f:param name="questionnumber" value="#{question.number}" />
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerFromTOCListener" />
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
               </h:commandLink>
             </h:panelGroup>
             <f:verbatim></div></f:verbatim> 

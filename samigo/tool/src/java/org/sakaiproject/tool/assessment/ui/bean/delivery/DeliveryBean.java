@@ -2065,20 +2065,25 @@ public class DeliveryBean
 
   public void recordTimeElapsed(){
     AssessmentGradingData adata = getAssessmentGrading();
+    float f = (new Float(getTimeElapse())).floatValue();
+    int i = Math.round(f); 
+    adata.setTimeElapsed(new Integer(i));
+    GradingService gradingService = new GradingService();
+    gradingService.saveOrUpdateAssessmentGrading(adata);
+    System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
+  }
+
+  public void recordTimeElapsedTOC(){
+    AssessmentGradingData adata = getAssessmentGrading();
     long currentTime = (new Date()).getTime();
     if (isTimeRunning() && adata != null){ // adata can't be null at this point
       float diff = (currentTime - getLastTimer())/1000;
 
-      String a = getTimeElapse();
-      float f = (new Float(a)).floatValue();
-
-      int sum_int = Math.round(diff+f); 
-      adata.setTimeElapsed(new Integer(sum_int));
+      int diff_int = Math.round(diff); 
+      adata.setTimeElapsed(new Integer(diff_int));
       GradingService gradingService = new GradingService();
       gradingService.saveOrUpdateAssessmentGrading(adata);
-
-      setTimeElapse(diff+f+"");
-      setLastTimer(currentTime);
+      setTimeElapse(diff+"");
       System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
     }
   }
