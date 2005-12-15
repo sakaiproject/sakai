@@ -21,7 +21,6 @@
 * You may obtain a copy of the License at:
 *
 *      http://cvs.sakaiproject.org/licenses/license_1_0.html
-*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
 * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -45,12 +44,14 @@
       </title>
       </head>
        <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio();">
-      <!--h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" /-->
-<div class="portletBody">
+
+   <!--div class="portletBody" style='background:#c57717'-->
+      <!--h:outputText value="<body bgcolor='#c57717' #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" /-->
+
       <h:outputText value="<a name='top'></a>" escape="false" />
- <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}'>" escape="false"/-->
-
-
+ 
+ <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor};background-image:url(http://www.w3.org/WAI/UA/TS/html401/images/test-background.gif)'>" escape="false"/-->
+ <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBackground};#{delivery.settings.divBgcolor}'>" escape="false"/>
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
@@ -115,7 +116,7 @@ function saveTime()
 <!-- h:inputHidden id="currentSection" value="#{item.currentSection}"/ -->
 <!-- h:inputHidden id="insertPosition" value="#{item.insertPosition}"/ -->
 <%-- PART/ITEM DATA TABLES --%>
-<div class="tier2">
+
   <h:dataTable value="#{delivery.pageContents.partsContents}" var="part">
     <h:column>
      <!-- f:subview id="parts" -->
@@ -180,14 +181,16 @@ function saveTime()
            <f:subview id="deliverTrueFalse">
            <%@ include file="/jsf/delivery/item/deliverTrueFalse.jsp" %>
            </f:subview>
+
            <f:verbatim></div></f:verbatim>
+
           </h:panelGroup>
         </h:column>
       </h:dataTable>
      <!-- /f:subview -->
     </h:column>
   </h:dataTable>
-</div>
+
 <p class="act">
 
   <h:commandButton type="submit" value="#{msg.save_and_continue}"
@@ -264,7 +267,7 @@ function saveTime()
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
      <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
- <f:verbatim></div></f:verbatim>
+<f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
 </h:form>

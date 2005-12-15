@@ -299,8 +299,8 @@ public class SettingsDeliveryBean
 
   public String getBackground()
   {
+      return background;
  
-      return checkColor(background,"background=#F0F0F0");
   }
 
   public void setBackground(String bg)
@@ -310,12 +310,19 @@ public class SettingsDeliveryBean
 
     public String getDivBgcolor()
     {
-	return this.getBgcolor().substring(8);
+        
+	return "background:"+this.getBgcolor().substring(8);
     }
 
     public String getDivBackground()
     {
-	return this.getBackground().substring(11);
+	if (getBackground()!=null && !getBackground().equals("")){
+	    String divbg= "background-image:url("+this.getBackground().substring(11)+")";
+	    return divbg;
+	}
+        else
+
+	    return "";
     }
   public String checkColor(String color,String defaultcolor)
   {

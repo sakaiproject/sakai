@@ -45,8 +45,10 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
  <!--h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" /-->
-<div class="portletBody">
- <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor} '>" escape="false"/-->
+<!--div class="portletBody"-->
+ <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBackground};#{delivery.settings.divBgcolor}'>" escape="false"/>
+ 
+<!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}; background-image: url(http://www.w3.org/WAI/UA/TS/html401/images/test-background.gif)>;'" escape="false"/-->
  <!-- content... -->
 <h3><h:outputText value="#{msg.submission}" /></h3>
 <div class="indnt1">
