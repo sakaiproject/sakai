@@ -120,6 +120,9 @@
 		        <property name="typeManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
 		        </property>
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+		        </property>
         	</bean>
 		</property>
 		
@@ -147,6 +150,9 @@
 				</property>				 								
 		        <property name="typeManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
 		        </property>
             </bean>            
         </property>
@@ -247,6 +253,9 @@
 				<property name="userDirectoryService">
 				    <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
 				</property>				
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+		        </property>
             </bean>           
         </property>
          <property name="transactionAttributes">

@@ -158,5 +158,8 @@ public class MessageForumsUserImpl implements MessageForumsUser {
     public void setApModerators(ActorPermissions apModerators) {
         this.apModerators = apModerators;
     }
-
+    
+    public String toString() {
+        return "User.id:" + id;
+    }
 }

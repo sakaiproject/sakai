@@ -37,6 +37,8 @@ import org.sakaiproject.api.app.messageforums.MessageForumsUserManager;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.legacy.content.ContentHostingService;
+import org.sakaiproject.service.legacy.event.EventTrackingService;
 import org.sakaiproject.service.legacy.user.UserDirectoryService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
@@ -50,8 +52,19 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
   protected IdManager idManager;  
   protected UserDirectoryService userDirectoryService;
   
-  public void init(){}
+  private EventTrackingService eventTrackingService;
 
+  public void init() {
+      ;
+  }
+
+  public EventTrackingService getEventTrackingService() {
+      return eventTrackingService;
+  }
+
+  public void setEventTrackingService(EventTrackingService eventTrackingService) {
+      this.eventTrackingService = eventTrackingService;
+  }
   
   /**
    * @see org.sakaiproject.api.app.messageforums.MessageForumsUserManager#getForumUser(java.lang.String)
@@ -92,6 +105,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
       newUser.setUuid(getNextUuid());
       newUser.setUserId(userId);
       saveForumUser(newUser);
+      eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(newUser), false));
       return newUser;
     }
     else{
@@ -117,10 +131,13 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
     this.idManager = idManager;
   }
 
-
   public void setUserDirectoryService(UserDirectoryService userDirectoryService)
   {
     this.userDirectoryService = userDirectoryService;
   }
     
+  private String getEventMessage(Object object) {
+      return "MessageCenter::" + object.toString();
+  }
+  
 }

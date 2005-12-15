@@ -46,6 +46,8 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
+import org.sakaiproject.service.legacy.content.ContentHostingService;
+import org.sakaiproject.service.legacy.event.EventTrackingService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -67,8 +69,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
     private SessionManager sessionManager;
 
+    private EventTrackingService eventTrackingService;
+
     public void init() {
         ;
+    }
+
+    public EventTrackingService getEventTrackingService() {
+        return eventTrackingService;
+    }
+
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
+        this.eventTrackingService = eventTrackingService;
     }
     
     public MessageForumsTypeManager getTypeManager() {
@@ -274,13 +286,23 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public void saveMessage(Message message) {
+        boolean isNew = message.getId() == null;
+
         message.setModified(new Date());
         message.setModifiedBy(getCurrentUser());        
         getHibernateTemplate().saveOrUpdate(message);
+        
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(message), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(message), false));
+        }
+
         LOG.info("message " + message.getId() + " saved successfully");
     }
 
     public void deleteMessage(Message message) {
+        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(message), false));
         getHibernateTemplate().delete(message);
         LOG.info("message " + message.getId() + " deleted successfully");
     }
@@ -293,16 +315,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         LOG.debug("getMessageById executing with messageId: " + messageId);
         
         return (Message) getHibernateTemplate().get(MessageImpl.class, messageId);
-
-//        HibernateCallback hcb = new HibernateCallback() {
-//            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-//                Query q = session.getNamedQuery(QUERY_BY_MESSAGE_ID);
-//                q.setParameter(ID, messageId, Hibernate.STRING);
-//                return q.uniqueResult();
-//            }
-//        };
-//
-//        return (Message) getHibernateTemplate().execute(hcb);
     }   
     
     /**
@@ -336,16 +348,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         LOG.debug("getAttachmentById executing with attachmentId: " + attachmentId);
         
         return (Attachment) getHibernateTemplate().get(AttachmentImpl.class, attachmentId);
-        
-//        HibernateCallback hcb = new HibernateCallback() {
-//            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-//                Query q = session.getNamedQuery(QUERY_ATTACHMENT_BY_ID);
-//                q.setParameter(ID, attachmentId, Hibernate.STRING);
-//                return q.uniqueResult();
-//            }
-//        };
-//
-//        return (Attachment) getHibernateTemplate().execute(hcb);
     }    
     
 
@@ -362,5 +364,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private String getNextUuid() {        
         return idManager.createUuid();
     }
-    
+
+    private String getEventMessage(Object object) {
+        return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
+    }
 }

@@ -52,6 +52,8 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
+import org.sakaiproject.service.legacy.content.ContentHostingService;
+import org.sakaiproject.service.legacy.event.EventTrackingService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -75,8 +77,18 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     public MessageForumsForumManagerImpl() {}
     
+    private EventTrackingService eventTrackingService;
+
     public void init() {
         ;
+    }
+
+    public EventTrackingService getEventTrackingService() {
+        return eventTrackingService;
+    }
+
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
+        this.eventTrackingService = eventTrackingService;
     }
     
     public MessageForumsTypeManager getTypeManager() {
@@ -192,16 +204,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         } else {
             return (BaseForum) getHibernateTemplate().get(PrivateForumImpl.class, forumId);
         }
-
-//        HibernateCallback hcb = new HibernateCallback() {
-//            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-//                Query q = session.getNamedQuery(QUERY_BY_FORUM_ID);
-//                q.setParameter("id", forumId, Hibernate.LONG);
-//                return q.uniqueResult();
-//            }
-//        };
-        
-//        return (BaseForum) getHibernateTemplate().execute(hcb);
     }
 
     public BaseForum getForumByUuid(final String forumId) {
@@ -230,16 +232,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         LOG.debug("getDiscussionForumById executing with topicId: " + topicId);
         
         return (Topic) getHibernateTemplate().get(TopicImpl.class, topicId);
-
-//        HibernateCallback hcb = new HibernateCallback() {
-//            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-//                Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
-//                q.setParameter("id", topicId, Hibernate.STRING);
-//                return q.uniqueResult();
-//            }
-//        };
-//
-//        return (Topic) getHibernateTemplate().execute(hcb);
     }
 
     
@@ -284,6 +276,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#savePrivateForum(org.sakaiproject.api.app.messageforums.PrivateForum)
      */
     public void savePrivateForum(PrivateForum forum) {
+        boolean isNew = forum.getId() == null;
+
         if (forum.getSortIndex() == null) {
             forum.setSortIndex(new Integer(0));
         }
@@ -292,6 +286,13 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setModifiedBy(getCurrentUser());
         forum.setOwner(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(forum);
+
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum), false));
+        }
+
         LOG.debug("savePrivateForum executed with forumId: " + forum.getId());
     }
 
@@ -300,6 +301,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a discussion forum
      */
     public void saveDiscussionForum(DiscussionForum forum) {
+        boolean isNew = forum.getId() == null;
+
         if (forum.getSortIndex() == null) {
             forum.setSortIndex(new Integer(0));
         }
@@ -309,6 +312,13 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setModified(new Date());
         forum.setModifiedBy(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(forum);
+
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum), false));
+        }
+
         LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId());
     }
 
@@ -327,6 +337,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a discussion forum topic
      */
     public void saveDiscussionForumTopic(DiscussionTopic topic) {
+        boolean isNew = topic.getId() == null;
+        
         if (topic.getMutable() == null) {
             topic.setMutable(Boolean.FALSE);
         }
@@ -336,6 +348,13 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(topic);
+
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic), false));
+        }
+
         LOG.debug("saveDiscussionForumTopic executed with topicId: " + topic.getId());
     }
 
@@ -360,12 +379,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       topic.setExtendedDescription("ext-desc");
       topic.setMutable(Boolean.FALSE);
       topic.setSortIndex(new Integer(0));            
-           
-//      if (forumIsParent) {
-//          topic.setBaseForum(getForumById(parentId));
-//      } else {
-//          topic.setParentTopic((PrivateTopic)getTopicById(parentId));
-//      }
       LOG.debug("createPrivateForumTopic executed");
       return topic;
     }
@@ -374,9 +387,18 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a private forum topic
      */
     public void savePrivateForumTopic(PrivateTopic topic) {
+        boolean isNew = topic.getId() == null;
+
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(topic);
+        
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic), false));
+        }
+
         LOG.debug("savePrivateForumTopic executed with forumId: " + topic.getId());
     }
     
@@ -386,9 +408,18 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save an open forum topic
      */
     public void saveOpenForumTopic(OpenTopic topic) {
+        boolean isNew = topic.getId() == null;
+
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(topic);
+
+        if (isNew) {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
+        } else {
+            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic), false));
+        }
+        
         LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
     }
 
@@ -396,6 +427,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Delete a discussion forum and all topics/messages
      */
     public void deleteDiscussionForum(DiscussionForum forum) {
+        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(forum), false));
         getHibernateTemplate().delete(forum);
         LOG.debug("deleteDiscussionForum executed with forumId: " + forum.getId());
     }
@@ -404,6 +436,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Delete a discussion forum topic
      */
     public void deleteDiscussionForumTopic(DiscussionTopic topic) {
+        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(topic), false));
         getHibernateTemplate().delete(topic);
         LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());
     }
@@ -412,6 +445,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Delete an open forum topic
      */
     public void deleteOpenForumTopic(OpenTopic topic) {
+        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(topic), false));
         getHibernateTemplate().delete(topic);
         LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());
     }
@@ -420,6 +454,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Delete a private forum topic
      */
     public void deletePrivateForumTopic(PrivateTopic topic) {
+        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(topic), false));
         getHibernateTemplate().delete(topic);
         LOG.debug("deletePrivateForumTopic executed with forumId: " + topic.getId());
     }
@@ -477,5 +512,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private String getNextUuid() {
         return idManager.createUuid();
     }
-
+    
+    private String getEventMessage(Object object) {
+        return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
+    }
+    
 }
