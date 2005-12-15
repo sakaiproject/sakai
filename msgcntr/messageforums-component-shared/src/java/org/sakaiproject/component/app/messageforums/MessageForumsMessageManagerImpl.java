@@ -332,7 +332,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
       HibernateCallback hcb = new HibernateCallback() {
         public Object doInHibernate(Session session) throws HibernateException, SQLException {
           Query q = session.getNamedQuery(QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS);
-          q.setParameter("id", messageId, Hibernate.STRING);
+          q.setParameter("id", messageId, Hibernate.LONG);
           return q.uniqueResult();
         }
       };    
