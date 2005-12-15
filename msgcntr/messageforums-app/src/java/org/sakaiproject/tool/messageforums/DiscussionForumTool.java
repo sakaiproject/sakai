@@ -79,7 +79,7 @@ public class DiscussionForumTool
   private String composeLabel;   
   //attachment
   private ArrayList attachments = new ArrayList();
-  private ArrayList prepareRemoveAttach = new ArrayList();
+  //private ArrayList prepareRemoveAttach = new ArrayList();
   //private boolean attachCaneled = false;
   //private ArrayList oldAttachments = new ArrayList();
   //private List allAttachments = new ArrayList();
@@ -1203,6 +1203,18 @@ public class DiscussionForumTool
       }
       return MESSAGE_VIEW;
     }
+    if(redirectTo.equals("dfTopicReply"))
+    {
+      if((expand != null) && (expand.equalsIgnoreCase("true")))
+      {
+      	selectedTopic.setReadFullDesciption(true);
+      }
+      else
+      {
+        selectedTopic.setReadFullDesciption(false);
+      }
+      return "dfTopicReply";
+    }
     
     return MAIN;
   }
@@ -1210,5 +1222,168 @@ public class DiscussionForumTool
   public String getUserId()
   {
     return SessionManager.getCurrentSessionUserId();
+  }
+  
+	public String processDfMsgReplyMsg()
+  {
+  	return "dfMessageReply";
+  }
+  
+	public String processDfMsgReplyTp()
+  {
+  	return "dfTopicReply";
+  }
+	
+	public String processDfMsgGrd()
+  {
+  	return null;
+  }
+	
+	public String processDfMsgRvs()
+  {
+  	return null;
+  }
+
+	public String processDfMsgMove()
+  {
+  	return null;
+  }
+	
+	public String processDfMsgDeleteConfirm()
+  {
+  	return null;
+  }
+	
+	public String processDfReplyMsgPost()
+  {
+    Message dMsg=constructMessage();
+
+    dMsg.setInReplyTo(selectedMessage.getMessage());
+    forumManager.saveMessage(dMsg);
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.getTopic().addMessage(dMsg);
+    forumManager.saveTopic(selectedTopic.getTopic());
+    
+    this.composeBody = null;
+  	this.composeLabel = null;
+  	this.composeTitle = null;
+  	
+  	this.attachments.clear();
+    
+  	return ALL_MESSAGES;    
+  }
+
+	public String processDfReplyMsgSaveDraft()
+  {
+    Message dMsg=constructMessage() ;
+    dMsg.setDraft(Boolean.TRUE);
+    
+    dMsg.setInReplyTo(selectedMessage.getMessage());
+    forumManager.saveMessage(dMsg);
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.getTopic().addMessage(dMsg);
+    forumManager.saveTopic(selectedTopic.getTopic());
+    
+  	this.composeBody = null;
+  	this.composeLabel = null;
+  	this.composeTitle = null;
+  	
+  	this.attachments.clear();
+
+    return ALL_MESSAGES;    
+  }
+
+	public String processDfReplyMsgCancel()
+  {
+  	this.composeBody = null;
+  	this.composeLabel = null;
+  	this.composeTitle = null;
+  	
+  	this.attachments.clear();
+  	
+  	return ALL_MESSAGES;
+  }
+	
+	public String processDfReplyTopicPost()
+  {
+    Message dMsg=constructMessage();
+
+    forumManager.saveMessage(dMsg);
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.getTopic().addMessage(dMsg);
+    forumManager.saveTopic(selectedTopic.getTopic());
+    
+    this.composeBody = null;
+  	this.composeLabel = null;
+  	this.composeTitle = null;
+  	
+  	this.attachments.clear();
+    
+  	return ALL_MESSAGES;    
+  }
+  
+	public String processDfReplyTopicSaveDraft()
+  {
+    Message dMsg=constructMessage() ;
+    dMsg.setDraft(Boolean.TRUE);
+    
+    forumManager.saveMessage(dMsg);
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.getTopic().addMessage(dMsg);
+    forumManager.saveTopic(selectedTopic.getTopic());
+    
+  	this.composeBody = null;
+  	this.composeLabel = null;
+  	this.composeTitle = null;
+  	
+  	this.attachments.clear();
+
+    return ALL_MESSAGES;    
+  }
+
+	public String processDfReplyTopicCancel()
+  {
+  	this.composeBody = null;
+  	this.composeLabel = null;
+  	this.composeTitle = null;
+  	
+  	this.attachments.clear();
+  	
+  	return ALL_MESSAGES;
+  }
+  
+	public List getRoles()
+  {
+    LOG.debug("getRoles()");
+    List roleList = new ArrayList();
+    AuthzGroup realm;
+    try
+    {
+      realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
+      Set roles = realm.getRoles();
+      if (roles != null && roles.size() > 0)
+      {
+        Iterator roleIter = roles.iterator();
+        while (roleIter.hasNext())
+        {
+          Role role = (Role) roleIter.next();
+          if (role != null ) roleList.add(role.getId());
+        }
+      }
+    }
+    catch (IdUnusedException e)
+    {
+      LOG.error(e.getMessage(), e);
+    }
+    Collections.sort(roleList);
+    return roleList;
+  }
+  /**
+   * @return siteId
+   */
+  private String getContextSiteId()
+  {
+    LOG.debug("getContextSiteId()");
+    return ("/site/" + ToolManager.getCurrentPlacement().getContext());
   }
 }
