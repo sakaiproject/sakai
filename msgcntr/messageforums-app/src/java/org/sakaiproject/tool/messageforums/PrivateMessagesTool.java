@@ -197,16 +197,16 @@ public class PrivateMessagesTool
     this.typeManager = typeManager;
   }
 
-  public Area getArea()
-  {
-    Area privateArea=prtMsgManager.getPrivateMessageArea();
+  public Area getPvtArea()
+  {                  
         
-    PrivateForum pf = prtMsgManager.initializePrivateMessageArea(privateArea);    
+    Area varArea = prtMsgManager.getPrivateMessageArea();
     
+    PrivateForum pf = prtMsgManager.initializePrivateMessageArea(varArea);        
     pvtTopics = pf.getTopics();
     forum=pf;           
-        
-    return privateArea;
+    
+    return varArea;
   }
   
   public boolean getPvtAreaEnabled()
@@ -218,9 +218,8 @@ public class PrivateMessagesTool
   
   //Return decorated Forum
   public PrivateForumDecoratedBean getDecoratedForum()
-  {
-
-      PrivateForumDecoratedBean decoratedForum = new PrivateForumDecoratedBean(forum) ;
+  {      
+      PrivateForumDecoratedBean decoratedForum = new PrivateForumDecoratedBean(getForum()) ;
       for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
       {
         Topic topic = (Topic) iterator.next();
@@ -230,22 +229,7 @@ public class PrivateMessagesTool
           //decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
           //decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic)) ;
           
-          String typeUuid = null;
-          if ("Received".equalsIgnoreCase(topic.getTitle())){
-            typeUuid = typeManager.getReceivedPrivateMessageType();
-          }
-          else if ("Sent".equalsIgnoreCase(topic.getTitle())){
-            typeUuid = typeManager.getSentPrivateMessageType();
-          }
-          else if ("Deleted".equalsIgnoreCase(topic.getTitle())){
-            typeUuid = typeManager.getDeletedPrivateMessageType();
-          }
-          else if ("Drafts".equalsIgnoreCase(topic.getTitle())){
-            typeUuid = typeManager.getDraftPrivateMessageType();
-          }
-          else {
-            // 
-          }
+          String typeUuid = getPrivateMessageTypeFromContext();          
           
           decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(topic.getId(),
               typeUuid));
@@ -647,7 +631,7 @@ public class PrivateMessagesTool
         this.setDetailMsg(dMsg);
         //set isHasRead property of decorated bean as message read
         //TODO Error - markMessageAsReadForUser(message: Message.id:5) could not find user in recipient list
-        //prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
+        prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
         //TODO Error - Failed to lazily initialize a collection -
 //        List recLs= dMsg.getMsg().getRecipients();
 //        for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
@@ -1682,6 +1666,23 @@ public class PrivateMessagesTool
   public void setForumManager(MessageForumsForumManager forumManager)
   {
     this.forumManager = forumManager;
+  }
+
+
+  public PrivateForum getForum()
+  {            
+    return forum;
+  }
+
+
+  public void setForum(PrivateForum forum)
+  {
+    this.forum = forum;
+  }
+
+  public void setPvtArea(Area pvtArea)
+  {
+    this.pvtArea = pvtArea;
   } 
 
 }
