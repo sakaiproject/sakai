@@ -42,6 +42,9 @@
     <property name="readDrafts">
       <column name="READ_DRAFTS" not-null="true" />
     </property>
+    <property name="markAsRead">
+      <column name="MARK_AS_READ" not-null="true" />
+    </property>
     <property name="defaultValue">
       <column name="DEFAULT_VALUE" not-null="true" />
     </property>

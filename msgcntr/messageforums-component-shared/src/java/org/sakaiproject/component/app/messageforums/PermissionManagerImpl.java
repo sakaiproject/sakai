@@ -497,6 +497,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             mp.setReadDrafts(Boolean.FALSE);
             mp.setReviseAny(Boolean.FALSE);
             mp.setReviseOwn(Boolean.FALSE);
+            mp.setMarkAsRead(Boolean.FALSE);
         } else {
             mp.setDeleteAny(permissions.getDeleteAny());
             mp.setDeleteOwn(permissions.getDeleteOwn());
@@ -504,6 +505,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             mp.setReadDrafts(permissions.getReadDrafts());
             mp.setReviseAny(permissions.getReviseAny());
             mp.setReviseOwn(permissions.getReviseOwn());
+            mp.setMarkAsRead(permissions.getMarkAsRead());
         }
         mp.setRole(role);
         
@@ -525,6 +527,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             mp.setReadDrafts(Boolean.FALSE);
             mp.setReviseAny(Boolean.FALSE);
             mp.setReviseOwn(Boolean.FALSE);
+            permissions.setMarkAsRead(mp.getMarkAsRead());
         } else {
             mp.setDeleteAny(permissions.getDeleteAny());
             mp.setDeleteOwn(permissions.getDeleteOwn());
@@ -532,6 +535,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             mp.setReadDrafts(permissions.getReadDrafts());
             mp.setReviseAny(permissions.getReviseAny());
             mp.setReviseOwn(permissions.getReviseOwn());
+            permissions.setMarkAsRead(permissions.getMarkAsRead());
         }
         mp.setRole(role);
         
@@ -568,6 +572,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReviseAny(permissions.getReviseAny());
         permissions.setReviseOwn(permissions.getReviseOwn());
         permissions.setRole(permission.getRole());
+        permissions.setMarkAsRead(permissions.getMarkAsRead());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
         if (isNew) {
@@ -596,6 +601,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReadDrafts(permissions.getReadDrafts());
         permissions.setReviseAny(permissions.getReviseAny());
         permissions.setReviseOwn(permissions.getReviseOwn());
+        permissions.setMarkAsRead(permissions.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
@@ -623,6 +629,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             mp.setReadDrafts(permissions.getReadDrafts());
             mp.setReviseAny(permissions.getReviseAny());
             mp.setReviseOwn(permissions.getReviseOwn());
+            mp.setMarkAsRead(permissions.getMarkAsRead());
         }
         mp.setRole(role);
         
@@ -646,6 +653,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             mp.setReadDrafts(permissions.getReadDrafts());
             mp.setReviseAny(permissions.getReviseAny());
             mp.setReviseOwn(permissions.getReviseOwn());
+            mp.setMarkAsRead(permissions.getMarkAsRead());
         }
         mp.setRole(role);
         
@@ -681,6 +689,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReadDrafts(permissions.getReadDrafts());
         permissions.setReviseAny(permissions.getReviseAny());
         permissions.setReviseOwn(permissions.getReviseOwn());
+        permissions.setMarkAsRead(permissions.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
@@ -710,6 +719,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReadDrafts(permissions.getReadDrafts());
         permissions.setReviseAny(permissions.getReviseAny());
         permissions.setReviseOwn(permissions.getReviseOwn());
+        permissions.setMarkAsRead(permissions.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
@@ -737,6 +747,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             mp.setReadDrafts(permissions.getReadDrafts());
             mp.setReviseAny(permissions.getReviseAny());
             mp.setReviseOwn(permissions.getReviseOwn());
+            permissions.setMarkAsRead(permissions.getMarkAsRead());
         }
         mp.setRole(role);
         
@@ -760,6 +771,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             mp.setReadDrafts(permissions.getReadDrafts());
             mp.setReviseAny(permissions.getReviseAny());
             mp.setReviseOwn(permissions.getReviseOwn());
+            permissions.setMarkAsRead(permissions.getMarkAsRead());
         }
         mp.setRole(role);
         
@@ -795,6 +807,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReadDrafts(permissions.getReadDrafts());
         permissions.setReviseAny(permissions.getReviseAny());
         permissions.setReviseOwn(permissions.getReviseOwn());
+        permissions.setMarkAsRead(permissions.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
@@ -824,6 +837,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReadDrafts(permissions.getReadDrafts());
         permissions.setReviseAny(permissions.getReviseAny());
         permissions.setReviseOwn(permissions.getReviseOwn());
+        permissions.setMarkAsRead(permissions.getMarkAsRead());
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
