@@ -66,7 +66,7 @@ public class ConfirmPublishAssessmentListener
     ExternalContext extContext = context.getExternalContext();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    
+    boolean ipError=false;
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
         "assessmentSettings");
@@ -147,14 +147,35 @@ public class ConfirmPublishAssessmentListener
     {
       // keep default
       log.warn("Expecting Boolean hasSpecificIP, got: " + ip);
-
     }
+    if(hasIp){
+        String ipString = assessmentSettings.getIpAddresses().trim();
+	if(ipString.equals("")){
+	    ipError=true;
+	}
+        else{
+	    try{
+	    String[] parts=ipString.split("\\.");
+            for(int i=0;i<parts.length;i++){
+                int num=Integer.parseInt(parts[i]);
+               
+		if((num<0) ||(num>255)){
+		    ipError=true;
+		    break;
+		}
+	    }
+	    }catch (Exception e)
+		{
+		    ipError=true;
+		}
+	} 
+	if(ipError){
 
-    if((hasIp) &&((assessmentSettings.getIpAddresses().trim()).equals(""))){
-	String ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
-	context.addMessage(null,new FacesMessage(ip_err));
-        error=true;
-
+	    String  ip_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
+	    context.addMessage(null,new FacesMessage(ip_err));
+	    error=true;
+	}
+	
     }
 
 

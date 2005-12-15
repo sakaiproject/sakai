@@ -71,17 +71,17 @@ public class SaveAssessmentSettingsListener
     boolean error=false;
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId()); 
     AssessmentService assessmentService = new AssessmentService();
-  
+    boolean ipError=false;
     String assessmentName=assessmentSettings.getTitle();
 // check if name is empty
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
-     	String nameEmpty_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
+     	String nameEmpty_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 	context.addMessage(null,new FacesMessage(nameEmpty_err));
 	error=true;
     }
       //#2 - check if name is unique
     if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
-	String nameUnique_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+	String nameUnique_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 	context.addMessage(null,new FacesMessage(nameUnique_err));
 	error=true;
     }
@@ -103,7 +103,7 @@ public class SaveAssessmentSettingsListener
 
     }
     if((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
-	String time_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
+	String time_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
 	context.addMessage(null,new FacesMessage(time_err));
         error=true;
     }
@@ -125,7 +125,7 @@ public class SaveAssessmentSettingsListener
     }
 
     if((hasUserName) &&((assessmentSettings.getUsername().trim()).equals(""))){
-	String userName_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","userName_error");
+	String userName_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","userName_error");
 	context.addMessage(null,new FacesMessage(userName_err));
         error=true;
     }
@@ -147,12 +147,36 @@ public class SaveAssessmentSettingsListener
 
     }
 
-    if((hasIp) &&((assessmentSettings.getIpAddresses().trim()).equals(""))){
-	String ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
-	context.addMessage(null,new FacesMessage(ip_err));
-        error=true;
+    if(hasIp){
+        String ipString = assessmentSettings.getIpAddresses().trim();
+	if(ipString.equals("")){
+	    ipError=true;
+	}
+        else{
+	    try{
+	    String[] parts=ipString.split("\\.");
+            for(int i=0;i<parts.length;i++){
+                int num=Integer.parseInt(parts[i]);
+               
+		if((num<0) ||(num>255)){
+		    ipError=true;
+		    break;
+		}
+	    }
+	    }catch (Exception e)
+		{
+		    ipError=true;
+		}
+	} 
+	if(ipError){
 
+	    String  ip_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
+	    context.addMessage(null,new FacesMessage(ip_err));
+	    error=true;
+	}
+	
     }
+
 
     if (error){
       assessmentSettings.setOutcomeSave("editAssessmentSettings");
