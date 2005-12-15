@@ -41,6 +41,9 @@
     <property name="enabled">
       <column name="ENABLED" not-null="true" />
     </property>
+    <property name="locked">
+      <column name="LOCKED" not-null="true" />
+    </property>
    	<list name="openForums" lazy="false" table="MFR_OPEN_FORUM_T" cascade="all">
 	    <key column="surrogateKey"/>
 	    <index column="area_index_col" />

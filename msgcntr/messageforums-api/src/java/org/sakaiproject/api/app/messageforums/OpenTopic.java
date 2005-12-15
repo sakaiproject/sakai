@@ -30,4 +30,8 @@ public interface OpenTopic extends Topic {
 
     public void setLocked(Boolean locked);
 
+    public Boolean getDraft();
+    
+    public void setDraft(Boolean draft);
+
 }

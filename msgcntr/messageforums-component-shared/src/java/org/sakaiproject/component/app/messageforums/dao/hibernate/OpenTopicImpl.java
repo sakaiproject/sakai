@@ -32,6 +32,7 @@ public class OpenTopicImpl extends TopicImpl implements OpenTopic {
     private static final Log LOG = LogFactory.getLog(OpenTopicImpl.class);
     
     private Boolean locked;
+    private Boolean draft;
     
     // indecies for hibernate
     private int ofindex;
@@ -55,6 +56,14 @@ public class OpenTopicImpl extends TopicImpl implements OpenTopic {
 
     public void setOfindex(int ofindex) {
         this.ofindex = ofindex;
+    }
+
+    public Boolean getDraft() {
+        return draft;
+    }
+
+    public void setDraft(Boolean draft) {
+        this.draft = draft;
     }
         
 }

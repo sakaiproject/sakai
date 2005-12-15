@@ -88,6 +88,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setName("Private Area");
             area.setEnabled(Boolean.TRUE);
             area.setHidden(Boolean.TRUE);
+            area.setLocked(Boolean.FALSE);
             saveArea(area);
         }                                                      
         
@@ -101,6 +102,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setName("Disucssion Area");
             area.setEnabled(Boolean.TRUE);
             area.setHidden(Boolean.TRUE);
+            area.setLocked(Boolean.FALSE);
             saveArea(area);
         }
         return area;

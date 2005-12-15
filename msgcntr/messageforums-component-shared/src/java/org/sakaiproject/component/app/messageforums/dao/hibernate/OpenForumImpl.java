@@ -31,6 +31,7 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     private static final Log LOG = LogFactory.getLog(OpenForumImpl.class);
     
+    private Boolean draft;
     private Boolean locked;
     
     // indecies for hibernate
@@ -54,6 +55,14 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     public void setAreaindex(int areaindex) {
         this.areaindex = areaindex;
+    }
+
+    public Boolean getDraft() {
+        return draft;
+    }
+
+    public void setDraft(Boolean draft) {
+        this.draft = draft;
     }
 
 }

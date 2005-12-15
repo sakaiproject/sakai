@@ -21,8 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.app.messageforums.ControlPermissions;
-import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class AreaImpl extends MutableEntityImpl implements Area
@@ -35,7 +33,9 @@ public class AreaImpl extends MutableEntityImpl implements Area
   private String name;
 
   private Boolean hidden;
-
+  
+  private Boolean locked;
+  
   private Boolean enabled;
 
   private String typeUuid;
@@ -133,6 +133,14 @@ public class AreaImpl extends MutableEntityImpl implements Area
          
   public String toString() {
       return "Area.id:" + id;
+  }
+  
+  public Boolean getLocked() {
+      return locked;
+  }
+
+  public void setLocked(Boolean locked) {
+      this.locked = locked;
   }
 
   ////////////////////////////////////////////////////////////////////////

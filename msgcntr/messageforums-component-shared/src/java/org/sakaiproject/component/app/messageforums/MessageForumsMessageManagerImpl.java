@@ -249,7 +249,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         message.setTypeUuid(typeManager.getPrivateMessageAreaType());
         message.setCreated(new Date());
         message.setCreatedBy(getCurrentUser());
-
+        message.setDraft(Boolean.FALSE);
+        
         LOG.info("message " + message.getUuid() + " created successfully");
         return message;        
     }
@@ -268,6 +269,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         message.setTypeUuid(typeId);
         message.setCreated(new Date());
         message.setCreatedBy(getCurrentUser());
+        message.setDraft(Boolean.FALSE);
 
         LOG.info("message " + message.getUuid() + " created successfully");
         return message;        

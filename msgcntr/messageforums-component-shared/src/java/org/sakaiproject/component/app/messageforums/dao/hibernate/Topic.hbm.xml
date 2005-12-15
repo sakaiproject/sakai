@@ -97,6 +97,9 @@
       <property name="locked">
         <column name="LOCKED" not-null="false" />
       </property>      
+      <property name="draft">
+        <column name="DRAFT" not-null="false" />
+      </property>      
 
 	  <!-- DiscussionTopic fields -->
 	  <subclass 

@@ -270,6 +270,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         {
           return true;
         }
+        if (t == null) {
+            return false;
+        }
         if (t.getId().equals(topic.getId()))
         {
           next = true;
@@ -301,13 +304,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
         Topic t = (Topic) iter.next();
-        if (t.getId().equals(topic.getId()))
-        {
-          // need to check null because we might be on the first topic
-          // which means there is no previous one
-          return prev != null;
+        if (t != null) {
+            if (t.getId().equals(topic.getId()))
+            {
+              // need to check null because we might be on the first topic
+              // which means there is no previous one
+              return prev != null;
+            }
+            prev = (DiscussionTopic) t;
         }
-        prev = (DiscussionTopic) t;
       }
     }
 

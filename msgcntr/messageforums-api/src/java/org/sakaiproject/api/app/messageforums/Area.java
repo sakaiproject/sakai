@@ -73,4 +73,8 @@ public interface Area extends MutableEntity {
 
     public void removeOpenForum(BaseForum forum);
 
+    public Boolean getLocked();
+    
+    public void setLocked(Boolean locked);
+    
 }

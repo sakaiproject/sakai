@@ -28,17 +28,9 @@ import java.util.List;
 
 public interface MessageForumsForumManager {
 
-    /**
-     * Retrieve the current user's discussion forums
-     */
-//    public List getDiscussionForums();
-
-       
-  
+ 
     /**
      * get forum by owner
-     * @param owner
-     * @return private forum
      */
     public PrivateForum getForumByOwner(final String owner);
     
@@ -49,11 +41,6 @@ public interface MessageForumsForumManager {
      */
     public BaseForum getForumById(boolean open, Long forumId);
     public BaseForum getForumByUuid(String forumId);
-
-    /**
-     * Retrieve topics the current user's open forums
-     */
-    public List getOpenForums();
 
     /**
      * Create and save an empty discussion forum
@@ -71,9 +58,7 @@ public interface MessageForumsForumManager {
      * save private forum
      * @param forum to save
      */
-    public void savePrivateForum(PrivateForum forum);
-      
-    
+    public void savePrivateForum(PrivateForum forum);         
 
     /**
      * Save a discussion forum
@@ -109,7 +94,7 @@ public interface MessageForumsForumManager {
     /**
      * Create and save an empty open discussion forum topic
      */
-    public OpenTopic createOpenForumTopic();
+    public OpenTopic createOpenForumTopic(OpenForum forum);
 
     /**
      * Save an open forum topic

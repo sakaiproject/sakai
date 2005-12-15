@@ -4,7 +4,6 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
 <hibernate-mapping>
-
   <class 
       name="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
       table="MFR_OPEN_FORUM_T" 
@@ -62,6 +61,9 @@
     <property name="locked">
       <column name="LOCKED" not-null="true" />
     </property>
+    <property name="draft">
+      <column name="DRAFT" not-null="false" />
+    </property>      
 
     <many-to-one name="area" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
