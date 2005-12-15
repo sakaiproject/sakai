@@ -285,7 +285,7 @@ public class DiscussionForumTool
     {
       forumMessagePermissions= forumManager.getForumMessagePermissions(selectedForum.getForum());
     }
-      return forumControlPermissions;
+      return forumMessagePermissions;
         
   }
 
