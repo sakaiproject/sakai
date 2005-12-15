@@ -549,15 +549,17 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public MessagePermissions createAreaMessagePermissionForRole(String role, String typeId) {
         MessagePermissions permissions = new MessagePermissionsImpl();
         MessagePermissions mp = getDefaultAreaMessagePermissionForRole(role, typeId);
-        permissions.setDefaultValue(mp.getDefaultValue());
-        permissions.setDeleteAny(mp.getDeleteAny());
-        permissions.setDeleteOwn(mp.getDeleteOwn());
-        permissions.setRead(mp.getRead());
-        permissions.setReadDrafts(mp.getReadDrafts());
-        permissions.setReviseAny(mp.getReviseAny());
-        permissions.setReviseOwn(mp.getReviseOwn());
-        permissions.setMarkAsRead(mp.getMarkAsRead());
-        permissions.setRole(role);
+        if (mp != null) {
+            permissions.setDefaultValue(mp.getDefaultValue());
+            permissions.setDeleteAny(mp.getDeleteAny());
+            permissions.setDeleteOwn(mp.getDeleteOwn());
+            permissions.setRead(mp.getRead());
+            permissions.setReadDrafts(mp.getReadDrafts());
+            permissions.setReviseAny(mp.getReviseAny());
+            permissions.setReviseOwn(mp.getReviseOwn());
+            permissions.setMarkAsRead(mp.getMarkAsRead());
+            permissions.setRole(role);
+        }
         return permissions;
     }
     
@@ -676,15 +678,17 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public MessagePermissions createForumMessagePermissionForRole(String role, String typeId) {
         MessagePermissions permissions = new MessagePermissionsImpl();
         MessagePermissions mp = getAreaMessagePermissionForRole(role, typeId);
-        permissions.setDefaultValue(mp.getDefaultValue());
-        permissions.setDeleteAny(mp.getDeleteAny());
-        permissions.setDeleteOwn(mp.getDeleteOwn());
-        permissions.setRead(mp.getRead());
-        permissions.setReadDrafts(mp.getReadDrafts());
-        permissions.setReviseAny(mp.getReviseAny());
-        permissions.setReviseOwn(mp.getReviseOwn());
-        permissions.setMarkAsRead(mp.getMarkAsRead());
-        permissions.setRole(role);
+        if (mp != null) {
+            permissions.setDefaultValue(mp.getDefaultValue());
+            permissions.setDeleteAny(mp.getDeleteAny());
+            permissions.setDeleteOwn(mp.getDeleteOwn());
+            permissions.setRead(mp.getRead());
+            permissions.setReadDrafts(mp.getReadDrafts());
+            permissions.setReviseAny(mp.getReviseAny());
+            permissions.setReviseOwn(mp.getReviseOwn());
+            permissions.setMarkAsRead(mp.getMarkAsRead());
+            permissions.setRole(role);
+        }
         return permissions;
     }
     
@@ -803,16 +807,17 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public MessagePermissions createTopicMessagePermissionForRole(BaseForum forum, String role, String typeId) {
         MessagePermissions permissions = new MessagePermissionsImpl();
         MessagePermissions mp = getForumMessagePermissionForRole(forum, role, typeId);
-        permissions.setDefaultValue(mp.getDefaultValue());
-        permissions.setDeleteAny(mp.getDeleteAny());
-        permissions.setDeleteOwn(mp.getDeleteOwn());
-        permissions.setRead(mp.getRead());
-        permissions.setReadDrafts(mp.getReadDrafts());
-        permissions.setReviseAny(mp.getReviseAny());
-        permissions.setReviseOwn(mp.getReviseOwn());
-        permissions.setMarkAsRead(mp.getMarkAsRead());
-        permissions.setRole(role);
-        permissions.setRole(role);
+        if (mp != null) {
+            permissions.setDefaultValue(mp.getDefaultValue());
+            permissions.setDeleteAny(mp.getDeleteAny());
+            permissions.setDeleteOwn(mp.getDeleteOwn());
+            permissions.setRead(mp.getRead());
+            permissions.setReadDrafts(mp.getReadDrafts());
+            permissions.setReviseAny(mp.getReviseAny());
+            permissions.setReviseOwn(mp.getReviseOwn());
+            permissions.setMarkAsRead(mp.getMarkAsRead());
+            permissions.setRole(role);
+        }
         return permissions;
     }
     
