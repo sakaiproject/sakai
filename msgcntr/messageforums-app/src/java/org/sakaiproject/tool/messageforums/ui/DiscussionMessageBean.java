@@ -2,6 +2,9 @@ package org.sakaiproject.tool.messageforums.ui;
 
 import org.sakaiproject.api.app.messageforums.Message;
 
+import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+
 
 
 /**
@@ -61,9 +64,13 @@ public class DiscussionMessageBean
     {
       return false;
     }
-    if(message.getAttachments().size()>0)
+    else //if(message.getAttachments().size()>0)
     {
-      return true;
+    	MessageForumsMessageManager mfmm = 
+    		(org.sakaiproject.api.app.messageforums.MessageForumsMessageManager)ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager");
+    	Message messageWithAttach = mfmm.getMessageByIdWithAttachments(message.getId());
+    	if(messageWithAttach.getAttachments().size()>0)
+    		return true;
     }
     return false;
   }

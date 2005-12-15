@@ -701,7 +701,8 @@ public class DiscussionForumTool
       //TODO: direct me 
       return MAIN;
     }
-    Message message=forumManager.getMessageById(new Long(messageId));
+    //Message message=forumManager.getMessageById(new Long(messageId));
+    Message message = messageManager.getMessageByIdWithAttachments(new Long(messageId));;
     if(message==null)
     {
 //    TODO: direct me 
@@ -710,6 +711,15 @@ public class DiscussionForumTool
     selectedMessage= new DiscussionMessageBean(message);
 //    TODO:remove this after real data is in there
     selectedTopic= new DiscussionTopicBean(forumManager.getTopicById(new Long(getExternalParameterByKey(TOPIC_ID))));
+    String currentForumId = getExternalParameterByKey(FORUM_ID);
+    if(currentForumId!=null && (!currentForumId.trim().equals("")))
+    {
+    	DiscussionForum forum = forumManager.getForumById(new Long(currentForumId));
+    	selectedForum = getDecoratedForum(forum);
+    	selectedTopic.getTopic().setBaseForum(forum);
+    }
+    selectedTopic = getDecoratedTopic(forumManager.getTopicById(new Long(getExternalParameterByKey(TOPIC_ID))));
+    
 //    selectedTopic= new DiscussionTopicBean(message.getTopic());
     return MESSAGE_VIEW;
   }
@@ -851,7 +861,7 @@ public class DiscussionForumTool
     }
     DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic);
     // TODO : implement me
-    decoTopic.getTopic().setBaseForum(forumManager.getForumById(new Long(5)));
+    //decoTopic.getTopic().setBaseForum(forumManager.getForumById(new Long(5)));
     decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
     decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(
         SessionManager.getCurrentSessionUserId(), topic));
@@ -900,10 +910,23 @@ public class DiscussionForumTool
     String topicId = null;
     try
     {
+      String forumId = getExternalParameterByKey(FORUM_ID);
+      DiscussionForum forum = null;
+      if(forumId != null)
+      {
+      	if(!forumId.trim().equals(""))
+      	{
+      		forum = forumManager.getForumById(new Long(forumId));
+      		selectedForum = new DiscussionForumBean(forum);
+      	}
+      }
+    	
       topicId = getExternalParameterByKey(externalTopicId);
       if (topicId != null)
       {
         DiscussionTopic topic = forumManager.getTopicById(new Long(topicId));
+        if(forum != null)
+        	topic.setBaseForum(forum);
         selectedTopic = getDecoratedTopic(topic);
       }
       else
@@ -1172,6 +1195,18 @@ public class DiscussionForumTool
         selectedTopic.setReadFullDesciption(false);
       }
       return MESSAGE_COMPOSE;
+    }
+    if(redirectTo.equals("dfViewMessage"))
+    {
+      if((expand != null) && (expand.equalsIgnoreCase("true")))
+      {
+      	selectedTopic.setReadFullDesciption(true);
+      }
+      else
+      {
+        selectedTopic.setReadFullDesciption(false);
+      }
+      return MESSAGE_VIEW;
     }
     
     return MAIN;

@@ -15,17 +15,16 @@
 					<%--<h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 					<h:outputText value=" - " />
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />--%>
-          <table width="80%" align="left">
-            <tr>
-              <td align="left">
-                <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
-			          <h:outputText value=" - "/>
-              </td>
-              <td align="left">
-              	<h:outputText value="#{ForumTool.selectedTopic.topic.title}"/>
-              </td>
-            </tr>                                   
-          </table>
+					<sakai:panel_edit>
+						<sakai:doc_section>
+              <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
+		          <h:outputText value=" - "/>
+						</sakai:doc_section>
+						<sakai:doc_section>
+		         	<h:outputText value="#{ForumTool.selectedTopic.topic.title}"/>        
+							<h:outputText value=""/>
+						</sakai:doc_section>
+					</sakai:panel_edit>
         </sakai:group_box>
           
         <sakai:group_box>  
@@ -38,7 +37,7 @@
 						onmousedown="document.forms[0].onsubmit();"
 						rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}" 
 						value="#{msgs.cdfm_read_full_description}">
-						<f:param value="dfCompose" name="redirectToProcessAction"/>
+						<f:param value="dfViewMessage" name="redirectToProcessAction"/>
 						<f:param value="true" name="composeExpand"/>
 					</h:commandLink>
 					<h:inputTextarea rows="5" cols="100" 
@@ -51,7 +50,7 @@
 						onmousedown="document.forms[0].onsubmit();"
   					value="#{msgs.cdfm_hide_full_description}" 
   					rendered="#{ForumTool.selectedTopic.readFullDesciption}">
-						<f:param value="dfCompose" name="redirectToProcessAction"/>
+						<f:param value="dfViewMessage" name="redirectToProcessAction"/>
 					</h:commandLink>					
         </sakai:group_box>
 
@@ -73,11 +72,11 @@
 				<sakai:group_box>
           <table width="80%" align="left">
             <tr>
-              <td align="left" width="10%">
+              <td align="left" width="7%">
                 <h:outputText value="#{msgs.cdfm_title}" />
 			          <h:outputText value="*" style="color: red"/>                
               </td>
-              <td align="left" width="30%">
+              <td align="left" width="33%">
               	<h:inputText value="#{ForumTool.composeTitle}" style="width:200px;" required="true" id="df_compose_title"/>
               </td>
               <td align="left" width="60%">

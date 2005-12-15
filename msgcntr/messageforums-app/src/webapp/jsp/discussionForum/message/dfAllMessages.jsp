@@ -16,6 +16,7 @@
 				</h3>
 				 <sakai:instruction_message value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 				 <br/>
+				 
 				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}" 
 					id="topic_extended_show" value="#{msgs.cdfm_read_full_description}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
@@ -28,6 +29,9 @@
 					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 					<f:param value="processActionDisplayTopic" name="redirectToProcessAction"/>
 				</h:commandLink>		
+				
+				<h:commandButton action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages" value="#{msgs.cdfm_container_title}">
+				</h:commandButton>
 			</div>
 			<div class="right-header-section">
 				<h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
@@ -62,6 +66,7 @@
     	        	<h:outputText value=" #{message.message.title}"/>
         	    	<f:param value="#{message.message.id}" name="messageId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+        	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
 	          	</h:commandLink>
 			</h:column>
 

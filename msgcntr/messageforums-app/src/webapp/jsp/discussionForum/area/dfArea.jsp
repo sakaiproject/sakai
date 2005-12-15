@@ -28,6 +28,7 @@
 				<f:verbatim><div class="topicRows"></f:verbatim>
 				<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{topic.topic.title}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
+					<f:param value="#{forum.forum.id}" name="forumId"/>
 				</h:commandLink>
 				<h:outputText id="topic_msg_count55" value=" (2 messages - 0 unread)"/>
 				<%--
