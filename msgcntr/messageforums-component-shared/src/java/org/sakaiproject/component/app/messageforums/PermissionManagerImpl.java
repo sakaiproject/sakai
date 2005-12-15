@@ -247,6 +247,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             cp.setMovePostings(permissions.getMovePostings());
             cp.setNewResponse(permissions.getNewResponse());
             cp.setNewTopic(permissions.getNewTopic());
+            cp.setPostToGradebook(permissions.getPostToGradebook());
             cp.setResponseToResponse(permissions.getResponseToResponse());
         }
         cp.setRole(role);
@@ -347,6 +348,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             cp.setMovePostings(permissions.getMovePostings());
             cp.setNewResponse(permissions.getNewResponse());
             cp.setResponseToResponse(permissions.getResponseToResponse());
+            cp.setPostToGradebook(permissions.getPostToGradebook());
         }
         cp.setRole(role);
         return cp;
