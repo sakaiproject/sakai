@@ -43,6 +43,7 @@ create table GB_GRADE_RECORD_T (
    ENTERED_GRADE varchar(255),
    SORT_GRADE double precision,
    primary key (ID)
+   unique (GRADABLE_OBJECT_ID, STUDENT_ID)
 );
 create table GB_TEACHING_ASSIGNMENT_T (
    ID bigint not null auto_increment,
@@ -113,3 +114,5 @@ alter table GB_GRADABLE_OBJECT_T add index FK759996A76AB1529A (GRADEBOOK_ID), ad
 alter table GB_GRADE_MAP_T add index FKADE112256AB1529A (GRADEBOOK_ID), add constraint FKADE112256AB1529A foreign key (GRADEBOOK_ID) references GB_GRADEBOOK_T (ID);
 alter table GB_GRADING_EVENT_T add index FK4C9D99E0B5399B44 (GRADABLE_OBJECT_ID), add constraint FK4C9D99E0B5399B44 foreign key (GRADABLE_OBJECT_ID) references GB_GRADABLE_OBJECT_T (ID);
 alter table GB_GRADEBOOK_T add index FK7C870191F11270F8 (SELECTED_GRADE_MAPPING_ID), add constraint FK7C870191F11270F8 foreign key (SELECTED_GRADE_MAPPING_ID) references GB_GRADE_MAP_T (ID);
+create index GB_GRADE_RECORD_G_O_IDX on GB_GRADE_RECORD_T (GRADABLE_OBJECT_ID);
+create index GB_GRADE_RECORD_STUDENT_ID_IDX on GB_GRADE_RECORD_T (STUDENT_ID);

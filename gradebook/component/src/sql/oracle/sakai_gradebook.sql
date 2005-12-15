@@ -51,6 +51,7 @@ create table GB_GRADE_RECORD_T (
    ENTERED_GRADE varchar2(255),
    SORT_GRADE double precision,
    primary key (ID)
+   unique (GRADABLE_OBJECT_ID, STUDENT_ID)
 );
 create table GB_TEACHING_ASSIGNMENT_T (
    ID number(19,0) not null,
@@ -129,3 +130,5 @@ create sequence GB_USER_S;
 create sequence GB_TA_S;
 create sequence GB_GRADEBOOK_S;
 create sequence GB_GRADE_RECORD_S;
+create index GB_GRADE_RECORD_G_O_IDX on GB_GRADE_RECORD_T (GRADABLE_OBJECT_ID);
+create index GB_GRADE_RECORD_STUDENT_ID_IDX on GB_GRADE_RECORD_T (STUDENT_ID);

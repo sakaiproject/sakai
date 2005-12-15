@@ -14,9 +14,14 @@
 
 		<version name="version" type="integer" column="VERSION"/>
 
-		<many-to-one name="gradableObject" column="GRADABLE_OBJECT_ID" not-null="true" />
-
-		<property name="studentId" column="STUDENT_ID" type="string" not-null="true" />
+		<many-to-one name="gradableObject">
+			<column name="GRADABLE_OBJECT_ID" not-null="true"
+				unique-key="gradeRecordKey" index="GB_GRADE_RECORD_G_O_IDX" />
+		</many-to-one>
+		<property name="studentId" type="string">
+			<column name="STUDENT_ID" not-null="true"
+				unique-key="gradeRecordKey" index="GB_GRADE_RECORD_STUDENT_ID_IDX" />
+		</property>
 
 		<property name="graderId" column="GRADER_ID" type="string" not-null="true" />
 
