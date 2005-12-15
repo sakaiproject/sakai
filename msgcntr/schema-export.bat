@@ -17,4 +17,4 @@ set PROPS=%HIBERNATE_HOME%\src
 set CP=%MAVEN_TARGET%;%PROPS%;%HIBERNATE_HOME%\hibernate2.jar;%LIB%\commons-logging-1.0.4.jar;%LIB%\commons-collections-2.1.1.jar;%LIB%\commons-lang-1.0.1.jar;%LIB%\cglib-full-2.0.2.jar;%LIB%\dom4j-1.4.jar;%LIB%\odmg-3.0.jar;%LIB%\xml-apis.jar;%LIB%\xerces-2.4.0.jar;%LIB%\xalan-2.4.0.jar
 set CP=%CP%;C:\java\projects\messageforums\messageforums-api\target\classes
 
-java -cp %CP% -Dhibernate.dialect=%HIBERNATE_DIALECT% net.sf.hibernate.tool.hbm2ddl.SchemaExport --text --format --output=%HIBERNATE_DIALECT%-ddl.sql %MAVEN_SRC%\*.hbm.xml
+java -cp %CP% -Dhibernate.dialect=%HIBERNATE_DIALECT% net.sf.hibernate.tool.hbm2ddl.SchemaExport --delimiter=; --text --format --output=%HIBERNATE_DIALECT%-ddl.sql %MAVEN_SRC%\*.hbm.xml
