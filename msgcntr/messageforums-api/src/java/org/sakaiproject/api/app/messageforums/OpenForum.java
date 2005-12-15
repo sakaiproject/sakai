@@ -26,16 +26,8 @@ package org.sakaiproject.api.app.messageforums;
 
 public interface OpenForum extends BaseForum {
 
-    public ControlPermissions getControlPermissions();
-
-    public void setControlPermissions(ControlPermissions controlPermissions);
-
     public Boolean getLocked();
 
     public void setLocked(Boolean locked);
-
-    public MessagePermissions getMessagePermissions();
-
-    public void setMessagePermissions(MessagePermissions messagePermissions);
 
 }

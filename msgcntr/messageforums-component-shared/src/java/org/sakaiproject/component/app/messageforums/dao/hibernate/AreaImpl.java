@@ -40,8 +40,6 @@ public class AreaImpl extends MutableEntityImpl implements Area
 
   private String typeUuid;
 
-  private List controlPermissions = new UniqueArrayList();
-
   private List openForums = new UniqueArrayList();
 
   private List privateForums = new UniqueArrayList();
@@ -132,14 +130,6 @@ public class AreaImpl extends MutableEntityImpl implements Area
   {
     this.discussionForums = discussionForums;
   }
-
-  public List getControlPermissions() {
-      return controlPermissions;
-  }
-
-  public void setControlPermissions(List controlPermissions) {
-      this.controlPermissions = controlPermissions;
-  }
          
   public String toString() {
       return "Area.id:" + id;
@@ -148,32 +138,6 @@ public class AreaImpl extends MutableEntityImpl implements Area
   ////////////////////////////////////////////////////////////////////////
   // helper methods for collections
   ////////////////////////////////////////////////////////////////////////
-  
-  public void addControlPermission(ControlPermissions permissions) {
-      if (LOG.isDebugEnabled()) {
-          LOG.debug("addControlPermission(permissions " + permissions + ")");
-      }
-      
-      if (permissions == null) {
-          throw new IllegalArgumentException("permissions == null");
-      }
-      
-      permissions.setArea(this);
-      controlPermissions.add(permissions);
-  }
-
-  public void removeControlPermission(ControlPermissions permissions) {
-      if (LOG.isDebugEnabled()) {
-          LOG.debug("removeControlPermissions(permissions " + permissions + ")");
-      }
-      
-      if (permissions == null) {
-          throw new IllegalArgumentException("Illegal permissions argument passed!");
-      }
-      
-      permissions.setArea(null);
-      controlPermissions.remove(permissions);
-  }
   
   public void addPrivateForum(BaseForum forum) {
       if (LOG.isDebugEnabled()) {

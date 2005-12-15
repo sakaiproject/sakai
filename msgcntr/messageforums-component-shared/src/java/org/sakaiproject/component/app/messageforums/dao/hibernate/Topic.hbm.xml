@@ -94,12 +94,6 @@
     <subclass
         name="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl"
         discriminator-value="OT">
-      <many-to-one name="controlPermissions" column="CONTROL_PERMISSIONS"
-        class="org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl"
-        not-null="false" cascade="none" />
-      <many-to-one name="messagePermissions" column="MESSAGE_PERMISSIONS"
-        class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl"
-        not-null="false" cascade="none" />
       <property name="locked">
         <column name="LOCKED" not-null="false" />
       </property>      

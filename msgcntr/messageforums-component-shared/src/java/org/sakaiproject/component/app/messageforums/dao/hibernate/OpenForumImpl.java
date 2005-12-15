@@ -25,28 +25,16 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.ControlPermissions;
-import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 
 public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     private static final Log LOG = LogFactory.getLog(OpenForumImpl.class);
     
-    private ControlPermissions controlPermissions;
-    private MessagePermissions messagePermissions;
     private Boolean locked;
     
     // indecies for hibernate
     private int areaindex;
-    
-    public ControlPermissions getControlPermissions() {
-        return controlPermissions;
-    }
-
-    public void setControlPermissions(ControlPermissions controlPermissions) {
-        this.controlPermissions = controlPermissions;
-    }
 
     public Boolean getLocked() {
         return locked;
@@ -54,14 +42,6 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     public void setLocked(Boolean locked) {
         this.locked = locked;
-    }
-
-    public MessagePermissions getMessagePermissions() {
-        return messagePermissions;
-    }
-
-    public void setMessagePermissions(MessagePermissions messagePermissions) {
-        this.messagePermissions = messagePermissions;
     }
 
     public int getAreaindex() {

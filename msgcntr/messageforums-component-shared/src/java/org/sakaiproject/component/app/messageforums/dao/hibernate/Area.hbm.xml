@@ -41,16 +41,6 @@
     <property name="enabled">
       <column name="ENABLED" not-null="true" />
     </property>
-	<list name="controlPermissions" lazy="true" table="MFR_CONTROL_PERMISSIONS_T" cascade="all">
-	    <key column="areaSurrogateKey"/>
-	    <index column="area_cp_index_col" />
-	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl" />
-	</list>       
-	<!-- 
-    <many-to-one name="messagePermissions" column="MESSAGE_PERMISSIONS"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl"
-      not-null="false" cascade="none" />
-    -->
    	<list name="openForums" lazy="false" table="MFR_OPEN_FORUM_T" cascade="all">
 	    <key column="surrogateKey"/>
 	    <index column="area_index_col" />

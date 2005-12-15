@@ -97,7 +97,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     DiscussionTopic dtm = new DiscussionTopicImpl();
     dtm.setActorPermissions(getActorPermissions());
     dtm.setAttachments(getAttachments());
-    dtm.setControlPermissions(getControlPermissions());
     dtm.setCreated(new Date());
     dtm.setCreatedBy("admin");
     dtm.setDateRestrictions(getDateRestrictions());
@@ -106,7 +105,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setUuid("12");
     dtm.setLabels(getLabels());
     dtm.setLocked(Boolean.TRUE);
-    dtm.setMessagePermissions(getMessgePermissions());
     dtm.setModerated(Boolean.FALSE);
     dtm.setModified(new Date());
     dtm.setModifiedBy("the moderator");
@@ -117,12 +115,10 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setMutable(Boolean.FALSE);
     dtm.setSortIndex(new Integer(2));
     dtm.setMessages(getReceivedPrivateMessages());
-    dtm.setMessagePermissions(getMessgePermissions());
 
     DiscussionTopic dtm1 = new DiscussionTopicImpl();
     dtm1.setActorPermissions(getActorPermissions());
     dtm1.setAttachments(getAttachments());
-    dtm1.setControlPermissions(getControlPermissions());
     dtm1.setCreated(new Date());
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
@@ -131,7 +127,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setUuid("1211");
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.TRUE);
-    dtm1.setMessagePermissions(getMessgePermissions());
     dtm1.setModerated(Boolean.FALSE);
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
@@ -142,12 +137,10 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setTypeUuid(typeMgr.getSentPrivateMessageType());
     dtm1.setSortIndex(new Integer(222));
     dtm1.setMessages(getSentPrivateMessages());
-    dtm1.setMessagePermissions(getMessgePermissions());
 
     DiscussionTopic dtm2 = new DiscussionTopicImpl();
     dtm2.setActorPermissions(getActorPermissions());
     dtm2.setAttachments(getAttachments());
-    dtm2.setControlPermissions(getControlPermissions());
     dtm2.setCreated(new Date());
     dtm2.setCreatedBy("admin");
     dtm2.setDateRestrictions(getDateRestrictions());
@@ -156,7 +149,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm2.setUuid("1233");
     dtm2.setLabels(getLabels());
     dtm2.setLocked(Boolean.TRUE);
-    dtm2.setMessagePermissions(getMessgePermissions());
     dtm2.setModerated(Boolean.FALSE);
     dtm2.setModified(new Date());
     dtm2.setModifiedBy("the moderator");
@@ -167,12 +159,10 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm2.setMutable(Boolean.FALSE);
     dtm2.setSortIndex(new Integer(2222));
     dtm2.setMessages(getDeletedPrivateMessages());
-    dtm2.setMessagePermissions(getMessgePermissions());
 
     DiscussionTopic dtm3 = new DiscussionTopicImpl();
     dtm3.setActorPermissions(getActorPermissions());
     dtm3.setAttachments(getAttachments());
-    dtm3.setControlPermissions(getControlPermissions());
     dtm3.setCreated(new Date());
     dtm3.setCreatedBy("admin");
     dtm3.setDateRestrictions(getDateRestrictions());
@@ -181,7 +171,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm3.setUuid("123");
     dtm3.setLabels(getLabels());
     dtm3.setLocked(Boolean.TRUE);
-    dtm3.setMessagePermissions(getMessgePermissions());
     dtm3.setModerated(Boolean.FALSE);
     dtm3.setModified(new Date());
     dtm3.setModifiedBy("the moderator");
@@ -192,12 +181,10 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm3.setMutable(Boolean.FALSE);
     dtm3.setSortIndex(new Integer(2));
     dtm3.setMessages(getDraftedPrivateMessages());
-    dtm3.setMessagePermissions(getMessgePermissions());
-
+ 
     DiscussionTopic dtm13 = new DiscussionTopicImpl();
     dtm13.setActorPermissions(getActorPermissions());
     dtm13.setAttachments(getAttachments());
-    dtm13.setControlPermissions(getControlPermissions());
     dtm13.setCreated(new Date());
     dtm13.setCreatedBy("admin");
     dtm13.setDateRestrictions(getDateRestrictions());
@@ -206,7 +193,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm13.setUuid("132");
     dtm13.setLabels(getLabels());
     dtm13.setLocked(Boolean.TRUE);
-    dtm13.setMessagePermissions(getMessgePermissions());
     dtm13.setModerated(Boolean.FALSE);
     dtm13.setModified(new Date());
     dtm13.setModifiedBy("the moderator");
@@ -216,8 +202,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm13.setMutable(Boolean.TRUE);
     dtm13.setSortIndex(new Integer(2));
     dtm13.setMessages(null);
-    dtm13.setMessagePermissions(getMessgePermissions());
-
+ 
     discussionTopics.add(dtm);
     discussionTopics.add(dtm1);
     discussionTopics.add(dtm2);
@@ -448,7 +433,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     DiscussionForum dfm1 = new DiscussionForumImpl();
     dfm1.setActorPermissions(getActorPermissions());
     dfm1.setAttachments(getAttachments());
-    dfm1.setControlPermissions(getControlPermissions());
     dfm1.setCreated(new Date());
     dfm1.setCreatedBy("admin");
     dfm1.setDateRestrictions(getDateRestrictions());
@@ -458,7 +442,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dfm1.setUuid("5");
     dfm1.setLabels(getLabels());
     dfm1.setLocked(Boolean.FALSE);
-    dfm1.setMessagePermissions(getMessgePermissions());
     dfm1.setModerated(Boolean.TRUE);
     dfm1.setModified(new Date());
     dfm1.setModifiedBy("admin");
@@ -474,7 +457,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     DiscussionForum dfm2 = new DiscussionForumImpl();
     dfm2.setActorPermissions(getActorPermissions());
     dfm2.setAttachments(getAttachments());
-    dfm2.setControlPermissions(getControlPermissions());
     dfm2.setCreated(new Date());
     dfm2.setCreatedBy("jim johnson");
     dfm2.setDateRestrictions(getDateRestrictions());
@@ -483,7 +465,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dfm2.setUuid("6");
     dfm2.setLabels(getLabels());
     dfm2.setLocked(Boolean.TRUE);
-    dfm2.setMessagePermissions(getMessgePermissions());
     dfm2.setModerated(Boolean.FALSE);
     dfm2.setModified(new Date());
     dfm2.setModifiedBy("the moderator");
@@ -556,8 +537,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     //dtm1.setBaseForum(getForumById("5"));
     dtm1.setActorPermissions(getActorPermissions());
     dtm1.setAttachments(getAttachments());
-    dtm1.setControlPermissions(getControlPermissions());
-    dtm1.setCreated(new Date());
+     dtm1.setCreated(new Date());
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
     dtm1
@@ -566,7 +546,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setUuid("11");
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.FALSE);
-    dtm1.setMessagePermissions(getMessgePermissions());
     dtm1.setModerated(Boolean.TRUE);
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
@@ -581,7 +560,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setMutable(Boolean.TRUE);
     dtm1.setSortIndex(new Integer(1));
     dtm1.setMessages(getForumMessages());
-    dtm1.setMessagePermissions(getMessgePermissions());
     return dtm1;
   }
   
@@ -592,7 +570,6 @@ public class DummyDataHelper implements DummyDataHelperApi
    // dtm1.setBaseForum(getForumById("5"));
     dtm1.setActorPermissions(getActorPermissions());
     dtm1.setAttachments(getAttachments());
-    dtm1.setControlPermissions(getControlPermissions());
     dtm1.setCreated(new Date());
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
@@ -602,7 +579,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setUuid("511");
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.FALSE);
-    dtm1.setMessagePermissions(getMessgePermissions());
     dtm1.setModerated(Boolean.TRUE);
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
@@ -617,7 +593,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setMutable(Boolean.TRUE);
     dtm1.setSortIndex(new Integer(1));
     dtm1.setMessages(getForumMessages());
-    dtm1.setMessagePermissions(getMessgePermissions());
     return dtm1;
   }
   
@@ -628,7 +603,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     //dtm1.setBaseForum(getForumById("5"));
     dtm1.setActorPermissions(getActorPermissions());
     dtm1.setAttachments(getAttachments());
-    dtm1.setControlPermissions(getControlPermissions());
     dtm1.setCreated(new Date());
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
@@ -638,7 +612,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setUuid("521");
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.FALSE);
-    dtm1.setMessagePermissions(getMessgePermissions());
     dtm1.setModerated(Boolean.TRUE);
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
@@ -653,8 +626,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setMutable(Boolean.TRUE);
     dtm1.setSortIndex(new Integer(1));
     dtm1.setMessages(getForumMessages());
-    dtm1.setMessagePermissions(getMessgePermissions());
-    return dtm1;
+     return dtm1;
   }
 
   // helpers -- if someone needs to get access to one of these

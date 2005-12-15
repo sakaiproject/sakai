@@ -73,11 +73,4 @@ public interface Area extends MutableEntity {
 
     public void removeOpenForum(BaseForum forum);
 
-    public void addControlPermission(ControlPermissions permissions);
-
-    public void removeControlPermission(ControlPermissions permissions);
-
-    public List getControlPermissions();
-    
-    public void setControlPermissions(List controlPermissions);
 }
