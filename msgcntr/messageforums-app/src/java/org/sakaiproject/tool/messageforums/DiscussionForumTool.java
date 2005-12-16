@@ -783,7 +783,7 @@ public class DiscussionForumTool
     String forumId = getExternalParameterByKey(FORUM_ID);
     if ((forumId) != null)
     {
-      DiscussionForum forum = forumManager.getForumByUuid(forumId);
+      DiscussionForum forum = forumManager.getForumById(new Long(forumId));
       if(forum==null)
       {
         return null;
@@ -864,12 +864,12 @@ public class DiscussionForumTool
     decoTopic.setHasPreviousTopic(forumManager.hasPreviousTopic(topic));
     if (forumManager.hasNextTopic(topic))
     {
-      decoTopic.setNextTopicId(forumManager.getNextTopic(topic).getUuid());
+      decoTopic.setNextTopicId(forumManager.getNextTopic(topic).getId());
     }
     if (forumManager.hasPreviousTopic(topic))
     {
       decoTopic.setPreviousTopicId(forumManager.getPreviousTopic(topic)
-          .getUuid());
+          .getId());
     }
     List temp_messages = topic.getMessages();
     if (temp_messages == null || temp_messages.size()<1)
@@ -919,12 +919,12 @@ public class DiscussionForumTool
       topicId = getExternalParameterByKey(externalTopicId);
       if (topicId != null)
       {
-        DiscussionTopic topic;
+        DiscussionTopic topic=null;
         try { 
             Long.parseLong(topicId);
             topic = forumManager.getTopicById(new Long(topicId));
         } catch (NumberFormatException e) {
-            topic= forumManager.getTopicByUuid(topicId);            
+         LOG.error(e.getMessage(), e);             
         }
         if(forum != null)
         	topic.setBaseForum(forum);

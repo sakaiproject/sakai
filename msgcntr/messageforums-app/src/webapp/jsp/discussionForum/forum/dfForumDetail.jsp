@@ -30,6 +30,7 @@
 				<f:verbatim><div class="topicRows"></f:verbatim>
 				<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{topic.topic.title}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 				<h:outputText id="topic_msg_count" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
 				<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" styleClass="rightAlign" value="#{msgs.cdfm_topic_settings}">

@@ -114,7 +114,7 @@
       </mf:forumHideDivision>
       
        <p class="act">
-          <h:commandButton id ="revise" action="#{ForumTool.processActionReviseForumSettings}" value="#{msgs.cdfm_button_bar_revise}"> 
+          <h:commandButton id ="revise" immediate="true"  action="#{ForumTool.processActionReviseForumSettings}" value="#{msgs.cdfm_button_bar_revise}"> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
           <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForumConfirm}" value="#{msgs.cdfm_button_bar_delete}">

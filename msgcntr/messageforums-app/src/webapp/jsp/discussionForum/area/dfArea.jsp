@@ -7,8 +7,11 @@
   <h:dataTable id="forums" width="100%" value="#{ForumTool.forums}" var="forum">
     <h:column >
     	<f:verbatim><div class="forumsRow"><div class="forumsRowLeft"></f:verbatim>
+    		<h:graphicImage url="/images/lock.gif" alt="this forum is locked"  rendered="#{forum.locked == 'true'}"/>
+			<h:outputText id="emptyspace" value="  " rendered="#{forum.locked == 'true'}"/>
+								
 			<h:commandLink action="#{ForumTool.processActionDisplayForum}"  value="#{forum.forum.title}" >
-				<f:param value="#{forum.forum.uuid}" name="forumId"/>
+				<f:param value="#{forum.forum.id}" name="forumId"/>
 			</h:commandLink>
 			 <f:verbatim></div></f:verbatim>
 			 <f:verbatim><div class="rightAlign"></f:verbatim>
@@ -26,6 +29,9 @@
 		 <h:dataTable id="topics" width="90%" value="#{forum.topics}" var="topic">
 		    <h:column>
 				<f:verbatim><div class="topicRows"></f:verbatim>
+				<h:graphicImage url="/images/lock.gif" alt="this topic is locked"  rendered="#{topic.locked == 'true'}"/>
+				<h:outputText id="emptyspace" value="  " rendered="#{topic.locked == 'true'}"/>
+				
 				<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{topic.topic.title}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
 					<f:param value="#{forum.forum.id}" name="forumId"/>

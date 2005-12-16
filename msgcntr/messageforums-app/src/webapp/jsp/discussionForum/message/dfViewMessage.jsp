@@ -10,7 +10,7 @@
 			<div class="left-header-section">
 				<h3><h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
 					<h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" >
-						<f:param value="#{ForumTool.selectedForum.forum.uuid}" name="forumId"/>
+						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					</h:commandLink> /
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 				</h3>

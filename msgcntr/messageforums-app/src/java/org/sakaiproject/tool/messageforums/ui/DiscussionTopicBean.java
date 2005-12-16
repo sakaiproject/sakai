@@ -16,8 +16,8 @@ public class DiscussionTopicBean
   private int unreadNoMessages;
   private boolean hasNextTopic = false;
   private boolean hasPreviousTopic = false;
-  private String nextTopicId;
-  private String previousTopicId;
+  private Long nextTopicId;
+  private Long previousTopicId;
   private boolean readFullDesciption=false;
   
   private List messages = new ArrayList();
@@ -104,7 +104,7 @@ public class DiscussionTopicBean
   /**
    * @return Returns the nextTopicId.
    */
-  public String getNextTopicId()
+  public Long getNextTopicId()
   {
     return nextTopicId;
   }
@@ -113,7 +113,7 @@ public class DiscussionTopicBean
    * @param nextTopicId
    *          The nextTopicId to set.
    */
-  public void setNextTopicId(String nextTopicId)
+  public void setNextTopicId(Long nextTopicId)
   {
     this.nextTopicId = nextTopicId;
   }
@@ -121,7 +121,7 @@ public class DiscussionTopicBean
   /**
    * @return Returns the previousTopicId.
    */
-  public String getPreviousTopicId()
+  public Long getPreviousTopicId()
   {
     return previousTopicId;
   }
@@ -130,7 +130,7 @@ public class DiscussionTopicBean
    * @param previousTopicId
    *          The previousTopicId to set.
    */
-  public void setPreviousTopicId(String previousTopicId)
+  public void setPreviousTopicId(Long previousTopicId)
   {
     this.previousTopicId = previousTopicId;
   }
