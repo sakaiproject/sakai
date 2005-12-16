@@ -53,13 +53,17 @@
 
 package org.sakaiproject.tool.assessment.audio;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.AttributedCharacterIterator;
-import java.text.AttributedString;
-import java.util.Enumeration;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -72,40 +76,26 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineBreakMeasurer;
-import java.awt.font.TextAttribute;
-import java.awt.font.TextLayout;
-import java.awt.geom.Line2D;
-import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.border.Border;
 
 
 /**
@@ -116,6 +106,7 @@ import javax.swing.border.Border;
  *
  * @version @(#)CapturePlayback.java	1.11	99/12/03
  * @author Brian Lichtenwalter
+ * @author Ed Smiley numerous modifications
  */
 public class AudioRecorder
   extends JPanel
@@ -429,6 +420,89 @@ public class AudioRecorder
     }
   }
 
+  /**
+   * Save to a temporary file, then post it.
+   * We could do this directly without a file, but this way
+   * user has a local copy they can replay.
+   *
+   * @param tempFileName the file name where data is temporarily stored.
+   * @param audioType the audio type string
+   * @param urlString the url (in applets must use getCodeBase().toString() +
+   * same-host relative url)
+   */
+  public void saveToFileAndPost(String tempFileName,
+                                AudioFileFormat.Type audioType,
+                                String urlString)
+  {
+    saveToFile(tempFileName, audioType);
+
+    URL url;
+    URLConnection urlConn;
+    try
+    {
+      // URL of audio processing servlet
+      // note for applet security, this must be on same host
+      url = new URL(urlString);
+      urlConn = url.openConnection();
+      urlConn.setDoInput(true);
+      urlConn.setDoOutput(true);
+
+      // No caching, we want the real thing.
+      urlConn.setUseCaches(false);
+
+      // determine the content type
+      String mimeType = "audio/basic";
+
+      if (audioType.equals(AudioFileFormat.Type.AIFF))
+      {
+        mimeType = "audio/x-aiff";
+      }
+      else if (audioType.equals(AudioFileFormat.Type.WAVE))
+      {
+        mimeType = "audio/x-wav";
+      }
+
+      // Specify the content type.
+      urlConn.setRequestProperty("Content-Type", mimeType);
+
+      // Send binary POST output.
+      OutputStream outputStream = urlConn.getOutputStream();
+      FileInputStream inputStream = new FileInputStream(fileName);
+      BufferedInputStream buf_inputStream = new BufferedInputStream(inputStream);
+      BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
+
+      int i=0;
+      int count=0;
+      if (buf_inputStream !=null){
+        while ((i=buf_inputStream.read()) != -1){
+          buf_outputStream.write(i);
+          count++;
+        }
+      }
+      urlConn.setRequestProperty( "Content-length", "" + count);
+      String reportStr = "Content-length written: " + count + " bytes.\n";
+      buf_outputStream.flush();
+      buf_outputStream.close();
+
+      // Get response data.
+      DataInputStream input = new DataInputStream(urlConn.getInputStream());
+
+      String str;
+      while (null != ( (str = input.readLine())))
+      {
+        reportStr += str;
+      }
+      input.close();
+      reportStatus(reportStr + "\n");
+    }
+    catch (IOException ex)
+    {
+      reportStatus(ex.toString());
+    }
+    samplingGraph.repaint();
+
+  }
+
   public void saveToFile(String name, AudioFileFormat.Type fileType)
   {
 
@@ -452,6 +526,7 @@ public class AudioRecorder
       reportStatus(res.getString("Unable_to_reset") + e);
       return;
     }
+
 
     File file = new File(fileName = name);
     try
