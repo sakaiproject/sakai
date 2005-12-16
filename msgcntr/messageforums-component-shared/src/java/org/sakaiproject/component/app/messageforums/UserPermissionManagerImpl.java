@@ -23,6 +23,8 @@
 
 package org.sakaiproject.component.app.messageforums;
 
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -100,6 +102,68 @@ public class UserPermissionManagerImpl extends HibernateDaoSupport implements Us
         return permission == null ? false : permission.getMarkAsRead().booleanValue();
     }
         
+
+    public boolean canRead(BaseForum forum, String typeId) {
+        MessagePermissions permission = permissionManager.getForumMessagePermissionForRole(forum, getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getRead().booleanValue();
+    }
+    
+    public boolean canReviseAny(BaseForum forum, String typeId) {
+        MessagePermissions permission = permissionManager.getForumMessagePermissionForRole(forum, getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getReviseAny().booleanValue();
+    }
+    
+    public boolean canReviseOwn(BaseForum forum, String typeId) {
+        MessagePermissions permission = permissionManager.getForumMessagePermissionForRole(forum, getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getReviseOwn().booleanValue();
+    }
+    
+    public boolean canDeleteAny(BaseForum forum, String typeId) {
+        MessagePermissions permission = permissionManager.getForumMessagePermissionForRole(forum, getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getDeleteAny().booleanValue();
+    }
+    
+    public boolean canDeleteOwn(BaseForum forum, String typeId) {
+        MessagePermissions permission = permissionManager.getForumMessagePermissionForRole(forum, getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getDeleteOwn().booleanValue();
+    }
+    
+    public boolean canMarkAsRead(BaseForum forum, String typeId) {
+        MessagePermissions permission = permissionManager.getForumMessagePermissionForRole(forum, getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getMarkAsRead().booleanValue();
+    }
+
+    
+    public boolean canRead(Area area, String typeId) {
+        MessagePermissions permission = permissionManager.getAreaMessagePermissionForRole(getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getRead().booleanValue();
+    }
+    
+    public boolean canReviseAny(Area area, String typeId) {
+        MessagePermissions permission = permissionManager.getAreaMessagePermissionForRole(getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getReviseAny().booleanValue();
+    }
+    
+    public boolean canReviseOwn(Area area, String typeId) {
+        MessagePermissions permission = permissionManager.getAreaMessagePermissionForRole(getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getReviseOwn().booleanValue();
+    }
+    
+    public boolean canDeleteAny(Area area, String typeId) {
+        MessagePermissions permission = permissionManager.getAreaMessagePermissionForRole(getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getDeleteAny().booleanValue();
+    }
+    
+    public boolean canDeleteOwn(Area area, String typeId) {
+        MessagePermissions permission = permissionManager.getAreaMessagePermissionForRole(getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getDeleteOwn().booleanValue();
+    }
+    
+    public boolean canMarkAsRead(Area area, String typeId) {
+        MessagePermissions permission = permissionManager.getAreaMessagePermissionForRole(getCurrentUserRole(), typeId);
+        return permission == null ? false : permission.getMarkAsRead().booleanValue();
+    }
+
     // helpers
 
     private String getCurrentUser() {
