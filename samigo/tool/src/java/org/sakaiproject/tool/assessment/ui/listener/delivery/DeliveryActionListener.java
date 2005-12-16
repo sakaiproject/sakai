@@ -158,17 +158,16 @@ public class DeliveryActionListener
 
       case 1: // Take assessment
       case 5: // Take assessment via url
-              AssessmentGradingData ag = service.getLastSavedAssessmentGradingByAgentId(
-                                         id, agent);
-
-              System.out.println("****1. assesmemtGrading="+ag); 
-              // if ag is null, we need to create it
-              if (ag == null){
+              itemData = service.getLastItemGradingData(id, agent);
+              if (itemData!=null && itemData.size()>0)
+                setAssessmentGradingFromItemData(delivery, itemData, true);
+              else{
+                AssessmentGradingData ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
+                if (ag == null)
                  ag = createAssessmentGrading(publishedAssessment);
-              }
-              delivery.setAssessmentGrading(ag);
-              System.out.println("****2. assesmemtGrading="+ag); 
-              System.out.println("****3. time running="+delivery.isTimeRunning()); 
+                 delivery.setAssessmentGrading(ag);
+               }
+ 
               // ag can't be null beyond this point and must have persisted to DB
               // version 2.1.1 requirement
               setFeedbackMode(delivery);
