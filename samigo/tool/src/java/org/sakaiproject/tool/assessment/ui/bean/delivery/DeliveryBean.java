@@ -2049,26 +2049,30 @@ public class DeliveryBean
 
   public void recordTimeElapsed(){
     AssessmentGradingData adata = getAssessmentGrading();
-    float f = (new Float(getTimeElapse())).floatValue();
-    int i = Math.round(f); 
-    adata.setTimeElapsed(new Integer(i));
-    GradingService gradingService = new GradingService();
-    gradingService.saveOrUpdateAssessmentGrading(adata);
-    System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
+    if (adata != null){ // adata would be null during preview
+      float f = (new Float(getTimeElapse())).floatValue();
+      int i = Math.round(f); 
+      adata.setTimeElapsed(new Integer(i));
+      GradingService gradingService = new GradingService();
+      gradingService.saveOrUpdateAssessmentGrading(adata);
+      System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
+    }
   }
 
   public void recordTimeElapsedTOC(){
     AssessmentGradingData adata = getAssessmentGrading();
-    long currentTime = (new Date()).getTime();
-    if (isTimeRunning() && adata != null){ // adata can't be null at this point
-      float diff = (currentTime - getLastTimer())/1000;
+    if (adata != null){ // adata would be null during preview
+      long currentTime = (new Date()).getTime();
+      if (isTimeRunning() && adata != null){ // adata can't be null at this point
+        float diff = (currentTime - getLastTimer())/1000;
 
-      int diff_int = Math.round(diff); 
-      adata.setTimeElapsed(new Integer(diff_int));
-      GradingService gradingService = new GradingService();
-      gradingService.saveOrUpdateAssessmentGrading(adata);
-      setTimeElapse(diff+"");
-      System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
+        int diff_int = Math.round(diff); 
+        adata.setTimeElapsed(new Integer(diff_int));
+        GradingService gradingService = new GradingService();
+        gradingService.saveOrUpdateAssessmentGrading(adata);
+        setTimeElapse(diff+"");
+        System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
+      }
     }
   }
 
