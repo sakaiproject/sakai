@@ -1232,6 +1232,32 @@ public class DiscussionForumTool
     return SessionManager.getCurrentSessionUserId();
   }
   
+  public boolean getFullAccess()
+  {
+    AuthzGroup azGroup;
+
+    try
+		{
+			azGroup = AuthzGroupService.getAuthzGroup(getContextSiteId());
+			String currentRole = AuthzGroupService.getUserRole(getUserId(), azGroup.getId());
+			if(currentRole.equalsIgnoreCase("maintain") || currentRole.equalsIgnoreCase("instructor")
+					|| currentRole.equalsIgnoreCase("assistant") || currentRole.equalsIgnoreCase("project owner")
+					|| currentRole.equalsIgnoreCase("Teaching Assistant"))
+			{
+				return true;
+			}
+			else
+				return false;
+
+		}
+    catch(Exception e)
+		{
+    	LOG.error("Error in getCurrentRole() - " + this);
+    	e.printStackTrace();
+    	return false;
+		}
+  }
+  
 	public String processDfMsgReplyMsg()
   {
   	return "dfMessageReply";
@@ -1383,9 +1409,15 @@ public class DiscussionForumTool
     	{
     		dMsg.addAttachment(thisAttach);
     	}
-    }    
+    }
+    String currentBody = getComposeBody();
+    String revisedInfo = "Last Revised By " + this.getUserId() + " on ";
+    Date now = new Date();
+    revisedInfo += now.toString() + "\n\n";
+    revisedInfo = revisedInfo.concat(currentBody);
+    		
     dMsg.setTitle(getComposeTitle());
-    dMsg.setBody(getComposeBody());
+    dMsg.setBody(revisedInfo);
     dMsg.setDraft(Boolean.FALSE);
     dMsg.setModified(new Date());
     dMsg.setModifiedBy(getUserId());
@@ -1441,8 +1473,14 @@ public class DiscussionForumTool
     		dMsg.addAttachment(thisAttach);
     	}
     }    
+    String currentBody = getComposeBody();
+    String revisedInfo = "Last Revised By " + this.getUserId() + " on ";
+    Date now = new Date();
+    revisedInfo += now.toString() + "\n\n";
+    revisedInfo = revisedInfo.concat(currentBody);
+    		
     dMsg.setTitle(getComposeTitle());
-    dMsg.setBody(getComposeBody());
+    dMsg.setBody(revisedInfo);
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setModified(new Date());
     dMsg.setModifiedBy(getUserId());
