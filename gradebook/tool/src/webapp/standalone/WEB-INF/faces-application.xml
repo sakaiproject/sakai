@@ -44,6 +44,14 @@
 	</converter>
 	<converter>
 		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.PrecisePercentageConverter
+		</converter-class>
+	</converter>
+	<converter>
+		<converter-id>
 			org.sakaiproject.gradebook.jsf.converter.POINTS
 		</converter-id>
 		<converter-class>

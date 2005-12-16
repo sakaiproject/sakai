@@ -86,7 +86,7 @@
 				<h:outputText value="#{scoreRow.calculatedLetterGrade}"/>
 				<h:outputText value=" ("/>
 				<h:outputText value="#{scoreRow.calculatedPercentGrade}">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE" />
 				</h:outputText>
 				<h:outputText value=")"/>
 			</h:column>
