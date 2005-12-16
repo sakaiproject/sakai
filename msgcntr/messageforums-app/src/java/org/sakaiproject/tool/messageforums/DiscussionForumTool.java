@@ -1234,28 +1234,7 @@ public class DiscussionForumTool
   
   public boolean getFullAccess()
   {
-    AuthzGroup azGroup;
-
-    try
-		{
-			azGroup = AuthzGroupService.getAuthzGroup(getContextSiteId());
-			String currentRole = AuthzGroupService.getUserRole(getUserId(), azGroup.getId());
-			if(currentRole.equalsIgnoreCase("maintain") || currentRole.equalsIgnoreCase("instructor")
-					|| currentRole.equalsIgnoreCase("assistant") || currentRole.equalsIgnoreCase("project owner")
-					|| currentRole.equalsIgnoreCase("Teaching Assistant"))
-			{
-				return true;
-			}
-			else
-				return false;
-
-		}
-    catch(Exception e)
-		{
-    	LOG.error("Error in getCurrentRole() - " + this);
-    	e.printStackTrace();
-    	return false;
-		}
+  	return forumManager.isInstructor();
   }
   
 	public String processDfMsgReplyMsg()
