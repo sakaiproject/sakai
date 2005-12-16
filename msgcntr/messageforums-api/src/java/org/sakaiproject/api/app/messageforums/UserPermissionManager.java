@@ -46,4 +46,26 @@ public interface UserPermissionManager {
     public boolean canDeleteOwn(Area area, String typeId);
     public boolean canMarkAsRead(Area area, String typeId);
 
+    
+    public boolean canNewResponse(Topic topic, String typeId);
+    public boolean canResponseToResponse(Topic topic, String typeId);
+    public boolean canMovePostings(Topic topic, String typeId);
+    public boolean canChangeSettings(Topic topic, String typeId);
+    public boolean canPostToGradebook(Topic topic, String typeId);
+
+    public boolean canNewTopic(BaseForum forum, String typeId);
+    public boolean canNewResponse(BaseForum forum, String typeId);
+    public boolean canResponseToResponse(BaseForum forum, String typeId);
+    public boolean canMovePostings(BaseForum forum, String typeId);
+    public boolean canChangeSettings(BaseForum forum, String typeId);
+    public boolean canPostToGradebook(BaseForum forum, String typeId);
+
+    public boolean canNewForum(Area area, String typeId);
+    public boolean canNewTopic(Area area, String typeId);
+    public boolean canNewResponse(Area area, String typeId);
+    public boolean canResponseToResponse(Area area, String typeId);
+    public boolean canMovePostings(Area area, String typeId);
+    public boolean canChangeSettings(Area area, String typeId);
+    public boolean canPostToGradebook(Area area, String typeId);
+
 }
