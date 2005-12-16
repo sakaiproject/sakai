@@ -678,11 +678,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
            
     int recordIndex = pvtMessage.getRecipients().indexOf(searchRecipient);
     
-    if (recordIndex == -1){
-      LOG.error("markMessageAsReadForUser(message: " + message + ") could not find user in recipient list");
-      throw new Error("markMessageAsReadForUser(message: " + message + ") could not find user in recipient list");          
-    }
-    else{
+    if (recordIndex != -1){           
       ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setRead(Boolean.TRUE);
     }                    
   }    

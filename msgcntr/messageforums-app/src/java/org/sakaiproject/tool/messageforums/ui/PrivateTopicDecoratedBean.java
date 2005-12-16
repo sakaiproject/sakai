@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
+import javax.faces.el.ValueBinding;
+
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.tool.messageforums.PrivateMessagesTool;
 
 public class PrivateTopicDecoratedBean
 {
@@ -163,6 +167,32 @@ public class PrivateTopicDecoratedBean
   public void setPreviousTopicId(String previousTopicId)
   {
     this.previousTopicId = previousTopicId;
+  }
+  
+  public String getCountStats(){
+    
+    FacesContext context = FacesContext.getCurrentInstance();
+    ValueBinding bindingTitle = context.getApplication().createValueBinding("#{topic.topic.title}");
+    ValueBinding bindingTotalRead = context.getApplication().createValueBinding("#{topic.totalNoMessages}");
+    ValueBinding bindingUnreadRead = context.getApplication().createValueBinding("#{topic.unreadNoMessages}");
+    String topicTitle = (String) bindingTitle.getValue(context);
+    Integer totalRead = (Integer) bindingTotalRead.getValue(context);
+    Integer totalUnread = (Integer) bindingUnreadRead.getValue(context);
+    
+    StringBuffer buffer = new StringBuffer(" (");
+    buffer.append(totalRead);
+    buffer.append(" messages");
+    
+    if (!(PrivateMessagesTool.PVTMSG_MODE_SENT.equals(topicTitle) ||
+        PrivateMessagesTool.PVTMSG_MODE_DRAFT.equals(topicTitle))){
+      buffer.append(" - ");
+      buffer.append(totalUnread);
+      buffer.append(" unread");
+    }
+    
+    buffer.append(")");        
+    
+    return buffer.toString();
   }
 
 

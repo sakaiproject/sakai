@@ -39,7 +39,7 @@
     			<f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
     			<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
     		</h:commandLink>
-    		<h:outputText id="topic_msg_count" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
+    		<h:outputText id="topic_msg_count_not_mutable" value="#{topic.countStats}"/>
 				</h:column>
 					
 				<h:column rendered="#{topic.topic.mutable}">
@@ -49,8 +49,7 @@
 	    			 <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
 	    			 <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
 	    				</h:commandLink>
-	    				<h:outputText id="topic_msg_count1" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
-
+	    				<h:outputText id="topic_msg_count_mutable" value="#{topic.countStats}"/>	    				
 					 <f:verbatim></div></f:verbatim>
 					 <f:verbatim><div class="rightAlign"></f:verbatim>
 					 <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"  value="Folder Settings">
