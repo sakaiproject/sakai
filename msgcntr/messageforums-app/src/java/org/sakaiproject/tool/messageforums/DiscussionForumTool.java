@@ -577,26 +577,14 @@ public class DiscussionForumTool
   public String processActionTopicSettings()
   {
     LOG.debug("processActionTopicSettings()");
-    String forumId = getExternalParameterByKey(FORUM_ID);
-    if(forumId==null || forumId.trim().length()<1)
-    {
-      return MAIN;
-    }
-    DiscussionForum forum = forumManager
-    .getForumById(new Long(forumId));
-    if (forum == null)
-    {
-      return MAIN;
-    }
     DiscussionTopic topic = forumManager
         .getTopicById(new Long(getExternalParameterByKey(TOPIC_ID)));
     if (topic == null)
     {
       return MAIN;
-    }
-    
+    }   
     selectedTopic = new DiscussionTopicBean(topic);
-    selectedForum= new DiscussionForumBean(forum);
+    setSelectedForumForCurrentTopic(topic);   
     return TOPIC_SETTING;
   }
 
@@ -905,17 +893,6 @@ public class DiscussionForumTool
     String topicId = null;
     try
     {
-      String forumId = getExternalParameterByKey(FORUM_ID);
-      DiscussionForum forum = null;
-      if(forumId != null)
-      {
-      	if(!forumId.trim().equals(""))
-      	{
-      		forum = forumManager.getForumById(new Long(forumId));
-      		selectedForum = new DiscussionForumBean(forum);
-      	}
-      }
-    	
       topicId = getExternalParameterByKey(externalTopicId);
       if (topicId != null)
       {
@@ -926,9 +903,8 @@ public class DiscussionForumTool
         } catch (NumberFormatException e) {
          LOG.error(e.getMessage(), e);             
         }
-        if(forum != null)
-        	topic.setBaseForum(forum);
-        selectedTopic = getDecoratedTopic(topic);
+         selectedTopic = getDecoratedTopic(topic);
+         setSelectedForumForCurrentTopic(topic);
       }
       else
       {
@@ -960,7 +936,6 @@ public class DiscussionForumTool
   private DiscussionTopicBean createTopic()
   {
     DiscussionForum forum=forumManager.getForumById(new Long(getExternalParameterByKey(FORUM_ID)));
-    
     if(forum==null)
     {
       return null;
@@ -1600,5 +1575,32 @@ public class DiscussionForumTool
   {
     LOG.debug("getContextSiteId()");
     return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+  }
+  
+  /**
+   * @param topic
+   */
+  private void setSelectedForumForCurrentTopic(DiscussionTopic topic)
+  {
+    DiscussionForum baseForum= (DiscussionForum) topic.getBaseForum();
+    DiscussionForum forum =null;
+    if(baseForum==null)
+    {
+     
+    String forumId = getExternalParameterByKey(FORUM_ID);
+    if(forumId==null || forumId.trim().length()<1)
+    {
+      selectedForum=null;
+      return ;
+    }
+    forum = forumManager
+    .getForumById(new Long(forumId));
+    if (forum == null)
+    {
+      selectedForum=null;
+      return ;
+    }
+    }
+    selectedForum= new DiscussionForumBean(forum);
   }
 }
