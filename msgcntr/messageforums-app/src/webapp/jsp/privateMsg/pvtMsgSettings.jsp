@@ -1,7 +1,16 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
+<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
+<script language="Javascript">
+	function displayEmail() {
+
+	    document.forms[0].email.disabled = false
+	}
+</script>
+  
 <f:view>
 	<sakai:view_container title="Received Private Messages">
 	<sakai:view_content>
@@ -9,9 +18,14 @@
 		
 
 <h2>Private message- Settings</h2>
+	<h:panelGroup rendered="#{PrivateMessagesTool.validEmail}">
+					<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
+					 value="! Please provide a valid email address" />
+	</h:panelGroup>     
+  <h4><h:outputText value="Activate Private Messages" rendered="#{PrivateMessagesTool.instructor}"/></h4>
+ 				<h:panelGroup rendered="#{PrivateMessagesTool.validEmail}">
 
-  <h4><h:outputText value="Activate Private Messages" rendered="#{PrivateMessagesTool.superUser}"/></h4>
- 
+				</h:panelGroup>  
  				<sakai:group_box >
           <table width="80%" align="left">
             <tr>
@@ -19,7 +33,7 @@
           			<h:outputText rendered="#{PrivateMessagesTool.superUser}" value="Activate Private Messages: "/>		
               </td>
               <td>
-                <h:selectOneRadio rendered="#{PrivateMessagesTool.superUser}" value="#{PrivateMessagesTool.activatePvtMsg}" layout="pageDirection">
+                <h:selectOneRadio id="activate" rendered="#{PrivateMessagesTool.superUser}" value="#{PrivateMessagesTool.activatePvtMsg}" layout="pageDirection">
     							<f:selectItem itemValue="yes" itemLabel="Yes"/>
     							<f:selectItem itemValue="no" itemLabel="No"/>
   							</h:selectOneRadio>
@@ -27,21 +41,7 @@
             </tr>
           </table>
         </sakai:group_box>
-        <%--
- 				<sakai:group_box >
- 	  			<h:dataTable width="80%" rendered="#{PrivateMessagesTool.superUser}">
-						<h:column >
-							<h:outputText value="Activate Private Messages: "/>						
-						</h:column>
-						<h:column >
-							<h:selectOneRadio value="#{PrivateMessagesTool.activatePvtMsg}" layout="pageDirection">
-    						<f:selectItem itemValue="yes" itemLabel="Yes"/>
-    						<f:selectItem itemValue="no" itemLabel="No"/>
-  						</h:selectOneRadio>						
-						</h:column>
-	   			</h:dataTable> 	 
-        </sakai:group_box>
-        --%>        
+      
   <h4><h:outputText value="Auto Forward Private Messages" /></h4>
  
  				<sakai:group_box >
@@ -51,10 +51,17 @@
           			<h:outputText value="Auto Forward Private Messages:"/>		
               </td>
               <td>
-                <h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}" layout="pageDirection">
+              <%--
+                <h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}" onchange="this.form.submit();" valueChangeListener="#{PrivateMessageTool.processPvtMsgSettingsR}" layout="pageDirection">
     							<f:selectItem itemValue="yes" itemLabel="Yes"/>
     							<f:selectItem itemValue="no" itemLabel="No"/>
   							</h:selectOneRadio>
+  										--%>
+  							<h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}" layout="pageDirection" >
+    							<f:selectItem itemValue="yes" itemLabel="Yes"/>
+    							<f:selectItem itemValue="no" itemLabel="No"/>
+  							</h:selectOneRadio>
+  				
               </td>
             </tr>
             <tr>
@@ -62,29 +69,21 @@
           			<h:outputText value="Email address for forwarding:"/>		
               </td>
               <td>
-                <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}"/>
+              <%--
+               <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" rendered="#{PrivateMessagesTool.forwardPvtMsg == 'yes'}"/>
+               <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" disabled ="true" rendered="#{PrivateMessagesTool.forwardPvtMsg == 'no'}"/>
+                --%>
+               <h:inputText id="email" value="#{PrivateMessagesTool.forwardPvtMsgEmail}" />
+             		
               </td>
             </tr>            
           </table>
         </sakai:group_box>
                 
-<%--        
-    <h:outputText value="Activate Private Messages:"/>
-    		<h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}">
-    			<f:selectItem itemValue="yes" itemLabel="Yes"/><br />
-    			<f:selectItem itemValue="no" itemLabel="No"/><br />
-  			</h:selectOneRadio>
-			
- <h4><h:outputText value="Auto Forward Private Messages"/></h4>
- <h:outputText value="Auto Forward Private Messages:"/>
- <br>
- <h:outputText value="Email address for forwarding:"/>
- <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}"/>
- --%>
  <br>
  
         <sakai:button_bar>
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSettingRevise}" value="Revise" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSettingRevise}" value="Save Settings" />
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="Cancel" />
         </sakai:button_bar>   
            

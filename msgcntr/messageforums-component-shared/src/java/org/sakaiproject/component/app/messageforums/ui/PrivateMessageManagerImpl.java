@@ -30,11 +30,15 @@ import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
+import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -97,7 +101,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     if ((pf = forumManager.getForumByOwner(getCurrentUser())) == null){
                   
       pf = forumManager.createPrivateForum();
-      pf.setTitle(userId + " private forum");
+      //pf.setTitle(userId + " private forum");
+      pf.setTitle("private forum");
       pf.setUuid(idManager.createUuid());
       pf.setAutoForwardEmail("");
       pf.setOwner(userId);
@@ -757,12 +762,38 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     this.idManager = idManager;
   }
-  public boolean isInstructor(String userId)
+  
+  public boolean isInstructor()
   {
-    // TODO Auto-generated method stub
-    return false;
+    LOG.debug("isInstructor()");
+    return isInstructor(UserDirectoryService.getCurrentUser());
   }
-
+  /**
+   * Check if the given user has site.upd access
+   * 
+   * @param user
+   * @return
+   */
+  private boolean isInstructor(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isInstructor(User " + user + ")");
+    }
+    if (user != null)
+      return SecurityService.unlock(user, "site.upd", getContextSiteId());
+    else
+      return false;
+  }
+  /**
+   * @return siteId
+   */
+  private String getContextSiteId()
+  {
+    LOG.debug("getContextSiteId()");
+    return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+  }
+  
   public void setForumManager(MessageForumsForumManager forumManager)
   {
     this.forumManager = forumManager;

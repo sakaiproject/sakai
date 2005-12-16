@@ -1,6 +1,6 @@
 <%--********************* Message Header*********************--%>
         <sakai:group_box>
-          <table width="100%" align="center" style="background-color:#DDDFE4;">
+          <table width="100%" align="center" class="tablebgcolor" >
             <tr>
               <td align="left" width="25%">
                 <h:outputText value="View "/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -34,12 +34,12 @@
               <td align="right">
               <%--
               <h:commandLink value="Display Options" action="#{PrivateMessagesTool.processPvtMsgDispOtions}" onkeypress="document.forms[0].submit;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              --%>
+             
               <h:commandLink value="Folder Settings" action="#{PrivateMessagesTool.processPvtMsgFolderSettings}" onkeypress="document.forms[0].submit;">  
 					    	<f:param value="#{PrivateMessagesTool.selectedTopicTitle}" name="pvtMsgTopicTitle"/>
     						<f:param value="#{PrivateMessagesTool.selectedTopicId}" name="pvtMsgTopicId"/>
 					    </h:commandLink>
-					 
+					  	--%>
               </td>
             </tr>                                    
           </table>

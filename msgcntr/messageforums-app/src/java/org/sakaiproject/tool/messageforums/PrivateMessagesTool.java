@@ -129,6 +129,7 @@ public class PrivateMessagesTool
   
   //delete confirmation screen - single delete 
   private boolean deleteConfirm=false ; //used for displaying delete confirmation message in same jsp
+  private boolean validEmail=false ;
   
   //Compose Screen
   private List selectedComposeToList;
@@ -376,6 +377,17 @@ public class PrivateMessagesTool
     this.deleteConfirm = deleteConfirm;
   }
 
+ 
+  public boolean isValidEmail()
+  {
+    return validEmail;
+  }
+  public void setValidEmail(boolean validEmail)
+  {
+    this.validEmail = validEmail;
+  }
+
+
   public boolean getNavModeIsDelete()
   {
     return navModeIsDelete;
@@ -592,10 +604,15 @@ public class PrivateMessagesTool
     selectedTopicTitle = getExternalParameterByKey("pvtMsgTopicTitle") ;
     setSelectedTopicId(getExternalParameterByKey("pvtMsgTopicId")) ;
     msgNavMode=getSelectedTopicTitle();
-    //TODO - getPvtMessages based on topicId
+
     return "pvtMsg";
   }
   
+  public String processHpView()
+  { 
+    //TODO - check if instructor
+    return "pvtMsgHpView";
+  }
   /**
    * process Cancel from all JSP's
    * @return - pvtMsg
@@ -631,7 +648,7 @@ public class PrivateMessagesTool
         this.setDetailMsg(dMsg);
         //set isHasRead property of decorated bean as message read
         //TODO Error - markMessageAsReadForUser(message: Message.id:5) could not find user in recipient list
-        prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
+        //prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
         //TODO Error - Failed to lazily initialize a collection -
 //        List recLs= dMsg.getMsg().getRecipients();
 //        for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
@@ -1235,6 +1252,12 @@ public class PrivateMessagesTool
     superUser=SecurityService.isSuperUser();
     return superUser;
   }
+  //is instructor
+  public boolean isInstructor()
+  {
+    return prtMsgManager.isInstructor();
+  }
+  
   public void setSuperUser(boolean superUser)
   {
     this.superUser = superUser;
@@ -1258,18 +1281,30 @@ public class PrivateMessagesTool
   public String processPvtMsgSettings()
   {
     LOG.debug("processPvtMsgSettings()");
-    
+    validEmail= false;
     return "pvtMsgSettings";
   }
-
+  public String processPvtMsgSettingsR(ValueChangeEvent vce)
+  {
+    LOG.debug("processPvtMsgSettingsR()");
+    
+    return processPvtMsgSettings();
+  }
   public String processPvtMsgSettingRevise() {
     LOG.debug("processPvtMsgSettingRevise()");
     
     String email= getForwardPvtMsgEmail();
     String act=getActivatePvtMsg() ;
     String frd=getForwardPvtMsg() ;
-    //prtMsgManager.saveAreaSetting();
-    return "main" ;
+    if (email != null && !(email.trim().indexOf("@") > -1)){
+      setValidEmail(true);
+      return null;
+    } else
+    {
+//    prtMsgManager.saveAreaSetting();
+      return "main" ;
+    }
+    
   }
   
 
@@ -1609,7 +1644,7 @@ public class PrivateMessagesTool
                 participant.role = r.getId();
             }
             //Don't add admin/admin 
-            if(!(participant.uniqname).equals("admin") && prtMsgManager.isInstructor(participant.uniqname))
+            if(!(participant.uniqname).equals("admin") && prtMsgManager.isInstructor())
             {
               participants.add(participant);
             }                
@@ -1684,5 +1719,8 @@ public class PrivateMessagesTool
   {
     this.pvtArea = pvtArea;
   } 
-
+// public String processActionAreaSettingEmailFwd()
+// {
+//   
+// }
 }

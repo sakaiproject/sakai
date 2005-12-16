@@ -13,7 +13,7 @@
 				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />
 				<sakai:instruction_message value="Reply to Private Message" /> 
       	<br>
-        <table width="100%" align="left" style="background-color:#DDDFE4;">
+        <table width="100%" align="left" class="tablebgcolor" >
           <tr>
             <td align="left">
               <h:outputText style="font-weight:bold"  value="Subject "/>
@@ -22,6 +22,7 @@
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />  
             </td>  
             <td align="left">
+            <%--
   						<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message   "  rendered="#{PrivateMessagesTool.detailMsg.hasPreviousMsg}" >
 	      				<f:param value="#{PrivateMessagesTool.detailMsg.previousMsgId}" name="previousMsgId"/>
 							</h:commandLink>
@@ -30,6 +31,7 @@
 							</h:commandLink>
 							<h:outputText   value="Previous Message   "  rendered="#{!PrivateMessagesTool.detailMsg.hasPreviousMsg}" />
 							<h:outputText   value="Next Message   " rendered="#{!PrivateMessagesTool.detailMsg.hasNextMsg}" />		
+						--%>
 			      </td>
           </tr>
           <tr>
@@ -92,7 +94,7 @@
 
 				<h:panelGroup rendered="#{PrivateMessagesTool.deleteConfirm}">
 					<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
-					value="! Are you sure you want to delete this message? If yes, click Delete to delete the message." />
+					  value="! Are you sure you want to delete this message? If yes, click Delete to delete the message." />
 				</h:panelGroup>        
         
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >

@@ -118,7 +118,7 @@ public interface PrivateMessageManager {
     public Attachment getPvtMsgAttachment(final Long pvtMsgAttachId);
     
     
-    public boolean isInstructor(String userId);
+    public boolean isInstructor();
     
     public PrivateMessage getNextMessage(PrivateMessage message);
     public PrivateMessage getPreviousMessage(PrivateMessage message);

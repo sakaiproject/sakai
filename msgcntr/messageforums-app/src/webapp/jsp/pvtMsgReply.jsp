@@ -80,7 +80,7 @@
 	      <sakai:group_box>
 	        <table width="100%" align="center">
 	          <tr>
-	            <td align="center" style="font-weight:bold;background-color:#DDDFE4;color: #000;padding:.3em;margin:-.3em -2.2em;text-align:left;font-size: .9em;line-height:1.3em">
+	            <td align="center" class="att" >
 	              <h:outputText value="Attachments"/>
 	            </td>
 	          </tr>
@@ -154,7 +154,7 @@
 	      <sakai:group_box>
 	        <table width="100%" align="center">
 	          <tr>
-	            <td align="center" style="font-weight:bold;background-color:#DDDFE4;color: #000;padding:.3em;margin:-.3em -2.2em;text-align:left;font-size: .9em;line-height:1.3em">
+	            <td align="center" class="att" >
 	              <h:outputText value="Replying To"/>
 	            </td>
 	          </tr>

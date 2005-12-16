@@ -12,7 +12,7 @@
 		<sakai:group_box>
 			<h:panelGroup >
 				<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
-				value="! Are you sure you want to permanently delete the following message(s)?" />
+					  value="! Are you sure you want to permanently delete the following message(s)?" />
 			</h:panelGroup>  
 		</sakai:group_box>
 				

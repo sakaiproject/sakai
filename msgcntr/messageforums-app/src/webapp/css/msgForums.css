@@ -26,6 +26,11 @@ div.topicRows{border:true; margin: 0; margin-left:15px; padding: 0; text-align:l
 
 .alertMsg{background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;}
 
+.att{font-weight:bold;background-color:#DDDFE4;color: #000;padding:.3em;margin:-.3em -2.2em;text-align:left;font-size: .9em;line-height:1.3em;}
+
+.tablebgcolor{background-color:#DDDFE4;}
+
+
 .rightAlign{text-align:right;float:right;vertical-align:top;}
 
 div.right-header-section {border: none; float: right; margin: 0; padding: 0; width: 19%; text-align:right;}
