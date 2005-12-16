@@ -24,7 +24,7 @@
 				</h:commandLink>
 		 	</div>
 		</div>
- 		<div style="float:left;text-align:left">
+ 		 
 		<h:dataTable id="topics" value="#{ForumTool.selectedForum.topics}" var="topic">
 			<h:column>
 				<f:verbatim><div class="topicRows"></f:verbatim>
@@ -48,10 +48,7 @@
 					</h:column>
 				</h:dataTable>
 			</h:column>
-		</h:dataTable>
-		</div>
-	<%--TODO :Display floating div in firefox --%>
-		 <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+		</h:dataTable> 
 	 </h:form>
     </sakai:view>
 </f:view>

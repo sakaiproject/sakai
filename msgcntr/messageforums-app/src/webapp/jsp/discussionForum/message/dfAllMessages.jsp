@@ -9,38 +9,40 @@
 		<div class="header-section">
 			<div class="left-header-section">
 				<h3><h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
-					<h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedTopic.topic.baseForum.title}" >
-						<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
+					<h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" >
+						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					</h:commandLink> /
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 				</h3>
 				 <sakai:instruction_message value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 				 <br/>
-				 
-				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}" 
+
+				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}"
 					id="topic_extended_show" value="#{msgs.cdfm_read_full_description}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
 					<f:param value="processActionDisplayTopic" name="redirectToProcessAction"/>
 				</h:commandLink>
 				<h:inputTextarea rows="5" cols="100" id="topic_extended_description" disabled="true" value="#{ForumTool.selectedTopic.topic.extendedDescription}" rendered="#{ForumTool.selectedTopic.readFullDesciption}"/>
 				<f:verbatim><br/></f:verbatim>
-				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" id="topic_extended_hide" 
+				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" id="topic_extended_hide"
 					 value="#{msgs.cdfm_hide_full_description}" rendered="#{ForumTool.selectedTopic.readFullDesciption}">
 					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 					<f:param value="processActionDisplayTopic" name="redirectToProcessAction"/>
-				</h:commandLink>		
-				
+				</h:commandLink>
+
 				<h:commandButton action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages" value="#{msgs.cdfm_container_title}">
 				</h:commandButton>
 			</div>
 			<div class="right-header-section">
 				<h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
-				<h:outputText   value="#{msgs.cdfm_next_topic}   " rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
 				<h:commandLink action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}   "  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" >
 					<f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
+				<h:outputText   value="#{msgs.cdfm_next_topic}   " rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
 				<h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}   " rendered="#{ForumTool.selectedTopic.hasNextTopic}" >
-					<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>	
+					<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 			</div>
 		</div>
