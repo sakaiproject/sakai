@@ -91,6 +91,7 @@ public class BeginDeliveryActionListener implements ActionListener
     // reset timer before begin
     delivery.setTimeElapse("0");
     delivery.setLastTimer(0);
+    delivery.setTimeLimit("0");
 
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
     delivery.setPublishedAssessment(pub);

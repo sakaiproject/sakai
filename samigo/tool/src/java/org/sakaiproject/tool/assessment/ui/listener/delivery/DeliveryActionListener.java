@@ -166,7 +166,7 @@ public class DeliveryActionListener
                 if (ag == null)
                  ag = createAssessmentGrading(publishedAssessment);
                  delivery.setAssessmentGrading(ag);
-               }
+              }
  
               // ag can't be null beyond this point and must have persisted to DB
               // version 2.1.1 requirement
@@ -1430,10 +1430,12 @@ public class DeliveryActionListener
   private void setTimer(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
     // i hope to use the property timedAssessment but it appears that this property
     // is not recorded properly in DB - daisyf
-    if (publishedAssessment.getAssessmentAccessControl().getTimeLimit().intValue() ==0) 
+    int timeLimit = publishedAssessment.getAssessmentAccessControl().getTimeLimit().intValue();
+    if (timeLimit==0) 
       delivery.setTimeRunning(false);
     else{
       delivery.setTimeRunning(true);
+      delivery.setTimeLimit(timeLimit+"");
       //assessment is half done, load setting saved in DB
       AssessmentGradingData ag = delivery.getAssessmentGrading();
       if (ag.getTimeElapsed() != null) 

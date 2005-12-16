@@ -293,7 +293,7 @@ public class SubmitToGradingActionListener implements ActionListener
       adata.setForGrade(new Boolean(delivery.getForGrade()));
     }
 
-    log.info("delivery.getJavaScriptEnabledCheck()="+delivery.getJavaScriptEnabledCheck());
+    System.out.println("**** delivery.getJavaScriptEnabledCheck()="+delivery.getJavaScriptEnabledCheck());
     if (Boolean.TRUE.equals(adata.getForGrade()) &&
         !"true".equals(delivery.getJavaScriptEnabledCheck()))
     {

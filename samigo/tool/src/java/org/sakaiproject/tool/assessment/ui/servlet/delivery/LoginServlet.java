@@ -87,6 +87,7 @@ public class LoginServlet
     // reset timer in case this is a timed assessment
     delivery.setTimeElapse("0");
     delivery.setLastTimer(0);
+    delivery.setTimeLimit("0");
 
     // set path
     delivery.setContextPath(req.getContextPath());

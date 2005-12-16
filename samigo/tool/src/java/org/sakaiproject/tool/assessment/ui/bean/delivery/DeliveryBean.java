@@ -472,7 +472,17 @@ public class DeliveryBean
    */
   public void setTimeElapse(String timeElapse)
   {
-    this.timeElapse = timeElapse;
+    try{
+      float limit = (new Float(getTimeLimit())).floatValue();
+      float elapsed = (new Float(timeElapse)).floatValue();
+      if (limit > elapsed)
+        this.timeElapse = timeElapse;
+      else
+        this.timeElapse = getTimeLimit();
+    }
+    catch (Exception e){
+      log.warn(e.getMessage());
+    }
   }
 
   /**
@@ -1198,28 +1208,12 @@ public class DeliveryBean
     SessionUtil.setSessionTimeout(context, this, false);
     log.debug("***DeliverBean.saveAndEXit face context =" + context);
 
-    // If this was automatically triggered by running out of time,
-    // check for autosubmit, and do it if so.
-    if (timeOutSubmission != null && timeOutSubmission.equals("true"))
-    {
-      if (getSettings().getAutoSubmit())
-      {
-        submitForGrade();
-        return "timeout";
-      }
-    }
-
     forGrade = false;
     SubmitToGradingActionListener listener =
       new SubmitToGradingActionListener();
     listener.processAction(null);
 
     String returnValue = "select";
-    if (timeOutSubmission != null && timeOutSubmission.equals("true"))
-    {
-      returnValue = "timeout";
-    }
-
     if (this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     { // if this is access via url, display quit message
       log.debug("**anonymous login, go to quit");
@@ -1230,16 +1224,6 @@ public class DeliveryBean
     l2.processAction(null);
     reload = true;
     return returnValue;
-  }
-
-  public String gotoQuestion()
-  {
-    System.out.println("****got straigh to question");
-    recordTimeElapsed();
-    DeliveryActionListener l2 = new DeliveryActionListener();
-    l2.processAction(null);
-    reload = false;
-    return "takeAssessment";
   }
 
   public String next_page()

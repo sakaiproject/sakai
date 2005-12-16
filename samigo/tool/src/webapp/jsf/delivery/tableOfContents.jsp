@@ -75,6 +75,18 @@ function saveTime()
   }
 }
 
+function clickSubmitForGrade(){
+  var newindex = 0;
+  for (i=0; i<document.links.length; i++) {
+    if(document.links[i].id == "tableOfContentsForm:submitforgrade")
+    {
+      newindex = i;
+      break;
+    }
+  }
+  document.links[newindex].onclick();
+}
+
 </script>
 
 
@@ -102,7 +114,7 @@ function saveTime()
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     expireMessage="Your session has expired."
-    expireScript="document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded; document.forms[0].elements['tableOfContentsForm:outoftime'].value='true'; document.forms[0].elements['tableOfContentsForm:saveAndExit'].click();" />
+    expireScript="document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded; document.forms[0].elements['tableOfContentsForm:outoftime'].value='true'; document.forms[0].elements['tableOfContentsForm:wninFpevcgRanoyrqPurpx'].value='true'; clickSubmitForGrade();" />
 <f:verbatim>  </span></f:verbatim>
 
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="Hide/Show Time Remaining" />
@@ -140,6 +152,8 @@ function saveTime()
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
+<h:commandLink id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
+
 
     <h:inputHidden id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
     <h:messages styleClass="validation"/>

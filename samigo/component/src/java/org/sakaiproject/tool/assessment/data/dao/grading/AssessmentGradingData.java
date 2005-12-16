@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.data.dao.grading;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.HashSet;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
@@ -61,7 +62,7 @@ public class AssessmentGradingData
   private Integer status;
   private String gradedBy;
   private Date gradedDate;
-  private Set itemGradingSet;
+  private Set itemGradingSet = new HashSet();
   private Date attemptDate;
   private Integer timeElapsed;
   private int totalSubmitted;
