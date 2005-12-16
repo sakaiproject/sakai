@@ -256,7 +256,7 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         DiscussionTopic topic = getDiscussionTopic();
         forumManager.saveDiscussionForumTopic(topic);
 
-        assertNotNull(forumManager.getTopicById(topic.getId()));
+        assertNotNull(forumManager.getTopicById(true,topic.getId()));
 
         forumManager.deleteDiscussionForumTopic(topic);
     }

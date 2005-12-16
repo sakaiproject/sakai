@@ -70,4 +70,6 @@ public interface Topic extends MutableEntity {
     public void addMessage(Message message);
     
     public void removeMessage(Message message);
+    
+    public Long getForumId();
 }

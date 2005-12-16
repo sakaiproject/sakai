@@ -27,7 +27,6 @@ import java.util.List;
 
 
 public interface MessageForumsForumManager {
-
  
     /**
      * get forum by owner
@@ -140,7 +139,7 @@ public interface MessageForumsForumManager {
      */
     public List getRecentOpenForumMessages(int numberMessages, int numberDaysInPast);
     
-    public Topic getTopicById(Long topicId);
+    public Topic getTopicById(boolean open, Long topicId);
     public Topic getTopicByUuid(String uuid);
 
 }

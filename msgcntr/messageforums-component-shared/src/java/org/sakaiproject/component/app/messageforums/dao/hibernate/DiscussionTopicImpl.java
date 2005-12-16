@@ -119,7 +119,6 @@ public class DiscussionTopicImpl extends OpenTopicImpl implements DiscussionTopi
         this.mustRespondBeforeReading = mustRespondBeforeReading;
     }
     
-    
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////

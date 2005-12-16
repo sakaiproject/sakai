@@ -34,28 +34,12 @@ public class OpenTopicImpl extends TopicImpl implements OpenTopic {
     private Boolean locked;
     private Boolean draft;
     
-    // indecies for hibernate
-    private int ofindex;
-
     public Boolean getLocked() {
         return locked;
     }
 
     public void setLocked(Boolean locked) {
         this.locked = locked;
-    }
-
-
-    public int getOfindex() {
-        try {
-            return getOpenForum().getTopics().indexOf(this);
-        } catch (Exception e) {
-            return ofindex;
-        }
-    }
-
-    public void setOfindex(int ofindex) {
-        this.ofindex = ofindex;
     }
 
     public Boolean getDraft() {
@@ -66,4 +50,8 @@ public class OpenTopicImpl extends TopicImpl implements OpenTopic {
         this.draft = draft;
     }
         
+    public Long getForumId() {
+        return new Long(getOfindex());
+    }
+
 }

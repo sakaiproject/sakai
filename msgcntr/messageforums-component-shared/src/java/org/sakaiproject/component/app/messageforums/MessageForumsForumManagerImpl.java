@@ -46,6 +46,7 @@ import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl;
@@ -191,14 +192,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return (BaseForum) getHibernateTemplate().execute(hcb);
     }
     
-    public Topic getTopicById(final Long topicId) {
+    public Topic getTopicById(boolean open, Long topicId) {
         if (topicId == null) {
             throw new IllegalArgumentException("Null Argument");
         }
                
         LOG.debug("getDiscussionForumById executing with topicId: " + topicId);
         
-        return (Topic) getHibernateTemplate().get(TopicImpl.class, topicId);
+        Topic topic = (Topic) getHibernateTemplate().get(TopicImpl.class, topicId);        
+        topic.setBaseForum(getForumById(open, topic.getForumId()));
+        
+        return topic;
     }
     
     public Topic getTopicByUuid(final String uuid) {

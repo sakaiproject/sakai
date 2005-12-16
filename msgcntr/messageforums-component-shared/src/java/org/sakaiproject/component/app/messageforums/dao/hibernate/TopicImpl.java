@@ -35,7 +35,7 @@ import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
-public class TopicImpl extends MutableEntityImpl implements Topic {
+public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 
     private static final Log LOG = LogFactory.getLog(TopicImpl.class);
     
@@ -172,6 +172,8 @@ public class TopicImpl extends MutableEntityImpl implements Topic {
     public String toString() {
         return "Topic.id:" + id;
     }
+    
+    public abstract Long getForumId();
     
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections

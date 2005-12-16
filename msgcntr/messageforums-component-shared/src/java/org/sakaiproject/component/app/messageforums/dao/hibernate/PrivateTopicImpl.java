@@ -76,6 +76,10 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
         this.ptindex = ptindex;
     }
     
+    public Long getForumId() {
+        return new Long(getPfindex());
+    }
+
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////

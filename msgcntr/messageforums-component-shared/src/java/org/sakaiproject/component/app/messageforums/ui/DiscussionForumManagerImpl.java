@@ -243,7 +243,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getTopicById(topicId);
     }
-    return (DiscussionTopic) forumManager.getTopicById(topicId);
+    return (DiscussionTopic) forumManager.getTopicById(true, topicId);
   }
   
   public DiscussionTopic getTopicByUuid(String topicId) {
