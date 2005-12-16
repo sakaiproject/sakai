@@ -68,6 +68,33 @@
         </property> 
     </bean>
     
+     <bean id="org.sakaiproject.api.app.messageforums.UserPermissionManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.UserPermissionManagerImpl" singleton="true" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+				<property name="idManager">
+					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+				</property>				 				
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+				</property>	
+		        <property name="permissionManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
+		        </property>
+            </bean>            
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+
     <bean id="org.sakaiproject.api.app.messageforums.AreaManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>

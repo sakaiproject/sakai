@@ -46,7 +46,6 @@ import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl;
@@ -84,7 +83,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void init() {
         ;
     }
-
+        
     public EventTrackingService getEventTrackingService() {
         return eventTrackingService;
     }
@@ -506,5 +505,5 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private String getEventMessage(Object object) {
         return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
-    
+
 }
