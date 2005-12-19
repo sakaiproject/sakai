@@ -67,5 +67,9 @@ public interface MessageForumsMessageManager {
     public List findMessagesByTopicId(Long topicId);
 
     public Attachment getAttachmentById(Long attachmentId);
+    
+    public void getChildMsgs(final Long messageId, List returnList);
+    
+    public void deleteMsgWithChild(final Long messageId);
 
     }

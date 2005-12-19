@@ -243,6 +243,18 @@ public class DiscussionTopicBean
        topic.setLocked(new Boolean(false));
     }
   } 
+  
+  public void removeMessage(DiscussionMessageBean decoMessage)
+  {
+  	for(int i=0; i<messages.size(); i++)
+  	{
+  		if (((DiscussionMessageBean)messages.get(i)).getMessage().getId().equals(decoMessage.getMessage().getId()))
+  		{
+  			messages.remove(i);
+  			break;
+  		}
+  	}
+  }
  
   
 }

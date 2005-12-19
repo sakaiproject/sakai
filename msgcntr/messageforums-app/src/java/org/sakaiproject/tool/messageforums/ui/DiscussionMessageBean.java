@@ -69,8 +69,11 @@ public class DiscussionMessageBean
     	MessageForumsMessageManager mfmm = 
     		(org.sakaiproject.api.app.messageforums.MessageForumsMessageManager)ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager");
     	Message messageWithAttach = mfmm.getMessageByIdWithAttachments(message.getId());
-    	if(messageWithAttach.getAttachments().size()>0)
-    		return true;
+    	if(messageWithAttach != null)
+    	{
+    		if(messageWithAttach.getAttachments().size()>0)
+    			return true;
+    	}
     }
     return false;
   }

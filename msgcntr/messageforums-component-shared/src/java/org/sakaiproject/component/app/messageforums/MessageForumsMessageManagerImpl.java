@@ -24,6 +24,7 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +40,7 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
@@ -48,7 +50,6 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.sakaiproject.service.legacy.content.ContentHostingService;
 import org.sakaiproject.service.legacy.event.EventTrackingService;
-import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -62,6 +63,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_COUNT_BY_READ = "findReadMessageCountByTopicId";
     private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
+    private static final String QUERY_CHILD_MESSAGES = "finalAllChildMessages";
     //private static final String ID = "id";
 
     private IdManager idManager;                             
@@ -312,8 +314,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             e.printStackTrace();
             LOG.error("could not evict message: " + message.getId(), e);
         }
-        getHibernateTemplate().delete(message);
-        LOG.info("message " + message.getId() + " deleted successfully");
+        Topic topic = message.getTopic();
+        topic.removeMessage(message);
+				getHibernateTemplate().delete(message);
+        //LOG.info("message " + message.getId() + " deleted successfully");
     }
     
     public Message getMessageById(final Long messageId) {        
@@ -357,9 +361,51 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         LOG.debug("getAttachmentById executing with attachmentId: " + attachmentId);
         
         return (Attachment) getHibernateTemplate().get(AttachmentImpl.class, attachmentId);
-    }    
+    }
     
+    public void getChildMsgs(final Long messageId, List returnList)
+    {
+    	List tempList;
+    	
+      HibernateCallback hcb = new HibernateCallback() 
+			{
+        public Object doInHibernate(Session session) throws HibernateException, SQLException 
+				{
+          Query q = session.getNamedQuery(QUERY_CHILD_MESSAGES);
+          Query qOrdered= session.createQuery(q.getQueryString());
+                  
+          qOrdered.setParameter("messageId", messageId, Hibernate.LONG);
+          
+          return qOrdered.list();
+        }
+      };
+      
+      tempList = (List) getHibernateTemplate().execute(hcb);
+      if(tempList != null)
+      {
+      	for(int i=0; i<tempList.size(); i++)
+      	{
+      		getChildMsgs(((Message)tempList.get(i)).getId(), returnList);
+      		returnList.add((Message) tempList.get(i));
+      	}
+      }
+    }
 
+
+    public void deleteMsgWithChild(final Long messageId)
+    {
+    	List thisList = new ArrayList();
+    	getChildMsgs(messageId, thisList);
+    	
+    	for(int i=0; i<thisList.size(); i++)
+    	{
+    		Message delMessage = getMessageByIdWithAttachments(((Message)thisList.get(i)).getId());
+    		deleteMessage(getMessageById(((Message)thisList.get(i)).getId()));
+    	}
+
+  		deleteMessage(getMessageById(messageId));
+    }
+    
     
     // helpers
     

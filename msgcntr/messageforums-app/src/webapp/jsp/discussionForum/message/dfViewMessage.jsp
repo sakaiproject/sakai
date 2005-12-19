@@ -121,8 +121,8 @@
 	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyTp}" value="Reply to Topic" />
 <%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="Grade" />--%>
       <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="Revise" rendered="#{ForumTool.fullAccess}"/>
-<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgMove}" value="Move" rendered="#{ForumTool.fullAccess}"/>
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" rendered="#{ForumTool.fullAccess}"/>--%>
+<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgMove}" value="Move" rendered="#{ForumTool.fullAccess}"/>--%>
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" rendered="#{ForumTool.fullAccess}"/>
     </sakai:button_bar>
 
 		<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.fullAccess}">

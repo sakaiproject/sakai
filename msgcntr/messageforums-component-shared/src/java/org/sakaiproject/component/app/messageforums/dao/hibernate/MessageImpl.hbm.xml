@@ -172,6 +172,12 @@
     ]]>    
   </query>
   
+  <query name="finalAllChildMessages">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
+             where message.inReplyTo.id = :messageId
+    ]]>    
+  </query>
+  
   
 
 </hibernate-mapping>
