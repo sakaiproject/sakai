@@ -54,7 +54,7 @@
     </filter>
     <filter-mapping>
         <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
-        <servlet-name>sakai.messageforums</servlet-name>
+        <servlet-name>sakai.messagecenter</servlet-name>
         <dispatcher>REQUEST</dispatcher> 
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 <registration>
-	<tool id="sakai.messageforums"
-		  title="Message Forums"
+	<tool id="sakai.messagecenter"
+		  title="Message Center"
 		  description="For using the message forums or private mail for a site.">			
 		<category name="course" />
 		<category name="project" />
