@@ -7,11 +7,11 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
- *
  */
 public class DiscussionForumBean
 {
   private DiscussionForum forum;
+  private boolean markForDeletion;
   /**
    * List of decorated topics
    */
@@ -51,19 +51,21 @@ public class DiscussionForumBean
    */
   public String getLocked()
   {
-    if(forum==null || forum.getLocked()==null||forum.getLocked().booleanValue()==false)
+    if (forum == null || forum.getLocked() == null
+        || forum.getLocked().booleanValue() == false)
     {
-      return Boolean.FALSE.toString();      
+      return Boolean.FALSE.toString();
     }
-    return  Boolean.TRUE.toString();
+    return Boolean.TRUE.toString();
   }
 
   /**
-   * @param locked The locked to set.
+   * @param locked
+   *          The locked to set.
    */
   public void setLocked(String locked)
   {
-    if(locked.equals(Boolean.TRUE.toString()))
+    if (locked.equals(Boolean.TRUE.toString()))
     {
       forum.setLocked(new Boolean(true));
     }
@@ -71,5 +73,23 @@ public class DiscussionForumBean
     {
       forum.setLocked(new Boolean(false));
     }
-  } 
+  }
+
+  /**
+   * @return Returns the markForDeletion.
+   */
+  public boolean isMarkForDeletion()
+  {
+    return markForDeletion;
+  }
+
+  /**
+   * @param markForDeletion
+   *          The markForDeletion to set.
+   */
+  public void setMarkForDeletion(boolean markForDeletion)
+  {
+    this.markForDeletion = markForDeletion;
+  }
+
 }

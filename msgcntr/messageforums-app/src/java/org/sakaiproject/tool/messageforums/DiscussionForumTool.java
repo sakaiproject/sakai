@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Date;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
@@ -47,7 +48,6 @@ public class DiscussionForumTool
   private static final String FORUM_DETAILS = "dfForumDetail";
   private static final String FORUM_SETTING = "dfForumSettings";
   private static final String FORUM_SETTING_REVISE = "dfReviseForumSettings";
-  private static final String FORUM_CONFIRM_DELETE = "dfConfirmForumDelete";
   private static final String TOPIC_SETTING = "dfTopicSettings";
   private static final String TOPIC_SETTING_REVISE = "dfReviseTopicSettings";
   private static final String MESSAGE_COMPOSE = "dfCompose";
@@ -317,11 +317,18 @@ public class DiscussionForumTool
   }
 
   /**
+   * Forward to delete forum confirmation screen
    * @return
    */
   public String processActionDeleteForumConfirm()
   {
-    return MAIN;
+    if(selectedForum==null)
+    {
+      LOG.debug("There is no forum selected for deletion");
+      return MAIN;
+    }
+    selectedForum.setMarkForDeletion(true);
+    return FORUM_SETTING;
   }
 
   /**
@@ -329,6 +336,11 @@ public class DiscussionForumTool
    */
   public String processActionDeleteForum()
   {
+    if(selectedForum==null)
+    {
+      LOG.debug("There is no forum selected for deletion");
+    }
+    forumManager.deleteForum(selectedForum.getForum());
     return MAIN;
   }
 
@@ -353,15 +365,11 @@ public class DiscussionForumTool
     String forumId = getExternalParameterByKey(FORUM_ID);
     if ((forumId) == null)
     {
-      // TODO : appropriate error page
+      setErrorMessage("Invalid forum selected");
       return MAIN;
     }
     DiscussionForum forum = forumManager.getForumById(new Long(forumId));
-    // TODO:way around lazy initialization
-    // List attachment=forum.getAttachments();
     selectedForum = new DiscussionForumBean(forum);
-    // selectedForum.getForum().setAttachments(attachment);
-
     return FORUM_SETTING;
   }
 
@@ -374,11 +382,9 @@ public class DiscussionForumTool
 
     if ((selectedForum) == null)
     {
-      // TODO : appropriate error page
+      setErrorMessage("Forum not found");
       return MAIN;
     }
-    // DiscussionForum forum = forumManager.getForumById(forumId);
-    // selectedForum = new DiscussionForumBean(forum);
     return FORUM_SETTING_REVISE; //
   }
 
@@ -392,7 +398,7 @@ public class DiscussionForumTool
     selectedTopic = createTopic();
     if (selectedTopic == null)
     {
-      // TODO : redirect to a error page
+      setErrorMessage("Unable to create a new Topic");
       return MAIN;
     }
     return TOPIC_SETTING_REVISE;
@@ -493,7 +499,7 @@ public class DiscussionForumTool
     selectedTopic = createTopic();
     if (selectedTopic == null)
     {
-      // TODO : redirect to a error page
+      setErrorMessage("Create New Topic Failed!");
       return MAIN;
     }
 
@@ -515,6 +521,7 @@ public class DiscussionForumTool
     }
     if (topic == null)
     {
+      setErrorMessage("Topic with id '" + getExternalParameterByKey(TOPIC_ID) + "'not found");
       return MAIN;
     }
     selectedTopic = new DiscussionTopicBean(topic);
@@ -609,7 +616,7 @@ public class DiscussionForumTool
     String redirectTo = getExternalParameterByKey(REDIRECT_PROCESS_ACTION);
     if (redirectTo == null)
     {
-      // TODO: direct me
+      setErrorMessage("Could not find a redirect page : Read / Hide full descriptions");
       return MAIN;
     }
     if (redirectTo.equals("displayHome"))
@@ -690,7 +697,7 @@ public class DiscussionForumTool
     String messageId = getExternalParameterByKey(MESSAGE_ID);
     if (messageId == null)
     {
-      // TODO: direct me
+      setErrorMessage("Message reference not found");
       return MAIN;
     }
     // Message message=forumManager.getMessageById(new Long(messageId));
@@ -699,7 +706,7 @@ public class DiscussionForumTool
     ;
     if (message == null)
     {
-      // TODO: direct me
+      setErrorMessage("Message with id '" + messageId + "'not found");
       return MAIN;
     }
     selectedMessage = new DiscussionMessageBean(message);
@@ -862,9 +869,6 @@ public class DiscussionForumTool
       LOG.debug("getDecoratedTopic(DiscussionTopic " + topic + ")");
     }
     DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic);
-    // TODO : implement me
-    // decoTopic.getTopic().setBaseForum(forumManager.getForumById(new Long(5)));
-
     decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
     decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
     decoTopic.setHasNextTopic(forumManager.hasNextTopic(topic));
@@ -935,14 +939,14 @@ public class DiscussionForumTool
       else
       {
         LOG.error("Topic with id '" + externalTopicId + "'not found");
-        // TODO : appropriate error page
+        setErrorMessage("Topic with id '" + externalTopicId + "'not found");
         return MAIN;
       }
     }
     catch (Exception e)
     {
       LOG.error(e.getMessage(), e);
-      // TODO appropriate error page
+      setErrorMessage(e.getMessage());
       return "main";
     }
     return ALL_MESSAGES;
@@ -1644,5 +1648,11 @@ public class DiscussionForumTool
       }
     }
     selectedForum = new DiscussionForumBean(forum);
+  }
+  
+  private void setErrorMessage(String errorMsg)
+  {
+    LOG.debug("setErrorMessage(String "+errorMsg+")");
+    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(errorMsg));    
   }
 }

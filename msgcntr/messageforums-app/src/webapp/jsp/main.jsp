@@ -19,9 +19,9 @@
 <f:view>
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
   <sakai:view>
-  
-      <h:form id="msgForum">
+       <h:form id="msgForum">
       	<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
+  		<h:messages styleClass="alertMsg" id="errorMessages" layout="table" />  		
         <%@include file="privateMsg/pvtArea.jsp"%>
         <%@include file="discussionForum/area/dfArea.jsp"%>
       </h:form>

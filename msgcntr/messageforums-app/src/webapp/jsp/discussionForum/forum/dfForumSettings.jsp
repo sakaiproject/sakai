@@ -9,6 +9,7 @@
       <h:form id="forum_settings">
       <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
+         <h:outputText styleClass="alertMsg" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}"/>	
  		<p class="shorttext">
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel id="outputLabel" for="forum_title"  value="#{msgs.cdfm_forum_title}"/>	</h:panelGroup>
@@ -114,12 +115,18 @@
       </mf:forumHideDivision>
       
        <p class="act">
-          <h:commandButton id ="revise" immediate="true"  action="#{ForumTool.processActionReviseForumSettings}" value="#{msgs.cdfm_button_bar_revise}"> 
+          <h:commandButton id ="revise" rendered="#{!ForumTool.selectedForum.markForDeletion}" immediate="true"  action="#{ForumTool.processActionReviseForumSettings}" value="#{msgs.cdfm_button_bar_revise}"> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
-          <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForumConfirm}" value="#{msgs.cdfm_button_bar_delete}">
+          
+          <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForumConfirm}" value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedForum.markForDeletion}">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
+          
+          <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForum}" value="#{msgs.cdfm_button_bar_delete}" rendered="#{ForumTool.selectedForum.markForDeletion}">
+	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+          </h:commandButton>
+          
           <h:commandButton id="cancel" immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
        </p>
 	 </h:form>
