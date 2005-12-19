@@ -48,6 +48,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.sakaiproject.service.legacy.content.ContentHostingService;
 import org.sakaiproject.service.legacy.event.EventTrackingService;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -305,6 +306,12 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
     public void deleteMessage(Message message) {
         eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(message), false));
+        try {
+            getSession().evict(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error("could not evict message: " + message.getId(), e);
+        }
         getHibernateTemplate().delete(message);
         LOG.info("message " + message.getId() + " deleted successfully");
     }
