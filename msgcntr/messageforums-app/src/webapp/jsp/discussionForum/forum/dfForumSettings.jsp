@@ -20,22 +20,32 @@
 
 				<h:panelGroup><h:outputLabel id="outputLabel2" for="forum_fullDescription"  value="#{msgs.cdfm_fullDescription}"/>	</h:panelGroup>
 				<h:panelGroup><h:outputText id="forum_fullDescription"  value="#{ForumTool.selectedForum.forum.extendedDescription}"/></h:panelGroup>
-				
-				<h:panelGroup><h:outputLabel id="outputLabel3" for="forum_attachments"  value="#{msgs.cdfm_attachments}"/>	</h:panelGroup>
-				<%--<h:panelGroup>
-					 <h:dataTable id="forum_attachments"  value="#{ForumTool.selectedForum.forum.attachments}" var="attachment" >
-					  		<h:column rendered="#{!empty ForumTool.selectedForum.forum.attachments}">
-								<h:graphicImage url="/images/excel.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-excel'}"/>
-								<h:graphicImage url="/images/html.gif" rendered="#{attachment.attachmentType == 'text/html'}"/>
-								<h:graphicImage url="/images/pdf.gif" rendered="#{attachment.attachmentType == 'application/pdf'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-powerpoint'}"/>
-								<h:graphicImage url="/images/text.gif" rendered="#{attachment.attachmentType == 'text/plain'}"/>
-								<h:graphicImage url="/images/word.gif" rendered="#{attachment.attachmentType == 'application/msword'}"/>
-								<h:outputText value="#{attachment.attachmentName}"/>
-						</h:column>
-					</h:dataTable> 			 
-				</h:panelGroup>--%>
-      		</h:panelGrid>
+   		</h:panelGrid>
+	
+			<h:panelGroup><h:outputLabel id="outputLabel3" value="#{msgs.cdfm_attachments}"/>	</h:panelGroup>
+			<h:panelGroup>
+				<sakai:group_box>
+				  <sakai:doc_section>
+			  		<h:outputText value="No Attachments Yet" rendered="#{empty ForumTool.selectedForum.forum.attachments}"/>
+		  	  </sakai:doc_section>
+					<h:dataTable value="#{ForumTool.selectedForum.forum.attachments}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.forum.attachments}">
+					  <h:column>
+							<f:facet name="header">
+								<h:outputText value="" />
+							</f:facet>
+							<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
+							<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
+							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
+							<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
+							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
+							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
+							<h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
+								<h:outputText value="#{eachAttach.attachmentName}"  style="text-decoration:underline;"/>
+							</h:outputLink>
+					  </h:column>
+				  </h:dataTable>
+		  	</sakai:group_box>
+		  </h:panelGroup>
 		</p>
         <h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>
         <p class="shorttext">
