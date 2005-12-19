@@ -157,10 +157,10 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
     }
 
     public void testIsMessageReadForUser() {
-        assertFalse(messageManager.isMessageReadForUser("joesmith", new Long(1), new Long(2)));
-        messageManager.markMessageReadForUser("joesmith", new Long(1), new Long(2));
-        assertTrue(messageManager.isMessageReadForUser("joesmith", new Long(1), new Long(2)));
-        messageManager.deleteUnreadStatus("joesmith", new Long(1), new Long(2));
+        assertFalse(messageManager.isMessageReadForUser(new Long(1), new Long(2)));
+        messageManager.markMessageReadForUser(new Long(1), new Long(2), true);
+        assertTrue(messageManager.isMessageReadForUser(new Long(1), new Long(2)));
+        messageManager.deleteUnreadStatus(new Long(1), new Long(2));
     }
 
     public void testFindMessageCountByTopicId() {
@@ -221,9 +221,9 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         }
         forumManager.saveDiscussionForumTopic(topic);
 
-        messageManager.markMessageReadForUser("nate", topic.getId(), ((Message) topic.getMessages().get(2)).getId());
+        messageManager.markMessageReadForUser(topic.getId(), ((Message) topic.getMessages().get(2)).getId(), true);
 
-        assertEquals(messageManager.findReadMessageCountByTopicId("nate", topic.getId()), 1);
+        assertEquals(messageManager.findReadMessageCountByTopicId(topic.getId()), 1);
         
         forumManager.deleteDiscussionForumTopic(topic);
     }
@@ -244,10 +244,10 @@ public class MessageForumsTests extends ForumsApplicationContextBaseTest {
         }
         forumManager.saveDiscussionForumTopic(topic);
 
-        messageManager.markMessageReadForUser("nate", topic.getId(), ((Message) topic.getMessages().get(2)).getId());
-        messageManager.markMessageReadForUser("nate", topic.getId(), ((Message) topic.getMessages().get(5)).getId());
+        messageManager.markMessageReadForUser(topic.getId(), ((Message) topic.getMessages().get(2)).getId(), true);
+        messageManager.markMessageReadForUser(topic.getId(), ((Message) topic.getMessages().get(5)).getId(), true);
 
-        assertEquals(messageManager.findUnreadMessageCountByTopicId("nate", topic.getId()), 8);
+        assertEquals(messageManager.findUnreadMessageCountByTopicId(topic.getId()), 8);
 
         forumManager.deleteDiscussionForumTopic(topic);
     }

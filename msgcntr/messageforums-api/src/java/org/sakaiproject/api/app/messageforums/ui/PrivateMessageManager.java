@@ -97,7 +97,7 @@ public interface PrivateMessageManager {
     public List getMessagesByTopic(String userId, Long topicId);
     
     int getTotalNoMessages(Topic topic);
-    int getUnreadNoMessages(String userId, Topic topic);    
+    int getUnreadNoMessages(Topic topic);    
     
     //Topic Setting
     public void saveAreaSetting() ;

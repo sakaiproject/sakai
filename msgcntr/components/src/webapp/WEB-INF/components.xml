@@ -82,10 +82,12 @@
 				</property>				 				
 				<property name="sessionManager">
 					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
-				</property>	
+				</property>
+				<!-- 	
 		        <property name="permissionManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
 		        </property>
+		        -->
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -119,6 +121,11 @@
 		        <property name="eventTrackingService">
         		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
 		        </property>
+		        <!-- 
+		        <property name="userPermissionManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.UserPermissionManager"/>
+		        </property>
+		        -->
             </bean>            
         </property>
          <property name="transactionAttributes">

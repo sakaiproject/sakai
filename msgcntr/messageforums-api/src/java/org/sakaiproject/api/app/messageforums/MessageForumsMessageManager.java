@@ -46,23 +46,23 @@ public interface MessageForumsMessageManager {
 
     public void deleteMessage(Message message);
 
-    public Message getMessageById(final Long messageId);
+    public Message getMessageById(Long messageId);
     
-    public Message getMessageByIdWithAttachments(final Long messageId);
+    public Message getMessageByIdWithAttachments(Long messageId);
 
-    public void markMessageReadForUser(String userId, Long topicId, Long messageId);
+    public void markMessageReadForUser(Long topicId, Long messageId, boolean read);
 
-    public boolean isMessageReadForUser(String userId, Long topicId, Long messageId);
+    public boolean isMessageReadForUser(Long topicId, Long messageId);
 
-    public UnreadStatus findUnreadStatus(String userId, Long topicId, Long messageId);
+    public UnreadStatus findUnreadStatus(Long topicId, Long messageId);
 
-    public void deleteUnreadStatus(String userId, Long topicId, Long messageId);
+    public void deleteUnreadStatus(Long topicId, Long messageId);
 
     public int findMessageCountByTopicId(Long topicId);
 
-    public int findUnreadMessageCountByTopicId(String userId, Long topicId);
+    public int findUnreadMessageCountByTopicId(Long topicId);
 
-    public int findReadMessageCountByTopicId(String userId, Long topicId);
+    public int findReadMessageCountByTopicId(Long topicId);
 
     public List findMessagesByTopicId(Long topicId);
 

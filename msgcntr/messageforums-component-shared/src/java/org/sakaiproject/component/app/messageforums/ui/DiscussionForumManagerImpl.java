@@ -175,14 +175,14 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getUnreadNoMessages(org.sakaiproject.api.app.messageforums.Topic)
    */
-  public int getUnreadNoMessages(String userId, Topic topic)
+  public int getUnreadNoMessages(Topic topic)
   {
     if (usingHelper)
     {
       return 10;
     }
     return messageManager
-        .findUnreadMessageCountByTopicId(userId, topic.getId());
+        .findUnreadMessageCountByTopicId(topic.getId());
   }
 
   /*

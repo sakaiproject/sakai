@@ -222,9 +222,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return messageManager.findMessageCountByTopicId(topic.getId());
   }
 
-  public int getUnreadNoMessages(String userId, Topic topic)
+  public int getUnreadNoMessages(Topic topic)
   {
-    return messageManager.findUnreadMessageCountByTopicId(userId, topic.getId());
+    return messageManager.findUnreadMessageCountByTopicId(topic.getId());
   }
 
   /**

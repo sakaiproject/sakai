@@ -107,30 +107,30 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return sessionManager;
     }
     
-    public int findUnreadMessageCountByTopicId(final String userId, final Long topicId) {
+    public int findUnreadMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
-            LOG.error("findUnreadMessageCountByTopicId failed with topicId: " + topicId + ", userId: " + userId);
+            LOG.error("findUnreadMessageCountByTopicId failed with topicId: " + topicId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("findUnreadMessageCountByTopicId executing with topicId: " + topicId + ", userId: " + userId);
+        LOG.debug("findUnreadMessageCountByTopicId executing with topicId: " + topicId);
 
-        return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicId(userId, topicId);
+        return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicId(topicId);
     }
     
-    public int findReadMessageCountByTopicId(final String userId, final Long topicId) {
+    public int findReadMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
-            LOG.error("findReadMessageCountByTopicId failed with topicId: " + topicId + ", userId: " + userId);
+            LOG.error("findReadMessageCountByTopicId failed with topicId: " + topicId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("findReadMessageCountByTopicId executing with topicId: " + topicId + ", userId: " + userId);
+        LOG.debug("findReadMessageCountByTopicId executing with topicId: " + topicId);
 
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery(QUERY_COUNT_BY_READ);
                 q.setParameter("topicId", topicId, Hibernate.LONG);
-                q.setParameter("userId", userId, Hibernate.STRING);
+                q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
                 return q.uniqueResult();
             }
         };
@@ -176,20 +176,20 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
     }
 
-    public UnreadStatus findUnreadStatus(final String userId, final Long topicId, final Long messageId) {
-        if (messageId == null || topicId == null || userId == null) {
-            LOG.error("findUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+    public UnreadStatus findUnreadStatus(final Long topicId, final Long messageId) {
+        if (messageId == null || topicId == null) {
+            LOG.error("findUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("findUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+        LOG.debug("findUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId);
 
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery(QUERY_UNREAD_STATUS);
                 q.setParameter("topicId", topicId, Hibernate.LONG);
                 q.setParameter("messageId", messageId, Hibernate.LONG);
-                q.setParameter("userId", userId, Hibernate.STRING);
+                q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
                 return q.uniqueResult();
             }
         };
@@ -197,46 +197,46 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return (UnreadStatus) getHibernateTemplate().execute(hcb);        
     }
 
-    public void deleteUnreadStatus(String userId, Long topicId, Long messageId) {
-        if (messageId == null || topicId == null || userId == null) {
-            LOG.error("deleteUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+    public void deleteUnreadStatus(Long topicId, Long messageId) {
+        if (messageId == null || topicId == null) {
+            LOG.error("deleteUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("deleteUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+        LOG.debug("deleteUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId);
 
-        UnreadStatus status = findUnreadStatus(userId, topicId, messageId);
+        UnreadStatus status = findUnreadStatus(topicId, messageId);
         if (status != null) {
             getHibernateTemplate().delete(status);
         }
     }
 
-    public void markMessageReadForUser(String userId, Long topicId, Long messageId) {
-        if (messageId == null || topicId == null || userId == null) {
-            LOG.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+    public void markMessageReadForUser(Long topicId, Long messageId, boolean read) {
+        if (messageId == null || topicId == null) {
+            LOG.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+        LOG.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
 
         UnreadStatus status = new UnreadStatusImpl();
         status.setTopicId(topicId);
         status.setMessageId(messageId);
-        status.setUserId(userId);
-        status.setRead(Boolean.TRUE);
+        status.setUserId(getCurrentUser());
+        status.setRead(new Boolean(read));
         
         getHibernateTemplate().saveOrUpdate(status);
     }
     
-    public boolean isMessageReadForUser(final String userId, final Long topicId, final Long messageId) {
-        if (messageId == null || topicId == null || userId == null) {
-            LOG.error("getMessageById failed with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+    public boolean isMessageReadForUser(final Long topicId, final Long messageId) {
+        if (messageId == null || topicId == null) {
+            LOG.error("getMessageById failed with topicId: " + topicId + ", messageId: " + messageId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("getMessageById executing with topicId: " + topicId + ", messageId: " + messageId + ", userId:" + userId);
+        LOG.debug("getMessageById executing with topicId: " + topicId + ", messageId: " + messageId);
 
-        UnreadStatus status = findUnreadStatus(userId, topicId, messageId);
+        UnreadStatus status = findUnreadStatus(topicId, messageId);
         if (status == null) {
             return false; // not been saved yet, so it is unread
         }

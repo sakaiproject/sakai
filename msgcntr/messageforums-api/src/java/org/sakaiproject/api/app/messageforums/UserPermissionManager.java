@@ -25,6 +25,8 @@ package org.sakaiproject.api.app.messageforums;
 
 public interface UserPermissionManager {
 
+    public static final String BEAN_NAME = "org.sakaiproject.api.app.messageforums.UserPermissionManager";
+    
     public boolean canRead(Topic topic, String typeId);
     public boolean canReviseAny(Topic topic, String typeId);
     public boolean canReviseOwn(Topic topic, String typeId);

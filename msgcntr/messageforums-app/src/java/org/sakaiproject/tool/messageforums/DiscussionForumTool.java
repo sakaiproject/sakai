@@ -768,8 +768,7 @@ public class DiscussionForumTool
       {
         DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic);
         decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(
-            SessionManager.getCurrentSessionUserId(), topic));
+        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
         decoForum.addTopic(decoTopic);
       }
     }
@@ -866,8 +865,7 @@ public class DiscussionForumTool
     // decoTopic.getTopic().setBaseForum(forumManager.getForumById(new Long(5)));
 
     decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-    decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(
-        SessionManager.getCurrentSessionUserId(), topic));
+    decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
     decoTopic.setHasNextTopic(forumManager.hasNextTopic(topic));
     decoTopic.setHasPreviousTopic(forumManager.hasPreviousTopic(topic));
     if (forumManager.hasNextTopic(topic))
@@ -892,8 +890,7 @@ public class DiscussionForumTool
       {
         DiscussionMessageBean decoMsg = new DiscussionMessageBean(message);
         decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(
-            SessionManager.getCurrentSessionUserId(), topic));
+        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
         decoTopic.addMessage(decoMsg);
       }
     }

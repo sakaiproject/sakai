@@ -14,6 +14,7 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.UserPermissionManager;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
@@ -28,10 +29,11 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private static final Log LOG = LogFactory.getLog(AreaManagerImpl.class);
 
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_ID = "findAreaByContextIdAndTypeId";
-    private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER = "findAreaByContextAndTypeForUser";        
-    
+
+    private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER = "findAreaByContextAndTypeForUser";
+
     private IdManager idManager;
-    
+
     private MessageForumsForumManager forumManager;
 
     private SessionManager sessionManager;
@@ -40,8 +42,25 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     private EventTrackingService eventTrackingService;
 
+    private UserPermissionManager userPermissionManager;
+
     public void init() {
         ;
+    }
+
+    public UserPermissionManager getUserPermissionManager() {
+        // userPermissionManager can not be injected by spring because of
+        // circluar dependancies so it is loaded by the BeanFactory instead
+//        if (userPermissionManager == null) {
+//            try {
+//                org.springframework.core.io.Resource resource = new InputStreamResource(urlResource.openStream(), classpathUrl);
+//                BeanFactory beanFactory = new XmlBeanFactory(resource);
+//                userPermissionManager = (UserPermissionManagerImpl) beanFactory.getBean(UserPermissionManager.BEAN_NAME);
+//            } catch (Exception e) {
+//                LOG.debug("Unable to load classpath resource: " + classpathUrl);
+//            }
+//        }
+        return userPermissionManager;
     }
 
     public EventTrackingService getEventTrackingService() {
@@ -51,7 +70,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
     }
-        
+
     public MessageForumsTypeManager getTypeManager() {
         return typeManager;
     }
@@ -75,10 +94,9 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     public void setIdManager(IdManager idManager) {
         this.idManager = idManager;
     }
-    
-    public void setForumManager(MessageForumsForumManager forumManager)
-    {
-      this.forumManager = forumManager;
+
+    public void setForumManager(MessageForumsForumManager forumManager) {
+        this.forumManager = forumManager;
     }
 
     public Area getPrivateArea() {
@@ -90,11 +108,11 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
             saveArea(area);
-        }                                                      
-        
+        }
+
         return area;
     }
-    
+
     public Area getDiscusionArea() {
         Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
         if (area == null) {
@@ -125,17 +143,17 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     public void saveArea(Area area) {
         boolean isNew = area.getId() == null;
-        
+
         area.setModified(new Date());
         area.setModifiedBy(getCurrentUser());
-        getHibernateTemplate().saveOrUpdate(area);        
-        
+        getHibernateTemplate().saveOrUpdate(area);
+
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(area), false));
         } else {
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area), false));
         }
-            
+
         LOG.debug("saveArea executed with areaId: " + area.getId());
     }
 
@@ -170,24 +188,23 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
         return (Area) getHibernateTemplate().execute(hcb);
     }
-    
+
     public Area getAreaByContextAndTypeForUser(final String typeId) {
-      final String currentUser = getCurrentUser();
-      LOG.debug("getAreaByContextAndTypeForUser executing for current user: " + currentUser);
-      HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER);
-              q.setParameter("contextId", getContextId(), Hibernate.STRING);
-              q.setParameter("typeId", typeId, Hibernate.STRING);
-              q.setParameter("userId", currentUser, Hibernate.STRING);
-              return q.uniqueResult();
-          }
-      };
+        final String currentUser = getCurrentUser();
+        LOG.debug("getAreaByContextAndTypeForUser executing for current user: " + currentUser);
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER);
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("typeId", typeId, Hibernate.STRING);
+                q.setParameter("userId", currentUser, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
 
-      return (Area) getHibernateTemplate().execute(hcb);
-  }
+        return (Area) getHibernateTemplate().execute(hcb);
+    }
 
-    
     // helpers
 
     private String getNextUuid() {
@@ -199,10 +216,10 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             return "test-user";
         }
         return sessionManager.getCurrentSessionUserId();
-    }    
+    }
 
     private String getEventMessage(Object object) {
         return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
-    
+
 }
