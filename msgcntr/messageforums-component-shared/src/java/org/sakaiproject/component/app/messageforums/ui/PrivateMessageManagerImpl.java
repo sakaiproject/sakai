@@ -27,7 +27,6 @@ import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
-import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
@@ -100,8 +99,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     /** create default user forum/topics if none exist */
     if ((pf = forumManager.getForumByOwner(getCurrentUser())) == null){
                   
-      pf = forumManager.createPrivateForum();
-      //pf.setTitle(userId + " private forum");
+      pf = forumManager.createPrivateForum();      
       pf.setTitle("private forum");
       pf.setUuid(idManager.createUuid());
       pf.setAutoForwardEmail("");
@@ -427,10 +425,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 //        }
 //        
 //        //todo: parameterize fetch mode
-//        messageCriteria.setFetchMode("recipients", FetchMode.LAZY);
+//        messageCriteria.setFetchMode("recipients", FetchMode.EAGER);
+//        messageCriteria.setFetchMode("attachments", FetchMode.EAGER);
 //        
-//        return messageCriteria.list();
-//        
+//        return messageCriteria.list();        
 //      }
 //    };
     
@@ -441,15 +439,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           q.getQueryString() + " order by " + orderField + " " + order);
                 
         qOrdered.setParameter("userId", getCurrentUser(), Hibernate.STRING);
-        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-        
-        //q.setParameter("orderField", orderField, Hibernate.STRING);
-        //q.setParameter("order", order, Hibernate.STRING);        
+        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);                
         return qOrdered.list();
       }
     };
 
-    return (List) getHibernateTemplate().execute(hcb);     
+    List l =  (List) getHibernateTemplate().execute(hcb);
+    return l;
   }
   
   /**
@@ -531,43 +527,56 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     /**
      *  create PrivateMessageRecipient to search
      */
-    PrivateMessageRecipient pmrSearch = new PrivateMessageRecipientImpl(
+    PrivateMessageRecipient pmrReadSearch = new PrivateMessageRecipientImpl(
         userId,
       typeUuid,
       Boolean.TRUE
     );
-            
-    int userIndex = pvtMessage.getRecipients().indexOf(pmrSearch);
     
-    if (userIndex == -1){
-      LOG.error("deletePrivateMessage -- cannot find private message for user: " + 
-          userId + ", typeUuid: " + typeUuid);            
+    PrivateMessageRecipient pmrNonReadSearch = new PrivateMessageRecipientImpl(
+      userId,
+      typeUuid,
+      Boolean.FALSE
+    );
+    
+    int indexDelete = -1;
+    int indexRead = pvtMessage.getRecipients().indexOf(pmrReadSearch);
+    if (indexRead != -1){
+      indexDelete = indexRead;      
     }
     else{
+      int indexNonRead = pvtMessage.getRecipients().indexOf(pmrNonReadSearch);
+      if (indexNonRead != -1){
+        indexDelete = indexNonRead;
+      }
+      else{
+        LOG.error("deletePrivateMessage -- cannot find private message for user: " + 
+            userId + ", typeUuid: " + typeUuid);
+      }
+    }
+                           
+    if (indexDelete != -1){
       PrivateMessageRecipient pmrReturned = (PrivateMessageRecipient)
-        pvtMessage.getRecipients().get(userIndex);
+        pvtMessage.getRecipients().get(indexDelete);
     
       if (pmrReturned != null){
         
         /** check for existing deleted message from user */
-        PrivateMessageRecipient pmrDeletedReadSearch = new PrivateMessageRecipientImpl(
+        PrivateMessageRecipient pmrDeletedSearch = new PrivateMessageRecipientImpl(
           userId,
           typeManager.getDeletedPrivateMessageType(),
           Boolean.TRUE
-        );
+        );                
         
-        PrivateMessageRecipient pmrDeletedNonReadSearch = new PrivateMessageRecipientImpl(
-            userId,
-            typeManager.getDeletedPrivateMessageType(),
-            Boolean.FALSE
-          );
+        int indexDeleted = pvtMessage.getRecipients().indexOf(pmrDeletedSearch);        
         
-        int indexRead = pvtMessage.getRecipients().indexOf(pmrDeletedReadSearch);
-        int indexNonRead = pvtMessage.getRecipients().indexOf(pmrDeletedNonReadSearch);
-        
-        if (indexRead == -1 && indexNonRead == -1){
+        if (indexDeleted == -1){
+          pmrReturned.setRead(Boolean.TRUE);
           pmrReturned.setTypeUuid(typeManager.getDeletedPrivateMessageType());                    
-        }                        
+        }    
+        else{
+          pvtMessage.getRecipients().remove(indexDelete);
+        }
       }
     }
   }

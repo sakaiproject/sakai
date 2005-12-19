@@ -113,8 +113,7 @@ public class PrivateMessagesTool
   
   PrivateForumDecoratedBean decoratedForum;
   
-  private PrivateForum forum; 
-  private Area pvtArea;
+  private PrivateForum forum;   
   private List pvtTopics=new ArrayList();
   private List decoratedPvtMsgs;
   private String msgNavMode="" ;
@@ -198,16 +197,13 @@ public class PrivateMessagesTool
     this.typeManager = typeManager;
   }
 
-  public Area getPvtArea()
-  {                  
-        
-    Area varArea = prtMsgManager.getPrivateMessageArea();
-    
+  public void initializePrivateMessageArea()
+  {                          
+    Area varArea = prtMsgManager.getPrivateMessageArea();    
     PrivateForum pf = prtMsgManager.initializePrivateMessageArea(varArea);        
     pvtTopics = pf.getTopics();
     forum=pf;           
-    
-    return varArea;
+        
   }
   
   public boolean getPvtAreaEnabled()
@@ -251,7 +247,7 @@ public class PrivateMessagesTool
     String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);        
     
     decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
-        PrivateMessageManager.SORT_ASC);
+        PrivateMessageManager.SORT_DESC);
     
     decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
     
@@ -645,20 +641,18 @@ public class PrivateMessagesTool
       PrivateMessageDecoratedBean dMsg= (PrivateMessageDecoratedBean) iter.next();
       if (dMsg.getMsg().getId().equals(new Long(msgId)))
       {
-        this.setDetailMsg(dMsg);
-        //set isHasRead property of decorated bean as message read
-        //TODO Error - markMessageAsReadForUser(message: Message.id:5) could not find user in recipient list
-        //prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
+        this.setDetailMsg(dMsg);        
+        prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
         //TODO Error - Failed to lazily initialize a collection -
-//        List recLs= dMsg.getMsg().getRecipients();
-//        for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
-//        {
-//          PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
-//          if((element.getRead().booleanValue()) || (element.getUserId().equals(getUserId())) )
-//          {
-//           getDetailMsg().setHasRead(true) ;
-//          }
-//        }
+        List recLs= dMsg.getMsg().getRecipients();
+        for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
+        {
+          PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
+          if((element.getRead().booleanValue()) || (element.getUserId().equals(getUserId())) )
+          {
+           getDetailMsg().setHasRead(true) ;
+          }
+        }
       }
     }
     this.deleteConfirm=false; //reset this as used for multiple action in same JSP
@@ -1714,11 +1708,7 @@ public class PrivateMessagesTool
   {
     this.forum = forum;
   }
-
-  public void setPvtArea(Area pvtArea)
-  {
-    this.pvtArea = pvtArea;
-  } 
+ 
 // public String processActionAreaSettingEmailFwd()
 // {
 //   

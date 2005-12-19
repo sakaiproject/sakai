@@ -169,33 +169,6 @@ public class PrivateTopicDecoratedBean
     this.previousTopicId = previousTopicId;
   }
   
-  public String getCountStats(){
-    
-    FacesContext context = FacesContext.getCurrentInstance();
-    ValueBinding bindingTitle = context.getApplication().createValueBinding("#{topic.topic.title}");
-    ValueBinding bindingTotalRead = context.getApplication().createValueBinding("#{topic.totalNoMessages}");
-    ValueBinding bindingUnreadRead = context.getApplication().createValueBinding("#{topic.unreadNoMessages}");
-    String topicTitle = (String) bindingTitle.getValue(context);
-    Integer totalRead = (Integer) bindingTotalRead.getValue(context);
-    Integer totalUnread = (Integer) bindingUnreadRead.getValue(context);
-    
-    StringBuffer buffer = new StringBuffer(" (");
-    buffer.append(totalRead);
-    buffer.append(" messages");
-    
-    if (!(PrivateMessagesTool.PVTMSG_MODE_SENT.equals(topicTitle) ||
-        PrivateMessagesTool.PVTMSG_MODE_DRAFT.equals(topicTitle))){
-      buffer.append(" - ");
-      buffer.append(totalUnread);
-      buffer.append(" unread");
-    }
-    
-    buffer.append(")");        
-    
-    return buffer.toString();
-  }
-
-
 }
 
 

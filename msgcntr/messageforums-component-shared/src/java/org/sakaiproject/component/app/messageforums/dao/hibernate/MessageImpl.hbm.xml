@@ -41,7 +41,7 @@
     <property name="author">
       <column name="AUTHOR" length="255" not-null="true" />
     </property>
-	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
+	<list name="attachments" lazy="false" table="MFR_ATTACHMENT_T" cascade="all">
 		<key column="m_surrogateKey"/>
 		<index column="mes_index_col" />
 		<one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
@@ -98,7 +98,7 @@
           <property name="read">
             <column name="READ_STATUS" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
           </property>
-  	    </composite-element>  	    
+  	    </composite-element>  	      	    
   	  </list>
   	  
       <property name="externalEmail">
@@ -139,7 +139,7 @@
   
   <query name="findPvtMsgCntByTopicIdAndTypeUuid">
     <![CDATA[select count(*) 
-             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message             
              left join message.recipients recipient
              where recipient.userId = :userId and
                    recipient.typeUuid = :typeUuid
@@ -160,7 +160,6 @@
   <query name="findPrivateMessagesByTypeUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join fetch message.recipients recipient
-             left join fetch message.attachments attachments
              where recipient.userId = :userId and
                    recipient.typeUuid = :typeUuid                                
     ]]>    

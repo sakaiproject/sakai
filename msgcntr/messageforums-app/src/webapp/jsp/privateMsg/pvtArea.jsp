@@ -5,9 +5,7 @@
   <mf:forum_bar_link value=" Statistics " action="#{PrivateMessagesTool.processPvtMsgStatistics}"/> &nbsp;
  --%>
   <mf:forum_bar_link value=" Settings " action="#{PrivateMessagesTool.processPvtMsgSettings}" rendered="#{PrivateMessagesTool.instructor}"/> &nbsp;
-
-  <h:outputText rendered="#{PrivateMessagesTool.pvtArea}"/>
-
+  
   <h:dataTable width="100%" value="#{PrivateMessagesTool.decoratedForum}" var="forum" rendered="#{PrivateMessagesTool.pvtAreaEnabled}">
     <h:column >
     <f:verbatim><div class="forumsRow"><div class="forumsRowLeft"></f:verbatim>
@@ -39,7 +37,9 @@
     			<f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
     			<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
     		</h:commandLink>
-    		<h:outputText id="topic_msg_count_not_mutable" value="#{topic.countStats}"/>
+    		<h:outputText value=" (#{topic.totalNoMessages} messages"/>
+    		<h:outputText value=" - #{topic.unreadNoMessages} unread" rendered="#{topic.topic.title == 'Received' || topic.topic.title == 'Deleted'}"/>
+    		<h:outputText value=")"/>
 				</h:column>
 					
 				<h:column rendered="#{topic.topic.mutable}">
@@ -49,7 +49,9 @@
 	    			 <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
 	    			 <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
 	    				</h:commandLink>
-	    				<h:outputText id="topic_msg_count_mutable" value="#{topic.countStats}"/>	    				
+	    		 <h:outputText value=" (#{topic.totalNoMessages} messages"/>
+    		   <h:outputText value=" - #{topic.unreadNoMessages} unread" rendered="#{topic.topic.title == 'Received' || topic.topic.title == 'Deleted'}"/>
+    		   <h:outputText value=")"/>
 					 <f:verbatim></div></f:verbatim>
 					 <f:verbatim><div class="rightAlign"></f:verbatim>
 					 <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"  value="Folder Settings">
