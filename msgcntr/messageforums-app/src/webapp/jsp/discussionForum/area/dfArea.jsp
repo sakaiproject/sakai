@@ -36,10 +36,8 @@
 					<f:param value="#{topic.topic.id}" name="topicId"/>
 					<f:param value="#{forum.forum.id}" name="forumId"/>
 				</h:commandLink>
-				<h:outputText id="topic_msg_count55" value=" (2 messages - 0 unread)"/>
-				<%--
-				<h:outputText id="topic_msg_count" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
-				--%>
+				<h:outputText id="topic_msg_count55" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
+				
 				<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" styleClass="rightAlign" value="#{msgs.cdfm_topic_settings}" rendered="#{ForumTool.instructor}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
 					<f:param value="#{forum.forum.id}" name="forumId"/>

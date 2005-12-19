@@ -15,6 +15,7 @@ public class DiscussionMessageBean
 {
   private boolean selected;
   private Message message;
+  private boolean read;
 
   public DiscussionMessageBean(Message msg)
   {
@@ -76,6 +77,26 @@ public class DiscussionMessageBean
     	}
     }
     return false;
+  }
+
+
+
+  /**
+   * @return Returns the read.
+   */
+  public boolean isRead()
+  {
+    return read;
+  }
+
+
+
+  /**
+   * @param read The read to set.
+   */
+  public void setRead(boolean read)
+  {
+    this.read = read;
   }
 
  

@@ -65,7 +65,8 @@
 					<h:outputText value="#{msgs.cdfm_subject}" />
 				</f:facet>
 				<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true">
-    	        	<h:outputText value=" #{message.message.title}"/>
+    	        	<h:outputText value="#{message.message.title}" rendered="#{message.read}"/>
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.title}" rendered="#{!message.read}"/>
         	    	<f:param value="#{message.message.id}" name="messageId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
@@ -76,21 +77,27 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
 				</f:facet>
-				<h:outputText value="#{message.message.createdBy}"/>
+				 	<h:outputText value="#{message.message.createdBy}" rendered="#{message.read}"/>
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.createdBy}" rendered="#{!message.read}"/>
+
 			</h:column>
 
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_date}" />
 				</f:facet>
-				<h:outputText value="#{message.message.created}"/>
+				 	<h:outputText value="#{message.message.created}" rendered="#{message.read}"/>
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.created}" rendered="#{!message.read}"/>
+
 			</h:column>
 		<%--TODO:// Implement me:
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_label}" />
 				</f:facet>
-				<h:outputText value="#{message.message.label}"/>
+				<h:outputText value="#{message.message.label}" rendered="#{message.read}"/>
+    	        <h:outputText style="font-weight:bold;" value="#{message.message.label}" rendered="#{!message.read}"/>
+
 			</h:column>  	--%>
 		</h:dataTable>
 	</h:form>

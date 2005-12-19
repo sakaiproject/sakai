@@ -530,6 +530,7 @@ public class DiscussionForumTool
     // TODO : save topic
     forumManager.saveTopic(selectedTopic.getTopic());
     createTopic();
+    reset();    
     return TOPIC_SETTING_REVISE;
   }
 
@@ -686,7 +687,7 @@ public class DiscussionForumTool
   public String processActionDisplayMessage()
   {
     LOG.debug("processActionDisplayMessage()");
-    String messageId = getExternalParameterByKey("messageId");
+    String messageId = getExternalParameterByKey(MESSAGE_ID);
     if (messageId == null)
     {
       // TODO: direct me
@@ -887,11 +888,16 @@ public class DiscussionForumTool
     {
       Message message = (Message) iter.next();
       if (topic != null)
-      {
-        DiscussionMessageBean decoMsg = new DiscussionMessageBean(message);
+      {  
         decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
         decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
-        decoTopic.addMessage(decoMsg);
+        if(message!=null)
+        {
+          DiscussionMessageBean decoMsg = new DiscussionMessageBean(message);
+          decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(), message.getId()));
+          decoTopic.addMessage(decoMsg);
+        }
+       
       }
     }
     return decoTopic;
