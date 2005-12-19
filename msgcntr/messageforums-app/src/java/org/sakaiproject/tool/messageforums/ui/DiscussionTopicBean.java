@@ -14,11 +14,12 @@ public class DiscussionTopicBean
   private DiscussionTopic topic;
   private int totalNoMessages;
   private int unreadNoMessages;
-  private boolean hasNextTopic = false;
-  private boolean hasPreviousTopic = false;
+  private boolean hasNextTopic;
+  private boolean hasPreviousTopic;
   private Long nextTopicId;
   private Long previousTopicId;
-  private boolean readFullDesciption=false;
+  private boolean readFullDesciption;
+  private boolean markForDeletion;
   
   private List messages = new ArrayList();
 
@@ -255,6 +256,20 @@ public class DiscussionTopicBean
   		}
   	}
   }
- 
-  
+
+  /**
+   * @return Returns the markForDeletion.
+   */
+  public boolean isMarkForDeletion()
+  {
+    return markForDeletion;
+  }
+
+  /**
+   * @param markForDeletion The markForDeletion to set.
+   */
+  public void setMarkForDeletion(boolean markForDeletion)
+  {
+    this.markForDeletion = markForDeletion;
+  }  
 }

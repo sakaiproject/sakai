@@ -579,7 +579,13 @@ public class DiscussionForumTool
    */
   public String processActionDeleteTopicConfirm()
   {
-    return MAIN;
+    if(selectedTopic==null)
+    {
+      LOG.debug("There is no topic selected for deletion");
+      return MAIN;
+    }
+    selectedTopic.setMarkForDeletion(true);
+    return TOPIC_SETTING;
   }
 
   /**
@@ -587,7 +593,12 @@ public class DiscussionForumTool
    */
   public String processActionDeleteTopic()
   {
-    return MAIN;
+      if(selectedTopic==null)
+      {
+        LOG.debug("There is no topic selected for deletion");
+      }
+      forumManager.deleteTopic(selectedTopic.getTopic());
+      return MAIN;       
   }
 
   /**
@@ -694,16 +705,23 @@ public class DiscussionForumTool
   public String processActionDisplayMessage()
   {
     LOG.debug("processActionDisplayMessage()");
+    
     String messageId = getExternalParameterByKey(MESSAGE_ID);
+    String topicId = getExternalParameterByKey(TOPIC_ID);
     if (messageId == null)
     {
       setErrorMessage("Message reference not found");
       return MAIN;
     }
+    if(topicId==null)
+    {
+      setErrorMessage("Topic reference not found for the message");
+      return MAIN;
+    }
     // Message message=forumManager.getMessageById(new Long(messageId));
     Message message = messageManager.getMessageByIdWithAttachments(new Long(
         messageId));
-    ;
+    messageManager.markMessageReadForUser(new Long(topicId), new Long(messageId), true);
     if (message == null)
     {
       setErrorMessage("Message with id '" + messageId + "'not found");

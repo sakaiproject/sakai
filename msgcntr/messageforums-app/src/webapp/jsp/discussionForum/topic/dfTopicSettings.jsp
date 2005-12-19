@@ -9,6 +9,7 @@
       <h:form id="topic_settings">
       <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_topic_settings}" />
+        <h:outputText styleClass="alertMsg" value="#{msgs.cdfm_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}"/>
  		<p class="shorttext">
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel id="outputLabel" for="topic_title"  value="#{msgs.cdfm_topic_title}"/>	</h:panelGroup>
@@ -126,13 +127,16 @@
       </mf:forumHideDivision>
       
        <p class="act">
-          <h:commandButton action="#{ForumTool.processActionReviseTopicSettings}" value="#{msgs.cdfm_button_bar_revise}"> 
+          <h:commandButton action="#{ForumTool.processActionReviseTopicSettings}" id="revise"  value="#{msgs.cdfm_button_bar_revise}" rendered="#{!ForumTool.selectedTopic.markForDeletion}"> 
     	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>         
           </h:commandButton>
-          <h:commandButton action="#{ForumTool.processActionDeleteTopicConfirm}" value="#{msgs.cdfm_button_bar_delete}">
+          <h:commandButton action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedTopic.markForDeletion}">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
-          <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
+          <h:commandButton action="#{ForumTool.processActionDeleteTopic}" id="delete" value="#{msgs.cdfm_button_bar_delete}" rendered="#{ForumTool.selectedTopic.markForDeletion}">
+	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+          </h:commandButton>
+          <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" id="cancel" value="#{msgs.cdfm_button_bar_cancel} " />
        </p>
 	 </h:form>
     </sakai:view>
