@@ -143,7 +143,7 @@ Configuration: Help - External Registration using REST
 	organization@org.sakaiproject.api.app.help.RestConfiguration=REST
 	restCredentials@org.sakaiproject.api.app.help.RestConfiguration=user:pass
 	restUrl@org.sakaiproject.api.app.help.RestConfiguration=http://remote.kb.iu.edu/REST/v0.2
-	restDomain@org.sakaiproject.api.app.help.RestConfiguration=sakaihelp2
+	restDomain@org.sakaiproject.api.app.help.RestConfiguration=sakai21
 	
 	A username and password can be obtained from the Knowledge base. (Email kb-clients@kb-dev.indiana.edu)
 
