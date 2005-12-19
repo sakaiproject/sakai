@@ -1557,12 +1557,19 @@ public class DiscussionForumTool
 
   public String processDfMsgDeleteConfirmYes()
   {
-    // TODO: manager to be implemented
-    // messageManager.deleteMessage(selectedMessage.getMessage());
-
-    this.deleteMsg = false;
-
-    return ALL_MESSAGES;
+		List delList = new ArrayList();
+		messageManager.getChildMsgs(selectedMessage.getMessage().getId(), delList);
+		
+		messageManager.deleteMsgWithChild(selectedMessage.getMessage().getId());
+		selectedTopic.removeMessage(selectedMessage);
+		for(int i=0; i<delList.size(); i++)
+		{
+			selectedTopic.removeMessage(new DiscussionMessageBean((Message)delList.get(i)));
+		}
+				
+		this.deleteMsg = false;
+		
+		return ALL_MESSAGES;
   }
 
   public String processDfMsgDeleteCancel()
