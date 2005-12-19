@@ -385,6 +385,15 @@ public class DiscussionForumTool
       setErrorMessage("Forum not found");
       return MAIN;
     }
+    List attachList = selectedForum.getForum().getAttachments();
+    if (attachList != null)
+    {
+      for (int i = 0; i < attachList.size(); i++)
+      {
+        attachments.add((Attachment) attachList.get(i));
+      }
+    }
+    
     return FORUM_SETTING_REVISE; //
   }
 
@@ -399,9 +408,16 @@ public class DiscussionForumTool
     if (selectedTopic == null)
     {
       setErrorMessage("Unable to create a new Topic");
+    	attachments.clear();
+    	prepareRemoveAttach.clear();
+    	
       return MAIN;
     }
-    return TOPIC_SETTING_REVISE;
+  	
+    attachments.clear();
+  	prepareRemoveAttach.clear();
+
+  	return TOPIC_SETTING_REVISE;
   }
 
   /**
@@ -413,6 +429,7 @@ public class DiscussionForumTool
     if (selectedForum != null)
     {
       DiscussionForum forum = selectedForum.getForum();
+      saveForumAttach(forum);
       forumManager.saveForum(forum);
       if (forum != null)
       {
@@ -431,6 +448,10 @@ public class DiscussionForumTool
   public String processActionSaveForumAsDraft()
   {
     LOG.debug("processActionSaveForumAsDraft()");
+    
+    attachments.clear();
+    prepareRemoveAttach.clear();
+    
     return MAIN;
   }
 
@@ -525,6 +546,16 @@ public class DiscussionForumTool
       return MAIN;
     }
     selectedTopic = new DiscussionTopicBean(topic);
+    
+    List attachList = selectedTopic.getTopic().getAttachments();
+    if (attachList != null)
+    {
+      for (int i = 0; i < attachList.size(); i++)
+      {
+        attachments.add((Attachment) attachList.get(i));
+      }
+    }
+
     return TOPIC_SETTING_REVISE;
   }
 
@@ -535,6 +566,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
     // TODO : save topic
+    saveTopicAttach(selectedTopic.getTopic());
     forumManager.saveTopic(selectedTopic.getTopic());
     createTopic();
     reset();    
@@ -554,6 +586,7 @@ public class DiscussionForumTool
       if (selectedForum != null)
       {
         topic.setBaseForum(selectedForum.getForum());
+        saveTopicAttach(topic);
         forumManager.saveTopic(topic);
         forumManager
             .saveTopicControlPermissions(topic, topicControlPermissions);
@@ -571,6 +604,10 @@ public class DiscussionForumTool
   public String processActionSaveTopicAsDraft()
   {
     LOG.debug("processActionSaveTopicAsDraft()");
+    
+    attachments.clear();
+    prepareRemoveAttach.clear();
+    
     return MAIN;
   }
 
@@ -975,6 +1012,10 @@ public class DiscussionForumTool
     selectedForum = null;
     selectedTopic = null;
     selectedMessage = null;
+
+    attachments.clear();
+    prepareRemoveAttach.clear();
+		
   }
 
   /**
@@ -1134,7 +1175,7 @@ public class DiscussionForumTool
 
     return null;
   }
-
+  
   public String processDfMsgCancel()
   {
     this.composeBody = null;
@@ -1604,6 +1645,142 @@ public class DiscussionForumTool
   {
     this.deleteMsg = false;
 
+    return null;
+  }
+  
+  public void saveForumAttach(DiscussionForum forum)
+  {
+  	for (int i = 0; i < prepareRemoveAttach.size(); i++)
+  	{
+  		Attachment removeAttach = (Attachment) prepareRemoveAttach.get(i);
+  		List oldList = forum.getAttachments();
+			for (int j = 0; j < oldList.size(); j++)
+			{
+				Attachment existedAttach = (Attachment) oldList.get(j);
+				if (existedAttach.getAttachmentId()
+						.equals(removeAttach.getAttachmentId()))
+				{
+					forum.removeAttachment(removeAttach);
+					break;
+				}
+			}
+  	}
+  	
+  	List oldList = forum.getAttachments();
+  	if(oldList != null)
+  	{
+  		for (int i = 0; i < attachments.size(); i++)
+  		{
+  			Attachment thisAttach = (Attachment) attachments.get(i);
+  			boolean existed = false;
+  			for (int j = 0; j < oldList.size(); j++)
+  			{
+  				Attachment existedAttach = (Attachment) oldList.get(j);
+  				if (existedAttach.getAttachmentId()
+  						.equals(thisAttach.getAttachmentId()))
+  				{
+  					existed = true;
+  					break;
+  				}
+  			}
+  			if (!existed)
+  			{
+  				forum.addAttachment(thisAttach);
+  			}
+  		}
+  	}
+  	
+  	prepareRemoveAttach.clear();
+  	attachments.clear();
+  }
+
+  public void saveTopicAttach(DiscussionTopic topic)
+  {
+  	for (int i = 0; i < prepareRemoveAttach.size(); i++)
+  	{
+  		Attachment removeAttach = (Attachment) prepareRemoveAttach.get(i);
+  		List oldList = topic.getAttachments();
+			for (int j = 0; j < oldList.size(); j++)
+			{
+				Attachment existedAttach = (Attachment) oldList.get(j);
+				if (existedAttach.getAttachmentId()
+						.equals(removeAttach.getAttachmentId()))
+				{
+					topic.removeAttachment(removeAttach);
+					break;
+				}
+			}
+  	}
+  	
+  	List oldList = topic.getAttachments();
+  	if(oldList != null)
+  	{
+  		for (int i = 0; i < attachments.size(); i++)
+  		{
+  			Attachment thisAttach = (Attachment) attachments.get(i);
+  			boolean existed = false;
+  			for (int j = 0; j < oldList.size(); j++)
+  			{
+  				Attachment existedAttach = (Attachment) oldList.get(j);
+  				if (existedAttach.getAttachmentId()
+  						.equals(thisAttach.getAttachmentId()))
+  				{
+  					existed = true;
+  					break;
+  				}
+  			}
+  			if (!existed)
+  			{
+  				topic.addAttachment(thisAttach);
+  			}
+  		}
+  	}
+  	
+  	prepareRemoveAttach.clear();
+  	attachments.clear();
+  }
+
+  
+  public String processDeleteAttachSetting()
+  {
+    LOG.debug("processDeleteAttach()");
+
+    ExternalContext context = FacesContext.getCurrentInstance()
+        .getExternalContext();
+    String attachId = null;
+
+    Map paramMap = context.getRequestParameterMap();
+    Iterator itr = paramMap.keySet().iterator();
+    while (itr.hasNext())
+    {
+      Object key = itr.next();
+      if (key instanceof String)
+      {
+        String name = (String) key;
+        int pos = name.lastIndexOf("dfmsg_current_attach");
+
+        if (pos >= 0 && name.length() == pos + "dfmsg_current_attach".length())
+        {
+          attachId = (String) paramMap.get(key);
+          break;
+        }
+      }
+    }
+
+    if ((attachId != null) && (!attachId.equals("")))
+    {
+    	for (int i = 0; i < attachments.size(); i++)
+    	{
+    		if (attachId.equalsIgnoreCase(((Attachment) attachments.get(i))
+    				.getAttachmentId()))
+    		{
+    			prepareRemoveAttach.add((Attachment) attachments.get(i));
+    			attachments.remove(i);
+    			break;
+    		}
+    	}
+    }
+    
     return null;
   }
 

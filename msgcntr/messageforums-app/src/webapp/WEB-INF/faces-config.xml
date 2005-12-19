@@ -148,12 +148,13 @@
         <!--forum -->
         <navigation-case>
             <from-outcome>dfForumSettings</from-outcome>
-            <to-view-id>/jsp/discussionForum/forum/dfForumSettings.jsp</to-view-id>
+-            <to-view-id>/jsp/discussionForum/forum/dfForumSettings.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
         <navigation-case>
             <from-outcome>dfReviseForumSettings</from-outcome>
-            <to-view-id>/jsp/discussionForum/forum/dfReviseForumSettings.jsp</to-view-id>
+            <to-view-id>/jsp/dfReviseForumSettingsAttach.jsp</to-view-id>
+<!--            <to-view-id>/jsp/discussionForum/forum/dfReviseForumSettings.jsp</to-view-id>-->
             <redirect/>
         </navigation-case> 
         <navigation-case>
@@ -174,7 +175,8 @@
         </navigation-case>
         <navigation-case>
             <from-outcome>dfReviseTopicSettings</from-outcome>
-            <to-view-id>/jsp/discussionForum/topic/dfReviseTopicSettings.jsp</to-view-id>
+            <to-view-id>/jsp/dfReviseTopicSettingsAttach.jsp</to-view-id>
+<!--            <to-view-id>/jsp/discussionForum/topic/dfReviseTopicSettings.jsp</to-view-id>-->
             <redirect/>
         </navigation-case>
         <!--messages -->
