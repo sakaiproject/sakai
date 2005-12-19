@@ -63,7 +63,7 @@
     <!-- Faces Servlet -->
     <!-- 
     <servlet>
-        <servlet-name>sakai.messageforums</servlet-name>
+        <servlet-name>sakai.messagecenter</servlet-name>
         <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
         <init-param>
             <param-name>default</param-name>
@@ -90,7 +90,7 @@
 
 	<!--  Message Forums File Picker Servler -->
     <servlet>
-      <servlet-name>sakai.messageforums</servlet-name>
+      <servlet-name>sakai.messagecenter</servlet-name>
        <!--<servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>-->
      <servlet-class>org.sakaiproject.tool.messageforums.MessageForumsFilePickerServlet</servlet-class>
         <init-param>
