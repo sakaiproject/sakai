@@ -219,4 +219,9 @@ public interface DiscussionForumManager
   public void saveTopicMessagePermissions(DiscussionTopic topic,
       List messagePermissions);
 
+  /**
+   * @param topic
+   */
+  public void saveTopicAsDraft(DiscussionTopic topic);
+
 }

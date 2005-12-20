@@ -99,18 +99,22 @@
 				</h:panelGroup>
 			</h:panelGrid>
 		</p>
-	   <h4><h:outputText  value="Confidential Responses"/></h4>
-	   <h:selectBooleanCheckbox   title= "Allow anonymous postings (Identity known to administrative users)"  value="false" /><h:outputText   value="  Allow anonymous postings (Identity known to administrative users)" /> 
-	   <br/>
-	   <h:selectBooleanCheckbox   title= "I do not wish to know the authors identity"  value="false" /><h:outputText   value="  I do not wish to know the author identity" />
-       <h4><h:outputText  value="Post Before Reading"/></h4>
+		<%--
+		   <h4><h:outputText  value="Confidential Responses"/></h4>
+		   <h:selectBooleanCheckbox   title= "#{msgs.cdfm_topic_allow_anonymous_postings}"  value="false" />
+		   <h:outputText   value="  #{msgs.cdfm_topic_allow_anonymous_postings}" /> 
+		   <br/>
+		   <h:selectBooleanCheckbox   title= "#{msgs.cdfm_topic_author_identity}"  value="false" />
+		   <h:outputText   value="  #{msgs.cdfm_topic_author_identity}" />
+       --%>
+       <h4><h:outputText  value="#{mags.cdfm_topic_post_before_reading}"/></h4>
     	   <p class="shorttext">
 			<h:panelGrid columns="2">
-				<h:panelGroup><h:outputLabel id="outputLabel4" for="topic_reading"  value="Users must post a response before reading others"/>	</h:panelGroup>
+				<h:panelGroup><h:outputLabel id="outputLabel4" for="topic_reading"  value="#{msgs.cdfm_topic_post_before_reading_desc}"/>	</h:panelGroup>
 				<h:panelGroup>
 					<h:selectOneRadio layout="pageDirection"  id="topic_reading" value="#{ForumTool.selectedTopic.mustRespondBeforeReading}">
-    					<f:selectItem itemValue="true" itemLabel="Yes"/>
-    					<f:selectItem itemValue="false" itemLabel="No"/>
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
   					</h:selectOneRadio>
 				</h:panelGroup>
 			</h:panelGrid>
@@ -183,9 +187,11 @@
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/> 
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionSaveTopicAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/> 
           </h:commandButton>
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
        </p>

@@ -139,6 +139,7 @@ public class DiscussionForumTool
     LOG.debug("getForums()");
     if (forums == null || forums.size() < 1)
     {
+      forums = new ArrayList();
       List tempForum = forumManager.getDiscussionForums();
       if (tempForum == null)
       {
@@ -403,8 +404,8 @@ public class DiscussionForumTool
   public String processActionSaveForumAndAddTopic()
   {
     LOG.debug("processActionSaveForumAndAddTopic()");
-    processActionSaveForumSettings();
-    selectedTopic = createTopic(selectedForum.getForum().getId());
+    DiscussionForum forum =saveForumSettings(false);
+    selectedTopic = createTopic(forum.getId());
     if (selectedTopic == null)
     {
       setErrorMessage("Create New Topic Failed!");
@@ -422,7 +423,9 @@ public class DiscussionForumTool
    */
   public String processActionSaveForumSettings()
   {
-    return saveForumSettings(false);
+    saveForumSettings(false);
+    reset();
+    return MAIN;
   }
 
   /**
@@ -430,10 +433,12 @@ public class DiscussionForumTool
    */
   public String processActionSaveForumAsDraft()
   {
-    return saveForumSettings(true);
+    saveForumSettings(true);
+    reset();
+    return MAIN;
   }
 
-  private String saveForumSettings(boolean draft)
+  private DiscussionForum saveForumSettings(boolean draft)
   {
     LOG.debug("saveForumSettings(boolean " + draft + ")");
     if (selectedForum == null)
@@ -452,7 +457,13 @@ public class DiscussionForumTool
       forumManager.saveForum(forum);
     forumManager.saveForumControlPermissions(forum, forumControlPermissions);
     forumManager.saveForumMessagePermissions(forum, forumMessagePermissions);
-    return MAIN;
+    if(forum.getId()==null)
+    {
+      String forumUuid= forum.getUuid();
+      forum=null;
+      forum=forumManager.getForumByUuid(forumUuid);
+    }
+    return forum;
   }
 
   /**
@@ -540,7 +551,7 @@ public class DiscussionForumTool
 
     if (topic == null)
     {
-      topic = forumManager.getTopicById(new Long(
+       topic = forumManager.getTopicById(new Long(
           getExternalParameterByKey(TOPIC_ID)));
     }
     if (topic == null)
@@ -559,6 +570,7 @@ public class DiscussionForumTool
         attachments.add((Attachment) attachList.get(i));
       }
     }
+    setSelectedForumForCurrentTopic(topic);
     return TOPIC_SETTING_REVISE;
   }
 
@@ -568,8 +580,26 @@ public class DiscussionForumTool
   public String processActionSaveTopicAndAddTopic()
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
-    processActionSaveTopicSettings();
-    return processActionNewTopic();
+    saveTopicSettings(false);
+    Long forumId=selectedForum.getForum().getId();
+    if (forumId == null)
+    {      
+      setErrorMessage("Parent Forum not found");
+      return MAIN;
+    }
+    selectedTopic=null;
+    selectedTopic = createTopic(forumId);
+    if (selectedTopic == null)
+    {
+      setErrorMessage("Create New Topic Failed!");
+      attachments.clear();
+      prepareRemoveAttach.clear();
+      return MAIN;
+    }
+    attachments.clear();
+    prepareRemoveAttach.clear();
+    return TOPIC_SETTING_REVISE;
+
   }
 
   /**
@@ -578,22 +608,8 @@ public class DiscussionForumTool
   public String processActionSaveTopicSettings()
   {
     LOG.debug("processActionSaveTopicSettings()");
-
-    if (selectedTopic != null)
-    {
-      DiscussionTopic topic = selectedTopic.getTopic();
-      if (selectedForum != null)
-      {
-        topic.setBaseForum(selectedForum.getForum());
-        saveTopicAttach(topic);
-
-        forumManager.saveTopic(topic);
-        forumManager
-            .saveTopicControlPermissions(topic, topicControlPermissions);
-        forumManager
-            .saveTopicMessagePermissions(topic, topicMessagePermissions);
-      }
-    }
+    saveTopicSettings(false);
+    reset();
     return MAIN;
   }
 
@@ -603,12 +619,37 @@ public class DiscussionForumTool
   public String processActionSaveTopicAsDraft()
   {
     LOG.debug("processActionSaveTopicAsDraft()");
-
-    attachments.clear();
-    prepareRemoveAttach.clear();
-
+    saveTopicSettings(true);
+    reset();
     return MAIN;
   }
+  
+  private String saveTopicSettings(boolean draft)
+  {
+    if (selectedTopic != null)
+    {
+      DiscussionTopic topic = selectedTopic.getTopic();
+      if (selectedForum != null)
+      {
+        topic.setBaseForum(selectedForum.getForum());
+        saveTopicAttach(topic);
+        if(draft)
+        {
+          forumManager.saveTopicAsDraft(topic);
+        }
+        else
+        {
+          forumManager.saveTopic(topic);
+        }
+        forumManager
+            .saveTopicControlPermissions(topic, topicControlPermissions);
+        forumManager
+            .saveTopicMessagePermissions(topic, topicMessagePermissions);
+      }
+    }
+    return MAIN;
+  }
+  
 
   /**
    * @return
@@ -1010,6 +1051,7 @@ public class DiscussionForumTool
 
   private void reset()
   {
+    forums = null; 
     selectedForum = null;
     selectedTopic = null;
     selectedMessage = null;
@@ -1851,6 +1893,10 @@ public class DiscussionForumTool
    */
   private void setSelectedForumForCurrentTopic(DiscussionTopic topic)
   {
+    if(selectedForum !=null)
+    {
+      return;
+    }
     DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum == null)
     {

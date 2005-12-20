@@ -75,10 +75,14 @@
 				</h:panelGroup>
 			</h:panelGrid>
 		</p>
-	   <h4><h:outputText  value="Anonymous Responses"/></h4>
-	   <h:selectBooleanCheckbox   title= "Allow anonymous postings (Identity known to administrative users)" disabled="true" value="false" /><h:outputText   value="  Allow anonymous postings (Identity known to administrative users)" /> 
-	   <br/>
-	   <h:selectBooleanCheckbox  disabled="true" title= "I do not wish to know the authors identity"  value="false" /><h:outputText   value="  I do not wish to know the author identity" />
+		<%--
+		   <h4><h:outputText  value="Anonymous Responses"/></h4>
+		   <h:selectBooleanCheckbox   title= "#{msgs.cdfm_topic_allow_anonymous_postings}" disabled="true" value="false" />
+		   <h:outputText   value="  #{msgs.cdfm_topic_allow_anonymous_postings}" /> 
+		   <br/>
+		   <h:selectBooleanCheckbox  disabled="true" title= "#{msgs.cdfm_topic_author_identity}"  value="false" />
+		   <h:outputText   value="  #{msgs.cdfm_topic_author_identity}" />
+       --%>
        <h4><h:outputText  value="Post Before Reading"/></h4>
     	   <p class="shorttext">
 			<h:panelGrid columns="2">
@@ -154,7 +158,8 @@
       
        <p class="act">
           <h:commandButton action="#{ForumTool.processActionReviseTopicSettings}" id="revise"  value="#{msgs.cdfm_button_bar_revise}" rendered="#{!ForumTool.selectedTopic.markForDeletion}"> 
-    	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>         
+    	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/> 
+    	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>        
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedTopic.markForDeletion}">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>

@@ -524,12 +524,28 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopic(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   */
   public void saveTopic(DiscussionTopic topic)
   {
-    LOG.debug("saveTopic(DiscussionTopic "+topic+")");
+    saveTopic( topic,  false);
+  }
+  
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopicAsDraft(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   */
+  public void saveTopicAsDraft(DiscussionTopic topic)
+  {
+    saveTopic( topic,  true);
+  }
+  
+  private void saveTopic(DiscussionTopic topic, boolean draft)
+  {
+    LOG.debug("saveTopic(DiscussionTopic "+topic+", boolean " +draft+")");
     
     boolean saveForum = topic.getId() == null;
-    
+    topic.setDraft(new Boolean(draft));
     forumManager.saveDiscussionForumTopic(topic);
     if (saveForum) {
         DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
