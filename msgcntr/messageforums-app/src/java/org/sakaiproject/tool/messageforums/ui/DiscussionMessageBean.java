@@ -65,7 +65,11 @@ public class DiscussionMessageBean
     {
       return false;
     }
-    else //if(message.getAttachments().size()>0)
+    else if(message.getAttachments().size()>0)
+    {
+    	return true;
+    }
+/*    else (changed after not lazy loading attachments.)
     {
     	MessageForumsMessageManager mfmm = 
     		(org.sakaiproject.api.app.messageforums.MessageForumsMessageManager)ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager");
@@ -75,7 +79,7 @@ public class DiscussionMessageBean
     		if(messageWithAttach.getAttachments().size()>0)
     			return true;
     	}
-    }
+    }*/
     return false;
   }
 

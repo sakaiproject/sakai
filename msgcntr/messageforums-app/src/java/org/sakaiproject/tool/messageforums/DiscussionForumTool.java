@@ -1258,6 +1258,7 @@ public class DiscussionForumTool
       aMsg.setAuthor(getUserId());
       aMsg.setDraft(Boolean.FALSE);
       aMsg.setApproved(Boolean.TRUE);
+      aMsg.setTopic(selectedTopic.getTopic());
     }
     for (int i = 0; i < attachments.size(); i++)
     {
@@ -1364,6 +1365,10 @@ public class DiscussionForumTool
 
   public String processDfMsgMove()
   {
+  	List childMsgs = new ArrayList();
+  	messageManager.getChildMsgs(selectedMessage.getMessage().getId(), childMsgs);
+  	//selectedMessage.getMessage().setTopic(selectedTopic.getTopic());
+  	
     return null;
   }
 

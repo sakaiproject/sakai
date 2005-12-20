@@ -70,7 +70,7 @@
     
     <many-to-one name="topic" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
-      not-null="false" index="MFR_MESSAGE_PARENT_TOPIC_I" cascade="none" />
+      not-null="true" index="MFR_MESSAGE_PARENT_TOPIC_I" cascade="none" />
     <property name="tindex" column="t_index_col" type="int" update="true" insert="true"/>
         
     <!-- PrivateMessage fields -->
