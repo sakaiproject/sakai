@@ -318,11 +318,12 @@ public class DiscussionForumTool
 
   /**
    * Forward to delete forum confirmation screen
+   * 
    * @return
    */
   public String processActionDeleteForumConfirm()
   {
-    if(selectedForum==null)
+    if (selectedForum == null)
     {
       LOG.debug("There is no forum selected for deletion");
       return MAIN;
@@ -336,7 +337,7 @@ public class DiscussionForumTool
    */
   public String processActionDeleteForum()
   {
-    if(selectedForum==null)
+    if (selectedForum == null)
     {
       LOG.debug("There is no forum selected for deletion");
     }
@@ -392,7 +393,7 @@ public class DiscussionForumTool
         attachments.add((Attachment) attachList.get(i));
       }
     }
-    
+
     return FORUM_SETTING_REVISE; //
   }
 
@@ -402,9 +403,18 @@ public class DiscussionForumTool
   public String processActionSaveForumAndAddTopic()
   {
     LOG.debug("processActionSaveForumAndAddTopic()");
- 
     processActionSaveForumSettings();
-    return processActionNewTopic();  
+    selectedTopic = createTopic(selectedForum.getForum().getId());
+    if (selectedTopic == null)
+    {
+      setErrorMessage("Create New Topic Failed!");
+      attachments.clear();
+      prepareRemoveAttach.clear();
+      return MAIN;
+    }
+    attachments.clear();
+    prepareRemoveAttach.clear();
+    return TOPIC_SETTING_REVISE;
   }
 
   /**
@@ -412,24 +422,7 @@ public class DiscussionForumTool
    */
   public String processActionSaveForumSettings()
   {
-    LOG.debug("processActionSaveForumSettings()");
-    if (selectedForum == null)
-    {
-      setErrorMessage("Selected Forum not found");
-    }
-    DiscussionForum forum = selectedForum.getForum();
-    if (forum == null)
-    {
-       setErrorMessage("Forum not found");
-    }
-      saveForumAttach(forum);
-      forumManager.saveForum(forum);
-      forumManager.saveForum(forum); 
-        forumManager
-        .saveForumControlPermissions(forum, forumControlPermissions);
-        forumManager
-            .saveForumMessagePermissions(forum, forumMessagePermissions);   
-    return MAIN;
+    return saveForumSettings(false);
   }
 
   /**
@@ -437,11 +430,28 @@ public class DiscussionForumTool
    */
   public String processActionSaveForumAsDraft()
   {
-    LOG.debug("processActionSaveForumAsDraft()");
-    
-    attachments.clear();
-    prepareRemoveAttach.clear();
-    
+    return saveForumSettings(true);
+  }
+
+  private String saveForumSettings(boolean draft)
+  {
+    LOG.debug("saveForumSettings(boolean " + draft + ")");
+    if (selectedForum == null)
+    {
+      setErrorMessage("Selected Forum not found");
+    }
+    DiscussionForum forum = selectedForum.getForum();
+    if (forum == null)
+    {
+      setErrorMessage("Forum not found");
+    }
+    saveForumAttach(forum);
+    if (draft)
+      forumManager.saveForumAsDraft(forum);
+    else
+      forumManager.saveForum(forum);
+    forumManager.saveForumControlPermissions(forum, forumControlPermissions);
+    forumManager.saveForumMessagePermissions(forum, forumMessagePermissions);
     return MAIN;
   }
 
@@ -512,11 +522,11 @@ public class DiscussionForumTool
     {
       setErrorMessage("Create New Topic Failed!");
       attachments.clear();
-    	prepareRemoveAttach.clear();
+      prepareRemoveAttach.clear();
       return MAIN;
     }
     attachments.clear();
-   	prepareRemoveAttach.clear();
+    prepareRemoveAttach.clear();
     return TOPIC_SETTING_REVISE;
   }
 
@@ -535,11 +545,12 @@ public class DiscussionForumTool
     }
     if (topic == null)
     {
-      setErrorMessage("Topic with id '" + getExternalParameterByKey(TOPIC_ID) + "'not found");
+      setErrorMessage("Topic with id '" + getExternalParameterByKey(TOPIC_ID)
+          + "'not found");
       return MAIN;
     }
     selectedTopic = new DiscussionTopicBean(topic);
-    
+
     List attachList = selectedTopic.getTopic().getAttachments();
     if (attachList != null)
     {
@@ -558,7 +569,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
     processActionSaveTopicSettings();
-    return processActionNewTopic();     
+    return processActionNewTopic();
   }
 
   /**
@@ -575,7 +586,7 @@ public class DiscussionForumTool
       {
         topic.setBaseForum(selectedForum.getForum());
         saveTopicAttach(topic);
-    
+
         forumManager.saveTopic(topic);
         forumManager
             .saveTopicControlPermissions(topic, topicControlPermissions);
@@ -592,10 +603,10 @@ public class DiscussionForumTool
   public String processActionSaveTopicAsDraft()
   {
     LOG.debug("processActionSaveTopicAsDraft()");
-    
+
     attachments.clear();
     prepareRemoveAttach.clear();
-    
+
     return MAIN;
   }
 
@@ -604,7 +615,7 @@ public class DiscussionForumTool
    */
   public String processActionDeleteTopicConfirm()
   {
-    if(selectedTopic==null)
+    if (selectedTopic == null)
     {
       LOG.debug("There is no topic selected for deletion");
       return MAIN;
@@ -618,12 +629,12 @@ public class DiscussionForumTool
    */
   public String processActionDeleteTopic()
   {
-      if(selectedTopic==null)
-      {
-        LOG.debug("There is no topic selected for deletion");
-      }
-      forumManager.deleteTopic(selectedTopic.getTopic());
-      return MAIN;       
+    if (selectedTopic == null)
+    {
+      LOG.debug("There is no topic selected for deletion");
+    }
+    forumManager.deleteTopic(selectedTopic.getTopic());
+    return MAIN;
   }
 
   /**
@@ -730,7 +741,7 @@ public class DiscussionForumTool
   public String processActionDisplayMessage()
   {
     LOG.debug("processActionDisplayMessage()");
-    
+
     String messageId = getExternalParameterByKey(MESSAGE_ID);
     String topicId = getExternalParameterByKey(TOPIC_ID);
     if (messageId == null)
@@ -738,7 +749,7 @@ public class DiscussionForumTool
       setErrorMessage("Message reference not found");
       return MAIN;
     }
-    if(topicId==null)
+    if (topicId == null)
     {
       setErrorMessage("Topic reference not found for the message");
       return MAIN;
@@ -746,7 +757,8 @@ public class DiscussionForumTool
     // Message message=forumManager.getMessageById(new Long(messageId));
     Message message = messageManager.getMessageByIdWithAttachments(new Long(
         messageId));
-    messageManager.markMessageReadForUser(new Long(topicId), new Long(messageId), true);
+    messageManager.markMessageReadForUser(new Long(topicId),
+        new Long(messageId), true);
     if (message == null)
     {
       setErrorMessage("Message with id '" + messageId + "'not found");
@@ -935,16 +947,17 @@ public class DiscussionForumTool
     {
       Message message = (Message) iter.next();
       if (topic != null)
-      {  
+      {
         decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
         decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
-        if(message!=null)
+        if (message != null)
         {
           DiscussionMessageBean decoMsg = new DiscussionMessageBean(message);
-          decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(), message.getId()));
+          decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(),
+              message.getId()));
           decoTopic.addMessage(decoMsg);
         }
-       
+
       }
     }
     return decoTopic;
@@ -1003,7 +1016,7 @@ public class DiscussionForumTool
 
     attachments.clear();
     prepareRemoveAttach.clear();
-		
+
   }
 
   /**
@@ -1012,12 +1025,26 @@ public class DiscussionForumTool
   private DiscussionTopicBean createTopic()
   {
     String forumId = getExternalParameterByKey(FORUM_ID);
-    if(forumId==null)
+    if (forumId == null)
     {
       setErrorMessage("Parent Forum for new topic was not found");
       return null;
     }
-    DiscussionForum forum = forumManager.getForumById(new Long(forumId));
+    return createTopic(new Long(forumId));
+  }
+
+  /**
+   * @param forumID
+   * @return
+   */
+  private DiscussionTopicBean createTopic(Long forumId)
+  {
+    if (forumId == null)
+    {
+      setErrorMessage("Parent Forum for new topic was not found");
+      return null;
+    }
+    DiscussionForum forum = forumManager.getForumById(forumId);
     if (forum == null)
     {
       setErrorMessage("Parent Forum for new topic was not found");
@@ -1026,7 +1053,7 @@ public class DiscussionForumTool
     selectedForum = new DiscussionForumBean(forum);
     DiscussionTopic topic = forumManager.createTopic(forum);
     if (topic == null)
-    { 
+    {
       setErrorMessage("Failed to create new topic");
       return null;
     }
@@ -1169,7 +1196,7 @@ public class DiscussionForumTool
 
     return null;
   }
-  
+
   public String processDfMsgCancel()
   {
     this.composeBody = null;
@@ -1620,19 +1647,20 @@ public class DiscussionForumTool
 
   public String processDfMsgDeleteConfirmYes()
   {
-		List delList = new ArrayList();
-		messageManager.getChildMsgs(selectedMessage.getMessage().getId(), delList);
-		
-		messageManager.deleteMsgWithChild(selectedMessage.getMessage().getId());
-		selectedTopic.removeMessage(selectedMessage);
-		for(int i=0; i<delList.size(); i++)
-		{
-			selectedTopic.removeMessage(new DiscussionMessageBean((Message)delList.get(i)));
-		}
-				
-		this.deleteMsg = false;
-		
-		return ALL_MESSAGES;
+    List delList = new ArrayList();
+    messageManager.getChildMsgs(selectedMessage.getMessage().getId(), delList);
+
+    messageManager.deleteMsgWithChild(selectedMessage.getMessage().getId());
+    selectedTopic.removeMessage(selectedMessage);
+    for (int i = 0; i < delList.size(); i++)
+    {
+      selectedTopic.removeMessage(new DiscussionMessageBean((Message) delList
+          .get(i)));
+    }
+
+    this.deleteMsg = false;
+
+    return ALL_MESSAGES;
   }
 
   public String processDfMsgDeleteCancel()
@@ -1641,100 +1669,99 @@ public class DiscussionForumTool
 
     return null;
   }
-  
+
   public void saveForumAttach(DiscussionForum forum)
   {
-  	for (int i = 0; i < prepareRemoveAttach.size(); i++)
-  	{
-  		Attachment removeAttach = (Attachment) prepareRemoveAttach.get(i);
-  		List oldList = forum.getAttachments();
-			for (int j = 0; j < oldList.size(); j++)
-			{
-				Attachment existedAttach = (Attachment) oldList.get(j);
-				if (existedAttach.getAttachmentId()
-						.equals(removeAttach.getAttachmentId()))
-				{
-					forum.removeAttachment(removeAttach);
-					break;
-				}
-			}
-  	}
-  	
-  	List oldList = forum.getAttachments();
-  	if(oldList != null)
-  	{
-  		for (int i = 0; i < attachments.size(); i++)
-  		{
-  			Attachment thisAttach = (Attachment) attachments.get(i);
-  			boolean existed = false;
-  			for (int j = 0; j < oldList.size(); j++)
-  			{
-  				Attachment existedAttach = (Attachment) oldList.get(j);
-  				if (existedAttach.getAttachmentId()
-  						.equals(thisAttach.getAttachmentId()))
-  				{
-  					existed = true;
-  					break;
-  				}
-  			}
-  			if (!existed)
-  			{
-  				forum.addAttachment(thisAttach);
-  			}
-  		}
-  	}
-  	
-  	prepareRemoveAttach.clear();
-  	attachments.clear();
+    for (int i = 0; i < prepareRemoveAttach.size(); i++)
+    {
+      Attachment removeAttach = (Attachment) prepareRemoveAttach.get(i);
+      List oldList = forum.getAttachments();
+      for (int j = 0; j < oldList.size(); j++)
+      {
+        Attachment existedAttach = (Attachment) oldList.get(j);
+        if (existedAttach.getAttachmentId().equals(
+            removeAttach.getAttachmentId()))
+        {
+          forum.removeAttachment(removeAttach);
+          break;
+        }
+      }
+    }
+
+    List oldList = forum.getAttachments();
+    if (oldList != null)
+    {
+      for (int i = 0; i < attachments.size(); i++)
+      {
+        Attachment thisAttach = (Attachment) attachments.get(i);
+        boolean existed = false;
+        for (int j = 0; j < oldList.size(); j++)
+        {
+          Attachment existedAttach = (Attachment) oldList.get(j);
+          if (existedAttach.getAttachmentId().equals(
+              thisAttach.getAttachmentId()))
+          {
+            existed = true;
+            break;
+          }
+        }
+        if (!existed)
+        {
+          forum.addAttachment(thisAttach);
+        }
+      }
+    }
+
+    prepareRemoveAttach.clear();
+    attachments.clear();
   }
 
   public void saveTopicAttach(DiscussionTopic topic)
   {
-  	for (int i = 0; i < prepareRemoveAttach.size(); i++)
-  	{
-  		Attachment removeAttach = (Attachment) prepareRemoveAttach.get(i);
-  		List oldList = topic.getAttachments();
-			for (int j = 0; j < oldList.size(); j++)
-			{
-				Attachment existedAttach = (Attachment) oldList.get(j);
-				if (existedAttach.getAttachmentId()
-						.equals(removeAttach.getAttachmentId()))
-				{
-					topic.removeAttachment(removeAttach);
-					break;
-				}
-			}
-  	}
-  	
-  	List oldList = topic.getAttachments();
-  	if(oldList != null)
-  	{
-  		for (int i = 0; i < attachments.size(); i++)
-  		{
-  			Attachment thisAttach = (Attachment) attachments.get(i);
-  			boolean existed = false;
-  			for (int j = 0; j < oldList.size(); j++)
-  			{
-  				Attachment existedAttach = (Attachment) oldList.get(j);
-  				if (existedAttach.getAttachmentId()
-  						.equals(thisAttach.getAttachmentId()))
-  				{
-  					existed = true;
-  					break;
-  				}
-  			}
-  			if (!existed)
-  			{
-  				topic.addAttachment(thisAttach);
-  			}
-  		}
-  	}
-  	
-  	prepareRemoveAttach.clear();
-  	attachments.clear();
+    for (int i = 0; i < prepareRemoveAttach.size(); i++)
+    {
+      Attachment removeAttach = (Attachment) prepareRemoveAttach.get(i);
+      List oldList = topic.getAttachments();
+      for (int j = 0; j < oldList.size(); j++)
+      {
+        Attachment existedAttach = (Attachment) oldList.get(j);
+        if (existedAttach.getAttachmentId().equals(
+            removeAttach.getAttachmentId()))
+        {
+          topic.removeAttachment(removeAttach);
+          break;
+        }
+      }
+    }
+
+    List oldList = topic.getAttachments();
+    if (oldList != null)
+    {
+      for (int i = 0; i < attachments.size(); i++)
+      {
+        Attachment thisAttach = (Attachment) attachments.get(i);
+        boolean existed = false;
+        for (int j = 0; j < oldList.size(); j++)
+        {
+          Attachment existedAttach = (Attachment) oldList.get(j);
+          if (existedAttach.getAttachmentId().equals(
+              thisAttach.getAttachmentId()))
+          {
+            existed = true;
+            break;
+          }
+        }
+        if (!existed)
+        {
+          topic.addAttachment(thisAttach);
+        }
+      }
+    }
+
+    prepareRemoveAttach.clear();
+    attachments.clear();
   }
 
-  
   public String processDeleteAttachSetting()
   {
     LOG.debug("processDeleteAttach()");
@@ -1763,18 +1790,18 @@ public class DiscussionForumTool
 
     if ((attachId != null) && (!attachId.equals("")))
     {
-    	for (int i = 0; i < attachments.size(); i++)
-    	{
-    		if (attachId.equalsIgnoreCase(((Attachment) attachments.get(i))
-    				.getAttachmentId()))
-    		{
-    			prepareRemoveAttach.add((Attachment) attachments.get(i));
-    			attachments.remove(i);
-    			break;
-    		}
-    	}
+      for (int i = 0; i < attachments.size(); i++)
+      {
+        if (attachId.equalsIgnoreCase(((Attachment) attachments.get(i))
+            .getAttachmentId()))
+        {
+          prepareRemoveAttach.add((Attachment) attachments.get(i));
+          attachments.remove(i);
+          break;
+        }
+      }
     }
-    
+
     return null;
   }
 
@@ -1819,7 +1846,7 @@ public class DiscussionForumTool
    */
   private void setSelectedForumForCurrentTopic(DiscussionTopic topic)
   {
-    DiscussionForum forum = (DiscussionForum) topic.getBaseForum(); 
+    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum == null)
     {
 
@@ -1838,10 +1865,11 @@ public class DiscussionForumTool
     }
     selectedForum = new DiscussionForumBean(forum);
   }
-  
+
   private void setErrorMessage(String errorMsg)
   {
-    LOG.debug("setErrorMessage(String "+errorMsg+")");
-    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(errorMsg));    
+    LOG.debug("setErrorMessage(String " + errorMsg + ")");
+    FacesContext.getCurrentInstance().addMessage(null,
+        new FacesMessage(errorMsg));
   }
 }

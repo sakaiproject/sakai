@@ -127,6 +127,13 @@ public interface DiscussionForumManager
    * @param forum
    */
   public void saveForum(DiscussionForum forum);
+  
+  
+  /**
+   * @param forum
+   */
+  public void saveForumAsDraft(DiscussionForum forum);
+
 
   /**
    * @param topic

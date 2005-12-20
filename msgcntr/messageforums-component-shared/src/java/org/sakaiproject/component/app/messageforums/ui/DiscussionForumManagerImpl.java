@@ -497,11 +497,25 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public void saveForum(DiscussionForum forum)
   {
+    saveForum(forum, false);
+  }
+  
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForumAsDraft(org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
+  public void saveForumAsDraft(DiscussionForum forum)
+  {
+    saveForum(forum, true);
+  }
+  
+  private void saveForum(DiscussionForum forum, boolean draft)
+  {
     LOG.debug("saveForum()");
 
     boolean saveArea = forum.getId() == null;
-
+    forum.setDraft(new Boolean(draft));
     forumManager.saveDiscussionForum(forum);
+    
     if (saveArea) {
         Area area = getDiscussionForumArea();
         forum.setArea(area);    
