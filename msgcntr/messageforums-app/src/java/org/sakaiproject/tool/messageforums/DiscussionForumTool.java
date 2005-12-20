@@ -1556,6 +1556,27 @@ public class DiscussionForumTool
         selectedTopic.getMessages().set(i, new DiscussionMessageBean(dMsg));
       }
     }
+    
+    try
+    {
+    	DiscussionTopic topic = null;
+    	try
+			{
+    		topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
+			}
+    	catch (NumberFormatException e)
+			{
+    		LOG.error(e.getMessage(), e);
+			}
+    	selectedTopic = getDecoratedTopic(topic);
+    	setSelectedForumForCurrentTopic(topic);
+    }
+    catch (Exception e)
+		{
+    	LOG.error(e.getMessage(), e);
+    	setErrorMessage(e.getMessage());
+    	return null;
+		}
 
     prepareRemoveAttach.clear();
     composeBody = null;
@@ -1620,6 +1641,27 @@ public class DiscussionForumTool
         selectedTopic.getMessages().set(i, new DiscussionMessageBean(dMsg));
       }
     }
+
+    try
+    {
+    	DiscussionTopic topic = null;
+    	try
+			{
+    		topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
+			}
+    	catch (NumberFormatException e)
+			{
+    		LOG.error(e.getMessage(), e);
+			}
+    	selectedTopic = getDecoratedTopic(topic);
+    	setSelectedForumForCurrentTopic(topic);
+    }
+    catch (Exception e)
+		{
+    	LOG.error(e.getMessage(), e);
+    	setErrorMessage(e.getMessage());
+    	return null;
+		}
 
     prepareRemoveAttach.clear();
     composeBody = null;
@@ -1698,17 +1740,42 @@ public class DiscussionForumTool
   {
     List delList = new ArrayList();
     messageManager.getChildMsgs(selectedMessage.getMessage().getId(), delList);
-
-    messageManager.deleteMsgWithChild(selectedMessage.getMessage().getId());
+    
     selectedTopic.removeMessage(selectedMessage);
+    selectedTopic.getTopic().removeMessage(selectedMessage.getMessage());
     for (int i = 0; i < delList.size(); i++)
     {
       selectedTopic.removeMessage(new DiscussionMessageBean((Message) delList
           .get(i)));
+      selectedTopic.getTopic().removeMessage((Message)delList.get(i));
     }
 
+    messageManager.deleteMsgWithChild(selectedMessage.getMessage().getId());
+    
+    try
+    {
+    	DiscussionTopic topic = null;
+    	try
+			{
+    		topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
+			}
+    	catch (NumberFormatException e)
+			{
+    		LOG.error(e.getMessage(), e);
+			}
+    	selectedTopic = getDecoratedTopic(topic);
+    	setSelectedForumForCurrentTopic(topic);
+    }
+    catch (Exception e)
+		{
+    	LOG.error(e.getMessage(), e);
+    	setErrorMessage(e.getMessage());
+    	this.deleteMsg = false;
+    	return "main";
+		}
+    
     this.deleteMsg = false;
-
+    
     return ALL_MESSAGES;
   }
 
