@@ -451,8 +451,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
         BaseForum forum = getForumById(true, topic.getForumId());
         forum.removeTopic(topic);
-        getHibernateTemplate().delete(topic);
-        LOG.debug("deleteOpenForumTopic executed with forumId: " + id);
+        getHibernateTemplate().saveOrUpdate(forum);
+        //getHibernateTemplate().delete(topic);
+        LOG.debug("deleteOpenForumTopic executed with topicId: " + id);
     }
 
     /**

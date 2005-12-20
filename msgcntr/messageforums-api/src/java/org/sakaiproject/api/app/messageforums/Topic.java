@@ -72,4 +72,12 @@ public interface Topic extends MutableEntity {
     public void removeMessage(Message message);
     
     public Long getForumId();
+
+    public OpenForum getOpenForum();
+    
+    public void setOpenForum(OpenForum openForum);
+    
+    public PrivateForum getPrivateForum();
+    
+    public void setPrivateForum(PrivateForum privateForum);
 }

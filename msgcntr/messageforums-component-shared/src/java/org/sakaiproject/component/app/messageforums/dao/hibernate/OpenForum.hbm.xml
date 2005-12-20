@@ -48,7 +48,7 @@
 	    <index column="f_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
 	</list>     
-	<list name="topics" lazy="false" table="MFR_TOPIC_T" cascade="all-delete-orphan">
+	<list name="topics" lazy="false" table="MFR_TOPIC_T" cascade="save-update">
 	    <key column="of_surrogateKey"/>
 	    <index column="bf_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl" />

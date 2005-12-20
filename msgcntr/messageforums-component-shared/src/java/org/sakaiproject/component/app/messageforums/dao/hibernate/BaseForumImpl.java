@@ -153,6 +153,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
             throw new IllegalArgumentException("Illegal topic argument passed!");
         }
         
+        topic.setOpenForum(null);
+        topic.setPrivateForum(null);
         topic.setBaseForum(null);
         topics.remove(topic);
     }
