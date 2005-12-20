@@ -35,7 +35,7 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
     private Boolean locked;
     
     // indecies for hibernate
-    private int areaindex;
+    protected int areaindex;
 
     public Boolean getLocked() {
         return locked;

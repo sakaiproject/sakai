@@ -41,9 +41,19 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
     private DateRestrictions dateRestrictions;
     private ActorPermissions actorPermissions;
     private Boolean moderated;
-    
-    // indecies for hibernate
     private int areaindex;
+    
+    public int getAreaindex() {
+        try {
+            return getArea().getDiscussionForums().indexOf(this);
+        } catch (Exception e) {
+            return areaindex;
+        }
+    }
+
+    public void setAreaindex(int areaindex) {
+        this.areaindex = areaindex;
+    }
     
     public ActorPermissions getActorPermissions() {
         return actorPermissions;
@@ -75,18 +85,6 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
 
     public void setModerated(Boolean moderated) {
         this.moderated = moderated;
-    }
-
-    public int getAreaindex() {
-        try {
-            return getArea().getOpenForums().indexOf(this);
-        } catch (Exception e) {
-            return areaindex;
-        }
-    }
-
-    public void setAreaindex(int areaindex) {
-        this.areaindex = areaindex;
     }
     
     ////////////////////////////////////////////////////////////////////////

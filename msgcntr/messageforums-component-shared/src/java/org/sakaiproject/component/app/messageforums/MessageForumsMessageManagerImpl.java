@@ -317,7 +317,13 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
         Topic topic = message.getTopic();
         topic.removeMessage(message);
-		getHibernateTemplate().delete(message);
+        getHibernateTemplate().saveOrUpdate(topic);
+		//getHibernateTemplate().delete(message);
+        try {
+            getSession().flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         LOG.info("message " + id + " deleted successfully");
     }
     
