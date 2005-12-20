@@ -244,20 +244,30 @@ public class MessageImpl extends MutableEntityImpl implements Message
     {
       public int compare(Object message, Object otherMessage)
       {
-        String msg = ((Message) message).getTitle();
-        String msg2 = ((Message) otherMessage).getTitle();
-        return msg.compareTo(msg2);
+        if (message != null && otherMessage != null
+            && message instanceof Message && otherMessage instanceof Message)
+        {
+          String msg = ((Message) message).getTitle();
+          String msg2 = ((Message) otherMessage).getTitle();
+          return msg.compareTo(msg2);
+        }
+        return -1;
 
       }
     };
-    
+
     DATE_COMPARATOR = new Comparator()
     {
       public int compare(Object message, Object otherMessage)
       {
-        Date msg = ((Message) message).getCreated();
-        Date msg2 = ((Message) otherMessage).getCreated();
-        return msg.compareTo(msg2);
+        if (message != null && otherMessage != null
+            && message instanceof Message && otherMessage instanceof Message)
+        {
+          Date msg = ((Message) message).getCreated();
+          Date msg2 = ((Message) otherMessage).getCreated();
+          return msg.compareTo(msg2);
+        }
+        return -1;
       }
     };
 
@@ -265,21 +275,33 @@ public class MessageImpl extends MutableEntityImpl implements Message
     {
       public int compare(Object message, Object otherMessage)
       {
-        String msg = ((Message) message).getAuthor();
-        String msg2 = ((Message) otherMessage).getAuthor();
-        return msg.compareTo(msg2);
+        if (message != null && otherMessage != null
+            && message instanceof Message && otherMessage instanceof Message)
+        {
+          String msg = ((Message) message).getAuthor();
+          String msg2 = ((Message) otherMessage).getAuthor();
+          return msg.compareTo(msg2);
+        }
+        return -1;
       }
     };
-    
+
     LABEL_COMPARATOR = new Comparator()
     {
+
       public int compare(Object message, Object otherMessage)
       {
-        String msg = ((Message) message).getLabel();
-        String msg2 = ((Message) otherMessage).getLabel();
-        return msg.compareTo(msg2);
+        if (message != null && otherMessage != null
+            && message instanceof Message && otherMessage instanceof Message)
+        {
+          String msg = ((Message) message).getLabel();
+          String msg2 = ((Message) otherMessage).getLabel();
+          return msg.compareTo(msg2);
+        }
+        return -1;
       }
+
     };
-    
+
   }
 }

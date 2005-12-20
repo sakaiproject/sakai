@@ -379,7 +379,6 @@ public class DiscussionForumTool
   public String processActionReviseForumSettings()
   {
     LOG.debug("processActionReviseForumSettings()");
-
     if ((selectedForum) == null)
     {
       setErrorMessage("Forum not found");
@@ -403,21 +402,9 @@ public class DiscussionForumTool
   public String processActionSaveForumAndAddTopic()
   {
     LOG.debug("processActionSaveForumAndAddTopic()");
-    // TODO : save forum
-    selectedTopic = createTopic();
-    if (selectedTopic == null)
-    {
-      setErrorMessage("Unable to create a new Topic");
-    	attachments.clear();
-    	prepareRemoveAttach.clear();
-    	
-      return MAIN;
-    }
-  	
-    attachments.clear();
-  	prepareRemoveAttach.clear();
-
-  	return TOPIC_SETTING_REVISE;
+ 
+    processActionSaveForumSettings();
+    return processActionNewTopic();  
   }
 
   /**
@@ -426,19 +413,22 @@ public class DiscussionForumTool
   public String processActionSaveForumSettings()
   {
     LOG.debug("processActionSaveForumSettings()");
-    if (selectedForum != null)
+    if (selectedForum == null)
     {
-      DiscussionForum forum = selectedForum.getForum();
+      setErrorMessage("Selected Forum not found");
+    }
+    DiscussionForum forum = selectedForum.getForum();
+    if (forum == null)
+    {
+       setErrorMessage("Forum not found");
+    }
       saveForumAttach(forum);
       forumManager.saveForum(forum);
-      if (forum != null)
-      {
+      forumManager.saveForum(forum); 
         forumManager
-            .saveForumControlPermissions(forum, forumControlPermissions);
+        .saveForumControlPermissions(forum, forumControlPermissions);
         forumManager
-            .saveForumMessagePermissions(forum, forumMessagePermissions);
-      }
-    }
+            .saveForumMessagePermissions(forum, forumMessagePermissions);   
     return MAIN;
   }
 
@@ -521,9 +511,12 @@ public class DiscussionForumTool
     if (selectedTopic == null)
     {
       setErrorMessage("Create New Topic Failed!");
+      attachments.clear();
+    	prepareRemoveAttach.clear();
       return MAIN;
     }
-
+    attachments.clear();
+   	prepareRemoveAttach.clear();
     return TOPIC_SETTING_REVISE;
   }
 
@@ -555,7 +548,6 @@ public class DiscussionForumTool
         attachments.add((Attachment) attachList.get(i));
       }
     }
-
     return TOPIC_SETTING_REVISE;
   }
 
@@ -565,12 +557,8 @@ public class DiscussionForumTool
   public String processActionSaveTopicAndAddTopic()
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
-    // TODO : save topic
-    saveTopicAttach(selectedTopic.getTopic());
-    forumManager.saveTopic(selectedTopic.getTopic());
-    createTopic();
-    reset();    
-    return TOPIC_SETTING_REVISE;
+    processActionSaveTopicSettings();
+    return processActionNewTopic();     
   }
 
   /**
@@ -587,6 +575,7 @@ public class DiscussionForumTool
       {
         topic.setBaseForum(selectedForum.getForum());
         saveTopicAttach(topic);
+    
         forumManager.saveTopic(topic);
         forumManager
             .saveTopicControlPermissions(topic, topicControlPermissions);
@@ -594,7 +583,6 @@ public class DiscussionForumTool
             .saveTopicMessagePermissions(topic, topicMessagePermissions);
       }
     }
-    reset();
     return MAIN;
   }
 
@@ -1023,21 +1011,27 @@ public class DiscussionForumTool
    */
   private DiscussionTopicBean createTopic()
   {
-    DiscussionForum forum = forumManager.getForumById(new Long(
-        getExternalParameterByKey(FORUM_ID)));
+    String forumId = getExternalParameterByKey(FORUM_ID);
+    if(forumId==null)
+    {
+      setErrorMessage("Parent Forum for new topic was not found");
+      return null;
+    }
+    DiscussionForum forum = forumManager.getForumById(new Long(forumId));
     if (forum == null)
     {
+      setErrorMessage("Parent Forum for new topic was not found");
       return null;
     }
     selectedForum = new DiscussionForumBean(forum);
     DiscussionTopic topic = forumManager.createTopic(forum);
     if (topic == null)
-    {
+    { 
+      setErrorMessage("Failed to create new topic");
       return null;
     }
     selectedTopic = new DiscussionTopicBean(topic);
     return new DiscussionTopicBean(topic);
-
   }
 
   // compose - cwen
