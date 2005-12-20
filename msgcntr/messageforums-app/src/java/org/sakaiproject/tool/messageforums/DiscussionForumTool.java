@@ -769,7 +769,7 @@ public class DiscussionForumTool
     selectedTopic = new DiscussionTopicBean(forumManager.getTopicById(new Long(
         getExternalParameterByKey(TOPIC_ID))));
     String currentForumId = getExternalParameterByKey(FORUM_ID);
-    if (currentForumId != null && (!currentForumId.trim().equals("")))
+    if (currentForumId != null && (!currentForumId.trim().equals("")) && (!currentForumId.trim().equals("null")))
     {
       DiscussionForum forum = forumManager
           .getForumById(new Long(currentForumId));
