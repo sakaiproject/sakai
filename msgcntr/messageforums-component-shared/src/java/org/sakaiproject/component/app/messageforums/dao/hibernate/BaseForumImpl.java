@@ -115,6 +115,18 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         return "Forum.id:" + id;
     }
     
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof BaseForum) {
+            return getId().equals(((BaseForum)obj).getId());
+        }
+        return false;
+    }
+
+    // needs a better impl
+    public int hashCode() {
+        return getId().hashCode();
+    }
+
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////

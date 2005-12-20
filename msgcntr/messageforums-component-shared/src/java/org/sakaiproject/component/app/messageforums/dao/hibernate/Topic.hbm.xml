@@ -46,7 +46,7 @@
 	    <index column="t_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
 	</list>     
-	<list name="messages" lazy="false" table="MFR_MESSAGE_T" cascade="all">
+	<list name="messages" lazy="false" table="MFR_MESSAGE_T" cascade="all-delete-orphan">
 	    <key column="surrogateKey"/>
 	    <index column="t_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl" />

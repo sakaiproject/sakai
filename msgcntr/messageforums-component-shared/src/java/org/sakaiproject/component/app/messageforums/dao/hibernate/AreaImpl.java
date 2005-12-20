@@ -197,6 +197,7 @@ public class AreaImpl extends MutableEntityImpl implements Area
       
       forum.setArea(null);
       discussionForums.remove(forum);
+      openForums.remove(forum);
   }
        
   public void addOpenForum(BaseForum forum) {

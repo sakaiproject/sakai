@@ -183,10 +183,24 @@ public class MessageImpl extends MutableEntityImpl implements Message
   {
     return "Message.id:" + id;
   }
+  
+  public boolean equals(Object obj) {
+      if (obj != null && obj instanceof Message) {
+          return getId().equals(((Message)obj).getId());
+      }
+      return false;
+  }
+
+  // needs a better impl
+  public int hashCode() {
+      return getId().hashCode();
+  }
 
   // //////////////////////////////////////////////////////////////////////
   // helper methods for collections
   // //////////////////////////////////////////////////////////////////////
+
+
 
   public void addAttachment(Attachment attachment)
   {

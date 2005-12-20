@@ -44,17 +44,17 @@
     <property name="locked">
       <column name="LOCKED" not-null="true" />
     </property>
-   	<list name="openForums" lazy="false" table="MFR_OPEN_FORUM_T" cascade="all">
+   	<list name="openForums" lazy="false" table="MFR_OPEN_FORUM_T" cascade="save-update">
 	    <key column="surrogateKey"/>
 	    <index column="area_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl" />
 	</list>
-	<list name="privateForums" lazy="false" table="MFR_PRIVATE_FORUM_T" cascade="all">
+	<list name="privateForums" lazy="false" table="MFR_PRIVATE_FORUM_T" cascade="save-update">
 	    <key column="surrogateKey"/>
 	    <index column="area_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl" />
 	</list>
-	<list name="discussionForums" lazy="false" table="MFR_DISCUSSION_FORUM_T" cascade="all">
+	<list name="discussionForums" lazy="false" table="MFR_DISCUSSION_FORUM_T" cascade="save-update">
 	    <key column="surrogateKey"/>
 	    <index column="area_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl" />

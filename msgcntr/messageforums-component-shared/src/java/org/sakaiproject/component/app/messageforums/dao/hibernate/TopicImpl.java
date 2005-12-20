@@ -175,6 +175,18 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     
     public abstract Long getForumId();
     
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof Topic) {
+            return getId().equals(((Topic)obj).getId());
+        }
+        return false;
+    }
+
+    // needs a better impl
+    public int hashCode() {
+        return getId().hashCode();
+    }
+
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////

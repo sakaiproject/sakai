@@ -307,6 +307,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public void deleteMessage(Message message) {
+        long id = message.getId().longValue();
         eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(message), false));
         try {
             getSession().evict(message);
@@ -316,8 +317,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
         Topic topic = message.getTopic();
         topic.removeMessage(message);
-				getHibernateTemplate().delete(message);
-        //LOG.info("message " + message.getId() + " deleted successfully");
+		getHibernateTemplate().delete(message);
+        LOG.info("message " + id + " deleted successfully");
     }
     
     public Message getMessageById(final Long messageId) {        
