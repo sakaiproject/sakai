@@ -343,6 +343,7 @@ public class DiscussionForumTool
       LOG.debug("There is no forum selected for deletion");
     }
     forumManager.deleteForum(selectedForum.getForum());
+    reset();
     return MAIN;
   }
 
@@ -675,6 +676,7 @@ public class DiscussionForumTool
       LOG.debug("There is no topic selected for deletion");
     }
     forumManager.deleteTopic(selectedTopic.getTopic());
+    reset();
     return MAIN;
   }
 
