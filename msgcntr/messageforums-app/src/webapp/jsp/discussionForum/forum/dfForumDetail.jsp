@@ -24,8 +24,7 @@
 				</h:commandLink>
 		 	</div>
 		</div>
- 		 
-		<h:dataTable id="topics" value="#{ForumTool.selectedForum.topics}" var="topic">
+		<h:dataTable id="topics" styleClass="listHier" value="#{ForumTool.selectedForum.topics}" var="topic">
 			<h:column>
 				<f:verbatim><div class="topicRows"></f:verbatim>
 				<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{topic.topic.title}">
@@ -48,7 +47,7 @@
 					</h:column>
 				</h:dataTable>
 			</h:column>
-		</h:dataTable> 
+		</h:dataTable>
 	 </h:form>
     </sakai:view>
 </f:view>

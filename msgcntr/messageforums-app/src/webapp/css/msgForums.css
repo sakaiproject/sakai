@@ -9,9 +9,9 @@ div.forumsRow{margin-left:0;color:#000;text-align:left; width:95%; line-height:1
 .forumsRow a:visited{border-bottom:1px dashed #90A1C6;background:#DDDFE4;padding:0px 2px 0px 3px;color:#000;text-decoration:none}
 */
 
-div.forumsRowLeft{float:left;text-align:left; width:65%;background:#DDDFE4}
+div.forumsRowLeft{align:left;text-align:left; width:65%;background:#DDDFE4}
 
-div.forumsRowRight{float:right;color:#000; text-align:right; width:35%;line-height:1.3em;background:#DDDFE4}
+div.forumsRowRight{align:right;color:#000; text-align:right; width:35%;line-height:1.3em;background:#DDDFE4}
 .textfield
 {
 	background-color: #FFFFFF;
