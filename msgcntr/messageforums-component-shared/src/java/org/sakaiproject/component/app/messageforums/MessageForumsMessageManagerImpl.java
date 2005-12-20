@@ -222,7 +222,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         LOG.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
 
-        UnreadStatus status = new UnreadStatusImpl();
+        UnreadStatus status = findUnreadStatus(topicId, messageId);
+        if (status == null) {
+            status = new UnreadStatusImpl();
+        }        
         status.setTopicId(topicId);
         status.setMessageId(messageId);
         status.setUserId(getCurrentUser());
