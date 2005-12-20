@@ -7,9 +7,9 @@
   <h:dataTable id="forums" width="100%" value="#{ForumTool.forums}" var="forum">
     <h:column >
     	<f:verbatim><div class="forumsRow"><div class="forumsRowLeft"></f:verbatim>
+    	    <h:outputText styleClass="draft" id="draft" value="DRAFT" rendered="#{forum.forum.draft == 'true'}"/>
     		<h:outputText id="draft_space" value="  " rendered="#{forum.forum.draft == 'true'}"/>
-    		<h:graphicImage url="/images/lock.gif" alt="this forum is locked"  rendered="#{forum.locked == 'true'}"/>
-    		
+    	
     		<h:graphicImage url="/images/lock.gif" alt="this forum is locked"  rendered="#{forum.locked == 'true'}"/>
 			<h:outputText id="emptyspace" value="  " rendered="#{forum.locked == 'true'}"/>
 								
