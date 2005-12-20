@@ -49,6 +49,7 @@ import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
+import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -81,6 +82,7 @@ public class PrivateMessagesTool
   private MessageForumsMessageManager messageManager;
   private MessageForumsForumManager forumManager;
   private ErrorMessages errorMessages;
+  SakaiPersonManager sakaiPersonManager ;
   
   /** Dependency Injected   */
   private MessageForumsTypeManager typeManager;
@@ -196,6 +198,16 @@ public class PrivateMessagesTool
   {
     this.typeManager = typeManager;
   }
+
+  
+  /**
+   * @param sakaiPersonManager The sakaiPersonManager to set.
+   */
+  public void setSakaiPersonManager(SakaiPersonManager sakaiPersonManager)
+  {
+    this.sakaiPersonManager = sakaiPersonManager;
+  }
+
 
   public void initializePrivateMessageArea()
   {                          
@@ -1501,13 +1513,14 @@ public class PrivateMessagesTool
     }
     return retLs ;
   }
+  
   /*
    * return all participants
    */
   private List getAllParticipants()
   {
     List members = new Vector();
-    
+    List FERPAEnabledMembers = sakaiPersonManager.findAllFerpaEnabled();
     List participants = new Vector();    
     String realmId = SiteService.siteReference(PortalService.getCurrentSiteId());//SiteService.siteReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
  
@@ -1552,7 +1565,10 @@ public class PrivateMessagesTool
             //Don't add admin/admin 
             if(!(participant.uniqname).equals("admin"))
             {
-              participants.add(participant);
+              if(FERPAEnabledMembers==null || !FERPAEnabledMembers.contains(participant.getUniqname()))
+              {
+                participants.add(participant);
+              }              
             }                
           }
           catch (IdUnusedException e)

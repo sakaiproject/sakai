@@ -220,6 +220,31 @@
                 <war.bundle>true</war.bundle>
             </properties>
         </dependency>
+                <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-manager-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+          <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-edu-person-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-type-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-agent-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-superstructure-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
 	</dependencies>
 
 	<build>

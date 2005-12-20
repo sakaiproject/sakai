@@ -260,6 +260,10 @@
             <property-name>forumManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
         </managed-property>
-                        
+         <managed-property>
+            <description>Sakai Person Manager</description>
+            <property-name>sakaiPersonManager</property-name>
+            <value>#{Components["org.sakaiproject.api.common.edu.person.SakaiPersonManager"]}</value>
+        </managed-property>                          
     </managed-bean>
 </faces-config>

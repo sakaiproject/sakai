@@ -6,13 +6,12 @@
 
   <h:dataTable id="forums" width="100%" value="#{ForumTool.forums}" var="forum">
     <h:column >
-    	<f:verbatim><div class="forumsRow"><div class="forumsRowLeft"></f:verbatim>
-    	    <h:outputText styleClass="draft" id="draft" value="DRAFT" rendered="#{forum.forum.draft == 'true'}"/>
+    	    	<f:verbatim><div class="forumsRow"><div class="forumsRowLeft"></f:verbatim>
+    	<h:outputText styleClass="draft" id="draft" value="DRAFT" rendered="#{forum.forum.draft == 'true'}"/>
     		<h:outputText id="draft_space" value="  " rendered="#{forum.forum.draft == 'true'}"/>
-    	
     		<h:graphicImage url="/images/lock.gif" alt="this forum is locked"  rendered="#{forum.locked == 'true'}"/>
 			<h:outputText id="emptyspace" value="  " rendered="#{forum.locked == 'true'}"/>
-								
+
 			<h:commandLink action="#{ForumTool.processActionDisplayForum}"  value="#{forum.forum.title}" >
 				<f:param value="#{forum.forum.id}" name="forumId"/>
 			</h:commandLink>
@@ -24,11 +23,12 @@
 				<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
 				<h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}" rendered="#{ForumTool.instructor}">
 					<f:param value="#{forum.forum.id}" name="forumId"/>
-				</h:commandLink>
-			<f:verbatim></div></f:verbatim>
-			<f:verbatim> </br></f:verbatim>
-			 <h:outputText id="forum_desc" value="#{forum.forum.shortDescription}" />
-			<f:verbatim></div></f:verbatim>
+				</h:commandLink><f:verbatim></div></f:verbatim>
+
+			<f:verbatim> <br/><div class="forumsRowLeft"></f:verbatim>
+			 <h:outputText id="forum_desc" style="text-align:left;" value="#{forum.forum.shortDescription}" />
+
+			<f:verbatim></div></div></f:verbatim>
 		 <h:dataTable id="topics" width="90%" value="#{forum.topics}" var="topic">
 		    <h:column>
 				<f:verbatim><div class="topicRows"></f:verbatim>
