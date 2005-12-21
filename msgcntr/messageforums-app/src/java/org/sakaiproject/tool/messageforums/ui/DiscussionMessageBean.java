@@ -16,6 +16,7 @@ public class DiscussionMessageBean
   private boolean selected;
   private Message message;
   private boolean read;
+  private int depth;
 
   public DiscussionMessageBean(Message msg)
   {
@@ -102,7 +103,16 @@ public class DiscussionMessageBean
   {
     this.read = read;
   }
-
+  
+  public void setDepth(int depth)
+  {
+  	this.depth = depth;
+  }
+  
+  public int getDepth()
+  {
+  	return depth;
+  }
  
 
   

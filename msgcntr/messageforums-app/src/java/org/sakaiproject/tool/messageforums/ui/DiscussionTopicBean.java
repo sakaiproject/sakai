@@ -143,6 +143,11 @@ public class DiscussionTopicBean
   {
     return messages;
   }
+  
+  public void setMessages(List messages)
+  {
+  	this.messages = messages;
+  }
 
   public void addMessage(DiscussionMessageBean decoMessage)
   {

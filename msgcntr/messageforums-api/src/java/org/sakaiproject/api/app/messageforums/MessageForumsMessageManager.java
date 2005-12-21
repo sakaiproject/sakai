@@ -71,5 +71,7 @@ public interface MessageForumsMessageManager {
     public void getChildMsgs(final Long messageId, List returnList);
     
     public void deleteMsgWithChild(final Long messageId);
+    
+    public List getFirstLevelChildMsgs(final Long messageId);
 
     }

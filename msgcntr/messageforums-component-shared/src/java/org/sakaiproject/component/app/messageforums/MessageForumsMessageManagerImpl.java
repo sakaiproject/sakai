@@ -416,6 +416,23 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   		deleteMessage(getMessageById(messageId));
     }
     
+    public List getFirstLevelChildMsgs(final Long messageId)
+    {
+      HibernateCallback hcb = new HibernateCallback() 
+			{
+        public Object doInHibernate(Session session) throws HibernateException, SQLException 
+				{
+          Query q = session.getNamedQuery(QUERY_CHILD_MESSAGES);
+          Query qOrdered= session.createQuery(q.getQueryString());
+                  
+          qOrdered.setParameter("messageId", messageId, Hibernate.LONG);
+          
+          return qOrdered.list();
+        }
+      };
+      
+      return (List)getHibernateTemplate().executeFind(hcb);
+    }
     
     // helpers
     
