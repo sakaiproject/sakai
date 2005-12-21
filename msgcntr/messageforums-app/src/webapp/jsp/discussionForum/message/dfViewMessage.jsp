@@ -12,7 +12,10 @@
 					<h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" >
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					</h:commandLink> /
-					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
+					<h:commandLink action="#{ForumTool.processActionDisplayTopic}" value="#{ForumTool.selectedTopic.topic.title}" >
+						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+					</h:commandLink>
 				</h3>
 				<sakai:instruction_message value="#{ForumTool.selectedTopic.topic.shortDescription}" />
  				<h:commandLink immediate="true" 
@@ -47,6 +50,14 @@
 				</h:commandLink>
 			</div>
 		</div>
+
+	<br/>
+    <sakai:group_box>
+    	<sakai:panel_edit>
+      	<sakai:doc_section>  
+        </sakai:doc_section>    
+      </sakai:panel_edit>
+    </sakai:group_box>
 		
     <sakai:group_box>
 		<table width="100%" align="left" style="background-color:#DDDFE4;">
