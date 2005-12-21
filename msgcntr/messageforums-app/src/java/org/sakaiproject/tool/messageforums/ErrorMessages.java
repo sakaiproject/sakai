@@ -27,7 +27,6 @@ package org.sakaiproject.tool.messageforums;
  * Generic Bean with Boolean object for whether or not to show 
  * an error on a jsp.
  */
-
 public class ErrorMessages {
 
     private boolean displayTitleErrorMessage;

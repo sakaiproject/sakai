@@ -41,10 +41,7 @@
 				</h:commandLink>
 			</div>
 		</div>
-		<%@include file="dfViewSearchBar.jsp"%>
-		<h:commandButton action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages" value="#{msgs.cdfm_container_title}">
-				</h:commandButton>
-		<h:messages styleClass="alertMsg" id="errorMessages" layout="table" />
+		<%@include file="dfViewSearchBar.jsp"%>		
       	<h:dataTable styleClass="listHier" id="messages" value="#{ForumTool.selectedTopic.messages}" var="message">
 			<h:column>
 				<f:facet name="header">
