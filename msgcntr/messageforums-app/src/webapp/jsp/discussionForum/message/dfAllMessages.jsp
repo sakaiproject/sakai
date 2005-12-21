@@ -15,8 +15,6 @@
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 				</h3>
 				 <sakai:instruction_message value="#{ForumTool.selectedTopic.topic.shortDescription}" />
-				 <br/>
-
 				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}"
 					id="topic_extended_show" value="#{msgs.cdfm_read_full_description}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
@@ -29,9 +27,6 @@
 					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 					<f:param value="processActionDisplayTopic" name="redirectToProcessAction"/>
 				</h:commandLink>
-
-				<h:commandButton action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages" value="#{msgs.cdfm_container_title}">
-				</h:commandButton>
 			</div>
 			<div class="right-header-section">
 				<h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
@@ -46,13 +41,17 @@
 				</h:commandLink>
 			</div>
 		</div>
-
+		<%@include file="dfViewSearchBar.jsp"%>
+		<h:commandButton action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages" value="#{msgs.cdfm_container_title}">
+				</h:commandButton>
+		<h:messages styleClass="alertMsg" id="errorMessages" layout="table" />
       	<h:dataTable styleClass="listHier" id="messages" value="#{ForumTool.selectedTopic.messages}" var="message">
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_checkall}" />
 				</f:facet>
-				<h:selectBooleanCheckbox value="#{message.selected}"/>
+				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
+				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{!message.read}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -65,7 +64,7 @@
 					<h:outputText value="#{msgs.cdfm_subject}" />
 				</f:facet>
 				<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true">
-    	        	<h:outputText value="#{message.message.title}" rendered="#{message.read}"/>
+				   	<h:outputText value="#{message.message.title}" rendered="#{message.read && !ForumTool.displayUnreadOnly}" />
     	        	<h:outputText style="font-weight:bold;" value="#{message.message.title}" rendered="#{!message.read}"/>
         	    	<f:param value="#{message.message.id}" name="messageId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
@@ -77,7 +76,7 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
 				</f:facet>
-				 	<h:outputText value="#{message.message.createdBy}" rendered="#{message.read}"/>
+				 	<h:outputText value="#{message.message.createdBy}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
     	        	<h:outputText style="font-weight:bold;" value="#{message.message.createdBy}" rendered="#{!message.read}"/>
 
 			</h:column>
@@ -86,7 +85,7 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_date}" />
 				</f:facet>
-				 	<h:outputText value="#{message.message.created}" rendered="#{message.read}"/>
+				 	<h:outputText value="#{message.message.created}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
     	        	<h:outputText style="font-weight:bold;" value="#{message.message.created}" rendered="#{!message.read}"/>
 
 			</h:column>
@@ -95,7 +94,7 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_label}" />
 				</f:facet>
-				<h:outputText value="#{message.message.label}" rendered="#{message.read}"/>
+				<h:outputText value="#{message.message.label}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
     	        <h:outputText style="font-weight:bold;" value="#{message.message.label}" rendered="#{!message.read}"/>
 
 			</h:column>  	--%>
