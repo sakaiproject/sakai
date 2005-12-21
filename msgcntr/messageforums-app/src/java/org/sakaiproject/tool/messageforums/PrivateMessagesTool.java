@@ -109,9 +109,7 @@ public class PrivateMessagesTool
   public static final String RECIPIANTS_ALL_INSTRUCTORS= "All Instructors";
   
   public static final String SET_AS_YES="yes";
-  public static final String SET_AS_NO="no";
-  
-  private boolean pvtAreaEnabled= false;
+  public static final String SET_AS_NO="no";    
   
   PrivateForumDecoratedBean decoratedForum;
   
@@ -130,7 +128,7 @@ public class PrivateMessagesTool
   
   //delete confirmation screen - single delete 
   private boolean deleteConfirm=false ; //used for displaying delete confirmation message in same jsp
-  private boolean validEmail=false ;
+  private boolean validEmail=true ;
   
   //Compose Screen
   private List selectedComposeToList;
@@ -148,8 +146,8 @@ public class PrivateMessagesTool
   private String replyToBody ;
   private String replyToSubject;
   //Setting Screen
-  private String activatePvtMsg=SET_AS_YES; //default set as yes
-  private String forwardPvtMsg=SET_AS_NO;   //default set as no
+  private String activatePvtMsg=SET_AS_NO; 
+  private String forwardPvtMsg=SET_AS_NO;
   private String forwardPvtMsgEmail;
   private boolean superUser; 
   
@@ -215,40 +213,51 @@ public class PrivateMessagesTool
     PrivateForum pf = prtMsgManager.initializePrivateMessageArea(varArea);        
     pvtTopics = pf.getTopics();
     forum=pf;           
-        
+    activatePvtMsg = (Boolean.TRUE.equals(varArea.getEnabled())) ? "yes" : "no";
+    forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? "yes" : "no";
+    forwardPvtMsgEmail = pf.getAutoForwardEmail();            
   }
   
   public boolean getPvtAreaEnabled()
-  {
-    return true ;
-    //TODO - as below
-    //return prtMsgManager.isPrivateAreaUnabled();
-  }
+  {    
+    return prtMsgManager.isPrivateAreaEnabled();
+  }    
+  
+//  public void setPvtAreaEnabled(boolean value){
+//    
+//    Area varArea = prtMsgManager.getPrivateMessageArea();
+//    varArea.setEnabled(Boolean.valueOf(value));
+//    prtMsgManager.savePrivateMessageArea(varArea);    
+//    
+//  }
   
   //Return decorated Forum
   public PrivateForumDecoratedBean getDecoratedForum()
   {      
       PrivateForumDecoratedBean decoratedForum = new PrivateForumDecoratedBean(getForum()) ;
-      for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
-      {
-        Topic topic = (Topic) iterator.next();
-        if (topic != null)
+      
+      /** only load topics/counts if area is enabled */
+      if (getPvtAreaEnabled()){        
+        for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
         {
-          PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
-          //decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
-          //decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic)) ;
+          Topic topic = (Topic) iterator.next();
+          if (topic != null)
+          {
+            PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
+            //decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
+            //decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic)) ;
           
-          String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());          
+            String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());          
           
-          decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(topic.getId(),
+            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(topic.getId(),
               typeUuid));
-          decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(topic.getId(),
+            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(topic.getId(),
               typeUuid));
           
-          decoratedForum.addTopic(decoTopic);
-        }          
-      }
-
+            decoratedForum.addTopic(decoTopic);
+          }          
+        }
+      }   
     return decoratedForum ;
   }
 
@@ -1283,32 +1292,69 @@ public class PrivateMessagesTool
     return null ;
     //return "pvtMsgStatistics";
   }
-
+  
   public String processPvtMsgSettings()
   {
-    LOG.debug("processPvtMsgSettings()");
-    validEmail= false;
+    LOG.debug("processPvtMsgSettings()");    
     return "pvtMsgSettings";
   }
-  public String processPvtMsgSettingsR(ValueChangeEvent vce)
-  {
-    LOG.debug("processPvtMsgSettingsR()");
     
-    return processPvtMsgSettings();
+  public void processPvtMsgSettingsRevise(ValueChangeEvent event)
+  {
+    LOG.debug("processPvtMsgSettingsRevise()");
+    
+    /** block executes when changing value to "no" */
+    if ("yes".equals(forwardPvtMsg)){
+      setForwardPvtMsgEmail(null);
+      return;
+    }
+    
+//    String email= getForwardPvtMsgEmail();
+//    String act=getActivatePvtMsg() ;
+//    String frd=getForwardPvtMsg() ;
+//    if (email != null && !(email.trim().indexOf("@") > -1)){
+//      setValidEmail(true);      
+//    }
+//    else
+//    {
+//      setValidEmail(false);      
+//    }
+    
   }
-  public String processPvtMsgSettingRevise() {
-    LOG.debug("processPvtMsgSettingRevise()");
+  
+  public String processPvtMsgSettingsSave()
+  {
+    LOG.debug("processPvtMsgSettingsSave()");
     
     String email= getForwardPvtMsgEmail();
-    String act=getActivatePvtMsg() ;
-    String frd=getForwardPvtMsg() ;
-    if (email != null && !(email.trim().indexOf("@") > -1)){
-      setValidEmail(true);
-      return null;
-    } else
+    String activate=getActivatePvtMsg() ;
+    String forward=getForwardPvtMsg() ;
+    if (email != null && !"no".equals(forward) && !(email.trim().indexOf("@") > -1)){
+      setValidEmail(false);
+      setActivatePvtMsg("yes");
+      return "pvtMsgSettings";
+    }
+    else
     {
-//    prtMsgManager.saveAreaSetting();
-      return "main" ;
+      Area area = prtMsgManager.getPrivateMessageArea();
+      
+      //Boolean storedAreaEnabledValue = area.getEnabled();      
+      //Boolean formAreaEnabledValue = ("yes".equals(activate)) ? Boolean.TRUE : Boolean.FALSE;                        
+                  
+      //if (!storedAreaEnabledValue.equals(formAreaEnabledValue)){
+      //area.setEnabled(formAreaEnabledValue);
+      //  prtMsgManager.savePrivateMessageArea(area);        
+      //}
+      
+      Boolean formAreaEnabledValue = ("yes".equals(activate)) ? Boolean.TRUE : Boolean.FALSE;
+      area.setEnabled(formAreaEnabledValue);
+      
+      Boolean formAutoForward = ("yes".equals(forward)) ? Boolean.TRUE : Boolean.FALSE;
+      forum.setAutoForward(formAutoForward);
+      forum.setAutoForwardEmail(email);      
+      //prtMsgManager.saveForumSettings(forum);
+      prtMsgManager.saveAreaAndFormSettings(area, forum);
+      return "main";
     }
     
   }

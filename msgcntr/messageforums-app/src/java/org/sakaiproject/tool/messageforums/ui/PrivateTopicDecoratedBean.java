@@ -4,12 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.context.FacesContext;
-import javax.faces.el.ValueBinding;
-
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.tool.messageforums.PrivateMessagesTool;
 
 public class PrivateTopicDecoratedBean
 {

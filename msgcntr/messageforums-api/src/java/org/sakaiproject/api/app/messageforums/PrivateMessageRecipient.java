@@ -32,6 +32,10 @@ public interface PrivateMessageRecipient
   public String getUserId();
 
   public void setUserId(String userId);
+  
+  public String getContextId();
+  
+  public void setContextId(String contextId);
 
   public Boolean getRead();
 

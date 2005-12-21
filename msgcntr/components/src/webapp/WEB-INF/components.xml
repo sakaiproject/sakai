@@ -206,9 +206,6 @@
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
-                <property name="helper">
-                    <ref bean="org.sakaiproject.api.app.messageforums.DummyDataHelperApi"/>
-                </property>
                 <property name="areaManager">
                     <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
                 </property>

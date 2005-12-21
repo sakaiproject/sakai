@@ -74,9 +74,9 @@
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.contextId = :contextId and area.typeUuid = :typeId]]>
   </query>    
   
-  <query name="findAreaByContextAndTypeForUser">
+  <query name="findAreaByType">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area 
-             where area.contextId = :contextId and area.typeUuid = :typeId and area.createdBy = :userId]]>
+             where area.typeUuid = :typeId]]>
   </query>    
   
   

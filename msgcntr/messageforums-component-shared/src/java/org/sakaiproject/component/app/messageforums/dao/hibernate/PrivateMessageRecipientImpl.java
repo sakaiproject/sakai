@@ -30,6 +30,7 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
         
   private String userId;
   private String typeUuid;
+  private String contextId;
   private Boolean read;
   
   /**
@@ -41,11 +42,13 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
    * constructor
    * @param userId
    * @param typeUuid
+   * @param contextId
    * @param read
    */
-  public PrivateMessageRecipientImpl(String userId, String typeUuid, Boolean read){
+  public PrivateMessageRecipientImpl(String userId, String typeUuid, String contextId, Boolean read){
     this.userId = userId;
     this.typeUuid = typeUuid;
+    this.contextId = contextId;
     this.read = read;
   }
   
@@ -63,6 +66,20 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
   {
     this.typeUuid = typeUuid;
   }
+  /**
+   * @see org.sakaiproject.api.app.messageforums.PrivateMessageRecipient#getContextId()
+   */
+  public String getContextId()
+  {
+    return contextId;
+  }
+  /**
+   * @see org.sakaiproject.api.app.messageforums.PrivateMessageRecipient#setContextId(java.lang.String)
+   */
+  public void setContextId(String contextId)
+  {
+    this.contextId = contextId;
+  }      
   /**
    * @see org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipients#getUserId()
    */
@@ -108,6 +125,7 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
     
     return (objCast.userId != null && objCast.userId.equals(this.userId)) &&
            (objCast.typeUuid != null && objCast.typeUuid.equals(this.typeUuid)) &&
+           (objCast.contextId != null && objCast.contextId.equals(this.contextId)) &&
            (objCast.read != null && objCast.read.equals(this.read));
   }
   
@@ -119,8 +137,9 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
     int result = 17;
     result = 41 * result + ((userId == null) ? 0 : userId.hashCode());
     result = 41 * result + ((typeUuid == null) ? 0 : typeUuid.hashCode());
+    result = 41 * result + ((contextId == null) ? 0 : contextId.hashCode());
     result = 41 * result + ((read == null) ? 0 : read.hashCode());
     return result;    
   }
-      
+
 }

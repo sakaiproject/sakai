@@ -29,9 +29,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private static final Log LOG = LogFactory.getLog(AreaManagerImpl.class);
 
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_ID = "findAreaByContextIdAndTypeId";
-
+    private static final String QUERY_AREA_BY_TYPE = "findAreaByType";            
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER = "findAreaByContextAndTypeForUser";
-
     private IdManager idManager;
 
     private MessageForumsForumManager forumManager;
@@ -100,11 +99,11 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public Area getPrivateArea() {
-        Area area = getAreaByContextAndTypeForUser(typeManager.getPrivateMessageAreaType());
+        Area area = getAreaByType(typeManager.getPrivateMessageAreaType());
         if (area == null) {
             area = createArea(typeManager.getPrivateMessageAreaType());
-            area.setName("Private Area");
-            area.setEnabled(Boolean.TRUE);
+            area.setName("Private Messages");
+            area.setEnabled(Boolean.FALSE);
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
             saveArea(area);
@@ -189,20 +188,17 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return (Area) getHibernateTemplate().execute(hcb);
     }
 
-    public Area getAreaByContextAndTypeForUser(final String typeId) {
-        final String currentUser = getCurrentUser();
-        LOG.debug("getAreaByContextAndTypeForUser executing for current user: " + currentUser);
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER);
-                q.setParameter("contextId", getContextId(), Hibernate.STRING);
-                q.setParameter("typeId", typeId, Hibernate.STRING);
-                q.setParameter("userId", currentUser, Hibernate.STRING);
-                return q.uniqueResult();
-            }
-        };
-
-        return (Area) getHibernateTemplate().execute(hcb);
+    public Area getAreaByType(final String typeId) {
+      final String currentUser = getCurrentUser();
+      LOG.debug("getAreaByContextAndTypeForUser executing for current user: " + currentUser);
+      HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+              Query q = session.getNamedQuery(QUERY_AREA_BY_TYPE);              
+              q.setParameter("typeId", typeId, Hibernate.STRING);              
+              return q.uniqueResult();
+          }
+      };        
+      return (Area) getHibernateTemplate().execute(hcb);
     }
 
     // helpers

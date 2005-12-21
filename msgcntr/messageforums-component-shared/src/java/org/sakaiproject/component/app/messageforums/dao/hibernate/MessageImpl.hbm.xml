@@ -95,6 +95,9 @@
           <property name="typeUuid">
             <column name="TYPE_UUID" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
           </property>
+          <property name="contextId">
+            <column name="CONTEXT_ID" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
+          </property>
           <property name="read">
             <column name="READ_STATUS" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
           </property>
@@ -137,27 +140,29 @@
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId]]>
   </query>
   
-  <query name="findPvtMsgCntByTopicIdAndTypeUuid">
+  <query name="findPvtMsgCntByTopicTypeUser">
     <![CDATA[select count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message             
              left join message.recipients recipient
              where recipient.userId = :userId and
-                   recipient.typeUuid = :typeUuid
+                   recipient.typeUuid = :typeUuid and
+                   recipient.contextId = :contextId
 
     ]]>
   </query>
   
-  <query name="findUnreadPvtMsgCntByTopicIdAndTypeUuid">
+  <query name="findUnreadPvtMsgCntByTopicTypeUser">
     <![CDATA[select count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join message.recipients recipient
              where recipient.userId = :userId and
                    recipient.typeUuid = :typeUuid and
+                   recipient.contextId = :contextId and
                    recipient.read = false               
     ]]>
   </query>
   
-  <query name="findPrivateMessagesByTypeUuid">
+  <query name="findPrivateMessagesUserAndType">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join fetch message.recipients recipient
              where recipient.userId = :userId and

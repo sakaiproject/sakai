@@ -20,6 +20,12 @@ public interface PrivateMessageManager {
     public static String SORT_DESC = "desc";
           
     
+    public void saveAreaAndFormSettings(Area area, PrivateForum forum);
+    
+    public void savePrivateMessageArea(Area area);
+    
+    public void saveForumSettings(PrivateForum forum);
+    
     public void markMessageAsReadForUser(final PrivateMessage message);
     
     public List getMessagesByType(final String typeUuid, final String orderField,
@@ -29,7 +35,7 @@ public interface PrivateMessageManager {
      * check if private message area is enabled for the current user
      * @return boolean
      */
-    boolean isPrivateAreaUnabled();
+    boolean isPrivateAreaEnabled();
 
     /**
      * retrieve private message area if it is enabled for the current user
@@ -99,8 +105,7 @@ public interface PrivateMessageManager {
     int getTotalNoMessages(Topic topic);
     int getUnreadNoMessages(Topic topic);    
     
-    //Topic Setting
-    public void saveAreaSetting() ;
+    
     
     //Topic Folder Setting
     public boolean isMutableTopicFolder(String parentTopicId);

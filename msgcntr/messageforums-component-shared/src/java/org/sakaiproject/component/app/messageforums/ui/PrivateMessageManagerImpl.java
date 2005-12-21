@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -49,9 +48,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   
   private static final Log LOG = LogFactory.getLog(PrivateMessageManagerImpl.class);
   
-  private static final String QUERY_COUNT = "findPvtMsgCntByTopicIdAndTypeUuid";
-  private static final String QUERY_COUNT_BY_UNREAD = "findUnreadPvtMsgCntByTopicIdAndTypeUuid";
-  private static final String QUERY_MESSAGES_BY_TYPE = "findPrivateMessagesByTypeUuid";
+  private static final String QUERY_COUNT = "findPvtMsgCntByTopicTypeUser";
+  private static final String QUERY_COUNT_BY_UNREAD = "findUnreadPvtMsgCntByTopicTypeUser";
+  private static final String QUERY_MESSAGES_BY_USER_AND_TYPE = "findPrivateMessagesUserAndType";
   private static final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
   
   
@@ -60,36 +59,57 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private MessageForumsForumManager forumManager;
   private MessageForumsTypeManager typeManager;
   private IdManager idManager;
-  private SessionManager sessionManager;
-  private DummyDataHelperApi helper;
-  private boolean usingHelper = false; // just a flag until moved to database from helper
+  private SessionManager sessionManager;    
   private Area privateArea =null;
+  
   public void init()
   {
     ;
   }
-
-  public boolean isPrivateAreaUnabled()
-  {
-    if (usingHelper)
-    {
-      return helper.isPrivateAreaUnabled();
+  
+  public boolean getPrivateAreaEnabled(){
+    
+    if (LOG.isDebugEnabled()){
+      LOG.debug("getPrivateAreaEnabled()");
     }
+    
+    return areaManager.isPrivateAreaEnabled();
+    
+  }
+  
+  public void setPrivateAreaEnabled(boolean value){
+    
+    if (LOG.isDebugEnabled()){
+      LOG.debug("setPrivateAreaEnabled(value: " + value + ")");
+    }        
+    
+    
+  }
+  
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#isPrivateAreaEnabled()
+   */
+  public boolean isPrivateAreaEnabled()
+  {    
     return areaManager.isPrivateAreaEnabled();
   }
 
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#getPrivateMessageArea()
+   */
   public Area getPrivateMessageArea()
-  {
-    if (usingHelper)
-    {
-      return helper.getPrivateArea();
-    }
-
-      privateArea = areaManager.getPrivateArea();   
-    return privateArea;
-    //return areaManager.getPrivateArea();
+  {    
+    privateArea = areaManager.getPrivateArea();   
+    return privateArea;    
   }
   
+  public void savePrivateMessageArea(Area area){
+    areaManager.saveArea(area);
+  }
+  
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#initializePrivateMessageArea(org.sakaiproject.api.app.messageforums.Area)
+   */
   public PrivateForum initializePrivateMessageArea(Area area){
         
     String userId = getCurrentUser();
@@ -226,14 +246,33 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     return messageManager.findUnreadMessageCountByTopicId(topic.getId());
   }
-
+  
   /**
-   * Area Setting
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#saveAreaAndFormSettings(org.sakaiproject.api.app.messageforums.Area, org.sakaiproject.api.app.messageforums.PrivateForum)
    */
-  public void saveAreaSetting()
-  {
-    // TODO Sace settings like activate /forwarding email
+  public void saveAreaAndFormSettings(Area area, PrivateForum forum){
     
+    /** method calls placed in this function to participate in same transaction */        
+    
+    saveForumSettings(forum);
+    
+    /** need to evict forum b/c area saves fk on forum (which places two objects w/same id in session */
+    getHibernateTemplate().evict(forum);
+    savePrivateMessageArea(area);                
+  }
+
+
+  public void saveForumSettings(PrivateForum forum)
+  {
+    if (LOG.isDebugEnabled()){
+      LOG.debug("saveForumSettings(forum: " + forum + ")");
+    }        
+    
+    if (forum == null){
+      throw new IllegalArgumentException("Null Argument");
+    }            
+    
+    forumManager.savePrivateForum(forum);    
   }
   
   /**
@@ -267,8 +306,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
    */
   public PrivateMessage createPrivateMessage(String typeUuid) {
     PrivateMessage message = new PrivateMessageImpl();
-    message.setUuid(idManager.createUuid());
-    message.setTypeUuid(typeUuid);
+    message.setUuid(idManager.createUuid());    
+    message.setTypeUuid(typeUuid);   
     message.setCreated(new Date());
     message.setCreatedBy(getCurrentUser());
 
@@ -434,12 +473,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     
     HibernateCallback hcb = new HibernateCallback() {
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
-        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_TYPE);
+        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_AND_TYPE);
         Query qOrdered= session.createQuery(
           q.getQueryString() + " order by " + orderField + " " + order);
                 
         qOrdered.setParameter("userId", getCurrentUser(), Hibernate.STRING);
-        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);                
+        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);      
+        qOrdered.setParameter("contextId", getContextId(), Hibernate.STRING);
         return qOrdered.list();
       }
     };
@@ -470,7 +510,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         public Object doInHibernate(Session session) throws HibernateException, SQLException {
             Query q = session.getNamedQuery(QUERY_COUNT);
             q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-            //q.setParameter("topicId", topicId, Hibernate.LONG);
+            q.setParameter("contextId", getContextId(), Hibernate.STRING);
             q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
             return q.uniqueResult();
         }
@@ -500,8 +540,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         public Object doInHibernate(Session session) throws HibernateException, SQLException {
             Query q = session.getNamedQuery(QUERY_COUNT_BY_UNREAD);
             q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-            //q.setParameter("topicId", topicId, Hibernate.LONG);
-            q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+            q.setParameter("contextId", getContextId(), Hibernate.STRING);
+            q.setParameter("userId", getCurrentUser(), Hibernate.STRING);            
             return q.uniqueResult();
         }
     };
@@ -530,12 +570,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageRecipient pmrReadSearch = new PrivateMessageRecipientImpl(
         userId,
       typeUuid,
+      getContextId(),
       Boolean.TRUE
     );
     
     PrivateMessageRecipient pmrNonReadSearch = new PrivateMessageRecipientImpl(
       userId,
       typeUuid,
+      getContextId(),
       Boolean.FALSE
     );
     
@@ -565,6 +607,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         PrivateMessageRecipient pmrDeletedSearch = new PrivateMessageRecipientImpl(
           userId,
           typeManager.getDeletedPrivateMessageType(),
+          getContextId(),
           Boolean.TRUE
         );                
         
@@ -606,6 +649,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
           getCurrentUser(),
           typeManager.getDraftPrivateMessageType(),
+          getContextId(),
           Boolean.TRUE
       );
       
@@ -623,6 +667,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
           userId,
           typeManager.getReceivedPrivateMessageType(),
+          getContextId(),
           Boolean.FALSE
       );
       recipientList.add(receiver);      
@@ -632,6 +677,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
         getCurrentUser(),
         typeManager.getSentPrivateMessageType(),
+        getContextId(),
         Boolean.TRUE
     );
     
@@ -675,6 +721,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageRecipientImpl searchRecipient = new PrivateMessageRecipientImpl(
         userId,
         typeManager.getReceivedPrivateMessageType(),
+        getContextId(),
         Boolean.FALSE
     );
     
@@ -727,12 +774,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return sessionManager.getCurrentSessionUserId();
   }
   
-  // start injection
-  public void setHelper(DummyDataHelperApi helper)
-  {
-    this.helper = helper;
-  }
-
   public AreaManager getAreaManager()
   {
     return areaManager;
@@ -790,13 +831,28 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     else
       return false;
   }
+  
   /**
    * @return siteId
    */
   private String getContextSiteId()
   {
     LOG.debug("getContextSiteId()");
+       
     return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+  }
+  
+  
+  private String getContextId(){
+    
+    LOG.debug("getContextId()");
+    
+    if (TestUtil.isRunningTests()) {
+      return "01001010";
+    }
+    else{
+      return ToolManager.getCurrentPlacement().getContext();  
+    }                
   }
   
   public void setForumManager(MessageForumsForumManager forumManager)

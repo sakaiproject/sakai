@@ -18,7 +18,7 @@
 		
 
 <h2>Private message- Settings</h2>
-	<h:panelGroup rendered="#{PrivateMessagesTool.validEmail}">
+	<h:panelGroup rendered="#{PrivateMessagesTool.forwardPvtMsg == 'yes' && not PrivateMessagesTool.validEmail}">
 					<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
 					 value="! Please provide a valid email address" />
 	</h:panelGroup>     
@@ -51,17 +51,16 @@
           			<h:outputText value="Auto Forward Private Messages:"/>		
               </td>
               <td>
-              <%--
-                <h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}" onchange="this.form.submit();" valueChangeListener="#{PrivateMessageTool.processPvtMsgSettingsR}" layout="pageDirection">
+                <h:selectOneRadio immediate="true" value="#{PrivateMessagesTool.forwardPvtMsg}" onchange="this.form.submit();" valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}" layout="pageDirection">
     							<f:selectItem itemValue="yes" itemLabel="Yes"/>
     							<f:selectItem itemValue="no" itemLabel="No"/>
-  							</h:selectOneRadio>
-  										--%>
+  							</h:selectOneRadio>  								
+  							<%--
   							<h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}" layout="pageDirection" >
     							<f:selectItem itemValue="yes" itemLabel="Yes"/>
     							<f:selectItem itemValue="no" itemLabel="No"/>
   							</h:selectOneRadio>
-  				
+  				      --%>
               </td>
             </tr>
             <tr>
@@ -69,11 +68,11 @@
           			<h:outputText value="Email address for forwarding:"/>		
               </td>
               <td>
-              <%--
+              
                <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" rendered="#{PrivateMessagesTool.forwardPvtMsg == 'yes'}"/>
                <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" disabled ="true" rendered="#{PrivateMessagesTool.forwardPvtMsg == 'no'}"/>
-                --%>
-               <h:inputText id="email" value="#{PrivateMessagesTool.forwardPvtMsgEmail}" />
+              
+               
              		
               </td>
             </tr>            
@@ -83,7 +82,7 @@
  <br>
  
         <sakai:button_bar>
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSettingRevise}" value="Save Settings" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSettingsSave}" value="Save Settings" />
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="Cancel" />
         </sakai:button_bar>   
            
