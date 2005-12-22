@@ -1022,6 +1022,7 @@ public class DiscussionForumTool
       LOG.debug("processActionDisplayTopicById(String" + externalTopicId + ")");
     }
     String topicId = null;
+    selectedTopic=null;
     try
     {
       topicId = getExternalParameterByKey(externalTopicId);
@@ -1995,6 +1996,46 @@ public class DiscussionForumTool
     return ALL_MESSAGES;
   }
 
+  /**
+   * @return
+   */
+  public String processActionMarkCheckedAsRead()
+  {
+    return markCheckedMessages(true);
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionMarkCheckedAsUnread()
+  {
+    return markCheckedMessages(false);
+  }
+  
+  private String markCheckedMessages(boolean readStatus)
+  {
+    if(selectedTopic==null)
+    {
+      setErrorMessage("Lost association with current topic");
+      return ALL_MESSAGES;
+    }
+    List messages= selectedTopic.getMessages();
+    if(messages==null || messages.size()<1)
+    {
+      setErrorMessage("No message selected to mark as read. Please select a message");
+      return ALL_MESSAGES;
+    }
+    Iterator iter = messages.iterator();
+    while(iter.hasNext())
+    {
+      DiscussionMessageBean decoMessage= (DiscussionMessageBean)iter.next();
+      if(decoMessage.isSelected())
+      {
+        forumManager.markMessageAs(decoMessage.getMessage(), readStatus);        
+      }
+    }
+    return displayTopicById(TOPIC_ID); //reconstruct topic again;    
+  }
   /**
    * @return Returns the searchText.
    */

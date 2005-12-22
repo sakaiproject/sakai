@@ -224,4 +224,10 @@ public interface DiscussionForumManager
    */
   public void saveTopicAsDraft(DiscussionTopic topic);
 
+  /**
+   * @param message
+   * @param readStatus TODO
+   */
+  public void markMessageAs(Message message, boolean readStatus);
+
 }

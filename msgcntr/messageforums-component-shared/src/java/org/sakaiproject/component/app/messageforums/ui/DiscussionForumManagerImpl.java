@@ -849,4 +849,18 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return roleList.iterator();
   }
 
+  public void markMessageAs(Message message, boolean readStatus)
+  {
+    LOG.debug("markMessageAsRead(Message" + message+")");
+    try
+    {
+      messageManager.markMessageReadForUser(message.getTopic().getId(), message.getId(), readStatus);
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+    }
+  
+  }
+
 }
