@@ -409,8 +409,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
     	for(int i=0; i<thisList.size(); i++)
     	{
-    		Message delMessage = getMessageByIdWithAttachments(((Message)thisList.get(i)).getId());
-    		deleteMessage(getMessageById(((Message)thisList.get(i)).getId()));
+    		//Message delMessage = getMessageByIdWithAttachments(((Message)thisList.get(i)).getId());
+    		//deleteMessage(getMessageById(((Message)thisList.get(i)).getId()));
+    		Message delMessage = getMessageById(((Message)thisList.get(i)).getId());
+    		deleteMessage(delMessage);
     	}
 
   		deleteMessage(getMessageById(messageId));
