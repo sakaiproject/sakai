@@ -227,20 +227,33 @@ public class HierDataTableRender extends HtmlBasicRenderer
 		
 		writer.startElement("tbody", component);
 		writer.writeText("\n", null);
+		int hideDivNo = 0;
 		while (true) {
 			DiscussionMessageBean dmb = null;
 			if(msgBeanList !=null && msgBeanList.size()>(rowIndex+1) && rowIndex>-2)
 			{
 				dmb = (DiscussionMessageBean)msgBeanList.get(rowIndex+1);
 			}
-			List hasChild = null;
-			if(dmb != null)
-				hasChild = messageManager.getFirstLevelChildMsgs(dmb.getMessage().getId());
+			//remove from manager, get hasChild from msgBeanList List hasChild = null;
 			boolean hasChildBoolean = false;
-			if(hasChild!=null && hasChild.size()>0)
+			if(dmb != null)
+			{
+				//hasChild = messageManager.getFirstLevelChildMsgs(dmb.getMessage().getId());
+				for(int i=0; i<msgBeanList.size(); i++)
+				{
+					DiscussionMessageBean tempDmb = (DiscussionMessageBean)msgBeanList.get(i);
+					if(tempDmb.getMessage().getInReplyTo() != null && tempDmb.getMessage().getInReplyTo().getId().equals(dmb.getMessage().getId()))
+					{
+						hasChildBoolean = true;
+						break;
+					}
+				}
+			}
+/*			if(hasChild!=null && hasChild.size()>0)
 			{
 				hasChildBoolean = true;
 			}
+*/
 			// Have we displayed the requested number of rows?
 			if ((rows > 0) && (++processed > rows)) {
 				break;
@@ -252,7 +265,18 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			}
 			
 			// Render the beginning of this row
-			writer.startElement("tr", data);
+			////writer.startElement("tr", data);
+			//////
+			if(dmb.getDepth() > 0)
+			{
+				//////writer.write("<div style=\"display:none\"  id=\"_id_" + new Integer(hideDivNo).toString() + "__hide_division_" + "\">");
+				writer.write("<tr style=\"display:none\" id=\"_id_" + new Integer(hideDivNo).toString() + "__hide_division_" + "\">");
+			}
+			else
+			{
+				writer.write("<tr>");
+			}
+			
 			if (rowStyles > 0) {
 				writer.writeAttribute("class", rowClasses[rowStyle++],
 				"rowClasses");
@@ -297,9 +321,21 @@ public class HierDataTableRender extends HtmlBasicRenderer
 				{
 					if(column.getId().endsWith("_msg_subject"))
 					{
-						if(hasChildBoolean)
+						//if(hasChildBoolean)
+						if(hasChildBoolean && dmb.getDepth()==0)
 						{
-							writer.write("  <img src=\""   + BARIMG + "\" style=\"" + CURSOR + "\" />");
+/*							writer.write("  <img src=\""   + BARIMG + "\" style=\"" + CURSOR + "\" id=\"_id_" + new Integer(hideDivNo).toString() + "__img_hide_division_\"" +
+									" onclick=\"javascript:showHideDiv('_id_" + new Integer(hideDivNo).toString() + "', '" +  RESOURCE_PATH + "');\" />");*/
+							writer.write("  <img src=\""   + BARIMG + "\" style=\"" + CURSOR + "\" id=\"_id_" + new Integer(hideDivNo).toString() + "__img_hide_division_\"" +
+									" onclick=\"");
+							int childNo = getTotalChildNo(dmb, msgBeanList);
+							String hideTr = "";
+							for(int i=0; i<childNo; i++)
+							{
+								hideTr += "javascript:showHideDiv('_id_" + new Integer(hideDivNo+i).toString() + "', '" +  RESOURCE_PATH + "');";
+							}
+							writer.write(hideTr);
+							writer.write("\" />");
 						}
 					}
 				}
@@ -321,10 +357,16 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			writer.writeText("\n", null);
 			if(dmb.getDepth() == 0 && hasChildBoolean)
 			{
-				writer.write("<div>");
+				//////writer.write("<div style=\"display:none\"  id=\"_id_" + new Integer(hideDivNo).toString() + "__hide_division_" + "\">");
 			}
 			if(dmb !=null && dmb.getDepth()>0)
 			{
+		    writer.write("<script type=\"text/javascript\">");
+		    writer.write("  showHideDiv('_id_" + new Integer(hideDivNo).toString() +
+		        "', '" +  RESOURCE_PATH + "');");
+		    hideDivNo++;
+		    writer.write("</script>");
+				/* get rid of div, tr - set display for every row of child msgs
 				DiscussionMessageBean nextBean = null;
 				if(msgBeanList !=null && msgBeanList.size()>(rowIndex+1))
 				{
@@ -334,13 +376,23 @@ public class HierDataTableRender extends HtmlBasicRenderer
 				{
 					if(nextBean.getDepth() == 0)
 					{
-						writer.write("</div>");						
+						//////writer.write("</div>");
+				    writer.write("<script type=\"text/javascript\">");
+				    writer.write("  showHideDiv('_id_" + new Integer(hideDivNo).toString() +
+				        "', '" +  RESOURCE_PATH + "');");
+				    hideDivNo++;
+				    writer.write("</script>");
 					}
 				}
 				else
 				{
-					writer.write("</div>");					
-				}
+					//////writer.write("</div>");					
+			    writer.write("<script type=\"text/javascript\">");
+			    writer.write("  showHideDiv('_id_" + new Integer(hideDivNo).toString() +
+			        "', '" +  RESOURCE_PATH + "');");
+			    hideDivNo++;
+			    writer.write("</script>");
+				}*/
 			}
 		}
 		writer.endElement("tbody");
@@ -383,6 +435,32 @@ public class HierDataTableRender extends HtmlBasicRenderer
 		
 	}
 	
+	
+	private int getTotalChildNo(DiscussionMessageBean dmb, List beanList)
+	{
+		int no = 0;
+		MessageForumsMessageManager messageManager = (MessageForumsMessageManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager");
+		List allChild = new ArrayList();
+		messageManager.getChildMsgs(dmb.getMessage().getId(), allChild); 
+		
+		//cwen: if every child is set to under some topic, no need to compare here.  
+		// -- no such case: replyTo child is moved to another topic but still has the inReplyTo set to point to the old msg. 
+		for(int i=0; i<beanList.size(); i++)
+		{
+			DiscussionMessageBean thisBean = (DiscussionMessageBean)beanList.get(i);
+			for(int j=0; j<allChild.size(); j++)
+			{
+				Message child = (Message)allChild.get(j);
+				if(thisBean.getMessage().getId().equals(child.getId()))
+				{
+					no++;
+					break;
+				}
+			}
+		}
+		
+		return no;
+	}
 	
 	// --------------------------------------------------------- Private Methods
 	
