@@ -35,7 +35,7 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
     private Boolean locked;
     
     // indecies for hibernate
-    protected int areaindex;
+    //protected int areaindex;
 
     public Boolean getLocked() {
         return locked;
@@ -45,17 +45,17 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
         this.locked = locked;
     }
 
-    public int getAreaindex() {
-        try {
-            return getArea().getDiscussionForums().indexOf(this);
-        } catch (Exception e) {
-            return areaindex;
-        }
-    }
-
-    public void setAreaindex(int areaindex) {
-        this.areaindex = areaindex;
-    }
+//    public int getAreaindex() {
+//        try {
+//            return getArea().getDiscussionForums().indexOf(this);
+//        } catch (Exception e) {
+//            return areaindex;
+//        }
+//    }
+//
+//    public void setAreaindex(int areaindex) {
+//        this.areaindex = areaindex;
+//    }
 
     public Boolean getDraft() {
         return draft;

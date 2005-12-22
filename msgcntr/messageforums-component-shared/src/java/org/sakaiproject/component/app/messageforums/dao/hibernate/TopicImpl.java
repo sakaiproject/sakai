@@ -23,7 +23,9 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +35,6 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 
@@ -42,35 +43,53 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     private String title;
     private String shortDescription;
     private String extendedDescription;
-    private List attachments = new UniqueArrayList();
+    private Set attachmentsSet;// = new HashSet();
     private Boolean mutable;
     private Integer sortIndex;
     private String typeUuid;
     private BaseForum baseForum;
-    private List messages = new UniqueArrayList();
+    private Set messagesSet;// = new HashSet();
     
     // foreign keys for hibernate
     private PrivateForum privateForum;
     private OpenForum openForum;    
     
     // indecies for hibernate
-    private int ofindex;
-    private int pfindex;
-    
+    //private int ofindex;
+    //private int pfindex;   
+
     public List getMessages() {
-        return messages;
+        return Util.setToList(attachmentsSet);
     }
 
     public void setMessages(List messages) {
-        this.messages = messages;
+        this.messagesSet = Util.listToSet(messages);
     }
 
-    public List getAttachments() {
-        return attachments;
+    public Set getMessagesSet() {
+        return messagesSet;
     }
 
-    public void setAttachments(List attachments) {
-        this.attachments = attachments;
+    public void setMessagesSet(Set messagesSet) {
+        this.messagesSet = messagesSet;
+    }
+
+    public Set getAttachmentsSet() {
+        return attachmentsSet;
+    }
+  
+    public void setAttachmentsSet(Set attachmentsSet) {
+        this.attachmentsSet = attachmentsSet;
+    }
+    
+    public List getAttachments()
+    {
+      return Util.setToList(attachmentsSet);
+    }
+  
+    public void setAttachments(List attachments)
+    {
+      this.attachmentsSet = Util.listToSet(attachments);
     }
 
     public String getExtendedDescription() {
@@ -145,36 +164,34 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
         this.privateForum = privateForum;
     }
 
-    public int getOfindex() {
-        try {
-            return getOpenForum().getTopics().indexOf(this);
-        } catch (Exception e) {
-            return ofindex;
-        }
-    }
-
-    public void setOfindex(int ofindex) {
-        this.ofindex = ofindex;
-    }
-
-    public int getPfindex() {
-        try {
-            return getPrivateForum().getTopics().indexOf(this);
-        } catch (Exception e) {
-            return pfindex;
-        }
-    }
-
-    public void setPfindex(int pfindex) {
-        this.pfindex = pfindex;
-    }
+//    public int getOfindex() {
+//        try {
+//            return getOpenForum().getTopics().indexOf(this);
+//        } catch (Exception e) {
+//            return ofindex;
+//        }
+//    }
+//
+//    public void setOfindex(int ofindex) {
+//        this.ofindex = ofindex;
+//    }
+//
+//    public int getPfindex() {
+//        try {
+//            return getPrivateForum().getTopics().indexOf(this);
+//        } catch (Exception e) {
+//            return pfindex;
+//        }
+//    }
+//
+//    public void setPfindex(int pfindex) {
+//        this.pfindex = pfindex;
+//    }
     
     public String toString() {
         return "Topic.id:" + id;
     }
-    
-    public abstract Long getForumId();
-    
+
     public boolean equals(Object obj) {
         if (obj != null && obj instanceof Topic) {
             return getId().equals(((Topic)obj).getId());
@@ -184,7 +201,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 
     // needs a better impl
     public int hashCode() {
-        return getId().hashCode();
+        return getId() == null ? 0 : getId().hashCode();
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -200,8 +217,11 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
             throw new IllegalArgumentException("message == null");
         }
         
+        if (messagesSet == null) {
+            messagesSet = new HashSet();
+        }
         message.setTopic(this);
-        messages.add(message);
+        messagesSet.add(message);
     }
 
     public void removeMessage(Message message) {
@@ -214,7 +234,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
         }
         
         message.setTopic(null);
-        messages.remove(message);
+        messagesSet.remove(message);
     }
    
     public void addAttachment(Attachment attachment) {
@@ -226,8 +246,11 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
             throw new IllegalArgumentException("attachment == null");
         }
         
+        if (attachmentsSet == null) {
+            attachmentsSet = new HashSet();
+        }
         attachment.setTopic(this);
-        attachments.add(attachment);
+        attachmentsSet.add(attachment);
     }
 
     public void removeAttachment(Attachment attachment) {
@@ -240,7 +263,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
         }
         
         attachment.setTopic(null);
-        attachments.remove(attachment);
+        attachmentsSet.remove(attachment);
     }
 
 }

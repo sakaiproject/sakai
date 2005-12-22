@@ -24,11 +24,11 @@
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
  
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
 
@@ -36,9 +36,9 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
     
     private String userId;
     private PrivateTopic parentTopic;
-    private List childrenFolders = new UniqueArrayList();
+    private Set childrenFoldersSet;// = new HashSet();
     
-    private int ptindex;
+    //private int ptindex;
     
     public String getUserId() {
         return userId;
@@ -56,29 +56,34 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
         this.parentTopic = parentTopic;
     }
 
+    public Set getChildrenFoldersSet() {
+        return childrenFoldersSet;
+    }
+
+    public void setChildrenFoldersSet(Set childrenFoldersSet) {
+        this.childrenFoldersSet = childrenFoldersSet;
+    }
+
     public List getChildrenFolders() {
-        return childrenFolders;
+        return Util.setToList(childrenFoldersSet);
     }
 
     public void setChildrenFolders(List childrenFolders) {
-        this.childrenFolders = childrenFolders;
+        this.childrenFoldersSet = Util.listToSet(childrenFolders);
     }
-
-    public int getPtindex() {
-        try {
-            return getParentTopic().getChildrenFolders().indexOf(this);
-        } catch (Exception e) {
-            return ptindex;
-        }
-    }
-
-    public void setPtindex(int ptindex) {
-        this.ptindex = ptindex;
-    }
+//
+//    public int getPtindex() {
+//        try {
+//            return getParentTopic().getChildrenFolders().indexOf(this);
+//        } catch (Exception e) {
+//            return ptindex;
+//        }
+//    }
+//
+//    public void setPtindex(int ptindex) {
+//        this.ptindex = ptindex;
+//    }
     
-    public Long getForumId() {
-        return new Long(getPfindex());
-    }
 
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
@@ -94,7 +99,7 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
         }
         
         folder.setParentTopic(this);
-        childrenFolders.add(folder);
+        childrenFoldersSet.add(folder);
     }
 
     public void removeChildFolder(PrivateTopic folder) {
@@ -107,6 +112,6 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
         }
         
         folder.setParentTopic(null);
-        childrenFolders.remove(folder);
+        childrenFoldersSet.remove(folder);
     }
 }

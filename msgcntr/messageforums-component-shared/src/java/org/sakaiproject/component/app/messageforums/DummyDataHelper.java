@@ -59,7 +59,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     a1.setModifiedBy("admin");
     a1.setId(new Long(1));
     a1.setUuid("1");
-    a1.setPrivateForums(getPrivateForums());
+    //a1.setPrivateForums(getPrivateForums());
     return a1;
   }
 
@@ -416,7 +416,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     a2.setModifiedBy("mary jane");
     a2.setId(new Long(2));
     a2.setUuid("2");
-    a2.setDiscussionForums(getDiscussionForums());
+    //a2.setDiscussionForums(getDiscussionForums());
     return a2;
   }
 

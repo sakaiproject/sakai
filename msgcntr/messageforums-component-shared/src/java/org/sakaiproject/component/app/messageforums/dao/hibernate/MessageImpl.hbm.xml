@@ -41,11 +41,17 @@
     <property name="author">
       <column name="AUTHOR" length="255" not-null="true" />
     </property>
-	<list name="attachments" lazy="false" table="MFR_ATTACHMENT_T" cascade="all">
+    <set name="attachmentsSet" lazy="false" order-by="created desc" cascade="all-delete-orphan">
+        <key column="m_surrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
+    </set>
+  	<!-- 
+  	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
 		<key column="m_surrogateKey"/>
 		<index column="mes_index_col" />
 		<one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
-	</list>    
+	</list> 
+	-->   
     <property name="label">
       <column name="LABEL" length="255" not-null="false" />
     </property>
@@ -71,7 +77,7 @@
     <many-to-one name="topic" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
       not-null="false" index="MFR_MESSAGE_PARENT_TOPIC_I" cascade="none" />
-    <property name="tindex" column="t_index_col" type="int" update="true" insert="true"/>
+     <!-- <property name="tindex" column="t_index_col" type="int" update="true" insert="true"/> -->
         
     <!-- PrivateMessage fields -->
     <subclass 
@@ -120,7 +126,7 @@
   
   <query name="findMessageByIdWithAttachments">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
-             left join fetch message.attachments
+             left join fetch message.attachmentsSet
              where message.id = :id]]>
   </query>
 

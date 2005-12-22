@@ -15,17 +15,17 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class MessageImpl extends MutableEntityImpl implements Message
 {
@@ -35,7 +35,7 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private String title;
   private String body;
   private String author;
-  private List attachments = new UniqueArrayList();
+  private Set attachmentsSet; // = new HashSet();
   private String label;
   private Message inReplyTo;
   private String gradebook;
@@ -52,7 +52,7 @@ public class MessageImpl extends MutableEntityImpl implements Message
   public static Comparator AUTHORED_BY_COMPARATOR;
 
   // indecies for hibernate
-  private int tindex;
+  //private int tindex;
 
   public Topic getTopic()
   {
@@ -66,7 +66,7 @@ public class MessageImpl extends MutableEntityImpl implements Message
 
   public MessageImpl()
   {
-    attachments = new ArrayList();
+    attachmentsSet = new HashSet();
   }
 
   public Boolean getDraft()
@@ -89,14 +89,22 @@ public class MessageImpl extends MutableEntityImpl implements Message
     this.approved = approved;
   }
 
+  public Set getAttachmentsSet() {
+      return attachmentsSet;
+  }
+
+  public void setAttachmentsSet(Set attachmentsSet) {
+      this.attachmentsSet = attachmentsSet;
+  }
+  
   public List getAttachments()
   {
-    return attachments;
+    return Util.setToList(attachmentsSet);
   }
 
   public void setAttachments(List attachments)
   {
-    this.attachments = attachments;
+    this.attachmentsSet = Util.listToSet(attachments);
   }
 
   public String getAuthor()
@@ -193,7 +201,7 @@ public class MessageImpl extends MutableEntityImpl implements Message
 
   // needs a better impl
   public int hashCode() {
-      return getId().hashCode();
+      return getId() == null ? 0 : getId().hashCode();
   }
 
   // //////////////////////////////////////////////////////////////////////
@@ -215,7 +223,7 @@ public class MessageImpl extends MutableEntityImpl implements Message
     }
 
     attachment.setMessage(this);
-    attachments.add(attachment);
+    attachmentsSet.add(attachment);
   }
 
   public void removeAttachment(Attachment attachment)
@@ -231,25 +239,25 @@ public class MessageImpl extends MutableEntityImpl implements Message
     }
 
     attachment.setMessage(null);
-    attachments.remove(attachment);
+    attachmentsSet.remove(attachment);
   }
 
-  public int getTindex()
-  {
-    try
-    {
-      return getTopic().getMessages().indexOf(this);
-    }
-    catch (Exception e)
-    {
-      return tindex;
-    }
-  }
-
-  public void setTindex(int tindex)
-  {
-    this.tindex = tindex;
-  }
+//  public int getTindex()
+//  {
+//    try
+//    {
+//      return getTopic().getMessages().indexOf(this);
+//    }
+//    catch (Exception e)
+//    {
+//      return tindex;
+//    }
+//  }
+//
+//  public void setTindex(int tindex)
+//  {
+//    this.tindex = tindex;
+//  }
 
   // ============================================
   static
@@ -318,4 +326,5 @@ public class MessageImpl extends MutableEntityImpl implements Message
     };
 
   }
+
 }

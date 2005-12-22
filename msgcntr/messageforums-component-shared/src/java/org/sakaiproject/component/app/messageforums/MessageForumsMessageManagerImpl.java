@@ -297,7 +297,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         boolean isNew = message.getId() == null;
 
         message.setModified(new Date());
-        message.setModifiedBy(getCurrentUser());        
+        message.setModifiedBy(getCurrentUser());       
         getHibernateTemplate().saveOrUpdate(message);
         
         if (isNew) {

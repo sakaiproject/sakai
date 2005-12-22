@@ -43,7 +43,16 @@
     <property name="typeUuid">
       <column name="TYPE_UUID" length="36" not-null="true" />
     </property>
-	<list name="attachments" lazy="false" table="MFR_ATTACHMENT_T" cascade="all">
+    <set name="attachmentsSet" lazy="false" order-by="created desc" cascade="all-delete-orphan">
+        <key column="of_urrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
+    </set>
+    <set name="topicsSet" lazy="false" order-by="created desc" cascade="save-update">
+        <key column="of_surrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
+    </set>
+   	<!-- 
+ 	<list name="attachments" lazy="false" table="MFR_ATTACHMENT_T" cascade="all">
 	    <key column="of_urrogateKey"/>
 	    <index column="f_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
@@ -53,6 +62,7 @@
 	    <index column="bf_index_col" />
 	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl" />
 	</list>     
+	-->
     <property name="sortIndex">
       <column name="SORT_INDEX" length="10" not-null="true" />
     </property>
@@ -68,7 +78,7 @@
     <many-to-one name="area" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
       not-null="false" index="MFR_OF_PARENT_BASEFORUM_I" cascade="none" />
-    <property name="areaindex" column="area_index_col" type="int" update="true" insert="true"/>
+    <!-- <property name="areaindex" column="area_index_col" type="int" update="true" insert="true"/>-->
       
     <!-- DiscussionForum fields -->
     <subclass 

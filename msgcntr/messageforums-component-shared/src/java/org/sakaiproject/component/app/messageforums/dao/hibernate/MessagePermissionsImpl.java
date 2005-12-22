@@ -58,11 +58,11 @@ public class MessagePermissionsImpl implements MessagePermissions {
 
     private Topic topic;
 
-    private int areaindex;
-
-    private int forumindex;
-
-    private int topicindex;
+//    private int areaindex;
+//
+//    private int forumindex;
+//
+//    private int topicindex;
 
     private Long id;
 
@@ -164,41 +164,41 @@ public class MessagePermissionsImpl implements MessagePermissions {
         this.topic = topic;
     }
 
-    public int getAreaindex() {
-        try {
-            return getArea().getOpenForums().indexOf(this);
-        } catch (Exception e) {
-            return areaindex;
-        }
-    }
-
-    public void setAreaindex(int areaindex) {
-        this.areaindex = areaindex;
-    }
-
-    public int getForumindex() {
-        try {
-            return getForum().getTopics().indexOf(this);
-        } catch (Exception e) {
-            return forumindex;
-        }
-    }
-
-    public void setForumindex(int forumindex) {
-        this.forumindex = forumindex;
-    }
-
-    public int getTopicindex() {
-        try {
-            return getTopic().getMessages().indexOf(this);
-        } catch (Exception e) {
-            return topicindex;
-        }
-    }
-
-    public void setTopicindex(int topicindex) {
-        this.topicindex = topicindex;
-    }
+//    public int getAreaindex() {
+//        try {
+//            return getArea().getOpenForums().indexOf(this);
+//        } catch (Exception e) {
+//            return areaindex;
+//        }
+//    }
+//
+//    public void setAreaindex(int areaindex) {
+//        this.areaindex = areaindex;
+//    }
+//
+//    public int getForumindex() {
+//        try {
+//            return getForum().getTopics().indexOf(this);
+//        } catch (Exception e) {
+//            return forumindex;
+//        }
+//    }
+//
+//    public void setForumindex(int forumindex) {
+//        this.forumindex = forumindex;
+//    }
+//
+//    public int getTopicindex() {
+//        try {
+//            return getTopic().getMessages().indexOf(this);
+//        } catch (Exception e) {
+//            return topicindex;
+//        }
+//    }
+//
+//    public void setTopicindex(int topicindex) {
+//        this.topicindex = topicindex;
+//    }
 
     public String toString() {
         return "MessagePermissions.id:" + id;

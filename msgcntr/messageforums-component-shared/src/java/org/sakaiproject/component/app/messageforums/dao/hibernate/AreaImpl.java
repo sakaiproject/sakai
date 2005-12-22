@@ -16,12 +16,13 @@
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class AreaImpl extends MutableEntityImpl implements Area
 {
@@ -40,12 +41,14 @@ public class AreaImpl extends MutableEntityImpl implements Area
 
   private String typeUuid;
 
-  private List openForums = new UniqueArrayList();
+  //private List openForums = new UniqueArrayList();
+  //private List privateForums = new UniqueArrayList();
+  //private List discussionForums = new UniqueArrayList();
 
-  private List privateForums = new UniqueArrayList();
-
-  private List discussionForums = new UniqueArrayList();
-
+  private Set openForumsSet;// = new HashSet();
+  private Set privateForumsSet;// = new HashSet();
+  private Set discussionForumsSet;// = new HashSet();
+  
   public void setVersion(Integer version)
   {
     this.version = version;
@@ -103,32 +106,32 @@ public class AreaImpl extends MutableEntityImpl implements Area
 
   public List getOpenForums()
   {
-    return openForums;
+    return Util.setToList(openForumsSet);
   }
 
   public void setOpenForums(List openForums)
   {
-    this.openForums = openForums;
+    this.openForumsSet = Util.listToSet(openForums);
   }
 
   public List getPrivateForums()
   {
-    return privateForums;
+      return Util.setToList(privateForumsSet);
   }
 
   public void setPrivateForums(List privateForums)
   {
-    this.privateForums = privateForums;
+    this.privateForumsSet = Util.listToSet(privateForums);
   }
 
   public List getDiscussionForums()
   {
-    return discussionForums;
+      return Util.setToList(discussionForumsSet);
   }
 
   public void setDiscussionForums(List discussionForums)
   {
-    this.discussionForums = discussionForums;
+    this.discussionForumsSet = Util.listToSet(discussionForums);
   }
          
   public String toString() {
@@ -141,6 +144,30 @@ public class AreaImpl extends MutableEntityImpl implements Area
 
   public void setLocked(Boolean locked) {
       this.locked = locked;
+  }
+
+  public Set getDiscussionForumsSet() {
+      return discussionForumsSet;
+  }
+
+  public void setDiscussionForumsSet(Set discussionForumsSet) {
+      this.discussionForumsSet = discussionForumsSet;
+  }
+
+  public Set getOpenForumsSet() {
+      return openForumsSet;
+  }
+
+  public void setOpenForumsSet(Set openForumsSet) {
+      this.openForumsSet = openForumsSet;
+  }
+
+  public Set getPrivateForumsSet() {
+      return privateForumsSet;
+  }
+
+  public void setPrivateForumsSet(Set privateForumsSet) {
+      this.privateForumsSet = privateForumsSet;
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -156,8 +183,11 @@ public class AreaImpl extends MutableEntityImpl implements Area
           throw new IllegalArgumentException("forum == null");
       }
       
+      if (privateForumsSet == null) {
+          privateForumsSet = new TreeSet();
+      }
       forum.setArea(this);
-      privateForums.add(forum);
+      privateForumsSet.add(forum);
   }
 
   public void removePrivateForum(BaseForum forum) {
@@ -170,7 +200,7 @@ public class AreaImpl extends MutableEntityImpl implements Area
       }
       
       forum.setArea(null);
-      privateForums.remove(forum);
+      privateForumsSet.remove(forum);
   }
        
   public void addDiscussionForum(BaseForum forum) {
@@ -182,8 +212,11 @@ public class AreaImpl extends MutableEntityImpl implements Area
           throw new IllegalArgumentException("forum == null");
       }
       
+      if (discussionForumsSet == null) {
+          discussionForumsSet = new TreeSet();
+      }
       forum.setArea(this);
-      discussionForums.add(forum);
+      discussionForumsSet.add(forum);
   }
 
   public void removeDiscussionForum(BaseForum forum) {
@@ -196,8 +229,8 @@ public class AreaImpl extends MutableEntityImpl implements Area
       }
       
       forum.setArea(null);
-      discussionForums.remove(forum);
-      openForums.remove(forum);
+      discussionForumsSet.remove(forum);
+      openForumsSet.remove(forum);
   }
        
   public void addOpenForum(BaseForum forum) {
@@ -209,8 +242,11 @@ public class AreaImpl extends MutableEntityImpl implements Area
           throw new IllegalArgumentException("forum == null");
       }
       
+      if (openForumsSet == null) {
+          openForumsSet = new TreeSet();
+      }      
       forum.setArea(this);
-      openForums.add(forum);
+      openForumsSet.add(forum);
   }
 
   public void removeOpenForum(BaseForum forum) {
@@ -223,7 +259,7 @@ public class AreaImpl extends MutableEntityImpl implements Area
       }
       
       forum.setArea(null);
-      openForums.remove(forum);
+      openForumsSet.remove(forum);
   }
 
 }

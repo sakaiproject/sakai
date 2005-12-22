@@ -42,7 +42,7 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
     private String externalEmailAddress;
     
     // indecies for hibernate
-    private int tindex;   
+    //private int tindex;   
 
     public Boolean getExternalEmail() {
         return externalEmail;
@@ -68,17 +68,17 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
         this.recipients = recipients;
     }
         
-    public int getTindex() {
-        try {
-            return getTopic().getMessages().indexOf(this);
-        } catch (Exception e) {
-            return tindex;
-        }
-    }
-
-    public void setTindex(int tindex) {
-        this.tindex = tindex;        
-    }
+//    public int getTindex() {
+//        try {
+//            return getTopic().getMessages().indexOf(this);
+//        } catch (Exception e) {
+//            return tindex;
+//        }
+//    }
+//
+//    public void setTindex(int tindex) {
+//        this.tindex = tindex;        
+//    }
     
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections

@@ -23,7 +23,9 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,8 +33,6 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
- 
  
 public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
@@ -42,17 +42,27 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     private String shortDescription;
     private String extendedDescription;
     private String typeUuid;
-    private List attachments = new UniqueArrayList();
-    private List topics = new UniqueArrayList();
+    private Set attachmentsSet;// = new HashSet();
+    private Set topicsSet;// = new HashSet();
     private Area area;
     private Integer sortIndex; 
     
-    public List getAttachments() {
-        return attachments;
+    public Set getAttachmentsSet() {
+        return attachmentsSet;
     }
 
-    public void setAttachments(List attachments) {
-        this.attachments = attachments;
+    public void setAttachmentsSet(Set attachmentsSet) {
+        this.attachmentsSet = attachmentsSet;
+    }
+    
+    public List getAttachments()
+    {
+      return Util.setToList(attachmentsSet);
+    }
+
+    public void setAttachments(List attachments)
+    {
+      this.attachmentsSet = Util.listToSet(attachments);
     }
 
     public String getExtendedDescription() {
@@ -88,11 +98,19 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     }
 
     public List getTopics() {
-        return topics;
+        return Util.setToList(topicsSet);
     }
 
     public void setTopics(List topics) {
-        this.topics = topics;
+        this.topicsSet = Util.listToSet(topics);
+    }
+
+    public Set getTopicsSet() {
+        return topicsSet;
+    }
+
+    public void setTopicsSet(Set topicsSet) {
+        this.topicsSet = topicsSet;
     }
 
     public String getTypeUuid() {
@@ -124,7 +142,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
     // needs a better impl
     public int hashCode() {
-        return getId().hashCode();
+        return getId() == null ? 0 : getId().hashCode();
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -140,8 +158,11 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
             throw new IllegalArgumentException("topic == null");
         }
         
+        if (topicsSet == null) {
+            topicsSet = new HashSet();
+        }
         topic.setBaseForum(this);
-        topics.add(topic);
+        topicsSet.add(topic);
     }
 
     public void removeTopic(Topic topic) {
@@ -156,7 +177,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         topic.setOpenForum(null);
         topic.setPrivateForum(null);
         topic.setBaseForum(null);
-        topics.remove(topic);
+        topicsSet.remove(topic);
     }
        
     public void addAttachment(Attachment attachment) {
@@ -168,8 +189,11 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
             throw new IllegalArgumentException("attachment == null");
         }
         
+        if (attachmentsSet == null) {
+            attachmentsSet = new HashSet();
+        }
         attachment.setForum(this);
-        attachments.add(attachment);
+        attachmentsSet.add(attachment);
     }
 
     public void removeAttachment(Attachment attachment) {
@@ -182,7 +206,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         }
         
         attachment.setForum(null);
-        attachments.remove(attachment);
+        attachmentsSet.remove(attachment);
     }
     
 

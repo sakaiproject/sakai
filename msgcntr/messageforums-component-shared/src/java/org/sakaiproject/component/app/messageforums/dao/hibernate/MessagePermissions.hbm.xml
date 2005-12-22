@@ -52,17 +52,17 @@
     <many-to-one name="area" column="areaSurrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
       not-null="false" index="MFR_MP_PARENT_AREA_I" cascade="none" />
-    <property name="areaindex" column="area_mp_index_col" type="int" update="true" insert="true"/>
+    <!-- <property name="areaindex" column="area_mp_index_col" type="int" update="true" insert="true"/> -->
     
     <many-to-one name="forum" column="forumSurrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
       not-null="false" index="MFR_MP_PARENT_FORUM_I" cascade="none" />
-    <property name="forumindex" column="forum_mp_index_col" type="int" update="true" insert="true"/>
+    <!-- <property name="forumindex" column="forum_mp_index_col" type="int" update="true" insert="true"/> -->
     
     <many-to-one name="topic" column="topicSurrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
       not-null="false" index="MFR_MP_PARENT_TOPIC_I" cascade="none" />
-    <property name="topicindex" column="topic_mp_index_col" type="int" update="true" insert="true"/>
+    <!-- <property name="topicindex" column="topic_mp_index_col" type="int" update="true" insert="true"/> -->
   </class>
 
   <query name="findAreaMessagePermissionByRole">

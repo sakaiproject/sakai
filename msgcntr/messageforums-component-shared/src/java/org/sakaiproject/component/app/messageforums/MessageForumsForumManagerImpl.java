@@ -26,7 +26,6 @@ package org.sakaiproject.component.app.messageforums;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import net.sf.hibernate.Hibernate;
@@ -40,7 +39,6 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.OpenForum;
@@ -56,7 +54,6 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.service.legacy.content.ContentHostingService;
 import org.sakaiproject.service.legacy.event.EventTrackingService;
 import org.springframework.orm.hibernate.HibernateCallback;
@@ -75,8 +72,13 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_BY_FORUM_UUID = "findForumByUuid";
 
     private static final String QUERY_BY_TOPIC_ID = "findTopicById";
+    private static final String QUERY_OPEN_BY_TOPIC_AND_PARENT = "findOpenTopicAndParentById";
+    private static final String QUERY_PRIVATE_BY_TOPIC_AND_PARENT = "findPrivateTopicAndParentById";    
 
     private static final String QUERY_BY_TOPIC_UUID = "findTopicByUuid";
+
+    private static final String QUERY_OF_SUR_KEY_BY_TOPIC = "findOFTopicSurKeyByTopicId";
+    private static final String QUERY_PF_SUR_KEY_BY_TOPIC = "findPFTopicSurKeyByTopicId";
 
     private static final String QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS = "findTopicByIdWithAttachmentsAndMessages";
 
@@ -201,17 +203,40 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return (BaseForum) getHibernateTemplate().execute(hcb);
     }
 
-    public Topic getTopicById(boolean open, Long topicId) {
+    public Topic getTopicById(final boolean open, final Long topicId) {
         if (topicId == null) {
             throw new IllegalArgumentException("Null Argument");
         }
 
         LOG.debug("getDiscussionForumById executing with topicId: " + topicId);
 
-        Topic topic = (Topic) getHibernateTemplate().get(TopicImpl.class, topicId);
-        topic.setBaseForum(getForumById(open, topic.getForumId()));
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                String query;
+                if (open) {
+                    query = QUERY_OPEN_BY_TOPIC_AND_PARENT;
+                } else {
+                    query = QUERY_PRIVATE_BY_TOPIC_AND_PARENT;
+                }
+                Query q = session.getNamedQuery(QUERY_OPEN_BY_TOPIC_AND_PARENT);
+                q.setParameter("id", topicId, Hibernate.LONG);
+                return q.list();
+            }
+        };
 
-        return topic;
+        Topic res = null;
+        List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+        Object [] results = (Object[])temp.get(0);
+        if (results != null) {
+            if (results[0] instanceof Topic) {
+                res = (Topic)results[0];
+                res.setBaseForum((BaseForum)results[1]);
+            } else {
+                res = (Topic)results[1];
+                res.setBaseForum((BaseForum)results[0]);
+            }
+        }
+        return res;
     }
 
     public Topic getTopicByUuid(final String uuid) {
@@ -449,7 +474,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             e.printStackTrace();
             LOG.error("could not evict topic: " + topic.getId(), e);
         }
-        BaseForum forum = getForumById(true, topic.getForumId());
+        
+        Topic finder = getTopicById(true, topic.getId());
+        BaseForum forum = finder.getBaseForum();
         forum.removeTopic(topic);
         getHibernateTemplate().saveOrUpdate(forum);
         //getHibernateTemplate().delete(topic);

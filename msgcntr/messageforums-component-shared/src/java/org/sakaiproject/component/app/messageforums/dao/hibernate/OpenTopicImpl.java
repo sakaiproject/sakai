@@ -32,7 +32,7 @@ public class OpenTopicImpl extends TopicImpl implements OpenTopic {
     private static final Log LOG = LogFactory.getLog(OpenTopicImpl.class);
     
     private Boolean locked;
-    private Boolean draft;
+    private Boolean draft; 
     
     public Boolean getLocked() {
         return locked;
@@ -48,10 +48,6 @@ public class OpenTopicImpl extends TopicImpl implements OpenTopic {
 
     public void setDraft(Boolean draft) {
         this.draft = draft;
-    }
-        
-    public Long getForumId() {
-        return new Long(getOfindex());
     }
 
 }
