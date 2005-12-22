@@ -118,7 +118,7 @@
       </property>      
 
 	  <!-- DiscussionTopic fields -->
-	  <subclass 
+	  <subclass
 	      name="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl"
 	      discriminator-value="DT">
 	    <property name="confidentialResponses">
@@ -130,12 +130,14 @@
 	    <property name="hourBeforeResponsesVisible">
 	      <column name="HOUR_BEFORE_RESPONSES_VISIBLE" length="10" not-null="false" />
 	    </property>    
+	    <!-- 
 	    <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"
 	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"
 	      not-null="false" cascade="none" />
 	    <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
 	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
 	      not-null="false" cascade="none" />
+	    -->
 	    <list name="labels" lazy="false" table="MFR_LABEL_T" cascade="all">
 	        <key column="dt_surrogateKey"/>
 	        <index column="dt_index_col" />

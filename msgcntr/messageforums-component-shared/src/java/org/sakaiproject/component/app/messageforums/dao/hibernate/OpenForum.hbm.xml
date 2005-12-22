@@ -88,13 +88,15 @@
 	      <key column="df_surrogateKey"/>
 	      <index column="df_index_col" />
 	      <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
-	  </list>     
+	  </list>   
+	  <!--   
       <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"
         not-null="false" cascade="none" />
       <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
         not-null="false" cascade="none" />
+	  -->
       <property name="moderated">
         <column name="MODERATED" not-null="false" />
       </property>        
