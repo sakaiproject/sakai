@@ -59,7 +59,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     //private int pfindex;   
 
     public List getMessages() {
-        return Util.setToList(attachmentsSet);
+        return Util.setToList(messagesSet);
     }
 
     public void setMessages(List messages) {
