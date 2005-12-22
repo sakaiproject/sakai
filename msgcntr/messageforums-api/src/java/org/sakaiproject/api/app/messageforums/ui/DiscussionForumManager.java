@@ -146,17 +146,26 @@ public interface DiscussionForumManager
   public void deleteTopic(DiscussionTopic topic);
 
   /**
-   * @param area
    * @return
    */
   public List getDefaultControlPermissions();
 
   /**
-   * @param area
    * @return
    */
   public List getDefaultMessagePermissions();
 
+  /**
+   * @return
+   */
+  public List getAreaControlPermissions();
+
+  /**
+   * @return
+   */
+  public List getAreaMessagePermissions();
+
+  
   /**
    * @param forum
    * @return
@@ -184,12 +193,12 @@ public interface DiscussionForumManager
   /**
    * @param controlPermission
    */
-  public void saveDefaultControlPermissions(List controlpermissions);
+  public void saveAreaControlPermissions(List controlpermissions);
 
   /**
    * @param messagePermissions
    */
-  public void saveDefaultMessagePermissions(List messagePermissions);
+  public void saveAreaMessagePermissions(List messagePermissions);
 
   /**
    * @param forum

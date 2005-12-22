@@ -181,8 +181,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return 10;
     }
-    return messageManager
-        .findUnreadMessageCountByTopicId(topic.getId());
+    return messageManager.findUnreadMessageCountByTopicId(topic.getId());
   }
 
   /*
@@ -245,11 +244,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     return (DiscussionTopic) forumManager.getTopicById(true, topicId);
   }
-  
-  public DiscussionTopic getTopicByUuid(String topicId) {
-      return (DiscussionTopic) forumManager.getTopicByUuid(topicId);      
-  }
 
+  public DiscussionTopic getTopicByUuid(String topicId)
+  {
+    return (DiscussionTopic) forumManager.getTopicByUuid(topicId);
+  }
 
   /*
    * (non-Javadoc)
@@ -275,7 +274,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         {
           return true;
         }
-        if (t != null) {
+        if (t != null)
+        {
           if (t.getId().equals(topic.getId()))
           {
             next = true;
@@ -308,7 +308,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
         Topic t = (Topic) iter.next();
-        if (t != null) {
+        if (t != null)
+        {
           if (t.getId().equals(topic.getId()))
           {
             // need to check null because we might be on the first topic
@@ -353,14 +354,17 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         Topic t = (Topic) iter.next();
         if (next)
         {
-          if (t == null) {
-            do {
+          if (t == null)
+          {
+            do
+            {
               t = (Topic) iter.next();
             } while (t == null);
           }
           return (DiscussionTopic) t;
         }
-        if (t != null) {
+        if (t != null)
+        {
           if (t.getId().equals(topic.getId()))
           {
             next = true;
@@ -399,12 +403,14 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
         Topic t = (Topic) iter.next();
-        if (t != null) {
+        if (t != null)
+        {
           if (t.getId().equals(topic.getId()))
           {
             return prev;
           }
-          if (t != null) {
+          if (t != null)
+          {
             prev = (DiscussionTopic) t;
           }
         }
@@ -415,7 +421,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return null;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#isInstructor()
    */
   public boolean isInstructor()
@@ -450,7 +458,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     LOG.debug("getContextSiteId()");
     return ("/site/" + ToolManager.getCurrentPlacement().getContext());
   }
- 
 
   /**
    * @param forumManager
@@ -460,7 +467,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     this.forumManager = forumManager;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#createForum()
    */
   public DiscussionForum createForum()
@@ -469,7 +478,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return forumManager.createDiscussionForum();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#deleteForum(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
   public void deleteForum(DiscussionForum forum)
@@ -477,8 +488,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     LOG.debug("deleteForum()");
     forumManager.deleteDiscussionForum(forum);
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#createTopic(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
   public DiscussionTopic createTopic(DiscussionForum forum)
@@ -492,22 +505,26 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return forumManager.createDiscussionForumTopic(forum);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForum(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
   public void saveForum(DiscussionForum forum)
   {
     saveForum(forum, false);
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForumAsDraft(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
   public void saveForumAsDraft(DiscussionForum forum)
   {
     saveForum(forum, true);
   }
-  
+
   private void saveForum(DiscussionForum forum, boolean draft)
   {
     LOG.debug("saveForum()");
@@ -515,55 +532,67 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     boolean saveArea = forum.getId() == null;
     forum.setDraft(new Boolean(draft));
     forumManager.saveDiscussionForum(forum);
-    
-    if (saveArea) {
-        Area area = getDiscussionForumArea();
-        forum.setArea(area);    
-        area.addDiscussionForum(forum);
-        areaManager.saveArea(area);
+
+    if (saveArea)
+    {
+      Area area = getDiscussionForumArea();
+      forum.setArea(area);
+      area.addDiscussionForum(forum);
+      areaManager.saveArea(area);
     }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopic(org.sakaiproject.api.app.messageforums.DiscussionTopic)
    */
   public void saveTopic(DiscussionTopic topic)
   {
-    saveTopic( topic,  false);
+    saveTopic(topic, false);
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopicAsDraft(org.sakaiproject.api.app.messageforums.DiscussionTopic)
    */
   public void saveTopicAsDraft(DiscussionTopic topic)
   {
-    saveTopic( topic,  true);
+    saveTopic(topic, true);
   }
-  
+
   private void saveTopic(DiscussionTopic topic, boolean draft)
   {
-    LOG.debug("saveTopic(DiscussionTopic "+topic+", boolean " +draft+")");
-    
+    LOG
+        .debug("saveTopic(DiscussionTopic " + topic + ", boolean " + draft
+            + ")");
+
     boolean saveForum = topic.getId() == null;
     topic.setDraft(new Boolean(draft));
     forumManager.saveDiscussionForumTopic(topic);
-    if (saveForum) {
-        DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
-        forum.addTopic(topic);
-        forumManager.saveDiscussionForum(forum);
+    if (saveForum)
+    {
+      DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+      forum.addTopic(topic);
+      forumManager.saveDiscussionForum(forum);
     }
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#deleteTopic(org.sakaiproject.api.app.messageforums.DiscussionTopic)
    */
   public void deleteTopic(DiscussionTopic topic)
   {
-    LOG.debug("deleteTopic(DiscussionTopic "+topic+")");
+    LOG.debug("deleteTopic(DiscussionTopic " + topic + ")");
     forumManager.deleteDiscussionForumTopic(topic);
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getDefaultControlPermissions()
    */
   public List getDefaultControlPermissions()
@@ -577,17 +606,69 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       AreaControlPermission controlPermission = permissionManager
           .getDefaultAreaControlPermissionForRole(roleId, typeManager
               .getDiscussionForumType());
-      if (controlPermission == null)
-      {
-        controlPermission = permissionManager
-            .createAreaControlPermissionForRole(roleId, typeManager.getDiscussionForumType());
-      }
+
       defaultControlPermissions.add(controlPermission);
     }
     return defaultControlPermissions;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getAreaControlPermissions()
+   */
+  public List getAreaControlPermissions()
+  {
+    LOG.debug("getAreaControlPermissions()");
+    List areaControlPermissions = new ArrayList();
+    Iterator roles = getRoles();
+    while (roles.hasNext())
+    {
+      String roleId = (String) roles.next();
+      AreaControlPermission controlPermission = permissionManager
+          .getAreaControlPermissionForRole(roleId, typeManager
+              .getDiscussionForumType());
+      if (controlPermission == null)
+      {
+        controlPermission = permissionManager
+            .createAreaControlPermissionForRole(roleId, typeManager
+                .getDiscussionForumType());
+      }
+      areaControlPermissions.add(controlPermission);
+    }
+    return areaControlPermissions;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getAreaMessagePermissions()
+   */
+  public List getAreaMessagePermissions()
+  {
+    LOG.debug("getAreaMessagePermissions()");
+    List areaMessagePermissions = new ArrayList();
+    Iterator roles = getRoles();
+    while (roles.hasNext())
+    {
+      String roleId = (String) roles.next();
+      MessagePermissions messagePermission = permissionManager
+          .getAreaMessagePermissionForRole(roleId, typeManager
+              .getDiscussionForumType());
+      if (messagePermission == null)
+      {
+        messagePermission = permissionManager
+            .createAreaMessagePermissionForRole(roleId, typeManager
+                .getDiscussionForumType());
+      }
+      areaMessagePermissions.add(messagePermission);
+    }
+    return areaMessagePermissions;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getDefaultMessagePermissions()
    */
   public List getDefaultMessagePermissions()
@@ -601,224 +682,274 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       MessagePermissions messagePermission = permissionManager
           .getDefaultAreaMessagePermissionForRole(roleId, typeManager
               .getDiscussionForumType());
-      if (messagePermission == null)
-      {
-        messagePermission = permissionManager
-            .createAreaMessagePermissionForRole(roleId, typeManager.getDiscussionForumType());
-      }
-      defaultMessagePermissions.add(messagePermission);
+       defaultMessagePermissions.add(messagePermission);
     }
     return defaultMessagePermissions;
   }
 
-  
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveDefaultMessagePermissions(java.util.List)
    */
-  public void saveDefaultMessagePermissions(List messagePermissions)
+  public void saveAreaMessagePermissions(List messagePermissions)
   {
-    LOG.debug("saveDefaultMessagePermissions(List "+messagePermissions+")");
-    if(messagePermissions !=null && messagePermissions.size()>0)
+    LOG.debug("saveDefaultMessagePermissions(List " + messagePermissions + ")");
+    if (messagePermissions != null && messagePermissions.size() > 0)
     {
-      Iterator iterator= messagePermissions.iterator();
+      Iterator iterator = messagePermissions.iterator();
       while (iterator.hasNext())
       {
-        MessagePermissions controlPermission = (MessagePermissions) iterator.next();
-        permissionManager.saveDefaultAreaMessagePermissionForRole(getDiscussionForumArea(),controlPermission, typeManager.getDiscussionForumType());
+        MessagePermissions msgPermission = (MessagePermissions) iterator
+            .next();
+        permissionManager.saveAreaMessagePermissionForRole(
+            getDiscussionForumArea(), msgPermission, typeManager
+                .getDiscussionForumType());
       }
     }
-    
+
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getForumControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
   public List getForumControlPermissions(DiscussionForum forum)
   {
-    
-    LOG.debug("getForumControlPermissions(DiscussionForum "+forum+")");
+
+    LOG.debug("getForumControlPermissions(DiscussionForum " + forum + ")");
     List forumControlPermissions = new ArrayList();
     Iterator roles = getRoles();
     while (roles.hasNext())
     {
       String roleId = (String) roles.next();
-      ForumControlPermission controlPermission = permissionManager.getForumControlPermissionForRole(forum, roleId,typeManager.getDiscussionForumType());
-          
+      ForumControlPermission controlPermission = permissionManager
+          .getForumControlPermissionForRole(forum, roleId, typeManager
+              .getDiscussionForumType());
+
       if (controlPermission == null)
       {
         controlPermission = permissionManager
-            .createForumControlPermissionForRole(roleId, typeManager.getDiscussionForumType());
+            .createForumControlPermissionForRole(roleId, typeManager
+                .getDiscussionForumType());
       }
       forumControlPermissions.add(controlPermission);
     }
     return forumControlPermissions;
   }
-   
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getForumMessagePermissions(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
   public List getForumMessagePermissions(DiscussionForum forum)
   {
-    LOG.debug("getForumMessagePermissions(DiscussionForum "+forum+")");
-    
+    LOG.debug("getForumMessagePermissions(DiscussionForum " + forum + ")");
+
     List forumMessagePermissions = new ArrayList();
     Iterator roles = getRoles();
     while (roles.hasNext())
     {
       String roleId = (String) roles.next();
-      MessagePermissions messagePermission = permissionManager.getForumMessagePermissionForRole(forum,roleId,typeManager.getDiscussionForumType());
-          
+      MessagePermissions messagePermission = permissionManager
+          .getForumMessagePermissionForRole(forum, roleId, typeManager
+              .getDiscussionForumType());
+
       if (messagePermission == null)
       {
         messagePermission = permissionManager
-            .createForumMessagePermissionForRole(roleId, typeManager.getDiscussionForumType());
+            .createForumMessagePermissionForRole(roleId, typeManager
+                .getDiscussionForumType());
       }
       forumMessagePermissions.add(messagePermission);
     }
     return forumMessagePermissions;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getTopicControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionTopic)
    */
   public List getTopicControlPermissions(DiscussionTopic topic)
   {
-    LOG.debug("getTopicControlPermissions(DiscussionTopic "+topic+")");
-    
+    LOG.debug("getTopicControlPermissions(DiscussionTopic " + topic + ")");
+
     List topicControlPermissions = new ArrayList();
     Iterator roles = getRoles();
     while (roles.hasNext())
     {
       String roleId = (String) roles.next();
-      TopicControlPermission controlPermission = permissionManager.getTopicControlPermissionForRole(topic,roleId,typeManager.getDiscussionForumType());
-          
+      TopicControlPermission controlPermission = permissionManager
+          .getTopicControlPermissionForRole(topic, roleId, typeManager
+              .getDiscussionForumType());
+
       if (controlPermission == null)
       {
         controlPermission = permissionManager
-            .createTopicControlPermissionForRole(topic.getBaseForum(), roleId, typeManager.getDiscussionForumType());
+            .createTopicControlPermissionForRole(topic.getBaseForum(), roleId,
+                typeManager.getDiscussionForumType());
       }
       topicControlPermissions.add(controlPermission);
     }
     return topicControlPermissions;
-    
+
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getTopicMessagePermissions(org.sakaiproject.api.app.messageforums.DiscussionTopic)
    */
   public List getTopicMessagePermissions(DiscussionTopic topic)
   {
-    LOG.debug("getTopicMessagePermissions(DiscussionTopic "+topic+")");
-    
+    LOG.debug("getTopicMessagePermissions(DiscussionTopic " + topic + ")");
+
     List topicMessagePermissions = new ArrayList();
     Iterator roles = getRoles();
     while (roles.hasNext())
     {
       String roleId = (String) roles.next();
-      MessagePermissions messagePermission = permissionManager.getTopicMessagePermissionForRole(topic,roleId,typeManager.getDiscussionForumType());
-          
+      MessagePermissions messagePermission = permissionManager
+          .getTopicMessagePermissionForRole(topic, roleId, typeManager
+              .getDiscussionForumType());
+
       if (messagePermission == null)
       {
         messagePermission = permissionManager
-            .createTopicMessagePermissionForRole(topic.getBaseForum(), roleId, typeManager.getDiscussionForumType());
+            .createTopicMessagePermissionForRole(topic.getBaseForum(), roleId,
+                typeManager.getDiscussionForumType());
       }
       topicMessagePermissions.add(messagePermission);
     }
     return topicMessagePermissions;
-    
+
   }
 
-
-
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveDefaultControlPermissions(java.util.List)
    */
-  public void saveDefaultControlPermissions(List controlpermissions)
+  public void saveAreaControlPermissions(List controlpermissions)
   {
-    
-    if(controlpermissions !=null && controlpermissions.size()>0)
+
+    if (controlpermissions != null && controlpermissions.size() > 0)
     {
-      Iterator iterator= controlpermissions.iterator();
+      Iterator iterator = controlpermissions.iterator();
       while (iterator.hasNext())
       {
-        AreaControlPermission controlPermission = (AreaControlPermission) iterator.next();
-        permissionManager.saveDefaultAreaControlPermissionForRole(getDiscussionForumArea(),controlPermission, typeManager.getDiscussionForumType());
+        AreaControlPermission controlPermission = (AreaControlPermission) iterator
+            .next();
+        permissionManager.saveAreaControlPermissionForRole(
+            getDiscussionForumArea(), controlPermission, typeManager
+                .getDiscussionForumType());
       }
     }
-    
+
   }
 
-  /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForumControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum, java.util.List)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForumControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum,
+   *      java.util.List)
    */
-  public void saveForumControlPermissions(DiscussionForum forum, List controlPermissions)
+  public void saveForumControlPermissions(DiscussionForum forum,
+      List controlPermissions)
   {
-    LOG.debug("saveForumControlPermissions(List "+controlPermissions+")");
-    if(forum!=null && controlPermissions !=null && controlPermissions.size()>0)
+    LOG.debug("saveForumControlPermissions(List " + controlPermissions + ")");
+    if (forum != null && controlPermissions != null
+        && controlPermissions.size() > 0)
     {
-      Iterator iterator= controlPermissions.iterator();
+      Iterator iterator = controlPermissions.iterator();
       while (iterator.hasNext())
       {
-        ForumControlPermission controlPermission = (ForumControlPermission) iterator.next();
-        permissionManager.saveForumControlPermissionForRole(forum,controlPermission);
+        ForumControlPermission controlPermission = (ForumControlPermission) iterator
+            .next();
+        permissionManager.saveForumControlPermissionForRole(forum,
+            controlPermission);
       }
     }
-    
+
   }
 
-  /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForumMessagePermissions(org.sakaiproject.api.app.messageforums.DiscussionForum, java.util.List)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForumMessagePermissions(org.sakaiproject.api.app.messageforums.DiscussionForum,
+   *      java.util.List)
    */
-  public void saveForumMessagePermissions(DiscussionForum forum, List messagePermissions)
+  public void saveForumMessagePermissions(DiscussionForum forum,
+      List messagePermissions)
   {
-    LOG.debug("saveForumMessagePermissions(List "+messagePermissions+")");
-    if(forum!=null && messagePermissions !=null && messagePermissions.size()>0)
+    LOG.debug("saveForumMessagePermissions(List " + messagePermissions + ")");
+    if (forum != null && messagePermissions != null
+        && messagePermissions.size() > 0)
     {
-      Iterator iterator= messagePermissions.iterator();
+      Iterator iterator = messagePermissions.iterator();
       while (iterator.hasNext())
       {
-        MessagePermissions messagePermission = (MessagePermissions) iterator.next();
-        permissionManager.saveForumMessagePermissionForRole(forum,messagePermission);
+        MessagePermissions messagePermission = (MessagePermissions) iterator
+            .next();
+        permissionManager.saveForumMessagePermissionForRole(forum,
+            messagePermission);
       }
     }
-    
+
   }
 
-  /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopicControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum, java.util.List)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopicControlPermissions(org.sakaiproject.api.app.messageforums.DiscussionForum,
+   *      java.util.List)
    */
-  public void saveTopicControlPermissions(DiscussionTopic topic, List controlPermissions)
+  public void saveTopicControlPermissions(DiscussionTopic topic,
+      List controlPermissions)
   {
-    LOG.debug("saveTopicControlPermissions(List "+controlPermissions+")");
-    if(topic!=null && controlPermissions !=null && controlPermissions.size()>0)
+    LOG.debug("saveTopicControlPermissions(List " + controlPermissions + ")");
+    if (topic != null && controlPermissions != null
+        && controlPermissions.size() > 0)
     {
-      Iterator iterator= controlPermissions.iterator();
+      Iterator iterator = controlPermissions.iterator();
       while (iterator.hasNext())
       {
-        TopicControlPermission controlPermission = (TopicControlPermission) iterator.next();
-        permissionManager.saveTopicControlPermissionForRole(topic,controlPermission);
+        TopicControlPermission controlPermission = (TopicControlPermission) iterator
+            .next();
+        permissionManager.saveTopicControlPermissionForRole(topic,
+            controlPermission);
       }
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopicMessagePermissions(org.sakaiproject.api.app.messageforums.DiscussionTopic, java.util.List)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveTopicMessagePermissions(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      java.util.List)
    */
-  public void saveTopicMessagePermissions(DiscussionTopic topic, List messagePermissions)
+  public void saveTopicMessagePermissions(DiscussionTopic topic,
+      List messagePermissions)
   {
-    LOG.debug("saveTopicMessagePermissions(List "+messagePermissions+")");
-    if(topic!=null && messagePermissions !=null && messagePermissions.size()>0)
+    LOG.debug("saveTopicMessagePermissions(List " + messagePermissions + ")");
+    if (topic != null && messagePermissions != null
+        && messagePermissions.size() > 0)
     {
-      Iterator iterator= messagePermissions.iterator();
+      Iterator iterator = messagePermissions.iterator();
       while (iterator.hasNext())
       {
-        MessagePermissions messagePermission = (MessagePermissions) iterator.next();
-        permissionManager.saveTopicMessagePermissionForRole(topic,messagePermission);
+        MessagePermissions messagePermission = (MessagePermissions) iterator
+            .next();
+        permissionManager.saveTopicMessagePermissionForRole(topic,
+            messagePermission);
       }
     }
-    
+
   }
-  
+
   /**
    * @return Roles for the current site
    */
@@ -851,16 +982,17 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   public void markMessageAs(Message message, boolean readStatus)
   {
-    LOG.debug("markMessageAsRead(Message" + message+")");
+    LOG.debug("markMessageAsRead(Message" + message + ")");
     try
     {
-      messageManager.markMessageReadForUser(message.getTopic().getId(), message.getId(), readStatus);
+      messageManager.markMessageReadForUser(message.getTopic().getId(), message
+          .getId(), readStatus);
     }
     catch (Exception e)
     {
       LOG.error(e.getMessage(), e);
     }
-  
+
   }
 
 }

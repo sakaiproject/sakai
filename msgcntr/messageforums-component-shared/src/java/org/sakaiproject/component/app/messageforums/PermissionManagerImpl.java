@@ -24,6 +24,9 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
@@ -37,6 +40,7 @@ import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.ControlPermissions;
+import org.sakaiproject.api.app.messageforums.DefaultFunctionManager;
 import org.sakaiproject.api.app.messageforums.ForumControlPermission;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
@@ -75,7 +79,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     private AreaManager areaManager;
     
     private EventTrackingService eventTrackingService;
-
+    
+    private DefaultFunctionManager defaultPermissionManager;
+    
     public void init() {
         ;
     }
@@ -119,19 +125,30 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     public void setIdManager(IdManager idManager) {
         this.idManager = idManager;
     }
+     
+
+    /**
+     * @param defaultPermissionManager The defaultPermissionManager to set.
+     */
+    public void setDefaultPermissionManager(
+        DefaultFunctionManager defaultPermissionManager)
+    {
+      this.defaultPermissionManager = defaultPermissionManager;
+    }
 
     public AreaControlPermission getAreaControlPermissionForRole(String role, String typeId) {
         ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, false);
         AreaControlPermission cp = new AreaControlPermissionImpl();
 
         if (permissions == null) {
-            cp.setChangeSettings(Boolean.FALSE);
-            cp.setMovePostings(Boolean.FALSE);
-            cp.setNewForum(Boolean.FALSE);
-            cp.setNewResponse(Boolean.FALSE);
-            cp.setNewTopic(Boolean.FALSE);
-            cp.setResponseToResponse(Boolean.FALSE);
-            cp.setPostToGradebook(Boolean.FALSE);
+//            cp.setChangeSettings(Boolean.FALSE);
+//            cp.setMovePostings(Boolean.FALSE);
+//            cp.setNewForum(Boolean.FALSE);
+//            cp.setNewResponse(Boolean.FALSE);
+//            cp.setNewTopic(Boolean.FALSE);
+//            cp.setResponseToResponse(Boolean.FALSE);
+//            cp.setPostToGradebook(Boolean.FALSE);
+          return getDefaultAreaControlPermissionForRole(role, typeId);
         } else {
             cp.setPostToGradebook(permissions.getPostToGradebook());
             cp.setChangeSettings(permissions.getChangeSettings());        
@@ -146,26 +163,32 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public AreaControlPermission getDefaultAreaControlPermissionForRole(String role, String typeId) {
-        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, true);
+//        ControlPermissions permissions = getAreaControlPermissionByRoleAndType(role, typeId, true);
         AreaControlPermission cp = new AreaControlPermissionImpl();
-        
-        if (permissions == null) {
-            cp.setChangeSettings(Boolean.FALSE);
-            cp.setMovePostings(Boolean.FALSE);
-            cp.setNewForum(Boolean.FALSE);
-            cp.setNewResponse(Boolean.FALSE);
-            cp.setNewTopic(Boolean.FALSE);
-            cp.setResponseToResponse(Boolean.FALSE);
-            cp.setPostToGradebook(Boolean.FALSE);
-        } else {
-            cp.setChangeSettings(permissions.getChangeSettings());
-            cp.setMovePostings(permissions.getMovePostings());
-            cp.setNewForum(permissions.getNewForum());
-            cp.setNewResponse(permissions.getNewResponse());
-            cp.setNewTopic(permissions.getNewTopic());
-            cp.setResponseToResponse(permissions.getResponseToResponse());
-            cp.setPostToGradebook(permissions.getPostToGradebook());
-        }
+//        if (permissions == null) {
+//            cp.setChangeSettings(Boolean.FALSE);
+//            cp.setMovePostings(Boolean.FALSE);
+//            cp.setNewForum(Boolean.FALSE);
+//            cp.setNewResponse(Boolean.FALSE);
+//            cp.setNewTopic(Boolean.FALSE);
+//            cp.setResponseToResponse(Boolean.FALSE);
+//            cp.setPostToGradebook(Boolean.FALSE);
+//        } else {
+//            cp.setChangeSettings(permissions.getChangeSettings());
+//            cp.setMovePostings(permissions.getMovePostings());
+//            cp.setNewForum(permissions.getNewForum());
+//            cp.setNewResponse(permissions.getNewResponse());
+//            cp.setNewTopic(permissions.getNewTopic());
+//            cp.setResponseToResponse(permissions.getResponseToResponse());
+//            cp.setPostToGradebook(permissions.getPostToGradebook());
+//        }
+        cp.setChangeSettings(new Boolean(defaultPermissionManager.isChangeSettings(role)));
+        cp.setMovePostings(new Boolean(defaultPermissionManager.isMovePostings(role)));
+        cp.setNewForum(new Boolean(defaultPermissionManager.isNewForum(role)));
+        cp.setNewResponse(new Boolean(defaultPermissionManager.isNewResponse(role)));
+        cp.setNewTopic(new Boolean(defaultPermissionManager.isNewTopic(role)));
+        cp.setResponseToResponse(new Boolean(defaultPermissionManager.isResponseToResponse(role)));
+        cp.setPostToGradebook(new Boolean(defaultPermissionManager.isPostToGradebook(role)));
         cp.setRole(role);
         return cp;
     }
@@ -493,13 +516,14 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         MessagePermissions mp = new MessagePermissionsImpl();
 
         if (permissions == null) {
-            mp.setDeleteAny(Boolean.FALSE);
-            mp.setDeleteOwn(Boolean.FALSE);
-            mp.setRead(Boolean.FALSE);
-            mp.setReadDrafts(Boolean.FALSE);
-            mp.setReviseAny(Boolean.FALSE);
-            mp.setReviseOwn(Boolean.FALSE);
-            mp.setMarkAsRead(Boolean.FALSE);
+//            mp.setDeleteAny(Boolean.FALSE);
+//            mp.setDeleteOwn(Boolean.FALSE);
+//            mp.setRead(Boolean.FALSE);
+//            mp.setReadDrafts(Boolean.FALSE);
+//            mp.setReviseAny(Boolean.FALSE);
+//            mp.setReviseOwn(Boolean.FALSE);
+//            mp.setMarkAsRead(Boolean.FALSE);
+          return getDefaultAreaMessagePermissionForRole(role, typeId);
         } else {
             mp.setDeleteAny(permissions.getDeleteAny());
             mp.setDeleteOwn(permissions.getDeleteOwn());
@@ -519,28 +543,34 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      * permissions that the role currently has.
      */
     public MessagePermissions getDefaultAreaMessagePermissionForRole(String role, String typeId) {
-        MessagePermissions permissions = getAreaMessagePermissionByRoleAndType(role, typeId, true);
+//        MessagePermissions permissions = getAreaMessagePermissionByRoleAndType(role, typeId, true);
         MessagePermissions mp = new MessagePermissionsImpl();
 
-        if (permissions == null) {
-            mp.setDeleteAny(Boolean.FALSE);
-            mp.setDeleteOwn(Boolean.FALSE);
-            mp.setRead(Boolean.FALSE);
-            mp.setReadDrafts(Boolean.FALSE);
-            mp.setReviseAny(Boolean.FALSE);
-            mp.setReviseOwn(Boolean.FALSE);
-            mp.setMarkAsRead(Boolean.FALSE);
-        } else {
-            mp.setDeleteAny(permissions.getDeleteAny());
-            mp.setDeleteOwn(permissions.getDeleteOwn());
-            mp.setRead(permissions.getRead());
-            mp.setReadDrafts(permissions.getReadDrafts());
-            mp.setReviseAny(permissions.getReviseAny());
-            mp.setReviseOwn(permissions.getReviseOwn());
-            mp.setMarkAsRead(permissions.getMarkAsRead());
-        }
-        mp.setRole(role);
-        
+//        if (permissions == null) {
+//            mp.setDeleteAny(Boolean.FALSE);
+//            mp.setDeleteOwn(Boolean.FALSE);
+//            mp.setRead(Boolean.FALSE);
+//            mp.setReadDrafts(Boolean.FALSE);
+//            mp.setReviseAny(Boolean.FALSE);
+//            mp.setReviseOwn(Boolean.FALSE);
+//            mp.setMarkAsRead(Boolean.FALSE);
+//        } else {
+//            mp.setDeleteAny(permissions.getDeleteAny());
+//            mp.setDeleteOwn(permissions.getDeleteOwn());
+//            mp.setRead(permissions.getRead());
+//            mp.setReadDrafts(permissions.getReadDrafts());
+//            mp.setReviseAny(permissions.getReviseAny());
+//            mp.setReviseOwn(permissions.getReviseOwn());
+//            mp.setMarkAsRead(permissions.getMarkAsRead());
+//        }
+        mp.setRole(role);        
+        mp.setDeleteAny(new Boolean(defaultPermissionManager.isDeleteAny(role)));
+        mp.setDeleteOwn(new Boolean(defaultPermissionManager.isDeleteOwn(role)));
+        mp.setRead(new Boolean(defaultPermissionManager.isRead(role)));
+        mp.setReadDrafts(new Boolean(false));
+        mp.setReviseAny(new Boolean(defaultPermissionManager.isReviseAny(role)));
+        mp.setReviseOwn(new Boolean(defaultPermissionManager.isReviseOwn(role)));
+        mp.setMarkAsRead(new Boolean(defaultPermissionManager.isMarkAsRead(role)));      
         return mp;
     }
 
@@ -914,5 +944,5 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 
     private String getEventMessage(Object parent, Object child) {
         return "MessageCenter::" + getCurrentUser() + "::" + parent.toString() + "::" + child.toString();
-    }
+    }  
 }

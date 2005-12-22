@@ -58,7 +58,10 @@
                 </property>
 		        <property name="eventTrackingService">
         		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
-		        </property>
+		        </property>		
+		         <property name="defaultPermissionManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.DefaultFunctionManager"/>
+		        </property>	       
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -67,6 +70,16 @@
             </props>
         </property> 
     </bean>
+    
+      <bean id="org.sakaiproject.api.app.messageforums.DefaultFunctionManager" class="org.sakaiproject.component.app.messageforums.DefaultFunctionManagerImpl"   init-method="init">
+        <property name="functionManager">
+            <ref bean="org.sakaiproject.api.kernel.function.FunctionManager"/>
+        </property>
+         <property name="authzGroupService">
+           <ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/>
+        </property>
+    </bean>
+     
     
      <bean id="org.sakaiproject.api.app.messageforums.UserPermissionManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">

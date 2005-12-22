@@ -211,7 +211,10 @@ public class DiscussionForumTool
    */
   public List getTemplateControlPermissions()
   {
-    templateControlPermissions = forumManager.getDefaultControlPermissions();
+    if(templateControlPermissions==null)
+      {
+        templateControlPermissions = forumManager.getAreaControlPermissions();
+      }
     return templateControlPermissions;
   }
 
@@ -228,7 +231,10 @@ public class DiscussionForumTool
    */
   public List getTemplateMessagePermissions()
   {
-    templateMessagePermissions = forumManager.getDefaultMessagePermissions();
+    if(templateMessagePermissions==null)
+    {
+      templateMessagePermissions = forumManager.getAreaMessagePermissions();
+    }
     return templateMessagePermissions;
   }
 
@@ -247,8 +253,8 @@ public class DiscussionForumTool
   public String processActionSaveTemplateSettings()
   {
     LOG.debug("processActionSaveForumSettings()");
-    forumManager.saveDefaultControlPermissions(templateControlPermissions);
-    forumManager.saveDefaultMessagePermissions(templateMessagePermissions);
+    forumManager.saveAreaControlPermissions(templateControlPermissions);
+    forumManager.saveAreaMessagePermissions(templateMessagePermissions);
     return MAIN;
   }
 
@@ -257,7 +263,8 @@ public class DiscussionForumTool
    */
   public String processActionRestoreDefaultTemplate()
   {
-    templateControlPermissions = null;
+    templateControlPermissions = forumManager.getDefaultControlPermissions();
+    templateMessagePermissions = forumManager.getDefaultMessagePermissions();
     return TEMPLATE_SETTING;
   }
 
@@ -1066,7 +1073,8 @@ public class DiscussionForumTool
 
     attachments.clear();
     prepareRemoveAttach.clear();
-
+    templateControlPermissions=null;
+    templateMessagePermissions=null;    
   }
 
   /**
