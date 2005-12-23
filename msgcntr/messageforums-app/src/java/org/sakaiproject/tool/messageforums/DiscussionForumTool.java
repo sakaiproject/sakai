@@ -749,11 +749,11 @@ public class DiscussionForumTool
     {
       if (selectedTopic.isReadFullDesciption())
       {
-        selectedTopic.setReadFullDesciption(true);
+        selectedTopic.setReadFullDesciption(false);
       }
       else
       {
-        selectedTopic.setReadFullDesciption(false);
+        selectedTopic.setReadFullDesciption(true);
       }
       return ALL_MESSAGES;
     }
@@ -761,11 +761,11 @@ public class DiscussionForumTool
     {
       if (selectedTopic.isReadFullDesciption())
       {
-        selectedTopic.setReadFullDesciption(true);
+        selectedTopic.setReadFullDesciption(false);
       }
       else
       {
-        selectedTopic.setReadFullDesciption(false);
+        selectedTopic.setReadFullDesciption(true);
       }
       return MESSAGE_VIEW;
     }
