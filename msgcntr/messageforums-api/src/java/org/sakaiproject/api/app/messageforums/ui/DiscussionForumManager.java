@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -14,6 +15,21 @@ import org.sakaiproject.api.app.messageforums.Topic;
  */
 public interface DiscussionForumManager
 {
+  
+  public Topic getTopicByIdWithAttachments(Long topicId);
+ 
+  public DiscussionForum getForumByIdWithTopics(Long forumId);
+  
+  public List getTopicsByIdWithMessages(final Long forumId);
+  
+  public List getTopicsByIdWithMessagesAndAttachments(final Long forumId);
+  
+  public Topic getTopicByIdWithMessages(final Long topicId);
+  
+  public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId);
+   
+
+  
   /**
    * Retrieve discussion forum area
    * 

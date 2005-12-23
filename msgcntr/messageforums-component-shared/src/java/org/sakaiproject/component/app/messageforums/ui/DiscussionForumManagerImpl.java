@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
@@ -54,7 +55,29 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   {
     ;
   }
+    
+    
+  public Topic getTopicByIdWithAttachments(Long topicId){
+    return forumManager.getTopicByIdWithAttachments(topicId);
+  }
+  
+  public List getTopicsByIdWithMessages(final Long forumId){
+    return forumManager.getTopicsByIdWithMessages(forumId);
+  }
+  
+  public List getTopicsByIdWithMessagesAndAttachments(final Long forumId){
+    return forumManager.getTopicsByIdWithMessagesAndAttachments(forumId);
+  }
 
+  public Topic getTopicByIdWithMessages(final Long topicId){
+    return forumManager.getTopicByIdWithMessages(topicId);
+  }
+  
+  public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId){
+    return forumManager.getTopicByIdWithMessagesAndAttachments(topicId);
+  }
+       
+  
   // start injection
   /**
    * @param helper
@@ -80,6 +103,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   {
     this.permissionManager = permissionManager;
   }
+    
 
   /**
    * @param typeManager
@@ -107,7 +131,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   }
 
   // end injection
-
+   
+  
+  
+  
   /*
    * (non-Javadoc)
    * 
@@ -195,7 +222,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       return helper.getDiscussionForumArea().getDiscussionForums();
     }
-    return getDiscussionForumArea().getDiscussionForums();
+    return forumManager.getForumByTypeAndContext(typeManager.getDiscussionForumType());
+    //return getDiscussionForumArea().getDiscussionForums();
   }
 
   /*
@@ -223,11 +251,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getMessagesByTopicId(java.lang.Long)
    */
   public List getMessagesByTopicId(Long topicId)
-  {
-    if (usingHelper)
-    {
-      return helper.getMessagesByTopicId(topicId);
-    }
+  {   
     return messageManager.findMessagesByTopicId(topicId);
   }
 
@@ -238,16 +262,20 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public DiscussionTopic getTopicById(Long topicId)
   {
-    if (usingHelper)
-    {
-      return helper.getTopicById(topicId);
-    }
+   
     return (DiscussionTopic) forumManager.getTopicById(true, topicId);
   }
 
-  public DiscussionTopic getTopicByUuid(String topicId)
-  {
-    return (DiscussionTopic) forumManager.getTopicByUuid(topicId);
+  
+  public DiscussionForum getForumByIdWithTopics(Long forumId)
+  {   
+    return (DiscussionForum) forumManager.getForumByIdWithTopics(forumId);
+  }
+  
+  
+  
+  public DiscussionTopic getTopicByUuid(String topicId) {
+      return (DiscussionTopic) forumManager.getTopicByUuid(topicId);      
   }
 
   /*
@@ -264,7 +292,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     // TODO: Needs optimized
     boolean next = false;
-    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+    DiscussionForum forum = getForumById(topic.getBaseForum().getId());
     if (forum != null && forum.getTopics() != null)
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
@@ -302,7 +330,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     // TODO: Needs optimized
     DiscussionTopic prev = null;
-    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+    DiscussionForum forum = getForumById(topic.getBaseForum().getId());
     if (forum != null && forum.getTopics() != null)
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
@@ -346,7 +374,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     // TODO: Needs optimized and re-written to take advantage of the db... this is really horrible.
     boolean next = false;
-    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+    DiscussionForum forum = getForumById(topic.getBaseForum().getId());
     if (forum != null && forum.getTopics() != null)
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
@@ -397,7 +425,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     // TODO: Needs optimized
     DiscussionTopic prev = null;
-    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+    DiscussionForum forum = getForumById(topic.getBaseForum().getId());
     if (forum != null && forum.getTopics() != null)
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)

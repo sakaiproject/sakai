@@ -157,7 +157,7 @@ public class DiscussionForumTool
         if (forum == null)
         {
           return forums;
-        }
+        }        
         List temp_topics = forum.getTopics();
         if (temp_topics == null)
         {
@@ -697,7 +697,7 @@ public class DiscussionForumTool
   public String processActionTopicSettings()
   {
     LOG.debug("processActionTopicSettings()");
-    DiscussionTopic topic = forumManager.getTopicById(new Long(
+    DiscussionTopic topic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(new Long(
         getExternalParameterByKey(TOPIC_ID)));
     if (topic == null)
     {
@@ -818,7 +818,8 @@ public class DiscussionForumTool
       setErrorMessage("Message with id '" + messageId + "'not found");
       return MAIN;
     }
-    selectedMessage = new DiscussionMessageBean(message);
+    message = messageManager.getMessageByIdWithAttachments(message.getId());
+    selectedMessage = new DiscussionMessageBean(message, messageManager);
     // TODO:remove this after real data is in there
     selectedTopic = new DiscussionTopicBean(forumManager.getTopicById(new Long(
         getExternalParameterByKey(TOPIC_ID))));
@@ -872,7 +873,8 @@ public class DiscussionForumTool
     {
       LOG.debug("getDecoratedForum(DiscussionForum" + forum + ")");
     }
-    DiscussionForumBean decoForum = new DiscussionForumBean(forum);
+    forum = forumManager.getForumByIdWithTopics(forum.getId());
+    DiscussionForumBean decoForum = new DiscussionForumBean(forum);    
     List temp_topics = forum.getTopics();
     if (temp_topics == null)
     {
@@ -992,7 +994,8 @@ public class DiscussionForumTool
       decoTopic
           .setPreviousTopicId(forumManager.getPreviousTopic(topic).getId());
     }
-    List temp_messages = topic.getMessages();
+    
+    List temp_messages = forumManager.getTopicByIdWithMessages(topic.getId()).getMessages();
     if (temp_messages == null || temp_messages.size() < 1)
     {
       return decoTopic;
@@ -1007,7 +1010,7 @@ public class DiscussionForumTool
         decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
         if (message != null)
         {
-          DiscussionMessageBean decoMsg = new DiscussionMessageBean(message);
+          DiscussionMessageBean decoMsg = new DiscussionMessageBean(message, messageManager);
           decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(),
               message.getId()));
           decoTopic.addMessage(decoMsg);
@@ -1271,7 +1274,9 @@ public class DiscussionForumTool
     Message dMsg = constructMessage();
 
     forumManager.saveMessage(dMsg);
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.setTopic((DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+        
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -1290,7 +1295,8 @@ public class DiscussionForumTool
     dMsg.setDraft(Boolean.TRUE);
 
     forumManager.saveMessage(dMsg);
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.setTopic((DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -1443,7 +1449,8 @@ public class DiscussionForumTool
 
     dMsg.setInReplyTo(selectedMessage.getMessage());
     forumManager.saveMessage(dMsg);
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.setTopic((DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));    
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -1463,7 +1470,8 @@ public class DiscussionForumTool
 
     dMsg.setInReplyTo(selectedMessage.getMessage());
     forumManager.saveMessage(dMsg);
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.setTopic((DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));    
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -1568,7 +1576,7 @@ public class DiscussionForumTool
       DiscussionMessageBean dmb = (DiscussionMessageBean) messageList.get(i);
       if (dmb.getMessage().getId().equals(dMsg.getId()))
       {
-        selectedTopic.getMessages().set(i, new DiscussionMessageBean(dMsg));
+        selectedTopic.getMessages().set(i, new DiscussionMessageBean(dMsg, messageManager));
       }
     }
 
@@ -1653,7 +1661,7 @@ public class DiscussionForumTool
       DiscussionMessageBean dmb = (DiscussionMessageBean) messageList.get(i);
       if (dmb.getMessage().getId().equals(dMsg.getId()))
       {
-        selectedTopic.getMessages().set(i, new DiscussionMessageBean(dMsg));
+        selectedTopic.getMessages().set(i, new DiscussionMessageBean(dMsg, messageManager));
       }
     }
 
@@ -1703,7 +1711,8 @@ public class DiscussionForumTool
     Message dMsg = constructMessage();
 
     forumManager.saveMessage(dMsg);
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.setTopic((DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -1722,7 +1731,8 @@ public class DiscussionForumTool
     dMsg.setDraft(Boolean.TRUE);
 
     forumManager.saveMessage(dMsg);
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg));
+    selectedTopic.setTopic((DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -1761,7 +1771,7 @@ public class DiscussionForumTool
     for (int i = 0; i < delList.size(); i++)
     {
       selectedTopic.removeMessage(new DiscussionMessageBean((Message) delList
-          .get(i)));
+          .get(i), messageManager));
       selectedTopic.getTopic().removeMessage((Message) delList.get(i));
     }
 

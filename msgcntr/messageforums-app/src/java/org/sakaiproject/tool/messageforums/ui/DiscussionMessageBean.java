@@ -17,10 +17,13 @@ public class DiscussionMessageBean
   private Message message;
   private boolean read;
   private int depth;
+  
+  private MessageForumsMessageManager messageManager;
 
-  public DiscussionMessageBean(Message msg)
-  {
+  public DiscussionMessageBean(Message msg, MessageForumsMessageManager messageManager)
+  {    
     this.message = msg;
+    this.messageManager = messageManager; 
   }
 
  
@@ -62,6 +65,7 @@ public class DiscussionMessageBean
     {
       return false;
     }
+    message = messageManager.getMessageByIdWithAttachments(message.getId());
     if(message.getAttachments()==null)
     {
       return false;

@@ -41,11 +41,11 @@
     <property name="extendedDescription" type="text">
       <column name="EXTENDED_DESCRIPTION" not-null="true" />
     </property>
-    <set name="attachmentsSet" lazy="false" order-by="created desc" cascade="all-delete-orphan">
+    <set name="attachmentsSet" lazy="true" order-by="created desc" cascade="all-delete-orphan">
         <key column="t_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
-    <set name="messagesSet" lazy="false" order-by="created desc" cascade="save-update">
+    <set name="messagesSet" lazy="true" order-by="created desc" cascade="save-update">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
     </set>    
@@ -137,8 +137,9 @@
 	    <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
 	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
 	      not-null="false" cascade="none" />
-	    -->
-	    <list name="labels" lazy="false" table="MFR_LABEL_T" cascade="all">
+        
+        -->
+	    <list name="labels" lazy="true" table="MFR_LABEL_T" cascade="all">
 	        <key column="dt_surrogateKey"/>
 	        <index column="dt_index_col" />
 	        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
@@ -158,14 +159,46 @@
             
   </class>
   
-  <query name="findTopicByIdWithAttachmentsAndMessages">
+  <query name="findTopicByIdWithMessagesAndAttachments">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.messagesSet message
+             left join fetch message.attachmentsSet
+             where topic.id = :id
+    ]]>
+  </query>    
+  
+  <query name="findTopicByIdWithAttachments">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
              left join fetch topic.attachmentsSet attachment
              where topic.id = :id
     ]]>
   </query>
   
-  <query name="findTopicByUuidWithAttachmentsAndMessages">
+  <query name="findTopicByIdWithMessages">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.messagesSet message
+             where topic.id = :id
+    ]]>
+  </query>
+  
+  <query name="findTopicsWithMessagesForForum">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             join topic.openForum forum
+             left join fetch topic.messagesSet message
+             where forum.id = :id
+    ]]>
+  </query>
+  
+  <query name="findTopicsWithMessagesAndAttachmentsForForum">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             join topic.openForum forum
+             left join fetch topic.messagesSet message
+             left join fetch message.attachmentsSet
+             where forum.id = :id
+    ]]>
+  </query>  
+  
+  <query name="findTopicByUuidWithAttachments">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
              left join fetch topic.attachmentsSet attachment
              where topic.id = :id
@@ -177,10 +210,16 @@
   </query>
 
   <query name="findOpenTopicAndParentById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic join topic.openForum where topic.id = :id ]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic 
+             join topic.openForum
+             left join fetch attachmentsSet
+             where topic.id = :id ]]>
   </query>
   <query name="findPrivateTopicAndParentById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic join topic.privateForum where topic.id = :id ]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             join topic.privateForum
+             left join fetch attachmentsSet
+             where topic.id = :id ]]>
   </query>
   <query name="findTopicByUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic where topic.uuid = :uuid]]>

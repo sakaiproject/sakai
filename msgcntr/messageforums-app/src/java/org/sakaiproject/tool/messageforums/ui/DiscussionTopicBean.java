@@ -276,5 +276,10 @@ public class DiscussionTopicBean
   public void setMarkForDeletion(boolean markForDeletion)
   {
     this.markForDeletion = markForDeletion;
+  }
+
+  public void setTopic(DiscussionTopic topic)
+  {
+    this.topic = topic;
   }  
 }

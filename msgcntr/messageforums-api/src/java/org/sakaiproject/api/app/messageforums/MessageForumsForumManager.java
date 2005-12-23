@@ -28,12 +28,25 @@ import java.util.List;
 
 public interface MessageForumsForumManager {
  
+  
+    public List getTopicsByIdWithMessages(final Long forumId);
+  
+    public List getTopicsByIdWithMessagesAndAttachments(final Long forumId);
+  
+    public Topic getTopicByIdWithMessages(final Long topicId);
+          
+    public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId);
+     
+    public BaseForum getForumByIdWithTopics(final Long forumId);
+  
+    public List getForumByTypeAndContext(final String typeUuid);
+      
     /**
      * get forum by owner
      */
     public PrivateForum getForumByOwner(final String owner);
     
-    public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId);
+    public Topic getTopicByIdWithAttachments(final Long topicId);
     
     /**
      * Retrieve a given forum for the current user
