@@ -25,7 +25,25 @@
 			<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
 			<h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}" rendered="#{ForumTool.instructor}">
 				<f:param value="#{forum.forum.id}" name="forumId"/>
-			</h:commandLink><f:verbatim></div></f:verbatim>
+			</h:commandLink>
+			<%--<h:dataTable value="#{forum.forum.attachments}" var="eachAttach" rendered="#{!empty forum.forum.attachments}">
+				  <h:column>
+						<f:facet name="header">
+							<h:outputText id="attachment" value="Attachments" />
+						</f:facet>
+						<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
+						<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
+						<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
+						<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
+						<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
+						<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
+						<h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
+							<h:outputText value="#{eachAttach.attachmentName}"  style="text-decoration:underline;"/>
+						</h:outputLink>
+				  </h:column>
+			  </h:dataTable>--%>
+			
+			<f:verbatim></div></f:verbatim>
 
 		<f:verbatim> <br/><div class="forumsRowLeft"></f:verbatim>
 		 <h:outputText id="forum_desc" style="text-align:left;" value="#{forum.forum.shortDescription}" />
@@ -66,6 +84,22 @@
 						<f:param value="#{topic.topic.id}" name="topicId_hideExtended"/>
 						<f:param value="displayHome" name="redirectToProcessAction"/>
 					</h:commandLink>
+					<h:dataTable value="#{topic.topic.attachments}" var="eachAttach" rendered="#{!empty topic.topic.attachments}">
+					  <h:column>
+						<f:facet name="header">
+							<h:outputText id="attachment" value="Attachments" />
+						</f:facet>
+						<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
+						<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
+						<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
+						<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
+						<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
+						<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
+						<h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
+							<h:outputText value="#{eachAttach.attachmentName}"  style="text-decoration:underline;"/>
+						</h:outputLink>
+				  </h:column>
+			  </h:dataTable>
 				<f:verbatim><hr/></div></f:verbatim>
 				<h:dataTable id="messages" value="#{topics.messages}" var="message">
 				    <h:column>
