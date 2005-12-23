@@ -635,16 +635,8 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */  
   public String processPvtMsgCancel() {
-    LOG.debug("processPvtMsgCancel()");
-
-    if(getMsgNavMode().equals(""))
-    {
-      return "main" ; // if navigation is from main page
-    }
-    else
-    {
-      return "pvtMsg";
-    }  
+    LOG.debug("processPvtMsgCancel()");   
+    return "main";     
   }
   
   /**
@@ -656,15 +648,21 @@ public class PrivateMessagesTool
     
     String msgId=getExternalParameterByKey("current_msg_detail");
     setCurrentMsgUuid(msgId) ; 
-    //retrive the detail for this message with currentMessageId
-    for (Iterator iter = this.getDecoratedPvtMsgs().iterator(); iter.hasNext();)
+    //retrive the detail for this message with currentMessageId    
+    for (Iterator iter = decoratedPvtMsgs.iterator(); iter.hasNext();)
     {
       PrivateMessageDecoratedBean dMsg= (PrivateMessageDecoratedBean) iter.next();
       if (dMsg.getMsg().getId().equals(new Long(msgId)))
       {
         this.setDetailMsg(dMsg);        
         prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
-        //TODO Error - Failed to lazily initialize a collection -
+        
+        /** initialize attachments */       
+        //prtMsgManager.initMessageWithAttachmentsAndRecipients(dMsg.getMsg());
+        
+        PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(dMsg.getMsg());
+        this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
+        
         List recLs= dMsg.getMsg().getRecipients();
         for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
         {

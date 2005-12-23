@@ -256,6 +256,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         message.setCreated(new Date());
         message.setCreatedBy(getCurrentUser());
         message.setDraft(Boolean.FALSE);
+        message.setHasAttachments(Boolean.FALSE);
         
         LOG.info("message " + message.getUuid() + " created successfully");
         return message;        
@@ -276,6 +277,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         message.setCreated(new Date());
         message.setCreatedBy(getCurrentUser());
         message.setDraft(Boolean.FALSE);
+        message.setHasAttachments(Boolean.FALSE);
 
         LOG.info("message " + message.getUuid() + " created successfully");
         return message;        
@@ -318,7 +320,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             e.printStackTrace();
             LOG.error("could not evict message: " + message.getId(), e);
         }
-        Topic topic = message.getTopic();
+        Topic topic = message.getTopic();        
         topic.removeMessage(message);
         getHibernateTemplate().saveOrUpdate(topic);
 		//getHibernateTemplate().delete(message);

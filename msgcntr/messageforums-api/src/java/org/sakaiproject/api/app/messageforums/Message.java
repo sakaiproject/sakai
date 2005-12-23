@@ -39,6 +39,8 @@ public interface Message extends MutableEntity {
     public void setDraft(Boolean draft);
     public Boolean getApproved();
     public void setApproved(Boolean approved);
+    public Boolean getHasAttachments();
+    public void setHasAttachments(Boolean hasAttachments);    
     public List getAttachments();
     public void setAttachments(List attachments);
     public Set getAttachmentsSet();

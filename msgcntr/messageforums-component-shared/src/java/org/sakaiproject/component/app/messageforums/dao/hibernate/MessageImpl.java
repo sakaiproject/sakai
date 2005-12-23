@@ -44,6 +44,8 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private Boolean approved;
   private Boolean draft;
   private Topic topic;
+  private Boolean hasAttachments = Boolean.FALSE;
+  
 
   public static Comparator ATTACHMENT_COMPARATOR;
   public static Comparator SUBJECT_COMPARATOR;
@@ -79,6 +81,16 @@ public class MessageImpl extends MutableEntityImpl implements Message
     this.draft = draft;
   }
 
+  public Boolean getHasAttachments()
+  {
+    return hasAttachments;
+  }
+
+  public void setHasAttachments(Boolean hasAttachments)
+  {
+    this.hasAttachments = hasAttachments;
+  }
+  
   public Boolean getApproved()
   {
     return approved;
@@ -224,6 +236,11 @@ public class MessageImpl extends MutableEntityImpl implements Message
 
     attachment.setMessage(this);
     attachmentsSet.add(attachment);
+    
+    if (!hasAttachments.booleanValue()){
+      hasAttachments = Boolean.TRUE;
+    }
+    
   }
 
   public void removeAttachment(Attachment attachment)
@@ -239,7 +256,11 @@ public class MessageImpl extends MutableEntityImpl implements Message
     }
 
     attachment.setMessage(null);
-    attachmentsSet.remove(attachment);
+    attachmentsSet.remove(attachment);  
+    
+    if (attachmentsSet.size() == 0){
+      hasAttachments = Boolean.FALSE;
+    }
   }
 
 //  public int getTindex()

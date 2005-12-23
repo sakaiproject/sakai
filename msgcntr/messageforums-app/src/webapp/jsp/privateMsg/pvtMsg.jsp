@@ -28,7 +28,7 @@
 				<f:facet name="header">
 					<h:graphicImage value="/images/attachment.gif"/>								
 				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" rendered="#{!empty rcvdItems.msg.attachments}"/>			 
+				<h:graphicImage value="/images/attachment.gif" rendered="#{!empty rcvdItems.msg.hasAttachments}"/>			 
 			</h:column>
 		  <h:column>
 		    <f:facet name="header">

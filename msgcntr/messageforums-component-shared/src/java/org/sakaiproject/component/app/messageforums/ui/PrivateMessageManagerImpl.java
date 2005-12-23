@@ -458,7 +458,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return getMessagesByType(typeManager.getDraftPrivateMessageType(),
         orderField, order);
   }
-
+    
+  public PrivateMessage initMessageWithAttachmentsAndRecipients(PrivateMessage msg){
+    
+    PrivateMessage pmReturn = (PrivateMessage) messageManager.getMessageByIdWithAttachments(msg.getId());    
+    getHibernateTemplate().initialize(pmReturn.getRecipients());
+    return pmReturn;
+  }
+  
   /**
    * helper method to get messages by type
    * @param typeUuid
@@ -521,16 +528,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       }
     };
 
-    List list = (List) getHibernateTemplate().execute(hcb);
+    return (List) getHibernateTemplate().execute(hcb);
     
     // fix to return count of attachments collection
     
-    for (Iterator i = list.iterator(); i.hasNext();)
-    {
-      PrivateMessage element = (PrivateMessage) i.next();
-      getHibernateTemplate().initialize(element.getAttachmentsSet());
-    }
-    return list;
+//    for (Iterator i = list.iterator(); i.hasNext();)
+//    {
+//      PrivateMessage element = (PrivateMessage) i.next();
+//      getHibernateTemplate().initialize(element.getAttachmentsSet());
+//    }
+//    return list;
   }
   
   /**

@@ -18,7 +18,9 @@ public interface PrivateMessageManager {
     public static String SORT_COLUMN_LABEL = "label";
     
     public static String SORT_ASC = "asc";
-    public static String SORT_DESC = "desc";              
+    public static String SORT_DESC = "desc";
+    
+    public PrivateMessage initMessageWithAttachmentsAndRecipients(PrivateMessage msg);
     
     public void saveAreaAndForumSettings(Area area, PrivateForum forum);
     
