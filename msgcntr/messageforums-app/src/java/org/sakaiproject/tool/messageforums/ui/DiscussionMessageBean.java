@@ -9,6 +9,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
+ * @author Chen Wen
  *
  */
 public class DiscussionMessageBean
@@ -17,6 +18,8 @@ public class DiscussionMessageBean
   private Message message;
   private boolean read;
   private int depth;
+  private boolean hasNext;
+  private boolean hasPre;
   
   private MessageForumsMessageManager messageManager;
 
@@ -117,7 +120,35 @@ public class DiscussionMessageBean
   {
   	return depth;
   }
- 
 
+  /**
+   * @return Returns the hasNext.
+   */
+  public boolean getHasNext() 
+  {
+  	return hasNext;
+  }
   
+  /**
+   * @param hasNext The hasNext to set.
+   */
+  public void setHasNext(boolean hasNext) 
+  {
+  	this.hasNext = hasNext;
+  }
+  
+  /**
+   * @return Returns the hasPre.
+   */
+  public boolean getHasPre() 
+  {
+  	return hasPre;
+  }
+  
+  /**
+   * @param hasPre The hasPre to set.
+   */
+  public void setHasPre(boolean hasPre) {
+  	this.hasPre = hasPre;
+  }
 }

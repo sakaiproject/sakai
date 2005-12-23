@@ -504,6 +504,7 @@ public class DiscussionForumTool
   	{
   	  rearrageTopicMsgsThreaded();
   	}
+  	setMessageBeanPreNextStatus();
   	
     return selectedTopic;
   }
@@ -855,11 +856,86 @@ public class DiscussionForumTool
     }
     selectedTopic = getDecoratedTopic(forumManager.getTopicById(new Long(
         getExternalParameterByKey(TOPIC_ID))));
-
+    getSelectedTopic();
+    List tempMsgs = selectedTopic.getMessages();
+    if(tempMsgs != null)
+    {
+    	for(int i=0; i<tempMsgs.size(); i++)
+    	{
+    		DiscussionMessageBean thisDmb = (DiscussionMessageBean)tempMsgs.get(i);
+    		if(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId().toString().equals(messageId))
+    		{
+    			selectedMessage.setDepth(thisDmb.getDepth());
+    			selectedMessage.setHasNext(thisDmb.getHasNext());
+    			selectedMessage.setHasPre(thisDmb.getHasPre());
+    			break;
+    		}
+    	}
+    }
     // selectedTopic= new DiscussionTopicBean(message.getTopic());
     return MESSAGE_VIEW;
   }
+  
+  public String processDisplayPreviousMsg()
+  {
+  	List tempMsgs = selectedTopic.getMessages();
+  	int currentMsgPosition = -1;
+    if(tempMsgs != null)
+    {
+    	for(int i=0; i<tempMsgs.size(); i++)
+    	{
+    		DiscussionMessageBean thisDmb = (DiscussionMessageBean)tempMsgs.get(i);
+    		if(selectedMessage.getMessage().getId().equals(thisDmb.getMessage().getId()))
+    		{
+    			currentMsgPosition = i;
+    			break;
+    		}
+    	}
+    }
+    
+    if(currentMsgPosition > 0)
+    {
+    	DiscussionMessageBean thisDmb = (DiscussionMessageBean)tempMsgs.get(currentMsgPosition-1);
+    	Message message = messageManager.getMessageByIdWithAttachments(thisDmb.getMessage().getId());
+      selectedMessage = new DiscussionMessageBean(message, messageManager);
+			selectedMessage.setDepth(thisDmb.getDepth());
+			selectedMessage.setHasNext(thisDmb.getHasNext());
+			selectedMessage.setHasPre(thisDmb.getHasPre());
+    }
+    
+    return null;
+  }
 
+  public String processDfDisplayNextMsg()
+  {
+  	List tempMsgs = selectedTopic.getMessages();
+  	int currentMsgPosition = -1;
+    if(tempMsgs != null)
+    {
+    	for(int i=0; i<tempMsgs.size(); i++)
+    	{
+    		DiscussionMessageBean thisDmb = (DiscussionMessageBean)tempMsgs.get(i);
+    		if(selectedMessage.getMessage().getId().equals(thisDmb.getMessage().getId()))
+    		{
+    			currentMsgPosition = i;
+    			break;
+    		}
+    	}
+    }
+    
+    if(currentMsgPosition > -2  && currentMsgPosition < (tempMsgs.size()-1))
+    {
+    	DiscussionMessageBean thisDmb = (DiscussionMessageBean)tempMsgs.get(currentMsgPosition+1);
+    	Message message = messageManager.getMessageByIdWithAttachments(thisDmb.getMessage().getId());
+      selectedMessage = new DiscussionMessageBean(message, messageManager);
+			selectedMessage.setDepth(thisDmb.getDepth());
+			selectedMessage.setHasNext(thisDmb.getHasNext());
+			selectedMessage.setHasPre(thisDmb.getHasPre());
+    }
+    
+    return null;
+  }
+  
   // **************************************** helper methods**********************************
 
   /**
@@ -2005,7 +2081,7 @@ public class DiscussionForumTool
   			{
   				dmb.setDepth(0);
   				orderedList.add(dmb);
-  				//for permance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
+  				//for performance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
   				//recursiveGetThreadedMsgs(msgsList, orderedList, dmb);
   				recursiveGetThreadedMsgsFromList(msgsList, orderedList, dmb);
   			}
@@ -2031,7 +2107,7 @@ public class DiscussionForumTool
 					returnList.add(dmb);*/
 					((DiscussionMessageBean)msgsList.get(k)).setDepth(currentMsg.getDepth() + 1);
 					returnList.add(((DiscussionMessageBean)msgsList.get(k)));
-					recursiveGetThreadedMsgs(msgsList, returnList, dmb);
+					recursiveGetThreadedMsgs(msgsList, returnList, ((DiscussionMessageBean)msgsList.get(k)));
 					break;
 				}
 			}
@@ -2053,6 +2129,43 @@ public class DiscussionForumTool
   			thisMsgBean.setDepth(currentMsg.getDepth() + 1);
   			returnList.add(thisMsgBean);
   			this.recursiveGetThreadedMsgsFromList(msgsList, returnList, thisMsgBean);
+  		}
+  	}
+  }
+  
+  private void setMessageBeanPreNextStatus()
+  {
+  	if(selectedTopic != null)
+  	{
+  		if(selectedTopic.getMessages() != null)
+  		{
+  			List tempMsgs = selectedTopic.getMessages();
+  			for(int i=0; i<tempMsgs.size(); i++)
+				{
+					DiscussionMessageBean dmb = (DiscussionMessageBean)tempMsgs.get(i);
+					if(i==0)
+					{
+						dmb.setHasPre(false);
+						if(i==(tempMsgs.size()-1))
+						{
+							dmb.setHasNext(false);
+						}
+						else
+						{
+							dmb.setHasNext(true);
+						}
+					}
+					else if(i==(tempMsgs.size()-1))
+					{
+						dmb.setHasPre(true);
+						dmb.setHasNext(false);
+					}
+					else
+					{
+						dmb.setHasNext(true);
+						dmb.setHasPre(true);
+					}
+				}
   		}
   	}
   }

@@ -40,14 +40,14 @@
 				</h:commandLink>					
 			</div>
 			<div class="right-header-section">
-				<h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
+				<%--<h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
 				<h:outputText   value="#{msgs.cdfm_next_topic}   " rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
 				<h:commandLink action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}   "  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" >
 					<f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
 				</h:commandLink>
 				<h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}   " rendered="#{ForumTool.selectedTopic.hasNextTopic}" >
 					<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>	
-				</h:commandLink>
+				</h:commandLink>--%>
 			</div>
 		</div>
 
@@ -69,14 +69,14 @@
           <h:outputText value="#{ForumTool.selectedMessage.message.title}" />  
         </td>  
         <td align="left">
-				  <%--<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" value="Previous Message   "  rendered="#{ForumTool.selectedMessage.hasPreviousMsg}" >
-   				  <f:param value="#{ForumTool.selectedMessage.previousMsgId}" name="previousMsgId"/>
+			 		<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage.hasPre}" >
+				 		<h:outputText value="Previous Message   " />
  				  </h:commandLink>
-				  <h:commandLink action="#{ForumTool.processDfDisplayNextMsg}" value="Next Message   " rendered="#{ForumTool.selectedMessage.hasNextMsg}" >
-				    <f:param value="#{ForumTool.selectedMessage.nextMsgId}" name="nextTopicId"/>
+				  <h:outputText   value="Previous Message   "  rendered="#{!ForumTool.selectedMessage.hasPre}" />
+				  <h:commandLink action="#{ForumTool.processDfDisplayNextMsg}" rendered="#{ForumTool.selectedMessage.hasNext}" >
+	 				  <h:outputText value="Next Message   " />
 				  </h:commandLink>
-				  <h:outputText   value="Previous Message   "  rendered="#{!ForumTool.selectedMessage.hasPreviousMsg}" />
-				  <h:outputText   value="Next Message   " rendered="#{!ForumTool.selectedMessage.hasNextMsg}" />--%>
+				  <h:outputText   value="Next Message   " rendered="#{!ForumTool.selectedMessage.hasNext}" />
 			  </td>
       </tr>
       <tr>
