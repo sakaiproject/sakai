@@ -2026,8 +2026,10 @@ public class DiscussionForumTool
 				if(currentChild.getId().equals(existedMsg.getId()))
 				{
 					DiscussionMessageBean dmb = new DiscussionMessageBean(currentChild, messageManager);
-					dmb.setDepth(currentMsg.getDepth() + 1);
-					returnList.add(dmb);
+/*					dmb.setDepth(currentMsg.getDepth() + 1);
+					returnList.add(dmb);*/
+					((DiscussionMessageBean)msgsList.get(k)).setDepth(currentMsg.getDepth() + 1);
+					returnList.add(((DiscussionMessageBean)msgsList.get(k)));
 					recursiveGetThreadedMsgs(msgsList, returnList, dmb);
 					break;
 				}
@@ -2039,13 +2041,17 @@ public class DiscussionForumTool
   {
   	for(int i=0; i<msgsList.size(); i++)
   	{
-  		Message thisMsg = ((DiscussionMessageBean)msgsList.get(i)).getMessage();
+  		DiscussionMessageBean thisMsgBean = (DiscussionMessageBean)msgsList.get(i);
+  		Message thisMsg = thisMsgBean.getMessage();
   		if(thisMsg.getInReplyTo()!=null && thisMsg.getInReplyTo().getId().equals(currentMsg.getMessage().getId()))
   		{
-  			DiscussionMessageBean dmb = new DiscussionMessageBean(thisMsg, messageManager);
+/*  			DiscussionMessageBean dmb = new DiscussionMessageBean(thisMsg, messageManager);
   			dmb.setDepth(currentMsg.getDepth() + 1);
   			returnList.add(dmb);
-  			this.recursiveGetThreadedMsgsFromList(msgsList, returnList, dmb);
+  			this.recursiveGetThreadedMsgsFromList(msgsList, returnList, dmb);*/
+  			thisMsgBean.setDepth(currentMsg.getDepth() + 1);
+  			returnList.add(thisMsgBean);
+  			this.recursiveGetThreadedMsgsFromList(msgsList, returnList, thisMsgBean);
   		}
   	}
   }
