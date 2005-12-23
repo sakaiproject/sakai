@@ -270,9 +270,14 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
               return q.uniqueResult();
           }
       };
-     
-
-      return (BaseForum) getHibernateTemplate().execute(hcb);
+      
+      BaseForum bForum = (BaseForum) getHibernateTemplate().execute(hcb);
+      
+      if (bForum != null){
+        getHibernateTemplate().initialize(bForum.getAttachmentsSet());
+      }
+      
+      return bForum;      
     }
     
     public List getForumByTypeAndContext(final String typeUuid) {

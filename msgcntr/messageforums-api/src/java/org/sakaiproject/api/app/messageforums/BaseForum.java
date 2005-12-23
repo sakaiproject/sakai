@@ -31,6 +31,8 @@ public interface BaseForum extends MutableEntity {
     public List getAttachments();
 
     public void setAttachments(List attachments);
+    
+    public Set getAttachmentsSet();
 
     public String getExtendedDescription();
 

@@ -893,7 +893,7 @@ public class DiscussionForumTool
     if (LOG.isDebugEnabled())
     {
       LOG.debug("getDecoratedForum(DiscussionForum" + forum + ")");
-    }
+    }    
     forum = forumManager.getForumByIdWithTopics(forum.getId());
     DiscussionForumBean decoForum = new DiscussionForumBean(forum);    
     List temp_topics = forum.getTopics();
