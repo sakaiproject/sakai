@@ -473,19 +473,27 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     /**
-     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#createPrivateForum()
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#createPrivateForum(java.lang.String)
      */
-    public PrivateForum createPrivateForum() {
-        PrivateForum forum = new PrivateForumImpl();
+    public PrivateForum createPrivateForum(String title) {
+        /** set all non-null properties in case hibernate flushes session before explicit save */
+        PrivateForum forum = new PrivateForumImpl();        
+        forum.setTitle(title);
+        forum.setUuid(idManager.createUuid());
+        forum.setAutoForwardEmail("");
+        forum.setOwner(getCurrentUser());        
         forum.setUuid(getNextUuid());
         forum.setCreated(new Date());
         forum.setCreatedBy(getCurrentUser());
-        forum.setTypeUuid(typeManager.getPrivateMessageAreaType());
+        forum.setSortIndex(new Integer(0));
         forum.setShortDescription("short-desc");
         forum.setExtendedDescription("ext desc");
         forum.setAutoForward(Boolean.FALSE);
         forum.setAutoForwardEmail("");
         forum.setPreviewPaneEnabled(Boolean.FALSE);
+        forum.setModified(new Date());
+        forum.setModifiedBy(getCurrentUser());
+        forum.setTypeUuid(typeManager.getPrivateMessageAreaType());
         LOG.debug("createPrivateForum executed");
         return forum;
     }
@@ -599,10 +607,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return topic;
     }
 
-    public PrivateTopic createPrivateForumTopic(boolean forumIsParent, String userId, Long parentId) {
+    public PrivateTopic createPrivateForumTopic(String title, boolean forumIsParent, String userId, Long parentId) {
+        /** set all non-null properties in case hibernate flushes session before explicit save */
         PrivateTopic topic = new PrivateTopicImpl();
-        topic.setUuid(getNextUuid());
-        topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
+        topic.setTitle(title);
+        topic.setUuid(getNextUuid());        
         topic.setCreated(new Date());
         topic.setCreatedBy(getCurrentUser());
         topic.setUserId(userId);
@@ -610,6 +619,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setExtendedDescription("ext-desc");
         topic.setMutable(Boolean.FALSE);
         topic.setSortIndex(new Integer(0));
+        topic.setModified(new Date());
+        topic.setModifiedBy(getCurrentUser());
+        topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
         LOG.debug("createPrivateForumTopic executed");
         return topic;
     }

@@ -31,13 +31,11 @@ import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
-// TODO: External email address per message?  Seems like a more global preference per user.
-
 public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
 
     private static final Log LOG = LogFactory.getLog(PrivateMessageImpl.class);
     
-    private List recipients = new UniqueArrayList();
+    private List recipients = null;//new UniqueArrayList();
     private Boolean externalEmail;
     private String externalEmailAddress;
     

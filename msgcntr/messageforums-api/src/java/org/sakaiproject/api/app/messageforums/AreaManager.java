@@ -15,7 +15,7 @@ public interface AreaManager
   public Area createArea(String typeId);
   public void deleteArea(Area area);
   public Area getAreaByContextIdAndTypeId(String typeId);
-  public Area getAreaByType(final String typeId);
+  public Area getAreaByType(final String typeId);  
   public Area getPrivateArea();
   public Area getDiscusionArea();
 

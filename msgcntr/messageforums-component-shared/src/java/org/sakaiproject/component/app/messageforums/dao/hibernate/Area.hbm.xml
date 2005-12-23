@@ -93,6 +93,4 @@
              where area.typeUuid = :typeId]]>
   </query>    
   
-  
-
 </hibernate-mapping>

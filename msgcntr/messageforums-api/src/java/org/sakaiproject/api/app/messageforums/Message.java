@@ -24,6 +24,7 @@
 package org.sakaiproject.api.app.messageforums;
 
 import java.util.List;
+import java.util.Set;
 
  
 
@@ -40,6 +41,7 @@ public interface Message extends MutableEntity {
     public void setApproved(Boolean approved);
     public List getAttachments();
     public void setAttachments(List attachments);
+    public Set getAttachmentsSet();
     public String getAuthor();
     public void setAuthor(String author);
     public String getBody();

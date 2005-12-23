@@ -24,6 +24,7 @@
 package org.sakaiproject.api.app.messageforums;
 
 import java.util.List;
+import java.util.Set;
 
 public interface Area extends MutableEntity {
 
@@ -50,6 +51,8 @@ public interface Area extends MutableEntity {
     public void setOpenForums(List openForums);
 
     public List getPrivateForums();
+    
+    public Set getPrivateForumsSet();
 
     public void setPrivateForums(List discussionForums);
 

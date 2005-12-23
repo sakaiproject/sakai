@@ -62,9 +62,10 @@ public interface MessageForumsForumManager {
     
     /**
      * create private forum 
+     * @param title of forum
      * @return private forum
      */
-    public PrivateForum createPrivateForum();
+    public PrivateForum createPrivateForum(String title);
     
     /**
      * save private forum
@@ -90,7 +91,7 @@ public interface MessageForumsForumManager {
     /**
      * Create and save an empty private discussion forum topic
      */
-    public PrivateTopic createPrivateForumTopic(boolean forumIsParent, String userId, Long parentId);    
+    public PrivateTopic createPrivateForumTopic(String title, boolean forumIsParent, String userId, Long parentId);    
 
     /**
      * Save a discussion forum topic

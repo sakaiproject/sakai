@@ -208,9 +208,9 @@ public class PrivateMessagesTool
 
 
   public void initializePrivateMessageArea()
-  {                          
-    Area varArea = prtMsgManager.getPrivateMessageArea();    
-    PrivateForum pf = prtMsgManager.initializePrivateMessageArea(varArea);        
+  {           
+    Area varArea = prtMsgManager.getPrivateMessageArea();
+    PrivateForum pf = prtMsgManager.initializePrivateMessageArea();    
     pvtTopics = pf.getTopics();
     forum=pf;           
     activatePvtMsg = (Boolean.TRUE.equals(varArea.getEnabled())) ? "yes" : "no";
@@ -330,7 +330,7 @@ public class PrivateMessagesTool
     List decLs= new ArrayList() ;
     for (Iterator iter = msg.iterator(); iter.hasNext();)
     {
-      PrivateMessage element = (PrivateMessage) iter.next();
+      PrivateMessage element = (PrivateMessage) iter.next();                  
       
       boolean prev = prtMsgManager.hasPreviousMessage(element);
       boolean next = prtMsgManager.hasNextMessage(element);
@@ -360,7 +360,7 @@ public class PrivateMessagesTool
   }
 
   public void setDetailMsg(PrivateMessageDecoratedBean detailMsg)
-  {
+  {    
     this.detailMsg = detailMsg;
   }
 
@@ -1336,15 +1336,7 @@ public class PrivateMessagesTool
     }
     else
     {
-      Area area = prtMsgManager.getPrivateMessageArea();
-      
-      //Boolean storedAreaEnabledValue = area.getEnabled();      
-      //Boolean formAreaEnabledValue = ("yes".equals(activate)) ? Boolean.TRUE : Boolean.FALSE;                        
-                  
-      //if (!storedAreaEnabledValue.equals(formAreaEnabledValue)){
-      //area.setEnabled(formAreaEnabledValue);
-      //  prtMsgManager.savePrivateMessageArea(area);        
-      //}
+      Area area = prtMsgManager.getPrivateMessageArea();            
       
       Boolean formAreaEnabledValue = ("yes".equals(activate)) ? Boolean.TRUE : Boolean.FALSE;
       area.setEnabled(formAreaEnabledValue);
@@ -1352,8 +1344,7 @@ public class PrivateMessagesTool
       Boolean formAutoForward = ("yes".equals(forward)) ? Boolean.TRUE : Boolean.FALSE;
       forum.setAutoForward(formAutoForward);
       forum.setAutoForwardEmail(email);      
-      //prtMsgManager.saveForumSettings(forum);
-      prtMsgManager.saveAreaAndFormSettings(area, forum);
+      prtMsgManager.saveAreaAndForumSettings(area, forum);
       return "main";
     }
     

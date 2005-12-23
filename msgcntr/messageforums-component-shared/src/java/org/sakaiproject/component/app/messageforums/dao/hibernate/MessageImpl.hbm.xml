@@ -168,11 +168,12 @@
     ]]>
   </query>
   
-  <query name="findPrivateMessagesUserAndType">
+  <query name="findPrvtMsgsByUserTypeContext">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join fetch message.recipients recipient
              where recipient.userId = :userId and
-                   recipient.typeUuid = :typeUuid                                
+                   recipient.typeUuid = :typeUuid and                             
+                   recipient.contextId = :contextId
     ]]>    
   </query>
   

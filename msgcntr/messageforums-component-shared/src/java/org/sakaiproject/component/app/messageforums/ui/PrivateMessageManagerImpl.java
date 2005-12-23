@@ -49,7 +49,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   private static final String QUERY_COUNT = "findPvtMsgCntByTopicTypeUser";
   private static final String QUERY_COUNT_BY_UNREAD = "findUnreadPvtMsgCntByTopicTypeUser";
-  private static final String QUERY_MESSAGES_BY_USER_AND_TYPE = "findPrivateMessagesUserAndType";
+  private static final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";
   private static final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
 
   private AreaManager areaManager;
@@ -110,73 +110,55 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   }
 
   /**
-   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#initializePrivateMessageArea(org.sakaiproject.api.app.messageforums.Area)
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#initializePrivateMessageArea()
    */
-  public PrivateForum initializePrivateMessageArea(Area area)
+  public PrivateForum initializePrivateMessageArea()
   {
 
     String userId = getCurrentUser();
+    getPrivateMessageArea();
 
     PrivateForum pf;
 
     /** create default user forum/topics if none exist */
     if ((pf = forumManager.getForumByOwner(getCurrentUser())) == null)
-    {
+    {      
+      /** initialize collections */
+      getHibernateTemplate().initialize(privateArea.getPrivateForumsSet());      
+      
+      pf = forumManager.createPrivateForum("Private Forum");      
+      privateArea.addPrivateForum(pf);
+      pf.setArea(privateArea);
+      areaManager.saveArea(privateArea);
+      
+      PrivateTopic receivedTopic = forumManager.createPrivateForumTopic("Received", true,
+          userId, pf.getId());     
 
-      pf = forumManager.createPrivateForum();
-      pf.setTitle("private forum");
-      pf.setUuid(idManager.createUuid());
-      pf.setAutoForwardEmail("");
-      pf.setOwner(userId);
+      PrivateTopic sentTopic = forumManager.createPrivateForumTopic("Sent", true,
+          userId, pf.getId());      
 
-      forumManager.savePrivateForum(pf);
-      area.addPrivateForum(pf);
-      pf.setArea(area);
-      areaManager.saveArea(area);
+      PrivateTopic deletedTopic = forumManager.createPrivateForumTopic("Deleted", true,
+          userId, pf.getId());      
 
-      PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true,
+      PrivateTopic draftTopic = forumManager.createPrivateForumTopic("Drafts", true,
           userId, pf.getId());
-      receivedTopic.setTitle("Received");
+      
+      /** save individual topics - required to add to forum's topic set */
       forumManager.savePrivateForumTopic(receivedTopic);
-
-      PrivateTopic sentTopic = forumManager.createPrivateForumTopic(true,
-          userId, pf.getId());
-      sentTopic.setTitle("Sent");
       forumManager.savePrivateForumTopic(sentTopic);
-
-      PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(true,
-          userId, pf.getId());
-      deletedTopic.setTitle("Deleted");
       forumManager.savePrivateForumTopic(deletedTopic);
-
-      PrivateTopic draftTopic = forumManager.createPrivateForumTopic(true,
-          userId, pf.getId());
-      draftTopic.setTitle("Drafts");
       forumManager.savePrivateForumTopic(draftTopic);
-
+            
       pf.addTopic(receivedTopic);
       pf.addTopic(sentTopic);
       pf.addTopic(deletedTopic);
       pf.addTopic(draftTopic);
 
-      forumManager.savePrivateForum(pf);
-
-      System.out.println("dljfd");
-
+      forumManager.savePrivateForum(pf);      
     }
     else
-    {
-      //Area a = areaManager.getPrivateArea();
-      //getHibernateTemplate().initialize(a.getPrivateForums());
-
-//      for (Iterator i = a.getPrivateForums().iterator(); i.hasNext();)
-//      {
-//        PrivateForum pfTemp = (PrivateForum) i.next();
-//        getHibernateTemplate().initialize(pfTemp.getTopics());
-//      }
-      
-        getHibernateTemplate().initialize(pf.getTopicsSet());
-
+    {      
+       getHibernateTemplate().initialize(pf.getTopicsSet());
     }
 
     return pf;
@@ -272,9 +254,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   }
 
   /**
-   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#saveAreaAndFormSettings(org.sakaiproject.api.app.messageforums.Area, org.sakaiproject.api.app.messageforums.PrivateForum)
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#saveAreaAndForumSettings(org.sakaiproject.api.app.messageforums.Area, org.sakaiproject.api.app.messageforums.PrivateForum)
    */
-  public void saveAreaAndFormSettings(Area area, PrivateForum forum)
+  public void saveAreaAndForumSettings(Area area, PrivateForum forum)
   {
 
     /** method calls placed in this function to participate in same transaction */
@@ -528,7 +510,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException
       {
-        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_AND_TYPE);
+        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
         Query qOrdered = session.createQuery(q.getQueryString() + " order by "
             + orderField + " " + order);
 
@@ -539,10 +521,18 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       }
     };
 
-    List l = (List) getHibernateTemplate().execute(hcb);
-    return l;
+    List list = (List) getHibernateTemplate().execute(hcb);
+    
+    // fix to return count of attachments collection
+    
+    for (Iterator i = list.iterator(); i.hasNext();)
+    {
+      PrivateMessage element = (PrivateMessage) i.next();
+      getHibernateTemplate().initialize(element.getAttachmentsSet());
+    }
+    return list;
   }
-
+  
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findMessageCount(java.lang.Long, java.lang.String)
    */

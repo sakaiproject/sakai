@@ -29,8 +29,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private static final Log LOG = LogFactory.getLog(AreaManagerImpl.class);
 
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_ID = "findAreaByContextIdAndTypeId";
-    private static final String QUERY_AREA_BY_TYPE = "findAreaByType";            
-    private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_FOR_USER = "findAreaByContextAndTypeForUser";
+    private static final String QUERY_AREA_BY_TYPE = "findAreaByType";
+    
     private IdManager idManager;
 
     private MessageForumsForumManager forumManager;
@@ -200,7 +200,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
       };        
       return (Area) getHibernateTemplate().execute(hcb);
     }
-
+       
     // helpers
 
     private String getNextUuid() {

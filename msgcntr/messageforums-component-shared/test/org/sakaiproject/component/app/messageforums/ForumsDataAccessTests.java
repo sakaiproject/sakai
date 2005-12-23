@@ -121,7 +121,7 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
       area.setHidden(Boolean.TRUE);
       areaManager.saveArea(area);
       
-      PrivateForum pf = forumManager.createPrivateForum();
+      PrivateForum pf = forumManager.createPrivateForum("test");
       pf.setTitle("test-user" + " private forum");
       pf.setUuid("test-user");
       
@@ -147,25 +147,25 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
                              
       if (forumManager.getForumByOwner("test-user") == null)      
       {
-        PrivateForum pf = forumManager.createPrivateForum();
+        PrivateForum pf = forumManager.createPrivateForum("test");
         pf.setTitle("test-user" + " private forum");
         pf.setUuid("test-user");
         
         forumManager.savePrivateForum(pf);
                         
-        PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
+        PrivateTopic receivedTopic = forumManager.createPrivateForumTopic("test", true, "test-user", pf.getId());
         receivedTopic.setTitle("Received");
         forumManager.savePrivateForumTopic(receivedTopic);
         
-        PrivateTopic sentTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
+        PrivateTopic sentTopic = forumManager.createPrivateForumTopic("test", true, "test-user", pf.getId());
         sentTopic.setTitle("Sent");
         forumManager.savePrivateForumTopic(receivedTopic);
         
-        PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
+        PrivateTopic deletedTopic = forumManager.createPrivateForumTopic("test",true, "test-user", pf.getId());
         deletedTopic.setTitle("Deleted");
         forumManager.savePrivateForumTopic(receivedTopic);
         
-        PrivateTopic draftTopic = forumManager.createPrivateForumTopic(true, "test-user", pf.getId());
+        PrivateTopic draftTopic = forumManager.createPrivateForumTopic("test", true, "test-user", pf.getId());
         draftTopic.setTitle("Drafts");
         
         forumManager.savePrivateForumTopic(receivedTopic);

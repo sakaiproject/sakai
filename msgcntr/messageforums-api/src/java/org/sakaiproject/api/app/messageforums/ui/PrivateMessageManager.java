@@ -5,6 +5,7 @@ import java.util.List;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -17,10 +18,9 @@ public interface PrivateMessageManager {
     public static String SORT_COLUMN_LABEL = "label";
     
     public static String SORT_ASC = "asc";
-    public static String SORT_DESC = "desc";
-          
+    public static String SORT_DESC = "desc";              
     
-    public void saveAreaAndFormSettings(Area area, PrivateForum forum);
+    public void saveAreaAndForumSettings(Area area, PrivateForum forum);
     
     public void savePrivateMessageArea(Area area);
     
@@ -43,7 +43,7 @@ public interface PrivateMessageManager {
      */
     Area getPrivateMessageArea();
     
-    public PrivateForum initializePrivateMessageArea(Area area);        
+    public PrivateForum initializePrivateMessageArea();        
     
     
     /** 
@@ -91,7 +91,7 @@ public interface PrivateMessageManager {
     public int findMessageCount(final Long topicId, final String typeUuid);
 
         
-
+    public MessageForumsMessageManager getMessageManager();
     public Message getMessageById(Long messageId);
     
     public List getReceivedMessages(String orderField, String order);
