@@ -25,7 +25,7 @@ package org.sakaiproject.api.app.messageforums;
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
-public interface DefaultFunctionManager // TODO: rename me : more like default setting manager or default permission manager
+public interface DefaultPermissionsManager
 {
   public static final String FUNCTION_NEW_FORUM="messagecenter.newForum";
   public static final String FUNCTION_NEW_TOPIC="messagecenter.newTopic";

@@ -29,17 +29,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.kernel.function.FunctionManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.api.app.messageforums.DefaultFunctionManager;
+import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  *
  */
-public class DefaultFunctionManagerImpl 
-    implements DefaultFunctionManager 
+public class DefaultPermissionsManagerImpl 
+    implements DefaultPermissionsManager 
 {
-  private static final Log LOG = LogFactory.getLog(DefaultFunctionManagerImpl.class);
+  private static final Log LOG = LogFactory.getLog(DefaultPermissionsManagerImpl.class);
   //Dependency injected
   private FunctionManager functionManager;
   private AuthzGroupService authzGroupService;
@@ -47,19 +47,19 @@ public class DefaultFunctionManagerImpl
   
   public void init()
   {
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_NEW_FORUM);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_NEW_TOPIC);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_NEW_RESPONSE);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_NEW_RESPONSE_TO_RESPONSE);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_MOVE_POSTINGS);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_CHANGE_SETTINGS);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_POST_TO_GRADEBOOK);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_READ);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_REVISE_ANY);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_REVISE_OWN);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_DELETE_ANY);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_DELETE_OWN);
-    functionManager.registerFunction(DefaultFunctionManager.FUNCTION_MARK_AS_READ);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_FORUM);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_TOPIC);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_RESPONSE);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_RESPONSE_TO_RESPONSE);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_MOVE_POSTINGS);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_CHANGE_SETTINGS);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_POST_TO_GRADEBOOK);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_READ);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_REVISE_ANY);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_REVISE_OWN);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_DELETE_ANY);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_DELETE_OWN);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_MARK_AS_READ);
   }
   /**
    * @param functionManager The functionManager to set.
@@ -77,107 +77,107 @@ public class DefaultFunctionManagerImpl
     this.authzGroupService = authzGroupService;
   }
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isNewForum(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isNewForum(java.lang.String)
    */
   public boolean isNewForum(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_NEW_FORUM);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_NEW_FORUM);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isNewTopic(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isNewTopic(java.lang.String)
    */
   public boolean isNewTopic(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_NEW_TOPIC);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_NEW_TOPIC);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isNewResponse(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isNewResponse(java.lang.String)
    */
   public boolean isNewResponse(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_NEW_RESPONSE);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_NEW_RESPONSE);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isResponseToResponse(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isResponseToResponse(java.lang.String)
    */
   public boolean isResponseToResponse(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_NEW_RESPONSE_TO_RESPONSE);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_NEW_RESPONSE_TO_RESPONSE);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isMovePostings(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isMovePostings(java.lang.String)
    */
   public boolean isMovePostings(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_MOVE_POSTINGS);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_MOVE_POSTINGS);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isChangeSettings(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isChangeSettings(java.lang.String)
    */
   public boolean isChangeSettings(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_CHANGE_SETTINGS);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_CHANGE_SETTINGS);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isPostToGradeBook(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isPostToGradeBook(java.lang.String)
    */
   public boolean isPostToGradebook(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_POST_TO_GRADEBOOK);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_POST_TO_GRADEBOOK);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isRead(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isRead(java.lang.String)
    */
   public boolean isRead(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_READ);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_READ);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isReviseAny(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isReviseAny(java.lang.String)
    */
   public boolean isReviseAny(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_REVISE_ANY);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_REVISE_ANY);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isReviseOwn(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isReviseOwn(java.lang.String)
    */
   public boolean isReviseOwn(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_REVISE_OWN);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_REVISE_OWN);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isDeleteAny(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isDeleteAny(java.lang.String)
    */
   public boolean isDeleteAny(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_DELETE_ANY);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_DELETE_ANY);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isDeleteOwn(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isDeleteOwn(java.lang.String)
    */
   public boolean isDeleteOwn(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_DELETE_OWN);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_DELETE_OWN);
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultFunctionManager#isMarkAsRead(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isMarkAsRead(java.lang.String)
    */
   public boolean isMarkAsRead(String role)
   {
-    return hasPermission(role, DefaultFunctionManager.FUNCTION_MARK_AS_READ);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_MARK_AS_READ);
   }
   
   private boolean hasPermission(String role, String permission)

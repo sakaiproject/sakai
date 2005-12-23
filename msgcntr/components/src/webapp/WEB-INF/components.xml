@@ -59,8 +59,8 @@
 		        <property name="eventTrackingService">
         		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
 		        </property>		
-		         <property name="defaultPermissionManager">
-        		    <ref bean="org.sakaiproject.api.app.messageforums.DefaultFunctionManager"/>
+		         <property name="defaultPermissionsManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager"/>
 		        </property>	       
             </bean>            
         </property>
@@ -71,7 +71,7 @@
         </property> 
     </bean>
     
-      <bean id="org.sakaiproject.api.app.messageforums.DefaultFunctionManager" class="org.sakaiproject.component.app.messageforums.DefaultFunctionManagerImpl"   init-method="init">
+    <bean id="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager" class="org.sakaiproject.component.app.messageforums.DefaultPermissionsManagerImpl"   init-method="init">
         <property name="functionManager">
             <ref bean="org.sakaiproject.api.kernel.function.FunctionManager"/>
         </property>
@@ -80,6 +80,26 @@
         </property>
     </bean>
      
+    <bean id="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" class="org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl">
+       <property name="defaultPermissionsManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager"/>
+		</property>
+		<property name="toolManager">
+             <ref bean="org.sakaiproject.api.kernel.tool.ActiveToolManager"/>
+		</property>
+	    <property name="authzGroupService">
+           <ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/>
+        </property>
+        <property name="sessionManager">
+			<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+		</property>
+	    <property name="permissionManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
+        </property>
+        <property name="typeManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+	    </property>	
+    </bean>
     
      <bean id="org.sakaiproject.api.app.messageforums.UserPermissionManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">

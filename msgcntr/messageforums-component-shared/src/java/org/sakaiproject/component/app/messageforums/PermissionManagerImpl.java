@@ -40,7 +40,7 @@ import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.ControlPermissions;
-import org.sakaiproject.api.app.messageforums.DefaultFunctionManager;
+import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.api.app.messageforums.ForumControlPermission;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
@@ -80,7 +80,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     
     private EventTrackingService eventTrackingService;
     
-    private DefaultFunctionManager defaultPermissionManager;
+    private DefaultPermissionsManager defaultPermissionsManager;
     
     public void init() {
         ;
@@ -128,12 +128,12 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
      
 
     /**
-     * @param defaultPermissionManager The defaultPermissionManager to set.
+     * @param defaultPermissionsManager The defaultPermissionsManager to set.
      */
-    public void setDefaultPermissionManager(
-        DefaultFunctionManager defaultPermissionManager)
+    public void setDefaultPermissionsManager(
+        DefaultPermissionsManager defaultPermissionManager)
     {
-      this.defaultPermissionManager = defaultPermissionManager;
+      this.defaultPermissionsManager = defaultPermissionManager;
     }
 
     public AreaControlPermission getAreaControlPermissionForRole(String role, String typeId) {
@@ -182,13 +182,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 //            cp.setResponseToResponse(permissions.getResponseToResponse());
 //            cp.setPostToGradebook(permissions.getPostToGradebook());
 //        }
-        cp.setChangeSettings(new Boolean(defaultPermissionManager.isChangeSettings(role)));
-        cp.setMovePostings(new Boolean(defaultPermissionManager.isMovePostings(role)));
-        cp.setNewForum(new Boolean(defaultPermissionManager.isNewForum(role)));
-        cp.setNewResponse(new Boolean(defaultPermissionManager.isNewResponse(role)));
-        cp.setNewTopic(new Boolean(defaultPermissionManager.isNewTopic(role)));
-        cp.setResponseToResponse(new Boolean(defaultPermissionManager.isResponseToResponse(role)));
-        cp.setPostToGradebook(new Boolean(defaultPermissionManager.isPostToGradebook(role)));
+        cp.setChangeSettings(new Boolean(defaultPermissionsManager.isChangeSettings(role)));
+        cp.setMovePostings(new Boolean(defaultPermissionsManager.isMovePostings(role)));
+        cp.setNewForum(new Boolean(defaultPermissionsManager.isNewForum(role)));
+        cp.setNewResponse(new Boolean(defaultPermissionsManager.isNewResponse(role)));
+        cp.setNewTopic(new Boolean(defaultPermissionsManager.isNewTopic(role)));
+        cp.setResponseToResponse(new Boolean(defaultPermissionsManager.isResponseToResponse(role)));
+        cp.setPostToGradebook(new Boolean(defaultPermissionsManager.isPostToGradebook(role)));
         cp.setRole(role);
         return cp;
     }
@@ -564,13 +564,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 //            mp.setMarkAsRead(permissions.getMarkAsRead());
 //        }
         mp.setRole(role);        
-        mp.setDeleteAny(new Boolean(defaultPermissionManager.isDeleteAny(role)));
-        mp.setDeleteOwn(new Boolean(defaultPermissionManager.isDeleteOwn(role)));
-        mp.setRead(new Boolean(defaultPermissionManager.isRead(role)));
+        mp.setDeleteAny(new Boolean(defaultPermissionsManager.isDeleteAny(role)));
+        mp.setDeleteOwn(new Boolean(defaultPermissionsManager.isDeleteOwn(role)));
+        mp.setRead(new Boolean(defaultPermissionsManager.isRead(role)));
         mp.setReadDrafts(new Boolean(false));
-        mp.setReviseAny(new Boolean(defaultPermissionManager.isReviseAny(role)));
-        mp.setReviseOwn(new Boolean(defaultPermissionManager.isReviseOwn(role)));
-        mp.setMarkAsRead(new Boolean(defaultPermissionManager.isMarkAsRead(role)));      
+        mp.setReviseAny(new Boolean(defaultPermissionsManager.isReviseAny(role)));
+        mp.setReviseOwn(new Boolean(defaultPermissionsManager.isReviseOwn(role)));
+        mp.setMarkAsRead(new Boolean(defaultPermissionsManager.isMarkAsRead(role)));      
         return mp;
     }
 

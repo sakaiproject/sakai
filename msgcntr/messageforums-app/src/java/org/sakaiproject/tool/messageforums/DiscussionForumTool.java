@@ -22,6 +22,7 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.api.kernel.component.cover.ComponentManager;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
@@ -63,6 +64,7 @@ public class DiscussionForumTool
   private DiscussionForumBean selectedForum;
   private DiscussionTopicBean selectedTopic;
   private DiscussionMessageBean selectedMessage;
+  private UIPermissionsManager uiPermissionsManager;
 
   private List templateControlPermissions; // control settings
   private List templateMessagePermissions;
@@ -120,6 +122,14 @@ public class DiscussionForumTool
       LOG.debug("setForumManager(DiscussionForumManager " + forumManager + ")");
     }
     this.forumManager = forumManager;
+  }
+ 
+  /**
+   * @param uiPermissionsManager The uiPermissionsManager to set.
+   */
+  public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager)
+  {
+    this.uiPermissionsManager = uiPermissionsManager;
   }
 
   /**
