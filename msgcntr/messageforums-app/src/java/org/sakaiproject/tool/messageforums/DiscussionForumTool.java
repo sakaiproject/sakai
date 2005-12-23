@@ -2,11 +2,11 @@ package org.sakaiproject.tool.messageforums;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Date;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -21,6 +21,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.api.kernel.component.cover.ComponentManager;
@@ -1787,12 +1788,15 @@ public class DiscussionForumTool
     messageManager.getChildMsgs(selectedMessage.getMessage().getId(), delList);
 
     selectedTopic.removeMessage(selectedMessage);
-    selectedTopic.getTopic().removeMessage(selectedMessage.getMessage());
+    Topic tempTopic = forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId());
+    tempTopic.removeMessage(selectedMessage.getMessage());
+    //selectedTopic.getTopic().removeMessage(selectedMessage.getMessage());
     for (int i = 0; i < delList.size(); i++)
     {
       selectedTopic.removeMessage(new DiscussionMessageBean((Message) delList
-          .get(i), messageManager));
-      selectedTopic.getTopic().removeMessage((Message) delList.get(i));
+          .get(i), messageManager));      
+      //tempTopic.removeMessage((Message) delList.get(i));
+      //selectedTopic.getTopic().removeMessage((Message) delList.get(i));
     }
 
     messageManager.deleteMsgWithChild(selectedMessage.getMessage().getId());
