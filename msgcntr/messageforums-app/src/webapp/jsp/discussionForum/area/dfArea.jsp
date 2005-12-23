@@ -26,10 +26,15 @@
 			<h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}" rendered="#{ForumTool.instructor}">
 				<f:param value="#{forum.forum.id}" name="forumId"/>
 			</h:commandLink>
-			<%--<h:dataTable value="#{forum.forum.attachments}" var="eachAttach" rendered="#{!empty forum.forum.attachments}">
+
+			<f:verbatim></div></f:verbatim>
+
+		<f:verbatim> <br/><div class="forumsRowLeft"></f:verbatim>
+		 <h:outputText id="forum_desc" style="text-align:left;" value="#{forum.forum.shortDescription}" />
+		  <h:dataTable  value="#{forum.forum.attachments}" var="eachAttach" rendered="#{!empty forum.forum.attachments}">
 				  <h:column>
 						<f:facet name="header">
-							<h:outputText id="attachment" value="Attachments" />
+							<h:outputText id="attachment" value="#{msgs.cdfm_attachments}" />
 						</f:facet>
 						<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
 						<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
@@ -41,13 +46,7 @@
 							<h:outputText value="#{eachAttach.attachmentName}"  style="text-decoration:underline;"/>
 						</h:outputLink>
 				  </h:column>
-			  </h:dataTable>--%>
-			
-			<f:verbatim></div></f:verbatim>
-
-		<f:verbatim> <br/><div class="forumsRowLeft"></f:verbatim>
-		 <h:outputText id="forum_desc" style="text-align:left;" value="#{forum.forum.shortDescription}" />
-
+			  </h:dataTable>
 		<f:verbatim></div></div></f:verbatim>
 		 <h:dataTable id="topics" width="90%" value="#{forum.topics}" var="topic">
 		    <h:column>
@@ -87,7 +86,7 @@
 					<h:dataTable value="#{topic.topic.attachments}" var="eachAttach" rendered="#{!empty topic.topic.attachments}">
 					  <h:column>
 						<f:facet name="header">
-							<h:outputText id="attachment" value="Attachments" />
+							<h:outputText id="attachment" value="#{msgs.cdfm_attachments}" />
 						</f:facet>
 						<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
 						<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
