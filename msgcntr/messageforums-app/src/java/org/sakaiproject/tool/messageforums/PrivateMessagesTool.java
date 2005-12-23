@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.messageforums;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -656,10 +657,7 @@ public class PrivateMessagesTool
       {
         this.setDetailMsg(dMsg);        
         prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
-        
-        /** initialize attachments */       
-        //prtMsgManager.initMessageWithAttachmentsAndRecipients(dMsg.getMsg());
-        
+               
         PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(dMsg.getMsg());
         this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
         
@@ -1546,7 +1544,8 @@ public class PrivateMessagesTool
         retLs.add(selLs.get(i));
       }
     }
-    return retLs ;
+    Collections.sort(retLs);
+    return retLs;
   }
   
   /*
