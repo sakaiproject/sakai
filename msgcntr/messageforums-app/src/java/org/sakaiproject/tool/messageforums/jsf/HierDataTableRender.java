@@ -361,11 +361,20 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			}
 			if(dmb !=null && dmb.getDepth()>0)
 			{
-		    writer.write("<script type=\"text/javascript\">");
-		    writer.write("  showHideDiv('_id_" + new Integer(hideDivNo).toString() +
-		        "', '" +  RESOURCE_PATH + "');");
+		    ValueBinding expandedBinding = component.getValueBinding("expanded");
+		    String expanded = "";
+		    if(expandedBinding != null)
+		    	expanded = (String)expandedBinding.getValue(context);
+				
+		    if(expanded.equalsIgnoreCase("true"))
+		    {
+		    	writer.write("<script type=\"text/javascript\">");
+		    	writer.write("  showHideDiv('_id_" + new Integer(hideDivNo).toString() +
+		    			"', '" +  RESOURCE_PATH + "');");
+		    	writer.write("</script>");
+		    }
+
 		    hideDivNo++;
-		    writer.write("</script>");
 				/* get rid of div, tr - set display for every row of child msgs
 				DiscussionMessageBean nextBean = null;
 				if(msgBeanList !=null && msgBeanList.size()>(rowIndex+1))

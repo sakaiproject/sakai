@@ -1,11 +1,13 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 <f:view>
 <sakai:view>
 	<h:form id="DF-1">
+		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 		<div class="header-section">
 			<div class="left-header-section">
 				<h3><h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
@@ -42,21 +44,21 @@
 			</div>
 		</div>
 		<%@include file="dfViewSearchBar.jsp"%>		
-      	<h:dataTable styleClass="listHier" id="messages" value="#{ForumTool.selectedTopic.messages}" var="message">
-			<h:column>
+   	<h:dataTable styleClass="listHier" id="messages" value="#{ForumTool.selectedTopic.messages}" var="message" rendered="#{!ForumTool.threaded}">
+			<h:column rendered="#{!ForumTool.threaded}">
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_checkall}" />
 				</f:facet>
 				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
 				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{!message.read}"/>
 			</h:column>
-			<h:column>
+			<h:column rendered="#{!ForumTool.threaded}">
 				<f:facet name="header">
 					<h:graphicImage value="/images/attachment.gif"/>
 				</f:facet>
 				<h:graphicImage value="/images/attachment.gif" rendered="#{message.hasAttachment}"/>
 			</h:column>
-			<h:column>
+			<h:column rendered="#{!ForumTool.threaded}">
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_subject}" />
 				</f:facet>
@@ -69,7 +71,7 @@
 	          	</h:commandLink>
 			</h:column>
 
-			<h:column>
+			<h:column rendered="#{!ForumTool.threaded}">
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
 				</f:facet>
@@ -78,7 +80,7 @@
 
 			</h:column>
 
-			<h:column>
+			<h:column rendered="#{!ForumTool.threaded}">
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_date}" />
 				</f:facet>
@@ -96,6 +98,52 @@
 
 			</h:column>  	--%>
 		</h:dataTable>
+		
+		<mf:hierDataTable styleClass="listHier" id="messagesInHierDataTable" value="#{ForumTool.selectedTopic.messages}" var="message" rendered="#{ForumTool.threaded}" expanded="#{ForumTool.expanded}">
+			<h:column rendered="#{ForumTool.threaded}">
+				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_checkall}" />
+				</f:facet>
+				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
+				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{!message.read}"/>
+			</h:column>
+			<h:column rendered="#{ForumTool.threaded}">
+				<f:facet name="header">
+					<h:graphicImage value="/images/attachment.gif"/>
+				</f:facet>
+				<h:graphicImage value="/images/attachment.gif" rendered="#{message.hasAttachment}"/>
+			</h:column>
+			<h:column id="_msg_subject" rendered="#{ForumTool.threaded}">
+				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_subject}" />
+				</f:facet>
+				<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true">
+				   	<h:outputText value="#{message.message.title}" rendered="#{message.read && !ForumTool.displayUnreadOnly}" />
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.title}" rendered="#{!message.read}"/>
+        	    	<f:param value="#{message.message.id}" name="messageId"/>
+        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+        	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
+	          	</h:commandLink>
+			</h:column>
+
+			<h:column rendered="#{ForumTool.threaded}">
+				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_authoredby}" />
+				</f:facet>
+				 	<h:outputText value="#{message.message.createdBy}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.createdBy}" rendered="#{!message.read}"/>
+
+			</h:column>
+
+			<h:column rendered="#{ForumTool.threaded}">
+				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_date}" />
+				</f:facet>
+				 	<h:outputText value="#{message.message.created}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.created}" rendered="#{!message.read}"/>
+
+			</h:column>
+		</mf:hierDataTable>
 	</h:form>
 </sakai:view>
 </f:view>

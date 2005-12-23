@@ -19,8 +19,10 @@ import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.kernel.component.cover.ComponentManager;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
@@ -36,6 +38,7 @@ import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
+ * @author Chen wen
  */
 public class DiscussionForumTool
 {
@@ -75,7 +78,7 @@ public class DiscussionForumTool
 
   private List forums = new ArrayList();
 
-  // compose - cwen
+  // compose
   private MessageForumsMessageManager messageManager;
   private String composeTitle;
   private String composeBody;
@@ -90,6 +93,8 @@ public class DiscussionForumTool
   // private boolean attachCaneled = false;
   // private ArrayList oldAttachments = new ArrayList();
   // private List allAttachments = new ArrayList();
+  private boolean threaded = false;
+  private String expanded = "true";
 
   /**
    * Dependency Injected
@@ -484,6 +489,11 @@ public class DiscussionForumTool
    */
   public DiscussionTopicBean getSelectedTopic()
   {
+  	if(threaded)
+  	{
+  	  rearrageTopicMsgsThreaded();
+  	}
+  	
     return selectedTopic;
   }
 
@@ -1122,7 +1132,7 @@ public class DiscussionForumTool
     return new DiscussionTopicBean(topic);
   }
 
-  // compose - cwen
+  // compose
   public String processAddMessage()
   {
     return MESSAGE_COMPOSE;
@@ -1946,6 +1956,86 @@ public class DiscussionForumTool
     return null;
   }
 
+  public boolean getThreaded()
+  {
+  	return threaded;
+  }
+  
+  public void setThreaded(boolean threaded)
+  {
+  	this.threaded = threaded;
+  }
+  
+  public String getExpanded()
+  {
+  	return expanded;
+  }
+  
+  public void setExpanded(String expanded)
+  {
+  	this.expanded = expanded;
+  }
+  
+  public void rearrageTopicMsgsThreaded()
+  {
+  	List msgsList = selectedTopic.getMessages();
+  	List orderedList = new ArrayList();
+  	
+  	if(msgsList != null)
+  	{
+  		for(int i=0; i<msgsList.size(); i++)
+  		{
+  			DiscussionMessageBean dmb = (DiscussionMessageBean)msgsList.get(i);
+  			if(dmb.getMessage().getInReplyTo() == null)
+  			{
+  				dmb.setDepth(0);
+  				orderedList.add(dmb);
+  				//for permance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
+  				//recursiveGetThreadedMsgs(msgsList, orderedList, dmb);
+  				recursiveGetThreadedMsgsFromList(msgsList, orderedList, dmb);
+  			}
+  		}
+  	}
+  	selectedTopic.setMessages(orderedList);
+  }
+  
+  public void recursiveGetThreadedMsgs(List msgsList, List returnList, DiscussionMessageBean currentMsg)
+  {
+  	List childList = messageManager.getFirstLevelChildMsgs(currentMsg.getMessage().getId());
+		
+		for(int j=0; j<childList.size(); j++)
+		{
+			Message currentChild = (Message)childList.get(j);
+			for(int k=0; k<msgsList.size(); k++)
+			{
+				Message existedMsg = ((DiscussionMessageBean)msgsList.get(k)).getMessage();
+				if(currentChild.getId().equals(existedMsg.getId()))
+				{
+					DiscussionMessageBean dmb = new DiscussionMessageBean(currentChild, messageManager);
+					dmb.setDepth(currentMsg.getDepth() + 1);
+					returnList.add(dmb);
+					recursiveGetThreadedMsgs(msgsList, returnList, dmb);
+					break;
+				}
+			}
+		}
+  }
+  
+  private void recursiveGetThreadedMsgsFromList(List msgsList, List returnList, DiscussionMessageBean currentMsg)
+  {
+  	for(int i=0; i<msgsList.size(); i++)
+  	{
+  		Message thisMsg = ((DiscussionMessageBean)msgsList.get(i)).getMessage();
+  		if(thisMsg.getInReplyTo()!=null && thisMsg.getInReplyTo().getId().equals(currentMsg.getMessage().getId()))
+  		{
+  			DiscussionMessageBean dmb = new DiscussionMessageBean(thisMsg, messageManager);
+  			dmb.setDepth(currentMsg.getDepth() + 1);
+  			returnList.add(dmb);
+  			this.recursiveGetThreadedMsgsFromList(msgsList, returnList, dmb);
+  		}
+  	}
+  }
+  
   /**
    * @return Returns the selectedMessageView.
    */
@@ -1983,11 +2073,13 @@ public class DiscussionForumTool
     this.displayUnreadOnly = false;
     if (changeView == null)
     {
+    	threaded = false;
       setErrorMessage("Failed Rending Messages");
       return;
     }
     if (changeView.equals(ALL_MESSAGES))
     {
+    	threaded = false;
       setSelectedMessageView(ALL_MESSAGES);
       return;
     }
@@ -1997,8 +2089,27 @@ public class DiscussionForumTool
         this.displayUnreadOnly = true;
         return;
       }
+      else if(changeView.equals(THREADED_VIEW))
+      {
+      	threaded = true;
+      	expanded = "true";
+      	return;
+      }
+      else if(changeView.equals("expand"))
+      {
+      	threaded = true;
+      	expanded = "true";
+      	return;
+      }
+      else if(changeView.equals("collapse"))
+      {
+      	threaded = true;
+      	expanded = "false";
+      	return;
+      }      
       else
       {
+      	threaded = false;
         setErrorMessage("This view is under contruction");
         return;
       }

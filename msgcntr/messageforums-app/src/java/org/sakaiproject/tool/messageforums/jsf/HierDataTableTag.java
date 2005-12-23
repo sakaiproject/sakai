@@ -68,6 +68,7 @@ public class HierDataTableTag extends UIComponentTag
 	private java.lang.String summary;
 	private java.lang.String title;
 	private java.lang.String width;
+	private java.lang.String expanded;
 	
 	//
 	// Setter Methods
@@ -197,6 +198,9 @@ public class HierDataTableTag extends UIComponentTag
 		this.width = width;
 	}
 	
+	public void setExpanded(java.lang.String expanded) {
+		this.expanded = expanded;
+	}
 	
 	//
 	// General Methods
@@ -459,6 +463,14 @@ public class HierDataTableTag extends UIComponentTag
 				data.setValueBinding("width", vb);
 			} else {
 				data.getAttributes().put("width", width);
+			}
+		}
+		if (expanded != null) {
+			if (isValueReference(expanded)) {
+				ValueBinding vb = Util.getValueBinding(expanded);
+				data.setValueBinding("expanded", vb);
+			} else {
+				data.getAttributes().put("expanded", expanded);
 			}
 		}
 	}
