@@ -905,6 +905,7 @@ public class DiscussionForumTool
     while (iter.hasNext())
     {
       DiscussionTopic topic = (DiscussionTopic) iter.next();
+      topic=(DiscussionTopic) forumManager.getTopicByIdWithAttachments(topic.getId());
       if (topic != null)
       {
         DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic);
@@ -2267,11 +2268,14 @@ public class DiscussionForumTool
     selectedForum = new DiscussionForumBean(forum);
   }
 
+  /**
+   * @param errorMsg
+   */
   private void setErrorMessage(String errorMsg)
   {
     LOG.debug("setErrorMessage(String " + errorMsg + ")");
     FacesContext.getCurrentInstance().addMessage(null,
         new FacesMessage(errorMsg));
-  }
-
+  }  
+  
 }
