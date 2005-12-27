@@ -19,6 +19,8 @@
 <div style="width:100%;">
 	<div   style="float:left;width:62%;" >
 	 <div   style="float:left;width:79%;" >
+<%--	 	<h:commandLink action="#{ForumTool.processActionMarkCheckedAsRead}" id="markAsread"  value="#{msgs.cdfm_mark_check_as_read}"
+	 	  rendered="#{ForumTool.selectedTopic.isMarkAsRead}">--%>
 	 	<h:commandLink action="#{ForumTool.processActionMarkCheckedAsRead}" id="markAsread"  value="#{msgs.cdfm_mark_check_as_read}">
 			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 			<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
@@ -29,6 +31,8 @@
 		</h:commandLink>--%>
 	</div>
 	<div   style="float:right;width:19%;" >
+<%--	 	<h:commandButton action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages" value="#{msgs.cdfm_container_title}"
+	 	  rendered="#{ForumTool.selectedTopic.isNewResponse}"/>--%>
 	 	<h:commandButton action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages" value="#{msgs.cdfm_container_title}"/>
 	</div>
 	</div>

@@ -1204,9 +1204,12 @@ public class DiscussionForumTool
         {
           DiscussionMessageBean decoMsg = new DiscussionMessageBean(message,
               messageManager);
-          decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(),
+          if(decoTopic.getIsRead())
+          {
+          	decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(),
               message.getId()));
-          decoTopic.addMessage(decoMsg);
+          	decoTopic.addMessage(decoMsg);
+          }
         }
 
       }
