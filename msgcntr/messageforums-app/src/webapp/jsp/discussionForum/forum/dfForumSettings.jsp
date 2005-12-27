@@ -9,7 +9,7 @@
       <h:form id="forum_settings">
       <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
-         <h:outputText styleClass="alertMsg" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}"/>	
+         <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}"/>	
  		<p class="shorttext">
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel id="outputLabel" for="forum_title"  value="#{msgs.cdfm_forum_title}"/>	</h:panelGroup>

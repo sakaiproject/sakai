@@ -40,5 +40,5 @@
 	</div>
 </div>
 <div style="width:100%;">
-	<h:messages styleClass="alertMsg" id="errorMessages"  />
+	<h:messages styleClass="alertMessage" id="errorMessages"  />
 </div>

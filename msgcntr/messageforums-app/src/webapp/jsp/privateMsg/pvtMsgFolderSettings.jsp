@@ -31,7 +31,7 @@
  </p>
  --%>   
  	<h:panelGroup rendered="#{PrivateMessagesTool.ismutable}">
-	  <h:outputText style="alertMsg" value="! You cann't Revise or Delete this folder." />
+	  <h:outputText style="alertMessage" value="! You cann't Revise or Delete this folder." />
 	</h:panelGroup>   
 				
 	<sakai:button_bar>

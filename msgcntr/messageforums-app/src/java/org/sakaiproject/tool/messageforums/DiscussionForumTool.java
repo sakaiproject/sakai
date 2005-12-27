@@ -2515,7 +2515,7 @@ public class DiscussionForumTool
   {
     LOG.debug("setErrorMessage(String " + errorMsg + ")");
     FacesContext.getCurrentInstance().addMessage(null,
-        new FacesMessage(errorMsg));
+        new FacesMessage("Alert: " + errorMsg));
   }
 
 }

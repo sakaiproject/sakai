@@ -11,9 +11,9 @@
 <h2>Private Messages- Delete Confirmation</h2>
 
 <h:panelGroup >
-  <h:outputText styleClass="alertMsg" value="! The folder  " />	
+  <h:outputText styleClass="alertMessage" value="! The folder  " />	
 	<h:outputText value="#{PrivateMessagesTool.selectedTopicTitle}" />	
-	<h:outputText styleClass="  alertMsg" value="contains messages that will also be deleted! Are you sure you want to delete the following folder and its contents?" />
+	<h:outputText styleClass="alertMessage" value="contains messages that will also be deleted! Are you sure you want to delete the following folder and its contents?" />
 	
 </h:panelGroup>   
 				
