@@ -12,21 +12,22 @@
  			 <div class="instruction">
   			    <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}  #{msgs.cdfm_info_required_sign}"/>
 			 </div>
-        <p class="shorttext">
-			<h:panelGrid columns="3">
-				<h:panelGroup><h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" style="color: red"/>	</h:panelGroup>
-				<h:panelGroup><h:outputLabel id="outputLabel" for="forum_title"  value="#{msgs.cdfm_forum_title}"/>	</h:panelGroup>
-				<h:panelGroup><h:inputText size="50" id="forum_title"  value="#{ForumTool.selectedForum.forum.title}"/></h:panelGroup>
-
-				<h:panelGroup/>
-				<h:panelGroup><h:outputLabel id="outputLabel1" for="forum_shortDescription"  value="#{msgs.cdfm_shortDescription}"/>	</h:panelGroup>
-				<h:panelGroup><h:inputTextarea rows="3" cols="45" id="forum_shortDescription"  value="#{ForumTool.selectedForum.forum.shortDescription}"/></h:panelGroup>
-
-				<h:panelGroup/>
-				<h:panelGroup><h:outputLabel id="outputLabel2" for="forum_fullDescription"  value="#{msgs.cdfm_fullDescription}"/>	</h:panelGroup>
-				<h:panelGroup><h:inputTextarea rows="6" cols="60" id="forum_fullDescription"  value="#{ForumTool.selectedForum.forum.extendedDescription}"/></h:panelGroup>
-      		</h:panelGrid>
-		</p>
+			  <h:messages styleClass="alertMsg" id="errorMessages"  /> 
+		        <p class="shorttext">
+					<h:panelGrid columns="3">
+						<h:panelGroup><h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" style="color: red"/>	</h:panelGroup>
+						<h:panelGroup><h:outputLabel id="outputLabel" for="forum_title"  value="#{msgs.cdfm_forum_title}"/>	</h:panelGroup>
+						<h:panelGroup><h:inputText size="50" id="forum_title"  value="#{ForumTool.selectedForum.forum.title}"/></h:panelGroup>
+		
+						<h:panelGroup/>
+						<h:panelGroup><h:outputLabel id="outputLabel1" for="forum_shortDescription"  value="#{msgs.cdfm_shortDescription}"/>	</h:panelGroup>
+						<h:panelGroup><h:inputTextarea rows="3" cols="45" id="forum_shortDescription"  value="#{ForumTool.selectedForum.forum.shortDescription}"/></h:panelGroup>
+		
+						<h:panelGroup/>
+						<h:panelGroup><h:outputLabel id="outputLabel2" for="forum_fullDescription"  value="#{msgs.cdfm_fullDescription}"/>	</h:panelGroup>
+						<h:panelGroup><h:inputTextarea rows="6" cols="60" id="forum_fullDescription"  value="#{ForumTool.selectedForum.forum.extendedDescription}"/></h:panelGroup>
+		      		</h:panelGrid>
+				</p>
    		<sakai:group_box>
 	      <table width="100%" align="center">
 	        <tr>

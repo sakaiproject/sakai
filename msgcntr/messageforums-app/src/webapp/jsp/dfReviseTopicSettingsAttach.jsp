@@ -12,6 +12,7 @@
  			 <div class="instruction">
   			    <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}  #{msgs.cdfm_info_required_sign}"/>
 			 </div>
+			 <h:messages styleClass="alertMsg" id="errorMessages" /> 
         <p class="shorttext">
 			<h:panelGrid columns="3">
 				<h:panelGroup><h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" style="color: red"/>	</h:panelGroup>

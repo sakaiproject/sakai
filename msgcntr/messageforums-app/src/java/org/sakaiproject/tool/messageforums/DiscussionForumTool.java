@@ -464,6 +464,13 @@ public class DiscussionForumTool
   public String processActionSaveForumAndAddTopic()
   {
     LOG.debug("processActionSaveForumAndAddTopic()");
+    if(selectedForum!=null && selectedForum.getForum()!=null && 
+        (selectedForum.getForum().getTitle()==null 
+          ||selectedForum.getForum().getTitle().trim().length()<1  ))
+    {
+      setErrorMessage("Please enter a valid forum title");
+      return FORUM_SETTING_REVISE;
+    }
     DiscussionForum forum = saveForumSettings(false);
     selectedTopic = createTopic(forum.getId());
     if (selectedTopic == null)
@@ -483,6 +490,13 @@ public class DiscussionForumTool
    */
   public String processActionSaveForumSettings()
   {
+    if(selectedForum!=null && selectedForum.getForum()!=null && 
+        (selectedForum.getForum().getTitle()==null 
+          ||selectedForum.getForum().getTitle().trim().length()<1  ))
+    {
+      setErrorMessage("Please enter a valid forum title");
+      return FORUM_SETTING_REVISE;
+    }
     saveForumSettings(false);
     reset();
     return MAIN;
@@ -493,6 +507,13 @@ public class DiscussionForumTool
    */
   public String processActionSaveForumAsDraft()
   {
+    if(selectedForum!=null && selectedForum.getForum()!=null && 
+        (selectedForum.getForum().getTitle()==null 
+          ||selectedForum.getForum().getTitle().trim().length()<1  ))
+    {
+      setErrorMessage("Please enter a valid forum title");
+      return FORUM_SETTING_REVISE;
+    }
     saveForumSettings(true);
     reset();
     return MAIN;
@@ -504,12 +525,16 @@ public class DiscussionForumTool
     if (selectedForum == null)
     {
       setErrorMessage("Selected Forum not found");
+      return null;
     }
+  
     DiscussionForum forum = selectedForum.getForum();
     if (forum == null)
     {
       setErrorMessage("Forum not found");
+      return null;
     }
+    
     saveForumAttach(forum);
     if (draft)
       forumManager.saveForumAsDraft(forum);
@@ -649,6 +674,13 @@ public class DiscussionForumTool
   public String processActionSaveTopicAndAddTopic()
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
+    if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
+        (selectedTopic.getTopic().getTitle()==null 
+          ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
+    {
+      setErrorMessage("Please enter a valid topic title");
+      return TOPIC_SETTING_REVISE;
+    }
     saveTopicSettings(false);
     Long forumId = selectedForum.getForum().getId();
     if (forumId == null)
@@ -677,6 +709,13 @@ public class DiscussionForumTool
   public String processActionSaveTopicSettings()
   {
     LOG.debug("processActionSaveTopicSettings()");
+    if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
+        (selectedTopic.getTopic().getTitle()==null 
+          ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
+    {
+      setErrorMessage("Please enter a valid topic title");
+      return TOPIC_SETTING_REVISE;
+    }
     saveTopicSettings(false);
     reset();
     return MAIN;
@@ -688,6 +727,13 @@ public class DiscussionForumTool
   public String processActionSaveTopicAsDraft()
   {
     LOG.debug("processActionSaveTopicAsDraft()");
+    if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
+        (selectedTopic.getTopic().getTitle()==null 
+          ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
+    {
+      setErrorMessage("Please enter a valid topic title");
+      return TOPIC_SETTING_REVISE;
+    }
     saveTopicSettings(true);
     reset();
     return MAIN;
@@ -2334,6 +2380,7 @@ public class DiscussionForumTool
   public String processActionSearch()
   {
     LOG.debug("processActionSearch()");
+    
     setErrorMessage("Under Construction");
     return ALL_MESSAGES;
   }
