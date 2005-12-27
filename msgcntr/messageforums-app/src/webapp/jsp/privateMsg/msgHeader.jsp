@@ -28,7 +28,7 @@
               
               <td align="center" >
 	        			<h:commandButton value="Compose Message" action="#{PrivateMessagesTool.processPvtMsgCompose}" onkeypress="document.forms[0].submit;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              	<h:commandButton action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.navModeIsDelete}" value="Empty Deleted Folder" onkeypress="document.forms[0].submit;"/>  
+              	<h:commandButton action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" value="Empty Deleted Folder" onkeypress="document.forms[0].submit;"/>  
               </td>
               
               <td align="right">

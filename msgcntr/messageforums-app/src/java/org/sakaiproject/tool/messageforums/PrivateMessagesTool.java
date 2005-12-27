@@ -123,7 +123,6 @@ public class PrivateMessagesTool
   private PrivateMessageDecoratedBean detailMsg ;
   
   private String currentMsgUuid; //this is the message which is being currently edited/displayed/deleted
-  private boolean navModeIsDelete=false ; // Delete mode to show up extra buttons in pvtMsg.jsp page
   private List selectedItems;
   
   private String userName;    //current user
@@ -410,17 +409,6 @@ public class PrivateMessagesTool
   public void setValidEmail(boolean validEmail)
   {
     this.validEmail = validEmail;
-  }
-
-
-  public boolean getNavModeIsDelete()
-  {
-    return navModeIsDelete;
-  }
-  
-  public void setNavModeIsDelete(boolean navModeIsDelete)
-  {
-    this.navModeIsDelete=navModeIsDelete ;
   }
   
   //Deleted page - checkbox display and selection
@@ -724,9 +712,12 @@ public class PrivateMessagesTool
         for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
         {
           PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
-          if((element.getRead().booleanValue()) || (element.getUserId().equals(getUserId())) )
+          if (element != null)
           {
-           getDetailMsg().setHasRead(true) ;
+            if((element.getRead().booleanValue()) || (element.getUserId().equals(getUserId())) )
+            {
+             getDetailMsg().setHasRead(true) ;
+            }
           }
         }
       }
@@ -795,7 +786,6 @@ public class PrivateMessagesTool
   //RESET form variable - required as the bean is in session and some attributes are used as helper for navigation
   public void resetFormVariable() {
     
-    this.setNavModeIsDelete(false); 
     this.msgNavMode="" ;
     this.deleteConfirm=false;
     
@@ -846,20 +836,17 @@ public class PrivateMessagesTool
     
     if(!hasValue(getComposeSubject()))
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please enter subject for this compose message."));
+      setErrorMessage("Please enter subject for this compose message.");
       return null ;
     }
     if(!hasValue(getComposeBody()) )
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please enter body for this compose message."));
+      setErrorMessage("Please enter body for this compose message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please select recipiants list for this compose message."));
+      setErrorMessage("Please select recipiants list for this compose message.");
       return null ;
     }
     
@@ -893,20 +880,17 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgSaveDraft()");
     if(!hasValue(getComposeSubject()))
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please enter subject for this compose message."));
+      setErrorMessage("Please enter subject for this compose message.");
       return null ;
     }
     if(!hasValue(getComposeBody()) )
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please enter body for this compose message."));
+      setErrorMessage("Please enter body for this compose message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please select recipiants list for this compose message."));
+      setErrorMessage("Please select recipiants list for this compose message.");
       return null ;
     }
     
@@ -1034,20 +1018,17 @@ public class PrivateMessagesTool
     
     if(!hasValue(getReplyToSubject()))
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please enter subject for this reply message."));
+      setErrorMessage("Please enter subject for this reply message.");
       return null ;
     }
     if(!hasValue(getReplyToBody()) )
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please enter body for this reply message."));
+      setErrorMessage("Please enter body for this reply message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please select recipiants list for this reply message."));
+      setErrorMessage("Please select recipiants list for this reply message.");
       return null ;
     }
     
@@ -1087,20 +1068,17 @@ public class PrivateMessagesTool
     
     if(!hasValue(getReplyToSubject()))
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please enter subject for this reply message."));
+      setErrorMessage("Please enter subject for this reply message.");
       return null ;
     }
     if(!hasValue(getReplyToBody()) )
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please enter body for this reply message."));
+      setErrorMessage("Please enter body for this reply message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
     {
-      FacesContext.getCurrentInstance().addMessage(null,
-          new FacesMessage("Please select recipiants list for this reply message."));
+      setErrorMessage("Please select recipiants list for this reply message.");
       return null ;
     }
     
@@ -1147,8 +1125,10 @@ public class PrivateMessagesTool
     this.setSelectedDeleteItems(delSelLs);
     if(delSelLs.size()<1)
     {
+      setErrorMessage("Please select list of messages to be deleted.");
       return null;  //stay in the same page if nothing is selected for delete
     }else {
+      setErrorMessage("Are you sure you want to permanently delete the following message(s)?");
       return "pvtMsgDelete";
     }
   }
@@ -1964,4 +1944,15 @@ public class PrivateMessagesTool
       return false;
     }
   }
+  
+  /**
+   * @param errorMsg
+   */
+  private void setErrorMessage(String errorMsg)
+  {
+    LOG.debug("setErrorMessage(String " + errorMsg + ")");
+    FacesContext.getCurrentInstance().addMessage(null,
+        new FacesMessage("Alert: " + errorMsg));
+  }
+  
 }

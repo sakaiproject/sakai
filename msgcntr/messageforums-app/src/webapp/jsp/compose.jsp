@@ -1,23 +1,23 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
 <f:view>
-  <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="compose">
   			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> 
 				<h:outputText value="/ Compose" />
 				
-        <sakai:tool_bar_message value="Compose a Private Message" /> 
-        <sakai:group_box>
-          <h:outputText value="#{msgs.cdfm_required}"/>
-          <h:outputText value="*" style="color: red"/>
-        </sakai:group_box>
-				<sakai:messages />
+				<sakai:tool_bar_message value="Compose a Private Message" />
+ 			  <div class="instruction">
+  			    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="*" style="color: red"/>
+			  </div>
+			  <h:messages styleClass="alertMessage" id="errorMessages" /> 
+
 				<sakai:group_box>
           <table width="80%" align="left">
             <tr>
@@ -27,7 +27,7 @@
               </td>
               <td align="left">
       
-          			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width:150px;">
+          			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width:200px;">
             			<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
           			</h:selectManyListbox>      
           			
@@ -50,7 +50,7 @@
                 <h:outputText value="Subject" />
               </td>
               <td align="left">
-              	<h:inputText value="#{PrivateMessagesTool.composeSubject}" style="width:250px;"/>
+              	<h:inputText value="#{PrivateMessagesTool.composeSubject}" style="width:300px;"/>
               </td>
             </tr>                                   
           </table>
@@ -67,13 +67,7 @@
 	      </sakai:group_box>
 <%--********************* Attachment *********************--%>	
 	      <sakai:group_box>
-	        <table width="100%" align="center">
-	          <tr>
-	            <td align="center" class="att" >
-	              <h:outputText value="Attachments"/>
-	            </td>
-	          </tr>
-	        </table>
+					<h4><h:outputText value="Attachments"/></h4>
 	        <sakai:doc_section>
 	          <sakai:button_bar>
 	          	<sakai:button_bar_item action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" />

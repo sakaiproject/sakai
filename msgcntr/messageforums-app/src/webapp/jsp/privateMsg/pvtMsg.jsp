@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
@@ -10,11 +11,11 @@
 		<h:form id="prefs_form">
   		<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> /
 			<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
-				
-		<h2>Private message- <h:outputText value="#{PrivateMessagesTool.msgNavMode}" /> </h2>
-		
-		<%@include file="msgHeader.jsp"%>
-<br><br><br>
+			
+			<sakai:tool_bar_message value="Private message- #{PrivateMessagesTool.msgNavMode}" /> 
+			<h:messages styleClass="alertMessage" id="errorMessages" /> 
+			<%@include file="msgHeader.jsp"%>
+			<br><br><br>
 
 	  <h:dataTable styleClass="listHier" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" >   
 		  <h:column>

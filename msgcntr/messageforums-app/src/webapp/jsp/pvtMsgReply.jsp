@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
@@ -12,11 +13,11 @@
   			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> 
 				<h:outputText value="/ Reply to Private Message" />
         <sakai:tool_bar_message value="Reply to Private Message" /> 
-        <sakai:group_box>
-          <h:outputText value="#{msgs.cdfm_required}"/>
-          <h:outputText value="*" style="color: red"/>
-        </sakai:group_box>
-				<sakai:messages />
+ 			  <div class="instruction">
+  			    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="*" style="color: red"/>
+			  </div>
+			  <h:messages styleClass="alertMessage" id="errorMessages" /> 
+			  
 				<sakai:group_box>
           <table width="80%" align="left">
             <tr>
@@ -34,7 +35,7 @@
               </td>
               <td align="left">
       
-          			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width:150px;">
+          			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width:200px;">
             			<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
           			</h:selectManyListbox>      
           			
@@ -60,7 +61,7 @@
               	<%--
               	<h:outputText value="Re: #{PrivateMessagesTool.detailMsg.msg.title}" />  
               	--%>
-              	<h:inputText value="#{PrivateMessagesTool.replyToSubject}" style="width:250px;"/>	
+              	<h:inputText value="#{PrivateMessagesTool.replyToSubject}" style="width:300px;"/>	
               </td>
             </tr>                                   
           </table>
@@ -78,13 +79,7 @@
 
 <%--********************* Attachment *********************--%>	
 	      <sakai:group_box>
-	        <table width="100%" align="center">
-	          <tr>
-	            <td align="center" class="att" >
-	              <h:outputText value="Attachments"/>
-	            </td>
-	          </tr>
-	        </table>
+					<h4><h:outputText value="Attachments"/></h4>
 	          <%-- Existing Attachments 
               <h:dataTable value="#{PrivateMessagesTool.detailMsg.msg.attachments}" var="existAttach" >
 					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.message.attachments}">
@@ -152,13 +147,7 @@
 					 
  <%--********************* Reply *********************--%>	
 	      <sakai:group_box>
-	        <table width="100%" align="center">
-	          <tr>
-	            <td align="center" class="att" >
-	              <h:outputText value="Replying To"/>
-	            </td>
-	          </tr>
-	        </table>
+	      	<h4><h:outputText value="Replying To"/></h4>
           <table width="80%" align="left">
             <tr>
               <td align="left" width="20%">
