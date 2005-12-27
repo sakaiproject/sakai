@@ -344,6 +344,12 @@ public class PrivateMessagesTool
       PrivateMessageDecoratedBean dbean= new PrivateMessageDecoratedBean(element);
       dbean.setHasPreviousMsg(prev);
       dbean.setHasNextMsg(next);
+      //getRecipients() is filtered for this perticular user i.e. returned list of only one PrivateMessageRecipient object
+      for (Iterator iterator = element.getRecipients().iterator(); iterator.hasNext();)
+      {
+        PrivateMessageRecipient el = (PrivateMessageRecipient) iterator.next();
+        dbean.setHasRead(el.getRead().booleanValue());
+      }
       
       decLs.add(dbean) ;
     }
