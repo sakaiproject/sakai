@@ -846,7 +846,7 @@ public class PrivateMessagesTool
     }
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("Please select recipiants list for this compose message.");
+      setErrorMessage("Please select recipients list for this compose message.");
       return null ;
     }
     
@@ -890,7 +890,7 @@ public class PrivateMessagesTool
     }
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("Please select recipiants list for this compose message.");
+      setErrorMessage("Please select recipients list for this compose message.");
       return null ;
     }
     
@@ -1028,7 +1028,7 @@ public class PrivateMessagesTool
     }
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("Please select recipiants list for this reply message.");
+      setErrorMessage("Please select recipients list for this reply message.");
       return null ;
     }
     
@@ -1078,7 +1078,7 @@ public class PrivateMessagesTool
     }
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("Please select recipiants list for this reply message.");
+      setErrorMessage("Please select recipients list for this reply message.");
       return null ;
     }
     
