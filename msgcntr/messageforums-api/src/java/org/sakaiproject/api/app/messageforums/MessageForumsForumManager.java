@@ -44,7 +44,7 @@ public interface MessageForumsForumManager {
     /**
      * get forum by owner
      */
-    public PrivateForum getForumByOwner(final String owner);
+    public PrivateForum getPrivateForumByOwner(final String owner);
     
     public Topic getTopicByIdWithAttachments(final Long topicId);
     

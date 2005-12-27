@@ -1,6 +1,7 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -45,7 +46,7 @@ public interface PrivateMessageManager {
      */
     Area getPrivateMessageArea();
     
-    public PrivateForum initializePrivateMessageArea();        
+    public PrivateForum initializePrivateMessageArea(Area area);        
     
     
     /** 
@@ -60,7 +61,7 @@ public interface PrivateMessageManager {
      * @param message
      * @param recipients
      */
-    public void sendPrivateMessage(PrivateMessage message, List recipients);
+    public void sendPrivateMessage(PrivateMessage message, Set recipients);
     
     
     /**

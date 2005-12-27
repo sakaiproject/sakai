@@ -24,16 +24,15 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
-
-import net.sf.hibernate.Hibernate;
+import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
@@ -80,7 +79,7 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
       
       forumManager.savePrivateForumTopic(topic);
                   
-      List recipients = new UniqueArrayList();
+      Set recipients = new HashSet();
       
       recipients.add("dman");
       recipients.add("pman");
@@ -145,7 +144,7 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
 //      area.setHidden(Boolean.TRUE);
 //      areaManager.saveArea(area);
                              
-      if (forumManager.getForumByOwner("test-user") == null)      
+      if (forumManager.getPrivateForumByOwner("test-user") == null)      
       {
         PrivateForum pf = forumManager.createPrivateForum("test");
         pf.setTitle("test-user" + " private forum");

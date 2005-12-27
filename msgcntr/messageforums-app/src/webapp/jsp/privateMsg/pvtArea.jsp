@@ -1,10 +1,11 @@
 <%--********************* Private Message Area*********************--%>
-<mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div">
+  <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 
+                        rendered="#{PrivateMessagesTool.pvtAreaEnabled || PrivateMessagesTool.instructor}">
 <%--
   <mf:forum_bar_link value="Organize " action="#{PrivateMessagesTool.processPvtMsgOrganize}"/> &nbsp;
   <mf:forum_bar_link value=" Statistics " action="#{PrivateMessagesTool.processPvtMsgStatistics}"/> &nbsp;
  --%>
-  <mf:forum_bar_link value=" Settings " action="#{PrivateMessagesTool.processPvtMsgSettings}" rendered="#{PrivateMessagesTool.instructor}"/> &nbsp;
+  <mf:forum_bar_link value=" Settings " action="#{PrivateMessagesTool.processPvtMsgSettings}"/> &nbsp;
   
   <h:dataTable width="100%" value="#{PrivateMessagesTool.decoratedForum}" var="forum" rendered="#{PrivateMessagesTool.pvtAreaEnabled}">
     <h:column >
@@ -38,7 +39,7 @@
     			<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
     		</h:commandLink>
     		<h:outputText value=" (#{topic.totalNoMessages} messages"/>
-    		<h:outputText value=" - #{topic.unreadNoMessages} unread" rendered="#{topic.topic.title == 'Received' || topic.topic.title == 'Deleted'}"/>
+    		<h:outputText value=" - #{topic.unreadNoMessages} unread" rendered="#{topic.topic.title == 'Received'}"/>
     		<h:outputText value=")"/>
 				</h:column>
 					

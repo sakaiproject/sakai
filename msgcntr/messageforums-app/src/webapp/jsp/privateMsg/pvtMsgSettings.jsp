@@ -33,7 +33,10 @@
           			<h:outputText rendered="#{PrivateMessagesTool.superUser}" value="Activate Private Messages: "/>		
               </td>
               <td>
-                <h:selectOneRadio id="activate" rendered="#{PrivateMessagesTool.superUser}" value="#{PrivateMessagesTool.activatePvtMsg}" layout="pageDirection">
+                <h:selectOneRadio id="activate"
+                                  rendered="#{PrivateMessagesTool.superUser}" 
+                                  value="#{PrivateMessagesTool.activatePvtMsg}"                                   
+                                  layout="pageDirection">
     							<f:selectItem itemValue="yes" itemLabel="Yes"/>
     							<f:selectItem itemValue="no" itemLabel="No"/>
   							</h:selectOneRadio>
@@ -51,14 +54,18 @@
           			<h:outputText value="Auto Forward Private Messages:"/>		
               </td>
               <td>
-                <h:selectOneRadio immediate="true" value="#{PrivateMessagesTool.forwardPvtMsg}" onchange="this.form.submit();" valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}" layout="pageDirection">
+                <h:selectOneRadio immediate="true"
+                                  value="#{PrivateMessagesTool.forwardPvtMsg}"
+                                  onchange="this.form.submit();"
+                                  valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}"
+                                  layout="pageDirection">
     							<f:selectItem itemValue="yes" itemLabel="Yes"/>
     							<f:selectItem itemValue="no" itemLabel="No"/>
   							</h:selectOneRadio>  								
   							<%--
   							<h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}" layout="pageDirection" >
-    							<f:selectItem itemValue="yes" itemLabel="Yes"/>
-    							<f:selectItem itemValue="no" itemLabel="No"/>
+    							<f:selectItem itemValue='yes' itemLabel='Yes'/>
+    							<f:selectItem itemValue='no' itemLabel='No'/>
   							</h:selectOneRadio>
   				      --%>
               </td>
@@ -67,13 +74,9 @@
               <td align="left" width="20%">
           			<h:outputText value="Email address for forwarding:"/>		
               </td>
-              <td>
-              
-               <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" rendered="#{PrivateMessagesTool.forwardPvtMsg == 'yes'}"/>
-               <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" disabled ="true" rendered="#{PrivateMessagesTool.forwardPvtMsg == 'no'}"/>
-              
-               
-             		
+              <td>                             
+               <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}"                            
+                            disabled="#{PrivateMessagesTool.forwardPvtMsg == 'no'}"/>                                          		
               </td>
             </tr>            
           </table>

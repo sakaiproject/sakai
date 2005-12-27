@@ -336,7 +336,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     }
 
-    public PrivateForum getForumByOwner(final String owner) {
+    public PrivateForum getPrivateForumByOwner(final String owner) {
 
         if (owner == null) {
             throw new IllegalArgumentException("Null Argument");

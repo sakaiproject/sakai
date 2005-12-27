@@ -4,9 +4,11 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.LockMode;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 
@@ -57,8 +59,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private MessageForumsForumManager forumManager;
   private MessageForumsTypeManager typeManager;
   private IdManager idManager;
-  private SessionManager sessionManager;
-  private Area privateArea = null;
+  private SessionManager sessionManager;  
 
   public void init()
   {
@@ -72,7 +73,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     {
       LOG.debug("getPrivateAreaEnabled()");
     }
-
+        
     return areaManager.isPrivateAreaEnabled();
 
   }
@@ -100,8 +101,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
    */
   public Area getPrivateMessageArea()
   {
-    privateArea = areaManager.getPrivateArea();
-    return privateArea;
+    return areaManager.getPrivateArea();    
   }
 
   public void savePrivateMessageArea(Area area)
@@ -109,27 +109,29 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     areaManager.saveArea(area);
   }
 
+  
   /**
-   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#initializePrivateMessageArea()
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#initializePrivateMessageArea(org.sakaiproject.api.app.messageforums.Area)
    */
-  public PrivateForum initializePrivateMessageArea()
+  public PrivateForum initializePrivateMessageArea(Area area)
   {
-
     String userId = getCurrentUser();
-    getPrivateMessageArea();
-
+    
+    getHibernateTemplate().lock(area, LockMode.NONE);
+    
     PrivateForum pf;
 
     /** create default user forum/topics if none exist */
-    if ((pf = forumManager.getForumByOwner(getCurrentUser())) == null)
+    if ((pf = forumManager.getPrivateForumByOwner(getCurrentUser())) == null)
     {      
       /** initialize collections */
-      getHibernateTemplate().initialize(privateArea.getPrivateForumsSet());      
+      //getHibernateTemplate().initialize(area.getPrivateForumsSet());
+            
+      pf = forumManager.createPrivateForum("Private Forum");
       
-      pf = forumManager.createPrivateForum("Private Forum");      
-      privateArea.addPrivateForum(pf);
-      pf.setArea(privateArea);
-      areaManager.saveArea(privateArea);
+      //area.addPrivateForum(pf);
+      //pf.setArea(area);
+      //areaManager.saveArea(area);
       
       PrivateTopic receivedTopic = forumManager.createPrivateForumTopic("Received", true,
           userId, pf.getId());     
@@ -142,23 +144,26 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
       PrivateTopic draftTopic = forumManager.createPrivateForumTopic("Drafts", true,
           userId, pf.getId());
-      
+    
       /** save individual topics - required to add to forum's topic set */
       forumManager.savePrivateForumTopic(receivedTopic);
       forumManager.savePrivateForumTopic(sentTopic);
       forumManager.savePrivateForumTopic(deletedTopic);
       forumManager.savePrivateForumTopic(draftTopic);
-            
+      
       pf.addTopic(receivedTopic);
       pf.addTopic(sentTopic);
       pf.addTopic(deletedTopic);
       pf.addTopic(draftTopic);
-
-      forumManager.savePrivateForum(pf);      
-    }
+      
+      
+      forumManager.savePrivateForum(pf);
+      
+                 
+    }    
     else
     {      
-       getHibernateTemplate().initialize(pf.getTopicsSet());
+       getHibernateTemplate().initialize(pf.getTopicsSet());              
     }
 
     return pf;
@@ -264,8 +269,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     saveForumSettings(forum);
 
     /** need to evict forum b/c area saves fk on forum (which places two objects w/same id in session */
-    getHibernateTemplate().evict(forum);
-    savePrivateMessageArea(area);
+    //getHibernateTemplate().evict(forum);
+    
+    if (isInstructor()){
+      savePrivateMessageArea(area);
+    }
   }
 
   public void saveForumSettings(PrivateForum forum)
@@ -691,7 +699,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.List)
    */
-  public void sendPrivateMessage(PrivateMessage message, List recipients)
+  public void sendPrivateMessage(PrivateMessage message, Set recipients)
   {
 
     if (LOG.isDebugEnabled())
@@ -727,7 +735,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     for (Iterator i = recipients.iterator(); i.hasNext();)
     {
-      String userId = (String) i.next();
+      User u = (User) i.next();      
+      String userId = u.getId();
 
       PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
           userId, typeManager.getReceivedPrivateMessageType(), getContextId(),

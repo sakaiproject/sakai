@@ -99,9 +99,10 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public Area getPrivateArea() {
-        Area area = getAreaByType(typeManager.getPrivateMessageAreaType());
+        Area area = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
         if (area == null) {
             area = createArea(typeManager.getPrivateMessageAreaType());
+            area.setContextId(getContextId());
             area.setName("Private Messages");
             area.setEnabled(Boolean.FALSE);
             area.setHidden(Boolean.TRUE);
