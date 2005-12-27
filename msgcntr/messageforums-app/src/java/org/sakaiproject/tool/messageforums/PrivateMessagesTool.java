@@ -708,7 +708,7 @@ public class PrivateMessagesTool
         PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(dMsg.getMsg());
         this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
         
-        List recLs= dMsg.getMsg().getRecipients();
+        List recLs= initPrivateMessage.getRecipients();
         for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
         {
           PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
