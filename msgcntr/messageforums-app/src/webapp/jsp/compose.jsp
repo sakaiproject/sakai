@@ -17,7 +17,7 @@
           <h:outputText value="#{msgs.cdfm_required}"/>
           <h:outputText value="*" style="color: red"/>
         </sakai:group_box>
-				
+				<sakai:messages />
 				<sakai:group_box>
           <table width="80%" align="left">
             <tr>
@@ -158,7 +158,7 @@
       <sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSend}" value="Send" />
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSaveDraft}" value="Save Draft" />
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="Cancel" />
+        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgComposeCancel}" value="Cancel" />
       </sakai:button_bar>
     </h:form>
      

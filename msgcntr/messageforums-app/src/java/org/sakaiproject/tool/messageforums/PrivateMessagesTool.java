@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -676,10 +677,10 @@ public class PrivateMessagesTool
    * @return - pvtMsg
    */  
   public String processPvtMsgCancel() {
-    LOG.debug("processPvtMsgCancel()");   
+    LOG.debug("processPvtMsgCancel()");
     return "main";     
   }
-  
+
   /**
    * called when subject of List of messages to Topic clicked for detail
    * @return - pvtMsgDetail
@@ -794,6 +795,29 @@ public class PrivateMessagesTool
     return "pvtMsgCompose" ;
   }
   
+  
+  public String processPvtMsgComposeCancel()
+  {
+    LOG.debug("processPvtMsgComposeCancel()");
+    resetComposeContents();
+    if(getMsgNavMode().equals(""))
+    {
+      return "main" ; // if navigation is from main page
+    }
+    else
+    {
+      return "pvtMsg";
+    } 
+  }
+  
+  public void resetComposeContents()
+  {
+    this.setComposeBody("");
+    this.setComposeSubject("");
+    this.getSelectedComposeToList().clear();
+    this.setReplyToSubject("");
+    this.setReplyToBody("");
+  }
   /**
    * process from Compose screen
    * @return - pvtMsg
@@ -801,7 +825,26 @@ public class PrivateMessagesTool
   public String processPvtMsgSend() {
           
     LOG.debug("processPvtMsgSend()");
-            
+    
+    if(!hasValue(getComposeSubject()))
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please enter subject for this compose message."));
+      return null ;
+    }
+    if(!hasValue(getComposeBody()) )
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please enter body for this compose message."));
+      return null ;
+    }
+    if(getSelectedComposeToList().size()<1)
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please select recipiants list for this compose message."));
+      return null ;
+    }
+    
     PrivateMessage pMsg= constructMessage() ;
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
@@ -809,6 +852,8 @@ public class PrivateMessagesTool
       prtMsgManager.sendPrivateMessage(pMsg, getRecipients()); 
     }
 
+    //reset contents
+    resetComposeContents();
     if(getMsgNavMode().equals(""))
     {
       return "main" ; // if navigation is from main page
@@ -825,6 +870,24 @@ public class PrivateMessagesTool
    */
   public String processPvtMsgSaveDraft() {
     LOG.debug("processPvtMsgSaveDraft()");
+    if(!hasValue(getComposeSubject()))
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please enter subject for this compose message."));
+      return null ;
+    }
+    if(!hasValue(getComposeBody()) )
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please enter body for this compose message."));
+      return null ;
+    }
+    if(getSelectedComposeToList().size()<1)
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please select recipiants list for this compose message."));
+      return null ;
+    }
     
     PrivateMessage dMsg=constructMessage() ;
     dMsg.setDraft(Boolean.TRUE);
@@ -834,6 +897,9 @@ public class PrivateMessagesTool
       prtMsgManager.sendPrivateMessage(dMsg, getRecipients()); 
     }
 
+    //reset contents
+    resetComposeContents();
+    
     if(getMsgNavMode().equals(""))
     {
       return "main" ; // if navigation is from main page
@@ -945,6 +1011,25 @@ public class PrivateMessagesTool
   public String processPvtMsgReplySend() {
     LOG.debug("processPvtMsgReplySend()");
     
+    if(!hasValue(getReplyToSubject()))
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please enter subject for this reply message."));
+      return null ;
+    }
+    if(!hasValue(getReplyToBody()) )
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please enter body for this reply message."));
+      return null ;
+    }
+    if(getSelectedComposeToList().size()<1)
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please select recipiants list for this reply message."));
+      return null ;
+    }
+    
     PrivateMessage rMsg=getDetailMsg().getMsg() ;
     PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
        
@@ -961,6 +1046,10 @@ public class PrivateMessagesTool
     {
       prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients());
     }
+    
+    //reset contents
+    resetComposeContents();
+    
     return "pvtMsg" ;
   }
  
@@ -970,6 +1059,25 @@ public class PrivateMessagesTool
    */
   public String processPvtMsgReplySaveDraft() {
     LOG.debug("processPvtMsgReplySaveDraft()");
+    
+    if(!hasValue(getReplyToSubject()))
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please enter subject for this reply message."));
+      return null ;
+    }
+    if(!hasValue(getReplyToBody()) )
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please enter body for this reply message."));
+      return null ;
+    }
+    if(getSelectedComposeToList().size()<1)
+    {
+      FacesContext.getCurrentInstance().addMessage(null,
+          new FacesMessage("Please select recipiants list for this reply message."));
+      return null ;
+    }
     
     PrivateMessage drMsg=getDetailMsg().getMsg() ;
     //drMsg.setDraft(Boolean.TRUE);
@@ -987,6 +1095,10 @@ public class PrivateMessagesTool
     {
       prtMsgManager.sendPrivateMessage(drrepMsg, getRecipients());  
     }
+    
+    //reset contents
+    resetComposeContents();
+    
     return "pvtMsg" ;    
   }
   
@@ -1798,4 +1910,20 @@ public class PrivateMessagesTool
 // {
 //   
 // }
+  
+  /**
+   * Check String has value, not null
+   * @return boolean
+   */
+  protected boolean hasValue(String eval)
+  {
+    if (eval != null && !eval.trim().equals(""))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
 }
