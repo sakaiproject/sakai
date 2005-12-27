@@ -34,7 +34,7 @@
               </td>
               <td>
                 <h:selectOneRadio id="activate"
-                                  rendered="#{PrivateMessagesTool.superUser}" 
+                                  rendered="#{PrivateMessagesTool.instructor}" 
                                   value="#{PrivateMessagesTool.activatePvtMsg}"                                   
                                   layout="pageDirection">
     							<f:selectItem itemValue="yes" itemLabel="Yes"/>

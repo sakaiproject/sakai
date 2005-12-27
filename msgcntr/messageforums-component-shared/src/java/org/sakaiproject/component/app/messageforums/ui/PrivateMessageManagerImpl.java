@@ -741,6 +741,20 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     {
       User u = (User) i.next();      
       String userId = u.getId();
+      
+      /** determine if recipient has forwarding enabled */
+      PrivateForum pf = forumManager.getPrivateForumByOwner(userId);
+      
+      boolean forwardingEnabled = false;
+      
+      if (pf != null && pf.getAutoForward().booleanValue()){
+        forwardingEnabled = true;
+      }
+      
+      if (!asEmail && forwardingEnabled){
+        emailService.send(UserDirectoryService.getCurrentUser().getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
+            message.getBody(), pf.getAutoForwardEmail(), null, null);
+      }
 
       if (asEmail){
         emailService.send(UserDirectoryService.getCurrentUser().getEmail(), u.getEmail(), message.getTitle(), 
