@@ -13,6 +13,8 @@
 				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
 				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />
 				<sakai:instruction_message value="Reply to Private Message" /> 
+				<h:messages styleClass="alertMessage" id="errorMessages" /> 
+       
       	<br>
         <table width="100%" align="left" class="tablebgcolor" >
           <tr>
@@ -92,12 +94,8 @@
             </sakai:doc_section>    
           </sakai:panel_edit>
         </sakai:group_box>
-
-				<h:panelGroup rendered="#{PrivateMessagesTool.deleteConfirm}">
-					<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
-					  value="! Are you sure you want to delete this message? If yes, click Delete to delete the message." />
-				</h:panelGroup>        
-        
+  
+         
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="Reply to Message" />
           <%--

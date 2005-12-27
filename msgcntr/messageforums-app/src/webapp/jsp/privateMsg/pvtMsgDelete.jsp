@@ -23,7 +23,7 @@
 				<f:facet name="header">
 					<h:graphicImage value="/images/attachment.gif"/>								
 				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" rendered="#{!empty delItems.msg.hasAttachments}"/>			 
+				<h:graphicImage value="/images/attachment.gif" rendered="#{delItems.msg.hasAttachments}"/>			 
 			</h:column>
 		  <h:column>
 		    <f:facet name="header">

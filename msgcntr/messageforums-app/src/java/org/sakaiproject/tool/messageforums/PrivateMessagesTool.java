@@ -599,10 +599,6 @@ public class PrivateMessagesTool
   }
   public String getReplyToSubject()
   {
-    if(getDetailMsg() != null)
-    {
-      replyToSubject="Re:" +getDetailMsg().getMsg().getTitle();
-    }
     return replyToSubject;
   }
   public void setReplyToSubject(String replyToSubject)
@@ -733,6 +729,15 @@ public class PrivateMessagesTool
    */ 
   public String processPvtMsgReply() {
     LOG.debug("processPvtMsgReply()");
+    //set default userName
+    List defName = new ArrayList();
+    defName.add(getUserName());
+    this.setSelectedComposeToList(defName);
+    //set Dafult Subject
+    if(getDetailMsg() != null)
+    {
+      replyToSubject="Re:" +getDetailMsg().getMsg().getTitle();
+    }
     
     //from message detail screen
     this.setDetailMsg(getDetailMsg()) ;
@@ -762,6 +767,7 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgDeleteConfirm()");
     
     this.setDeleteConfirm(true);
+    setErrorMessage("Are you sure you want to delete this message? If yes, click Delete to delete the message.");
     /*
      * same action is used for delete..however if user presses some other action after first
      * delete then 'deleteConfirm' boolean is reset
@@ -841,7 +847,7 @@ public class PrivateMessagesTool
     }
     if(!hasValue(getComposeBody()) )
     {
-      setErrorMessage("Please enter body for this compose message.");
+      setErrorMessage("Please enter message body for this compose message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
@@ -885,7 +891,7 @@ public class PrivateMessagesTool
     }
     if(!hasValue(getComposeBody()) )
     {
-      setErrorMessage("Please enter body for this compose message.");
+      setErrorMessage("Please enter message body for this compose message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
@@ -1023,7 +1029,7 @@ public class PrivateMessagesTool
     }
     if(!hasValue(getReplyToBody()) )
     {
-      setErrorMessage("Please enter body for this reply message.");
+      setErrorMessage("Please enter message body for this reply message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
@@ -1043,6 +1049,12 @@ public class PrivateMessagesTool
     
     rrepMsg.setInReplyTo(rMsg) ;
     this.getRecipients().add(rMsg.getCreatedBy());
+    
+    //Add attachments
+    for(int i=0; i<allAttachments.size(); i++)
+    {
+      prtMsgManager.addAttachToPvtMsg(rrepMsg, (Attachment)allAttachments.get(i));         
+    } 
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
@@ -1073,7 +1085,7 @@ public class PrivateMessagesTool
     }
     if(!hasValue(getReplyToBody()) )
     {
-      setErrorMessage("Please enter body for this reply message.");
+      setErrorMessage("Please enter message body for this reply message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
@@ -1093,6 +1105,12 @@ public class PrivateMessagesTool
     
     drrepMsg.setInReplyTo(drMsg) ;
     this.getRecipients().add(drMsg.getCreatedBy());
+    
+    //Add attachments
+    for(int i=0; i<allAttachments.size(); i++)
+    {
+      prtMsgManager.addAttachToPvtMsg(drrepMsg, (Attachment)allAttachments.get(i));         
+    } 
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
