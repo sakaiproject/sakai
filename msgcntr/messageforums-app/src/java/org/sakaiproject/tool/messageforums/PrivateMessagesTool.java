@@ -350,7 +350,9 @@ public class PrivateMessagesTool
       for (Iterator iterator = element.getRecipients().iterator(); iterator.hasNext();)
       {
         PrivateMessageRecipient el = (PrivateMessageRecipient) iterator.next();
-        dbean.setHasRead(el.getRead().booleanValue());
+        if (el != null){
+          dbean.setHasRead(el.getRead().booleanValue());
+        }
       }
       
       decLs.add(dbean) ;
