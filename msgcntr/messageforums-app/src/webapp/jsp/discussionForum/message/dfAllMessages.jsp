@@ -67,7 +67,7 @@
     	        	<h:outputText style="font-weight:bold;" value="#{message.message.title}" rendered="#{!message.read}"/>
         	    	<f:param value="#{message.message.id}" name="messageId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-        	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
+        	    	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 	          	</h:commandLink>
 			</h:column>
 

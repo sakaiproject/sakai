@@ -926,8 +926,10 @@ public class DiscussionForumTool
     message = messageManager.getMessageByIdWithAttachments(message.getId());
     selectedMessage = new DiscussionMessageBean(message, messageManager);
     // TODO:remove this after real data is in there
-    selectedTopic = new DiscussionTopicBean(forumManager.getTopicById(new Long(
-        getExternalParameterByKey(TOPIC_ID))), selectedForum.getForum(),
+    DiscussionTopic topic=forumManager.getTopicById(new Long(
+        getExternalParameterByKey(TOPIC_ID)));
+    setSelectedForumForCurrentTopic(topic);
+    selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
         uiPermissionsManager);
     String currentForumId = getExternalParameterByKey(FORUM_ID);
     if (currentForumId != null && (!currentForumId.trim().equals(""))
@@ -1475,8 +1477,11 @@ public class DiscussionForumTool
     Message dMsg = constructMessage();
 
     forumManager.saveMessage(dMsg);
+    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
     selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
 
     selectedTopic.getTopic().addMessage(dMsg);
@@ -1497,8 +1502,11 @@ public class DiscussionForumTool
     dMsg.setDraft(Boolean.TRUE);
 
     forumManager.saveMessage(dMsg);
+    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
     selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
@@ -1652,8 +1660,11 @@ public class DiscussionForumTool
 
     dMsg.setInReplyTo(selectedMessage.getMessage());
     forumManager.saveMessage(dMsg);
+    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
     selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
@@ -1674,8 +1685,11 @@ public class DiscussionForumTool
 
     dMsg.setInReplyTo(selectedMessage.getMessage());
     forumManager.saveMessage(dMsg);
+    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
     selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
@@ -1919,8 +1933,11 @@ public class DiscussionForumTool
     Message dMsg = constructMessage();
 
     forumManager.saveMessage(dMsg);
+    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
     selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
@@ -1940,8 +1957,11 @@ public class DiscussionForumTool
     dMsg.setDraft(Boolean.TRUE);
 
     forumManager.saveMessage(dMsg);
+    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
     selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
@@ -2383,7 +2403,6 @@ public class DiscussionForumTool
   public String processActionSearch()
   {
     LOG.debug("processActionSearch()");
-    
     setErrorMessage("Under Construction");
     return ALL_MESSAGES;
   }
