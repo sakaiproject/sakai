@@ -30,7 +30,7 @@
           <table width="80%" align="left">
             <tr>
               <td align="left" width="20%">
-          			<h:outputText rendered="#{PrivateMessagesTool.superUser}" value="Activate Private Messages: "/>		
+          			<h:outputText rendered="#{PrivateMessagesTool.instructor}" value="Activate Private Messages: "/>		
               </td>
               <td>
                 <h:selectOneRadio id="activate"

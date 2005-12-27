@@ -545,7 +545,9 @@ public class PrivateMessagesTool
     entireClass.setName("Entire Class");
     roles.add(0, entireClass);                
     
-    List totalComposeToList=new ArrayList() ;
+    List totalComposeToList=new ArrayList();
+    
+    /** maintain list of roles to be sorted */    
     for (int i = 0; i < roles.size(); i++)
     {
       RecipientItem currentRecipient = (RecipientItem) roles.get(i); 
@@ -553,16 +555,26 @@ public class PrivateMessagesTool
       totalComposeToList.add(new SelectItem(currentDisplayName));
       totalComposeToListRecipients.add(currentRecipient);
     }
-    
-    Set members = getAllCourseMembers();  
+                       
+    Set members = getAllCourseMembers();
+    /** maintain list of members to be sorted */
+    List memberList = new ArrayList();
     for (Iterator i = members.iterator(); i.hasNext();)
     {
       RecipientItem currentRecipient = (RecipientItem) i.next();
       String currentDisplayName = currentRecipient.getName();
-      totalComposeToList.add(new SelectItem(currentDisplayName));
+      memberList.add(currentDisplayName);
       totalComposeToListRecipients.add(currentRecipient);
     }
     
+    Collections.sort(memberList);
+    
+    for (Iterator iter = memberList.iterator(); iter.hasNext();)
+    {
+      String element = (String) iter.next();
+      totalComposeToList.add(new SelectItem(element));      
+    }
+        
     this.totalComposeToList = totalComposeToList;    
     return totalComposeToList;
   }
@@ -1709,11 +1721,11 @@ public class PrivateMessagesTool
         }
         
         if (matchingItem != null){
-          if (matchingItem.getUser() == null){ /** role **/
+          if (matchingItem.getUser() == null){ /** role **/            
             returnSet.addAll(getUserRecipientsForRole(matchingItem.getRole().getId(), allCourseMembers));
           }
           else{ /** user **/
-            returnSet.addAll(getUserRecipients(allCourseMembers)); 
+            returnSet.add(matchingItem.getUser());            
           }
         }                
       }
@@ -1748,7 +1760,7 @@ public class PrivateMessagesTool
     
     for (Iterator i = courseMembers.iterator(); i.hasNext();){
       RecipientItem item = (RecipientItem) i.next();
-      if (item.getRole().equals(roleName)){
+      if (item.getRole().getId().equalsIgnoreCase(roleName)){
         returnSet.add(item.getUser());   
       }
     }    
