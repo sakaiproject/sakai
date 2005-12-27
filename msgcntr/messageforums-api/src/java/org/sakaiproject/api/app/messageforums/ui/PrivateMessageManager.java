@@ -60,8 +60,9 @@ public interface PrivateMessageManager {
      * send private message to recipients
      * @param message
      * @param recipients
+     * @param asEmail
      */
-    public void sendPrivateMessage(PrivateMessage message, Set recipients);
+    public void sendPrivateMessage(PrivateMessage message, Set recipients, boolean asEmail);
     
     
     /**

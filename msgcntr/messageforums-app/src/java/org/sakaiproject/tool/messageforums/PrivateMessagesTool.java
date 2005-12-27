@@ -51,6 +51,7 @@ import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
@@ -500,6 +501,11 @@ public class PrivateMessagesTool
   
   public List getTotalComposeToList()
   { 
+    
+    if (totalComposeToList != null){
+      return totalComposeToList;
+    }
+    
     totalComposeToListRecipients = new ArrayList();
     
     List roles = new ArrayList();
@@ -849,7 +855,10 @@ public class PrivateMessagesTool
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
-      prtMsgManager.sendPrivateMessage(pMsg, getRecipients()); 
+      prtMsgManager.sendPrivateMessage(pMsg, getRecipients(), false); 
+    }
+    else{
+      prtMsgManager.sendPrivateMessage(pMsg, getRecipients(), true);
     }
 
     //reset contents
@@ -894,7 +903,7 @@ public class PrivateMessagesTool
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
-      prtMsgManager.sendPrivateMessage(dMsg, getRecipients()); 
+      prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), false); 
     }
 
     //reset contents
@@ -1044,13 +1053,17 @@ public class PrivateMessagesTool
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
-      prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients());
+      prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), false);
+    }
+    else{
+      prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), true);
     }
     
     //reset contents
     resetComposeContents();
     
     return "pvtMsg" ;
+
   }
  
   /**
@@ -1093,7 +1106,10 @@ public class PrivateMessagesTool
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
-      prtMsgManager.sendPrivateMessage(drrepMsg, getRecipients());  
+     prtMsgManager.sendPrivateMessage(drrepMsg, getRecipients(), false);  
+    }
+    else{
+      prtMsgManager.sendPrivateMessage(drrepMsg, getRecipients(), true);
     }
     
     //reset contents
@@ -1745,7 +1761,7 @@ public class PrivateMessagesTool
    */
   private Set getAllCourseMembers()
   {   
-    List FERPAEnabledMembers = sakaiPersonManager.findAllFerpaEnabled();
+    
     Set recipients = new HashSet();    
     String realmId = SiteService.siteReference(PortalService.getCurrentSiteId());
  
@@ -1768,8 +1784,18 @@ public class PrivateMessagesTool
         
         if(!(userId).equals("admin"))
         {
-          if(FERPAEnabledMembers==null || !FERPAEnabledMembers.contains(userId))
+          
+          final List personList = sakaiPersonManager.findSakaiPersonByUid(userId);          
+          
+          boolean ferpa_flag = false;
+          for (Iterator iter = personList.iterator(); iter.hasNext();)
           {
+            SakaiPerson element = (SakaiPerson) iter.next();
+            if (Boolean.TRUE.equals(element.getFerpaEnabled())){
+              ferpa_flag = true;
+            }            
+          }                                          
+          if (!ferpa_flag){
             recipients.add(recipient);
           }              
         }                                

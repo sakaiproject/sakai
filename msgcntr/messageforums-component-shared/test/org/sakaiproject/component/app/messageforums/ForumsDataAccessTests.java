@@ -87,7 +87,7 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
       /** add sender as recipient */
       recipients.add("test-user");
                               
-      privateMessageManager.sendPrivateMessage(message, recipients);                  
+      privateMessageManager.sendPrivateMessage(message, recipients, false);                  
       assertEquals(privateMessageManager.findMessageCount(topic.getId(),
         typeManager.getSentPrivateMessageType()),1);
       

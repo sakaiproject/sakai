@@ -34,6 +34,8 @@ import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
+import org.sakaiproject.service.framework.email.EmailService;
+import org.sakaiproject.service.framework.session.UsageSessionService;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
@@ -60,6 +62,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private MessageForumsTypeManager typeManager;
   private IdManager idManager;
   private SessionManager sessionManager;  
+  private EmailService emailService;
+  
 
   public void init()
   {
@@ -697,9 +701,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   }
 
   /**
-   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.List)
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.Set, boolean)
    */
-  public void sendPrivateMessage(PrivateMessage message, Set recipients)
+  public void sendPrivateMessage(PrivateMessage message, Set recipients, boolean asEmail)
   {
 
     if (LOG.isDebugEnabled())
@@ -738,10 +742,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       User u = (User) i.next();      
       String userId = u.getId();
 
-      PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-          userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
-          Boolean.FALSE);
-      recipientList.add(receiver);
+      if (asEmail){
+        emailService.send(UserDirectoryService.getCurrentUser().getEmail(), u.getEmail(), message.getTitle(), 
+                          message.getBody(), u.getEmail(), null, null);
+      }
+      else{        
+        PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
+            userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
+            Boolean.FALSE);
+        recipientList.add(receiver);
+      }
     }
 
     /** add sender as a saved recipient */
@@ -894,7 +904,18 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     this.idManager = idManager;
   }
+  
+  public void setForumManager(MessageForumsForumManager forumManager)
+  {
+    this.forumManager = forumManager;
+  }
 
+  public void setEmailService(EmailService emailService)
+  {
+    this.emailService = emailService;
+  }
+    
+  
   public boolean isInstructor()
   {
     LOG.debug("isInstructor()");
@@ -942,10 +963,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     {
       return ToolManager.getCurrentPlacement().getContext();
     }
-  }
+  }  
 
-  public void setForumManager(MessageForumsForumManager forumManager)
-  {
-    this.forumManager = forumManager;
-  }
 }
