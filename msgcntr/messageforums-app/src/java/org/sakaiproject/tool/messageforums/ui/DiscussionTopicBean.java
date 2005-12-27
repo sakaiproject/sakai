@@ -10,6 +10,7 @@ import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
+ * @author Chen Wen
  */
 public class DiscussionTopicBean
 {
@@ -300,7 +301,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public boolean isNewResponse()
+  public boolean getIsNewResponse()
   {
     return uiPermissionsManager.isNewResponse(topic, (DiscussionForum) topic
         .getBaseForum());
@@ -309,7 +310,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public boolean isNewResponseToResponse()
+  public boolean getIsNewResponseToResponse()
   {
     return uiPermissionsManager.isNewResponseToResponse(topic,
         (DiscussionForum) topic.getBaseForum());
@@ -318,7 +319,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public boolean isMovePostings()
+  public boolean getIsMovePostings()
   {
     return uiPermissionsManager.isMovePostings(topic, (DiscussionForum) topic
         .getBaseForum());
@@ -345,7 +346,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public boolean isRead()
+  public boolean getIsRead()
   {
     return uiPermissionsManager.isRead(topic, (DiscussionForum) topic
         .getBaseForum());
@@ -354,7 +355,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public boolean isReviseAny()
+  public boolean getIsReviseAny()
   {
     return uiPermissionsManager.isReviseAny(topic, (DiscussionForum) topic
         .getBaseForum());
@@ -363,7 +364,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public boolean isReviseOwn()
+  public boolean getIsReviseOwn()
   {
     return uiPermissionsManager.isReviseOwn(topic, (DiscussionForum) topic
         .getBaseForum());
@@ -372,7 +373,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public boolean isDeleteAny()
+  public boolean getIsDeleteAny()
   {
     return uiPermissionsManager.isDeleteAny(topic, (DiscussionForum) topic
         .getBaseForum());
@@ -381,7 +382,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public boolean isDeleteOwn()
+  public boolean getIsDeleteOwn()
   {
     return uiPermissionsManager.isDeleteOwn(topic, (DiscussionForum) topic
         .getBaseForum());
@@ -390,7 +391,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public boolean isMarkAsRead()
+  public boolean getIsMarkAsRead()
   {
     return uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum) topic
         .getBaseForum());

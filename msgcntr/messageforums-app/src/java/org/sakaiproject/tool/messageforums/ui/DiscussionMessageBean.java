@@ -3,6 +3,7 @@ package org.sakaiproject.tool.messageforums.ui;
 import org.sakaiproject.api.app.messageforums.Message;
 
 import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 
 
@@ -150,5 +151,12 @@ public class DiscussionMessageBean
    */
   public void setHasPre(boolean hasPre) {
   	this.hasPre = hasPre;
+  }
+  
+  public boolean getIsOwn()
+  {
+  	if(this.getMessage().getAuthor().equals(SessionManager.getCurrentSessionUserId()))
+  		return true;
+  	return false;
   }
 }
