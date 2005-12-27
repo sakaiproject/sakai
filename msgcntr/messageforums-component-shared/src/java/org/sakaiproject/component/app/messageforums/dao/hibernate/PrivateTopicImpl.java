@@ -23,12 +23,14 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
  
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
+import org.sakaiproject.api.app.messageforums.Topic;
 
 public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
 
@@ -36,10 +38,30 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
     
     private String userId;
     private PrivateTopic parentTopic;
-    private Set childrenFoldersSet;// = new HashSet();
+    private Set childrenFoldersSet;// = new HashSet();            
     
     //private int ptindex;
     
+    
+    public static Comparator TITLE_COMPARATOR;
+    
+    static {
+      TITLE_COMPARATOR = new Comparator()
+      {
+        public int compare(Object topic, Object otherTopic)
+        {
+          if (topic != null && otherTopic != null
+              && topic instanceof Topic && otherTopic instanceof Topic)
+          {
+            String title1 = ((Topic) topic).getTitle();
+            String title2 = ((Topic) otherTopic).getTitle();
+            return title1.compareTo(title2);
+          }
+          return -1;
+        }
+      };
+    }
+        
     public String getUserId() {
         return userId;
     }

@@ -23,6 +23,12 @@
         	<artifactId>sakai-messageforums-api</artifactId>
 			<version>${sakai.version}</version>			      
 	    </dependency>
+	    
+	    <dependency>
+        	<groupId>sakaiproject</groupId>
+	        <artifactId>sakai-messageforums-component-shared</artifactId>
+			<version>${sakai.version}</version>       
+	    </dependency>
   
 	    <dependency>
     	    <groupId>sakaiproject</groupId>

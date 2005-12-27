@@ -23,6 +23,8 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +54,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     
     // foreign keys for hibernate
     private PrivateForum privateForum;
-    private OpenForum openForum;    
+    private OpenForum openForum;        
     
     // indecies for hibernate
     //private int ofindex;
@@ -203,7 +205,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     public int hashCode() {
         return getId() == null ? 0 : getId().hashCode();
     }
-
+        
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////

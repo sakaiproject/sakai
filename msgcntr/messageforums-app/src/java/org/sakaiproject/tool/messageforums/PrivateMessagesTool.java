@@ -55,6 +55,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
@@ -218,6 +219,7 @@ public class PrivateMessagesTool
     if (getPvtAreaEnabled() || isInstructor()){      
       PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area);    
       pvtTopics = pf.getTopics();
+      Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);
       forum=pf;           
       activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? "yes" : "no";
       forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? "yes" : "no";

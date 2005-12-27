@@ -1,6 +1,7 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -35,7 +36,6 @@ import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
 import org.sakaiproject.service.framework.email.EmailService;
-import org.sakaiproject.service.framework.session.UsageSessionService;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
@@ -751,14 +751,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         forwardingEnabled = true;
       }
       
+      List additionalHeaders = new ArrayList(1);
+      additionalHeaders.add("Content-Type: text/html");
+      
       if (!asEmail && forwardingEnabled){
         emailService.send(UserDirectoryService.getCurrentUser().getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
-            message.getBody(), pf.getAutoForwardEmail(), null, null);
+            message.getBody(), pf.getAutoForwardEmail(), null, additionalHeaders);
       }
 
       if (asEmail){
         emailService.send(UserDirectoryService.getCurrentUser().getEmail(), u.getEmail(), message.getTitle(), 
-                          message.getBody(), u.getEmail(), null, null);
+                          message.getBody(), u.getEmail(), null, additionalHeaders);
       }
       else{        
         PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
