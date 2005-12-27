@@ -3,8 +3,10 @@ package org.sakaiproject.tool.messageforums.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -20,12 +22,16 @@ public class DiscussionTopicBean
   private Long previousTopicId;
   private boolean readFullDesciption;
   private boolean markForDeletion;
-  
+  private UIPermissionsManager uiPermissionsManager;
+
   private List messages = new ArrayList();
 
-  public DiscussionTopicBean(DiscussionTopic topic)
+  public DiscussionTopicBean(DiscussionTopic topic, DiscussionForum forum,
+      UIPermissionsManager uiPermissionsManager)
   {
     this.topic = topic;
+    this.uiPermissionsManager = uiPermissionsManager;
+    this.topic.setBaseForum(forum);
   }
 
   /**
@@ -143,10 +149,10 @@ public class DiscussionTopicBean
   {
     return messages;
   }
-  
+
   public void setMessages(List messages)
   {
-  	this.messages = messages;
+    this.messages = messages;
   }
 
   public void addMessage(DiscussionMessageBean decoMessage)
@@ -163,13 +169,14 @@ public class DiscussionTopicBean
   public boolean getHasExtendedDesciption()
   {
     if (topic.getExtendedDescription() != null
-        && topic.getExtendedDescription().trim().length() > 0 && (!readFullDesciption))
+        && topic.getExtendedDescription().trim().length() > 0
+        && (!readFullDesciption))
     {
       return true;
     }
     return false;
   }
-  
+
   /**
    * @return Returns the readFullDesciption.
    */
@@ -179,7 +186,8 @@ public class DiscussionTopicBean
   }
 
   /**
-   * @param readFullDesciption The readFullDesciption to set.
+   * @param readFullDesciption
+   *          The readFullDesciption to set.
    */
   public void setReadFullDesciption(boolean readFullDesciption)
   {
@@ -194,25 +202,25 @@ public class DiscussionTopicBean
     return topic.getBaseForum().getId().toString();
   }
 
-  
   /**
    * @return Returns the mustRespondBeforeReading.
    */
   public String getMustRespondBeforeReading()
   {
-   if(topic==null || topic.getMustRespondBeforeReading()==null||topic.getMustRespondBeforeReading().booleanValue()==false)
+    if (topic == null || topic.getMustRespondBeforeReading() == null
+        || topic.getMustRespondBeforeReading().booleanValue() == false)
     {
-      return Boolean.FALSE.toString();      
+      return Boolean.FALSE.toString();
     }
-   return  Boolean.TRUE.toString();
+    return Boolean.TRUE.toString();
   }
 
   /**
-   * @param mustRespondBeforeReading 
+   * @param mustRespondBeforeReading
    */
   public void setMustRespondBeforeReading(String mustRespondBeforeReading)
   {
-    if(mustRespondBeforeReading.equals(Boolean.TRUE.toString()))
+    if (mustRespondBeforeReading.equals(Boolean.TRUE.toString()))
     {
       topic.setMustRespondBeforeReading(new Boolean(true));
     }
@@ -220,46 +228,48 @@ public class DiscussionTopicBean
     {
       topic.setMustRespondBeforeReading(new Boolean(false));
     }
-  } 
-  
+  }
 
   /**
    * @return Returns the locked.
    */
   public String getLocked()
   {
-     if(topic==null || topic.getLocked()==null||topic.getLocked().booleanValue()==false)
+    if (topic == null || topic.getLocked() == null
+        || topic.getLocked().booleanValue() == false)
     {
-      return Boolean.FALSE.toString();      
+      return Boolean.FALSE.toString();
     }
-    return  Boolean.TRUE.toString();
+    return Boolean.TRUE.toString();
   }
 
   /**
-   * @param locked The locked to set.
+   * @param locked
+   *          The locked to set.
    */
   public void setLocked(String locked)
   {
-    if(locked.equals(Boolean.TRUE.toString()))
+    if (locked.equals(Boolean.TRUE.toString()))
     {
-       topic.setLocked(new Boolean(true));
+      topic.setLocked(new Boolean(true));
     }
     else
     {
-       topic.setLocked(new Boolean(false));
+      topic.setLocked(new Boolean(false));
     }
-  } 
-  
+  }
+
   public void removeMessage(DiscussionMessageBean decoMessage)
   {
-  	for(int i=0; i<messages.size(); i++)
-  	{
-  		if (((DiscussionMessageBean)messages.get(i)).getMessage().getId().equals(decoMessage.getMessage().getId()))
-  		{
-  			messages.remove(i);
-  			break;
-  		}
-  	}
+    for (int i = 0; i < messages.size(); i++)
+    {
+      if (((DiscussionMessageBean) messages.get(i)).getMessage().getId()
+          .equals(decoMessage.getMessage().getId()))
+      {
+        messages.remove(i);
+        break;
+      }
+    }
   }
 
   /**
@@ -271,15 +281,118 @@ public class DiscussionTopicBean
   }
 
   /**
-   * @param markForDeletion The markForDeletion to set.
+   * @param markForDeletion
+   *          The markForDeletion to set.
    */
   public void setMarkForDeletion(boolean markForDeletion)
   {
     this.markForDeletion = markForDeletion;
   }
 
+  /**
+   * @param topic
+   */
   public void setTopic(DiscussionTopic topic)
   {
     this.topic = topic;
-  }  
+  }
+
+  /**
+   * @return
+   */
+  public boolean isNewResponse()
+  {
+    return uiPermissionsManager.isNewResponse(topic, (DiscussionForum) topic
+        .getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isNewResponseToResponse()
+  {
+    return uiPermissionsManager.isNewResponseToResponse(topic,
+        (DiscussionForum) topic.getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isMovePostings()
+  {
+    return uiPermissionsManager.isMovePostings(topic, (DiscussionForum) topic
+        .getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isChangeSettings()
+  {
+    return uiPermissionsManager.isChangeSettings(topic, (DiscussionForum) topic
+        .getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isPostToGradebook()
+  {
+    return uiPermissionsManager.isPostToGradebook(topic,
+        (DiscussionForum) topic.getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isRead()
+  {
+    return uiPermissionsManager.isRead(topic, (DiscussionForum) topic
+        .getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isReviseAny()
+  {
+    return uiPermissionsManager.isReviseAny(topic, (DiscussionForum) topic
+        .getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isReviseOwn()
+  {
+    return uiPermissionsManager.isReviseOwn(topic, (DiscussionForum) topic
+        .getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isDeleteAny()
+  {
+    return uiPermissionsManager.isDeleteAny(topic, (DiscussionForum) topic
+        .getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isDeleteOwn()
+  {
+    return uiPermissionsManager.isDeleteOwn(topic, (DiscussionForum) topic
+        .getBaseForum());
+  }
+
+  /**
+   * @return
+   */
+  public boolean isMarkAsRead()
+  {
+    return uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum) topic
+        .getBaseForum());
+  }
 }

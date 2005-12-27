@@ -239,6 +239,7 @@
             <property-name>messageManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
         </managed-property>
+
         <managed-property>
             <description>UI Permissions Manager</description>
             <property-name>uiPermissionsManager</property-name>

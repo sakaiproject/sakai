@@ -80,10 +80,7 @@
         </property>
     </bean>
      
-    <bean id="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" class="org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl">
-       <property name="defaultPermissionsManager">
-             <ref bean="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager"/>
-		</property>
+    <bean id="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" class="org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl" init-method="init">
 		<property name="toolManager">
              <ref bean="org.sakaiproject.api.kernel.tool.ActiveToolManager"/>
 		</property>
@@ -98,7 +95,10 @@
         </property>
         <property name="typeManager">
             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
-	    </property>	
+	    </property>
+	    <property name="securityService">
+            <ref bean="org.sakaiproject.service.legacy.security.SecurityService"/>
+        </property>	
     </bean>
     
      <bean id="org.sakaiproject.api.app.messageforums.UserPermissionManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">

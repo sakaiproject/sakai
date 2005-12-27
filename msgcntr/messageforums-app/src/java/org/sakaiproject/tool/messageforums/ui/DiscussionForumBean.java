@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -12,14 +13,17 @@ public class DiscussionForumBean
 {
   private DiscussionForum forum;
   private boolean markForDeletion;
+  private UIPermissionsManager uiPermissionsManager;
+   
   /**
    * List of decorated topics
    */
   private List topics = new ArrayList();
 
-  public DiscussionForumBean(DiscussionForum forum)
+  public DiscussionForumBean(DiscussionForum forum, UIPermissionsManager uiPermissionsManager)
   {
     this.forum = forum;
+    this.uiPermissionsManager=uiPermissionsManager;
   }
 
   /**
@@ -92,4 +96,19 @@ public class DiscussionForumBean
     this.markForDeletion = markForDeletion;
   }
 
+  /**
+   * @return
+   */
+  public boolean getChangeSettings()
+  {
+    return uiPermissionsManager.isChangeSettings(forum); 
+  }
+   
+  /**
+   * @return
+   */
+  public boolean isNewTopic()
+  {
+    return uiPermissionsManager.isNewTopic(forum);
+  }
 }

@@ -10,6 +10,16 @@ public interface UIPermissionsManager
 {
 
   /**
+   * @return
+   */
+  public boolean isNewForum();
+  
+  /**
+   * @return
+   */
+  public boolean isChangeSettings(DiscussionForum forum);
+  
+  /**     
    * @param forum
    * @return
    */
@@ -19,65 +29,65 @@ public interface UIPermissionsManager
    * @param topic
    * @return
    */
-  public boolean isNewResponse(DiscussionTopic topic);
+  public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum);
 
   /**
    * @param topic
    * @return
    */
-  public boolean isNewResponseToResponse(DiscussionTopic topic);
+  public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum);
 
   /**
    * @param topic
    * @return
    */
-  public boolean isMovePostings(DiscussionTopic topic);
+  public boolean isMovePostings(DiscussionTopic topic, DiscussionForum forum);
 
   /**
    * @param topic
    * @return
    */
-  public boolean isChangeSettings(DiscussionTopic topic);
+  public boolean isChangeSettings(DiscussionTopic topic, DiscussionForum forum);
 
   /**
    * @param topic
    * @return
    */
-  public boolean isPostToGradebook(DiscussionTopic topic);
+  public boolean isPostToGradebook(DiscussionTopic topic, DiscussionForum forum);
 
   /**
    * @param topic
    * @return
    */
-  public boolean isRead(DiscussionTopic topic);
+  public boolean isRead(DiscussionTopic topic, DiscussionForum forum );
 
   /**
    * @param topic
    * @return
    */
-  public boolean isReviseAny(DiscussionTopic topic);
+  public boolean isReviseAny(DiscussionTopic topic, DiscussionForum forum);
 
   /**
    * @param topic
    * @return
    */
-  public boolean isReviseOwn(DiscussionTopic topic);
+  public boolean isReviseOwn(DiscussionTopic topic, DiscussionForum forum);
 
   /**
    * @param topic
    * @return
    */
-  public boolean isDeleteAny(DiscussionTopic topic);
+  public boolean isDeleteAny(DiscussionTopic topic, DiscussionForum forum);
 
   /**
    * @param topic
    * @return
    */
-  public boolean isDeleteOwn(DiscussionTopic topic);
+  public boolean isDeleteOwn(DiscussionTopic topic, DiscussionForum forum);
 
   /**
    * @param topic
    * @return
    */
-  public boolean isMarkAsRead(DiscussionTopic topic);
+  public boolean isMarkAsRead(DiscussionTopic topic, DiscussionForum forum);
 }

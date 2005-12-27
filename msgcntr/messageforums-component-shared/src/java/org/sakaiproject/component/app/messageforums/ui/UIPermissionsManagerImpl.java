@@ -5,6 +5,7 @@ package org.sakaiproject.component.app.messageforums.ui;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
@@ -19,7 +20,11 @@ import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.ToolManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
+import org.sakaiproject.service.legacy.security.SecurityService;
 
+/**
+ * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
+ */
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
@@ -29,13 +34,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       .getLog(UIPermissionsManagerImpl.class);
 
   // dependencies
-  private DefaultPermissionsManager defaultPermissionsManager;
   private AuthzGroupService authzGroupService;
   private SessionManager sessionManager;
   private ToolManager toolManager;
   private PermissionManager permissionManager;
   private MessageForumsTypeManager typeManager;
+  private SecurityService securityService;
 
+  public void init()
+  {
+    ;
+  }
   /**
    * @param authzGroupService
    *          The authzGroupService to set.
@@ -43,16 +52,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   public void setAuthzGroupService(AuthzGroupService authzGroupService)
   {
     this.authzGroupService = authzGroupService;
-  }
-
-  /**
-   * @param defaultPermissionsManager
-   *          The defaultPermissionsManager to set.
-   */
-  public void setDefaultPermissionsManager(
-      DefaultPermissionsManager defaultPermissionsManager)
-  {
-    this.defaultPermissionsManager = defaultPermissionsManager;
   }
 
   /**
@@ -91,7 +90,72 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     this.typeManager = typeManager;
   }
 
+  /**
+   * @param securityService
+   *          The securityService to set.
+   */
+  public void setSecurityService(SecurityService securityService)
+  {
+    this.securityService = securityService;
+  }
+
   // end dependencies
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewForum()
+   */
+  public boolean isNewForum()
+  {
+    LOG.debug("isNewForum()");
+    if (isSuperUser())
+    {
+      return true;
+    }
+    try
+    { 
+      return geAreaControlPermissions().getNewForum().booleanValue();
+    }
+    catch (Exception e)
+    {
+      LOG.warn(e.getMessage(), e);
+      return false;
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isChangeSettings(org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
+  public boolean isChangeSettings(DiscussionForum forum)
+  {
+
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isChangeSettings(DiscussionForum " + forum + ")");
+    }
+    if (isSuperUser())
+    {
+      return true;
+    }
+    if (isForumOwner(forum))
+    {
+      return true;
+    }
+    try
+    {
+        return geAreaControlPermissions().getChangeSettings().booleanValue();
+    }
+    catch (Exception e)
+    {
+      LOG.warn(e.getMessage(), e);
+      return false;
+    }
+  }
+
+
+
   /*
    * (non-Javadoc)
    * 
@@ -103,58 +167,166 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       LOG.debug("isNewTopic(DiscussionForum " + forum + ")");
     }
-
-    ForumControlPermission controlPermission = permissionManager
-        .getForumControlPermissionForRole(forum, getCurrentUserRole(), typeManager
-            .getDiscussionForumType());
-    
-    if(controlPermission!=null && controlPermission.getNewTopic()!=null)
+    if (isSuperUser())
     {
-      return controlPermission.getNewTopic().booleanValue();      
+      return true;
     }
-    return  false;
+    // TODO: should the forum owner be allowed to create a new topic
+    // without checking permissions?
+    // if (isForumOwner(forum))
+    // {
+    // return true;
+    // }
+    try
+    {
+      ForumControlPermission controlPermission = permissionManager
+          .getForumControlPermissionForRole(forum, getCurrentUserRole(),
+              typeManager.getDiscussionForumType());
+
+      if (controlPermission == null || controlPermission.getNewTopic() == null
+          || controlPermission.getNewTopic() == Boolean.FALSE)
+      {
+        if (LOG.isDebugEnabled())
+        {
+          LOG.debug("Role :" + getCurrentUserRole()
+              + "is not allowed to create new topic for given forum " + forum);
+        }
+        return false;
+      }
+      if (forum.getLocked() == null || forum.getLocked() == Boolean.TRUE)
+      {
+        LOG.debug("This Forum is Locked");
+        return false;
+      }
+      // //TODO: confirm: if a forum is in draft stage, you could still
+      // create topics but if you are owner
+      if (forum.getDraft() == null || forum.getDraft() == Boolean.TRUE)
+      {
+        LOG.debug("This forum is a draft");
+        if (isForumOwner(forum))
+        {
+          return true;
+        }
+        return false;
+      }
+      if (controlPermission.getNewTopic() == Boolean.TRUE
+          && forum.getDraft() == Boolean.FALSE
+          && forum.getLocked() == Boolean.FALSE)
+      {
+        return true;
+      }
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+      return false;
+    }
+
+    return false;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewResponse(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewResponse(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isNewResponse(DiscussionTopic topic)
+  public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isNewResponse(DiscussionTopic " + topic + ")");
     }
-    TopicControlPermission controlPermission = permissionManager
-    .getTopicControlPermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(controlPermission!=null && controlPermission.getNewResponse()!=null)
+
+    try
     {
-      return controlPermission.getNewResponse().booleanValue();      
+      if (checkBaseConditions(topic, forum))
+      {
+        return true;
+      }
+      TopicControlPermission controlPermission = permissionManager
+          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
+              typeManager.getDiscussionForumType());
+
+      if (controlPermission == null
+          || controlPermission.getNewResponse() == null
+          || controlPermission.getNewResponse() == Boolean.FALSE)
+      {
+        if (LOG.isDebugEnabled())
+        {
+          LOG.debug("Role :" + getCurrentUserRole()
+              + "is not allowed to create new response for given topic "
+              + topic);
+        }
+        return false;
+      }
+
+      if (controlPermission.getNewResponse() == Boolean.TRUE
+          && topic.getDraft() == Boolean.FALSE
+          && topic.getLocked() == Boolean.FALSE)
+      {
+        return true;
+      }
     }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+      return false;
+    }
+
     return false;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewResponseToResponse(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewResponseToResponse(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isNewResponseToResponse(DiscussionTopic topic)
+  public boolean isNewResponseToResponse(DiscussionTopic topic,
+      DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isNewResponseToResponse(DiscussionTopic " + topic + ")");
     }
-    TopicControlPermission controlPermission = permissionManager
-    .getTopicControlPermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(controlPermission!=null && controlPermission.getResponseToResponse()!=null)
+
+    try
     {
-      return controlPermission.getResponseToResponse().booleanValue();      
+      if (checkBaseConditions(topic, forum))
+      {
+        return true;
+      }
+      TopicControlPermission controlPermission = permissionManager
+          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
+              typeManager.getDiscussionForumType());
+
+      if (controlPermission == null
+          || controlPermission.getResponseToResponse() == null
+          || controlPermission.getResponseToResponse() == Boolean.FALSE)
+      {
+        if (LOG.isDebugEnabled())
+        {
+          LOG
+              .debug("Role :"
+                  + getCurrentUserRole()
+                  + "is not allowed to create response to response for given topic "
+                  + topic);
+        }
+        return false;
+      }
+
+      if (controlPermission.getResponseToResponse() == Boolean.TRUE
+          && topic.getDraft() == Boolean.FALSE
+          && topic.getLocked() == Boolean.FALSE)
+      {
+        return true;
+      }
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+      return false;
     }
     return false;
   }
@@ -162,21 +334,48 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isMovePostings(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isMovePostings(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isMovePostings(DiscussionTopic topic)
+  public boolean isMovePostings(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isMovePostings(DiscussionTopic " + topic + ")");
     }
-    TopicControlPermission controlPermission = permissionManager
-    .getTopicControlPermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(controlPermission!=null && controlPermission.getMovePostings()!=null)
+
+    try
     {
-      return controlPermission.getMovePostings().booleanValue();      
+      if (checkBaseConditions(topic, forum))
+      {
+        return true;
+      }
+      TopicControlPermission controlPermission = permissionManager
+          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
+              typeManager.getDiscussionForumType());
+
+      if (controlPermission == null
+          || controlPermission.getMovePostings() == null
+          || controlPermission.getMovePostings() == Boolean.FALSE)
+      {
+        if (LOG.isDebugEnabled())
+        {
+          LOG.debug("Role :" + getCurrentUserRole()
+              + "is not allowed to move postings for given topic " + topic);
+        }
+        return false;
+      }
+      if (controlPermission.getMovePostings() == Boolean.TRUE
+          && topic.getDraft() == Boolean.FALSE
+          && topic.getLocked() == Boolean.FALSE)
+      {
+        return true;
+      }
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+      return false;
     }
     return false;
   }
@@ -184,21 +383,58 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isChangeSettings(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isChangeSettings(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isChangeSettings(DiscussionTopic topic)
+  public boolean isChangeSettings(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isChangeSettings(DiscussionTopic " + topic + ")");
     }
-    TopicControlPermission controlPermission = permissionManager
-    .getTopicControlPermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(controlPermission!=null && controlPermission.getChangeSettings()!=null)
+    if (isSuperUser())
     {
-      return controlPermission.getChangeSettings().booleanValue();      
+      return true;
+    }
+    try
+    {
+      if (forum.getLocked() == null || forum.getLocked() == Boolean.TRUE)
+      {
+        LOG.debug("This Forum is Locked");
+        return false;
+      }
+      if (isTopicOwner(topic))
+      {
+        return true;
+      }
+      TopicControlPermission controlPermission = permissionManager
+          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
+              typeManager.getDiscussionForumType());
+      // if owner then allow change of settings on the topic or on forum.
+      if (topic.getCreatedBy().equals(getCurrentUserId()))
+      {
+        return true;
+      }
+      if (controlPermission == null
+          || controlPermission.getChangeSettings() == null
+          || controlPermission.getChangeSettings() == Boolean.FALSE)
+      {
+        if (LOG.isDebugEnabled())
+        {
+          LOG.debug("Role :" + getCurrentUserRole()
+              + "is not allowed to change settings for given topic " + topic);
+        }
+        return false;
+      }
+      if (controlPermission.getChangeSettings() == Boolean.TRUE)
+      {
+        return true;
+      }
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+      return false;
     }
     return false;
   }
@@ -206,21 +442,48 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isPostToGradebook(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isPostToGradebook(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isPostToGradebook(DiscussionTopic topic)
+  public boolean isPostToGradebook(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isPostToGradebook(DiscussionTopic " + topic + ")");
     }
-    TopicControlPermission controlPermission = permissionManager
-    .getTopicControlPermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(controlPermission!=null && controlPermission.getPostToGradebook()!=null)
+
+    try
     {
-      return controlPermission.getPostToGradebook().booleanValue();      
+      if (checkBaseConditions(topic, forum))
+      {
+        return true;
+      }
+      TopicControlPermission controlPermission = permissionManager
+          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
+              typeManager.getDiscussionForumType());
+
+      if (controlPermission == null
+          || controlPermission.getPostToGradebook() == null
+          || controlPermission.getPostToGradebook() == Boolean.FALSE)
+      {
+        if (LOG.isDebugEnabled())
+        {
+          LOG.debug("Role :" + getCurrentUserRole()
+              + "is not allowed to post to gradebook for given topic " + topic);
+        }
+        return false;
+      }
+      if (controlPermission.getPostToGradebook() == Boolean.TRUE
+          && topic.getDraft() == Boolean.FALSE
+          && topic.getLocked() == Boolean.FALSE)
+      {
+        return true;
+      }
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+      return false;
     }
     return false;
   }
@@ -228,43 +491,87 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isRead(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isRead(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isRead(DiscussionTopic topic)
+  public boolean isRead(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isRead(DiscussionTopic " + topic + ")");
     }
-    MessagePermissions messagePermission = permissionManager
-    .getTopicMessagePermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(messagePermission!=null && messagePermission.getRead()!=null)
+    if (checkBaseConditions(topic, forum))
     {
-      return messagePermission.getRead().booleanValue();      
+      return true;
     }
+    MessagePermissions messagePermission = permissionManager
+        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
+            typeManager.getDiscussionForumType());
+
+    if (messagePermission == null || messagePermission.getRead() == null
+        || messagePermission.getRead() == Boolean.FALSE)
+    {
+      if (LOG.isDebugEnabled())
+      {
+        LOG.debug("Role :" + getCurrentUserRole()
+            + "is not allowed to read messages for given topic " + topic);
+      }
+      return false;
+    }
+    if (messagePermission.getRead() == Boolean.TRUE
+        && topic.getDraft() == Boolean.FALSE
+        && topic.getLocked() == Boolean.FALSE)
+    {
+      return true;
+    }
+
     return false;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isReviseAny(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isReviseAny(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isReviseAny(DiscussionTopic topic)
+  public boolean isReviseAny(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isReviseAny(DiscussionTopic " + topic + ")");
     }
-    MessagePermissions messagePermission = permissionManager
-    .getTopicMessagePermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(messagePermission!=null && messagePermission.getReviseAny()!=null)
+    if (checkBaseConditions(topic, forum))
     {
-      return messagePermission.getReviseAny().booleanValue();      
+      return true;
+    }
+    MessagePermissions messagePermission = permissionManager
+        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
+            typeManager.getDiscussionForumType());
+
+    if (messagePermission == null || messagePermission.getReviseAny() == null
+        || messagePermission.getReviseAny() == Boolean.FALSE)
+    {
+      if (LOG.isDebugEnabled())
+      {
+        LOG.debug("Role :" + getCurrentUserRole()
+            + "is not allowed to revise any messages for given topic " + topic);
+      }
+      return false;
+    }
+    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is locked " + topic);
+      return false;
+    }
+    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is at draft stage " + topic);
+    }
+    if (messagePermission.getReviseAny() == Boolean.TRUE
+        && topic.getDraft() == Boolean.FALSE
+        && topic.getLocked() == Boolean.FALSE)
+    {
+      return true;
     }
     return false;
   }
@@ -272,21 +579,47 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isReviseOwn(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isReviseOwn(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isReviseOwn(DiscussionTopic topic)
+  public boolean isReviseOwn(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isReviseOwn(DiscussionTopic " + topic + ")");
     }
-    MessagePermissions messagePermission = permissionManager
-    .getTopicMessagePermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(messagePermission!=null && messagePermission.getReviseOwn()!=null)
+    if (checkBaseConditions(topic, forum))
     {
-      return messagePermission.getReviseOwn().booleanValue();      
+      return true;
+    }
+    MessagePermissions messagePermission = permissionManager
+        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
+            typeManager.getDiscussionForumType());
+
+    if (messagePermission == null || messagePermission.getReviseOwn() == null
+        || messagePermission.getReviseOwn() == Boolean.FALSE)
+    {
+      if (LOG.isDebugEnabled())
+      {
+        LOG.debug("Role :" + getCurrentUserRole()
+            + "is not allowed to revise own messages for given topic " + topic);
+      }
+      return false;
+    }
+    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is locked " + topic);
+      return false;
+    }
+    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is at draft stage " + topic);
+    }
+    if (messagePermission.getReviseOwn() == Boolean.TRUE
+        && topic.getDraft() == Boolean.FALSE
+        && topic.getLocked() == Boolean.FALSE)
+    {
+      return true;
     }
     return false;
   }
@@ -294,21 +627,47 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isDeleteAny(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isDeleteAny(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isDeleteAny(DiscussionTopic topic)
+  public boolean isDeleteAny(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isDeleteAny(DiscussionTopic " + topic + ")");
     }
-    MessagePermissions messagePermission = permissionManager
-    .getTopicMessagePermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(messagePermission!=null && messagePermission.getDeleteAny()!=null)
+    if (checkBaseConditions(topic, forum))
     {
-      return messagePermission.getDeleteAny().booleanValue();      
+      return true;
+    }
+    MessagePermissions messagePermission = permissionManager
+        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
+            typeManager.getDiscussionForumType());
+
+    if (messagePermission == null || messagePermission.getDeleteAny() == null
+        || messagePermission.getDeleteAny() == Boolean.FALSE)
+    {
+      if (LOG.isDebugEnabled())
+      {
+        LOG.debug("Role :" + getCurrentUserRole()
+            + "is not allowed to delete any messages for given topic " + topic);
+      }
+      return false;
+    }
+    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is locked " + topic);
+      return false;
+    }
+    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is at draft stage " + topic);
+    }
+    if (messagePermission.getDeleteAny() == Boolean.TRUE
+        && topic.getDraft() == Boolean.FALSE
+        && topic.getLocked() == Boolean.FALSE)
+    {
+      return true;
     }
     return false;
   }
@@ -316,21 +675,49 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isDeleteOwn(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isDeleteOwn(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isDeleteOwn(DiscussionTopic topic)
+  public boolean isDeleteOwn(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isDeleteOwn(DiscussionTopic " + topic + ")");
     }
-    MessagePermissions messagePermission = permissionManager
-    .getTopicMessagePermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(messagePermission!=null && messagePermission.getDeleteOwn()!=null)
+    if (checkBaseConditions(topic, forum))
     {
-      return messagePermission.getDeleteOwn().booleanValue();      
+      return true;
+    }
+    MessagePermissions messagePermission = permissionManager
+        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
+            typeManager.getDiscussionForumType());
+
+    if (messagePermission == null || messagePermission.getDeleteOwn() == null
+        || messagePermission.getDeleteOwn() == Boolean.FALSE)
+    {
+      if (LOG.isDebugEnabled())
+      {
+        LOG
+            .debug("Role :" + getCurrentUserRole()
+                + "is not allowed to delete own  messages for given topic "
+                + topic);
+      }
+      return false;
+    }
+    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is locked " + topic);
+      return false;
+    }
+    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is at draft stage " + topic);
+    }
+    if (messagePermission.getDeleteOwn() == Boolean.TRUE
+        && topic.getDraft() == Boolean.FALSE
+        && topic.getLocked() == Boolean.FALSE)
+    {
+      return true;
     }
     return false;
   }
@@ -338,40 +725,77 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   /*
    * (non-Javadoc)
    * 
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isMarkAsRead(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isMarkAsRead(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isMarkAsRead(DiscussionTopic topic)
+  public boolean isMarkAsRead(DiscussionTopic topic, DiscussionForum forum)
   {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isMarkAsRead(DiscussionTopic " + topic + ")");
     }
-    MessagePermissions messagePermission = permissionManager
-    .getTopicMessagePermissionForRole(topic, getCurrentUserRole(), typeManager
-        .getDiscussionForumType());
-    
-    if(messagePermission!=null && messagePermission.getMarkAsRead()!=null)
+    if (checkBaseConditions(topic, forum))
     {
-      return messagePermission.getMarkAsRead().booleanValue();      
+      return true;
+    }
+    MessagePermissions messagePermission = permissionManager
+        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
+            typeManager.getDiscussionForumType());
+
+    if (messagePermission == null || messagePermission.getMarkAsRead() == null
+        || messagePermission.getMarkAsRead() == Boolean.FALSE)
+    {
+      if (LOG.isDebugEnabled())
+      {
+        LOG.debug("Role :" + getCurrentUserRole()
+            + "is not allowed to mark messages as read for given topic "
+            + topic);
+      }
+      return false;
+    }
+    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is locked " + topic);
+      return false;
+    }
+    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is at draft stage " + topic);
+    }
+    if (messagePermission.getMarkAsRead() == Boolean.TRUE
+        && topic.getDraft() == Boolean.FALSE
+        && topic.getLocked() == Boolean.FALSE)
+    {
+      return true;
     }
     return false;
   }
 
-  private String getCurrentUser()
+  /**
+   * @return
+   */
+  private String getCurrentUserId()
   {
     if (TestUtil.isRunningTests())
     {
       return "test-user";
     }
+
     return sessionManager.getCurrentSessionUserId();
   }
 
+  /**
+   * @return
+   */
   private String getCurrentUserRole()
   {
-    return authzGroupService.getUserRole(getCurrentUser(), "/site/"
+    return authzGroupService.getUserRole(getCurrentUserId(), "/site/"
         + getContextId());
   }
 
+  /**
+   * @return
+   */
   private String getContextId()
   {
     if (TestUtil.isRunningTests())
@@ -383,4 +807,83 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     return presentSiteId;
   }
 
+  /**
+   * @param forum
+   * @return
+   */
+  private boolean isForumOwner(DiscussionForum forum)
+  {
+    if (forum.getCreatedBy().equals(getCurrentUserId()))
+    {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @param topic
+   * @return
+   */
+  private boolean isTopicOwner(DiscussionTopic topic)
+  {
+    if (topic.getCreatedBy().equals(getCurrentUserId()))
+    {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @return
+   */
+  private boolean isSuperUser()
+  {
+    // TODO: Need to check for Faculty of Record ?
+    return securityService.isSuperUser();
+  }
+
+  /**
+   * @return
+   */
+  private AreaControlPermission geAreaControlPermissions()
+  {
+    return permissionManager
+    .getAreaControlPermissionForRole(getCurrentUserRole(),
+        typeManager.getDiscussionForumType());    
+  }
+  
+  /**
+   * @param topic
+   * @param forum
+   * @return
+   */
+  private boolean checkBaseConditions(DiscussionTopic topic,
+      DiscussionForum forum)
+  {
+    if (isSuperUser())
+    {
+      return true;
+    }
+    if (forum.getLocked() == null || forum.getLocked() == Boolean.TRUE)
+    {
+      LOG.debug("This Forum is Locked");
+      return false;
+    }
+    if (forum.getDraft() == null || forum.getDraft() == Boolean.TRUE)
+    {
+      LOG.debug("This forum is a draft");
+      return false;
+    }
+    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is locked " + topic);
+      return false;
+    }
+    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    {
+      LOG.debug("This topic is at draft stage " + topic);
+      return false;
+    }
+    return false;
+  }
 }

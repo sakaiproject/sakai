@@ -15,11 +15,11 @@
 				 <sakai:instruction_message value="#{ForumTool.selectedForum.forum.shortDescription}" />
 			</div>
 			<div class="right-header-section">
-				<h:commandLink action="#{ForumTool.processActionNewTopic}"  value="#{msgs.cdfm_new_topic}" >
+				<h:commandLink action="#{ForumTool.processActionNewTopic}"  value="#{msgs.cdfm_new_topic}" rendered="#{ForumTool.selectedForum.newTopic}" >
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 				<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
-				<h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}" >
+				<h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}"  rendered="#{ForumTool.selectedForum.changeSettings}">
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 		 	</div>

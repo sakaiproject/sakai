@@ -1,5 +1,5 @@
 <mf:forumHideDivision title="#{msgs.cdfm_discussion_forums}" id="_test_div">
-  <mf:forum_bar_link id="create_forum" title="#{msgs.cdfm_new_forum}" value=" #{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.instructor}"/> &nbsp;
+  <mf:forum_bar_link id="create_forum" title="#{msgs.cdfm_new_forum}" value=" #{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/> &nbsp;
 <%--  <mf:forum_bar_link id="organize_forum" title="#{msgs.cdfm_organize}" value=" #{msgs.cdfm_organize} " action="#{ForumTool.processActionOrganize}"/> &nbsp;
   <mf:forum_bar_link id="forum_stats" title="#{msgs.cdfm_statistic}" value=" #{msgs.cdfm_statistic} " action="#{ForumTool.processActionStatistics}"/> &nbsp;--%>
   <mf:forum_bar_link id="template_setting" title="#{msgs.cdfm_template_setting}" value=" #{msgs.cdfm_template_setting} " action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}"/> &nbsp;
@@ -19,11 +19,11 @@
 		</h:commandLink>
 		 <f:verbatim></div></f:verbatim>
 		 <f:verbatim><div class="rightAlign"></f:verbatim>
-			<h:commandLink action="#{ForumTool.processActionNewTopic}"  value="#{msgs.cdfm_new_topic}">
+			<h:commandLink action="#{ForumTool.processActionNewTopic}"  value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}">
 				<f:param value="#{forum.forum.id}" name="forumId"/>
 			</h:commandLink>
 			<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
-			<h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}" rendered="#{ForumTool.instructor}">
+			<h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}" rendered="#{forum.changeSettings}">
 				<f:param value="#{forum.forum.id}" name="forumId"/>
 			</h:commandLink>
 
@@ -64,7 +64,7 @@
 				</h:commandLink>
 				<h:outputText id="topic_msg_count55" value=" (#{topic.totalNoMessages} messages - #{topic.unreadNoMessages} unread)"/>
 
-				<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" styleClass="rightAlign" value="#{msgs.cdfm_topic_settings}" rendered="#{ForumTool.instructor}">
+				<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" styleClass="rightAlign" value="#{msgs.cdfm_topic_settings}" rendered="#{topic.changeSettings}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
 					<f:param value="#{forum.forum.id}" name="forumId"/>
 				</h:commandLink>
