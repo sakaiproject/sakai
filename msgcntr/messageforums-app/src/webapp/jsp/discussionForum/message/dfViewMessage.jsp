@@ -41,14 +41,16 @@
 				</h:commandLink>					
 			</div>
 			<div class="right-header-section">
-				<%--<h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
-				<h:outputText   value="#{msgs.cdfm_next_topic}   " rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
+				<h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
 				<h:commandLink action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}   "  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" >
 					<f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
+				<h:outputText   value="#{msgs.cdfm_next_topic}   " rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
 				<h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}   " rendered="#{ForumTool.selectedTopic.hasNextTopic}" >
-					<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>	
-				</h:commandLink>--%>
+					<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+				</h:commandLink>
 			</div>
 		</div>
 

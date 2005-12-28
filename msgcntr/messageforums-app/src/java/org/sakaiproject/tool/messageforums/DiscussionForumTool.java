@@ -988,6 +988,9 @@ public class DiscussionForumTool
 			selectedMessage.setDepth(thisDmb.getDepth());
 			selectedMessage.setHasNext(thisDmb.getHasNext());
 			selectedMessage.setHasPre(thisDmb.getHasPre());
+			
+	    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(),
+	        selectedMessage.getMessage().getId(), true);
     }
     
     return null;
@@ -1018,6 +1021,9 @@ public class DiscussionForumTool
 			selectedMessage.setDepth(thisDmb.getDepth());
 			selectedMessage.setHasNext(thisDmb.getHasNext());
 			selectedMessage.setHasPre(thisDmb.getHasPre());
+			
+	    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(),
+	        selectedMessage.getMessage().getId(), true);
     }
     
     return null;
