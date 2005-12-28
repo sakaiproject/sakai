@@ -8,10 +8,9 @@
    <sakai:view>
       <h:form id="forum_revise_settings">
       <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
-        <sakai:tool_bar_message value="Default Setting Template" />
+        <sakai:tool_bar_message value="#{msgs.cdfm_default_template_settings}" />
  		 <div class="instruction">
-  			    <h:outputText id="instruction"  value="Settings from this template will apply each time a new Forum or Topic is created. You can override these settings for a
-specific Forum or Topic after it has been created."/>
+  			    <h:outputText id="instruction"  value="#{msgs.cdfm_default_template_settings_instruction}"/>
 			 </div>
  
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm">
