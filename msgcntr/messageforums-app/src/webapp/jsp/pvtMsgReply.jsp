@@ -10,11 +10,11 @@
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="pvtMsgReply">
-  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> 
+  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums1}" /> 
 				<h:outputText value="/ Reply to Private Message" />
         <sakai:tool_bar_message value="Reply to Private Message" /> 
  			  <div class="instruction">
-  			    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="*" style="color: red"/>
+  			    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" style="color: red"/>
 			  </div>
 			  <h:messages styleClass="alertMessage" id="errorMessages" /> 
 			  
@@ -22,7 +22,7 @@
           <table width="80%" align="left">
             <tr>
               <td align="left" width="20%">
-          			<h:outputText value="To "/>		
+          			<h:outputText value="#{msgs.pvt_to}"/>		
               </td>
               <td align="left">   
           				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.createdBy}" /> 
@@ -30,8 +30,7 @@
             </tr>
             <tr>
               <td align="left" width="20%">
-              	<h:outputText value="*" style="color: red"/>
-          			<h:outputText value="Select Additional Recipients "/>		
+              	<h:outputText value="Select Additional Recipients "/>		
               </td>
               <td align="left">
       
@@ -43,7 +42,7 @@
             </tr>
             <tr>
               <td align="left">
-                <h:outputText value="Send" />
+                <h:outputText value="#{msgs.pvt_send}" />
               </td>
               <td align="left">
               	<h:selectOneRadio value="#{PrivateMessagesTool.composeSendAsPvtMsg}" layout="pageDirection">
@@ -54,8 +53,8 @@
             </tr>
             <tr>
               <td align="left">
-              	<h:outputText value="*" style="color: red"/>
-                <h:outputText value="Subject" />
+              	<h:outputText value="#{msgs.pvt_star}" style="color: red"/>
+                <h:outputText value="#{msgs.pvt_subject}" />
               </td>
               <td align="left">
               	<%--
@@ -80,7 +79,7 @@
 
 <%--********************* Attachment *********************--%>	
 	      <sakai:group_box>
-					<h4><h:outputText value="Attachments"/></h4>
+					<h4><h:outputText value="#{msgs.pvt_att}"/></h4>
 	          <%-- Existing Attachments 
               <h:dataTable value="#{PrivateMessagesTool.detailMsg.msg.attachments}" var="existAttach" >
 					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.message.attachments}">
@@ -148,24 +147,24 @@
 					 
  <%--********************* Reply *********************--%>	
 	      <sakai:group_box>
-	      	<h4><h:outputText value="Replying To"/></h4>
+	      	<h4><h:outputText value="#{msgs.pvt_replyto}"/></h4>
           <table width="80%" align="left">
             <tr>
               <td align="left" width="20%">
-          			<h:outputText value="From "/>		
+          			<h:outputText value="#{msgs.pvt_from} "/>		
               </td>
               <td align="left">   
           			<h:outputText value="#{PrivateMessagesTool.userId}" />  
-              	<h:outputText value=" (" />  
+              	<h:outputText value=" #{msgs.pvt_openb}" />  
               	<h:outputText value="#{PrivateMessagesTool.time}">
   	            	<f:convertDateTime pattern="MM/dd/yy 'at' HH:mm:ss"/>
   	          	</h:outputText>
-              	<h:outputText value=")" />   
+              	<h:outputText value="#{msgs.pvt_closeb}" />   
               </td>                           
             </tr>
             <tr>
               <td align="left" width="20%">
-          			<h:outputText value="Subject "/>		
+          			<h:outputText value="#{msgs.pvt_subject}"/>		
               </td>
               <td align="left">   
           			<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />  
@@ -174,7 +173,7 @@
             <%--
             <tr>
               <td align="left">
-                <h:outputText value="Label" />
+                <h:outputText value="#{msgs.pvt_label}" />
               </td>
               <td align="left">
               	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.label}" />  
@@ -183,8 +182,8 @@
             --%>
             <tr>
               <td align="left">
-              	<h:outputText value="*" style="color: red"/> 
-                <h:outputText value="Message" />
+              	<h:outputText value="#{msgs.pvt_star}" style="color: red"/> 
+                <h:outputText value="#{msgs.pvt_message}" />
               </td>
               <td align="left">
               	<h:inputTextarea rows="5" cols="60"  value="#{PrivateMessagesTool.replyToBody}" />	
@@ -198,7 +197,7 @@
           <table width="80%" align="left">
             <tr>
               <td align="left" width="20%">
-                <h:outputText value="Label"/>
+                <h:outputText value="#{msgs.pvt_label}"/>
               </td>
               <td align="left">
  							  <h:selectOneListbox size="1" id="viewlist">
@@ -211,7 +210,7 @@
 --%>		        
       <sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySend}" value="Send" />
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySaveDraft}" value="Save Draft" />
+        <%--<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySaveDraft}" value="Save Draft" />--%>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgComposeCancel}" value="Cancel" />
       </sakai:button_bar>
     </h:form>

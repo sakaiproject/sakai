@@ -9,7 +9,12 @@
 	<sakai:view_container title="Delete Confirmation ...">
 	<sakai:view_content>
 		<h:form id="pvtMsgDelete">
-		<sakai:tool_bar_message value="#{msgs.pvt_delcon}" />
+
+  	<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums1}" /> /
+		<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
+		<h:outputText value="#{msgs.pvt_delcon}" />
+			
+		<sakai:tool_bar_message value="#{msgs.pvt_delcon}" /> 
 		<h:messages styleClass="alertMessage" id="errorMessages" /> 
 
     <sakai:group_box>

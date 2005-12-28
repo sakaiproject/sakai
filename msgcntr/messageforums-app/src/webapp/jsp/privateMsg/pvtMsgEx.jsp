@@ -9,7 +9,7 @@
 	<sakai:view_container title="Received Private Messages">
 	<sakai:view_content>
 		<h:form id="prefs_form_search">
-			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
+			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums1}" /> /
 			<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
 			<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> 
 			<h:messages styleClass="alertMessage" id="errorMessages" />

@@ -226,13 +226,24 @@ public class PrivateMessagesTool
       forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? "yes" : "no";
       forwardPvtMsgEmail = pf.getAutoForwardEmail();      
     } 
-    //add a error message for instructor and private area is not enabled
-    if(isInstructor() && !getPvtAreaEnabled())
-    {
-      setErrorMessage("The Private Message Area is not turned on for this course. To turn on the Private Message area for this course, click Settings from the Private Message Area bar.") ;
-    }
   }
   
+  /**
+   * Property created rather than setErrorMessage for design requirement
+   * @return
+   */
+  public boolean isDispError()
+  {
+    if (isInstructor() && !getPvtAreaEnabled())
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
   public boolean getPvtAreaEnabled()
   {  
     return area.getEnabled().booleanValue();
@@ -878,11 +889,11 @@ public class PrivateMessagesTool
       setErrorMessage("Please enter subject for this compose message.");
       return null ;
     }
-    if(!hasValue(getComposeBody()) )
-    {
-      setErrorMessage("Please enter message body for this compose message.");
-      return null ;
-    }
+//    if(!hasValue(getComposeBody()) )
+//    {
+//      setErrorMessage("Please enter message body for this compose message.");
+//      return null ;
+//    }
     if(getSelectedComposeToList().size()<1)
     {
       setErrorMessage("You must select a recipient before you may send this message.");
@@ -922,11 +933,11 @@ public class PrivateMessagesTool
       setErrorMessage("Please enter subject for this compose message.");
       return null ;
     }
-    if(!hasValue(getComposeBody()) )
-    {
-      setErrorMessage("Please enter message body for this compose message.");
-      return null ;
-    }
+//    if(!hasValue(getComposeBody()) )
+//    {
+//      setErrorMessage("Please enter message body for this compose message.");
+//      return null ;
+//    }
     if(getSelectedComposeToList().size()<1)
     {
       setErrorMessage("You must select a recipient before you may send this message.");

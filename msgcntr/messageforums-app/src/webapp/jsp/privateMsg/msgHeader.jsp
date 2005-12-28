@@ -13,7 +13,7 @@
           			<h:inputText value="#{PrivateMessagesTool.searchText}" />&nbsp;&nbsp;&nbsp;&nbsp;
           			<h:commandButton value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-          			<h:outputText value="#{msgs.pvt_advsearch}" />          			
+          			<%--<h:outputText value="#{msgs.pvt_advsearch}" />--%>
               </td>
             </tr>                                    
           </table>

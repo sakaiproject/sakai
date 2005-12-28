@@ -131,7 +131,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       /** initialize collections */
       //getHibernateTemplate().initialize(area.getPrivateForumsSet());
             
-      pf = forumManager.createPrivateForum("Private Forum");
+      pf = forumManager.createPrivateForum("Private Messages");
       
       //area.addPrivateForum(pf);
       //pf.setArea(area);

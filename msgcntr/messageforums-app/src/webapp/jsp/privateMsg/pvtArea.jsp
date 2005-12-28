@@ -6,7 +6,7 @@
   <mf:forum_bar_link value="#{msgs.pvt_statistics}" action="#{PrivateMessagesTool.processPvtMsgStatistics}"/> &nbsp;
  --%>
   <mf:forum_bar_link value="#{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}"/> &nbsp;
-  
+  <h:outputText rendered="#{PrivateMessagesTool.dispError}" value="#{msgs.pvt_mainpgerror}" />
   <h:dataTable width="100%" value="#{PrivateMessagesTool.decoratedForum}" var="forum" rendered="#{PrivateMessagesTool.pvtAreaEnabled}">
     <h:column >
     <f:verbatim><div class="forumsRow"><div class="forumsRowLeft"></f:verbatim>

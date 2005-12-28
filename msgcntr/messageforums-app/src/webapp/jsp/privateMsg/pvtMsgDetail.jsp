@@ -9,10 +9,10 @@
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="pvtMsgDetail">
-  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> / 
+  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums1}" /> / 
 				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
 				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />
-				<sakai:instruction_message value="#{msgs.pvt_reply}" /> 
+				<sakai:tool_bar_message value="#{msgs.pvt_detmsgreply}" /> 
 				<h:messages styleClass="alertMessage" id="errorMessages" /> 
        
       	<br>
@@ -110,7 +110,7 @@
                           
          <%--   </sakai:doc_section>    
           </sakai:panel_edit>
-        </sakai:group_box>--%>
+        </sakai:group_box> --%>
 
       </h:form>
     </sakai:view_content>
