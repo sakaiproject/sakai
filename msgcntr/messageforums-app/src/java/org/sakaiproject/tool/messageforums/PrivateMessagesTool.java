@@ -751,7 +751,7 @@ public class PrivateMessagesTool
     //set Dafult Subject
     if(getDetailMsg() != null)
     {
-      replyToSubject="Re:" +getDetailMsg().getMsg().getTitle();
+      replyToSubject="Re: " +getDetailMsg().getMsg().getTitle();
     }
     
     //from message detail screen
@@ -868,7 +868,7 @@ public class PrivateMessagesTool
     }
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("Please select recipients list for this compose message.");
+      setErrorMessage("You must select a recipient before you may send this message.");
       return null ;
     }
     
@@ -912,7 +912,7 @@ public class PrivateMessagesTool
     }
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("Please select recipients list for this compose message.");
+      setErrorMessage("You must select a recipient before you may send this message.");
       return null ;
     }
     
@@ -1666,10 +1666,12 @@ public class PrivateMessagesTool
       PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
       
       String message=element.getMsg().getTitle();
+      String searchText = getSearchText();
       StringTokenizer st = new StringTokenizer(message);
       while (st.hasMoreTokens())
       {
-        if(st.nextToken().equalsIgnoreCase(getSearchText()))
+        //if(st.nextToken().matches("(?i).*searchText.*")) //matches anywhere 
+        if(st.nextToken().equalsIgnoreCase(getSearchText()))            
         {
           newls.add(element) ;
           break;

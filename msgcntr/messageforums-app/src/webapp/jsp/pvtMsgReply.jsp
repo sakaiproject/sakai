@@ -71,7 +71,8 @@
 	        <sakai:panel_edit>
 	          <sakai:doc_section>       
 	            <h:outputText value="Message" />  
-	            <sakai:rich_text_area value="#{PrivateMessagesTool.detailMsg.msg.body}" rows="17" columns="70"/>
+	            <mf:htmlShowArea value="#{PrivateMessagesTool.detailMsg.msg.body}"/>
+	            <%--<sakai:rich_text_area value="#{PrivateMessagesTool.detailMsg.msg.body}" rows="17" columns="70"/>--%>
 	          </sakai:doc_section>    
 	        </sakai:panel_edit>
 	      </sakai:group_box>

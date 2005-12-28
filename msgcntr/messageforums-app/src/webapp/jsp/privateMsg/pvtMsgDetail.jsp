@@ -16,6 +16,7 @@
 				<h:messages styleClass="alertMessage" id="errorMessages" /> 
        
       	<br>
+      	<sakai:group_box>
         <table width="100%" align="left" class="tablebgcolor" >
           <tr>
             <td align="left">
@@ -86,19 +87,14 @@
           </tr> 
           --%>                                   
         </table>    
-        
-        <br/><br/>
-        <sakai:group_box>
-          <sakai:panel_edit>
-            <sakai:doc_section>  
-            </sakai:doc_section>    
-          </sakai:panel_edit>
         </sakai:group_box>
-  
+        
          
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" />
-          <%--<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" />--%>
+          <%--
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" />
+          --%>
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}" />
         </sakai:button_bar>        
         <sakai:button_bar rendered="#{PrivateMessagesTool.deleteConfirm}" >  
@@ -106,13 +102,15 @@
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" />
         </sakai:button_bar>
 
-        <sakai:group_box>
+       <%--<sakai:group_box>
           <sakai:panel_edit>
             <sakai:doc_section>            
-              <h:inputTextarea cols="100" rows="5" disabled="true" value="#{PrivateMessagesTool.detailMsg.msg.body}" />              
-            </sakai:doc_section>    
+              <h:inputTextarea cols="100" rows="5" disabled="true" value="#{PrivateMessagesTool.detailMsg.msg.body}" />--%>  
+              <mf:htmlShowArea value="#{PrivateMessagesTool.detailMsg.msg.body}"/>
+                          
+         <%--   </sakai:doc_section>    
           </sakai:panel_edit>
-        </sakai:group_box>
+        </sakai:group_box>--%>
 
       </h:form>
     </sakai:view_content>
