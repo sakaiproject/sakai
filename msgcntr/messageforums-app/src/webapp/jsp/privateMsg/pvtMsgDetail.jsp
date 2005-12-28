@@ -16,8 +16,7 @@
 				<h:messages styleClass="alertMessage" id="errorMessages" /> 
        
       	<br>
-      	<h4>
-        <table width="100%" align="left">
+        <table width="100%" align="left" class="tablebgcolor" >
           <tr>
             <td align="left">
               <h:outputText style="font-weight:bold"  value="#{msgs.pvt_subject}"/>
@@ -87,7 +86,15 @@
           </tr> 
           --%>                                   
         </table>    
-        </h4>
+        
+        <br/><br/>
+        <sakai:group_box>
+          <sakai:panel_edit>
+            <sakai:doc_section>  
+            </sakai:doc_section>    
+          </sakai:panel_edit>
+        </sakai:group_box>
+  
          
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" />
