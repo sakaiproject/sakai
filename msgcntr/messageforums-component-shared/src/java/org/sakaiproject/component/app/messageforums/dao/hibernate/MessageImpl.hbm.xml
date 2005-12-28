@@ -36,7 +36,7 @@
       <column name="TITLE" length="255" not-null="true" />
     </property>
     <property name="body" type="text">
-      <column name="BODY" not-null="true" />
+      <column name="BODY" not-null="false" />
     </property>
     <property name="author">
       <column name="AUTHOR" length="255" not-null="true" />
