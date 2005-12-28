@@ -838,7 +838,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
    */
   private boolean isSuperUser()
   {
-    // TODO: Need to check for Faculty of Record ?
     return securityService.isSuperUser();
   }
 

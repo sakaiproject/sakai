@@ -30,6 +30,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.kernel.function.FunctionManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
 
 /**
@@ -184,6 +186,19 @@ public class DefaultPermissionsManagerImpl
   {
     Collection realmList = new ArrayList();
     realmList.add(getContextSiteId());
+    AuthzGroup authzGroup=null;
+    try
+    {
+      authzGroup  = authzGroupService.getAuthzGroup("!site.helper");
+    }
+    catch (IdUnusedException e)
+    {
+     LOG.info("No site helper template found");
+    }    
+    if(authzGroup!=null)
+    {
+      realmList.add(authzGroup.getId());
+    }
     Set allowedFunctions = authzGroupService.getAllowedFunctions(role, realmList);
     return allowedFunctions.contains(permission);
   }
