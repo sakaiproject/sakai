@@ -512,6 +512,8 @@ public class PrivateMessagesTool
     
     totalComposeToListRecipients = new ArrayList();
     
+    Set members = getAllCourseMembers(true);
+    
     List roles = new ArrayList();
     /** get roles for realm */    
     try
@@ -520,6 +522,20 @@ public class PrivateMessagesTool
       if (group != null && group.getRoles() != null){
         for (Iterator i = group.getRoles().iterator(); i.hasNext();){
           Role r = (Role) i.next();
+          
+          /** find if any user has role */
+          boolean found = false;
+          for (Iterator j = members.iterator(); j.hasNext();){
+            RecipientItem item = (RecipientItem) j.next();
+            if (item.getRole().getId().equals(r.getId())){
+              found = true;
+            }
+          }
+          
+          if (!found){
+            continue;
+          }
+          
           RecipientItem p = new RecipientItem();
           String roleId = r.getId();          
           switch (roleId.length()){
@@ -531,7 +547,7 @@ public class PrivateMessagesTool
             default:
               roleId = roleId.substring(0,1).toUpperCase() + roleId.substring(1);              
           }          
-          p.setName(roleId + " Group");
+          p.setName(roleId + " Role");
           p.setRole(r);
           roles.add(p);
         }                  
@@ -560,7 +576,7 @@ public class PrivateMessagesTool
       totalComposeToListRecipients.add(currentRecipient);
     }
                        
-    Set members = getAllCourseMembers();
+    
     /** maintain list of members to be sorted */
     List memberList = new ArrayList();
     for (Iterator i = members.iterator(); i.hasNext();)
@@ -1714,7 +1730,7 @@ public class PrivateMessagesTool
    */
   private Set getRecipients()
   {    
-    Set allCourseMembers = getAllCourseMembers();
+    Set allCourseMembers = getAllCourseMembers(false);
     List selectedList = getSelectedComposeToList();
     
     Set returnSet = new HashSet();    
@@ -1789,7 +1805,7 @@ public class PrivateMessagesTool
    * get all members for course
    * @return list of members
    */
-  private Set getAllCourseMembers()
+  private Set getAllCourseMembers(boolean filterFerpa)
   {   
     
     Set recipients = new HashSet();    
@@ -1806,6 +1822,7 @@ public class PrivateMessagesTool
         Role role = m.getRole();
                 
         User user = UserDirectoryService.getUser(userId);
+        
         RecipientItem recipient = new RecipientItem();
         recipient.setName(user.getSortName());
         recipient.setUniqueName(userId);
@@ -1813,21 +1830,25 @@ public class PrivateMessagesTool
         recipient.setRole(role);
         
         if(!(userId).equals("admin"))
-        {
-          
-          final List personList = sakaiPersonManager.findSakaiPersonByUid(userId);          
-          
-          boolean ferpa_flag = false;
-          for (Iterator iter = personList.iterator(); iter.hasNext();)
-          {
-            SakaiPerson element = (SakaiPerson) iter.next();
-            if (Boolean.TRUE.equals(element.getFerpaEnabled())){
-              ferpa_flag = true;
-            }            
-          }                                          
-          if (!ferpa_flag){
+        {                                       
+          if (filterFerpa){                       
+            final List personList = sakaiPersonManager.findSakaiPersonByUid(userId);
+            boolean ferpa_flag = false;
+            for (Iterator iter = personList.iterator(); iter.hasNext();)
+            {
+              SakaiPerson element = (SakaiPerson) iter.next();            
+              if (Boolean.TRUE.equals(element.getFerpaEnabled())){
+                ferpa_flag = true;
+              }            
+            }                                          
+            if (!ferpa_flag || SecurityService.unlock(recipient.getUser(),
+              SiteService.SECURE_UPDATE_SITE, prtMsgManager.getContextSiteId())){
+              recipients.add(recipient);
+            }
+          }
+          else{
             recipients.add(recipient);
-          }              
+          }
         }                                
       }
     }
@@ -1857,76 +1878,6 @@ public class PrivateMessagesTool
       return "";
     }    
   }
-
-  
-  /*
-   * return all instructor participants
-   */
-//  private List getAllInstructorParticipants()
-//  {
-//    List members = new Vector();
-//    
-//    List participants = new Vector();    
-//    String realmId = SiteService.siteReference(PortalService.getCurrentSiteId());//SiteService.siteReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
-// 
-//    try
-//    {
-//      AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
-//      Set grants = realm.getMembers();
-//      //Collections.sort(users);
-//      for (Iterator i = grants.iterator(); i.hasNext();)
-//      {
-//        Member g = (Member) i.next();
-//        String userString = g.getUserId();
-//        Role r = g.getRole();
-//        
-//        boolean alreadyInList = false;
-//        for (Iterator p = members.iterator(); p.hasNext() && !alreadyInList;)
-//        {
-//          CourseMember member = (CourseMember) p.next();
-//          String memberUniqname = member.getUniqname();
-//          if (userString.equalsIgnoreCase(memberUniqname))
-//          {
-//              alreadyInList = true;
-//              if (r != null)
-//              {
-//                  member.setRole(r.getId());
-//              }
-//              participants.add(member);
-//          }
-//        }
-//        if (!alreadyInList)
-//        {
-//          try
-//          {
-//            User user = UserDirectoryService.getUser(userString);
-//            Participant participant = new Participant();
-//            participant.name = user.getSortName();
-//            participant.setUniqeName(userString);
-//            if (r != null)
-//            {
-//                participant.role = r;
-//            }
-//            //Don't add admin/admin 
-//            if(!(participant.getUniqueName()).equals("admin") && prtMsgManager.isInstructor())
-//            {
-//              participants.add(participant);
-//            }                
-//          }
-//          catch (IdUnusedException e)
-//          {
-//            // deal with missing user quietly without throwing a warning message
-//          }
-//        }
-//      }
-//    }
-//    catch (IdUnusedException e)
-//    {
-//      //Log.warn("chef", this + "  IdUnusedException " + realmId);
-//    } 
-//    return participants ;
-//  }
-  
 
   //////// GETTER AND SETTER  ///////////////////  
   public String processUpload(ValueChangeEvent event)

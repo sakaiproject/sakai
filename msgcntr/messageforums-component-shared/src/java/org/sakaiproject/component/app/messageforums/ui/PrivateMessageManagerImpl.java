@@ -984,7 +984,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   /**
    * @return siteId
    */
-  private String getContextSiteId()
+  public String getContextSiteId()
   {
     LOG.debug("getContextSiteId()");
 
