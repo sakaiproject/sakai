@@ -768,14 +768,24 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       List additionalHeaders = new ArrayList(1);
       additionalHeaders.add("Content-Type: text/html");
       
-      if (!asEmail && forwardingEnabled){
-        emailService.send(UserDirectoryService.getCurrentUser().getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
-            message.getBody(), pf.getAutoForwardEmail(), null, additionalHeaders);
+
+      String tempBody = message.getBody();
+      if (message.getAttachments() != null && message.getAttachments().size() > 0) {
+          tempBody += "<br/><br/>";
+          for (Iterator iter = message.getAttachments().iterator(); iter.hasNext();) {
+            Attachment attachment = (Attachment) iter.next();
+            tempBody += attachment.getAttachmentName() + "<br/>";
+            tempBody += attachment.getAttachmentUrl() + "<br/><br/>";
+        }
       }
 
-      if (asEmail){
+      if (!asEmail && forwardingEnabled){
+          emailService.send(UserDirectoryService.getCurrentUser().getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
+            tempBody, pf.getAutoForwardEmail(), null, additionalHeaders);
+      }
+      else if (asEmail){
         emailService.send(UserDirectoryService.getCurrentUser().getEmail(), u.getEmail(), message.getTitle(), 
-                          message.getBody(), u.getEmail(), null, additionalHeaders);
+                          tempBody, u.getEmail(), null, additionalHeaders);
       }
       else{        
         PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
