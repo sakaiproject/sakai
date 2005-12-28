@@ -1787,6 +1787,12 @@ public class DiscussionForumTool
     dMsg.setModifiedBy(getUserId());
     // dMsg.setApproved(Boolean.TRUE);
 
+    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.setTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+    dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
     forumManager.saveMessage(dMsg);
 
     List messageList = selectedTopic.getMessages();
@@ -1873,7 +1879,13 @@ public class DiscussionForumTool
     dMsg.setModified(new Date());
     dMsg.setModifiedBy(getUserId());
     // dMsg.setApproved(Boolean.TRUE);
-
+    
+    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.setTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+    dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
     forumManager.saveMessage(dMsg);
 
     List messageList = selectedTopic.getMessages();
