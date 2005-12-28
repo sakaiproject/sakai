@@ -134,5 +134,16 @@
              where of.id = :id
     ]]>
   </query>
+  
+  <query name="findForumLockedAttribute">
+    <![CDATA[select of.locked from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as of
+                           where of.id = :id
+    ]]>
+  </query>
 
+  <query name="findTopicLockedAttribute">
+    <![CDATA[select t.locked from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl as t
+                           where t.id = :id
+    ]]>
+  </query>  
 </hibernate-mapping>

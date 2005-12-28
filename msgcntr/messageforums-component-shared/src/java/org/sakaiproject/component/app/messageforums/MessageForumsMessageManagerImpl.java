@@ -48,6 +48,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
+import org.sakaiproject.component.app.messageforums.exception.LockedException;
 import org.sakaiproject.service.legacy.content.ContentHostingService;
 import org.sakaiproject.service.legacy.event.EventTrackingService;
 import org.springframework.orm.hibernate.HibernateCallback;
@@ -298,6 +299,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public void saveMessage(Message message) {
         boolean isNew = message.getId() == null;
 
+        if (isForumOrTopicLocked(message.getTopic().getBaseForum().getId(), message.getTopic().getId())) {
+            LOG.info("saveMessage executed [messageId: " + (isNew ? "new" : message.getId().toString()) + "] but forum is locked -- save aborted");
+            throw new LockedException("Message could not be saved [messageId: " + (isNew ? "new" : message.getId().toString()) + "]");
+        }
+        
         message.setModified(new Date());
         message.setModifiedBy(getCurrentUser());       
         getHibernateTemplate().saveOrUpdate(message);
@@ -436,6 +442,33 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
       };
       
       return (List)getHibernateTemplate().executeFind(hcb);
+    }
+
+    private boolean isForumOrTopicLocked(final Long forumId, final Long topicId) {
+        if (forumId == null || topicId == null) {
+            LOG.error("isForumLocked called with null arguments");
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("isForumLocked executing with forumId: " + forumId + ":: topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findForumLockedAttribute");
+                q.setParameter("id", forumId, Hibernate.LONG);
+                return q.uniqueResult();
+            }
+        };
+
+        HibernateCallback hcb2 = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findTopicLockedAttribute");
+                q.setParameter("id", topicId, Hibernate.LONG);
+                return q.uniqueResult();
+            }
+        };
+        
+        return ((Boolean) getHibernateTemplate().execute(hcb)).booleanValue() || ((Boolean) getHibernateTemplate().execute(hcb2)).booleanValue();                
     }
     
     // helpers

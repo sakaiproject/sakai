@@ -61,6 +61,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
+import org.sakaiproject.component.app.messageforums.exception.LockedException;
 import org.sakaiproject.service.legacy.content.ContentHostingService;
 import org.sakaiproject.service.legacy.event.EventTrackingService;
 import org.springframework.orm.hibernate.HibernateCallback;
@@ -576,6 +577,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void saveDiscussionForumTopic(DiscussionTopic topic) {
         boolean isNew = topic.getId() == null;
 
+        if (isForumLocked(topic.getBaseForum().getId())) {
+            LOG.info("saveDiscussionForumTopic executed [topicId: " + (isNew ? "new" : topic.getId().toString()) + "] but forum is locked -- save aborted");
+            throw new LockedException("Topic could not be saved [topicId: " + (isNew ? "new" : topic.getId().toString()) + "]");
+        }
+        
         if (topic.getMutable() == null) {
             topic.setMutable(Boolean.FALSE);
         }
@@ -773,6 +779,25 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         throw new UnsupportedOperationException();
     }
 
+    private boolean isForumLocked(final Long id) {
+        if (id == null) {
+            LOG.error("isForumLocked failed with id: " + id);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("isForumLocked executing with id: " + id);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findForumLockedAttribute");
+                q.setParameter("id", id, Hibernate.LONG);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Boolean) getHibernateTemplate().execute(hcb)).booleanValue();                
+    }
+    
     // helpers
     
     /**
