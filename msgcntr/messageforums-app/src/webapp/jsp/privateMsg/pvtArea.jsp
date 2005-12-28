@@ -2,10 +2,10 @@
   <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 
                         rendered="#{PrivateMessagesTool.pvtAreaEnabled || PrivateMessagesTool.instructor}">
 <%--
-  <mf:forum_bar_link value="Organize " action="#{PrivateMessagesTool.processPvtMsgOrganize}"/> &nbsp;
-  <mf:forum_bar_link value=" Statistics " action="#{PrivateMessagesTool.processPvtMsgStatistics}"/> &nbsp;
+  <mf:forum_bar_link value="#{msgs.pvt_organize}" action="#{PrivateMessagesTool.processPvtMsgOrganize}"/> &nbsp;
+  <mf:forum_bar_link value="#{msgs.pvt_statistics}" action="#{PrivateMessagesTool.processPvtMsgStatistics}"/> &nbsp;
  --%>
-  <mf:forum_bar_link value=" Settings " action="#{PrivateMessagesTool.processPvtMsgSettings}"/> &nbsp;
+  <mf:forum_bar_link value="#{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}"/> &nbsp;
   
   <h:dataTable width="100%" value="#{PrivateMessagesTool.decoratedForum}" var="forum" rendered="#{PrivateMessagesTool.pvtAreaEnabled}">
     <h:column >
@@ -17,11 +17,11 @@
   		
   		<f:verbatim></div></f:verbatim>
   		<f:verbatim><div class="rightAlign"></f:verbatim>
-  			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgCompose}"  value="Compose Private Message">
+  			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgCompose}"  value="#{msgs.pvt_compose}">
 			</h:commandLink>
 			<%-- currently new folder disabled
 			<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
-  			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"  value="New Folder">
+  			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"  value="#{msgs.pvt_newfolder}">
 			</h:commandLink>	
 			--%>		
 			<f:verbatim></div></f:verbatim>
@@ -55,7 +55,7 @@
     		   <h:outputText value=")"/>
 					 <f:verbatim></div></f:verbatim>
 					 <f:verbatim><div class="rightAlign"></f:verbatim>
-					 <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"  value="Folder Settings">
+					 <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"  value="#{msgs.pvt_foldersettings}">
 					   <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
 	    			 <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
 					 </h:commandLink>

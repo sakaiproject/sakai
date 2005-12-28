@@ -6,13 +6,13 @@
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
 <f:view>
-	<sakai:view_container title="Received Private Messages">
+	<sakai:view_container title="#{msgs.pvtarea_name}">
 	<sakai:view_content>
 		<h:form id="prefs_form">
-  		<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> /
+  		<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
 			<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
 			
-			<sakai:tool_bar_message value="Private message- #{PrivateMessagesTool.msgNavMode}" /> 
+			<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> 
 			<h:messages styleClass="alertMessage" id="errorMessages" /> 
 			<%@include file="msgHeader.jsp"%>
 			<br><br><br>
@@ -33,7 +33,7 @@
 			</h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Subject"/>
+		       <h:outputText value="#{msgs.pvt_subject}"/>
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
@@ -43,14 +43,14 @@
 		  </h:column>			
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Authored By"/>
+		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.msg.createdBy}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.createdBy}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Date"/>
+		       <h:outputText value="#{msgs.pvt_date}"/>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}"/>
@@ -58,7 +58,7 @@
 		  <%--
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Label"/>
+		       <h:outputText value="#{msgs.pvt_label}"/>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.label}"/>
 		  </h:column>

@@ -9,17 +9,17 @@
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="pvtMsgDetail">
-  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="Message Forums" /> / 
+  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> / 
 				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
 				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />
-				<sakai:instruction_message value="Reply to Private Message" /> 
+				<sakai:instruction_message value="#{msgs.pvt_reply}" /> 
 				<h:messages styleClass="alertMessage" id="errorMessages" /> 
        
       	<br>
         <table width="100%" align="left" class="tablebgcolor" >
           <tr>
             <td align="left">
-              <h:outputText style="font-weight:bold"  value="Subject "/>
+              <h:outputText style="font-weight:bold"  value="#{msgs.pvt_subject}"/>
             </td>
             <td align="left">
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />  
@@ -39,7 +39,7 @@
           </tr>
           <tr>
             <td align="left">
-              <h:outputText style="font-weight:bold"  value="Authored By "/>
+              <h:outputText style="font-weight:bold"  value="#{msgs.pvt_authby}"/>
             </td>
             <td align="left">
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.createdBy}" />  
@@ -51,7 +51,7 @@
           </tr>
           <tr>
             <td align="left">
-              <h:outputText style="font-weight:bold"  value="Attachments "/>
+              <h:outputText style="font-weight:bold"  value="#{msgs.pvt_att}"/>
             </td>
             <td align="left">
               <%-- Attachments --%>
@@ -77,7 +77,7 @@
           <%--
           <tr>
             <td align="left">
-              <h:outputText style="font-weight:bold"  value="Label "/>
+              <h:outputText style="font-weight:bold"  value="#{msgs.pvt_label} "/>
             </td>
             <td align="left">
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
@@ -97,16 +97,16 @@
   
          
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="Reply to Message" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" />
           <%--
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="Move" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" />
           --%>
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="Delete" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}" />
         </sakai:button_bar>
         
         <sakai:button_bar rendered="#{PrivateMessagesTool.deleteConfirm}" >  
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirmYes}" value="Delete" />
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="Cancel" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirmYes}" value="#{msgs.pvt_delete}" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" />
         </sakai:button_bar>
 
         <sakai:group_box>

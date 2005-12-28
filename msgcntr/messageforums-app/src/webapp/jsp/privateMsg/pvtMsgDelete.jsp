@@ -9,13 +9,13 @@
 	<sakai:view_container title="Delete Confirmation ...">
 	<sakai:view_content>
 		<h:form id="pvtMsgDelete">
-		<sakai:tool_bar_message value="Delete Confirmation ..." />
+		<sakai:tool_bar_message value="#{msgs.pvt_delcon}" />
 		<h:messages styleClass="alertMessage" id="errorMessages" /> 
 
 	  <h:dataTable styleClass="listHier" id="pvtmsgdel" width="100%"  value="#{PrivateMessagesTool.selectedDeleteItems}" var="delItems">   
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Subject"/>
+		       <h:outputText value="#{msgs.pvt_subject}"/>
 		    </f:facet>
 		      <h:outputText value=" #{delItems.msg.title}"/>              
 		  </h:column>
@@ -27,21 +27,21 @@
 			</h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Authored By"/>
+		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{delItems.msg.createdBy}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Date"/>
+		       <h:outputText value="#{msgs.pvt_date}"/>
 		    </f:facet>
 		     <h:outputText value="#{delItems.msg.created}"/>
 		  </h:column>
 		</h:dataTable>
 
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMultiDelete}" value="Delete Message(s)" />
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="Cancel" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMultiDelete}" value="#{msgs.pvt_delmsgs}" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" />
         </sakai:button_bar>
         		
            

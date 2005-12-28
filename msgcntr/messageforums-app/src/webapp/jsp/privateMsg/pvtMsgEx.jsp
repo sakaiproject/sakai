@@ -24,7 +24,7 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Subject"/>
+		       <h:outputText value="#{msgs.pvt_subject}"/>
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
             <h:outputText value=" #{rcvdItems.msg.title}"/>
@@ -34,19 +34,19 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Authored By"/>
+		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.msg.createdBy}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Date"/>
+		       <h:outputText value="#{msgs.pvt_date}"/>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.created}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="Label"/>
+		       <h:outputText value="#{msgs.pvt_label}"/>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.label}"/>
 		  </h:column>

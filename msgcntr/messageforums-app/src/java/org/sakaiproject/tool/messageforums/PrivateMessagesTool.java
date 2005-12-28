@@ -1504,8 +1504,9 @@ public class PrivateMessagesTool
     String email= getForwardPvtMsgEmail();
     String activate=getActivatePvtMsg() ;
     String forward=getForwardPvtMsg() ;
-    if (email != null && !"no".equals(forward) && !(email.trim().indexOf("@") > -1)){
+    if (email != null && (!SET_AS_NO.equals(forward)) && (!email.matches(".+@.+\\..+"))){
       setValidEmail(false);
+      setErrorMessage("Please provide a valid email address");
       setActivatePvtMsg("yes");
       return "pvtMsgSettings";
     }
