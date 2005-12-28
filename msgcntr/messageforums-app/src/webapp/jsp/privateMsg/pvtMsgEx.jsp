@@ -44,12 +44,12 @@
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.created}"/>
 		  </h:column>
-		  <h:column>
+		  <%--<h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_label}"/>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.label}"/>
-		  </h:column>
+		  </h:column>--%>
 		</h:dataTable>
            
 		</h:form>
