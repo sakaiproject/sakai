@@ -169,7 +169,7 @@
 --%>
       <sakai:button_bar>
         <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicPost}" value="#{msgs.cdfm_button_bar_post_message}" />
-        <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" />
+   <%--     <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" /> --%>
         <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicCancel}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true"/>
       </sakai:button_bar>
     </h:form>

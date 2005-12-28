@@ -186,7 +186,7 @@ public class DiscussionForumTool
           return forums;
         }
         // TODO: put this logic in database layer
-        if ((forum.getDraft().equals(Boolean.FALSE)&& forum.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()) 
+        if (forum.getDraft().equals(Boolean.FALSE)||(forum.getDraft().equals(Boolean.TRUE)&& forum.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()) 
             )||SecurityService.isSuperUser()
             ||isInstructor()
             ||forum.getCreatedBy().equals(
@@ -409,6 +409,9 @@ public class DiscussionForumTool
     if (getNewForum())
     {
       DiscussionForum forum = forumManager.createForum();
+      //forum.setTitle("");
+      //forum.setShortDescription("");
+      //forum.setExtendedDescription("");
       selectedForum = null;
       selectedForum = new DiscussionForumBean(forum, uiPermissionsManager);
       return FORUM_SETTING_REVISE;
@@ -1079,7 +1082,8 @@ public class DiscussionForumTool
     {
       DiscussionTopic topic = (DiscussionTopic) iter.next();
 //    TODO: put this logic in database layer
-      if ((topic.getDraft().equals(Boolean.FALSE)&&topic.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
+      if (topic.getDraft().equals(Boolean.FALSE)||
+          (topic.getDraft().equals(Boolean.TRUE)&&topic.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
           ||isInstructor()
           ||SecurityService.isSuperUser()||topic.getCreatedBy().equals(
           SessionManager.getCurrentSessionUserId()))
@@ -1284,15 +1288,15 @@ public class DiscussionForumTool
 
   private void reset()
   {
-    forums = null;
-    selectedForum = null;
-    selectedTopic = null;
-    selectedMessage = null;
-
+    this.forums = null;
+    this.selectedForum = null;
+    this.selectedTopic = null;
+    this.selectedMessage = null;
+    this.templateControlPermissions = null;
+    this.templateMessagePermissions = null;
     attachments.clear();
     prepareRemoveAttach.clear();
-    templateControlPermissions = null;
-    templateMessagePermissions = null;
+  
   }
 
   /**
@@ -1333,6 +1337,9 @@ public class DiscussionForumTool
       setErrorMessage("Failed to create new topic");
       return null;
     }
+    //topic.setTitle("");
+    //topic.setShortDescription("");
+    //topic.setExtendedDescription("");
     selectedTopic = new DiscussionTopicBean(topic, forum, uiPermissionsManager);
     return new DiscussionTopicBean(topic, forum, uiPermissionsManager);
   }
