@@ -12,7 +12,7 @@
   			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums1}" /> 
 				<h:outputText value="#{msgs.pvt_compose1}" />
 				
-				<sakai:tool_bar_message value="#{msgs.cdfm_pvtcompose}" />
+				<sakai:tool_bar_message value="#{msgs.pvt_pvtcompose}" />
  			  <div class="instruction">
   			    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" style="color: red"/>
 			  </div>
