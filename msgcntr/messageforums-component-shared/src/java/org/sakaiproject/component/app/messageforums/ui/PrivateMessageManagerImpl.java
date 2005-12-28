@@ -730,7 +730,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     if (recipients.size() == 0)
     {
-      throw new IllegalArgumentException("Empty recipient list");
+      /** for no just return out
+        throw new IllegalArgumentException("Empty recipient list");
+      **/
+      return;
     }
 
     List recipientList = new UniqueArrayList();
