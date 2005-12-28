@@ -21,27 +21,27 @@
 			</h:column>
 			 <h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_new_forum}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.newForum}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{cntrl_settings.newForum}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_new_topic}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.newTopic}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{cntrl_settings.newTopic}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_new_response}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.newResponse}"/>
+				<h:selectBooleanCheckbox  disabled="true"  value="#{cntrl_settings.newResponse}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_response_to_response}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.responseToResponse}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{cntrl_settings.responseToResponse}"/>
 			</h:column>
 		<%--	<h:column>
 				<f:facet name="header">	<h:outputText value="#{msgs.perm_move_postings}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.movePostings}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{cntrl_settings.movePostings}"/>
 			</h:column>--%>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_change_settings}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.changeSettings}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{cntrl_settings.changeSettings}"/>
 			</h:column>
 			<%--<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></f:facet>
@@ -57,34 +57,34 @@
 			</h:column>
 			 <h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_read}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{msg_settings.read}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{msg_settings.read}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_revise_any}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{msg_settings.reviseAny}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{msg_settings.reviseAny}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">	<h:outputText value="#{msgs.perm_revise_own}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{msg_settings.reviseOwn}"/>
+				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.reviseOwn}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_delete_any}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{msg_settings.deleteAny}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{msg_settings.deleteAny}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">	<h:outputText value="#{msgs.perm_delete_own}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{msg_settings.deleteOwn}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{msg_settings.deleteOwn}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_mark_as_read}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{msg_settings.markAsRead}"/>
+				<h:selectBooleanCheckbox disabled="true"  value="#{msg_settings.markAsRead}"/>
 			</h:column>			 		
 		</h:dataTable>
       </mf:forumHideDivision>
       
       <p class="act">
-          <h:commandButton action="#{ForumTool.processActionSaveTemplateSettings}" value="#{msgs.cdfm_button_bar_save_setting}"/> 
-          <h:commandButton action="#{ForumTool.processActionRestoreDefaultTemplate}" value="Restore Defaults"/> 
+         <%-- <h:commandButton action="#{ForumTool.processActionSaveTemplateSettings}" value="#{msgs.cdfm_button_bar_save_setting}"/> 
+          <h:commandButton action="#{ForumTool.processActionRestoreDefaultTemplate}" value="Restore Defaults"/> --%>
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
        </p>
        
