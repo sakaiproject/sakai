@@ -2386,6 +2386,7 @@ public class DiscussionForumTool
     else
       if (changeView.equals(UNREAD_VIEW))
       {
+      	threaded = false;
         this.displayUnreadOnly = true;
         return;
       }
