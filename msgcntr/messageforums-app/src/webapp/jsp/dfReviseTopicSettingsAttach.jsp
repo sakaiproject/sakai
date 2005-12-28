@@ -107,7 +107,7 @@
 		   <br/>
 		   <h:selectBooleanCheckbox   title= "#{msgs.cdfm_topic_author_identity}"  value="false" />
 		   <h:outputText   value="  #{msgs.cdfm_topic_author_identity}" />
-       --%>
+     
        <h4><h:outputText  value="#{mags.cdfm_topic_post_before_reading}"/></h4>
     	   <p class="shorttext">
 			<h:panelGrid columns="2">
@@ -120,6 +120,7 @@
 				</h:panelGroup>
 			</h:panelGrid>
 		</p>
+		  --%>
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm">
           <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.topicControlPermissions}" var="cntrl_settings">
    			<h:column>

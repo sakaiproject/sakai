@@ -82,19 +82,20 @@
 		   <br/>
 		   <h:selectBooleanCheckbox  disabled="true" title= "#{msgs.cdfm_topic_author_identity}"  value="false" />
 		   <h:outputText   value="  #{msgs.cdfm_topic_author_identity}" />
-       --%>
+     
        <h4><h:outputText  value="Post Before Reading"/></h4>
     	   <p class="shorttext">
-			<h:panelGrid columns="2">
-				<h:panelGroup><h:outputLabel id="outputLabel5" for="topic_reading"  value="Users must post a response before reading others"/>	</h:panelGroup>
-				<h:panelGroup>
-					<h:selectOneRadio disabled ="true" layout="pageDirection"  id="topic_reading" value="#{ForumTool.selectedTopic.mustRespondBeforeReading}">
-    					<f:selectItem itemValue="true" itemLabel="Yes"/>
-    					<f:selectItem itemValue="false" itemLabel="No"/>
-  					</h:selectOneRadio>
-				</h:panelGroup>
-			</h:panelGrid>
-		</p>
+				<h:panelGrid columns="2">
+					<h:panelGroup><h:outputLabel id="outputLabel5" for="topic_reading"  value="Users must post a response before reading others"/>	</h:panelGroup>
+					<h:panelGroup>
+						<h:selectOneRadio disabled ="true" layout="pageDirection"  id="topic_reading" value="#{ForumTool.selectedTopic.mustRespondBeforeReading}">
+	    					<f:selectItem itemValue="true" itemLabel="Yes"/>
+	    					<f:selectItem itemValue="false" itemLabel="No"/>
+	  					</h:selectOneRadio>
+					</h:panelGroup>
+				</h:panelGrid>
+			</p>
+		  --%>
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm">
           <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.topicControlPermissions}" var="cntrl_settings">
    			<h:column>
