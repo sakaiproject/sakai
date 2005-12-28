@@ -217,7 +217,8 @@ public class PrivateMessagesTool
     area = prtMsgManager.getPrivateMessageArea();
             
     if (getPvtAreaEnabled() || isInstructor()){      
-      PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area);    
+      PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area);
+      pf = prtMsgManager.initializationHelper(pf);
       pvtTopics = pf.getTopics();
       Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);
       forum=pf;           

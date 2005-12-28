@@ -161,17 +161,28 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       pf.addTopic(draftTopic);
       
       
-      forumManager.savePrivateForum(pf);
+      forumManager.savePrivateForum(pf);            
       
-                 
     }    
-    else
-    {      
-       getHibernateTemplate().initialize(pf.getTopicsSet());              
+    else{      
+       getHibernateTemplate().initialize(pf.getTopicsSet());
     }
+   
 
     return pf;
   }
+  
+  public PrivateForum initializationHelper(PrivateForum forum){
+    
+    /** reget to load topic foreign keys */
+    PrivateForum pf = forumManager.getPrivateForumByOwner(getCurrentUser());
+    getHibernateTemplate().initialize(pf.getTopicsSet());    
+    return pf;
+  }
+  
+
+  
+  
 
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#savePrivateMessage(org.sakaiproject.api.app.messageforums.Message)
@@ -269,7 +280,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
 
     /** method calls placed in this function to participate in same transaction */
-
+           
     saveForumSettings(forum);
 
     /** need to evict forum b/c area saves fk on forum (which places two objects w/same id in session */
