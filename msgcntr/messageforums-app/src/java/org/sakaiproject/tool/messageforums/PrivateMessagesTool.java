@@ -108,7 +108,7 @@ public class PrivateMessagesTool
   public static final String PVTMSG_MODE_DRAFT = "Drafts";
   public static final String PVTMSG_MODE_CASE = "Personal Folders";
   
-  public static final String RECIPIANTS_ENTIRE_CLASS= "Entire Class";
+  public static final String RECIPIANTS_ENTIRE_CLASS= "All Participants";
   public static final String RECIPIANTS_ALL_INSTRUCTORS= "All Instructors";
   
   public static final String SET_AS_YES="yes";
@@ -573,7 +573,7 @@ public class PrivateMessagesTool
     
     /** add entire class to top of list */        
     RecipientItem entireClass = new RecipientItem();
-    entireClass.setName("Entire Class");
+    entireClass.setName("All Participants");
     roles.add(0, entireClass);                
     
     List totalComposeToList=new ArrayList();

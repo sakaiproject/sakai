@@ -146,19 +146,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       PrivateTopic deletedTopic = forumManager.createPrivateForumTopic("Deleted", true,
           userId, pf.getId());      
 
-      PrivateTopic draftTopic = forumManager.createPrivateForumTopic("Drafts", true,
-          userId, pf.getId());
+      //PrivateTopic draftTopic = forumManager.createPrivateForumTopic("Drafts", true,
+      //    userId, pf.getId());
     
       /** save individual topics - required to add to forum's topic set */
       forumManager.savePrivateForumTopic(receivedTopic);
       forumManager.savePrivateForumTopic(sentTopic);
       forumManager.savePrivateForumTopic(deletedTopic);
-      forumManager.savePrivateForumTopic(draftTopic);
+      //forumManager.savePrivateForumTopic(draftTopic);
       
       pf.addTopic(receivedTopic);
       pf.addTopic(sentTopic);
       pf.addTopic(deletedTopic);
-      pf.addTopic(draftTopic);
+      //pf.addTopic(draftTopic);
       
       
       forumManager.savePrivateForum(pf);            
