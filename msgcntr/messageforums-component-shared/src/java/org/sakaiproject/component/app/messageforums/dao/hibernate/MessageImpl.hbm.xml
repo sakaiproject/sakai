@@ -139,11 +139,11 @@
   </query>
 
   <query name="findMessageCountByTopicId">
-    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId]]>
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false]]>
   </query>
 
   <query name="findReadMessageCountByTopicId">
-    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message, org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where message.topic.id = :topicId and us.userId = :userId and message.id = us.messageId and us.read = true]]>
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message, org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where message.topic.id = :topicId and us.userId = :userId and message.id = us.messageId and us.read = true and message.draft = false]]>
   </query>
 
   <query name="findMessagesByTopicId">
@@ -196,7 +196,7 @@
   
   <query name="findMessagesBySearchText">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
-             where message.topic.id = :id and (
+             where message.topic.id = :id and message.draft = false and (
                      message.author like :searchByText or 
                      message.title like :searchByText or
                      message.body like :searchByText

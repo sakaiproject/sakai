@@ -229,6 +229,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       LOG.debug("saveMessage(Message " + message + ")");
     }
+    if (message.getTopic().getBaseForum() == null) {
+        message.setTopic(getTopicById(message.getTopic().getId()));
+    }
     messageManager.saveMessage(message);
   }
 
