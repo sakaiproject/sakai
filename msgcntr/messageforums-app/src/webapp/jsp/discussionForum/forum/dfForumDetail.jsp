@@ -19,7 +19,7 @@
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 				<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
-				<h:outputText value="#{ForumTool.selectedForum.changeSettings}">
+				<h:outputText value="#{ForumTool.selectedForum.changeSettings}"/>
 				<h:commandLink action="#{ForumTool.processActionForumSettings}" value="#{msgs.cdfm_forum_settings}" rendered="#{ForumTool.selectedForum.changeSettings}">
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
