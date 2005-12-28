@@ -1832,52 +1832,61 @@ public class PrivateMessagesTool
     Set recipients = new HashSet();    
     String realmId = SiteService.siteReference(PortalService.getCurrentSiteId());
  
-    try
+    AuthzGroup realm;
+    try{
+      realm = AuthzGroupService.getAuthzGroup(realmId);
+    }
+    catch (IdUnusedException e){
+      LOG.debug(e.getMessage(), e);
+      return recipients;
+    }
+    
+    
+    Set grants = realm.getMembers();      
+    for (Iterator i = grants.iterator(); i.hasNext();)
     {
-      AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
-      Set grants = realm.getMembers();      
-      for (Iterator i = grants.iterator(); i.hasNext();)
-      {
-        Member m = (Member) i.next();
-        String userId = m.getUserId();
-        Role role = m.getRole();
-                
-        User user = UserDirectoryService.getUser(userId);
+      Member m = (Member) i.next();
+      String userId = m.getUserId();
+      Role role = m.getRole();
         
-        RecipientItem recipient = new RecipientItem();
-        recipient.setName(user.getSortName());
-        recipient.setUniqueName(userId);
-        recipient.setUser(user);
-        recipient.setRole(role);
+      User user;
+      try{
+        user = UserDirectoryService.getUser(userId);
+      }
+      catch (IdUnusedException e){
+        LOG.debug(e.getMessage(), e);
+        continue;
+      }
         
-        if(!(userId).equals("admin"))
-        {                                       
-          if (filterFerpa){                       
-            final List personList = sakaiPersonManager.findSakaiPersonByUid(userId);
-            boolean ferpa_flag = false;
-            for (Iterator iter = personList.iterator(); iter.hasNext();)
-            {
-              SakaiPerson element = (SakaiPerson) iter.next();            
-              if (Boolean.TRUE.equals(element.getFerpaEnabled())){
-                ferpa_flag = true;
-              }            
-            }                                          
-            if (!ferpa_flag || SecurityService.unlock(recipient.getUser(),
-              SiteService.SECURE_UPDATE_SITE, prtMsgManager.getContextSiteId())){
-              recipients.add(recipient);
-            }
-          }
-          else{
+      RecipientItem recipient = new RecipientItem();
+      recipient.setName(user.getSortName());
+      recipient.setUniqueName(userId);
+      recipient.setUser(user);
+      recipient.setRole(role);
+        
+      if(!(userId).equals("admin"))
+      {                                       
+        if (filterFerpa){                       
+          final List personList = sakaiPersonManager.findSakaiPersonByUid(userId);
+          boolean ferpa_flag = false;
+          for (Iterator iter = personList.iterator(); iter.hasNext();)
+          {
+            SakaiPerson element = (SakaiPerson) iter.next();            
+            if (Boolean.TRUE.equals(element.getFerpaEnabled())){
+              ferpa_flag = true;
+            }            
+          }                                          
+         if (!ferpa_flag || SecurityService.unlock(recipient.getUser(),
+            SiteService.SECURE_UPDATE_SITE, prtMsgManager.getContextSiteId())){
             recipients.add(recipient);
           }
-        }                                
-      }
+        }
+        else{
+          recipients.add(recipient);
+        }
+      }                                
     }
-    catch (IdUnusedException e)
-    {
-      LOG.debug(e.getMessage(), e);
-    }
-        
+    
     return recipients;
   }  
   
