@@ -11,8 +11,8 @@
 			</h:selectOneMenu>
 		</div>
 		<div  style="float:right;text-align:right;width:49%;">
-			<h:inputText  value="#{ForumTool.searchText}" />&nbsp;&nbsp;&nbsp;&nbsp;
-		    <h:commandButton  value="Search" action="#{ForumTool.processActionSearch}" onkeypress="document.forms[0].submit;"/>
+			<%--<h:inputText  value="#{ForumTool.searchText}" />&nbsp;&nbsp;&nbsp;&nbsp;
+		    <h:commandButton  value="Search" action="#{ForumTool.processActionSearch}" onkeypress="document.forms[0].submit;"/>--%>
 		</div>
 	</div>
 </h4>

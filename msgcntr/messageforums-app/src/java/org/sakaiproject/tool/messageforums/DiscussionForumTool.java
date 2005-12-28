@@ -63,6 +63,7 @@ public class DiscussionForumTool
 
   private DiscussionForumBean selectedForum;
   private DiscussionTopicBean selectedTopic;
+  private DiscussionTopicBean searchResults;
   private DiscussionMessageBean selectedMessage;
 
   private List templateControlPermissions; // control settings
@@ -96,7 +97,7 @@ public class DiscussionForumTool
   // private List allAttachments = new ArrayList();
   private boolean threaded = false;
   private String expanded = "true";
-
+  private boolean isDisplaySearchedMessages;
   /**
    * Dependency Injected
    */
@@ -2360,6 +2361,8 @@ public class DiscussionForumTool
     if (LOG.isDebugEnabled())
       LOG.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
           + ")");
+    isDisplaySearchedMessages=false;
+    searchText="";
     String changeView = (String) vce.getNewValue();
     this.displayUnreadOnly = false;
     if (changeView == null)
@@ -2415,23 +2418,38 @@ public class DiscussionForumTool
   public String processActionSearch()
   {
     LOG.debug("processActionSearch()");
-    /*
-    if(searchText==null || searchText.trim().length()<1)
-    {
-      setErrorMessage("Invalid search criteria"); 
-      return ALL_MESSAGES;
-    }
 
-    if(selectedTopic == null)
-    {
-      setErrorMessage("There is no topic selected for search");    
-      return ALL_MESSAGES;
-    }
-
-    List searchedMessages = forumManager.searchTopicMessages(selectedTopic.getTopic().getId(), searchText);
-    selectedTopic.setMessages(searchedMessages);
-    */
-    return ALL_MESSAGES;
+//    //TODO : should be fetched via a query in db
+//    //Subject, Authored By, Date,
+//    isDisplaySearchedMessages=true;
+//  
+//    if(searchText==null || searchText.trim().length()<1)
+//    {
+//      setErrorMessage("Invalid search criteria");  
+//      return ALL_MESSAGES;
+//    }
+//    if(selectedTopic == null)
+//    {
+//      setErrorMessage("There is no topic selected for search");     
+//      return ALL_MESSAGES;
+//    }
+//    searchResults=new  DiscussionTopicBean(selectedTopic.getTopic(),selectedForum.getForum() ,uiPermissionsManager);
+//   if(selectedTopic.getMessages()!=null)
+//    {
+//     Iterator iter = selectedTopic.getMessages().iterator();
+//     
+//     while (iter.hasNext())
+//      {
+//            DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
+//        if((decoMessage.getMessage()!= null && (decoMessage.getMessage().getTitle().matches(".*"+searchText+".*") ||
+//            decoMessage.getMessage().getCreatedBy().matches(".*"+searchText+".*") ||
+//            decoMessage.getMessage().getCreated().toString().matches(".*"+searchText+".*") )))
+//        {
+//          searchResults.addMessage(decoMessage);
+//        }
+//      }
+//    }  
+   return ALL_MESSAGES;
   }
 
   /**
@@ -2473,6 +2491,15 @@ public class DiscussionForumTool
       }
     }
     return displayTopicById(TOPIC_ID); // reconstruct topic again;
+  }
+
+  
+  /**
+   * @return Returns the isDisplaySearchedMessages.
+   */
+  public boolean getIsDisplaySearchedMessages()
+  {
+    return isDisplaySearchedMessages;
   }
 
   /**
