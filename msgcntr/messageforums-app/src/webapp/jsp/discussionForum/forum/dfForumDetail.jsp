@@ -19,7 +19,6 @@
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 				<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
-				<h:outputText value="#{ForumTool.selectedForum.changeSettings}"/>
 				<h:commandLink action="#{ForumTool.processActionForumSettings}" value="#{msgs.cdfm_forum_settings}" rendered="#{ForumTool.selectedForum.changeSettings}">
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
@@ -40,7 +39,7 @@
 				</h:commandLink>
 				<f:verbatim><br/></f:verbatim>
 				<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" />
-				<f:verbatim><hr/></div></f:verbatim>
+				<f:verbatim></div><hr/></f:verbatim>
 				<h:dataTable id="messages" value="#{topics.messages}" var="message">
 					<h:column>
 						<h:outputText id="message_title" value="#{message.message.title}"/>
