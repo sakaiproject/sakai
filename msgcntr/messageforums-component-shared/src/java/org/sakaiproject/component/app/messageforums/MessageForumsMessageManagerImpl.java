@@ -25,6 +25,7 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -443,6 +444,41 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
       
       return (List)getHibernateTemplate().executeFind(hcb);
     }
+
+    public List sortMessageBySubject(Topic topic, boolean asc) {
+        List list = topic.getMessages();
+        if (asc) {
+            Collections.sort(list, MessageImpl.SUBJECT_COMPARATOR);
+        } else {
+            Collections.sort(list, MessageImpl.SUBJECT_COMPARATOR_DESC);
+        }
+        topic.setMessages(list);
+        return list;
+    }
+
+    public List sortMessageByAuthor(Topic topic, boolean asc) {
+        List list = topic.getMessages();
+        if (asc) {
+            Collections.sort(list, MessageImpl.AUTHORED_BY_COMPARATOR);
+        } else {
+            Collections.sort(list, MessageImpl.AUTHORED_BY_COMPARATOR_DESC);
+        }
+        topic.setMessages(list);
+        return list;
+    }
+
+    public List sortMessageByDate(Topic topic, boolean asc) {
+        List list = topic.getMessages();
+        if (asc) {
+            Collections.sort(list, MessageImpl.DATE_COMPARATOR);
+        } else {
+            Collections.sort(list, MessageImpl.DATE_COMPARATOR_DESC);
+        }
+        topic.setMessages(list);
+        return list;
+    }
+    
+
 
     private boolean isForumOrTopicLocked(final Long forumId, final Long topicId) {
         if (forumId == null || topicId == null) {

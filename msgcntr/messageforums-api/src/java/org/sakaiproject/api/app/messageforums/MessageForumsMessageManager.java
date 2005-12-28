@@ -25,11 +25,6 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.List;
 
-import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
-import org.sakaiproject.api.app.messageforums.UnreadStatus;
-
 public interface MessageForumsMessageManager {
 
     public Attachment createAttachment();
@@ -73,5 +68,12 @@ public interface MessageForumsMessageManager {
     public void deleteMsgWithChild(final Long messageId);
     
     public List getFirstLevelChildMsgs(final Long messageId);
+    
+    public List sortMessageBySubject(Topic topic, boolean asc);
 
-    }
+    public List sortMessageByAuthor(Topic topic, boolean asc);
+
+    public List sortMessageByDate(Topic topic, boolean asc);
+    
+}
+

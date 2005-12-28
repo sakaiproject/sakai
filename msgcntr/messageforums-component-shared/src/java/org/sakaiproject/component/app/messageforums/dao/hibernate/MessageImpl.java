@@ -53,6 +53,12 @@ public class MessageImpl extends MutableEntityImpl implements Message
   public static Comparator LABEL_COMPARATOR;
   public static Comparator AUTHORED_BY_COMPARATOR;
 
+  public static Comparator ATTACHMENT_COMPARATOR_DESC;
+  public static Comparator SUBJECT_COMPARATOR_DESC;
+  public static Comparator DATE_COMPARATOR_DESC;
+  public static Comparator LABEL_COMPARATOR_DESC;
+  public static Comparator AUTHORED_BY_COMPARATOR_DESC;
+  
   // indecies for hibernate
   //private int tindex;
 
@@ -339,6 +345,72 @@ public class MessageImpl extends MutableEntityImpl implements Message
         {
           String msg = ((Message) message).getLabel();
           String msg2 = ((Message) otherMessage).getLabel();
+          return msg.compareTo(msg2);
+        }
+        return -1;
+      }
+
+    };
+
+    
+    // TODO: make more generic and reuse the above
+    
+    SUBJECT_COMPARATOR_DESC = new Comparator()
+    {
+      public int compare(Object message, Object otherMessage)
+      {
+        if (message != null && otherMessage != null
+            && message instanceof Message && otherMessage instanceof Message)
+        {
+          String msg2 = ((Message) message).getTitle();
+          String msg = ((Message) otherMessage).getTitle();
+          return msg.compareTo(msg2);
+        }
+        return -1;
+
+      }
+    };
+
+    DATE_COMPARATOR_DESC = new Comparator()
+    {
+      public int compare(Object message, Object otherMessage)
+      {
+        if (message != null && otherMessage != null
+            && message instanceof Message && otherMessage instanceof Message)
+        {
+          Date msg2 = ((Message) message).getCreated();
+          Date msg = ((Message) otherMessage).getCreated();
+          return msg.compareTo(msg2);
+        }
+        return -1;
+      }
+    };
+
+    AUTHORED_BY_COMPARATOR_DESC = new Comparator()
+    {
+      public int compare(Object message, Object otherMessage)
+      {
+        if (message != null && otherMessage != null
+            && message instanceof Message && otherMessage instanceof Message)
+        {
+          String msg2 = ((Message) message).getAuthor();
+          String msg = ((Message) otherMessage).getAuthor();
+          return msg.compareTo(msg2);
+        }
+        return -1;
+      }
+    };
+
+    LABEL_COMPARATOR_DESC = new Comparator()
+    {
+
+      public int compare(Object message, Object otherMessage)
+      {
+        if (message != null && otherMessage != null
+            && message instanceof Message && otherMessage instanceof Message)
+        {
+          String msg2 = ((Message) message).getLabel();
+          String msg = ((Message) otherMessage).getLabel();
           return msg.compareTo(msg2);
         }
         return -1;
