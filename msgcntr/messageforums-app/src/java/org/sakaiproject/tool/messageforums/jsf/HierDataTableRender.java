@@ -44,8 +44,8 @@ public class HierDataTableRender extends HtmlBasicRenderer
   private static final String CURSOR;
 
   static {
-    RESOURCE_PATH = "/" + "sakai-jsf-resource";
-    BARIMG = RESOURCE_PATH + "/" +"hideDivision/images/right_arrow.gif";
+  	RESOURCE_PATH = "/" + "sakai-messageforums-tool";
+  	BARIMG = RESOURCE_PATH + "/" +"images/expand.gif";
     CURSOR = "cursor:pointer";
   }
 

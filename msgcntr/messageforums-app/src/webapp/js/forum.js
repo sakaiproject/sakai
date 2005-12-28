@@ -11,7 +11,7 @@ function showHideDiv(hideDivisionNo, context)
       divisionNo.style.display="none";
       if (imgNo)
       {
-        imgNo.src = context + "/hideDivision/images/right_arrow.gif";
+        imgNo.src = context + "/images/expand.gif";
       }
     }
     else
@@ -26,7 +26,7 @@ function showHideDiv(hideDivisionNo, context)
       }
       if(imgNo)
       {
-        imgNo.src = context + "/hideDivision/images/down_arrow.gif";
+        imgNo.src = context + "/images/collapse.gif";
       }
     }
   }
