@@ -16,7 +16,8 @@
 				<h:messages styleClass="alertMessage" id="errorMessages" /> 
        
       	<br>
-        <table width="100%" align="left" class="tablebgcolor" >
+      	<h4>
+        <table width="100%" align="left">
           <tr>
             <td align="left">
               <h:outputText style="font-weight:bold"  value="#{msgs.pvt_subject}"/>
@@ -86,24 +87,13 @@
           </tr> 
           --%>                                   
         </table>    
-        
-        <br/><br/>
-        <sakai:group_box>
-          <sakai:panel_edit>
-            <sakai:doc_section>  
-            </sakai:doc_section>    
-          </sakai:panel_edit>
-        </sakai:group_box>
-  
+        </h4>
          
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" />
-          <%--
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" />
-          --%>
+          <%--<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" />--%>
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}" />
-        </sakai:button_bar>
-        
+        </sakai:button_bar>        
         <sakai:button_bar rendered="#{PrivateMessagesTool.deleteConfirm}" >  
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirmYes}" value="#{msgs.pvt_delete}" />
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" />
@@ -112,7 +102,7 @@
         <sakai:group_box>
           <sakai:panel_edit>
             <sakai:doc_section>            
-              <h:inputTextarea value="#{PrivateMessagesTool.detailMsg.msg.body}" cols="100" rows="5" />
+              <h:inputTextarea cols="100" rows="5" disabled="true" value="#{PrivateMessagesTool.detailMsg.msg.body}" />              
             </sakai:doc_section>    
           </sakai:panel_edit>
         </sakai:group_box>

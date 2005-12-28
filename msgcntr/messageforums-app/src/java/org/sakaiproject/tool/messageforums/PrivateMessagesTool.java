@@ -224,11 +224,16 @@ public class PrivateMessagesTool
       activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? "yes" : "no";
       forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? "yes" : "no";
       forwardPvtMsgEmail = pf.getAutoForwardEmail();      
-    }                
+    } 
+    //add a error message for instructor and private area is not enabled
+    if(isInstructor() && !getPvtAreaEnabled())
+    {
+      setErrorMessage("The Private Message Area is not turned on for this course. To turn on the Private Message area for this course, click Settings from the Private Message Area bar.") ;
+    }
   }
   
   public boolean getPvtAreaEnabled()
-  {      
+  {  
     return area.getEnabled().booleanValue();
   }    
   
@@ -266,7 +271,7 @@ public class PrivateMessagesTool
             decoratedForum.addTopic(decoTopic);
           }          
         }
-      }   
+      }
     return decoratedForum ;
   }
 
@@ -838,6 +843,7 @@ public class PrivateMessagesTool
   {
     this.setComposeBody("");
     this.setComposeSubject("");
+    this.setComposeSendAsPvtMsg(SET_AS_YES); //set as default
     this.getSelectedComposeToList().clear();
     this.setReplyToSubject("");
     this.setReplyToBody("");

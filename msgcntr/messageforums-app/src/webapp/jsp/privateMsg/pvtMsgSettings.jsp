@@ -27,7 +27,7 @@
           <table width="80%" align="left">
             <tr>
               <td align="left" width="20%">
-          			<h:outputText rendered="#{PrivateMessagesTool.instructor}" value="#{msgs.pvt_pvtmsg1}"/>		
+          			<h:outputText rendered="#{PrivateMessagesTool.instructor}" value="#{msgs.pvt_actpvtmsg1}"/>		
               </td>
               <td>
                 <h:selectOneRadio id="activate"
