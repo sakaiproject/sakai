@@ -886,7 +886,7 @@ public class PrivateMessagesTool
     
     if(!hasValue(getComposeSubject()))
     {
-      setErrorMessage("Please enter subject for this compose message.");
+      setErrorMessage("You must enter a subject before you may send this message.");
       return null ;
     }
 //    if(!hasValue(getComposeBody()) )
@@ -930,7 +930,7 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgSaveDraft()");
     if(!hasValue(getComposeSubject()))
     {
-      setErrorMessage("Please enter subject for this compose message.");
+      setErrorMessage("You must enter a subject before you may send this message.");
       return null ;
     }
 //    if(!hasValue(getComposeBody()) )
@@ -1068,12 +1068,12 @@ public class PrivateMessagesTool
     
     if(!hasValue(getReplyToSubject()))
     {
-      setErrorMessage("Please enter subject for this reply message.");
+      setErrorMessage("You must enter a subject before you may send this message.");
       return null ;
     }
     if(!hasValue(getReplyToBody()) )
     {
-      setErrorMessage("Please enter message body for this reply message.");
+      setErrorMessage("You must enter a message content before you may send this message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
@@ -1124,12 +1124,12 @@ public class PrivateMessagesTool
     
     if(!hasValue(getReplyToSubject()))
     {
-      setErrorMessage("Please enter subject for this reply message.");
+      setErrorMessage("You must enter a subject before you may send this message.");
       return null ;
     }
     if(!hasValue(getReplyToBody()) )
     {
-      setErrorMessage("Please enter message body for this reply message.");
+      setErrorMessage("You must enter a message content before you may send this message.");
       return null ;
     }
     if(getSelectedComposeToList().size()<1)
@@ -1222,21 +1222,29 @@ public class PrivateMessagesTool
   
 
   //select all
-  private boolean isSelectAllJobsSelected = false;  
-  public boolean isSelectAllJobsSelected()
+  private boolean selectAllJobs = false;  
+
+  /**
+   * @return Returns the selectAllJobs.
+   */
+  public boolean isSelectAllJobs()
   {
-    return isSelectAllJobsSelected;
+    return selectAllJobs;
   }
-  public void setSelectAllJobsSelected(boolean isSelectAllJobsSelected)
+
+
+  /**
+   * @param selectAllJobs The selectAllJobs to set.
+   */
+  public void setSelectAllJobs(boolean selectAllJobs)
   {
-    this.isSelectAllJobsSelected = isSelectAllJobsSelected;
+    this.selectAllJobs = selectAllJobs;
   }
-  
+
+
   public String processSelectAllJobs()
   {
     List newLs=new ArrayList() ;
-//    isSelectAllJobsSelected = !isSelectAllJobsSelected;
-//    processRefreshJobs();
     for (Iterator iter = this.getDecoratedPvtMsgs().iterator(); iter.hasNext();)
     {
       PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
@@ -1244,7 +1252,9 @@ public class PrivateMessagesTool
       newLs.add(element) ;
       //TODO
     }
-    this.setDecoratedPvtMsgs(newLs) ;
+    setSelectAllJobs(true);
+    this.setSelectedDeleteItems(newLs);
+    this.setDecoratedPvtMsgs(newLs);
     return "pvtMsg";
   }
   
