@@ -39,6 +39,7 @@ import net.sf.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
@@ -53,10 +54,8 @@ import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
@@ -692,13 +691,27 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             e.printStackTrace();
             LOG.error("could not evict forum: " + forum.getId(), e);
         }
-        Area area = forum.getArea();
+        Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
         area.removeDiscussionForum(forum);
         getHibernateTemplate().saveOrUpdate(area);
         //getHibernateTemplate().delete(forum);
         LOG.debug("deleteDiscussionForum executed with forumId: " + id);
     }
 
+    public Area getAreaByContextIdAndTypeId(final String typeId) {
+        LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("typeId", typeId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return (Area) getHibernateTemplate().execute(hcb);
+    }
+    
     /**
      * Delete a discussion forum topic
      */
