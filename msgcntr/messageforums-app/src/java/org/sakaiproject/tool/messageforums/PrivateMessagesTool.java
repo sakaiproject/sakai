@@ -775,7 +775,13 @@ public class PrivateMessagesTool
     //set default userName
     List defName = new ArrayList();
     defName.add(getUserName());
-    this.setSelectedComposeToList(defName);
+    List d = new ArrayList();
+    for (Iterator iter = defName.iterator(); iter.hasNext();)
+    {
+      String element = (String) iter.next();
+      d.add(new SelectItem(element));      
+    }
+    this.setSelectedComposeToList(d);
     //set Dafult Subject
     if(getDetailMsg() != null)
     {
@@ -1065,6 +1071,9 @@ public class PrivateMessagesTool
   //////////////////////REPLY SEND  /////////////////
   public String processPvtMsgReplySend() {
     LOG.debug("processPvtMsgReplySend()");
+    List defName = new ArrayList();
+    defName.add(getUserName());
+    this.setSelectedComposeToList(defName);
     
     if(!hasValue(getReplyToSubject()))
     {
