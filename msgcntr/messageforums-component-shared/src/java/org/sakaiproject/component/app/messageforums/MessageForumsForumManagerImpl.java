@@ -798,6 +798,27 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return ((Boolean) getHibernateTemplate().execute(hcb)).booleanValue();                
     }
     
+    
+    public List searchTopicMessages(final Long topicId, final String searchText) {
+        if (topicId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("getDiscussionForumById executing with topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findMessagesBySearchText");
+                q.setParameter("id", topicId, Hibernate.LONG);
+                q.setParameter("searchByText", "%" + searchText + "%", Hibernate.STRING);
+                return q.list();
+            }
+        };
+
+        return (List) getHibernateTemplate().execute(hcb);
+    }
+
+    
     // helpers
     
     /**

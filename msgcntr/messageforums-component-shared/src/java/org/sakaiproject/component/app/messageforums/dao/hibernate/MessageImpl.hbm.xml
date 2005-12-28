@@ -194,7 +194,16 @@
     ]]>    
   </query>
   
-  
+  <query name="findMessagesBySearchText">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
+             where message.topic.id = :id and (
+                     message.author like :searchByText or 
+                     message.title like :searchByText or
+                     message.body like :searchByText
+                   )
+    ]]>    
+  </query>
+    
 
 </hibernate-mapping>
 

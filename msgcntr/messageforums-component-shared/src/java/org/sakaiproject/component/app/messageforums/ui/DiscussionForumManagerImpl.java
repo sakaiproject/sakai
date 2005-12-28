@@ -55,6 +55,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     ;
   }
 
+  public List searchTopicMessages(Long topicId, String searchText) {
+      return forumManager.searchTopicMessages(topicId, searchText);
+  }
+  
   public Topic getTopicByIdWithAttachments(Long topicId)
   {
     if (LOG.isDebugEnabled())

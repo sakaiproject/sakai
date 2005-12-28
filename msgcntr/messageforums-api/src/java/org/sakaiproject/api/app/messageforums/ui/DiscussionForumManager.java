@@ -16,6 +16,8 @@ import org.sakaiproject.api.app.messageforums.Topic;
 public interface DiscussionForumManager
 {
   
+  public List searchTopicMessages(Long topicId, String searchText);
+    
   public Topic getTopicByIdWithAttachments(Long topicId);
  
   public DiscussionForum getForumByIdWithTopics(Long forumId);

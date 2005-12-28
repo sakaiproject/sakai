@@ -28,6 +28,8 @@ import java.util.List;
 
 public interface MessageForumsForumManager {
  
+    public List searchTopicMessages(Long topicId, String searchText);
+    
     public List getTopicsByIdWithMessages(final Long forumId);
   
     public List getTopicsByIdWithMessagesAndAttachments(final Long forumId);

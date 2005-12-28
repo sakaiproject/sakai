@@ -2403,7 +2403,22 @@ public class DiscussionForumTool
   public String processActionSearch()
   {
     LOG.debug("processActionSearch()");
-    setErrorMessage("Under Construction");
+    /*
+    if(searchText==null || searchText.trim().length()<1)
+    {
+      setErrorMessage("Invalid search criteria"); 
+      return ALL_MESSAGES;
+    }
+
+    if(selectedTopic == null)
+    {
+      setErrorMessage("There is no topic selected for search");    
+      return ALL_MESSAGES;
+    }
+
+    List searchedMessages = forumManager.searchTopicMessages(selectedTopic.getTopic().getId(), searchText);
+    selectedTopic.setMessages(searchedMessages);
+    */
     return ALL_MESSAGES;
   }
 
