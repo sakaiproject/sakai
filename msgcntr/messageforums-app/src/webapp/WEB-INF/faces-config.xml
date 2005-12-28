@@ -25,6 +25,10 @@
       <component-type>HideDivision</component-type>
       <component-class>org.sakaiproject.tool.messageforums.jsf.HideDivisionComponent</component-class>
     </component>
+	<component>
+      <component-type>ShowArea</component-type>
+      <component-class>org.sakaiproject.tool.messageforums.jsf.ShowAreaComponent</component-class>
+	</component>
     
 	<render-kit>
     <renderer>
@@ -41,6 +45,11 @@
       <component-family>javax.faces.Data</component-family> 
       <renderer-type>HierDataTableRender</renderer-type>
       <renderer-class>org.sakaiproject.tool.messageforums.jsf.HierDataTableRender</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>ShowArea</component-family>
+      <renderer-type>ShowAreaRender</renderer-type>
+      <renderer-class>org.sakaiproject.tool.messageforums.jsf.ShowAreaRender</renderer-class>
     </renderer>
     </render-kit>
     <!-- =================== Navigation ============== -->

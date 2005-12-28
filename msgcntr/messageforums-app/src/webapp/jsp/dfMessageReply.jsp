@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
@@ -212,7 +213,8 @@
                 <h:outputText value="Message" />
               </td>
               <td align="left">
-              	<h:inputTextarea rows="5" cols="60"  value="#{ForumTool.selectedMessage.message.body}" disabled="true"/>	
+<%--              	<h:inputTextarea rows="5" cols="60"  value="#{ForumTool.selectedMessage.message.body}" disabled="true"/>	--%>
+     						<mf:htmlShowArea value="#{ForumTool.selectedMessage.message.body}"/>
               </td>
             </tr>                                   
           </table>

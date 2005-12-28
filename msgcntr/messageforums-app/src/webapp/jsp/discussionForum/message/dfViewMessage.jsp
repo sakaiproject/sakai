@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 <f:view>
@@ -163,13 +164,14 @@
       <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteCancel}" value="Cancel" />
     </sakai:button_bar>
     
-    <sakai:group_box>
+<%--    <sakai:group_box>
       <sakai:panel_edit>
         <sakai:doc_section>            
-         <h:inputTextarea value="#{ForumTool.selectedMessage.message.body}" cols="100" rows="5" />
-        </sakai:doc_section>    
+         <h:inputTextarea value="#{ForumTool.selectedMessage.message.body}" cols="100" rows="5" />--%>
+					<mf:htmlShowArea value="#{ForumTool.selectedMessage.message.body}"/>
+<%--        </sakai:doc_section>    
       </sakai:panel_edit>
-    </sakai:group_box>
+    </sakai:group_box>--%>
 		
  	</h:form>
 </sakai:view>
