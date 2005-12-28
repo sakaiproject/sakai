@@ -28,7 +28,8 @@
 		       <h:outputText value="#{msgs.pvt_subject}"/>
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
-            <h:outputText value=" #{rcvdItems.msg.title}"/>
+            <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
+            <h:outputText style="font-weight:bold" value=" #{rcvdItems.msg.title}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>              
 		  </h:column>
@@ -36,13 +37,15 @@
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
-		     <h:outputText value="#{rcvdItems.msg.createdBy}"/>
+		     <h:outputText value="#{rcvdItems.msg.createdBy}" rendered="#{rcvdItems.hasRead}"/>
+		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.createdBy}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_date}"/>
 		    </f:facet>
-		     <h:outputText value="#{rcvdItems.msg.created}"/>
+		    <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}"/>
+		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <%--<h:column>
 		    <f:facet name="header">
