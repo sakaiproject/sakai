@@ -186,7 +186,10 @@ public class DiscussionForumTool
           return forums;
         }
         // TODO: put this logic in database layer
-        if (forum.getDraft() == Boolean.FALSE ||SecurityService.isSuperUser()||forum.getCreatedBy().equals(
+        if ((forum.getDraft().equals(Boolean.FALSE)&& forum.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()) 
+            )||SecurityService.isSuperUser()
+            ||isInstructor()
+            ||forum.getCreatedBy().equals(
             SessionManager.getCurrentSessionUserId()))
         { 
           DiscussionForumBean decoForum = getDecoratedForum(forum);
@@ -1076,7 +1079,9 @@ public class DiscussionForumTool
     {
       DiscussionTopic topic = (DiscussionTopic) iter.next();
 //    TODO: put this logic in database layer
-      if (topic.getDraft() == Boolean.FALSE ||SecurityService.isSuperUser()||topic.getCreatedBy().equals(
+      if ((topic.getDraft().equals(Boolean.FALSE)&&topic.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
+          ||isInstructor()
+          ||SecurityService.isSuperUser()||topic.getCreatedBy().equals(
           SessionManager.getCurrentSessionUserId()))
       { 
         topic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(topic
