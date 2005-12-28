@@ -12,6 +12,7 @@
 		<sakai:tool_bar_message value="#{msgs.pvt_delcon}" />
 		<h:messages styleClass="alertMessage" id="errorMessages" /> 
 
+    <sakai:group_box>
 	  <h:dataTable styleClass="listHier" id="pvtmsgdel" width="100%"  value="#{PrivateMessagesTool.selectedDeleteItems}" var="delItems">   
 		  <h:column>
 		    <f:facet name="header">
@@ -38,13 +39,13 @@
 		     <h:outputText value="#{delItems.msg.created}"/>
 		  </h:column>
 		</h:dataTable>
+		</sakai:group_box>
 
-        <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMultiDelete}" value="#{msgs.pvt_delmsgs}" />
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" />
-        </sakai:button_bar>
-        		
-           
+    <sakai:button_bar>
+      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMultiDelete}" value="#{msgs.pvt_delmsgs}" />
+      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" />
+    </sakai:button_bar>
+    
 		 </h:form>
 	</sakai:view_content>
 	</sakai:view_container>
