@@ -77,6 +77,7 @@ public interface MessageForumsForumManager {
      * Save a discussion forum
      */
     public void saveDiscussionForum(DiscussionForum forum);
+    public void saveDiscussionForum(DiscussionForum forum, boolean draft);
 
     /**
      * Create and save an empty discussion forum topic

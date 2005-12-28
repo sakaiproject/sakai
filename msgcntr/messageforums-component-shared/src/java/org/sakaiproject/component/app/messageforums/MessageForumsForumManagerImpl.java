@@ -531,6 +531,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a discussion forum
      */
     public void saveDiscussionForum(DiscussionForum forum) {
+        saveDiscussionForum(forum, false);
+    }
+
+    public void saveDiscussionForum(DiscussionForum forum, boolean draft) {
         boolean isNew = forum.getId() == null;
 
         if (forum.getSortIndex() == null) {
@@ -539,6 +543,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         if (forum.getLocked() == null) {
             forum.setLocked(Boolean.FALSE);
         }
+        forum.setDraft(new Boolean(draft));
         forum.setModified(new Date());
         forum.setModifiedBy(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(forum);
@@ -549,9 +554,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum), false));
         }
 
-        LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId());
+        LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId() + ":: draft: " + draft);
     }
-
+    
     public DiscussionTopic createDiscussionForumTopic(DiscussionForum forum) {
         DiscussionTopic topic = new DiscussionTopicImpl();
         topic.setUuid(getNextUuid());
