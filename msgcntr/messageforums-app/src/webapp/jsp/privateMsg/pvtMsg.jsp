@@ -21,7 +21,7 @@
 		  <h:column>
 		    <f:facet name="header">
 
-		     <h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>
+		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
 		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
 		  </h:column>

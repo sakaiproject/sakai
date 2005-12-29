@@ -1073,7 +1073,10 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgReplySend()");
     List defName = new ArrayList();
     defName.add(getUserName());
-    this.setSelectedComposeToList(defName);
+    if (this.getSelectedComposeToList().size()<1) // if nothing is selected from the recipiant list
+    {
+      this.setSelectedComposeToList(defName);
+    }
     
     if(!hasValue(getReplyToSubject()))
     {
