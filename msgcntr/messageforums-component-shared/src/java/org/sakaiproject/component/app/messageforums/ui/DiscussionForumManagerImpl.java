@@ -24,6 +24,7 @@ import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
@@ -399,12 +400,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
-        Topic t = (Topic) iter.next();
-        if (next)
+        DiscussionTopic t = (DiscussionTopic) iter.next();
+        if (next && getTopicAccess(t))
         {
           return true;
         }
-        if (t != null)
+        if (t != null && getTopicAccess(t) )
         {
           if (t.getId().equals(topic.getId()))
           {
@@ -441,8 +442,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
-        Topic t = (Topic) iter.next();
-        if (t != null)
+        DiscussionTopic t = (DiscussionTopic) iter.next();
+        if (t != null && getTopicAccess(t))
         {
           if (t.getId().equals(topic.getId()))
           {
@@ -458,6 +459,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     // if we get here, there is no previous topic
     return false;
   }
+
+
+
+ 
 
   /*
    * (non-Javadoc)
@@ -489,19 +494,19 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
-        Topic t = (Topic) iter.next();
-        if (next)
+        DiscussionTopic t = (DiscussionTopic) iter.next();
+        if (next && getTopicAccess(t))
         {
           if (t == null)
           {
             do
             {
-              t = (Topic) iter.next();
+              t = (DiscussionTopic) iter.next();
             } while (t == null);
           }
           return (DiscussionTopic) t;
         }
-        if (t != null)
+        if (t != null && getTopicAccess(t))
         {
           if (t.getId().equals(topic.getId()))
           {
@@ -544,14 +549,14 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
-        Topic t = (Topic) iter.next();
-        if (t != null)
+        DiscussionTopic t = (DiscussionTopic) iter.next();
+        if (t != null && getTopicAccess(t))
         {
           if (t.getId().equals(topic.getId()))
           {
             return prev;
           }
-          if (t != null)
+          if (t != null && getTopicAccess(t) )
           {
             prev = (DiscussionTopic) t;
           }
@@ -1195,6 +1200,20 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       LOG.error(e.getMessage(), e);
     }
 
+  }
+  
+  
+  private boolean getTopicAccess(DiscussionTopic t)
+  {
+    if(t.getDraft().equals(Boolean.FALSE)||
+    (t.getDraft().equals(Boolean.TRUE)&&t.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
+    ||isInstructor()
+    ||SecurityService.isSuperUser()||t.getCreatedBy().equals(
+    SessionManager.getCurrentSessionUserId()))
+    {
+      return true;
+    }
+    return false;
   }
 
 }

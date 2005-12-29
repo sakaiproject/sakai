@@ -1196,12 +1196,18 @@ public class DiscussionForumTool
     decoTopic.setHasPreviousTopic(forumManager.hasPreviousTopic(topic));
     if (forumManager.hasNextTopic(topic))
     {
-      decoTopic.setNextTopicId(forumManager.getNextTopic(topic).getId());
+      DiscussionTopic nextTopic= forumManager.getNextTopic(topic);
+        
+              decoTopic.setNextTopicId(nextTopic.getId());
+             
     }
     if (forumManager.hasPreviousTopic(topic))
     {
-      decoTopic
+      DiscussionTopic previousTopic= forumManager.getPreviousTopic(topic);
+      
+        decoTopic
           .setPreviousTopicId(forumManager.getPreviousTopic(topic).getId());
+       
     }
 
     List temp_messages = forumManager.getTopicByIdWithMessages(topic.getId())
@@ -1263,7 +1269,7 @@ public class DiscussionForumTool
         catch (NumberFormatException e)
         {
           LOG.error(e.getMessage(), e);
-          setErrorMessage("Unable to retrive topic");
+          setErrorMessage("Unable to retrieve topic");
           return MAIN;
         }
 
@@ -1272,8 +1278,8 @@ public class DiscussionForumTool
       }
       else
       {
-        LOG.error("Topic with id '" + externalTopicId + "'not found");
-        setErrorMessage("Topic with id '" + externalTopicId + "'not found");
+        LOG.error("Topic with id '" + externalTopicId + "' not found");
+        setErrorMessage("Topic with id '" + externalTopicId + "' not found");
         return MAIN;
       }
     }
