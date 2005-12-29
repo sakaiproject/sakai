@@ -784,11 +784,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       if (!asEmail && forwardingEnabled){
           emailService.send(UserDirectoryService.getCurrentUser().getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
             tempBody, pf.getAutoForwardEmail(), null, additionalHeaders);
+          
+          PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
+              userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
+              Boolean.FALSE);
+          recipientList.add(receiver);                    
       }
       else if (asEmail){
         emailService.send(UserDirectoryService.getCurrentUser().getEmail(), u.getEmail(), message.getTitle(), 
                           tempBody, u.getEmail(), null, additionalHeaders);
       }
+      
       else{        
         PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
             userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
