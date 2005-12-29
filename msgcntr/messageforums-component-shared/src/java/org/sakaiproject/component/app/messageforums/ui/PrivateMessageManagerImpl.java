@@ -38,6 +38,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.framework.email.EmailService;
+import org.sakaiproject.service.framework.portal.cover.PortalService;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
@@ -798,12 +799,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       String footer = "<pre>----------------------\n" +
                       "This forwarded message was sent via " + ServerConfigurationService.getString("ui.service") +  
                       " Message Center from the \"" +
-                      siteTitle + "\" site. " +
+                      siteTitle + "\" site.\n" +
                       "To reply to this message click this link to access Message Center for this site:" +
                       " <a href=\"" +
                       ServerConfigurationService.getPortalUrl() + 
                       "/site/" + ToolManager.getCurrentPlacement().getContext() +
-                      "/page/" + ToolManager.getCurrentPlacement().getId() +
+                      "/page/" + PortalService.getCurrentSitePageId() +
                       "\">";
                                             
       footer += siteTitle + "</a>.</pre>";                      
