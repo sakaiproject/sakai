@@ -656,7 +656,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
             typeManager.getDiscussionForumType());
 
     if (messagePermission == null || messagePermission.getDeleteAny() == null
-        || messagePermission.getDeleteAny() == Boolean.FALSE)
+        || messagePermission.getDeleteAny().equals(Boolean.FALSE))
     {
       if (LOG.isDebugEnabled())
       {
@@ -665,20 +665,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       }
       return false;
     }
-    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is locked " + topic);
       return false;
     }
-    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-    if (messagePermission.getDeleteAny() == Boolean.TRUE
+    if (messagePermission.getDeleteAny().equals(Boolean.TRUE)
         && forum.getDraft().equals(Boolean.FALSE)
         && forum.getLocked().equals(Boolean.FALSE)
-        && topic.getDraft() == Boolean.FALSE
-        && topic.getLocked() == Boolean.FALSE)
+        && topic.getDraft().equals(Boolean.FALSE)
+        && topic.getLocked().equals(Boolean.FALSE))
     {
       return true;
     }
@@ -706,7 +706,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
             typeManager.getDiscussionForumType());
 
     if (messagePermission == null || messagePermission.getDeleteOwn() == null
-        || messagePermission.getDeleteOwn() == Boolean.FALSE)
+        || messagePermission.getDeleteOwn().equals(Boolean.FALSE))
     {
       if (LOG.isDebugEnabled())
       {
@@ -717,20 +717,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       }
       return false;
     }
-    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is locked " + topic);
       return false;
     }
-    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-    if (messagePermission.getDeleteOwn() == Boolean.TRUE
+    if (messagePermission.getDeleteOwn().equals(Boolean.TRUE)
         && forum.getDraft().equals(Boolean.FALSE)
         && forum.getLocked().equals(Boolean.FALSE)
-        && topic.getDraft() == Boolean.FALSE
-        && topic.getLocked() == Boolean.FALSE)
+        && topic.getDraft().equals(Boolean.FALSE)
+        && topic.getLocked().equals(Boolean.FALSE))
     {
       return true;
     }
@@ -758,7 +758,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
             typeManager.getDiscussionForumType());
 
     if (messagePermission == null || messagePermission.getMarkAsRead() == null
-        || messagePermission.getMarkAsRead() == Boolean.FALSE)
+        || messagePermission.getMarkAsRead().equals(Boolean.FALSE))
     {
       if (LOG.isDebugEnabled())
       {
@@ -768,20 +768,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       }
       return false;
     }
-    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is locked " + topic);
       return false;
     }
-    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-    if (messagePermission.getMarkAsRead() == Boolean.TRUE
+    if (messagePermission.getMarkAsRead().equals(Boolean.TRUE)
         && forum.getDraft().equals(Boolean.FALSE)
         && forum.getLocked().equals(Boolean.FALSE)
-        && topic.getDraft() == Boolean.FALSE
-        && topic.getLocked() == Boolean.FALSE)
+        && topic.getDraft().equals(Boolean.FALSE)
+        && topic.getLocked().equals(Boolean.FALSE))
     {
       return true;
     }
@@ -880,22 +880,22 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       return true;
     }
-    if (forum.getLocked() == null || forum.getLocked() == Boolean.TRUE)
+    if (forum.getLocked() == null || forum.getLocked().equals(Boolean.FALSE))
     {
       LOG.debug("This Forum is Locked");
       return false;
     }
-    if (forum.getDraft() == null || forum.getDraft() == Boolean.TRUE)
+    if (forum.getDraft() == null || forum.getDraft().equals(Boolean.FALSE))
     {
       LOG.debug("This forum is a draft");
       return false;
     }
-    if (topic.getLocked() == null || topic.getLocked() == Boolean.TRUE)
+    if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is locked " + topic);
       return false;
     }
-    if (topic.getDraft() == null || topic.getDraft() == Boolean.TRUE)
+    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is at draft stage " + topic);
       return false;
