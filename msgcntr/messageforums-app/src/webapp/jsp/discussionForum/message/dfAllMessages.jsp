@@ -56,7 +56,8 @@
 				<f:facet name="header">
 					<h:graphicImage value="/images/attachment.gif"/>
 				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" rendered="#{message.hasAttachment}"/>
+				<h:graphicImage value="/images/attachment.gif" rendered="#{message.hasAttachment && message.read && !ForumTool.displayUnreadOnly}"/>
+				<h:graphicImage value="/images/attachment.gif" rendered="#{message.hasAttachment && !message.read}"/>
 			</h:column>
 			<h:column rendered="#{!ForumTool.threaded}">
 				<f:facet name="header">
