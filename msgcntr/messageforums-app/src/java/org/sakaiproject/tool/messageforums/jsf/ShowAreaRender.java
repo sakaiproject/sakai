@@ -32,7 +32,8 @@ public class ShowAreaRender extends Renderer
 //      writer.write("<div>");
       value = value.replaceAll("<strong>", "<b>");
       value = value.replaceAll("</strong>", "</b>");
-      writer.write("<table STYLE=\"table-layout:fixed\" width=600><tr width=\"100%\"><td width=\"100%\" STYLE=\"word-wrap: break-word\">");
+      writer.write("<table border=\"1\" id=\"message_table\" cellpadding=\"7\" style=\"border-collapse: collapse;" +
+            " \"table-layout:fixed\" width=\"99%\"><tr width=\"95%\"><td width=\"100%\" STYLE=\"word-wrap: break-word\">");
 /*      int blocks = value.length() % 200 ;
       for (int i=0; i<blocks; i++)
       {
