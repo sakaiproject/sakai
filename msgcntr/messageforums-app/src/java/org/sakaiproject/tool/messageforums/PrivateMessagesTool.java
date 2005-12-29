@@ -610,11 +610,11 @@ public class PrivateMessagesTool
     return totalComposeToList;
   }
   
-  public String getUserNameById(String id){    
+  public String getUserSortNameById(String id){    
     try
     {
       User user=UserDirectoryService.getUser(id) ;
-      userName= user.getDisplayName();
+      userName= user.getSortName();
     }
     catch (IdUnusedException e)
     {
@@ -1089,7 +1089,7 @@ public class PrivateMessagesTool
         
     if (this.getSelectedComposeToList().size()<1) // if nothing is selected from the recipiant list
     {
-      selectedComposeToList.add(getUserNameById(currentMessage.getCreatedBy()));
+      selectedComposeToList.add(getUserSortNameById(currentMessage.getCreatedBy()));
     }
     
     if(!hasValue(getReplyToSubject()))
