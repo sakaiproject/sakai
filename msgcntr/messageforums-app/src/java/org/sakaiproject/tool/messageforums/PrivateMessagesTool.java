@@ -1903,8 +1903,13 @@ public class PrivateMessagesTool
               ferpa_flag = true;
             }            
           }                                          
-         if (!ferpa_flag || SecurityService.unlock(recipient.getUser(),
-            SiteService.SECURE_UPDATE_SITE, prtMsgManager.getContextSiteId())){
+         if (!ferpa_flag || SecurityService.unlock(recipient.getUser(), 
+                                                   SiteService.SECURE_UPDATE_SITE,
+                                                   prtMsgManager.getContextSiteId())
+                         || SecurityService.unlock(UserDirectoryService.getCurrentUser(),
+                                                   SiteService.SECURE_UPDATE_SITE,
+                                                   prtMsgManager.getContextSiteId())
+          ){
             recipients.add(recipient);
           }
         }
