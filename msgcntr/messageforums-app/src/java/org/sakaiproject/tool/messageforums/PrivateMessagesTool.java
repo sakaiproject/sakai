@@ -1071,11 +1071,12 @@ public class PrivateMessagesTool
   //////////////////////REPLY SEND  /////////////////
   public String processPvtMsgReplySend() {
     LOG.debug("processPvtMsgReplySend()");
-    List defName = new ArrayList();
-    defName.add(getUserName());
+    
+    PrivateMessage currentMessage = getDetailMsg().getMsg() ;
+        
     if (this.getSelectedComposeToList().size()<1) // if nothing is selected from the recipiant list
     {
-      this.setSelectedComposeToList(defName);
+      selectedComposeToList.add(currentMessage.getCreatedBy());
     }
     
     if(!hasValue(getReplyToSubject()))
@@ -1093,8 +1094,7 @@ public class PrivateMessagesTool
       setErrorMessage("Please select recipients list for this reply message.");
       return null ;
     }
-    
-    PrivateMessage rMsg=getDetailMsg().getMsg() ;
+        
     PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
        
     rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
@@ -1103,8 +1103,7 @@ public class PrivateMessagesTool
     rrepMsg.setApproved(Boolean.FALSE);
     rrepMsg.setBody(getReplyToBody()) ;
     
-    rrepMsg.setInReplyTo(rMsg) ;
-    this.getRecipients().add(rMsg.getCreatedBy());
+    rrepMsg.setInReplyTo(currentMessage) ;
     
     //Add attachments
     for(int i=0; i<allAttachments.size(); i++)
