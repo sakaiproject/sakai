@@ -127,15 +127,16 @@
 
 							</sakai:doc_section>
 							
-						
+
 							<sakai:doc_section>
-								<h:commandLink action="#{PrivateMessagesTool.processDeleteAttach}" 
+								<h:commandLink action="#{PrivateMessagesTool.processDeleteReplyAttach}" 
+									immediate="true"
 									onfocus="document.forms[0].onsubmit();">
 									<h:outputText value="     Remove"/>
-									<f:param value="#{eachAttach.pvtMsgAttachId}" name="syllabus_current_attach"/>
+									<f:param value="#{eachAttach.attachmentId}" name="remsg_current_attach"/>
 								</h:commandLink>
 							</sakai:doc_section>
-
+							
 						</h:column>
 					  <h:column >
 							<f:facet name="header">

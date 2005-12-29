@@ -1415,9 +1415,9 @@ public class PrivateMessagesTool
       if( key instanceof String)
       {
         String name =  (String)key;
-        int pos = name.lastIndexOf("pvtmsg_current_attach");
+        int pos = name.lastIndexOf("pvmsg_current_attach");
         
-        if(pos>=0 && name.length()==pos+"pvtmsg_current_attach".length())
+        if(pos>=0 && name.length()==pos+"pvmsg_current_attach".length())
         {
           attachId = (String)paramMap.get(key);
           break;
@@ -1425,23 +1425,61 @@ public class PrivateMessagesTool
       }
     }
     
-    removeAttachId = attachId;
-    
-    //separate screen
-//    if((removeAttachId != null) && (!removeAttachId.equals("")))
-//      return "removeAttachConfirm";
-//    else
-//      return null;
-    List newLs= new ArrayList();
-    for (Iterator iter = getAttachments().iterator(); iter.hasNext();)
+    if ((attachId != null) && (!attachId.equals("")))
     {
-      Attachment element = (Attachment) iter.next();
-      if(!((element.getPvtMsgAttachId().toString()).equals(attachId)))
+      for (int i = 0; i < attachments.size(); i++)
       {
-        newLs.add(element);
+        if (attachId.equalsIgnoreCase(((Attachment) attachments.get(i))
+            .getAttachmentId()))
+        {
+          attachments.remove(i);
+          break;
+        }
       }
     }
-    this.setAttachments((ArrayList) newLs) ;
+    
+    return null ;
+  }
+ 
+  
+  //Process remove attachments from reply message  
+  public String processDeleteReplyAttach()
+  {
+    LOG.debug("processDeleteReplyAttach()");
+    
+    ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+    String attachId = null;
+    
+    Map paramMap = context.getRequestParameterMap();
+    Iterator itr = paramMap.keySet().iterator();
+    while(itr.hasNext())
+    {
+      Object key = itr.next();
+      if( key instanceof String)
+      {
+        String name =  (String)key;
+        int pos = name.lastIndexOf("remsg_current_attach");
+        
+        if(pos>=0 && name.length()==pos+"remsg_current_attach".length())
+        {
+          attachId = (String)paramMap.get(key);
+          break;
+        }
+      }
+    }
+    
+    if ((attachId != null) && (!attachId.equals("")))
+    {
+      for (int i = 0; i < allAttachments.size(); i++)
+      {
+        if (attachId.equalsIgnoreCase(((Attachment) allAttachments.get(i))
+            .getAttachmentId()))
+        {
+          allAttachments.remove(i);
+          break;
+        }
+      }
+    }
     
     return null ;
   }

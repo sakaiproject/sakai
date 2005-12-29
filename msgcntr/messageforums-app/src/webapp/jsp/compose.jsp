@@ -100,11 +100,14 @@
 							
 							<sakai:doc_section>
 								<h:commandLink action="#{PrivateMessagesTool.processDeleteAttach}" 
+									immediate="true"
 									onfocus="document.forms[0].onsubmit();">
-									<h:outputText value="#{msgs.pvt_attrem}"/>
-									<f:param value="#{eachAttach.pvtMsgAttachId}" name="pvtmsg_current_attach"/>
+									<h:outputText value="     Remove"/>
+<%--									<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>--%>
+									<f:param value="#{eachAttach.attachmentId}" name="pvmsg_current_attach"/>
 								</h:commandLink>
 							</sakai:doc_section>
+							
 						
 						</h:column>
 					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
