@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
+import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
@@ -53,7 +54,8 @@ public class HideDivisionRenderer extends Renderer
     Iterator children = component.getChildren().iterator();
     while (children.hasNext()) {
       UIComponent child = (UIComponent) children.next();
-      if(!(child instanceof org.sakaiproject.tool.messageforums.jsf.BarLinkComponent))
+      if(!((child instanceof org.sakaiproject.tool.messageforums.jsf.BarLinkComponent)||
+          (child instanceof HtmlOutputText)))
       {
         child.encodeBegin(context);
         child.encodeChildren(context);
@@ -95,7 +97,8 @@ public class HideDivisionRenderer extends Renderer
     for(int i=0; i<childrenList.size(); i++)
     {
       UIComponent thisComponent = (UIComponent)childrenList.get(i);
-      if(thisComponent instanceof org.sakaiproject.tool.messageforums.jsf.BarLinkComponent)
+      if(thisComponent instanceof org.sakaiproject.tool.messageforums.jsf.BarLinkComponent
+         ||thisComponent instanceof HtmlOutputText)
       {
         thisComponent.encodeBegin(context);
         thisComponent.encodeChildren(context);
