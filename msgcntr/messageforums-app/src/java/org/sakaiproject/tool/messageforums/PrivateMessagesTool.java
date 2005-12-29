@@ -1339,10 +1339,10 @@ public class PrivateMessagesTool
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
     session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
     
-    if( allAttachments == null || (allAttachments.size()<1))
-    {
-      allAttachments.addAll(this.getDetailMsg().getMsg().getAttachments()) ;
-    }
+//    if( allAttachments == null || (allAttachments.size()<1))
+//    {
+//      allAttachments.addAll(this.getDetailMsg().getMsg().getAttachments()) ;
+//    }
     return allAttachments;
   }
   
