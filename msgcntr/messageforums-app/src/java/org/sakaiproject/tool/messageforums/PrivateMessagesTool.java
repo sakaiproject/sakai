@@ -931,14 +931,8 @@ public class PrivateMessagesTool
 
     //reset contents
     resetComposeContents();
-    if(getMsgNavMode().equals(""))
-    {
-      return "main" ; // if navigation is from main page
-    }
-    else
-    {
-      return "pvtMsg";
-    }
+    
+    return "main";    
   }
  
   /**
@@ -1135,7 +1129,7 @@ public class PrivateMessagesTool
     //reset contents
     resetComposeContents();
     
-    return "pvtMsg" ;
+    return "main" ;
 
   }
  
