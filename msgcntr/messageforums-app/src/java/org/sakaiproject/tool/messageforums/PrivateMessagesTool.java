@@ -894,6 +894,8 @@ public class PrivateMessagesTool
     this.getSelectedComposeToList().clear();
     this.setReplyToSubject("");
     this.setReplyToBody("");
+    this.getAttachments().clear();
+    this.getAllAttachments().clear();
   }
   /**
    * process from Compose screen
