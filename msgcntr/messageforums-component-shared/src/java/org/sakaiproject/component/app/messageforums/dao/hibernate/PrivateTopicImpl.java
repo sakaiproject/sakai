@@ -23,6 +23,7 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
  
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -45,17 +46,29 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
     
     public static Comparator TITLE_COMPARATOR;
     
+    private static final List lookupOrderList = 
+      Arrays.asList(new String[] {"Received", "Sent", "Deleted", "Drafts"}); 
+    
     static {
       TITLE_COMPARATOR = new Comparator()
-      {
+      {                
+        private String title1, title2;                
+        private Integer index1, index2;
+        
+        
         public int compare(Object topic, Object otherTopic)
         {
           if (topic != null && otherTopic != null
               && topic instanceof Topic && otherTopic instanceof Topic)
           {
-            String title1 = ((Topic) topic).getTitle();
-            String title2 = ((Topic) otherTopic).getTitle();
-            return title1.compareTo(title2);
+            title1 = ((Topic) topic).getTitle();
+            title2 = ((Topic) otherTopic).getTitle();
+            
+            index1 = new Integer(lookupOrderList.indexOf(title1));
+            index2 = new Integer(lookupOrderList.indexOf(title2));            
+                                    
+            /** expecting elements to exist in lookupOrderedList */
+            return index1.compareTo(index2);
           }
           return -1;
         }
