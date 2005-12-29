@@ -774,7 +774,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           tempBody += "<br/><br/>";
           for (Iterator iter = message.getAttachments().iterator(); iter.hasNext();) {
             Attachment attachment = (Attachment) iter.next();
-            tempBody += attachment.getAttachmentName() + "<br/>";
+            //tempBody += attachment.getAttachmentName() + "<br/>";
             tempBody += "<a href=\"" + attachment.getAttachmentUrl() +
                         "\">" + attachment.getAttachmentName() + "</a><br/><br/>";
                     

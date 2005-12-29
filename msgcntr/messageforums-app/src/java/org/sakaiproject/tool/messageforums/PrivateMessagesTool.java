@@ -609,6 +609,19 @@ public class PrivateMessagesTool
     this.totalComposeToList = totalComposeToList;    
     return totalComposeToList;
   }
+  
+  public String getUserNameById(String id){    
+    try
+    {
+      User user=UserDirectoryService.getUser(id) ;
+      userName= user.getDisplayName();
+    }
+    catch (IdUnusedException e)
+    {
+      LOG.debug("getUserNameById() - Error");
+    }
+    return userName;
+  }
 
   public String getUserName() {
    String userId=SessionManager.getCurrentSessionUserId();
@@ -1076,7 +1089,7 @@ public class PrivateMessagesTool
         
     if (this.getSelectedComposeToList().size()<1) // if nothing is selected from the recipiant list
     {
-      selectedComposeToList.add(currentMessage.getCreatedBy());
+      selectedComposeToList.add(getUserNameById(currentMessage.getCreatedBy()));
     }
     
     if(!hasValue(getReplyToSubject()))
@@ -1109,9 +1122,7 @@ public class PrivateMessagesTool
     for(int i=0; i<allAttachments.size(); i++)
     {
       prtMsgManager.addAttachToPvtMsg(rrepMsg, (Attachment)allAttachments.get(i));         
-    } 
-    
-    prtMsgManager.savePrivateMessage(rrepMsg);    
+    }            
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
