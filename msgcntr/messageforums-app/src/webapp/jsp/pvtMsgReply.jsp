@@ -182,8 +182,7 @@
             --%>
             <tr>
               <td align="left">
-              	<h:outputText value="#{msgs.pvt_star}" style="color: red"/> 
-                <h:outputText value="#{msgs.pvt_message}" />
+              	<h:outputText value="#{msgs.pvt_message}" />
               </td>
               <td align="left">
               	<h:inputTextarea rows="5" cols="60"  value="#{PrivateMessagesTool.replyToBody}" />	

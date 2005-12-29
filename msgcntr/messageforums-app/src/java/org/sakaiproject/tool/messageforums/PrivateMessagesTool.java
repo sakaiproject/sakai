@@ -1091,11 +1091,11 @@ public class PrivateMessagesTool
       setErrorMessage("You must enter a subject before you may send this message.");
       return null ;
     }
-    if(!hasValue(getReplyToBody()) )
-    {
-      setErrorMessage("You must enter a message content before you may send this message.");
-      return null ;
-    }
+//    if(!hasValue(getReplyToBody()) )
+//    {
+//      setErrorMessage("You must enter a message content before you may send this message.");
+//      return null ;
+//    }
     if(getSelectedComposeToList().size()<1)
     {
       setErrorMessage("Please select recipients list for this reply message.");
@@ -1145,11 +1145,11 @@ public class PrivateMessagesTool
       setErrorMessage("You must enter a subject before you may send this message.");
       return null ;
     }
-    if(!hasValue(getReplyToBody()) )
-    {
-      setErrorMessage("You must enter a message content before you may send this message.");
-      return null ;
-    }
+//    if(!hasValue(getReplyToBody()) )
+//    {
+//      setErrorMessage("You must enter a message content before you may send this message.");
+//      return null ;
+//    }
     if(getSelectedComposeToList().size()<1)
     {
       setErrorMessage("Please select recipients list for this reply message.");
