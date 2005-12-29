@@ -1111,6 +1111,8 @@ public class PrivateMessagesTool
       prtMsgManager.addAttachToPvtMsg(rrepMsg, (Attachment)allAttachments.get(i));         
     } 
     
+    prtMsgManager.savePrivateMessage(rrepMsg);    
+    
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
       prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), false);
