@@ -775,8 +775,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           for (Iterator iter = message.getAttachments().iterator(); iter.hasNext();) {
             Attachment attachment = (Attachment) iter.next();
             tempBody += attachment.getAttachmentName() + "<br/>";
-            tempBody += attachment.getAttachmentUrl() + "<br/><br/>";
-        }
+            tempBody += "<a href=\"" + attachment.getAttachmentUrl() +
+                        "\">" + attachment.getAttachmentName() + "</a><br/><br/>";
+                    
+          }
       }
 
       if (!asEmail && forwardingEnabled){
