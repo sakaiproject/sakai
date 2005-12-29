@@ -35,10 +35,13 @@ import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.framework.email.EmailService;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate.HibernateCallback;
@@ -769,32 +772,60 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       additionalHeaders.add("Content-Type: text/html");
       
 
-      String tempBody = message.getBody();
+      User currentUser = UserDirectoryService.getCurrentUser();
+      StringBuffer body = new StringBuffer(message.getBody());
+      
+      body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>");      
+      
       if (message.getAttachments() != null && message.getAttachments().size() > 0) {
-          tempBody += "<br/><br/>";
+                           
+          body.append("<br/><br/>");
           for (Iterator iter = message.getAttachments().iterator(); iter.hasNext();) {
             Attachment attachment = (Attachment) iter.next();
-            //tempBody += attachment.getAttachmentName() + "<br/>";
-            tempBody += "<a href=\"" + attachment.getAttachmentUrl() +
-                        "\">" + attachment.getAttachmentName() + "</a><br/><br/>";
-                    
+            body.append("<a href=\"" + attachment.getAttachmentUrl() +
+                        "\">" + attachment.getAttachmentName() + "</a><br/>");            
           }
       }
+      
+      String siteTitle = null;
+      try{
+        siteTitle = SiteService.getSite(getContextId()).getTitle();
+      }
+      catch (IdUnusedException e){
+        LOG.error(e.getMessage(), e);
+      }
+      
+      String footer = "<pre>----------------------\n" +
+                      "This forwarded message was sent via " + ServerConfigurationService.getString("ui.service") +  
+                      " Message Center from the \"" +
+                      siteTitle + "\" site. " +
+                      "To reply to this message click this link to access Message Center for this site:" +
+                      " <a href=\"" +
+                      ServerConfigurationService.getPortalUrl() + 
+                      "/site/" + ToolManager.getCurrentPlacement().getContext() +
+                      "/page/" + ToolManager.getCurrentPlacement().getId() +
+                      "\">";
+                                            
+      footer += siteTitle + "</a>.</pre>";                      
+      body.append(footer);
 
+      String bodyString = body.toString();
+      
       if (!asEmail && forwardingEnabled){
-          emailService.send(UserDirectoryService.getCurrentUser().getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
-            tempBody, pf.getAutoForwardEmail(), null, additionalHeaders);
+          emailService.send(u.getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
+              bodyString, u.getEmail(), null, additionalHeaders);
+          
+          // use forwarded address if set
           
           PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
               userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
               Boolean.FALSE);
           recipientList.add(receiver);                    
-      }
+      }      
       else if (asEmail){
-        emailService.send(UserDirectoryService.getCurrentUser().getEmail(), u.getEmail(), message.getTitle(), 
-                          tempBody, u.getEmail(), null, additionalHeaders);
-      }
-      
+        emailService.send(u.getEmail(), u.getEmail(), message.getTitle(), 
+            bodyString, u.getEmail(), null, additionalHeaders);
+      }      
       else{        
         PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
             userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
