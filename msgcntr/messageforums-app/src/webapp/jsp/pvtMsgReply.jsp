@@ -12,10 +12,13 @@
       <h:form id="pvtMsgReply">
   			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums1}" /> 
 				<h:outputText value="/ Reply to Private Message" />
-        <sakai:tool_bar_message value="Reply to Private Message" /> 
+        	  <sakai:tool_bar_message value="Reply to Private Message" /> 
  			  <div class="instruction">
   			    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" style="color: red"/>
 			  </div>
+			  <h:outputLink rendered="#{PrivateMessagesTool.renderPrivacyAlert}" value="#{PrivateMessagesTool.privacyAlertUrl}" target="_blank" >
+			  	 <sakai:instruction_message value="#{PrivateMessagesTool.privacyAlert}"/>
+			  </h:outputLink>
 			  <h:messages styleClass="alertMessage" id="errorMessages" /> 
 			  
 				<sakai:group_box>

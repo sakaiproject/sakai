@@ -57,6 +57,7 @@ import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.Member;
@@ -76,7 +77,13 @@ import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
 
 public class PrivateMessagesTool
 {
+  
   private static final Log LOG = LogFactory.getLog(PrivateMessagesTool.class);
+  private static final String MESSAGECENTER_PRIVACY_URL = "messagecenter.privacy.url";
+
+  private static final String MESSAGECENTER_PRIVACY_TEXT = "messagecenter.privacy.text";
+
+  
 
   /**
    *Dependency Injected 
@@ -1994,4 +2001,35 @@ public class PrivateMessagesTool
         new FacesMessage("Alert: " + errorMsg));
   }
   
+  /**
+   * Enable privacy message
+   * @return
+   */
+  public boolean getRenderPrivacyAlert()
+  {
+   if(ServerConfigurationService.getString(MESSAGECENTER_PRIVACY_TEXT)!=null &&
+       ServerConfigurationService.getString(MESSAGECENTER_PRIVACY_TEXT).trim().length()>0 )
+   {
+     return true;
+   }
+    return false;
+  }
+  
+  /**
+   * Get Privacy message link  from sakai.properties
+   * @return
+   */
+  public String getPrivacyAlertUrl()
+  {
+    return ServerConfigurationService.getString(MESSAGECENTER_PRIVACY_URL);
+  }
+  
+  /**
+   * Get Privacy message from sakai.properties
+   * @return
+   */
+  public String getPrivacyAlert()
+  {
+    return ServerConfigurationService.getString(MESSAGECENTER_PRIVACY_TEXT);
+  }
 }
