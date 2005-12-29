@@ -70,8 +70,7 @@
 	        <sakai:panel_edit>
 	          <sakai:doc_section>       
 	            <h:outputText value="Message" />  
-	            <mf:htmlShowArea value="#{PrivateMessagesTool.detailMsg.msg.body}"/>
-	            <%--<sakai:rich_text_area value="#{PrivateMessagesTool.detailMsg.msg.body}" rows="17" columns="70"/>--%>
+	            <sakai:rich_text_area rows="17" columns="70"  value="#{PrivateMessagesTool.replyToBody}" />	
 	          </sakai:doc_section>    
 	        </sakai:panel_edit>
 	      </sakai:group_box>
@@ -95,11 +94,16 @@
 								</h:column>
 							</h:dataTable>  
 					--%>	
+	        <sakai:doc_section>	        
+	        	<h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.allAttachments}"/>
+	        </sakai:doc_section>
+	        
 	        <sakai:doc_section>
 	          <sakai:button_bar>
 	          	<sakai:button_bar_item action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" />
 	          </sakai:button_bar>
 	        </sakai:doc_section>
+	        
 	        
 					<h:dataTable styleClass="listHier" id="attmsgrep" width="100%" rendered="#{!empty PrivateMessagesTool.allAttachments}" value="#{PrivateMessagesTool.allAttachments}" var="eachAttach" >
 					  <h:column >
@@ -181,11 +185,11 @@
             </tr>
             --%>
             <tr>
-              <td align="left">
+              <td valign="top">
               	<h:outputText value="#{msgs.pvt_message}" />
               </td>
               <td align="left">
-              	<h:inputTextarea rows="5" cols="60"  value="#{PrivateMessagesTool.replyToBody}" />	
+              	<mf:htmlShowArea value="#{PrivateMessagesTool.detailMsg.msg.body}"/>					
               </td>
             </tr>                                   
           </table>

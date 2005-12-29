@@ -67,14 +67,15 @@
 <%--********************* Attachment *********************--%>	
 	      <sakai:group_box>
 					<h4><h:outputText value="#{msgs.pvt_att}"/></h4>
+	        
+	        <sakai:doc_section>	        
+	        	<h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.attachments}"/>
+	        </sakai:doc_section>
+	        
 	        <sakai:doc_section>
 	          <sakai:button_bar>
 	          	<sakai:button_bar_item action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" />
 	          </sakai:button_bar>
-	        </sakai:doc_section>
-
-	        <sakai:doc_section>	        
-	        <h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.attachments}"/>
 	        </sakai:doc_section>
 	        
 					<h:dataTable styleClass="listHier" id="attmsg" width="100%" value="#{PrivateMessagesTool.attachments}" var="eachAttach" >
