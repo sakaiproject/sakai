@@ -2422,6 +2422,12 @@ public class DiscussionForumTool
     {
       threaded = false;
       setSelectedMessageView(ALL_MESSAGES);
+      
+      DiscussionTopic topic = null;
+      topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
+      setSelectedForumForCurrentTopic(topic);
+      selectedTopic = getDecoratedTopic(topic);
+
       return;
     }
     else
