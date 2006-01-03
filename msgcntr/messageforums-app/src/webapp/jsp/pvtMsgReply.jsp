@@ -10,8 +10,9 @@
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="pvtMsgReply">
-  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums1}" /> 
-				<h:outputText value="/ Reply to Private Message" />
+  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
+  			<h:commandLink action="#{PrivateMessagesTool.processHpView}" value="#{msgs.cdfm_message_pvtarea}" /> /
+				<h:outputText value="Reply to Private Message" />
         	  <sakai:tool_bar_message value="Reply to Private Message" /> 
  			  <div class="instruction">
   			    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" style="color: red"/>

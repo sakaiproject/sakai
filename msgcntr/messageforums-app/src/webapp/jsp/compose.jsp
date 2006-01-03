@@ -9,7 +9,8 @@
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="compose">
-  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums1}" /> 
+  			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
+  			<h:commandLink action="#{PrivateMessagesTool.processHpView}" value="#{msgs.cdfm_message_pvtarea}" /> /
 				<h:outputText value="#{msgs.pvt_compose1}" />
 				<sakai:tool_bar_message value="#{msgs.pvt_pvtcompose}" />
  			  <div class="instruction">

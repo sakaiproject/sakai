@@ -813,7 +813,7 @@ public class PrivateMessagesTool
     }
     this.deleteConfirm=false; //reset this as used for multiple action in same JSP
    
-    //htripath - prev/next message 
+    //prev/next message 
     if(decoratedPvtMsgs != null)
     {
       for(int i=0; i<decoratedPvtMsgs.size(); i++)
@@ -828,7 +828,6 @@ public class PrivateMessagesTool
         }
       }
     }
-    //htripath
     
     return "pvtMsgDetail";
   }
@@ -1069,28 +1068,31 @@ public class PrivateMessagesTool
     return aMsg;    
   }
   ///////////////////// Previous/Next topic and message on Detail message page
+  /**
+   * processDisplayPreviousMsg()
+   * Display the previous message from the list of decorated messages
+   */
   public String processDisplayPreviousMsg()
   {
     List tempMsgs = getDecoratedPvtMsgs(); // all messages
     int currentMsgPosition = -1;
     if(tempMsgs != null)
     {
-        for(int i=0; i<tempMsgs.size(); i++)
+      for(int i=0; i<tempMsgs.size(); i++)
+      {
+        PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(i);
+        if(detailMsg.getMsg().getId().equals(thisDmb.getMsg().getId()))
         {
-            PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(i);
-            if(detailMsg.getMsg().getId().equals(thisDmb.getMsg().getId()))
-            {
-                currentMsgPosition = i;
-                break;
-            }
+          currentMsgPosition = i;
+          break;
         }
+      }
     }
     
     if(currentMsgPosition > 0)
     {
       PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(currentMsgPosition-1);
       PrivateMessage message= (PrivateMessage) prtMsgManager.getMessageById(thisDmb.getMsg().getId()); 
-      // TODO - does this one contain Attachments?
       
       detailMsg= new PrivateMessageDecoratedBean(message);
       //get attachments
@@ -1110,37 +1112,34 @@ public class PrivateMessagesTool
            getDetailMsg().setHasRead(true) ;
           }
         }
-      }
-      
+      }      
       getDetailMsg().setDepth(thisDmb.getDepth()) ;
       getDetailMsg().setHasNext(thisDmb.getHasNext());
       getDetailMsg().setHasPre(thisDmb.getHasPre()) ;
 
-    }
-    
+    }    
     return null;
   }
 
-  
-  
-  
-  
-  
+  /**
+   * processDisplayNextMsg()
+   * Display the Next message from the list of decorated messages
+   */    
   public String processDisplayNextMsg()
   {
     List tempMsgs = getDecoratedPvtMsgs();
     int currentMsgPosition = -1;
     if(tempMsgs != null)
     {
-        for(int i=0; i<tempMsgs.size(); i++)
+      for(int i=0; i<tempMsgs.size(); i++)
+      {
+        PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(i);
+        if(detailMsg.getMsg().getId().equals(thisDmb.getMsg().getId()))
         {
-          PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(i);
-            if(detailMsg.getMsg().getId().equals(thisDmb.getMsg().getId()))
-            {
-                currentMsgPosition = i;
-                break;
-            }
+          currentMsgPosition = i;
+          break;
         }
+      }
     }
     
     if(currentMsgPosition > -2  && currentMsgPosition < (tempMsgs.size()-1))
