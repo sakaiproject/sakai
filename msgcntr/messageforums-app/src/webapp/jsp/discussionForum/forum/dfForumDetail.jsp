@@ -38,7 +38,7 @@
 		</div>
 		<h:dataTable id="topics" styleClass="listHier" value="#{ForumTool.selectedForum.topics}" var="topic">
 			<h:column>
-				<f:verbatim><div class="topicRows"></f:verbatim>
+
 				<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{topic.topic.title}">
 					<f:param value="#{topic.topic.id}" name="topicId"/>
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
@@ -49,9 +49,10 @@
 					<f:param value="#{topic.topic.id}" name="topicId"/>
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
-				<f:verbatim><br/></f:verbatim>
+				<f:verbatim><br/><br/></f:verbatim>
 				<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" />
-				<f:verbatim></div><hr/></f:verbatim>
+				<f:verbatim><hr/></f:verbatim>
+
 				<h:dataTable id="messages" value="#{topics.messages}" var="message">
 					<h:column>
 						<h:outputText id="message_title" value="#{message.message.title}"/>
