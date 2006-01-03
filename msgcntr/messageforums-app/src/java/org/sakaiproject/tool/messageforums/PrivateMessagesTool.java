@@ -43,6 +43,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -71,6 +72,7 @@ import org.sakaiproject.service.legacy.security.cover.SecurityService;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
@@ -352,6 +354,39 @@ public class PrivateMessagesTool
 //        decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
 //      }
 //    }
+
+    //pre/next message
+    if(decoratedPvtMsgs != null)
+    {
+      List tempMsgs = decoratedPvtMsgs;
+      for(int i=0; i<tempMsgs.size(); i++)
+      {
+        PrivateMessageDecoratedBean dmb = (PrivateMessageDecoratedBean)tempMsgs.get(i);
+        if(i==0)
+        {
+          dmb.setHasPre(false);
+          if(i==(tempMsgs.size()-1))
+          {
+              dmb.setHasNext(false);
+          }
+          else
+          {
+              dmb.setHasNext(true);
+          }
+        }
+        else if(i==(tempMsgs.size()-1))
+        {
+          dmb.setHasPre(true);
+          dmb.setHasNext(false);
+        }
+        else
+        {
+          dmb.setHasNext(true);
+          dmb.setHasPre(true);
+        }
+      }
+    }
+    //
     return decoratedPvtMsgs ;
   }
   
@@ -363,11 +398,7 @@ public class PrivateMessagesTool
     {
       PrivateMessage element = (PrivateMessage) iter.next();                  
       
-      boolean prev = prtMsgManager.hasPreviousMessage(element);
-      boolean next = prtMsgManager.hasNextMessage(element);
       PrivateMessageDecoratedBean dbean= new PrivateMessageDecoratedBean(element);
-      dbean.setHasPreviousMsg(prev);
-      dbean.setHasNextMsg(next);
       //getRecipients() is filtered for this perticular user i.e. returned list of only one PrivateMessageRecipient object
       for (Iterator iterator = element.getRecipients().iterator(); iterator.hasNext();)
       {
@@ -759,7 +790,8 @@ public class PrivateMessagesTool
       PrivateMessageDecoratedBean dMsg= (PrivateMessageDecoratedBean) iter.next();
       if (dMsg.getMsg().getId().equals(new Long(msgId)))
       {
-        this.setDetailMsg(dMsg);        
+        this.setDetailMsg(dMsg);  
+       
         prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
                
         PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(dMsg.getMsg());
@@ -780,6 +812,23 @@ public class PrivateMessagesTool
       }
     }
     this.deleteConfirm=false; //reset this as used for multiple action in same JSP
+   
+    //htripath - prev/next message 
+    if(decoratedPvtMsgs != null)
+    {
+      for(int i=0; i<decoratedPvtMsgs.size(); i++)
+      {
+        PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)decoratedPvtMsgs.get(i);
+        if(((PrivateMessageDecoratedBean)decoratedPvtMsgs.get(i)).getMsg().getId().toString().equals(msgId))
+        {
+          detailMsg.setDepth(thisDmb.getDepth());
+          detailMsg.setHasNext(thisDmb.getHasNext());
+          detailMsg.setHasPre(thisDmb.getHasPre());
+          break;
+        }
+      }
+    }
+    //htripath
     
     return "pvtMsgDetail";
   }
@@ -1020,42 +1069,111 @@ public class PrivateMessagesTool
     return aMsg;    
   }
   ///////////////////// Previous/Next topic and message on Detail message page
-  public String processDisplayNextMsg()
-  {
-    LOG.debug("processDisplayNextMsg()");
-    //return processDisplayMsgById("nextMsgId");
-    PrivateMessage pmsg = (PrivateMessage) prtMsgManager.getNextMessage(getDetailMsg().getMsg());
-    boolean prev = prtMsgManager.hasPreviousMessage(getDetailMsg().getMsg());
-    boolean next = prtMsgManager.hasNextMessage(getDetailMsg().getMsg());
-    
-    this.setDetailMsg(new PrivateMessageDecoratedBean(pmsg)) ;
-    
-    //set boolean in decoratedbean 
-    getDetailMsg().setHasPreviousMsg(prev);
-    getDetailMsg().setHasNextMsg(next);
-    
-    return "pvtMsgDetail";
-  }
-  
-  /**
-   * @return
-   */
   public String processDisplayPreviousMsg()
   {
-    LOG.debug("processDisplayPreviousMsg()");
-    //return processDisplayMsgById("previousMsgId");
-    PrivateMessage pmsg = (PrivateMessage) prtMsgManager.getPreviousMessage(getDetailMsg().getMsg());
-    boolean prev = prtMsgManager.hasPreviousMessage(getDetailMsg().getMsg());
-    boolean next = prtMsgManager.hasNextMessage(getDetailMsg().getMsg());
+    List tempMsgs = getDecoratedPvtMsgs(); // all messages
+    int currentMsgPosition = -1;
+    if(tempMsgs != null)
+    {
+        for(int i=0; i<tempMsgs.size(); i++)
+        {
+            PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(i);
+            if(detailMsg.getMsg().getId().equals(thisDmb.getMsg().getId()))
+            {
+                currentMsgPosition = i;
+                break;
+            }
+        }
+    }
     
-    this.setDetailMsg(new PrivateMessageDecoratedBean(pmsg)) ;
+    if(currentMsgPosition > 0)
+    {
+      PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(currentMsgPosition-1);
+      PrivateMessage message= (PrivateMessage) prtMsgManager.getMessageById(thisDmb.getMsg().getId()); 
+      // TODO - does this one contain Attachments?
+      
+      detailMsg= new PrivateMessageDecoratedBean(message);
+      //get attachments
+      prtMsgManager.markMessageAsReadForUser(detailMsg.getMsg());
+      
+      PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(detailMsg.getMsg());
+      this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
+      
+      List recLs= initPrivateMessage.getRecipients();
+      for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
+      {
+        PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
+        if (element != null)
+        {
+          if((element.getRead().booleanValue()) || (element.getUserId().equals(getUserId())) )
+          {
+           getDetailMsg().setHasRead(true) ;
+          }
+        }
+      }
+      
+      getDetailMsg().setDepth(thisDmb.getDepth()) ;
+      getDetailMsg().setHasNext(thisDmb.getHasNext());
+      getDetailMsg().setHasPre(thisDmb.getHasPre()) ;
+
+    }
     
-    //set boolean in decoratedbean 
-    getDetailMsg().setHasPreviousMsg(prev);
-    getDetailMsg().setHasNextMsg(next);
-    
-    return "pvtMsgDetail";
+    return null;
   }
+
+  
+  
+  
+  
+  
+  public String processDisplayNextMsg()
+  {
+    List tempMsgs = getDecoratedPvtMsgs();
+    int currentMsgPosition = -1;
+    if(tempMsgs != null)
+    {
+        for(int i=0; i<tempMsgs.size(); i++)
+        {
+          PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(i);
+            if(detailMsg.getMsg().getId().equals(thisDmb.getMsg().getId()))
+            {
+                currentMsgPosition = i;
+                break;
+            }
+        }
+    }
+    
+    if(currentMsgPosition > -2  && currentMsgPosition < (tempMsgs.size()-1))
+    {
+      PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(currentMsgPosition+1);
+      PrivateMessage message= (PrivateMessage) prtMsgManager.getMessageById(thisDmb.getMsg().getId()); 
+      //get attachments
+      prtMsgManager.markMessageAsReadForUser(thisDmb.getMsg());
+      
+      PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(thisDmb.getMsg());
+      this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
+      
+      List recLs= initPrivateMessage.getRecipients();
+      for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
+      {
+        PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
+        if (element != null)
+        {
+          if((element.getRead().booleanValue()) || (element.getUserId().equals(getUserId())) )
+          {
+           getDetailMsg().setHasRead(true) ;
+          }
+        }
+      }
+      
+      getDetailMsg().setDepth(thisDmb.getDepth()) ;
+      getDetailMsg().setHasNext(thisDmb.getHasNext());
+      getDetailMsg().setHasPre(thisDmb.getHasPre()) ;
+    }
+    
+    return null;
+  }
+  //////////////////////////////////////////////////////////
   /**
    * @param externalTopicId
    * @return
@@ -1300,19 +1418,22 @@ public class PrivateMessagesTool
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      Reference ref = (Reference)refs.get(0);
-      
-      for(int i=0; i<refs.size(); i++)
+      if(refs != null && refs.size()>0)
       {
-        ref = (Reference) refs.get(i);
-        Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
-            ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+        Reference ref = (Reference)refs.get(0);
         
-        //TODO - remove this as being set for test only  
-        //thisAttach.setPvtMsgAttachId(new Long(1));
-        
-        attachments.add(thisAttach);
-        
+        for(int i=0; i<refs.size(); i++)
+        {
+          ref = (Reference) refs.get(i);
+          Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
+              ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+          
+          //TODO - remove this as being set for test only  
+          //thisAttach.setPvtMsgAttachId(new Long(1));
+          
+          attachments.add(thisAttach);
+          
+        }
       }
     }
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
@@ -1328,17 +1449,20 @@ public class PrivateMessagesTool
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      Reference ref = (Reference)refs.get(0);
-      
-      for(int i=0; i<refs.size(); i++)
+      if(refs != null && refs.size()>0)
       {
-        ref = (Reference) refs.get(i);
-        Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
-            ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+        Reference ref = (Reference)refs.get(0);
         
-        //TODO - remove this as being set for test only
-        //thisAttach.setPvtMsgAttachId(new Long(1));
-        allAttachments.add(thisAttach);
+        for(int i=0; i<refs.size(); i++)
+        {
+          ref = (Reference) refs.get(i);
+          Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
+              ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
+          
+          //TODO - remove this as being set for test only
+          //thisAttach.setPvtMsgAttachId(new Long(1));
+          allAttachments.add(thisAttach);
+        }
       }
     }
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);

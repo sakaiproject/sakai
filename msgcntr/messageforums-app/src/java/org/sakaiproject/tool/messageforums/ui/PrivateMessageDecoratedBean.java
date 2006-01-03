@@ -38,7 +38,6 @@ public class PrivateMessageDecoratedBean
   {
     this.msg=msg ;
   }
-  
   //Wrapper for JSF Selection
   private boolean isSelected;
   public boolean getIsSelected() {
@@ -48,72 +47,14 @@ public class PrivateMessageDecoratedBean
     this.isSelected=isSelected ;    
   }
   
-  private boolean hasNextMsg=false;
-  private boolean hasPreviousMsg=false;
-  private String nextMsgId;
-  private String previousMsgId;
   private boolean hasRead = false;
-  
+  private int depth;
+  private boolean hasNext;
+  private boolean hasPre;
   
   public PrivateMessage getMsg()
   {
     return msg;
-  }
-  /**
-   * @return Returns the hasNextMsg.
-   */
-  public boolean isHasNextMsg()
-  {
-    return hasNextMsg;
-  }
-  /**
-   * @param hasNextMsg The hasNextMsg to set.
-   */
-  public void setHasNextMsg(boolean hasNextMsg)
-  {
-    this.hasNextMsg = hasNextMsg;
-  }
-  /**
-   * @return Returns the hasPreviousMsg.
-   */
-  public boolean isHasPreviousMsg()
-  {
-    return hasPreviousMsg;
-  }
-  /**
-   * @param hasPreviousMsg The hasPreviousMsg to set.
-   */
-  public void setHasPreviousMsg(boolean hasPreviousMsg)
-  {
-    this.hasPreviousMsg = hasPreviousMsg;
-  }
-  /**
-   * @return Returns the nextMsgId.
-   */
-  public String getNextMsgId()
-  {
-    return nextMsgId;
-  }
-  /**
-   * @param nextMsgId The nextMsgId to set.
-   */
-  public void setNextMsgId(String nextMsgId)
-  {
-    this.nextMsgId = nextMsgId;
-  }
-  /**
-   * @return Returns the previousMsgId.
-   */
-  public String getPreviousMsgId()
-  {
-    return previousMsgId;
-  }
-  /**
-   * @param previousMsgId The previousMsgId to set.
-   */
-  public void setPreviousMsgId(String previousMsgId)
-  {
-    this.previousMsgId = previousMsgId;
   }
   
  
@@ -133,6 +74,48 @@ public class PrivateMessageDecoratedBean
   public void setHasRead(boolean hasRead)
   {
     this.hasRead = hasRead;
+  }
+  /**
+   * @return Returns the depth.
+   */
+  public int getDepth()
+  {
+    return depth;
+  }
+  /**
+   * @param depth The depth to set.
+   */
+  public void setDepth(int depth)
+  {
+    this.depth = depth;
+  }
+  /**
+   * @return Returns the hasNext.
+   */
+  public boolean getHasNext()
+  {
+    return hasNext;
+  }
+  /**
+   * @param hasNext The hasNext to set.
+   */
+  public void setHasNext(boolean hasNext)
+  {
+    this.hasNext = hasNext;
+  }
+  /**
+   * @return Returns the hasPre.
+   */
+  public boolean getHasPre()
+  {
+    return hasPre;
+  }
+  /**
+   * @param hasPre The hasPre to set.
+   */
+  public void setHasPre(boolean hasPre)
+  {
+    this.hasPre = hasPre;
   }
   
   

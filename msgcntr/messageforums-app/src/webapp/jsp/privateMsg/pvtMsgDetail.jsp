@@ -19,25 +19,26 @@
       	<sakai:group_box>
         <table width="100%" align="left" class="tablebgcolor" >
           <tr>
+            <td align="left"></td>
+            <td align="left"></td>  
+            <td align="left">         			
+								<h:outputText   value="Previous Message      "  rendered="#{!PrivateMessagesTool.detailMsg.hasPre}" />
+								<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message      "  rendered="#{PrivateMessagesTool.detailMsg.hasPre}" >
+								</h:commandLink>
+								<h:outputText   value="Next Message      " rendered="#{!PrivateMessagesTool.detailMsg.hasNext}" />
+								<h:commandLink action="#{PrivateMessagesTool.processDisplayNextMsg}" value="Next Message   " rendered="#{PrivateMessagesTool.detailMsg.hasNext}" >
+								</h:commandLink>
+			      </td>
+          </tr>
+          <tr>
             <td align="left">
               <h:outputText style="font-weight:bold"  value="#{msgs.pvt_subject}"/>
             </td>
             <td align="left">
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />  
             </td>  
-            <td align="left">
-            <%--
-  						<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message   "  rendered="#{PrivateMessagesTool.detailMsg.hasPreviousMsg}" >
-	      				<f:param value="#{PrivateMessagesTool.detailMsg.previousMsgId}" name="previousMsgId"/>
-							</h:commandLink>
-							<h:commandLink action="#{PrivateMessagesTool.processDisplayNextMsg}" value="Next Message   " rendered="#{PrivateMessagesTool.detailMsg.hasNextMsg}" >
-								<f:param value="#{PrivateMessagesTool.detailMsg.nextMsgId}" name="nextTopicId"/>
-							</h:commandLink>
-							<h:outputText   value="Previous Message   "  rendered="#{!PrivateMessagesTool.detailMsg.hasPreviousMsg}" />
-							<h:outputText   value="Next Message   " rendered="#{!PrivateMessagesTool.detailMsg.hasNextMsg}" />		
-						--%>
-			      </td>
-          </tr>
+            <td align="left"></td>
+          </tr>          
           <tr>
             <td align="left">
               <h:outputText style="font-weight:bold"  value="#{msgs.pvt_authby}"/>
