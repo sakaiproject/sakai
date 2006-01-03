@@ -820,6 +820,35 @@ public class DiscussionForumTool
     return TOPIC_SETTING;
   }
 
+  public String processActionToggleDisplayForumExtendedDescription()
+  {
+    LOG.debug("processActionToggleDisplayForumExtendedDescription()");
+    String redirectTo = getExternalParameterByKey(REDIRECT_PROCESS_ACTION);
+    if (redirectTo == null)
+    {
+      setErrorMessage("Could not find a redirect page : Read / Hide full descriptions");
+      return MAIN;
+    }
+  
+    if (redirectTo.equals("displayHome"))
+    {
+      displayHomeWithExtendedForumDescription();
+      return MAIN;
+    }
+    if (redirectTo.equals("processActionDisplayForum"))
+    {
+      if (selectedForum.isReadFullDesciption())
+      {
+        selectedForum.setReadFullDesciption(false);
+      }
+      else
+      {
+        selectedForum.setReadFullDesciption(true);
+      }  
+       return FORUM_DETAILS;
+    }
+    return MAIN;
+  }
   /**
    * @return
    */
@@ -1123,12 +1152,60 @@ public class DiscussionForumTool
     return null;
   }
 
+  
+  /**
+   * @return
+   */
+  private String displayHomeWithExtendedForumDescription()
+  {
+    LOG.debug("displayHomeWithExtendedForumDescription()");
+    List tmpForums = getForums();
+    if (tmpForums != null)
+    {
+      Iterator iter = tmpForums.iterator();
+      while (iter.hasNext())
+      {
+        DiscussionForumBean decoForumBean = (DiscussionForumBean) iter.next();
+        if (decoForumBean != null)
+        {
+          // if this forum is selected to display full desciption
+              if (getExternalParameterByKey("forumId_displayExtended") != null
+                  && getExternalParameterByKey("forumId_displayExtended")
+                      .trim().length() > 0
+                  && decoForumBean
+                      .getForum()
+                      .getId()
+                      .equals(
+                          new Long(
+                              getExternalParameterByKey("forumId_displayExtended"))))
+              {
+                decoForumBean.setReadFullDesciption(true);
+              }
+              // if this topic is selected to display hide extended desciption
+              if (getExternalParameterByKey("forumId_hideExtended") != null
+                  && getExternalParameterByKey("forumId_hideExtended").trim()
+                      .length() > 0
+                  && decoForumBean.getForum().getId().equals(
+                      new Long(
+                          getExternalParameterByKey("forumId_hideExtended"))))
+              {
+                decoForumBean.setReadFullDesciption(false);
+              }
+             
+          
+        }
+      }
+
+    }
+    return MAIN;
+  }
+  
   /**
    * @return
    */
   private String displayHomeWithExtendedTopicDescription()
   {
-    LOG.debug("displayHome()");
+    LOG.debug("displayHomeWithExtendedTopicDescription()");
     List tmpForums = getForums();
     if (tmpForums != null)
     {

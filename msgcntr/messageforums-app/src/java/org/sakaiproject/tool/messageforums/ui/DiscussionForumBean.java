@@ -14,6 +14,7 @@ public class DiscussionForumBean
   private DiscussionForum forum;
   private boolean markForDeletion;
   private UIPermissionsManager uiPermissionsManager;
+  private boolean readFullDesciption;
    
   /**
    * List of decorated topics
@@ -110,5 +111,35 @@ public class DiscussionForumBean
   public boolean isNewTopic()
   {
     return uiPermissionsManager.isNewTopic(forum);
+  }
+
+  /**
+   * @return Returns the if ExtendedDesciption is available
+   */
+  public boolean getHasExtendedDesciption()
+  {
+    if (forum.getExtendedDescription() != null
+        && forum.getExtendedDescription().trim().length() > 0
+        && (!readFullDesciption))
+    {
+      return true;
+    }
+    return false;
+  }
+  
+  /**
+   * @return Returns the readFullDesciption.
+   */
+  public boolean isReadFullDesciption()
+  {
+    return readFullDesciption;
+  }
+
+  /**
+   * @param readFullDesciption The readFullDesciption to set.
+   */
+  public void setReadFullDesciption(boolean readFullDesciption)
+  {
+    this.readFullDesciption = readFullDesciption;
   }
 }

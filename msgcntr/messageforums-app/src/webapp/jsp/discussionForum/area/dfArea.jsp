@@ -31,7 +31,20 @@
 			<f:verbatim></div></f:verbatim>
 
 		<f:verbatim> <br/><div class="forumsRowLeft"></f:verbatim>
-		 <h:outputText id="forum_desc" style="text-align:left;" value="#{forum.forum.shortDescription}" />
+		  <h:outputText id="forum_desc" style="text-align:left;" value="#{forum.forum.shortDescription}" />
+		  <f:verbatim><br/></f:verbatim>
+		  <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" rendered="#{forum.hasExtendedDesciption}"
+				id="forum_extended_show" value="#{msgs.cdfm_read_full_description}">
+				<f:param value="#{forum.forum.id}" name="forumId_displayExtended"/>
+				<f:param value="displayHome" name="redirectToProcessAction"/>
+		  </h:commandLink>
+		  <h:inputTextarea rows="5" cols="100" id="forum_extended_description" disabled="true" value="#{forum.forum.extendedDescription}" rendered="#{forum.readFullDesciption}"/>
+		  <f:verbatim><br/></f:verbatim>
+		  <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" id="forum_extended_hide"
+				 value="#{msgs.cdfm_hide_full_description}" rendered="#{forum.readFullDesciption}">
+				<f:param value="#{forum.forum.id}" name="forumId_hideExtended"/>
+				<f:param value="displayHome" name="redirectToProcessAction"/>
+		  </h:commandLink>
 		  <h:dataTable  value="#{forum.forum.attachments}" var="eachAttach" rendered="#{!empty forum.forum.attachments}">
 				  <h:column>
 						<f:facet name="header">

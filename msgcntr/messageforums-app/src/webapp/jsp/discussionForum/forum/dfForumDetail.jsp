@@ -13,6 +13,18 @@
 					<h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 				</h3>
 				 <sakai:instruction_message value="#{ForumTool.selectedForum.forum.shortDescription}" />
+				  <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" rendered="#{ForumTool.selectedForum.hasExtendedDesciption}"
+				 	id="forum_extended_show" value="#{msgs.cdfm_read_full_description}">
+					 <f:param value="#{forum.forum.id}" name="forumId"/>
+					 <f:param value="processActionDisplayForum" name="redirectToProcessAction"/>
+				 </h:commandLink>
+				 <h:inputTextarea rows="5" cols="100" id="forum_extended_description" disabled="true" value="#{ForumTool.selectedForum.forum.extendedDescription}" rendered="#{ForumTool.selectedForum.readFullDesciption}"/>
+					<f:verbatim><br/></f:verbatim>
+				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" id="forum_extended_hide"
+						 value="#{msgs.cdfm_hide_full_description}" rendered="#{ForumTool.selectedForum.readFullDesciption}">
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+					<f:param value="processActionDisplayForum" name="redirectToProcessAction"/>
+				</h:commandLink>
 			</div>
 			<div class="right-header-section">
 				<h:commandLink action="#{ForumTool.processActionNewTopic}"  value="#{msgs.cdfm_new_topic}" rendered="#{ForumTool.selectedForum.newTopic}" >
