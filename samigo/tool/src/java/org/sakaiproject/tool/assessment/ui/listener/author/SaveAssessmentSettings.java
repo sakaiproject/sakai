@@ -237,4 +237,29 @@ public class SaveAssessmentSettings
     }
   }
 
+    public boolean isIpValid(String ipString){
+
+	if(ipString.equals("")){
+	return false;
+      }
+        
+      String[] parts=ipString.split("\\.");
+        for(int i=0;i<parts.length;i++){
+	   String s=parts[i];
+           int index=0;
+           if(s.length()>3){
+	       return false;
+	   }
+	   while(index<s.length()){
+	       char c=s.charAt(index);	      
+	       if(!((Character.isDigit(c))||(Character.toString(c).equals("*")))){		  
+		       return false;
+	       }
+	       index++;
+	   }//end while
+	}//end for	
+	return true;
+    }
+
+
 }

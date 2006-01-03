@@ -71,7 +71,7 @@ public class SaveAssessmentSettingsListener
     boolean error=false;
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId()); 
     AssessmentService assessmentService = new AssessmentService();
-    boolean ipError=false;
+    SaveAssessmentSettings s= new SaveAssessmentSettings();
     String assessmentName=assessmentSettings.getTitle();
 // check if name is empty
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
@@ -149,26 +149,8 @@ public class SaveAssessmentSettingsListener
 
     if(hasIp){
         String ipString = assessmentSettings.getIpAddresses().trim();
-	if(ipString.equals("")){
-	    ipError=true;
-	}
-        else{
-	    try{
-	    String[] parts=ipString.split("\\.");
-            for(int i=0;i<parts.length;i++){
-                int num=Integer.parseInt(parts[i]);
-               
-		if((num<0) ||(num>255)){
-		    ipError=true;
-		    break;
-		}
-	    }
-	    }catch (Exception e)
-		{
-		    ipError=true;
-		}
-	} 
-	if(ipError){
+
+	if(!s.isIpValid(ipString)){
 
 	    String  ip_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
 	    context.addMessage(null,new FacesMessage(ip_err));
@@ -184,7 +166,6 @@ public class SaveAssessmentSettingsListener
     }
  
     assessmentSettings.setOutcomeSave("author");
-    SaveAssessmentSettings s= new SaveAssessmentSettings();
     s.save(assessmentSettings);
     // reset the core listing in case assessment title changes
     AuthorBean author = (AuthorBean) cu.lookupBean(
