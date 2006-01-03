@@ -1631,6 +1631,8 @@ public class DiscussionForumTool
 
   public String processDfMsgReplyMsg()
   {
+  	this.composeTitle = "Re: < " + selectedMessage.getMessage().getTitle() + " >"; 
+  	
     return "dfMessageReply";
   }
 
