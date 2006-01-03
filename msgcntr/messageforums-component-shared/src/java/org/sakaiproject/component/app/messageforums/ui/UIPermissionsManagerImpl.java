@@ -169,12 +169,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       return true;
     }
-    // TODO: should the forum owner be allowed to create a new topic
-    // without checking permissions?
-    // if (isForumOwner(forum))
-    // {
-    // return true;
-    // }
     try
     {
       ForumControlPermission controlPermission = permissionManager
@@ -191,13 +185,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
         }
         return false;
       }
-      if (forum.getLocked() == null || forum.getLocked().equals(Boolean.TRUE))
-      {
-        LOG.debug("This Forum is Locked");
-        return false;
-      }
-      // //TODO: confirm: if a forum is in draft stage, you could still
-      // create topics but if you are owner
+      // SAK-3381       
+      //      if (forum.getLocked() == null || forum.getLocked().equals(Boolean.TRUE))
+      //      {
+      //        LOG.debug("This Forum is Locked");
+      //        return false;
+      //      }
+       
       if (forum.getDraft() == null || forum.getDraft().equals(Boolean.TRUE))
       {
         LOG.debug("This forum is a draft");
