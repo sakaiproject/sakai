@@ -1807,7 +1807,16 @@ public class DiscussionForumTool
     String currentBody = getComposeBody();
     String revisedInfo = "Last Revised By " + this.getUserId() + " on ";
     Date now = new Date();
-    revisedInfo += now.toString() + "\n\n";
+    revisedInfo += now.toString() + " <br/> ";
+    
+/*    if(currentBody != null && currentBody.length()>0 && currentBody.startsWith("Last Revised By "))
+    {
+    	if(currentBody.lastIndexOf(" <br/> ") > 0)
+    	{
+    		currentBody = currentBody.substring(currentBody.lastIndexOf(" <br/> ") + 7);
+    	}
+    }*/
+    
     revisedInfo = revisedInfo.concat(currentBody);
 
     dMsg.setTitle(getComposeTitle());
@@ -1900,7 +1909,7 @@ public class DiscussionForumTool
     String currentBody = getComposeBody();
     String revisedInfo = "Last Revised By " + this.getUserId() + " on ";
     Date now = new Date();
-    revisedInfo += now.toString() + "\n\n";
+    revisedInfo += now.toString() + " <br/> ";    
     revisedInfo = revisedInfo.concat(currentBody);
 
     dMsg.setTitle(getComposeTitle());
@@ -2318,7 +2327,7 @@ public class DiscussionForumTool
       }
     }
   }
- 
+  
   private void setMessageBeanPreNextStatus()
   {
   	if(selectedTopic != null)
