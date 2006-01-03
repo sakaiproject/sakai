@@ -1415,22 +1415,25 @@ public class DiscussionForumTool
     {
       List refs = (List) session
           .getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      Reference ref = (Reference) refs.get(0);
-
-      for (int i = 0; i < refs.size(); i++)
+      if(refs != null && refs.size()>0)
       {
-        ref = (Reference) refs.get(i);
-        Attachment thisAttach = messageManager.createAttachment();
-        thisAttach.setAttachmentName(ref.getProperties().getProperty(
-            ref.getProperties().getNamePropDisplayName()));
-        thisAttach.setAttachmentSize(ref.getProperties().getProperty(
-            ref.getProperties().getNamePropContentLength()));
-        thisAttach.setAttachmentType(ref.getProperties().getProperty(
-            ref.getProperties().getNamePropContentType()));
-        thisAttach.setAttachmentId(ref.getId());
-        thisAttach.setAttachmentUrl(ref.getUrl());
-
-        attachments.add(thisAttach);
+      	Reference ref = (Reference) refs.get(0);
+      	
+      	for (int i = 0; i < refs.size(); i++)
+      	{
+      		ref = (Reference) refs.get(i);
+      		Attachment thisAttach = messageManager.createAttachment();
+      		thisAttach.setAttachmentName(ref.getProperties().getProperty(
+      				ref.getProperties().getNamePropDisplayName()));
+      		thisAttach.setAttachmentSize(ref.getProperties().getProperty(
+      				ref.getProperties().getNamePropContentLength()));
+      		thisAttach.setAttachmentType(ref.getProperties().getProperty(
+      				ref.getProperties().getNamePropContentType()));
+      		thisAttach.setAttachmentId(ref.getId());
+      		thisAttach.setAttachmentUrl(ref.getUrl());
+      		
+      		attachments.add(thisAttach);
+      	}
       }
     }
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
