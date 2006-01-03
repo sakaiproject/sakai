@@ -701,7 +701,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     boolean saveArea = forum.getId() == null;
     forum.setDraft(new Boolean(draft));
-    forumManager.saveDiscussionForum(forum);
+    forumManager.saveDiscussionForum(forum, draft);
 
     if (saveArea)
     {
