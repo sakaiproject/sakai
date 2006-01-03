@@ -55,10 +55,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private static final Log LOG = LogFactory
       .getLog(PrivateMessageManagerImpl.class);
 
-  private static final String QUERY_COUNT = "findPvtMsgCntByTopicTypeUser";
-  private static final String QUERY_COUNT_BY_UNREAD = "findUnreadPvtMsgCntByTopicTypeUser";
+  private static final String QUERY_AGGREGATE_COUNT = "findAggregatePvtMsgCntForUserInContext";  
   private static final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";
   private static final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
+  
+  private static List aggregateList;
 
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
@@ -124,6 +125,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public PrivateForum initializePrivateMessageArea(Area area)
   {
     String userId = getCurrentUser();
+    
+    initializeMessageCounts();
     
     getHibernateTemplate().lock(area, LockMode.NONE);
     
@@ -568,77 +571,104 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   }
   
   /**
-   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findMessageCount(java.lang.Long, java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findMessageCount(java.lang.String)
    */
-  public int findMessageCount(final Long topicId, final String typeUuid)
-  {
-
-    String userId = getCurrentUser();
-
+  public int findMessageCount(String typeUuid)
+  {    
     if (LOG.isDebugEnabled())
     {
-      LOG.debug("findMessageCount executing with topicId: " + topicId
-          + ", userId: " + userId + ", typeUuid: " + typeUuid);
+      LOG.debug("findMessageCount executing with typeUuid: " + typeUuid);
     }
 
-    if (topicId == null || userId == null || typeUuid == null)
+    if (typeUuid == null)
     {
-      LOG.error("findMessageCount failed with topicId: " + topicId
-          + ", uerId: " + userId + ", typeUuid: " + typeUuid);
+      LOG.error("findMessageCount failed with typeUuid: " + typeUuid);
       throw new IllegalArgumentException("Null Argument");
-    }
-
-    HibernateCallback hcb = new HibernateCallback()
+    }    
+    
+    if (aggregateList == null)
     {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_COUNT);
-        q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-        q.setParameter("contextId", getContextId(), Hibernate.STRING);
-        q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
-        return q.uniqueResult();
-      }
-    };
-
-    return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
-
+      LOG.error("findMessageCount failed with aggregateList: " + aggregateList);
+      throw new IllegalStateException("aggregateList is null");
+    }
+    
+    int totalCount = 0;
+    for (Iterator i = aggregateList.iterator(); i.hasNext();){
+      Object[] element = (Object[]) i.next();
+      /** filter on type */
+      if (typeUuid.equals(element[1])){        
+        /** add read/unread message types */        
+        totalCount += ((Integer) element[2]).intValue(); 
+      }      
+    }
+            
+    return totalCount;
   }
-
+  
   /**
-   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findUnreadMessageCount(java.lang.Long, java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findUnreadMessageCount(java.lang.String)
    */
-  public int findUnreadMessageCount(final Long topicId, final String typeUuid)
-  {
-
-    String userId = getCurrentUser();
-
-    if (topicId == null || userId == null || typeUuid == null)
+  public int findUnreadMessageCount(String typeUuid)
+  {    
+    if (LOG.isDebugEnabled())
     {
-      LOG.error("findUnreadMessageCount failed with topicId: " + topicId
-          + ", userId: " + userId + ", typeUuid: " + typeUuid);
-      throw new IllegalArgumentException("Null Argument");
+      LOG.debug("findUnreadMessageCount executing with typeUuid: " + typeUuid);
     }
 
-    LOG.debug("findUnreadMessageCount executing with topicId: " + topicId
-        + ", userId: " + userId + ", typeUuid: " + typeUuid);
+    if (typeUuid == null)
+    {
+      LOG.error("findUnreadMessageCount failed with typeUuid: " + typeUuid);
+      throw new IllegalArgumentException("Null Argument");
+    }    
+    
+    if (aggregateList == null)
+    {
+      LOG.error("findMessageCount failed with aggregateList: " + aggregateList);
+      throw new IllegalStateException("aggregateList is null");
+    }
+    
+    int unreadCount = 0;
+    for (Iterator i = aggregateList.iterator(); i.hasNext();){
+      Object[] element = (Object[]) i.next();
+      /** filter on type and read status*/
+      if (!typeUuid.equals(element[1]) || Boolean.TRUE.equals(element[0])){
+        continue;
+      }
+      else{        
+        unreadCount = ((Integer) element[2]).intValue();
+        break;
+      }      
+    }
+            
+    return unreadCount;    
+  }
+  
+  /**
+   * initialize message counts
+   * @param typeUuid
+   */
+  private void initializeMessageCounts()
+  {    
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("initializeMessageCounts executing");
+    }
 
     HibernateCallback hcb = new HibernateCallback()
     {
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException
       {
-        Query q = session.getNamedQuery(QUERY_COUNT_BY_UNREAD);
-        q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
+        Query q = session.getNamedQuery(QUERY_AGGREGATE_COUNT);        
         q.setParameter("contextId", getContextId(), Hibernate.STRING);
         q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
-        return q.uniqueResult();
+        return q.list();
       }
     };
-
-    return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
-
+        
+    aggregateList = (List) getHibernateTemplate().execute(hcb);        
   }
+
 
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#deletePrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.lang.String)
@@ -796,7 +826,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         LOG.error(e.getMessage(), e);
       }
       
-      String footer = "<pre>----------------------\n" +
+      String footer = "<p>----------------------<br>" +
                       "This forwarded message was sent via " + ServerConfigurationService.getString("ui.service") +  
                       " Message Center from the \"" +
                       siteTitle + "\" site.\n" +
@@ -807,7 +837,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
                       "/page/" + PortalService.getCurrentSitePageId() +
                       "\">";
                                             
-      footer += siteTitle + "</a>.</pre>";                      
+      footer += siteTitle + "</a>.</p>";                      
       body.append(footer);
 
       String bodyString = body.toString();

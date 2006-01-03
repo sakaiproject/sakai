@@ -88,15 +88,12 @@ public class ForumsDataAccessTests extends ForumsDataAccessBaseTest {
       recipients.add("test-user");
                               
       privateMessageManager.sendPrivateMessage(message, recipients, false);                  
-      assertEquals(privateMessageManager.findMessageCount(topic.getId(),
-        typeManager.getSentPrivateMessageType()),1);
+      assertEquals(privateMessageManager.findMessageCount(typeManager.getSentPrivateMessageType()),1);
       
-      assertEquals(privateMessageManager.findMessageCount(topic.getId(),
-          typeManager.getReceivedPrivateMessageType()),1);
+      assertEquals(privateMessageManager.findMessageCount(typeManager.getReceivedPrivateMessageType()),1);
       
       privateMessageManager.deletePrivateMessage(message, typeManager.getSentPrivateMessageType());
-      assertEquals(privateMessageManager.findMessageCount(topic.getId(),
-          typeManager.getDeletedPrivateMessageType()),1);
+      assertEquals(privateMessageManager.findMessageCount(typeManager.getDeletedPrivateMessageType()),1);
       
       /** test getMessagesByType */
       // todo: add sorting fields as constnats

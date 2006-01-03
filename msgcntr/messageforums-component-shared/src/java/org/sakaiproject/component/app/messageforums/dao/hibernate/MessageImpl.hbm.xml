@@ -137,7 +137,7 @@
   <query name="findMessageByUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.uuid = :uuid]]>
   </query>
-
+  
   <query name="findMessageCountByTopicId">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false]]>
   </query>
@@ -150,6 +150,7 @@
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId]]>
   </query>
   
+  <!-- 
   <query name="findPvtMsgCntByTopicTypeUser">
     <![CDATA[select count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message             
@@ -171,6 +172,19 @@
                    recipient.read = false               
     ]]>
   </query>
+  -->
+  
+  <query name="findAggregatePvtMsgCntForUserInContext">
+    <![CDATA[select recipient.read, recipient.typeUuid, count(*) 
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join message.recipients recipient
+             where recipient.userId = :userId and                   
+                   recipient.contextId = :contextId
+             group by recipient.read, recipient.typeUuid
+    ]]>
+  </query>
+  
+  
   
   <query name="findPrvtMsgsByUserTypeContext">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message

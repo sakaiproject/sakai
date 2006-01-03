@@ -282,10 +282,8 @@ public class PrivateMessagesTool
           
             String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());          
           
-            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(topic.getId(),
-              typeUuid));
-            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(topic.getId(),
-              typeUuid));
+            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid));
+            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid));
           
             decoratedForum.addTopic(decoTopic);
           }          

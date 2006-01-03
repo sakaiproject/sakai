@@ -80,22 +80,20 @@ public interface PrivateMessageManager {
      * @param recipients
      */
     void savePrivateMessage(Message message);
-    
+            
     /**
-     * find unread message count for topic and type
-     * @param topicId
+     * find message count for type
      * @param typeUuid
      * @return count
      */
-    public int findUnreadMessageCount(final Long topicId, final String typeUuid);
+    public int findMessageCount(String typeUuid);
     
     /**
-     * find message count for topic and type
-     * @param topicId
+     * find unread message count for type
      * @param typeUuid
-     * @return
+     * @return count
      */
-    public int findMessageCount(final Long topicId, final String typeUuid);
+    public int findUnreadMessageCount(String typeUuid);
 
         
     public MessageForumsMessageManager getMessageManager();
