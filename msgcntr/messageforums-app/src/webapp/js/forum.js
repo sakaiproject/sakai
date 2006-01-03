@@ -62,3 +62,31 @@ function getTheElement(thisid)
     }
   }
 }
+
+
+
+<!-- TWO STEPS TO INSTALL CHECK ALL:
+
+  1.  Copy the coding into the HEAD of your HTML document
+  2.  Add the last code into the BODY of your HTML document  -->
+
+<!-- STEP ONE: Paste this code into the HEAD of your HTML document  -->
+
+<HEAD>
+
+ 
+
+function check(field)
+ {
+	for (i = 0; i < field.length; i++) 
+	{
+		field[i].checked = true;
+	}
+ }
+function unCheck(field)
+{
+	for (i = 0; i < field.length; i++) 
+	{
+		field[i].checked = false; }
+	}
+}

@@ -403,11 +403,12 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     }
     try
     {
-      if (forum.getLocked() == null || forum.getLocked().equals(Boolean.TRUE))
-      {
-        LOG.debug("This Forum is Locked");
-        return false;
-      }
+//      Change Settings on Topic allowed even if the forum is locked
+//      if (forum.getLocked() == null || forum.getLocked().equals(Boolean.TRUE))
+//      {
+//        LOG.debug("This Forum is Locked");
+//        return false;
+//      }
       if (isTopicOwner(topic))
       {
         return true;

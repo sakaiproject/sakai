@@ -56,7 +56,7 @@
 				<h:outputText styleClass="draft" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
 				<h:outputText id="draft_space" value="  " rendered="#{topic.topic.draft == 'true'}"/>
 
-				<h:graphicImage url="/images/lock.gif" alt="this topic is locked"  rendered="#{topic.locked == 'true'}"/>
+				<h:graphicImage url="/images/lock.gif" alt="this topic is locked for posting"  rendered="#{forum.locked == 'true' || topic.locked == 'true'}"/>
 				<h:outputText id="emptyspace" value="  " rendered="#{topic.locked == 'true'}"/>
 
 				<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{topic.topic.title}">
