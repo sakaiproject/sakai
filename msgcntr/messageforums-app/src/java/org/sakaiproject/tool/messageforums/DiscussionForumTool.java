@@ -2328,6 +2328,15 @@ public class DiscussionForumTool
     }
   }
   
+  public String processCheckAll()
+  {
+  	for(int i=0; i<selectedTopic.getMessages().size(); i++)
+  	{
+  		((DiscussionMessageBean)selectedTopic.getMessages().get(i)).setSelected(true);
+  	}
+  	return null;
+  }
+ 
   private void setMessageBeanPreNextStatus()
   {
   	if(selectedTopic != null)

@@ -37,7 +37,7 @@
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 				<h:outputText  id="blankSpace1" value="  " />				
-				<outputText   value="#{msgs.cdfm_next_topic}" rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
+				<h:outputText   value="#{msgs.cdfm_next_topic}" rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
 				<h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}" rendered="#{ForumTool.selectedTopic.hasNextTopic}" >
 					<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
@@ -48,7 +48,7 @@
    	<h:dataTable styleClass="listHier" id="messages" value="#{ForumTool.selectedTopic.messages}" var="message" rendered="#{!ForumTool.threaded}">
 			<h:column rendered="#{!ForumTool.threaded}">
 				<f:facet name="header">
-					<h:outputText value="#{msgs.cdfm_checkall}" />
+					<h:commandLink action="#{ForumTool.processCheckAll}" value="#{msgs.cdfm_checkall}" />
 				</f:facet>
 				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
 				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{!message.read}"/>
@@ -104,7 +104,7 @@
 		<mf:hierDataTable styleClass="listHier" id="messagesInHierDataTable" value="#{ForumTool.selectedTopic.messages}" var="message" rendered="#{ForumTool.threaded}" expanded="#{ForumTool.expanded}">
 			<h:column rendered="#{ForumTool.threaded}">
 				<f:facet name="header">
-					<h:outputText value="#{msgs.cdfm_checkall}" />
+					<h:commandLink action="#{ForumTool.processCheckAll}" value="#{msgs.cdfm_checkall}" />
 				</f:facet>
 				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
 				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{!message.read}"/>
