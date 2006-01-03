@@ -42,8 +42,8 @@
               </td>
               <td align="left">
               	<h:selectOneRadio value="#{PrivateMessagesTool.composeSendAsPvtMsg}" layout="pageDirection">
-  			    			<f:selectItem itemValue="yes" itemLabel="As Private Messages"/>
-  			    			<f:selectItem itemValue="no" itemLabel="To Recipients' Email Address(es)"/>
+  			    			<f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_send_as_private}"/>
+  			    			<f:selectItem itemValue="no" itemLabel="#{msgs.pvt_send_as_email}"/>
 			    			</h:selectOneRadio>
               </td>
             </tr>
