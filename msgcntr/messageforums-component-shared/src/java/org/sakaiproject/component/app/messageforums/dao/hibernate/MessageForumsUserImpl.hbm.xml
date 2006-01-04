@@ -29,6 +29,10 @@
       <column name="USER_ID" length="255" not-null="true" />
     </property>
     
+    <property name="typeUuid">
+      <column name="TYPE_UUID" length="36" not-null="true" />
+    </property>
+    
     <many-to-one name="apAccessors" column="apaSurrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
       not-null="false" index="MFR_USER_PARENT_I1" cascade="none" />                

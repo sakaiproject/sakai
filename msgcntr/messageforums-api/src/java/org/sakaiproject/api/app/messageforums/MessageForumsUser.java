@@ -38,4 +38,6 @@ public interface MessageForumsUser {
     public void setApContributors(ActorPermissions apContributors);
     public ActorPermissions getApModerators();
     public void setApModerators(ActorPermissions apModerators);
+    public String getTypeUuid();  
+    public void setTypeUuid(String typeUuid);
 }

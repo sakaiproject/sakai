@@ -32,6 +32,7 @@ public class MessageForumsUserImpl implements MessageForumsUser {
     private Integer version; 
     protected String uuid;    
     protected String userId;
+    protected String typeUuid;
 
     // foreign keys for hibernate
     private ActorPermissions apAccessors; 
@@ -162,4 +163,22 @@ public class MessageForumsUserImpl implements MessageForumsUser {
     public String toString() {
         return "User.id:" + id;
     }
+
+    /**
+     * @return Returns the typeUuid.
+     */
+    public String getTypeUuid()
+    {
+      return typeUuid;
+    }
+
+    /**
+     * @param typeUuid The typeUuid to set.
+     */
+    public void setTypeUuid(String typeUuid)
+    {
+      this.typeUuid = typeUuid;
+    }
+    
+    
 }
