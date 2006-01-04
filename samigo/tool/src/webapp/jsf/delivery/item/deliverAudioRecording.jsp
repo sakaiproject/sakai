@@ -35,6 +35,7 @@ should be included in file importing DeliveryMessages
 <f:verbatim><br /></f:verbatim>
 <h:outputText value="#{msg.NoOfTries}: "  escape="false"/>
 <h:outputText value="#{question.triesAllowed} "  escape="false"/>
+<f:verbatim><br /></f:verbatim>
 <f:verbatim><IFRAME></f:verbatim>
 <%--   <%@ include file="/applets/audiorecorderjartest.html" %> --%>
 <f:verbatim></IFRAME></f:verbatim>
@@ -47,7 +48,7 @@ should be included in file importing DeliveryMessages
 <h:commandButton value="Upload" type="button"
   rendered="#{delivery.actionString=='previewAssessment'
                        || delivery.actionString=='reviewAssessment'
-                       || delivery.actionString=='gradeAssessment'}">/>
+                       || delivery.actionString=='gradeAssessment'}" />
 
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
    rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
