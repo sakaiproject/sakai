@@ -432,7 +432,9 @@ public class AudioRecorder
    */
   public void saveToFileAndPost(String tempFileName,
                                 AudioFileFormat.Type audioType,
-                                String urlString)
+                                String urlString,
+                                String filePath,
+                                int retriesLeft)
   {
     saveToFile(tempFileName, audioType);
 
@@ -450,7 +452,8 @@ public class AudioRecorder
       // No caching, we want the real thing.
       urlConn.setUseCaches(false);
 
-      // determine the content type
+      // determine the content type and extension
+      String mimeExtension = audioType.getExtension();
       String mimeType = "audio/basic";
 
       if (audioType.equals(AudioFileFormat.Type.AIFF))
@@ -464,6 +467,20 @@ public class AudioRecorder
 
       // Specify the content type.
       urlConn.setRequestProperty("Content-Type", mimeType);
+
+      // Specify meta-information in "From:" header
+
+      // audio test delivery path is in the form:
+      // assessmentXXX/questionXXX/agentId/audio.ext
+
+      String fileName = filePath + "/" + "audio" + "." + mimeExtension;
+
+      /**
+       * @todo deal with retriesLeft version later
+       */
+//      urlConn.setRequestProperty("From", fileName + "|" +retriesLeft);
+      urlConn.setRequestProperty("From", fileName);
+
 
       // Send binary POST output.
       OutputStream outputStream = urlConn.getOutputStream();
