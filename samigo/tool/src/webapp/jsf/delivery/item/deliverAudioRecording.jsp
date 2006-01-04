@@ -36,7 +36,7 @@ should be included in file importing DeliveryMessages
 <h:outputText value="#{msg.NoOfTries}: "  escape="false"/>
 <h:outputText value="#{question.triesAllowed} "  escape="false"/>
 <f:verbatim><IFRAME></f:verbatim>
-   <%@ include file="/applets/audiorecorderjartest.html" %>
+<%--   <%@ include file="/applets/audiorecorderjartest.html" %> --%>
 <f:verbatim></IFRAME></f:verbatim>
 <f:verbatim><br /></f:verbatim>
 
