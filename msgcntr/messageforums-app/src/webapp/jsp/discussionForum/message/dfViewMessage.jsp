@@ -7,7 +7,7 @@
 <f:view>
 <sakai:view>
 	<h:form id="DF-1">
-		<div class="header-section">
+		<sakai:group_box>
 			<div class="left-header-section">
 				<h3><h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
 					<h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" >
@@ -52,7 +52,7 @@
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 			</div>
-		</div>
+	  </sakai:group_box>	
 
 	<br/>
     <sakai:group_box>
