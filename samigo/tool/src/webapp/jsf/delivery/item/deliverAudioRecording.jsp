@@ -26,46 +26,29 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
-<%--
- "javascript: window.open('{$base}/{.}'
-         +'?filename='+audioFileName+'_{$itemIdentRef}.au'
-         +'&amp;seconds='+audioSeconds
-         +'&amp;limit='+audioLimit
-         +'&amp;app='+audioAppName
-         +'&amp;dir='+audioDir
-         +'&amp;imageUrl='+audioImageURL
-         +'&amp;item_ident_ref='+'{$itemIdentRef}',
-         '__ha_dialog',
-         'toolbar=no,menubar=no,personalbar=no,width=430,height=330,scrollbars=no,
-resizable=no');">
---%>
-<h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:outputLink rendered="#{delivery.actionString=='takeAssessment' 
-                       || delivery.actionString=='takeAssessmentViaUrl'}"
- value="javascript:window.open('/samigo/jsp/aam/applet/soundRecorder.jsp'
-         +'?filename='+'lydiattest'+'_1.au'
-         +'&amp;seconds='+'#{question.duration}'
-         +'&amp;limit='+'#{question.triesAllowed}'
-         +'&amp;app='+'#{audioAppName}'
-         +'&amp;dir='+'#{audioDir}'
-         +'&amp;imageUrl='+'#{audioImageURL}'
-         +'&amp;item_ident_ref='+'#{itemIdentRef}',
-       	'ha_fullscreen',
-	'toolbar=no,location=no,directories=no,status=no,menubar=yes, scrollbars=yes,resizable=yes,width=640,height=480');">
-  <h:graphicImage id="image" alt="#{msg.audio_recording}."
-    url="/images/recordresponse.gif" />
-</h:outputLink>
-
+<h:inputHidden id="audioItemId" value="{question.itemData.itemId}" />
+<h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <h:outputText value="#{msg.time_limit}: "  escape="false"/>
 <h:outputText value="#{question.duration} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <h:outputText value="#{msg.NoOfTries}: "  escape="false"/>
 <h:outputText value="#{question.triesAllowed} "  escape="false"/>
-
-
+<f:verbatim><IFRAME></f:verbatim>
+   <%@ include file="/applets/audiorecorderjartest.html" %>
+<f:verbatim></IFRAME></f:verbatim>
 <f:verbatim><br /></f:verbatim>
+
+<h:commandButton value="Upload" action="submit"
+    rendered="#{delivery.actionString=='takeAssessment'
+             || delivery.actionString=='takeAssessmentViaUrl'}"/>
+
+<h:commandButton value="Upload" type="button"
+  rendered="#{delivery.actionString=='previewAssessment'
+                       || delivery.actionString=='reviewAssessment'
+                       || delivery.actionString=='gradeAssessment'}">/>
+
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
    rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
             && delivery.navigation ne '1' }" />
