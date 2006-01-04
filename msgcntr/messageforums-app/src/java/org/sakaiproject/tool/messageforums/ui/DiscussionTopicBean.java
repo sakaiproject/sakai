@@ -164,6 +164,14 @@ public class DiscussionTopicBean
     }
   }
 
+  public void insertMessage(DiscussionMessageBean decoMessage)
+  {
+    if (!messages.contains(decoMessage))
+    {
+    	messages.add(0, decoMessage);
+    }
+  }
+
   /**
    * @return Returns the if ExtendedDesciption is available
    */

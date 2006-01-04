@@ -1587,7 +1587,8 @@ public class DiscussionForumTool
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
 
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
@@ -1612,7 +1613,8 @@ public class DiscussionForumTool
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -1772,7 +1774,8 @@ public class DiscussionForumTool
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -1797,7 +1800,8 @@ public class DiscussionForumTool
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -2066,7 +2070,8 @@ public class DiscussionForumTool
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
@@ -2090,7 +2095,8 @@ public class DiscussionForumTool
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
 
