@@ -38,6 +38,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -129,7 +130,7 @@ public class PrivateMessagesTool
   private PrivateForum forum;  
   private List pvtTopics=new ArrayList();
   private List decoratedPvtMsgs;
-  private String msgNavMode="" ;
+  private String msgNavMode="privateMessages" ;
   private PrivateMessageDecoratedBean detailMsg ;
   
   private String currentMsgUuid; //this is the message which is being currently edited/displayed/deleted
@@ -743,8 +744,15 @@ public class PrivateMessagesTool
   public String processActionHome()
   {
     LOG.debug("processActionHome()");
+    msgNavMode = "privateMessages";
     return  "main";
-  }
+  }  
+  public String processActionPrivateMessages()
+  {
+    LOG.debug("processActionPrivateMessages()");                    
+    msgNavMode = "privateMessages";            
+    return  "pvtMsgHpView";
+  }        
   public String processDisplayForum()
   {
     LOG.debug("processDisplayForum()");
@@ -760,12 +768,7 @@ public class PrivateMessagesTool
 
     return "pvtMsg";
   }
-  
-  public String processHpView()
-  { 
-    //TODO - check if instructor
-    return "pvtMsgHpView";
-  }
+    
   /**
    * process Cancel from all JSP's
    * @return - pvtMsg
@@ -2195,5 +2198,17 @@ public class PrivateMessagesTool
   public String getPrivacyAlert()
   {
     return ServerConfigurationService.getString(MESSAGECENTER_PRIVACY_TEXT);
+  }
+  
+  public boolean isAtMain(){
+    HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+    
+    String servletPath = req.getServletPath();
+    if (servletPath != null){
+      if (servletPath.endsWith("main.jsp")){
+        return true;
+      }      
+    }
+    return false;
   }
 }

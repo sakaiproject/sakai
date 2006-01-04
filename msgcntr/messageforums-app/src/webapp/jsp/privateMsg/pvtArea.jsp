@@ -1,16 +1,16 @@
 <%--********************* Private Message Area*********************--%>
-  <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 
-                        rendered="#{PrivateMessagesTool.pvtAreaEnabled || PrivateMessagesTool.instructor}">
+  
 <%--
   <mf:forum_bar_link value="#{msgs.pvt_organize}" action="#{PrivateMessagesTool.processPvtMsgOrganize}"/> &nbsp;
   <mf:forum_bar_link value="#{msgs.pvt_statistics}" action="#{PrivateMessagesTool.processPvtMsgStatistics}"/> &nbsp;
  --%>
-  <mf:forum_bar_link value="#{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}"/> &nbsp;
+  <mf:forum_bar_link value="#{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}"
+                     rendered="#{PrivateMessagesTool.atMain}"/> &nbsp;
   <h:dataTable width="100%" value="#{PrivateMessagesTool.decoratedForum}" var="forum" rendered="#{PrivateMessagesTool.pvtAreaEnabled}">
     <h:column >
     <f:verbatim><div class="forumsRow"><div class="forumsRowLeft"></f:verbatim>
     	
-    	<h:commandLink action="#{PrivateMessagesTool.processHpView}" immediate="true">
+    	<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" immediate="true">
   			<h:outputText value="#{PrivateMessagesTool.decoratedForum.forum.title}" />   
   		</h:commandLink>
   		
@@ -66,7 +66,5 @@
   </h:dataTable>       
   <h:panelGroup>	
 	<h:outputText rendered="#{PrivateMessagesTool.dispError}" value="#{msgs.pvt_mainpgerror}" />
-  </h:panelGroup>
-
-</mf:forumHideDivision>  
+  </h:panelGroup>  
   

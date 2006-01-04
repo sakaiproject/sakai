@@ -22,7 +22,12 @@
        <h:form id="msgForum">
       	<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
   		<h:messages styleClass="alertMessage" id="errorMessages" layout="table" />  		
-        <%@include file="privateMsg/pvtArea.jsp"%>
+  		  
+  		  <%-- include hide division here so that pvtArea can be used w/o div in isolated view --%>
+  		  <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 
+                        rendered="#{PrivateMessagesTool.pvtAreaEnabled || PrivateMessagesTool.instructor}">
+          <%@include file="privateMsg/pvtArea.jsp"%>
+        </mf:forumHideDivision>
         <%@include file="discussionForum/area/dfArea.jsp"%>
       </h:form>
   </sakai:view>
