@@ -49,7 +49,8 @@
 //-->
 </script>
       </head>
-<f:verbatim><body onload="collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();"></f:verbatim>
+
+<f:verbatim><body onload="collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>"></f:verbatim>
  <div class="portletBody">
 <h:form id="editform">
   <!-- HEADINGS -->
