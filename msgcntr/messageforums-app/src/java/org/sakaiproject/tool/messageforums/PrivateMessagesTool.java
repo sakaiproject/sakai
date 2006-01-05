@@ -304,57 +304,7 @@ public class PrivateMessagesTool
     decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
         PrivateMessageManager.SORT_DESC);
     
-    decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
-    
-//    Area privateArea=prtMsgManager.getPrivateMessageArea();
-//    if(privateArea != null ) {
-//     List forums=privateArea.getPrivateForums();
-//      //Private message return ONLY ONE ELEMENT
-//      for (Iterator iter = forums.iterator(); iter.hasNext();)
-//      {
-//        forum = (PrivateForum) iter.next();
-//        pvtTopics=forum.getTopics();
-//        
-//        //now get messages for each topics
-//        for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
-//        {
-//          Topic topic = (Topic) iterator.next();          
-//          if(topic.getTitle().equals(PVTMSG_MODE_RECEIVED))
-//          {            
-//            //TODO -- getMessages() should be changed to getReceivedMessages() ;
-//            //decoratedPvtMsgs=prtMsgManager.getReceivedMessages(getUserId()) ;
-//            decoratedPvtMsgs=topic.getMessages() ;
-//            break;
-//          } 
-//          if(topic.getTitle().equals(PVTMSG_MODE_SENT))
-//          {
-//            //decoratedPvtMsgs=prtMsgManager.getSentMessages(getUserId()) ;
-//            decoratedPvtMsgs=topic.getMessages() ;
-//            break;
-//          }  
-//          if(topic.getTitle().equals(PVTMSG_MODE_DELETE))
-//          {
-//            //decoratedPvtMsgs=prtMsgManager.getDeletedMessages(getUserId()) ;
-//            decoratedPvtMsgs=topic.getMessages() ;
-//            break;
-//          }  
-//          if(topic.getTitle().equals(PVTMSG_MODE_DRAFT))
-//          {
-//            //decoratedPvtMsgs=prtMsgManager.getDraftedMessages(getUserId()) ;
-//            decoratedPvtMsgs=topic.getMessages() ;
-//            break;
-//          }  
-//          if(topic.getTitle().equals(PVTMSG_MODE_CASE))
-//          {
-//            //decoratedPvtMsgs=prtMsgManager.getMessagesByTopic(getUserId(), getSelectedTopicId()) ;
-//            decoratedPvtMsgs=topic.getMessages() ;
-//            break;
-//          }    
-//        }
-//        //create decorated List
-//        decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
-//      }
-//    }
+    decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);    
 
     //pre/next message
     if(decoratedPvtMsgs != null)
@@ -387,7 +337,6 @@ public class PrivateMessagesTool
         }
       }
     }
-    //
     return decoratedPvtMsgs ;
   }
   
@@ -400,6 +349,11 @@ public class PrivateMessagesTool
       PrivateMessage element = (PrivateMessage) iter.next();                  
       
       PrivateMessageDecoratedBean dbean= new PrivateMessageDecoratedBean(element);
+      //if processSelectAll is set, then set isSelected true for all messages,
+      if(selectAll)
+      {
+        dbean.setIsSelected(true);
+      }
       //getRecipients() is filtered for this perticular user i.e. returned list of only one PrivateMessageRecipient object
       for (Iterator iterator = element.getRecipients().iterator(); iterator.hasNext();)
       {
@@ -411,6 +365,8 @@ public class PrivateMessagesTool
       
       decLs.add(dbean) ;
     }
+    //reset selectAll flag, for future use
+    selectAll=false;
     return decLs;
   }
   
@@ -766,6 +722,9 @@ public class PrivateMessagesTool
     setSelectedTopicId(getExternalParameterByKey("pvtMsgTopicId")) ;
     msgNavMode=getSelectedTopicTitle();
 
+    //set prev/next topic details
+    setPrevNextTopicDetails(msgNavMode);
+    
     return "pvtMsg";
   }
     
@@ -912,7 +871,7 @@ public class PrivateMessagesTool
     
     this.msgNavMode="" ;
     this.deleteConfirm=false;
-    
+    selectAll=false;
     attachments.clear();
     oldAttachments.clear();
   }
@@ -932,7 +891,7 @@ public class PrivateMessagesTool
   {
     LOG.debug("processPvtMsgComposeCancel()");
     resetComposeContents();
-    if(getMsgNavMode().equals(""))
+    if(("privateMessages").equals(getMsgNavMode()))
     {
       return "main" ; // if navigation is from main page
     }
@@ -1072,6 +1031,40 @@ public class PrivateMessagesTool
   }
   ///////////////////// Previous/Next topic and message on Detail message page
   /**
+   * Set Previous and Next message details with each PrivateMessageDecoratedBean
+   */
+  public void setPrevNextMessageDetails()
+  {
+    List tempMsgs = decoratedPvtMsgs;
+    for(int i=0; i<tempMsgs.size(); i++)
+    {
+      PrivateMessageDecoratedBean dmb = (PrivateMessageDecoratedBean)tempMsgs.get(i);
+      if(i==0)
+      {
+        dmb.setHasPre(false);
+        if(i==(tempMsgs.size()-1))
+        {
+            dmb.setHasNext(false);
+        }
+        else
+        {
+            dmb.setHasNext(true);
+        }
+      }
+      else if(i==(tempMsgs.size()-1))
+      {
+        dmb.setHasPre(true);
+        dmb.setHasNext(false);
+      }
+      else
+      {
+        dmb.setHasNext(true);
+        dmb.setHasPre(true);
+      }
+    }
+  }
+  
+  /**
    * processDisplayPreviousMsg()
    * Display the previous message from the list of decorated messages
    */
@@ -1175,6 +1168,150 @@ public class PrivateMessagesTool
     
     return null;
   }
+  
+  
+  /////////////////////////////////////     DISPLAY NEXT/PREVIOUS TOPIC     //////////////////////////////////  
+  private PrivateTopicDecoratedBean selectedTopic;
+  
+  /**
+   * @return Returns the selectedTopic.
+   */
+  public PrivateTopicDecoratedBean getSelectedTopic()
+  {
+    return selectedTopic;
+  }
+
+
+  /**
+   * @param selectedTopic The selectedTopic to set.
+   */
+  public void setSelectedTopic(PrivateTopicDecoratedBean selectedTopic)
+  {
+    this.selectedTopic = selectedTopic;
+  }
+
+
+  /**
+   * Add prev and next topic UUID value and booleans for display of links
+   * 
+   */
+  public void setPrevNextTopicDetails(String msgNavMode)
+  {
+    for (int i = 0; i < pvtTopics.size(); i++)
+    {
+      Topic el = (Topic)pvtTopics.get(i);
+      if(el.getTitle().equals(msgNavMode))
+      {
+        setSelectedTopic(new PrivateTopicDecoratedBean(el)) ;
+        if(i ==0)
+        {
+          getSelectedTopic().setHasPreviousTopic(false);
+          if(i==(pvtTopics.size()-1))
+          {
+            getSelectedTopic().setHasNextTopic(false) ;
+          }
+          else
+          {
+            getSelectedTopic().setHasNextTopic(true) ;
+            Topic nt=(Topic)pvtTopics.get(i+1);
+            if (nt != null)
+            {
+              //getSelectedTopic().setNextTopicId(nt.getUuid());
+              getSelectedTopic().setNextTopicTitle(nt.getTitle());
+            }
+          }
+        }
+        else if(i==(pvtTopics.size()-1))
+        {
+          getSelectedTopic().setHasPreviousTopic(true);
+          getSelectedTopic().setHasNextTopic(false) ;
+          
+          Topic pt=(Topic)pvtTopics.get(i-1);
+          if (pt != null)
+          {
+            //getSelectedTopic().setPreviousTopicId(pt.getUuid());
+            getSelectedTopic().setPreviousTopicTitle(pt.getTitle());
+          }          
+        }
+        else
+        {
+          getSelectedTopic().setHasNextTopic(true) ;
+          getSelectedTopic().setHasPreviousTopic(true);
+          
+          Topic nt=(Topic)pvtTopics.get(i+1);
+          if (nt != null)
+          {
+            //getSelectedTopic().setNextTopicId(nt.getUuid());
+            getSelectedTopic().setNextTopicTitle(nt.getTitle());
+          }
+          Topic pt=(Topic)pvtTopics.get(i-1);
+          if (pt != null)
+          {
+            //getSelectedTopic().setPreviousTopicId(pt.getUuid());
+            getSelectedTopic().setPreviousTopicTitle(pt.getTitle());
+          }
+        }
+        
+      }
+    }
+    //create a selected topic and set the topic id for next/prev topic
+  }
+  /**
+   * processDisplayPreviousFolder()
+   */
+  public String processDisplayPreviousTopic() {
+    String prevTopicTitle = getExternalParameterByKey("previousTopicTitle");
+    if(hasValue(prevTopicTitle))
+    {
+      msgNavMode=prevTopicTitle;
+      
+      decoratedPvtMsgs=new ArrayList() ;
+      
+      String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);        
+      
+      decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
+          PrivateMessageManager.SORT_DESC);
+      
+      decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
+
+      //set prev/next Topic
+      setPrevNextTopicDetails(msgNavMode);
+      //set prev/next message
+      setPrevNextMessageDetails();
+      
+    }
+    return null;
+  }
+  
+  /**
+   * processDisplayNextFolder()
+   */
+  public String processDisplayNextTopic()
+  {
+    String nextTitle = getExternalParameterByKey("nextTopicTitle");
+    if(hasValue(nextTitle))
+    {
+      msgNavMode=nextTitle;
+      decoratedPvtMsgs=new ArrayList() ;
+      
+      String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);        
+      
+      decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
+          PrivateMessageManager.SORT_DESC);
+      
+      decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
+
+      //set prev/next Topic
+      setPrevNextTopicDetails(msgNavMode);
+      //set prev/next message
+      setPrevNextMessageDetails();
+    }
+    return null;
+  }
+/////////////////////////////////////     DISPLAY NEXT/PREVIOUS TOPIC     //////////////////////////////////
+    
+  
+  
   //////////////////////////////////////////////////////////
   /**
    * @param externalTopicId
@@ -1365,42 +1502,27 @@ public class PrivateMessagesTool
   }
   
   
-
-  //select all
-  private boolean selectAllJobs = false;  
-
-  /**
-   * @return Returns the selectAllJobs.
-   */
-  public boolean isSelectAllJobs()
+  ///////////////////////////       Process Select All       ///////////////////////////////
+  private boolean selectAll = false;  
+  public boolean isSelectAll()
   {
-    return selectAllJobs;
+    return selectAll;
+  }
+  public void setSelectAll(boolean selectAll)
+  {
+    this.selectAll = selectAll;
   }
 
-
   /**
-   * @param selectAllJobs The selectAllJobs to set.
+   * process isSelected for all decorated messages
+   * @return same page i.e. will be pvtMsg 
    */
-  public void setSelectAllJobs(boolean selectAllJobs)
+  public String processCheckAll()
   {
-    this.selectAllJobs = selectAllJobs;
-  }
-
-
-  public String processSelectAllJobs()
-  {
-    List newLs=new ArrayList() ;
-    for (Iterator iter = this.getDecoratedPvtMsgs().iterator(); iter.hasNext();)
-    {
-      PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
-      element.setIsSelected(true);
-      newLs.add(element) ;
-      //TODO
-    }
-    setSelectAllJobs(true);
-    this.setSelectedDeleteItems(newLs);
-    this.setDecoratedPvtMsgs(newLs);
-    return "pvtMsg";
+    LOG.debug("processCheckAll()");
+    selectAll= !selectAll;
+    
+    return null;
   }
   
   //////////////////////////////   ATTACHMENT PROCESSING        //////////////////////////
@@ -1905,12 +2027,18 @@ public class PrivateMessagesTool
         }
       }
     }
+    if(newls.size()>1)
+    {
       this.setSearchPvtMsgs(newls) ;
-
-    return "pvtMsgEx" ;
+      return "pvtMsgEx" ;
+    }
+    else 
+      {
+        setErrorMessage("No matching result found");
+        return null;
+      }    
   }
   
- 
   //////////////        HELPER      //////////////////////////////////
   /**
    * @return

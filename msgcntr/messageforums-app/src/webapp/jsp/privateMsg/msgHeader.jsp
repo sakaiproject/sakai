@@ -1,5 +1,17 @@
 <%--********************* Message Header*********************--%>
         <sakai:group_box>
+       	<div class="right-header-section">
+			  <h:outputText   value="Previous Folder      "  rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
+    		<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="Previous Folder      "  rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}">
+	  			<f:param value="#{PrivateMessagesTool.selectedTopic.previousTopicTitle}" name="previousTopicTitle"/>
+	  		</h:commandLink>
+	  		<h:outputText   value="Next Folder      " rendered="#{!PrivateMessagesTool.selectedTopic.hasNextTopic}" />
+	  		<h:commandLink action="#{PrivateMessagesTool.processDisplayNextTopic}" value="Next Folder   " rendered="#{PrivateMessagesTool.selectedTopic.hasNextTopic}">
+	  			<f:param value="#{PrivateMessagesTool.selectedTopic.nextTopicTitle}" name="nextTopicTitle"/>
+	  		</h:commandLink>
+  			</div>
+  			</sakai:group_box>
+        <sakai:group_box>
           <table width="100%" align="center" class="tablebgcolor" >
             <tr>
               <td align="left" width="25%">
