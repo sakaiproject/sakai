@@ -27,7 +27,9 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 <f:verbatim><br /></f:verbatim>
-<h:inputHidden id="audioItemId" value="{question.itemData.itemId}" />
+<h:inputHidden id="audioMediaUploadPath"
+value="jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio.au"
+/>
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <h:outputText value="#{msg.time_limit}: "  escape="false"/>
@@ -47,9 +49,6 @@ should be included in file importing DeliveryMessages
   <f:actionListener
    type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener" />
 </h:commandButton>
-
-
-
 
 <h:commandButton value="Upload" type="button"
   rendered="#{delivery.actionString=='previewAssessment'
