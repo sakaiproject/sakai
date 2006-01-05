@@ -22,28 +22,27 @@
 **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
-import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.RequestDispatcher;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import javax.servlet.ServletInputStream;
 
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager.
  * Upload audio media to delivery bean.
- * This gets an input stream (from AudioRecorder.java in the client JVM)
+ * This gets a posted input stream (from AudioRecorder.java in the client JVM)
  * and writes out to a file.</p>
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
@@ -141,34 +140,4 @@ public class UploadAudioMediaServlet extends HttpServlet
     return outputStream;
   }
 
-//  public String getAgentString(HttpServletRequest req,  HttpServletResponse res){
-//    String agentIdString = req.getRemoteUser();
-//    if (agentIdString == null){ // try this
-//      agentIdString = AgentFacade.getAgentString();
-//    }
-//    if (agentIdString == null || agentIdString.equals("")){ // try this
-//      PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
-//         "person", req, res);
-//      agentIdString = person.getAnonymousId();
-//    }
-//    return agentIdString;
-//  }
-//
-//  public boolean canGrade(HttpServletRequest req,  HttpServletResponse res,
-//                          String agentId, String currentSiteId, String assessmentCreatedBy){
-//    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet(
-//         "authorization", req, res);
-//    boolean hasPrivilege_any = authzBean.getGradeAnyAssessment(req, currentSiteId);
-//    boolean hasPrivilege_own0 = authzBean.getGradeOwnAssessment(req, currentSiteId);
-//    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(agentId, assessmentCreatedBy));
-//    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
-//    return hasPrivilege;
-//  }
-//
-//
-//  public boolean isOwner(String agentId, String ownerId){
-//    boolean isOwner = false;
-//    isOwner = agentId.equals(ownerId);
-//    return isOwner;
-//  }
 }
