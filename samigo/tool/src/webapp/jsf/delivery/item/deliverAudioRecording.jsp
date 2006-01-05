@@ -45,7 +45,7 @@ value="jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.item
 
 <h:commandButton value="Upload" action="submit"
     rendered="#{delivery.actionString=='takeAssessment'
-             || delivery.actionString=='takeAssessmentViaUrl'}"
+             || delivery.actionString=='takeAssessmentViaUrl'}" >
   <f:actionListener
    type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener" />
 </h:commandButton>
