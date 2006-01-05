@@ -48,12 +48,13 @@
 		    <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
-		  <%--<h:column>
+		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_label}"/>
 		    </f:facet>
-		     <h:outputText value="#{rcvdItems.msg.label}"/>
-		  </h:column>--%>
+		     <h:outputText value="#{rcvdItems.msg.label}" rendered="#{rcvdItems.hasRead}"/>
+		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.label}" rendered="#{!rcvdItems.hasRead}"/>
+		  </h:column>
 		</h:dataTable>
            
 		</h:form>
