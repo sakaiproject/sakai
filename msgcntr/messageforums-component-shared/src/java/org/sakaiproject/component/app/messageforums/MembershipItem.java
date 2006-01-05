@@ -21,22 +21,49 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.messageforums;
+package org.sakaiproject.component.app.messageforums;
 
+import org.sakaiproject.api.kernel.id.cover.IdManager;
 import org.sakaiproject.service.legacy.authzGroup.Role;
+import org.sakaiproject.service.legacy.site.Group;
 import org.sakaiproject.service.legacy.user.User;
 
  /**
-   * Participant in site access roles
+   * Recipient Item for storing different types of recipients user/group/role
    *
    */
- public class RecipientItem implements Comparable
+ public class MembershipItem implements Comparable
  {
-   private String name;
-   private String uniqueName;
+   
+   /** in memory type sort */
+   public static final Integer TYPE_ALL_PARTICIPANTS = new Integer(1);
+   public static final Integer TYPE_ROLE = new Integer(2);
+   public static final Integer TYPE_GROUP = new Integer(3);
+   public static final Integer TYPE_USER = new Integer(4);   
+   
+   /** generated id */
+   private String id;
+   
+   private String name;   
+   private Integer type;
    private Role role;
+   private Group group;   
    private User user;
          
+  private MembershipItem(){
+  }
+  
+  public static MembershipItem getInstance(){
+    MembershipItem item = new MembershipItem();
+    item.id = IdManager.createUuid();
+    return item;
+  }
+  
+  public String getId()
+  {
+    return id;
+  }     
+   
   public String getName()
   {
     return name;
@@ -55,17 +82,7 @@ import org.sakaiproject.service.legacy.user.User;
   public void setRole(Role role)
   {
     this.role = role;
-  }
-
-  public String getUniqueName()
-  {
-    return uniqueName;
-  }
-
-  public void setUniqueName(String uniqueName)
-  {
-    this.uniqueName = uniqueName;
-  }
+  }  
 
   public User getUser()
   {
@@ -76,14 +93,43 @@ import org.sakaiproject.service.legacy.user.User;
   {
     this.user = user;
   }
+  
+  public Group getGroup()
+  {
+    return group;
+  }
+
+  public void setGroup(Group group)
+  {
+    this.group = group;
+  }
+
+  public Integer getType()
+  {
+    return type;
+  }
+
+  public void setType(Integer type)
+  {
+    this.type = type;
+  }
+
 
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
   public int compareTo(Object o)
   {    
-    RecipientItem p = (RecipientItem) o;
-    return this.name.compareTo(p.name);
+    MembershipItem item = (MembershipItem) o;
+    
+    int typeCompareResult = type.compareTo(item.type);
+    
+    if (typeCompareResult != 0){
+      return typeCompareResult;
+    }
+    else{
+      return this.name.compareTo(item.name);
+    }        
   }
 
   /**
@@ -95,12 +141,21 @@ import org.sakaiproject.service.legacy.user.User;
       return true;
     }
         
-    if (!(obj instanceof RecipientItem))
+    if (!(obj instanceof MembershipItem))
       return false;
     
-    RecipientItem rcptObj = (RecipientItem) obj;
-        
-    return uniqueName == null ? rcptObj.uniqueName == null : uniqueName.equals(rcptObj.uniqueName);
-  }    
+    MembershipItem rcptObj = (MembershipItem) obj;
+            
+    return id == null ? rcptObj.id == null : id.equals(rcptObj.id);                
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode()
+  {    
+    return id.hashCode();
+  } 
     
 }
+ 

@@ -20,6 +20,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String SITE_PARTICIPANT = "siteParticipant";
   private static final String GROUP = "group";
   private static final String ROLE = "role";
+  private static final String USER = "user";
 
   private static final String AUTHORITY = "org.sakaiproject.component.app.messageforums";
   private static final String DOMAIN = "sakai_messageforums";
@@ -123,7 +124,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     else
     {
       return (typeManager.createType(AUTHORITY, DOMAIN, RECEIVED,
-          "Received Private Massage Type", "Received Private Massage Type")
+          "Received Private Message Type", "Received Private Message Type")
           .getUuid());
     }
   }
@@ -142,7 +143,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     else
     {
       return (typeManager.createType(AUTHORITY, DOMAIN, SENT,
-          "Sent Private MassageType", "Sent Private Massage Type").getUuid());
+          "Sent Private MessageType", "Sent Private Message Type").getUuid());
     }
   }
 
@@ -160,7 +161,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     else
     {
       return (typeManager.createType(AUTHORITY, DOMAIN, DELETED,
-          "Deleted Private Massage Type", "Deleted Private Massage Type")
+          "Deleted Private Message Type", "Deleted Private Message Type")
           .getUuid());
     }
   }
@@ -179,7 +180,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     else
     {
       return (typeManager.createType(AUTHORITY, DOMAIN, DRAFT,
-          "Draft Private Massage Type", "Draft Private Massage Type").getUuid());
+          "Draft Private Message Type", "Draft Private Message Type").getUuid());
     }
   }
 
@@ -198,6 +199,22 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     {
       return (typeManager.createType(AUTHORITY, DOMAIN, ROLE, "ROLES",
           "Site Roles").getUuid());
+    }
+  }
+  
+
+  public String getUserType()
+  {
+    LOG.debug("getUserType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, USER);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, USER, "USERS",
+          "Users").getUuid());
     }
   }
 

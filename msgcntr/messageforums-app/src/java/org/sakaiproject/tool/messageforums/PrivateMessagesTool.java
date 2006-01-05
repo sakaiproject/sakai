@@ -44,7 +44,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -53,27 +53,21 @@ import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.Member;
-import org.sakaiproject.service.legacy.authzGroup.Role;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.service.legacy.content.ContentResource;
 import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
 import org.sakaiproject.service.legacy.entity.Reference;
 import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
@@ -95,7 +89,8 @@ public class PrivateMessagesTool
   private MessageForumsMessageManager messageManager;
   private MessageForumsForumManager forumManager;
   private ErrorMessages errorMessages;
-  SakaiPersonManager sakaiPersonManager ;
+  private SakaiPersonManager sakaiPersonManager;
+  private MembershipManager membershipManager;
   
   /** Dependency Injected   */
   private MessageForumsTypeManager typeManager;
@@ -172,6 +167,8 @@ public class PrivateMessagesTool
   /** The configuration mode, received, sent,delete, case etc ... */
   public static final String STATE_PVTMSG_MODE = "pvtmsg.mode";
   
+  private Map courseMemberMap;
+  
   public PrivateMessagesTool()
   {    
   }
@@ -200,6 +197,14 @@ public class PrivateMessagesTool
   public void setMessageManager(MessageForumsMessageManager messageManager)
   {
     this.messageManager = messageManager;
+  }
+  
+  /**
+   * @param membershipManager
+   */
+  public void setMembershipManager(MembershipManager membershipManager)
+  {
+    this.membershipManager = membershipManager;
   }
 
   
@@ -257,15 +262,7 @@ public class PrivateMessagesTool
   public boolean getPvtAreaEnabled()
   {  
     return area.getEnabled().booleanValue();
-  }    
-  
-//  public void setPvtAreaEnabled(boolean value){
-//    
-//    Area varArea = prtMsgManager.getPrivateMessageArea();
-//    varArea.setEnabled(Boolean.valueOf(value));
-//    prtMsgManager.savePrivateMessageArea(varArea);    
-//    
-//  }
+  }      
   
   //Return decorated Forum
   public PrivateForumDecoratedBean getDecoratedForum()
@@ -504,103 +501,31 @@ public class PrivateMessagesTool
   {
     return selectedComposeToList;
   }
-  
-  //return a list of participants of 'participant' type object
-  
+    
   public List getTotalComposeToList()
   { 
     
+    /** protect from jsf calling multiple times */
     if (totalComposeToList != null){
       return totalComposeToList;
     }
     
     totalComposeToListRecipients = new ArrayList();
-    
-    Set members = getAllCourseMembers(true);
-    
-    List roles = new ArrayList();
-    /** get roles for realm */    
-    try
-    {
-      AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(PortalService.getCurrentSiteId()));
-      if (group != null && group.getRoles() != null){
-        for (Iterator i = group.getRoles().iterator(); i.hasNext();){
-          Role r = (Role) i.next();
-          
-          /** find if any user has role */
-          boolean found = false;
-          for (Iterator j = members.iterator(); j.hasNext();){
-            RecipientItem item = (RecipientItem) j.next();
-            if (item.getRole().getId().equals(r.getId())){
-              found = true;
-            }
-          }
-          
-          if (!found){
-            continue;
-          }
-          
-          RecipientItem p = new RecipientItem();
-          String roleId = r.getId();          
-          switch (roleId.length()){
-            case 0:
-              break;
-            case 1:
-              roleId = roleId.toUpperCase();
-              break;
-            default:
-              roleId = roleId.substring(0,1).toUpperCase() + roleId.substring(1);              
-          }          
-          p.setName(roleId + " Role");
-          p.setRole(r);
-          roles.add(p);
-        }                  
-      }      
-    }
-    catch (IdUnusedException e)
-    {
-      LOG.error(e.getMessage(), e);      
-    }    
-    
-    Collections.sort(roles);
-    
-    /** add entire class to top of list */        
-    RecipientItem entireClass = new RecipientItem();
-    entireClass.setName("All Participants");
-    roles.add(0, entireClass);                
-    
-    List totalComposeToList=new ArrayList();
-    
-    /** maintain list of roles to be sorted */    
-    for (int i = 0; i < roles.size(); i++)
-    {
-      RecipientItem currentRecipient = (RecipientItem) roles.get(i); 
-      String currentDisplayName = currentRecipient.getName();      
-      totalComposeToList.add(new SelectItem(currentDisplayName));
-      totalComposeToListRecipients.add(currentRecipient);
-    }
-                       
-    
-    /** maintain list of members to be sorted */
-    List memberList = new ArrayList();
-    for (Iterator i = members.iterator(); i.hasNext();)
-    {
-      RecipientItem currentRecipient = (RecipientItem) i.next();
-      String currentDisplayName = currentRecipient.getName();
-      memberList.add(currentDisplayName);
-      totalComposeToListRecipients.add(currentRecipient);
-    }
-    
-    Collections.sort(memberList);
-    
-    for (Iterator iter = memberList.iterator(); iter.hasNext();)
-    {
-      String element = (String) iter.next();
-      totalComposeToList.add(new SelectItem(element));      
-    }
         
-    this.totalComposeToList = totalComposeToList;    
-    return totalComposeToList;
+    courseMemberMap = membershipManager.getAllCourseMembers(true);
+    List members = membershipManager.convertMemberMapToList(courseMemberMap);
+    List selectItemList = new ArrayList();
+    
+    /** create a list of SelectItem elements */
+    for (Iterator i = members.iterator(); i.hasNext();){
+      
+      MembershipItem item = (MembershipItem) i.next();     
+      selectItemList.add(
+        new SelectItem(item.getId(), item.getName()));
+    }
+    
+    totalComposeToList = selectItemList;
+    return selectItemList;       
   }
   
   public String getUserSortNameById(String id){    
@@ -2072,42 +1997,56 @@ public class PrivateMessagesTool
    * @return a set of recipients (User objects)
    */
   private Set getRecipients()
-  {    
-    Set allCourseMembers = getAllCourseMembers(false);
-    List selectedList = getSelectedComposeToList();
+  {     
+    List selectedList = getSelectedComposeToList();    
+    Set returnSet = new HashSet();
     
-    Set returnSet = new HashSet();    
-    
+    /** get List of unfiltered course members */
+    List allCourseUsers = membershipManager.getAllCourseUsers();                                       
+                    
     for (Iterator i = selectedList.iterator(); i.hasNext();){
       String selectedItem = (String) i.next();
-      if (selectedItem.equals(RECIPIANTS_ENTIRE_CLASS)){
-        returnSet.addAll(getUserRecipients(allCourseMembers));
-        break;
+      
+      /** lookup item in map */
+      MembershipItem item = (MembershipItem) courseMemberMap.get(selectedItem);
+      if (item == null){
+        LOG.warn("getRecipients() could not resolve uuid: " + selectedItem);
       }
-      else{
-        /** search totalComposeToList for matching name */
-        RecipientItem matchingItem = null;
-        
-        for (Iterator j = totalComposeToListRecipients.iterator(); j.hasNext();){
-          RecipientItem item = (RecipientItem) j.next();          
-          
-          if (item.getName().equalsIgnoreCase(selectedItem)){
-            matchingItem = item;
-            break;
+      else{                              
+        if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())){
+          for (Iterator a = allCourseUsers.iterator(); a.hasNext();){
+            MembershipItem member = (MembershipItem) a.next();            
+              returnSet.add(member.getUser());            
           }
         }
-        
-        if (matchingItem != null){
-          if (matchingItem.getUser() == null){ /** role **/            
-            returnSet.addAll(getUserRecipientsForRole(matchingItem.getRole().getId(), allCourseMembers));
+        else if (MembershipItem.TYPE_ROLE.equals(item.getType())){
+          for (Iterator r = allCourseUsers.iterator(); r.hasNext();){
+            MembershipItem member = (MembershipItem) r.next();
+            if (member.getRole().equals(item.getRole())){
+              returnSet.add(member.getUser());
+            }
           }
-          else{ /** user **/
-            returnSet.add(matchingItem.getUser());            
+        }
+        else if (MembershipItem.TYPE_GROUP.equals(item.getType())){
+          for (Iterator g = allCourseUsers.iterator(); g.hasNext();){
+            MembershipItem member = (MembershipItem) g.next();            
+            Set groupMemberSet = member.getGroup().getMembers();
+            for (Iterator s = groupMemberSet.iterator(); s.hasNext();){
+              Member m = (Member) s.next();
+              if (m.getUserId() != null && m.getUserId().equals(member.getUser().getId())){
+                returnSet.add(member.getUser());
+              }
+            }            
           }
-        }                
-      }
-    }            
-    
+        }
+        else if (MembershipItem.TYPE_USER.equals(item.getType())){
+          returnSet.add(item.getUser());
+        } 
+        else{
+          LOG.warn("getRecipients() could not resolve membership type: " + item.getType());
+        }
+      }             
+    }
     return returnSet;
   }
   
@@ -2120,7 +2059,7 @@ public class PrivateMessagesTool
     Set returnSet = new HashSet();
     
     for (Iterator i = courseMembers.iterator(); i.hasNext();){
-      RecipientItem item = (RecipientItem) i.next();      
+      MembershipItem item = (MembershipItem) i.next();      
         returnSet.add(item.getUser());
     }    
     return returnSet;    
@@ -2136,87 +2075,14 @@ public class PrivateMessagesTool
     Set returnSet = new HashSet();
     
     for (Iterator i = courseMembers.iterator(); i.hasNext();){
-      RecipientItem item = (RecipientItem) i.next();
+      MembershipItem item = (MembershipItem) i.next();
       if (item.getRole().getId().equalsIgnoreCase(roleName)){
         returnSet.add(item.getUser());   
       }
     }    
     return returnSet;    
   }
-    
-  /**
-   * get all members for course
-   * @return list of members
-   */
-  private Set getAllCourseMembers(boolean filterFerpa)
-  {   
-    
-    Set recipients = new HashSet();    
-    String realmId = SiteService.siteReference(PortalService.getCurrentSiteId());
- 
-    AuthzGroup realm;
-    try{
-      realm = AuthzGroupService.getAuthzGroup(realmId);
-    }
-    catch (IdUnusedException e){
-      LOG.debug(e.getMessage(), e);
-      return recipients;
-    }
-    
-    
-    Set grants = realm.getMembers();      
-    for (Iterator i = grants.iterator(); i.hasNext();)
-    {
-      Member m = (Member) i.next();
-      String userId = m.getUserId();
-      Role role = m.getRole();
-        
-      User user;
-      try{
-        user = UserDirectoryService.getUser(userId);
-      }
-      catch (IdUnusedException e){
-        LOG.debug(e.getMessage(), e);
-        continue;
-      }
-        
-      RecipientItem recipient = new RecipientItem();
-      recipient.setName(user.getSortName());
-      recipient.setUniqueName(userId);
-      recipient.setUser(user);
-      recipient.setRole(role);
-        
-      if(!(userId).equals("admin"))
-      {                                       
-        if (filterFerpa){                       
-          final List personList = sakaiPersonManager.findSakaiPersonByUid(userId);
-          boolean ferpa_flag = false;
-          for (Iterator iter = personList.iterator(); iter.hasNext();)
-          {
-            SakaiPerson element = (SakaiPerson) iter.next();            
-            if (Boolean.TRUE.equals(element.getFerpaEnabled())){
-              ferpa_flag = true;
-            }            
-          }                                          
-         if (!ferpa_flag || SecurityService.unlock(recipient.getUser(), 
-                                                   SiteService.SECURE_UPDATE_SITE,
-                                                   prtMsgManager.getContextSiteId())
-                         || SecurityService.unlock(UserDirectoryService.getCurrentUser(),
-                                                   SiteService.SECURE_UPDATE_SITE,
-                                                   prtMsgManager.getContextSiteId())
-          ){
-            recipients.add(recipient);
-          }
-        }
-        else{
-          recipients.add(recipient);
-        }
-      }                                
-    }
-    
-    return recipients;
-  }  
-  
+      
   private String getPrivateMessageTypeFromContext(String navMode){
     
     if (PVTMSG_MODE_RECEIVED.equalsIgnoreCase(navMode)){
