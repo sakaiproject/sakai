@@ -1,5 +1,6 @@
 package org.sakaiproject.tool.messageforums;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +13,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,6 +79,8 @@ public class DiscussionForumTool
   private static final String FORUM_ID = "forumId";
   private static final String MESSAGE_ID = "messageId";
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
+
+  private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "Insufficient privileges to edit Template Settings";
 
   private List forums = new ArrayList();
 
@@ -233,6 +237,11 @@ public class DiscussionForumTool
   public String processActionTemplateSettings()
   {
     LOG.debug("processActionTemplateSettings()");
+    if(!isInstructor())
+    {
+      setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
+      return MAIN;
+    }
     return TEMPLATE_SETTING;
   }
 
@@ -283,6 +292,11 @@ public class DiscussionForumTool
   public String processActionSaveTemplateSettings()
   {
     LOG.debug("processActionSaveForumSettings()");
+    if(!isInstructor())
+    {
+      setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
+      return MAIN;
+    }
     forumManager.saveAreaControlPermissions(templateControlPermissions);
     forumManager.saveAreaMessagePermissions(templateMessagePermissions);
     return MAIN;
@@ -293,6 +307,12 @@ public class DiscussionForumTool
    */
   public String processActionRestoreDefaultTemplate()
   {
+    LOG.debug("processActionRestoreDefaultTemplate()");
+    if(!isInstructor())
+    {
+      setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
+      return MAIN;
+    }
     templateControlPermissions = forumManager.getDefaultControlPermissions();
     templateMessagePermissions = forumManager.getDefaultMessagePermissions();
     return TEMPLATE_SETTING;
@@ -350,7 +370,7 @@ public class DiscussionForumTool
    */
   public boolean getNewForum()
   {
-    // TODO: apply for required actions
+    LOG.debug("getNewForum()");
     return uiPermissionsManager.isNewForum();
   }
 
@@ -377,9 +397,16 @@ public class DiscussionForumTool
    */
   public String processActionDeleteForumConfirm()
   {
+    LOG.debug("processActionDeleteForumConfirm()");
     if (selectedForum == null)
     {
       LOG.debug("There is no forum selected for deletion");
+      return MAIN;
+    }
+//  TODO:
+    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to delete this forum");
       return MAIN;
     }
     selectedForum.setMarkForDeletion(true);
@@ -395,6 +422,11 @@ public class DiscussionForumTool
     {
       LOG.debug("There is no forum selected for deletion");
     }
+    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to");
+      return MAIN;
+    }
     forumManager.deleteForum(selectedForum.getForum());
     reset();
     return MAIN;
@@ -409,9 +441,6 @@ public class DiscussionForumTool
     if (getNewForum())
     {
       DiscussionForum forum = forumManager.createForum();
-      //forum.setTitle("");
-      //forum.setShortDescription("");
-      //forum.setExtendedDescription("");
       selectedForum = null;
       selectedForum = new DiscussionForumBean(forum, uiPermissionsManager);
       return FORUM_SETTING_REVISE;
@@ -436,6 +465,11 @@ public class DiscussionForumTool
       setErrorMessage("Invalid forum selected");
       return MAIN;
     }
+    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change forum settings");
+      return MAIN;
+    }
     DiscussionForum forum = forumManager.getForumById(new Long(forumId));
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager);
     return FORUM_SETTING;
@@ -451,6 +485,11 @@ public class DiscussionForumTool
     if ((selectedForum) == null)
     {
       setErrorMessage("Forum not found");
+      return MAIN;
+    }
+    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change forum settings");
       return MAIN;
     }
     List attachList = selectedForum.getForum().getAttachments();
@@ -478,6 +517,16 @@ public class DiscussionForumTool
       setErrorMessage("Please enter a valid forum title");
       return FORUM_SETTING_REVISE;
     }
+    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change forum settings");
+      return MAIN;
+    }
+    if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to create new topic");
+      return MAIN;
+    }
     DiscussionForum forum = saveForumSettings(false);
     selectedTopic = createTopic(forum.getId());
     if (selectedTopic == null)
@@ -497,6 +546,12 @@ public class DiscussionForumTool
    */
   public String processActionSaveForumSettings()
   {
+    LOG.debug("processActionSaveForumSettings()");
+    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change forum settings");
+      return MAIN;
+    }
     if(selectedForum!=null && selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
           ||selectedForum.getForum().getTitle().trim().length()<1  ))
@@ -514,6 +569,12 @@ public class DiscussionForumTool
    */
   public String processActionSaveForumAsDraft()
   {
+    LOG.debug("processActionSaveForumAsDraft()");
+    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change forum settings");
+      return MAIN;
+    }
     if(selectedForum!=null && selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
           ||selectedForum.getForum().getTitle().trim().length()<1  ))
@@ -529,6 +590,7 @@ public class DiscussionForumTool
   private DiscussionForum saveForumSettings(boolean draft)
   {
     LOG.debug("saveForumSettings(boolean " + draft + ")");
+    
     if (selectedForum == null)
     {
       setErrorMessage("Selected Forum not found");
@@ -636,6 +698,11 @@ public class DiscussionForumTool
       prepareRemoveAttach.clear();
       return MAIN;
     }
+    if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to create new topic");
+      return MAIN;
+    }
     attachments.clear();
     prepareRemoveAttach.clear();
     return TOPIC_SETTING_REVISE;
@@ -658,6 +725,11 @@ public class DiscussionForumTool
     {
       setErrorMessage("Topic with id '" + getExternalParameterByKey(TOPIC_ID)
           + "'not found");
+      return MAIN;
+    }
+    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change topic settings");
       return MAIN;
     }
     setSelectedForumForCurrentTopic(topic);
@@ -741,6 +813,11 @@ public class DiscussionForumTool
       setErrorMessage("Please enter a valid topic title");
       return TOPIC_SETTING_REVISE;
     }
+    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change topic settings");
+      return MAIN;
+    }
     saveTopicSettings(true);
     reset();
     return MAIN;
@@ -777,9 +854,16 @@ public class DiscussionForumTool
    */
   public String processActionDeleteTopicConfirm()
   {
+    LOG.debug("processActionDeleteTopicConfirm()");
+    
     if (selectedTopic == null)
     {
       LOG.debug("There is no topic selected for deletion");
+      return MAIN;
+    }
+    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change topic settings");
       return MAIN;
     }
     selectedTopic.setMarkForDeletion(true);
@@ -790,10 +874,16 @@ public class DiscussionForumTool
    * @return
    */
   public String processActionDeleteTopic()
-  {
+  {   
+    LOG.debug("processActionDeleteTopic()");
     if (selectedTopic == null)
     {
       LOG.debug("There is no topic selected for deletion");
+    }
+    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change topic settings");
+      return MAIN;
     }
     forumManager.deleteTopic(selectedTopic.getTopic());
     reset();
@@ -814,6 +904,11 @@ public class DiscussionForumTool
       return MAIN;
     }
     setSelectedForumForCurrentTopic(topic);
+    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
+    {
+      setErrorMessage("Insufficient privileges to change topic settings");
+      return MAIN;
+    }
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
         uiPermissionsManager);
     
@@ -2730,5 +2825,23 @@ public class DiscussionForumTool
     FacesContext.getCurrentInstance().addMessage(null,
         new FacesMessage("Alert: " + errorMsg));
   }
+  
+  public List getAccessList()
+  {
+    List access = new ArrayList();
+    access.add(new SelectItem("allParticipants","All Participants"));
+    access.add(new SelectItem("All Instructors"));
+    access.add(new SelectItem("A"));
+    access.add(new SelectItem("B"));
+    access.add(new SelectItem("C"));
+    access.add(new SelectItem("D"));
+    return access;    
+  }
 
+  public List getContributorsList()
+  {
+    List access = new ArrayList();
+    access.add("allParticipants");   
+    return access;    
+  }
 }
