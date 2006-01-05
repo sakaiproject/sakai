@@ -27,29 +27,44 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 <f:verbatim><br /></f:verbatim>
-<h:inputHidden id="audioMediaUploadPath"
-value="jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio.au"
+
+<%-- this invisible text is a trick to get the value set in the component tree
+     without displaying it; audioMediaUploadPath will get this to the back end
+--%>
+<h:outputText id="audioMediaUploadPath" style="display:none"
+escape="false"
+value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio.au"
 />
+
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:outputText value="#{msg.time_limit}: "  escape="false"/>
+<h:outputLabel value="#{msg.time_limit}: "  />
 <h:outputText value="#{question.duration} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:outputText value="#{msg.NoOfTries}: "  escape="false"/>
+<h:outputLabel value="#{msg.NoOfTries}: " />
 <h:outputText value="#{question.triesAllowed} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <f:verbatim><IFRAME></f:verbatim>
-<%--   <%@ include file="/applets/audiorecorderjartest.html" %> --%>
+<%--   <%@ include file="/applets/audiorecorderjartest.html" %>
+--%>
 <f:verbatim></IFRAME></f:verbatim>
 <f:verbatim><br /></f:verbatim>
 
-<h:commandButton value="Upload" action="submit"
+<%-- debugging code, take this out later --%>
+<h:commandButton value="Debug" type="submit"  >
+  <f:actionListener
+   type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener" />
+</h:commandButton>
+
+<%-- delivery, actual upload action --%>
+<h:commandButton value="Upload" type="submit"
     rendered="#{delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl'}" >
   <f:actionListener
    type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener" />
 </h:commandButton>
 
+<%-- preview, simulated upload action --%>
 <h:commandButton value="Upload" type="button"
   rendered="#{delivery.actionString=='previewAssessment'
                        || delivery.actionString=='reviewAssessment'
