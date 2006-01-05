@@ -148,7 +148,7 @@ public class PrivateMessagesTool
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
   private String composeSubject ;
   private String composeBody ;
-  private String composeLabel ;   
+  private String selectedLabel="Normal" ;   //defautl set
   private List totalComposeToList;
   private List totalComposeToListRecipients;
   
@@ -460,14 +460,14 @@ public class PrivateMessagesTool
     this.composeBody = composeBody;
   }
 
-  public String getComposeLabel()
+  public String getSelectedLabel()
   {
-    return composeLabel;
+    return selectedLabel;
   }
   
-  public void setComposeLabel(String composeLabel)
+  public void setSelectedLabel(String selectedLabel)
   {
-    this.composeLabel = composeLabel;
+    this.selectedLabel = selectedLabel;
   }
 
   public String getComposeSendAsPvtMsg()
@@ -911,6 +911,8 @@ public class PrivateMessagesTool
     this.setReplyToBody("");
     this.getAttachments().clear();
     this.getAllAttachments().clear();
+    //reset label
+    this.setSelectedLabel("Normal");
   }
   /**
    * process from Compose screen
@@ -1016,7 +1018,8 @@ public class PrivateMessagesTool
       //aMsg.setCreated(getTime()) ;
       aMsg.setAuthor(getUserId());
       aMsg.setDraft(Boolean.FALSE);      
-      aMsg.setApproved(Boolean.FALSE);      
+      aMsg.setApproved(Boolean.FALSE);     
+      aMsg.setLabel(getSelectedLabel());
     }
     //Add attachments
     for(int i=0; i<attachments.size(); i++)
@@ -1373,6 +1376,8 @@ public class PrivateMessagesTool
     rrepMsg.setAuthor(getUserId());
     rrepMsg.setApproved(Boolean.FALSE);
     rrepMsg.setBody(getReplyToBody()) ;
+    
+    rrepMsg.setLabel(getSelectedLabel());
     
     rrepMsg.setInReplyTo(currentMessage) ;
     

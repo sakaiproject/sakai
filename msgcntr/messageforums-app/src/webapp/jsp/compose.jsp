@@ -139,8 +139,7 @@
 						--%>
 						</h:dataTable>   
 					</sakai:group_box>   
-        		
-<%--********************* Label *********************
+<hr/>
 				<sakai:group_box>
           <table width="80%" align="left">
             <tr>
@@ -148,14 +147,16 @@
                 <h:outputText value="#{msgs.pvt_label}"/>
               </td>
               <td align="left">
- 							  <h:selectOneListbox size="1" id="viewlist">
-            		  <f:selectItem itemLabel="Normal" itemValue="none"/>
+ 							  <h:selectOneListbox size="1" id="viewlist" value="#{PrivateMessagesTool.selectedLabel}">
+            		  <f:selectItem itemLabel="Normal" itemValue="Normal"/>
+            		  <f:selectItem itemLabel="Low Priority" itemValue="Low Priority"/>
+            		  <f:selectItem itemLabel="High Priority" itemValue="High Priority"/>
           			</h:selectOneListbox>  
               </td>                           
             </tr>                                
           </table>
         </sakai:group_box>
---%>		        
+		        
       <sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSend}" value="#{msgs.pvt_send}" />
         <%--<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgSaveDraft}" value="#{msgs.pvt_savedraft}" />--%>
