@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import javax.faces.component.UIOutput;
+import javax.faces.event.FacesEvent;
 
 /**
  * <p>Title: Samigo</p>
@@ -72,34 +73,50 @@ public class AudioUploadActionListener implements ActionListener
       // get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
 
-      // now find what component fired the event
-      UIComponent component = ae.getComponent();
-      // get the subview containing the audio question
-      UIComponent parent = component.getParent();
-
-      // get the its peer components from the parent
-      List peers = parent.getChildren();
-
-      // we're looking for the correct file upload
-      // we are using debugging code for now.
-      for (int i = 0; i < peers.size(); i++)
-      {
-        UIComponent peer = (UIComponent) peers.get(i);
-        log.info("Component i: " + i);
-        log.info("peer.getId(): " + peer.getId());
-        log.info("peer.getFamily(): " + peer.getFamily());
-        log.info("peer.getClass().getName(): " + peer.getClass().getName());
-        if (peer instanceof UIOutput)
-        {
-          String value = "" + ((UIOutput) peer).getValue();
-          log.info("peer is UIOutput: value = " + value);
-        }
-      }
-
+      // look for the correct file upload path information
+      String audioMediaUploadPath = getAudioMediaUploadPath(ae);
+      log.info("audioMediaUploadPath: " + audioMediaUploadPath);
 
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Get audio media upload path from the event's component tree.
+   * @param ae  the event
+   * @return
+   */
+  private String getAudioMediaUploadPath(FacesEvent ae)
+  {
+    String audioMediaUploadPath = null;
+
+    // now find what component fired the event
+    UIComponent component = ae.getComponent();
+    // get the subview containing the audio question
+    UIComponent parent = component.getParent();
+
+    // get the its peer components from the parent
+    List peers = parent.getChildren();
+
+    // look for the correct file upload path information
+    // held in the value of the component 'audioMediaUploadPath'
+    // we are printing debugging code for now.
+    for (int i = 0; i < peers.size(); i++)
+    {
+      UIComponent peer = (UIComponent) peers.get(i);
+
+      if ("audioMediaUploadPath".equals(peer.getId()) && peer instanceof UIOutput)
+      {
+        audioMediaUploadPath = "" + ((UIOutput) peer).getValue();
+        log.info("FOUND: Component " + i +
+                 " peer.getId(): " + peer.getId()+
+                 " peer.getValue(): " + audioMediaUploadPath );
+        break;
+      }
+    }
+
+    return audioMediaUploadPath;
   }
 
 }
