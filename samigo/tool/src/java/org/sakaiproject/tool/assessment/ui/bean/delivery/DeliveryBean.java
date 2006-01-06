@@ -1189,7 +1189,7 @@ public class DeliveryBean
       new SubmitToGradingActionListener();
     listener.processAction(null);
 
-    String returnValue="submitAssessment"; 
+    String returnValue="submitAssessment";
     if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
     {
       returnValue="anonymousThankYou";
@@ -1240,7 +1240,7 @@ public class DeliveryBean
     }
     forGrade = false;
 
-    if (this.actionMode == TAKE_ASSESSMENT 
+    if (this.actionMode == TAKE_ASSESSMENT
         || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     {
       SubmitToGradingActionListener listener =
@@ -1269,7 +1269,7 @@ public class DeliveryBean
     }
     forGrade = false;
 
-    if (this.actionMode == TAKE_ASSESSMENT 
+    if (this.actionMode == TAKE_ASSESSMENT
         || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     {
       SubmitToGradingActionListener listener =
@@ -1513,6 +1513,19 @@ public class DeliveryBean
    */
   public String addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
   {
+    String mediaLocation = (String) e.getNewValue();
+    log.debug("***2a. addMediaToItemGrading, new value =" + mediaLocation);
+    return addMediaToItemGrading(mediaLocation);
+  }
+    /**
+     * This method is used by jsf/delivery/deliverAudioRecording.jsp and
+     * is called by addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
+     *
+     * @param mediaLocation the  media location
+     * @return the action string
+     */
+    public String addMediaToItemGrading(String mediaLocation)
+    {
     GradingService gradingService = new GradingService();
     PublishedAssessmentService publishedService = new
       PublishedAssessmentService();
@@ -1535,9 +1548,6 @@ public class DeliveryBean
     log.info("***1b. addMediaToItemGrading, adata=" + adata);
 
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
-    String mediaLocation = (String) e.getNewValue();
-    log.debug("***2a. addMediaToItemGrading, new value =" + mediaLocation);
-
     // 3. get the questionId (which is the PublishedItemData.itemId)
     int assessmentIndex = mediaLocation.indexOf("assessment");
     int questionIndex = mediaLocation.indexOf("question");
@@ -1597,12 +1607,12 @@ public class DeliveryBean
     // 8. do whatever need doing
     DeliveryActionListener dlistener = new DeliveryActionListener();
     // false => do not reset the entire current delivery.pageContents.
-    // we will do it ourselves and only update the question that this media 
+    // we will do it ourselves and only update the question that this media
     // is attached to
-    dlistener.processAction(null, false); 
+    dlistener.processAction(null, false);
     if (newItemGradingData)
       attachToItemContentBean(itemGradingData, questionId);
-    
+
     // 9. do the timer thing
     Integer timeLimit = null;
     if (adata != null && adata.getPublishedAssessment() != null
@@ -1960,13 +1970,13 @@ public class DeliveryBean
     list.add(itemGradingData);
     //find out sectionId from questionId
     PublishedAssessmentService publishedService = new
-	PublishedAssessmentService();
+  PublishedAssessmentService();
     PublishedItemData publishedItem = publishedService.
-	loadPublishedItem(questionId);
+  loadPublishedItem(questionId);
     PublishedSectionData publishedSection = (PublishedSectionData) publishedItem.getSection();
     String sectionId = publishedSection.getSectionId().toString();
     SectionContentsBean partSelected = null;
- 
+
     //get all partContents
     ArrayList parts = getPageContents().getPartsContents();
     for (int i=0; i<parts.size(); i++){
@@ -1977,7 +1987,7 @@ public class DeliveryBean
         partSelected = part;
         break;
       }
-    } 
+    }
     //locate the itemContentBean - the hard way, sigh...
     ArrayList items = new ArrayList();
     if (partSelected!=null)
@@ -2004,8 +2014,8 @@ public class DeliveryBean
     this.actionString = actionString;
     // the follwoing two values will be evaluated when reviewing assessment
     // based on PublishedFeedback settings
-    setFeedback("false"); 
-    setNoFeedback("true"); 
+    setFeedback("false");
+    setNoFeedback("true");
 
     if (("previewAssessment").equals(actionString)){
       setActionMode(PREVIEW_ASSESSMENT);
@@ -2051,7 +2061,7 @@ public class DeliveryBean
     AssessmentGradingData adata = getAssessmentGrading();
     if (adata != null){ // adata would be null during preview
       float f = (new Float(getTimeElapse())).floatValue();
-      int i = Math.round(f); 
+      int i = Math.round(f);
       adata.setTimeElapsed(new Integer(i));
       GradingService gradingService = new GradingService();
       gradingService.saveOrUpdateAssessmentGrading(adata);
@@ -2066,7 +2076,7 @@ public class DeliveryBean
       if (isTimeRunning() && adata != null){ // adata can't be null at this point
         float diff = (currentTime - getLastTimer())/1000;
 
-        int diff_int = Math.round(diff); 
+        int diff_int = Math.round(diff);
         adata.setTimeElapsed(new Integer(diff_int));
         GradingService gradingService = new GradingService();
         gradingService.saveOrUpdateAssessmentGrading(adata);
