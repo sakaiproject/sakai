@@ -12,4 +12,14 @@
    <attainGoal name="sakai:deploy" />
 </goal>
 
+<preGoal name="jar:jar">
+  <!-- includes *.hbm.xml, *.properties, *.xml which live among the code -->
+  <copy todir="target/classes" includeemptydirs="false"
+    verbose="false">
+    <fileset dir="src/java"> 
+      <exclude name="**/*.java" />
+    </fileset>
+  </copy>
+</preGoal >
+
 </project>
