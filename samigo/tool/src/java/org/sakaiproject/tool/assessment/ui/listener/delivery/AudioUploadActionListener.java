@@ -60,7 +60,7 @@ public class AudioUploadActionListener implements ActionListener
   private static ContextUtil cu;
 
   /**
-   * ACTION.
+   * ACTION. add audio recording to item grading
    * @param ae the action event triggering the processAction method
    * @throws AbortProcessingException
    */
@@ -76,6 +76,11 @@ public class AudioUploadActionListener implements ActionListener
       // look for the correct file upload path information
       String audioMediaUploadPath = getAudioMediaUploadPath(ae);
       log.info("audioMediaUploadPath: " + audioMediaUploadPath);
+
+      // now use utility method to fetch the file
+      delivery.addMediaToItemGrading(audioMediaUploadPath);
+      log.info("delivery.addMediaToItemGrading(audioMediaUploadPath)");
+
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -101,7 +106,6 @@ public class AudioUploadActionListener implements ActionListener
 
     // look for the correct file upload path information
     // held in the value of the component 'audioMediaUploadPath'
-    // we are printing debugging code for now.
     for (int i = 0; i < peers.size(); i++)
     {
       UIComponent peer = (UIComponent) peers.get(i);
