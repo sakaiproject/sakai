@@ -44,10 +44,38 @@ value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question
 <h:outputLabel value="#{msg.NoOfTries}: " />
 <h:outputText value="#{question.triesAllowed} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<f:verbatim><IFRAME></f:verbatim>
-<%--   <%@ include file="/applets/audiorecorderjartest.html" %>
---%>
-<f:verbatim></IFRAME></f:verbatim>
+<f:verbatim><object
+    classid = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+    codebase = "http://java.sun.com/update/1.5.0/jinstall-1_5-windows-i586.cab#Version=1,5,0,0"
+    WIDTH = "450" HEIGHT = "450" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
+    <PARAM NAME = CODE VALUE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" >
+    <PARAM NAME = ARCHIVE VALUE = "sakai-samigo-audio-TRUNK.jar" >
+    <PARAM NAME = CODEBASE VALUE = "." >
+    <PARAM NAME = NAME VALUE = "Test Audio Applet" >
+    <param name = "type" value = "application/x-java-applet;version=1.5">
+    <param name = "scriptable" value = "false">
+
+    <comment>
+  <embed
+            type = "application/x-java-applet;version=1.5" \
+            CODE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" \
+            JAVA_CODEBASE = "." \
+            ARCHIVE = "sakai-samigo-audio-TRUNK.jar"
+            NAME = "Test Audio Applet" \
+            WIDTH = "450" \
+            HEIGHT = "450" \
+            ALIGN = "middle" \
+            VSPACE = "2" \
+            HSPACE = "2"
+      scriptable = false
+      pluginspage = "http://java.sun.com/products/plugin/index.html#download">
+      <noembed>
+
+            </noembed>
+  </embed>
+    </comment>
+</object>
+</f:verbatim>
 <f:verbatim><br /></f:verbatim>
 
 <%-- debugging code, take this out later --%>
