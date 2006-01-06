@@ -38,6 +38,7 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -45,6 +46,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
@@ -54,8 +56,10 @@ import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
@@ -472,9 +476,25 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setCreatedBy(getCurrentUser());
         forum.setLocked(Boolean.FALSE);
         forum.setDraft(Boolean.FALSE);
-        forum.setTypeUuid(typeManager.getDiscussionForumType());
+        forum.setTypeUuid(typeManager.getDiscussionForumType());                  
+        forum.setActorPermissions(createDefaultActorPermissions());
         LOG.debug("createDiscussionForum executed");
         return forum;
+    }
+
+    public ActorPermissions createDefaultActorPermissions()
+    {
+      ActorPermissions actorPermissions = new ActorPermissionsImpl();
+      List notSpecified= new ArrayList();
+      MessageForumsUser forumUser= new MessageForumsUserImpl();
+      forumUser.setUserId(typeManager.getNotSpecifiedType());
+      forumUser.setUuid(typeManager.getNotSpecifiedType());
+      forumUser.setTypeUuid(typeManager.getNotSpecifiedType());
+      notSpecified.add(forumUser);
+      actorPermissions.setAccessors(notSpecified);   
+      actorPermissions.setContributors(notSpecified);
+      actorPermissions.setModerators(notSpecified);
+      return actorPermissions;
     }
 
     /**
@@ -576,10 +596,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void saveDiscussionForumTopic(DiscussionTopic topic) {
         boolean isNew = topic.getId() == null;
 
-        if (isForumLocked(topic.getBaseForum().getId())) {
-            LOG.info("saveDiscussionForumTopic executed [topicId: " + (isNew ? "new" : topic.getId().toString()) + "] but forum is locked -- save aborted");
-            throw new LockedException("Topic could not be saved [topicId: " + (isNew ? "new" : topic.getId().toString()) + "]");
-        }
+//        if (isForumLocked(topic.getBaseForum().getId())) {
+//            LOG.info("saveDiscussionForumTopic executed [topicId: " + (isNew ? "new" : topic.getId().toString()) + "] but forum is locked -- save aborted");
+//            throw new LockedException("Topic could not be saved [topicId: " + (isNew ? "new" : topic.getId().toString()) + "]");
+//        }
         
         if (topic.getMutable() == null) {
             topic.setMutable(Boolean.FALSE);
