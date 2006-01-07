@@ -130,7 +130,7 @@ public class AudioRecorder
   JButton auB, aiffB, waveB;
   JTextField textField;
 
-  String fileName = res.getString("untitled");
+  String fileName = res.getString("default_file_name");
   String errStr;
   double duration, seconds;
   File file;
@@ -277,7 +277,7 @@ public class AudioRecorder
       {
         file = null;
         capture.start();
-        fileName = res.getString("untitled");
+        fileName = res.getString("default_file_name");
         samplingGraph.start();
         loadB.setEnabled(false);
         playB.setEnabled(false);
