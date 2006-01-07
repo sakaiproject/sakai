@@ -80,12 +80,6 @@ value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question
 </f:verbatim>
 <f:verbatim><br /></f:verbatim>
 
-<%-- debugging code, take this out later --%>
-<h:commandButton value="Debug" type="submit"  >
-  <f:actionListener
-   type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener" />
-</h:commandButton>
-
 <%-- delivery, actual upload action --%>
 <h:commandButton value="Upload" type="submit"
     rendered="#{delivery.actionString=='takeAssessment'
