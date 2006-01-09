@@ -27,6 +27,7 @@ import org.sakaiproject.tool.assessment.ui.queue.delivery.SubmitTimedAssessmentT
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Timer;
 
 /**
  * <p>Title: </p>
@@ -40,7 +41,8 @@ import java.util.Iterator;
 public class TimedAssessmentQueue { 
   private static TimedAssessmentQueue instance; 
   private HashMap queue;
-  private SubmitTimedAssessmentThread thread;
+    // private SubmitTimedAssessmentThread thread;
+  private Timer timer;
 
   private TimedAssessmentQueue() { 
     queue = new HashMap();
@@ -55,19 +57,28 @@ public class TimedAssessmentQueue {
 
   public void add(TimedAssessmentGradingModel timedAG){
     queue.put(timedAG.getAssessmentGradingId(), timedAG);
-    if (thread == null){
-      thread = new SubmitTimedAssessmentThread(); 
-      thread.run();
+    System.out.println("***1. add to  queue, timer="+timer);
+    scheduleTask();
+    System.out.println("***2. add to  queue, timer="+timer);
+  }
+
+  private void scheduleTask(){
+    if (timer == null){
+      timer  = new Timer();
+      timer.schedule(new SubmitTimedAssessmentThread(), 5*1000,24*3600*1000); 
     }
   }
 
   public void remove(TimedAssessmentGradingModel timedAG){
     queue.remove(timedAG.getAssessmentGradingId());
-    if (isEmpty())
-      thread.destroy();
+    if (isEmpty()){
+      System.out.println("*** before destroy, timer="+timer);
+      timer.cancel();
+      System.out.println("*** after destroy, timer="+timer);
+    }
   }
 
-  public TimedAssessmentGradingModel getTimedAssessmentGrading(Long assessmentGradingId){
+  public TimedAssessmentGradingModel get(Long assessmentGradingId){
     return (TimedAssessmentGradingModel)queue.get(assessmentGradingId);
   }
 

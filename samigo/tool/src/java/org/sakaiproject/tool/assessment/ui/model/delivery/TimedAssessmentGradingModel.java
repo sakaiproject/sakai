@@ -37,6 +37,7 @@ public class TimedAssessmentGradingModel
 {
   private Long assessmentGradingId;
   private int timeLimit; // in seconds
+  private int timeLeft; // in seconds
   private Date beginDate;
   private Date expirationDate;
   private Date localBeginDate;
@@ -46,7 +47,7 @@ public class TimedAssessmentGradingModel
   /* 30 sec, this is to allow JScript clock to catch up before server submit the
    * assessment for grade
    */ 
-  private int latencyBuffer=30; 
+  private int latencyBuffer=30*1000; 
 
   /* timedAG is removed from timedAssessmentQueue immediately if the submission for
    * grade is initiated by user OR the AutoSubmit script in the web page. If user exit
@@ -54,24 +55,40 @@ public class TimedAssessmentGradingModel
    * when time is up and also clean up the timedAG in queue. So we add a transactionBuffer
    * here before server clean up
    */ 
-  private int transactionBuffer=30; // 30 sec
+  private int transactionBuffer=30*1000; // 30 sec
 
   public TimedAssessmentGradingModel() {
   }
 
   public TimedAssessmentGradingModel(Long assessmentGradingId,
-      int timeLimit, int latencyBuffer, int transactionBuffer,
+      int timeLimit, int timeLeft,
       Date beginDate, Date localBeginDate, 
       boolean submittedForGrade){
     this.assessmentGradingId = assessmentGradingId;
     this.timeLimit = timeLimit;
+    this.timeLeft = timeLeft;
+    this.beginDate = beginDate;
+    this.expirationDate = new Date(beginDate.getTime() + timeLeft + latencyBuffer);
+    this.submittedForGrade = submittedForGrade;
+    this.localBeginDate = localBeginDate;
+    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft + latencyBuffer);
+  }
+
+  public TimedAssessmentGradingModel(Long assessmentGradingId,
+      int timeLimit, int timeLeft, 
+      int latencyBuffer, int transactionBuffer,
+      Date beginDate, Date localBeginDate, 
+      boolean submittedForGrade){
+    this.assessmentGradingId = assessmentGradingId;
+    this.timeLimit = timeLimit;
+    this.timeLeft = timeLeft;
     this.latencyBuffer = latencyBuffer;
     this.transactionBuffer = transactionBuffer;
     this.beginDate = beginDate;
-    this.expirationDate = new Date(beginDate.getTime() + timeLimit + latencyBuffer);
+    this.expirationDate = new Date(beginDate.getTime() + timeLeft + latencyBuffer);
     this.submittedForGrade = submittedForGrade;
     this.localBeginDate = localBeginDate;
-    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLimit + latencyBuffer);
+    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft + latencyBuffer);
   }
 
   public Long getAssessmentGradingId() {
@@ -88,6 +105,14 @@ public class TimedAssessmentGradingModel
 
   public void setTimeLimit(int timeLimit) {
     this.timeLimit = timeLimit;
+  }
+
+  public int getTimeLeft() {
+    return timeLeft;
+  }
+
+  public void setTimeLeft(int timeLeft) {
+    this.timeLeft = timeLeft;
   }
 
   public int getLatencyBuffer() {

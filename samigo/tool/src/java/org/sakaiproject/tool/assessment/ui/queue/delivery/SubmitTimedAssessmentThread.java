@@ -23,12 +23,15 @@
 
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.TimerTask;
 
 /**
  * <p>Title: Samigo</p>
@@ -38,7 +41,7 @@ import java.util.Iterator;
  * @version $Id: SubmitTimedAssessmentThread.java 1294 2005-08-19 17:22:35Z esmiley@stanford.edu $
  */
 
-public class SubmitTimedAssessmentThread extends Thread
+public class SubmitTimedAssessmentThread extends TimerTask
 {
 
   private static Log log = LogFactory.getLog(SubmitTimedAssessmentThread.class);
@@ -47,22 +50,34 @@ public class SubmitTimedAssessmentThread extends Thread
   public void run(){
     // get the queue, go through the queue till it is empty     
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+    System.out.println("*** going through queue");
     Iterator iter = queue.iterator();
     while (iter.hasNext()){
       TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)iter.next();
+      System.out.println("****** going through timedAG in queue, timedAG"+timedAG);
       boolean submitted = timedAG.getSubmittedForGrade();
       long expirationTime = timedAG.getExpirationDate().getTime();
       long currentTime = (new Date()).getTime();
 
+      System.out.println("*** submitted="+submitted);
       if (!submitted){
-	if (currentTime > expirationTime){ // time's up
+        if (currentTime > expirationTime){ // time's up, i.e. timeLeft + latency buffer reached
           timedAG.setSubmittedForGrade(true);
-          // persist status to DB
-	}
+          // set all the properties right and persist status to DB
+          GradingService service = new GradingService();
+          AssessmentGradingData ag = service.load(timedAG.getAssessmentGradingId().toString());
+          ag.setForGrade(Boolean.TRUE);
+          ag.setTimeElapsed(new Integer(timedAG.getTimeLimit()));
+          ag.setSubmittedDate(new Date());
+          service.saveOrUpdateAssessmentGrading(ag);
+          System.out.println("**** 3. time's up, timeLeft+latency buffer reached, saved to DB");
+        }
       }
-      else{ // not submitted 
-        if (currentTime > (expirationTime + timedAG.getTransactionBuffer()))
+      else{ //submitted, remove from queue if transaction buffer is also reached
+        if (currentTime > (expirationTime + timedAG.getTransactionBuffer())){
           queue.remove(timedAG);
+          System.out.println("**** 4. transation buffer reached");
+        }
       }
     }
   }

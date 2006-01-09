@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -64,6 +65,8 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import  org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
+import  org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 
 /**
  * <p>Title: Samigo</p>
@@ -93,6 +96,8 @@ public class DeliveryActionListener
     AbortProcessingException
   {
     log.debug("DeliveryActionListener.processAction() ");
+    FacesContext context = FacesContext.getCurrentInstance();
+    Map requestParams = context.getExternalContext().getRequestParameterMap();
 
     try
     {
@@ -171,7 +176,9 @@ public class DeliveryActionListener
               // ag can't be null beyond this point and must have persisted to DB
               // version 2.1.1 requirement
               setFeedbackMode(delivery);
+              System.out.println("***a. beginAssessment="+delivery.getBeginAssessment());
               setTimer(delivery, publishedAssessment);
+              System.out.println("***b. beginAssessment="+delivery.getBeginAssessment());
 
               // extend session time out
               SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
@@ -1425,8 +1432,6 @@ public class DeliveryActionListener
     }
   }
 
-
-
   private void setTimer(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
     // i hope to use the property timedAssessment but it appears that this property
     // is not recorded properly in DB - daisyf
@@ -1436,16 +1441,39 @@ public class DeliveryActionListener
     else{
       delivery.setTimeRunning(true);
       delivery.setTimeLimit(timeLimit+"");
-      //assessment is half done, load setting saved in DB
+
+      //if assessment is half done, load setting saved in DB,
+      // else set time elapsed as 0
       AssessmentGradingData ag = delivery.getAssessmentGrading();
       if (ag.getTimeElapsed() != null) 
         delivery.setTimeElapse(ag.getTimeElapsed().toString());
-      else
+      else  // this is a new timed assessment
         delivery.setTimeElapse("0");
 
       delivery.setBeginTime(ag.getAttemptDate());
-      if (delivery.getLastTimer()==0)
+      if (delivery.getLastTimer()==0){
         delivery.setLastTimer((new Date()).getTime()); //set the time when the user click Begin Assessment
+      }
+
+      // if listener is evoked by beginAssessment, put in queue
+      if (delivery.getBeginAssessment()){
+        //queueTimedAssessment(ag, timeLimit);
+        delivery.setBeginAssessment(false);
+      }
+    }
+  }
+
+  private void queueTimedAssessment(AssessmentGradingData ag, int timeLimit){
+    TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+    TimedAssessmentGradingModel timedAG = queue.get(ag.getAssessmentGradingId());
+    if (timedAG == null){
+      timedAG = new TimedAssessmentGradingModel(ag.getAssessmentGradingId(), 
+                timeLimit, timeLimit - ag.getTimeElapsed().intValue(),
+                new Date(), new Date(), // need modify later
+                false);
+      queue.add(timedAG);
+      System.out.println("***0. queue="+queue);
+      System.out.println("***1. put timedAG in queue, timedAG="+timedAG);
     }
   }
 

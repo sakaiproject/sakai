@@ -142,6 +142,7 @@
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl'}">
+<%--    <f:param name="beginAssessment" value="true"/> --%>
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 

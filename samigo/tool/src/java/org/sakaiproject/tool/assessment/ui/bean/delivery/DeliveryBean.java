@@ -183,6 +183,8 @@ public class DeliveryBean
   //cwen
   private String siteId;
 
+  private boolean beginAssessment;
+
   // this instance tracks if the Agent is taking a test via URL, as well as
   // current agent string (if assigned). SAK-1927: esmiley
   private AgentFacade deliveryAgent;
@@ -481,7 +483,7 @@ public class DeliveryBean
         this.timeElapse = getTimeLimit();
     }
     catch (Exception e){
-      log.warn(e.getMessage());
+      log.warn("setTimeElapse error:"+e.getMessage());
     }
   }
 
@@ -2086,4 +2088,11 @@ public class DeliveryBean
     }
   }
 
+  public boolean getBeginAssessment(){
+    return beginAssessment;
+  }
+
+  public void setBeginAssessment(boolean beginAssessment){
+    this.beginAssessment = beginAssessment;
+  }
 }

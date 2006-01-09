@@ -88,6 +88,7 @@ public class LoginServlet
     delivery.setTimeElapse("0");
     delivery.setLastTimer(0);
     delivery.setTimeLimit("0");
+    delivery.setBeginAssessment(true);
 
     // set path
     delivery.setContextPath(req.getContextPath());
