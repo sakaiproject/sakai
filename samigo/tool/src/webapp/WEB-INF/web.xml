@@ -225,6 +225,12 @@
     <url-pattern>/servlet/Login</url-pattern>
   </servlet-mapping>
 
+  <servlet-mapping>
+    <servlet-name>UploadAudioMediaServlet</servlet-name>
+    <url-pattern>/servlet/UploadAudio</url-pattern>
+  </servlet-mapping>
+
+
 
   <!-- BEGIN APACHE AXIS SECTION-->
   <servlet>
