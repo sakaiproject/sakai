@@ -212,6 +212,22 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.UploadAudioMediaServlet</servlet-class>
   </servlet>
 
+  <servlet-mapping>
+    <servlet-name>ShowMediaServlet</servlet-name>
+    <url-pattern>/servlet/ShowMedia</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>LoginServlet</servlet-name>
+    <url-pattern>/servlet/Login</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>UploadAudioMediaServlet</servlet-name>
+    <url-pattern>/servlet/UploadAudio</url-pattern>
+  </servlet-mapping>
+
+  <!-- initialization servlets -->
   <servlet>
     <servlet-name>storeApplicationContext</servlet-name>
     <description>This servlet stores the Spring application context in memory.</description>
@@ -232,6 +248,8 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.InitMimeTypes</servlet-class>
     <load-on-startup>2</load-on-startup>
   </servlet>
+
+  <!-- BEGIN FACES SERVLET SECTION-->
 
   <!-- Faces Servlet -->
   <servlet>
@@ -259,21 +277,6 @@
   <servlet-mapping>
       <servlet-name>Faces Servlet</servlet-name>
       <url-pattern>*.xml</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>ShowMediaServlet</servlet-name>
-    <url-pattern>/servlet/ShowMedia</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>LoginServlet</servlet-name>
-    <url-pattern>/servlet/Login</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>UploadAudioMediaServlet</servlet-name>
-    <url-pattern>/servlet/UploadAudio</url-pattern>
   </servlet-mapping>
 
   <!-- BEGIN APACHE AXIS SECTION-->

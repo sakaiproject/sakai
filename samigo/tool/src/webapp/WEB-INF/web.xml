@@ -160,12 +160,25 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.UploadAudioMediaServlet</servlet-class>
   </servlet>
 
-  <!-- Faces Servlet -->
-  <servlet>
-      <servlet-name>Faces Servlet</servlet-name>
-      <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-      <load-on-startup> 1 </load-on-startup>
-  </servlet>
+  <servlet-mapping>
+    <servlet-name>ShowMediaServlet</servlet-name>
+    <url-pattern>/servlet/ShowMedia</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ShowQTIServlet</servlet-name>
+    <url-pattern>/servlet/exportQTI</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>LoginServlet</servlet-name>
+    <url-pattern>/servlet/Login</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>UploadAudioMediaServlet</servlet-name>
+    <url-pattern>/servlet/UploadAudio</url-pattern>
+  </servlet-mapping>
 
   <!-- initialization servlets -->
   <servlet>
@@ -189,6 +202,14 @@
     <load-on-startup>2</load-on-startup>
   </servlet>
 
+  <!-- BEGIN FACES SERVLET SECTION-->
+  <!-- Faces Servlet -->
+  <servlet>
+      <servlet-name>Faces Servlet</servlet-name>
+      <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+      <load-on-startup> 1 </load-on-startup>
+  </servlet>
+
   <!-- Faces Servlet Mapping -->
   <servlet-mapping>
       <servlet-name>Faces Servlet</servlet-name>
@@ -209,28 +230,6 @@
       <servlet-name>Faces Servlet</servlet-name>
       <url-pattern>*.xml</url-pattern>
   </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>ShowMediaServlet</servlet-name>
-    <url-pattern>/servlet/ShowMedia</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>ShowQTIServlet</servlet-name>
-    <url-pattern>/servlet/exportQTI</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>LoginServlet</servlet-name>
-    <url-pattern>/servlet/Login</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>UploadAudioMediaServlet</servlet-name>
-    <url-pattern>/servlet/UploadAudio</url-pattern>
-  </servlet-mapping>
-
-
 
   <!-- BEGIN APACHE AXIS SECTION-->
   <servlet>
@@ -283,17 +282,12 @@
     <url-pattern>/SOAPMonitor</url-pattern>
   </servlet-mapping>
 
-
- <!-- uncomment this if you want the admin servlet -->
   <servlet-mapping>
     <servlet-name>AdminServlet</servlet-name>
     <url-pattern>/servlet/AdminServlet</url-pattern>
   </servlet-mapping>
 
-
-
   <!-- BEGIN SAMIGO JSF SECTION-->
-
 
   <!-- JSF TAGLIBS -->
   <jsp-config>
