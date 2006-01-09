@@ -1,9 +1,9 @@
 package org.sakaiproject.component.app.messageforums;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,28 +38,58 @@ public class MembershipManagerImpl implements MembershipManager{
   private AuthzGroupService authzGroupService;
   private ToolManager toolManager;
   private SecurityService securityService;
-  private PortalService portalService;  
+  private PortalService portalService;
 
   public void init() {
     ;
   }    
   
   /**
-   * returns a list where roles/groups are filtered when no site user has membership in role/group
-   * to a role/group
-   * @param memberMap
-   * @return list of filtered members
+   * @see org.sakaiproject.api.app.messageforums.MembershipManager#getFilteredCourseMembers(boolean)
    */
-  public List getMembershipFilteredCourseMembersAsList(Map memberMap){
-    //todo: implement me
-    return new ArrayList();
+  public Map getFilteredCourseMembers(boolean filterFerpa){
+
+    List allCourseUsers = getAllCourseUsers();    
+    Set membershipRoleSet = new HashSet();    
+    
+    /** generate set of roles which has members */
+    for (Iterator i = allCourseUsers.iterator(); i.hasNext();){
+      MembershipItem item = (MembershipItem) i.next();
+      if (item.getRole() != null){
+        membershipRoleSet.add(item.getRole());
+      }
+    }
+    
+    /** filter member map */
+    Map memberMap = getAllCourseMembers(filterFerpa);
+    
+    for (Iterator i = memberMap.keySet().iterator(); i.hasNext();){
+      
+      String key = (String) i.next();
+      MembershipItem item = (MembershipItem) memberMap.get(key);
+      
+      if (MembershipItem.TYPE_ROLE.equals(item.getType())){
+        /** if no member belongs to role, filter role */
+        if (!membershipRoleSet.contains(item.getRole())){
+          memberMap.remove(key);
+        }
+      }
+      else if (MembershipItem.TYPE_GROUP.equals(item.getType())){
+        /** if no member belongs to group, filter group */
+        if (item.getGroup().getMembers().size() == 0){
+          memberMap.remove(key);
+        }
+      }   
+      else{
+        ;
+      }
+    }
+    
+    return memberMap;
   }
 
   /**
-   * get all members for course all/user/role/group
-   * return hash map for direct access to members via id
-   * (used in UI when for selected list items)
-   * @return list of members
+   * @see org.sakaiproject.api.app.messageforums.MembershipManager#getAllCourseMembers(boolean)
    */
   public Map getAllCourseMembers(boolean filterFerpa)
   {   
@@ -164,8 +194,7 @@ public class MembershipManagerImpl implements MembershipManager{
   }
   
   /**
-   * get all users for course w/o filtering of FERPA enabled members
-   * @return list of MembershipItems
+   * @see org.sakaiproject.api.app.messageforums.MembershipManager#getAllCourseUsers()
    */
   public List getAllCourseUsers()
   {       
@@ -213,9 +242,7 @@ public class MembershipManagerImpl implements MembershipManager{
   }
   
   /**
-   * returns a list for UI
-   * @param memberMap
-   * @return list of members
+   * @see org.sakaiproject.api.app.messageforums.MembershipManager#convertMemberMapToList(java.util.Map)
    */
   public List convertMemberMapToList(Map memberMap){
             
