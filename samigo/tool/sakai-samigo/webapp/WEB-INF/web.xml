@@ -202,13 +202,21 @@
     <servlet-name>LoginServlet</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.LoginServlet</servlet-class>
     <display-name>Login</display-name>
-    <description>This is the description of my J2EE component</description>
+    <description>Handle on the fly login.</description>
+  </servlet>
+
+  <!--  ShowQTIServlet not used right now, could handle XML exports later on -->
+  <servlet>
+    <servlet-name>ShowQTIServlet</servlet-name>
+    <display-name>QTIXML.xml</display-name>
+    <description>Show QTI XML from XMLDisplay bean.</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.qti.ShowQTIServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>ShowMediaServlet</servlet-name>
     <display-name>Show Media</display-name>
-    <description>This is the description of my J2EE component</description>
+    <description>Show uploaded media file.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.ShowMediaServlet</servlet-class>
   </servlet>
 
@@ -228,21 +236,21 @@
 
   <servlet>
     <servlet-name>storeApplicationContext</servlet-name>
-    <description>This servlet load the Type and all QuestionPool into a HashMap in memory</description>
+    <description>This servlet stores the Spring application context in memory.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.StoreApplicationContext</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
 
   <servlet>
     <servlet-name>initAction</servlet-name>
-    <description>This servlet load the Type and all QuestionPool into a HashMap in memory</description>
+    <description>This servlet loads the Facade Queries in memory.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.web.action.InitAction</servlet-class>
     <load-on-startup>2</load-on-startup>
   </servlet>
 
   <servlet>
     <servlet-name>initMimeTypes</servlet-name>
-    <description>This servlet load the Type and all QuestionPool into a HashMap in memory</description>
+    <description>Set Mime Types File Type Map in memory.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.InitMimeTypes</servlet-class>
     <load-on-startup>2</load-on-startup>
   </servlet>

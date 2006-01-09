@@ -134,21 +134,22 @@
   <servlet>
     <servlet-name>LoginServlet</servlet-name>
     <display-name>Login</display-name>
-    <description>This is the description of my J2EE component</description>
+    <description>Handle on the fly login.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.LoginServlet</servlet-class>
   </servlet>
 
+  <!--  ShowQTIServlet not used right now, could handle XML exports later on -->
   <servlet>
     <servlet-name>ShowQTIServlet</servlet-name>
-    <display-name>Show QTI XML</display-name>
-    <description>Show QTI XML from XMLDisplay bean</description>
+    <display-name>QTIXML.xml</display-name>
+    <description>Show QTI XML from XMLDisplay bean.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.qti.ShowQTIServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>ShowMediaServlet</servlet-name>
     <display-name>Show Media</display-name>
-    <description>This is the description of my J2EE component</description>
+    <description>Show uploaded media file.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.ShowMediaServlet</servlet-class>
   </servlet>
 
