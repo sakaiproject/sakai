@@ -74,12 +74,14 @@ public class UploadAudioMediaServlet extends HttpServlet
 
     // we get media location in assessmentXXX/questionXXX/agentId/audio.ext form
     String mediaLocation = null;
-    mediaLocation = req.getHeader("From");
+//    mediaLocation = req.getHeader("From");
+    mediaLocation = "/tmp/test";
 
     // test for nonemptiness first
     if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
     {
-      ServletInputStream inputStream = null; FileOutputStream fileOutputStream = null;
+      ServletInputStream inputStream = null;
+      FileOutputStream fileOutputStream = null;
       BufferedInputStream bufInputStream = null; BufferedOutputStream
       bufOutputStream = null; int count = 0;
 
