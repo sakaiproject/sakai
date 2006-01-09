@@ -141,7 +141,7 @@
   <!--  ShowQTIServlet not used right now, could handle XML exports later on -->
   <servlet>
     <servlet-name>ShowQTIServlet</servlet-name>
-    <display-name>QTIXML.xml</display-name>
+    <display-name>QTIXML</display-name>
     <description>Show QTI XML from XMLDisplay bean.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.qti.ShowQTIServlet</servlet-class>
   </servlet>
@@ -160,20 +160,14 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.UploadAudioMediaServlet</servlet-class>
   </servlet>
 
+  <!-- Faces Servlet -->
   <servlet>
-    <servlet-name>PDFServlet</servlet-name>
-    <display-name>PDF Servlet</display-name>
-    <description>This is the description of my J2EE component</description>
-    <servlet-class>org.navigoproject.ui.web.asi.delivery.fop.PDFServlet</servlet-class>
+      <servlet-name>Faces Servlet</servlet-name>
+      <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+      <load-on-startup> 1 </load-on-startup>
   </servlet>
 
-    <!-- Faces Servlet -->
-    <servlet>
-        <servlet-name>Faces Servlet</servlet-name>
-        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-        <load-on-startup> 1 </load-on-startup>
-    </servlet>
-
+  <!-- initialization servlets -->
   <servlet>
     <servlet-name>storeApplicationContext</servlet-name>
     <description>This servlet load the Type and all QuestionPool into a HashMap in memory</description>
@@ -195,32 +189,25 @@
     <load-on-startup>2</load-on-startup>
   </servlet>
 
-
-    <!-- Faces Servlet Mapping -->
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.faces</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.jsf</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>/faces/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.xml</url-pattern>
-    </servlet-mapping>
-
+  <!-- Faces Servlet Mapping -->
+  <servlet-mapping>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>*.faces</url-pattern>
+  </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>PDFServlet</servlet-name>
-    <url-pattern>/servlet/PDFServlet</url-pattern>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>*.jsf</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>/faces/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>*.xml</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

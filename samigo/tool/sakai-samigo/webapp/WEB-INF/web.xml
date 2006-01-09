@@ -164,21 +164,6 @@
   </listener>
 
   <!-- *******************************************************************  -->
-<!--
-  <servlet>
-    <servlet-name>action</servlet-name>
-    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
-    <init-param>
-      <param-name>stxxInit</param-name>
-      <param-value>/stxx.properties</param-value>
-    </init-param>
-    <init-param>
-      <param-name>config</param-name>
-      <param-value>/WEB-INF/struts-config.xml</param-value>
-    </init-param>
-    <load-on-startup>2</load-on-startup>
-  </servlet>
--->
 
   <servlet>
     <servlet-name>sakai.samigo</servlet-name>
@@ -208,7 +193,7 @@
   <!--  ShowQTIServlet not used right now, could handle XML exports later on -->
   <servlet>
     <servlet-name>ShowQTIServlet</servlet-name>
-    <display-name>QTIXML.xml</display-name>
+    <display-name>QTIXML</display-name>
     <description>Show QTI XML from XMLDisplay bean.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.qti.ShowQTIServlet</servlet-class>
   </servlet>
@@ -225,13 +210,6 @@
     <display-name>UploadAudio</display-name>
     <description>Upload audio file from client stream.</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.UploadAudioMediaServlet</servlet-class>
-  </servlet>
-
-  <servlet>
-    <servlet-name>PDFServlet</servlet-name>
-    <display-name>PDF Servlet</display-name>
-    <description>This is the description of my J2EE component</description>
-    <servlet-class>org.navigoproject.ui.web.asi.delivery.fop.PDFServlet</servlet-class>
   </servlet>
 
   <servlet>
@@ -255,57 +233,32 @@
     <load-on-startup>2</load-on-startup>
   </servlet>
 
+  <!-- Faces Servlet -->
+  <servlet>
+      <servlet-name>Faces Servlet</servlet-name>
+      <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+      <load-on-startup> 1 </load-on-startup>
+  </servlet>
 
-    <!-- Faces Servlet -->
-    <servlet>
-        <servlet-name>Faces Servlet</servlet-name>
-        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-        <load-on-startup> 1 </load-on-startup>
-    </servlet>
-
-
-    <!-- Faces Servlet Mapping -->
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.faces</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.jsf</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>/faces/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.xml</url-pattern>
-    </servlet-mapping>
-
-  <!-- for anonymous requests (not caught by security filter) -->
-<!--
+  <!-- Faces Servlet Mappings -->
   <servlet-mapping>
-    <servlet-name>action</servlet-name>
-    <url-pattern>*.deliver</url-pattern>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>*.faces</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>action</servlet-name>
-    <url-pattern>*.xml</url-pattern>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>action</servlet-name>
-    <url-pattern>*.do</url-pattern>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>/faces/*</url-pattern>
   </servlet-mapping>
--->
 
   <servlet-mapping>
-    <servlet-name>PDFServlet</servlet-name>
-    <url-pattern>/servlet/PDFServlet</url-pattern>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>*.xml</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
