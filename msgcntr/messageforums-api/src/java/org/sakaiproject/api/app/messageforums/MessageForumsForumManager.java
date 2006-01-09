@@ -157,5 +157,10 @@ public interface MessageForumsForumManager {
     
     public Topic getTopicById(boolean open, Long topicId);
     public Topic getTopicByUuid(String uuid);
+    
+    /**
+     * @return
+     */
+    public ActorPermissions createDefaultActorPermissions();
 
 }

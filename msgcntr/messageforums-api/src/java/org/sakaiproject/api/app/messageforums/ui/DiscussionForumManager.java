@@ -1,6 +1,7 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
@@ -15,7 +16,6 @@ import org.sakaiproject.api.app.messageforums.Topic;
  */
 public interface DiscussionForumManager
 {
-  
   public List searchTopicMessages(Long topicId, String searchText);
     
   public Topic getTopicByIdWithAttachments(Long topicId);
@@ -149,6 +149,7 @@ public interface DiscussionForumManager
   
   /**
    * @param forum
+   * @param object 
    */
   public void saveForumAsDraft(DiscussionForum forum);
 
@@ -257,4 +258,34 @@ public interface DiscussionForumManager
    */
   public void markMessageAs(Message message, boolean readStatus);
 
+   
+  /**
+   * @param accessorList
+   * @return
+   */
+  public List decodeContributorsList(List contributorList);
+
+  /**
+   * @param accessorList
+   * @return
+   */
+  public List decodeAccessorsList(List accessorList);
+
+  /**
+   * @param forum
+   * @return
+   */
+  public List getContributorsList(DiscussionForum forum);
+  
+  
+  /**
+   * @param forum
+   * @return
+   */
+  public List getAccessorsList(DiscussionForum forum);
+
+  /**
+   * @return
+   */
+  public Map getAllCourseMembers();
 }

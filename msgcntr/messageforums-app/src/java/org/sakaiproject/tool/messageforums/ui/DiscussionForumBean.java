@@ -1,30 +1,56 @@
 package org.sakaiproject.tool.messageforums.ui;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.MessageForumsUser;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
+import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
 public class DiscussionForumBean
 {
+  private static final Log LOG = LogFactory
+  .getLog(DiscussionForumBean.class);
   private DiscussionForum forum;
   private boolean markForDeletion;
   private UIPermissionsManager uiPermissionsManager;
+  private DiscussionForumManager forumManager;
   private boolean readFullDesciption;
+  //List containg members
+//  private List contributorsMembersList = new ArrayList();
+//  
+//  private List accessorMembersList = new ArrayList();
+//  //List containg ids
+  private List contributorsList = new ArrayList();
+  
+  private List accessorList = new ArrayList();
+   
    
   /**
    * List of decorated topics
    */
   private List topics = new ArrayList();
 
-  public DiscussionForumBean(DiscussionForum forum, UIPermissionsManager uiPermissionsManager)
+  public DiscussionForumBean(DiscussionForum forum, UIPermissionsManager uiPermissionsManager, DiscussionForumManager forumManager)
   {
+    if(LOG.isDebugEnabled())
+    {
+      LOG.debug("DiscussionForumBean(DiscussionForum "+forum+", UIPermissionsManager"  +uiPermissionsManager+ ")");
+    }
     this.forum = forum;
     this.uiPermissionsManager=uiPermissionsManager;
+    this.forumManager=forumManager;
+//    this.contributorsMembersList=forumManager.getContributorsList(forum);
+//    this.accessorMembersList=forumManager.getAccessorsList(forum);
   }
 
   /**
@@ -32,6 +58,7 @@ public class DiscussionForumBean
    */
   public DiscussionForum getForum()
   {
+    LOG.debug("getForum()");
     return forum;
   }
 
@@ -40,11 +67,16 @@ public class DiscussionForumBean
    */
   public List getTopics()
   {
+    LOG.debug("getTopics()");
     return topics;
   }
 
   public void addTopic(DiscussionTopicBean decoTopic)
   {
+    if(LOG.isDebugEnabled())
+    {
+      LOG.debug("addTopic(DiscussionTopicBean"+ decoTopic+")");
+    }
     if (!topics.contains(decoTopic))
     {
       topics.add(decoTopic);
@@ -56,6 +88,7 @@ public class DiscussionForumBean
    */
   public String getLocked()
   {
+    LOG.debug("getLocked()");
     if (forum == null || forum.getLocked() == null
         || forum.getLocked().booleanValue() == false)
     {
@@ -70,6 +103,7 @@ public class DiscussionForumBean
    */
   public void setLocked(String locked)
   {
+    LOG.debug("setLocked(String"+ locked+")");
     if (locked.equals(Boolean.TRUE.toString()))
     {
       forum.setLocked(new Boolean(true));
@@ -85,6 +119,7 @@ public class DiscussionForumBean
    */
   public boolean isMarkForDeletion()
   {
+    LOG.debug("isMarkForDeletion()");
     return markForDeletion;
   }
 
@@ -94,6 +129,10 @@ public class DiscussionForumBean
    */
   public void setMarkForDeletion(boolean markForDeletion)
   {
+    if(LOG.isDebugEnabled())
+    {
+      LOG.debug("setMarkForDeletion(boolean"+ markForDeletion+")");
+    }
     this.markForDeletion = markForDeletion;
   }
 
@@ -102,6 +141,7 @@ public class DiscussionForumBean
    */
   public boolean getChangeSettings()
   {
+    LOG.debug("getChangeSettings()");
     return uiPermissionsManager.isChangeSettings(forum); 
   }
    
@@ -110,6 +150,7 @@ public class DiscussionForumBean
    */
   public boolean isNewTopic()
   {
+    LOG.debug("isNewTopic()");
     return uiPermissionsManager.isNewTopic(forum);
   }
 
@@ -118,6 +159,7 @@ public class DiscussionForumBean
    */
   public boolean getHasExtendedDesciption()
   {
+    LOG.debug("getHasExtendedDesciption()");
     if (forum.getExtendedDescription() != null
         && forum.getExtendedDescription().trim().length() > 0
         && (!readFullDesciption))
@@ -132,6 +174,7 @@ public class DiscussionForumBean
    */
   public boolean isReadFullDesciption()
   {
+    LOG.debug("isReadFullDesciption()");
     return readFullDesciption;
   }
 
@@ -140,6 +183,83 @@ public class DiscussionForumBean
    */
   public void setReadFullDesciption(boolean readFullDesciption)
   {
+    if(LOG.isDebugEnabled())
+    {
+      LOG.debug("setReadFullDesciption(boolean" +readFullDesciption+")");
+    }
     this.readFullDesciption = readFullDesciption;
   }
+  
+  /**
+   * @return
+   */
+  public List getContributorsList()
+  {
+    LOG.debug("getContributorsList()");
+  
+//    Iterator iter=contributorsMembersList.iterator();
+//    while (iter.hasNext())
+//    {
+//      MembershipItem element = (MembershipItem) iter.next();
+//      contributorsList.add(element.getId());
+//     }
+//    return contributorsList;
+    return forumManager.getContributorsList(forum);
+
+  }
+  
+  /**
+   * @return
+   */
+  public List getAccessorList()
+  {
+//    LOG.debug("getAccessorList()");
+//    Iterator iter=accessorMembersList.iterator();
+//    while (iter.hasNext())
+//    {
+//      MembershipItem element = (MembershipItem) iter.next();
+//      contributorsList.add(element.getId());
+//     }
+//    return accessorList;
+    return forumManager.getAccessorsList(forum);
+  }
+
+  /**
+   * @param accessorList The accessorList to set.
+   */
+  public void setAccessorList(List accessorList)
+  {
+//    if(LOG.isDebugEnabled())
+//     {
+//        LOG.debug("setAccessorList(List"+ accessorList+")");
+//     }
+//     forum.getActorPermissions().setAccessors(forumManager.decodeAccessorsList(accessorList));
+  }
+
+  /**
+   * @param contributorsList The contributorsList to set.
+   */
+  public void setContributorsList(List contributorsList)
+  {
+//    if(LOG.isDebugEnabled())
+//    {
+//       LOG.debug("setContributorsList(List"+ contributorsList+")");
+//    }
+//    forum.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
+  }
+
+  /**
+   * @param forumManager The forumManager to set.
+   */
+  public void setForumManager(DiscussionForumManager forumManager)
+  {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setForumManager(DiscussionForumManager"+ forumManager+")");
+    }
+    this.forumManager = forumManager;
+  }
+
+ 
+  
 }

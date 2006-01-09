@@ -30,6 +30,8 @@ import org.sakaiproject.service.legacy.user.UserDirectoryService;
 
 public class MembershipManagerImpl implements MembershipManager{
 
+
+
   private static final Log LOG = LogFactory.getLog(MembershipManagerImpl.class);
           
   private SiteService siteService;
@@ -61,7 +63,7 @@ public class MembershipManagerImpl implements MembershipManager{
     }
     
     /** filter member map */
-    Map memberMap = getAllCourseMembers(filterFerpa);
+    Map memberMap = getAllCourseMembers(filterFerpa, false);
     
     for (Iterator i = memberMap.keySet().iterator(); i.hasNext();){
       
@@ -91,18 +93,26 @@ public class MembershipManagerImpl implements MembershipManager{
   /**
    * @see org.sakaiproject.api.app.messageforums.MembershipManager#getAllCourseMembers(boolean)
    */
-  public Map getAllCourseMembers(boolean filterFerpa)
+  public Map getAllCourseMembers(boolean filterFerpa, boolean nonSpecifiedType)
   {   
     
     Map returnMap = new HashMap();    
     String realmId = getContextSiteId();
     Site currentSite = null;
     
+    /**add Non specified Group**/
+    if(nonSpecifiedType)
+    {
+      MembershipItem memberNotSpecified = MembershipItem.getInstance();
+      memberNotSpecified.setType(MembershipItem.TYPE_NOT_SPECIFIED);
+      memberNotSpecified.setName(MembershipItem.NOT_SPECIFIED_DESC);
+      returnMap.put(memberNotSpecified.getId(), memberNotSpecified);
+    }
     /** add all participants */
     MembershipItem memberAll = MembershipItem.getInstance();
     memberAll.setType(MembershipItem.TYPE_ALL_PARTICIPANTS);
-    memberAll.setName("All Participants");
-    returnMap.put(memberAll.getId(), memberAll);
+    memberAll.setName(MembershipItem.ALL_PARTICIPANTS_DESC);
+    returnMap.put(memberAll.getId(), memberAll);    
  
     AuthzGroup realm;
     try{

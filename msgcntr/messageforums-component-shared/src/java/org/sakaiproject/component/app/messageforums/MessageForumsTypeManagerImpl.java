@@ -15,9 +15,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final Log LOG = LogFactory
       .getLog(MessageForumsTypeManagerImpl.class);
   private static final String NOT_SPECIFIED = "notSpecified";
-  private static final String ALL_INSTRUCTORS = "allInstructors";
   private static final String ALL_PARTICIPANTS = "allParticipants";
-  private static final String SITE_PARTICIPANT = "siteParticipant";
   private static final String GROUP = "group";
   private static final String ROLE = "role";
   private static final String USER = "user";
@@ -235,24 +233,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
           "Site Groups").getUuid());
     }
   }
-
-  /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.MessageForumsTypeManager#getSiteParticipantType()
-   */
-  public String getSiteParticipantType()
-  {
-    LOG.debug("getSiteParticipantType()");
-    Type type = typeManager.getType(AUTHORITY, DOMAIN, SITE_PARTICIPANT);
-    if (type != null)
-    {
-      return type.getUuid();
-    }
-    else
-    {
-      return (typeManager.createType(AUTHORITY, DOMAIN, SITE_PARTICIPANT,
-          SITE_PARTICIPANT, SITE_PARTICIPANT).getUuid());
-    }
-  }
+ 
 
   /* (non-Javadoc)
    * @see org.sakaiproject.api.app.messageforums.MessageForumsTypeManager#getAllParticipantType()
@@ -271,25 +252,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
           "All Participants", "All Site Participants").getUuid());
     }
   }
-
-  /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.MessageForumsTypeManager#getAllInstructorsType()
-   */
-  public String getAllInstructorsType()
-  {
-    LOG.debug("getAllInstructorsType()");
-    Type type = typeManager.getType(AUTHORITY, DOMAIN, ALL_INSTRUCTORS);
-    if (type != null)
-    {
-      return type.getUuid();
-    }
-    else
-    {
-      return (typeManager.createType(AUTHORITY, DOMAIN, ALL_INSTRUCTORS,
-          "All Instructors", "All Instructors").getUuid());
-    }
-  }
-
+   
   /* (non-Javadoc)
    * @see org.sakaiproject.api.app.messageforums.MessageForumsTypeManager#getNotSpecifiedType()
    */

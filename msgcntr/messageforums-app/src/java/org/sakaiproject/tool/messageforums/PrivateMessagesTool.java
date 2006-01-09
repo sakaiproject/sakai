@@ -511,8 +511,9 @@ public class PrivateMessagesTool
     }
     
     totalComposeToListRecipients = new ArrayList();
-        
-    courseMemberMap = membershipManager.getFilteredCourseMembers(true);
+ 
+    courseMemberMap = membershipManager.getAllCourseMembers(true, false);
+ 
     List members = membershipManager.convertMemberMapToList(courseMemberMap);
     List selectItemList = new ArrayList();
     

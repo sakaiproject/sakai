@@ -3,6 +3,8 @@
  */
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.util.Iterator;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
@@ -11,6 +13,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.ForumControlPermission;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
@@ -21,6 +24,8 @@ import org.sakaiproject.api.kernel.tool.ToolManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
 import org.sakaiproject.service.legacy.security.SecurityService;
+import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -145,7 +150,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     }
     try
     {
-        return geAreaControlPermissions().getChangeSettings().booleanValue();
+      return geAreaControlPermissions().getChangeSettings().booleanValue();
     }
     catch (Exception e)
     {
@@ -236,6 +241,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       {
         return true;
       }
+      if(isContributor(topic)!=null)
+      {
+        return isContributor(topic).booleanValue();
+      }
       TopicControlPermission controlPermission = permissionManager
           .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
               typeManager.getDiscussionForumType());
@@ -290,6 +299,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       if (checkBaseConditions(topic, forum))
       {
         return true;
+      }
+      if(isContributor(topic)!=null)
+      {
+        return isContributor(topic).booleanValue();
       }
       TopicControlPermission controlPermission = permissionManager
           .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
@@ -505,6 +518,14 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     if (checkBaseConditions(topic, forum))
     {
       return true;
+    }
+//    if(isContributor(topic)!=null)
+//    {
+//      return isContributor(topic).booleanValue();
+//    }
+    if(isReadAccess(topic)!=null)
+    {
+      return isReadAccess(topic).booleanValue();
     }
     MessagePermissions messagePermission = permissionManager
         .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
@@ -897,4 +918,240 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     }
     return false;
   }
+  
+  
+  /**
+   * @param userId
+   * @param forum
+   * @return
+   */
+  private Boolean isContributor(DiscussionForum forum)
+  {
+    if(forum==null)
+    {
+      return null;
+    }
+    if(forum.getActorPermissions()==null || forum.getActorPermissions().getContributors()==null ||
+        forum.getActorPermissions().getContributors().size()<1)
+    {
+      return null;
+    }
+    Iterator iter = forum.getActorPermissions().getContributors().iterator();
+    while (iter.hasNext())
+    {
+      MessageForumsUser user = (MessageForumsUser) iter.next();
+      if(user!=null && user.getUuid()!=null && user.getUuid().trim().length()>0
+          && user.getTypeUuid()!=null)
+      {
+        if(user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
+        {
+          return null;
+        }
+        if(user.getTypeUuid().equals(typeManager.getAllParticipantType()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getGroupType()) && isGroupMember(user.getUuid()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getRoleType()) && isRoleMember(user.getUuid()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getUserType()) && user.getUuid().equals(getCurrentUserId()))
+        {
+          return Boolean.TRUE;  
+        }
+      }
+    }
+   return Boolean.FALSE; 
+  }
+
+
+  
+  /**
+   * @param userId
+   * @param topic
+   * @return
+   */
+  private Boolean isContributor(DiscussionTopic topic)
+  {
+    if(topic==null)
+    {
+      return null;
+    }
+    if(topic.getActorPermissions()==null || topic.getActorPermissions().getContributors()==null ||
+        topic.getActorPermissions().getContributors().size()<1)
+    {
+      return null;
+    }
+    Iterator iter = topic.getActorPermissions().getContributors().iterator();
+    while (iter.hasNext())
+    {
+      MessageForumsUser user = (MessageForumsUser) iter.next();
+      if(user!=null && user.getUuid()!=null && user.getUuid().trim().length()>0
+          && user.getTypeUuid()!=null)
+      {
+        if(user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
+        {
+          return null;
+        }
+        if(user.getTypeUuid().equals(typeManager.getAllParticipantType()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getGroupType()) && isGroupMember(user.getUuid()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getRoleType()) && isRoleMember(user.getUuid()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getUserType()) && user.getUuid().equals(getCurrentUserId()))
+        {
+          return Boolean.TRUE;  
+        }
+      }
+    }
+   return Boolean.FALSE;  
+  }
+  
+  private Boolean isReadAccess(DiscussionForum forum)
+  {
+    if(forum==null)
+    {
+      return null;
+    }
+    if(forum.getActorPermissions()==null || forum.getActorPermissions().getAccessors()==null ||
+        forum.getActorPermissions().getAccessors().size()<1)
+    {
+      return null;
+    }
+    Iterator iter = forum.getActorPermissions().getAccessors().iterator();
+    while (iter.hasNext())
+    {
+      MessageForumsUser user = (MessageForumsUser) iter.next();
+      if(user!=null && user.getUuid()!=null && user.getUuid().trim().length()>0
+          && user.getTypeUuid()!=null)
+      {
+        if(user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
+        {
+          return null;
+        }
+        if(user.getTypeUuid().equals(typeManager.getAllParticipantType()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getGroupType()) && isGroupMember(user.getUuid()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getRoleType()) && isRoleMember(user.getUuid()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getUserType()) && user.getUuid().equals(getCurrentUserId()))
+        {
+          return Boolean.TRUE;  
+        }
+      }
+    }
+   return Boolean.FALSE; 
+  }
+  private Boolean isReadAccess(DiscussionTopic topic)
+  {
+    if(topic==null)
+    {
+      return null;
+    }
+    if(topic.getActorPermissions()==null || topic.getActorPermissions().getAccessors()==null ||
+        topic.getActorPermissions().getAccessors().size()<1)
+    {
+      return null;
+    }
+    Iterator iter = topic.getActorPermissions().getAccessors().iterator();
+    while (iter.hasNext())
+    {
+      MessageForumsUser user = (MessageForumsUser) iter.next();
+      if(user!=null && user.getUuid()!=null && user.getUuid().trim().length()>0
+          && user.getTypeUuid()!=null)
+      {
+        if(user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
+        {
+          return null;
+        }
+        if(user.getTypeUuid().equals(typeManager.getAllParticipantType()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getGroupType()) && isGroupMember(user.getUuid()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getRoleType()) && isRoleMember(user.getUuid()))
+        {
+          return Boolean.TRUE;  
+        }
+        if(user.getTypeUuid().equals(typeManager.getUserType()) && user.getUuid().equals(getCurrentUserId()))
+        {
+          return Boolean.TRUE;  
+        }
+      }
+    }
+   return Boolean.FALSE; 
+  }
+  
+  private boolean isRoleMember(String roleId)
+  {
+    if(getCurrentUserRole().equals(roleId))
+    {
+     return true; 
+    }
+    return false;
+  }
+  
+  private boolean isGroupMember(String groupId)
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#isInstructor()
+   */
+  public boolean isInstructor()
+  {
+    LOG.debug("isInstructor()");
+    return isInstructor(UserDirectoryService.getCurrentUser());
+  }
+
+  /**
+   * Check if the given user has site.upd access
+   * 
+   * @param user
+   * @return
+   */
+  private boolean isInstructor(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isInstructor(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, "site.upd", getContextSiteId());
+    else
+      return false;
+  }
+  
+  /**
+   * @return siteId
+   */
+  private String getContextSiteId()
+  {
+    LOG.debug("getContextSiteId()");
+    return ("/site/" + toolManager.getCurrentPlacement().getContext());
+  }  
 }

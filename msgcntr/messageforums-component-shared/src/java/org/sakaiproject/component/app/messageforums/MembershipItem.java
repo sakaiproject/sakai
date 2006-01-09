@@ -36,11 +36,16 @@ import org.sakaiproject.service.legacy.user.User;
  {
    
    /** in memory type sort */
+   public static final Integer TYPE_NOT_SPECIFIED = new Integer(0); 
    public static final Integer TYPE_ALL_PARTICIPANTS = new Integer(1);
    public static final Integer TYPE_ROLE = new Integer(2);
    public static final Integer TYPE_GROUP = new Integer(3);
    public static final Integer TYPE_USER = new Integer(4);   
    
+   
+   public static final String ALL_PARTICIPANTS_DESC = "All Participants";
+   public static final String NOT_SPECIFIED_DESC = "Not Specified";
+
    /** generated id */
    private String id;
    

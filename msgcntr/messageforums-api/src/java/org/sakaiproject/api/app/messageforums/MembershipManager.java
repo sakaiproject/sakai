@@ -12,15 +12,8 @@ public interface MembershipManager {
    * Filter roles/groups which do not have members
    * @return map of members
    */
-  public Map getFilteredCourseMembers(boolean filterFerpa);
-  
-  /**
-   * Get all members for course all/user/role/group<br>
-   * Return hash map for direct access to members via id
-   * (used in UI when for selected list items)
-   * @return map of members
-   */
-  public Map getAllCourseMembers(boolean filterFerpa);
+ 
+  public Map getAllCourseMembers(boolean filterFerpa, boolean nonSpecifiedType);
   
   /**
    * get all users for course w/o filtering of FERPA enabled members

@@ -63,22 +63,12 @@ public interface MessageForumsTypeManager
   /**
    * @return
    */
-  public String getUserType();
+  public String getUserType(); 
   
   /**
    * @return
    */
-  public String getSiteParticipantType();
-  
-  /**
-   * @return
-   */
-  public String getAllParticipantType();
- 
-  /**
-   * @return
-   */
-  public String getAllInstructorsType();
+  public String getAllParticipantType(); 
   
   /**
    * @return

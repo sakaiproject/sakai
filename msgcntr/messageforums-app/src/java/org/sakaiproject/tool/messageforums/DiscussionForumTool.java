@@ -20,14 +20,17 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.Role;
@@ -67,14 +70,15 @@ public class DiscussionForumTool
   private DiscussionTopicBean selectedTopic;
   private DiscussionTopicBean searchResults;
   private DiscussionMessageBean selectedMessage;
-
-  private List templateControlPermissions; // control settings
+  private List totalComposeToList;
+  private List totalComposeToListRecipients;
+  private Map courseMemberMap;
+   private List templateControlPermissions; // control settings
   private List templateMessagePermissions;
   private List forumControlPermissions; // control settings
   private List forumMessagePermissions;
   private List topicControlPermissions; // control settings
-  private List topicMessagePermissions;
-
+  private List topicMessagePermissions;   
   private static final String TOPIC_ID = "topicId";
   private static final String FORUM_ID = "forumId";
   private static final String MESSAGE_ID = "messageId";
@@ -107,7 +111,8 @@ public class DiscussionForumTool
    */
   private DiscussionForumManager forumManager;
   private UIPermissionsManager uiPermissionsManager;
-
+  private MessageForumsTypeManager typeManager;
+  private MembershipManager membershipManager;
   /**
    * 
    */
@@ -141,6 +146,24 @@ public class DiscussionForumTool
           + uiPermissionsManager + ")");
     }
     this.uiPermissionsManager = uiPermissionsManager;
+  }
+
+  /**
+   * @param typeManager The typeManager to set.
+   */
+  public void setTypeManager(MessageForumsTypeManager typeManager)
+  {
+    this.typeManager = typeManager;
+  }
+  
+  
+
+  /**
+   * @param membershipManager The membershipManager to set.
+   */
+  public void setMembershipManager(MembershipManager membershipManager)
+  {
+    this.membershipManager = membershipManager;
   }
 
   /**
@@ -442,7 +465,7 @@ public class DiscussionForumTool
     {
       DiscussionForum forum = forumManager.createForum();
       selectedForum = null;
-      selectedForum = new DiscussionForumBean(forum, uiPermissionsManager);
+      selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
       return FORUM_SETTING_REVISE;
     }
     else
@@ -465,13 +488,13 @@ public class DiscussionForumTool
       setErrorMessage("Invalid forum selected");
       return MAIN;
     }
-    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
+    DiscussionForum forum = forumManager.getForumById(new Long(forumId));
+    if(!uiPermissionsManager.isChangeSettings(forum))
     {
       setErrorMessage("Insufficient privileges to change forum settings");
       return MAIN;
     }
-    DiscussionForum forum = forumManager.getForumById(new Long(forumId));
-    selectedForum = new DiscussionForumBean(forum, uiPermissionsManager);
+    selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);    
     return FORUM_SETTING;
 
   }
@@ -604,7 +627,7 @@ public class DiscussionForumTool
       return null;
     }
     
-    saveForumAttach(forum);
+    saveForumAttach(forum);    
     if (draft)
       forumManager.saveForumAsDraft(forum);
     else
@@ -727,15 +750,15 @@ public class DiscussionForumTool
           + "'not found");
       return MAIN;
     }
+  
+    setSelectedForumForCurrentTopic(topic);
+    selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
+        uiPermissionsManager);
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
       setErrorMessage("Insufficient privileges to change topic settings");
       return MAIN;
     }
-    setSelectedForumForCurrentTopic(topic);
-    selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
-        uiPermissionsManager);
-
     List attachList = selectedTopic.getTopic().getAttachments();
     if (attachList != null)
     {
@@ -904,7 +927,7 @@ public class DiscussionForumTool
       return MAIN;
     }
     setSelectedForumForCurrentTopic(topic);
-    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
+    if(!uiPermissionsManager.isChangeSettings(topic,selectedForum.getForum()))
     {
       setErrorMessage("Insufficient privileges to change topic settings");
       return MAIN;
@@ -1195,7 +1218,7 @@ public class DiscussionForumTool
     }
     forum = forumManager.getForumByIdWithTopics(forum.getId());
     DiscussionForumBean decoForum = new DiscussionForumBean(forum,
-        uiPermissionsManager);
+        uiPermissionsManager, forumManager);
     List temp_topics = forum.getTopics();
     if (temp_topics == null)
     {
@@ -1508,7 +1531,7 @@ public class DiscussionForumTool
       setErrorMessage("Parent Forum for new topic was not found");
       return null;
     }
-    selectedForum = new DiscussionForumBean(forum, uiPermissionsManager);
+    selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
     DiscussionTopic topic = forumManager.createTopic(forum);
     if (topic == null)
     {
@@ -2813,7 +2836,7 @@ public class DiscussionForumTool
         return;
       }
     }
-    selectedForum = new DiscussionForumBean(forum, uiPermissionsManager);
+    selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
   }
 
   /**
@@ -2826,22 +2849,32 @@ public class DiscussionForumTool
         new FacesMessage("Alert: " + errorMsg));
   }
   
-  public List getAccessList()
-  {
-    List access = new ArrayList();
-    access.add(new SelectItem("allParticipants","All Participants"));
-    access.add(new SelectItem("All Instructors"));
-    access.add(new SelectItem("A"));
-    access.add(new SelectItem("B"));
-    access.add(new SelectItem("C"));
-    access.add(new SelectItem("D"));
-    return access;    
+  public List getTotalComposeToList()
+  { 
+      /** protect from jsf calling multiple times */
+    if (totalComposeToList != null){
+      return totalComposeToList;
+    }
+    
+    totalComposeToListRecipients = new ArrayList();
+        
+    courseMemberMap = forumManager.getAllCourseMembers();
+    List members = membershipManager.convertMemberMapToList(courseMemberMap);
+    List selectItemList = new ArrayList();
+    
+    /** create a list of SelectItem elements */
+    for (Iterator i = members.iterator(); i.hasNext();){
+      
+      MembershipItem item = (MembershipItem) i.next();     
+      selectItemList.add(
+        new SelectItem(item.getId(), item.getName()));
+    }
+    
+    totalComposeToList = selectItemList;
+    return selectItemList;     
+    
   }
 
-  public List getContributorsList()
-  {
-    List access = new ArrayList();
-    access.add("allParticipants");   
-    return access;    
-  }
+ 
+  
 }
