@@ -190,25 +190,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
         }
         return false;
       }
-      // SAK-3381       
-      //      if (forum.getLocked() == null || forum.getLocked().equals(Boolean.TRUE))
-      //      {
-      //        LOG.debug("This Forum is Locked");
-      //        return false;
-      //      }
-       
-      if (forum.getDraft() == null || forum.getDraft().equals(Boolean.TRUE))
-      {
-        LOG.debug("This forum is a draft");
-        if (isForumOwner(forum))
-        {
-          return true;
-        }
-        return false;
-      }
-      if (controlPermission.getNewTopic().equals(Boolean.TRUE)
-          && forum.getDraft().equals(Boolean.FALSE)
-          && forum.getLocked().equals(Boolean.FALSE))
+      else      
       {
         return true;
       }
@@ -218,8 +200,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       LOG.error(e.getMessage(), e);
       return false;
     }
-
-    return false;
+ 
   }
 
   /*
