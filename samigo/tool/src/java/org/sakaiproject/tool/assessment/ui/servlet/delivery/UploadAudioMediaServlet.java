@@ -82,8 +82,8 @@ public class UploadAudioMediaServlet extends HttpServlet
     {
       ServletInputStream inputStream = null;
       FileOutputStream fileOutputStream = null;
-      BufferedInputStream bufInputStream = null; BufferedOutputStream
-      bufOutputStream = null; int count = 0;
+      BufferedInputStream bufInputStream = null;
+      BufferedOutputStream bufOutputStream = null; int count = 0;
 
       try
       {
