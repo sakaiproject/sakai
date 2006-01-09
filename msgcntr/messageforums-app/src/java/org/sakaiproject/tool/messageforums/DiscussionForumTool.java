@@ -545,12 +545,12 @@ public class DiscussionForumTool
       setErrorMessage("Insufficient privileges to change forum settings");
       return MAIN;
     }
+    DiscussionForum forum = saveForumSettings(false);
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
     {
       setErrorMessage("Insufficient privileges to create new topic");
       return MAIN;
-    }
-    DiscussionForum forum = saveForumSettings(false);
+    }    
     selectedTopic = createTopic(forum.getId());
     if (selectedTopic == null)
     {
