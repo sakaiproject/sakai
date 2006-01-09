@@ -242,7 +242,13 @@ public class AudioRecorder
     Object obj = e.getSource();
     if (obj.equals(auB))
     {
-      saveToFile(textField.getText().trim(), AudioFileFormat.Type.AU);
+//      saveToFile(textField.getText().trim(), AudioFileFormat.Type.AU);
+      // debug
+      //file:///C:/cygwin/home/esmiley/svn/trunk/sakai/sam/audio/example/audiorecordertest.html
+      saveToFileAndPost(textField.getText().trim(),
+                             AudioFileFormat.Type.AU,
+                             "http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio",
+                             "/tmp/test/", 6);
     }
     else if (obj.equals(aiffB))
     {
@@ -484,7 +490,7 @@ public class AudioRecorder
 
       // Send binary POST output.
       OutputStream outputStream = urlConn.getOutputStream();
-      FileInputStream inputStream = new FileInputStream(fileName);
+      FileInputStream inputStream = new FileInputStream(tempFileName);
       BufferedInputStream buf_inputStream = new BufferedInputStream(inputStream);
       BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
 
