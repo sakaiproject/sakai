@@ -65,21 +65,21 @@ public class MembershipManagerImpl implements MembershipManager{
     /** filter member map */
     Map memberMap = getAllCourseMembers(filterFerpa, false);
     
-    for (Iterator i = memberMap.keySet().iterator(); i.hasNext();){
+    for (Iterator i = memberMap.entrySet().iterator(); i.hasNext();){
       
-      String key = (String) i.next();
-      MembershipItem item = (MembershipItem) memberMap.get(key);
+      Map.Entry entry = (Map.Entry) i.next();
+      MembershipItem item = (MembershipItem) entry.getValue();
       
       if (MembershipItem.TYPE_ROLE.equals(item.getType())){
         /** if no member belongs to role, filter role */
-        if (!membershipRoleSet.contains(item.getRole())){
-          memberMap.remove(key);
+        if (!membershipRoleSet.contains(item.getRole())){          
+          i.remove();
         }
       }
       else if (MembershipItem.TYPE_GROUP.equals(item.getType())){
         /** if no member belongs to group, filter group */
         if (item.getGroup().getMembers().size() == 0){
-          memberMap.remove(key);
+          i.remove();
         }
       }   
       else{

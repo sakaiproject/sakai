@@ -4,15 +4,26 @@ import java.util.List;
 import java.util.Map;
 
 public interface MembershipManager {
-    
+           
   /**
    * Get filtered members for course all/user/role/group<br>
    * Return hash map for direct access to members via id
    * (used in UI when for selected list items)<br>
    * Filter roles/groups which do not have members
+   * @param filterFerpa
    * @return map of members
    */
- 
+  public Map getFilteredCourseMembers(boolean filterFerpa);
+  
+    
+  /**
+   * Get members for course all/user/role/group<br>
+   * Return hash map for direct access to members via id
+   * (used in UI when for selected list items)<br>
+   * @param filterFerpa
+   * @param nonSpecifiedType
+   * @return map of members
+   */
   public Map getAllCourseMembers(boolean filterFerpa, boolean nonSpecifiedType);
   
   /**
