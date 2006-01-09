@@ -213,6 +213,13 @@
   </servlet>
 
   <servlet>
+    <servlet-name>UploadAudioMediaServlet</servlet-name>
+    <display-name>UploadAudio</display-name>
+    <description>Upload audio file from client stream.</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.UploadAudioMediaServlet</servlet-class>
+  </servlet>
+
+  <servlet>
     <servlet-name>PDFServlet</servlet-name>
     <display-name>PDF Servlet</display-name>
     <description>This is the description of my J2EE component</description>

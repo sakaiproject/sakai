@@ -22,7 +22,7 @@
      <param-name>contextConfigLocation</param-name>
      <param-value>
      classpath*:org/sakaiproject/component/section/support/spring-integrationSupport.xml,
-     classpath*:org/sakaiproject/component/section/spring-*.xml, 
+     classpath*:org/sakaiproject/component/section/spring-*.xml,
      classpath:/org/sakaiproject/spring/applicationContextStandalone.xml,
      classpath:/org/sakaiproject/spring/BeanDefinitionsStandalone.xml,
      classpath:/org/sakaiproject/spring/integrationContextStandalone.xml,
@@ -150,6 +150,13 @@
     <display-name>Show Media</display-name>
     <description>This is the description of my J2EE component</description>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.ShowMediaServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>UploadAudioMediaServlet</servlet-name>
+    <display-name>UploadAudio</display-name>
+    <description>Upload audio file from client stream.</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.UploadAudioMediaServlet</servlet-class>
   </servlet>
 
   <servlet>
