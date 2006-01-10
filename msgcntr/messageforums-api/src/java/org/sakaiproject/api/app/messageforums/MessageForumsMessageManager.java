@@ -75,5 +75,7 @@ public interface MessageForumsMessageManager {
 
     public List sortMessageByDate(Topic topic, boolean asc);
     
+    public List getAllRelatedMsgs(final Long messageId);
+    
 }
 

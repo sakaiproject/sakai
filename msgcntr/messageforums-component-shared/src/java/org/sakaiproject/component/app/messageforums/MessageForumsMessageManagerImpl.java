@@ -527,4 +527,23 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private String getEventMessage(Object object) {
         return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
+    
+    public List getAllRelatedMsgs(final Long messageId)
+    {
+    	Message rootMsg = getMessageById(messageId); 
+    	while(rootMsg.getInReplyTo() != null)
+    	{
+    		rootMsg = rootMsg.getInReplyTo();
+    	}
+    	List childList = new ArrayList();
+    	getChildMsgs(rootMsg.getId(), childList);
+    	List returnList = new ArrayList();
+    	returnList.add(rootMsg);
+    	for(int i=0; i<childList.size(); i++)
+    	{
+    		returnList.add((Message)childList.get(i));
+    	}
+
+    	return returnList;
+    }
 }

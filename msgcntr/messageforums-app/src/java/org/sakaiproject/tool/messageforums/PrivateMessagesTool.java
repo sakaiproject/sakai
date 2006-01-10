@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -44,7 +45,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
+import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -334,6 +337,10 @@ public class PrivateMessagesTool
         }
       }
     }
+    if(selectView!=null && selectView.equalsIgnoreCase("threaded"))
+    {
+    	this.rearrageTopicMsgsThreaded();
+    }
     return decoratedPvtMsgs ;
   }
   
@@ -599,6 +606,125 @@ public class PrivateMessagesTool
   {
     this.selectView=selectView ;
   }
+  public void processChangeSelectView(ValueChangeEvent eve)
+  {
+    String currentValue = (String) eve.getNewValue();
+  	if (currentValue == null)
+  	{
+  		selectView = "";
+  		return;
+    }
+  	else
+  	{
+  		if(currentValue.equalsIgnoreCase("threaded"))
+  		{
+  			selectView = "threaded";
+  			return;
+  		}
+  		else
+  		{
+  			selectView = "";
+  			return;
+  		}
+  	}
+  }
+  
+  public void rearrageTopicMsgsThreaded()
+  {
+  	List msgsList = new ArrayList();
+		for(int i=0; i<decoratedPvtMsgs.size(); i++)
+		{
+			msgsList.add((PrivateMessageDecoratedBean)decoratedPvtMsgs.get(i));
+		}
+  	decoratedPvtMsgs.clear();
+  	
+  	if(msgsList != null)
+  	{
+  		Set msgsSet = new HashSet();
+  		for(int i=0; i<msgsList.size(); i++)
+  		{
+  			msgsSet.add((PrivateMessageDecoratedBean)msgsList.get(i));
+  		}
+  		Iterator iter = msgsSet.iterator();
+  		while(iter.hasNext())
+  		{
+  			List allRelatedMsgs = messageManager.getAllRelatedMsgs(
+  					((PrivateMessageDecoratedBean)iter.next()).getMsg().getId());
+  			List currentRelatedMsgs = new ArrayList();
+  			if(allRelatedMsgs != null && allRelatedMsgs.size()>0)
+  			{
+  				PrivateMessageDecoratedBean pdb = new PrivateMessageDecoratedBean((PrivateMessage)allRelatedMsgs.get(0));
+  				pdb.setDepth(-1);
+  				boolean firstEleAdded = false;
+  				for(int i=0; i<msgsList.size(); i++)
+  				{
+  					PrivateMessageDecoratedBean tempPMDB = (PrivateMessageDecoratedBean)msgsList.get(i);
+  	        if (tempPMDB.getMsg().getId().equals(pdb.getMsg().getId()))
+  	        {
+  	          tempPMDB.setDepth(0);
+  	          currentRelatedMsgs.add(tempPMDB);
+  	          firstEleAdded = true;
+  	          recursiveGetThreadedMsgsFromList(msgsList, allRelatedMsgs, currentRelatedMsgs, tempPMDB);
+  	          break;
+  	        }
+  				}
+  				if(!firstEleAdded)
+  					recursiveGetThreadedMsgsFromList(msgsList, allRelatedMsgs, currentRelatedMsgs, pdb);
+  			}
+  			for(int i=0; i<currentRelatedMsgs.size(); i++)
+  			{
+  				decoratedPvtMsgs.add((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
+  				msgsSet.remove((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
+  			}
+  			
+  			iter = msgsSet.iterator();
+  		}
+  	}
+  }
+  
+  private void recursiveGetThreadedMsgsFromList(List msgsList, 
+  		List allRelatedMsgs, List returnList,
+      PrivateMessageDecoratedBean currentMsg)
+  {
+    for (int i = 0; i < allRelatedMsgs.size(); i++)
+    {
+    	PrivateMessageDecoratedBean thisMsgBean = 
+    		new PrivateMessageDecoratedBean((PrivateMessage)allRelatedMsgs.get(i));
+      Message thisMsg = thisMsgBean.getMsg();
+      boolean existedInCurrentUserList = false;
+      for(int j=0; j< msgsList.size(); j++)
+      {
+      	PrivateMessageDecoratedBean currentUserBean = 
+      		(PrivateMessageDecoratedBean)msgsList.get(j);
+        if (thisMsg.getInReplyTo() != null
+            && thisMsg.getInReplyTo().getId().equals(
+                currentMsg.getMsg().getId())
+						&& currentUserBean.getMsg().getId().equals(thisMsg.getId()))
+        {
+          currentUserBean.setDepth(currentMsg.getDepth() + 1);
+          if(currentMsg.getDepth() > -1)
+          {
+          	currentUserBean.setUiInReply(((PrivateMessageDecoratedBean)returnList.get(returnList.size()-1)).getMsg());
+          }
+          returnList.add(currentUserBean);
+          existedInCurrentUserList = true;
+          recursiveGetThreadedMsgsFromList(msgsList, allRelatedMsgs, returnList, currentUserBean);
+          break;
+        }
+      }
+      if(!existedInCurrentUserList)
+      {
+        if(thisMsg.getInReplyTo() != null
+            && thisMsg.getInReplyTo().getId().equals(
+                currentMsg.getMsg().getId()))
+        {
+          thisMsgBean.setDepth(currentMsg.getDepth());
+          recursiveGetThreadedMsgsFromList(msgsList, allRelatedMsgs, returnList, thisMsgBean);
+        }
+      }
+    }
+  }
+
   //////////////////////////////////////////////////////////////////////////////////  
   /**
    * called when any topic like Received/Sent/Deleted clicked

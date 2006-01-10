@@ -51,6 +51,7 @@ public class PrivateMessageDecoratedBean
   private int depth;
   private boolean hasNext;
   private boolean hasPre;
+  private PrivateMessage uiInReply = null;
   
   public PrivateMessage getMsg()
   {
@@ -118,7 +119,15 @@ public class PrivateMessageDecoratedBean
     this.hasPre = hasPre;
   }
   
+  public PrivateMessage getUiInReply()
+  {
+  	return uiInReply;
+  }
   
+  public void setUiInReply(PrivateMessage uiInReply)
+  {
+  	this.uiInReply = uiInReply;
+  }
   
 }
 
