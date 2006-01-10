@@ -21,20 +21,23 @@
     <version name="version" column="VERSION" />
 
     <!-- Actor Permissions fields -->
-	<list name="accessors" lazy="true" table="MFR_MESSAGE_FORUMS_USER_T" cascade="all">
+	<list name="accessors" lazy="false" table="MFR_AP_ACCESSORS_T" cascade="all">
 	    <key column="apaSurrogateKey"/>
-	    <index column="ap1_index_col" />
-	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl" />
+	    <index column="accessors_index_col" />	    
+	    <many-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
+	                  column="userSurrogateKey" />
 	</list>     
-	<list name="moderators" lazy="true" table="MFR_MESSAGE_FORUMS_USER_T" cascade="all">
+	<list name="moderators" lazy="false" table="MFR_AP_MODERATORS_T" cascade="all">
 	    <key column="apmSurrogateKey"/>
-	    <index column="ap2_index_col" />
-	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl" />
+	    <index column="moderators_index_col" />
+	    <many-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
+	                  column="userSurrogateKey" />
 	</list>
-	<list name="contributors" lazy="true" table="MFR_MESSAGE_FORUMS_USER_T" cascade="all">
+	<list name="contributors" lazy="false" table="MFR_AP_CONTRIBUTORS_T" cascade="all">
 	    <key column="apcSurrogateKey"/>
-	    <index column="ap3_index_col" />
-	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl" />
+	    <index column="contributors_index_col" />
+	    <many-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
+	                 column="userSurrogateKey" />
 	</list>     
 
   </class>

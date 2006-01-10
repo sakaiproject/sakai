@@ -484,18 +484,30 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     public ActorPermissions createDefaultActorPermissions()
     {
-      ActorPermissions actorPermissions = new ActorPermissionsImpl();
-      List notSpecified= new ArrayList();
-      MessageForumsUser forumUser= new MessageForumsUserImpl();
-      forumUser.setUserId(typeManager.getNotSpecifiedType());
-      forumUser.setUuid(typeManager.getNotSpecifiedType());
-      forumUser.setTypeUuid(typeManager.getNotSpecifiedType());
-      notSpecified.add(forumUser);
-      actorPermissions.setAccessors(notSpecified);   
-      actorPermissions.setContributors(notSpecified);
-      actorPermissions.setModerators(notSpecified);
+      ActorPermissions actorPermissions = new ActorPermissionsImpl();      
+      MessageForumsUser nonSpecifiedUser = new MessageForumsUserImpl();
+      nonSpecifiedUser.setUserId(typeManager.getNotSpecifiedType());
+      nonSpecifiedUser.setUuid(typeManager.getNotSpecifiedType());
+      nonSpecifiedUser.setTypeUuid(typeManager.getNotSpecifiedType());
+                  
+      actorPermissions.addAccesssor(nonSpecifiedUser);      
+      actorPermissions.addContributor(nonSpecifiedUser);
+      actorPermissions.addModerator(nonSpecifiedUser);
+      //saveActorPermissions(actorPermissions);
       return actorPermissions;
     }
+    
+//    public void saveActorPermissions(ActorPermissions actorPermissions){
+//      boolean isNew = actorPermissions.getId() == null;
+//      
+//      getHibernateTemplate().saveOrUpdate(actorPermissions);
+//
+//      if (isNew) {
+//          eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(actorPermissions), false));
+//      } else {
+//          eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(actorPermissions), false));
+//      }      
+//    }
 
     /**
      * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#createPrivateForum(java.lang.String)

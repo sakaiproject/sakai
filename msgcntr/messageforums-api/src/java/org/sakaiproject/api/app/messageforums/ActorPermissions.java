@@ -46,5 +46,17 @@ public interface ActorPermissions {
     public java.util.List getModerators();
 
     public void setModerators(java.util.List moderators);
+    
+    public void addAccesssor(MessageForumsUser user);
+    
+    public void removeAccessor(MessageForumsUser user);
+    
+    public void addModerator(MessageForumsUser user);
+    
+    public void removeModerator(MessageForumsUser user);
+    
+    public void addContributor(MessageForumsUser user);
+    
+    public void removeContributor(MessageForumsUser user);
 
 }

@@ -32,22 +32,7 @@
     <property name="typeUuid">
       <column name="TYPE_UUID" length="36" not-null="true" />
     </property>
-    
-    <many-to-one name="apAccessors" column="apaSurrogateKey"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
-      not-null="false" index="MFR_USER_PARENT_I1" cascade="none" />                
-    <property name="apaccessorsindex" column="ap1_index_col" type="int" update="true" insert="true"/>
-
-    <many-to-one name="apModerators" column="apmSurrogateKey"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
-      not-null="false" index="MFR_USER_PARENT_I2" cascade="none" />                
-    <property name="apmoderatorsindex" column="ap2_index_col" type="int" update="true" insert="true"/>
-
-    <many-to-one name="apContributors" column="apcSurrogateKey"
-      class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
-      not-null="false" index="MFR_USER_PARENT_I3" cascade="none" />                
-    <property name="apcontributorsindex" column="ap3_index_col" type="int" update="true" insert="true"/>        
-
+        
   </class>
   
   <query name="findUserByUserId">
