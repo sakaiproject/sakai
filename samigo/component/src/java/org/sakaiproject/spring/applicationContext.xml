@@ -4,26 +4,10 @@
 
 <beans>
 
-  <!-- Each Transactionmanager must have its own DataSource -->
-  <bean id="sakai-sam.javax.sql.DataSource"
-    parent="javax.sql.DataSource">
-
-    <!-- The default auto-commit state of connections created by this pool. -->
-    <property name="defaultAutoCommit">
-      <!-- This is a hack to get SAMigo working properly -->
-      <value>true</value>
-    </property>
-
-  </bean>
-
   <!-- Use the Sakai session factory, pre-configured, instead of one local to Samigo -->
   <bean id="sakai-sam.sessionFactory"
     class="org.springframework.orm.hibernate.LocalSessionFactoryBean"
     parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
-
-    <property name="dataSource">
-      <ref local="sakai-sam.javax.sql.DataSource" />
-    </property>
 
     <property name="mappingResources">
       <list>
