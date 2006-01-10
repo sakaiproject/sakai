@@ -26,8 +26,8 @@
 								<h:outputText   value="Previous Message      "  rendered="#{!PrivateMessagesTool.detailMsg.hasPre}" />
 								<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message      "  rendered="#{PrivateMessagesTool.detailMsg.hasPre}" >
 								</h:commandLink>
-								<h:outputText   value="Next Message      " rendered="#{!PrivateMessagesTool.detailMsg.hasNext}" />
-								<h:commandLink action="#{PrivateMessagesTool.processDisplayNextMsg}" value="Next Message   " rendered="#{PrivateMessagesTool.detailMsg.hasNext}" >
+								<h:outputText   value="    Next Message      " rendered="#{!PrivateMessagesTool.detailMsg.hasNext}" />
+								<h:commandLink action="#{PrivateMessagesTool.processDisplayNextMsg}" value="    Next Message   " rendered="#{PrivateMessagesTool.detailMsg.hasNext}" >
 								</h:commandLink>
 			      </td>
           </tr>
@@ -70,28 +70,30 @@
 								  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
 								  	<h:outputText value="#{eachAttach.attachmentName}"/>
 									</h:outputLink>
-							
 								</h:column>
 							</h:dataTable>   
               <%-- Attachments --%>
             </td>
             <td></td>
           </tr>
-          <%--
+          
           <tr>
             <td align="left">
               <h:outputText style="font-weight:bold"  value="#{msgs.pvt_label} "/>
             </td>
             <td align="left">
-            	<h:outputText value="#{PrivateMessagesTool.detailMsg.message.label}" />  
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.label}" />  
             </td>
             <td></td>
           </tr> 
-          --%>                                   
+                                        
         </table>    
         </sakai:group_box>
         
-         
+        <sakai:group_box>
+        	<mf:htmlShowArea value="#{PrivateMessagesTool.detailMsg.msg.body}"/>
+        </sakai:group_box> 
+               
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" />
           <%--
@@ -104,15 +106,6 @@
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" />
         </sakai:button_bar>
 
-       <%--<sakai:group_box>
-          <sakai:panel_edit>
-            <sakai:doc_section>            
-              <h:inputTextarea cols="100" rows="5" disabled="true" value="#{PrivateMessagesTool.detailMsg.msg.body}" />--%>  
-              <mf:htmlShowArea value="#{PrivateMessagesTool.detailMsg.msg.body}"/>
-                          
-         <%--   </sakai:doc_section>    
-          </sakai:panel_edit>
-        </sakai:group_box> --%>
 
       </h:form>
     </sakai:view_content>
