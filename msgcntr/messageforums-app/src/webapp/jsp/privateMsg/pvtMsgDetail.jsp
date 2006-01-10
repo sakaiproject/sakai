@@ -10,7 +10,7 @@
     <sakai:view_content>
       <h:form id="pvtMsgDetail">
   			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
-  			<h:commandLink action="#{PrivateMessagesTool.processHpView}" value="#{msgs.cdfm_message_pvtarea}" /> /
+  			<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" /> /
 				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
 				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />
 				<sakai:tool_bar_message value="#{msgs.pvt_detmsgreply}" /> 

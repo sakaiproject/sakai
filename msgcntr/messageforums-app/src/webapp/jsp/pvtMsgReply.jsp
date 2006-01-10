@@ -11,7 +11,7 @@
     <sakai:view_content>
       <h:form id="pvtMsgReply">
   			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
-  			<h:commandLink action="#{PrivateMessagesTool.processHpView}" value="#{msgs.cdfm_message_pvtarea}" /> /
+  			<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" /> /
 				<h:outputText value="Reply to Private Message" />
         	  <sakai:tool_bar_message value="Reply to Private Message" /> 
  			  <div class="instruction">
