@@ -9,13 +9,29 @@
 	<sakai:view_container title="#{msgs.pvtarea_name}">
 	<sakai:view_content>
 		<h:form id="prefs_form">
-  		<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
-  		<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}"/> /
- 			<h:outputText value="#{PrivateMessagesTool.msgNavMode}"/>
+
 			
 			<%--<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> --%>
+			
+        <table ><tr>
+        <td align="left" width="85%">        	
+        	  <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
+  					<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}"/> /
+ 						<h:outputText value="#{PrivateMessagesTool.msgNavMode}"/>
+        	</td><td align="right" >
+				  <h:outputText   value="Previous Folder      "  rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
+	    		<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="Previous Folder      "  rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}">
+		  			<f:param value="#{PrivateMessagesTool.selectedTopic.previousTopicTitle}" name="previousTopicTitle"/>
+		  		</h:commandLink>
+		  		<h:outputText   value="       Next Folder      " rendered="#{!PrivateMessagesTool.selectedTopic.hasNextTopic}" />
+		  		<h:commandLink action="#{PrivateMessagesTool.processDisplayNextTopic}" value="      Next Folder   " rendered="#{PrivateMessagesTool.selectedTopic.hasNextTopic}">
+		  			<f:param value="#{PrivateMessagesTool.selectedTopic.nextTopicTitle}" name="nextTopicTitle"/>
+		  		</h:commandLink>
+	  			</td></tr></table>
+  	
 			<h:messages styleClass="alertMessage" id="errorMessages" /> 
-			<%@include file="msgHeader.jsp"%>
+  	
+  		<%@include file="msgHeader.jsp"%>
 			<br><br><br>
 
 	  <h:dataTable styleClass="listHier" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" >   
