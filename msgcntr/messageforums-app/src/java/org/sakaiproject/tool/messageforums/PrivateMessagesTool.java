@@ -2031,7 +2031,7 @@ public class PrivateMessagesTool
         else if (MembershipItem.TYPE_GROUP.equals(item.getType())){
           for (Iterator g = allCourseUsers.iterator(); g.hasNext();){
             MembershipItem member = (MembershipItem) g.next();            
-            Set groupMemberSet = member.getGroup().getMembers();
+            Set groupMemberSet = item.getGroup().getMembers();
             for (Iterator s = groupMemberSet.iterator(); s.hasNext();){
               Member m = (Member) s.next();
               if (m.getUserId() != null && m.getUserId().equals(member.getUser().getId())){
