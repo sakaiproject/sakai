@@ -6,8 +6,12 @@
 
   <!-- Use the Sakai session factory, pre-configured, instead of one local to Samigo -->
   <bean id="sakai-sam.sessionFactory"
-    class="org.springframework.orm.hibernate.LocalSessionFactoryBean"
-    parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+    parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase"
+    class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean">
+  </bean>
+
+  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.samigo"
+                class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 
     <property name="mappingResources">
       <list>
