@@ -2205,7 +2205,7 @@ public class PrivateMessagesTool
     
     String servletPath = req.getServletPath();
     if (servletPath != null){
-      if (servletPath.endsWith("main.jsp")){
+      if (servletPath.startsWith("/jsp/main")){
         return true;
       }      
     }
