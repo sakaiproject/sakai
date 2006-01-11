@@ -181,7 +181,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           }
 
           /** create or disjunctive expression for (in clauses) */
-          List tempList;
+          List tempList = new ArrayList();
         for (int i = 0; i < gradingIdList.size(); i += 50){
           if (i + 50 > gradingIdList.size()){
               tempList = gradingIdList.subList(i, gradingIdList.size());
@@ -193,14 +193,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           }
         }
 
-if (itemId.equals(new Long(0))) {}
-else {
-          Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
+        if (itemId.equals(new Long(0))) {
+          criteria.add(disjunction);
+        }
+        else {
 
           /** create logical and between the pubCriterion and the disjunction criterion */
+          Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
           criteria.add(Expression.and(pubCriterion, disjunction));
-}
-
+        }
           criteria.addOrder(Order.asc("agentId"));
           criteria.addOrder(Order.desc("submittedDate"));
           //return criteria.list();
