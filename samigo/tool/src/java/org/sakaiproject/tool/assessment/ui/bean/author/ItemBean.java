@@ -1025,27 +1025,23 @@ public class ItemBean
 
 // Huong added for matching
 
-public boolean checkMatch(){
+    public boolean isMatchError(){
 // need to trim, 'cuz in  mozilla, the field is printed as ^M , a new line char. 
-     String choice=currentMatchPair.getChoice().trim();
+	String choice=(currentMatchPair.getChoice().replaceAll("<.*?>", "")).trim();
+	String match=(currentMatchPair.getMatch().replaceAll("<.*?>", "")).trim();
+    
+	if(choice==null ||choice.equals("")|| match==null || match.equals("")){
+	    FacesContext context=FacesContext.getCurrentInstance();
+	    ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
 
-     String match=currentMatchPair.getMatch().trim();
-     FacesContext context=FacesContext.getCurrentInstance();
-
-     ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-     String err;
-     if(choice==null ||choice.equals("")|| match==null || match.equals("")){
-	 err=(String)rb.getObject("match_error");
-	 context.addMessage(null,new FacesMessage(err));
-            return false;
-     }
-     else {
-            return true;
-	    }
+	    context.addMessage(null,new FacesMessage((String)rb.getObject("match_error")));
+	    return true;
+	}
+	return false;
     }
 
   public String addMatchPair() {
-      if (checkMatch()){
+      if (!isMatchError()){
 
     // get existing list
     ArrayList list = getMatchItemBeanList();

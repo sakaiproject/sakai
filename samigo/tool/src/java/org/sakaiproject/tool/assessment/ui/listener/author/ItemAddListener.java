@@ -106,6 +106,16 @@ public class ItemAddListener
 
 	}
     }
+
+    if(iType.equals(TypeFacade.MATCHING.toString())){
+    	if(isErrorMatching()){
+    	    err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noMatchingPair_error");
+    	    context.addMessage(null,new FacesMessage(err));
+    	    item.setOutcome("matchingItem");
+    	    item.setPoolOutcome("matchingItem");
+    	    return;
+    	}
+      }
   
 	
     if (!saveItem(itemauthorbean)){
@@ -204,6 +214,17 @@ public class ItemAddListener
 
 
     }
+
+  public boolean isErrorMatching(){
+    	ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+    	ItemBean item =itemauthorbean.getCurrentItem();
+       
+	if(item.getMatchItemBeanList().size()<1){
+	    return true;
+	}
+   
+	return false;
+  }
 
     public boolean isErrorFIB() {
 	ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
