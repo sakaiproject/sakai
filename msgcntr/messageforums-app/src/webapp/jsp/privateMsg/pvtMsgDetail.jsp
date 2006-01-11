@@ -23,9 +23,11 @@
             <td align="left"></td>
             <td align="left"></td>  
             <td align="left">         			
-								<h:outputText   value="Previous Message      "  rendered="#{!PrivateMessagesTool.detailMsg.hasPre}" />
-								<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message      "  rendered="#{PrivateMessagesTool.detailMsg.hasPre}" >
+								<h:outputText   value="Previous Message"  rendered="#{!PrivateMessagesTool.detailMsg.hasPre}" />
+								&nbsp;&nbsp;
+								<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message"  rendered="#{PrivateMessagesTool.detailMsg.hasPre}" >
 								</h:commandLink>
+								&nbsp;&nbsp;
 								<h:outputText   value="    Next Message      " rendered="#{!PrivateMessagesTool.detailMsg.hasNext}" />
 								<h:commandLink action="#{PrivateMessagesTool.processDisplayNextMsg}" value="    Next Message   " rendered="#{PrivateMessagesTool.detailMsg.hasNext}" >
 								</h:commandLink>
