@@ -247,6 +247,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       if (scores.isEmpty())
         return new HashMap();
       AssessmentGradingData gdata = (AssessmentGradingData) scores.toArray()[0];
+      // initialize itemGradingSet
+      gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
       if (gdata.getForGrade().booleanValue())
         return new HashMap();
       Iterator iter = gdata.getItemGradingSet().iterator();
@@ -465,7 +467,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       Set itemgrading = data.getItemGradingSet();
       if (itemgrading == null)
-        itemgrading = new HashSet();
+        itemgrading = getItemGradingSet(data.getAssessmentGradingId());
+      log.debug("*******itemGrading size="+itemgrading.size());
       Iterator iter = itemgrading.iterator();
       float totalAutoScore = 0;
 
@@ -995,23 +998,29 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString) {
-      List assessmentGradings = getHibernateTemplate().find(
+    AssessmentGradingData ag = null;
+    List assessmentGradings = getHibernateTemplate().find(
         "from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc",
          new Object[] { publishedAssessmentId, agentIdString, Boolean.FALSE },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING, Hibernate.BOOLEAN });
-      if (assessmentGradings.size() == 0)
-    return null;
-      return (AssessmentGradingData) assessmentGradings.get(0);
+    if (assessmentGradings.size() != 0){
+      ag = (AssessmentGradingData) assessmentGradings.get(0);
+      ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+    }  
+    return ag;
   }
 
   public AssessmentGradingData getLastAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString) {
-      List assessmentGradings = getHibernateTemplate().find(
+    AssessmentGradingData ag = null;
+    List assessmentGradings = getHibernateTemplate().find(
         "from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.agentId=? order by a.submittedDate desc",
          new Object[] { publishedAssessmentId, agentIdString },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
-      if (assessmentGradings.size() == 0)
-    return null;
-      return (AssessmentGradingData) assessmentGradings.get(0);
+    if (assessmentGradings.size() != 0){
+      ag = (AssessmentGradingData) assessmentGradings.get(0);
+      ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+    }  
+    return ag;
   }
 
 
@@ -1110,16 +1119,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public AssessmentGradingIfc getHighestAssessmentGrading(
          Long publishedAssessmentId, String agentId)
   {
+    AssessmentGradingData ag = null;
     String query ="from AssessmentGradingData a "+
                   " where a.publishedAssessment.publishedAssessmentId=? and "+
                   " a.agentId=? order by a.finalScore desc";
-    List l = getHibernateTemplate().find(query,
+    List assessmentGradings = getHibernateTemplate().find(query,
         new Object[] { publishedAssessmentId, agentId },
         new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
-    if (l.size() >0)
-      return ((AssessmentGradingData)l.get(0));
-    else
-      return null;
+    if (assessmentGradings.size() != 0){
+      ag = (AssessmentGradingData) assessmentGradings.get(0);
+      ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+    }  
+    return ag;
   }
 
   public ArrayList getLastAssessmentGradingList(Long publishedAssessmentId){
@@ -1250,6 +1261,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
     }
     return h;
+  }
+
+  public Set getItemGradingSet(Long assessmentGradingId){
+    String query = "from ItemGradingData i where i.assessmentGrading.assessmentGradingId=?";
+    List itemGradings = getHibernateTemplate().find(query,
+                                                    new Object[] { assessmentGradingId },
+                                                    new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+    HashSet s = new HashSet();
+    for (int i=0; i<itemGradings.size();i++){
+      s.add(itemGradings.get(i));
+    }
+    return s;
   }
 
 

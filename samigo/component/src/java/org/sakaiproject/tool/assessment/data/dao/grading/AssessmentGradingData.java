@@ -139,6 +139,7 @@ public class AssessmentGradingData
     this.forGrade = forGrade;
   }
   public Float getTotalAutoScore() {
+      /*
     if (getItemGradingSet()!=null){
       this.totalAutoScore = new Float("0");
       float autoScore = 0;
@@ -150,6 +151,7 @@ public class AssessmentGradingData
       }
       this.totalAutoScore = new Float(autoScore);
     }
+      */
 
     // Round to the nearest 1/10th.
     if (this.totalAutoScore != null){

@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.services;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -318,4 +319,13 @@ public class GradingService
     }
   }
 
+  public Set getItemGradingSet(String assessmentGradingId){
+    try{
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+               getItemGradingSet(new Long(assessmentGradingId));
+    }
+    catch(Exception e){
+      log.error(e); throw new Error(e);
+    }
+  }
 }

@@ -226,6 +226,8 @@ public class DeliveryActionListener
         keys.next())).toArray()[0];
       AssessmentGradingData agd =
         (AssessmentGradingData) igd.getAssessmentGrading();
+      GradingService gradingService = new GradingService();
+      agd.setItemGradingSet(gradingService.getItemGradingSet(agd.getAssessmentGradingId().toString()));
       if (!agd.getForGrade().booleanValue()){
         delivery.setAssessmentGrading(agd);
         log.debug("setAssessmentGradingFromItemData agd.getTimeElapsed(): " + agd.getTimeElapsed());
