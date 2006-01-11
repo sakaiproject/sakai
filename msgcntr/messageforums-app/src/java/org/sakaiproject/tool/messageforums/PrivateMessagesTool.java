@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -45,7 +44,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
@@ -852,16 +850,16 @@ public class PrivateMessagesTool
    */ 
   public String processPvtMsgReply() {
     LOG.debug("processPvtMsgReply()");
-    //set default userName
-    List defName = new ArrayList();
-    defName.add(getUserName());
-    List d = new ArrayList();
-    for (Iterator iter = defName.iterator(); iter.hasNext();)
-    {
-      String element = (String) iter.next();
-      d.add(new SelectItem(element));      
-    }
-    this.setSelectedComposeToList(d);
+//    //set default userName
+//    List defName = new ArrayList();
+//    defName.add(getUserName());
+//    List d = new ArrayList();
+//    for (Iterator iter = defName.iterator(); iter.hasNext();)
+//    {
+//      String element = (String) iter.next();
+//      d.add(new SelectItem(element));      
+//    }
+//    this.setSelectedComposeToList(d);
     //set Dafult Subject
     if(getDetailMsg() != null)
     {
@@ -1401,8 +1399,23 @@ public class PrivateMessagesTool
     PrivateMessage currentMessage = getDetailMsg().getMsg() ;
         
     if (this.getSelectedComposeToList().size()<1) // if nothing is selected from the recipiant list
-    {
-      selectedComposeToList.add(getUserSortNameById(currentMessage.getCreatedBy()));
+    {      
+      
+      for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
+        
+        SelectItem selectItem = (SelectItem) i.next();
+        
+        /** lookup item in map */
+        MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectItem.getValue());                
+        
+        if (MembershipItem.TYPE_USER.equals(membershipItem.getType())) {
+          if (membershipItem.getUser() != null) {
+            if (membershipItem.getUser().getId().equals(currentMessage.getCreatedBy())) {
+              selectedComposeToList.add(membershipItem.getId());
+            }
+          }
+        }
+      }            
     }
     
     if(!hasValue(getReplyToSubject()))

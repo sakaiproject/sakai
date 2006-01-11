@@ -14,17 +14,19 @@
 			<%--<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> --%>
 			
         <table ><tr>
-        <td align="left" width="85%">        	
+        <td align="left" width="80%">        	
         	  <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
   					<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}"/> /
  						<h:outputText value="#{PrivateMessagesTool.msgNavMode}"/>
         	</td><td align="right" >
-				  <h:outputText   value="Previous Folder      "  rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
-	    		<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="Previous Folder      "  rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}">
+				  <h:outputText   value="Previous Folder"  rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
+				  &nbsp;&nbsp;
+	    		<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="Previous Folder"  rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}">
 		  			<f:param value="#{PrivateMessagesTool.selectedTopic.previousTopicTitle}" name="previousTopicTitle"/>
 		  		</h:commandLink>
-		  		<h:outputText   value="       Next Folder      " rendered="#{!PrivateMessagesTool.selectedTopic.hasNextTopic}" />
-		  		<h:commandLink action="#{PrivateMessagesTool.processDisplayNextTopic}" value="      Next Folder   " rendered="#{PrivateMessagesTool.selectedTopic.hasNextTopic}">
+		  		&nbsp;&nbsp;
+		  		<h:outputText   value="Next Folder" rendered="#{!PrivateMessagesTool.selectedTopic.hasNextTopic}" />
+		  		<h:commandLink action="#{PrivateMessagesTool.processDisplayNextTopic}" value="Next Folder" rendered="#{PrivateMessagesTool.selectedTopic.hasNextTopic}">
 		  			<f:param value="#{PrivateMessagesTool.selectedTopic.nextTopicTitle}" name="nextTopicTitle"/>
 		  		</h:commandLink>
 	  			</td></tr></table>
