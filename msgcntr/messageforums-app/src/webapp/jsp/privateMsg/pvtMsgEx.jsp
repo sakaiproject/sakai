@@ -11,16 +11,16 @@
 		<h:form id="prefs_form_search">
 			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
   		<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" /> /
-			<h:outputText value="#{PrivateMessagesTool.msgNavMode}" />
-			<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> 
+			<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
+			<h:outputText value="#{msgs.pvt_search}" />	
+
 			<h:messages styleClass="alertMessage" id="errorMessages" />
 			<%@include file="msgHeader.jsp"%>
 			<br><br><br>
 
 	  <h:dataTable styleClass="listHier" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" >   
 		  <h:column>
-		    <f:facet name="header">
-		     <h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>
+		    <f:facet name="header">		     
 		    </f:facet>
 		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
 		  </h:column>
