@@ -668,7 +668,8 @@ public class HistogramListener
       ItemGradingData data = (ItemGradingData) iter.next();
       ItemTextIfc text = data.getPublishedItemText();
       AnswerIfc answer = data.getPublishedAnswer();
-      if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
+//    if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
+if (answer != null)
       {
         Integer num = (Integer) results.get(text.getId());
         if (num == null)
@@ -682,7 +683,11 @@ public class HistogramListener
         studentResponseList.add(data);
         numStudentRespondedMap.put(data.getAssessmentGrading().getAssessmentGradingId(), studentResponseList);
 
-        results.put(text.getId(), new Integer(num.intValue() + 1));
+        if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
+        // only store correct responses in the results
+        {
+          results.put(text.getId(), new Integer(num.intValue() + 1));
+        }
       }
     }
 
@@ -718,7 +723,6 @@ public class HistogramListener
     // now calculate responses and correctresponses
     // correctresponses = # of students who got all answers correct, 
 
-//lydia: i need another map of maps for this . maybe need to modify above logic
     responses = numStudentRespondedMap.size();
     Iterator mapiter = numStudentRespondedMap.keySet().iterator();
     while (mapiter.hasNext())
@@ -740,10 +744,19 @@ public class HistogramListener
           hasIncorrect = true;
           break;
         }
+          // now check each answer in Matching 
+          AnswerIfc answer = item.getPublishedAnswer();
+          if (answer.getIsCorrect() == null || (!answer.getIsCorrect().booleanValue()))
+          {
+            hasIncorrect = true;
+            break;
+          }
       }
       if (!hasIncorrect) {
         correctresponses = correctresponses + 1;
       }
+
+
     }
 
 
