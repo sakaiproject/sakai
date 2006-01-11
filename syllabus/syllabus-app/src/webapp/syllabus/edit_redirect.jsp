@@ -7,19 +7,14 @@
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
 			<h:form>
-				<sakai:group_box title="#{msgs.redirect_sylla}">
-					
-					<sakai:panel_edit>
-						<sakai:doc_section>
-							<h:outputText value="*" style="color: red"/>
-							<h:outputText value="#{msgs.syllabus_url}"/>
-						</sakai:doc_section>
-						<h:inputText value="#{SyllabusTool.syllabusItem.redirectURL}" />
-					</sakai:panel_edit>
-					
-				</sakai:group_box>
-
-
+				<h3>
+					<h:outputText value="#{msgs.redirect_sylla}" />
+				</h3>
+				<p class="shortText">
+					<span class="reqStar">*</span>
+					<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
+					<h:inputText id="urlValue" value="#{SyllabusTool.syllabusItem.redirectURL}" size="65" />
+				</p>
 				<sakai:button_bar>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditSaveRedirect}"
