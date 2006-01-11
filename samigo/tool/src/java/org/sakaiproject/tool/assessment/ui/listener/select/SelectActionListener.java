@@ -184,13 +184,7 @@ public class SelectActionListener
           delivery.setRawScore(g.getFinalScore().toString()); // Bug 318 fix. It seems raw score should also be based on final score.
 	  delivery.setRaw(g.getFinalScore().longValue());
         }
-        System.out.println("***g.finalScore ="+delivery.getAssessmentId()+":"+g.getFinalScore());
-        System.out.println("***raw score ="+delivery.getAssessmentId()+":"+delivery.getRawScore());
 
-        //if (g.getTotalAutoScore() != null) {
-	//    delivery.setRawScore(g.getTotalAutoScore().toString());
-	//    delivery.setRaw(g.getTotalAutoScore().longValue());
-        //}
         delivery.setTimeElapse(getTimeElapsed(g.getTimeElapsed()));
         delivery.setSubmissionDate(g.getSubmittedDate());
         if (g.getSubmittedDate() != null && g.getAttemptDate() != null) {
