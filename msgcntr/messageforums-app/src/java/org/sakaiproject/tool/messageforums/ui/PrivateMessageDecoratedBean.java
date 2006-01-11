@@ -52,6 +52,9 @@ public class PrivateMessageDecoratedBean
   private boolean hasNext;
   private boolean hasPre;
   private PrivateMessage uiInReply = null;
+  //This string is for display of recipients in Received folder- comman separated list of users
+  private String sendToString=""; 
+  
   
   public PrivateMessage getMsg()
   {
@@ -127,6 +130,20 @@ public class PrivateMessageDecoratedBean
   public void setUiInReply(PrivateMessage uiInReply)
   {
   	this.uiInReply = uiInReply;
+  }
+  /**
+   * @return Returns the sendToString.
+   */
+  public String getSendToString()
+  {
+    return sendToString;
+  }
+  /**
+   * @param sendToString The sendToString to set.
+   */
+  public void setSendToString(String sendToString)
+  {
+    this.sendToString = sendToString;
   }
   
 }

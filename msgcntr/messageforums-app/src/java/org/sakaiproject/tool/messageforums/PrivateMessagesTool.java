@@ -2084,7 +2084,7 @@ public class PrivateMessagesTool
         }
       }
     }
-    if(newls.size()>1)
+    if(newls.size()>0)
     {
       this.setSearchPvtMsgs(newls) ;
       return "pvtMsgEx" ;

@@ -25,7 +25,7 @@ public interface PrivateMessageManager {
     
     public PrivateMessage initMessageWithAttachmentsAndRecipients(PrivateMessage msg);
     
-    public List getPvtMsgByIdWithAttachments(PrivateMessage msg);
+    //public List getPvtMsgByIdWithAttachments(PrivateMessage msg);
     
     public void saveAreaAndForumSettings(Area area, PrivateForum forum);
     
