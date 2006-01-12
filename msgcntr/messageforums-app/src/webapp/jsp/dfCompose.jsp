@@ -37,7 +37,7 @@
 						onmousedown="document.forms[0].onsubmit();"
 						rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}" 
 						value="#{msgs.cdfm_read_full_description}">
-						<f:param value="dfViewMessage" name="redirectToProcessAction"/>
+						<f:param value="dfCompose" name="redirectToProcessAction"/>
 						<f:param value="true" name="composeExpand"/>
 					</h:commandLink>
 					<h:inputTextarea rows="5" cols="100" 
@@ -50,7 +50,7 @@
 						onmousedown="document.forms[0].onsubmit();"
   					value="#{msgs.cdfm_hide_full_description}" 
   					rendered="#{ForumTool.selectedTopic.readFullDesciption}">
-						<f:param value="dfViewMessage" name="redirectToProcessAction"/>
+						<f:param value="dfCompose" name="redirectToProcessAction"/>
 					</h:commandLink>					
         </sakai:group_box>
 
