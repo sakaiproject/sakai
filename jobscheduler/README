@@ -7,6 +7,14 @@ file has been modified to use a particular database vendor. On startup this sche
    all nodes in a cluster will have a unique name. 
    Note: when using scheduler in a cluster set the quartz property org.quartz.jobStore.isClustered = true
    
+2. Quartz has been configured to use Sakai's datasource by implementing org.quartz.utils.ConnectionProvider.
+   To use an alternative data source:
+   
+   a.) remove property org.quartz.dataSource.myDS.connectionProvider.class=org.sakaiproject.component.app.scheduler.ConnectionProviderDelegate
+       from quartz.properties
+       
+   b.) specify datasource properties in sakai.properties to override properties in quartz.properties
+   
 2. Find all jobs specified in components.xml. If the classloader cannot find the job class, this job
    is removed from the list of jobs in quartz.
    

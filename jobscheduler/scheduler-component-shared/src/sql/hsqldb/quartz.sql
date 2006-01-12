@@ -1,7 +1,20 @@
---
--- In your Quartz properties file, you'll need to set 
--- org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.HSQLDBDelegate
---
+#
+# In your Quartz properties file, you'll need to set 
+# org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.HSQLDBDelegate
+#
+
+DROP TABLE qrtz_locks IF EXISTS;
+DROP TABLE qrtz_scheduler_state IF EXISTS;
+DROP TABLE qrtz_fired_triggers IF EXISTS;
+DROP TABLE qrtz_paused_trigger_grps IF EXISTS;
+DROP TABLE qrtz_calendars IF EXISTS;
+DROP TABLE qrtz_trigger_listeners IF EXISTS;
+DROP TABLE qrtz_blob_triggers IF EXISTS;
+DROP TABLE qrtz_cron_triggers IF EXISTS;
+DROP TABLE qrtz_simple_triggers IF EXISTS;
+DROP TABLE qrtz_triggers IF EXISTS;
+DROP TABLE qrtz_job_listeners IF EXISTS;
+DROP TABLE qrtz_job_details IF EXISTS;
 
 CREATE TABLE qrtz_job_details
 (
@@ -43,6 +56,7 @@ START_TIME NUMERIC(13) NOT NULL,
 END_TIME NUMERIC(13) NULL,
 CALENDAR_NAME VARCHAR(80) NULL,
 MISFIRE_INSTR NUMERIC(2) NULL,
+JOB_DATA BINARY NULL,
 PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP),
 FOREIGN KEY (JOB_NAME,JOB_GROUP)
 REFERENCES QRTZ_JOB_DETAILS(JOB_NAME,JOB_GROUP)

@@ -74,29 +74,30 @@ public void init()
       qrtzProperties = new Properties();
       qrtzProperties.load(propertiesInputStream);
 
-      // now replace properties from those loaded in from components.xml
-      qrtzProperties.setProperty("org.quartz.dataSource.myDS.driver",
-          dataSource.getDriverClassName());
-      qrtzProperties.setProperty("org.quartz.dataSource.myDS.URL", dataSource
-          .getUrl());
-      qrtzProperties.setProperty("org.quartz.dataSource.myDS.user", dataSource
-          .getUsername());
-      qrtzProperties.setProperty("org.quartz.dataSource.myDS.password",
-          dataSource.getPassword());
-      qrtzProperties.setProperty("org.quartz.scheduler.instanceId", serverId);
       
-      if ("hsqldb".equalsIgnoreCase(sqlService.getVendor())){
-        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.HSQLDBDelegate"); 
-      }
-      else if ("mysql".equalsIgnoreCase(sqlService.getVendor())){
-        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
-      }
-      else if ("oracle".equalsIgnoreCase(sqlService.getVendor())){
-        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate");
-      }
-      else{
-        LOG.warn("sakai vendor not supported");
-      }
+      // now replace properties from those loaded in from components.xml
+//      qrtzProperties.setProperty("org.quartz.dataSource.myDS.driver",
+//          dataSource.getDriverClassName());
+//      qrtzProperties.setProperty("org.quartz.dataSource.myDS.URL", dataSource
+//          .getUrl());
+//      qrtzProperties.setProperty("org.quartz.dataSource.myDS.user", dataSource
+//          .getUsername());
+//      qrtzProperties.setProperty("org.quartz.dataSource.myDS.password",
+//          dataSource.getPassword());
+        qrtzProperties.setProperty("org.quartz.scheduler.instanceId", serverId);
+      
+//      if ("hsqldb".equalsIgnoreCase(sqlService.getVendor())){
+//        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.HSQLDBDelegate"); 
+//      }
+//      else if ("mysql".equalsIgnoreCase(sqlService.getVendor())){
+//        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
+//      }
+//      else if ("oracle".equalsIgnoreCase(sqlService.getVendor())){
+//        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate");
+//      }
+//      else{
+//        LOG.warn("sakai vendor not supported");
+//      }
 
       // note: becuase job classes are jarred , it is impossible to iterate
       // through a directory by calling listFiles on a file object.

@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>quartz</groupId>
 			<artifactId>quartz</artifactId>
-			<version>1.4.0</version>
+			<version>1.5.1</version>
 			<properties>
 				<deploy.target>shared</deploy.target>>
 			</properties>

@@ -1,3 +1,9 @@
+--
+-- A hint submitted by a user: Oracle DB MUST be created as "shared" and the 
+-- job_queue_processes parameter  must be greater than 2, otherwise a DB lock 
+-- will happen.   However, these settings are pretty much standard after any
+-- Oracle install, so most users need not worry about this.
+--
 
 delete from qrtz_job_listeners;
 delete from qrtz_trigger_listeners;
@@ -64,6 +70,7 @@ CREATE TABLE qrtz_triggers
     END_TIME NUMBER(13) NULL,
     CALENDAR_NAME VARCHAR2(80) NULL,
     MISFIRE_INSTR NUMBER(2) NULL,
+    JOB_DATA BLOB NULL,
     PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP),
     FOREIGN KEY (JOB_NAME,JOB_GROUP) 
 	REFERENCES QRTZ_JOB_DETAILS(JOB_NAME,JOB_GROUP) 
@@ -153,10 +160,12 @@ INSERT INTO qrtz_locks values('STATE_ACCESS');
 INSERT INTO qrtz_locks values('MISFIRE_ACCESS');
 create index idx_qrtz_j_req_recovery on qrtz_job_details(REQUESTS_RECOVERY);
 create index idx_qrtz_t_next_fire_time on qrtz_triggers(NEXT_FIRE_TIME);
-create index idx_qrtz_t_next_state on qrtz_triggers(TRIGGER_STATE);
+create index idx_qrtz_t_state on qrtz_triggers(TRIGGER_STATE);
+create index idx_qrtz_t_nft_st on qrtz_triggers(NEXT_FIRE_TIME,TRIGGER_STATE);
 create index idx_qrtz_t_volatile on qrtz_triggers(IS_VOLATILE);
 create index idx_qrtz_ft_trig_name on qrtz_fired_triggers(TRIGGER_NAME);
 create index idx_qrtz_ft_trig_group on qrtz_fired_triggers(TRIGGER_GROUP);
+create index idx_qrtz_ft_trig_nm_gp on qrtz_fired_triggers(TRIGGER_NAME,TRIGGER_GROUP);
 create index idx_qrtz_ft_trig_volatile on qrtz_fired_triggers(IS_VOLATILE);
 create index idx_qrtz_ft_trig_inst_name on qrtz_fired_triggers(INSTANCE_NAME);
 create index idx_qrtz_ft_job_name on qrtz_fired_triggers(JOB_NAME);

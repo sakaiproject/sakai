@@ -1,3 +1,36 @@
+--
+-- A hint submitted by a user: Oracle DB MUST be created as "shared" and the 
+-- job_queue_processes parameter  must be greater than 2, otherwise a DB lock 
+-- will happen.   However, these settings are pretty much standard after any
+-- Oracle install, so most users need not worry about this.
+--
+
+delete from qrtz_job_listeners;
+delete from qrtz_trigger_listeners;
+delete from qrtz_fired_triggers;
+delete from qrtz_simple_triggers;
+delete from qrtz_cron_triggers;
+delete from qrtz_blob_triggers;
+delete from qrtz_triggers;
+delete from qrtz_job_details;
+delete from qrtz_calendars;
+delete from qrtz_paused_trigger_grps;
+delete from qrtz_locks;
+delete from qrtz_scheduler_state;
+
+drop table qrtz_calendars;
+drop table qrtz_fired_triggers;
+drop table qrtz_trigger_listeners;
+drop table qrtz_blob_triggers;
+drop table qrtz_cron_triggers;
+drop table qrtz_simple_triggers;
+drop table qrtz_triggers;
+drop table qrtz_job_listeners;
+drop table qrtz_job_details;
+drop table qrtz_paused_trigger_grps;
+drop table qrtz_locks;
+drop table qrtz_scheduler_state;
+
 
 CREATE TABLE qrtz_job_details
   (
@@ -37,6 +70,7 @@ CREATE TABLE qrtz_triggers
     END_TIME NUMBER(13) NULL,
     CALENDAR_NAME VARCHAR2(80) NULL,
     MISFIRE_INSTR NUMBER(2) NULL,
+    JOB_DATA BLOB NULL,
     PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP),
     FOREIGN KEY (JOB_NAME,JOB_GROUP) 
 	REFERENCES QRTZ_JOB_DETAILS(JOB_NAME,JOB_GROUP) 
@@ -126,15 +160,19 @@ INSERT INTO qrtz_locks values('STATE_ACCESS');
 INSERT INTO qrtz_locks values('MISFIRE_ACCESS');
 create index idx_qrtz_j_req_recovery on qrtz_job_details(REQUESTS_RECOVERY);
 create index idx_qrtz_t_next_fire_time on qrtz_triggers(NEXT_FIRE_TIME);
-create index idx_qrtz_t_next_state on qrtz_triggers(TRIGGER_STATE);
+create index idx_qrtz_t_state on qrtz_triggers(TRIGGER_STATE);
+create index idx_qrtz_t_nft_st on qrtz_triggers(NEXT_FIRE_TIME,TRIGGER_STATE);
 create index idx_qrtz_t_volatile on qrtz_triggers(IS_VOLATILE);
 create index idx_qrtz_ft_trig_name on qrtz_fired_triggers(TRIGGER_NAME);
 create index idx_qrtz_ft_trig_group on qrtz_fired_triggers(TRIGGER_GROUP);
+create index idx_qrtz_ft_trig_nm_gp on qrtz_fired_triggers(TRIGGER_NAME,TRIGGER_GROUP);
 create index idx_qrtz_ft_trig_volatile on qrtz_fired_triggers(IS_VOLATILE);
 create index idx_qrtz_ft_trig_inst_name on qrtz_fired_triggers(INSTANCE_NAME);
 create index idx_qrtz_ft_job_name on qrtz_fired_triggers(JOB_NAME);
 create index idx_qrtz_ft_job_group on qrtz_fired_triggers(JOB_GROUP);
 create index idx_qrtz_ft_job_stateful on qrtz_fired_triggers(IS_STATEFUL);
 create index idx_qrtz_ft_job_req_recovery on qrtz_fired_triggers(REQUESTS_RECOVERY);
+
+
 
 commit;
