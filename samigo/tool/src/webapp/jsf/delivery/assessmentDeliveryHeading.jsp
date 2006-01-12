@@ -66,14 +66,12 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 
 <!-- TABLE OF CONTENT LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
-  <h:commandLink action="tableOfContents" onmouseup="saveTime();"
+  <h:commandLink action="#{delivery.getOutcome}" onmouseup="saveTime();"
      rendered="#{(delivery.actionString=='takeAssessment'
                    || delivery.actionString=='takeAssessmentViaUrl')
                && delivery.navigation ne '1'}">
     <h:outputText value="#{msg.table_of_contents}" />
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener" />
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.TableOfContentsActionListener" />
   </h:commandLink>
 
 
