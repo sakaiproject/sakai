@@ -57,15 +57,16 @@ public class TimedAssessmentQueue {
 
   public void add(TimedAssessmentGradingModel timedAG){
     queue.put(timedAG.getAssessmentGradingId(), timedAG);
-    System.out.println("***1. add to  queue, timer="+timer);
+    System.out.println("***1. TimedAssessmentQueue.add, before schedule timer="+timer);
     scheduleTask();
-    System.out.println("***2. add to  queue, timer="+timer);
+    System.out.println("***2. TimedAssessmentQueue.add, after schedule timer="+timer);
+
   }
 
   private void scheduleTask(){
     if (timer == null){
       timer  = new Timer();
-      timer.schedule(new SubmitTimedAssessmentThread(), 5*1000,24*3600*1000); 
+      timer.scheduleAtFixedRate(new SubmitTimedAssessmentThread(), 1000, 5*1000); //delay=1s, every 5s 
     }
   }
 
@@ -74,6 +75,7 @@ public class TimedAssessmentQueue {
     if (isEmpty()){
       System.out.println("*** before destroy, timer="+timer);
       timer.cancel();
+      timer = null;
       System.out.println("*** after destroy, timer="+timer);
     }
   }

@@ -47,7 +47,7 @@ public class TimedAssessmentGradingModel
   /* 30 sec, this is to allow JScript clock to catch up before server submit the
    * assessment for grade
    */ 
-  private int latencyBuffer=30*1000; 
+  private int latencyBuffer=30; 
 
   /* timedAG is removed from timedAssessmentQueue immediately if the submission for
    * grade is initiated by user OR the AutoSubmit script in the web page. If user exit
@@ -55,7 +55,7 @@ public class TimedAssessmentGradingModel
    * when time is up and also clean up the timedAG in queue. So we add a transactionBuffer
    * here before server clean up
    */ 
-  private int transactionBuffer=30*1000; // 30 sec
+  private int transactionBuffer=30; // 30 sec
 
   public TimedAssessmentGradingModel() {
   }
@@ -68,10 +68,10 @@ public class TimedAssessmentGradingModel
     this.timeLimit = timeLimit;
     this.timeLeft = timeLeft;
     this.beginDate = beginDate;
-    this.expirationDate = new Date(beginDate.getTime() + timeLeft + latencyBuffer);
+    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
     this.submittedForGrade = submittedForGrade;
     this.localBeginDate = localBeginDate;
-    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft + latencyBuffer);
+    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
   }
 
   public TimedAssessmentGradingModel(Long assessmentGradingId,
@@ -85,10 +85,10 @@ public class TimedAssessmentGradingModel
     this.latencyBuffer = latencyBuffer;
     this.transactionBuffer = transactionBuffer;
     this.beginDate = beginDate;
-    this.expirationDate = new Date(beginDate.getTime() + timeLeft + latencyBuffer);
+    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
     this.submittedForGrade = submittedForGrade;
     this.localBeginDate = localBeginDate;
-    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft + latencyBuffer);
+    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
   }
 
   public Long getAssessmentGradingId() {

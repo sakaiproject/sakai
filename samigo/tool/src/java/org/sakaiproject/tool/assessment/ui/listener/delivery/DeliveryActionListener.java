@@ -176,9 +176,7 @@ public class DeliveryActionListener
               // ag can't be null beyond this point and must have persisted to DB
               // version 2.1.1 requirement
               setFeedbackMode(delivery);
-              System.out.println("***a. beginAssessment="+delivery.getBeginAssessment());
               setTimer(delivery, publishedAssessment);
-              System.out.println("***b. beginAssessment="+delivery.getBeginAssessment());
 
               // extend session time out
               SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
@@ -1459,7 +1457,7 @@ public class DeliveryActionListener
 
       // if listener is evoked by beginAssessment, put in queue
       if (delivery.getBeginAssessment()){
-        //queueTimedAssessment(ag, timeLimit);
+        queueTimedAssessment(ag, timeLimit);
         delivery.setBeginAssessment(false);
       }
     }
