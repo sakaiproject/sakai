@@ -4,9 +4,12 @@
             <tr>
               <td align="left" width="25%">
                 <h:outputText value="View "/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									<h:selectOneListbox size="1" id="viewlist">
+                	<h:selectOneMenu id="viewlist" onchange="this.form.submit();"  
+										valueChangeListener="#{PrivateMessagesTool.processChangeSelectView}" 
+										value="#{PrivateMessagesTool.selectView}">
             				<f:selectItem itemLabel="All Messages" itemValue="none"/>
-          				</h:selectOneListbox>
+            				<f:selectItem itemLabel="By Conversation" itemValue="threaded"/>
+       				</h:selectOneMenu>
           		</td>
           		<td align="right">
           		
