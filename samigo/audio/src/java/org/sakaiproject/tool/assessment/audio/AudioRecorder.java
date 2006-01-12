@@ -502,8 +502,9 @@ public class AudioRecorder
           count++;
         }
       }
-//      urlConn.setRequestProperty( "Content-length", "" + count);
-      String reportStr = "Content-length written: " + count + " bytes.\n";
+
+      String reportStr = res.getString("contentlenw") + ": " +
+        count + " " + res.getString("bytes") + ".\n  ";
       buf_outputStream.flush();
       buf_outputStream.close();
 
