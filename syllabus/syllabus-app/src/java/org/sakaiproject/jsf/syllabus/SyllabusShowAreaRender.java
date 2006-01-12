@@ -62,6 +62,7 @@ public class SyllabusShowAreaRender extends Renderer
       writer.write(value.substring(blocks*200, (value.length()-1)));
       writer.flush();
 */
+      value = value.replaceAll("<a title=", "<a target=\"_new\" title=");
       value = value.replaceAll("<a href=", "<a title=\"Open a new window\" target=\"_new\" href=");
       writer.write(value);
       
