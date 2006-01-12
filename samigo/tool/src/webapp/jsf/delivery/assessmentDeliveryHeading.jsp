@@ -39,14 +39,12 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
                              || delivery.actionString=='takeAssessmentViaUrl')}">
 
 <!-- SHOW FEEDBACK LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
-    <h:commandLink action="takeAssessment" onmouseup="saveTime();" 
+    <h:commandLink action="#{delivery.getOutcome}" onmouseup="saveTime();" 
        rendered="#{delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl'}" >
      <h:outputText value="#{msg.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
-     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener" />
-     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
-     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.ShowFeedbackActionListener" />
     </h:commandLink>
 
 <!-- SHOW FEEDBACK LINK FOR PREVIEW ASSESSMENT -->
