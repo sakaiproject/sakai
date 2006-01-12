@@ -373,6 +373,10 @@
       <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>timeExpired</from-outcome>
+      <to-view-id>/jsf/delivery/timeExpired.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>tableOfContents</from-outcome>
       <to-view-id>/jsf/delivery/tableOfContents.jsp</to-view-id>
     </navigation-case>

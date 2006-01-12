@@ -59,6 +59,8 @@ import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
+import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
+import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 
 //cwen
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
@@ -1183,6 +1185,8 @@ public class DeliveryBean
 
   public String submitForGrade()
   {
+      if (isTimeRunning() && timeExpired()) // is timed assessment? and time has expired?
+      return "timeExpired";
     recordTimeElapsed();
     SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
 
@@ -1205,6 +1209,8 @@ public class DeliveryBean
 
   public String saveAndExit()
   {
+    if (isTimeRunning() && timeExpired())
+      return "timeExpired";
     recordTimeElapsed();
     FacesContext context = FacesContext.getCurrentInstance();
     SessionUtil.setSessionTimeout(context, this, false);
@@ -1230,6 +1236,8 @@ public class DeliveryBean
 
   public String next_page()
   {
+    if (isTimeRunning() && timeExpired())
+      return "timeExpired";
     recordTimeElapsed();
     if (getSettings().isFormatByPart())
     {
@@ -1259,6 +1267,8 @@ public class DeliveryBean
 
   public String previous()
   {
+    if (isTimeRunning() && timeExpired())
+      return "timeExpired";
     recordTimeElapsed();
     if (getSettings().isFormatByPart())
     {
@@ -2095,4 +2105,27 @@ public class DeliveryBean
   public void setBeginAssessment(boolean beginAssessment){
     this.beginAssessment = beginAssessment;
   }
+
+  public boolean timeExpired(){
+    boolean timeExpired = false;
+    TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+    TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
+                                             get(adata.getAssessmentGradingId());
+    if (timedAG != null){ 
+      // if server already submit the assessment, this happen if JScript latency is very long
+      // and assessment passed the time left + latency buffer
+      // in this case, we will display the time expired message.
+      if (timedAG.getSubmittedForGrade()){
+        timeExpired = true;
+        queue.remove(timedAG);
+      } 
+    }
+    else{ 
+      // null => not only does the assessment miss the latency buffer, it also missed the
+      // transaction buffer
+      timeExpired = true;
+    }
+    return timeExpired;
+  }
+
 }
