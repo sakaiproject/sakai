@@ -225,6 +225,26 @@
     <%--    <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" /> --%>
         <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgCancel}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true"/>
       </sakai:button_bar>
+<script type="text/javascript">
+setTimeout(function(){ 
+  var _div = document.getElementsByTagName('div');
+  for(i=0;i<_div.length; i++)
+  {
+    if(_div[i].className == 'htmlarea')
+    {
+      var children = _div[i].childNodes;
+    	for (j=0; j<children.length; j++)
+	    {
+    	  if(children.item(j).tagName == 'IFRAME')
+	      {
+    	    children.item(j).contentWindow.focus();
+	      }
+      }
+    }
+  }
+}, 800);
+</script>
+      
     </h:form>
      
     </sakai:view_content>
