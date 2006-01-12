@@ -1445,25 +1445,26 @@ public class DeliveryActionListener
       //if assessment is half done, load setting saved in DB,
       // else set time elapsed as 0
       AssessmentGradingData ag = delivery.getAssessmentGrading();
+      delivery.setBeginTime(ag.getAttemptDate());
       if (ag.getTimeElapsed() != null) 
         delivery.setTimeElapse(ag.getTimeElapsed().toString());
       else  // this is a new timed assessment
         delivery.setTimeElapse("0");
 
-      delivery.setBeginTime(ag.getAttemptDate());
       if (delivery.getLastTimer()==0){
         delivery.setLastTimer((new Date()).getTime()); //set the time when the user click Begin Assessment
       }
 
       // if listener is evoked by beginAssessment, put in queue
       if (delivery.getBeginAssessment()){
-        queueTimedAssessment(ag, timeLimit);
+        queueTimedAssessment(delivery, timeLimit);
         delivery.setBeginAssessment(false);
       }
     }
   }
 
-  private void queueTimedAssessment(AssessmentGradingData ag, int timeLimit){
+  private void queueTimedAssessment(DeliveryBean delivery, int timeLimit){
+    AssessmentGradingData ag = delivery.getAssessmentGrading();
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
     TimedAssessmentGradingModel timedAG = queue.get(ag.getAssessmentGradingId());
     if (timedAG == null){
@@ -1474,6 +1475,20 @@ public class DeliveryActionListener
       queue.add(timedAG);
       System.out.println("***0. queue="+queue);
       System.out.println("***1. put timedAG in queue, timedAG="+timedAG);
+    }
+    else{
+      // if timedAG exists && beginAssessment==true, this is dodgy. It means that
+      // users may have exited the assessment via unusual mean (e.g. clicking at
+      // a leftnav bar link). In order to return to the assessment that he is taking,
+      // he must go through the beginAssessment screen again, hence, beginAssessment is set
+      // to true again. In this case, we need to sync up the JScript time with the server time
+      // We need to correct 2 settings based on timedAG: delivery.timeElapse
+      int timeElapsed = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000);
+      System.out.println("***time passed="+timeElapsed);
+      ag.setTimeElapsed(new Integer(timeElapsed));
+      GradingService gradingService = new GradingService();
+      gradingService.saveOrUpdateAssessmentGrading(ag);
+      delivery.setTimeElapse(ag.getTimeElapsed().toString());
     }
   }
 

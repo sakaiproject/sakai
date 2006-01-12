@@ -40,6 +40,7 @@ public class TimedAssessmentGradingModel
   private int timeLeft; // in seconds
   private Date beginDate;
   private Date expirationDate;
+  private Date bufferedExpirationDate;
   private Date localBeginDate;
   private Date localExpirationDate;
   private boolean submittedForGrade=false;
@@ -68,10 +69,11 @@ public class TimedAssessmentGradingModel
     this.timeLimit = timeLimit;
     this.timeLeft = timeLeft;
     this.beginDate = beginDate;
-    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
+    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000);
+    this.bufferedExpirationDate = new Date(beginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
     this.submittedForGrade = submittedForGrade;
     this.localBeginDate = localBeginDate;
-    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
+    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000);
   }
 
   public TimedAssessmentGradingModel(Long assessmentGradingId,
@@ -85,10 +87,11 @@ public class TimedAssessmentGradingModel
     this.latencyBuffer = latencyBuffer;
     this.transactionBuffer = transactionBuffer;
     this.beginDate = beginDate;
-    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
+    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000);
+    this.bufferedExpirationDate = new Date(beginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
     this.submittedForGrade = submittedForGrade;
     this.localBeginDate = localBeginDate;
-    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
+    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000);
   }
 
   public Long getAssessmentGradingId() {
@@ -145,6 +148,14 @@ public class TimedAssessmentGradingModel
 
   public void setExpirationDate(Date expirationDate) {
     this.expirationDate = expirationDate;
+  }
+
+  public Date getBufferedExpirationDate() {
+    return bufferedExpirationDate;
+  }
+
+  public void setBufferedExpirationDate(Date bufferedExpirationDate) {
+    this.bufferedExpirationDate = bufferedExpirationDate;
   }
 
   public Date getLocalBeginDate() {

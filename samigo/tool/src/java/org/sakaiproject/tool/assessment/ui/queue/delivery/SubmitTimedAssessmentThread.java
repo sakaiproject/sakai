@@ -50,21 +50,20 @@ public class SubmitTimedAssessmentThread extends TimerTask
   public void run(){
     // get the queue, go through the queue till it is empty     
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-    System.out.println("*** 3. SubmitTimedAssessment.run, going through queue");
     Iterator iter = queue.iterator();
     while (iter.hasNext()){
       TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)iter.next();
       System.out.println("****** going through timedAG in queue, timedAG"+timedAG);
       boolean submitted = timedAG.getSubmittedForGrade();
-      long expirationTime = timedAG.getExpirationDate().getTime(); // in millesec
+      long bufferedExpirationTime = timedAG.getBufferedExpirationDate().getTime(); // in millesec
       long currentTime = (new Date()).getTime(); // in millisec
 
       System.out.println("****** submitted="+submitted);
       System.out.println("****** currentTime="+currentTime);
-      System.out.println("****** expirationTime="+expirationTime);
-      System.out.println("****** expired="+(currentTime > expirationTime));
+      System.out.println("****** bufferedExpirationTime="+bufferedExpirationTime);
+      System.out.println("****** expired="+(currentTime > bufferedExpirationTime));
       if (!submitted){
-        if (currentTime > expirationTime){ // time's up, i.e. timeLeft + latency buffer reached
+        if (currentTime > bufferedExpirationTime){ // time's up, i.e. timeLeft + latency buffer reached
           timedAG.setSubmittedForGrade(true);
           // set all the properties right and persist status to DB
           GradingService service = new GradingService();
@@ -77,7 +76,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
         }
       }
       else{ //submitted, remove from queue if transaction buffer is also reached
-        if (currentTime > (expirationTime + timedAG.getTransactionBuffer()*1000)){
+        if (currentTime > (bufferedExpirationTime + timedAG.getTransactionBuffer()*1000)){
           queue.remove(timedAG);
           System.out.println("**** 4b. transaction buffer reached");
         }

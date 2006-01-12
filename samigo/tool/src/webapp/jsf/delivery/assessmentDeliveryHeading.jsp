@@ -106,7 +106,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
                            || delivery.actionString=='takeAssessment'
                            || delivery.actionString=='takeAssessmentViaUrl')
                         && delivery.hasTimeLimit}" >
-<f:verbatim><span id="remText"></f:verbatim><h:outputText value="Time Remaining: "/><f:verbatim></span></f:verbatim>
+<f:verbatim><span id="remText"></f:verbatim><h:outputText value="Estimated Time Remaining: "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 
 <f:verbatim> <span id="bar"></f:verbatim>

@@ -106,7 +106,7 @@ function clickSubmitForGrade(){
                            || delivery.actionString=='takeAssessmentViaUrl' 
                            || delivery.actionString=='previewAssessment')
                         && delivery.hasTimeLimit}" >
-<f:verbatim><span id="remText"></f:verbatim><h:outputText value="Time Remaining: "/><f:verbatim></span></f:verbatim>
+<f:verbatim><span id="remText"></f:verbatim><h:outputText value="Estimated Time Remaining: "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 
 <f:verbatim> <span id="bar"></f:verbatim>
