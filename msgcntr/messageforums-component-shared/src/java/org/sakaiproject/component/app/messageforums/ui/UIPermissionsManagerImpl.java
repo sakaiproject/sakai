@@ -1049,7 +1049,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
           return Boolean.TRUE;
         }
         if (user.getTypeUuid().equals(typeManager.getRoleType())
-            && isRoleMember(user.getUuid()))
+            && isRoleMember(user.getUserId()))
         {
           return Boolean.TRUE;
         }
