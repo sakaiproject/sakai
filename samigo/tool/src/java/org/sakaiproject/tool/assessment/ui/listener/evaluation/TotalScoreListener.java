@@ -403,10 +403,12 @@ public class TotalScoreListener
   /* Dump the grading and agent information into AgentResults */
   // ArrayList agents = new ArrayList();
   public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
+    GradingService gradingService = new GradingService();
     while (iter.hasNext())
     {
       AgentResults results = new AgentResults();
       AssessmentGradingData gdata = (AssessmentGradingData) iter.next();
+      gdata.setItemGradingSet(gradingService.getItemGradingSet(gdata.getAssessmentGradingId().toString()));
       try{
         BeanUtils.copyProperties(results, gdata);
       }
