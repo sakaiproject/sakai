@@ -16,7 +16,7 @@
         Copied from the Sections spring-hib.xml:
     -->
 
-    <bean id="sectionsTxTemplate" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <bean id="sectionsTxTemplate" abstract="true" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager"><ref bean="gradebookTransactionManager"/></property>
         <property name="transactionAttributes">
             <props>
