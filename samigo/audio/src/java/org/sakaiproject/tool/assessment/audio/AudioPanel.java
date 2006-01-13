@@ -108,6 +108,7 @@ public class AudioPanel
    */
   public AudioPanel(String audioDirectory, AudioRecorderParams params)
   {
+    this.params = params;
 
     setLayout(new BorderLayout());
 

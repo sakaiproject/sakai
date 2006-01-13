@@ -97,7 +97,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.filechooser.FileFilter;
 
-
 /**
  *  Record audio in different formats
  *  and then playback the recorded audio.  The captured audio can
@@ -108,18 +107,18 @@ import javax.swing.filechooser.FileFilter;
  * @author Brian Lichtenwalter
  * @author Ed Smiley numerous modifications
  */
-public class AudioRecorder
-  extends JPanel
-  implements ActionListener, AudioControlContext
+public class AudioRecorder extends JPanel implements ActionListener,
+  AudioControlContext
 {
 
-  private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
+  private static final String RESOURCE_PACKAGE =
+    "org.sakaiproject.tool.assessment.audio";
   private static final String RESOURCE_NAME = "AudioResources";
   static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
-      RESOURCE_NAME, Locale.getDefault());
+    RESOURCE_NAME, Locale.getDefault());
   final int bufSize = 16384;
 
-  FormatControls formatControls = new FormatControls();
+  FormatControls formatControls = null;
   Capture capture = new Capture();
   Playback playback = new Playback();
 
@@ -137,8 +136,10 @@ public class AudioRecorder
   Vector lines = new Vector();
   AudioRecorderParams params;
 
-  public AudioRecorder( AudioRecorderParams params)
+  public AudioRecorder(AudioRecorderParams params)
   {
+    this.params = params;
+    formatControls = new FormatControls(params);
     setLayout(new BorderLayout());
     EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
     SoftBevelBorder sbb = new SoftBevelBorder(SoftBevelBorder.LOWERED);
@@ -160,7 +161,7 @@ public class AudioRecorder
     JPanel samplingPanel = makeAudioSamplingPanel(b);
     p2.add(samplingPanel);
 
-    JPanel savePanel = new ColorBackgroundPanel();//new JPanel();
+    JPanel savePanel = new ColorBackgroundPanel(); //new JPanel();
     savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
 
     JPanel saveTFpanel = makeSaveTFPanel();
@@ -178,9 +179,12 @@ public class AudioRecorder
   private JPanel makeSaveBPanel()
   {
     JPanel saveBpanel = new ColorBackgroundPanel(false);
-    auB = addButton(res.getString("Save_AU"), saveBpanel, false);
-    aiffB = addButton(res.getString("Save_AIFF"), saveBpanel, false);
-    waveB = addButton(res.getString("Save_WAVE"), saveBpanel, false);
+    aiffB = addButton(res.getString("Save_AIFF"), saveBpanel,
+                      params.isSaveAiff(), params.isSaveAiff());
+    auB = addButton(res.getString("Save_AU"), saveBpanel,
+                    params.isSaveAu(), params.isSaveAu());
+    waveB = addButton(res.getString("Save_WAVE"), saveBpanel,
+                      params.isSaveWave(), params.isSaveWave());
 
     return saveBpanel;
   }
@@ -198,10 +202,15 @@ public class AudioRecorder
   private JPanel makeAudioButtonPanel()
   {
     JPanel buttonsPanel = new ColorBackgroundPanel();
-    playB = addButton(res.getString("Play"), buttonsPanel, false);
-    captB = addButton(res.getString("Record"), buttonsPanel, true);
-    pausB = addButton(res.getString("Pause"), buttonsPanel, false);
-    loadB = addButton(res.getString("Load_"), buttonsPanel, true);
+
+    loadB = addButton(res.getString("Load_"), buttonsPanel, true,
+                      params.isEnableLoad());
+    pausB = addButton(res.getString("Pause"), buttonsPanel, false,
+                      params.isEnablePause());
+    playB = addButton(res.getString("Play"), buttonsPanel, false,
+                      params.isEnablePlay());
+    captB = addButton(res.getString("Record"), buttonsPanel, true,
+                      params.isEnableRecord());
 
     return buttonsPanel;
   }
@@ -229,11 +238,13 @@ public class AudioRecorder
     }
   }
 
-  private JButton addButton(String name, JPanel p, boolean state)
+  private JButton addButton(String name, JPanel p,
+                            boolean state, boolean visible)
   {
     JButton b = new JButton(name);
     b.addActionListener(this);
     b.setEnabled(state);
+    b.setVisible(visible);
     p.add(b);
     return b;
   }
@@ -247,9 +258,9 @@ public class AudioRecorder
       // debug
       //file:///C:/cygwin/home/esmiley/svn/trunk/sakai/sam/audio/example/audiorecordertest.html
       saveToFileAndPost(textField.getText().trim(),
-                             AudioFileFormat.Type.AU,
-                             "http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio",
-                             "/tmp/test/", 6);
+                        AudioFileFormat.Type.AU,
+        "http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio",
+        "/tmp/test/", 6);
     }
     else if (obj.equals(aiffB))
     {
@@ -356,8 +367,10 @@ public class AudioRecorder
               return true;
             }
             String name = f.getName();
-            if (name.endsWith(res.getString("_au")) || name.endsWith(res.getString("_wav")) ||
-                name.endsWith(res.getString("_aiff")) || name.endsWith(res.getString("_aif")))
+            if (name.endsWith(res.getString("_au")) ||
+                name.endsWith(res.getString("_wav")) ||
+                name.endsWith(res.getString("_aiff")) ||
+                name.endsWith(res.getString("_aif")))
             {
               return true;
             }
@@ -488,17 +501,19 @@ public class AudioRecorder
 //      urlConn.setRequestProperty("From", fileName + "|" +retriesLeft);
       urlConn.setRequestProperty("From", fileName);
 
-
       // Send binary POST output.
       OutputStream outputStream = urlConn.getOutputStream();
       FileInputStream inputStream = new FileInputStream(tempFileName);
       BufferedInputStream buf_inputStream = new BufferedInputStream(inputStream);
-      BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
+      BufferedOutputStream buf_outputStream = new BufferedOutputStream(
+        outputStream);
 
-      int i=0;
-      int count=0;
-      if (buf_inputStream !=null){
-        while ((i=buf_inputStream.read()) != -1){
+      int i = 0;
+      int count = 0;
+      if (buf_inputStream != null)
+      {
+        while ( (i = buf_inputStream.read()) != -1)
+        {
           buf_outputStream.write(i);
           count++;
         }
@@ -552,7 +567,6 @@ public class AudioRecorder
       return;
     }
 
-
     File file = new File(fileName = name);
     try
     {
@@ -580,8 +594,7 @@ public class AudioRecorder
   /**
    * Write data to the OutputChannel.
    */
-  public class Playback
-    implements Runnable
+  public class Playback implements Runnable
   {
 
     SourceDataLine line;
@@ -662,7 +675,8 @@ public class AudioRecorder
                                              format);
       if (!AudioSystem.isLineSupported(info))
       {
-        shutDown(res.getString("Line_matching") + info + res.getString("not_supported_"));
+        shutDown(res.getString("Line_matching") + info +
+                 res.getString("not_supported_"));
         return;
       }
 
@@ -726,8 +740,7 @@ public class AudioRecorder
   /**
    * Reads data from the input channel and writes to the output stream
    */
-  class Capture
-    implements Runnable
+  class Capture implements Runnable
   {
 
     TargetDataLine line;
@@ -779,7 +792,8 @@ public class AudioRecorder
 
       if (!AudioSystem.isLineSupported(info))
       {
-        shutDown(res.getString("Line_matching") + info + res.getString("not_supported_"));
+        shutDown(res.getString("Line_matching") + info +
+                 res.getString("not_supported_"));
         return;
       }
 
@@ -848,7 +862,8 @@ public class AudioRecorder
       byte audioBytes[] = out.toByteArray();
       ByteArrayInputStream bais = new ByteArrayInputStream(audioBytes);
       audioInputStream = new AudioInputStream(bais, format,
-                                              audioBytes.length / frameSizeInBytes);
+                                              audioBytes.length /
+                                              frameSizeInBytes);
 
       long milliseconds = (long) ( (audioInputStream.getFrameLength() * 1000) /
                                   format.getFrameRate());
@@ -873,6 +888,11 @@ public class AudioRecorder
    */
   class FormatControls extends AudioFormatPanel implements AudioControlContext
   {
+    FormatControls(AudioRecorderParams params)
+    {
+      super(params);
+    }
+
     public void open()
     {
     }

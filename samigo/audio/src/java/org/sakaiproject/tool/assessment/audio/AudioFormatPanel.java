@@ -113,13 +113,15 @@ public class AudioFormatPanel extends JPanel
     static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
       RESOURCE_NAME, Locale.getDefault());
 
+    protected AudioRecorderParams params;
     Vector groups = new Vector();
     JToggleButton linrB, ulawB, alawB, rate8B, rate11B, rate16B, rate22B,
       rate44B;
     JToggleButton size8B, size16B, signB, unsignB, litB, bigB, monoB, sterB;
 
-    public AudioFormatPanel()
+    public AudioFormatPanel(AudioRecorderParams params)
     {
+      this.params = params;
       setLayout(new GridLayout(0, 1));
       EmptyBorder eb = new EmptyBorder(0, 0, 0, 5);
       BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
@@ -127,9 +129,27 @@ public class AudioFormatPanel extends JPanel
       setBorder(new CompoundBorder(cb, new EmptyBorder(8, 5, 5, 5)));
       JPanel p1 = new ColorBackgroundPanel(false);
       ButtonGroup encodingGroup = new ButtonGroup();
-      linrB = addToggleButton(p1, encodingGroup, res.getString("linear"), true);
-      ulawB = addToggleButton(p1, encodingGroup, res.getString("ulaw"), false);
-      alawB = addToggleButton(p1, encodingGroup, res.getString("alaw"), false);
+
+      boolean linear = false;
+      boolean ulaw = false;
+      boolean alaw = false;
+
+      if ("linear".equals(params.getCompression()))
+      {
+        linear = true;
+      }
+      else if ("ulaw".equals(params.getCompression()))
+      {
+        ulaw = true;
+      }
+      else
+      {
+        alaw = true;
+      }
+
+      linrB = addToggleButton(p1, encodingGroup, res.getString("linear"), linear);
+      ulawB = addToggleButton(p1, encodingGroup, res.getString("ulaw"), ulaw);
+      alawB = addToggleButton(p1, encodingGroup, res.getString("alaw"), alaw);
       add(p1);
       groups.addElement(encodingGroup);
 

@@ -58,19 +58,19 @@ public class AudioRecorderParams implements Serializable
   private int maxSeconds = 60;
   private int retriesAllowed = 6;
 
-  private static final String compressionAllowed[] =
+  public static final String compressionAllowed[] =
     {
     "ulaw",
     "alaw",
     "linear",
   };
 
-  private static final int frequenciesAllowed[] =
+  public static final int frequenciesAllowed[] =
     {
     8000, 11025, 16000, 22050, 44100,
   };
 
-  private static int bitsAllowed[] =
+  public static int bitsAllowed[] =
     {
     8, 16,
   };
