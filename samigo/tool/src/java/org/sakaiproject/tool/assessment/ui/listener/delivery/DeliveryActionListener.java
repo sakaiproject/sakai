@@ -1491,9 +1491,12 @@ public class DeliveryActionListener
 
   private void syncTimeElapsedWithServer(TimedAssessmentGradingModel timedAG, DeliveryBean delivery){
     AssessmentGradingData ag = delivery.getAssessmentGrading();
-    int timeElapsed = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000);
-    System.out.println("***time passed="+timeElapsed);
-    ag.setTimeElapsed(new Integer(timeElapsed));
+    int timeElapsed  = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000); //in sec
+    // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
+    // later time, we need to account for the time taht he used before
+    int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
+    System.out.println("***time passed="+timeElapsed+timeTakenBefore);
+    ag.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
     GradingService gradingService = new GradingService();
     gradingService.saveOrUpdateAssessmentGrading(ag);
     delivery.setTimeElapse(ag.getTimeElapsed().toString());
