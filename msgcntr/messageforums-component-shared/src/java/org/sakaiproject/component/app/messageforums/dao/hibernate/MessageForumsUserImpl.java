@@ -26,6 +26,7 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+ 
 
 public class MessageForumsUserImpl implements MessageForumsUser {
     private Long id;
@@ -46,6 +47,15 @@ public class MessageForumsUserImpl implements MessageForumsUser {
     private int apcontributorsindex;
     private int apaccessorsindex;
     
+    
+    /**
+     * 
+     */
+    public MessageForumsUserImpl()
+    {
+     this.uuid=org.sakaiproject.api.kernel.id.cover.IdManager.createUuid();
+    }
+
     public Long getId() {
         return id;
     }

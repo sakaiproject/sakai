@@ -1,6 +1,7 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -26,10 +28,12 @@ import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
+import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
@@ -61,7 +65,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private MembershipManager membershipManager;
   private SecurityService securityService;
   private SessionManager sessionManager;
-  private Map courseMemberMap=null;
+  private Map courseMemberMap = null;
   private boolean usingHelper = false; // just a flag until moved to database from helper
 
   public void init()
@@ -756,7 +760,44 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     boolean saveArea = forum.getId() == null;
     forum.setDraft(new Boolean(draft));
-
+    ActorPermissions originalForumActorPermissions = null;
+    if (saveArea)
+    {
+      originalForumActorPermissions = new ActorPermissionsImpl();
+    }
+    else
+    {
+      originalForumActorPermissions = forum.getActorPermissions();
+    }
+    // setcontributors
+    List holdContributors = new ArrayList();
+    holdContributors = Arrays.asList(forum.getActorPermissions()
+        .getContributors().toArray());
+    originalForumActorPermissions.setContributors(new UniqueArrayList());// clearing list at this
+    // point.
+    if (holdContributors != null && holdContributors.size() > 0)
+    {
+      Iterator iter = holdContributors.iterator();
+      while (iter.hasNext())
+      {
+        MessageForumsUser user = (MessageForumsUser) iter.next();
+        forum.getActorPermissions().addContributor(user);
+      }
+    }
+    // setAccessors
+    List holdAccessors = new ArrayList();
+    holdAccessors = Arrays.asList(forum.getActorPermissions().getAccessors()
+        .toArray());
+    originalForumActorPermissions.setAccessors(new UniqueArrayList());// clearing list at this point.
+    if (holdAccessors != null && holdAccessors.size() > 0)
+    {
+      Iterator iter = holdAccessors.iterator();
+      while (iter.hasNext())
+      {
+        MessageForumsUser user = (MessageForumsUser) iter.next();
+        forum.getActorPermissions().addAccesssor(user);
+      }
+    }
     forumManager.saveDiscussionForum(forum, draft);
 
     if (saveArea)
@@ -1295,8 +1336,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       String selectedItem = (String) i.next();
       MessageForumsUser user = new MessageForumsUserImpl();
-      /** lookup item in map */      
-      MembershipItem item = (MembershipItem) getAllCourseMembers().get(selectedItem);
+      /** lookup item in map */
+      MembershipItem item = (MembershipItem) getAllCourseMembers().get(
+          selectedItem);
       if (item == null)
       {
         LOG.warn("decodeActorPermissionTypeList() could not resolve uuid: "
@@ -1308,21 +1350,33 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         {
           user.setTypeUuid(typeManager.getAllParticipantType());
           user.setUserId(typeManager.getAllParticipantType());
-
+          newSelectedMemberList.add(user);
         }
         else
           if (MembershipItem.TYPE_NOT_SPECIFIED.equals(item.getType()))
           {
             user.setTypeUuid(typeManager.getNotSpecifiedType());
             user.setUserId(typeManager.getNotSpecifiedType());
-
+            // if not specified is seleted then only this value remains.
+            newSelectedMemberList = null;
+            newSelectedMemberList = new ArrayList();
+            newSelectedMemberList.add(user);
+            break;
           }
           else
             if (MembershipItem.TYPE_ROLE.equals(item.getType()))
             {
 
-              user.setTypeUuid(typeManager.getRoleType());
-              user.setUserId(item.getName());
+              for (Iterator r = allCourseUsers.iterator(); r.hasNext();)
+              {
+                MembershipItem member = (MembershipItem) r.next();
+                if (member.getRole().equals(item.getRole()))
+                {
+                  user.setTypeUuid(typeManager.getRoleType());
+                  user.setUserId(item.getRole().getId());
+                  newSelectedMemberList.add(user);
+                }
+              }
 
             }
             else
@@ -1340,6 +1394,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
                     {
                       user.setTypeUuid(typeManager.getGroupType());
                       user.setUserId(m.getUserId());
+                      newSelectedMemberList.add(user);
                     }
                   }
                 }
@@ -1349,6 +1404,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
                 {
                   user.setTypeUuid(typeManager.getUserType());
                   user.setUserId(item.getUser().getId());
+                  newSelectedMemberList.add(user);
                 }
                 else
                 {
@@ -1368,6 +1424,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public List decodeAccessorsList(List accessorList)
   {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("decodeAccessorsList(List" + accessorList + ")");
+    }
     if (accessorList == null || accessorList.size() < 1)
     {
       return forumManager.createDefaultActorPermissions().getAccessors();
@@ -1382,6 +1442,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public List decodeContributorsList(List contributorList)
   {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("decodeContributorsList(List" + contributorList + ")");
+    }
     if (contributorList == null || contributorList.size() < 1)
     {
       return forumManager.createDefaultActorPermissions().getContributors();
@@ -1389,8 +1453,17 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return decodeActorPermissionTypeList(contributorList);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getContributorsList(org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
   public List getContributorsList(DiscussionForum forum)
   {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug(" getContributorsList(DiscussionForum" + forum + ")");
+    }
     List contributorList = null;
     if (forum == null)
     {
@@ -1399,6 +1472,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     if (forum.getActorPermissions() == null
         || forum.getActorPermissions().getContributors() == null)
     {
+      forum.setActorPermissions(forumManager.createDefaultActorPermissions());
       contributorList = forumManager.createDefaultActorPermissions()
           .getContributors();
     }
@@ -1408,11 +1482,20 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     Iterator iterator = contributorList.iterator();
 
-    return getContributorAccessorList(iterator, forum);
+    return getContributorAccessorList(iterator);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getAccessorsList(org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
   public List getAccessorsList(DiscussionForum forum)
   {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getAccessorsList(DiscussionForum" + forum + ")");
+    }
     List accessorsList = null;
     if (forum == null)
     {
@@ -1421,6 +1504,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     if (forum.getActorPermissions() == null
         || forum.getActorPermissions().getAccessors() == null)
     {
+      forum.setActorPermissions(forumManager.createDefaultActorPermissions());
       accessorsList = forumManager.createDefaultActorPermissions()
           .getAccessors();
     }
@@ -1431,28 +1515,36 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     Iterator iterator = accessorsList.iterator();
 
-    return getContributorAccessorList(iterator, forum);
+    return getContributorAccessorList(iterator);
   }
 
-  private List getContributorAccessorList(Iterator iterator,
-      DiscussionForum forum)
+  /**
+   * @param iterator
+   * @return
+   */
+  private List getContributorAccessorList(Iterator iterator)
   {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getContributorAccessorList(Iterator" + iterator + ")");
+    }
     List modifiedContributorList = new ArrayList();
     while (iterator.hasNext())
     {
-      String selectedId=null;
+      String selectedId = null;
       MessageForumsUser user = (MessageForumsUser) iterator.next();
-      List totalmembers= membershipManager.convertMemberMapToList(courseMemberMap);
-      Iterator iter =totalmembers.iterator();     
-      
+      List totalmembers = membershipManager
+          .convertMemberMapToList(courseMemberMap);
+      Iterator iter = totalmembers.iterator();
+
       if (user.getTypeUuid().equals(typeManager.getAllParticipantType()))
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();        
-          if(member.getType().equals(MembershipItem.TYPE_ALL_PARTICIPANTS))
+          MembershipItem member = (MembershipItem) iter.next();
+          if (member.getType().equals(MembershipItem.TYPE_ALL_PARTICIPANTS))
           {
-            selectedId=member.getId();
+            selectedId = member.getId();
           }
         }
       }
@@ -1460,10 +1552,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();        
-          if(member.getType().equals(MembershipItem.TYPE_NOT_SPECIFIED))
+          MembershipItem member = (MembershipItem) iter.next();
+          if (member.getType().equals(MembershipItem.TYPE_NOT_SPECIFIED))
           {
-            selectedId=member.getId();
+            selectedId = member.getId();
           }
         }
       }
@@ -1472,10 +1564,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();        
-          if(member.getType().equals(MembershipItem.TYPE_GROUP) && user.getUserId().equals(member.getGroup().getId()))
+          MembershipItem member = (MembershipItem) iter.next();
+          if (member.getType().equals(MembershipItem.TYPE_GROUP)
+              && user.getUserId().equals(member.getGroup().getId()))
           {
-            selectedId=member.getId();
+            selectedId = member.getId();
           }
         }
 
@@ -1484,10 +1577,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();        
-          if(member.getType().equals(MembershipItem.TYPE_ROLE) && user.getUserId().equals(member.getName()))
+          MembershipItem member = (MembershipItem) iter.next();
+          if (member.getType().equals(MembershipItem.TYPE_ROLE)
+              && user.getUserId().equals(member.getRole().getId()))
           {
-            selectedId=member.getId();
+            selectedId = member.getId();
           }
         }
       }
@@ -1495,26 +1589,99 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();        
-          if(member.getType().equals(MembershipItem.TYPE_USER) && user.getUserId().equals(member.getUser().getId()))
+          MembershipItem member = (MembershipItem) iter.next();
+          if (member.getType().equals(MembershipItem.TYPE_USER)
+              && user.getUserId().equals(member.getUser().getId()))
           {
-            selectedId=member.getId();
+            selectedId = member.getId();
           }
         }
-        
+
       }
-      
+
       modifiedContributorList.add(selectedId);
     }
     return modifiedContributorList;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getAllCourseMembers()
+   */
   public Map getAllCourseMembers()
-  {   
-    if(courseMemberMap==null)
+  {
+    if (LOG.isDebugEnabled())
     {
-      courseMemberMap= membershipManager.getAllCourseMembers(true, true);
+      LOG.debug("getAllCourseMembers()");
+    }
+    if (courseMemberMap == null)
+    {
+      courseMemberMap = membershipManager.getAllCourseMembers(true, true);
     }
     return courseMemberMap;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getContributorsList(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   */
+  public List getContributorsList(DiscussionTopic topic, DiscussionForum forum)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getContributorsList(DiscussionTopic "+topic+", DiscussionForum "+forum+")");
+    }
+    List contributorList = null;
+    if (topic == null)
+    {
+      return null;
+    }
+    if (topic.getActorPermissions() == null
+        || topic.getActorPermissions().getContributors() == null)
+    {
+      topic.setActorPermissions(forum.getActorPermissions());
+      contributorList = forum.getActorPermissions().getContributors();
+    }
+    else
+    {
+      contributorList = topic.getActorPermissions().getContributors();
+    }
+    Iterator iterator = contributorList.iterator();
+
+    return getContributorAccessorList(iterator);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getAccessorsList(org.sakaiproject.api.app.messageforums.DiscussionTopic)
+   */
+  public List getAccessorsList(DiscussionTopic topic, DiscussionForum forum)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getAccessorsList(DiscussionTopic "+topic+", DiscussionForum "+forum+")");
+    }
+    List accessorsList = null;
+    if (topic == null)
+    {
+      return null;
+    }
+    if (topic.getActorPermissions() == null
+        || topic.getActorPermissions().getAccessors() == null)
+    {
+      topic.setActorPermissions(forum.getActorPermissions());
+      accessorsList = forum.getActorPermissions().getAccessors();
+    }
+    else
+    {
+      accessorsList = topic.getActorPermissions().getAccessors();
+    }
+
+    Iterator iterator = accessorsList.iterator();
+
+    return getContributorAccessorList(iterator);
   }
 }

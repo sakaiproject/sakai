@@ -288,4 +288,18 @@ public interface DiscussionForumManager
    * @return
    */
   public Map getAllCourseMembers();
+
+  /**
+   * @param topic
+   * @param forum 
+   * @return
+   */
+  public List getAccessorsList(DiscussionTopic topic, DiscussionForum forum);
+
+  /**
+   * @param topic
+   * @param forum 
+   * @return
+   */
+  public List getContributorsList(DiscussionTopic topic, DiscussionForum forum); 
 }

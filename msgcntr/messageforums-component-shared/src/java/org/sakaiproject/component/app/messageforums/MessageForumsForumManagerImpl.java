@@ -493,8 +493,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       actorPermissions.addAccesssor(nonSpecifiedUser);      
       actorPermissions.addContributor(nonSpecifiedUser);
       actorPermissions.addModerator(nonSpecifiedUser);
-      //saveActorPermissions(actorPermissions);
-      return actorPermissions;
+       return actorPermissions;
     }
     
 //    public void saveActorPermissions(ActorPermissions actorPermissions){

@@ -24,14 +24,8 @@ public class DiscussionForumBean
   private boolean markForDeletion;
   private UIPermissionsManager uiPermissionsManager;
   private DiscussionForumManager forumManager;
-  private boolean readFullDesciption;
-  //List containg members
-//  private List contributorsMembersList = new ArrayList();
-//  
-//  private List accessorMembersList = new ArrayList();
-//  //List containg ids
+  private boolean readFullDesciption; 
   private List contributorsList = new ArrayList();
-  
   private List accessorList = new ArrayList();
    
    
@@ -48,9 +42,7 @@ public class DiscussionForumBean
     }
     this.forum = forum;
     this.uiPermissionsManager=uiPermissionsManager;
-    this.forumManager=forumManager;
-//    this.contributorsMembersList=forumManager.getContributorsList(forum);
-//    this.accessorMembersList=forumManager.getAccessorsList(forum);
+    this.forumManager=forumManager; 
   }
 
   /**
@@ -197,14 +189,12 @@ public class DiscussionForumBean
   {
     LOG.debug("getContributorsList()");
   
-//    Iterator iter=contributorsMembersList.iterator();
-//    while (iter.hasNext())
-//    {
-//      MembershipItem element = (MembershipItem) iter.next();
-//      contributorsList.add(element.getId());
-//     }
-//    return contributorsList;
-    return forumManager.getContributorsList(forum);
+    Iterator iter= forumManager.getContributorsList(forum).iterator();
+    while (iter.hasNext())
+    { 
+      contributorsList.add((String)iter.next());
+     }
+    return contributorsList; 
 
   }
   
@@ -213,15 +203,13 @@ public class DiscussionForumBean
    */
   public List getAccessorList()
   {
-//    LOG.debug("getAccessorList()");
-//    Iterator iter=accessorMembersList.iterator();
-//    while (iter.hasNext())
-//    {
-//      MembershipItem element = (MembershipItem) iter.next();
-//      contributorsList.add(element.getId());
-//     }
-//    return accessorList;
-    return forumManager.getAccessorsList(forum);
+    LOG.debug("getAccessorList()");
+    Iterator iter= forumManager.getAccessorsList(forum).iterator();
+    while (iter.hasNext())
+    { 
+      accessorList.add((String)iter.next());
+     }
+    return accessorList; 
   }
 
   /**
@@ -229,11 +217,11 @@ public class DiscussionForumBean
    */
   public void setAccessorList(List accessorList)
   {
-//    if(LOG.isDebugEnabled())
-//     {
-//        LOG.debug("setAccessorList(List"+ accessorList+")");
-//     }
-//     forum.getActorPermissions().setAccessors(forumManager.decodeAccessorsList(accessorList));
+    if(LOG.isDebugEnabled())
+     {
+        LOG.debug("setAccessorList(List"+ accessorList+")");
+     }
+     forum.getActorPermissions().setAccessors(forumManager.decodeAccessorsList(accessorList));
   }
 
   /**
@@ -241,11 +229,11 @@ public class DiscussionForumBean
    */
   public void setContributorsList(List contributorsList)
   {
-//    if(LOG.isDebugEnabled())
-//    {
-//       LOG.debug("setContributorsList(List"+ contributorsList+")");
-//    }
-//    forum.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setContributorsList(List"+ contributorsList+")");
+    }
+    forum.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
   }
 
   /**

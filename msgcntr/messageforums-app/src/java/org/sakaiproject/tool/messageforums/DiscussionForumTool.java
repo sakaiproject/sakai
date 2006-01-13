@@ -627,7 +627,7 @@ public class DiscussionForumTool
       return null;
     }
     
-    saveForumAttach(forum);    
+    saveForumAttach(forum);  
     if (draft)
       forumManager.saveForumAsDraft(forum);
     else
@@ -753,7 +753,7 @@ public class DiscussionForumTool
   
     setSelectedForumForCurrentTopic(topic);
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
-        uiPermissionsManager);
+        uiPermissionsManager, forumManager);
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
       setErrorMessage("Insufficient privileges to change topic settings");
@@ -933,7 +933,7 @@ public class DiscussionForumTool
       return MAIN;
     }
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
-        uiPermissionsManager);
+        uiPermissionsManager, forumManager);
     
     return TOPIC_SETTING;
   }
@@ -1084,7 +1084,7 @@ public class DiscussionForumTool
         getExternalParameterByKey(TOPIC_ID)));
     setSelectedForumForCurrentTopic(topic);
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
-        uiPermissionsManager);
+        uiPermissionsManager, forumManager);
     String currentForumId = getExternalParameterByKey(FORUM_ID);
     if (currentForumId != null && (!currentForumId.trim().equals(""))
         && (!currentForumId.trim().equals("null")))
@@ -1240,7 +1240,7 @@ public class DiscussionForumTool
         if (topic != null)
         {
           DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic, forum,
-              uiPermissionsManager);
+              uiPermissionsManager, forumManager);
           decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
           decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
           decoForum.addTopic(decoTopic);
@@ -1384,7 +1384,7 @@ public class DiscussionForumTool
       LOG.debug("getDecoratedTopic(DiscussionTopic " + topic + ")");
     }
     DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic,
-        selectedForum.getForum(), uiPermissionsManager);
+        selectedForum.getForum(), uiPermissionsManager, forumManager);
     decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
     decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
     decoTopic.setHasNextTopic(forumManager.hasNextTopic(topic));
@@ -1538,11 +1538,8 @@ public class DiscussionForumTool
       setErrorMessage("Failed to create new topic");
       return null;
     }
-    //topic.setTitle("");
-    //topic.setShortDescription("");
-    //topic.setExtendedDescription("");
-    selectedTopic = new DiscussionTopicBean(topic, forum, uiPermissionsManager);
-    return new DiscussionTopicBean(topic, forum, uiPermissionsManager);
+    selectedTopic = new DiscussionTopicBean(topic, forum, uiPermissionsManager, forumManager);
+    return new DiscussionTopicBean(topic, forum, uiPermissionsManager, forumManager);
   }
 
   // compose

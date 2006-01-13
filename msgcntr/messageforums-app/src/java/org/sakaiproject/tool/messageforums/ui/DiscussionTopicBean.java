@@ -1,12 +1,18 @@
 package org.sakaiproject.tool.messageforums.ui;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
+
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -14,6 +20,8 @@ import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
  */
 public class DiscussionTopicBean
 {
+  private static final Log LOG = LogFactory
+  .getLog(DiscussionForumBean.class);
   private DiscussionTopic topic;
   private int totalNoMessages;
   private int unreadNoMessages;
@@ -24,15 +32,20 @@ public class DiscussionTopicBean
   private boolean readFullDesciption;
   private boolean markForDeletion;
   private UIPermissionsManager uiPermissionsManager;
+  private DiscussionForumManager forumManager;
+  private List contributorsList = new ArrayList();
+  private List accessorList = new ArrayList();
+  
 
   private List messages = new ArrayList();
 
   public DiscussionTopicBean(DiscussionTopic topic, DiscussionForum forum,
-      UIPermissionsManager uiPermissionsManager)
+      UIPermissionsManager uiPermissionsManager, DiscussionForumManager forumManager)
   {
     this.topic = topic;
     this.uiPermissionsManager = uiPermissionsManager;
     this.topic.setBaseForum(forum);
+    this.forumManager=forumManager;
   }
 
   /**
@@ -40,6 +53,7 @@ public class DiscussionTopicBean
    */
   public DiscussionTopic getTopic()
   {
+  
     return topic;
   }
 
@@ -153,11 +167,19 @@ public class DiscussionTopicBean
 
   public void setMessages(List messages)
   {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setMessages(List"+ messages+")");
+    }
     this.messages = messages;
   }
 
   public void addMessage(DiscussionMessageBean decoMessage)
   {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("addMessage(DiscussionMessageBean"+ decoMessage+")");
+    }
     if (!messages.contains(decoMessage))
     {
       messages.add(decoMessage);
@@ -166,6 +188,10 @@ public class DiscussionTopicBean
 
   public void insertMessage(DiscussionMessageBean decoMessage)
   {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("insertMessage(DiscussionMessageBean"+ decoMessage+")");
+    }
     if (!messages.contains(decoMessage))
     {
     	messages.add(0, decoMessage);
@@ -177,6 +203,7 @@ public class DiscussionTopicBean
    */
   public boolean getHasExtendedDesciption()
   {
+    LOG.debug("getHasExtendedDesciption()");
     if (topic.getExtendedDescription() != null
         && topic.getExtendedDescription().trim().length() > 0
         && (!readFullDesciption))
@@ -191,6 +218,7 @@ public class DiscussionTopicBean
    */
   public boolean isReadFullDesciption()
   {
+    LOG.debug("isReadFullDesciption()");
     return readFullDesciption;
   }
 
@@ -200,6 +228,10 @@ public class DiscussionTopicBean
    */
   public void setReadFullDesciption(boolean readFullDesciption)
   {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setReadFullDesciption(boolean "+ readFullDesciption+")");
+    }
     this.readFullDesciption = readFullDesciption;
   }
 
@@ -208,6 +240,7 @@ public class DiscussionTopicBean
    */
   public String getParentForumId()
   {
+    LOG.debug("getParentForumId()");
     return topic.getBaseForum().getId().toString();
   }
 
@@ -216,6 +249,7 @@ public class DiscussionTopicBean
    */
   public String getMustRespondBeforeReading()
   {
+    LOG.debug("getMustRespondBeforeReading()");
     if (topic == null || topic.getMustRespondBeforeReading() == null
         || topic.getMustRespondBeforeReading().booleanValue() == false)
     {
@@ -229,6 +263,10 @@ public class DiscussionTopicBean
    */
   public void setMustRespondBeforeReading(String mustRespondBeforeReading)
   {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setMustRespondBeforeReading(String"+ mustRespondBeforeReading+")");
+    }
     if (mustRespondBeforeReading.equals(Boolean.TRUE.toString()))
     {
       topic.setMustRespondBeforeReading(new Boolean(true));
@@ -244,6 +282,7 @@ public class DiscussionTopicBean
    */
   public String getLocked()
   {
+    LOG.debug("getLocked()");
     if (topic == null || topic.getLocked() == null
         || topic.getLocked().booleanValue() == false)
     {
@@ -258,6 +297,10 @@ public class DiscussionTopicBean
    */
   public void setLocked(String locked)
   {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setLocked(String "+ locked+")");
+    }
     if (locked.equals(Boolean.TRUE.toString()))
     {
       topic.setLocked(new Boolean(true));
@@ -270,6 +313,10 @@ public class DiscussionTopicBean
 
   public void removeMessage(DiscussionMessageBean decoMessage)
   {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("removeMessage(DiscussionMessageBean"+ decoMessage+")");
+    }
     for (int i = 0; i < messages.size(); i++)
     {
       if (((DiscussionMessageBean) messages.get(i)).getMessage().getId()
@@ -286,6 +333,7 @@ public class DiscussionTopicBean
    */
   public boolean isMarkForDeletion()
   {
+    LOG.debug("isMarkForDeletion()");
     return markForDeletion;
   }
 
@@ -295,6 +343,10 @@ public class DiscussionTopicBean
    */
   public void setMarkForDeletion(boolean markForDeletion)
   {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setMarkForDeletion(boolean "+ markForDeletion+")");
+    }
     this.markForDeletion = markForDeletion;
   }
 
@@ -303,6 +355,10 @@ public class DiscussionTopicBean
    */
   public void setTopic(DiscussionTopic topic)
   {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setTopic(DiscussionTopic"+ topic+")");
+    }
     this.topic = topic;
   }
 
@@ -311,6 +367,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsNewResponse()
   {
+    LOG.debug("getIsNewResponse()");
     return uiPermissionsManager.isNewResponse(topic, (DiscussionForum) topic
         .getBaseForum());
   }
@@ -320,6 +377,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsNewResponseToResponse()
   {
+    LOG.debug("getIsNewResponseToResponse()");
     return uiPermissionsManager.isNewResponseToResponse(topic,
         (DiscussionForum) topic.getBaseForum());
   }
@@ -329,6 +387,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsMovePostings()
   {
+    LOG.debug("getIsMovePostings()");
     return uiPermissionsManager.isMovePostings(topic, (DiscussionForum) topic
         .getBaseForum());
   }
@@ -338,6 +397,7 @@ public class DiscussionTopicBean
    */
   public boolean isChangeSettings()
   {
+    LOG.debug("isChangeSettings()");
     return uiPermissionsManager.isChangeSettings(topic, (DiscussionForum) topic
         .getBaseForum());
   }
@@ -347,6 +407,7 @@ public class DiscussionTopicBean
    */
   public boolean isPostToGradebook()
   {
+    LOG.debug("isPostToGradebook()");
     return uiPermissionsManager.isPostToGradebook(topic,
         (DiscussionForum) topic.getBaseForum());
   }
@@ -356,6 +417,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsRead()
   {
+    LOG.debug("getIsRead()");
     return uiPermissionsManager.isRead(topic, (DiscussionForum) topic
         .getBaseForum());
   }
@@ -365,6 +427,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsReviseAny()
   {
+    LOG.debug("getIsReviseAny()");
     return uiPermissionsManager.isReviseAny(topic, (DiscussionForum) topic
         .getBaseForum());
   }
@@ -374,6 +437,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsReviseOwn()
   {
+    LOG.debug("getIsReviseOwn()");
     return uiPermissionsManager.isReviseOwn(topic, (DiscussionForum) topic
         .getBaseForum());
   }
@@ -383,6 +447,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsDeleteAny()
   {
+    LOG.debug("getIsDeleteAny()");
     return uiPermissionsManager.isDeleteAny(topic, (DiscussionForum) topic
         .getBaseForum());
   }
@@ -392,6 +457,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsDeleteOwn()
   {
+    LOG.debug("getIsDeleteOwn()");
     return uiPermissionsManager.isDeleteOwn(topic, (DiscussionForum) topic
         .getBaseForum());
   }
@@ -401,7 +467,64 @@ public class DiscussionTopicBean
    */
   public boolean getIsMarkAsRead()
   {
+    LOG.debug("getIsMarkAsRead()");
     return uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum) topic
         .getBaseForum());
   }
+
+  
+  
+  /**
+   * @return
+   */
+  public List getContributorsList()
+  {
+    LOG.debug("getContributorsList()");  
+    Iterator iter= forumManager.getContributorsList(topic, (DiscussionForum)topic.getBaseForum()).iterator();
+    while (iter.hasNext())
+    { 
+      contributorsList.add((String)iter.next());
+     }
+    return contributorsList; 
+
+  }
+  
+  /**
+   * @return
+   */
+  public List getAccessorList()
+  {
+    LOG.debug("getAccessorList()");
+    Iterator iter= forumManager.getAccessorsList(topic, (DiscussionForum)topic.getBaseForum()).iterator();
+    while (iter.hasNext())
+    { 
+      accessorList.add((String)iter.next());
+     }
+    return accessorList; 
+  }
+
+  /**
+   * @param accessorList The accessorList to set.
+   */
+  public void setAccessorList(List accessorList)
+  {
+    if(LOG.isDebugEnabled())
+     {
+        LOG.debug("setAccessorList(List"+ accessorList+")");
+     }
+    topic.getActorPermissions().setAccessors(forumManager.decodeAccessorsList(accessorList));
+  }
+
+  /**
+   * @param contributorsList The contributorsList to set.
+   */
+  public void setContributorsList(List contributorsList)
+  {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setContributorsList(List"+ contributorsList+")");
+    }
+    topic.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
+  }
+  
 }

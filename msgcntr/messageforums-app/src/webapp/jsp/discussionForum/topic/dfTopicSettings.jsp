@@ -96,6 +96,25 @@
 				</h:panelGrid>
 			</p>
 		  --%>
+      <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm">
+	  	<p class="shorttext">
+			<h:panelGrid columns="2" width="50%">
+				<h:panelGroup><h:outputLabel id="outputLabelCont" for="contributors"  value="#{msgs.cdfm_contributors}"/>	</h:panelGroup>
+				<h:panelGroup>
+					<h:selectManyListbox disabled ="true" id="contributors"  value="#{ForumTool.selectedTopic.contributorsList}" size="5" style="width:200px;">
+    					<f:selectItems value="#{ForumTool.totalComposeToList}" />
+  					</h:selectManyListbox>
+				</h:panelGroup>
+
+			  <h:panelGroup><h:outputLabel id="outputLabelRead" for="readOnly"  value="#{msgs.cdfm_read_only_access}"/>	</h:panelGroup>
+				<h:panelGroup>
+					<h:selectManyListbox  disabled ="true" id="readOnly"  value="#{ForumTool.selectedTopic.accessorList}" size="5" style="width:200px;">
+    					<f:selectItems value="#{ForumTool.totalComposeToList}"  />
+  					</h:selectManyListbox>
+				</h:panelGroup>
+			</h:panelGrid>
+		</p>
+	  </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm">
           <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.topicControlPermissions}" var="cntrl_settings">
    			<h:column>
