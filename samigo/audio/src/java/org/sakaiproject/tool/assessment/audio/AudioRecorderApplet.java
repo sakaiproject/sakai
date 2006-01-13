@@ -101,7 +101,7 @@ public class AudioRecorderApplet
     }
     String media = res.getString("_audio");
     String param = null;
-    getContentPane().add(res.getString("Center"), demo = new AudioPanel(media));
+    getContentPane().add(res.getString("Center"), demo = new AudioPanel(media, params));
   }
 
   private void initAppletParams()

@@ -100,12 +100,13 @@ public class AudioPanel
   JTabbedPane tabPane = new JTabbedPane();
   int width = 450, height = 450;
   int index;
+  AudioRecorderParams params;
 
   /**
    *
    * @param audioDirectory
    */
-  public AudioPanel(String audioDirectory)
+  public AudioPanel(String audioDirectory, AudioRecorderParams params)
   {
 
     setLayout(new BorderLayout());
@@ -231,7 +232,7 @@ public class AudioPanel
     CompoundBorder cb = new CompoundBorder(eb, bb);
     JPanel p = new JPanel(new BorderLayout());
     p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
-    AudioRecorder recorder = new AudioRecorder();
+    AudioRecorder recorder = new AudioRecorder(params);
     tabPanels.add(recorder);
     p.add(recorder);
     tabPane.addTab(res.getString("Audio_Recorder"), p);
@@ -264,7 +265,9 @@ public class AudioPanel
       }
     }
 
-    final AudioPanel tabPanel = new AudioPanel(media);
+    AudioRecorderParams params = new AudioRecorderParams();
+
+    final AudioPanel tabPanel = new AudioPanel(media, params);
     JFrame f = new JFrame(res.getString("Audio_Recorder"));
     f.addWindowListener(new WindowAdapter()
     {

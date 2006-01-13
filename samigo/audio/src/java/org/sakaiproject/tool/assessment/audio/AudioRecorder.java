@@ -135,8 +135,9 @@ public class AudioRecorder
   double duration, seconds;
   File file;
   Vector lines = new Vector();
+  AudioRecorderParams params;
 
-  public AudioRecorder()
+  public AudioRecorder( AudioRecorderParams params)
   {
     setLayout(new BorderLayout());
     EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
@@ -985,7 +986,8 @@ public class AudioRecorder
 
   public static void main(String s[])
   {
-    AudioRecorder capturePlayback = new AudioRecorder();
+    AudioRecorderParams params = new AudioRecorderParams();
+    AudioRecorder capturePlayback = new AudioRecorder(params);
     capturePlayback.open();
     JFrame f = new JFrame(res.getString("Capture_Playback"));
     f.addWindowListener(new WindowAdapter()
