@@ -128,6 +128,45 @@ public class AudioFormatPanel extends JPanel
       CompoundBorder cb = new CompoundBorder(eb, bb);
       setBorder(new CompoundBorder(cb, new EmptyBorder(8, 5, 5, 5)));
       JPanel p1 = new ColorBackgroundPanel(false);
+
+      ButtonGroup encodingGroup = makeEncodingGroup(params, p1);
+      add(p1);
+      groups.addElement(encodingGroup);
+
+      JPanel p2 = new ColorBackgroundPanel(false);
+      JPanel p2b = new ColorBackgroundPanel(false);
+
+      ButtonGroup sampleRateGroup = makeSampleRateGroup(params, p2, p2b);
+      add(p2);
+      add(p2b);
+      groups.addElement(sampleRateGroup);
+
+      JPanel p3 = new ColorBackgroundPanel(false);
+
+      ButtonGroup sampleSizeInBitsGroup = makeSizeInBitsGroup(params, p3);
+      add(p3);
+      groups.addElement(sampleSizeInBitsGroup);
+
+      JPanel p4 = new ColorBackgroundPanel(false);
+
+      ButtonGroup signGroup = makeSignGroup(params, p4);
+      add(p4);
+      groups.addElement(signGroup);
+
+      JPanel p5 = new ColorBackgroundPanel(false);
+
+      ButtonGroup endianGroup = makeEndianGroup(params, p5);
+      add(p5);
+      groups.addElement(endianGroup);
+
+      JPanel p6 = new ColorBackgroundPanel(false);
+      ButtonGroup channelsGroup = makeChannelsGroup(params, p6);
+      add(p6);
+      groups.addElement(channelsGroup);
+    }
+
+    private ButtonGroup makeEncodingGroup(AudioRecorderParams params, JPanel p1)
+    {
       ButtonGroup encodingGroup = new ButtonGroup();
 
       boolean linear = false;
@@ -150,48 +189,77 @@ public class AudioFormatPanel extends JPanel
       linrB = addToggleButton(p1, encodingGroup, res.getString("linear"), linear);
       ulawB = addToggleButton(p1, encodingGroup, res.getString("ulaw"), ulaw);
       alawB = addToggleButton(p1, encodingGroup, res.getString("alaw"), alaw);
-      add(p1);
-      groups.addElement(encodingGroup);
+      return encodingGroup;
+    }
 
-      JPanel p2 = new ColorBackgroundPanel(false);
-      JPanel p2b = new ColorBackgroundPanel(false);
+    private ButtonGroup makeSampleRateGroup(AudioRecorderParams params,
+                                            JPanel p2, JPanel p2b)
+    {
       ButtonGroup sampleRateGroup = new ButtonGroup();
-      rate8B = addToggleButton(p2, sampleRateGroup, "8000", false);
-      rate11B = addToggleButton(p2, sampleRateGroup, "11025", false);
-      rate16B = addToggleButton(p2b, sampleRateGroup, "16000", false);
-      rate22B = addToggleButton(p2b, sampleRateGroup, "22050", false);
-      rate44B = addToggleButton(p2b, sampleRateGroup, "44100", true);
-      add(p2);
-      add(p2b);
-      groups.addElement(sampleRateGroup);
 
-      JPanel p3 = new ColorBackgroundPanel(false);
+      boolean rates[] = { false, false, false, false,  false,};
+
+      int rate = params.getFrequency();
+
+      for (int i = 0; i < params.frequenciesAllowed.length; i++)
+      {
+        if (rate==params.frequenciesAllowed[i])
+        {
+          rates[i] = true;
+          break;
+        }
+
+      }
+
+      rate8B =  addToggleButton(p2, sampleRateGroup,  "8000",  rates[0]);
+      rate11B = addToggleButton(p2, sampleRateGroup,  "11025", rates[1]);
+      rate16B = addToggleButton(p2b, sampleRateGroup, "16000", rates[2]);
+      rate22B = addToggleButton(p2b, sampleRateGroup, "22050", rates[3]);
+      rate44B = addToggleButton(p2b, sampleRateGroup, "44100", rates[4]);
+      return sampleRateGroup;
+    }
+
+    private ButtonGroup makeSizeInBitsGroup(AudioRecorderParams params,
+                                            JPanel p3)
+    {
       ButtonGroup sampleSizeInBitsGroup = new ButtonGroup();
-      size8B = addToggleButton(p3, sampleSizeInBitsGroup, "8", false);
-      size16B = addToggleButton(p3, sampleSizeInBitsGroup, "16", true);
-      add(p3);
-      groups.addElement(sampleSizeInBitsGroup);
 
-      JPanel p4 = new ColorBackgroundPanel(false);
+      boolean bit8 = params.getBits()==8 ? true : false;
+
+      size8B = addToggleButton(p3, sampleSizeInBitsGroup, "8", bit8);
+      size16B = addToggleButton(p3, sampleSizeInBitsGroup, "16", !bit8);
+      return sampleSizeInBitsGroup;
+    }
+
+    private ButtonGroup makeSignGroup(AudioRecorderParams params, JPanel p4)
+    {
       ButtonGroup signGroup = new ButtonGroup();
-      signB = addToggleButton(p4, signGroup, res.getString("signed"), true);
-      unsignB = addToggleButton(p4, signGroup, res.getString("unsigned"), false);
-      add(p4);
-      groups.addElement(signGroup);
 
-      JPanel p5 = new ColorBackgroundPanel(false);
+      signB = addToggleButton(p4, signGroup, res.getString("signed"),
+                              params.isSigned());
+      unsignB = addToggleButton(p4, signGroup, res.getString("unsigned"),
+                                !params.isSigned());
+      return signGroup;
+    }
+
+    private ButtonGroup makeEndianGroup(AudioRecorderParams params, JPanel p5)
+    {
       ButtonGroup endianGroup = new ButtonGroup();
-      litB = addToggleButton(p5, endianGroup, res.getString("little_endian"), false);
-      bigB = addToggleButton(p5, endianGroup, res.getString("big_endian"), true);
-      add(p5);
-      groups.addElement(endianGroup);
+      litB = addToggleButton(p5, endianGroup, res.getString("little_endian"),
+                             !params.isBigendian());
+      bigB = addToggleButton(p5, endianGroup, res.getString("big_endian"),
+                             params.isBigendian());
+      return endianGroup;
+    }
 
-      JPanel p6 = new ColorBackgroundPanel(false);
+    private ButtonGroup makeChannelsGroup(AudioRecorderParams params, JPanel p6)
+    {
       ButtonGroup channelsGroup = new ButtonGroup();
-      monoB = addToggleButton(p6, channelsGroup, res.getString("mono"), false);
-      sterB = addToggleButton(p6, channelsGroup, res.getString("stereo"), true);
-      add(p6);
-      groups.addElement(channelsGroup);
+      monoB = addToggleButton(p6, channelsGroup, res.getString("mono"),
+                              !params.isStereo());
+      sterB = addToggleButton(p6, channelsGroup, res.getString("stereo"),
+                              params.isStereo());
+      return channelsGroup;
     }
 
     private JToggleButton addToggleButton(JPanel p, ButtonGroup g,
