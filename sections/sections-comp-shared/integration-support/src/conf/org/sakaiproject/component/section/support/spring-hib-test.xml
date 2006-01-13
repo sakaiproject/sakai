@@ -7,7 +7,7 @@
         <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
     </bean>
     
-    <bean id="sectionsTxTemplate" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <bean abstract="true" id="sectionsTxTemplate" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager"><ref bean="sectionsTransactionManager"/></property>
         <property name="transactionAttributes">
             <props>
