@@ -510,10 +510,12 @@ public class ItemAddListener
           }
 
         // if assign to pool, add the item to the pool
-        if ( (!bean.getSelectedPool().equals("")) && (bean.getSelectedPool() != null)) {
-          qpdelegate.addItemToPool(item.getItemIdString(),
+        if ( (!bean.getSelectedPool().equals("")) && (bean.getSelectedPool() != null))         {
+          if (!qpdelegate.hasItem(item.getItemIdString(),
+                                new Long(bean.getSelectedPool()))) {
+            qpdelegate.addItemToPool(item.getItemIdString(),
                                    new Long(bean.getSelectedPool()));
-
+          }
         }
 
         // #1a - goto editAssessment.jsp, so reset assessmentBean
