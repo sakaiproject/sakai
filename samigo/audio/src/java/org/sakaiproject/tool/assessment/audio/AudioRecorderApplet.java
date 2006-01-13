@@ -80,18 +80,34 @@ public class AudioRecorderApplet
   //Construct the applet
   public AudioRecorderApplet()
   {
+
   }
 
   //Initialize the applet
   static AudioRecorderApplet applet;
   private AudioPanel demo;
+  private AudioRecorderParams params;
 
   public void init()
   {
     applet = this;
+    if (isStandalone)
+    {
+      params =  new AudioRecorderParams();
+    }
+    else
+    {
+      params =  new AudioRecorderParams(applet);
+    }
     String media = res.getString("_audio");
     String param = null;
     getContentPane().add(res.getString("Center"), demo = new AudioPanel(media));
+  }
+
+  private void initAppletParams()
+  {
+    AudioRecorderParams params = this.params;
+
   }
 
   //Component initialization
@@ -154,5 +170,9 @@ public class AudioRecorderApplet
     f.setSize(w, h);
     f.show();
 
+  }
+  public AudioRecorderParams getParams()
+  {
+    return params;
   }
 }

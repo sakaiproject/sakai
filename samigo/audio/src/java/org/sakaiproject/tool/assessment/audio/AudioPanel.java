@@ -222,7 +222,7 @@ public class AudioPanel
   }
 
   /**
-   * Lazy load the tabbed pane with CapturePlayback, MidiSynth and Groove.
+   * Lazy load the tabbed pane
    */
   public void run()
   {
@@ -242,7 +242,6 @@ public class AudioPanel
     tabPanels.add(format);
     fp.add(format);
     tabPane.addTab(res.getString("Advanced_Settings"), fp);
-//    tabPane.addTab("", fp);
   }
 
   /**
