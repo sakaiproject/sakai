@@ -180,12 +180,26 @@ public class AudioRecorder extends JPanel implements ActionListener,
   private JPanel makeSaveBPanel()
   {
     JPanel saveBpanel = new ColorBackgroundPanel(false);
+
+    int saveButtonCount = 0;
+    if (params.isSaveAiff()) saveButtonCount++;
+    if (params.isSaveAu()) saveButtonCount++;
+    if (params.isSaveWave()) saveButtonCount++;
+
     aiffB = addButton(res.getString("Save_AIFF"), saveBpanel,
                       params.isSaveAiff(), params.isSaveAiff());
     auB = addButton(res.getString("Save_AU"), saveBpanel,
                     params.isSaveAu(), params.isSaveAu());
     waveB = addButton(res.getString("Save_WAVE"), saveBpanel,
                       params.isSaveWave(), params.isSaveWave());
+
+    //No point in distinguishing, if only one file type supported
+    if (saveButtonCount==1)
+    {
+      if (params.isSaveAiff()) aiffB.setText(res.getString("Save"));
+      if (params.isSaveAu()) auB.setText(res.getString("Save"));
+      if (params.isSaveWave()) waveB.setText(res.getString("Save"));
+    }
 
     return saveBpanel;
   }
@@ -280,10 +294,32 @@ public class AudioRecorder extends JPanel implements ActionListener,
 //      saveToFile(textField.getText().trim(), AudioFileFormat.Type.AU);
       // debug
       //file:///C:/cygwin/home/esmiley/svn/trunk/sakai/sam/audio/example/audiorecordertest.html
-      saveToFileAndPost(textField.getText().trim(),
+//      saveToFileAndPost(textField.getText().trim(),
+//                        AudioFileFormat.Type.AU,
+//        "http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio",
+//        "/tmp/test/audio.au", 6);
+
+      if (audioInputStream == null)
+      {
+        reportStatus(res.getString("No_loaded_audio_to"));
+        return;
+      }
+      // reset to the beginnning of the captured data
+      try
+      {
+        audioInputStream.reset();
+      }
+      catch (Exception ex)
+      {
+        reportStatus(res.getString("Unable_to_reset") + ex);
+        return;
+      }
+
+      this.saveAndPost(audioInputStream,
                         AudioFileFormat.Type.AU,
         "http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio",
         "/tmp/test/audio.au", 6);
+
     }
     else if (obj.equals(aiffB))
     {
