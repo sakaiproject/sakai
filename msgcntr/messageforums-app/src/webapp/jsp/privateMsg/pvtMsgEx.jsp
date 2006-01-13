@@ -9,6 +9,7 @@
 	<sakai:view_container title="Received Private Messages">
 	<sakai:view_content>
 		<h:form id="prefs_form_search">
+			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>		
 			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
   		<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" /> /
 			<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
