@@ -42,5 +42,11 @@ public interface PrivateMessage extends Message {
     public void addRecipient(MessageForumsUser user);
     
     public void removeRecipient(MessageForumsUser user);
+    
+    public String getRecipientsAsText() ;
+    
+    public void setRecipientsAsText(String recipientsAsText) ;
+        
+        
 
 }

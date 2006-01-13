@@ -20,9 +20,13 @@
       	<sakai:group_box>
         <table width="100%" align="left" class="tablebgcolor" >
           <tr>
-            <td align="left"></td>
-            <td align="left"></td>  
-            <td align="left">         			
+            <td align="left">
+            	<h:outputText style="font-weight:bold"  value="#{msgs.pvt_to}" rendered="#{PrivateMessagesTool.msgNavMode == 'Sent'}"/>
+            </td>
+            <td align="left">
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.recipientsAsText}" rendered="#{PrivateMessagesTool.msgNavMode == 'Sent'}"/>
+            </td>  
+            <td nowrap align="right">         			
 								<h:outputText   value="Previous Message"  rendered="#{!PrivateMessagesTool.detailMsg.hasPre}" />
 								&nbsp;&nbsp;
 								<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousMsg}" value="Previous Message"  rendered="#{PrivateMessagesTool.detailMsg.hasPre}" >

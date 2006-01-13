@@ -53,8 +53,7 @@ public class PrivateMessageDecoratedBean
   private boolean hasPre;
   private PrivateMessage uiInReply = null;
   //This string is for display of recipients in Received folder- comman separated list of users
-  private String sendToString=""; 
-  
+  private String sendToStringDecorated=""; 
   
   public PrivateMessage getMsg()
   {
@@ -134,16 +133,16 @@ public class PrivateMessageDecoratedBean
   /**
    * @return Returns the sendToString.
    */
-  public String getSendToString()
+  public String getSendToStringDecorated()
   {
-    return sendToString;
+    return sendToStringDecorated;
   }
   /**
    * @param sendToString The sendToString to set.
    */
-  public void setSendToString(String sendToString)
+  public void setSendToStringDecorated(String sendToStringDecorated)
   {
-    this.sendToString = sendToString;
+    this.sendToStringDecorated = sendToStringDecorated;
   }
   
 }

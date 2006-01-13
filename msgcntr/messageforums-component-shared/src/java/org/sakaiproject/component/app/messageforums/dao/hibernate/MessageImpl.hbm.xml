@@ -120,7 +120,7 @@
       <property name="externalEmailAddress">
         <column name="EXTERNAL_EMAIL_ADDRESS" length="255" not-null="false" />
       </property>
-      <property name="recipientsAsText" type="text">
+      <property name="recipientsAsText" type="text" not-null="false" >
         <column name="RECIPIENTS_AS_TEXT"/>
       </property>      
     </subclass>

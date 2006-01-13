@@ -356,6 +356,7 @@ public class PrivateMessagesTool
       {
         dbean.setIsSelected(true);
       }
+       
       //getRecipients() is filtered for this perticular user i.e. returned list of only one PrivateMessageRecipient object
       for (Iterator iterator = element.getRecipients().iterator(); iterator.hasNext();)
       {
@@ -364,7 +365,21 @@ public class PrivateMessagesTool
           dbean.setHasRead(el.getRead().booleanValue());
         }
       }
-      
+      //Add decorate 'TO' String for sent message
+      if(PVTMSG_MODE_SENT.equals(msgNavMode))
+      {
+        String deocratedToDisplay="";
+        if(dbean.getMsg().getRecipientsAsText() != null)
+          if (dbean.getMsg().getRecipientsAsText().length()>25)
+          {
+            deocratedToDisplay=(dbean.getMsg().getRecipientsAsText()).substring(0, 20)+" (..)";
+          } else
+          {
+            deocratedToDisplay=dbean.getMsg().getRecipientsAsText();
+          }
+        dbean.setSendToStringDecorated(deocratedToDisplay); 
+      }
+
       decLs.add(dbean) ;
     }
     //reset selectAll flag, for future use
@@ -821,6 +836,8 @@ public class PrivateMessagesTool
             }
           }
         }
+        //ADD the recipientText here 
+        this.getDetailMsg().getMsg().setRecipientsAsText(dMsg.getMsg().getRecipientsAsText());
       }
     }
     this.deleteConfirm=false; //reset this as used for multiple action in same JSP
@@ -1070,6 +1087,20 @@ public class PrivateMessagesTool
       aMsg.setDraft(Boolean.FALSE);      
       aMsg.setApproved(Boolean.FALSE);     
       aMsg.setLabel(getSelectedLabel());
+      
+      //Add the recipientList as String for display in Sent folder
+      String sendToString="";
+      for (int i = 0; i < selectedComposeToList.size(); i++)
+      {
+        MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
+        if(membershipItem != null)
+        {
+          sendToString +=membershipItem.getName()+";" ;
+        }          
+      }
+      sendToString=sendToString.substring(0, sendToString.length()-1); //remove last comma
+      aMsg.setRecipientsAsText(sendToString);
+      
     }
     //Add attachments
     for(int i=0; i<attachments.size(); i++)
@@ -1445,6 +1476,20 @@ public class PrivateMessagesTool
     rrepMsg.setLabel(getSelectedLabel());
     
     rrepMsg.setInReplyTo(currentMessage) ;
+    
+    //Add the recipientList as String for display in Sent folder
+    String sendToString="";
+    for (int i = 0; i < selectedComposeToList.size(); i++)
+    {
+      MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
+      if(membershipItem != null)
+      {
+        sendToString +=membershipItem.getName()+";" ;
+      }          
+    }
+    sendToString=sendToString.substring(0, sendToString.length()-1); //remove last comma
+    rrepMsg.setRecipientsAsText(sendToString);
+    
     
     //Add attachments
     for(int i=0; i<allAttachments.size(); i++)
@@ -2097,6 +2142,9 @@ public class PrivateMessagesTool
         }
       }
     }
+    //set threaded view as  false in search 
+    selectView = "" ;
+    
     if(newls.size()>0)
     {
       this.setSearchPvtMsgs(newls) ;
