@@ -9,13 +9,16 @@ Test org.sakaiproject.sound.applet.AudioRecorderApplet.<br/>
 It should appear below in a Java enabled browser.<br/>
 <table border="2">
 <tr><td>
-<!-- edit codebase path to unit test applet -->
+<!-- edit codebase path and host to unit test applet -->
 <object
   classid = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
   codebase = "http://java.sun.com/update/1.5.0/jinstall-1_5-windows-i586.cab#Version=1,5,0,0"
   WIDTH = "450" HEIGHT = "450" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
   <PARAM NAME = CODE VALUE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" >
-<!-- put your path to the compiled classes here -->
+<!-- put your path to the compiled classes here
+
+also modify the corresponding param in the embed tag, below
+-->
   <PARAM NAME = CODEBASE VALUE = "../../../../../../jbproject/sam/classes" >
   <PARAM NAME = NAME VALUE = "Record Audio" >
   <param name = "type" value = "application/x-java-applet;version=1.5">
@@ -32,6 +35,8 @@ It should appear below in a Java enabled browser.<br/>
   <PARAM NAME = "fileName" VALUE="audio">
 <!-- put your server host here, and set
 permission java.net.SocketPermission "yourhost:8080", "connect", "resolve";
+
+also modify the corresponding embed tag, below
  -->
   <PARAM NAME = "url" VALUE="http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio">
   <PARAM NAME = "compression" VALUE="linear">
@@ -47,7 +52,6 @@ permission java.net.SocketPermission "yourhost:8080", "connect", "resolve";
    <embed
       type = "application/x-java-applet;version=1.5" \
       CODE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" \
-<!-- put your path to the compiled classes here -->
       JAVA_CODEBASE = "../../../../../../jbproject/sam/classes" \
       NAME = "Record Audio" \
       WIDTH = "450" \
@@ -65,9 +69,6 @@ permission java.net.SocketPermission "yourhost:8080", "connect", "resolve";
       saveToFile ="false" \
       saveToUrl ="true" \
       fileName ="audio" \
-<!-- put your server host here, and set
-permission java.net.SocketPermission "yourhost:8080", "connect", "resolve";
- -->
       url ="http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio" \
       compression ="linear" \
       frequency ="8000" \
