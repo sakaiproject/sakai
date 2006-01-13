@@ -337,7 +337,7 @@ public class PrivateMessagesTool
     }
     if(selectView!=null && selectView.equalsIgnoreCase("threaded"))
     {
-    	this.rearrageTopicMsgsThreaded();
+    	this.rearrageTopicMsgsThreaded(false);
     }
     return decoratedPvtMsgs ;
   }
@@ -642,14 +642,26 @@ public class PrivateMessagesTool
   	}
   }
   
-  public void rearrageTopicMsgsThreaded()
+  public void rearrageTopicMsgsThreaded(boolean searcModeOn)
   {
   	List msgsList = new ArrayList();
-		for(int i=0; i<decoratedPvtMsgs.size(); i++)
-		{
-			msgsList.add((PrivateMessageDecoratedBean)decoratedPvtMsgs.get(i));
-		}
-  	decoratedPvtMsgs.clear();
+    
+    if(searcModeOn)
+    {
+      for(int i=0; i<searchPvtMsgs.size(); i++)
+      {
+          msgsList.add((PrivateMessageDecoratedBean)searchPvtMsgs.get(i));
+      }
+      searchPvtMsgs.clear();
+    }else
+    {
+      for(int i=0; i<decoratedPvtMsgs.size(); i++)
+      {
+          msgsList.add((PrivateMessageDecoratedBean)decoratedPvtMsgs.get(i));
+      }   
+      decoratedPvtMsgs.clear();
+    }
+  	
   	
   	if(msgsList != null)
   	{
@@ -686,7 +698,14 @@ public class PrivateMessagesTool
   			}
   			for(int i=0; i<currentRelatedMsgs.size(); i++)
   			{
-  				decoratedPvtMsgs.add((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
+  				if(searcModeOn)
+                {
+                  searchPvtMsgs.add((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
+                }else
+                {
+                  decoratedPvtMsgs.add((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
+                }
+              
   				msgsSet.remove((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
   			}
   			
@@ -2114,6 +2133,10 @@ public class PrivateMessagesTool
   private List searchPvtMsgs;
   public List getSearchPvtMsgs()
   {
+    if(selectView!=null && selectView.equalsIgnoreCase("threaded"))
+    {
+        this.rearrageTopicMsgsThreaded(true);
+    }
     return searchPvtMsgs;
   }
   public void setSearchPvtMsgs(List searchPvtMsgs)
@@ -2143,7 +2166,8 @@ public class PrivateMessagesTool
       }
     }
     //set threaded view as  false in search 
-    selectView = "" ;
+    selectView="";
+    
     
     if(newls.size()>0)
     {
