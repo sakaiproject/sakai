@@ -58,6 +58,11 @@ public class AudioRecorderParams implements Serializable
   private int maxSeconds = 60;
   private int retriesAllowed = 6;
 
+  /**
+   * compression algorithms
+   * btw using "u" for the greek letter "mu"
+   * perhaps we should be calling this "mu-law" and showing that letter in UI.
+   */
   public static final String compressionAllowed[] =
     {
     "ulaw",
@@ -65,11 +70,17 @@ public class AudioRecorderParams implements Serializable
     "linear",
   };
 
+  /**
+   * sampling rates
+   */
   public static final int frequenciesAllowed[] =
     {
     8000, 11025, 16000, 22050, 44100,
   };
 
+  /**
+   * 8 or 16 bit
+   */
   public static int bitsAllowed[] =
     {
     8, 16,
