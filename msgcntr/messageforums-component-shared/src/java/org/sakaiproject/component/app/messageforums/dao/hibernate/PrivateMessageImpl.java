@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
 public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
 
@@ -38,6 +37,7 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
     private List recipients = null;//new UniqueArrayList();
     private Boolean externalEmail;
     private String externalEmailAddress;
+    private String recipientsAsText;
     
     // indecies for hibernate
     //private int tindex;   
@@ -65,6 +65,14 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
     public void setRecipients(List recipients) {
         this.recipients = recipients;
     }
+    
+    public String getRecipientsAsText() {
+			return recipientsAsText;
+		}
+
+		public void setRecipientsAsText(String recipientsAsText) {
+			this.recipientsAsText = recipientsAsText;
+		}
         
 //    public int getTindex() {
 //        try {
@@ -106,5 +114,5 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
         
         user.setPrivateMessage(null);
         recipients.remove(user);
-    }
+    }		
 }
