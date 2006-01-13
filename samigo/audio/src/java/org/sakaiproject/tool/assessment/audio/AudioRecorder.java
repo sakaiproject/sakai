@@ -96,6 +96,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.filechooser.FileFilter;
+import java.io.InputStream;
 
 /**
  *  Record audio in different formats
@@ -194,7 +195,17 @@ public class AudioRecorder extends JPanel implements ActionListener,
     JPanel saveTFpanel = new ColorBackgroundPanel(false);
     saveTFpanel.add(new JLabel(res.getString("File_to_save_")));
     saveTFpanel.add(textField = new JTextField(fileName));
-    saveTFpanel.setPreferredSize(new Dimension(140, 25));
+
+    if (params.isSaveToFile())
+    {
+      saveTFpanel.setPreferredSize(new Dimension(140, 25));
+      saveTFpanel.setVisible(true);
+    }
+    else
+    {
+      saveTFpanel.setPreferredSize(new Dimension(1, 1));
+      saveTFpanel.setVisible(false);
+    }
 
     return saveTFpanel;
   }
@@ -238,6 +249,17 @@ public class AudioRecorder extends JPanel implements ActionListener,
     }
   }
 
+  /**
+   * Add a button to a panel, enabled or disabled, visible or invisible.
+   * We create invisible buttons if their function is turned off in our
+   * configuration, so that the UI logic always works the same way.
+   *
+   * @param name
+   * @param p the panel
+   * @param state enabled/disabled state
+   * @param visible visible/invisible state
+   * @return
+   */
   private JButton addButton(String name, JPanel p,
                             boolean state, boolean visible)
   {
@@ -252,6 +274,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   public void actionPerformed(ActionEvent e)
   {
     Object obj = e.getSource();
+
     if (obj.equals(auB))
     {
 //      saveToFile(textField.getText().trim(), AudioFileFormat.Type.AU);
@@ -260,7 +283,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       saveToFileAndPost(textField.getText().trim(),
                         AudioFileFormat.Type.AU,
         "http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio",
-        "/tmp/test/", 6);
+        "/tmp/test/audio.au", 6);
     }
     else if (obj.equals(aiffB))
     {
@@ -456,7 +479,34 @@ public class AudioRecorder extends JPanel implements ActionListener,
                                 String filePath,
                                 int retriesLeft)
   {
-    saveToFile(tempFileName, audioType);
+    try
+    {
+      saveToFile(tempFileName, audioType);
+      FileInputStream inputStream = new FileInputStream(tempFileName);
+      saveAndPost( inputStream, audioType,  urlString,  filePath, retriesLeft);
+    }
+    catch (Exception ex)
+    {
+      reportStatus(ex.toString());
+      samplingGraph.repaint();
+    }
+
+  }
+  /**
+   * Post audio data directly.
+   *
+   * @param audioType the audio type string
+   * @param urlString the url (in applets must use getCodeBase().toString() +
+   * same-host relative url)
+   * @param inputStream the input stream
+   * @param retriesLeft retries left
+   */
+  public void saveAndPost(InputStream inputStream,
+                                AudioFileFormat.Type audioType,
+                                String urlString,
+                                String filePath,
+                                int retriesLeft)
+  {
 
     URL url;
     URLConnection urlConn;
@@ -503,7 +553,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
       // Send binary POST output.
       OutputStream outputStream = urlConn.getOutputStream();
-      FileInputStream inputStream = new FileInputStream(tempFileName);
       BufferedInputStream buf_inputStream = new BufferedInputStream(inputStream);
       BufferedOutputStream buf_outputStream = new BufferedOutputStream(
         outputStream);
@@ -526,6 +575,11 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
       // Get response data.
       DataInputStream input = new DataInputStream(urlConn.getInputStream());
+
+      /**@todo
+       * need to check that acknowlegement from server matches or display
+       * an error.
+       */
 
       String str;
       while (null != ( (str = input.readLine())))
