@@ -107,9 +107,7 @@ public class DeliveryActionListener
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
 
-      // b. this is to be reset to true on the saveTime() JavaScript when submitted
-      delivery.setJavaScriptEnabledCheck("false");
-      // c. Clear elapsed time, set not timed out
+      // b. Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
 
       // 3. get assessment from deliveryBean if id matches. otherwise, this is the 1st time

@@ -1185,7 +1185,7 @@ public class DeliveryBean
 
   public String submitForGrade()
   {
-      if (isTimeRunning() && timeExpired()) // is timed assessment? and time has expired?
+    if (isTimeRunning() && timeExpired()) // is timed assessment? and time has expired?
       return "timeExpired";
     recordTimeElapsed();
     SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
@@ -1204,6 +1204,9 @@ public class DeliveryBean
     SelectActionListener l2 = new SelectActionListener();
     l2.processAction(null);
     reload = true;
+
+    // finish within time limit, clean timedAssessment from queue
+    removeTimedAssessmentFromQueue();
     return returnValue;
   }
 
@@ -1231,6 +1234,9 @@ public class DeliveryBean
     SelectActionListener l2 = new SelectActionListener();
     l2.processAction(null);
     reload = true;
+
+    // quit within time limit, clean timedAssessment from queue
+    removeTimedAssessmentFromQueue();
     return returnValue;
   }
 
@@ -2127,5 +2133,14 @@ public class DeliveryBean
     }
     return timeExpired;
   }
+
+  private void removeTimedAssessmentFromQueue(){
+    TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+    TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
+                                             get(adata.getAssessmentGradingId());
+    if (timedAG != null)
+      queue.remove(timedAG);
+  }
+
 
 }

@@ -114,7 +114,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     expireMessage="Your session has expired."
-    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:wninFpevcgRanoyrqPurpx'].value='true'; clickSubmitForGrade();" />
+    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
 
 <f:verbatim>  </span></f:verbatim>
 
@@ -125,7 +125,6 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
-<h:inputHidden id="wninFpevcgRanoyrqPurpx" value="#{delivery.javaScriptEnabledCheck}" />
 
 <h:commandLink id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
 

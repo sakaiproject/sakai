@@ -94,35 +94,7 @@ public class SubmitToGradingActionListener implements ActionListener
         publishedAssessment =
           publishedAssessmentService.getPublishedAssessment(delivery.getAssessmentId());
 
-      AssessmentGradingData adata = null;
-      try
-      {
-        adata = submitToGradingService(publishedAssessment, delivery);
-      }
-      catch (IllegalAccessException ex)
-      {
-        //log the security constraint violation
-        log.error(ex);
-
-        // if student has violated a security constraint (e.g. JavaScript)
-        // flag the assessment as taken
-        if (isForGrade(adata) && !isUnlimited(publishedAssessment))
-        {
-          delivery.setSubmissionsRemaining(
-              delivery.getSubmissionsRemaining() - 1);
-        }
-
-        // add this to the messages for the submission confirmation page
-        FacesMessage message = new FacesMessage(
-          "There was a SECURITY ERROR submitting this assessment.  " +
-          "Please contact your system administrator for more information.  " +
-          "Error details: " + ex
-          );
-        FacesContext.getCurrentInstance().addMessage(null, message);
-
-        // early exit without submitting assessment.
-        return;
-      }
+      AssessmentGradingData adata = submitToGradingService(publishedAssessment, delivery);
 
       // set url & confirmation after saving the record for grade
       if (adata !=null && delivery.getForGrade())
@@ -218,11 +190,10 @@ public class SubmitToGradingActionListener implements ActionListener
    * @param publishedAssessment
    * @param delivery
    * @return
-   * @throws java.lang.IllegalAccessException !getJavaScriptEnabledCheck
    */
   private synchronized AssessmentGradingData submitToGradingService(
     PublishedAssessmentFacade publishedAssessment,
-    DeliveryBean delivery) throws IllegalAccessException
+    DeliveryBean delivery)
   {
     log.debug("****1a. inside submitToGradingService ");
     String submissionId = "";
@@ -291,14 +262,6 @@ public class SubmitToGradingActionListener implements ActionListener
         adata.getItemGradingSet().addAll(adds);
       }
       adata.setForGrade(new Boolean(delivery.getForGrade()));
-    }
-
-    System.out.println("**** delivery.getJavaScriptEnabledCheck()="+delivery.getJavaScriptEnabledCheck());
-    if (Boolean.TRUE.equals(adata.getForGrade()) &&
-        !"true".equals(delivery.getJavaScriptEnabledCheck()))
-    {
-      String msg = "The agent has not successfully set the JavaScript flag.";
-      throw new IllegalAccessException(msg);
     }
 
     service.storeGrades(adata);
