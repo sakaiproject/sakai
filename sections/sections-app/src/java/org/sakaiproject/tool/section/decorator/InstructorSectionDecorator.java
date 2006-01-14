@@ -165,7 +165,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 						if(managers1.isEmpty() && managers2.isEmpty()) {
 							return 0;
 						}
-						int managersComparison = managers1.get(0).toString().compareTo(managers2.get(0));
+						int managersComparison = managers1.get(0).toString().compareTo(managers2.get(0).toString());
 						return sortAscending ? managersComparison : (-1 * managersComparison);
 					}
 					// These are in different categories, so sort them by category name
