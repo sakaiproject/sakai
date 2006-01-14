@@ -129,6 +129,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   JButton playB, captB, pausB, loadB;
   JButton auB, aiffB, waveB;
   JTextField textField;
+  JTextField rtextField;
 
   String fileName = res.getString("default_file_name");
   String errStr;
@@ -207,18 +208,20 @@ public class AudioRecorder extends JPanel implements ActionListener,
   private JPanel makeSaveTFPanel()
   {
     JPanel saveTFpanel = new ColorBackgroundPanel(false);
-    saveTFpanel.add(new JLabel(res.getString("File_to_save_")));
+    JLabel flabel = new JLabel(res.getString("File_to_save_"));
+    JLabel rlabel = new JLabel(res.getString("retries"));
+    saveTFpanel.add(flabel);
     saveTFpanel.add(textField = new JTextField(fileName));
+    saveTFpanel.add(rlabel);
+    saveTFpanel.add(rtextField = new JTextField(""+params.getRetriesAllowed()));
 
-    if (params.isSaveToFile())
+    saveTFpanel.setPreferredSize(new Dimension(140, 25));
+    rtextField.setEditable(false);
+
+    if (!params.isSaveToFile())
     {
-      saveTFpanel.setPreferredSize(new Dimension(140, 25));
-      saveTFpanel.setVisible(true);
-    }
-    else
-    {
-      saveTFpanel.setPreferredSize(new Dimension(1, 1));
-      saveTFpanel.setVisible(false);
+      flabel.setVisible(false);
+      textField.setVisible(false);
     }
 
     return saveTFpanel;
@@ -289,42 +292,58 @@ public class AudioRecorder extends JPanel implements ActionListener,
   {
     Object obj = e.getSource();
 
-    if (obj.equals(auB))
+    if (obj.equals(auB) || obj.equals(aiffB) || obj.equals(waveB))
     {
-//      saveToFile(textField.getText().trim(), AudioFileFormat.Type.AU);
-      // debug
-      //file:///C:/cygwin/home/esmiley/svn/trunk/sakai/sam/audio/example/audiorecordertest.html
-//      saveToFileAndPost(textField.getText().trim(),
+      AudioFileFormat.Type type = getTypeFromButton(obj);
+      String TEST_LOCATION = "/tmp/test/audio." + type.getExtension();
+
+      int retries = params.getRetriesAllowed();
+
+      if (retries > 0)
+      {
+        if (params.isSaveToFile() && params.isSaveToUrl())
+        {
+          saveToFileAndPost(textField.getText().trim(), type, params.getUrl(),
+                            TEST_LOCATION, retries);
+        }
+        else if (params.isSaveToUrl())
+        {
+          saveAndPost(audioInputStream, type, params.getUrl(),
+                      TEST_LOCATION, retries);
+        }
+        else if (params.isSaveToFile())
+        {
+          saveToFile(textField.getText().trim(), type);
+        }
+
+        params.setRetriesAllowed(--retries);
+        rtextField.setText("" + retries);
+        if (retries==0) captB.setEnabled(false); ;
+
+      }
+    }
+
+
+
+
+
+
+//    if (obj.equals(auB))
+//    {
+//      // debug
+//      //file:///C:/cygwin/home/esmiley/svn/trunk/sakai/sam/audio/example/audiorecordertest.html
+//
+//
+//      saveAndPost(audioInputStream,
 //                        AudioFileFormat.Type.AU,
 //        "http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio",
 //        "/tmp/test/audio.au", 6);
-
-      if (audioInputStream == null)
-      {
-        reportStatus(res.getString("No_loaded_audio_to"));
-        return;
-      }
-      // reset to the beginnning of the captured data
-      try
-      {
-        audioInputStream.reset();
-      }
-      catch (Exception ex)
-      {
-        reportStatus(res.getString("Unable_to_reset") + ex);
-        return;
-      }
-
-      this.saveAndPost(audioInputStream,
-                        AudioFileFormat.Type.AU,
-        "http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio",
-        "/tmp/test/audio.au", 6);
-
-    }
-    else if (obj.equals(aiffB))
-    {
-      saveToFile(textField.getText().trim(), AudioFileFormat.Type.AIFF);
-    }
+//
+//    }
+//    else if (obj.equals(aiffB))
+//    {
+//      saveToFile(textField.getText().trim(), AudioFileFormat.Type.AIFF);
+//    }
     else if (obj.equals(waveB))
     {
       saveToFile(textField.getText().trim(), AudioFileFormat.Type.WAVE);
@@ -343,7 +362,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
       {
         playback.stop();
         samplingGraph.stop();
-        captB.setEnabled(true);
+        if (params.getRetriesAllowed()>0)
+        {
+          captB.setEnabled(true);
+        }
         pausB.setEnabled(false);
         playB.setText(res.getString("Play"));
       }
@@ -460,6 +482,38 @@ public class AudioRecorder extends JPanel implements ActionListener,
     }
   }
 
+  private void resetRetries(int retries)
+  {
+    if (retries > 0)
+    {
+      rtextField.setText("" + retries);
+    }
+  }
+
+  /**
+   * utility method to get the audio type from the save button pressed
+   * @param obj
+   * @return
+   */
+  private AudioFileFormat.Type getTypeFromButton(Object obj)
+  {
+    AudioFileFormat.Type type = null;
+    if (obj.equals(auB))
+    {
+      type = AudioFileFormat.Type.AU;
+    }
+    else if (obj.equals(aiffB))
+    {
+      type = AudioFileFormat.Type.AIFF;
+    }
+    else if (obj.equals(waveB))
+    {
+      type = AudioFileFormat.Type.WAVE;
+    }
+
+    return type;
+  }
+
   public JPanel getFormatControlsPanel()
   {
     return formatControls;
@@ -543,6 +597,21 @@ public class AudioRecorder extends JPanel implements ActionListener,
                                 String filePath,
                                 int retriesLeft)
   {
+    if (audioInputStream == null)
+    {
+      reportStatus(res.getString("No_loaded_audio_to"));
+      return;
+    }
+    // reset to the beginnning of the captured data
+    try
+    {
+      audioInputStream.reset();
+    }
+    catch (Exception ex)
+    {
+      reportStatus(res.getString("Unable_to_reset") + ex);
+      return;
+    }
 
     URL url;
     URLConnection urlConn;
@@ -714,7 +783,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
       {
         thread = null;
         samplingGraph.stop();
-        captB.setEnabled(true);
+        if (params.getRetriesAllowed()>0)
+        {
+          captB.setEnabled(true);
+        }
         pausB.setEnabled(false);
         playB.setText(res.getString("Play"));
       }
