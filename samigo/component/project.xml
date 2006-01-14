@@ -349,6 +349,14 @@
       <artifactId>axis-jaxrpc</artifactId>
       <version>1.2-RC1</version>
     </dependency>
+
+    <!-- Needed to build under Java 1.5 -->
+    <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.6.0</version>
+    </dependency>
+
   </dependencies>
   <build>
     <sourceDirectory>src/java</sourceDirectory>
