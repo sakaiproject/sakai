@@ -322,28 +322,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
       }
     }
-
-
-
-
-
-
-//    if (obj.equals(auB))
-//    {
-//      // debug
-//      //file:///C:/cygwin/home/esmiley/svn/trunk/sakai/sam/audio/example/audiorecordertest.html
-//
-//
-//      saveAndPost(audioInputStream,
-//                        AudioFileFormat.Type.AU,
-//        "http://sakai-dev3.stanford.edu:8080//samigo/servlet/UploadAudio",
-//        "/tmp/test/audio.au", 6);
-//
-//    }
-//    else if (obj.equals(aiffB))
-//    {
-//      saveToFile(textField.getText().trim(), AudioFileFormat.Type.AIFF);
-//    }
     else if (obj.equals(waveB))
     {
       saveToFile(textField.getText().trim(), AudioFileFormat.Type.WAVE);
@@ -619,6 +597,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
     {
       // URL of audio processing servlet
       // note for applet security, this must be on same host
+      /**
+       * @todo need to fix the MalformedUrl exception, need to get
+       * host and protocol!!!!!!!
+       */
       url = new URL(urlString);
       urlConn = url.openConnection();
       urlConn.setDoInput(true);
