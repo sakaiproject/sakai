@@ -280,6 +280,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     try {
       HashMap map = new HashMap();
       AssessmentGradingData gdata = load(new Long(assessmentGradingId));
+      gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
       log.debug("****#6, gdata="+gdata);
       log.debug("****#7, item size="+gdata.getItemGradingSet().size());
       Iterator iter = gdata.getItemGradingSet().iterator();
