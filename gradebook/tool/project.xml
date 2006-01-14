@@ -176,7 +176,7 @@
 		<dependency>
 			<groupId>oracle</groupId>
 			<artifactId>oracle</artifactId>
-			<jar>ojdbc-14.jar</jar>
+			<jar>ojdbc14_g.jar</jar>
 		</dependency>
 
 		<dependency>
@@ -300,7 +300,7 @@
 		<dependency>
 			<groupId>poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>2.0-final-20040126</version>
+			<version>2.5.1</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
