@@ -8,7 +8,7 @@
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
 			<h:form enctype="multipart/form-data">
-				
+				<h:outputText value="file_upload.jsp" />				
 		  	<sakai:tool_bar_message value="file upload" />
 		  	<sakai:tool_bar_message value="#{SyllabusTool.fileName}" />
 		  	

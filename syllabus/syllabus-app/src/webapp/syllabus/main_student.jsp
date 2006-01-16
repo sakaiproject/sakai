@@ -8,7 +8,7 @@
 	<sakai:view_container title="#{msgs.title_list}">
 	<sakai:view_content>
 		<h:form>
-
+			<h:outputText value="main_student.jsp" />
 				<br/>
 	
 				<sakai:flat_list value="#{SyllabusTool.entries}" var="eachEntry">

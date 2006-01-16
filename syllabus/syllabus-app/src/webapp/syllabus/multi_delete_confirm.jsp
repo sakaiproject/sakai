@@ -4,11 +4,10 @@
 <% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
 <f:loadBundle basename="org.sakaiproject.tool.syllabus.bundle.Messages" var="msgs"/>
-
 	<sakai:view_container title="#{msgs.title_list}">
 		<sakai:view_content>
 			<h:form>
-
+<h:outputText value="multi_delete_confirm.jsp" />
 				<table width="100%" align="center">
 					<tr>
 					  <td width="100%" align="center">

@@ -7,7 +7,7 @@
 	<sakai:view_container title="#{msgs.title_list}">
 	<sakai:view_content>
 		<h:form>
-
+			<h:outputText value="permission_error.jsp" />
    	  <table width="100%">
   			<tr>
 		  	  <td width="0%" />

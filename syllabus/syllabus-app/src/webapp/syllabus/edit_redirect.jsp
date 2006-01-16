@@ -12,7 +12,8 @@
 				</h3>
 				<p class="shortText">
 					<span class="reqStar">*</span>
-					<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
+		<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
+<%--					<label for=""><h:outputText value="#{msgs.syllabus_url}"/></label> --%>
 					<h:inputText id="urlValue" value="#{SyllabusTool.syllabusItem.redirectURL}" size="65" />
 				</p>
 				<sakai:button_bar>

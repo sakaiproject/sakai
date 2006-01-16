@@ -8,45 +8,34 @@
 	<sakai:view_container>
 		<sakai:view_content>
 			<h:form>
+		  	<sakai:tool_bar_message value="#{msgs.previewNotice}" />
+			<h4>
+				<h:outputText value="#{SyllabusTool.entry.entry.title}" />
+			</h4>
+			<div class="indnt1">
+				<syllabus:syllabus_htmlShowArea value="#{SyllabusTool.entry.entry.asset}" />
+			</div>	
 
-		  	<sakai:tool_bar_message value="#{msgs.previewNotice}" /> 
-		  	        
- 				<sakai:group_box>
-					<table width="100%">
-						<tr>
-							<td width="100%" align="center" style="FONT-WEIGHT: bold; FONT-SIZE: 12">
-								<h:outputText value="#{SyllabusTool.entry.entry.title}"/>
-							</td>
-						</tr>
-						<tr>
-							<td width="100%" align="left">
-								<syllabus:syllabus_htmlShowArea value="#{SyllabusTool.entry.entry.asset}" />
-							</td>
-						</tr>
-					</table>
-				</sakai:group_box>
-
-				<sakai:group_box>
-					<h:dataTable value="#{SyllabusTool.allAttachments}" var="eachAttach">
-					  <h:column>
-							<f:facet name="header">
-								<h:outputText value="" />
-							</f:facet>
-							<h:graphicImage url="/syllabus/excel.gif" rendered="#{eachAttach.type == 'application/vnd.ms-excel'}"/>
-							<h:graphicImage url="/syllabus/html.gif" rendered="#{eachAttach.type == 'text/html'}"/>
-							<h:graphicImage url="/syllabus/pdf.gif" rendered="#{eachAttach.type == 'application/pdf'}"/>
-							<h:graphicImage url="/syllabus/ppt.gif" rendered="#{eachAttach.type == 'application/vnd.ms-powerpoint'}"/>
-							<h:graphicImage url="/syllabus/text.gif" rendered="#{eachAttach.type == 'text/plain'}"/>
-							<h:graphicImage url="/syllabus/word.gif" rendered="#{eachAttach.type == 'application/msword'}"/>
-							
-							<h:outputLink value="#{eachAttach.url}" target="_new_window">
-								<h:outputText value="#{eachAttach.name}" style="text-decoration:underline;"/>
-							</h:outputLink>
-						</h:column>
-					</h:dataTable>
-				</sakai:group_box>
+			<h:dataTable value="#{SyllabusTool.allAttachments}" var="eachAttach" styleClass="indnt1" summary="">
+			 	<h:column>
+					<f:facet name="header">
+						<h:outputText value="" />
+						</f:facet>
+					<h:graphicImage url="/syllabus/excel.gif" rendered="#{eachAttach.type == 'application/vnd.ms-excel'}"/>
+					<h:graphicImage url="/syllabus/html.gif" rendered="#{eachAttach.type == 'text/html'}"/>
+					<h:graphicImage url="/syllabus/pdf.gif" rendered="#{eachAttach.type == 'application/pdf'}"/>
+					<h:graphicImage url="/syllabus/ppt.gif" rendered="#{eachAttach.type == 'application/vnd.ms-powerpoint'}"/>
+					<h:graphicImage url="/syllabus/text.gif" rendered="#{eachAttach.type == 'text/plain'}"/>
+					<h:graphicImage url="/syllabus/word.gif" rendered="#{eachAttach.type == 'application/msword'}"/>
+					
+					<h:outputLink value="#{eachAttach.url}" target="_blank" title="#{msgs.openLinkNewWindow}">
+						<h:outputText value=" " /><h:outputText value="#{eachAttach.name}" />
+					</h:outputLink>
+				</h:column>
+			</h:dataTable>
 				
 				<sakai:button_bar>
+				<%-- (gsilver) cannot pass a needed title atribute to this next item --%>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processReadPreviewBack}"
 						value="Back" />

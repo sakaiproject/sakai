@@ -72,6 +72,9 @@ public class SyllabusIframeRender extends Renderer
       writer.write("<iframe src=\"" + redirectUrl + "\"");
       writer.write(" width=\"" + widthIn + "\"");
       writer.write(" height=\"" + heightIn + "\"");
+      writer.write(" style=\"margin-top:1em;clear:both\"");
+      writer.write(" frameborder=\"0\"");
+      writer.write(" scrolling=\"auto\"");      
       writer.write("></iframe>");
     }
   }

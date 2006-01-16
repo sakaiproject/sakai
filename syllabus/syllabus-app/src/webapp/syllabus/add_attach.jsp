@@ -8,10 +8,10 @@
 	<sakai:view_container title="#{msgs.attachment}">
 	<sakai:view_content>
 		<h:form enctype="multipart/form-data">
+		<h:outputText value="add_attach.jsp"/>
 		  <sakai:tool_bar>
 		  	<sakai:tool_bar_message value="#{msgs.title_add_attach_local}" /> 
 		  </sakai:tool_bar>
-		  	        
 				<sakai:doc_section>
 					<h:outputText value="#{msgs.add_attach_prompt}" style="color: #6D7B8D"/>
 				  <h:outputText value=""/>

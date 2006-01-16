@@ -8,25 +8,12 @@
 	<sakai:view_container>
 		<sakai:view_content>
 			<h:form>
-
+			<h:outputText value="preview.jsp" />
 		  	<sakai:tool_bar_message value="#{msgs.previewNotice}" /> 
-
- 				<sakai:group_box>
-					<table width="100%">
-						<tr>
-							<td width="100%" align="center" style="FONT-WEIGHT: bold; FONT-SIZE: 12">
-								<h:outputText value="#{SyllabusTool.entry.entry.title}"/>
-							</td>
-						</tr>
-						<tr>
-							<td width="100%" align="left">
-								<syllabus:syllabus_htmlShowArea value="#{SyllabusTool.entry.entry.asset}" />
-							</td>
-						</tr>
-					</table>
-				</sakai:group_box>
-				
-				<sakai:group_box>
+				<h4><h:outputText value="#{SyllabusTool.entry.entry.title}"/></h4>
+				<div class="indnt1">
+					<syllabus:syllabus_htmlShowArea value="#{SyllabusTool.entry.entry.asset}" />
+				</div>	
 					<h:dataTable value="#{SyllabusTool.attachments}" var="eachAttach">
 					  <h:column>
 							<f:facet name="header">
@@ -40,13 +27,10 @@
 							<h:graphicImage url="/syllabus/word.gif" rendered="#{eachAttach.type == 'application/msword'}"/>
 							
 							<h:outputLink value="#{eachAttach.url}" target="_new_window">
-								<h:outputText value="#{eachAttach.name}"  style="text-decoration:underline;"/>
+								<h:outputText value="#{eachAttach.name}" />
 							</h:outputLink>
 						</h:column>
 					</h:dataTable>
-				</sakai:group_box>
-				
-
 				<sakai:button_bar>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditPreviewBack}"
