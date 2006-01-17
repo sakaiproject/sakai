@@ -21,7 +21,7 @@ public class DiscussionMessageBean
   private int depth;
   private boolean hasNext;
   private boolean hasPre;
-  
+
   private MessageForumsMessageManager messageManager;
 
   public DiscussionMessageBean(Message msg, MessageForumsMessageManager messageManager)
@@ -155,7 +155,7 @@ public class DiscussionMessageBean
   
   public boolean getIsOwn()
   {
-  	if(this.getMessage().getAuthor().equals(SessionManager.getCurrentSessionUserId()))
+  	if(this.getMessage().getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
   		return true;
   	return false;
   }

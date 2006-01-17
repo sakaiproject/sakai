@@ -1079,7 +1079,6 @@ public class DiscussionForumTool
     }
     message = messageManager.getMessageByIdWithAttachments(message.getId());
     selectedMessage = new DiscussionMessageBean(message, messageManager);
-    // TODO:remove this after real data is in there
     DiscussionTopic topic=forumManager.getTopicById(new Long(
         getExternalParameterByKey(TOPIC_ID)));
     setSelectedForumForCurrentTopic(topic);
@@ -1423,7 +1422,7 @@ public class DiscussionForumTool
         {
           DiscussionMessageBean decoMsg = new DiscussionMessageBean(message,
               messageManager);
-          if(decoTopic.getIsRead())
+          if(decoTopic.getIsRead() || (decoTopic.getIsNewResponse()&& decoMsg.getIsOwn()))
           {
           	decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(),
               message.getId()));
