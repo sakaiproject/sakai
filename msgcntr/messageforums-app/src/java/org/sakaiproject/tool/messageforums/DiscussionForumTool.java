@@ -73,7 +73,7 @@ public class DiscussionForumTool
   private List totalComposeToList;
   private List totalComposeToListRecipients;
   private Map courseMemberMap;
-   private List templateControlPermissions; // control settings
+  private List templateControlPermissions; // control settings
   private List templateMessagePermissions;
   private List forumControlPermissions; // control settings
   private List forumMessagePermissions;

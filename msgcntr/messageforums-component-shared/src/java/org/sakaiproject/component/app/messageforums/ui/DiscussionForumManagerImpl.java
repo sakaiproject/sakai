@@ -1640,13 +1640,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     if (topic.getActorPermissions() == null
         || topic.getActorPermissions().getContributors() == null)
-    {      
-      topic.setActorPermissions(new ActorPermissionsImpl());
-      contributorList = topic.getActorPermissions().getContributors();
+    { 
       // hibernate does not permit this b/c saving forum and topics will 
       // throw uniqueobjectexception
-      //topic.setActorPermissions(forum.getActorPermissions());
-      //contributorList = forum.getActorPermissions().getContributors();
+      topic.setActorPermissions(getDeepCopyOfParentActorPermissions(forum.getActorPermissions()));
+      contributorList = topic.getActorPermissions().getContributors();
     }
     else
     {
@@ -1655,6 +1653,38 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     Iterator iterator = contributorList.iterator();
 
     return getContributorAccessorList(iterator);
+  }
+
+  private ActorPermissions getDeepCopyOfParentActorPermissions(ActorPermissions actorPermissions)
+  {
+   ActorPermissions newAP = new ActorPermissionsImpl();
+   List parentAccessors=actorPermissions.getAccessors();
+   List parentContributors=actorPermissions.getContributors();
+   List newAccessors=new ArrayList();
+   List newContributor=new ArrayList();
+   Iterator iter = parentAccessors.iterator();
+   while(iter.hasNext())
+   {
+     MessageForumsUser accessParent=(MessageForumsUser)iter.next();
+     MessageForumsUser newaccessor = new MessageForumsUserImpl();
+     newaccessor.setTypeUuid(accessParent.getTypeUuid());
+     newaccessor.setUserId(accessParent.getUserId());
+     newaccessor.setUuid(accessParent.getUuid());
+     newAccessors.add(newaccessor);
+   }
+   Iterator iter1 = parentContributors.iterator();
+   while(iter1.hasNext())
+   {
+     MessageForumsUser contribParent=(MessageForumsUser)iter1.next();
+     MessageForumsUser newcontributor = new MessageForumsUserImpl();
+     newcontributor.setTypeUuid(contribParent.getTypeUuid());
+     newcontributor.setUserId(contribParent.getUserId());
+     newcontributor.setUuid(contribParent.getUuid());
+     newContributor.add(newcontributor);
+   }
+   newAP.setAccessors(newAccessors);
+   newAP.setContributors(newContributor);
+   return newAP;
   }
 
   /*
@@ -1676,12 +1706,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     if (topic.getActorPermissions() == null
         || topic.getActorPermissions().getAccessors() == null)
     {
-      topic.setActorPermissions(new ActorPermissionsImpl());
-      accessorsList = topic.getActorPermissions().getAccessors();
       // hibernate does not permit this b/c saving forum and topics will 
       // throw uniqueobjectexception
-      //topic.setActorPermissions(forum.getActorPermissions());
-      //accessorsList = forum.getActorPermissions().getAccessors();
+      topic.setActorPermissions(getDeepCopyOfParentActorPermissions(forum.getActorPermissions()));
+      accessorsList = topic.getActorPermissions().getAccessors();
     }
     else
     {
