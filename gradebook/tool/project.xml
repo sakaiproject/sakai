@@ -172,6 +172,9 @@
 			<version>1.7.3.0</version>
 		</dependency>
 
+		<!-- Since none of these JDBC libraries will be used except in standalone test -->
+		<!-- builds, we specify the '_g' Oracle JAR to obtain more debugging information. -->
+		<!-- The normal 'ojdbc14.jar' can be used instead, however. -->
 <!--
 		<dependency>
 			<groupId>oracle</groupId>
