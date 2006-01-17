@@ -33,6 +33,7 @@ import java.util.Set;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.LockMode;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 
@@ -622,11 +623,16 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setModifiedBy(getCurrentUser());
         if (topic.getId() == null) {
             
-            BaseForum baseForum = getForumByIdWithTopics(topic.getBaseForum().getId());
-            baseForum.addTopic(topic);
-            
-            topic.setBaseForum(baseForum);                        
-            saveDiscussionForum((DiscussionForum) topic.getBaseForum());
+          DiscussionForum discussionForum = 
+            (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
+          discussionForum.addTopic(topic);
+                                  
+          //DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+          //getHibernateTemplate().lock(forum, LockMode.NONE);
+          //getHibernateTemplate().initialize(forum.getTopicsSet());          
+          //forum.addTopic(topic);                       
+          //getHibernateTemplate().saveOrUpdate(topic);
+          saveDiscussionForum(discussionForum);
             
         } else {
             getHibernateTemplate().saveOrUpdate(topic);

@@ -1503,7 +1503,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     if (forum.getActorPermissions() == null
         || forum.getActorPermissions().getAccessors() == null)
-    {
+    {      
       forum.setActorPermissions(forumManager.createDefaultActorPermissions());
       accessorsList = forumManager.createDefaultActorPermissions()
           .getAccessors();
@@ -1640,9 +1640,13 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     if (topic.getActorPermissions() == null
         || topic.getActorPermissions().getContributors() == null)
-    {
-      topic.setActorPermissions(forum.getActorPermissions());
-      contributorList = forum.getActorPermissions().getContributors();
+    {      
+      topic.setActorPermissions(new ActorPermissionsImpl());
+      contributorList = topic.getActorPermissions().getContributors();
+      // hibernate does not permit this b/c saving forum and topics will 
+      // throw uniqueobjectexception
+      //topic.setActorPermissions(forum.getActorPermissions());
+      //contributorList = forum.getActorPermissions().getContributors();
     }
     else
     {
@@ -1672,8 +1676,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     if (topic.getActorPermissions() == null
         || topic.getActorPermissions().getAccessors() == null)
     {
-      topic.setActorPermissions(forum.getActorPermissions());
-      accessorsList = forum.getActorPermissions().getAccessors();
+      topic.setActorPermissions(new ActorPermissionsImpl());
+      accessorsList = topic.getActorPermissions().getAccessors();
+      // hibernate does not permit this b/c saving forum and topics will 
+      // throw uniqueobjectexception
+      //topic.setActorPermissions(forum.getActorPermissions());
+      //accessorsList = forum.getActorPermissions().getAccessors();
     }
     else
     {

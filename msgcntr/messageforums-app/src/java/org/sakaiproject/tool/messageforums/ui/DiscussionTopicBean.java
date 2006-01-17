@@ -507,11 +507,11 @@ public class DiscussionTopicBean
    * @param accessorList The accessorList to set.
    */
   public void setAccessorList(List accessorList)
-  {
+  {    
     if(LOG.isDebugEnabled())
      {
         LOG.debug("setAccessorList(List"+ accessorList+")");
-     }
+     }    
     topic.getActorPermissions().setAccessors(forumManager.decodeAccessorsList(accessorList));
   }
 
@@ -523,7 +523,7 @@ public class DiscussionTopicBean
     if(LOG.isDebugEnabled())
     {
        LOG.debug("setContributorsList(List"+ contributorsList+")");
-    }
+    }    
     topic.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
   }
   
