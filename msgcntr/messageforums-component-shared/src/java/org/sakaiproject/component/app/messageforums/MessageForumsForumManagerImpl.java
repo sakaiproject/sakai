@@ -627,11 +627,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
           discussionForum.addTopic(topic);
                                   
-          DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
-          getHibernateTemplate().lock(forum, LockMode.NONE);
-          getHibernateTemplate().initialize(forum.getTopicsSet());          
-          forum.addTopic(topic);                       
-          getHibernateTemplate().saveOrUpdate(topic);
+//          DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+//          getHibernateTemplate().lock(forum, LockMode.NONE);
+//          getHibernateTemplate().initialize(forum.getTopicsSet());          
+//          forum.addTopic(topic);                       
+//          getHibernateTemplate().saveOrUpdate(topic);
           saveDiscussionForum(discussionForum);
             
         } else {
