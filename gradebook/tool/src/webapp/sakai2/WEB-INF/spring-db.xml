@@ -10,8 +10,14 @@
 
 	<bean id="gradebookSessionFactory" parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
 
-		<property name="mappingLocations">
-		    <value>classpath*:org/sakaiproject/tool/gradebook/*.hbm.xml</value>
+		<property name="mappingResources">
+		    <list>
+				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradableObject.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
+			</list>
 		</property>
 
 <!-- This doesn't work; we get a FileNotFoundException:
@@ -21,7 +27,7 @@
 			</list>
 		</property>
 -->
-<!-- This works:
+<!-- This works in Spring 1.1.5 but not in Spring 1.2.6:
 		<property name="mappingLocations">
 		    <value>classpath*:org/sakaiproject/tool/gradebook/*.hbm.xml</value>
 		</property>
