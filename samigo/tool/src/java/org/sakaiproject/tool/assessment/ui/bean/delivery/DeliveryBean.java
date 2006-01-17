@@ -1235,8 +1235,8 @@ public class DeliveryBean
     l2.processAction(null);
     reload = true;
 
-    // quit within time limit, clean timedAssessment from queue
-    removeTimedAssessmentFromQueue();
+    // quit within time limit, clean timedAssessment from queue,
+    // removeTimedAssessmentFromQueue();
     return returnValue;
   }
 
