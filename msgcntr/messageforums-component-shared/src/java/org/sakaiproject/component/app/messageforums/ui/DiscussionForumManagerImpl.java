@@ -1615,10 +1615,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       LOG.debug("getAllCourseMembers()");
     }
-    if (courseMemberMap == null)
-    {
+//    if (courseMemberMap == null)
+//    {
       courseMemberMap = membershipManager.getAllCourseMembers(true, true);
-    }
+//    }
     return courseMemberMap;
   }
 

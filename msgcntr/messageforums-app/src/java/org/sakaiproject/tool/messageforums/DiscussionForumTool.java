@@ -2848,9 +2848,9 @@ public class DiscussionForumTool
   public List getTotalComposeToList()
   { 
       /** protect from jsf calling multiple times */
-    if (totalComposeToList != null){
-      return totalComposeToList;
-    }
+//    if (totalComposeToList != null){
+//      return totalComposeToList;
+//    }
     
     totalComposeToListRecipients = new ArrayList();
         
