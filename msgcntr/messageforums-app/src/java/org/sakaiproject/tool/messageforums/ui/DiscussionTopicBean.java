@@ -33,8 +33,8 @@ public class DiscussionTopicBean
   private boolean markForDeletion;
   private UIPermissionsManager uiPermissionsManager;
   private DiscussionForumManager forumManager;
-  private List contributorsList = new ArrayList();
-  private List accessorList = new ArrayList();
+  private ArrayList contributorsList = new ArrayList();
+  private ArrayList accessorList = new ArrayList();
   
 
   private List messages = new ArrayList();
@@ -477,7 +477,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public List getContributorsList()
+  public ArrayList getContributorsList()
   {
     LOG.debug("getContributorsList()");  
     Iterator iter= forumManager.getContributorsList(topic, (DiscussionForum)topic.getBaseForum()).iterator();
@@ -492,7 +492,7 @@ public class DiscussionTopicBean
   /**
    * @return
    */
-  public List getAccessorList()
+  public ArrayList getAccessorList()
   {
     LOG.debug("getAccessorList()");
     Iterator iter= forumManager.getAccessorsList(topic, (DiscussionForum)topic.getBaseForum()).iterator();
@@ -506,7 +506,7 @@ public class DiscussionTopicBean
   /**
    * @param accessorList The accessorList to set.
    */
-  public void setAccessorList(List accessorList)
+  public void setAccessorList(ArrayList accessorList)
   {    
     if(LOG.isDebugEnabled())
      {
@@ -518,7 +518,7 @@ public class DiscussionTopicBean
   /**
    * @param contributorsList The contributorsList to set.
    */
-  public void setContributorsList(List contributorsList)
+  public void setContributorsList(ArrayList contributorsList)
   {
     if(LOG.isDebugEnabled())
     {

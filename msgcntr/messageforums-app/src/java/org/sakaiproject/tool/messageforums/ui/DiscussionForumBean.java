@@ -25,8 +25,8 @@ public class DiscussionForumBean
   private UIPermissionsManager uiPermissionsManager;
   private DiscussionForumManager forumManager;
   private boolean readFullDesciption; 
-  private List contributorsList = new ArrayList();
-  private List accessorList = new ArrayList();
+  private ArrayList contributorsList = new ArrayList();
+  private ArrayList accessorList = new ArrayList();
    
    
   /**
@@ -185,7 +185,7 @@ public class DiscussionForumBean
   /**
    * @return
    */
-  public List getContributorsList()
+  public ArrayList getContributorsList()
   {
     LOG.debug("getContributorsList()");
   
@@ -201,7 +201,7 @@ public class DiscussionForumBean
   /**
    * @return
    */
-  public List getAccessorList()
+  public ArrayList getAccessorList()
   {
     LOG.debug("getAccessorList()");
     Iterator iter= forumManager.getAccessorsList(forum).iterator();
@@ -215,7 +215,7 @@ public class DiscussionForumBean
   /**
    * @param accessorList The accessorList to set.
    */
-  public void setAccessorList(List accessorList)
+  public void setAccessorList(ArrayList accessorList)
   {
     if(LOG.isDebugEnabled())
      {
@@ -227,7 +227,7 @@ public class DiscussionForumBean
   /**
    * @param contributorsList The contributorsList to set.
    */
-  public void setContributorsList(List contributorsList)
+  public void setContributorsList(ArrayList contributorsList)
   {
     if(LOG.isDebugEnabled())
     {
