@@ -189,7 +189,8 @@ public class AssessmentService
   }
 
   public AssessmentFacade createAssessment(
-    String title, String description, String typeId, String templateId){
+    String title, String description, String typeId, String templateId)
+    throws Exception{
     AssessmentFacade assessment = null;
     try{
       AssessmentTemplateFacade assessmentTemplate = null;
@@ -208,7 +209,7 @@ public class AssessmentService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new Exception(e);
     }
     return assessment;
   }
@@ -334,7 +335,8 @@ public void deleteAssessment(Id assessmentId)
   }
 
   public AssessmentFacade createAssessmentWithoutDefaultSection(
-      String title, String description, String typeId, String templateId) {
+      String title, String description, String typeId, String templateId) 
+      throws Exception{
     AssessmentFacade assessment = null;
     try{
       AssessmentTemplateFacade assessmentTemplate = null;
@@ -353,7 +355,7 @@ public void deleteAssessment(Id assessmentId)
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new Exception(e);
     }
     return assessment;
   }

@@ -121,8 +121,18 @@ public class AuthorAssessmentListener
     }
     
     // #2 - got all the info, create now
-    AssessmentFacade assessment = createAssessment(
-       assessmentTitle, description, typeId, templateId);
+    AssessmentFacade assessment = null;
+    try{
+      assessment = createAssessment(
+         assessmentTitle, description, typeId, templateId);
+    }
+    catch(Exception e){
+      // can't create assesment because gradebookService is not ready
+      String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","gradebook_service_error");
+      context.addMessage(null,new FacesMessage(err));
+      author.setOutcome("author");
+      return;
+    }
 
     // #3a - goto editAssessment.jsp, so prepare assessmentBean
     assessmentBean.setAssessment(assessment);
@@ -137,16 +147,20 @@ public class AuthorAssessmentListener
     // get the managed bean, author and set the list
     author.setAssessments(list);
     author.setOutcome("createAssessment");
-
   }
 
   public AssessmentFacade createAssessment(
       String assessmentTitle, String description, String typeId,
-      String templateId){
-    AssessmentService assessmentService = new AssessmentService();
-    AssessmentFacade assessment = assessmentService.createAssessment(
+      String templateId) throws Exception{
+    try{
+      AssessmentService assessmentService = new AssessmentService();
+      AssessmentFacade assessment = assessmentService.createAssessment(
         assessmentTitle, description, typeId, templateId);
-    return assessment;
+      return assessment;
+    }
+    catch(Exception e){
+      throw new Exception(e);
+    }
   }
 
   public boolean passAuthz(FacesContext context){

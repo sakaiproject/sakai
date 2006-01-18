@@ -94,10 +94,10 @@ public interface AssessmentFacadeQueriesAPI
    *  section will be created with the assessment.
    */
   public AssessmentFacade createAssessmentWithoutDefaultSection(String title,
-      String description, Long typeId, Long templateId);
+      String description, Long typeId, Long templateId) throws Exception;
 
   public AssessmentFacade createAssessment(String title, String description,
-      Long typeId, Long templateId);
+      Long typeId, Long templateId) throws Exception;
 
   public ArrayList getAllAssessments(String orderBy);
 

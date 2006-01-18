@@ -138,7 +138,7 @@ public class SavePublishedSettingsListener
           }
         }
         catch(Exception e){
-          log.debug("oh well, must have been added already:"+e.getMessage());
+          log.warn("oh well, must have been added already:"+e.getMessage());
         }
       }
       else{ //remove
@@ -148,7 +148,7 @@ public class SavePublishedSettingsListener
             assessment.getPublishedAssessmentId().toString(), g);
         }
         catch(Exception e){
-          log.debug("*** oh well, looks like there is nothing to remove:"+e.getMessage());
+          log.warn("*** oh well, looks like there is nothing to remove:"+e.getMessage());
         }
       }
     }
