@@ -3,6 +3,7 @@
  */
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -22,10 +23,13 @@ import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.ToolManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.framework.portal.cover.PortalService;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
 import org.sakaiproject.service.legacy.authzGroup.Member;
 import org.sakaiproject.service.legacy.security.SecurityService;
+import org.sakaiproject.service.legacy.site.Group;
+import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 
@@ -993,7 +997,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
           return Boolean.TRUE;
         }
         if (user.getTypeUuid().equals(typeManager.getGroupType())
-            && isGroupMember(user.getUuid()))
+            && isGroupMember(user.getUserId()))
         {
           return Boolean.TRUE;
         }
@@ -1003,7 +1007,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
           return Boolean.TRUE;
         }
         if (user.getTypeUuid().equals(typeManager.getUserType())
-            && user.getUuid().equals(getCurrentUserId()))
+            && user.getUserId().equals(getCurrentUserId()))
         {
           return Boolean.TRUE;
         }
@@ -1044,7 +1048,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
           return Boolean.TRUE;
         }
         if (user.getTypeUuid().equals(typeManager.getGroupType())
-            && isGroupMember(user.getUuid()))
+            && isGroupMember(user.getUserId()))
         {
           return Boolean.TRUE;
         }
@@ -1054,7 +1058,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
           return Boolean.TRUE;
         }
         if (user.getTypeUuid().equals(typeManager.getUserType())
-            && user.getUuid().equals(getCurrentUserId()))
+            && user.getUserId().equals(getCurrentUserId()))
         {
           return Boolean.TRUE;
         }
@@ -1085,17 +1089,21 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     }
     try
     {
-      AuthzGroup group = authzGroupService.getAuthzGroup(groupId);
-      Member member = group.getMember(getCurrentUserId());
-      if (member == null)
+      Collection groups = SiteService.getSite(PortalService.getCurrentSiteId())
+          .getGroups();
+      for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
       {
-        return false;
-      }
-      else
-        if (member.getUserId().equals(getCurrentUserId()))
+        Group currentGroup = (Group) groupIterator.next();
+        if (currentGroup.getId().equals(groupId))
         {
-          return true;
+          Member member = currentGroup.getMember(getCurrentUserId());
+          if (member!=null && member.getUserId().equals(getCurrentUserId()))
+          {          
+            return true;
+           
+          }
         }
+      }
     }
     catch (IdUnusedException e)
     {
