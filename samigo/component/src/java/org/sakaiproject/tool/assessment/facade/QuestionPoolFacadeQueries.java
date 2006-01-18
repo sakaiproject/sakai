@@ -728,7 +728,7 @@ public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId
 	    int maxNum=0;
            for (int l = 0; l < siblings.size(); l++) {
 	       QuestionPoolData a = (QuestionPoolData)siblings.get(l);
-	       
+	       String n=a.getTitle();
                if(n.startsWith("Copy of ")){
 		   if(n.equals("Copy of "+oldPoolName)){
 		      if (maxNum<1) maxNum=1;
