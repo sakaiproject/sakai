@@ -108,6 +108,8 @@ public class TemplateUpdateListener
     }
     templateBean.setOutcome("template");
     updateAssessment(templateBean);
+    // reset templateBean
+    templateBean.setNewName(null);
   }
 
   /**
