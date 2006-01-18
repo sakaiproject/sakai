@@ -650,6 +650,7 @@ public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId
 
       // Get the Pools
       QuestionPoolFacade oldPool = getPool(sourceId, agentId);
+      String oldPoolName= oldPool.getDisplayName();
 
       // Are we creating a duplicate under the same parent?
       if (destId.equals(oldPool.getParentPoolId())) {
@@ -719,10 +720,46 @@ public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId
         //newPool = savePool(newPool);
 
         if (duplicate) {
-          newPool.updateDisplayName(oldPool.getDisplayName() + " Copy");
+	    //find name by loop through sibslings
+	    List siblings=this.getSubPools(destId);
+            boolean subVersion=true;
+	    int num=0;
+	    int indexNum=0;
+	    int maxNum=0;
+           for (int l = 0; l < siblings.size(); l++) {
+	       QuestionPoolData a = (QuestionPoolData)siblings.get(l);
+	       
+               if(n.startsWith("Copy of ")){
+		   if(n.equals("Copy of "+oldPoolName)){
+		      if (maxNum<1) maxNum=1;
+		   }
+	       }
+               if(n.startsWith("Copy(")){
+                       indexNum=n.indexOf(")",4);
+                       if(indexNum>5){
+			   try{
+			       num=Integer.parseInt(n.substring(5,indexNum));
+			       if(oldPoolName.equals(n.substring(indexNum+5).trim())){
+				   if (num>maxNum)
+				       maxNum=num;
+			       }
+			   }
+		       
+			   catch(NumberFormatException e){
+			      
+			   }
+		       }
+	       }
+	   }
+           if(maxNum==0)
+	  
+	       newPool.updateDisplayName("Copy of "+oldPoolName);
+           else
+               newPool.updateDisplayName("Copy("+(maxNum+1)+") of "+oldPoolName);
+	  
         }
         else {
-          newPool.updateDisplayName(oldPool.getDisplayName());
+          newPool.updateDisplayName(oldPoolName);
         }
 
         newPool = savePool(newPool);

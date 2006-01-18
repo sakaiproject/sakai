@@ -1350,36 +1350,43 @@ public String startRemoveQuestions(){
  	sourceId = this.getCurrentPool().getId();
         String currentName=this.getCurrentPool().getDisplayName();
 	Iterator iter = destpools.iterator();
+     
       while(iter.hasNext())
       {
 
           destId = (String) iter.next();
+	  QuestionPoolService delegate = new QuestionPoolService();
+          
+
           if((sourceId.longValue() != 0) && (destId != null))
           {
             try
             {
-              QuestionPoolService delegate = new QuestionPoolService();
-	      //Huong's adding
-              isUnique=delegate.poolIsUnique("0",currentName,destId);
-              if(!isUnique){
-	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","copy_duplicateName_error");
-       FacesContext context=FacesContext.getCurrentInstance();
-	context.addMessage(null,new FacesMessage(err1));
+               QuestionPoolFacade oldPool =delegate.getPool(sourceId, AgentFacade.getAgentString());
+	      //testing copy to same level - if not same level then throw error if duplicate
+		if(!destId.equals((oldPool.getParentPoolId()).toString())){
+		    isUnique=delegate.poolIsUnique("0",currentName,destId);
+		    if(!isUnique){
+			String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","copy_duplicateName_error");
+			FacesContext context=FacesContext.getCurrentInstance();
+			context.addMessage(null,new FacesMessage(err1));
        
-	return "copyPool";
-	      }
+			return "copyPool";
+		    }
+		}
 
 		// TODO Uncomment the line below to test copyPool,
 		delegate.copyPool(tree, AgentFacade.getAgentString(),
-                  sourceId, new Long(destId));
-            }
+				  sourceId, new Long(destId));
+	    }
             catch(Exception e)
             {
 		e.printStackTrace();
 		throw new Error(e);
-            }
-          }
-        }
+            
+	    }
+	  }
+      }
 
       buildTree();
       return "poolList";
