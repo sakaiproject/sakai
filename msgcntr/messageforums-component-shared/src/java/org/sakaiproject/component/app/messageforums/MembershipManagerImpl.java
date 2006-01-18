@@ -95,7 +95,6 @@ public class MembershipManagerImpl implements MembershipManager{
    */
   public Map getAllCourseMembers(boolean filterFerpa, boolean nonSpecifiedType)
   {   
-    
     Map returnMap = new HashMap();    
     String realmId = getContextSiteId();
     Site currentSite = null;

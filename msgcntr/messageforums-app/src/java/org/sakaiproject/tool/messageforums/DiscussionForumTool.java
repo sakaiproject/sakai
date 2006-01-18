@@ -461,6 +461,7 @@ public class DiscussionForumTool
   public String processActionNewForum()
   {
     LOG.debug("processActionNewForum()");
+    totalComposeToList=null;
     if (getNewForum())
     {
       DiscussionForum forum = forumManager.createForum();
@@ -505,6 +506,7 @@ public class DiscussionForumTool
   public String processActionReviseForumSettings()
   {
     LOG.debug("processActionReviseForumSettings()");
+    totalComposeToList=null; 
     if ((selectedForum) == null)
     {
       setErrorMessage("Forum not found");
@@ -711,8 +713,9 @@ public class DiscussionForumTool
    * @return
    */
   public String processActionNewTopic()
-  {
+  {   
     LOG.debug("processActionNewTopic()");
+    totalComposeToList=null; 
     selectedTopic = createTopic();
     if (selectedTopic == null)
     {
@@ -737,6 +740,7 @@ public class DiscussionForumTool
   public String processActionReviseTopicSettings()
   {
     LOG.debug("processActionReviseTopicSettings()");
+    totalComposeToList=null;
     DiscussionTopic topic = selectedTopic.getTopic();
 
     if (topic == null)
@@ -2848,12 +2852,12 @@ public class DiscussionForumTool
   public List getTotalComposeToList()
   { 
       /** protect from jsf calling multiple times */
-//    if (totalComposeToList != null){
-//      return totalComposeToList;
-//    }
+    if (totalComposeToList != null){
+      return totalComposeToList;
+    }
     
     totalComposeToListRecipients = new ArrayList();
-        
+    forumManager.setCourseMemberMapToNull();
     courseMemberMap = forumManager.getAllCourseMembers();
     List members = membershipManager.convertMemberMapToList(courseMemberMap);
     List selectItemList = new ArrayList();

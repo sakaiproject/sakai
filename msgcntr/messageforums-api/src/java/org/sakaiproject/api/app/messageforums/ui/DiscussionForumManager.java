@@ -1,5 +1,6 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -263,13 +264,13 @@ public interface DiscussionForumManager
    * @param accessorList
    * @return
    */
-  public List decodeContributorsList(List contributorList);
+  public List decodeContributorsList(ArrayList contributorList);
 
   /**
    * @param accessorList
    * @return
    */
-  public List decodeAccessorsList(List accessorList);
+  public List decodeAccessorsList(ArrayList accessorList);
 
   /**
    * @param forum
@@ -302,4 +303,9 @@ public interface DiscussionForumManager
    * @return
    */
   public List getContributorsList(DiscussionTopic topic, DiscussionForum forum); 
+  
+  /**
+   * 
+   */
+  public void setCourseMemberMapToNull();
 }

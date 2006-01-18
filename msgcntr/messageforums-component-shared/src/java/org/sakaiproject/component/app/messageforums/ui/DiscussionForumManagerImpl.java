@@ -1327,10 +1327,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       LOG.debug("decodeActorPermissionTypeList(List" + selectedList + ")");
     }
 
-    List newSelectedMemberList = new ArrayList();
-
-    /** get List of unfiltered course members */
-    List allCourseUsers = membershipManager.getAllCourseUsers();
+    List newSelectedMemberList = new ArrayList(); 
 
     for (Iterator i = selectedList.iterator(); i.hasNext();)
     {
@@ -1365,39 +1362,18 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
           }
           else
             if (MembershipItem.TYPE_ROLE.equals(item.getType()))
-            {
-
-              for (Iterator r = allCourseUsers.iterator(); r.hasNext();)
-              {
-                MembershipItem member = (MembershipItem) r.next();
-                if (member.getRole().equals(item.getRole()))
-                {
+            { 
                   user.setTypeUuid(typeManager.getRoleType());
                   user.setUserId(item.getRole().getId());
                   newSelectedMemberList.add(user);
-                }
-              }
-
+              
             }
             else
               if (MembershipItem.TYPE_GROUP.equals(item.getType()))
               {
-                for (Iterator g = allCourseUsers.iterator(); g.hasNext();)
-                {
-                  MembershipItem member = (MembershipItem) g.next();
-                  Set groupMemberSet = member.getGroup().getMembers();
-                  for (Iterator s = groupMemberSet.iterator(); s.hasNext();)
-                  {
-                    Member m = (Member) s.next();
-                    if (m.getUserId() != null
-                        && m.getUserId().equals(member.getUser().getId()))
-                    {
-                      user.setTypeUuid(typeManager.getGroupType());
-                      user.setUserId(m.getUserId());
-                      newSelectedMemberList.add(user);
-                    }
-                  }
-                }
+                 user.setTypeUuid(typeManager.getGroupType());
+                 user.setUserId(item.getGroup().getId());
+                 newSelectedMemberList.add(user);                   
               }
               else
                 if (MembershipItem.TYPE_USER.equals(item.getType()))
@@ -1422,7 +1398,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#decodeAccessorsList(java.util.List)
    */
-  public List decodeAccessorsList(List accessorList)
+  public List decodeAccessorsList(ArrayList accessorList)
   {
     if (LOG.isDebugEnabled())
     {
@@ -1440,7 +1416,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#decodeContributorsList(java.util.List)
    */
-  public List decodeContributorsList(List contributorList)
+  public List decodeContributorsList(ArrayList contributorList)
   {
     if (LOG.isDebugEnabled())
     {
@@ -1615,11 +1591,20 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       LOG.debug("getAllCourseMembers()");
     }
-//    if (courseMemberMap == null)
-//    {
+   if (courseMemberMap == null)
+    {
       courseMemberMap = membershipManager.getAllCourseMembers(true, true);
-//    }
+    }
     return courseMemberMap;
+  }  
+  
+
+  /**
+   * @param courseMemberMap The courseMemberMap to set.
+   */
+  public void setCourseMemberMapToNull()
+  {
+    this.courseMemberMap = null;
   }
 
   /*
