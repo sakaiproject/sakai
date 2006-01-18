@@ -137,26 +137,38 @@
 		    rendered="#{ForumTool.selectedTopic.isNewResponse}"/>
 <%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="Grade" />--%>
       <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="Revise"
-		    rendered="#{ForumTool.selectedTopic.isReviseAny && !ForumTool.selectedMessage.isOwn}"/>
+		    rendered="#{ForumTool.selectedTopic.isReviseAny}"/>
       <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="Revise"
-		    rendered="#{ForumTool.selectedTopic.isReviseOwn && ForumTool.selectedMessage.isOwn}"/>
+		    rendered="#{!ForumTool.selectedTopic.isReviseAny && 
+		    	ForumTool.selectedTopic.isReviseOwn && ForumTool.selectedMessage.isOwn}"/>
 <%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgMove}" value="Move" rendered="#{ForumTool.fullAccess}"/>--%>
       <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" 
-      	rendered="#{ForumTool.selectedTopic.isDeleteAny && !ForumTool.selectedMessage.isOwn}"/>
+      	rendered="#{ForumTool.selectedTopic.isDeleteAny}"/>
       <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" 
-      	rendered="#{ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}"/>
+      	rendered="#{!ForumTool.selectedTopic.isDeleteAny && 
+      		ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn
+      		&& !ForumTool.selectedMessage.hasChild}"/>
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" 
+        value="Delete Unavailable" disabled="true"
+      	rendered="#{!ForumTool.selectedTopic.isDeleteAny && 
+      		ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn
+      		&& ForumTool.selectedMessage.hasChild}"/>
     </sakai:button_bar>
 
 <%--		<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.fullAccess}">--%>
-		<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}">
+		<h:panelGroup rendered="#{!ForumTool.errorSynch && ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}">
 			<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
 			value="! Are you sure you want to delete this message and any replies? If yes, click Delete to permanently delete this message and its replies." />
 		</h:panelGroup>
-		<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteAny && !ForumTool.selectedMessage.isOwn}">
+		<h:panelGroup rendered="#{!ForumTool.errorSynch && ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteAny && !ForumTool.selectedMessage.isOwn}">
 			<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
 			value="! Are you sure you want to delete this message and any replies? If yes, click Delete to permanently delete this message and its replies." />
 		</h:panelGroup>
-
+		<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.errorSynch}">
+			<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
+			value="! The message you are attempting to delete has a reply. You may not delete this message." />
+		</h:panelGroup>
+		
     <sakai:button_bar rendered="#{ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}" > 
       <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="Delete" />
       <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteCancel}" value="Cancel" />

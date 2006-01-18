@@ -97,6 +97,7 @@ public class DiscussionForumTool
   private String selectedMessageView = ALL_MESSAGES;
   private boolean deleteMsg;
   private boolean displayUnreadOnly;
+  private boolean errorSynch = false;
   // attachment
   private ArrayList attachments = new ArrayList();
   private ArrayList prepareRemoveAttach = new ArrayList();
@@ -1498,6 +1499,7 @@ public class DiscussionForumTool
     this.selectedMessage = null;
     this.templateControlPermissions = null;
     this.templateMessagePermissions = null;
+    this.errorSynch = false;
     attachments.clear();
     prepareRemoveAttach.clear();
   
@@ -1883,6 +1885,31 @@ public class DiscussionForumTool
 
   public String processDfReplyMsgPost()
   {
+    List tempList = forumManager.getMessagesByTopicId(selectedTopic.getTopic().getId());
+    if(tempList != null)
+    {
+    	boolean existed = false;
+    	for(int i=0; i<tempList.size(); i++)
+    	{
+    		Message tempMsg = (Message)tempList.get(i);
+    		if(tempMsg.getId().equals(selectedMessage.getMessage().getId()))
+    		{
+    			existed = true;
+    			break;
+    		}
+    	}
+    	if(!existed)
+    	{
+      	this.errorSynch = true;
+        return null;
+    	}
+    }
+    else
+    {
+    	this.errorSynch = true;
+      return null;
+    }
+    
     Message dMsg = constructMessage();
 
     dMsg.setInReplyTo(selectedMessage.getMessage());
@@ -1908,9 +1935,34 @@ public class DiscussionForumTool
 
   public String processDfReplyMsgSaveDraft()
   {
-    Message dMsg = constructMessage();
-    dMsg.setDraft(Boolean.TRUE);
+    List tempList = forumManager.getMessagesByTopicId(selectedTopic.getTopic().getId());
+    if(tempList != null)
+    {
+    	boolean existed = false;
+    	for(int i=0; i<tempList.size(); i++)
+    	{
+    		Message tempMsg = (Message)tempList.get(i);
+    		if(tempMsg.getId().equals(selectedMessage.getMessage().getId()))
+    		{
+    			existed = true;
+    			break;
+    		}
+    	}
+    	if(!existed)
+    	{
+      	this.errorSynch = true;
+        return null;
+    	}
+    }
+    else
+    {
+    	this.errorSynch = true;
+      return null;
+    }
 
+
+  	Message dMsg = constructMessage();
+    dMsg.setDraft(Boolean.TRUE);
     dMsg.setInReplyTo(selectedMessage.getMessage());
     forumManager.saveMessage(dMsg);
     setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
@@ -2169,6 +2221,7 @@ public class DiscussionForumTool
 
   public String processDfReplyMsgCancel()
   {
+  	this.errorSynch = false;
     this.composeBody = null;
     this.composeLabel = null;
     this.composeTitle = null;
@@ -2247,6 +2300,15 @@ public class DiscussionForumTool
   {
     List delList = new ArrayList();
     messageManager.getChildMsgs(selectedMessage.getMessage().getId(), delList);
+    
+    if(delList.size() > 0)
+    {
+    	if(!selectedTopic.getIsDeleteAny())
+    	{
+    		errorSynch = true;
+    		return null;
+    	}
+    }
 
     selectedTopic.removeMessage(selectedMessage);
     Topic tempTopic = forumManager.getTopicByIdWithMessages(selectedTopic
@@ -2293,6 +2355,7 @@ public class DiscussionForumTool
   public String processDfMsgDeleteCancel()
   {
     this.deleteMsg = false;
+    this.errorSynch = false;
 
     return null;
   }
@@ -2665,6 +2728,16 @@ public class DiscussionForumTool
               setErrorMessage("This view is under contruction");
               return;
             }
+  }
+  
+  public boolean getErrorSynch()
+  {
+  	return errorSynch;
+  }
+  
+  public void setErrorSynch(boolean errorSynch)
+  {
+  	this.errorSynch = errorSynch;
   }
 
   /**

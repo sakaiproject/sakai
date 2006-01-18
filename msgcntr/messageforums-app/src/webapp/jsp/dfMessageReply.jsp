@@ -12,6 +12,11 @@
       <h:form id="dfCompose">
         <sakai:tool_bar_message value="Reply to Discussion Forum Message" /> 
 
+				<h:panelGroup rendered="#{ForumTool.errorSynch}">
+					<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 
+					value="! The message you are attempting to reply to has been deleted. You may not reply to this message." />
+				</h:panelGroup>
+
         <sakai:group_box>
 					<sakai:panel_edit>
 						<sakai:doc_section>

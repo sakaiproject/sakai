@@ -1,5 +1,7 @@
 package org.sakaiproject.tool.messageforums.ui;
 
+import java.util.List;
+
 import org.sakaiproject.api.app.messageforums.Message;
 
 import org.sakaiproject.api.kernel.component.cover.ComponentManager;
@@ -21,6 +23,7 @@ public class DiscussionMessageBean
   private int depth;
   private boolean hasNext;
   private boolean hasPre;
+  private boolean hasChild;
 
   private MessageForumsMessageManager messageManager;
 
@@ -158,5 +161,21 @@ public class DiscussionMessageBean
   	if(this.getMessage().getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
   		return true;
   	return false;
+  }
+  
+  public void setHasChild(boolean hasChild)
+  {
+  	this.hasChild = hasChild;
+  }
+
+  public boolean getHasChild()
+  {
+  	List childList = messageManager.getFirstLevelChildMsgs(this.getMessage().getId());
+  	if((childList != null) && (childList.size()>0))
+  		hasChild = true;
+  	else
+  		hasChild = false;
+  	
+  	return hasChild;
   }
 }
