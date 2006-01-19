@@ -47,6 +47,7 @@
 <h3>
      <h:outputText value="#{msg.create_modify_p} - #{sectionBean.assessmentTitle}" /></h3>
 <h:form id="modifyPartForm">
+<h:messages styleClass="validation"/>
   <h:inputHidden id="assessmentId" value="#{sectionBean.assessmentId}"/>
   <h:inputHidden id="sectionId" value="#{sectionBean.sectionId}"/>
 
@@ -106,18 +107,22 @@
 <h:panelGrid rendered="#{sectionBean.hideRandom eq 'false'}" columns="2" columnClasses="longtext" >
 --%>
 
-<h:message for="numSelected" styleClass="validate"/>
+<h:message for="assignToPool" styleClass="validate"/>
 <h:panelGrid columns="2" columnClasses="longtext" >
-   <h:outputText value="#{msg.number_of_qs}" />
-
-   <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
-
-   <h:outputText value="#{msg.pool_name} " />
+ 
+   <h:outputText value="#{msg.pool_name} #{msg.number_questions} " />
    <h:selectOneMenu disabled="#{sectionBean.type == '1'}" required="true" id="assignToPool" value="#{sectionBean.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_for_random_draw}" />
+     <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_for_random_draw}(###)" />
      <f:selectItems value="#{sectionBean.poolsAvailable}" />
   </h:selectOneMenu>
-<h:message for="assignToPool" rendered="#{sectionBean.type != '1'}" styleClass="validate"/>
+<!--h:message for="assignToPool" rendered="#{sectionBean.type != '1'}" styleClass="validate"/-->
+ <h:outputText value="#{msg.number_of_qs}" />
+
+<!--h:selectOneMenu disabled="#{sectionBean.type == '1'}" required="true" id="sumSelected" value="#{sectionBean.numberSelected}"-->
+    
+     <!--f:selectItems value="#{sectionBean.poolsAvailable}" /-->
+  <!--/h:selectOneMenu-->
+   <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
 </h:panelGrid>
 
 

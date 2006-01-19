@@ -207,25 +207,34 @@ public class SavePartListener
 
   public boolean validateItemsDrawn(SectionBean sectionBean){
      String numberDrawn = sectionBean.getNumberSelected();
-     int numberDrawnInt = (new Integer(numberDrawn)).intValue();
+ FacesContext context=FacesContext.getCurrentInstance();
+ ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
+     String err;
+    
 
      QuestionPoolService qpservice = new QuestionPoolService();
 
      ArrayList itemlist = qpservice.getAllItems(new Long(sectionBean.getSelectedPool()) );
      int itemcount = itemlist.size();
 
-     FacesContext context=FacesContext.getCurrentInstance();
+     try{
+	 int numberDrawnInt = Integer.parseInt(numberDrawn);
 
-     ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-     String err;
+    
      if(itemcount< numberDrawnInt ) {
-         err=(String)rb.getObject("overdrawn_error");
-         context.addMessage("modifyPartForm:numSelected",new FacesMessage(err));
-            return false;
+	 //  err=(String)rb.getObject("overdrawn_error");
+	 err="You cannot have more questions drawn than there are questions in a pool.  Please enter a number not more than "+ Integer.toString(itemcount)+ " for this pool in \"number of Questionss\"";
+         context.addMessage(null,new FacesMessage(err));
+	 return false;
      }
-     else {
-            return true;
-            }
+     } catch(NumberFormatException e){
+	 err="Number of Questions should be an integer not more than "+ Integer.toString(itemcount);
+     context.addMessage(null,new FacesMessage(err));
+	 return false;
+     }
+     
+     return true;
+           
     }
 
 }

@@ -36,6 +36,8 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.tool.assessment.data.model.Tree;
+import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
@@ -44,6 +46,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 
@@ -87,6 +90,7 @@ private boolean hideRandom = false;
 private boolean hideOneByOne= false;
 
 private String outcome;
+ private Tree tree;
 
 
 
@@ -288,12 +292,14 @@ private String outcome;
    */
   public ArrayList getPoolsAvailable()
   {
+  
     ArrayList resultPoolList= new ArrayList();
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     QuestionPoolService delegate = new QuestionPoolService();
-    ArrayList allpoollist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+    
+     ArrayList allpoollist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
 
     HashMap allPoolsMap= new HashMap();
     for (int i=0; i<allpoollist.size();i++){
@@ -321,7 +327,11 @@ private String outcome;
     Iterator pooliter = allPoolsMap.keySet().iterator();
     while (pooliter.hasNext()) {
       QuestionPoolFacade pool = (QuestionPoolFacade) allPoolsMap.get(pooliter.next());
-      resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()), pool.getDisplayName() ) );
+      //Huong's new
+      ArrayList itemlist = delegate.getAllItems(pool.getQuestionPoolId() );
+     String resultListName= pool.getDisplayName()+"("+ itemlist.size()+")" ;
+	
+	 resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()),resultListName) );
     }
 
     return resultPoolList;
