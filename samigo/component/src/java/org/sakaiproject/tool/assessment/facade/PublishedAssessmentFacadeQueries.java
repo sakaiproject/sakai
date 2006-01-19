@@ -1195,8 +1195,11 @@ public class PublishedAssessmentFacadeQueries
         "select a from AuthorizationData a where "+
         " a.functionId='OWN_PUBLISHED_ASSESSMENT' and a.qualifierId="+publishedAssessmentId;
     List l = getHibernateTemplate().find(query);
-    AuthorizationData a = (AuthorizationData) l.get(0);
-    return a.getAgentIdString();
+    if (l.size()>0){
+      AuthorizationData a = (AuthorizationData) l.get(0);
+      return a.getAgentIdString();
+    }
+    else return null;
   }
 
   public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title) {
