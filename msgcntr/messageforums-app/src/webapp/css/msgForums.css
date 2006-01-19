@@ -31,9 +31,9 @@ div.topicRows{border:true; margin: 0; margin-left:15px; padding: 0; text-align:l
 
 .rightAlign{text-align:right;float:right;vertical-align:top;}
 
-div.right-header-section {border: none; float: right; margin: 0; padding: 0; width: 19%; text-align:right;}
+div.right-header-section {border: none; float: right; margin: 0; padding: 0; width: 49%; text-align:right;}
 
-div.left-header-section {border: none; float: left; margin: 0; padding: 0; width: 79%;text-align:left;}
+div.left-header-section {border: none; float: left; margin: 0; padding: 0; width: 49%;text-align:left;}
 
 div.header-section{margin-top: 0; margin-right: auto; margin-bottom: 0; margin-left: auto; padding: 0; text-align:left; width: 100%;}
 
