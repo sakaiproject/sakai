@@ -52,6 +52,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -988,8 +989,13 @@ public class AssessmentFacadeQueries
                   new Object[]{title,assessmentBaseId,currentSiteId},
                   new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     }
-    if (list.size()>0)
-      isUnique = false;
+    if (list.size()>0){ 
+      // query in mysql & hsqldb are not case sensitive, check that title found is indeed what we
+      // are looking 
+      AssessmentBaseIfc a = (AssessmentBaseIfc) list.get(0);
+      if ((title).equals(a.getTitle()))
+        isUnique = false;
+    }
     return isUnique;
   }
 
