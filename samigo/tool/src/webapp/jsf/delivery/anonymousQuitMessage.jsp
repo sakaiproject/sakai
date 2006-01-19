@@ -37,7 +37,7 @@
   
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.invalid_assessment}"/></title>
+      <title><h:outputText value="#{msg.quit_assessment}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
