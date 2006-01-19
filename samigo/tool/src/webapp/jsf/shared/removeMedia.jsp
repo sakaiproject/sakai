@@ -57,8 +57,7 @@
       <h:commandButton type="submit" value="#{msg.button_remove}" action="takeAssessment" styleClass="active">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.RemoveMediaListener" />
       </h:commandButton>
-       <h:commandButton value="#{msg.button_cancel}" type="submit"
-         action="editAssessment" />
+       <h:commandButton value="#{msg.button_cancel}" type="submit" action="takeAssessment" />
    </p>
  </h:form>
  <!-- end content -->
