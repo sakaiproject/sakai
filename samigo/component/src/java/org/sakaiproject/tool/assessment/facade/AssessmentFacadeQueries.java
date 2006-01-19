@@ -967,6 +967,7 @@ public class AssessmentFacadeQueries
   }
 
   public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate) {
+    title = title.trim();
     String currentSiteId = AgentFacade.getCurrentSiteId();
     String agentString = AgentFacade.getAgentString();
     List list;
@@ -991,10 +992,14 @@ public class AssessmentFacadeQueries
     }
     if (list.size()>0){ 
       // query in mysql & hsqldb are not case sensitive, check that title found is indeed what we
-      // are looking 
-      AssessmentBaseIfc a = (AssessmentBaseIfc) list.get(0);
-      if ((title).equals(a.getTitle()))
-        isUnique = false;
+      // are looking
+      for (int i=0; i<list.size();i++){  
+        AssessmentBaseIfc a = (AssessmentBaseIfc) list.get(i);
+        if ((title).equals(a.getTitle().trim())){
+          isUnique = false;
+          break;
+	}
+      }
     }
     return isUnique;
   }
