@@ -80,7 +80,7 @@
       <h:selectOneMenu id="assessmentTemplate" 
          rendered="#{authorization.createAssessment && author.showTemplateList}"
         value="#{author.assessmentTemplateId}">
-         <f:selectItem itemValue="" itemLabel="select..."/>
+         <f:selectItem itemValue="" itemLabel="select"/>
          <f:selectItems value="#{author.assessmentTemplateList}" />
       </h:selectOneMenu>
 
