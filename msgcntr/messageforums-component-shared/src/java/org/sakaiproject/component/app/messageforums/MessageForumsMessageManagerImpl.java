@@ -324,6 +324,16 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
     public void deleteMessage(Message message) {
         long id = message.getId().longValue();
+        message.setInReplyTo(null);
+        getHibernateTemplate().saveOrUpdate(message);
+        try 
+				{
+        	getSession().flush();
+        } 
+        catch (Exception e) 
+				{
+        	e.printStackTrace();
+        }
         eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(message), false));
         try {
             getSession().evict(message);
