@@ -99,11 +99,11 @@ public class AuthorAssessmentListener
     //check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error
     boolean isUnique = assessmentService.assessmentTitleIsUnique("0", assessmentTitle, false);
     boolean isUniquePublish= publishedService.publishedAssessmentTitleIsUnique("0", assessmentTitle);
- if(assessmentTitle!=null && (assessmentTitle.trim()).equals("")){
-     	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
-	context.addMessage(null,new FacesMessage(err1));
-        author.setOutcome("author");
-	return;
+    if (assessmentTitle!=null && (assessmentTitle.trim()).equals("")){
+      String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
+      context.addMessage(null,new FacesMessage(err1));
+      author.setOutcome("author");
+      return;
     }
     if (!isUnique){
       String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","duplicateName_error");
@@ -124,7 +124,7 @@ public class AuthorAssessmentListener
     AssessmentFacade assessment = null;
     try{
       assessment = createAssessment(
-         assessmentTitle, description, typeId, templateId);
+         assessmentTitle.trim(), description, typeId, templateId);
     }
     catch(Exception e){
       // can't create assesment because gradebookService is not ready
