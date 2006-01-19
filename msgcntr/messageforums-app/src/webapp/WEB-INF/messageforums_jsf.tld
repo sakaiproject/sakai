@@ -405,6 +405,16 @@
           released over this element.
       </description>
     </attribute>
+     <attribute>
+      <name>hideByDefault</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Whether this division should be folded (w/ hidden children) by default.
+          Default is false.
+      </description>
+    </attribute>
+    
   </tag>
   
   <tag>

@@ -21,12 +21,14 @@ public class HideDivisionRenderer extends Renderer
   private static final String BARSTYLE = "";
   private static final String BARTAG = "h4";
   private static final String RESOURCE_PATH;
-  private static final String BARIMG;
+  private static final String FOLD_IMG_HIDE;
+  private static final String FOLD_IMG_SHOW;
   private static final String CURSOR;
 
   static {
     RESOURCE_PATH = "/" + "sakai-jsf-resource";
-    BARIMG = RESOURCE_PATH + "/" +"hideDivision/images/right_arrow.gif";
+    FOLD_IMG_HIDE = RESOURCE_PATH + "/" +"hideDivision/images/right_arrow.gif";
+    FOLD_IMG_SHOW = RESOURCE_PATH + "/" +"hideDivision/images/down_arrow.gif";
     CURSOR = "cursor:pointer";
     /*ConfigurationResource cr = new ConfigurationResource();
      RESOURCE_PATH = "/" + cr.get("resources");
@@ -82,14 +84,16 @@ public class HideDivisionRenderer extends Renderer
     }
     
     String title = (String) RendererUtil.getAttribute(context, component, "title");
-    
+    Object tmpFoldStr = RendererUtil.getAttribute(context, component, "hideByDefault");
+    boolean foldDiv = tmpFoldStr != null && tmpFoldStr.equals("true");
+    String foldImage = foldDiv ? FOLD_IMG_HIDE : FOLD_IMG_SHOW;
     writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
     writer.write("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">");
     writer.write("<tr><td nowrap=\"nowrap\" align=\"left\">");
     writer.write("  <img id=\"" + id + "__img_hide_division_" + "\" alt=\"" +
         title + "\"" + " onclick=\"javascript:showHideDiv('" + id +
         "', '" +  RESOURCE_PATH + "');\"");
-    writer.write("    src=\""   + BARIMG + "\" style=\"" + CURSOR + "\" />");
+    writer.write("    src=\""   + foldImage + "\" style=\"" + CURSOR + "\" /&gt;");
     writer.write("  <b>" + title + "</b>");
     writer.write("</td><td width=\"100%\">&nbsp;</td>");
     writer.write("<td nowrap=\"nowrap\" align=\"right\">");
@@ -107,9 +111,13 @@ public class HideDivisionRenderer extends Renderer
     }
     writer.write("</td></tr></table>");
     writer.write("</"+ BARTAG + ">");
-    writer.write("<div \" style=\"display:none\" " +
-        " id=\"" + id + "__hide_division_" + "\">");
-    
+    if(foldDiv) {
+      writer.write("<div style=\"display:none\" " +
+          " id=\"" + id + "__hide_division_" + "\">");
+            } else {
+                writer.write("<div style=\"display:block\" " +
+                        " id=\"" + id + "__hide_division_" + "\">");
+            }
   }
   
   
@@ -132,10 +140,10 @@ public class HideDivisionRenderer extends Renderer
     
     writer.write("</div>");
     
-    writer.write("<script type=\"text/javascript\">");
-    writer.write("  showHideDiv('" + id +
-        "', '" +  RESOURCE_PATH + "');");
-    writer.write("</script>");
+//    writer.write("<script type=\"text/javascript\">");
+//    writer.write("  showHideDiv('" + id +
+//        "', '" +  RESOURCE_PATH + "');");
+//    writer.write("</script>");
   }
 
 }
