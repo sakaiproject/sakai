@@ -11,6 +11,11 @@ Kerberos principals are the same). If you wish to allow anyone with a
 valid Kerberos principal to use Sakai, follow the instructions below 
 under ADVANCED OPTIONS.
 
+This provider implements a configurable, in-memory caching mechanism. 
+By default, a user's successful authentication is valid for 5 minutes. 
+This mechanism prevents WebDAV, which sends authenticates on every 
+connection, from overloading local KDCs.
+
 In addition, to protect the integrity of your Kerberos password, the 
 use of a secure Web front-end is HIGHLY recommended.
 
@@ -63,7 +68,8 @@ If authentication fails, contact your local administrator for help.
 
     ../component/project.xml
 
-Then, change the domain parameter from "mydomain.edu" to your domain in
+Then, change the domain parameter from "mydomain.edu" to your domain 
+and, if necessary, the value of the cachettl parameter in
 
     ../component/src/webapp/WEB-INF/components.xml
 
@@ -111,7 +117,7 @@ org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.i
 Domain=mydomain.edu
 LoginContext=SakaiAuthentication
 RequireLocalAccount=true KnownUserMsg=Integrity check on decrypted field failed
-(2005-10-21 17:29:54,466 main_org.sakaiproject.component.framework.log.CommonsLogger)
+CacheTTL=300000
 
 - Extended information (wrapped/edited for clarity)
 
@@ -122,7 +128,6 @@ SakaiPropertyKrb5Conf=null
 SakaiPropertyAuthLoginConfig=kerberos/sakai-jaas.conf
 SystemPropertyKrb5Conf=null
 SystemPropertyAuthLoginConfig=/spare/sakai-201/jakarta-tomcat-5.5.9/sakai/kerberos/sakai.jaas.conf
-(2005-10-21 17:29:54,466 main_org.sakaiproject.component.framework.log.CommonsLogger)
 
 In the above, "null" entries indicate the use of systemwide defaults.
 
@@ -132,11 +137,12 @@ Kerberos password.
 
 **ADVANCED OPTIONS**
 
-The Kerberos UserDirectoryProvider takes 4 configuration properties in 
+The Kerberos UserDirectoryProvider takes 5 configuration properties in 
 its components.xml:
 
 domain -- the 2nd-level domain name of the user's e-mail address
 loginContext -- the name of the JAAS LoginContext to use
+cachettl -- time (in milliseconds) to cache list of authenticated logins
 requireLocalAccount -- require a local account to login (true/false)
 knownUserMsg -- error message used to determine valid Kerberos principal
 

@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
-
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.ConfirmationCallback;
@@ -46,14 +45,16 @@ import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
 import org.sakaiproject.service.legacy.user.UserEdit;
 import org.sakaiproject.util.java.StringUtil;
 
+import java.util.Hashtable;
+
+import java.security.MessageDigest;
+import sun.misc.BASE64Encoder;
+import sun.misc.CharacterEncoder;
+  
+
 /**
-* <p>KerberosUserDirectoryProvider is UserDirectoryProvider that provides a user for any
-* person known to Kerberos.</p>
-* <p>Note: Java Runtime must be setup properly:<ul>
-* <li>{java_home}/jre/lib/security/java.security must have this line:<br/>
-*   login.config.url.1=file:${java.home}/lib/security/jaas.conf</li>
-* <li>the file "jaas.conf" must be placed into that same directory.</li>
-* <li>the file "krb5.conf" must be placed into that same directory.</li></ul></p>
+* <p>KerberosUserDirectoryProvider is UserDirectoryProvider that authenticates usernames
+* using Kerberos.</p>
 *
 * <p>For more information on configuration, see the README.txt file<p>
 *
@@ -84,11 +85,11 @@ public class KerberosUserDirectoryProvider
 	*******************************************************************************/
 
 	/** Configuration: Domain */
-	protected String m_domain = "umich.edu";
+	protected String m_domain = "domain.tld";
 
 	/**
 	 * Configuration: Domain Name (for E-Mail Addresses)
-	 * @param domain The domain in the form of "umich.edu"
+	 * @param domain The domain in the form of "domain.tld"
 	 */
 	public void setDomain(String domain)
 	{
@@ -130,6 +131,23 @@ public class KerberosUserDirectoryProvider
 	{
 		m_knownusermsg = knownusermsg;
 	}
+
+	/** Configuration:  Cachettl */
+	protected int m_cachettl = 5 * 60 * 1000;
+
+	/**
+	 * Configuration: Cache TTL
+	 * @param cachettl Time (in milliseconds) to cache authenticated usernames - default is 300000 ms (5 minutes)
+	 */
+	public void setCachettl(int cachettl)
+	{
+		m_cachettl = cachettl;
+	}
+
+	/** Hash table for auth caching
+	 */
+
+	private Hashtable users = new Hashtable();
 
 	/*******************************************************************************
 	* Init and Destroy
@@ -180,7 +198,8 @@ public class KerberosUserDirectoryProvider
 				+ " Domain=" + m_domain 
 				+ " LoginContext=" + m_logincontext 
 				+ " RequireLocalAccount=" + m_requirelocalaccount 
-				+ " KnownUserMsg=" + m_knownusermsg);
+				+ " KnownUserMsg=" + m_knownusermsg
+				+ " CacheTTL=" + m_cachettl);
 
 			// show the whole config if set
 			// system locations will read NULL if not set (system defaults will be used)
@@ -286,7 +305,7 @@ public class KerberosUserDirectoryProvider
 
 	/**
 	 * Authenticate a user / password.
-	 * If the user edit exists it may be modified, and will be stored if...
+	 * Check for an "valid, previously authenticated" user in in-memory table.
 	 * @param id The user id.
 	 * @param edit The UserEdit matching the id to be authenticated (and updated) if we have one.
 	 * @param password The password.
@@ -294,8 +313,61 @@ public class KerberosUserDirectoryProvider
 	 */
 	public boolean authenticateUser(String userId, UserEdit edit, String password)
 	{
-		boolean authKerb = authenticateKerberos(userId, password);
-		return authKerb;
+		// The in-memory caching mechanism is implemented here
+		// try to get user from in-memory hashtable
+	 try {
+		UserData existingUser = (UserData)users.get(edit.getId());
+
+		boolean authUser = false;
+		String hpassword = encode(password);
+
+		// Check for user in in-memory hashtable. To be a "valid, previously authenticated" user,
+		// 3 conditions must be met:
+		//
+		//   1) an entry for the userId must exist in the cache
+		//   2) the last usccessful authentication was < cachettl milliseconds ago
+		//   3) the one-way hash of the entered password must be equivalent to what is stored in the cache
+		//
+		// If these conditions are not, the authentication is performed via JAAS and, if sucessful, a new entry is created
+		
+		if ( existingUser == null || (System.currentTimeMillis() - existingUser.getTimeStamp()) > m_cachettl || !(existingUser.getHpw().equals(hpassword)) ) {
+			if (m_logger.isDebugEnabled())
+				m_logger.debug(this + ".authenticateUser(): user " + userId + " not in table, querying Kerberos");
+
+			boolean authKerb = authenticateKerberos(userId, password);
+
+			// if authentication succeeds, create entry for authenticated user in cache;
+			//    otherwise, remove any entries for this user from cache
+
+			if (authKerb) {
+				if (m_logger.isDebugEnabled())
+					m_logger.debug(this + ".authenticateUser(): putting authenticated user (" + userId + ") in table for caching");
+
+				UserData u = new UserData();			// create entry for authenticated user in cache
+				u.setId(edit.getId());
+				u.setHpw(hpassword);
+				u.setTimeStamp(System.currentTimeMillis());
+				users.put(edit.getId(),u);			// put entry for authenticated user into cache
+
+			} else { 
+				users.remove(userId);
+			}
+
+			authUser = authKerb;
+
+		} else {
+			if (m_logger.isDebugEnabled())
+				m_logger.debug(this + ".authenticateUser(): found authenticated user (" + existingUser.getId() + ") in table");
+			authUser = true;
+		}
+
+		return authUser;
+	  }
+		catch (Exception e) {
+			if (m_logger.isDebugEnabled())
+				m_logger.debug(this + ".authenticateUser(): exception: " + e);
+			return false;
+		}
 	}	// authenticateUser
 
 	/**
@@ -307,9 +379,9 @@ public class KerberosUserDirectoryProvider
 	}
 
 	/**
-	 * Will this provider update user records on successfull authentication?
+	 * Will this provider update user records on successful authentication?
 	 * If so, the UserDirectoryService will cause these updates to be stored.
-	 * @return true if the user record may be updated after successfull authentication, false if not.
+	 * @return true if the user record may be updated after successful authentication, false if not.
 	 */
 	public boolean updateUserAfterAuthentication()
 	{
@@ -321,7 +393,7 @@ public class KerberosUserDirectoryProvider
 	*******************************************************************************/
 
 	/**
-	* Authenticate the user id and pw with kerberos.
+	* Authenticate the user id and pw with Kerberos.
 	* @param user The user id.
 	* @param password the user supplied password.
 	* @return true if successful, false if not.
@@ -560,11 +632,86 @@ public class KerberosUserDirectoryProvider
 	{
 		return false;
 	}
+
+	
+	/**
+	* <p>Helper class for storing user data in an in-memory cache</p>
+	*
+	*/
+	class UserData {
+
+		String id;
+		String hpw;
+		long timeStamp;
+
+		/**
+		 * @return Returns the id.
+		 */
+		public String getId() {
+			return id;
+		}
+
+		/**
+		 * @param id The id to set.
+		 */
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		/**
+		 * @param hpw hashed pw to put in.
+		 */
+		public void setHpw(String hpw) {
+			this.hpw = hpw;
+		}
+
+		/**
+		 * @return Returns the hashed password.
+		 */
+
+		public String getHpw() {
+			return hpw;
+		}
+
+		/**
+		 * @return Returns the timeStamp.
+		 */
+		public long getTimeStamp() {
+			return timeStamp;
+		}
+
+		/**
+		 * @param timeStamp The timeStamp to set.
+		 */
+		public void setTimeStamp(long timeStamp) {
+			this.timeStamp = timeStamp;
+		}
+
+	} // UserData class
+
+
+	/**
+	* <p>Hash string for storage in a cache using SHA</p>
+	* @param UTF-8 string
+	* @return encoded hash of string
+	*/
+
+	public synchronized String encode(String plaintext) {
+      
+    		try {
+			MessageDigest md = MessageDigest.getInstance("SHA");
+			md.update(plaintext.getBytes("UTF-8"));
+			byte raw[] = md.digest();
+			String hash = (new BASE64Encoder()).encode(raw);
+			return hash;
+		}
+		catch (Exception e) {
+			//System.out.println(this + ".encode(): exception: " + e);
+			m_logger.warn(this + ".encode(): exception: " + e);
+			return null;
+		}
+  	} // encode
 	
 }	// KerberosUserDirectoryProvider
-
-
-
-
-
+	
 

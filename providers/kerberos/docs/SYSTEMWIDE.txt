@@ -18,6 +18,11 @@ Kerberos principals are the same). If you wish to allow anyone with a
 valid Kerberos principal to use Sakai, follow the instructions below 
 under ADVANCED OPTIONS in the accompanying INSTALL.txt.
 
+This provider implements a configurable, in-memory caching mechanism. 
+By default, a user's successful authentication is valid for 5 minutes. 
+This mechanism prevents WebDAV, which sends authenticates on every 
+connection, from overloading local KDCs.
+
 In addition, to protect the integrity of your Kerberos password, the 
 use of a secure Web front-end is HIGHLY recommended.
 
@@ -72,7 +77,8 @@ If authentication fails, contact your local administrator for help.
 
     ../component/project.xml
 
-Then, change the domain parameter from "mydomain.edu" to your domain in
+Then, change the domain parameter from "mydomain.edu" to your domain 
+and, if necessary, the value of the cachettl parameter in
 
     ../component/src/webapp/WEB-INF/components.xml
 
