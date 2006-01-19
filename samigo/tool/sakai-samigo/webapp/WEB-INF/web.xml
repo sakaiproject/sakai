@@ -99,6 +99,10 @@
       <param-name>com.corejsf.UploadFilter.sizeMax</param-name>
       <param-value>40960</param-value>
     </init-param>
+    <init-param>
+      <param-name>com.corejsf.UploadFilter.saveMediaToDb</param-name>
+      <param-value>true</param-value>
+    </init-param>
   </filter>
 
   <filter-mapping>

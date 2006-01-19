@@ -55,6 +55,7 @@ public class UploadFilter implements Filter {
    private int sizeThreshold = -1;
    private long sizeMax = -1;
    private String repositoryPath;
+    private String saveMediaToDb = "false";
 
    public void init(FilterConfig config) throws ServletException {
       repositoryPath = config.getInitParameter(
@@ -68,6 +69,10 @@ public class UploadFilter implements Filter {
             "com.corejsf.UploadFilter.sizeMax");
          if (paramValue != null)
             sizeMax = Long.parseLong(paramValue);
+         paramValue = config.getInitParameter(
+            "com.corejsf.UploadFilter.saveMediaToDb");
+         if (paramValue != null)
+            saveMediaToDb = paramValue;
       }
       catch (NumberFormatException ex) {
          ServletException servletEx = new ServletException();
@@ -78,6 +83,7 @@ public class UploadFilter implements Filter {
       context.setAttribute("FILEUPLOAD_REPOSITORY_PATH",repositoryPath);
       context.setAttribute("FILEUPLOAD_SIZE_THRESHOLD",new Integer(sizeThreshold));
       context.setAttribute("FILEUPLOAD_SIZE_MAX",new Long(sizeMax));
+      context.setAttribute("FILEUPLOAD_SAVE_MEDIA_TO_DB", saveMediaToDb);
    }
 
    public void destroy() {

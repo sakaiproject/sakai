@@ -1656,7 +1656,6 @@ public class DeliveryBean
     File media = new File(mediaLocation);
     byte[] mediaByte = getMediaStream(mediaLocation);
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
-    //boolean SAVETODB = MediaData.saveToDB();
     boolean SAVETODB = getSaveToDb();
     log.debug("**** SAVETODB=" + SAVETODB);
     MediaData mediaData = null;
@@ -1696,6 +1695,13 @@ public class DeliveryBean
     log.debug("***7. addMediaToItemGrading, adata=" + adata);
     itemGradingData.setAnswerText(mediaId + "");
     gradingService.saveItemGrading(itemGradingData);
+    // 3. if saveToDB, remove file from file system
+    try{
+      if (SAVETODB) media.delete();
+    }
+    catch(Exception e){
+      log.warn(e.getMessage());
+    }
   }
 
 
@@ -1976,8 +1982,10 @@ public class DeliveryBean
   }
 
   public boolean getSaveToDb(){
-    String saveToDb=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.ui.bean.delivery.resource.MediaConstants", "SAVETODB");
-    if (saveToDb.equals("true"))
+    FacesContext context = FacesContext.getCurrentInstance();
+    ExternalContext external = context.getExternalContext();
+    String saveToDb = (String)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SAVE_MEDIA_TO_DB");
+    if (("true").equals(saveToDb))
       return true;
     else
       return false;
