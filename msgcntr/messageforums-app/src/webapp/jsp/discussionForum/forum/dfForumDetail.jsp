@@ -18,7 +18,8 @@
 					 <f:param value="#{forum.forum.id}" name="forumId"/>
 					 <f:param value="processActionDisplayForum" name="redirectToProcessAction"/>
 				 </h:commandLink>
-				 <h:inputTextarea rows="5" cols="100" id="forum_extended_description" disabled="true" value="#{ForumTool.selectedForum.forum.extendedDescription}" rendered="#{ForumTool.selectedForum.readFullDesciption}"/>
+				<%-- <h:inputTextarea rows="5" cols="100" id="forum_extended_description" disabled="true" value="#{ForumTool.selectedForum.forum.extendedDescription}" rendered="#{ForumTool.selectedForum.readFullDesciption}"/> --%>
+					 <sakai:inputRichText rows="5" cols="110" buttonSet="none" readonly="true" showXPath="false" id="forum_extended_description" value="#{ForumTool.selectedForum.forum.extendedDescription}" rendered="#{ForumTool.selectedForum.readFullDesciption}"/>
 					<f:verbatim><br/></f:verbatim>
 				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" id="forum_extended_hide"
 						 value="#{msgs.cdfm_hide_full_description}" rendered="#{ForumTool.selectedForum.readFullDesciption}">

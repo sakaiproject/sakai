@@ -24,8 +24,8 @@
 				<h:panelGroup><h:inputTextarea rows="3" cols="45" id="topic_shortDescription"  value="#{ForumTool.selectedTopic.topic.shortDescription}"/></h:panelGroup>
 
 				<h:panelGroup/>
-				<h:panelGroup><h:outputLabel id="outputLabel2" for="topic_fullDescription"  value="#{msgs.cdfm_fullDescription}"/>	</h:panelGroup>
-				<h:panelGroup><h:inputTextarea rows="6" cols="60" id="topic_fullDescription"  value="#{ForumTool.selectedTopic.topic.extendedDescription}"/></h:panelGroup>
+				<h:panelGroup><h:outputLabel id="outputLabel2"   value="#{msgs.cdfm_fullDescription}"/>	</h:panelGroup>
+				<h:panelGroup><sakai:rich_text_area rows="10" columns="70"  value="#{ForumTool.selectedTopic.topic.extendedDescription}"/></h:panelGroup>
       		</h:panelGrid>
 		</p>
 

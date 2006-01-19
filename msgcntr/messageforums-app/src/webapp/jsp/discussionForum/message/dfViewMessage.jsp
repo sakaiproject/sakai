@@ -26,11 +26,12 @@
 				  value="#{msgs.cdfm_read_full_description}">
 				  <f:param value="dfViewMessage" name="redirectToProcessAction"/>
 				  <f:param value="true" name="composeExpand"/>
-				</h:commandLink>
-				<h:inputTextarea rows="5" cols="100" 
-					id="topic_extended_description" disabled="true" 
-					value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
-					rendered="#{ForumTool.selectedTopic.readFullDesciption}"/>
+				</h:commandLink> 
+			   <sakai:inputRichText rows="5" cols="110" buttonSet="none" 
+			   readonly="true" showXPath="false" id="topic_extended_description" 
+			   value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
+			   rendered="#{ForumTool.selectedTopic.readFullDesciption}"/>
+			
 				<f:verbatim><br/></f:verbatim>
 				<h:commandLink immediate="true" 
 					action="#{ForumTool.processDfComposeToggle}" 

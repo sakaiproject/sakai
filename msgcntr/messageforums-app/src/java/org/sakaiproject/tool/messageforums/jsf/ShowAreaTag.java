@@ -14,6 +14,8 @@ import javax.faces.context.FacesContext;
 public class ShowAreaTag extends UIComponentTag
 {
   private String value;
+  private String hideBorder;
+  private String showInputTextArea;
   
   public void setvalue(String value)
   {
@@ -24,7 +26,40 @@ public class ShowAreaTag extends UIComponentTag
   {
     return value;
   }
+    
+  /**
+   * @return Returns the hideBorder.
+   */
+  public String gethideBorder()
+  {
+    return hideBorder;
+  }
+
+  /**
+   * @param hideBorder The hideBorder to set.
+   */
+  public void sethideBorder(String hideBorder)
+  {
+    this.hideBorder = hideBorder;
+  }
+
   
+  /**
+   * @return Returns the showInputTextArea.
+   */
+  public String getShowInputTextArea()
+  {
+    return showInputTextArea;
+  }
+
+  /**
+   * @param showInputTextArea The showInputTextArea to set.
+   */
+  public void setShowInputTextArea(String showInputTextArea)
+  {
+    this.showInputTextArea = showInputTextArea;
+  }
+
   public String getComponentType()
   {
     return "ShowArea";
@@ -38,6 +73,8 @@ public class ShowAreaTag extends UIComponentTag
   {
     super.setProperties(component);
     setString(component, "value", value);
+    setString(component, "hideBorder", hideBorder);
+    setString(component, "showInputTextArea", showInputTextArea);
   }
   
   public void release()

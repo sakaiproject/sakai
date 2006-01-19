@@ -38,7 +38,7 @@
 				<f:param value="#{forum.forum.id}" name="forumId_displayExtended"/>
 				<f:param value="displayHome" name="redirectToProcessAction"/>
 		  </h:commandLink>
-		  <h:inputTextarea rows="5" cols="100" id="forum_extended_description" disabled="true" value="#{forum.forum.extendedDescription}" rendered="#{forum.readFullDesciption}"/>
+	 	  <sakai:inputRichText rows="5" cols="110" buttonSet="none" readonly="true" showXPath="false" id="forum_extended_description" value="#{forum.forum.extendedDescription}" rendered="#{forum.readFullDesciption}"/>
 		  <f:verbatim><br/></f:verbatim>
 		  <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" id="forum_extended_hide"
 				 value="#{msgs.cdfm_hide_full_description}" rendered="#{forum.readFullDesciption}">
@@ -90,7 +90,7 @@
 						<f:param value="#{topic.topic.id}" name="topicId_displayExtended"/>
 						<f:param value="displayHome" name="redirectToProcessAction"/>
 					</h:commandLink>
-					<h:inputTextarea rows="5" cols="100" id="topic_extended_description" disabled="true" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/>
+	 				<sakai:inputRichText rows="5" cols="110" buttonSet="none"  readonly="true" showXPath="false" id="topic_extended_description" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/>
 					<f:verbatim><br/></f:verbatim>
 					<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" id="topic_extended_hide"
 						 value="#{msgs.cdfm_hide_full_description}" rendered="#{topic.readFullDesciption}">

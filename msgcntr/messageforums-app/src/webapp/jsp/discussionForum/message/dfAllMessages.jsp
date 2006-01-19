@@ -22,7 +22,8 @@
 					<f:param value="#{topic.topic.id}" name="topicId"/>
 					<f:param value="processActionDisplayTopic" name="redirectToProcessAction"/>
 				</h:commandLink>
-				<h:inputTextarea rows="5" cols="100" id="topic_extended_description" disabled="true" value="#{ForumTool.selectedTopic.topic.extendedDescription}" rendered="#{ForumTool.selectedTopic.readFullDesciption}"/>
+				<%--<h:inputTextarea rows="5" cols="100" id="topic_extended_description" disabled="true" value="#{ForumTool.selectedTopic.topic.extendedDescription}" rendered="#{ForumTool.selectedTopic.readFullDesciption}"/>--%>
+				 <sakai:inputRichText rows="5" cols="110" buttonSet="none"  readonly="true" showXPath="false" id="topic_extended_description" value="#{ForumTool.selectedTopic.topic.extendedDescription}" rendered="#{ForumTool.selectedTopic.readFullDesciption}"/>
 				<f:verbatim><br/></f:verbatim>
 				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" id="topic_extended_hide"
 					 value="#{msgs.cdfm_hide_full_description}" rendered="#{ForumTool.selectedTopic.readFullDesciption}">

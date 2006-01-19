@@ -135,7 +135,7 @@
 	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"
 	      not-null="false" cascade="none" />
 	     -->
-         <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
+        <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
         not-null="false" cascade="save-update" unique="true"/>
         

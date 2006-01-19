@@ -19,8 +19,9 @@
 				<h:panelGroup><h:outputText id="forum_shortDescription"  value="#{ForumTool.selectedForum.forum.shortDescription}"/></h:panelGroup>
 
 				<h:panelGroup><h:outputLabel id="outputLabel2" for="forum_fullDescription"  value="#{msgs.cdfm_fullDescription}"/>	</h:panelGroup>
-				<h:panelGroup><h:outputText id="forum_fullDescription"  value="#{ForumTool.selectedForum.forum.extendedDescription}"/></h:panelGroup>
-   		</h:panelGrid>
+				<h:panelGroup>				 
+				<mf:htmlShowArea  id="forum_fullDescription" hideBorder="true" value="#{ForumTool.selectedForum.forum.extendedDescription}"/></h:panelGroup>
+   			</h:panelGrid>
 	
 			<h:panelGroup><h:outputLabel id="outputLabel3" value="#{msgs.cdfm_attachments}"/>	</h:panelGroup>
 			<h:panelGroup>
