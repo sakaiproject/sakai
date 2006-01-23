@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 import java.util.ArrayList;
+import java.text.NumberFormat;
 
 /**
  * A set of information for an agent.  This contains both totalScores
@@ -160,17 +161,61 @@ public class AgentResults
   public String getTotalAutoScore() {
     return Validator.check(totalAutoScore, "0");
   }
+
+  public String getRoundedTotalAutoScore() {
+   try {
+      Float oldscore = new Float(totalAutoScore);
+      NumberFormat nf = NumberFormat.getInstance();
+      nf.setMaximumFractionDigits(1);
+      String newscore = nf.format(oldscore);
+      return Validator.check(newscore, "N/A");
+    }
+    catch (Exception e) {
+      // encountered some weird number format/locale
+      return Validator.check(totalAutoScore, "0");
+    }
+
+  }
   public void setTotalAutoScore(String totalAutoScore) {
     this.totalAutoScore = totalAutoScore;
   }
   public String getTotalOverrideScore() {
     return Validator.check(totalOverrideScore, "0");
   }
+
+  public String getRoundedTotalOverrideScore() {
+   try {
+      Float oldscore = new Float(totalOverrideScore);
+      NumberFormat nf = NumberFormat.getInstance();
+      nf.setMaximumFractionDigits(1);
+      String newscore = nf.format(oldscore);
+      return Validator.check(newscore, "N/A");
+    }
+    catch (Exception e) {
+      // encountered some weird number format/locale
+      return Validator.check(totalOverrideScore, "0");
+    }
+
+  }
   public void setTotalOverrideScore(String totalOverrideScore) {
     this.totalOverrideScore = totalOverrideScore;
   }
   public String getFinalScore() {
     return Validator.check(finalScore, "0");
+  }
+  public String getRoundedFinalScore() {
+   try {
+      Float oldscore = new Float(finalScore);
+      NumberFormat nf = NumberFormat.getInstance();
+      nf.setMaximumFractionDigits(1);
+      String newscore = nf.format(oldscore);
+      return Validator.check(newscore, "N/A");
+    }
+    catch (Exception e) {
+      // encountered some weird number format/locale
+      return Validator.check(finalScore, "0");
+    }
+
   }
   public void setFinalScore(String finalScore) {
     this.finalScore = finalScore;

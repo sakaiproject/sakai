@@ -153,6 +153,8 @@ public class AssessmentGradingData
     }
       */
 
+/*
+    // remove rounding , SAK-2848 
     // Round to the nearest 1/10th.
     if (this.totalAutoScore != null){
       float alignment = this.totalAutoScore.floatValue();
@@ -160,6 +162,7 @@ public class AssessmentGradingData
       alignment = (float)tmp / 10.0f;
       this.totalAutoScore = new Float(alignment);
     }
+*/
     return this.totalAutoScore;
   }
   public void setTotalAutoScore(Float totalAutoScore) {
@@ -181,6 +184,8 @@ public class AssessmentGradingData
     }
       */
 
+/*
+    // remove rounding , SAK-2848 
     // Round to the nearest 1/10th.
     if (this.totalOverrideScore !=null){
       float alignment = this.totalOverrideScore.floatValue();
@@ -188,6 +193,7 @@ public class AssessmentGradingData
       alignment = (float)tmp / 10.0f;
       this.totalOverrideScore = new Float(alignment);
     }
+*/
     return this.totalOverrideScore;
   }
 
@@ -204,6 +210,8 @@ public class AssessmentGradingData
       this.finalScore = new Float(total);
     }
 
+/*
+    // remove rounding , SAK-2848 
     // Round to the nearest 1/10th.
     if (this.finalScore !=null ){
       float alignment = this.finalScore.floatValue();
@@ -211,6 +219,7 @@ public class AssessmentGradingData
       alignment = (float)tmp / 10.0f;
       this.finalScore = new Float(alignment);
     }
+*/
     return this.finalScore;
   }
   public void setFinalScore(Float finalScore) {

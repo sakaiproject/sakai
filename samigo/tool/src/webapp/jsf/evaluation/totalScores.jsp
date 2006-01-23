@@ -366,14 +366,14 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="totalAutoScore" />
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{description.totalAutoScore}" />
+      <h:outputText value="#{description.roundedTotalAutoScore}" />
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='totalAutoScore'}">
       <f:facet name="header">
         <h:outputText value="#{msg.tot}" />
       </f:facet>
-      <h:outputText value="#{description.totalAutoScore}" />
+      <h:outputText value="#{description.roundedTotalAutoScore}" />
     </h:column>
 
     <!-- ADJUSTMENT -->
@@ -414,14 +414,14 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="finalScore" />
       </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.finalScore}" />
+        <h:outputText value="#{description.roundedFinalScore}" />
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='finalScore'}">
      <f:facet name="header">
         <h:outputText value="#{msg.final}" />
      </f:facet>
-        <h:outputText value="#{description.finalScore}" />
+        <h:outputText value="#{description.roundedFinalScore}" />
     </h:column>
 
     <!-- COMMENT -->
