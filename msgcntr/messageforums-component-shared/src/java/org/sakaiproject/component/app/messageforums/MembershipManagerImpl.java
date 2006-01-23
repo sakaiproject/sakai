@@ -222,7 +222,7 @@ public class MembershipManagerImpl implements MembershipManager{
     /** handle users */
     Set users = realm.getMembers();
     for (Iterator userIterator = users.iterator(); userIterator.hasNext();){
-      Member member = (Member) userIterator.next();
+      Member member = (Member) userIterator.next();      
       String userId = member.getUserId();
       Role userRole = member.getRole();            
       

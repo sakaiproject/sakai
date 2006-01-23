@@ -23,9 +23,6 @@
 
 package org.sakaiproject.tool.messageforums;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -34,11 +31,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.component.html.HtmlCommandLink;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
@@ -173,6 +171,19 @@ public class PrivateMessagesTool
   
   private Map courseMemberMap;
   
+  
+  public static final String SORT_SUBJECT_ASC = "subject_asc";
+  public static final String SORT_SUBJECT_DESC = "subject_desc";
+  public static final String SORT_AUTHOR_ASC = "author_asc";
+  public static final String SORT_AUTHOR_DESC = "author_desc";
+  public static final String SORT_DATE_ASC = "date_asc";
+  public static final String SORT_DATE_DESC = "date_desc";
+  public static final String SORT_LABEL_ASC = "label_asc";
+  public static final String SORT_LABEL_DESC = "label_desc";
+  
+  /** sort member */
+  private String sortType = SORT_DATE_DESC;
+  
   public PrivateMessagesTool()
   {    
   }
@@ -300,10 +311,41 @@ public class PrivateMessagesTool
   {
     decoratedPvtMsgs=new ArrayList() ;
     
-    String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);        
+    String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);
     
-    decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
-        PrivateMessageManager.SORT_DESC);
+    /** add support for sorting */
+    if (SORT_SUBJECT_ASC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_SUBJECT,
+          PrivateMessageManager.SORT_ASC);
+    }
+    else if (SORT_SUBJECT_DESC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_SUBJECT,
+          PrivateMessageManager.SORT_DESC);
+    }
+    else if (SORT_AUTHOR_ASC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_AUTHOR,
+          PrivateMessageManager.SORT_ASC);
+    }        
+    else if (SORT_AUTHOR_DESC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_AUTHOR,
+          PrivateMessageManager.SORT_DESC);
+    }
+    else if (SORT_DATE_ASC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
+          PrivateMessageManager.SORT_ASC);
+    }        
+    else if (SORT_DATE_DESC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
+          PrivateMessageManager.SORT_DESC);
+    }
+    else if (SORT_LABEL_ASC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_LABEL,
+          PrivateMessageManager.SORT_ASC);
+    }        
+    else if (SORT_LABEL_DESC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_LABEL,
+          PrivateMessageManager.SORT_DESC);
+    }        
     
     decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);    
 
@@ -995,6 +1037,33 @@ public class PrivateMessagesTool
     resetComposeContents();
     
     return "main";    
+  }
+  
+  /**
+   * process sort
+   * @return pvtMsg for navigation
+   */
+  public String processPvtMsgSortListener(ActionEvent e) {
+  	  	  	
+  	// use title to sort
+  	HtmlCommandLink commandLink = (HtmlCommandLink) e.getComponent();  	
+  	String title = commandLink.getTitle();
+  	
+  	  	
+  	if ("subject".equals(title)){  		  		
+  		sortType = (SORT_SUBJECT_DESC.equals(sortType)) ? SORT_SUBJECT_ASC : SORT_SUBJECT_DESC;  			 		
+  	}
+  	else if ("author".equals(title)){  		  		
+  		sortType = (SORT_AUTHOR_DESC.equals(sortType)) ? SORT_AUTHOR_ASC : SORT_AUTHOR_DESC;  			 		
+  	}
+  	else if ("date".equals(title)){  		  		
+  		sortType = (SORT_DATE_DESC.equals(sortType)) ? SORT_DATE_ASC : SORT_DATE_DESC;  			 		
+  	}
+  	else if ("label".equals(title)){  		  		
+  		sortType = (SORT_LABEL_DESC.equals(sortType)) ? SORT_LABEL_ASC : SORT_LABEL_DESC;  			 		
+  	}
+  	  	  	  	  	
+  	return "pvtMsg";
   }
  
   /**
@@ -2741,4 +2810,14 @@ public class PrivateMessagesTool
     }
     return false;
   }
+
+
+	public String getSortType() {
+		return sortType;
+	}
+
+
+	public void setSortType(String sortType) {
+		this.sortType = sortType;
+	}
 }

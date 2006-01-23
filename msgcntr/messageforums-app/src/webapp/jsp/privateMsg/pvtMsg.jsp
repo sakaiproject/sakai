@@ -53,7 +53,15 @@
 			</h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_subject}"/>
+		       <h:commandLink value="#{msgs.pvt_subject}" actionListener="#{PrivateMessagesTool.processPvtMsgSortListener}"
+		                      immediate="true" title="subject">
+		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
+    	                         title="#{msgs.sort_subject_asc}" alt="#{msgs.sort_subject_asc}"
+    	                         rendered="#{PrivateMessagesTool.sortType == 'subject_asc'}"/>
+    	         <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
+    	                         title="#{msgs.sort_subject_desc}" alt="#{msgs.sort_subject_desc}"
+    	                         rendered="#{PrivateMessagesTool.sortType == 'subject_desc'}"/>    	                       
+    	       </h:commandLink>
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
@@ -63,7 +71,15 @@
 		  </h:column>			
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded' && PrivateMessagesTool.msgNavMode != 'Sent'}">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_authby}"/>
+		       <h:commandLink value="#{msgs.pvt_authby}" actionListener="#{PrivateMessagesTool.processPvtMsgSortListener}"
+		                      immediate="true" title="author">
+		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
+    	                         title="#{msgs.sort_author_asc}" alt="#{msgs.sort_author_asc}"
+    	                         rendered="#{PrivateMessagesTool.sortType == 'author_asc'}"/>
+    	         <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
+    	                         title="#{msgs.sort_author_desc}" alt="#{msgs.sort_author_desc}"
+    	                         rendered="#{PrivateMessagesTool.sortType == 'author_desc'}"/>    	                       
+    	       </h:commandLink>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.msg.createdBy}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.createdBy}" rendered="#{!rcvdItems.hasRead}"/>
@@ -78,14 +94,30 @@
 		  	  
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_date}"/>
+		       <h:commandLink value="#{msgs.pvt_date}" actionListener="#{PrivateMessagesTool.processPvtMsgSortListener}"
+		                      immediate="true" title="date">
+		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
+    	                         title="#{msgs.sort_date_asc}" alt="#{msgs.sort_date_asc}"
+    	                         rendered="#{PrivateMessagesTool.sortType == 'date_asc'}"/>
+    	         <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
+    	                         title="#{msgs.sort_date_desc}" alt="#{msgs.sort_date_desc}"
+    	                         rendered="#{PrivateMessagesTool.sortType == 'date_desc'}"/>    	                       
+    	       </h:commandLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_label}"/>
+		       <h:commandLink value="#{msgs.pvt_label}" actionListener="#{PrivateMessagesTool.processPvtMsgSortListener}"
+		                      immediate="true" title="label">
+		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
+    	                         title="#{msgs.sort_label_asc}" alt="#{msgs.sort_label_asc}"
+    	                         rendered="#{PrivateMessagesTool.sortType == 'label_asc'}"/>
+    	         <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
+    	                         title="#{msgs.sort_label_desc}" alt="#{msgs.sort_label_desc}"
+    	                         rendered="#{PrivateMessagesTool.sortType == 'label_desc'}"/>    	                       
+    	       </h:commandLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.label}"/>
 		  </h:column>
