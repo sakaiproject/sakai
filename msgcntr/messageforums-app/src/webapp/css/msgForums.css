@@ -2,16 +2,16 @@
 
 /*#navIntraTool: text left aligned*/
 
-div.forumsRow{margin-left:0;color:#000;text-align:left; width:95%; line-height:1.3em;background:#EBDDDD}
+div.forumsRow{margin-left:0;color:#000;text-align:left;width:95%; line-height:1.3em;background:#EBDDDD}
 
 /* .forumsRow a:link,.navIntraTool a{border-bottom:1px dashed #90A1C6;background:#EBDDDD;padding:0px 2px 0px 3px;color:#000;text-decoration:none;margin:0 .5em}
 .forumsRow a:hover{border:none;text-decoration:none !important;color:#084A87 !important;padding:0px 2px 0px 3px;border-bottom:1px solid #FFF !important}
 .forumsRow a:visited{border-bottom:1px dashed #90A1C6;background:#EBDDDD;padding:0px 2px 0px 3px;color:#000;text-decoration:none}
 */
 
-div.forumsRowLeft{align:left;text-align:left; width:65%;background:#EBDDDD}
+div.forumsRowLeft{align:left;text-align:left; float:left; width:65%;background:#EBDDDD}
 
-div.forumsRowRight{align:right;color:#000; text-align:right; width:35%;line-height:1.3em;background:#EBDDDD}
+div.forumsRowRight{align:right; text-align:right; float:right; width:35%;background:#EBDDDD}
 .textfield
 {
 	background-color: #FFFFFF;

@@ -19,7 +19,7 @@
 			<f:param value="#{forum.forum.id}" name="forumId"/>
 		</h:commandLink>
 		 <f:verbatim></div></f:verbatim>
-		 <f:verbatim><div class="rightAlign"></f:verbatim>
+		 <f:verbatim><div class="forumsRowRight"></f:verbatim>
 			<h:commandLink action="#{ForumTool.processActionNewTopic}"  value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}">
 				<f:param value="#{forum.forum.id}" name="forumId"/>
 			</h:commandLink>
@@ -30,7 +30,7 @@
 
 			<f:verbatim></div></f:verbatim>
 
-		<f:verbatim> <br/><div class="forumsRowLeft"></f:verbatim>
+		<f:verbatim> <br/><div class="forumsRow"></f:verbatim>
 		  <h:outputText id="forum_desc" style="text-align:left;" value="#{forum.forum.shortDescription}" />
 		  <f:verbatim><br/></f:verbatim>
 		  <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" rendered="#{forum.hasExtendedDesciption}"
