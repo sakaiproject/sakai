@@ -220,7 +220,17 @@
                    )
     ]]>    
   </query>
-    
+
+  <query name="findPvtMsgsBySearchText">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
+             where  (1 = :searchByAuthor and message.author like :searchText) or 
+                    (1 = :searchByText and message.title like :searchText) or
+                    (1 = :searchByBody and message.body like :searchText) or
+                    (1 = :searchByLabel and message.label like :searchText) or
+                    (1 = :searchByDate and message.created between :searchFromDate and :searchToDate) 
+    ]]>    
+  </query>
+      
 
 </hibernate-mapping>
 

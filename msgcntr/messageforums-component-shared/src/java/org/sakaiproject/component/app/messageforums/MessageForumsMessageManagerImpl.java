@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.sql.Timestamp;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
@@ -556,4 +557,36 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
     	return returnList;
     }
+    
+    /**
+     * 
+     * @param topicId
+     * @param searchText
+     * @return
+     */
+    
+    public List findPvtMsgsBySearchText(final String searchText,final Date searchFromDate, final Date searchToDate, final Long searchByText,
+                final Long searchByAuthor,final Long searchByBody,final Long searchByLabel,final Long searchByDate) {
+
+      LOG.debug("findPvtMsgsBySearchText executing with searchText: " + searchText);
+
+      HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+              Query q = session.getNamedQuery("findPvtMsgsBySearchText");
+              q.setParameter("searchText", "%" + searchText + "%", Hibernate.STRING);
+              q.setParameter("searchByText", searchByText , Hibernate.LONG);
+              q.setParameter("searchByAuthor", searchByAuthor, Hibernate.LONG);
+              q.setParameter("searchByBody", searchByBody , Hibernate.LONG);
+              q.setParameter("searchByLabel", searchByLabel, Hibernate.LONG);
+              q.setParameter("searchByDate", searchByDate, Hibernate.LONG);
+              q.setParameter("searchFromDate", searchFromDate, Hibernate.DATE);
+              q.setParameter("searchToDate", searchToDate, Hibernate.DATE);
+              return q.list();
+          }
+      };
+
+      return (List) getHibernateTemplate().execute(hcb);
+  }
+
+    
 }

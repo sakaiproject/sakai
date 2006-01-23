@@ -23,6 +23,9 @@
 
 package org.sakaiproject.tool.messageforums;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -341,53 +344,7 @@ public class PrivateMessagesTool
     }
     return decoratedPvtMsgs ;
   }
-  
-  //decorated display - from List of Message
-  public List createDecoratedDisplay(List msg)
-  {
-    List decLs= new ArrayList() ;
-    for (Iterator iter = msg.iterator(); iter.hasNext();)
-    {
-      PrivateMessage element = (PrivateMessage) iter.next();                  
-      
-      PrivateMessageDecoratedBean dbean= new PrivateMessageDecoratedBean(element);
-      //if processSelectAll is set, then set isSelected true for all messages,
-      if(selectAll)
-      {
-        dbean.setIsSelected(true);
-      }
-       
-      //getRecipients() is filtered for this perticular user i.e. returned list of only one PrivateMessageRecipient object
-      for (Iterator iterator = element.getRecipients().iterator(); iterator.hasNext();)
-      {
-        PrivateMessageRecipient el = (PrivateMessageRecipient) iterator.next();
-        if (el != null){
-          dbean.setHasRead(el.getRead().booleanValue());
-        }
-      }
-      //Add decorate 'TO' String for sent message
-      if(PVTMSG_MODE_SENT.equals(msgNavMode))
-      {
-        String deocratedToDisplay="";
-        if(dbean.getMsg().getRecipientsAsText() != null)
-          if (dbean.getMsg().getRecipientsAsText().length()>25)
-          {
-            deocratedToDisplay=(dbean.getMsg().getRecipientsAsText()).substring(0, 20)+" (..)";
-          } else
-          {
-            deocratedToDisplay=dbean.getMsg().getRecipientsAsText();
-          }
-        dbean.setSendToStringDecorated(deocratedToDisplay); 
-      }
 
-      decLs.add(dbean) ;
-    }
-    //reset selectAll flag, for future use
-    selectAll=false;
-    return decLs;
-  }
-  
-  
   public void setDecoratedPvtMsgs(List displayPvtMsgs)
   {
     this.decoratedPvtMsgs=displayPvtMsgs;
@@ -2148,26 +2105,239 @@ public class PrivateMessagesTool
     LOG.debug("processSearch()");
     
     List newls = new ArrayList() ;
-    for (Iterator iter = getDecoratedPvtMsgs().iterator(); iter.hasNext();)
+//    for (Iterator iter = getDecoratedPvtMsgs().iterator(); iter.hasNext();)
+//    {
+//      PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
+//      
+//      String message=element.getMsg().getTitle();
+//      String searchText = getSearchText();
+//      //if search on subject is set - default is true
+//      if(searchOnSubject)
+//      {
+//        StringTokenizer st = new StringTokenizer(message);
+//        while (st.hasMoreTokens())
+//        {
+//          if(st.nextToken().matches("(?i).*getSearchText().*")) //matches anywhere 
+//          //if(st.nextToken().equalsIgnoreCase(getSearchText()))            
+//          {
+//            newls.add(element) ;
+//            break;
+//          }
+//        }
+//      }
+//      //is search 
+//      
+//    }
+
+    /**TODO - 
+     * In advance srearch as there can be ANY type of combination like selection of 
+     * ANY 1 or 2 or 3 or 4 or 5 options like - subject, Author By, label, body and date
+     * so all possible cases are taken care off.
+     * This doesn't look nice, but good this is that we are using same method - our backend is cleaner
+     * First - checked if date is selected then purmutation of 4 options
+     * ELSE - permutations of other 4 options
+     */ 
+    List tempPvtMsgLs= new ArrayList();
+    
+    if(searchOnDate)
     {
-      PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
-      
-      String message=element.getMsg().getTitle();
-      String searchText = getSearchText();
-      StringTokenizer st = new StringTokenizer(message);
-      while (st.hasMoreTokens())
+      if((searchFromDate == null) && (searchToDate==null))
       {
-        //if(st.nextToken().matches("(?i).*searchText.*")) //matches anywhere 
-        if(st.nextToken().equalsIgnoreCase(getSearchText()))            
-        {
-          newls.add(element) ;
-          break;
-        }
+        setErrorMessage("Please enter from and to dates for search");
+      }
+      
+      if(searchOnSubject && searchOnAuthor && searchOnBody && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(1), new Long(1), new Long(1),new Long(1)) ;
+      } 
+      else if(searchOnSubject && searchOnAuthor && searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(1), new Long(1), new Long(0),new Long(1)) ;
+      } 
+      else if(searchOnSubject && searchOnAuthor && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(1), new Long(0), new Long(1),new Long(1)) ;
+      }    
+      else if(searchOnSubject && searchOnLabel && searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(0), new Long(1), new Long(1),new Long(1)) ;
+      }
+      else if(searchOnAuthor && searchOnBody && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(1), new Long(1), new Long(1),new Long(1)) ;
+      } 
+      else if(searchOnSubject && searchOnAuthor)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(1), new Long(0), new Long(0),new Long(1)) ;
+      } 
+      else if(searchOnSubject && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(0), new Long(0), new Long(1),new Long(1)) ;
+      } 
+      else if(searchOnSubject && searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(0), new Long(1), new Long(0),new Long(1)) ;
+      } 
+      else if(searchOnAuthor && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(1), new Long(0), new Long(1),new Long(1)) ;
+      }   
+      else if(searchOnAuthor && searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(1), new Long(1), new Long(0),new Long(1)) ;
+      }
+      else if(searchOnBody && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(0), new Long(1), new Long(1),new Long(1)) ;
+      }
+      else if(searchOnSubject)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(0),new Long(0), new Long(0),new Long(1)) ;
+      } 
+      else if (searchOnAuthor)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(1),new Long(0), new Long(0),new Long(1)) ;
+      }
+      else if (searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(0),new Long(1), new Long(0),new Long(1)) ;
+      }    
+      else if (searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(0),new Long(0), new Long(1),new Long(1)) ;
+      } 
+      else
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(0),new Long(0), new Long(0),new Long(1)) ;
       }
     }
+    //if date is not selected
+    else {
+      if(!hasValue(searchText))
+      {
+        setErrorMessage("Please enter text for search.");
+      }
+      if(searchOnSubject && searchOnAuthor && searchOnBody && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(1), new Long(1), new Long(1),new Long(0)) ;
+      } 
+      else if(searchOnSubject && searchOnAuthor && searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(1), new Long(1), new Long(0),new Long(0)) ;
+      } 
+      else if(searchOnSubject && searchOnAuthor && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(1), new Long(0), new Long(1),new Long(0)) ;
+      }    
+      else if(searchOnSubject && searchOnLabel && searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(0), new Long(1), new Long(1),new Long(0)) ;
+      }
+      else if(searchOnAuthor && searchOnBody && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(1), new Long(1), new Long(1),new Long(0)) ;
+      } 
+      else if(searchOnSubject && searchOnAuthor)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(1), new Long(0), new Long(0),new Long(0)) ;
+      } 
+      else if(searchOnSubject && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(0), new Long(0), new Long(1),new Long(0)) ;
+      } 
+      else if(searchOnSubject && searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(0), new Long(1), new Long(0),new Long(0)) ;
+      } 
+      else if(searchOnAuthor && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(1), new Long(0), new Long(1),new Long(0)) ;
+      }   
+      else if(searchOnAuthor && searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(1), new Long(1), new Long(0),new Long(0)) ;
+      }
+      else if(searchOnBody && searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(0), new Long(1), new Long(1),new Long(0)) ;
+      }
+      else if(searchOnSubject)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(1), new Long(0),new Long(0), new Long(0),new Long(0)) ;
+      } 
+      else if (searchOnAuthor)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(1),new Long(0), new Long(0),new Long(0)) ;
+      }
+      else if (searchOnBody)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(0),new Long(1), new Long(0),new Long(0)) ;
+      }    
+      else if (searchOnLabel)
+      {
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+            new Long(0), new Long(0),new Long(0), new Long(1),new Long(0)) ;
+      }        
+    }
+    
+    newls= createDecoratedDisplay(tempPvtMsgLs);
+//    
+//    for (Iterator iter = tempPvtMsgLs.iterator(); iter.hasNext();)
+//    {
+//      PrivateMessage element = (PrivateMessage) iter.next();
+//      PrivateMessageDecoratedBean dbean = new PrivateMessageDecoratedBean(element);
+//      
+//      //getRecipients() is filtered for this perticular user i.e. returned list of only one PrivateMessageRecipient object
+//      for (Iterator iterator = element.getRecipients().iterator(); iterator.hasNext();)
+//      {
+//        PrivateMessageRecipient el = (PrivateMessageRecipient) iterator.next();
+//        if (el != null){
+//          if(!el.getRead().booleanValue())
+//          {
+//            dbean.setHasRead(el.getRead().booleanValue());
+//            break;
+//          }
+//        }
+//      }
+//      //Add decorate 'TO' String for sent message
+//      if(PVTMSG_MODE_SENT.equals(msgNavMode))
+//      {
+//        dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean)); 
+//      }
+//      newls.add(dbean);     
+//    }
     //set threaded view as  false in search 
     selectView="";
-    
     
     if(newls.size()>0)
     {
@@ -2181,6 +2351,95 @@ public class PrivateMessagesTool
       }    
   }
   
+  /**
+   * Clear Search text
+   */
+  public String processClearSearch()
+  {
+    searchText="";
+    if(searchPvtMsgs != null)
+    {
+      searchPvtMsgs.clear();
+      searchPvtMsgs= decoratedPvtMsgs;   
+    }
+    
+    searchOnBody=false ;
+    searchOnSubject=true;
+    searchOnLabel= false ;
+    searchOnAuthor=false;
+    searchOnDate=false;
+    searchFromDate=null;
+    searchToDate=null;
+    
+    return "pvtMsg";
+  }
+  
+  public boolean searchOnBody=false ;
+  public boolean searchOnSubject=true;  //default is search on Subject
+  public boolean searchOnLabel= false ;
+  public boolean searchOnAuthor=false;
+  public boolean searchOnDate=false;
+  public Date searchFromDate;
+  public Date searchToDate; 
+  
+  public boolean isSearchOnAuthor()
+  {
+    return searchOnAuthor;
+  }
+  public void setSearchOnAuthor(boolean searchOnAuthor)
+  {
+    this.searchOnAuthor = searchOnAuthor;
+  }
+  public boolean isSearchOnBody()
+  {
+    return searchOnBody;
+  }
+  public void setSearchOnBody(boolean searchOnBody)
+  {
+    this.searchOnBody = searchOnBody;
+  }
+  public boolean isSearchOnLabel()
+  {
+    return searchOnLabel;
+  }
+  public void setSearchOnLabel(boolean searchOnLabel)
+  {
+    this.searchOnLabel = searchOnLabel;
+  }
+  public boolean isSearchOnSubject()
+  {
+    return searchOnSubject;
+  }
+  public void setSearchOnSubject(boolean searchOnSubject)
+  {
+    this.searchOnSubject = searchOnSubject;
+  }
+  public boolean isSearchOnDate()
+  {
+    return searchOnDate;
+  }
+  public void setSearchOnDate(boolean searchOnDate)
+  {
+    this.searchOnDate = searchOnDate;
+  }
+  public Date getSearchFromDate()
+  {
+    return searchFromDate;
+  }
+  public void setSearchFromDate(Date searchFromDate)
+  {
+    this.searchFromDate = searchFromDate;
+  }
+  public Date getSearchToDate()
+  {
+    return searchToDate;
+  }
+  public void setSearchToDate(Date searchToDate)
+  {
+    this.searchToDate = searchToDate;
+  }
+
+
   //////////////        HELPER      //////////////////////////////////
   /**
    * @return
@@ -2204,6 +2463,66 @@ public class PrivateMessagesTool
     return parameterValue;
   }
 
+  
+  /**
+   * decorated display - from List of Message
+   */
+  public List createDecoratedDisplay(List msg)
+  {
+    List decLs= new ArrayList() ;
+    for (Iterator iter = msg.iterator(); iter.hasNext();)
+    {
+      PrivateMessage element = (PrivateMessage) iter.next();                  
+      
+      PrivateMessageDecoratedBean dbean= new PrivateMessageDecoratedBean(element);
+      //if processSelectAll is set, then set isSelected true for all messages,
+      if(selectAll)
+      {
+        dbean.setIsSelected(true);
+      }
+       
+      //getRecipients() is filtered for this perticular user i.e. returned list of only one PrivateMessageRecipient object
+      for (Iterator iterator = element.getRecipients().iterator(); iterator.hasNext();)
+      {
+        PrivateMessageRecipient el = (PrivateMessageRecipient) iterator.next();
+        if (el != null){
+          dbean.setHasRead(el.getRead().booleanValue());
+        }
+      }
+      //Add decorate 'TO' String for sent message
+      if(PVTMSG_MODE_SENT.equals(msgNavMode))
+      {
+        dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean)); 
+      }
+
+      decLs.add(dbean) ;
+    }
+    //reset selectAll flag, for future use
+    selectAll=false;
+    return decLs;
+  }
+  
+  /**
+   * create decorated display for Sent To display for Sent folder
+   * @param dbean
+   * @return
+   */
+  public String createDecoratedSentToDisplay(PrivateMessageDecoratedBean dbean)
+  {
+    String deocratedToDisplay="";
+    if(dbean.getMsg().getRecipientsAsText() != null)
+    {
+      if (dbean.getMsg().getRecipientsAsText().length()>25)
+      {
+        deocratedToDisplay=(dbean.getMsg().getRecipientsAsText()).substring(0, 20)+" (..)";
+      } else
+      {
+        deocratedToDisplay=dbean.getMsg().getRecipientsAsText();
+      }
+    }
+    return deocratedToDisplay;
+  }
+  
   /**
    * get recipients
    * @return a set of recipients (User objects)

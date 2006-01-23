@@ -1,5 +1,6 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -96,8 +97,7 @@ public interface PrivateMessageManager {
      * @return count
      */
     public int findUnreadMessageCount(String typeUuid);
-
-        
+    
     public MessageForumsMessageManager getMessageManager();
     public Message getMessageById(Long messageId);
     
@@ -136,5 +136,7 @@ public interface PrivateMessageManager {
     public PrivateMessage getPreviousMessage(PrivateMessage message);
     public boolean hasPreviousMessage(PrivateMessage message);
     public boolean hasNextMessage(PrivateMessage message);
+    
+    public List searchPvtMsgs(String searchText,Date searchFromDate, Date searchToDate, Long searchByText, Long searchByAuthor,Long searchByBody, Long searchByLabel,Long searchByDate);
     
 }

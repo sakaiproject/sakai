@@ -1076,4 +1076,22 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     }
   }  
 
+  //Search
+  
+  public List searchPvtMsgs(String searchText,Date searchFromDate, Date searchToDate, 
+      Long searchByText,Long searchByAuthor,Long searchByBody, Long searchByLabel,Long searchByDate)
+  {
+    List pvtMsgLs= new ArrayList();
+    List pmReturnLs= new ArrayList();
+    pvtMsgLs= messageManager.findPvtMsgsBySearchText(searchText,searchFromDate, searchToDate, 
+        searchByText,searchByAuthor,searchByBody,searchByLabel,searchByDate);
+    for (Iterator iter = pvtMsgLs.iterator(); iter.hasNext();)
+    {
+      PrivateMessage pmReturn = (PrivateMessage) iter.next();
+      //innitialize for LazyInitializationException:
+      getHibernateTemplate().initialize(pmReturn.getRecipients());
+      pmReturnLs.add(pmReturn);
+    }
+    return pmReturnLs;
+  }
 }
