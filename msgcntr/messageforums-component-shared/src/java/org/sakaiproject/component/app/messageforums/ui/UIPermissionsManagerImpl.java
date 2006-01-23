@@ -538,9 +538,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       return true;
     }
-    if (isContributor(topic) != null)
-    {
-      return isContributor(topic).booleanValue();
+    if (isContributor(topic) != null && isContributor(topic).booleanValue())
+    {      
+      return true;
     }
     if (isReadAccess(topic) != null)
     {
