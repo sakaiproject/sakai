@@ -88,8 +88,8 @@ public class ItemAddListener
     String iType=item.getItemType();
     String err="";
     FacesContext context=FacesContext.getCurrentInstance();
-    if((!(iText!=null) && ((iText.replaceAll("<.*?>", "")).trim())!="")){
-	String emptyText_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","temptyText_error");
+    if(!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||((iText.replaceAll("<.*?>", "")).trim().equals("")))){
+	String emptyText_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");
 	context.addMessage(null,new FacesMessage(emptyText_err));
 	return;
 
