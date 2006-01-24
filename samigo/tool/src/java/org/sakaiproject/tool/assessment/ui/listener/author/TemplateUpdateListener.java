@@ -214,7 +214,18 @@ public class TemplateUpdateListener
       }
       feedback.setFeedbackDelivery(new Integer(templateBean.getFeedbackType()));
       feedback.setFeedbackAuthoring(new Integer(templateBean.getFeedbackAuthoring()));
-      feedback.setEditComponents(new Integer("1")); // dunno what goes here
+
+      Boolean canEditFeedbackComponent=(Boolean)templateBean.getValue("feedbackComponents_isInstructorEditable");
+      // SAK-3573: looks like at some point the "feedbackComponents_isInstructorEditable" were being used
+      // in place of "EditComponent" but 
+      // 1) the changes was not done all the way (see TemplateBean, line 99 is missing) and 
+      // 2) "EditComponent" was always set to 1 instead of being updated
+      // correctly to provide backward compatibility to old data. -daisyf
+      if (canEditFeedbackComponent.booleanValue())
+	  feedback.setEditComponents(new Integer("1"));
+      else
+	  feedback.setEditComponents(new Integer("0"));
+
       feedback.setShowQuestionText
         (templateBean.getFeedbackComponent_QuestionText());
       feedback.setShowStudentResponse
