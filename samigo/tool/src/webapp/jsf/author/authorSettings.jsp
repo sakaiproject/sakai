@@ -155,10 +155,10 @@ function checkTimeSelect(){
  <h:panelGrid columns="2" columnClasses="shorttext">
         <h:outputLabel value="#{msg.template_title}"/>
         <h:outputText escape="false" value="#{assessmentSettings.templateTitle}" />
-        <h:outputLabel value="#{msg.template_authors}"/>
-        <h:outputText escape="false" value="#{assessmentSettings.templateAuthors}" />
-        <h:outputLabel value="#{msg.template_description}"/>
-        <h:outputText escape="false" value="#{assessmentSettings.templateDescription}" />
+        <h:outputLabel value="#{msg.template_authors}" rendered="#{assessmentSettings.templateAuthors!=null}"/>
+        <h:outputText escape="false" rendered="#{assessmentSettings.templateAuthors!=null}" value="#{assessmentSettings.templateAuthors}" />
+        <h:outputLabel value="#{msg.template_description}" rendered="#{assessmentSettings.templateDescription!=null}"/>
+        <h:outputText escape="false" rendered="#{assessmentSettings.templateDescription!=null}" value="#{assessmentSettings.templateDescription}" />
     </h:panelGrid>
  <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
@@ -166,6 +166,7 @@ function checkTimeSelect(){
 
   <!-- *** ASSESSMENT INTRODUCTION *** -->
 <f:subview id="intro">
+
   <samigo:hideDivision id="div1" title="#{msg.heading_assessment_introduction}" > <div class="indnt2">
     <h:panelGrid columns="2" columnClasses="shorttext" id="first"
       summary="#{summary_msg.enter_template_info_section}">
@@ -173,23 +174,21 @@ function checkTimeSelect(){
         <h:outputLabel value="#{msg.assessment_title}"/>
         <h:inputText size="80" value="#{assessmentSettings.title}" />
 
-        <h:outputLabel value="#{msg.assessment_creator}"/>
+        <h:outputLabel value="#{msg.assessment_creator}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
 
         <h:outputText value="#{assessmentSettings.creator}"
           rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
+       
 
-        <h:outputLabel value="#{msg.assessment_authors}"/>
+        <h:outputLabel  rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{msg.assessment_authors}"/>
 
         <h:inputText size="80" value="#{assessmentSettings.authors}"
-          disabled="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable!=true}"/>
+          rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
 
-        <h:outputLabel value="#{msg.assessment_description}"/>
+        <h:outputLabel value="#{msg.assessment_description}" rendered="#{assessmentSettings.valueMap.description_isInstructorEditable==true}"/>
 
         <%-- SAM-363: this is a work around given samigo:wysiwyg does not support disabled --%>
-        <h:panelGroup rendered="#{assessmentSettings.valueMap.description_isInstructorEditable!=true}">
-          <h:inputTextarea value="#{assessmentSettings.description}" cols="60"
-            disabled="#{assessmentSettings.valueMap.description_isInstructorEditable!=true}"/>
-        </h:panelGroup>
+       
         <h:panelGroup rendered="#{assessmentSettings.valueMap.description_isInstructorEditable==true}">
           <samigo:wysiwyg rows="140" value="#{assessmentSettings.description}"  >
            <f:validateLength maximum="4000"/>
@@ -313,7 +312,7 @@ function checkTimeSelect(){
   <!-- *** ASSESSMENT ORGANIZATION *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true or assessmentSettings.valueMap.displayChucking_isInstructorEditable==true or assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true }" >
   <samigo:hideDivision id="div6" title="#{msg.heading_assessment_organization}" >
-   <f:verbatim><div class="indnt2"></f:verbatim>
+  <f:verbatim> <div class="indnt2"></f:verbatim>
     <!-- NAVIGATION -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true}">
   <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.navigation}" /><f:verbatim></div><div class="indnt3"></f:verbatim>
@@ -351,6 +350,7 @@ function checkTimeSelect(){
  <f:verbatim></div></f:verbatim>
     </h:panelGroup>
  <f:verbatim></div></f:verbatim>
+
   </samigo:hideDivision>
 </h:panelGroup>
 
@@ -429,15 +429,16 @@ function checkTimeSelect(){
 </h:panelGroup>
 
   <!-- *** FEEDBACK *** -->
-  <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
-<h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
-
+ 
+<h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
+ <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
+  <f:verbatim> <div class="indnt2"></f:verbatim>
   <!-- FEEDBACK AUTHORING -->
-   <f:verbatim> <div class="indnt2"><div class="longtext"></f:verbatim>
+ <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
+   <f:verbatim><div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.feedback_authoring}"/>
     <f:verbatim> </div> </f:verbatim>
      <f:verbatim> <div class="indnt3"> </f:verbatim>
-    <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
      <h:panelGrid border="0" columns="1">
          <h:selectOneRadio id="feedbackAuthoring" value="#{assessmentSettings.feedbackAuthoring}" layout="pageDirection">
            <f:selectItem itemValue="1" itemLabel="#{msg.questionlevel_feedback}"/>
@@ -445,14 +446,15 @@ function checkTimeSelect(){
            <f:selectItem itemValue="3" itemLabel="#{msg.both_feedback}"/>
          </h:selectOneRadio>
      </h:panelGrid>
-    </h:panelGroup>
+  
     <f:verbatim> </div> </f:verbatim>
-
+  </h:panelGroup>
  <!-- FEEDBACK DELIVERY -->
+ <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
  <f:verbatim><div class="longtext"></f:verbatim>
-   <h:outputLabel value="#{msg.feedback_delivery}" /> 
+   <h:outputLabel value="#{msg.feedback_delivery}"/> 
     <f:verbatim></div><div class="indnt3"></f:verbatim>
-    <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
+   
       <h:panelGrid border="0" columns="1"  >
         <h:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}"
            layout="pageDirection" onclick="disableAllFeedbackCheck(this.value);">
@@ -461,16 +463,14 @@ function checkTimeSelect(){
           <f:selectItem itemValue="2" itemLabel="#{msg.feedback_by_date}"/>
         </h:selectOneRadio>
 
-      <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}" >
         <samigo:datePicker value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" >
           <f:convertDateTime pattern="MM/dd/yyyy" />
         </samigo:datePicker>
-      </h:panelGroup>
-
+     
       </h:panelGrid>
-    </h:panelGroup>
+  
 <f:verbatim></div></f:verbatim>
-
+  </h:panelGroup>
 
     <!-- FEEDBACK COMPONENTS -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
@@ -522,8 +522,9 @@ function checkTimeSelect(){
 <f:verbatim></div></f:verbatim>
     </h:panelGroup>
  <f:verbatim></div></f:verbatim>
-</h:panelGroup>
  </samigo:hideDivision>
+</h:panelGroup>
+
 
   <!-- *** GRADING *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true or assessmentSettings.valueMap.toGradebook_isInstructorEditable==true or assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}" >
