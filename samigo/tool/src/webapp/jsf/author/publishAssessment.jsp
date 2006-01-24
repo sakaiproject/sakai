@@ -84,17 +84,21 @@
      <h:panelGroup>
        <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true'}"
           value="#{assessmentSettings.timedHours} hour,
-          #{assessmentSettings.timedMinutes} minutes, #{assessmentSettings.timedSeconds} seconds" />
+          #{assessmentSettings.timedMinutes} minutes, #{assessmentSettings.timedSeconds} seconds. " />
+       <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true'}"
+          value="#{msg.auto_submit_description}" />
        <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment ne 'true'}"
           value="No Time Limit" />
      </h:panelGroup>
 
+<%-- SAK-3578: auto submit will always be ON for timed assessment,
+     so no need to have this option
      <h:outputLabel value="#{msg.auto_submit}" />
      <h:panelGroup>
        <h:outputText value="On" rendered="#{assessmentSettings.autoSubmit}" />
        <h:outputText value="Off" rendered="#{!assessmentSettings.autoSubmit}" />
      </h:panelGroup>
-
+--%>
 
      <h:outputLabel value="#{msg.submissions}" />
      <h:panelGroup>

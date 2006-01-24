@@ -291,10 +291,13 @@ function checkTimeSelect(){
         <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}">
           <f:selectItems value="#{assessmentSettings.mins}" />
         </h:selectOneMenu>
-        <h:outputText value="#{msg.timed_minutes}." />
+        <h:outputText value="#{msg.timed_minutes}. " />
+        <h:outputText value="#{msg.auto_submit_description}" />
       </h:panelGroup>
     </h:panelGrid>
-    <h:panelGrid  >
+<%-- SAK-3578: auto submit will always be true for timed assessment,
+     so no need to have this option
+    <h:panelGrid>
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessmentAutoSubmit_isInstructorEditable==true}">
        <h:selectBooleanCheckbox id="automatic"
          value="#{assessmentSettings.autoSubmit}"/>
@@ -302,6 +305,7 @@ function checkTimeSelect(){
      </h:panelGroup>
     </h:panelGrid>
        <h:outputText value="#{msg.autoSummit_warning}" />
+--%>
  <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
 </h:panelGroup>

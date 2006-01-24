@@ -196,9 +196,12 @@
         value="#{template.valueMap.timedAssessment_isInstructorEditable}"/>
       <h:outputLabel for="timed_assmt" value="#{msg.timed_assmt}"/>
 
+<%-- SAK-3578: auto submit when time expired will always be true, 
+     so no need to provide "can edit" option
       <h:selectBooleanCheckbox id="auto_submit_expires"
         value="#{template.valueMap.timedAssessmentAutoSubmit_isInstructorEditable}"/>
       <h:outputLabel for="auto_submit_expires" value="#{msg.auto_submit_expires}"/>
+--%>
 
     </h:panelGrid>
    </div></div>

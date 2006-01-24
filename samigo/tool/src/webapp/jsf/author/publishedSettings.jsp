@@ -193,9 +193,12 @@
            disabled="true">
           <f:selectItems value="#{publishedSettings.mins}" />
         </h:selectOneMenu>
-        <h:outputText value="#{msg.timed_minutes}." />
+        <h:outputText value="#{msg.timed_minutes}. " />
+        <h:outputText value="#{msg.auto_submit_description}" />
       </h:panelGroup>
     </h:panelGrid>
+<%-- SAK-3578: auto submit will always be true for timed assessment,
+     so no need to have this option
     <h:panelGrid  >
       <h:panelGroup>
        <h:selectBooleanCheckbox  disabled="true"
@@ -203,6 +206,7 @@
         <h:outputText value="#{msg.auto_submit}" />
      </h:panelGroup>
     </h:panelGrid>
+--%>
 </div>
   </samigo:hideDivision>
 
