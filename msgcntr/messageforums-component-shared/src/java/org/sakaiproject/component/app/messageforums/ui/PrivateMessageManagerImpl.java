@@ -558,16 +558,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       }
     };
 
-    return (List) getHibernateTemplate().execute(hcb);
-    
-    // fix to return count of attachments collection
-    
-//    for (Iterator i = list.iterator(); i.hasNext();)
-//    {
-//      PrivateMessage element = (PrivateMessage) i.next();
-//      getHibernateTemplate().initialize(element.getAttachmentsSet());
-//    }
-//    return list;
+    return (List) getHibernateTemplate().execute(hcb);        
   }
   
   /**

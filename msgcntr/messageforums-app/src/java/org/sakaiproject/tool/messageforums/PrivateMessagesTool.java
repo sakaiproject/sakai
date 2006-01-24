@@ -180,6 +180,8 @@ public class PrivateMessagesTool
   public static final String SORT_DATE_DESC = "date_desc";
   public static final String SORT_LABEL_ASC = "label_asc";
   public static final String SORT_LABEL_DESC = "label_desc";
+  public static final String SORT_TO_ASC = "to_asc";
+  public static final String SORT_TO_DESC = "to_desc";
   
   /** sort member */
   private String sortType = SORT_DATE_DESC;
@@ -309,9 +311,39 @@ public class PrivateMessagesTool
 
   public List getDecoratedPvtMsgs()
   {
+  	/** 
+  	    avoid apply_request_values and render_response from calling this method on postback
+  	    solution -- only call durig render_response phase
+  	*/
+  	if (!FacesContext.getCurrentInstance().getRenderResponse()){
+  		return decoratedPvtMsgs;
+  	}
+  	  	  	
     decoratedPvtMsgs=new ArrayList() ;
-    
+        
     String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);
+    
+    /** support for sorting */
+    String sortColumnParameter = getExternalParameterByKey("sortColumn");
+  	
+  	if ("subject".equals(sortColumnParameter)){  		  		
+  		sortType = (SORT_SUBJECT_ASC.equals(sortType)) ? SORT_SUBJECT_DESC : SORT_SUBJECT_ASC;  			 		
+  	}
+  	else if ("author".equals(sortColumnParameter)){  		  		
+  		sortType = (SORT_AUTHOR_ASC.equals(sortType)) ? SORT_AUTHOR_DESC : SORT_AUTHOR_ASC;  			 		
+  	}
+  	else if ("date".equals(sortColumnParameter)){  		  		
+  		sortType = (SORT_DATE_ASC.equals(sortType)) ? SORT_DATE_DESC : SORT_DATE_ASC;  			 		
+  	}
+  	else if ("label".equals(sortColumnParameter)){  		  		
+  		sortType = (SORT_LABEL_ASC.equals(sortType)) ? SORT_LABEL_DESC : SORT_LABEL_ASC;  			 		
+  	}
+  	else if ("to".equals(sortColumnParameter)){  		  		
+  		sortType = (SORT_TO_ASC.equals(sortType)) ? SORT_TO_DESC : SORT_TO_ASC;  			 		
+  	}
+  	else{
+  		sortType = SORT_DATE_DESC;
+  	}
     
     /** add support for sorting */
     if (SORT_SUBJECT_ASC.equals(sortType)){
@@ -344,6 +376,14 @@ public class PrivateMessagesTool
     }        
     else if (SORT_LABEL_DESC.equals(sortType)){
     	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_LABEL,
+          PrivateMessageManager.SORT_DESC);
+    }
+    else if (SORT_TO_ASC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_TO,
+          PrivateMessageManager.SORT_ASC);
+    }        
+    else if (SORT_TO_DESC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_TO,
           PrivateMessageManager.SORT_DESC);
     }        
     
@@ -800,6 +840,10 @@ public class PrivateMessagesTool
   public String processPvtMsgTopic()
   {
     LOG.debug("processPvtMsgTopic()");
+    
+    /** reset sort type */
+    sortType = SORT_DATE_DESC;    
+    
     //get external parameter
     selectedTopicTitle = getExternalParameterByKey("pvtMsgTopicTitle") ;
     setSelectedTopicId(getExternalParameterByKey("pvtMsgTopicId")) ;
@@ -1038,34 +1082,7 @@ public class PrivateMessagesTool
     
     return "main";    
   }
-  
-  /**
-   * process sort
-   * @return pvtMsg for navigation
-   */
-  public String processPvtMsgSortListener(ActionEvent e) {
-  	  	  	
-  	// use title to sort
-  	HtmlCommandLink commandLink = (HtmlCommandLink) e.getComponent();  	
-  	String title = commandLink.getTitle();
-  	
-  	  	
-  	if ("subject".equals(title)){  		  		
-  		sortType = (SORT_SUBJECT_DESC.equals(sortType)) ? SORT_SUBJECT_ASC : SORT_SUBJECT_DESC;  			 		
-  	}
-  	else if ("author".equals(title)){  		  		
-  		sortType = (SORT_AUTHOR_DESC.equals(sortType)) ? SORT_AUTHOR_ASC : SORT_AUTHOR_DESC;  			 		
-  	}
-  	else if ("date".equals(title)){  		  		
-  		sortType = (SORT_DATE_DESC.equals(sortType)) ? SORT_DATE_ASC : SORT_DATE_DESC;  			 		
-  	}
-  	else if ("label".equals(title)){  		  		
-  		sortType = (SORT_LABEL_DESC.equals(sortType)) ? SORT_LABEL_ASC : SORT_LABEL_DESC;  			 		
-  	}
-  	  	  	  	  	
-  	return "pvtMsg";
-  }
- 
+     
   /**
    * process from Compose screen
    * @return - pvtMsg
@@ -1416,7 +1433,7 @@ public class PrivateMessagesTool
    * processDisplayNextFolder()
    */
   public String processDisplayNextTopic()
-  {
+  {  	  	
     String nextTitle = getExternalParameterByKey("nextTopicTitle");
     if(hasValue(nextTitle))
     {
@@ -2514,22 +2531,12 @@ public class PrivateMessagesTool
    * @return
    */
   private String getExternalParameterByKey(String parameterId)
-  {
-    String parameterValue = null;
+  {    
     ExternalContext context = FacesContext.getCurrentInstance()
         .getExternalContext();
     Map paramMap = context.getRequestParameterMap();
-    Iterator itr = paramMap.keySet().iterator();
-    while (itr.hasNext())
-    {
-      String key = (String) itr.next();
-      if (key != null && key.equals(parameterId))
-      {
-        parameterValue = (String) paramMap.get(key);
-        break;
-      }
-    }
-    return parameterValue;
+    
+    return (String) paramMap.get(parameterId);    
   }
 
   
