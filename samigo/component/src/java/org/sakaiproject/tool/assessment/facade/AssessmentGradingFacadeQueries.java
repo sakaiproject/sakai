@@ -206,7 +206,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           criteria.addOrder(Order.desc("submittedDate"));
           //return criteria.list();
           //large list cause out of memory error (java heap space)
-          return criteria.setMaxResults(100).list();
+          return criteria.setMaxResults(10000).list();
         }
       };
       List temp = (List) getHibernateTemplate().execute(hcb);
