@@ -182,6 +182,8 @@ public class PrivateMessagesTool
   public static final String SORT_LABEL_DESC = "label_desc";
   public static final String SORT_TO_ASC = "to_asc";
   public static final String SORT_TO_DESC = "to_desc";
+  public static final String SORT_ATTACHMENT_ASC = "attachment_asc";
+  public static final String SORT_ATTACHMENT_DESC = "attachment_desc";
   
   /** sort member */
   private String sortType = SORT_DATE_DESC;
@@ -341,6 +343,9 @@ public class PrivateMessagesTool
   	else if ("to".equals(sortColumnParameter)){  		  		
   		sortType = (SORT_TO_ASC.equals(sortType)) ? SORT_TO_DESC : SORT_TO_ASC;  			 		
   	}
+  	else if ("attachment".equals(sortColumnParameter)){  		  		
+  		sortType = (SORT_ATTACHMENT_ASC.equals(sortType)) ? SORT_ATTACHMENT_DESC : SORT_ATTACHMENT_ASC;  			 		
+  	}
   	else{
   		sortType = SORT_DATE_DESC;
   	}
@@ -386,6 +391,15 @@ public class PrivateMessagesTool
     	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_TO,
           PrivateMessageManager.SORT_DESC);
     }        
+    else if (SORT_ATTACHMENT_ASC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_ATTACHMENT,
+          PrivateMessageManager.SORT_ASC);
+    }        
+    else if (SORT_ATTACHMENT_DESC.equals(sortType)){
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_ATTACHMENT,
+          PrivateMessageManager.SORT_DESC);
+    }
+    
     
     decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);    
 

@@ -46,11 +46,21 @@
 		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
-				<f:facet name="header">
-					<h:graphicImage value="/images/attachment.gif"/>								
-				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}"/>			 
-			</h:column>
+		    <f:facet name="header">					
+			  <h:commandLink>
+		        <h:graphicImage value="/images/attachment.gif"
+		                        title="#{msgs.sort_attachment}"/>
+		        <h:graphicImage value="/images/sortascending.gif" style="border:0" 
+    	                        title="#{msgs.sort_attachment_asc}" alt="#{msgs.sort_attachment_asc}"
+    	                        rendered="#{PrivateMessagesTool.sortType == 'attachment_asc'}"/>
+    	        <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
+    	                        title="#{msgs.sort_attachment_desc}" alt="#{msgs.sort_attachment_desc}"
+    	                        rendered="#{PrivateMessagesTool.sortType == 'attachment_desc'}"/>    	                       
+    	        <f:param name="sortColumn" value="attachment"/>
+    	      </h:commandLink>
+			</f:facet>
+			<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}"/>			 
+		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">
 		       <h:commandLink value="#{msgs.pvt_subject}"
