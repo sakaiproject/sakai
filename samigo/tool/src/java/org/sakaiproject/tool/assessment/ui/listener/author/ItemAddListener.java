@@ -121,6 +121,7 @@ public class ItemAddListener
     }
     item.setOutcome("editAssessment");
     item.setPoolOutcome("editPool");
+    itemauthorbean.setItemTypeString("");
   }
     
 	
