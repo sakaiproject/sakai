@@ -26,20 +26,20 @@
     <version name="version" column="VERSION" />
 
     <property name="uuid" column="UUID" length="36" not-null="true" />
-    <property name="created" column="CREATED" not-null="true" />
+    <property name="created" column="CREATED" not-null="true" index="MFR_MESSAGE_CREATED_I"/>
     <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
     <property name="modified" column="MODIFIED" not-null="true" />
     <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
 
     <!-- Message fields -->
     <property name="title">
-      <column name="TITLE" length="255" not-null="true" />
+      <column name="TITLE" length="255" not-null="true" index="MFR_MESSAGE_TITLE_I"/>
     </property>
     <property name="body" type="text">
       <column name="BODY" not-null="false" />
     </property>
     <property name="author">
-      <column name="AUTHOR" length="255" not-null="true" />
+      <column name="AUTHOR" length="255" not-null="true" index="MFR_MESSAGE_AUTHOR_I" />
     </property>
     <property name="hasAttachments">
       <column name="HAS_ATTACHMENTS" not-null="true" />
@@ -57,7 +57,7 @@
 	</list> 
 	-->   
     <property name="label">
-      <column name="LABEL" length="255" not-null="false" />
+      <column name="LABEL" length="255" not-null="false" index="MFR_MESSAGE_LABEL_I" />
     </property>
     <many-to-one name="inReplyTo" column="IN_REPLY_TO"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
