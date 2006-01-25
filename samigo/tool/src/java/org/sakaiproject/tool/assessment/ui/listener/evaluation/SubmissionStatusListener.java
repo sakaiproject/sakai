@@ -167,6 +167,7 @@ public class SubmissionStatusListener
         while (i2.hasNext())
         {
           AssessmentGradingData agd = (AssessmentGradingData) i2.next();
+          agd.setItemGradingSet(delegate.getItemGradingSet(agd.getAssessmentGradingId().toString()));
           Iterator i3 = agd.getItemGradingSet().iterator();
           while (i3.hasNext())
           {
