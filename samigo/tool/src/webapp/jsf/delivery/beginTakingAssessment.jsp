@@ -48,7 +48,7 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <!--h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" /-->
 <!--div class="portletBody"-->
- <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBackground};#{delivery.settings.divBgcolor}'>" escape="false"/>
+ <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
  <!-- content... -->
 
 <h:form id="takeAssessmentForm">

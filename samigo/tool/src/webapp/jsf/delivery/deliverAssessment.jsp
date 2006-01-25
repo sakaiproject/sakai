@@ -51,7 +51,7 @@
       <h:outputText value="<a name='top'></a>" escape="false" />
  
  <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor};background-image:url(http://www.w3.org/WAI/UA/TS/html401/images/test-background.gif)'>" escape="false"/-->
- <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBackground};#{delivery.settings.divBgcolor}'>" escape="false"/>
+ <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
