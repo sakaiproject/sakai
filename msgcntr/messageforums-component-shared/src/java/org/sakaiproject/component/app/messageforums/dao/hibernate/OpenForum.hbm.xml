@@ -19,7 +19,9 @@
     </id>
 
 	<!--  Discriminator field used for polymophism in the database -->
-    <discriminator column="FORUM_DTYPE" type="string" length="2" />
+    <discriminator>
+      <column name="FORUM_DTYPE" length="2" index="MFR_OPEN_FORUM_DTYPE_I"/>
+    </discriminator>
 
 	<!--  Version number used for optimistic locking -->
     <version name="version" column="VERSION" />
