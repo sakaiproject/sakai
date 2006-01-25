@@ -138,14 +138,28 @@ public class DeliveryActionListener
       System.out.println("**** DeliveryActionListener:action"+delivery.getActionMode());
 
       switch (action){
+      case 2: // preview assessment, show feedback is clicked
+              setFeedbackMode(delivery);
+              if (("true").equals(delivery.getFeedback())){
+                itemData = new HashMap();
+                if (delivery.getFeedbackComponent().getShowResponse())
+                  itemData = service.getSubmitData(id, agent);
+                //setAssessmentGradingFromItemData(delivery, itemData, false);
+                setDisplayByAssessment(delivery);
+                setGraderComment(delivery);
+	      }
+              break;
+
       case 3: // Review assessment
               setFeedbackMode(delivery);
-              itemData = new HashMap();
-              if (delivery.getFeedbackComponent().getShowResponse())
-                itemData = service.getSubmitData(id, agent);
-              setAssessmentGradingFromItemData(delivery, itemData, false);
-              setDisplayByAssessment(delivery);
-              setGraderComment(delivery);
+              if (("true").equals(delivery.getFeedback())){
+                itemData = new HashMap();
+                if (delivery.getFeedbackComponent().getShowResponse())
+                  itemData = service.getSubmitData(id, agent);
+                setAssessmentGradingFromItemData(delivery, itemData, false);
+                setDisplayByAssessment(delivery);
+                setGraderComment(delivery);
+	      }
               break;
  
       case 4: // Grade assessment
@@ -1324,7 +1338,7 @@ public class DeliveryActionListener
               delivery.setFeedback("true");
             }
             break;
-
+    case 2: // preview assessment
     case 3: // review assessment
     case 4: // grade assessment
             if (delivery.getFeedbackComponent()!=null 
