@@ -417,9 +417,15 @@ public class TotalScoreListener
       }
 
       results.setAssessmentGradingId(gdata.getAssessmentGradingId());
-      results.setTotalAutoScore(gdata.getTotalAutoScore().toString());
+      if(gdata.getTotalAutoScore() != null)
+        results.setTotalAutoScore(gdata.getTotalAutoScore().toString());
+      else
+        results.setTotalAutoScore("0.0");
       results.setTotalOverrideScore(gdata.getTotalOverrideScore().toString());
-      results.setFinalScore(gdata.getFinalScore().toString());
+      if(gdata.getFinalScore() != null)
+        results.setFinalScore(gdata.getFinalScore().toString());
+      else
+        results.setFinalScore("0.0");
       results.setComments(gdata.getComments());
 
       int graded=0;
