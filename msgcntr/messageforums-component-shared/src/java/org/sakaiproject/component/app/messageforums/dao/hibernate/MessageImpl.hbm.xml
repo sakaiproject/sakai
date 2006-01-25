@@ -20,7 +20,9 @@
     </id>
 
 	<!--  Discriminator field used for polymophism in the database -->
-    <discriminator column="MESSAGE_DTYPE" type="string" length="2" />
+    <discriminator>
+      <column name="MESSAGE_DTYPE" length="2" index="MFR_MESSAGE_DTYPE_I"/>
+    </discriminator>
        
 	<!--  Version number used for optimistic locking -->
     <version name="version" column="VERSION" />

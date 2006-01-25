@@ -28,7 +28,7 @@
 
     <!-- Area fields -->
     <property name="contextId">
-      <column name="CONTEXT_ID" length="255" not-null="true" />
+      <column name="CONTEXT_ID" length="255" not-null="true" index="MFR_AREA_CONTEXT_I"/>
     </property>
     <property name="name">
       <column name="NAME" length="255" not-null="true" />
@@ -37,7 +37,7 @@
       <column name="HIDDEN" not-null="true" />
     </property>
     <property name="typeUuid">
-      <column name="TYPE_UUID" length="36" not-null="true" />
+      <column name="TYPE_UUID" length="36" not-null="true" index="MFR_AREA_TYPE_I"/>
     </property>
     <property name="enabled">
       <column name="ENABLED" not-null="true" />

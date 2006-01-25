@@ -41,7 +41,7 @@
       <column name="EXTENDED_DESCRIPTION" not-null="false" />
     </property>
     <property name="typeUuid">
-      <column name="TYPE_UUID" length="36" not-null="true" />
+      <column name="TYPE_UUID" length="36" not-null="true" index="MFR_OPEN_FORUM_TYPE_I"/>
     </property>
     <set name="attachmentsSet" lazy="true" order-by="created desc" cascade="all-delete-orphan">
         <key column="of_urrogateKey"/>                        
