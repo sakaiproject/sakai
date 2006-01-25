@@ -93,7 +93,7 @@ public interface MessageForumsForumManager {
     /**
      * Create and save an empty private discussion forum topic
      */
-    public PrivateTopic createPrivateForumTopic(String title, boolean forumIsParent, String userId, Long parentId);    
+    public PrivateTopic createPrivateForumTopic(String title, boolean forumIsParent, boolean topicIsMutable, String userId, Long parentId);    
 
     /**
      * Save a discussion forum topic

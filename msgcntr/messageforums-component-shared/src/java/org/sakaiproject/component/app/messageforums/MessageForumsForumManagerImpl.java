@@ -659,7 +659,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return topic;
     }
 
-    public PrivateTopic createPrivateForumTopic(String title, boolean forumIsParent, String userId, Long parentId) {
+    public PrivateTopic createPrivateForumTopic(String title, boolean forumIsParent, boolean topicIsMutable, String userId, Long parentId) {
         /** set all non-null properties in case hibernate flushes session before explicit save */
         PrivateTopic topic = new PrivateTopicImpl();
         topic.setTitle(title);
@@ -669,7 +669,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setUserId(userId);
         topic.setShortDescription("short-desc");
         topic.setExtendedDescription("ext-desc");
-        topic.setMutable(Boolean.FALSE);
+        topic.setMutable(new Boolean(topicIsMutable));
         topic.setSortIndex(new Integer(0));
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());

@@ -53,6 +53,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
+import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -254,7 +255,7 @@ public class PrivateMessagesTool
       PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area);
       pf = prtMsgManager.initializationHelper(pf);
       pvtTopics = pf.getTopics();
-      Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);
+      Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
       forum=pf;           
       activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? "yes" : "no";
       forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? "yes" : "no";
@@ -933,7 +934,8 @@ public class PrivateMessagesTool
         }
       }
     }
-    
+    //default setting for moveTo
+    moveToTopic=msgNavMode;
     return "pvtMsgDetail";
   }
 
@@ -968,15 +970,6 @@ public class PrivateMessagesTool
 //    this.setSelectedComposeToList(getSelectedComposeToList()) ;
     
     return "pvtMsgReply";
-  }
-  
-  /**
-   * called from Single delete Page
-   * @return - pvtMsgMove
-   */ 
-  public String processPvtMsgMove() {
-    LOG.debug("processPvtMsgMove()");
-    return "pvtMsgMove";
   }
   
   /**
@@ -2129,10 +2122,12 @@ public class PrivateMessagesTool
   public String processPvtMsgFolderSettingDelete() {
     LOG.debug("processPvtMsgFolderSettingDelete()");
     
-    if(this.ismutable)
+    if(ismutable)
     {
+      setErrorMessage("You cann't Revise or Delete this folder.");
       return null;
     }else {
+      setErrorMessage("The folder contains messages that will also be deleted! Are you sure you want to delete the following folder and its contents?");
       return "pvtMsgFolderDelete" ;
     }    
   }
@@ -2152,9 +2147,17 @@ public class PrivateMessagesTool
     String createFolder=getAddFolder() ;
     if(createFolder == null)
     {
+      setErrorMessage("Please enter name of folder,which you want to create.");
       return null ;
     } else {
-      prtMsgManager.createTopicFolderInForum(this.getDecoratedForum().getForum().getId().toString(), this.getUserId(), createFolder);
+      if(PVTMSG_MODE_RECEIVED.equals(createFolder) || PVTMSG_MODE_SENT.equals(createFolder)|| 
+          PVTMSG_MODE_DELETE.equals(createFolder) || PVTMSG_MODE_DRAFT.equals(createFolder))
+      {
+        setErrorMessage("Please create a different folder name.");
+      } else 
+      {
+        prtMsgManager.createTopicFolderInForum(forum, createFolder);
+      }
       return "main" ;
     }
   }
@@ -2164,8 +2167,15 @@ public class PrivateMessagesTool
   {
     LOG.debug("processPvtMsgFldRevise()");
     
-    String newTopicTitle = this.getSelectedTopicTitle();    
-    prtMsgManager.renameTopicFolder(getSelectedTopicId(), getUserId(), newTopicTitle);
+    String newTopicTitle = this.getSelectedTopicTitle();  
+    if(!hasValue(newTopicTitle))
+    {
+      setErrorMessage("Folder name shouldn't be blank.");
+    }
+    else {
+      prtMsgManager.renameTopicFolder(forum, selectedTopicId,  newTopicTitle);
+      
+    }
     
     return "main" ;
   }
@@ -2175,7 +2185,7 @@ public class PrivateMessagesTool
   {
     LOG.debug("processPvtMsgFldDelete()");
     
-    prtMsgManager.deleteTopicFolder(getSelectedTopicId()) ;
+    prtMsgManager.deleteTopicFolder(forum,getSelectedTopicId()) ;
     
     return "main";
   }
@@ -2184,6 +2194,66 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgFldAddCancel()");
     
     return "main";
+  }
+  
+  ///////////////////// MOVE    //////////////////////
+  private String moveToTopic="";
+  public String getMoveToTopic()
+  {
+    //TODO - set the default topic
+    return moveToTopic;
+  }
+  public void setMoveToTopic(String moveToTopic)
+  {
+    this.moveToTopic = moveToTopic;
+  }
+  /**
+   * called from Single delete Page
+   * @return - pvtMsgMove
+   */ 
+  public String processPvtMsgMove() {
+    LOG.debug("processPvtMsgMove()");
+    return "pvtMsgMove";
+  }
+  
+  public String processPvtMsgParentFolderMove(ValueChangeEvent event)
+  {
+    LOG.debug("processPvtMsgSettingsRevise()"); 
+    if ((String)event.getNewValue() != null)
+    {
+      moveToTopic= (String)event.getNewValue();
+    }
+    return processPvtMsgMove();
+  }
+  
+  public String processPvtMsgMoveMessage()
+  {
+    LOG.debug("processPvtMsgMoveMessage()");
+//    String moveTopicTitle="";
+//    String moveTopicId="";
+//    for (Iterator iter = pvtTopics.iterator(); iter.hasNext();)
+//    {
+//      PrivateTopic element = (PrivateTopic) iter.next();
+//      if(getMoveToTopic() != null)
+//      {
+//        moveTopicTitle=getMoveToTopic();
+//        moveTopicId=getExternalParameterByKey("pvtMsgMoveTopicId") ;
+//        break;
+//      }
+//    }
+
+    return "pvtMsgDetail" ;
+  }
+  
+  /**
+   * 
+   * @return
+   */
+  public String processPvtMsgMoveCancel()
+  {
+    LOG.debug("processPvtMsgMoveCancel()");
+    
+    return "pvtMsgDetail" ;
   }
   
   ///////////////   SEARCH      ///////////////////////
@@ -2841,4 +2911,7 @@ public class PrivateMessagesTool
 	public void setSortType(String sortType) {
 		this.sortType = sortType;
 	}
+
+
+
 }

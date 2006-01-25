@@ -9,9 +9,9 @@
 	<sakai:view_container title="Received Private Messages">
 	<sakai:view_content>
 		<h:form id="pvtMsgFolderSettings">
-		
+		<sakai:tool_bar_message value="Private message- Folder Settings" /> 
+			<h:messages styleClass="alertMessage" id="errorMessages" /> 
 
-<h2>Private message- Folder Settings</h2>
   <h4><h:outputText value="Folder Title"/></h4>
  
 
@@ -29,10 +29,7 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <h:commandButton action="#{PrivateMessagesTool.processPvtMsgFolderSettingCancel}" value="Cancel" />
  </p>
- --%>   
- 	<h:panelGroup rendered="#{PrivateMessagesTool.ismutable}">
-	  <h:outputText style="alertMessage" value="! You cann't Revise or Delete this folder." />
-	</h:panelGroup>   
+ --%>    
 				
 	<sakai:button_bar>
   	<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingRevise}" value="Revise" />

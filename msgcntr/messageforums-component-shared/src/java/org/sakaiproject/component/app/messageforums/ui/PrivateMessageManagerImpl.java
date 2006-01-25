@@ -144,16 +144,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       //pf.setArea(area);
       //areaManager.saveArea(area);
       
-      PrivateTopic receivedTopic = forumManager.createPrivateForumTopic("Received", true,
+      PrivateTopic receivedTopic = forumManager.createPrivateForumTopic("Received", true,false,
           userId, pf.getId());     
 
-      PrivateTopic sentTopic = forumManager.createPrivateForumTopic("Sent", true,
+      PrivateTopic sentTopic = forumManager.createPrivateForumTopic("Sent", true,false,
           userId, pf.getId());      
 
-      PrivateTopic deletedTopic = forumManager.createPrivateForumTopic("Deleted", true,
+      PrivateTopic deletedTopic = forumManager.createPrivateForumTopic("Deleted", true,false,
           userId, pf.getId());      
 
-      //PrivateTopic draftTopic = forumManager.createPrivateForumTopic("Drafts", true,
+      //PrivateTopic draftTopic = forumManager.createPrivateForumTopic("Drafts", true,false,
       //    userId, pf.getId());
     
       /** save individual topics - required to add to forum's topic set */
@@ -321,10 +321,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return false;
   }
 
-  public String createTopicFolderInForum(String parentForumId, String userId,
-      String name)
+  
+  public void createTopicFolderInForum(PrivateForum pf, String folderName)
   {
-    return null;
+    String userId = getCurrentUser();
+    PrivateTopic createdTopic = forumManager.createPrivateForumTopic(folderName, true,true,
+        userId, pf.getId()); 
+    forumManager.savePrivateForumTopic(createdTopic);
+    pf.addTopic(createdTopic);    
+    forumManager.savePrivateForum(pf);  
   }
 
   public String createTopicFolderInTopic(String parentTopicId, String userId,
@@ -333,15 +338,36 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return null;
   }
 
-  public String renameTopicFolder(String parentTopicId, String userId,
-      String newName)
+  public void renameTopicFolder(PrivateForum pf, String topicId, String newName)
   {
-    return null;
+    String userId = getCurrentUser();
+    List pvtTopics= pf.getTopics();
+    for (Iterator iter = pvtTopics.iterator(); iter.hasNext();)
+    {
+      PrivateTopic element = (PrivateTopic) iter.next();
+      if(element.getId().equals(new Long(topicId)))
+      {
+        element.setTitle(newName);
+        element.setModifiedBy(userId);
+        element.setModified(new Date());
+      }      
+    }
+    forumManager.savePrivateForum(pf);  
   }
 
-  public void deleteTopicFolder(String topicId)
+  public void deleteTopicFolder(PrivateForum pf,String topicId)
   {
-
+    List pvtTopics= pf.getTopics();
+    for (Iterator iter = pvtTopics.iterator(); iter.hasNext();)
+    {
+      PrivateTopic element = (PrivateTopic) iter.next();
+      if(element.getId().equals(new Long(topicId)))
+      {
+        pf.removeTopic(element);
+        break;
+      }
+    }
+    forumManager.savePrivateForum(pf);  
   }
 
   /**

@@ -118,12 +118,17 @@ public interface PrivateMessageManager {
     
     //Topic Folder Setting
     public boolean isMutableTopicFolder(String parentTopicId);
-    public String createTopicFolderInForum(String parentForumId, String userId, String name);
-    public String createTopicFolderInTopic(String parentTopicId, String userId, String name);
-    //I don't know why I include userId, may be for uniformity purpose or may be to keep track who made changes
-    public String renameTopicFolder(String parentTopicId, String userId, String newName);
-    public void deleteTopicFolder(String topicId);
+    
+    /** create a folder in Private forum    */
+    public void createTopicFolderInForum(PrivateForum pf, String foderName);
+    /** rename folder title     */
+    public void renameTopicFolder(PrivateForum pf,String topicId, String newName);
+    /**  Delete a topic from private forum   */
+    public void deleteTopicFolder(PrivateForum pf, String topicId);
 
+    
+    public String createTopicFolderInTopic(String parentTopicId, String userId, String name);
+    
     
     //Attachment
     public void addAttachToPvtMsg(final PrivateMessage pvtMsgData, final Attachment pvtMsgAttach);

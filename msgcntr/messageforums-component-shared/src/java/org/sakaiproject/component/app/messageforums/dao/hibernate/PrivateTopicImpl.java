@@ -25,6 +25,7 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
  
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -61,14 +62,17 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
           if (topic != null && otherTopic != null
               && topic instanceof Topic && otherTopic instanceof Topic)
           {
-            title1 = ((Topic) topic).getTitle();
-            title2 = ((Topic) otherTopic).getTitle();
-            
-            index1 = new Integer(lookupOrderList.indexOf(title1));
-            index2 = new Integer(lookupOrderList.indexOf(title2));            
-                                    
-            /** expecting elements to exist in lookupOrderedList */
-            return index1.compareTo(index2);
+//            title1 = ((Topic) topic).getTitle();
+//            title2 = ((Topic) otherTopic).getTitle();
+//            
+//            index1 = new Integer(lookupOrderList.indexOf(title1));
+//            index2 = new Integer(lookupOrderList.indexOf(title2));            
+//                                    
+//            /** expecting elements to exist in lookupOrderedList */
+//            return index1.compareTo(index2);
+            Date date1=((Topic) topic).getCreated();
+            Date date2=((Topic) otherTopic).getCreated();
+            return date1.compareTo(date2);
           }
           return -1;
         }

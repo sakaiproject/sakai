@@ -157,7 +157,12 @@
             <from-outcome>pvtMsgHpView</from-outcome>
             <to-view-id>/jsp/privateMsg/pvtMsgHpView.jsp</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgMove</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgMove.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                       
         <!--******************* navigation cases for discussion forums***************************-->
         <navigation-case>
             <from-outcome>dfTemplateSettings</from-outcome>

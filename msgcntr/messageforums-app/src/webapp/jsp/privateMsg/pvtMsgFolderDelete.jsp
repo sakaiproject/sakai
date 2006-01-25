@@ -6,17 +6,8 @@
 	<sakai:view_container title="Private Messages">
 	<sakai:view_content>
 		<h:form id="pvtMsgFolderDelete">
-		
-
-<h2>Private Messages- Delete Confirmation</h2>
-
-<h:panelGroup >
-  <h:outputText styleClass="alertMessage" value="! The folder  " />	
-	<h:outputText value="#{PrivateMessagesTool.selectedTopicTitle}" />	
-	<h:outputText styleClass="alertMessage" value="contains messages that will also be deleted! Are you sure you want to delete the following folder and its contents?" />
-	
-</h:panelGroup>   
-				
+			<sakai:tool_bar_message value="Private Messages- Delete Confirmation" /> 
+			<h:messages styleClass="alertMessage" id="errorMessages" /> 
  
 				<sakai:group_box>
           <table width="80%" align="left">
