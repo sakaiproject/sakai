@@ -32,6 +32,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.legacy.coursemanagement.Course;
 import org.sakaiproject.service.legacy.coursemanagement.CourseManagementProvider;
+import org.sakaiproject.service.legacy.coursemanagement.Term;
+import org.sakaiproject.util.java.ResourceLoader;
 
 /**
  * <p>
@@ -46,6 +48,10 @@ import org.sakaiproject.service.legacy.coursemanagement.CourseManagementProvider
  */
 public class SampleCourseManagementProvider implements CourseManagementProvider
 {
+	/** portlet configuration parameter values**/
+	/** Resource bundle using current language locale */
+    private static ResourceLoader rb = new ResourceLoader("SampleCourseManagementProvider");
+    
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SampleCourseManagementProvider.class);
 
@@ -76,7 +82,7 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 
 		// make sample courses
 		Course c = new Course();
-		c.setId("2005,FALL,,SMPL,001,001");
+		c.setId("2005,FALL,SMPL,001,001");
 		c.setTermId("FALL 2005");
 		c.setTitle("Sample Course");
 		m_courses = new Course[1];
@@ -96,7 +102,54 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * CourseManagementProvider implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
+	
+	/**
+	 * @inheritDoc
+	 */
+     public List getCourseIdRequiredFields()
+     {
+    	 	List rv = new Vector();
+    	 	rv.add(rb.getString("required_fields_subject"));
+    	 	rv.add(rb.getString("required_fields_course"));
+    	 	rv.add(rb.getString("required_fields_section"));
+    	 	return rv;
+    	 	
+     }	// getRequiredFieldsForCourseId
+     
+     /**
+  	 * Return a list of maximum field size for course id required fields
+  	 */
+     public List getCourseIdRequiredFieldsSizes()
+     {
+    	 	List rv = new Vector();
+ 	 	rv.add(new Integer(8));
+ 	 	rv.add(new Integer(3));
+ 	 	rv.add(new Integer(3));
+ 	 	return rv;
+     }
+       
+     /**
+      * @inheritDoc
+      */
+     public String getCourseId(Term term, List requiredFields)
+     {
+    	 	String rv = new String("");
+    	 	if (term != null)
+    	 	{
+    	 		rv = rv.concat(term.getYear() + "," + term.getTerm());
+    	 	}
+    	 	else
+    	 	{
+    	 		rv = rv.concat(",,");
+    	 	}
+    	 	for (int i=0; i<requiredFields.size(); i++)
+    	 	{
+    	 		rv = rv.concat(",").concat((String) requiredFields.get(i));
+    	 	}
+    	 	return rv;
+    	 	
+     }	// getCourseId
+     
 	/**
 	 * @inheritDoc
 	 */
@@ -107,13 +160,13 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 		
 		// A single course with a single section; tab is course and section
 		fields = courseId.split(",");
-		if (fields.length == 6)
+		if (fields.length == 5)
 		{
-			tab.append(fields[3]); //Subject
+			tab.append(fields[2]);
 			tab.append(" ");
-			tab.append(fields[4]); //Catalog number
+			tab.append(fields[3]);
 			tab.append(" ");
-			tab.append(fields[5]); //Section
+			tab.append(fields[4]);
 		}
 		
 		return tab.toString();

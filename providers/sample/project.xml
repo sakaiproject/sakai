@@ -37,6 +37,15 @@
 			<artifactId>sakai-util-java</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-i18n</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
 
 	</dependencies>
 
@@ -46,7 +55,12 @@
 		<sourceDirectory>src/java</sourceDirectory>
 
 		<resources>
-
+            <resource>
+                <directory>${basedir}/src/bundle</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
 		</resources>
 
 	</build>
