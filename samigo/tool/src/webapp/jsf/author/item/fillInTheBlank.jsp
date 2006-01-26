@@ -81,11 +81,14 @@
 
 <h:selectBooleanCheckbox value="#{itemauthor.currentItem.caseSensitiveForFib}"> 
 </h:selectBooleanCheckbox>
+<h:outputText value="#{msg.case_sensitive}" />
+<br/>
 
-<h:panelGrid columns="1">
 <h:selectBooleanCheckbox value="#{itemauthor.currentItem.mutuallyExclusiveForFib}"> 
 </h:selectBooleanCheckbox>
-<h:outputText value="#{msg.note_place_curly}" />
+<h:outputText value="#{msg.mutually_exclusive}" />
+<h:panelGrid columns="1">
+<h:outputText value="#{msg.mutually_exclusive_note}" />
 </h:panelGrid>
 </div>
 

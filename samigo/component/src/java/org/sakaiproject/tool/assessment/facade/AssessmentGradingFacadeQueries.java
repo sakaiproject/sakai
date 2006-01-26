@@ -472,8 +472,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       Iterator iter = itemgrading.iterator();
       float totalAutoScore = 0;
 
-      //FIBmap contains a map of arraylist of answers for a FIB item, key =itemid , value= arraylist of answers for each item.  
-      // This is used to keep track of answers we have alralready used for mutually exclusive multiple answer type of FIB, such as 
+      //fibAnswersMap contains a map of HashSet of answers for a FIB item, key =itemid , value= HashSet of answers for each item.  
+      // This is used to keep track of answers we have already used for mutually exclusive multiple answer type of FIB, such as 
       //  The flag of the US is {red|white|blue},{red|white|blue}, and {red|white|blue}.
       // so if the first blank has an answer 'red', the 'red' answer should not be included in the answers for the other mutually exclusive blanks. 
       HashMap fibAnswersMap= new HashMap();
