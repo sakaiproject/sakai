@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.shared.api.grading;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
@@ -58,7 +59,7 @@ public interface GradingServiceAPI
    * Save the item scores.
    * @param data List of itemGradingDataIfcs
    */
-  public void saveItemScores(List data);
+  public void saveItemScores(List data, HashMap map);
 
   /**
    * Get the score information for each item from the assessment score.

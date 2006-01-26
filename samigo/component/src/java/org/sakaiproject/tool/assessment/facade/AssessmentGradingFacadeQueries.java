@@ -402,7 +402,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return l;
   }
 
-  public void saveItemScores(ArrayList data) {
+  public void saveItemScores(ArrayList data, HashMap assessmentGradingHash) {
     try {
       Iterator iter = data.iterator();
       while (iter.hasNext())
@@ -415,16 +415,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           //log.debug("Didn't save -- error in item.");
         }
         else
-        {
-          // This bit gets around a Hibernate weirdness -- even though
-          // we got the assessmentgradingid, and changed info in the
-          // itemgradingid, the assessmentgrading still has the original
-          // set of itemgradingid's (from before we modified it) in
-          // memory.  So we need to either get it all from the database
-          // again, which is a heavyweight solution, or just manually
-          // swap out the obsolete data before going forward. -- RMG
-          Iterator iter2 = gdata.getAssessmentGrading().getItemGradingSet()
-            .iterator();
+        {  
+          AssessmentGradingData a = (AssessmentGradingData) assessmentGradingHash.get(gdata.getItemGradingId());
+          gdata.setAssessmentGrading(a);
+
+          Iterator iter2 = a.getItemGradingSet().iterator();
           while (iter2.hasNext())
           {
             ItemGradingData idata = (ItemGradingData) iter2.next();
@@ -1400,5 +1395,30 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return s;
   }
 
+  public HashMap getAssessmentGradingByItemGradingId(Long publishedAssessmentId){
+    List aList = getAllSubmissions(publishedAssessmentId.toString());
+    HashMap aHash = new HashMap();
+    for (int j=0; j<aList.size();j++){
+      AssessmentGradingData a = (AssessmentGradingData)aList.get(j);
+      a.setItemGradingSet(getItemGradingSet(a.getAssessmentGradingId()));
+      aHash.put(a.getAssessmentGradingId(), a);
+    }
 
+    String query = "select new ItemGradingData(i.itemGradingId, a.assessmentGradingId) "+
+                   " from ItemGradingData i, AssessmentGradingData a "+
+                   " where i.assessmentGrading=a "+
+                   " and a.publishedAssessment.publishedAssessmentId=?";
+    List l = getHibernateTemplate().find(query,
+             new Object[] { publishedAssessmentId },
+             new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+    System.out.println("****** assessmentGradinghash="+l.size());
+    HashMap h = new HashMap();
+    for (int i=0; i<l.size();i++){
+      ItemGradingData o = (ItemGradingData)l.get(i);
+      h.put(o.getItemGradingId(), (AssessmentGradingData)aHash.get(o.getAssessmentGradingId()));
+    }
+    return h;
+  }
+
+  
 }

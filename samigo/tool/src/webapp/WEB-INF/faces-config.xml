@@ -339,6 +339,18 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <!-- Navigation Rules -->
+  <navigation-rule>
+    <from-view-id>/jsf/delivery/deliverAssessment.jsp</from-view-id>
+    <navigation-case>
+      <from-outcome>takeAssessment</from-outcome>
+      <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>timeExpired</from-outcome>
+      <to-view-id>/jsf/delivery/timeExpired.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
   <!-- INDEX -->
   <navigation-rule>
     <from-view-id>*</from-view-id>

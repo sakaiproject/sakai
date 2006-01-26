@@ -60,7 +60,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public void saveTotalScores(ArrayList data);
 
-  public void saveItemScores(ArrayList data);
+  public void saveItemScores(ArrayList data, HashMap map);
 
   /**
    * Assume this is a new item.
@@ -147,5 +147,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   public HashMap getHighestAssessmentGradingByPublishedItem(Long publishedAssessmentId);
 
   public Set getItemGradingSet(Long assessmentGradingId);
+
+  public HashMap getAssessmentGradingByItemGradingId(Long publishedAssessmentId);
 
 }

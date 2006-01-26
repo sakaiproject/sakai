@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 public class ItemGradingData
     implements ItemGradingIfc {
   private Long itemGradingId;
+  private Long assessmentGradingId;
   private AssessmentGradingIfc assessmentGrading;
   private ItemDataIfc publishedItem;
   private ItemTextIfc publishedItemText;
@@ -61,18 +62,34 @@ public class ItemGradingData
 
   public ItemGradingData() {
   }
+
+  public ItemGradingData(Long itemGradingId, Long assessmentGradingId) {
+    this.itemGradingId = itemGradingId;
+    this.assessmentGradingId = assessmentGradingId;
+  }
+
   public Long getItemGradingId() {
     return itemGradingId;
   }
   public void setItemGradingId(Long itemGradingId) {
     this.itemGradingId = itemGradingId;
   }
+
+  public Long getAssessmentGradingId() {
+    return assessmentGradingId;
+  }
+  public void setAssessmentGradingId(Long assessmentGradingId) {
+    this.assessmentGradingId = assessmentGradingId;
+  }
+
   public AssessmentGradingIfc getAssessmentGrading() {
     return assessmentGrading;
   }
   public void setAssessmentGrading(AssessmentGradingIfc assessmentGrading) {
     this.assessmentGrading = assessmentGrading;
+    setAssessmentGradingId(assessmentGrading.getAssessmentGradingId());
   }
+
   public ItemDataIfc getPublishedItem() {
     return publishedItem;
   }

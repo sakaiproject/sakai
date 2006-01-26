@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.shared.impl.grading;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -105,13 +106,13 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param data List of itemGradingDataIfcs
    */
 
-  public void saveItemScores(List data)
+  public void saveItemScores(List data, HashMap map)
   {
     try
     {
       GradingService service = new GradingService();
       ArrayList list = new ArrayList(data);
-      service.saveItemScores(list);
+      service.saveItemScores(list, map);
     }
     catch (Exception ex)
     {

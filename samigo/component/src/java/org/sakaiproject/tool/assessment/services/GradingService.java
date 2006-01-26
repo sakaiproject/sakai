@@ -91,11 +91,11 @@ public class GradingService
     }
   }
 
-  public void saveItemScores(ArrayList data)
+  public void saveItemScores(ArrayList data, HashMap map)
   {
     try {
       PersistenceService.getInstance().
-        getAssessmentGradingFacadeQueries().saveItemScores(data);
+        getAssessmentGradingFacadeQueries().saveItemScores(data, map);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -328,4 +328,15 @@ public class GradingService
       log.error(e); throw new Error(e);
     }
   }
+
+  public HashMap getAssessmentGradingByItemGradingId(String publishedAssessmentId){
+    try{
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+               getAssessmentGradingByItemGradingId(new Long(publishedAssessmentId));
+    }
+    catch(Exception e){
+      log.error(e); throw new Error(e);
+    }
+  }
+
 }

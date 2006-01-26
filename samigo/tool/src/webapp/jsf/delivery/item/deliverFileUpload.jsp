@@ -40,8 +40,11 @@ should be included in file importing DeliveryMessages
     target="jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}"
     valueChangeListener="#{delivery.addMediaToItemGrading}" />
   <f:verbatim>&nbsp;&nbsp;</f:verbatim>
-  <h:commandButton value="Upload" action="submit"/>
+  <h:commandButton value="Upload" action="#{delivery.getOutcome}" />
 </h:panelGroup>
+
+<f:verbatim><br /></f:verbatim>
+<h:inputText value="#{delivery.timeElapse}" />
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
                        || delivery.actionString=='reviewAssessment' 
