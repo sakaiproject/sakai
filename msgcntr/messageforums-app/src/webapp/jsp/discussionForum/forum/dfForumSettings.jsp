@@ -60,7 +60,7 @@
 				</h:panelGroup>
 			</h:panelGrid>
 		</p>
-	 <h4><h:outputText  value="#{msgs.cdfm_access}" id="access_perm"/></h4>
+	 <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm" hideByDefault="true">
       <p class="shorttext">
 		<h:panelGrid columns="2" width="50%">
 				<h:panelGroup><h:outputLabel id="outputLabelCont" for="contributors"  value="#{msgs.cdfm_contributors}"/>	</h:panelGroup>
@@ -78,6 +78,7 @@
 				</h:panelGroup>
 		</h:panelGrid>
 	  </p>
+	   </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm" hideByDefault="true">
           <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.forumControlPermissions}" var="cntrl_settings">
    			<h:column>

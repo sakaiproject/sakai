@@ -121,7 +121,7 @@
 			</h:panelGrid>
 		</p>
 		  --%>
-      <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm">
+      <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm" hideByDefault="true">
 	  	<p class="shorttext">
 			<h:panelGrid columns="2" width="50%">
 				<h:panelGroup><h:outputLabel id="outputLabelCont" for="contributors"  value="#{msgs.cdfm_contributors}"/>	</h:panelGroup>
