@@ -40,6 +40,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -73,9 +74,11 @@ public class StudentScoreUpdateListener
   {
       //log.info("Student Score Update LISTENER.");
     StudentScoresBean bean = (StudentScoresBean) cu.lookupBean("studentScores");
+    TotalScoresBean tbean = (TotalScoresBean) cu.lookupBean("totalScores");
+    tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     log.info("Calling saveStudentScores.");
-    if (!saveStudentScores(bean, delivery))
+    if (!saveStudentScores(bean, tbean, delivery))
     {
       throw new RuntimeException("failed to call saveStudentScores.");
     }
@@ -87,7 +90,7 @@ public class StudentScoreUpdateListener
    * @param bean StudentScoresBean bean
    * @return true if successful
    */
-  public boolean saveStudentScores(StudentScoresBean bean,
+    public boolean saveStudentScores(StudentScoresBean bean, TotalScoresBean tbean,
                                    DeliveryBean delivery)
   {
     ArrayList list = new ArrayList();
@@ -150,7 +153,7 @@ public class StudentScoreUpdateListener
         data.setAssessmentGrading(adata);
       }
       GradingService delegate = new GradingService();
-      delegate.saveItemScores(list);
+      delegate.saveItemScores(list, tbean.getAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId()));
 
       log.info("Saved student scores.");
     }

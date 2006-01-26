@@ -65,8 +65,8 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
-import  org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
-import  org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
+import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
+import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 
 /**
  * <p>Title: Samigo</p>
@@ -210,6 +210,8 @@ public class DeliveryActionListener
       if (this.resetPageContents)
         delivery.setPageContents(getPageContents(publishedAssessment,
                                                delivery, itemData));
+   
+      System.out.println("******** time elapse after file upload="+delivery.getTimeElapse());
     }
     catch (Exception e)
     {

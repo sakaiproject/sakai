@@ -1529,11 +1529,15 @@ public class DeliveryBean
    *             question#{question.itemData.itemId}/admin"
    *     valueChangeListener="#{delivery.addMediaToItemGrading}" />
    */
-  public String addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
+  public void addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
   {
+    if (isTimeRunning() && timeExpired())
+      setOutcome("timeExpired");
     String mediaLocation = (String) e.getNewValue();
     log.debug("***2a. addMediaToItemGrading, new value =" + mediaLocation);
-    return addMediaToItemGrading(mediaLocation);
+    String action = addMediaToItemGrading(mediaLocation);
+    setOutcome(action);
+    System.out.println("****** after adding a file, time past="+getTimeElapse());
   }
     /**
      * This method is used by jsf/delivery/deliverAudioRecording.jsp and
@@ -1645,8 +1649,8 @@ public class DeliveryBean
       l3.processAction(null);
     }
 
-    reload = true;
-    return "takeAssessment";
+    reload = false;
+    return "refreshtakeAssessment2";
 
   }
 
@@ -2149,6 +2153,5 @@ public class DeliveryBean
     if (timedAG != null)
       queue.remove(timedAG);
   }
-
 
 }

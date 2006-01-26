@@ -166,7 +166,6 @@ public class TotalScoreUpdateListener
 
       GradingService delegate = new GradingService();
       delegate.saveTotalScores(grading);
-
       log.info("Saved total scores.");
     }
     catch (Exception e)

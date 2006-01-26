@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationM
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.services.GradingService;
 
 /**
  * <p>Description: class form for evaluating total scores</p>
@@ -729,5 +730,15 @@ public class TotalScoresBean
       setMaxScore(publishedAssessment.getTotalScore().toString());
   }
 
+  private HashMap assessmentGradingHash = new HashMap();
+  public void setAssessmentGradingHash(Long publishedAssessmentId){
+    GradingService service = new GradingService();
+    HashMap h = service.getAssessmentGradingByItemGradingId(publishedAssessmentId.toString());
+    assessmentGradingHash.put(publishedAssessmentId, h);
+  }
+
+  public HashMap getAssessmentGradingHash(Long publishedAssessmentId){
+    return (HashMap)assessmentGradingHash.get(publishedAssessmentId);
+  }
 
 }

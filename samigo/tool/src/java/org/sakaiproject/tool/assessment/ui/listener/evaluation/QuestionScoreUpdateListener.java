@@ -37,6 +37,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -70,8 +71,10 @@ public class QuestionScoreUpdateListener
   {
     log.info("Question Score Update LISTENER.");
     QuestionScoresBean bean = (QuestionScoresBean) cu.lookupBean("questionScores");
+    TotalScoresBean tbean = (TotalScoresBean) cu.lookupBean("totalScores");
     log.info("Calling saveQuestionScores.");
-    if (!saveQuestionScores(bean))
+    tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
+    if (!saveQuestionScores(bean, tbean))
     {
       throw new RuntimeException("failed to call saveQuestionScores.");
     }
@@ -83,7 +86,7 @@ public class QuestionScoreUpdateListener
    * @param bean QuestionScoresBean bean
    * @return true if successful
    */
-  public boolean saveQuestionScores(QuestionScoresBean bean)
+  public boolean saveQuestionScores(QuestionScoresBean bean, TotalScoresBean tbean)
   {
     try
     {
@@ -119,7 +122,7 @@ public class QuestionScoreUpdateListener
       }
 
       GradingService delegate = new GradingService();
-      delegate.saveItemScores(items);
+      delegate.saveItemScores(items, tbean.getAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId()));
 
       log.info("Saved question scores.");
     }
@@ -130,4 +133,5 @@ public class QuestionScoreUpdateListener
     }
     return true;
   }
+
 }

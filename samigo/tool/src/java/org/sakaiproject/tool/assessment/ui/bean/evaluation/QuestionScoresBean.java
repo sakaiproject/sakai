@@ -77,7 +77,6 @@ public class QuestionScoresBean
   private static Log log = LogFactory.getLog(QuestionScoresBean.class);
   private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
 
-
   /**
    * Creates a new QuestionScoresBean object.
    */

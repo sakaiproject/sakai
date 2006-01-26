@@ -33,6 +33,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.shared.MediaService;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.MediaBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -68,6 +69,16 @@ public class RemoveMediaListener implements ActionListener
     // #1. get all the info need from bean
     String mediaId = mediaBean.getMediaId();
     mediaService.remove(mediaId);
+
+    // #2. check if we need to pause time 
+    DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+    if (delivery.isTimeRunning() && delivery.timeExpired()){
+      delivery.setOutcome("timeExpired");
+    }
+    else{
+      delivery.recordTimeElapsed();
+      delivery.setOutcome("takeAssessment");
+    }
   }
 
 }
