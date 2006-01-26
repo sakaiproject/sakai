@@ -467,6 +467,18 @@ public class ItemModifyListener implements ActionListener
 	 bean.setScaleName(meta.getEntry());
        }
 
+	// get settings for case sensitivity for fib 
+        // If metadata doesn't exist, by default it is false. 
+       if (meta.getLabel().equals(ItemMetaData.CASE_SENSITIVE_FOR_FIB)){
+	 bean.setCaseSensitiveForFib((new Boolean(meta.getEntry())).booleanValue());
+       }
+
+	// get settings for mutually exclusive for fib. 
+        // If metadata doesn't exist, by default it is false. 
+       if (meta.getLabel().equals(ItemMetaData.MUTUALLY_EXCLUSIVE_FOR_FIB)){
+	 bean.setMutuallyExclusiveForFib((new Boolean(meta.getEntry())).booleanValue());
+       }
+
 	// get part id for the item
        if (meta.getLabel().equals(ItemMetaData.PARTID)){
 	 bean.setSelectedSection(meta.getEntry());

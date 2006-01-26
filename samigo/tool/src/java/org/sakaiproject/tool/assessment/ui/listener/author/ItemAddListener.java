@@ -143,7 +143,6 @@ public class ItemAddListener
 	String[] corrChoices = new String[corrsize];
 	boolean correctChoice=false;
         int counter=0;
-        System.out.println("corrsize: "+corrsize);
 	if(item.getMultipleChoiceAnswers()!=null){
 	    while (iter.hasNext()) {
 		AnswerBean answerbean = (AnswerBean) iter.next();
@@ -869,6 +868,20 @@ public class ItemAddListener
                                bean.getScaleName()));
     }
 
+    // save settings for case sensitive for FIB.  Default=false  
+      set.add(new ItemMetaData(item.getData(), ItemMetaData.CASE_SENSITIVE_FOR_FIB,
+                               new Boolean(bean.getCaseSensitiveForFib()).toString()));
+
+    // save settings for mutually exclusive for FIB. Default=false
+    // first check to see if it's a valid mutually exclusive mutiple answers FIB
+      boolean wellformatted = false;
+      if (bean.getMutuallyExclusiveForFib()) {
+        wellformatted = isValidMutualExclusiveFIB(bean);
+      }
+
+      set.add(new ItemMetaData(item.getData(), ItemMetaData.MUTUALLY_EXCLUSIVE_FOR_FIB,
+                               new Boolean(wellformatted).toString()));
+
     // save part id
     if (bean.getSelectedSection() != null) {
       set.add(new ItemMetaData(item.getData(), ItemMetaData.PARTID,
@@ -1021,5 +1034,40 @@ public class ItemAddListener
  }
 
 
+  private boolean isValidMutualExclusiveFIB(ItemBean bean){
+    // all answer sets have to be identical, case insensitive
+
+     String entiretext = bean.getItemText();
+      String fibtext = entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
+
+Object[] fibanswers = getFIBanswers(entiretext).toArray();
+      List blanklist = new  ArrayList();
+      for (int i = 0; i < fibanswers.length; i++) {
+        String oneanswer = (String) fibanswers[i];
+        String[] oneblank = oneanswer.split("\\|");
+        Set oneblankset = new HashSet();
+        for (int j = 0; j < oneblank.length; j++) {
+           oneblankset.add(oneblank[j].trim().toLowerCase());
+        }
+        blanklist.add(oneblankset);
+
+      }
+      // now check if there are at least 2 sets, and make sure they are identically, all should contain only lowercase strings. 
+      boolean invalid= false;
+      if (blanklist.size()<=1){
+           invalid = true;
+      }
+      else {
+      for (int i = 1; i < blanklist.size(); i++) {
+        if (!(blanklist.get(0).equals(blanklist.get(i)))){
+           invalid = true;
+           break;
+        }
+      }
+      }
+
+
+    return !invalid; 
+  } 
 
 }

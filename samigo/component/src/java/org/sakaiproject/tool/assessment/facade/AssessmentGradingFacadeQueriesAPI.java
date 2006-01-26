@@ -86,7 +86,7 @@ public interface AssessmentGradingFacadeQueriesAPI
    */
   public float getAnswerScore(ItemGradingIfc data);
 
-  public float getFIBScore(ItemGradingIfc data);
+  //public float getFIBScore(ItemGradingIfc data);
 
   public AssessmentGradingData prepareRealizedAssessment(
       PublishedAssessmentData p, Boolean forGrade);

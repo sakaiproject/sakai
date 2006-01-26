@@ -78,7 +78,17 @@
    </samigo:wysiwyg>
   </h:panelGrid>
  <br />
+
+<h:selectBooleanCheckbox value="#{itemauthor.currentItem.caseSensitiveForFib}"> 
+</h:selectBooleanCheckbox>
+
+<h:panelGrid columns="1">
+<h:selectBooleanCheckbox value="#{itemauthor.currentItem.mutuallyExclusiveForFib}"> 
+</h:selectBooleanCheckbox>
+<h:outputText value="#{msg.note_place_curly}" />
+</h:panelGrid>
 </div>
+
 <%-- 3 PART --%>
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
    <f:verbatim><span id="num3" class="number"></span></f:verbatim>

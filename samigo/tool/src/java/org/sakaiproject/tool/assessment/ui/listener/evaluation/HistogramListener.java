@@ -441,7 +441,7 @@ public class HistogramListener
         {
           // for fib we only count the number of correct responses 
           Float autoscore = data.getAutoScore();
-          if (!autoscore.equals(new Float(0))) {
+          if (!(new Float(0)).equals(autoscore)) {
             results.put(answer.getId(), new Integer(num.intValue() + 1));
           }
         }

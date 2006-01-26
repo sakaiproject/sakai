@@ -35,6 +35,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import net.sf.hibernate.Criteria;
 import net.sf.hibernate.Hibernate;
@@ -62,6 +64,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
@@ -474,6 +477,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       Iterator iter = itemgrading.iterator();
       float totalAutoScore = 0;
 
+      //FIBmap contains a map of arraylist of answers for a FIB item, key =itemid , value= arraylist of answers for each item.  
+      // This is used to keep track of answers we have alralready used for mutually exclusive multiple answer type of FIB, such as 
+      //  The flag of the US is {red|white|blue},{red|white|blue}, and {red|white|blue}.
+      // so if the first blank has an answer 'red', the 'red' answer should not be included in the answers for the other mutually exclusive blanks. 
+      HashMap fibAnswersMap= new HashMap();
+
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
       HashMap totalItems = new HashMap();
       while(iter.hasNext())
@@ -578,7 +587,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           }
           else if (item.getTypeId().intValue() == 8) // FIB
           {
-            autoScore = getFIBScore(itemdata) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+            autoScore = getFIBScore(itemdata, fibAnswersMap) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
 
             //overridescore - cwen
             if (itemdata.getOverrideScore() != null)
@@ -770,25 +779,139 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return answer.getScore().floatValue();
   }
 
-  public float getFIBScore(ItemGradingIfc data)
+ /**
+   * This grades Fill In Blank questions.  (see SAK-1685) 
+
+   * There will be two valid cases for scoring when there are multiple fill 
+   * in blanks in a question:
+
+   * Case 1- There are different sets of answers (a set can contain one or more 
+   * item) for each blank (e.g. The {dog|coyote|wolf} howls and the {lion|cougar} 
+   * roars.) In this case each blank is tested for correctness independently. 
+
+   * Case 2-There is the same set of answers for each blank: e.g.  The flag of the US 
+   * is {red|white|blue},{red|white|blue}, and {red|white|blue}. 
+
+   * These are the only two valid types of questions. When authoring, it is an 
+   * ERROR to include: 
+
+   * (1) a mixture of independent answer and common answer blanks 
+   * (e.g. The {dog|coyote|wolf} howls at the {red|white|blue}, {red|white|blue}, 
+   * and {red|white|blue} flag.)
+
+   * (2) more than one set of blanks with a common answer ((e.g. The US flag 
+   * is {red|white|blue}, {red|white|blue}, and {red|white|blue} and the Italian 
+   * flag is {red|white|greem}, {red|white|greem}, and {red|white|greem}.)
+
+   * These two invalid questions specifications should be authored as two 
+   * separate questions.
+
+Here are the definition and 12 cases I came up with (lydia, 01/2006):
+
+ single answers : roses are {red} and vilets are {blue}
+ multiple answers : {dogs|cats} have 4 legs 
+ multiple answers , mutually exclusive, all answers must be identical, can be in diff. orders : US flag has {red|blue|white} and {red |white|blue} and {blue|red|white} colors
+ multiple answers , mutually non-exclusive : {dogs|cats} have 4 legs and {dogs|cats} can be pets. 
+ wildcard uses *  to mean one of more characters 
+
+
+-. wildcard single answer, case sensitive
+-. wildcard single answer, case insensitive
+-. single answer, no wildcard , case sensitive
+-. single answer, no wildcard , case insensitive
+-. multiple answer, mutually non-exclusive, no wildcard , case sensitive
+-. multiple answer, mutually non-exclusive, no wildcard , case in sensitive
+-. multiple answer, mutually non-exclusive, wildcard , case sensitive
+-. multiple answer, mutually non-exclusive, wildcard , case insensitive
+-. multiple answer, mutually exclusive, no wildcard , case sensitive
+-. multiple answer, mutually exclusive, no wildcard , case in sensitive
+-. multiple answer, mutually exclusive, wildcard , case sensitive
+-. multiple answer, mutually exclusive, wildcard , case insensitive
+
+  */
+  private float getFIBScore(ItemGradingIfc data, HashMap fibmap)
   {
+    String studentanswer = "";
+    String REGEX;
+    Pattern p;
+    Matcher m;
+    boolean matchresult = false;
+
     String answertext = data.getPublishedAnswer().getText();
+    ItemDataIfc itemdata = data.getPublishedItem();
+    
+    Long itemId = itemdata.getItemId();
+
+    String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
+    String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
+    Set answerSet = new HashSet();
+
     float totalScore = (float) 0;
-    if (answertext != null)
-    {
+
+
+      if (answertext != null)
+      {
+
      StringTokenizer st = new StringTokenizer(answertext, "|");
      while (st.hasMoreTokens())
      {
       String answer = st.nextToken().trim();
-      if (data.getAnswerText() != null &&
-          data.getAnswerText().trim().equalsIgnoreCase(answer)){
-        totalScore += data.getPublishedAnswer().getScore().floatValue();
-        break; 
-        // SAK-3005: quit if answer is correct, e.g. if u answered A for {a|A}
-        // u already scored
-      }
+
+      if ("true".equalsIgnoreCase(casesensitive)) {
+        if (data.getAnswerText() != null){
+    	  studentanswer= data.getAnswerText().trim();
+    	  REGEX = answer.replaceAll("\\*", ".*");
+          p = Pattern.compile(REGEX);   // by default it's case sensitive
+          m = p.matcher(studentanswer);
+          matchresult = m.matches();
+        }
+      }  // if case sensitive 
+      else {
+      // case insensitive , if casesensitive is false, or null, or "".
+        if (data.getAnswerText() != null){
+    	  studentanswer= data.getAnswerText().trim();
+          REGEX = answer.replaceAll("\\*", ".*");
+	  p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
+          m = p.matcher(studentanswer);
+          matchresult= m.matches();
+        }
+
+      }  // else , case insensitive
+ 
+          if (matchresult){
+
+            boolean alreadyused=false;
+// add check for mutual exclusive
+            if ("true".equalsIgnoreCase(mutuallyexclusive))
+            {
+              // check if answers are already used.
+              Set answer_used_sofar = (HashSet) fibmap.get(itemId);
+              if ((answer_used_sofar!=null) && ( answer_used_sofar.contains(studentanswer.toLowerCase()))){
+                // already used, so it's a wrong answer for mutually exclusive questions
+                alreadyused=true;
+              }
+              else {
+                // not used, it's a good answer, now add this to the already_used list.
+                // we only store lowercase strings in the fibmap.
+                if (answer_used_sofar==null) {
+                  answer_used_sofar = new HashSet();
+                }
+
+                answer_used_sofar.add(studentanswer.toLowerCase());
+                fibmap.put(itemId, answer_used_sofar);
+              }
+            }
+
+            if (!alreadyused) {
+              totalScore += data.getPublishedAnswer().getScore().floatValue();
+            }
+
+            // SAK-3005: quit if answer is correct, e.g. if you answered A for {a|A}, you already scored
+            break;
+          }
+      
      }
-    }
+     }
     return totalScore;
   }
 
