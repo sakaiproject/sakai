@@ -5,116 +5,116 @@
    <bean id="workspaceOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqzy</value></property>
       <property name="name"><value>Workspace Overview</value></property>
-      <property name="location"><value>/sakai_workspace/aqzy.html</value></property>
-      <property name="defaultForTool"><value>sakai.workspace</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzy.html</value></property>
+      <property name="defaultForTool"><value>sakai.iframe.myworkspace</value></property>
    </bean>
    
    <bean id="changeNotificationPreferences" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqzv</value></property>
       <property name="name"><value>Change Notification Preferences</value></property>
-      <property name="location"><value>/sakai_workspace/aqzv.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzv.html</value></property>
    </bean>
    
    <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arbj</value></property>
       <property name="name"><value>Add/Edit/Delete Tools</value></property>
-      <property name="location"><value>/sakai_workspace/arbj.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arbj.html</value></property>
    </bean>
    
    <bean id="stopPageRefresh" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arat</value></property>
       <property name="name"><value>Prevent Page Refresh</value></property>
-      <property name="location"><value>/sakai_workspace/arat.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arat.html</value></property>
    </bean>
    
    <bean id="searchUserProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>ardb</value></property>
       <property name="name"><value>Search User's Profile</value></property>
-      <property name="location"><value>/sakai_workspace/ardb.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ardb.html</value></property>
    </bean>
    
    <bean id="setMOD" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcw</value></property>
       <property name="name"><value>Set Message of the Day Options</value></property>
-      <property name="location"><value>/sakai_workspace/arcw.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arcw.html</value></property>
    </bean>
    
    <bean id="clickBackButton" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arbc</value></property>
       <property name="name"><value>Clicking the Back Button</value></property>
-      <property name="location"><value>/sakai_workspace/arbc.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arbc.html</value></property>
    </bean>
    
    <bean id="modifyProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqze</value></property>
       <property name="name"><value>Modify Profile</value></property>
-      <property name="location"><value>/sakai_workspace/aqze.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqze.html</value></property>
    </bean>
    
    <bean id="changeWorkspace" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arei</value></property>
       <property name="name"><value>Change My Workspace Inforamtion Appearance</value></property>
-      <property name="location"><value>/sakai_workspace/arei.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arei.html</value></property>
    </bean>
    
    <bean id="membershipOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arel</value></property>
       <property name="name"><value>Membership Overview</value></property>
-      <property name="location"><value>/sakai_workspace/arel.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arel.html</value></property>
    </bean>
    
    <bean id="joinSites" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcj</value></property>
       <property name="name"><value>Join/Unjoin Sites</value></property>
-      <property name="location"><value>/sakai_workspace/arcj.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arcj.html</value></property>
    </bean>
    
    <bean id="worksiteSetupOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arer</value></property>
       <property name="name"><value>Worksite Setup Overview</value></property>
-      <property name="location"><value>/sakai_workspace/arer.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arer.html</value></property>
    </bean>
    
    <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqyo</value></property>
       <property name="name"><value>Add/Edit/Delete Participants in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_workspace/aqyo.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqyo.html</value></property>
    </bean>
    
    <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqzw</value></property>
       <property name="name"><value>Control Access in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_workspace/aqzw.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzw.html</value></property>
    </bean>
    
    <bean id="worksiteSetupTextDescription" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqzk</value></property>
       <property name="name"><value>Add Text Description in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_workspace/aqzk.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzk.html</value></property>
    </bean>
    
    <bean id="worksiteSetupPublish" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arad</value></property>
       <property name="name"><value>Pubish/Unpublish Site in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_workspace/arad.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arad.html</value></property>
    </bean>
    
    <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>ardq</value></property>
       <property name="name"><value>Change Roles in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_workspace/ardq.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ardq.html</value></property>
    </bean>
    
    <bean id="worksiteSetupEditInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aret</value></property>
       <property name="name"><value>Edit Info in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_workspace/aret.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aret.html</value></property>
    </bean>
    
    <bean id="preferencesOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arce</value></property>
       <property name="name"><value>Preferences Overview</value></property>
-      <property name="location"><value>/sakai_workspace/arce.html</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arce.html</value></property>
    </bean>
    
    

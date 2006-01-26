@@ -5,14 +5,14 @@
    <bean id="webContentOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcb</value></property>
       <property name="name"><value>Web Content Overview</value></property>
-      <property name="location"><value>/sakai_web_content/arcb.html</value></property>
-      <property name="defaultForTool"><value>sakai.web.content</value></property>
+      <property name="location"><value>/sakai_iframe/arcb.html</value></property>
+      <property name="defaultForTool"><value>sakai.iframe</value></property>
    </bean>
     
        <bean id="webContentWindow" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcm</value></property>
       <property name="name"><value>Add/Edit/Delete Web Content Item</value></property>
-      <property name="location"><value>/sakai_web_content/arcm.html</value></property>
+      <property name="location"><value>/sakai_iframe/arcm.html</value></property>
    </bean>
 
    
