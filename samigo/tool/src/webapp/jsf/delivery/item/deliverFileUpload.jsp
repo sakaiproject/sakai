@@ -43,9 +43,6 @@ should be included in file importing DeliveryMessages
   <h:commandButton value="Upload" action="#{delivery.getOutcome}" />
 </h:panelGroup>
 
-<f:verbatim><br /></f:verbatim>
-<h:inputText value="#{delivery.timeElapse}" />
-
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
                        || delivery.actionString=='reviewAssessment' 
                        || delivery.actionString=='gradeAssessment'}">

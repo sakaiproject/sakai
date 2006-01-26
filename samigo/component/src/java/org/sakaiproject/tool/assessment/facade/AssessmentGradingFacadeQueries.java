@@ -417,6 +417,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         else
         {  
           AssessmentGradingData a = (AssessmentGradingData) assessmentGradingHash.get(gdata.getItemGradingId());
+          a.setItemGradingSet(getItemGradingSet(a.getAssessmentGradingId()));
           gdata.setAssessmentGrading(a);
 
           Iterator iter2 = a.getItemGradingSet().iterator();
@@ -1400,7 +1401,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     HashMap aHash = new HashMap();
     for (int j=0; j<aList.size();j++){
       AssessmentGradingData a = (AssessmentGradingData)aList.get(j);
-      a.setItemGradingSet(getItemGradingSet(a.getAssessmentGradingId()));
       aHash.put(a.getAssessmentGradingId(), a);
     }
 
