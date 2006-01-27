@@ -124,7 +124,6 @@ function cal_prs_tsmp2 (str_datetime) {
 
 	// else treat as date in string format
 	var arr_datetime = str_datetime.split(' ');
-        alert("ampm="+arr_datetime[2]);
 	return this.prs_time(arr_datetime[1], this.prs_date(arr_datetime[0]));
 }
 
