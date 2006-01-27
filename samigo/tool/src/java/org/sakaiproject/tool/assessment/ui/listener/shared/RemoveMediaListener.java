@@ -61,22 +61,31 @@ public class RemoveMediaListener implements ActionListener
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
 
-
+    DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     MediaBean mediaBean = (MediaBean) cu.lookupBean(
         "mediaBean");
     MediaService mediaService = new MediaService();
 
-    // #1. get all the info need from bean
-    String mediaId = mediaBean.getMediaId();
-    mediaService.remove(mediaId);
-
-    // #2. check if we need to pause time 
-    DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+    // #0. check if we need to pause time 
     if (delivery.isTimeRunning() && delivery.timeExpired()){
       delivery.setOutcome("timeExpired");
     }
     else{
       delivery.recordTimeElapsed();
+      delivery.setOutcome("takeAssessment");
+    }
+
+    // #1. get all the info need from bean
+    String mediaId = mediaBean.getMediaId();
+    mediaService.remove(mediaId);
+
+    // #2. update time based on server
+    if (delivery.isTimeRunning() && delivery.timeExpired()){
+      delivery.setOutcome("timeExpired");
+    }
+    else{
+      delivery.syncTimeElapsedWithServer();
+      delivery.setTimeElapseAfterFileUpload(delivery.getTimeElapse());
       delivery.setOutcome("takeAssessment");
     }
   }

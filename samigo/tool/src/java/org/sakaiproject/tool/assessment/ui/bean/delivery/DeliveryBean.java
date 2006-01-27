@@ -1536,19 +1536,12 @@ public class DeliveryBean
     if (isTimeRunning() && timeExpired())
       setOutcome("timeExpired");
     recordTimeElapsed();
-    System.out.println("****** 1a. after recordTimeElapse="+adata.getTimeElapsed());
-    System.out.println("******  b. after adding a file, time past1="+getTimeElapse());
-    System.out.println("******  c.after adding a file, time past2="+getTimeElapseAfterFileUpload());
 
     String mediaLocation = (String) e.getNewValue();
     String action = addMediaToItemGrading(mediaLocation);
     syncTimeElapsedWithServer();
-    setOutcome(action);
-
-    System.out.println("****** 2a. after adding a file, time past in DB="+adata.getTimeElapsed());
-    System.out.println("******  b. after adding a file, time past1="+getTimeElapse());
     setTimeElapseAfterFileUpload(getTimeElapse());
-    System.out.println("******  c.after adding a file, time past2="+getTimeElapseAfterFileUpload());
+    setOutcome(action);
   }
 
   /**
@@ -2153,7 +2146,7 @@ public class DeliveryBean
   }
 
 
-  private void syncTimeElapsedWithServer(){
+  public void syncTimeElapsedWithServer(){
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
     TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
     if (timedAG != null){
