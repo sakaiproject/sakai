@@ -23,6 +23,8 @@
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.SubmitTimedAssessmentThread;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,6 +46,7 @@ public class TimedAssessmentQueue {
     // private SubmitTimedAssessmentThread thread;
   private Timer timer;
 
+  private static Log log = LogFactory.getLog(TimedAssessmentQueue.class);
   private TimedAssessmentQueue() { 
     queue = new HashMap();
   } 
@@ -57,9 +60,9 @@ public class TimedAssessmentQueue {
 
   public void add(TimedAssessmentGradingModel timedAG){
     queue.put(timedAG.getAssessmentGradingId(), timedAG);
-    System.out.println("***1. TimedAssessmentQueue.add, before schedule timer="+timer);
+    log.debug("***1. TimedAssessmentQueue.add, before schedule timer="+timer);
     scheduleTask();
-    System.out.println("***2. TimedAssessmentQueue.add, after schedule timer="+timer);
+    log.debug("***2. TimedAssessmentQueue.add, after schedule timer="+timer);
 
   }
 
@@ -73,10 +76,10 @@ public class TimedAssessmentQueue {
   public void remove(TimedAssessmentGradingModel timedAG){
     queue.remove(timedAG.getAssessmentGradingId());
     if (isEmpty()){
-      System.out.println("*** before destroy, timer="+timer);
+      log.debug("*** before destroy, timer="+timer);
       timer.cancel();
       timer = null;
-      System.out.println("*** after destroy, timer="+timer);
+      log.debug("*** after destroy, timer="+timer);
     }
   }
 

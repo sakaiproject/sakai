@@ -53,15 +53,15 @@ public class SubmitTimedAssessmentThread extends TimerTask
     Iterator iter = queue.iterator();
     while (iter.hasNext()){
       TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)iter.next();
-      System.out.println("****** going through timedAG in queue, timedAG"+timedAG);
+      log.debug("****** going through timedAG in queue, timedAG"+timedAG);
       boolean submitted = timedAG.getSubmittedForGrade();
       long bufferedExpirationTime = timedAG.getBufferedExpirationDate().getTime(); // in millesec
       long currentTime = (new Date()).getTime(); // in millisec
 
-      System.out.println("****** submitted="+submitted);
-      System.out.println("****** currentTime="+currentTime);
-      System.out.println("****** bufferedExpirationTime="+bufferedExpirationTime);
-      System.out.println("****** expired="+(currentTime > bufferedExpirationTime));
+      log.debug("****** submitted="+submitted);
+      log.debug("****** currentTime="+currentTime);
+      log.debug("****** bufferedExpirationTime="+bufferedExpirationTime);
+      log.debug("****** expired="+(currentTime > bufferedExpirationTime));
       if (!submitted){
         if (currentTime > bufferedExpirationTime){ // time's up, i.e. timeLeft + latency buffer reached
           timedAG.setSubmittedForGrade(true);
@@ -72,13 +72,13 @@ public class SubmitTimedAssessmentThread extends TimerTask
           ag.setTimeElapsed(new Integer(timedAG.getTimeLimit()));
           ag.setSubmittedDate(new Date());
           service.saveOrUpdateAssessmentGrading(ag);
-          System.out.println("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
+          log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
         }
       }
       else{ //submitted, remove from queue if transaction buffer is also reached
         if (currentTime > (bufferedExpirationTime + timedAG.getTransactionBuffer()*1000)){
           queue.remove(timedAG);
-          System.out.println("**** 4b. transaction buffer reached");
+          log.debug("**** 4b. transaction buffer reached");
         }
       }
     }
