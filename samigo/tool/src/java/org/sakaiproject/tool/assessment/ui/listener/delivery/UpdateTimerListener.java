@@ -60,6 +60,6 @@ public class UpdateTimerListener implements ActionListener
     AbortProcessingException
   {
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-    delivery.recordTimeElapsed();
+    delivery.syncTimeElapsedWithServer();
   }
 }

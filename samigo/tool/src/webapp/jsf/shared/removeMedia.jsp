@@ -54,10 +54,10 @@
      </h:outputLink>
    </p>
    <p class="act">
-      <h:commandButton type="submit" value="#{msg.button_remove}" action="takeAssessment" styleClass="active">
+      <h:commandButton type="submit" value="#{msg.button_remove}" action="#{delivery.getOutcome}" styleClass="active">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.RemoveMediaListener" />
       </h:commandButton>
-       <h:commandButton value="#{msg.button_cancel}" type="submit" action="#{delivery.getOutcome}" />
+       <h:commandButton value="#{msg.button_cancel}" type="submit" action="takeAssessment" />
    </p>
  </h:form>
  <!-- end content -->

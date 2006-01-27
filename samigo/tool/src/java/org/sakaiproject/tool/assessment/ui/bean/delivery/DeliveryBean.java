@@ -1189,13 +1189,13 @@ public class DeliveryBean
   {
     if (isTimeRunning() && timeExpired()) // is timed assessment? and time has expired?
       return "timeExpired";
-    recordTimeElapsed();
     SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
 
     forGrade = true;
     SubmitToGradingActionListener listener =
       new SubmitToGradingActionListener();
     listener.processAction(null);
+    syncTimeElapsedWithServer();
 
     String returnValue="submitAssessment";
     if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
@@ -1216,7 +1216,7 @@ public class DeliveryBean
   {
     if (isTimeRunning() && timeExpired())
       return "timeExpired";
-    recordTimeElapsed();
+
     FacesContext context = FacesContext.getCurrentInstance();
     SessionUtil.setSessionTimeout(context, this, false);
     log.debug("***DeliverBean.saveAndEXit face context =" + context);
@@ -1225,6 +1225,7 @@ public class DeliveryBean
     SubmitToGradingActionListener listener =
       new SubmitToGradingActionListener();
     listener.processAction(null);
+    syncTimeElapsedWithServer();
 
     String returnValue = "select";
     if (this.actionMode == TAKE_ASSESSMENT_VIA_URL)
@@ -1246,7 +1247,7 @@ public class DeliveryBean
   {
     if (isTimeRunning() && timeExpired())
       return "timeExpired";
-    recordTimeElapsed();
+
     if (getSettings().isFormatByPart())
     {
       partIndex++;
@@ -1265,6 +1266,7 @@ public class DeliveryBean
         new SubmitToGradingActionListener();
       listener.processAction(null);
     }
+    syncTimeElapsedWithServer();
 
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
@@ -1277,7 +1279,7 @@ public class DeliveryBean
   {
     if (isTimeRunning() && timeExpired())
       return "timeExpired";
-    recordTimeElapsed();
+
     if (getSettings().isFormatByPart())
     {
       partIndex--;
@@ -1296,6 +1298,8 @@ public class DeliveryBean
         new SubmitToGradingActionListener();
       listener.processAction(null);
     }
+    syncTimeElapsedWithServer();
+
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
 
@@ -1535,11 +1539,11 @@ public class DeliveryBean
   {
     if (isTimeRunning() && timeExpired())
       setOutcome("timeExpired");
-    recordTimeElapsed();
 
     String mediaLocation = (String) e.getNewValue();
     String action = addMediaToItemGrading(mediaLocation);
     syncTimeElapsedWithServer();
+    System.out.println("****time passed after fileupload before loading of next question"+getTimeElapse());
     setTimeElapseAfterFileUpload(getTimeElapse());
     setOutcome(action);
   }
@@ -2078,6 +2082,7 @@ public class DeliveryBean
     return time;
   }
 
+    /*
   public void recordTimeElapsed(){
     AssessmentGradingData adata = getAssessmentGrading();
     if (adata != null){ // adata would be null during preview
@@ -2089,6 +2094,7 @@ public class DeliveryBean
       System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
     }
   }
+
 
   public void recordTimeElapsedTOC(){
     AssessmentGradingData adata = getAssessmentGrading();
@@ -2106,6 +2112,7 @@ public class DeliveryBean
       }
     }
   }
+    */
 
   public boolean getBeginAssessment(){
     return beginAssessment;
@@ -2154,7 +2161,7 @@ public class DeliveryBean
       // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
       // later time, we need to account for the time taht he used before
       int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
-      System.out.println("***time passed="+timeElapsed+timeTakenBefore);
+      System.out.println("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
       adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
       GradingService gradingService = new GradingService();
       gradingService.saveOrUpdateAssessmentGrading(adata);

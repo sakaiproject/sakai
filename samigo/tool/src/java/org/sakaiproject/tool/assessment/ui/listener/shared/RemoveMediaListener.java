@@ -71,7 +71,7 @@ public class RemoveMediaListener implements ActionListener
       delivery.setOutcome("timeExpired");
     }
     else{
-      delivery.recordTimeElapsed();
+      delivery.syncTimeElapsedWithServer();
       delivery.setOutcome("takeAssessment");
     }
 

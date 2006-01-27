@@ -211,7 +211,6 @@ public class DeliveryActionListener
         delivery.setPageContents(getPageContents(publishedAssessment,
                                                delivery, itemData));
    
-      System.out.println("******** time elapse after file upload="+delivery.getTimeElapse());
     }
     catch (Exception e)
     {
@@ -1511,7 +1510,7 @@ public class DeliveryActionListener
     // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
     // later time, we need to account for the time taht he used before
     int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
-    System.out.println("***time passed="+timeElapsed+timeTakenBefore);
+    System.out.println("***time passed before reload next page="+timeElapsed+timeTakenBefore);
     ag.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
     GradingService gradingService = new GradingService();
     gradingService.saveOrUpdateAssessmentGrading(ag);

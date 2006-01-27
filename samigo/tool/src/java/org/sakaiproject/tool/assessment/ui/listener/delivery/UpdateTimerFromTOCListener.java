@@ -59,7 +59,7 @@ public class UpdateTimerFromTOCListener implements ActionListener
     AbortProcessingException
   {
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-    delivery.recordTimeElapsedTOC();
+    delivery.syncTimeElapsedWithServer();
     System.out.println("****time elapsed="+delivery.getTimeElapse());
   }
 }
