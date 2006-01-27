@@ -500,7 +500,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public List getSentMessages(String orderField, String order)
   {
     return getMessagesByType(typeManager.getSentPrivateMessageType(),
-        orderField, order);
+        orderField, order);    
   }
 
   public List getDeletedMessages(String orderField, String order)
@@ -988,6 +988,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     return pvtMessage;
   }
+    
+  
+  public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, 
+      Long searchByText,Long searchByAuthor,Long searchByBody, Long searchByLabel,Long searchByDate)
+  {    
+    return messageManager.findPvtMsgsBySearchText(typeUuid, searchText,searchFromDate, searchToDate, 
+        searchByText,searchByAuthor,searchByBody,searchByLabel,searchByDate);
+  }
 
   private String getCurrentUser()
   {
@@ -1092,23 +1100,5 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       return ToolManager.getCurrentPlacement().getContext();
     }
   }  
-
-  //Search
-  
-  public List searchPvtMsgs(String searchText,Date searchFromDate, Date searchToDate, 
-      Long searchByText,Long searchByAuthor,Long searchByBody, Long searchByLabel,Long searchByDate)
-  {
-    List pvtMsgLs= new ArrayList();
-    List pmReturnLs= new ArrayList();
-    pvtMsgLs= messageManager.findPvtMsgsBySearchText(searchText,searchFromDate, searchToDate, 
-        searchByText,searchByAuthor,searchByBody,searchByLabel,searchByDate);
-    for (Iterator iter = pvtMsgLs.iterator(); iter.hasNext();)
-    {
-      PrivateMessage pmReturn = (PrivateMessage) iter.next();
-      //innitialize for LazyInitializationException:
-      getHibernateTemplate().initialize(pmReturn.getRecipients());
-      pmReturnLs.add(pmReturn);
-    }
-    return pmReturnLs;
-  }
+      
 }

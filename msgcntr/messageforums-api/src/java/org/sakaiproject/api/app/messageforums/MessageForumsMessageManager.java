@@ -79,7 +79,7 @@ public interface MessageForumsMessageManager {
     
     public List getAllRelatedMsgs(final Long messageId);
     
-    public List findPvtMsgsBySearchText(final String searchText,final Date searchFromDate, final Date searchToDate,
+    public List findPvtMsgsBySearchText(final String typeUuid, final String searchText,final Date searchFromDate, final Date searchToDate,
         final Long searchByText, final Long searchByAuthor,final Long searchByBody, final Long searchByLabel,final Long searchByDate);
 }
 

@@ -2318,82 +2318,82 @@ public class PrivateMessagesTool
       
       if(searchOnSubject && searchOnAuthor && searchOnBody && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(1), new Long(1), new Long(1),new Long(1)) ;
       } 
       else if(searchOnSubject && searchOnAuthor && searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(1), new Long(1), new Long(0),new Long(1)) ;
       } 
       else if(searchOnSubject && searchOnAuthor && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(1), new Long(0), new Long(1),new Long(1)) ;
       }    
       else if(searchOnSubject && searchOnLabel && searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(0), new Long(1), new Long(1),new Long(1)) ;
       }
       else if(searchOnAuthor && searchOnBody && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(1), new Long(1), new Long(1),new Long(1)) ;
       } 
       else if(searchOnSubject && searchOnAuthor)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(1), new Long(0), new Long(0),new Long(1)) ;
       } 
       else if(searchOnSubject && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(0), new Long(0), new Long(1),new Long(1)) ;
       } 
       else if(searchOnSubject && searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(0), new Long(1), new Long(0),new Long(1)) ;
       } 
       else if(searchOnAuthor && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(1), new Long(0), new Long(1),new Long(1)) ;
       }   
       else if(searchOnAuthor && searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(1), new Long(1), new Long(0),new Long(1)) ;
       }
       else if(searchOnBody && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(0), new Long(1), new Long(1),new Long(1)) ;
       }
       else if(searchOnSubject)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(0),new Long(0), new Long(0),new Long(1)) ;
       } 
       else if (searchOnAuthor)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(1),new Long(0), new Long(0),new Long(1)) ;
       }
       else if (searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(0),new Long(1), new Long(0),new Long(1)) ;
       }    
       else if (searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(0),new Long(0), new Long(1),new Long(1)) ;
       } 
       else
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(0),new Long(0), new Long(0),new Long(1)) ;
       }
     }
@@ -2405,77 +2405,77 @@ public class PrivateMessagesTool
       }
       if(searchOnSubject && searchOnAuthor && searchOnBody && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(1), new Long(1), new Long(1),new Long(0)) ;
       } 
       else if(searchOnSubject && searchOnAuthor && searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(1), new Long(1), new Long(0),new Long(0)) ;
       } 
       else if(searchOnSubject && searchOnAuthor && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(1), new Long(0), new Long(1),new Long(0)) ;
       }    
       else if(searchOnSubject && searchOnLabel && searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(0), new Long(1), new Long(1),new Long(0)) ;
       }
       else if(searchOnAuthor && searchOnBody && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(1), new Long(1), new Long(1),new Long(0)) ;
       } 
       else if(searchOnSubject && searchOnAuthor)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(1), new Long(0), new Long(0),new Long(0)) ;
       } 
       else if(searchOnSubject && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(0), new Long(0), new Long(1),new Long(0)) ;
       } 
       else if(searchOnSubject && searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(0), new Long(1), new Long(0),new Long(0)) ;
       } 
       else if(searchOnAuthor && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(1), new Long(0), new Long(1),new Long(0)) ;
       }   
       else if(searchOnAuthor && searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(1), new Long(1), new Long(0),new Long(0)) ;
       }
       else if(searchOnBody && searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(0), new Long(1), new Long(1),new Long(0)) ;
       }
       else if(searchOnSubject)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(1), new Long(0),new Long(0), new Long(0),new Long(0)) ;
       } 
       else if (searchOnAuthor)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(1),new Long(0), new Long(0),new Long(0)) ;
       }
       else if (searchOnBody)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(0),new Long(1), new Long(0),new Long(0)) ;
       }    
       else if (searchOnLabel)
       {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getSearchText(), getSearchFromDate(), getSearchToDate(),
+        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
             new Long(0), new Long(0),new Long(0), new Long(1),new Long(0)) ;
       }        
     }

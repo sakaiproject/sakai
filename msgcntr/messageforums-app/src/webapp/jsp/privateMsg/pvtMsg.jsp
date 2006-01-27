@@ -98,6 +98,8 @@
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded' && PrivateMessagesTool.msgNavMode == 'Sent'}">
 		    <f:facet name="header">
+   		       <h:outputText value="#{msgs.pvt_to}"/>
+		       <%--
 		       <h:commandLink value="#{msgs.pvt_to}"
 		                      title="#{msgs.sort_to}">
 		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
@@ -108,6 +110,7 @@
     	                         rendered="#{PrivateMessagesTool.sortType == 'to_desc'}"/>    	                       
     	         <f:param name="sortColumn" value="to"/>
     	       </h:commandLink>
+    	       --%>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}" />
 		     <h:outputText style="font-weight:bold" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>

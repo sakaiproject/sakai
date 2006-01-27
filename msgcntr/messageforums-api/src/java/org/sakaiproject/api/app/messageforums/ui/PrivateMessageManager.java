@@ -144,6 +144,7 @@ public interface PrivateMessageManager {
     public boolean hasPreviousMessage(PrivateMessage message);
     public boolean hasNextMessage(PrivateMessage message);
     
-    public List searchPvtMsgs(String searchText,Date searchFromDate, Date searchToDate, Long searchByText, Long searchByAuthor,Long searchByBody, Long searchByLabel,Long searchByDate);
+    /** advanced search for private messages */ 
+    public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, Long searchByText, Long searchByAuthor,Long searchByBody, Long searchByLabel,Long searchByDate);
     
 }

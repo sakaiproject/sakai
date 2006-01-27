@@ -28,14 +28,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.sql.Timestamp;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.LockMode;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
-import net.sf.hibernate.cache.ReadWriteCache.Lock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +45,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
@@ -565,7 +563,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      * @return
      */
     
-    public List findPvtMsgsBySearchText(final String searchText,final Date searchFromDate, final Date searchToDate, final Long searchByText,
+    public List findPvtMsgsBySearchText(final String typeUuid, final String searchText,final Date searchFromDate, final Date searchToDate, final Long searchByText,
                 final Long searchByAuthor,final Long searchByBody,final Long searchByLabel,final Long searchByDate) {
 
       LOG.debug("findPvtMsgsBySearchText executing with searchText: " + searchText);
@@ -573,20 +571,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
       HibernateCallback hcb = new HibernateCallback() {
           public Object doInHibernate(Session session) throws HibernateException, SQLException {
               Query q = session.getNamedQuery("findPvtMsgsBySearchText");
-              q.setParameter("searchText", "%" + searchText + "%", Hibernate.STRING);
-              q.setParameter("searchByText", searchByText , Hibernate.LONG);
-              q.setParameter("searchByAuthor", searchByAuthor, Hibernate.LONG);
-              q.setParameter("searchByBody", searchByBody , Hibernate.LONG);
-              q.setParameter("searchByLabel", searchByLabel, Hibernate.LONG);
-              q.setParameter("searchByDate", searchByDate, Hibernate.LONG);
-              q.setParameter("searchFromDate", searchFromDate, Hibernate.DATE);
-              q.setParameter("searchToDate", searchToDate, Hibernate.DATE);
+              q.setParameter("searchText", "%" + searchText + "%");
+              q.setParameter("searchByText", searchByText);
+              q.setParameter("searchByAuthor", searchByAuthor);
+              q.setParameter("searchByBody", searchByBody);
+              q.setParameter("searchByLabel", searchByLabel);
+              q.setParameter("searchByDate", searchByDate);
+              q.setParameter("searchFromDate", searchFromDate);
+              q.setParameter("searchToDate", searchToDate);
+              q.setParameter("userId", getCurrentUser());
+              q.setParameter("contextId", ToolManager.getCurrentPlacement().getContext());
+              q.setParameter("typeUuid", typeUuid);
               return q.list();
           }
       };
 
       return (List) getHibernateTemplate().execute(hcb);
-  }
-
-    
+  }    
 }
