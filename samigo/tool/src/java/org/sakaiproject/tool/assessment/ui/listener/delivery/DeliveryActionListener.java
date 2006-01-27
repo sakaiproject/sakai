@@ -141,12 +141,7 @@ public class DeliveryActionListener
       case 2: // preview assessment, show feedback is clicked
               setFeedbackMode(delivery);
               if (("true").equals(delivery.getFeedback())){
-                itemData = new HashMap();
-                if (delivery.getFeedbackComponent().getShowResponse())
-                  itemData = service.getSubmitData(id, agent);
-                //setAssessmentGradingFromItemData(delivery, itemData, false);
                 setDisplayByAssessment(delivery);
-                setGraderComment(delivery);
 	      }
               break;
 
