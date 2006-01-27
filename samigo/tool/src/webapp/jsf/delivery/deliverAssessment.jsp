@@ -79,7 +79,7 @@ return!(window.event && window.event.keyCode == 13);
 function saveTime()
 {
   if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){
-  pauseTiming = 'true';
+  pauseTiming = 'false';
   document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded/10;
  }
 }
@@ -225,26 +225,26 @@ function saveTime()
                    || delivery.actionString=='takeAssessmentViaUrl')
                 && delivery.navigation eq '1' && !delivery.continue}" 
       disabled="#{delivery.actionString=='previewAssessment'}"
-      onclick="pauseTiming='true'"/>
+      onclick="pauseTiming='false'"/>
   </h:panelGroup>
 
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-    onclick="pauseTiming='true'"/>
+    onclick="pauseTiming='false'"/>
 
   <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
               && delivery.navigation ne '1' && delivery.continue}"  
-    onclick="pauseTiming='true'" 
+    onclick="pauseTiming='false'" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
   <h:commandButton type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
     rendered="#{(delivery.actionString=='takeAssessmentViaUrl')}"
-    onclick="pauseTiming='true'" /> 
+    onclick="pauseTiming='false'" /> 
 
 <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"

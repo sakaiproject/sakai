@@ -483,6 +483,8 @@ public class DeliveryBean
         this.timeElapse = timeElapse;
       else
         this.timeElapse = getTimeLimit();
+      if (timeElapse!=null && !("").equals(timeElapse))
+        setTimeElapseFloat((new Float(timeElapse)).floatValue());
     }
     catch (Exception e){
       log.warn("setTimeElapse error:"+e.getMessage());
@@ -1533,20 +1535,30 @@ public class DeliveryBean
   {
     if (isTimeRunning() && timeExpired())
       setOutcome("timeExpired");
+    recordTimeElapsed();
+    System.out.println("****** 1a. after recordTimeElapse="+adata.getTimeElapsed());
+    System.out.println("******  b. after adding a file, time past1="+getTimeElapse());
+    System.out.println("******  c.after adding a file, time past2="+getTimeElapseAfterFileUpload());
+
     String mediaLocation = (String) e.getNewValue();
-    log.debug("***2a. addMediaToItemGrading, new value =" + mediaLocation);
     String action = addMediaToItemGrading(mediaLocation);
+    syncTimeElapsedWithServer();
     setOutcome(action);
-    System.out.println("****** after adding a file, time past="+getTimeElapse());
+
+    System.out.println("****** 2a. after adding a file, time past in DB="+adata.getTimeElapsed());
+    System.out.println("******  b. after adding a file, time past1="+getTimeElapse());
+    setTimeElapseAfterFileUpload(getTimeElapse());
+    System.out.println("******  c.after adding a file, time past2="+getTimeElapseAfterFileUpload());
   }
-    /**
-     * This method is used by jsf/delivery/deliverAudioRecording.jsp and
-     * is called by addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
-     *
-     * @param mediaLocation the  media location
-     * @return the action string
-     */
-    public String addMediaToItemGrading(String mediaLocation)
+
+  /**
+   * This method is used by jsf/delivery/deliverAudioRecording.jsp and
+   * is called by addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
+   *
+   * @param mediaLocation the  media location
+   * @return the action string
+   */
+  public String addMediaToItemGrading(String mediaLocation)
     {
     GradingService gradingService = new GradingService();
     PublishedAssessmentService publishedService = new
@@ -1635,22 +1647,8 @@ public class DeliveryBean
     if (newItemGradingData)
       attachToItemContentBean(itemGradingData, questionId);
 
-    // 9. do the timer thing
-    Integer timeLimit = null;
-    if (adata != null && adata.getPublishedAssessment() != null
-        && adata.getPublishedAssessment().getAssessmentAccessControl() != null)
-    {
-      timeLimit = adata.getPublishedAssessment().getAssessmentAccessControl().
-        getTimeLimit();
-    }
-    if (timeLimit != null && timeLimit.intValue() > 0)
-    {
-      UpdateTimerListener l3 = new UpdateTimerListener();
-      l3.processAction(null);
-    }
-
-    reload = false;
-    return "refreshtakeAssessment2";
+    reload = true;
+    return "takeAssessment"; // which doesn't exists to force it to reload
 
   }
 
@@ -2152,6 +2150,55 @@ public class DeliveryBean
                                              get(adata.getAssessmentGradingId());
     if (timedAG != null)
       queue.remove(timedAG);
+  }
+
+
+  private void syncTimeElapsedWithServer(){
+    TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+    TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
+    if (timedAG != null){
+      int timeElapsed  = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000); //in sec
+      // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
+      // later time, we need to account for the time taht he used before
+      int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
+      System.out.println("***time passed="+timeElapsed+timeTakenBefore);
+      adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
+      GradingService gradingService = new GradingService();
+      gradingService.saveOrUpdateAssessmentGrading(adata);
+      setTimeElapse(adata.getTimeElapsed().toString());
+    }
+  } 
+
+  private String timeElapseAfterFileUpload;
+  public String getTimeElapseAfterFileUpload()
+  {
+    return timeElapseAfterFileUpload;
+  }
+  public void setTimeElapseAfterFileUpload(String timeElapseAfterFileUpload)
+  {
+    this.timeElapseAfterFileUpload = timeElapseAfterFileUpload;
+    if (timeElapseAfterFileUpload!=null && !("").equals(timeElapseAfterFileUpload))
+      setTimeElapseAfterFileUploadFloat((new Float(timeElapseAfterFileUpload)).floatValue());
+  }
+
+  private float timeElapseFloat=0;
+  public float getTimeElapseFloat()
+  {
+    return timeElapseFloat;
+  }
+  public void setTimeElapseFloat(float timeElapseFloat)
+  {
+    this.timeElapseFloat = timeElapseFloat;
+  }
+
+  private float timeElapseAfterFileUploadFloat;
+  public float getTimeElapseAfterFileUploadFloat()
+  {
+    return timeElapseAfterFileUploadFloat;
+  }
+  public void setTimeElapseAfterFileUploadFloat(float timeElapseAfterFileUploadFloat)
+  {
+    this.timeElapseAfterFileUploadFloat = timeElapseAfterFileUploadFloat;
   }
 
 }

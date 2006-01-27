@@ -26,6 +26,7 @@
 include file for delivering file upload questions
 should be included in file importing DeliveryMessages
 --%>
+
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <h:panelGroup rendered="#{delivery.actionString=='takeAssessment' 

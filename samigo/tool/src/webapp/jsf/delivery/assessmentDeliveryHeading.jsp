@@ -110,18 +110,27 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 
 <f:verbatim> <span id="bar"></f:verbatim>
+<h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload == null || delivery.timeElapseFloat ge delivery.timeElapseAfterFileUploadFloat}">
 <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     expireMessage="Your session has expired."
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
+</h:panelGroup>
+
+<h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null && delivery.timeElapseFloat lt delivery.timeElapseAfterFileUploadFloat}">
+<samigo:timerBar height="15" width="300"
+    wait="#{delivery.timeLimit}"
+    elapsed="#{delivery.timeElapseAfterFileUpload}"
+    expireMessage="Your session has expired."
+    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
+</h:panelGroup>
 
 <f:verbatim>  </span></f:verbatim>
 
 <!-- HIDE / SHOW TIMER BAR -->
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="Hide/Show Time Remaining" />
 <!-- END OF TIMER -->
-
 
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
