@@ -40,17 +40,21 @@ var root_url = new RegExp('root=(\\S+)');
 var root = (root_url.exec(String(window.location)) ? new String(RegExp.$1) : "")
 
 // AM/PM -> 24 hour clock conversion
-if (obj_caller)
-{
- var inputDateString = ""+obj_caller.target.value;
- if (inputDateString.indexOf("PM") != -1)
-  {
-   hours = this.dt_current.getHours() + 12;
-   this.dt_current.setHours(hours);
-  }
-}
 
-
+if (obj_caller) 
+{ 
+ var inputDateString = ""+obj_caller.target.value; 
+ var tmpH = this.dt_current.getHours(); 
+ if (inputDateString.indexOf("PM") == -1 && tmpH == 12){ 
+   hours = tmpH - 12; 
+   this.dt_current.setHours(hours); 
+ } 
+ else if (inputDateString.indexOf("PM") != -1 && tmpH > 0 && tmpH < 12){ 
+   hours = tmpH + 12; 
+   this.dt_current.setHours(hours); 
+ } 
+ else ;// no modification needed 
+} 
 
 if (obj_caller && obj_caller.year_scroll) {
         // get same date in the previous year
