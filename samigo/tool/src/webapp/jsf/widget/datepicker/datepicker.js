@@ -86,16 +86,21 @@ function cal_gen_date2 (dt_datetime) {
 // time generating function
 function cal_gen_time2 (dt_datetime) {
   //sakai mod, calculate AM/PM
-  if (dt_datetime.getHours() < 13)
+  if (dt_datetime.getHours() < 12)
   {
     ampm = "AM";
     hourPart = (dt_datetime.getHours() < 10 ? '0' : '') + dt_datetime.getHours();
+    if (dt_datetime.getHours() == 0)
+      hourPart = 12; 
   }
   else
   {
-     ampm = "PM";
-     hourPart = dt_datetime.getHours() - 12;
-     hourPart = (hourPart < 10 ? '0' : '') + hourPart;
+    ampm = "PM";
+    if (dt_datetime.getHours() >12)
+      hourPart = dt_datetime.getHours() - 12;
+    else
+      hourPart = dt_datetime.getHours();
+    hourPart = (hourPart < 10 ? '0' : '') + hourPart;
   }
 	return (
 // sakai mod -- was (dt_datetime.getHours() < 10 ? '0' : '') + dt_datetime.getHours() + ":"
@@ -119,6 +124,7 @@ function cal_prs_tsmp2 (str_datetime) {
 
 	// else treat as date in string format
 	var arr_datetime = str_datetime.split(' ');
+        alert("ampm="+arr_datetime[2]);
 	return this.prs_time(arr_datetime[1], this.prs_date(arr_datetime[0]));
 }
 
@@ -160,7 +166,7 @@ function cal_prs_time2 (str_time, dt_date) {
 	if (!arr_time[0]) dt_date.setHours(0);
 	else if (RE_NUM.exec(arr_time[0]))
 		if (arr_time[0] < 24) dt_date.setHours(arr_time[0]);
-		else return cal_error ("Invalid hours value: '" + arr_time[0] + "'.\nAllowed range is 00-23.");
+     		else return cal_error ("Invalid hours value: '" + arr_time[0] + "'.\nAllowed range is 00-23.");
 	else return cal_error ("Invalid hours value: '" + arr_time[0] + "'.\nAllowed values are unsigned integers.");
 
 	if (!arr_time[1]) dt_date.setMinutes(0);
