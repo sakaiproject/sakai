@@ -10,13 +10,21 @@
 			singleton="true">
 	</bean>
 
+<!-- Uncomment to use the sample GroupProvider (read the code to see exactly what it does!)
+
+                Make sure to remove any other GroupProviders as there can only be one group provider active at any time.
+
 	<bean id="org.sakaiproject.service.legacy.authzGroup.GroupProvider"
 			class="org.sakaiproject.component.legacy.authzGroup.SampleGroupProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
- 		<!-- <property name="xFile"><value>*some*path*/users.properties</value></property> -->
 	</bean>
+-->
+
+<!-- Uncomment to use the sample UserDirectoryProvider (read the code to see exactly what it does!)
+
+                Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
 
 	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
 			class="org.sakaiproject.component.legacy.user.SampleUserDirectoryProvider"
@@ -24,15 +32,19 @@
 			destroy-method="destroy"
 			singleton="true">
 	</bean>
+-->
 
 <!--    Uncomment to use the IMS Enterprise provider
+
+                 Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
+
 	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
 			class="org.sakaiproject.component.imsent.user.IMSEntUserDirectoryProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 		<property name="sqlService"><ref bean="org.sakaiproject.service.framework.sql.SqlService"/></property>
-                <property name="autoDdl"><value>true</value></property>
+		<property name="autoDdl"><value>true</value></property>
 	</bean>
 -->
 
@@ -41,41 +53,40 @@
                 To login with the nldap.com test account -      username: ldap-admin 
                                                                 password: admin
                 
-                Make sure to remove the SampleUserDirectoryProvider as there can only be
-                one provider active at any time.
+                 Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
 
-       <bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
-                        class="edu.amc.sakai.user.JLDAPDirectoryProvider"
-                        init-method="init"
-                        destroy-method="destroy"
-                        singleton="true">
-                <property name="logger"><ref bean="org.sakaiproject.service.framework.log.Logger"/></property>
-                <property name="ldapHost"><value>nldap.com</value></property>
-                <property name="ldapPort"><value>389</value></property> 
-                <property name="secureConnection"><value>false</value></property>
-                <property name="keystoreLocation"><value></value></property>
-                <property name="keystorePassword"><value></value></property>
-                <property name="basePath"><value>ou=sakai-ldap,ou=user,o=novell</value></property>
-                <property name="operationTimeout"><value>5000</value></property>
-                <property name="cacheTTL"><value>18000000</value></property>
-                <property name="attributeMappings">
-                        <map>
-                                <entry key="login"><value>cn</value></entry>    
-                                <entry key="distinguishedName"><value>dn</value></entry>        
-                                <entry key="firstName"><value>givenName</value></entry> 
-                                <entry key="lastName"><value>sn</value></entry> 
-                                <entry key="email"><value>mail</value></entry>  
-                                <entry key="groupMembership"><value>groupMembership</value></entry>     
-                        </map>
-                </property>
-        </bean>
- -->
+	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
+			class="edu.amc.sakai.user.JLDAPDirectoryProvider"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="logger"><ref bean="org.sakaiproject.service.framework.log.Logger"/></property>
+		<property name="ldapHost"><value>nldap.com</value></property>
+		<property name="ldapPort"><value>389</value></property> 
+		<property name="secureConnection"><value>false</value></property>
+		<property name="keystoreLocation"><value></value></property>
+		<property name="keystorePassword"><value></value></property>
+		<property name="basePath"><value>ou=sakai-ldap,ou=user,o=novell</value></property>
+		<property name="operationTimeout"><value>5000</value></property>
+		<property name="cacheTTL"><value>18000000</value></property>
+		<property name="attributeMappings">
+			<map>
+				<entry key="login"><value>cn</value></entry>    
+				<entry key="distinguishedName"><value>dn</value></entry>        
+				<entry key="firstName"><value>givenName</value></entry> 
+				<entry key="lastName"><value>sn</value></entry> 
+				<entry key="email"><value>mail</value></entry>  
+				<entry key="groupMembership"><value>groupMembership</value></entry>     
+			</map>
+		</property>
+    </bean>
+-->
 
 <!--	Uncomment and configure to use the Kerberos Provider.
-		Make sure to remove the SampleUserDirectoryProvider as there can only be
-		one provider active at any time. -->
 
-<!--	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
+                 Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
+
+	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
 			class="org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider"
 			init-method="init"
 			destroy-method="destroy"
@@ -88,6 +99,5 @@
 		<property name="knownUserMsg"><value>Integrity check on decrypted field failed</value></property>
 	</bean>
 -->
+
 </beans>
-
-
