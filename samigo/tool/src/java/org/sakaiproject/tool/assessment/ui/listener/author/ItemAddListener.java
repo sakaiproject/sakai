@@ -300,6 +300,7 @@ public class ItemAddListener
         item = new ItemFacade();
       }
       item.setScore(new Float(bean.getItemScore()));
+      item.setHint("");
 
       item.setStatus(ItemFacade.ACTIVE_STATUS);
 
@@ -635,12 +636,12 @@ public class ItemAddListener
           // label is null because we don't use labels in true/false questions
           // labels are like a, b, c, or i, ii, iii, in multiple choice type
 
-          newanswer = new Answer(text1, theanswer, new Long(i + 1), null,
+          newanswer = new Answer(text1, theanswer, new Long(i + 1), "",
                                  Boolean.TRUE, null,
                                  new Float(bean.getItemScore()));
         }
         else {
-          newanswer = new Answer(text1, theanswer, new Long(i + 1), null,
+          newanswer = new Answer(text1, theanswer, new Long(i + 1), "",
                                  Boolean.FALSE, null,
                                  new Float(bean.getItemScore()));
         }
