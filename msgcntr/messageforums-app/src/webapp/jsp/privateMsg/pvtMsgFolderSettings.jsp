@@ -33,7 +33,7 @@
 				
 	<sakai:button_bar>
   	<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingRevise}" value="Revise" />
-    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}" value="Add" />
+    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderInFolderAdd}" value="Add" />
     <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingDelete}" value="Delete" />
     <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingCancel}" value="Cancel" />
   </sakai:button_bar>   

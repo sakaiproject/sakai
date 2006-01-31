@@ -3,6 +3,7 @@ package org.sakaiproject.component.app.messageforums;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
 
@@ -271,4 +272,18 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     }
   }
 
+  
+  /** Return the typeUUId fro custom created topic  */
+  public String getCustomTopicType(String topicTitle)
+  {
+    LOG.debug("getCustomTopicType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, topicTitle);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else {
+      return (typeManager.createType(AUTHORITY, DOMAIN, topicTitle, topicTitle, topicTitle)).getUuid();
+    }
+  }
 }

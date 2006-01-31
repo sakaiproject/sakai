@@ -10,6 +10,7 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 
 public interface PrivateMessageManager {
@@ -125,9 +126,13 @@ public interface PrivateMessageManager {
     public void renameTopicFolder(PrivateForum pf,String topicId, String newName);
     /**  Delete a topic from private forum   */
     public void deleteTopicFolder(PrivateForum pf, String topicId);
-
-    
-    public String createTopicFolderInTopic(String parentTopicId, String userId, String name);
+    /** Move the message under new topic */
+    public void movePvtMsgTopic(PrivateMessage message,Topic oldTopic, Topic newTopic);
+    /**  Get the Topic from uuid   
+     * TODO - this can be replaced with another method which doesn't return messages*/
+    public Topic getTopicByUuid(final String topicUuid);
+    /** create Folder within Folder*/
+    public void createTopicFolderInTopic(PrivateForum pf, PrivateTopic parentTopic, String folderName);
     
     
     //Attachment

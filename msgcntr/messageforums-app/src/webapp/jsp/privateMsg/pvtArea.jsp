@@ -18,11 +18,11 @@
   		<f:verbatim><div class="rightAlign"></f:verbatim>
   			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgCompose}"  value="#{msgs.pvt_compose}">
 			</h:commandLink>
-			<%-- currently new folder disabled
+			
 			<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
   			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"  value="#{msgs.pvt_newfolder}">
 			</h:commandLink>	
-			--%>		
+		
 			<f:verbatim></div></f:verbatim>
 			<f:verbatim> </br></f:verbatim>
 			<f:verbatim></div></f:verbatim>

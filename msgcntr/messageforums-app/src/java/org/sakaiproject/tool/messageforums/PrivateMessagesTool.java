@@ -935,7 +935,7 @@ public class PrivateMessagesTool
       }
     }
     //default setting for moveTo
-    moveToTopic=msgNavMode;
+    moveToTopic=selectedTopicId;
     return "pvtMsgDetail";
   }
 
@@ -2157,6 +2157,8 @@ public class PrivateMessagesTool
       } else 
       {
         prtMsgManager.createTopicFolderInForum(forum, createFolder);
+      //create a typeUUID in commons
+      String newTypeUuid= typeManager.getCustomTopicType(createFolder); 
       }
       return "main" ;
     }
@@ -2196,17 +2198,56 @@ public class PrivateMessagesTool
     return "main";
   }
   
+  //create folder within folder
+  public String processPvtMsgFolderInFolderAdd()
+  {
+    LOG.debug("processPvtMsgFolderSettingAdd()");    
+    return "pvtMsgFolderInFolderAdd" ;
+  }
+  //create folder within Folder
+  //TODO - add parent fodler id for this 
+  public String processPvtMsgFldInFldCreate() 
+  {
+    LOG.debug("processPvtMsgFldCreate()");
+    
+    PrivateTopic parentTopic=(PrivateTopic) prtMsgManager.getTopicByUuid(selectedTopicId);
+    
+    String createFolder=getAddFolder() ;
+    if(createFolder == null)
+    {
+      setErrorMessage("Please enter name of folder,which you want to create.");
+      return null ;
+    } else {
+      if(PVTMSG_MODE_RECEIVED.equals(createFolder) || PVTMSG_MODE_SENT.equals(createFolder)|| 
+          PVTMSG_MODE_DELETE.equals(createFolder) || PVTMSG_MODE_DRAFT.equals(createFolder))
+      {
+        setErrorMessage("Please create a different folder name.");
+      } else 
+      {
+        prtMsgManager.createTopicFolderInTopic(forum, parentTopic, createFolder);
+      //create a typeUUID in commons
+      String newTypeUuid= typeManager.getCustomTopicType(createFolder); 
+      }
+      return "main" ;
+    }
+  }
   ///////////////////// MOVE    //////////////////////
   private String moveToTopic="";
+  private String moveToNewTopic="";
+  
   public String getMoveToTopic()
   {
-    //TODO - set the default topic
+    if(hasValue(moveToNewTopic))
+    {
+      moveToTopic=moveToNewTopic;
+    }
     return moveToTopic;
   }
   public void setMoveToTopic(String moveToTopic)
   {
     this.moveToTopic = moveToTopic;
   }
+
   /**
    * called from Single delete Page
    * @return - pvtMsgMove
@@ -2216,33 +2257,30 @@ public class PrivateMessagesTool
     return "pvtMsgMove";
   }
   
-  public String processPvtMsgParentFolderMove(ValueChangeEvent event)
+  public void processPvtMsgParentFolderMove(ValueChangeEvent event)
   {
     LOG.debug("processPvtMsgSettingsRevise()"); 
     if ((String)event.getNewValue() != null)
     {
-      moveToTopic= (String)event.getNewValue();
+      moveToNewTopic= (String)event.getNewValue();
     }
-    return processPvtMsgMove();
   }
   
   public String processPvtMsgMoveMessage()
   {
     LOG.debug("processPvtMsgMoveMessage()");
-//    String moveTopicTitle="";
-//    String moveTopicId="";
-//    for (Iterator iter = pvtTopics.iterator(); iter.hasNext();)
-//    {
-//      PrivateTopic element = (PrivateTopic) iter.next();
-//      if(getMoveToTopic() != null)
-//      {
-//        moveTopicTitle=getMoveToTopic();
-//        moveTopicId=getExternalParameterByKey("pvtMsgMoveTopicId") ;
-//        break;
-//      }
-//    }
-
-    return "pvtMsgDetail" ;
+    String moveTopicTitle=getMoveToTopic(); //this is uuid of new topic
+    
+    Topic newTopic= prtMsgManager.getTopicByUuid(moveTopicTitle);
+    Topic oldTopic=selectedTopic.getTopic();
+    
+    prtMsgManager.movePvtMsgTopic(detailMsg.getMsg(), oldTopic, newTopic);
+    
+    //reset 
+    moveToTopic="";
+    moveToNewTopic="";
+    
+    return "main" ;
   }
   
   /**
@@ -2789,7 +2827,7 @@ public class PrivateMessagesTool
       return typeManager.getDraftPrivateMessageType();
     }
     else{
-      return "";
+      return typeManager.getCustomTopicType(navMode);
     }    
   }
 

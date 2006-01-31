@@ -20,15 +20,9 @@
 					</f:facet>
 			    	<h:selectOneRadio value="#{PrivateMessagesTool.moveToTopic}" onchange="this.form.submit();"
                                   valueChangeListener="#{PrivateMessagesTool.processPvtMsgParentFolderMove}">
-			      	<f:selectItem itemValue="#{topic.topic.title}" />	
-			      	<f:param value="#{topic.topic.id}" name="pvtMsgMoveTopicId"/>
+			      	<f:selectItem itemValue="#{topic.topic.uuid}"  itemLabel="#{topic.topic.title}" />	
+			      	<%--<f:param value="#{topic.topic.uuid}" name="pvtMsgMoveTopicId"/>--%>
   			    </h:selectOneRadio>
-			  </h:column>
-				<h:column>
-			    <f:facet name="header">
-			    <h:outputText value=" Private Messages"/>
-					</f:facet>
-			    <h:outputText value="#{topic.topic.title}" /> 
 			  </h:column>
 			</h:dataTable>
 		</h:column>

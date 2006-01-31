@@ -102,9 +102,9 @@
                
         <sakai:button_bar rendered="#{!PrivateMessagesTool.deleteConfirm}" >
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" />
-         <%--
+        
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" />
-         --%>
+     
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}" />
         </sakai:button_bar>        
         <sakai:button_bar rendered="#{PrivateMessagesTool.deleteConfirm}" >  

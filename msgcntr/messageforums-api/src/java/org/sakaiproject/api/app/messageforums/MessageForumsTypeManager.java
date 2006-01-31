@@ -74,8 +74,8 @@ public interface MessageForumsTypeManager
    * @return
    */
   public String getNotSpecifiedType();
-  
-  
+ 
+  public String getCustomTopicType(String topicTitle);
   
   
  

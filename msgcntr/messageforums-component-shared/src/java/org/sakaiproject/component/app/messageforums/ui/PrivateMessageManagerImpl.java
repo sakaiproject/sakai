@@ -332,20 +332,25 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     forumManager.savePrivateForum(pf);  
   }
 
-  public String createTopicFolderInTopic(String parentTopicId, String userId,
-      String name)
+  public void createTopicFolderInTopic(PrivateForum pf, PrivateTopic parentTopic, String folderName)
   {
-    return null;
+    String userId = getCurrentUser();
+    PrivateTopic createdTopic = forumManager.createPrivateForumTopic(folderName, true,true,
+        userId, pf.getId()); 
+    createdTopic.setParentTopic(parentTopic);
+    forumManager.savePrivateForumTopic(createdTopic);
+    pf.addTopic(createdTopic);    
+    forumManager.savePrivateForum(pf);  
   }
 
-  public void renameTopicFolder(PrivateForum pf, String topicId, String newName)
+  public void renameTopicFolder(PrivateForum pf, String topicUuid, String newName)
   {
     String userId = getCurrentUser();
     List pvtTopics= pf.getTopics();
     for (Iterator iter = pvtTopics.iterator(); iter.hasNext();)
     {
       PrivateTopic element = (PrivateTopic) iter.next();
-      if(element.getId().equals(new Long(topicId)))
+      if(element.getUuid().equals(topicUuid))
       {
         element.setTitle(newName);
         element.setModifiedBy(userId);
@@ -355,13 +360,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     forumManager.savePrivateForum(pf);  
   }
 
-  public void deleteTopicFolder(PrivateForum pf,String topicId)
+  public void deleteTopicFolder(PrivateForum pf,String topicUuid)
   {
     List pvtTopics= pf.getTopics();
     for (Iterator iter = pvtTopics.iterator(); iter.hasNext();)
     {
       PrivateTopic element = (PrivateTopic) iter.next();
-      if(element.getId().equals(new Long(topicId)))
+      if(element.getUuid().equals(topicUuid))
       {
         pf.removeTopic(element);
         break;
@@ -370,6 +375,45 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     forumManager.savePrivateForum(pf);  
   }
 
+  /**
+   * Return Topic based on uuid 
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#getTopicByIdWithMessages(java.lang.Long)
+   */
+  public Topic getTopicByUuid(final String topicUuid)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getTopicByIdWithMessages(final Long" + topicUuid + ")");
+    }
+    return forumManager.getTopicByUuid(topicUuid);
+  }
+  
+  
+  public static final String PVTMSG_MODE_RECEIVED = "Received";
+  public static final String PVTMSG_MODE_SENT = "Sent";
+  public static final String PVTMSG_MODE_DELETE = "Deleted";
+  public static final String PVTMSG_MODE_DRAFT = "Drafts";
+  public void movePvtMsgTopic(PrivateMessage message, Topic oldTopic, Topic newTopic)
+  {
+    List recipients= message.getRecipients();
+    //get new topic type uuid
+    String newTopicTypeUuid=getTopicTypeUuid(newTopic.getTitle());
+    //get pld topic type uuid
+    String oldTopicTypeUuid=getTopicTypeUuid(oldTopic.getTitle());
+    
+    //now set the recipiant with new topic type uuid
+    for (Iterator iter = recipients.iterator(); iter.hasNext();)
+    {
+      PrivateMessageRecipient element = (PrivateMessageRecipient) iter.next();
+      if (element.getTypeUuid().equals(oldTopicTypeUuid) && (element.getUserId().equals(getCurrentUser())))
+      {
+        element.setTypeUuid(newTopicTypeUuid);
+      }
+    }
+    savePrivateMessage(message);
+    
+  }
+  
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#createPrivateMessage(java.lang.String)
    */
@@ -1100,5 +1144,31 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       return ToolManager.getCurrentPlacement().getContext();
     }
   }  
-      
+     
+  //Helper class
+  public String getTopicTypeUuid(String topicTitle)
+  {
+    String topicTypeUuid;
+    if((PVTMSG_MODE_RECEIVED).equals(topicTitle))
+    {
+      topicTypeUuid=typeManager.getReceivedPrivateMessageType();
+    }
+    else if((PVTMSG_MODE_SENT).equals(topicTitle))
+    {
+      topicTypeUuid=typeManager.getSentPrivateMessageType();
+    }
+    else if((PVTMSG_MODE_DELETE).equals(topicTitle))
+    {
+      topicTypeUuid=typeManager.getDeletedPrivateMessageType();
+    }
+    else if((PVTMSG_MODE_DRAFT).equals(topicTitle))
+    {
+      topicTypeUuid=typeManager.getDraftPrivateMessageType();
+    }
+    else
+    {
+      topicTypeUuid=typeManager.getCustomTopicType(topicTitle);
+    }
+    return topicTypeUuid;
+  }
 }
