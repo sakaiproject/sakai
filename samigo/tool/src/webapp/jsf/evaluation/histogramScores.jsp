@@ -56,7 +56,8 @@ $Id$
     <h:outputText value=": "/>
     <h:outputText value="#{histogramScores.assessmentName} "/>
   </h3>
-  <p class="navModeAction">
+<h:outputText value=" <p class=\"navModeAction\">" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
+ 
     <h:commandLink action="totalScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       <h:outputText value="#{msg.title_total}" />
@@ -69,7 +70,7 @@ $Id$
     </h:commandLink>
     <h:outputText value=" | " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
       <h:outputText value="#{msg.stat_view}" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
-  </p>
+ <h:outputText value=" </p>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
 
   <h:messages styleClass="validation" />
 
@@ -110,13 +111,18 @@ $Id$
 
 
  <h:dataTable value="#{histogramScores.histogramBars}" var="bar" footerClass="alignCenter">
+
     <h:column>
         <h:outputText value=" #{bar.rangeInfo} #{msg.pts} " />
     </h:column>
      <h:column>
+<h:panelGroup>
         <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
         <h:outputText value=" #{bar.numStudents}" />
+</h:panelGroup>
+
 </h:column>
+
        <f:facet name="footer">
           <h:outputText value="#{msg.num_students}" />
       </f:facet>
@@ -126,31 +132,31 @@ $Id$
 
 <h:panelGrid columns="2" columnClasses="alignLeft,aligntRight">
 
-<h:outputText value="#{msg.sub_view}"/>
-<h:outputText value="#{histogramScores.numResponses}" />
+<h:outputLabel value="#{msg.sub_view}"/>
+<h:outputLabel value="#{histogramScores.numResponses}" />
 
-<h:outputText value="#{msg.tot} Possible" />
+<h:outputLabel value="#{msg.tot} Possible" />
 <h:outputText value="#{histogramScores.totalPossibleScore}"/>
 
-<h:outputText value="#{msg.mean_eq}" />
+<h:outputLabel value="#{msg.mean_eq}" />
 <h:outputText value="#{histogramScores.mean}"/>
 
-<h:outputText value="#{msg.median}" />
+<h:outputLabel value="#{msg.median}" />
 <h:outputText value="#{histogramScores.median}"/>
 
-<h:outputText value="#{msg.mode}" />
+<h:outputLabel value="#{msg.mode}" />
 <h:outputText value="#{histogramScores.mode}"/>
 
-<h:outputText value="#{msg.range_eq}" />
+<h:outputLabel value="#{msg.range_eq}" />
 <h:outputText value="#{histogramScores.range}"/>
 
-<h:outputText value="#{msg.qtile_1_eq}" />
+<h:outputLabel value="#{msg.qtile_1_eq}" />
 <h:outputText value="#{histogramScores.q1}"/>
 
-<h:outputText value="#{msg.qtile_3_eq}" />
+<h:outputLabel value="#{msg.qtile_3_eq}" />
 <h:outputText value="#{histogramScores.q3}"/>
 
-<h:outputText value="#{msg.std_dev}" />
+<h:outputLabel value="#{msg.std_dev}" />
 <h:outputText value="#{histogramScores.standDev}"/>
 </h:panelGrid>
 

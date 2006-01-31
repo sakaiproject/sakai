@@ -550,8 +550,10 @@ public class HistogramListener
         correctresponses = correctresponses + 1;
       }
     }
-
-    int[] heights = calColumnHeight(numarray);
+    //NEW
+    System.out.println("NUMBER OF RESPONSEDS IN getFIBMCMCScores IS: "+ responses);
+    int[] heights = calColumnHeight(numarray,responses);
+    // int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
       bars[i].setColumnHeight(new Integer(heights[i]).toString());
     qbean.setHistogramBars(bars);
@@ -635,7 +637,10 @@ public class HistogramListener
         correctresponses += num;
       //i++;
     }
-    int[] heights = calColumnHeight(numarray);
+    //NEW 
+ System.out.println("NUMBER OF RESPONSEDS IN getTFMCScores IS: "+ responses);
+    int[] heights = calColumnHeight(numarray,responses);
+    // int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
       bars[i].setColumnHeight(new Integer(heights[i]).toString());
     qbean.setHistogramBars(bars);
@@ -661,7 +666,6 @@ public class HistogramListener
       results.put(label.getId(), new Integer(0));
     }
     iter = scores.iterator();
-
 
     while (iter.hasNext())
     {
@@ -762,8 +766,10 @@ if (answer != null)
 
 
 
-
-    int[] heights = calColumnHeight(numarray);
+    //NEW
+     System.out.println("NUMBER OF RESPONSEDS IN getMatchingScores IS: "+ responses);
+    int[] heights = calColumnHeight(numarray,responses);
+    //  int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
       bars[i].setColumnHeight(new Integer(heights[i]).toString());
     qbean.setHistogramBars(bars);
@@ -901,7 +907,11 @@ if (answer != null)
     statMap.put(
       "rangeCollection", calRange(scores, numStudents, min, max, interval));
     statMap.put("standDev", castingNum(calStandDev(scores, mean, total),2));
-    statMap.put("columnHeight", calColumnHeight(numStudents));
+    //NEW
+    System.out.println("NUMBER OF RESPONSEDS IN MAPPING IS: "+ scoreList.size());
+    //statMap.put("columnHeight", calColumnHeight(numStudents));
+    statMap.put("columnHeight", calColumnHeight(numStudents,scoreList.size()));
+  
     statMap.put("arrayLength", new Integer(numStudents.length));
     statMap.put(
       "range",
@@ -1281,7 +1291,7 @@ if (answer != null)
    *
    * @return array of column heights
    */
-  private static int[] calColumnHeight(int[] numStudents)
+  private static int[] calColumnHeightold(int[] numStudents)
   {
     int length = numStudents.length;
     int[] temp = new int[length];
@@ -1301,7 +1311,7 @@ if (answer != null)
 
     if((temp.length > 0) && (temp[temp.length - 1] > 0))
     {
-      num = (int) (600 / temp[temp.length - 1]);
+      num = (int) (300 / temp[temp.length - 1]);
       int j = 0;
       while(j < length)
       {
@@ -1309,6 +1319,22 @@ if (answer != null)
 
         j++;
       }
+    }
+
+    return height;
+  }
+
+    private static int[] calColumnHeight(int[] numStudents, int totalResponse)
+  {
+    int[] height = new int[numStudents.length];
+   
+    int index=0;
+    while(index <numStudents.length){
+	if(totalResponse>0)
+	    height[index] = (int)((600*numStudents[index])/totalResponse);
+        else 
+	    height[index]=0;
+        index++;
     }
 
     return height;
