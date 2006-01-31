@@ -53,6 +53,8 @@ function incrCount(){
   epoch_milliseconds = new Date().getTime();
   var suspense = epoch_milliseconds - last_epoch_milliseconds;
 
+/* the Javascript timer on the page is an estimated time. The assessment time limit is
+   based on the server time in 2.1.1. So it is ok if users cheat, the real time will catch up with them.
   // if some wise guy turned off JavaScript more than max_suspense_milliseconds
   if (suspense > max_suspense_milliseconds)
   {
@@ -64,6 +66,7 @@ function incrCount(){
     startTimer(); // crank up timer with new value
     alert("JavaScript must be enabled!");
   }
+*/
   last_epoch_milliseconds = epoch_milliseconds;
 
   window.status="Loaded....";
