@@ -68,36 +68,40 @@ function incrCount(){
   }
 */
   last_epoch_milliseconds = epoch_milliseconds;
-
+  
   window.status="Loaded....";
+  var setRedBar = false;
   if(waitTime>300){ //waitTime is the timeLimit and it is in second
-     warnTime=10*(waitTime-300);
-  if (loaded==warnTime){ // loaded is in 1/10th s
-     alert('You have 5 minutes left');
-     if(ns4){
-      document.tbar.bgColor="red";
-     }
-     else{
-      if(ie4){
-       document.all.tbar.style.backgroundColor="red";
+    warnTime=10*(waitTime-300);
+    if (loaded==warnTime){ // loaded is in 1/10th s
+      setRedBar = true;
+      alert('You have 5 minutes left');
+    }
+    if (loaded > warnTime){ setRedBar = true; } 
+    if (setRedBar){
+      if(ns4){
+       document.tbar.bgColor="red";
       }
       else{
-      document.getElementById("tbar").style.backgroundColor="red";
+        if(ie4){
+          document.all.tbar.style.backgroundColor="red";
+        }
+        else{
+          document.getElementById("tbar").style.backgroundColor="red";
+        }
       }
     }
   }
-}
 
- if(!pauseTiming==true)
-   loaded++;
- if(loaded<0)loaded=0;
- if(loaded>=waitTime*10){
-  clearInterval(Pid);
-  loaded=waitTime*10; // loaded is in 1/10th of a second here
-  setTimeout('hidebar()',100);
- }
-
-resizeEl(PBdone, 0, blocksize*loaded, barheight-2, 0);
+  if(!pauseTiming==true)
+    loaded++;
+  if(loaded<0)loaded=0;
+  if(loaded>=waitTime*10){
+    clearInterval(Pid);
+    loaded=waitTime*10; // loaded is in 1/10th of a second here
+    setTimeout('hidebar()',100);
+  }
+  resizeEl(PBdone, 0, blocksize*loaded, barheight-2, 0);
 }
 
 function hidebar(){
