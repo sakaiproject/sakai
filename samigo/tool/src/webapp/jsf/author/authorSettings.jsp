@@ -282,15 +282,16 @@ function checkTimeSelect(){
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}">
         <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkTimeSelect();"
          value="#{assessmentSettings.valueMap.hasTimeAssessment}"/>
-        <h:outputText value="#{msg.timed_assessment}" />
+        <h:outputText value="#{msg.timed_assessment} " />
         <h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}">
           <f:selectItems value="#{assessmentSettings.hours}" />
         </h:selectOneMenu>
-        <h:outputText value="#{msg.timed_hours}." />
+        <h:outputText value="#{msg.timed_hours}. " />
         <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}">
           <f:selectItems value="#{assessmentSettings.mins}" />
         </h:selectOneMenu>
         <h:outputText value="#{msg.timed_minutes}. " />
+       <f:verbatim><br/></f:verbatim>
         <h:outputText value="#{msg.auto_submit_description}" />
       </h:panelGroup>
     </h:panelGrid>
