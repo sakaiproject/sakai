@@ -558,11 +558,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             {
               autoScore = initScore / ((float) item.getItemTextSet().size());
             }
+/*
+            // SAK-2798. remove negative points for matching
             else
             {
               autoScore = (getTotalCorrectScore(itemdata) / ((float) item.getItemTextSet().size())) * ((float) -1);
             }
 
+*/
             //overridescore?
             if (itemdata.getOverrideScore() != null)
             {
