@@ -1154,7 +1154,10 @@ public class DeliveryActionListener
       FibBean fbean = new FibBean();
       fbean.setItemContentsBean(bean);
       fbean.setAnswer(answer);
-      fbean.setText( (String) texts.toArray()[i++]);
+      if(texts.toArray().length>i)
+        fbean.setText( (String) texts.toArray()[i++]);
+      else
+        fbean.setText("");
       fbean.setHasInput(true);
 
       ArrayList datas = bean.getItemGradingDataArray();
@@ -1194,7 +1197,10 @@ public class DeliveryActionListener
     }
 
     FibBean fbean = new FibBean();
-    fbean.setText( (String) texts.toArray()[i]);
+    if(texts.toArray().length>i)
+      fbean.setText( (String) texts.toArray()[i]);
+    else
+      fbean.setText("");
     fbean.setHasInput(false);
     fibs.add(fbean);
 
