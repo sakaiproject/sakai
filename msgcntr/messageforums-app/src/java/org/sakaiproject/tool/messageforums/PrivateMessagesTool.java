@@ -2073,11 +2073,9 @@ public class PrivateMessagesTool
   
 
   ///////////////////   FOLDER SETTINGS         ///////////////////////
-  //TODO - may add total number of messages with this folder.. 
-  //--getDecoratedForum() iteratae and when title eqauls selectedTopicTitle - then get total number of messages
   private String addFolder;
   private boolean ismutable;
-  
+  private int totalMsgInFolder;
   public String getAddFolder()
   {
     return addFolder ;    
@@ -2092,6 +2090,17 @@ public class PrivateMessagesTool
     return prtMsgManager.isMutableTopicFolder(getSelectedTopicId());
   }
   
+  public int getTotalMsgInFolder()
+  {
+    return totalMsgInFolder;
+  }
+
+  public void setTotalMsgInFolder(int totalMsgInFolder)
+  {
+    this.totalMsgInFolder = totalMsgInFolder;
+  }
+
+
   //navigated from header pagecome from Header page 
   public String processPvtMsgFolderSettings() {
     LOG.debug("processPvtMsgFolderSettings()");
@@ -2121,6 +2130,10 @@ public class PrivateMessagesTool
   }
   public String processPvtMsgFolderSettingDelete() {
     LOG.debug("processPvtMsgFolderSettingDelete()");
+    
+    String typeUuid = getPrivateMessageTypeFromContext(selectedTopicTitle);          
+    
+    setTotalMsgInFolder(prtMsgManager.findMessageCount(typeUuid));
     
     if(ismutable)
     {

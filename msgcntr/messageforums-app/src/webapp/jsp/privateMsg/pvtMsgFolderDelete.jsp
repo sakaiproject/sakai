@@ -9,35 +9,25 @@
 			<sakai:tool_bar_message value="Private Messages- Delete Confirmation" /> 
 			<h:messages styleClass="alertMessage" id="errorMessages" /> 
  
-				<sakai:group_box>
-          <table width="80%" align="left">
-            <tr>
-              <td align="left" width="20%">
-                <h:outputText value="Folder Title"/>
-              </td>
-              <td align="left" >
-                <h:outputText value="Number of Messages"/>
-              </td>                      
-            </tr> 
-            <tr>
-            </tr>
-            <tr>
-              <td align="left" width="20%">
-                <h:outputText value="#{PrivateMessagesTool.selectedTopicTitle}"/>
-              </td>
-              <td align="left" >
-              	<h:outputText value="("/>
-              	<h:outputText value=")"/>
-              </td>                      
-            </tr>                                              
-          </table>
-        </sakai:group_box>
-     
-
-	<sakai:button_bar>
-  	<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldDelete}" value="Delete" />
-    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldAddCancel}" value="Cancel" />
-  </sakai:button_bar>   
+ 			<h4><h:outputText value="Folder Title"/></h4>
+			
+			<sakai:group_box>
+        <table width="80%" align="left">            
+          <tr>
+            <td align="left" width="20%">
+              <h:outputText value="#{PrivateMessagesTool.selectedTopicTitle}"/>
+            </td>
+            <td align="left" >
+            	<h:outputText value=" ( #{PrivateMessagesTool.totalMsgInFolder} )messages"/>
+            </td>                      
+          </tr>                                              
+        </table>
+      </sakai:group_box>
+      
+			<sakai:button_bar>
+		  	<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldDelete}" value="Delete" />
+		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldAddCancel}" value="Cancel" />
+		  </sakai:button_bar>   
            
 		 </h:form>
 	</sakai:view_content>
