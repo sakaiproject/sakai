@@ -370,4 +370,9 @@ public void deleteAssessment(Id assessmentId)
            getAssessmentByTemplate(new Long(templateId));
   }
 
+  public List getDefaultMetaDataSet(){
+      return PersistenceService.getInstance().getAssessmentFacadeQueries().
+	  getDefaultMetaDataSet();
+  }
+
 }

@@ -157,4 +157,6 @@ public interface AssessmentFacadeQueriesAPI
 
   public List getAssessmentByTemplate(Long templateId);
 
+  public List getDefaultMetaDataSet();
+
 }

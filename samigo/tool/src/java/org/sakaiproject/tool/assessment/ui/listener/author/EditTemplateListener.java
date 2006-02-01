@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 //import java.util.ResourceBundle;
 
@@ -37,6 +38,7 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -91,6 +93,18 @@ public class EditTemplateListener
     }
     templateBean.setTemplateName(tempName);
     templateBean.setIdString("0"); //new template
+    templateBean.setValueMap(getMetaDataMap());
   }
 
+  private HashMap getMetaDataMap(){
+    HashMap h = new HashMap();
+    AssessmentService service = new AssessmentService();
+    Iterator iter = service.getDefaultMetaDataSet().iterator();
+    while (iter.hasNext()){
+      String label = (String) ((AssessmentMetaData)iter.next()).getLabel();
+      String value ="true";
+      h.put(label, "true");
+    }
+    return h;
+  }
 }

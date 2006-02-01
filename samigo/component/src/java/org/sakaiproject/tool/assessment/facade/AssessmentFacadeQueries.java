@@ -1012,4 +1012,13 @@ public class AssessmentFacadeQueries
                 new Object[]{ templateId },
                 new net.sf.hibernate.type.Type[] { Hibernate.LONG });
   }
+ 
+  public List getDefaultMetaDataSet(){
+    String query =
+        " from AssessmentMetaData m where m.assessment.assessmentBaseId=?";
+    return getHibernateTemplate().find(query,
+                new Object[]{ new Long(1) },
+                new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+
+  }
 }
