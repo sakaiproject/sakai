@@ -1449,7 +1449,10 @@ public class DeliveryActionListener
   private void setTimer(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
     // i hope to use the property timedAssessment but it appears that this property
     // is not recorded properly in DB - daisyf
-    int timeLimit = publishedAssessment.getAssessmentAccessControl().getTimeLimit().intValue();
+    int timeLimit = 0;
+    AssessmentAccessControlIfc control = publishedAssessment.getAssessmentAccessControl();
+    if (control != null && control.getTimeLimit()!=null) 
+      timeLimit = publishedAssessment.getAssessmentAccessControl().getTimeLimit().intValue();
     if (timeLimit==0) 
       delivery.setTimeRunning(false);
     else{
