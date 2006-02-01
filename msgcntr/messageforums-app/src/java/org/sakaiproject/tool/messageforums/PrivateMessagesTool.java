@@ -2202,6 +2202,15 @@ public class PrivateMessagesTool
     
     prtMsgManager.deleteTopicFolder(forum,getSelectedTopicId()) ;
     
+    //delete the messages
+    String typeUuid = getPrivateMessageTypeFromContext(selectedTopicTitle);
+    List allPvtMsgs= prtMsgManager.getMessagesByType(typeUuid,PrivateMessageManager.SORT_COLUMN_DATE,
+        PrivateMessageManager.SORT_DESC);
+    for (Iterator iter = allPvtMsgs.iterator(); iter.hasNext();)
+    {
+      PrivateMessage element = (PrivateMessage) iter.next();
+      prtMsgManager.deletePrivateMessage(element, typeUuid);
+    }
     return "main";
   }
   public String processPvtMsgFldAddCancel() 
