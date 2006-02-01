@@ -96,6 +96,9 @@ public class EditTemplateListener
     templateBean.setValueMap(getMetaDataMap());
   }
 
+  // meta data contains the list of "can edit" option and we want to set
+  // them all to "true". This is the requirement for version 2.1.2, see SAK-3171.
+  // - daisyf
   private HashMap getMetaDataMap(){
     HashMap h = new HashMap();
     AssessmentService service = new AssessmentService();
