@@ -402,7 +402,7 @@ sorting actions for table:
           </h:commandLink>
         </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{reviewable.rawScore} " rendered="#{reviewable.showScore eq 'true'}" />
+      <h:outputText value="#{reviewable.roundedRawScore} " rendered="#{reviewable.showScore eq 'true'}" />
       <h:outputText value="#{msg.not_applicable}" rendered="#{reviewable.showScore eq 'false'}" />
     </h:column>
 

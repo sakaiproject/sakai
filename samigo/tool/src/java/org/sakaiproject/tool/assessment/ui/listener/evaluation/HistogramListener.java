@@ -501,7 +501,7 @@ public class HistogramListener
 	if (qbean.getQuestionType().equals("8"))
 	{
           Float autoscore = item.getAutoScore();
-          if (autoscore.equals(new Float(0))) {
+          if (!(new Float(0)).equals(autoscore)) {
             hasIncorrect = true;
             break;
           }
@@ -881,7 +881,9 @@ if (answer != null)
 
     double[] scores = new double[array.length];
     for (int i=0; i<array.length; i++)
+{
       scores[i] = ((Float) array[i]).doubleValue();
+}
 
     HashMap statMap = new HashMap();
 
@@ -901,7 +903,7 @@ if (answer != null)
     statMap.put("totalScore",castingNum(total,2));
     statMap.put("mean", castingNum(mean,2));
     statMap.put("median", castingNum(calMedian(scores),2));
-    statMap.put("mode", (new String(calMode(scores))));
+    statMap.put("mode", castingNumForMode(calMode(scores)));
 
     statMap.put("numStudentCollection", numStudents);
     statMap.put(
@@ -1403,5 +1405,24 @@ if (answer != null)
         }
 
     }
+  }
+
+
+  private String castingNumForMode(String oldmode)
+  // only show 2 decimal points for Mode
+  {
+
+        String[] tokens = oldmode.split(",");
+        String[] roundedtokens =  new String[tokens.length];
+        String newMode = "" ;
+        for (int j = 0; j < tokens.length; j++) {
+           roundedtokens[j] = castingNum(new Double(tokens[j]).doubleValue(), 2);
+           newMode= newMode + ", " + roundedtokens[j];
+        }
+
+        newMode = newMode.substring(2, newMode.length());
+        return newMode;
+
+
   }
 }

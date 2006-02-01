@@ -18,6 +18,7 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -29,6 +30,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.text.NumberFormat;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ExternalContext;
@@ -962,6 +964,22 @@ public class DeliveryBean
   {
     return rawScore;
   }
+
+  public String getRoundedRawScore() {
+   try {
+      Float oldscore = new Float(rawScore);
+      NumberFormat nf = NumberFormat.getInstance();
+      nf.setMaximumFractionDigits(2);
+      String newscore = nf.format(oldscore);
+      return Validator.check(newscore, "N/A");
+    }
+    catch (Exception e) {
+      // encountered some weird number format/locale
+      return Validator.check(rawScore, "0");
+    }
+
+  }
+
 
   public void setRawScore(String rawScore)
   {

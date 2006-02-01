@@ -219,7 +219,7 @@ public class TotalScoresBean
     try {
       Float oldmax = new Float(maxScore);
       NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(1);
+      nf.setMaximumFractionDigits(2);
       String newmax = nf.format(oldmax);
       return Validator.check(newmax, "N/A");
     }

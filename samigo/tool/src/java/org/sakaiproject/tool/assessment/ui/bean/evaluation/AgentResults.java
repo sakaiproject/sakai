@@ -166,7 +166,7 @@ public class AgentResults
    try {
       Float oldscore = new Float(totalAutoScore);
       NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(1);
+      nf.setMaximumFractionDigits(2);
       String newscore = nf.format(oldscore);
       return Validator.check(newscore, "N/A");
     }
@@ -187,7 +187,7 @@ public class AgentResults
    try {
       Float oldscore = new Float(totalOverrideScore);
       NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(1);
+      nf.setMaximumFractionDigits(2);
       String newscore = nf.format(oldscore);
       return Validator.check(newscore, "N/A");
     }
@@ -207,7 +207,7 @@ public class AgentResults
    try {
       Float oldscore = new Float(finalScore);
       NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(1);
+      nf.setMaximumFractionDigits(2);
       String newscore = nf.format(oldscore);
       return Validator.check(newscore, "N/A");
     }

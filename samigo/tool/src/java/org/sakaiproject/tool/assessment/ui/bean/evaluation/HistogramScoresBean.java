@@ -22,9 +22,11 @@
 **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
+import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.text.NumberFormat;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -455,6 +457,23 @@ publishedId = ppublishedId;
   {
     return totalPossibleScore;
   }
+
+
+  public String getRoundedTotalPossibleScore() {
+   try {
+      Float oldscore = new Float(totalPossibleScore);
+      NumberFormat nf = NumberFormat.getInstance();
+      nf.setMaximumFractionDigits(2);
+      String newscore = nf.format(oldscore);
+      return Validator.check(newscore, "N/A");
+    }
+    catch (Exception e) {
+      // encountered some weird number format/locale
+      return Validator.check(totalPossibleScore, "0");
+    }
+
+  }
+
 
   /**
    * set the total possible score

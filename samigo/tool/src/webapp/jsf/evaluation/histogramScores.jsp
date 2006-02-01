@@ -136,7 +136,7 @@ $Id$
 <h:outputLabel value="#{histogramScores.numResponses}" />
 
 <h:outputLabel value="#{msg.tot} Possible" />
-<h:outputText value="#{histogramScores.totalPossibleScore}"/>
+<h:outputText value="#{histogramScores.roundedTotalPossibleScore}"/>
 
 <h:outputLabel value="#{msg.mean_eq}" />
 <h:outputText value="#{histogramScores.mean}"/>

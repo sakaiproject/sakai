@@ -150,7 +150,9 @@ $Id$
           <f:verbatim><h4 class="tier2"></f:verbatim>
           <h:outputText value="#{dmsg.q} #{question.number} #{dmsg.of} " />
           <h:outputText value="#{part.questions} :  " />
-          <h:inputText value="#{question.points}" />
+          <h:inputText value="#{question.points}" >
+	    <f:convertNumber maxFractionDigits="2"/>
+          </h:inputText>
           <h:outputText value=" / #{question.maxPoints} " />
           <h:outputText value="#{dmsg.pt}"/>
           <f:verbatim></h4><div class="indnt3"></f:verbatim>

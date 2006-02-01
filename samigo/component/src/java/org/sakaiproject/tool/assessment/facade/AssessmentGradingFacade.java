@@ -140,6 +140,7 @@ public class AssessmentGradingFacade
 
   public Float getTotalAutoScore() {
 
+/*
    // Round to the nearest 1/10th.
    if (totalAutoScore != null)
    {
@@ -148,6 +149,7 @@ public class AssessmentGradingFacade
     alignment = (float)tmp / 10.0f;
     totalAutoScore = new Float(alignment);
    }
+*/
     return totalAutoScore;
   }
 
@@ -157,6 +159,7 @@ public class AssessmentGradingFacade
 
   public Float getTotalOverrideScore() {
 
+/*
    // Round to the nearest 1/10th.
    if (totalOverrideScore != null)
    {
@@ -165,6 +168,7 @@ public class AssessmentGradingFacade
     alignment = (float)tmp / 10.0f;
     totalOverrideScore = new Float(alignment);
    }
+*/
     return totalOverrideScore;
   }
 
@@ -174,6 +178,7 @@ public class AssessmentGradingFacade
 
   public Float getFinalScore() {
 
+/*
   // Round to the nearest 1/10th.
   if ( finalScore != null)
   {
@@ -182,6 +187,7 @@ public class AssessmentGradingFacade
     alignment = (float)tmp / 10.0f;
     finalScore = new Float(alignment);
   }
+*/
 
     return finalScore;
   }
