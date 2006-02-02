@@ -2177,19 +2177,35 @@ public class PrivateMessagesTool
     }
   }
   
-  //revise
+  private String selectedNewTopicTitle=selectedTopicTitle;  //default
+  public String getSelectedNewTopicTitle()
+  {
+    return selectedNewTopicTitle;
+  }
+  public void setSelectedNewTopicTitle(String selectedNewTopicTitle)
+  {
+    this.selectedNewTopicTitle = selectedNewTopicTitle;
+  }
+
+
+  /** 
+   * revise
+   **/
   public String processPvtMsgFldRevise() 
   {
     LOG.debug("processPvtMsgFldRevise()");
     
-    String newTopicTitle = this.getSelectedTopicTitle();  
+    String newTopicTitle = this.getSelectedNewTopicTitle(); 
+    
     if(!hasValue(newTopicTitle))
     {
       setErrorMessage("Folder name shouldn't be blank.");
     }
     else {
       prtMsgManager.renameTopicFolder(forum, selectedTopicId,  newTopicTitle);
-      
+      //rename topic in commons -- as messages are linked through commons type
+      //TODO - what if more than one type objects are returned-- We need to switch from title
+      typeManager.renameCustomTopicType(selectedTopicTitle, newTopicTitle);
     }
     
     return "main" ;
