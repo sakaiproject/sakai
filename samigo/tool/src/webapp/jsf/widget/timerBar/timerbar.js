@@ -131,7 +131,7 @@ PBdone=(ns4)?PBouter.document.layers['PBdone']:(ie4)?document.all['PBdone']:docu
 resizeEl(PBdone,0,0,barheight-2,0);
 if(ns4)PBouter.visibility="show";
 else PBouter.style.visibility="visible";
-Pid=setInterval('incrCount()',95);
+Pid=setInterval('incrCount()',100);
 startTimer();
 }
 
