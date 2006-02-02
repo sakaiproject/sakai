@@ -1498,24 +1498,18 @@ public class PrivateMessagesTool
     
     PrivateMessage currentMessage = getDetailMsg().getMsg() ;
         
-    if (this.getSelectedComposeToList().size()<1) // if nothing is selected from the recipiant list
-    {      
+    //by default add current user
+    for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {      
+      SelectItem selectItem = (SelectItem) i.next();
+      MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectItem.getValue());                
       
-      for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
-        
-        SelectItem selectItem = (SelectItem) i.next();
-        
-        /** lookup item in map */
-        MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectItem.getValue());                
-        
-        if (MembershipItem.TYPE_USER.equals(membershipItem.getType())) {
-          if (membershipItem.getUser() != null) {
-            if (membershipItem.getUser().getId().equals(currentMessage.getCreatedBy())) {
-              selectedComposeToList.add(membershipItem.getId());
-            }
+      if (MembershipItem.TYPE_USER.equals(membershipItem.getType())) {
+        if (membershipItem.getUser() != null) {
+          if (membershipItem.getUser().getId().equals(currentMessage.getCreatedBy())) {
+            selectedComposeToList.add(membershipItem.getId());
           }
         }
-      }            
+      }
     }
     
     if(!hasValue(getReplyToSubject()))
@@ -1523,11 +1517,7 @@ public class PrivateMessagesTool
       setErrorMessage("You must enter a subject before you may send this message.");
       return null ;
     }
-//    if(!hasValue(getReplyToBody()) )
-//    {
-//      setErrorMessage("You must enter a message content before you may send this message.");
-//      return null ;
-//    }
+
     if(getSelectedComposeToList().size()<1)
     {
       setErrorMessage("Please select recipients list for this reply message.");
