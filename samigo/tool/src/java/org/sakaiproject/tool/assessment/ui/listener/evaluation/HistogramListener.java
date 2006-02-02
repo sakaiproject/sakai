@@ -982,61 +982,38 @@ if (answer != null)
     return median;
   }
 
-
-  /**
+ /**
    * Calculate mode
    *
    * @param scores array of scores
    *
    * @return mode
    */
-  private static String calMode(double[] scores)
-  {
-    String max = ", " + scores[0];
-    String temp = ", " + scores[0];
-    int nmax = 1;
-    int ntemp = 1;
-    String scoreString;
-    for(int i = 1; i < scores.length; i++)
-    {
-      if(Math.ceil(scores[i]) == Math.floor(scores[i]))
-      {
-        scoreString = "" + (int) scores[i];
-      }
-      else
-      {
-        scoreString = "" + scores[i];
-      }
 
-      if((", " + scoreString).equals(temp))
-      {
-        ntemp++;
-        if(nmax < ntemp)
-        {
-          max = temp;
-          nmax = ntemp;
-        }
-        else if(nmax == ntemp)
-        {
-          max = max + temp;
-          nmax = ntemp;
-        }
-        else
-        {
-          // nmax>ntemp do nothing
-        }
-      }
-      else
-      {
-        temp = ", " + scoreString;
-        ntemp = 1;
-      }
+    private static String calMode(double[]scores){
+	Arrays.sort(scores);
+	String maxString=""+scores[0];
+	int maxCount=1;
+	int currentCount=1;
+	for(int i=1;i<scores.length;i++){
+	    if(!(""+scores[i]).equals(""+scores[i-1])){
+		currentCount=1;
+	    }
+	    else{
+		currentCount++;
+		if(maxCount==currentCount){
+		    maxString=maxString+", "+scores[i];
+		}
+		if(maxCount<currentCount){
+		    maxString=""+scores[i];
+                    maxCount=currentCount;
+		}
+	    }
+	}
+	return maxString;
     }
 
-    max = max.substring(2, max.length());
 
-    return max;
-  }
 
   /**
    * Calculate standard Deviation
