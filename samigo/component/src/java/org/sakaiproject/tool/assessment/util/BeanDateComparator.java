@@ -73,22 +73,16 @@ public class BeanDateComparator
     Map m2 = describeBean(o2);
     String s1 = (String) m1.get(propertyName);
     String s2 = (String) m2.get(propertyName);
-   // we do not want to use null values for sorting
-    if(s1 == null)
-    {
-      s1 = "";
-    }
+    // we do not want to use null values for sorting
+    if(s1 == null) s1="";
+    if(s2 == null) s2="";
 
-    if(s2 == null)
-    {
-      s2 = "";
-    }
     DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd hh:ss:mm.SSS");
-
     Date i1 = null;
     Date i2 = null;
 
-    boolean firstDate = true;
+    boolean firstDateValid = true;
+    boolean secondDateValid = true;
 
     try
     {
@@ -96,21 +90,24 @@ public class BeanDateComparator
     }
     catch (Exception e)
     {
-      firstDate = false;
+      firstDateValid = false;
     }
 
     try
     {
       i2 = dateFormat.parse(s2);
-      if (!firstDate)
-        return 1;
     }
-    catch(Exception e)
+    catch (Exception e)
     {
-      if (!firstDate)
-       return s1.toLowerCase().compareTo(s2.toLowerCase());
+      secondDateValid = false;
     }
 
-    return i1.compareTo(i2);
+    int returnValue=0;
+    if (firstDateValid && secondDateValid) returnValue = i1.compareTo(i2);
+    if (firstDateValid && !secondDateValid) returnValue = 1;
+    if (!firstDateValid && secondDateValid) returnValue = -1;
+    if (!firstDateValid && !secondDateValid) returnValue = 0;
+
+    return returnValue;
   }
 }

@@ -122,8 +122,12 @@ public class TemplateListener extends TemplateBaseListener
      {
        bs.toStringSort();
      }
+     templates = (ArrayList)bs.sort();
 
-     bs.sort();
+     for (int i=0; i<templates.size();i++){
+       System.out.println("*****"+((TemplateBean)templates.get(i)).getLastModified());
+     }
+
      if (sortAscending==false)
      {
 	Collections.reverse(templates);
@@ -131,8 +135,6 @@ public class TemplateListener extends TemplateBaseListener
 
      // get the managed bean, author and set the list
      templateIndex.setSortTemplateList(templates);
-     // log.info("Qingru's test: isTemplateAscending is  " + templateIndex.isTemplateAscending());
-   log.info("Qingru's test: templateIndex.getTemplateList is  " + templateIndex.getSortTemplateList());
   }
 
 
@@ -146,20 +148,17 @@ public class TemplateListener extends TemplateBaseListener
 
     if (templateOrder != null && !templateOrder.trim().equals("")) {
       bean.setTemplateOrderBy(templateOrder);
- log.info("Qingru's 1 ");
     }
 
     if (tempAscending != null && !tempAscending.trim().equals("")) {
       try {
         bean.setTemplateAscending((Boolean.valueOf(tempAscending)).booleanValue());
- log.info("Qingru's 2 ");
       }
       catch (Exception ex) { //skip
       }
     }
     else
     {
- log.info("Qingru's 3  ");
 	bean.setTemplateAscending(true);
     }
 

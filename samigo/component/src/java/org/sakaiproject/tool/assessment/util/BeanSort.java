@@ -69,20 +69,7 @@ public class BeanSort
   public Object[] arraySort()
   {
     Object[] array = collection.toArray();
-    if(string)
-    {
-      bsc = new BeanSortComparator(property);
-    }
-    else if(numeric)
-    {
-      bsc = new BeanFloatComparator(property);
-    }
-    else if(date)
-    {
-      bsc = new BeanDateComparator(property);
-    }
     Arrays.sort(array, getBeanSortComparator(property));
-
     return array;
   }
 

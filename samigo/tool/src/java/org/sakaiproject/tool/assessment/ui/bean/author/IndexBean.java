@@ -120,32 +120,6 @@ public class IndexBean implements Serializable
 
   public ArrayList getSortTemplateList()
   {
-    try
-    {
-      FacesContext.getCurrentInstance().
-        getExternalContext().getSessionMap().
-          put("template", new TemplateBean());
-      AssessmentService delegate = new AssessmentService();
-      ArrayList list = delegate.getBasicInfoOfAllActiveAssessmentTemplates("title");
-      //ArrayList list = delegate.getAllAssessmentTemplates();
-      ArrayList templates = new ArrayList();
-      Iterator iter = list.iterator();
-      while (iter.hasNext())
-      {
-        AssessmentTemplateFacade facade =
-          (AssessmentTemplateFacade) iter.next();
-        TemplateBean bean = new TemplateBean();
-        bean.setTemplateName(facade.getTitle());
-        bean.setIdString(facade.getAssessmentBaseId().toString());
-        bean.setLastModified(facade.getLastModifiedDate().toString());
-        templates.add(bean);
-      }
-     this.sortTemplateList = templates;
-    } catch (Exception e) {
-      e.printStackTrace();
-      sortTemplateList = new ArrayList();
-      }
-
    return this.sortTemplateList;
   }
 
