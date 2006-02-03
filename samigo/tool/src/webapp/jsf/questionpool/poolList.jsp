@@ -73,6 +73,7 @@
 
    <h:commandLink rendered="#{questionpool.importToAuthoring == 'false'}" action="template" immediate="true">
         <h:outputText value="#{msg.my_templates}"/>
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
    </h:commandLink>
 
 

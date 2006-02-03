@@ -8,6 +8,7 @@
     <h:outputText value=" | " rendered="#{authorization.adminTemplate}" />
     <h:commandLink action="template" immediate="true" rendered="#{authorization.adminTemplate}">
       <h:outputText value="#{msg.global_nav_template}" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
     <h:outputText value=" | "  rendered="#{authorization.adminQuestionPool}"/>
     <h:commandLink action="poolList" immediate="true"  rendered="#{authorization.adminQuestionPool}">

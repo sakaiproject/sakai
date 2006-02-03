@@ -13,6 +13,7 @@
 
     <h:commandLink action="template" immediate="true" rendered="#{authorization.adminQuestionPool}">
       <h:outputText value="#{msg.my_templates}" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
     <h:outputText value=" | " rendered="#{authorization.adminQuestionPool}"/>
     <h:commandLink action="poolList" immediate="true">

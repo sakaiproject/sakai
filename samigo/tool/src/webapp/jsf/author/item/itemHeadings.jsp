@@ -65,6 +65,7 @@ document.links[newindex].onclick();
     <h:outputText value=" | " />
     <h:commandLink action="template" immediate="true">
       <h:outputText value="#{msg.global_nav_template}" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
     <h:outputText value=" | " />
     <h:commandLink action="poolList" immediate="true">
