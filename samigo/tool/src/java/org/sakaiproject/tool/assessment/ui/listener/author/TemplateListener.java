@@ -83,37 +83,27 @@ public class TemplateListener extends TemplateBaseListener
     try
     {
 	FacesContext.getCurrentInstance().
-	getExternalContext().getSessionMap().
-	put("template", new TemplateBean());
+	getExternalContext().getSessionMap().put("template", new TemplateBean());
 	ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessmentTemplates("title");
-        log.info("Qingru Got " + list.size() + " templates in front end");
         Iterator iter = list.iterator();
         while (iter.hasNext())
         {
-	 AssessmentTemplateFacade facade =
-	 (AssessmentTemplateFacade) iter.next();
+	 AssessmentTemplateFacade facade = (AssessmentTemplateFacade) iter.next();
          TemplateBean bean = new TemplateBean();
-	  bean.setTemplateName(facade.getTitle());
+         bean.setTemplateName(facade.getTitle());
          bean.setIdString(facade.getAssessmentBaseId().toString());
-          bean.setLastModified(facade.getLastModifiedDate().toString());
+         bean.setLastModified(facade.getLastModifiedDate().toString());
          templates.add(bean);
         }
       } catch (Exception e) {
 	e.printStackTrace();
       }
 
-      if (templates != null)
-      log.info("Qingru's test 1  templates' size is  " + templates.size());
-
      String sortProperty = templateIndex.getTemplateOrderBy();
      boolean sortAscending = templateIndex.isTemplateAscending();
 
      bs = new BeanSort(templates, sortProperty);
      if (templates != null)
-     log.info("Qingru's test 2 templates' size is  " + templates.size());
-
-     log.info("Qingru's test sortProperty is  " + sortProperty);
-     log.info("Qingru's test templateAscending is  " + templateIndex.isTemplateAscending());
      if (sortProperty.equals("lastModified"))
      {
        bs.toDateSort();
@@ -124,13 +114,13 @@ public class TemplateListener extends TemplateBaseListener
      }
      templates = (ArrayList)bs.sort();
 
-     for (int i=0; i<templates.size();i++){
-       System.out.println("*****"+((TemplateBean)templates.get(i)).getLastModified());
-     }
-
      if (sortAscending==false)
      {
 	Collections.reverse(templates);
+     }
+
+     for (int i=0; i<templates.size();i++){
+       System.out.println("*****"+((TemplateBean)templates.get(i)).getLastModified());
      }
 
      // get the managed bean, author and set the list
@@ -143,6 +133,8 @@ public class TemplateListener extends TemplateBaseListener
    * @param bean the select index managed bean
    */
   private void processSortInfo(IndexBean bean) {
+    bean.setTemplateOrderBy("templateName");
+    bean.setTemplateAscending(true);
     String templateOrder = cu.lookupParam("templateSortType");
     String tempAscending = cu.lookupParam("templateAscending");
 
@@ -157,11 +149,6 @@ public class TemplateListener extends TemplateBaseListener
       catch (Exception ex) { //skip
       }
     }
-    else
-    {
-	bean.setTemplateAscending(true);
-    }
-
   }
 
 }

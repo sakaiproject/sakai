@@ -163,7 +163,7 @@
     <description>For author: Template Index backing bean.</description>
     <managed-bean-name>templateIndex</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.IndexBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
+    <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
     <description>For delivery: ItemContents backing bean.</description>
@@ -657,6 +657,10 @@
     <navigation-case>
       <from-outcome>template</from-outcome>
       <to-view-id>/jsf/template/templateIndex.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>template1</from-outcome>
+      <to-view-id>/jsf/template/templateIndex1.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editTemplate</from-outcome>

@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
+import org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -67,7 +68,9 @@ public class DeleteTemplateListener extends TemplateBaseListener implements Acti
       // todo: define package specific RuntimeException
       throw new RuntimeException("Cannot delete template.");
     }
-
+    // reset template list
+    TemplateListener lis = new TemplateListener();
+    lis.processAction(null); 
   }
 
   /**

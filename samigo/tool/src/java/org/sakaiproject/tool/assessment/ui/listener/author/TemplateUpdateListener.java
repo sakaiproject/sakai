@@ -56,7 +56,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
+import org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener;
 
 /**
  * <p>Description: Action Listener for template updates</p>
@@ -106,9 +106,14 @@ public class TemplateUpdateListener
        templateBean.setOutcome("editTemplate");
       return;
     }
-    templateBean.setOutcome("template");
     updateAssessment(templateBean);
+
+    // reset the sortedTemplateList in IndexBean - daisyf
+    TemplateListener lis = new TemplateListener();
+    lis.processAction(null);
+
     // reset templateBean
+    templateBean.setOutcome("template");
     templateBean.setNewName(null);
   }
 
