@@ -52,6 +52,8 @@ public class GradebookServiceTest extends GradebookTestBase {
     private static final String EXT_ID_1 = "External #1";
     private static final String EXT_TITLE_1 = "External Title #1";
 
+    private Long asn_1Id;
+
     /**
      * @see org.springframework.test.AbstractTransactionalSpringContextTests#onSetUpInTransaction()
      */
@@ -62,7 +64,7 @@ public class GradebookServiceTest extends GradebookTestBase {
 
         // Add an internal assignment
         Long gbId = gradebookManager.getGradebook(GRADEBOOK_UID).getId();
-        gradeManager.createAssignment(gbId, ASN_1, new Double(10), null, Boolean.FALSE);
+        asn_1Id = gradeManager.createAssignment(gbId, ASN_1, new Double(10), null, Boolean.FALSE);
 
         // Add a score for the internal assignment
         List assignments = gradeManager.getAssignments(gbId);
@@ -204,5 +206,17 @@ public class GradebookServiceTest extends GradebookTestBase {
     public void testDeleteGradebook() throws Exception {
     	gradebookService.deleteGradebook(GRADEBOOK_UID);
     	Assert.assertFalse(gradebookService.gradebookExists(GRADEBOOK_UID));
+	}
+
+	public void testIsAssignmentDefined() throws Exception {
+		String assignmentTitle = "Is Assignment Defined Quiz";
+		Assert.assertFalse(gradebookService.isAssignmentDefined(GRADEBOOK_UID, assignmentTitle));
+		gradebookService.addExternalAssessment(GRADEBOOK_UID, "Is Assignment Defined ID", null, assignmentTitle, 10, new Date(), "Assignments");
+		Assert.assertTrue(gradebookService.isAssignmentDefined(GRADEBOOK_UID, assignmentTitle));
+
+		// Now test conflicts with an internally defined assignment.
+		Assert.assertTrue(gradebookService.isAssignmentDefined(GRADEBOOK_UID, ASN_1));
+		gradebookManager.removeAssignment(asn_1Id);
+		Assert.assertFalse(gradebookService.isAssignmentDefined(GRADEBOOK_UID, ASN_1));
 	}
 }

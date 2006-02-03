@@ -188,14 +188,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         }
 
         // Ensure that the assessment name is unique within this gradebook
-        HibernateCallback nameConflictsCallback = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                String hql = "select count(asn) from Assignment as asn where asn.name=? and asn.gradebook.uid=?";
-                return (Integer)session.iterate(hql, new Object[] {title, gradebookUid}, new Type[] {Hibernate.STRING, Hibernate.STRING}).next();
-            }
-        };
-        Integer nameConflicts = (Integer)getHibernateTemplate().execute(nameConflictsCallback);
-        if(nameConflicts.intValue() > 0) {
+		if (isAssignmentDefined(gradebookUid, title)) {
             throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
 
@@ -361,6 +354,20 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         getHibernateTemplate().execute(hc);
 		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
 	}
+
+	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentTitle)
+        throws GradebookNotFoundException {
+		return ((Boolean)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				Integer nameConflicts = (Integer)session.iterate(
+					"select count(asn) from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false",
+					new Object[] {assignmentTitle, gradebookUid},
+					new Type[] {Hibernate.STRING, Hibernate.STRING}
+				).next();
+				return Boolean.valueOf(nameConflicts.intValue() > 0);
+			}
+		})).booleanValue();
+    }
 
 	public GradebookManager getGradebookManager() {
 		return gradebookManager;

@@ -122,7 +122,7 @@ public interface GradebookService {
 	 * presumably no longer be used to calculate final grades, Samigo should
 	 * also remove that assessment from the gradebook.
 	 *
-	 * @param gradebookUid
+	 * @param externalId
 	 *            the UID of the assessment
 	 */
 	public void removeExternalAssessment(String gradebookUid, String externalId)
@@ -146,12 +146,12 @@ public interface GradebookService {
             throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-	 * I'm not sure yet what Samigo's requirements are for linking directly to
-	 * the gradebook. With a more full-featured gradebook, such linking will be
-	 * needed so that the user can set gradebook-specific properties (such as
-	 * assignment category) on the newly imported assessment.
+	 * Check to see if an assignment with the given name already exists
+	 * in the given gradebook. This will give external assessment systems
+	 * a chance to avoid the ConflictingAssignmentNameException.
 	 */
-	// public String getGradebookAssignmentUrl(String externalId);
+	public boolean isAssignmentDefined(String gradebookUid, String assignmentTitle)
+        throws GradebookNotFoundException;
 }
 
 
