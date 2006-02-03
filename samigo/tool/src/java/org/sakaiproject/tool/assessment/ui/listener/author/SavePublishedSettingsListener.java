@@ -124,7 +124,8 @@ public class SavePublishedSettingsListener
         evaluation.setAssessmentBase(assessment.getData());
       }
       evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
-      if (evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+      if (evaluation.getToGradeBook()!=null && 
+        evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
         //add and copy scores over if any
 
         try{

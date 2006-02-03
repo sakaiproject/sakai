@@ -173,6 +173,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
          <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+         <f:param name="sortType" value="lastName" />
        </h:commandLink>
      </h:panelGroup>
     </h:column>

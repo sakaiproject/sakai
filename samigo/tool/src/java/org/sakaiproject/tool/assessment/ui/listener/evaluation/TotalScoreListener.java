@@ -499,18 +499,23 @@ public class TotalScoreListener
         bean.setSortType("lastName");
       }
     }
-    //log.info("Sort type is " + bean.getSortType() + ".");
-    bs = new BeanSort(agents, bean.getSortType());
-    if (
-      (bean.getSortType()).equals("assessmentGradingId") ||
-      (bean.getSortType()).equals("totalAutoScore") ||
-      (bean.getSortType()).equals("totalOverrideScore") ||
-      (bean.getSortType()).equals("finalScore"))
-    {
-      bs.toNumericSort();
-    } else {
-      bs.toStringSort();
-    }
+ 
+    String sortProperty = bean.getSortType();
+    System.out.println("****Sort type is " + sortProperty);
+    bs = new BeanSort(agents, sortProperty);
+
+    if ((sortProperty).equals("lastName")) bs.toStringSort();
+    if ((sortProperty).equals("idString")) bs.toStringSort();
+    if ((sortProperty).equals("role")) bs.toStringSort();
+    if ((sortProperty).equals("comments")) bs.toStringSort();
+    if ((sortProperty).equals("submittedDate")) bs.toDateSort();
+    if ((sortProperty).equals("assessmentGradingId")) bs.toNumericSort();
+    if ((sortProperty).equals("status")) bs.toNumericSort();
+    if ((sortProperty).equals("totalAutoScore")) bs.toNumericSort();
+    if ((sortProperty).equals("totalOverrideScore")) bs.toNumericSort();
+    if ((sortProperty).equals("finalScore")) bs.toNumericSort();
+
+    agents = (ArrayList)bs.sort();
   }
 
     public void setRecordingData(TotalScoresBean bean){
