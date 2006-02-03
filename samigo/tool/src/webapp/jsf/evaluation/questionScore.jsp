@@ -420,7 +420,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="totalAutoScore" />
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore" required="false">
+      <h:inputText value="#{description.totalAutoScore}" size="5" id="qscore" required="false">
 <f:validateDoubleRange/>
 </h:inputText>
 <br />
