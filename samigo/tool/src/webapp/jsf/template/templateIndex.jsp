@@ -44,10 +44,8 @@
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <!-- content... -->
- <!-- this should probably be a widget -->
- <!-- div class="heading"><h:outputText value="#{msg.index_heading}"/></div -->
 <div class="portletBody">
-  <h:form id="templateEditorForm">
+  <h:form id="templateCreateForm">
 <h:messages styleClass="validation"/>
   <!-- HEADINGS -->
   <%@ include file="/jsf/template/templateHeadings.jsp" %>
@@ -84,7 +82,7 @@
 
 <br/><h:message for="tempName" styleClass="validate"/>
 
- <h:form>
+ <h:form id="templateListForm">
  <div class="indnt1">
  <h4>
    <h:outputText value="#{msg.index_saved}"/>

@@ -398,4 +398,13 @@ public class IndexBean implements Serializable
   {
     this.templateAscending = templateAscending;
   }
+
+  private String outcome;
+  public void setOutcome(String outcome){
+    this.outcome=outcome;
+  }
+  public String getOutcome(){
+    return outcome;
+  }
+
 }

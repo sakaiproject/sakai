@@ -54,6 +54,8 @@
     <h:outputText value=" | " />
     <h:commandLink action="template" id="templateLink" immediate="true">
       <h:outputText value="#{msg.index_templates}" />
+       <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
     <h:outputText value=" | " />
     <h:commandLink action="poolList" id="poolLink" immediate="true">
@@ -210,9 +212,6 @@
 
   <!-- *** ASSESSMENT ORGANIZATION *** -->
   <samigo:hideDivision title="#{msg.organization}" id="div7">
-
-    <!-- h:panelGrid columns="1" columnClasses="indnt2"
-      summary="#{msg.organization}" -->
 
     <!-- NAVIGATION -->
  <div class="indnt2">
@@ -618,7 +617,7 @@
   <p class="act">
   <h:panelGroup rendered="#{template.idString ne '1' || person.isAdmin}">
     <h:commandButton type="submit" id="Submit" value="#{msg.save}"
-      action="#{template.getOutcome}" styleClass="active">
+      action="#{templateIndex.getOutcome}" styleClass="active">
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateUpdateListener" />
                 </h:commandButton>

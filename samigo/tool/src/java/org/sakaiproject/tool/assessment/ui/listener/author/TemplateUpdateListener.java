@@ -88,6 +88,9 @@ public class TemplateUpdateListener
     log.info("debug requestParams: " + requestParams);
     log.info("debug reqMap: " + reqMap);
     TemplateBean templateBean = lookupTemplateBean(context);
+    IndexBean templateIndex = (IndexBean) ContextUtil.lookupBean("templateIndex");
+
+
     
     String tempName=templateBean.getTemplateName();
     AssessmentService assessmentService = new AssessmentService();
@@ -97,13 +100,13 @@ public class TemplateUpdateListener
     if(tempName!=null && (tempName.trim()).equals("")){
      	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","templateName_empty");
 	context.addMessage(null,new FacesMessage(err1));
-        templateBean.setOutcome("editTemplate");
+        templateIndex.setOutcome("editTemplate");
 	return;
     }
     if (!isUnique){
       String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","duplicateName_error");
       context.addMessage(null,new FacesMessage(error));
-       templateBean.setOutcome("editTemplate");
+      templateIndex.setOutcome("editTemplate");
       return;
     }
     updateAssessment(templateBean);
@@ -113,8 +116,8 @@ public class TemplateUpdateListener
     lis.processAction(null);
 
     // reset templateBean
-    templateBean.setOutcome("template");
     templateBean.setNewName(null);
+    templateIndex.setOutcome("template");
   }
 
   /**
