@@ -106,13 +106,13 @@
 <h:panelGroup>
       
 
- <h:outputLabel value="#{answer.label}"	/><f:verbatim><br/></f:verbatim>
-<h:outputLabel value="#{msg.correct_answer}?"/><f:verbatim><br/></f:verbatim>
-
+	
+<h:outputText value="#{msg.correct_answer}"  />
+<f:verbatim><br/></f:verbatim>
 <!-- if multiple correct, use checkboxes -->
         <h:selectManyCheckbox value="#{itemauthor.currentItem.corrAnswers}" id="mccheckboxes"
 	rendered="#{itemauthor.currentItem.multipleCorrect}">
-	<f:selectItem itemValue="#{answer.label}."/>
+	<f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
         </h:selectManyCheckbox>
          
 	<!-- if single correct, use radiobuttons -->
@@ -124,7 +124,7 @@
 	value="#{itemauthor.currentItem.corrAnswer}"
 	rendered="#{!itemauthor.currentItem.multipleCorrect}">
 
-	<f:selectItem itemValue="#{answer.label}."/>
+	<f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
 </h:selectOneRadio>
 
 
@@ -138,19 +138,18 @@
    <samigo:wysiwyg rows="140" value="#{answer.text}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-
- <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring=='2'}">
-          <h:outputLabel value="#{msg.feedback}"/><f:verbatim><br/></f:verbatim>
-           <h:outputText value="(Optional)" />
-    </h:panelGroup>
+ 
+ <h:panelGroup rendered="#{itemauthor.showFeedbackAuthoring== 'true'}">
+          <h:outputText value="#{msg.feedback_optional}" />
+    
         <!-- WYSIWYG -->
 
-<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring=='2'}">
+
          <samigo:wysiwyg rows="140" value="#{answer.feedback}">
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
-   </h:panelGroup>
-
+ 
+ </h:panelGroup>
         </h:panelGrid>
 </h:column>
 </h:dataTable>
