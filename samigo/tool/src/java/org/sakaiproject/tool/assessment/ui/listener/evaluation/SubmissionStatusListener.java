@@ -126,11 +126,13 @@ public class SubmissionStatusListener
       if (cu.lookupParam("sortBy") != null &&
           !cu.lookupParam("sortBy").trim().equals(""))
         bean.setSortType(cu.lookupParam("sortBy"));
+
       String which = cu.lookupParam("allSubmissions");
       log.info("Rachel: allSubmissions = " + which);
       if (which == null)
         which = "false";
       bean.setAllSubmissions(which);
+
       bean.setPublishedId(publishedId);
       ArrayList scores = delegate.getAllSubmissions(publishedId);
       Iterator iter = scores.iterator();
@@ -222,22 +224,6 @@ public class SubmissionStatusListener
           bean.setMaxScore(data.getPublishedAssessment().getEvaluationModel().getFixedTotalScore().toString());
         } catch (Exception e) {
 	  bean.setMaxScore(data.getPublishedAssessment().getTotalScore().toString());
-
-/*
-          float score = (float) 0.0;
-          Iterator iter2 = data.getPublishedAssessment().getSectionArraySorted().iterator();
-          while (iter2.hasNext())
-          {
-            SectionDataIfc sdata = (SectionDataIfc) iter2.next();
-            Iterator iter3 = sdata.getItemArraySortedForGrading().iterator();
-            while (iter3.hasNext())
-            {
-              ItemDataIfc idata = (ItemDataIfc) iter3.next();
-              score += idata.getScore().floatValue();
-            }
-          }
-          bean.setMaxScore(new Float(score).toString());
-*/
         }
       }
 

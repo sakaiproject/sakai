@@ -158,6 +158,13 @@ public class SectionContentsBean
     return maxPoints;
   }
 
+  public float getRoundedMaxPoints()
+  {
+    // only show 2 decimal places 
+    
+    return roundTo2Decimals(maxPoints);
+  }
+
   /**
    * Total points the part is worth.
    * @param maxPoints points the part is worth.
@@ -545,9 +552,16 @@ public class SectionContentsBean
     String pointsDisplayString = "";
     if (showStudentScore)
     {
-      pointsDisplayString = points + "/";
+      pointsDisplayString = roundTo2Decimals(points) + "/";
     }
     return pointsDisplayString;
+  }
+
+  public static float roundTo2Decimals(float points)
+  {
+    int tmp = Math.round(points * 100.0f);
+    points = (float) tmp / 100.0f;
+    return points;
   }
 
 }

@@ -261,6 +261,15 @@ public class ItemContentsBean
 
   /**
    * String representation of the max points available for this question.
+   * @return String representation of the max points.
+   */
+  public float getRoundedMaxPoints()
+  {
+    return SectionContentsBean.roundTo2Decimals(maxPoints);
+  }
+
+  /**
+   * String representation of the max points available for this question.
    * @param maxPoints String representation of the max points available
    */
   public void setMaxPoints(float maxPoints)
@@ -811,7 +820,7 @@ public class ItemContentsBean
     String pointsDisplayString = "";
     if (showStudentScore)
     {
-      pointsDisplayString = points + "/";
+      pointsDisplayString = SectionContentsBean.roundTo2Decimals(points) + "/";
     }
     return pointsDisplayString;
   }

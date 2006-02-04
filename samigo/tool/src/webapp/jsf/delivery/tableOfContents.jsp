@@ -126,12 +126,16 @@ function clickSubmitForGrade(){
   <h4>
     <h:outputText value="#{msg.table_of_contents} " />
     <h:outputText styleClass="tier10" value="#{msg.tot_score} " />
-    <h:outputText value="#{delivery.tableOfContents.maxScore} " />
+    <h:outputText value="#{delivery.tableOfContents.maxScore}">
+      <f:convertNumber maxFractionDigits="2"/>
+    </h:outputText>
     <h:outputText value="#{msg.pt}" />
   </h4>
   <h:outputText value="#{msg.table_of_contents} " />
   <h:outputText styleClass="tier10" value="#{msg.tot_score} " />
-  <h:outputText value="#{delivery.tableOfContents.maxScore} " />
+  <h:outputText value="#{delivery.tableOfContents.maxScore}">
+    <f:convertNumber maxFractionDigits="2"/>
+  </h:outputText>
   <h:outputText value="#{msg.pt}" />
 </div>
 
@@ -155,7 +159,7 @@ function clickSubmitForGrade(){
       <h:column>
       <h:panelGroup>
         <samigo:hideDivision id="part" title = "#{msg.p} #{part.number} - #{part.nonDefaultText}  -
-       #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.pointsDisplayString}#{part.maxPoints} #{msg.pt}" > 
+       #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.pointsDisplayString}#{part.roundedMaxPoints} #{msg.pt}" > 
         <h:dataTable value="#{part.itemContents}" var="question">
           <h:column>
             <f:verbatim><div class="indnt3"></f:verbatim>
@@ -165,7 +169,9 @@ function clickSubmitForGrade(){
             <h:graphicImage alt="#{msg.q_marked}"
                url="/images/tree/marked.gif"  rendered="#{question.review}"/>
               <h:commandLink immediate="true" action="takeAssessment"> 
-                <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.maxPoints} #{msg.pt}) "/>
+                <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{msg.pt})">
+<f:convertNumber maxFractionDigits="2"/>
+        </h:outputText>
                 <f:param name="partnumber" value="#{part.number}" />
                 <f:param name="questionnumber" value="#{question.number}" />
                 <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerFromTOCListener" />
