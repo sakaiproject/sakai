@@ -629,8 +629,8 @@ public class DeliveryActionListener
     }
 
     // scoring information
-    sec.setMaxPoints(roundToTenths(maxPoints));
-    sec.setPoints(roundToTenths(points));
+    sec.setMaxPoints(maxPoints);
+    sec.setPoints(points);
     sec.setShowStudentScore(delivery.isShowStudentScore());
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
@@ -710,8 +710,8 @@ public class DeliveryActionListener
     }
 
     // scoring information
-    sec.setMaxPoints(roundToTenths(maxPoints));
-    sec.setPoints(roundToTenths(points));
+    sec.setMaxPoints(maxPoints);
+    sec.setPoints(points);
     sec.setShowStudentScore(delivery.isShowStudentScore());
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
