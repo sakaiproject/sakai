@@ -293,14 +293,15 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="role" />
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.role}" rendered="#{description.assessmentGradingId ne '-1'}" />
+        <h:outputText value="#{description.role}" 
+             rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
     </h:column>
 
     <h:column rendered="#{totalScores.sortType eq 'role'}">
      <f:facet name="header" >
        <h:outputText value="#{msg.role}" />
      </f:facet>
-        <h:outputText value="#{description.role}" rendered="#{description.assessmentGradingId ne '-1'}"/>
+        <h:outputText value="#{description.role}" rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}"/>
     </h:column>
 
     <!-- DATE -->
@@ -313,7 +314,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="submittedDate" />
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.submittedDate}" rendered="#{description.assessmentGradingId ne '-1'}" >
+        <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
         </h:outputText>
     </h:column>
@@ -322,7 +323,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
      <f:facet name="header">
        <h:outputText value="#{msg.date}" />
      </f:facet>
-        <h:outputText value="#{description.submittedDate}" rendered="#{description.assessmentGradingId ne '-1'}">
+        <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}">
            <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
         </h:outputText>
     </h:column>
@@ -339,16 +340,16 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       </f:facet>
       <h:outputText value="#{msg.submitted}" 
          rendered="#{description.status == 2 && description.attemptDate != null 
-                    && description.assessmentGradingId ne '-1'}"/>
+                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
       <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && description.assessmentGradingId ne '-1'}"/>
+                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
       <h:outputText value="#{msg.late}" 
          rendered="#{description.status == 4 && description.attemptDate != null
-                    && description.assessmentGradingId ne '-1'}"/>
+                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
       <h:outputText value="#{msg.no_submission}"
          rendered="#{description.attemptDate == null
-                    && description.assessmentGradingId ne '-1'}"/>
+                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='status'}">
@@ -357,16 +358,16 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       </f:facet>
       <h:outputText value="#{msg.submitted}"
          rendered="#{description.status == 2 && description.attemptDate != null
-                    && description.assessmentGradingId ne '-1'}"/>
+                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
       <h:outputText value=" "
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && description.assessmentGradingId ne '-1'}"/>
+                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
       <h:outputText value="#{msg.late}"
          rendered="#{description.status == 4 && description.attemptDate != null
-                    && description.assessmentGradingId ne '-1'}"/>
+                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
       <h:outputText value="#{msg.no_submission}"
          rendered="#{description.attemptDate == null
-                    && description.assessmentGradingId ne '-1'}"/>
+                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
     </h:column>
 
     <!-- TOTAL -->
@@ -379,14 +380,14 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="totalAutoScore" />
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{description.assessmentGradingId ne '-1'}" />
+      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='totalAutoScore'}">
       <f:facet name="header">
         <h:outputText value="#{msg.tot}" />
       </f:facet>
-      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{description.assessmentGradingId ne '-1'}"/>
+      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
     </h:column>
 
     <!-- ADJUSTMENT -->
@@ -399,7 +400,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="totalOverrideScore" />
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal" required="false" rendered="#{description.assessmentGradingId ne '-1'}" >
+      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
 <f:validateDoubleRange/>
 </h:inputText>
 <br />
@@ -410,7 +411,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       <f:facet name="header">
         <h:outputText value="#{msg.adj}"/>
       </f:facet>
-      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal2" required="false" rendered="#{description.assessmentGradingId ne '-1'}" >
+      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal2" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
 <f:validateDoubleRange/>
 </h:inputText>
 <br />
@@ -427,14 +428,14 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="finalScore" />
       </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.roundedFinalScore}" rendered="#{description.assessmentGradingId ne '-1'}"/>
+        <h:outputText value="#{description.roundedFinalScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='finalScore'}">
      <f:facet name="header">
         <h:outputText value="#{msg.final}" />
      </f:facet>
-        <h:outputText value="#{description.roundedFinalScore}" rendered="#{description.assessmentGradingId ne '-1'}"/>
+        <h:outputText value="#{description.roundedFinalScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
     </h:column>
 
     <!-- COMMENT -->
@@ -447,7 +448,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="comments" />
       </h:commandLink>
      </f:facet>
-   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{description.assessmentGradingId ne '-1'}"/>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
 
 <%-- temporary replaced by inputTextArea util toggle small/large produced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
@@ -460,7 +461,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
      <f:facet name="header">
         <h:outputText value="#{msg.comment}" />
      </f:facet>
-<h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{description.assessmentGradingId ne '-1'}"/>
+<h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
 
 <%--temporary replaced by inputTextArea util toggle small/large produced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
