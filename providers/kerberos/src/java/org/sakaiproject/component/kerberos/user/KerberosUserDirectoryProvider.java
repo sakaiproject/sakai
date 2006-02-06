@@ -25,10 +25,13 @@
 package org.sakaiproject.component.kerberos.user;
 
 // imports
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.Iterator;
+
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.ConfirmationCallback;
@@ -39,17 +42,13 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.service.framework.log.Logger;
 import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
 import org.sakaiproject.service.legacy.user.UserEdit;
 import org.sakaiproject.util.java.StringUtil;
 
-import java.util.Hashtable;
-
-import java.security.MessageDigest;
 import sun.misc.BASE64Encoder;
-import sun.misc.CharacterEncoder;
   
 
 /**
