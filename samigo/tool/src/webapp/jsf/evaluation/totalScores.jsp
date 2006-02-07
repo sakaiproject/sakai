@@ -340,16 +340,18 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       </f:facet>
       <h:outputText value="#{msg.submitted}" 
          rendered="#{description.status == 2 && description.attemptDate != null 
-                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
       <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
-      <h:outputText value="#{msg.late}" 
-         rendered="#{description.status == 4 && description.attemptDate != null
-                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+<h:panelGroup rendered="#{description.status == 4 && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}">
+<f:verbatim><br/></f:verbatim>
+      <h:outputText style="color:red" value="#{msg.late}"/>
+</h:panelGroup>
       <h:outputText value="#{msg.no_submission}"
          rendered="#{description.attemptDate == null
-                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='status'}">
@@ -358,16 +360,17 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       </f:facet>
       <h:outputText value="#{msg.submitted}"
          rendered="#{description.status == 2 && description.attemptDate != null
-                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
-      <h:outputText value=" "
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+      <h:outputText value="#{description.status == 4 && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
-      <h:outputText value="#{msg.late}"
-         rendered="#{description.status == 4 && description.attemptDate != null
-                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+      <h:panelGroup rendered=""><f:verbatim><br/></f:verbatim>
+      <h:outputText value="#{msg.late}" style="color:red"/>
+</h:panelGroup>
       <h:outputText value="#{msg.no_submission}"
          rendered="#{description.attemptDate == null
-                    && totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
 
     <!-- TOTAL -->
