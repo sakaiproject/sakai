@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.sakaiproject.api.app.help.HelpManager;
+import org.sakaiproject.util.java.ResourceLoader;
 
 /**
  * search tool
@@ -37,9 +38,11 @@ import org.sakaiproject.api.app.help.HelpManager;
 public class SearchTool
 {
 
+  private ResourceLoader msgs = new ResourceLoader("org.sakaiproject.tool.help.bundle.Messages");
+   
   private HelpManager helpManager;
   private List searchResults;
-  private String searchString = "enter search term";
+  private String searchString = msgs.getString("search_term");
   private String numberOfResult = "";
   private String showLinkToQuestionTool;
   private String emailAddress;
@@ -154,11 +157,11 @@ public class SearchTool
   {
     if (numberOfResultInt == 0)
     {
-      this.numberOfResult = "No results were found for your search";
+      this.numberOfResult = msgs.getString("no_results");
     }
     else
     {
-      this.numberOfResult = numberOfResultInt + " results found";
+       this.numberOfResult = numberOfResultInt + " " + msgs.getString("results_found");
     }
   }
 

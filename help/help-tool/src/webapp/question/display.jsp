@@ -11,7 +11,7 @@
 				<sakai:doc_section>
 					<h:outputText value="#{msgs.confirmaton}"/>
 				</sakai:doc_section>
-				<sakai:group_box title="Contact Information">
+				<sakai:group_box title="#{msgs.contact_info}">
 				<sakai:panel_edit>
 							<h:outputText value="#{msgs.lastname}"/>
 						    <h:inputText value="#{QuestionTool.lastName}" disabled="true" />

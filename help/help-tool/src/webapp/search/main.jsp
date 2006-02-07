@@ -23,7 +23,8 @@
 <sakai:view_container title="#{msgs.title_edit}">
 <div name="message" id="message" style="padding: 2px; background:#000000 none repeat scroll 0%; position: absolute; z-index: 3; 
 -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; color: white; font-size: 
-90%; top: 1px; left: 1px; display: none;">Searching.....please wait
+90%; top: 1px; left: 1px; display: none;">
+<h:outputText value="#{msgs.searching}" />
 </div>  
 <h:form>
       <%--<h:commandButton value="#{msgs.back}" onclick="history.back()" />
