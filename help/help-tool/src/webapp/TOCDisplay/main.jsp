@@ -6,8 +6,6 @@
 <%-- Custom tag library just for this tool --%>
 <%@ taglib uri="http://sakaiproject.org/jsf/help" prefix="help" %>
 
-<f:loadBundle basename="org.sakaiproject.tool.help.bundle.Messages" var="msgs"/>
-
 <f:view>
 <help:csTree value="#{TableOfContentsTool.tableOfContents.categories}"/>
 </f:view>

@@ -7,7 +7,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/help" prefix="help" %>
 
 <f:view>
-<f:loadBundle basename="org.sakaiproject.tool.help.bundle.Messages" var="msgs"/>
 <h:outputText value="#{msgs.table_of_contents}" />
 <help:tocTree value="#{TableOfContentsTool.tableOfContents.categories}"/>
 </f:view>

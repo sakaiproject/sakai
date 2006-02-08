@@ -18,7 +18,6 @@
 
 </script>
 
-<f:loadBundle basename="org.sakaiproject.tool.help.bundle.Messages" var="msgs"/>
 <f:view>
 <sakai:view_container title="#{msgs.title_edit}">
 <div name="message" id="message" style="padding: 2px; background:#000000 none repeat scroll 0%; position: absolute; z-index: 3; 
