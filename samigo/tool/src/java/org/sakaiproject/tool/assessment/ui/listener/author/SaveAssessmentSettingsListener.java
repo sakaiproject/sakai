@@ -148,15 +148,30 @@ public class SaveAssessmentSettingsListener
     }
 
     if(hasIp){
-        String ipString = assessmentSettings.getIpAddresses().trim();
-
-	if(!s.isIpValid(ipString)){
-
+        boolean ipErr=false;
+        String ipString = assessmentSettings.getIpAddresses().trim();    
+         if(ipString.equals(""))
+	   ipErr=true;
+        String[]arraysIp=(ipString.split("\n"));
+        System.out.println("arraysIp.length: "+arraysIp.length);
+        for(int a=0;a<arraysIp.length;a++){
+            String currentString=arraysIp[a];
+	    if(!currentString.trim().equals("")){
+		if(a<(arraysIp.length-1))
+		    currentString=currentString.substring(0,currentString.length()-1);           
+		if(!s.isIpValid(currentString)){
+		ipErr=true;
+		break;
+		}
+	    }
+	
+	}
+	if(ipErr){
+	    error=true;
 	    String  ip_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
 	    context.addMessage(null,new FacesMessage(ip_err));
-	    error=true;
+
 	}
-	
     }
 
 

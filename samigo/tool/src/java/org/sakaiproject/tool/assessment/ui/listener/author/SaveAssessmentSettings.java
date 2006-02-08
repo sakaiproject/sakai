@@ -41,6 +41,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 
 /**
@@ -63,6 +64,11 @@ public class SaveAssessmentSettings
     // #1 - set Assessment
     Long assessmentId = assessmentSettings.getAssessmentId();
     //log.info("**** save assessment assessmentId ="+assessmentId.toString());
+    ItemAuthorBean iAuthor=new ItemAuthorBean();
+    System.out.println("HUONG's TESTING FB....");
+    System.out.println("assessmentSettings.getFeedbackAuthoring: "+assessmentSettings.getFeedbackAuthoring());
+    iAuthor.setShowFeedbackAuthoring(assessmentSettings.getFeedbackAuthoring());
+    System.out.println("iAuthor.getShowFeedbackAuthoring :"+iAuthor.getShowFeedbackAuthoring());
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());
@@ -238,21 +244,23 @@ public class SaveAssessmentSettings
   }
 
     public boolean isIpValid(String ipString){
-
-	if(ipString.equals("")){
-	return false;
-      }
-        
       String[] parts=ipString.split("\\.");
-        for(int i=0;i<parts.length;i++){
-	   String s=parts[i];
-           int index=0;
-           if(s.length()>3){
+        for(int i=0;i<parts.length;i++){	    
+	   String s=parts[i]; 
+	     try{
+	      String s2=s.replace('*','0');
+	      if(Integer.parseInt(s2)<0 ||Integer.parseInt(s2)>255){
+	   	   return false;
+	       }
+	     }
+	     catch(NumberFormatException e){
 	       return false;
-	   }
+	     }
+	   int index=0;
 	   while(index<s.length()){
-	       char c=s.charAt(index);	      
-	       if(!((Character.isDigit(c))||(Character.toString(c).equals("*")))){		  
+	       char c=s.charAt(index);
+              
+	       if(!((Character.isDigit(c))||(Character.toString(c).equals("*")))){
 		       return false;
 	       }
 	       index++;
