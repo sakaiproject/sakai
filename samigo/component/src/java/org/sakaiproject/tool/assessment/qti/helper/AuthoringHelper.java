@@ -557,7 +557,7 @@ public class AuthoringHelper
       String allowIp = assessment.getAssessmentMetaDataByLabel("ALLOW_IP");
       log.info("allowIp: " + allowIp);
 
-      if (allowIp !=null)
+      if (allowIp !=null && !allowIp.trim().equalsIgnoreCase("null"))
       {
         log.info("NOT NULL: " + allowIp);
         exHelper.makeSecuredIPAddressSet(assessment, allowIp);
