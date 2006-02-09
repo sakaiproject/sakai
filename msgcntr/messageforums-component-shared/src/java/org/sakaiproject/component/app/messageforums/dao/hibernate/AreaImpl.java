@@ -15,6 +15,7 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -23,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
 
 public class AreaImpl extends MutableEntityImpl implements Area
 {
@@ -48,6 +50,7 @@ public class AreaImpl extends MutableEntityImpl implements Area
   private Set openForumsSet;// = new HashSet();
   private Set privateForumsSet;// = new HashSet();
   private Set discussionForumsSet;// = new HashSet();
+  private Set permissionLevelSet;
   
   public void setVersion(Integer version)
   {
@@ -167,8 +170,16 @@ public class AreaImpl extends MutableEntityImpl implements Area
   }
 
   public void setPrivateForumsSet(Set privateForumsSet) {
-      this.privateForumsSet = privateForumsSet;
+      this.privateForumsSet = privateForumsSet;            
   }
+  
+	public Set getPermissionLevelSet() {
+		return permissionLevelSet;
+	}
+
+	public void setPermissionLevelSet(Set permissionLevelSet) {
+		this.permissionLevelSet = permissionLevelSet;
+	}
 
   ////////////////////////////////////////////////////////////////////////
   // helper methods for collections
@@ -260,6 +271,33 @@ public class AreaImpl extends MutableEntityImpl implements Area
       
       forum.setArea(null);
       openForumsSet.remove(forum);
+  }
+  
+  public void addPermissionLevel(PermissionLevel level) {
+    if (LOG.isDebugEnabled()) {
+        LOG.debug("addPermissionLevel(level " + level + ")");
+    }
+    
+    if (level == null) {
+        throw new IllegalArgumentException("level == null");
+    }
+    
+    if (permissionLevelSet == null) {
+    	permissionLevelSet = new HashSet();
+    }          
+    permissionLevelSet.add(level);
+}
+
+  public void removePermissionLevel(PermissionLevel level) {
+    if (LOG.isDebugEnabled()) {
+        LOG.debug("removePermissionLevel(level " + level + ")");
+    }
+    
+    if (level == null) {
+        throw new IllegalArgumentException("Illegal level argument passed!");
+    }
+        
+    permissionLevelSet.remove(level);
   }
 
 }

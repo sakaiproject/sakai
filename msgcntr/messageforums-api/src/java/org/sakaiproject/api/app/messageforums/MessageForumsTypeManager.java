@@ -6,10 +6,19 @@ package org.sakaiproject.api.app.messageforums;
  */
 public interface MessageForumsTypeManager
 {
+	
+	public String getAuthorLevelType();
+	
+	public String getReviewerLevelType();
+	
+	public String getContributorLevelType();
+	
+	public String getNoneLevelType();
+	
   /**
    * @return
    */
- // public List getAvailableTypes();
+ // public List getAvailableTypes();		
    
   /**
    * @return

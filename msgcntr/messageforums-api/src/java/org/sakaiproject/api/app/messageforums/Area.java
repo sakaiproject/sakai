@@ -80,4 +80,8 @@ public interface Area extends MutableEntity {
     
     public void setLocked(Boolean locked);
     
+    public void addPermissionLevel(PermissionLevel level);
+    
+    public void removePermissionLevel(PermissionLevel level);
+    
 }

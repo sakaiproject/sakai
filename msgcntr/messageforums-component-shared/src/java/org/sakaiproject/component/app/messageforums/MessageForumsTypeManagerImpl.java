@@ -34,7 +34,14 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String DELETED = "DeletedPrivateMessageType";
 
   private static final String DRAFT = "DraftPrivateMessageType";
-
+  
+  // Permission Level Types
+  private static final String AUTHOR = "Author Permission Level";
+  private static final String REVIEWER = "Reviewer Permission Level";
+  private static final String CONTRIBUTOR = "Contributor Permission Level";
+  private static final String NONE = "None Permission Level";
+  
+  
   private TypeManager typeManager;
 
   public void init()
@@ -53,6 +60,64 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     }
     this.typeManager = typeManager;
   }
+  
+  public String getAuthorLevelType(){
+  	LOG.debug("getAuthorLevelType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, AUTHOR);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, AUTHOR,
+          "Author Permission Level", "Author Permission Level").getUuid());
+    }
+  }
+  
+  public String getReviewerLevelType(){
+  	LOG.debug("getReviewerLevelType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, REVIEWER);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, REVIEWER,
+          "Reviewer Permission Level", "Reviewer Permission Level").getUuid());
+    }
+  }
+  
+  public String getContributorLevelType(){
+  	LOG.debug("getContributorLevelType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, CONTRIBUTOR);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, CONTRIBUTOR,
+          "Contributor Permission Level", "Contributor Permission Level").getUuid());
+    }
+  }
+  
+  public String getNoneLevelType(){
+  	LOG.debug("getNoneLevelType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, NONE);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, NONE,
+          "None Permission Level", "None Permission Level").getUuid());
+    }
+  }
+  
+  
 
   /* (non-Javadoc)
    * @see org.sakaiproject.api.app.messageforums.MessageForumsTypeManager#getPrivateMessageAreaType()

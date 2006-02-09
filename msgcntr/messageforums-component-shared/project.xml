@@ -66,6 +66,12 @@
 			<artifactId>sakai-common-edu-person-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>	
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-common-authorization-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>	
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -108,6 +114,15 @@
 			<artifactId>sakai-tool</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>  		  
+		
+		<dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.7.0</version>
+            <properties>
+				<deploy.target>shared</deploy.target>>
+			</properties>
+        </dependency>		
 		
 		<dependency>
   			<groupId>hibernate</groupId>
@@ -160,6 +175,14 @@
       <sourceDirectory>src/java</sourceDirectory>
 
         <resources>
+        
+          <resource>
+			<directory>${basedir}/src/sql</directory>
+			<includes>
+			  <include>**/*.sql</include>
+			</includes>
+		  </resource>
+        
           <resource>
             <directory>${basedir}/src/bundle</directory>
               <includes>

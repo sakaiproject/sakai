@@ -18,6 +18,7 @@
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenForum.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateForum.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Label.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/PermissionLevelImpl.hbm.xml</value>
             </list>
         </property>
     </bean>
@@ -121,6 +122,42 @@
         		    <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
 		        </property>
 		        -->
+            </bean>            
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>        
+
+    <bean id="org.sakaiproject.api.app.messageforums.PermissionLevelManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.PermissionLevelManagerImpl" singleton="true" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>				
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+		        </property>
+		        <property name="idManager">
+					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+				</property>				 				
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+				</property>
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>		        
+		        <property name="autoDdl">
+      			    <value>${auto.ddl}</value>
+		        </property>
+		        <property name="sqlService">
+		            <ref bean="org.sakaiproject.service.framework.sql.SqlService"/>
+		        </property>
             </bean>            
         </property>
          <property name="transactionAttributes">

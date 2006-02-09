@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.Topic;
  
 public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
@@ -44,6 +45,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     private String typeUuid;
     private Set attachmentsSet;// = new HashSet();
     private Set topicsSet;// = new HashSet();
+    private Set permissionLevelSet;
     private Area area;
     private Integer sortIndex; 
     
@@ -112,6 +114,14 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     public void setTopicsSet(Set topicsSet) {
         this.topicsSet = topicsSet;
     }
+    
+    public Set getPermissionLevelSet() {
+  		return permissionLevelSet;
+  	}
+
+  	public void setPermissionLevelSet(Set permissionLevelSet) {
+  		this.permissionLevelSet = permissionLevelSet;
+  	}
 
     public String getTypeUuid() {
         return typeUuid;
@@ -209,5 +219,31 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         attachmentsSet.remove(attachment);
     }
     
+    public void addPermissionLevel(PermissionLevel level) {
+      if (LOG.isDebugEnabled()) {
+          LOG.debug("addPermissionLevel(level " + level + ")");
+      }
+      
+      if (level == null) {
+          throw new IllegalArgumentException("level == null");
+      }
+      
+      if (permissionLevelSet == null) {
+      	permissionLevelSet = new HashSet();
+      }          
+      permissionLevelSet.add(level);
+    }
 
+    public void removePermissionLevel(PermissionLevel level) {
+      if (LOG.isDebugEnabled()) {
+          LOG.debug("removePermissionLevel(level " + level + ")");
+      }
+      
+      if (level == null) {
+          throw new IllegalArgumentException("Illegal level argument passed!");
+      }
+          
+      permissionLevelSet.remove(level);
+    }
+    
 }
