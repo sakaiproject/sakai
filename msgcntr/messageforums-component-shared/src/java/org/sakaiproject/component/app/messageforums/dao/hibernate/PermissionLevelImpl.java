@@ -23,8 +23,10 @@
 
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import java.beans.PropertyDescriptor;
 
+import org.apache.commons.beanutils.PropertyUtils;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
 
 public class PermissionLevelImpl extends MutableEntityImpl implements PermissionLevel{
 					
@@ -164,5 +166,67 @@ public class PermissionLevelImpl extends MutableEntityImpl implements Permission
 	public void setReviseOwn(Boolean reviseOwn) {
 		this.reviseOwn = reviseOwn;
 	}
+	
+	/**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object o)
+  {        
+    if (o == this){
+      return true;
+    }
+    
+    /** no need to test if obj is a subclass of GradebookRecordBean */
+    if (!(o instanceof PermissionLevelImpl))
+      return false;
+    
+    PermissionLevelImpl obj = (PermissionLevelImpl) o;
+        
+    boolean returnValue = true;
+    
+    try{
+      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
+      for (int i = 0; i < propDescriptors.length; i++){
+    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
+          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());
+          Boolean bObj = (Boolean) PropertyUtils.getProperty(obj, propDescriptors[i].getName());
+          boolean temp = (bThis == null) ? bObj == null : bThis.equals(bObj);
+          if (!temp){  
+          	returnValue = false;
+          	break;
+          }
+    	  }
+      }
+    }
+    catch(Exception e){
+    	throw new Error(e);
+    }
+    
+    return returnValue;   
+  }
+  
+  
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode()
+  {
+    int result = 17;
+    result = 41 * result + ((newForum == null) ? 0 : newForum.hashCode());
+    result = 41 * result + ((newTopic == null) ? 0 : newTopic.hashCode());
+    result = 41 * result + ((newResponse == null) ? 0 : newResponse.hashCode());
+    result = 41 * result + ((responseToResponse == null) ? 0 : responseToResponse.hashCode());
+    result = 41 * result + ((movePosting == null) ? 0 : movePosting.hashCode());
+    result = 41 * result + ((changeSettings == null) ? 0 : changeSettings.hashCode());
+    result = 41 * result + ((postGrades == null) ? 0 : postGrades.hashCode());
+    result = 41 * result + ((read == null) ? 0 : read.hashCode());
+    result = 41 * result + ((markAsRead == null) ? 0 : markAsRead.hashCode());
+    result = 41 * result + ((moderatePostings == null) ? 0 : moderatePostings.hashCode());
+    result = 41 * result + ((deleteOwn == null) ? 0 : deleteOwn.hashCode());
+    result = 41 * result + ((deleteAny == null) ? 0 : deleteAny.hashCode());
+    result = 41 * result + ((reviseOwn == null) ? 0 : reviseOwn.hashCode());
+    result = 41 * result + ((reviseAny == null) ? 0 : reviseAny.hashCode());    
+    return result;    
+  }
 	
 }

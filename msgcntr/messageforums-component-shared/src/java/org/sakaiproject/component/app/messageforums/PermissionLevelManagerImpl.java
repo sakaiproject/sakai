@@ -34,8 +34,6 @@ import net.sf.hibernate.Session;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
@@ -62,7 +60,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 			
 	public void init(){
-		
+						
     // run ddl            
     if (autoDdl.booleanValue()){
       try
@@ -101,6 +99,39 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     areaManager.saveArea(area);    
     **/
     
+	}
+	
+	public String getPermissionLevelType(PermissionLevel level){
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("getPermissionLevelType executing(" + level + ")");
+		}
+		
+		if (level == null) {      
+      throw new IllegalArgumentException("Null Argument");
+		}
+				
+		PermissionLevel authorLevel = getDefaultAuthorPermissionLevel();		
+		if (level.equals(authorLevel)){
+			return authorLevel.getTypeUuid();
+		}
+				
+	  PermissionLevel reviewerLevel = getDefaultReviewerPermissionLevel();
+	  if (level.equals(reviewerLevel)){
+			return reviewerLevel.getTypeUuid();
+		}
+	  	  
+		PermissionLevel contributorLevel = getDefaultContributorPermissionLevel();
+		if (level.equals(contributorLevel)){
+			return contributorLevel.getTypeUuid();
+		}
+				
+		PermissionLevel noneLevel = getDefaultNonePermissionLevel();
+		if (level.equals(noneLevel)){
+			return noneLevel.getTypeUuid();
+		}
+		
+		return null;
 	}
 	
 	public PermissionLevel createPermissionLevel(String typeUuid, PermissionsMask mask){
@@ -195,7 +226,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	}
 	
 	
-	public PermissionLevel getDefaultPermissionLevel(final String typeUuid){
+	private PermissionLevel getDefaultPermissionLevel(final String typeUuid){
 		
 		if (typeUuid == null) {      
       throw new IllegalArgumentException("Null Argument");

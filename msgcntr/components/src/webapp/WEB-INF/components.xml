@@ -5,12 +5,12 @@
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="mappingResources">
             <list>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserImpl.hbm.xml</value>
+                <!-- <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>-->
+                <!-- <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserImpl.hbm.xml</value>-->
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePermissions.hbm.xml</value>
+                <!-- <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>-->
+                <!-- <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePermissions.hbm.xml</value>-->
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/UnreadStatus.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Area.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Topic.hbm.xml</value>
