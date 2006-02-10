@@ -31,16 +31,16 @@
     	    </h:column>
   	      <h:column>
     	      <f:facet name="header">
-    	        <h:outputText value="Job Name"/>
+    	        <h:outputText value="#{msgs.job_name}"/>
     	      </f:facet>
    	        <h:outputText value="#{job.jobDetail.name}"/>
     	    </h:column>
     	    <h:column>
     	      <f:facet name="header">
-    	        <h:outputText value="Triggers"/>
+    	        <h:outputText value="#{msgs.triggers}"/>
     	      </f:facet>
     	      <h:commandLink action="edit_triggers" actionListener="#{schedulerTool.editTriggersListener}" >
-    	        <h:outputFormat value="Triggers({0})">
+    	        <h:outputFormat value="#{msgs.triggers0}">
     	          <f:param value="#{job.triggerCount}"/>
     	        </h:outputFormat>
     	        <f:param name="jobName" value="#{job.jobDetail.name}"/>
@@ -48,7 +48,7 @@
   	      </h:column>  	      
   	      <h:column>
     	      <f:facet name="header">
-    	        <h:outputText value="Job Type"/>
+    	        <h:outputText value="#{msgs.job_class}"/>
     	      </f:facet>
   	        <h:outputText value="#{job.jobType}"/>
   	      </h:column>            	      

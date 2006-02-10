@@ -32,13 +32,13 @@
     	    </h:column>
   	      <h:column>
     	      <f:facet name="header">
-    	        <h:outputText value="Trigger Name"/>
+    	        <h:outputText value="#{msgs.trigger.name}"/>
     	      </f:facet>
    	        <h:outputText value="#{wrapper.trigger.name}"/>
     	    </h:column>  	      
     	    <h:column>
     	      <f:facet name="header">
-    	        <h:outputText value="Cron Expression"/>
+    	        <h:outputText value="#{msgs.trigger_expression}"/>
     	      </f:facet>
    	        <h:outputText value="#{wrapper.trigger.cronExpression}"/>
     	    </h:column>  	      

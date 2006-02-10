@@ -24,19 +24,19 @@
   	      <h:dataTable value="#{schedulerTool.schedulerManager.globalTriggerListener.triggerEvents}" var="event" styleClass="chefFlatListViewTable">
   	        <h:column>
     	        <f:facet name="header">
-    	          <h:outputText value="Job Name"/>
+    	          <h:outputText value="#{msgs.job_name}"/>
     	        </f:facet>
    	          <h:outputText value="#{event.jobName}"/>
     	      </h:column>
   	        <h:column>
     	        <f:facet name="header">
-    	          <h:outputText value="Event Type"/>
+    	          <h:outputText value="#{msgs.eventType}"/>
     	        </f:facet>
   	          <h:outputText value="#{event.eventType}"/>
   	        </h:column>            	      
   	        <h:column>
     	          <f:facet name="header">
-    	          <h:outputText value="Timestamp"/>
+    	          <h:outputText value="#{msgs.timestamp}"/>
     	        </f:facet>
   	          <h:outputText value="#{event.time}">
   	            <f:convertDateTime pattern="MM/dd/yy 'at' HH:mm:ss"/>
