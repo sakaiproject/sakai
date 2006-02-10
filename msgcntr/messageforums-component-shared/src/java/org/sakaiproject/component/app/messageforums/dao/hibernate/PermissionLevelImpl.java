@@ -175,8 +175,7 @@ public class PermissionLevelImpl extends MutableEntityImpl implements Permission
     if (o == this){
       return true;
     }
-    
-    /** no need to test if obj is a subclass of GradebookRecordBean */
+        
     if (!(o instanceof PermissionLevelImpl))
       return false;
     
@@ -212,20 +211,21 @@ public class PermissionLevelImpl extends MutableEntityImpl implements Permission
   public int hashCode()
   {
     int result = 17;
-    result = 41 * result + ((newForum == null) ? 0 : newForum.hashCode());
-    result = 41 * result + ((newTopic == null) ? 0 : newTopic.hashCode());
-    result = 41 * result + ((newResponse == null) ? 0 : newResponse.hashCode());
-    result = 41 * result + ((responseToResponse == null) ? 0 : responseToResponse.hashCode());
-    result = 41 * result + ((movePosting == null) ? 0 : movePosting.hashCode());
-    result = 41 * result + ((changeSettings == null) ? 0 : changeSettings.hashCode());
-    result = 41 * result + ((postGrades == null) ? 0 : postGrades.hashCode());
-    result = 41 * result + ((read == null) ? 0 : read.hashCode());
-    result = 41 * result + ((markAsRead == null) ? 0 : markAsRead.hashCode());
-    result = 41 * result + ((moderatePostings == null) ? 0 : moderatePostings.hashCode());
-    result = 41 * result + ((deleteOwn == null) ? 0 : deleteOwn.hashCode());
-    result = 41 * result + ((deleteAny == null) ? 0 : deleteAny.hashCode());
-    result = 41 * result + ((reviseOwn == null) ? 0 : reviseOwn.hashCode());
-    result = 41 * result + ((reviseAny == null) ? 0 : reviseAny.hashCode());    
+    
+    try{
+      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
+      for (int i = 0; i < propDescriptors.length; i++){
+    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
+          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());          
+          int temp = (bThis == null) ? 0 : bThis.hashCode();
+          result = result + temp;
+    	  }
+      }
+    }
+    catch(Exception e){
+    	throw new Error(e);
+    }
+        
     return result;    
   }
 	
