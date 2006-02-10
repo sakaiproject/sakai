@@ -25,8 +25,8 @@
   					  <h:inputText id="trigger_expression" value="#{schedulerTool.triggerExpression}"
   					               required="true" validator="#{schedulerTool.validateTriggerExpression}"/>
   					  <h:message for="trigger_expression" styleClass="chefRequiredInline"/>
-  					  <h:outputLink value="http://www.opensymphony.com/quartz/tutorial.html#cronTriggers" title="Quartz Cron Expression Support" target="_new">
-  					    <h:outputText value="#{schedulerTool.help}"/>  					    
+  					  <h:outputLink value="http://www.opensymphony.com/quartz/wikidocs/CronTriggers%20Tutorial.html" title="Quartz Cron Expression Support" target="_new">
+  					    <h:outputText value="#{msgs.help}"/>  					    
   					  </h:outputLink>
   					</h:panelGroup>  					  					  					  											
 
