@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 public class PublishedAssessmentFacade
-    implements PublishedAssessmentIfc
+    implements PublishedAssessmentIfc, Cloneable
 {
   private static Log log = LogFactory.getLog(PublishedAssessmentFacade.class);
   public static Integer ACTIVE_STATUS = new Integer(1);
@@ -597,4 +597,13 @@ public class PublishedAssessmentFacade
     return new Float(total);
   }
 
+  public PublishedAssessmentFacade clonePublishedAssessment(){
+    try{
+      return (PublishedAssessmentFacade)this.clone();
+    }
+    catch(CloneNotSupportedException e){ 
+      log.warn(e.getMessage());
+      return null;
+    }
+  }
 }

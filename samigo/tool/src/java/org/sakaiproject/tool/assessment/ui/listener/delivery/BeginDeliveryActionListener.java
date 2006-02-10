@@ -287,9 +287,12 @@ public class BeginDeliveryActionListener implements ActionListener
         // publishedAssessment record in DB at all, so we would delete it from DB right away.
         AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
         try {
-          pub = publishedAssessmentService.publishPreviewAssessment(assessment);
-          publishedId = pub.getPublishedAssessmentId().toString();
+          PublishedAssessmentFacade tempPub = publishedAssessmentService.publishPreviewAssessment(assessment);
+          publishedId = tempPub.getPublishedAssessmentId().toString();
+          // clone pub from tempPub, clone is not in anyway bound to the DB session
+          pub = tempPub.clonePublishedAssessment();
           log.info("****publishedId="+publishedId);
+          log.info("****clone publishedId="+pub.getPublishedAssessmentId());
           RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId);
           thread.start();
         } 
