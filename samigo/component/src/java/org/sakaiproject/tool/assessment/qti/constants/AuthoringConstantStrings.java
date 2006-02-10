@@ -22,6 +22,8 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.qti.constants;
 
+import java.util.ResourceBundle;
+
 /**
  * A set of strings for QTI XML item characteristics
  *
@@ -45,27 +47,31 @@ package org.sakaiproject.tool.assessment.qti.constants;
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
 /**
  * This class contains authoring strings and names frequently used
  * in the Java code for QTI authoring.
  */
 public class AuthoringConstantStrings
 {
+  private static ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   //
   public static String UNLIMITED_SUBMISSIONS = "9999";
+  
+  public static String ANONYMOUS = rb.getString("anonymous"); // Anonymous Users
+  public static String AUTHENTICATED = rb.getString("authenticated"); // Authenticated Users
+  
   //Item Types
-  public static String MATCHING = "Matching";
-  public static String FIB = "Fill In the Blank";
-  public static String MCMC = "Multiple Correct Answer";
-  public static String MCSC = "Multiple Choice";
-  public static String TF = "True False";
-  public static String SURVEY = "Multiple Choice Survey";
-  public static String ESSAY = "Short Answers/Essay";
-  public static String ESSAY_ALT = "Essay";
-  public static String AUDIO = "Audio Recording";
-  public static String FILE = "File Upload";
+  public static String MATCHING = rb.getString("matching"); //"Matching"
+  public static String FIB = rb.getString("fib"); //"Fill In the Blank"
+  public static String MCMC = rb.getString("mcmc"); //"Multiple Correct Answer"
+  public static String MCSC = rb.getString("mcsc"); // "Multiple Choice"
+  public static String TF = rb.getString("tf"); // "True False"
+  public static String SURVEY = rb.getString("survey"); // "Multiple Choice Survey"
+  public static String ESSAY = rb.getString("essay"); // "Short Answers/Essay"
+  public static String ESSAY_ALT = rb.getString("essay_alt"); // "Essay"
+  public static String AUDIO = rb.getString("audio"); // "Audio Recording"
+  public static String FILE = rb.getString("file"); // "File Upload"
 
   // "Unknown Type" is a placeholder for the invalid '0' , "Unused Type" is an alternate MCMC
   public static String[] itemTypes =

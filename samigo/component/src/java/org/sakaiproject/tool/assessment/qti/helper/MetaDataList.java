@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.qti.helper;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -197,7 +198,7 @@ public class MetaDataList
       {
         log.debug(
           "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
-        value = "Anonymous Users";
+        value = AuthoringConstantStrings.ANONYMOUS;
       }
 
       if (st.hasMoreTokens())

@@ -80,6 +80,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetH
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
+import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 
 public class PublishedAssessmentFacadeQueries
     extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {
@@ -188,7 +189,7 @@ public class PublishedAssessmentFacadeQueries
     String releaseTo = publishedAccessControl.getReleaseTo();
     if (releaseTo != null) {
       boolean anonymousAllowed = ( (releaseTo).indexOf(
-          "Anonymous Users") > -1);
+          AuthoringConstantStrings.ANONYMOUS) > -1);
       if (anonymousAllowed) {
         // generate an alias to the pub assessment
         String alias = AgentFacade.getAgentString() + (new Date()).getTime();

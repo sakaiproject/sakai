@@ -97,29 +97,29 @@ $Id$
 <h:panelGrid styleClass="navModeQuestion" columns="2" columnClasses="alignLeft,alignCenter" width="100%">
 
      <h:panelGroup rendered="#{questionScores.typeId == '7'}">
-         <h:outputText value="AutoRecording"/>
+         <h:outputText value="#{msg.q_aud}"/>
      </h:panelGroup>
       <h:panelGroup rendered="#{questionScores.typeId == '6'}">
-         <h:outputText value="File Upload"/>
+         <h:outputText value="#{msg.q_fu}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '8'}">
-         <h:outputText value="Fill in the blank"/>
+         <h:outputText value="#{msg.q_fib}"/>
      </h:panelGroup>
       <h:panelGroup rendered="#{questionScores.typeId == '9'}">
-         <h:outputText value="Matching"/>
+         <h:outputText value="#{msg.q_match}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '2'}">
-         <h:outputText value="Multiple Choice Multiple Correct"/>
+         <h:outputText value="#{msg.q_mult_mult}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '4'}">
-         <h:outputText value="True/False"/>
+         <h:outputText value="#{msg.q_tf}"/>
      </h:panelGroup>
 
      <h:panelGroup rendered="#{questionScores.typeId == '5'}">
-         <h:outputText value="Short Answer"/>
+         <h:outputText value="#{msg.q_short_ess}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '1' || questionScores.typeId == '3'}">
-    <h:outputText value="Multiple Choice Single Correct"/>
+    <h:outputText value="#{msg.q_mult_sing}"/>
       </h:panelGroup>
 
 

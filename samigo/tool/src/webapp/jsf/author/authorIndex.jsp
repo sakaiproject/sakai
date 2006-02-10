@@ -80,7 +80,7 @@
       <h:selectOneMenu id="assessmentTemplate" 
          rendered="#{authorization.createAssessment && author.showTemplateList}"
         value="#{author.assessmentTemplateId}">
-         <f:selectItem itemValue="" itemLabel="select"/>
+         <f:selectItem itemValue="" itemLabel="#{genMsg.select_menu}"/>
          <f:selectItems value="#{author.assessmentTemplateList}" />
       </h:selectOneMenu>
 
@@ -261,7 +261,7 @@
       <h:commandLink id="editPublishedAssessmentSettings" immediate="true"
           rendered="#{authorization.publishAnyAssessment or authorization.publishOwnAssessment}"
           action="#{author.getOutcome}">
-        <h:outputText  value="Settings" />
+        <h:outputText  value="#{msg.link_settings}" />
         <f:param name="publishedAssessmentId" value="#{publishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
       </h:commandLink>
@@ -278,7 +278,7 @@
       <h:commandLink action="#{author.getOutcome}" immediate="true" 
          rendered="#{publishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
 
-        <h:outputText value="Scores" />
+        <h:outputText value="#{msg.link_scores}" />
         <f:param name="actionString" value="gradeAssessment" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="publishedId" value="#{publishedAssessment.publishedAssessmentId}" />
@@ -414,7 +414,7 @@
       <h:commandLink id="editPublishedAssessmentSettings" immediate="true"
           rendered="#{authorization.publishAnyAssessment or authorization.publishOwnAssessment}"
           action="#{author.getOutcome}">
-        <h:outputText  value="Settings" />
+        <h:outputText  value="#{msg.link_settings}" />
         <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
       </h:commandLink>

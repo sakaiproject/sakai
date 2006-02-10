@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.bean.qti;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -57,6 +58,7 @@ public class XMLImportBean implements Serializable
   private AuthorBean authorBean;
   private AssessmentBean assessmentBean;
   private ItemAuthorBean itemAuthorBean;
+  private ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
 
   public XMLImportBean()
   {
@@ -83,11 +85,7 @@ public class XMLImportBean implements Serializable
     }
     catch (Exception ex)
     {
-      FacesMessage message = new FacesMessage(
-        "There was an error importing this assessment.  " +
-        "Ensure that the file is correctly formatted IMS QTI.  " +
-        "Error details: " + ex
-        );
+      FacesMessage message = new FacesMessage( rb.getString("import_err" + ex) );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
   }

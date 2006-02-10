@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,6 +67,8 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 public class AssessmentFacadeQueries
     extends HibernateDaoSupport implements AssessmentFacadeQueriesAPI {
   private static Log log = LogFactory.getLog(AssessmentFacadeQueries.class);
+  
+  private ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   public static String LASTMODIFIEDDATE = "lastModifiedDate";
   public static String TITLE = "title";
@@ -447,7 +450,7 @@ public class AssessmentFacadeQueries
       HashSet sh = new HashSet();
       SectionData section = new SectionData(
           null, new Integer("1"), // FIRST section
-          "Default", "this section is added when a new assessment is created",
+          "Default", rb.getString("new_section"),
           TypeD.DEFAULT_SECTION, SectionData.ACTIVE_STATUS,
           AgentFacade.getAgentString(), new Date(),
           AgentFacade.getAgentString(), new Date());

@@ -422,7 +422,7 @@ function checkTimeSelect(){
     <h:panelGroup rendered="#{assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}">
      <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.submission_final_page_url}" /> <f:verbatim><br/></f:verbatim>
       <h:inputText size="80" id="finalPageUrl" value="#{assessmentSettings.finalPageUrl}" />
-      <h:commandButton value="Validate URL" type="button" onclick="javascript:validateUrl();"/>
+      <h:commandButton value="#{msg.validateURL}" type="button" onclick="javascript:validateUrl();"/>
    <f:verbatim></div></f:verbatim>
     </h:panelGroup>
     <f:verbatim></div></f:verbatim>

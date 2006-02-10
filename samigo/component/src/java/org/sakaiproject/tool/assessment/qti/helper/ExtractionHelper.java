@@ -706,7 +706,7 @@ public class ExtractionHelper
     {
       log.debug(
           "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
-      releasedTo = "Anonymous Users";
+      releasedTo = AuthoringConstantStrings.ANONYMOUS;
     }
 
 
@@ -715,7 +715,7 @@ public class ExtractionHelper
       {
         log.debug(
           "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
-        releasedTo = "Anonymous Users";
+        releasedTo = AuthoringConstantStrings.ANONYMOUS;
       }
 
       log.debug("control.setReleaseTo(releasedTo)='"+releasedTo+"'.");

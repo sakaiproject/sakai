@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
+import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 
 /**
  *
@@ -60,8 +61,8 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
   public HashMap getTargets()
   {
      HashMap map = new HashMap();
-     map.put("Anonymous Users", "ANONYMOUS_USERS");
-     map.put("Authenticated Users", "AUTHENTICATED_USERS");
+     map.put(AuthoringConstantStrings.ANONYMOUS, "ANONYMOUS_USERS");
+     map.put(AuthoringConstantStrings.AUTHENTICATED, "AUTHENTICATED_USERS");
      return map;
   }
 

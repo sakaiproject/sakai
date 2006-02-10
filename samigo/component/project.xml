@@ -360,5 +360,16 @@
   </dependencies>
   <build>
     <sourceDirectory>src/java</sourceDirectory>
+    
+		<!-- other resources for the jar - the message bundles -->
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+		</resources>
+	
   </build>
 </project>
