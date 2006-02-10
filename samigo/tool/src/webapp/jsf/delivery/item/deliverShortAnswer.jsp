@@ -52,9 +52,13 @@ should be included in file importing DeliveryMessages
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="answerKeyMC" value="#{msg.model} " />
      <f:verbatim></b></f:verbatim>
-    <h:outputLink value="#" onclick="javascript:window.alert('#{question.strippedKey}');" >
+    <h:outputText  value="#{question.key}" escape="false"/>
+<%-- alert screen is a problem 'cos comment often contains html tag added in WYSIWYG
+    <h:outputLink value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');" >
     <h:outputText  value="#{dmsg.click}" />
     </h:outputLink>
+--%>
+
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
