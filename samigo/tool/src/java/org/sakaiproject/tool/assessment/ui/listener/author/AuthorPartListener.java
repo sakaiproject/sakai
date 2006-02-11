@@ -72,12 +72,15 @@ public class AuthorPartListener implements ActionListener
                                           "sectionBean");
     // clean it
     sectionBean.setSectionTitle("");
+    sectionBean.setSectionDescription("");
     sectionBean.setSectionId("");
     String assessmentId = assessmentBean.getAssessmentId();
 
     // #1b. goto editPart.jsp
     //sectionBean.setPoolsAvailable(itemauthorbean.getPoolSelectList());
     sectionBean.setHideRandom(false);
+    sectionBean.setNumberSelected("");
+    sectionBean.setSelectedPool("");
     // set default
     sectionBean.setType(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
     sectionBean.setQuestionOrdering(SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());

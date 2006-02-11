@@ -68,7 +68,7 @@ public class AssessmentFacadeQueries
     extends HibernateDaoSupport implements AssessmentFacadeQueriesAPI {
   private static Log log = LogFactory.getLog(AssessmentFacadeQueries.class);
   
-  private ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
+  // private ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   public static String LASTMODIFIEDDATE = "lastModifiedDate";
   public static String TITLE = "title";
@@ -450,7 +450,7 @@ public class AssessmentFacadeQueries
       HashSet sh = new HashSet();
       SectionData section = new SectionData(
           null, new Integer("1"), // FIRST section
-          "Default", rb.getString("new_section"),
+          "Default", "",
           TypeD.DEFAULT_SECTION, SectionData.ACTIVE_STATUS,
           AgentFacade.getAgentString(), new Date(),
           AgentFacade.getAgentString(), new Date());
