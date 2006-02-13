@@ -12,7 +12,7 @@
   			<tr>
 		  	  <td width="0%" />
   	  	  <td width="100%" style="color: red">
-						You have no permission for this action!
+						<h:outputText value="#{msgs.permission_error_permission}" />
 					</td>
 				</tr>
 			</table>

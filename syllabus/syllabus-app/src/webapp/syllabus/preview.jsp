@@ -34,7 +34,7 @@
 				<sakai:button_bar>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditPreviewBack}"
-						value="Back" />
+						value="#{msgs.back}" />
 				</sakai:button_bar>
 
 			</h:form>

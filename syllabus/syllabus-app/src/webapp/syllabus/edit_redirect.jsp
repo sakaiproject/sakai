@@ -19,7 +19,7 @@
 				<sakai:button_bar>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditSaveRedirect}"
-						value="Save" />
+						value="#{msgs.save}" />
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditCancelRedirect}"
 						value="#{msgs.cancel}" />

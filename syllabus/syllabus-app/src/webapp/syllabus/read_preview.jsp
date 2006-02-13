@@ -38,7 +38,7 @@
 				<%-- (gsilver) cannot pass a needed title atribute to this next item --%>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processReadPreviewBack}"
-						value="Back" />
+						value="#{msgs.back}" />
 				</sakai:button_bar>
 
 			</h:form>

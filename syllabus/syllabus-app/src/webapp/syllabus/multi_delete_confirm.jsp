@@ -14,7 +14,7 @@
 						  <table width="100%" align="center">
 							  <tr>
 								  <td align="center" style="font-size: 12pt; color: #8B0000" width="100%">
-								    Are you sure you want to delete the specified item?
+								    <h:outputText value="#{msgs.delConfAlert}" />
 								  </td>
 								  <td/>
 							  </tr>

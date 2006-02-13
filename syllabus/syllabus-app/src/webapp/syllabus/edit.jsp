@@ -36,7 +36,7 @@
 				</h:selectOneRadio>
 			</div>	
 				<h4>		
-					Attachments
+					<h:outputText value="#{msgs.attachment}"/>
 				</h4>	
 
 <%--					<h:outputText value="#{msgs.attachment}" style="background-color:#DDDFE4;color: #000;padding:.3em;margin:-.3em -2.2em;text-align:left;font-size: .9em;line-height:1.3em"/>--%>
@@ -49,14 +49,14 @@
 									<h:outputText value="#{msgs.attachment_local} "/>
 							</h:commandLink>--%>
 <%--							<h:outputLink value="add_attach" onclick="this.form.onsubmit();this.form.submit();">
-							  <h:outputText id="local_upload" value="Local File"/>
+							  <h:outputText id="local_upload" value="#{msgs.attachment_local}"/>
 							</h:outputLink>--%>
 
 							<sakai:button_bar>
 							<%-- (gsilver) cannot pass a needed title atribute to these next items --%>
 								<sakai:button_bar_item
 									action="#{SyllabusTool.processAddAttachRedirect}" 
-									value="Add Attachments"/>
+									value="#{msgs.add_attach}"/>
 							</sakai:button_bar>
 							
 <%--							<h:outputText value=" "/>
@@ -105,7 +105,7 @@
 					<syllabus:syllabus_table value="#{SyllabusTool.attachments}" var="eachAttach">
 					  <h:column rendered="#{!empty SyllabusTool.attachments}">
 							<f:facet name="header">
-								<h:outputText value="Title"/>
+								<h:outputText value="#{msgs.attachmentTitle}"/>
 							</f:facet>
 							<h:graphicImage url="/syllabus/excel.gif" rendered="#{eachAttach.type == 'application/vnd.ms-excel'}"/>
 							<h:graphicImage url="/syllabus/html.gif" rendered="#{eachAttach.type == 'text/html'}"/>

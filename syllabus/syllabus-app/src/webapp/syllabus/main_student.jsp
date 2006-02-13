@@ -14,19 +14,19 @@
 				<sakai:flat_list value="#{SyllabusTool.entries}" var="eachEntry">
 					<h:column>
 						<f:facet name="header">
-							<h:outputText style="height: 16px; width=72px" value="Syllabus Item" />
+							<h:outputText style="height: 16px; width=72px" value="#{msgs.mainEditHeaderItem}" />
 						</f:facet>
 						<h:outputText value="#{eachEntry.entry.title}"/>
 					</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="Content"/>
+							<h:outputText value="#{msgs.syllabus_content}"/>
 						</f:facet>
 						<h:outputText value="#{eachEntry.entry.content}"/>
 					</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="URL"/>
+							<h:outputText value="#{msgs.syllabus_url}"/>
 						</f:facet>
 						<h:outputLink value="#{eachEntry.entry.redirectUrl}" target="newWin">
 						  <h:outputText value="#{eachEntry.entry.redirectUrl}" />
@@ -37,7 +37,7 @@
 				<sakai:button_bar>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditCancel}"
-						value="Back" />
+						value="#{msgs.back}" />
 				</sakai:button_bar>
 
 
