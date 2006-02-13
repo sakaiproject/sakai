@@ -141,7 +141,9 @@ public void removeExternalAssessment(String gradebookUId,
         appName = tool.getTitle();
       }
 
-      g.addExternalAssessment(gradebookUId,
+      if(!g.isAssignmentDefined(gradebookUId, publishedAssessment.getTitle()))
+      {
+        g.addExternalAssessment(gradebookUId,
                               publishedAssessment.getPublishedAssessmentId().
                               toString(), null,
                               publishedAssessment.getTitle(),
@@ -149,7 +151,8 @@ public void removeExternalAssessment(String gradebookUId,
                               publishedAssessment.getAssessmentAccessControl().
                               getDueDate(),
                               appName); // Use the app name from sakai
-      added = true;
+        added = true;
+      }
     }
     return added;
   }
