@@ -139,17 +139,17 @@
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
  
- <h:panelGroup rendered="#{itemauthor.showFeedbackAuthoring== 'true'}">
-          <h:outputText value="#{msg.feedback_optional}" />
+ 
+          <h:outputText value="#{msg.feedback_optional}" rendered="#{assessmentSettings.feedbackAuthoring== '2'}" />
     
         <!-- WYSIWYG -->
 
-
+<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring== '2'}">
          <samigo:wysiwyg rows="140" value="#{answer.feedback}">
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
- 
- </h:panelGroup>
+  </h:panelGroup>
+
         </h:panelGrid>
 </h:column>
 </h:dataTable>
