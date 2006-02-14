@@ -42,6 +42,12 @@ public interface GradebookServiceAPI
   public boolean addToGradebook(PublishedAssessmentIfc publishedAssessment) ;
   /**
    *
+   * @param publishedAssessment
+   * @return
+   */
+  public boolean isAssignmentDefined(String assessmentTitle);
+  /**
+   *
    * @param siteId
    * @param publishedAssessmentId
    */

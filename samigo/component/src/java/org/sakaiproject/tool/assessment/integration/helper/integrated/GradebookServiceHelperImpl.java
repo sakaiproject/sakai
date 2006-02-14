@@ -98,6 +98,13 @@ public void removeExternalAssessment(String gradebookUId,
     }
   }
 
+  public boolean isAssignmentDefined(String assessmentTitle,
+                                GradebookService g) throws Exception
+  {
+    String gradebookUId = GradebookFacade.getGradebookUId();
+    return g.isAssignmentDefined(gradebookUId, assessmentTitle);
+  }
+
   /**
    * Add a published assessment to gradebook.
    * @param publishedAssessment the published assessment

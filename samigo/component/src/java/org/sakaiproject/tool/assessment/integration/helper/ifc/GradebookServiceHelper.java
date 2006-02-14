@@ -47,6 +47,9 @@ public interface GradebookServiceHelper extends Serializable
   public boolean addToGradebook(PublishedAssessmentData publishedAssessment,
     GradebookService g) throws Exception;
 
+  public boolean isAssignmentDefined(String assessmentTitle,
+    GradebookService g) throws Exception;
+
   public void updateExternalAssessmentScore(AssessmentGradingIfc ag,
     GradebookService g) throws Exception;
 }

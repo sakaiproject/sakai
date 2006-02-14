@@ -42,6 +42,10 @@ public class GradebookServiceHelper
       return false;
     }
 
+    public static boolean isAssignmentDefined(String assessmentTitle) throws Exception {
+      return false;
+    }
+
     public static void removeExternalAssessment(String siteId,String publishedAssessmentId) throws Exception {
     }
 

@@ -35,11 +35,16 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 
 /**
  * <p>Title: Samigo</p>2
@@ -55,6 +60,10 @@ public class SaveAssessmentSettingsListener
 {
   private static Log log = LogFactory.getLog(SaveAssessmentSettingsListener.class);
   private static ContextUtil cu;
+  private static final GradebookServiceHelper gbsHelper =
+      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+  private static final boolean integrated =
+      IntegrationContextFactory.getInstance().isIntegrated();
 
   public SaveAssessmentSettingsListener()
   {
@@ -79,11 +88,30 @@ public class SaveAssessmentSettingsListener
 	context.addMessage(null,new FacesMessage(nameEmpty_err));
 	error=true;
     }
-      //#2 - check if name is unique
+    //#2a - check if name is unique 
     if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
 	String nameUnique_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 	context.addMessage(null,new FacesMessage(nameUnique_err));
 	error=true;
+    }
+
+    //#2b - check if gradebook exist, if so, if assessment title already exists in GB
+    GradebookService g = null;
+    if (integrated){
+      g = (GradebookService) SpringBeanLocator.getInstance().
+	    getBean("org.sakaiproject.service.gradebook.GradebookService");
+    }
+    String toGradebook = assessmentSettings.getToDefaultGradebook();
+    try{
+      if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
+          gbsHelper.isAssignmentDefined(assessmentName, g)){
+        String gbConflict_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+	context.addMessage(null,new FacesMessage(gbConflict_err));
+	error=true;
+      }
+    }
+    catch(Exception e){
+      log.warn("external assessment in GB has the same title:"+e.getMessage());
     }
 
     //#3 if timed assessment, does it has value for time

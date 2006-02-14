@@ -38,11 +38,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
+
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
@@ -57,6 +63,10 @@ public class ConfirmPublishAssessmentListener
 
   private static Log log = LogFactory.getLog(ConfirmPublishAssessmentListener.class);
   private static ContextUtil cu;
+  private static final GradebookServiceHelper gbsHelper =
+      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+  private static final boolean integrated =
+      IntegrationContextFactory.getInstance().isIntegrated();
 
   public ConfirmPublishAssessmentListener() {
   }
@@ -98,7 +108,26 @@ public class ConfirmPublishAssessmentListener
       error=true;
     }
 
-    //#2b - validate if this is a time assessment, is there a time entry?
+    //#2b - check if gradebook exist, if so, if assessment title already exists in GB
+    GradebookService g = null;
+    if (integrated){
+      g = (GradebookService) SpringBeanLocator.getInstance().
+            getBean("org.sakaiproject.service.gradebook.GradebookService");
+    }
+    String toGradebook = assessmentSettings.getToDefaultGradebook();
+    try{
+      if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
+          gbsHelper.isAssignmentDefined(assessmentName, g)){
+        String gbConflict_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+        context.addMessage(null,new FacesMessage(gbConflict_err));
+        error=true;
+      }
+    }
+    catch(Exception e){
+      log.warn("external assessment in GB has the same title:"+e.getMessage());
+    }
+
+    //#2c - validate if this is a time assessment, is there a time entry?
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
     if (time!=null)

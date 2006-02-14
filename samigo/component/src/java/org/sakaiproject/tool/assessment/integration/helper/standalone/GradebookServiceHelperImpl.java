@@ -53,6 +53,12 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
   private static Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
 
+  public boolean isAssignmentDefined(String assessmentTitle,
+                                GradebookService g)
+  {
+    return false;
+  }
+
   /**
    * STUB.  NO-OP.
    * @param publishedAssessment the published assessment

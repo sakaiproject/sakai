@@ -48,6 +48,20 @@ public class GradebookServiceImpl implements GradebookServiceAPI
   private static Log log = LogFactory.getLog(GradebookServiceImpl.class);
 
   private static final GradebookServiceHelper helper = new GradebookServiceHelper();
+
+
+  public boolean isAssignmentDefined(String assessmentTitle)
+  {
+    try
+    {
+      return helper.isAssignmentDefined(assessmentTitle);
+    }
+    catch (Exception ex)
+    {
+      throw new GradingServiceException(ex);
+    }
+  }
+
   /**
    * Add this published assessment to the site.
    * @param publishedAssessment, must be castable to PublishedAssessmentData
