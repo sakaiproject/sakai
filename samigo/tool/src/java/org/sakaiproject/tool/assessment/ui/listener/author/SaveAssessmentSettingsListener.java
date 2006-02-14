@@ -82,20 +82,21 @@ public class SaveAssessmentSettingsListener
     AssessmentService assessmentService = new AssessmentService();
     SaveAssessmentSettings s= new SaveAssessmentSettings();
     String assessmentName=assessmentSettings.getTitle();
-// check if name is empty
+
+    // check if name is empty
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
      	String nameEmpty_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 	context.addMessage(null,new FacesMessage(nameEmpty_err));
 	error=true;
     }
-    //#2a - check if name is unique 
+    // check if name is unique 
     if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
 	String nameUnique_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 	context.addMessage(null,new FacesMessage(nameUnique_err));
 	error=true;
     }
 
-    //#2b - check if gradebook exist, if so, if assessment title already exists in GB
+    // check if gradebook exist, if so, if assessment title already exists in GB
     GradebookService g = null;
     if (integrated){
       g = (GradebookService) SpringBeanLocator.getInstance().
@@ -114,7 +115,7 @@ public class SaveAssessmentSettingsListener
       log.warn("external assessment in GB has the same title:"+e.getMessage());
     }
 
-    //#3 if timed assessment, does it has value for time
+    //  if timed assessment, does it has value for time
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
     try
@@ -152,6 +153,7 @@ public class SaveAssessmentSettingsListener
 
     }
 
+    // check username for high security
     if((hasUserName) &&((assessmentSettings.getUsername().trim()).equals(""))){
 	String userName_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","userName_error");
 	context.addMessage(null,new FacesMessage(userName_err));
@@ -174,14 +176,15 @@ public class SaveAssessmentSettingsListener
       log.warn("Expecting Boolean hasSpecificIP, got: " + ip);
 
     }
-
+   
+    // check valid ip addresses
     if(hasIp){
         boolean ipErr=false;
         String ipString = assessmentSettings.getIpAddresses().trim();    
          if(ipString.equals(""))
 	   ipErr=true;
         String[]arraysIp=(ipString.split("\n"));
-        System.out.println("arraysIp.length: "+arraysIp.length);
+       
         for(int a=0;a<arraysIp.length;a++){
             String currentString=arraysIp[a];
 	    if(!currentString.trim().equals("")){
@@ -202,6 +205,14 @@ public class SaveAssessmentSettingsListener
 	}
     }
 
+    //check feedback - if at specific time then time should be defined.
+   
+    if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
+	error=true;
+	String  date_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
+	context.addMessage(null,new FacesMessage(date_err));
+
+    }
 
     if (error){
       assessmentSettings.setOutcomeSave("editAssessmentSettings");

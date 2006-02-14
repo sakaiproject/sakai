@@ -205,6 +205,14 @@ public class ConfirmPublishAssessmentListener
 
 	}
     }
+ //check feedback - if at specific time then time should be defined.
+    if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
+	error=true;
+	String  date_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
+	context.addMessage(null,new FacesMessage(date_err));
+
+    }
+
    
     if (error){
       assessmentSettings.setOutcomePublish("editAssessmentSettings");
