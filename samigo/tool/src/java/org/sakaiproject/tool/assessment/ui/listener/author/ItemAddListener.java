@@ -679,68 +679,49 @@ public class ItemAddListener
 
     else if (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE_SURVEY)) {
 
-      /*
-         TODO: need to use property file for the survey choices, to be able to internationalize.
-              Properties p = null;
-              // get properties file
-              try{
-                      p = ContextUtil.getProperties(filename);
-            if (p == null)
-            {
-              throw new Error("Could not find properties file: " + filename);
-            }
-              }
-              catch (Exception e){
-                      e.printStackTrace();
-              }
-              String noprop = p.getProperty("no");
-              String yesprop = p.getProperty("yes");
-              String agreeprop = p.getProperty("agree");
-              String disagreeprop = p.getProperty("disagree");
-       */
-
       String scalename = bean.getScaleName();
       String[] choices = new String[2];
       // label is null because we don't use labels in survey
       if (scalename.equals("YESNO")) {
         choices = new String[2];
-        choices[0] = "No";
-        choices[1] = "Yes";
+        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no");
+        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","yes");
       }
 
       if (scalename.equals("AGREE")) {
         choices = new String[2];
-        choices[0] = "Disagree";
-        choices[1] = "Agree";
+        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
+        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
       }
       if (scalename.equals("UNDECIDED")) {
         choices = new String[3];
-        choices[0] = "Disagree";
-        choices[1] = "Undecided";
-        choices[2] = "Agree";
+        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
+        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","undecided");
+        choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
       }
 
       if (scalename.equals("AVERAGE")) {
         choices = new String[3];
-        choices[0] = "Below Average";
-        choices[1] = "Average";
-        choices[2] = "Above Average";
+        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
+        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","average");
+        choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
       }
       if (scalename.equals("STRONGLY_AGREE")) {
         choices = new String[5];
-        choices[0] = "Strongly Disagree";
-        choices[1] = "Disagree";
-        choices[2] = "Undecided";
-        choices[3] = "Agree";
-        choices[4] = "Strongly Agree";
+        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_disagree");
+        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
+        choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","undecided");
+        choices[3] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
+        choices[4] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_agree");
       }
+
       if (scalename.equals("EXCELLENT")) {
         choices = new String[5];
-        choices[0] = "Unacceptable";
-        choices[1] = "Below Average";
-        choices[2] = "Average";
-        choices[3] = "Above Average";
-        choices[4] = "Excellent";
+        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","unacceptable");
+        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
+        choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","average");
+        choices[3] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
+        choices[4] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","excellent");
       }
       if (scalename.equals("SCALEFIVE")) {
         choices = new String[5];

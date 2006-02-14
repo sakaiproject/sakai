@@ -620,8 +620,8 @@ public class ItemAuthorBean
   public ArrayList getTrueFalseAnswerSelectList() {
     ArrayList list = new ArrayList();
 
-    String trueprop= "True";
-    String falseprop= "False";
+    String trueprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","true_msg");;
+    String falseprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","false_msg");;
     String[] answerValues = {"true", "false"};  // not to be displayed in the UI
     String[] answerLabelText= {trueprop, falseprop};
     currentItem.setAnswers(answerValues);
@@ -636,22 +636,6 @@ public class ItemAuthorBean
 
     return list;
   }
-
-/*
-
-  public ArrayList getAnswerSelectList() {
-    ArrayList list = new ArrayList();
-
-    for (int i = 0; i < currentItem.getAnswers().length; i++) {
-      SelectItem selection = new SelectItem();
-      selection.setLabel(getAnswerNumber(i));
-      selection.setValue(answers[i]);
-      list.add(selection);
-    }
-
-    return list;
-  }
-*/
 
    /* Derived property.
    * @return ArrayList of model SelectItems
@@ -805,84 +789,6 @@ public class ItemAuthorBean
 ///////////////////////////////////////////////////////////////////////////
 //         ACTION METHODS
 ///////////////////////////////////////////////////////////////////////////
-/*
-  public String startCreateItem()
-  {
-   try{
-     ItemBean item = new ItemBean();
-
-    // check to see if we arrived here from question pool
-
-
-// need to get assessmentid
-//  String assessmentId = ContextUtil.lookupParam("assessmentid");
-
-// need to set indivdiual item properties
-      this.setCurrentItem(item);
-
-
-	item.setItemType(this.getItemType());
-	String nextpage= null;
-	int itype=0; //
-        if (this.getItemType()!=null) {
-		itype = new Integer(this.getItemType()).intValue();
- 	}
-	switch (itype) {
-		case 1:
-			item.setMultipleCorrect(Boolean.FALSE.booleanValue());
-			item.setMultipleCorrectString(TypeFacade.MULTIPLE_CHOICE.toString());
-			this.setItemTypeString("Multiple Choice");  //  need to get it from properties file
-			nextpage = "multipleChoiceItem";
-			break;
-		case 2:
-// never really use this, put here for completeness
-			item.setMultipleCorrect(Boolean.TRUE.booleanValue());
-			item.setMultipleCorrectString(TypeFacade.MULTIPLE_CORRECT.toString());
-			this.setItemTypeString("Multiple Choice");  //  need to get it from properties file
-			nextpage = "multipleChoiceItem";
-			break;
-		case 3:
-			this.setItemTypeString("Survey");  //  need to get it from properties file
-			nextpage = "surveyItem";
-			break;
-		case 4:
-			this.setItemTypeString("True or False");  //  need to get it from properties file
-			nextpage = "trueFalseItem";
-			break;
-		case 5:
-			this.setItemTypeString("Short Answers/Essay");  //  need to get it from properties file
-			nextpage = "shortAnswerItem";
-			break;
-		case 6:
-			this.setItemTypeString("File Upload");  //  need to get it from properties file
-			nextpage = "fileUploadItem";
-			break;
-		case 7:
-			this.setItemTypeString("Audio Recording");  //  need to get it from properties file
-			nextpage = "audioRecItem";
-			break;
-		case 8:
-			this.setItemTypeString("Fill In the Blank");  //  need to get it from properties file
-			nextpage = "fillInBlackItem";
-			break;
-		case 9:
-			this.setItemTypeString("Matching");  //  need to get it from properties file
-			nextpage = "matchingItem";
-			break;
-		case 10:
-			this.setItemTypeString("Importing from Question Pool");  //  need to get it from properties file
-			nextpage = "poolList";
-			break;
-    	}
-	return nextpage;
-    }
-    catch(Exception e)
-    {
-      e.printStackTrace();
-      throw new Error(e);
-    }
-  }
-*/
 
 
   public String[] getAnswerFeedbackList()
