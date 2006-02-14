@@ -39,12 +39,18 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
+
 
 /**
  * <p>Title: Samigo</p>2
@@ -61,6 +67,10 @@ public class PublishAssessmentListener
 
   private static Log log = LogFactory.getLog(PublishAssessmentListener.class);
   private static ContextUtil cu;
+  private static final GradebookServiceHelper gbsHelper =
+      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+  private static final boolean integrated =
+      IntegrationContextFactory.getInstance().isIntegrated();
 
   public PublishAssessmentListener() {
   }
@@ -69,26 +79,30 @@ public class PublishAssessmentListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
+    AuthorBean author = (AuthorBean) cu.lookupBean(
+        "author");
 
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
         "assessmentSettings");
-    /**
-         String assessmentId = (String) FacesContext.getCurrentInstance().
-             getExternalContext().getRequestParameterMap().get("assessmentId");
-     */
+
     AssessmentService assessmentService = new AssessmentService();
     PublishedAssessmentService publishedAssessmentService = new
         PublishedAssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentSettings.getAssessmentId().toString());
+
+    // 0. sorry need double checking assesmentTitle and everything
+    boolean error = checkTitle(assessment);
+    if (error){
+      return;
+    }
+
     publish(assessment, assessmentSettings);
 
     // get the managed bean, author and set all the list
     GradingService gradingService = new GradingService();
     HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
-    AuthorBean author = (AuthorBean) cu.lookupBean(
-        "author");
 
     // 1. need to update active published list in author bean
     ArrayList activePublishedList = publishedAssessmentService.
@@ -155,4 +169,42 @@ public class PublishAssessmentListener
     }
   }
 
+  private boolean checkTitle(AssessmentFacade assessment){
+    boolean error=false;
+    String assessmentName = assessment.getTitle();
+    AssessmentService assessmentService = new AssessmentService();
+    String assessmentId = assessment.getAssessmentBaseId().toString();
+
+    //#a - look for error: check if core assessment title is unique
+    if (assessmentName!=null &&(assessmentName.trim()).equals("")){
+      String publish_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","publish_error_message");
+      FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error));
+      error=true;
+    }
+    if (!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
+      error=true;
+      String nameUnique_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+      FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(nameUnique_err));
+    }
+
+    //#b - check if gradebook exist, if so, if assessment title already exists in GB
+    GradebookService g = null;
+    if (integrated){
+      g = (GradebookService) SpringBeanLocator.getInstance().
+           getBean("org.sakaiproject.service.gradebook.GradebookService");
+    }
+    String toGradebook = assessment.getEvaluationModel().getToGradeBook();
+    try{
+      if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
+          gbsHelper.isAssignmentDefined(assessmentName, g)){
+        error=true;
+        String publish_error_message=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","publish_error_message");
+        FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error_message));
+      }
+    }
+    catch(Exception e){
+      log.warn("external assessment in GB has the same title:"+e.getMessage());
+    }
+    return error;
+  }
 }
