@@ -232,6 +232,7 @@ public class FacesUtil {
         String bundleName = context.getApplication().getMessageBundle();
         Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
         ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+        if (logger.isDebugEnabled()) logger.debug("getLocalizedString; locale=" + locale.getDisplayName() + ", bundleName=" + bundleName + ", rb=" + rb.getLocale() + ", rb getCountry()=" + rb.getLocale().getCountry());
         return rb.getString(key);
     }
 

@@ -13,7 +13,10 @@
 		</message-bundle>
 		<locale-config>
 			<default-locale>en</default-locale>
+			<!-- The JSTL specfication implies that region-specific locales must precede generic language locales. -->
+			<supported-locale>en_ZA</supported-locale>
 			<supported-locale>en</supported-locale>
+			<supported-locale>nl</supported-locale>
 			<supported-locale>de</supported-locale>
 			<supported-locale>fr</supported-locale>
 			<supported-locale>es</supported-locale>
