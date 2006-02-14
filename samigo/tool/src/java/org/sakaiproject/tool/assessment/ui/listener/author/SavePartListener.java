@@ -219,16 +219,19 @@ public class SavePartListener
 
      try{
 	 int numberDrawnInt = Integer.parseInt(numberDrawn);
-
-    
-     if(itemcount< numberDrawnInt ) {
+	 if(numberDrawnInt <=0){
+ err="Number of Questions should be an integer greater than 0 and not more than "+ Integer.toString(itemcount);
+     context.addMessage(null,new FacesMessage(err));
+	 return false;
+	 }
+	 if(itemcount< numberDrawnInt) {
 	 //  err=(String)rb.getObject("overdrawn_error");
-	 err="You cannot have more questions drawn than there are questions in a pool.  Please enter a number not more than "+ Integer.toString(itemcount)+ " for this pool in \"number of Questionss\"";
+	 err="You cannot have more questions drawn than there are questions in a pool.  Please enter a number greater than 0 and not more than "+ Integer.toString(itemcount)+ " for this pool in \"number of Questionss\"";
          context.addMessage(null,new FacesMessage(err));
 	 return false;
      }
      } catch(NumberFormatException e){
-	 err="Number of Questions should be an integer not more than "+ Integer.toString(itemcount);
+	 err="Number of Questions should be an integer greater than 0 and not more than "+ Integer.toString(itemcount);
      context.addMessage(null,new FacesMessage(err));
 	 return false;
      }

@@ -329,9 +329,10 @@ private String outcome;
       QuestionPoolFacade pool = (QuestionPoolFacade) allPoolsMap.get(pooliter.next());
       //Huong's new
       ArrayList itemlist = delegate.getAllItems(pool.getQuestionPoolId() );
-     String resultListName= pool.getDisplayName()+"("+ itemlist.size()+")" ;
-	
-	 resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()),resultListName) );
+      if(itemlist.size()>0){
+	  String resultListName= pool.getDisplayName()+"("+ itemlist.size()+")" ;	
+	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()),resultListName) );
+      }
     }
 
     return resultPoolList;
