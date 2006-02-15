@@ -407,14 +407,16 @@ public class TotalScoreListener
   }
 
   /* Dump the grading and agent information into AgentResults */
-  // ArrayList agents = new ArrayList();
   public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
     GradingService gradingService = new GradingService();
     while (iter.hasNext())
     {
       AgentResults results = new AgentResults();
       AssessmentGradingData gdata = (AssessmentGradingData) iter.next();
-      gdata.setItemGradingSet(gradingService.getItemGradingSet(gdata.getAssessmentGradingId().toString()));
+      // no need to initialize itemSet 'cos we don't need to use it in totalScoresPage. So I am
+      // stuffing it with an empty HashSet - daisyf
+      //gdata.setItemGradingSet(gradingService.getItemGradingSet(gdata.getAssessmentGradingId().toString()));
+      gdata.setItemGradingSet(new HashSet());
       try{
         BeanUtils.copyProperties(results, gdata);
       }
