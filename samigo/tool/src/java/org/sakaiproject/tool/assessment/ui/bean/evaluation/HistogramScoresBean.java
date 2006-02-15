@@ -33,6 +33,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
 /**
  * <p>$Id$</p>
  * Copyright: Copyright (c) 2003-2004
@@ -461,10 +463,8 @@ publishedId = ppublishedId;
 
   public String getRoundedTotalPossibleScore() {
    try {
-      Float oldscore = new Float(totalPossibleScore);
-      NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(2);
-      String newscore = nf.format(oldscore);
+
+      String newscore = ContextUtil.getRoundedValue(totalPossibleScore, 2);
       return Validator.check(newscore, "N/A");
     }
     catch (Exception e) {

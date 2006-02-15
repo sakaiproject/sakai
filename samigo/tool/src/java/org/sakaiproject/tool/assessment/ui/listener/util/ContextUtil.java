@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Locale;
 
+import java.text.NumberFormat;
+
 import javax.faces.context.FacesContextFactory;
 import javax.faces.lifecycle.Lifecycle;
 import javax.faces.lifecycle.LifecycleFactory;
@@ -299,4 +301,47 @@ public static ArrayList paramArrayValueLike(String paramPart)
     return rb.getString(key);
   }
 
+  public static String getStringInUnicode(String string)
+  {
+    String s="";
+    char[] charArray = string.toCharArray();
+    for (int i=0; i<charArray.length;i++){
+      char ch = charArray[i];
+      s += toUnicode(ch);
+    }
+    log.info("***unicode="+s);
+    return s;
+  }
+
+  private static char hexdigit(int v) {
+    String symbs = "0123456789ABCDEF";
+    return symbs.charAt(v & 0x0f);
+  }
+
+  private static String hexval(int v) {
+    return String.valueOf(hexdigit(v >>> 12)) + String.valueOf(hexdigit(v >>> 8))
+      + String.valueOf(hexdigit(v >>> 4)) + String.valueOf(hexdigit(v));
+  }
+
+  private static String toUnicode(char ch) {
+    int val = (int) ch;
+    if (val == 10) return "\\n";
+    else if (val == 13) return "\\r";
+    else if (val == 92) return "\\\\";
+    else if (val == 34) return "\\\"";
+    else if (val == 39) return "\\\'";
+    else if (val < 32 || val > 126) return "\\u" + hexval(val);
+    else return String.valueOf(ch);
+  }
+
+  public static String getRoundedValue(String orig, int maxdigit) {
+    Float origfloat = new Float(orig); 
+    return getRoundedValue(origfloat, maxdigit);
+  }
+  public static String getRoundedValue(Float orig, int maxdigit) {
+      NumberFormat nf = NumberFormat.getInstance();
+      nf.setMaximumFractionDigits(maxdigit);
+      String newscore = nf.format(orig);
+      return newscore;
+  }
 }

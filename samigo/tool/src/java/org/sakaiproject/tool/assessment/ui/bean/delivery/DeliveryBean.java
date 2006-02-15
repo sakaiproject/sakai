@@ -967,10 +967,7 @@ public class DeliveryBean
 
   public String getRoundedRawScore() {
    try {
-      Float oldscore = new Float(rawScore);
-      NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(2);
-      String newscore = nf.format(oldscore);
+      String newscore= ContextUtil.getRoundedValue(rawScore, 2);
       return Validator.check(newscore, "N/A");
     }
     catch (Exception e) {

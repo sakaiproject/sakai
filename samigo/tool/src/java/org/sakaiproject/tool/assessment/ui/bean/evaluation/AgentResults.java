@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -56,7 +57,8 @@ public class AgentResults
   private String totalAutoScore;
   private String totalOverrideScore;
   private String finalScore; // final total score
-  private String answer; // The text or link of the answer
+  private String answer; // The abbreviated text or link of the answer
+  private String fullAnswer=""; // The full text or link of the answer
   private String comments;
   private Integer status;
   private String gradedBy;
@@ -164,10 +166,7 @@ public class AgentResults
 
   public String getRoundedTotalAutoScore() {
    try {
-      Float oldscore = new Float(totalAutoScore);
-      NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(2);
-      String newscore = nf.format(oldscore);
+      String newscore = ContextUtil.getRoundedValue(totalAutoScore, 2);
       return Validator.check(newscore, "N/A");
     }
     catch (Exception e) {
@@ -185,10 +184,7 @@ public class AgentResults
 
   public String getRoundedTotalOverrideScore() {
    try {
-      Float oldscore = new Float(totalOverrideScore);
-      NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(2);
-      String newscore = nf.format(oldscore);
+      String newscore = ContextUtil.getRoundedValue(totalOverrideScore, 2);
       return Validator.check(newscore, "N/A");
     }
     catch (Exception e) {
@@ -205,10 +201,7 @@ public class AgentResults
   }
   public String getRoundedFinalScore() {
    try {
-      Float oldscore = new Float(finalScore);
-      NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(2);
-      String newscore = nf.format(oldscore);
+      String newscore = ContextUtil.getRoundedValue(finalScore, 2);
       return Validator.check(newscore, "N/A");
     }
     catch (Exception e) {
@@ -273,6 +266,15 @@ public class AgentResults
 
   public void setItemGradingArrayList(ArrayList itemGradingArrayList) {
     this.itemGradingArrayList = itemGradingArrayList;
+  }
+
+
+  public String getFullAnswer() {
+    String unicodeFullAnswer = ContextUtil.getStringInUnicode(fullAnswer);
+    return Validator.check(unicodeFullAnswer, "N/A");
+  }
+  public void setFullAnswer(String answer) {
+    this.fullAnswer = answer;
   }
 
 }

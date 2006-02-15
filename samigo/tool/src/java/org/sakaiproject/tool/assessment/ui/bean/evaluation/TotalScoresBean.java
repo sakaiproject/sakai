@@ -217,10 +217,8 @@ public class TotalScoresBean
   public String getMaxScore()
   {
     try {
-      Float oldmax = new Float(maxScore);
-      NumberFormat nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(2);
-      String newmax = nf.format(oldmax);
+
+      String newmax= ContextUtil.getRoundedValue(maxScore, 2);
       return Validator.check(newmax, "N/A");
     }
     catch (Exception e) {

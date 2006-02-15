@@ -468,6 +468,7 @@ public class QuestionScoreListener
           }
           answerText = answerText.replaceAll("<.*?>", "");
           rationale = rationale.replaceAll("<.*?>", "");
+          String fullAnswerText = answerText;  // this is the non-abbreviated answers for essay questions
           if (answerText.length() > 35)
             answerText = answerText.substring(0, 35) + "...";
           if (rationale.length() > 35)
@@ -490,6 +491,7 @@ public class QuestionScoreListener
             results.setTotalAutoScore(gdata.getAutoScore().toString());
             results.setComments(gdata.getComments());
             results.setAnswer(answerText);
+            results.setFullAnswer(fullAnswerText);
             results.setSubmittedDate(gdata.getSubmittedDate());
 
             if (dueDate == null || gdata.getSubmittedDate().before(dueDate))
