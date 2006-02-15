@@ -103,7 +103,7 @@ public class SyllabusServiceImpl implements SyllabusService
 //sakai2 -- add init and destroy methods  
 	public void init()
 	{
-		EntityManager.registerEntityProducer(this);
+		EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
 	  
 	  m_relativeAccessPoint = REFERENCE_ROOT;
 	  
@@ -910,7 +910,23 @@ public class SyllabusServiceImpl implements SyllabusService
 			return getAccessPoint(true) + m_reference;
     }
 
-    public String getId()
+	/**
+	 * @inheritDoc
+	 */
+	public String getReference(String rootProperty)
+	{
+		return getReference();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public String getUrl(String rootProperty)
+	{
+		return getUrl();
+	}
+
+	public String getId()
     {
       return m_id;
     }
