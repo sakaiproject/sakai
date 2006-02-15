@@ -99,15 +99,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       types[0] = Hibernate.LONG;
       types[1] = Hibernate.BOOLEAN;
 
-      List list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, finalScore DESC", objects, types);
+      List list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, finalScore DESC, submittedDate DESC", objects, types);
 
-/*
-      // highest score
-      if (which.equals(EvaluationModelIfc.HIGHEST_SCORE.toString())) {
-      list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, finalScore DESC", objects, types);
-      }
-
-*/
       // last submission
       if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
       list = getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, submittedDate DESC", objects, types);

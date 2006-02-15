@@ -68,6 +68,8 @@ public class TotalScoresBean
 
   public static final String ALL_SECTIONS_SELECT_VALUE = "-1";
   public static final String ALL_SUBMISSIONS = "3";
+  public static final String LAST_SUBMISSION = "2";
+  public static final String HIGHEST_SUBMISSION = "1";
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;

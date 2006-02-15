@@ -107,7 +107,6 @@ public class TotalScoreListener
 
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
-    bean.setAllSubmissions(TotalScoresBean.ALL_SUBMISSIONS);    // reset to All-submissions if coming from authorIndex 
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
@@ -115,6 +114,13 @@ public class TotalScoreListener
     PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pubAssessment = pubAssessmentService.
                                               getPublishedAssessment(publishedId);
+
+    // reset scoringType based on evaluationModel,scoringType if coming from authorIndex     
+    EvaluationModelIfc model = pubAssessment.getEvaluationModel();
+    if (model != null && model.getScoringType()!=null)
+      bean.setAllSubmissions(model.getScoringType().toString());
+    else
+      bean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION); 
 
    // checking for permission first
     FacesContext context = FacesContext.getCurrentInstance();
