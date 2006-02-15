@@ -53,7 +53,7 @@ public class EntityProducerSakai2 implements EntityProducer {
 	private String toolId;
 
 	public void init() {
-		EntityManager.registerEntityProducer(this);
+		EntityManager.registerEntityProducer(this, null);
 	}
 
 	public void syncWithSiteChange(Site site, ChangeType change) {
