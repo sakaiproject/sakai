@@ -17,6 +17,10 @@ public interface PermissionLevel extends MutableEntity{
 	public static final String REVISE_OWN = "reviseOwn";
 	public static final String REVISE_ANY = "reviseAny";	
 	
+	public String getName();
+
+	public void setName(String name);		
+	
 	public String getTypeUuid();
 
 	public void setTypeUuid(String typeUuid);

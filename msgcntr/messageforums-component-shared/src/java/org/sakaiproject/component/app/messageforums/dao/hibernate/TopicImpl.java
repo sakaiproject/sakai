@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
@@ -52,7 +53,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     private String typeUuid;
     private BaseForum baseForum;
     private Set messagesSet;// = new HashSet();
-    private Set permissionLevelSet;
+    private Set membershipItemSet;
     
     // foreign keys for hibernate
     private PrivateForum privateForum;
@@ -95,6 +96,14 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     {
       this.attachmentsSet = Util.listToSet(attachments);
     }
+    
+    public Set getMembershipItemSet() {
+			return membershipItemSet;
+		}
+
+		public void setMembershipItemSet(Set membershipItemSet) {
+			this.membershipItemSet = membershipItemSet;
+		}
 
     public String getExtendedDescription() {
         return extendedDescription;
@@ -167,14 +176,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     public void setPrivateForum(PrivateForum privateForum) {
         this.privateForum = privateForum;
     }
-    
-    public Set getPermissionLevelSet() {
-  		return permissionLevelSet;
-  	}
-
-  	public void setPermissionLevelSet(Set permissionLevelSet) {
-  		this.permissionLevelSet = permissionLevelSet;
-  	}
+        
 
 //    public int getOfindex() {
 //        try {
@@ -278,31 +280,31 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
         attachmentsSet.remove(attachment);
     }
     
-    public void addPermissionLevel(PermissionLevel level) {
+    public void addMembershipItem(DBMembershipItem item) {
       if (LOG.isDebugEnabled()) {
-          LOG.debug("addPermissionLevel(level " + level + ")");
+          LOG.debug("addMembershipItem(item " + item + ")");
       }
       
-      if (level == null) {
-          throw new IllegalArgumentException("level == null");
+      if (item == null) {
+          throw new IllegalArgumentException("item == null");
       }
       
-      if (permissionLevelSet == null) {
-      	permissionLevelSet = new HashSet();
+      if (membershipItemSet == null) {
+      	membershipItemSet = new HashSet();
       }          
-      permissionLevelSet.add(level);
+      membershipItemSet.add(item);
   }
 
-    public void removePermissionLevel(PermissionLevel level) {
+    public void removeMembershipItem(DBMembershipItem item) {
       if (LOG.isDebugEnabled()) {
-          LOG.debug("removePermissionLevel(level " + level + ")");
+          LOG.debug("removeMembershipItem(item " + item + ")");
       }
       
-      if (level == null) {
+      if (item == null) {
           throw new IllegalArgumentException("Illegal level argument passed!");
       }
           
-      permissionLevelSet.remove(level);
-    }
+      membershipItemSet.remove(item);
+    }		
 
 }

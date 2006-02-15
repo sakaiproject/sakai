@@ -15,6 +15,7 @@ import org.sakaiproject.api.app.messageforums.ForumControlPermission;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
@@ -24,7 +25,6 @@ import org.sakaiproject.api.kernel.tool.ToolManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
 import org.sakaiproject.service.legacy.authzGroup.Member;
 import org.sakaiproject.service.legacy.security.SecurityService;
@@ -49,6 +49,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   private SessionManager sessionManager;
   private ToolManager toolManager;
   private PermissionManager permissionManager;
+  private PermissionLevelManager permissionLevelManager;
   private MessageForumsTypeManager typeManager;
   private SecurityService securityService;
 
@@ -1151,4 +1152,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     LOG.debug("getContextSiteId()");
     return ("/site/" + toolManager.getCurrentPlacement().getContext());
   }
+
+	public void setPermissionLevelManager(
+			PermissionLevelManager permissionLevelManager) {
+		this.permissionLevelManager = permissionLevelManager;
+	}
 }

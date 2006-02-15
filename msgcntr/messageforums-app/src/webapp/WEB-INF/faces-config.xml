@@ -62,7 +62,7 @@
         <from-view-id>/jsp/*</from-view-id>
         <navigation-case>
             <from-outcome>main</from-outcome>
-            <to-view-id>/jsp/main.jsp</to-view-id>
+            <to-view-id>/jsp/permissions_test.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <!--

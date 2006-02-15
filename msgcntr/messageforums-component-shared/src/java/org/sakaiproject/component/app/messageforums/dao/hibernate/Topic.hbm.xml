@@ -52,9 +52,9 @@
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
     </set>    
-    <set name="permissionLevelSet" lazy="false" cascade="save-update">
+    <set name="membershipItemSet" lazy="false" cascade="save-update">
         <key column="t_surrogateKey"/>
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl"/>
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"/>
     </set>
   	<!-- 
  	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">

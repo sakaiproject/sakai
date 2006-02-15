@@ -1,6 +1,5 @@
 package org.sakaiproject.tool.messageforums;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -24,6 +23,8 @@ import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
@@ -114,6 +115,7 @@ public class DiscussionForumTool
   private UIPermissionsManager uiPermissionsManager;
   private MessageForumsTypeManager typeManager;
   private MembershipManager membershipManager;
+  private PermissionLevelManager permissionLevelManager;
   /**
    * 
    */
@@ -2947,7 +2949,49 @@ public class DiscussionForumTool
     return selectItemList;     
     
   }
-
- 
   
+  
+  public void processPost(){
+  	
+  }
+  
+  public String generatePermissionScript(){
+  	  	  
+  	
+  	PermissionLevel authorLevel = permissionLevelManager.getDefaultAuthorPermissionLevel();
+  	PermissionLevel reviewerLevel = permissionLevelManager.getDefaultReviewerPermissionLevel();
+  	PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
+  	PermissionLevel contributorLevel = permissionLevelManager.getDefaultContributorPermissionLevel();
+  	
+  	
+  	StringBuffer sBuffer = new StringBuffer();
+  	
+  	sBuffer.append("<script type=\"text\\javascript\">\n"); 
+  	
+  	
+  	//todo: implement me
+//  	sBuffer.append()
+//  	// use toString of PermissionLevel to generate array initializers  	  	
+//  	sBuffer.append("var defaultPermissionArray = [");
+//  	sBuffer.append("'authorLevel', " + authorLevel + ";\n");
+//  	sBuffer.append("'reviewerLevel', " + reviewerLevel + ";\n");
+//  	sBuffer.append("'noneLevel', " + noneLevel + "];\n");
+//  	sBuffer.append("'contributorLevel' " + contributorLevel + ";\n");
+//  	sBuffer.append("]\n\n");
+//  	
+//  	sBuffer.append("function findLevelForPermissions(){\n" +
+//  			           "  for (int i = 0; i < defaultPermissionArray.length; i++){\n" +
+//  			           "    if (defaultPermissionArray["
+//  			             )
+//  	
+//  	sBuffer.append("</script>");
+  	
+  	return "";
+  }
+
+	public void setPermissionLevelManager(
+			PermissionLevelManager permissionLevelManager) {
+		this.permissionLevelManager = permissionLevelManager;
+	}
+   
 }

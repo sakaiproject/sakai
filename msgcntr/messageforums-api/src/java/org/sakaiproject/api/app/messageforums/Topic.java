@@ -23,7 +23,9 @@
 
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
  
 public interface Topic extends MutableEntity {
 
@@ -77,6 +79,14 @@ public interface Topic extends MutableEntity {
     
     public PrivateForum getPrivateForum();
     
-    public void setPrivateForum(PrivateForum privateForum);    
+    public void setPrivateForum(PrivateForum privateForum);
+    
+    public Set getMembershipItemSet();
+
+		public void setMembershipItemSet(Set membershipItemSet);			
+    
+    public void addMembershipItem(DBMembershipItem item); 
+
+    public void removeMembershipItem(DBMembershipItem item);      
 
 }

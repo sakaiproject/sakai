@@ -80,8 +80,12 @@ public interface Area extends MutableEntity {
     
     public void setLocked(Boolean locked);
     
-    public void addPermissionLevel(PermissionLevel level);
+    public Set getMembershipItemSet();
+			
+		public void setMembershipItemSet(Set membershipItemSet);
     
-    public void removePermissionLevel(PermissionLevel level);
-    
+    public void addMembershipItem(DBMembershipItem item);      
+
+    public void removeMembershipItem(DBMembershipItem item);
+      
 }

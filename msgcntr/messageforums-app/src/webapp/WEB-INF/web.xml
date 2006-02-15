@@ -100,7 +100,7 @@
         <load-on-startup>2</load-on-startup>
         <init-param>
             <param-name>default</param-name>
-            <param-value>main</param-value>
+            <param-value>permissions_test</param-value>
         </init-param>
         <init-param>
             <param-name>default.last.view</param-name>

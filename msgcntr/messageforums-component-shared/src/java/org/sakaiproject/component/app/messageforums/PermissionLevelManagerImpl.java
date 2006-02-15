@@ -26,6 +26,7 @@ package org.sakaiproject.component.app.messageforums;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -34,12 +35,16 @@ import net.sf.hibernate.Session;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.common.authorization.PermissionsMask;
 import org.sakaiproject.api.kernel.id.IdManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl;
 import org.sakaiproject.service.framework.sql.SqlService;
 import org.sakaiproject.service.legacy.event.EventTrackingService;
@@ -53,11 +58,12 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private EventTrackingService eventTrackingService;
 	private SessionManager sessionManager;
 	private IdManager idManager;
-	private MessageForumsTypeManager typeManager;	
+	private MessageForumsTypeManager typeManager;
+	private AreaManager areaManager;
 	private Boolean autoDdl;
 	
 	private static final String QUERY_BY_TYPE_UUID = "findPermissionLevelByTypeUuid";
-	
+	private static final String QUERY_ORDERED_LEVEL_NAMES = "findOrderedPermissionLevelNames";	
 			
 	public void init(){
 						
@@ -89,17 +95,43 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     mask.put(PermissionLevel.DELETE_ANY, Boolean.TRUE);
     mask.put(PermissionLevel.REVISE_OWN, Boolean.TRUE);
     mask.put(PermissionLevel.REVISE_ANY, Boolean.TRUE);
-    PermissionLevel level = createPermissionLevel(typeManager.getAuthorLevelType(), mask);
+    DBMembershipItem membershipItem = createDBMembershipItem("jlannan", DBMembershipItemImpl.TYPE_USER);
+    PermissionLevel level = createPermissionLevel("Author", typeManager.getAuthorLevelType(), mask);    
     Area area = areaManager.createArea(typeManager.getPrivateMessageAreaType());
+    
+    membershipItem.setPermissionLevel(level);
+    
+    // save DBMembershiptItem here to get an id so we can add to the set
+    saveDBMembershipItem(membershipItem);
+    area.addMembershipItem(membershipItem);
+           
     area.setName("test");
     area.setHidden(Boolean.FALSE);
     area.setEnabled(Boolean.TRUE);
     area.setLocked(Boolean.FALSE);
-    area.addPermissionLevel(level);
-    areaManager.saveArea(area);    
+    //area.addPermissionLevel(level);
+    areaManager.saveArea(area); 
+    
+    List l = getOrderedPermissionLevelNames();
     **/
     
 	}
+	
+  public  List getOrderedPermissionLevelNames(){
+						
+		if (LOG.isDebugEnabled()){
+			LOG.debug("getOrderedPermissionLevelNames executing");
+		}
+		
+		HibernateCallback hcb = new HibernateCallback() {
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+          Query q = session.getNamedQuery(QUERY_ORDERED_LEVEL_NAMES);                      
+          return q.list();
+      }
+    };
+					
+    return (List) getHibernateTemplate().execute(hcb);
+  }	
 	
 	public String getPermissionLevelType(PermissionLevel level){
 		
@@ -134,19 +166,20 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		return null;
 	}
 	
-	public PermissionLevel createPermissionLevel(String typeUuid, PermissionsMask mask){
+	public PermissionLevel createPermissionLevel(String name, String typeUuid, PermissionsMask mask){
 		
 		if (LOG.isDebugEnabled()){
-			LOG.debug("createPermissionLevel executing(" + typeUuid + "," + mask + ")");
+			LOG.debug("createPermissionLevel executing(" + name + "," + typeUuid + "," + mask + ")");
 		}
 		
-		if (typeUuid == null || mask == null) {      
+		if (name == null || typeUuid == null || mask == null) {      
       throw new IllegalArgumentException("Null Argument");
 		}
 								
 		PermissionLevel newPermissionLevel = new PermissionLevelImpl();
 		Date now = new Date();
 		String currentUser = getCurrentUser();
+		newPermissionLevel.setName(name);
 		newPermissionLevel.setUuid(idManager.createUuid());
 		newPermissionLevel.setCreated(now);
 		newPermissionLevel.setCreatedBy(currentUser);
@@ -168,6 +201,34 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 				
 		return newPermissionLevel;		
 	}
+	
+  public DBMembershipItem createDBMembershipItem(String name, Integer type){
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("createDBMembershipItem executing(" + name + "," + type + ")");
+		}
+		
+		if (name == null || type == null) {      
+      throw new IllegalArgumentException("Null Argument");
+		}
+								
+		DBMembershipItem newDBMembershipItem = new DBMembershipItemImpl();
+		Date now = new Date();
+		String currentUser = getCurrentUser();
+		newDBMembershipItem.setName(name);
+		newDBMembershipItem.setUuid(idManager.createUuid());
+		newDBMembershipItem.setCreated(now);
+		newDBMembershipItem.setCreatedBy(currentUser);
+		newDBMembershipItem.setModified(now);
+		newDBMembershipItem.setModifiedBy(currentUser);
+		newDBMembershipItem.setType(type);
+															
+		return newDBMembershipItem;		
+	}
+  
+  public void saveDBMembershipItem(DBMembershipItem item){
+  	getHibernateTemplate().saveOrUpdate(item);
+  }
 	
 	public PermissionLevel getDefaultAuthorPermissionLevel(){
 						
@@ -247,11 +308,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     return (PermissionLevel) getHibernateTemplate().execute(hcb);
   }	
 	
-	private String getCurrentUser() {
-    if (TestUtil.isRunningTests()) {
-        return "test-user";
-    }
-    return sessionManager.getCurrentSessionUserId();
+	private String getCurrentUser() {    
+		String user = sessionManager.getCurrentSessionUserId();
+		return (user == null) ? "test-user" : user;    
   }
 	
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
@@ -276,6 +335,10 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
+	}
+
+	public void setAreaManager(AreaManager areaManager) {
+		this.areaManager = areaManager;
 	}
 
 }

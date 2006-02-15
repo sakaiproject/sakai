@@ -23,63 +23,19 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.List;
-import java.util.Set;
 
-public interface BaseForum extends MutableEntity {
+public interface DBMembershipItem extends MutableEntity {
 
-    public List getAttachments();
-
-    public void setAttachments(List attachments);
+	public String getName();
+  
+  public void setName(String name);
     
-    public Set getAttachmentsSet();
+  public Integer getType();
+  
+  public void setType(Integer type);;
+  
+  public PermissionLevel getPermissionLevel();
 
-    public String getExtendedDescription();
-
-    public void setExtendedDescription(String extendedDescription);
-
-    public String getShortDescription();
-
-    public void setShortDescription(String shortDescription);
-
-    public Integer getSortIndex();
-
-    public void setSortIndex(Integer sortIndex);
-
-    public String getTitle();
-
-    public void setTitle(String title);
-
-    public List getTopics();
-
-    public void setTopics(List topics);
-    
-    public Set getTopicsSet();
-      
-    public void setTopicsSet(Set topicsSet);
-   
-    public String getTypeUuid();
-
-    public void setTypeUuid(String typeUuid);
-
-    public Area getArea();
-
-    public void setArea(Area area);
-
-    public void addTopic(Topic topic);
-
-    public void removeTopic(Topic topic);
-
-    public void addAttachment(Attachment attachment);
-
-    public void removeAttachment(Attachment attachment);
-    
-    public Set getMembershipItemSet();
-			
-		public void setMembershipItemSet(Set membershipItemSet);		
-		
-		public void addMembershipItem(DBMembershipItem item);
-		
-		public void removeMembershipItem(DBMembershipItem item);
-
+	public void setPermissionLevel(PermissionLevel permissionLevel);
+  
 }

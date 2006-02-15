@@ -28,9 +28,11 @@ import java.beans.PropertyDescriptor;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 
-public class PermissionLevelImpl extends MutableEntityImpl implements PermissionLevel{
+public class PermissionLevelImpl extends MutableEntityImpl 
+                                 implements PermissionLevel, Comparable{
 					
 	private String typeUuid;
+	private String name;
 
 	private Boolean newForum;
 	private Boolean newTopic;
@@ -46,6 +48,14 @@ public class PermissionLevelImpl extends MutableEntityImpl implements Permission
 	private Boolean deleteAny;
 	private Boolean reviseOwn;
 	private Boolean reviseAny;
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 	public String getTypeUuid() {
 		return typeUuid;
@@ -167,6 +177,38 @@ public class PermissionLevelImpl extends MutableEntityImpl implements Permission
 		this.reviseOwn = reviseOwn;
 	}
 	
+	
+	
+	
+	public int compareTo(Object obj) {
+		
+		PermissionLevelImpl pli = (PermissionLevelImpl) obj;				
+		return (name == null) ? 0 : name.compareTo(pli.getName());		
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {		
+		StringBuffer buffer = new StringBuffer("[");
+		try{
+      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
+      for (int i = 0; i < propDescriptors.length; i++){
+    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
+          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());          
+          buffer.append((bThis.booleanValue()) ? 1 : 0);
+          buffer.append(",");
+    	  }
+      }
+    }
+    catch(Exception e){
+    	throw new Error(e);
+    }
+    // replace comma with right brace
+    buffer.replace(buffer.length() - 1, buffer.length(), "]");   
+    return buffer.toString();
+	}
+
 	/**
    * @see java.lang.Object#equals(java.lang.Object)
    */

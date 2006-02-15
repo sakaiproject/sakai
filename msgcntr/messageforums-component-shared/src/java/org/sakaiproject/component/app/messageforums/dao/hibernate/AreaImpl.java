@@ -24,7 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 
 public class AreaImpl extends MutableEntityImpl implements Area
 {
@@ -50,7 +50,7 @@ public class AreaImpl extends MutableEntityImpl implements Area
   private Set openForumsSet;// = new HashSet();
   private Set privateForumsSet;// = new HashSet();
   private Set discussionForumsSet;// = new HashSet();
-  private Set permissionLevelSet;
+  private Set membershipItemSet;
   
   public void setVersion(Integer version)
   {
@@ -173,14 +173,14 @@ public class AreaImpl extends MutableEntityImpl implements Area
       this.privateForumsSet = privateForumsSet;            
   }
   
-	public Set getPermissionLevelSet() {
-		return permissionLevelSet;
+  public Set getMembershipItemSet() {
+		return membershipItemSet;
 	}
 
-	public void setPermissionLevelSet(Set permissionLevelSet) {
-		this.permissionLevelSet = permissionLevelSet;
+	public void setMembershipItemSet(Set membershipItemSet) {
+		this.membershipItemSet = membershipItemSet;
 	}
-
+	
   ////////////////////////////////////////////////////////////////////////
   // helper methods for collections
   ////////////////////////////////////////////////////////////////////////
@@ -273,31 +273,31 @@ public class AreaImpl extends MutableEntityImpl implements Area
       openForumsSet.remove(forum);
   }
   
-  public void addPermissionLevel(PermissionLevel level) {
+  public void addMembershipItem(DBMembershipItem item) {
     if (LOG.isDebugEnabled()) {
-        LOG.debug("addPermissionLevel(level " + level + ")");
+        LOG.debug("addMembershipItem(item " + item + ")");
     }
     
-    if (level == null) {
-        throw new IllegalArgumentException("level == null");
+    if (item == null) {
+        throw new IllegalArgumentException("item == null");
     }
     
-    if (permissionLevelSet == null) {
-    	permissionLevelSet = new HashSet();
+    if (membershipItemSet == null) {
+    	membershipItemSet = new HashSet();
     }          
-    permissionLevelSet.add(level);
+    membershipItemSet.add(item);
 }
 
-  public void removePermissionLevel(PermissionLevel level) {
+  public void removeMembershipItem(DBMembershipItem item) {
     if (LOG.isDebugEnabled()) {
-        LOG.debug("removePermissionLevel(level " + level + ")");
+        LOG.debug("removeMembershipItem(item " + item + ")");
     }
     
-    if (level == null) {
+    if (item == null) {
         throw new IllegalArgumentException("Illegal level argument passed!");
     }
         
-    permissionLevelSet.remove(level);
+    membershipItemSet.remove(item);
   }
 
 }

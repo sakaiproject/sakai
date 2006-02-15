@@ -136,7 +136,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         area.setTypeUuid(typeId);
         area.setCreated(new Date());
         area.setCreatedBy(getCurrentUser());
-        area.setContextId(getContextId());
+        area.setContextId("test");
         LOG.debug("createArea executed with areaId: " + area.getUuid());
         return area;
     }
@@ -209,10 +209,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     private String getCurrentUser() {
-        if (TestUtil.isRunningTests()) {
-            return "test-user";
-        }
-        return sessionManager.getCurrentSessionUserId();
+    	String user = sessionManager.getCurrentSessionUserId();
+  		return (user == null) ? "test-user" : user;
     }
 
     private String getEventMessage(Object object) {

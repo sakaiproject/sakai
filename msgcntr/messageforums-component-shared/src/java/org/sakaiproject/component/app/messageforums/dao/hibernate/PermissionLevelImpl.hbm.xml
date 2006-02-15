@@ -28,6 +28,7 @@
     <property name="modifiedBy" column="MODIFIED_BY" length="255" not-null="true" />
  
     <!-- Permission Levl Fields -->        
+    <property name="name" column="NAME" length="50" not-null="true"/>
     <property name="typeUuid" column="TYPE_UUID" length="36" not-null="true"/>    
     <property name="newForum" column="NEW_FORUM" not-null="true"/>
     <property name="newTopic" column="NEW_TOPIC" not-null="true"/>
@@ -49,5 +50,11 @@
   <query name="findPermissionLevelByTypeUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pli where pli.typeUuid = :typeUuid]]>
   </query>
+  
+  <query name="findOrderedPermissionLevelNames">
+    <![CDATA[select distinct pli.name from org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pli order by pli.name]]>
+  </query>
+  
+  
   
 </hibernate-mapping>

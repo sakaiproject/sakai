@@ -18,6 +18,7 @@
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenForum.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateForum.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Label.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DBMembershipItemImpl.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/PermissionLevelImpl.hbm.xml</value>
             </list>
         </property>
@@ -90,9 +91,12 @@
         </property>
         <property name="sessionManager">
 			<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
-		</property>
+		</property>		
 	    <property name="permissionManager">
             <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
+        </property>
+        <property name="permissionLevelManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
         </property>
         <property name="typeManager">
             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
@@ -151,7 +155,10 @@
 				</property>
 		        <property name="typeManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
-		        </property>		        
+		        </property>		   
+		        <property name="areaManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
+                </property>     
 		        <property name="autoDdl">
       			    <value>${auto.ddl}</value>
 		        </property>

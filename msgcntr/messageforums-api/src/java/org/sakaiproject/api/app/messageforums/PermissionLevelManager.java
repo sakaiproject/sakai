@@ -28,7 +28,7 @@ import org.sakaiproject.api.common.authorization.PermissionsMask;
 public interface PermissionLevelManager {
 
 	public String getPermissionLevelType(PermissionLevel level);  
-	public PermissionLevel createPermissionLevel(String typeUuid, PermissionsMask mask);
+	public PermissionLevel createPermissionLevel(String name, String typeUuid, PermissionsMask mask);
 	public PermissionLevel getDefaultAuthorPermissionLevel();
 	public PermissionLevel getDefaultReviewerPermissionLevel();
 	public PermissionLevel getDefaultContributorPermissionLevel();
