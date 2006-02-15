@@ -123,7 +123,7 @@ $Id$
       </h:panelGroup>
 
 
-     <h:outputText value="#{questionScores.maxScore} Point" style="instruction"/>
+     <h:outputText value="#{questionScores.maxPoint}" style="instruction"/>
 
  </h:panelGrid>
 

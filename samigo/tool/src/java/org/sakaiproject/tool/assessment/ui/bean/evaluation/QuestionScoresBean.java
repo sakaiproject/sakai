@@ -244,6 +244,23 @@ public class QuestionScoresBean
   {
     maxScore = pmaxScore;
   }
+/**
+   * get the max Point
+   *
+   * @return the max point
+   */
+  public String getMaxPoint()
+    {  
+	try{
+	if (Double.parseDouble(this.getMaxScore())>1.0)
+	    return this.getMaxScore()+" Points";
+	else
+	    return this.getMaxScore()+ " Point";
+	}
+	catch(NumberFormatException e){
+	    return this.getMaxScore()+ " Point";
+	}
+    }
 
   /**
    * get an agent result collection
