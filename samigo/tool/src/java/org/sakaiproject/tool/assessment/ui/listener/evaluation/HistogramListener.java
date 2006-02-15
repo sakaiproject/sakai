@@ -991,6 +991,7 @@ if (answer != null)
    */
 
     private static String calMode(double[]scores){
+	//	double[]scores={1,2,3,4,3,6,5,5,6};
 	Arrays.sort(scores);
 	String maxString=""+scores[0];
 	int maxCount=1;
@@ -998,17 +999,20 @@ if (answer != null)
 	for(int i=1;i<scores.length;i++){
 	    if(!(""+scores[i]).equals(""+scores[i-1])){
 		currentCount=1;
+		if(maxCount==currentCount)
+		    maxString=maxString+", "+scores[i];
 	    }
 	    else{
 		currentCount++;
-		if(maxCount==currentCount){
+		if(maxCount==currentCount)
 		    maxString=maxString+", "+scores[i];
-		}
 		if(maxCount<currentCount){
 		    maxString=""+scores[i];
                     maxCount=currentCount;
 		}
+		
 	    }
+	   
 	}
 	return maxString;
     }
