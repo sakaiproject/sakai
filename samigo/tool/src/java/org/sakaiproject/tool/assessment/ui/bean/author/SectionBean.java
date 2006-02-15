@@ -334,6 +334,20 @@ private String outcome;
 	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()),resultListName) );
       }
     }
+    //  add pool which is currently used in current Part for modify part
+    if (!("".equals(this.getSelectedPool())) && (this.getSelectedPool() !=null)){
+
+    //now we need to get the poolid and displayName
+     
+	QuestionPoolFacade currPool= delegate.getPool(new Long(this.getSelectedPool()), AgentFacade.getAgentString());
+    // now add the current pool used  to the list, so it's available in the pulldown 
+	ArrayList currItemlist = delegate.getAllItems(currPool.getQuestionPoolId());
+	if(currItemlist.size()>0){
+	    String currPoolName= currPool.getDisplayName()+"("+ currItemlist.size()+")" ;
+	    resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), currPoolName));
+     
+	}
+    }
 
     return resultPoolList;
   }

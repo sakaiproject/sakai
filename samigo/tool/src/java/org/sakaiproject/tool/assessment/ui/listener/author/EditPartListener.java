@@ -70,6 +70,7 @@ public class EditPartListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
+
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
@@ -94,16 +95,20 @@ public class EditPartListener
     populateMetaData(section, sectionBean);
 // todo: get poolsavailable and then add the current pool used, because we need to show it as one of the choices.
 
+/* Huong moved to getPoolsAvailable in SectionBean.java 
     ArrayList poolidlist = sectionBean.getPoolsAvailable();
-    String currpoolid= sectionBean.getSelectedPool();   // current pool used for random draw
+      String currpoolid= sectionBean.getSelectedPool();   // current pool used for random draw
     if (!("".equals(currpoolid)) && (currpoolid !=null)) {
+	System.out.println("current pool id not null or empty");
     //now we need to get the poolid and displayName
-      QuestionPoolService delegate = new QuestionPoolService();
-      QuestionPoolFacade pool= delegate.getPool(new Long(currpoolid), AgentFacade.getAgentString());
+      QuestionPoolService delegate = new QuestionPoolService();//
+      QuestionPoolFacade pool= delegate.getPool(new Long(currpoolid), AgentFacade.getAgentString());//
     // now add the current pool used  to the list, so it's available in the pulldown 
-      poolidlist.add(new SelectItem((pool.getQuestionPoolId().toString()), pool.getDisplayName()));
-      sectionBean.setPoolsAvailable(poolidlist);
+      poolidlist.add(new SelectItem((pool.getQuestionPoolId().toString()), pool.getDisplayName()));//
+      System.out.println("added editing pool: "+ pool.getDisplayName());//
+      sectionBean.setPoolsAvailable(poolidlist);//
     }
+*/
 
     boolean hideRandom = false;
     if ((sectionBean.getType() == null) || sectionBean.getType().equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
