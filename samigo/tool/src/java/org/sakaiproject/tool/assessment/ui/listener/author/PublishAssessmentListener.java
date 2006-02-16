@@ -198,8 +198,8 @@ public class PublishAssessmentListener
       if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
           gbsHelper.isAssignmentDefined(assessmentName, g)){
         error=true;
-        String publish_error_message=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","publish_error_message");
-        FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error_message));
+        String gbConflict_error=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+        FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(gbConflict_error));
       }
     }
     catch(Exception e){
