@@ -6,8 +6,11 @@ package org.sakaiproject.api.app.messageforums;
  */
 public interface MessageForumsTypeManager
 {
+	public String getOwnerLevelType();
 	
 	public String getAuthorLevelType();
+	
+	public String getNoneditingAuthorLevelType();
 	
 	public String getReviewerLevelType();
 	

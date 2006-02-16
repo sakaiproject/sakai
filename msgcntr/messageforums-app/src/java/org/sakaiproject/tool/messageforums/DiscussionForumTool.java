@@ -2956,37 +2956,50 @@ public class DiscussionForumTool
   }
   
   public String generatePermissionScript(){
-  	  	  
-  	
+  	  	    	
   	PermissionLevel authorLevel = permissionLevelManager.getDefaultAuthorPermissionLevel();
   	PermissionLevel reviewerLevel = permissionLevelManager.getDefaultReviewerPermissionLevel();
   	PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
   	PermissionLevel contributorLevel = permissionLevelManager.getDefaultContributorPermissionLevel();
-  	
-  	
-  	StringBuffer sBuffer = new StringBuffer();
-  	
-  	sBuffer.append("<script type=\"text\\javascript\">\n"); 
-  	
-  	
-  	//todo: implement me
-//  	sBuffer.append()
-//  	// use toString of PermissionLevel to generate array initializers  	  	
-//  	sBuffer.append("var defaultPermissionArray = [");
-//  	sBuffer.append("'authorLevel', " + authorLevel + ";\n");
-//  	sBuffer.append("'reviewerLevel', " + reviewerLevel + ";\n");
-//  	sBuffer.append("'noneLevel', " + noneLevel + "];\n");
-//  	sBuffer.append("'contributorLevel' " + contributorLevel + ";\n");
-//  	sBuffer.append("]\n\n");
-//  	
-//  	sBuffer.append("function findLevelForPermissions(){\n" +
-//  			           "  for (int i = 0; i < defaultPermissionArray.length; i++){\n" +
-//  			           "    if (defaultPermissionArray["
-//  			             )
-//  	
-//  	sBuffer.append("</script>");
-  	
-  	return "";
+  	  	
+  	StringBuffer sBuffer = new StringBuffer();  	
+  	sBuffer.append("<script type=\"text\\javascript\">\n");   	  	  	
+  	sBuffer.append("\tvar authorLevelArray = " + authorLevel + ";\n");
+  	sBuffer.append("var reviewerLevelArray = " + reviewerLevel + ";\n");
+  	sBuffer.append("var noneLevelArray = " + noneLevel + ";\n");
+  	sBuffer.append("var contributorLevelArray = " + contributorLevel + ";\n");  	
+  	sBuffer.append("function findLevelForPermissions(parent){\n" +
+  			           "  var checkboxes = parent.getElementsByTagName('input');\n" +  			           
+  			           "  var authorVal = true;\n" +
+  			           "  var reviewerVal = true;\n" +
+  			           "  var noneVal = true;\n" +
+  			           "  var contributorVal = true;\n\n" +  			
+  			           "  for (var i = 0; i < checkboxes.length; i++){\n" +
+  			           "    if (authorVal && authorLevelArray[i] != checkboxes[i].checked)\n" +
+  	               "      authorVal = false;\n" +
+  	               "    if (reviewerVal && reviewerLevelArray[i] != checkboxes[i].checked)\n" +
+  	               "      reviewerVal = false;\n" +
+  	               "    if (noneVal && noneLevelArray[i] != checkboxes[i].checked)\n" +
+  	               "      noneVal = false;\n" +
+  	               "    if (contributorVal && contributorLevelArray[i] != checkboxes[i].checked)\n" +
+  	               "      contributorVal = false;\n" +
+  	               "  }\n\n" +  	  	               
+  	               "  if (authorVal){\n" +
+  	               "    alert('Author');\n" +
+  	               "    return \"Author\";\n" +
+  	               "  }\n" +
+  	               "  else if (reviewerVal)\n" +
+  	               "    return \"Reviewer\";\n" +
+  	               "  else if (noneVal)\n" +
+  	               "    return \"None\";\n" +
+  	               "  else if (contributorVal)\n" +
+  	               "    return \"Contributor\";\n" +
+  	               "  else return null;\n" +
+  	               "}\n"
+  	);
+  			              	
+  	sBuffer.append("</script>");  	
+  	return sBuffer.toString();
   }
 
 	public void setPermissionLevelManager(

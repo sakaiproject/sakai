@@ -10,18 +10,18 @@
 <f:view>
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
-
-  <%  
+ 
+  <sakai:view>
+  
+    <%  
     /** initialize user's private message area per request **/
     FacesContext context = FacesContext.getCurrentInstance();
     Application app = context.getApplication();
     ValueBinding binding = app.createValueBinding("#{ForumTool}");
     DiscussionForumTool dft = (DiscussionForumTool) binding.getValue(context);
     out.print(dft.generatePermissionScript());
-  %>
-
-
-  <sakai:view>
+    %>
+    
        <h:form id="msgForum">
   	   <h:selectManyListbox id="list1">
   	     <f:selectItem id="id1" itemValue="id1 test" itemLabel="id1 test"/>
@@ -29,10 +29,17 @@
   	     <f:selectItem id="id3" itemValue="id3 test" itemLabel="id3 test"/>
   	   </h:selectManyListbox>  		  
   	   
-  	   <h:selectBooleanCheckbox id="one" value="1"/>
-  	   <h:selectBooleanCheckbox id="two" value="0"/>
-  	   <h:selectBooleanCheckbox id="three" value="1"/>
-  	   <h:selectBooleanCheckbox id="four" value="0"/>
+  	   
+  	   <div id="myDiv">
+  	   <h:selectBooleanCheckbox id="one" value="1" 
+  	                            onclick="findLevelForPermissions(this.parentElement);"/>
+  	   <h:selectBooleanCheckbox id="two" value="0"
+  	                            onclick="findLevelForPermissions(this.parentElement);"/>
+  	   <h:selectBooleanCheckbox id="three" value="1"
+  	                            onclick="findLevelForPermissions(this.parentElement);"/>
+  	   <h:selectBooleanCheckbox id="four" value="0"
+  	                            onclick="findLevelForPermissions(this.parentElement);"/>
+  	   </div>
   	   
        <sakai:button_bar>
          <sakai:button_bar_item action="#{ForumTool.processPost}" value="Post" />         

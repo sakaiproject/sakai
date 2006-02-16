@@ -30,7 +30,9 @@ public interface PermissionLevelManager {
 	public PermissionLevel getPermissionLevelByName(String name);
 	public String getPermissionLevelType(PermissionLevel level);  
 	public PermissionLevel createPermissionLevel(String name, String typeUuid, PermissionsMask mask);
+	public PermissionLevel getDefaultOwnerPermissionLevel();
 	public PermissionLevel getDefaultAuthorPermissionLevel();
+	public PermissionLevel getDefaultNoneditingAuthorPermissionLevel();
 	public PermissionLevel getDefaultReviewerPermissionLevel();
 	public PermissionLevel getDefaultContributorPermissionLevel();
 	public PermissionLevel getDefaultNonePermissionLevel();

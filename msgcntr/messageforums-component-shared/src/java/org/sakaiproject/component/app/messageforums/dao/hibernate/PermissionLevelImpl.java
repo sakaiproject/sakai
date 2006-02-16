@@ -33,21 +33,22 @@ public class PermissionLevelImpl extends MutableEntityImpl
 					
 	private String typeUuid;
 	private String name;
-
-	private Boolean newForum;
-	private Boolean newTopic;
-	private Boolean newResponse;
-	private Boolean responseToResponse;
-	private Boolean movePosting;
+	
 	private Boolean changeSettings;
-	private Boolean postGrades;
-	private Boolean read;
-	private Boolean markAsRead;
-	private Boolean moderatePostings;
-	private Boolean deleteOwn;
 	private Boolean deleteAny;
-	private Boolean reviseOwn;
+	private Boolean deleteOwn;
+	private Boolean markAsRead;
+	private Boolean movePosting;	
+	private Boolean newForum;
+	private Boolean newResponse;
+	private Boolean newResponseToResponse;
+	private Boolean newTopic;				
+	private Boolean postToGradebook;
+	private Boolean read;
 	private Boolean reviseAny;
+	private Boolean reviseOwn;
+	private Boolean moderatePostings;
+	
 	
 	public String getName() {
 		return name;
@@ -137,12 +138,12 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		this.newTopic = newTopic;
 	}
 
-	public Boolean getPostGrades() {
-		return postGrades;
+	public Boolean getPostToGradebook() {
+		return postToGradebook;
 	}
 
-	public void setPostGrades(Boolean postGrades) {
-		this.postGrades = postGrades;
+	public void setPostToGradebook(Boolean postToGradebook) {
+		this.postToGradebook = postToGradebook;
 	}
 
 	public Boolean getRead() {
@@ -153,12 +154,12 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		this.read = read;
 	}
 
-	public Boolean getResponseToResponse() {
-		return responseToResponse;
+	public Boolean getNewResponseToResponse() {
+		return newResponseToResponse;
 	}
 
-	public void setResponseToResponse(Boolean responseToResponse) {
-		this.responseToResponse = responseToResponse;
+	public void setNewResponseToResponse(Boolean newResponseToResponse) {
+		this.newResponseToResponse = newResponseToResponse;
 	}
 
 	public Boolean getReviseAny() {
@@ -177,9 +178,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		this.reviseOwn = reviseOwn;
 	}
 	
-	
-	
-	
+			
 	public int compareTo(Object obj) {
 		
 		PermissionLevelImpl pli = (PermissionLevelImpl) obj;				
@@ -196,7 +195,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
       for (int i = 0; i < propDescriptors.length; i++){
     	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
           Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());          
-          buffer.append((bThis.booleanValue()) ? 1 : 0);
+          buffer.append((bThis.booleanValue()) ? "true" : "false");
           buffer.append(",");
     	  }
       }

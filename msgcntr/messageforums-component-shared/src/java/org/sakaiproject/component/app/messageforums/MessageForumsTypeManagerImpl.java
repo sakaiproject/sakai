@@ -3,7 +3,6 @@ package org.sakaiproject.component.app.messageforums;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
 
@@ -36,11 +35,12 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String DRAFT = "DraftPrivateMessageType";
   
   // Permission Level Types
+  private static final String OWNER = "Owner Permission Level";
   private static final String AUTHOR = "Author Permission Level";
-  private static final String REVIEWER = "Reviewer Permission Level";
+  private static final String NONEDITING_AUTHOR = "Nonediting Author Permission Level";
   private static final String CONTRIBUTOR = "Contributor Permission Level";
-  private static final String NONE = "None Permission Level";
-  
+  private static final String REVIEWER = "Reviewer Permission Level";  
+  private static final String NONE = "None Permission Level";  
   
   private TypeManager typeManager;
 
@@ -61,6 +61,20 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     this.typeManager = typeManager;
   }
   
+  public String getOwnerLevelType(){
+  	LOG.debug("getOwnerLevelType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, OWNER);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, OWNER,
+          "Owner Permission Level", "Owner Permission Level").getUuid());
+    }
+  }
+  
   public String getAuthorLevelType(){
   	LOG.debug("getAuthorLevelType()");
     Type type = typeManager.getType(AUTHORITY, DOMAIN, AUTHOR);
@@ -72,6 +86,20 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     {
       return (typeManager.createType(AUTHORITY, DOMAIN, AUTHOR,
           "Author Permission Level", "Author Permission Level").getUuid());
+    }
+  }
+  
+  public String getNoneditingAuthorLevelType(){
+  	LOG.debug("getNoneditingAuthorLevelType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, NONEDITING_AUTHOR);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, NONEDITING_AUTHOR,
+          "Nonediting Author Permission Level", "Nonediting Author Permission Level").getUuid());
     }
   }
   

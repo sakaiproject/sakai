@@ -5,10 +5,10 @@ public interface PermissionLevel extends MutableEntity{
 	public static final String NEW_FORUM = "newForum"; 
 	public static final String NEW_TOPIC = "newTopic";
 	public static final String NEW_RESPONSE = "newResponse";
-	public static final String RESPONSE_TO_RESPONSE = "responseToResponse";
+	public static final String NEW_RESPONSE_TO_RESPONSE = "newResponseToResponse";
 	public static final String MOVE_POSTING = "movePosting";
 	public static final String CHANGE_SETTINGS = "changeSettings";
-	public static final String POST_GRADES = "postGrades";
+	public static final String POST_TO_GRADEBOOK = "postToGradebook";
 	public static final String READ = "read";
 	public static final String MARK_AS_READ = "markAsRead";
 	public static final String MODERATE_POSTINGS = "moderatePostings";
@@ -61,17 +61,17 @@ public interface PermissionLevel extends MutableEntity{
 
 	public void setNewTopic(Boolean newTopic);
 
-	public Boolean getPostGrades();
+	public Boolean getPostToGradebook();
 
-	public void setPostGrades(Boolean postGrades);
+	public void setPostToGradebook(Boolean postToGradebook);
 
 	public Boolean getRead();
 
 	public void setRead(Boolean read);
 
-	public Boolean getResponseToResponse();
+	public Boolean getNewResponseToResponse();
 
-	public void setResponseToResponse(Boolean responseToResponse);
+	public void setNewResponseToResponse(Boolean newResponseToResponse);
 
 	public Boolean getReviseAny();
 

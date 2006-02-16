@@ -35,7 +35,6 @@ import net.sf.hibernate.Session;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -65,9 +64,11 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private static final String QUERY_BY_TYPE_UUID = "findPermissionLevelByTypeUuid";
 	private static final String QUERY_ORDERED_LEVEL_NAMES = "findOrderedPermissionLevelNames";
 	
+	public static final String PERMISSION_LEVEL_NAME_OWNER = "Owner";
 	public static final String PERMISSION_LEVEL_NAME_AUTHOR = "Author";
-	public static final String PERMISSION_LEVEL_NAME_REVIEWER = "Reviewer";
+	public static final String PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR = "Nonediting Author";
 	public static final String PERMISSION_LEVEL_NAME_CONTRIBUTOR = "Contributor";
+	public static final String PERMISSION_LEVEL_NAME_REVIEWER = "Reviewer";	
 	public static final String PERMISSION_LEVEL_NAME_NONE = "None";
 	
 			
@@ -128,8 +129,14 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			LOG.debug("getPermissionLevelByName executing(" + name + ")");
 		}
 		
-		if (PERMISSION_LEVEL_NAME_AUTHOR.equals(name)){
+		if (PERMISSION_LEVEL_NAME_OWNER.equals(name)){
+			return null;
+		}
+		else if (PERMISSION_LEVEL_NAME_AUTHOR.equals(name)){
 			return getDefaultAuthorPermissionLevel();
+		}
+		else if (PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR.equals(name)){
+			return null;
 		}
 		else if (PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(name)){
 			return getDefaultContributorPermissionLevel();
@@ -170,10 +177,20 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		if (level == null) {      
       throw new IllegalArgumentException("Null Argument");
 		}
+		
+		PermissionLevel ownerLevel = getDefaultOwnerPermissionLevel();		
+		if (level.equals(ownerLevel)){
+			return ownerLevel.getTypeUuid();
+		}
 				
 		PermissionLevel authorLevel = getDefaultAuthorPermissionLevel();		
 		if (level.equals(authorLevel)){
 			return authorLevel.getTypeUuid();
+		}
+		
+		PermissionLevel noneditingAuthorLevel = getDefaultNoneditingAuthorPermissionLevel();		
+		if (level.equals(noneditingAuthorLevel)){
+			return noneditingAuthorLevel.getTypeUuid();
 		}
 				
 	  PermissionLevel reviewerLevel = getDefaultReviewerPermissionLevel();
@@ -258,6 +275,20 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
   	getHibernateTemplate().saveOrUpdate(item);
   }
 	
+  public PermissionLevel getDefaultOwnerPermissionLevel(){
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("getDefaultOwnerPermissionLevel executing");
+		}
+						
+		String typeUuid = typeManager.getOwnerLevelType();
+		
+		if (typeUuid == null) {      
+      throw new IllegalStateException("type cannot be null");
+		}		
+		return getDefaultPermissionLevel(typeUuid);				
+	}
+  
 	public PermissionLevel getDefaultAuthorPermissionLevel(){
 						
 		if (LOG.isDebugEnabled()){
@@ -265,6 +296,20 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 						
 		String typeUuid = typeManager.getAuthorLevelType();
+		
+		if (typeUuid == null) {      
+      throw new IllegalStateException("type cannot be null");
+		}		
+		return getDefaultPermissionLevel(typeUuid);				
+	}
+	
+	public PermissionLevel getDefaultNoneditingAuthorPermissionLevel(){
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("getDefaultNoneditingAuthorPermissionLevel executing");
+		}
+						
+		String typeUuid = typeManager.getNoneditingAuthorLevelType();
 		
 		if (typeUuid == null) {      
       throw new IllegalStateException("type cannot be null");
