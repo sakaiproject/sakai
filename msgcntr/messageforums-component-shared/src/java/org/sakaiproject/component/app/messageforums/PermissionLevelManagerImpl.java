@@ -63,7 +63,13 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private Boolean autoDdl;
 	
 	private static final String QUERY_BY_TYPE_UUID = "findPermissionLevelByTypeUuid";
-	private static final String QUERY_ORDERED_LEVEL_NAMES = "findOrderedPermissionLevelNames";	
+	private static final String QUERY_ORDERED_LEVEL_NAMES = "findOrderedPermissionLevelNames";
+	
+	public static final String PERMISSION_LEVEL_NAME_AUTHOR = "Author";
+	public static final String PERMISSION_LEVEL_NAME_REVIEWER = "Reviewer";
+	public static final String PERMISSION_LEVEL_NAME_CONTRIBUTOR = "Contributor";
+	public static final String PERMISSION_LEVEL_NAME_NONE = "None";
+	
 			
 	public void init(){
 						
@@ -115,6 +121,28 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     List l = getOrderedPermissionLevelNames();
     **/
     
+	}
+	
+	public PermissionLevel getPermissionLevelByName(String name){
+		if (LOG.isDebugEnabled()){
+			LOG.debug("getPermissionLevelByName executing(" + name + ")");
+		}
+		
+		if (PERMISSION_LEVEL_NAME_AUTHOR.equals(name)){
+			return getDefaultAuthorPermissionLevel();
+		}
+		else if (PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(name)){
+			return getDefaultContributorPermissionLevel();
+		}
+		else if (PERMISSION_LEVEL_NAME_REVIEWER.equals(name)){
+			return getDefaultReviewerPermissionLevel();
+		}
+		else if (PERMISSION_LEVEL_NAME_NONE.equals(name)){
+			return getDefaultNonePermissionLevel();
+		}
+		else{
+			return null;
+		}
 	}
 	
   public  List getOrderedPermissionLevelNames(){
