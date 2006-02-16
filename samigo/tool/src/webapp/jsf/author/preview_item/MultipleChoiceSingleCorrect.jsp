@@ -31,15 +31,16 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
-          <h:graphicImage id="image1" rendered="#{answer.isCorrect}"
-             alt="#{msg.correct}" url="/images/radiochecked.gif" >
-          </h:graphicImage>
-          <h:graphicImage id="image2" rendered="#{!answer.isCorrect}"
-             alt="#{msg.not_correct}" url="/images/radiounchecked.gif" >
-          </h:graphicImage>
-          <h:outputText escape="false" value="#{answer.label}. #{answer.text}" /></h:column><h:column>
-
-          <h:panelGroup rendered="#{answer.generalAnswerFbIsNotEmpty}">
+         <h:panelGroup rendered="#{answer.text !=null}">
+          <h:graphicImage id="image1" rendered="#{answer.isCorrect}" alt="#{msg.correct}" url="/images/radiochecked.gif"/>
+         
+          <h:graphicImage id="image2" rendered="#{!answer.isCorrect}" alt="#{msg.not_correct}" url="/images/radiounchecked.gif"/>
+        
+          <h:outputText escape="false" value="#{answer.label}. #{answer.text}" />
+</h:panelGroup>
+</h:column><h:column>
+ 
+          <h:panelGroup rendered="#{answer.text!=null && answer.generalAnswerFbIsNotEmpty}">
           <h:outputLabel value="          #{msg.feedback}:  "/>
         
           <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" />

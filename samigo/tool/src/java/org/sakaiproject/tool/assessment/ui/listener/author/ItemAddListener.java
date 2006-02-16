@@ -146,8 +146,10 @@ public class ItemAddListener
 	if(item.getMultipleChoiceAnswers()!=null){
 	    while (iter.hasNext()) {
 		AnswerBean answerbean = (AnswerBean) iter.next();
+		if((answerbean.getText()!=null) && (((answerbean.getText()).replaceAll("<.*?>", "")).trim()).equals(""))
+                    answerbean.setText("");
 		
-	       	if ((answerbean.getText()!=null)&& (!(txt=(answerbean.getText().replaceAll("<.*?>", "")).trim()).equals(""))){
+	       	if ((answerbean.getText()!=null)&& (!answerbean.getText().equals(""))){
 		    label = answerbean.getLabel();
 		   
 		    countAnswerText++;
