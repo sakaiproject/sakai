@@ -131,12 +131,7 @@ function clickSubmitForGrade(){
     </h:outputText>
     <h:outputText value="#{msg.pt}" />
   </h4>
-  <h:outputText value="#{msg.table_of_contents} " />
-  <h:outputText styleClass="tier10" value="#{msg.tot_score} " />
-  <h:outputText value="#{delivery.tableOfContents.maxScore}">
-    <f:convertNumber maxFractionDigits="2"/>
-  </h:outputText>
-  <h:outputText value="#{msg.pt}" />
+ 
 </div>
 
 <div class="indnt2">
