@@ -369,8 +369,8 @@ public class AssessmentFacadeQueries
     // if pubAssessment exist, simply set assessment to inactive
     // else delete assessment
     List count = getHibernateTemplate().find(
-        "select count(p) from PublishedAssessmentData p where p.assessment=?",
-        assessment);
+        "select count(p) from PublishedAssessmentData p where p.assessmentId=?",
+        assessmentId);
     //log.debug("no. of pub Assessment =" + count.size());
     Iterator iter = count.iterator();
     int i = ( (Integer) iter.next()).intValue();

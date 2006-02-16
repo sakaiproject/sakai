@@ -52,7 +52,7 @@ public class PublishedAssessmentData
 
   private Long assessmentId; // this is the core assessment Id
   private Long assessmentBaseId; // this is the published AssessmentId
-  private AssessmentIfc assessment;
+////  private AssessmentIfc assessment;
   private String title;
   private String description;
   private String comments;
@@ -216,14 +216,14 @@ public class PublishedAssessmentData
     this.assessmentBaseId = assessmentBaseId;
   }
 
-  public AssessmentIfc getAssessment() {
+/*  public AssessmentIfc getAssessment() {
     return assessment;
   }
 
   public void setAssessment(AssessmentIfc assessment) {
     this.assessment = assessment;
   }
-
+*/
   public String getTitle() {
     return this.title;
   }

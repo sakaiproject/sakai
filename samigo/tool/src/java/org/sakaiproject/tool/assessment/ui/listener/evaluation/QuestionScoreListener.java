@@ -292,7 +292,7 @@ public class QuestionScoreListener
       {
 	  //bean.setAssessmentName(data.getAssessmentGrading().getPublishedAssessment().getAssessment().getTitle());
 	bean.setAssessmentName(totalBean.getAssessmentName()); // get name from totalScoreBean, instead of from the backend.(the name should be same). bug fix for sam-255.
-        bean.setAssessmentId(data.getAssessmentGrading().getPublishedAssessment().getAssessment().getAssessmentBaseId().toString());
+        bean.setAssessmentId(data.getAssessmentGrading().getPublishedAssessment().getAssessmentId().toString());
 
         // if section set is null, initialize it - daisyf , 01/31/05
         PublishedAssessmentData pub = (PublishedAssessmentData)data.getAssessmentGrading().getPublishedAssessment();

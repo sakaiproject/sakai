@@ -35,9 +35,12 @@ public interface PublishedAssessmentIfc
 
   void setPublishedAssessmentId(Long publishedAssessmentId);
 
-  AssessmentIfc getAssessment();
+  //AssessmentIfc getAssessment();
+  //void setAssessment(AssessmentIfc assessment);
 
-  void setAssessment(AssessmentIfc assessment);
+  public Long getAssessmentId();
+
+  public void setAssessmentId(Long assessmentId);
 
   String getOwnerSite();
 

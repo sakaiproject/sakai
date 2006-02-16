@@ -187,7 +187,8 @@ public class PublishedAssessmentFacade
   public void setAssessment(AssessmentIfc assessment) {
     this.assessment = (AssessmentFacade) assessment;
     AssessmentData d = (AssessmentData) this.assessment.getData();
-    this.data.setAssessment(d);
+    this.data.setAssessmentId(d.getAssessmentBaseId());
+    //this.data.setAssessment(d);
   }
 
   // override the following method from AssessmentData

@@ -151,7 +151,8 @@ public class PublishedAssessmentFacadeQueries
         a.getTesteeNotification(), a.getMultipartAllowed(),
         a.getStatus(), AgentFacade.getAgentString(), new Date(),
         AgentFacade.getAgentString(), new Date());
-    publishedAssessment.setAssessment(a);
+    //publishedAssessment.setAssessment(a);
+    publishedAssessment.setAssessmentId(a.getAssessmentBaseId());
 
     // section set
     Set publishedSectionSet = preparePublishedSectionSet(publishedAssessment,
@@ -452,8 +453,8 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public Long getPublishedAssessmentId(Long assessmentId) {
-    AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
-    List list = getHibernateTemplate().find("from PublishedAssessmentData as p where p.assessment=? order by p.createdDate desc",assessment);
+    ////AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
+    List list = getHibernateTemplate().find("from PublishedAssessmentData as p where p.assessmentId=? order by p.createdDate desc",assessmentId);
     Long publishedId = new Long(0);
     if (!list.isEmpty())
     {
