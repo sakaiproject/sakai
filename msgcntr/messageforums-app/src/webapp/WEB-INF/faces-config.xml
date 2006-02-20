@@ -60,18 +60,17 @@
     <!-- =================== Navigation ============== -->
     <navigation-rule>
         <from-view-id>/jsp/*</from-view-id>
+
         <navigation-case>
             <from-outcome>main</from-outcome>
             <to-view-id>/jsp/main.jsp</to-view-id>
             <redirect/>
         </navigation-case>
-        <!--
         <navigation-case>
             <from-outcome>compose</from-outcome>
             <to-view-id>/jsp/compose.jsp</to-view-id>
             <redirect/>
         </navigation-case>
-        -->
         <navigation-case>
             <from-outcome>test</from-outcome>
             <to-view-id>/jsp/test.jsp</to-view-id>
@@ -278,6 +277,11 @@
             <property-name>membershipManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.MembershipManager"]}</value>
         </managed-property> 
+        <managed-property>
+            <description>Permission Level Manager</description>
+            <property-name>permissionLevelManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.PermissionLevelManager"]}</value>
+        </managed-property>
     </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>
