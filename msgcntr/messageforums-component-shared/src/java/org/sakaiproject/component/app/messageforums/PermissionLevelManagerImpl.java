@@ -70,6 +70,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	public static final String PERMISSION_LEVEL_NAME_CONTRIBUTOR = "Contributor";
 	public static final String PERMISSION_LEVEL_NAME_REVIEWER = "Reviewer";	
 	public static final String PERMISSION_LEVEL_NAME_NONE = "None";
+	public static final String PERMISSION_LEVEL_NAME_CUSTOM = "Custom";
 	
 			
 	public void init(){
@@ -146,6 +147,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 		else if (PERMISSION_LEVEL_NAME_NONE.equals(name)){
 			return getDefaultNonePermissionLevel();
+		}
+		else if (PERMISSION_LEVEL_NAME_CUSTOM.equals(name)){
+			return getDefaultCustomPermissionLevel();
 		}
 		else{
 			return null;
@@ -352,6 +356,20 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 						
 		String typeUuid = typeManager.getNoneLevelType();
+		
+		if (typeUuid == null) {      
+      throw new IllegalStateException("type cannot be null");
+		}		
+		return getDefaultPermissionLevel(typeUuid);				
+	}
+  
+  public PermissionLevel getDefaultCustomPermissionLevel(){
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("getDefaultCustomPermissionLevel executing");
+		}
+						
+		String typeUuid = typeManager.getCustomLevelType();
 		
 		if (typeUuid == null) {      
       throw new IllegalStateException("type cannot be null");

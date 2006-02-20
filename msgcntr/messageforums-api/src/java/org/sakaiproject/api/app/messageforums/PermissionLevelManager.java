@@ -36,5 +36,6 @@ public interface PermissionLevelManager {
 	public PermissionLevel getDefaultReviewerPermissionLevel();
 	public PermissionLevel getDefaultContributorPermissionLevel();
 	public PermissionLevel getDefaultNonePermissionLevel();
+	public PermissionLevel getDefaultCustomPermissionLevel();
 	
 }

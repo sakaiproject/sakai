@@ -18,6 +18,8 @@ public interface MessageForumsTypeManager
 	
 	public String getNoneLevelType();
 	
+	public String getCustomLevelType();
+	
   /**
    * @return
    */

@@ -41,6 +41,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String CONTRIBUTOR = "Contributor Permission Level";
   private static final String REVIEWER = "Reviewer Permission Level";  
   private static final String NONE = "None Permission Level";  
+  private static final String CUSTOM = "Custom Permission Level";
   
   private TypeManager typeManager;
 
@@ -144,6 +145,20 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
           "None Permission Level", "None Permission Level").getUuid());
     }
   }
+  
+  public String getCustomLevelType(){
+  	LOG.debug("getCustomLevelType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, CUSTOM);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, CUSTOM,
+          "Custom Permission Level", "Custom Permission Level").getUuid());
+    }
+  }  
   
   
 

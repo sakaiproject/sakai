@@ -31,6 +31,11 @@ INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-6666-000000000000', 
   SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
   'None Permission Level', 'None Permission Level', 'None Permission Level');      
   
+-- custom type  
+INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-7777-000000000000', 'admin', 
+  SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
+  'Custom Permission Level', 'Custom Permission Level', 'Custom Permission Level');  
+  
 -- insert permission levels
 -- owner permission level
 INSERT INTO MFR_PERMISSION_LEVEL_T VALUES (
@@ -60,5 +65,5 @@ INSERT INTO MFR_PERMISSION_LEVEL_T VALUES (
 -- none permission level  
 INSERT INTO MFR_PERMISSION_LEVEL_T VALUES (
   NULL, 0, '00000000-0000-0000-0000-666666666666', SYSDATE, 'admin',  SYSDATE, 'admin',
-  'None', '00000000-0000-0000-6666-000000000000', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);      
+  'None', '00000000-0000-0000-6666-000000000000', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);  
   
