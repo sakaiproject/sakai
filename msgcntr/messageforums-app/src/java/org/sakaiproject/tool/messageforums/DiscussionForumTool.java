@@ -2965,15 +2965,15 @@ public class DiscussionForumTool
   	PermissionLevel contributorLevel = permissionLevelManager.getDefaultContributorPermissionLevel();
   	  	
   	StringBuffer sBuffer = new StringBuffer();  	
-  	sBuffer.append("<script type=\"text\\javascript\">\n");   	  	
+  	sBuffer.append("<script type=\"text/javascript\">\n");   	  	
   	sBuffer.append("var ownerLevelArray = " + ownerLevel + ";\n");
   	sBuffer.append("var authorLevelArray = " + authorLevel + ";\n");
   	sBuffer.append("var noneditingAuthorLevelArray = " + noneditingAuthorLevel + ";\n");
   	sBuffer.append("var reviewerLevelArray = " + reviewerLevel + ";\n");
   	sBuffer.append("var noneLevelArray = " + noneLevel + ";\n");
   	sBuffer.append("var contributorLevelArray = " + contributorLevel + ";\n");  	
-  	sBuffer.append("function findLevelForPermissions(parent){\n" +
-  			           "  var checkboxes = parent.getElementsByTagName('input');\n" +
+  	sBuffer.append("function findLevelForPermissions(parent1){\n" +  			           
+  			           "  var checkboxes = parent1.getElementsByTagName('input');\n" +
   			           "  var ownerVal = true;\n" +
   			           "  var authorVal = true;\n" +
   			           "  var noneditingAuthorVal = true;\n" +
