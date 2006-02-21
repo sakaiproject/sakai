@@ -140,11 +140,11 @@
    </samigo:wysiwyg>
  
  
-          <h:outputText value="#{msg.feedback_optional}" rendered="#{assessmentSettings.feedbackAuthoring== '2'}" />
+          <h:outputText value="#{msg.feedback_optional}" rendered="#{assessmentSettings.feedbackAuthoring== '2' or assessmentSettings.feedbackAuthoring== '3'}" />
     
         <!-- WYSIWYG -->
 
-<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring== '2'}">
+<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring== '2' or assessmentSettings.feedbackAuthoring== '3'}">
          <samigo:wysiwyg rows="140" value="#{answer.feedback}">
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
