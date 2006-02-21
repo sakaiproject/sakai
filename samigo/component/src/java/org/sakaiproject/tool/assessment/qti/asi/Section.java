@@ -290,7 +290,12 @@ public class Section extends ASIBaseClass
         Item itemXml;
         if ( (type.MULTIPLE_CHOICE_SURVEY).equals(type.getTypeId()))
         {
-          String scale = item.getItemMetaDataByLabel(ItemMetaDataIfc.SCALENAME);
+	  // deprecated, keep it for backward compatibility
+          String scale = item.getItemMetaDataByLabel(ItemMetaDataIfc.SCALENAME);   
+	  // PREDEFINED_SCALE is the new metadata key 
+          if (scale==null) {
+            scale = item.getItemMetaDataByLabel(ItemMetaDataIfc.PREDEFINED_SCALE);
+          }
           itemXml = itemHelper.readTypeSurveyItem(scale);
         }
         else

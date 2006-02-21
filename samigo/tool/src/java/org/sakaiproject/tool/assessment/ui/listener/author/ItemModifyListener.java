@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -449,55 +450,71 @@ public class ItemModifyListener implements ActionListener
     Iterator iter = itemtextSet.iterator();
     while (iter.hasNext()){
        ItemMetaData meta= (ItemMetaData) iter.next();
-       if (meta.getLabel().equals(ItemMetaData.OBJECTIVE)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.OBJECTIVE)){
 	 bean.setObjective(meta.getEntry());
        }
-       if (meta.getLabel().equals(ItemMetaData.KEYWORD)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
 	 bean.setKeyword(meta.getEntry());
        }
-       if (meta.getLabel().equals(ItemMetaData.RUBRIC)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.RUBRIC)){
 	 bean.setRubric(meta.getEntry());
        }
-       if (meta.getLabel().equals(ItemMetaData.RANDOMIZE)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.RANDOMIZE)){
 	 bean.setRandomized(meta.getEntry());
        }
 
-	// get scalename for fill in blank from the metadata set
-       if (meta.getLabel().equals(ItemMetaData.SCALENAME)){
+       // for Multiple Choice Survey get survey type 
+       // use PREDEFINED_SCALE
+       if (meta.getLabel().equals(ItemMetaDataIfc.PREDEFINED_SCALE)){
 	 bean.setScaleName(meta.getEntry());
+       }
+
+       // lydial (2/19/2006): for backward compatibility only. We used to use SCALENAME as the metadata key, while import/export used PREDEFINED_SCALE, now everything is using PREDEFINED_SCALE 
+       if (meta.getLabel().equals(ItemMetaDataIfc.SCALENAME)){
+	 bean.setScaleName(meta.getEntry());
+         // now converting old metadata value to new ones, so that both manually created and imported assessments use the same metadata values. 
+         if (ItemMetaDataIfc.SURVEY_YESNO.equals(meta.getEntry())) {
+	   bean.setScaleName(ItemMetaDataIfc.SURVEY_YES);
+         } 
+         if (ItemMetaDataIfc.SURVEY_SCALEFIVE.equals(meta.getEntry())) {
+	   bean.setScaleName(ItemMetaDataIfc.SURVEY_5);
+         } 
+         if (ItemMetaDataIfc.SURVEY_SCALETEN.equals(meta.getEntry())) {
+	   bean.setScaleName(ItemMetaDataIfc.SURVEY_10);
+         } 
        }
 
 	// get settings for case sensitivity for fib 
         // If metadata doesn't exist, by default it is false. 
-       if (meta.getLabel().equals(ItemMetaData.CASE_SENSITIVE_FOR_FIB)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB)){
 	 bean.setCaseSensitiveForFib((new Boolean(meta.getEntry())).booleanValue());
        }
 
 	// get settings for mutually exclusive for fib. 
         // If metadata doesn't exist, by default it is false. 
-       if (meta.getLabel().equals(ItemMetaData.MUTUALLY_EXCLUSIVE_FOR_FIB)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB)){
 	 bean.setMutuallyExclusiveForFib((new Boolean(meta.getEntry())).booleanValue());
        }
 
 	// get part id for the item
-       if (meta.getLabel().equals(ItemMetaData.PARTID)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.PARTID)){
 	 bean.setSelectedSection(meta.getEntry());
 	 bean.setOrigSection(meta.getEntry());
        }
 
 	// get pool id for the item
-       if (meta.getLabel().equals(ItemMetaData.POOLID)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.POOLID)){
 	 bean.setSelectedPool(meta.getEntry());
 	 bean.setOrigPool(meta.getEntry());
        }
 
 	// get timeallowed for audio recording item
-       if (meta.getLabel().equals(ItemMetaData.TIMEALLOWED)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.TIMEALLOWED)){
 	 bean.setTimeAllowed(meta.getEntry());
        }
 
 	// get number of attempts for audio recording item
-       if (meta.getLabel().equals(ItemMetaData.NUMATTEMPTS)){
+       if (meta.getLabel().equals(ItemMetaDataIfc.NUMATTEMPTS)){
 	 bean.setNumAttempts(meta.getEntry());
        }
 

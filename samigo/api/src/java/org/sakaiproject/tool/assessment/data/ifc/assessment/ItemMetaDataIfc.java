@@ -38,6 +38,24 @@ public interface ItemMetaDataIfc
   public static final String CASE_SENSITIVE_FOR_FIB= "CASE_SENSITIVE_FOR_FIB";
   public static final String MUTUALLY_EXCLUSIVE_FOR_FIB= "MUTUALLY_EXCLUSIVE_FOR_FIB";
 
+  // used in QTI import/export
+  // possible entries YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, EXCELLENT, 5, 10 
+ 
+  public static final String PREDEFINED_SCALE= "PREDEFINED_SCALE";
+  public static final String SURVEY_YES= "YES";
+  public static final String SURVEY_AGREE= "AGREE";
+  public static final String SURVEY_UNDECIDED= "UNDECIDED";
+  public static final String SURVEY_AVERAGE= "AVERAGE";
+  public static final String SURVEY_STRONGLY_AGREE= "STRONGLY_AGREE";
+  public static final String SURVEY_EXCELLENT= "EXCELLENT";
+  public static final String SURVEY_5= "5";
+  public static final String SURVEY_10= "10";
+
+  public static final String SURVEY_YESNO= "YESNO";
+  public static final String SURVEY_SCALEFIVE= "SCALEFIVE";
+  public static final String SURVEY_SCALETEN= "SCALETEN";
+
+
   Long getId();
 
   void setId(Long id);

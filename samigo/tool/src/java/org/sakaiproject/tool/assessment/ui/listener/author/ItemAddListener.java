@@ -43,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -684,31 +685,31 @@ public class ItemAddListener
       String scalename = bean.getScaleName();
       String[] choices = new String[2];
       // label is null because we don't use labels in survey
-      if (scalename.equals("YESNO")) {
+      if (ItemMetaDataIfc.SURVEY_YES.equals(scalename)) {
         choices = new String[2];
         choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no");
         choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","yes");
       }
 
-      if (scalename.equals("AGREE")) {
+      if (ItemMetaDataIfc.SURVEY_AGREE.equals(scalename)) {
         choices = new String[2];
         choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
         choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
       }
-      if (scalename.equals("UNDECIDED")) {
+      if (ItemMetaDataIfc.SURVEY_UNDECIDED.equals(scalename)) {
         choices = new String[3];
         choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
         choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","undecided");
         choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
       }
 
-      if (scalename.equals("AVERAGE")) {
+      if (ItemMetaDataIfc.SURVEY_AVERAGE.equals(scalename)) {
         choices = new String[3];
         choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
         choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","average");
         choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
       }
-      if (scalename.equals("STRONGLY_AGREE")) {
+      if (ItemMetaDataIfc.SURVEY_STRONGLY_AGREE.equals(scalename)) {
         choices = new String[5];
         choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_disagree");
         choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
@@ -717,7 +718,7 @@ public class ItemAddListener
         choices[4] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_agree");
       }
 
-      if (scalename.equals("EXCELLENT")) {
+      if (ItemMetaDataIfc.SURVEY_EXCELLENT.equals(scalename)) {
         choices = new String[5];
         choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","unacceptable");
         choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
@@ -725,7 +726,7 @@ public class ItemAddListener
         choices[3] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
         choices[4] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","excellent");
       }
-      if (scalename.equals("SCALEFIVE")) {
+      if (ItemMetaDataIfc.SURVEY_5.equals(scalename)) {
         choices = new String[5];
         choices[0] = "1";
         choices[1] = "2";
@@ -733,7 +734,7 @@ public class ItemAddListener
         choices[3] = "4";
         choices[4] = "5";
       }
-      if (scalename.equals("SCALETEN")) {
+      if (ItemMetaDataIfc.SURVEY_10.equals(scalename)) {
         choices = new String[10];
         choices[0] = "1";
         choices[1] = "2";
@@ -829,31 +830,43 @@ public class ItemAddListener
   private HashSet prepareMetaData(ItemFacade item, ItemBean bean) {
     HashSet set = new HashSet();
     if (bean.getKeyword() != null) {
-      set.add(new ItemMetaData(item.getData(), ItemMetaData.KEYWORD,
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.KEYWORD,
                                bean.getKeyword()));
     }
     if (bean.getRubric() != null) {
-      set.add(new ItemMetaData(item.getData(), ItemMetaData.RUBRIC,
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.RUBRIC,
                                bean.getRubric()));
     }
     if (bean.getObjective() != null) {
-      set.add(new ItemMetaData(item.getData(), ItemMetaData.OBJECTIVE,
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.OBJECTIVE,
                                bean.getObjective()));
     }
     // Randomize property got left out, added in  metadata
     if (bean.getRandomized() != null) {
-      set.add(new ItemMetaData(item.getData(), ItemMetaData.RANDOMIZE,
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.RANDOMIZE,
                                bean.getRandomized()));
     }
 
+/*
     // save ScaleName for survey if it's a survey item
     if (bean.getScaleName() != null) {
-      set.add(new ItemMetaData(item.getData(), ItemMetaData.SCALENAME,
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.SCALENAME,
                                bean.getScaleName()));
     }
 
+*/
+    // 2/19/06 use PREDEFINED_SCALE to be in sync with what we are using for import/export 
+    if (bean.getScaleName() != null) {
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.PREDEFINED_SCALE,
+                               bean.getScaleName()));
+    }
+
+
+
+
+
     // save settings for case sensitive for FIB.  Default=false  
-      set.add(new ItemMetaData(item.getData(), ItemMetaData.CASE_SENSITIVE_FOR_FIB,
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB,
                                new Boolean(bean.getCaseSensitiveForFib()).toString()));
 
     // save settings for mutually exclusive for FIB. Default=false
@@ -863,18 +876,18 @@ public class ItemAddListener
         wellformatted = isValidMutualExclusiveFIB(bean);
       }
 
-      set.add(new ItemMetaData(item.getData(), ItemMetaData.MUTUALLY_EXCLUSIVE_FOR_FIB,
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB,
                                new Boolean(wellformatted).toString()));
 
     // save part id
     if (bean.getSelectedSection() != null) {
-      set.add(new ItemMetaData(item.getData(), ItemMetaData.PARTID,
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.PARTID,
                                bean.getSelectedSection()));
     }
 
     // save pool id
     if (bean.getSelectedPool() != null) {
-      set.add(new ItemMetaData(item.getData(), ItemMetaData.POOLID,
+      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.POOLID,
                                bean.getSelectedPool()));
     }
 
@@ -882,14 +895,14 @@ public class ItemAddListener
     /*
         // save them in ItemFacade
         if (bean.getTimeAllowed()!=null){
-        set.add(new ItemMetaData(item.getData(), ItemMetaData.TIMEALLOWED, bean.getTimeAllowed()));
+        set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.TIMEALLOWED, bean.getTimeAllowed()));
             }
      */
     // save timeallowed for audio recording
     /*
         // save them in ItemFacade
         if (bean.getNumAttempts()!=null){
-        set.add(new ItemMetaData(item.getData(), ItemMetaData.NUMATTEMPTS, bean.getNumAttempts()));
+        set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.NUMATTEMPTS, bean.getNumAttempts()));
             }
      */
 

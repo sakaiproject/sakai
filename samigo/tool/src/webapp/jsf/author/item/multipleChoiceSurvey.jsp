@@ -79,13 +79,17 @@
   </div>
 
   <!-- 3 ANSWER -->
+  <!-- qti survey type  
+       PREDEFINED_SCALE: YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, EXCELLENT, 5, 10 
+  -->
+
  <span id="num3" class="number"></span>
 <div class="longtext">
     <h:outputLabel value="#{msg.answer} " /> </div>
    <div class="indnt2">
      <h:message for="selectscale" styleClass="validate"/>
     <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale" required="true">
-     <f:selectItem itemValue="YESNO" itemLabel="#{msg.yes_no}" />
+     <f:selectItem itemValue="YES" itemLabel="#{msg.yes_no}" />
      <f:selectItem itemValue="AGREE" itemLabel="#{msg.disagree_agree}" />
      <f:selectItem itemValue="UNDECIDED" itemLabel="#{msg.disagree_undecided}" />
      <f:selectItem itemValue="AVERAGE"
@@ -94,8 +98,8 @@
        itemLabel="#{msg.strongly_disagree} -> #{msg.strongly_agree}" />
      <f:selectItem itemValue="EXCELLENT"
         itemLabel="#{msg.unacceptable} -> #{msg.excellent}" />
-     <f:selectItem itemValue="SCALEFIVE" itemLabel="#{msg.scale5}" />
-     <f:selectItem itemValue="SCALETEN" itemLabel="#{msg.scale10}" />
+     <f:selectItem itemValue="5" itemLabel="#{msg.scale5}" />
+     <f:selectItem itemValue="10" itemLabel="#{msg.scale10}" />
     </h:selectOneRadio>
   <br />
 

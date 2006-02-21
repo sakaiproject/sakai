@@ -37,6 +37,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
@@ -155,45 +156,46 @@ public abstract class ItemHelperBase
    * @param type
    * @return
    */
-  private String getTemplateFromScale(String scaleName)
+  private String getTemplateFromScale(String scalename)
   {
     AuthoringXml ax = getAuthoringXml();
     String template = ax.SURVEY_10; //default
 
-    if (scaleName.equals("YESNO"))
+    // 2/19/2006: for backward compatibility,need to keep YESNO, SCALEFIVE, and SCALETEN
+    if ((ItemMetaDataIfc.SURVEY_YES.equals(scalename)) || (ItemMetaDataIfc.SURVEY_YESNO.equals(scalename)) ) 
     {
       template = ax.SURVEY_YES;
     }
-    else if (scaleName.equals("AGREE"))
+    else if (ItemMetaDataIfc.SURVEY_AGREE.equals(scalename)) 
     {
       template = ax.SURVEY_AGREE;
     }
-    else if (scaleName.equals("UNDECIDED"))
+    else if (ItemMetaDataIfc.SURVEY_UNDECIDED.equals(scalename)) 
     {
       template = ax.SURVEY_UNDECIDED;
     }
-    else if (scaleName.equals("AVERAGE"))
+    else if (ItemMetaDataIfc.SURVEY_AVERAGE.equals(scalename)) 
     {
       template = ax.SURVEY_AVERAGE;
     }
-    else if (scaleName.equals("STRONGLY_AGREE"))
+    else if (ItemMetaDataIfc.SURVEY_STRONGLY_AGREE.equals(scalename)) 
     {
       template = ax.SURVEY_STRONGLY;
     }
-    else if (scaleName.equals("EXCELLENT"))
+    else if (ItemMetaDataIfc.SURVEY_EXCELLENT.equals(scalename)) 
     {
       template = ax.SURVEY_EXCELLENT;
     }
-    else if (scaleName.equals("SCALEFIVE"))
+    else if ((ItemMetaDataIfc.SURVEY_5.equals(scalename)) || (ItemMetaDataIfc.SURVEY_SCALEFIVE.equals(scalename)) ) 
     {
       template = ax.SURVEY_5;
     }
-    else if (scaleName.equals("SCALETEN"))
+    else if ((ItemMetaDataIfc.SURVEY_10.equals(scalename)) || (ItemMetaDataIfc.SURVEY_SCALETEN.equals(scalename)) ) 
     {
       template = ax.SURVEY_10;
     }
 
-    log.debug("scale: " + scaleName);
+    log.debug("scale: " + scalename);
     log.debug("template: " + template);
 
     return template;
