@@ -149,6 +149,8 @@ public class AssessmentSettingsBean
   private String bgColor;
   private String bgImage;
   private HashMap values = new HashMap(); // contains only "can edit" element
+    private String bgColorSelect="0";
+ private String bgImageSelect="0";
 
   // extra properties
   private boolean noTemplate;
@@ -209,6 +211,7 @@ public class AssessmentSettingsBean
           RUBRICS);
       this.bgColor = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGCOLOR);
+
       this.bgImage = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGIMAGE);
 
@@ -336,6 +339,23 @@ public class AssessmentSettingsBean
     }
   }
 
+ public String getBgColorSelect()
+    {
+  return this.bgColorSelect;
+    }
+    public void setBgColorSelect(String bgColorSelect)
+    {
+	this.bgColorSelect=bgColorSelect;
+    }
+
+    public String getBgImageSelect()
+    {
+  return this.bgImageSelect;
+    }
+    public void setBgImageSelect(String bgImageSelect)
+    {
+	this.bgImageSelect=bgImageSelect;
+    }
 
     //Huong adding for outcome error
     public String getOutcomeSave()
@@ -423,19 +443,35 @@ public class AssessmentSettingsBean
   }
 
   public String getBgColor() {
+      if((this.getBgColorSelect()!=null) && (this.getBgColorSelect().equals("1")))
     return this.bgColor;
+      else
+	  return "";
+    
   }
 
   public void setBgColor(String bgColor) {
+    if((this.getBgColorSelect()!=null) && (this.getBgColorSelect().equals("1")))
     this.bgColor = bgColor;
+    else
+	this.bgColor="";
+   
   }
 
+
   public String getBgImage() {
-    return this.bgImage;
+      if((this.getBgImageSelect()!=null) && (this.getBgImageSelect().equals("1")))
+	  return this.bgImage;
+      else return "";
+     
   }
 
   public void setBgImage(String bgImage) {
+ if((this.getBgImageSelect()!=null) && (this.getBgImageSelect().equals("1")))
+     
     this.bgImage = bgImage;
+ else this.bgImage="";
+     
   }
 
   public boolean getHasQuestions() {

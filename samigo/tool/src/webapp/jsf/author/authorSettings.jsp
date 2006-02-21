@@ -115,6 +115,18 @@ function checkTimeSelect(){
     document.getElementById(autoSubmitId).disabled=false;
 
 }
+function uncheckOther(field){
+ var fieldname = field.getAttribute("name");
+ var inputList = document.getElementsByTagName("INPUT");
+
+ for(i = 0; i < inputList.length; i++){
+    if((inputList[i].name.indexOf("background")>=0)&&(inputList[i].name != fieldname))
+         inputList[i].checked=false;
+      
+}
+ 
+}
+
 
 //-->
 </script>
@@ -575,19 +587,21 @@ function checkTimeSelect(){
 
 
   <!-- *** COLORS AND GRAPHICS	*** -->
-<h:panelGroup rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true or assessmentSettings.valueMap.bgImage_isInstructorEditable==true}" >
+<h:panelGroup rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
   <samigo:hideDivision id="div11" title="#{msg.heading_graphics}" >
     <f:verbatim><div class="indnt2"></f:verbatim>
-    <h:panelGrid columns="1" columnClasses="shorttext" >
-      <h:panelGroup rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}">
-        <h:outputLabel value="#{msg.background_color}"/></b>
-        <samigo:colorPicker value="#{assessmentSettings.bgColor}" size="10" id="pickColor"/>
-      </h:panelGroup>
-      <h:panelGroup rendered="#{assessmentSettings.valueMap.bgImage_isInstructorEditable==true}">
-        <h:outputLabel value="#{msg.background_image}"/></b>
+ 
+        <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">
+          <f:selectItem itemValue="1" itemLabel="#{msg.background_color}"/>
+       </h:selectOneRadio>
+
+      <samigo:colorPicker value="#{assessmentSettings.bgColor}" size="10" id="pickColor"/>
+       <h:selectOneRadio onclick="uncheckOther(this)" id="background_image" value="#{assessmentSettings.bgImageSelect}"  >
+          <f:selectItem itemValue="1" itemLabel="#{msg.background_image}"/>
+       </h:selectOneRadio>  
+   
         <h:inputText size="80" value="#{assessmentSettings.bgImage}"/>
-      </h:panelGroup>
-    </h:panelGrid>
+     
     <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
 </h:panelGroup>

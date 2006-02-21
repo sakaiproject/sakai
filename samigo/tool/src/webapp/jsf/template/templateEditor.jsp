@@ -564,25 +564,17 @@
 </div>
   </samigo:hideDivision>
 
-  <!-- *** COLORS AND GRAPHICS	*** -->
-  <samigo:hideDivision title="#{msg.graphics}" id="div12">
+ <!-- *** HUONG COLORS AND GRAPHICS	*** -->
+ <samigo:hideDivision title="#{msg.graphics}" id="div12">
     <div class="indnt2">
-  <div class="longtext">
-    <h:outputLabel for="graphics" value="#{msg.template_canbeedited}"/></div>
-     <div class="indnt3">
-    <h:panelGrid columns="2"
-      summary="#{msg.graphics_sec}">
+ <div class="longtext"><h:outputLabel value="#{msg.template_canbeedited}"/></div>
+ <div class="indnt3">
+        <h:selectBooleanCheckbox id="graphics"
+          value="#{template.valueMap.bgColor_isInstructorEditable}"/>
+        <h:outputLabel value="#{msg.bg}"/>
+        </div>
 
-      <h:selectBooleanCheckbox id="bg_color"
-        value="#{template.valueMap.bgColor_isInstructorEditable}"/>
-      <h:outputLabel for="bg_color" value="#{msg.bg_color}"/>
-
-      <h:selectBooleanCheckbox id="bg_image"
-        value="#{template.valueMap.bgImage_isInstructorEditable}"/>
-      <h:outputLabel for="bg_image" value="#{msg.bg_image}"/>
-
-    </h:panelGrid>
-    </div></div>
+    </div>
   </samigo:hideDivision>
 
   <!-- *** META *** -->
