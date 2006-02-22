@@ -140,11 +140,11 @@
    </samigo:wysiwyg>
  
  
-          <h:outputText value="#{msg.feedback_optional}" rendered="#{assessmentSettings.feedbackAuthoring== '2' or assessmentSettings.feedbackAuthoring== '3'}" />
+          <h:outputText value="#{msg.feedback_optional}" rendered="#{assessmentSettings.feedbackAuthoring ne '1'}" />
     
         <!-- WYSIWYG -->
 
-<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring== '2' or assessmentSettings.feedbackAuthoring== '3'}">
+<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '1'}">
          <samigo:wysiwyg rows="140" value="#{answer.feedback}">
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
@@ -218,11 +218,12 @@
 
 
  <!-- 8 FEEDBACK -->
- <span id="num8" class="number"></span>
-  <div class="longtext">
+<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+ <h:outputText value="<span id=\"num8\" class=\"number\"></span>" escape="false"/>
+ <f:verbatim> <div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
-</div>
-<div class="indnt2">
+ <f:verbatim></div> </f:verbatim>
+ <f:verbatim><div class="indnt2"> </f:verbatim>
   <h:outputText value="#{msg.correct_answer_opti}" />
 <br/>
   <!-- WYSIWYG -->
@@ -233,7 +234,7 @@
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
-<br/>
+ <f:verbatim><br/> </f:verbatim>
  <h:outputText value="#{msg.incorrect_answer_op}" />
 
   <!-- WYSIWYG -->
@@ -242,7 +243,8 @@
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
-</div>
+ <f:verbatim></div> </f:verbatim>
+</h:panelGroup>
  <!-- METADATA -->
 
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
