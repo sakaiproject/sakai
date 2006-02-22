@@ -85,7 +85,7 @@ public class XMLImportBean implements Serializable
     }
     catch (Exception ex)
     {
-      FacesMessage message = new FacesMessage( rb.getString("import_err" + ex) );
+      FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
   }
