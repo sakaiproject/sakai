@@ -372,7 +372,7 @@ public class DiscussionForumTool
         else
         {
           level = permissionLevelManager.getPermissionLevelByName(permBean.getSelectedLevel());
-          membershipItem.setPermissionLevel(level);
+           membershipItem.setPermissionLevelName(permBean.getSelectedLevel());
         }
         
         //  // save DBMembershiptItem here to get an id so we can add to the set
