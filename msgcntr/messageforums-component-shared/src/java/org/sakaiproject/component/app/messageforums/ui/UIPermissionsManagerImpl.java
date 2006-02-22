@@ -3,12 +3,17 @@
  */
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
+import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.ForumControlPermission;
@@ -18,6 +23,7 @@ import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
@@ -39,8 +45,7 @@ import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
-public class UIPermissionsManagerImpl implements UIPermissionsManager
-{
+public class UIPermissionsManagerImpl implements UIPermissionsManager {
   private static final Log LOG = LogFactory
       .getLog(UIPermissionsManagerImpl.class);
 
@@ -52,10 +57,30 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
   private PermissionLevelManager permissionLevelManager;
   private MessageForumsTypeManager typeManager;
   private SecurityService securityService;
+  private DiscussionForumManager forumManager;
+  private AreaManager areaManager;
 
   public void init()
   {
     ;
+  }
+
+  /**
+   * @param areaManager
+   *          The areaManager to set.
+   */
+  public void setAreaManager(AreaManager areaManager)
+  {
+    this.areaManager = areaManager;
+  }
+
+  /**
+   * @param forumManager
+   *          The forumManager to set.
+   */
+  public void setForumManager(DiscussionForumManager forumManager)
+  {
+    this.forumManager = forumManager;
   }
 
   /**
@@ -153,7 +178,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     }
     try
     {
-      return getAreaControlPermissions().getNewForum().booleanValue();
+      if (getAreaItemByUserRole().getPermissionLevel() == null
+          || getAreaItemByUserRole().getPermissionLevel().getNewForum() == null)
+      {
+        return false;
+      }
+      return getAreaItemByUserRole().getPermissionLevel().getNewForum()
+          .booleanValue();
     }
     catch (Exception e)
     {
@@ -184,7 +215,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     }
     try
     {
-      return getAreaControlPermissions().getChangeSettings().booleanValue();
+      if (getAreaItemByUserRole().getPermissionLevel() == null
+          || getAreaItemByUserRole().getPermissionLevel().getNewForum() == null)
+      {
+        return false;
+      }
+      return getAreaItemByUserRole().getPermissionLevel().getNewForum()
+          .booleanValue();
     }
     catch (Exception e)
     {
@@ -210,23 +247,14 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     }
     try
     {
-      ForumControlPermission controlPermission = permissionManager
-          .getForumControlPermissionForRole(forum, getCurrentUserRole(),
-              typeManager.getDiscussionForumType());
-
-      if (controlPermission == null || controlPermission.getNewTopic() == null
-          || controlPermission.getNewTopic().equals(Boolean.FALSE))
+      Iterator iter = getForumItemByCurrentUser(forum);
+      while (iter.hasNext())
       {
-        if (LOG.isDebugEnabled())
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getNewTopic().booleanValue())
         {
-          LOG.debug("Role :" + getCurrentUserRole()
-              + "is not allowed to create new topic for given forum " + forum);
+          return true;
         }
-        return false;
-      }
-      else
-      {
-        return true;
       }
     }
     catch (Exception e)
@@ -234,7 +262,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       LOG.error(e.getMessage(), e);
       return false;
     }
-
+    return false;
   }
 
   /*
@@ -257,34 +285,18 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       {
         return true;
       }
-      if (isContributor(topic) != null)
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
       {
-        return isContributor(topic).booleanValue();
-      }
-      TopicControlPermission controlPermission = permissionManager
-          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
-              typeManager.getDiscussionForumType());
-
-      if (controlPermission == null
-          || controlPermission.getNewResponse() == null
-          || controlPermission.getNewResponse().equals(Boolean.FALSE))
-      {
-        if (LOG.isDebugEnabled())
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getNewResponse().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
         {
-          LOG.debug("Role :" + getCurrentUserRole()
-              + "is not allowed to create new response for given topic "
-              + topic);
+          return true;
         }
-        return false;
-      }
-
-      if (controlPermission.getNewResponse().equals(Boolean.TRUE)
-          && forum.getDraft().equals(Boolean.FALSE)
-          && forum.getLocked().equals(Boolean.FALSE)
-          && topic.getDraft().equals(Boolean.FALSE)
-          && topic.getLocked().equals(Boolean.FALSE))
-      {
-        return true;
       }
     }
     catch (Exception e)
@@ -292,7 +304,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       LOG.error(e.getMessage(), e);
       return false;
     }
-
     return false;
   }
 
@@ -317,37 +328,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       {
         return true;
       }
-      if (isContributor(topic) != null)
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
       {
-        return isContributor(topic).booleanValue();
-      }
-      TopicControlPermission controlPermission = permissionManager
-          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
-              typeManager.getDiscussionForumType());
-
-      if (controlPermission == null
-          || controlPermission.getResponseToResponse() == null
-          || controlPermission.getResponseToResponse().equals(Boolean.FALSE))
-      {
-        if (LOG.isDebugEnabled())
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getNewResponseToResponse().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
         {
-          LOG
-              .debug("Role :"
-                  + getCurrentUserRole()
-                  + "is not allowed to create response to response for given topic "
-                  + topic);
+          return true;
         }
-        return false;
       }
 
-      if (controlPermission.getResponseToResponse().equals(Boolean.TRUE)
-          && forum.getDraft().equals(Boolean.FALSE)
-          && forum.getLocked().equals(Boolean.FALSE)
-          && topic.getDraft().equals(Boolean.FALSE)
-          && topic.getLocked().equals(Boolean.FALSE))
-      {
-        return true;
-      }
     }
     catch (Exception e)
     {
@@ -377,29 +371,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       {
         return true;
       }
-      TopicControlPermission controlPermission = permissionManager
-          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
-              typeManager.getDiscussionForumType());
-
-      if (controlPermission == null
-          || controlPermission.getMovePostings() == null
-          || controlPermission.getMovePostings().equals(Boolean.FALSE))
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
       {
-        if (LOG.isDebugEnabled())
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getMovePosting().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
         {
-          LOG.debug("Role :" + getCurrentUserRole()
-              + "is not allowed to move postings for given topic " + topic);
+          return true;
         }
-        return false;
       }
-      if (controlPermission.getMovePostings().equals(Boolean.TRUE)
-          && forum.getDraft().equals(Boolean.FALSE)
-          && forum.getLocked().equals(Boolean.FALSE)
-          && topic.getDraft().equals(Boolean.FALSE)
-          && topic.getLocked().equals(Boolean.FALSE))
-      {
-        return true;
-      }
+
     }
     catch (Exception e)
     {
@@ -438,29 +423,26 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       {
         return true;
       }
-      TopicControlPermission controlPermission = permissionManager
-          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
-              typeManager.getDiscussionForumType());
+
       // if owner then allow change of settings on the topic or on forum.
       if (topic.getCreatedBy().equals(getCurrentUserId()))
       {
         return true;
       }
-      if (controlPermission == null
-          || controlPermission.getChangeSettings() == null
-          || controlPermission.getChangeSettings().equals(Boolean.FALSE))
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
       {
-        if (LOG.isDebugEnabled())
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getChangeSettings().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
         {
-          LOG.debug("Role :" + getCurrentUserRole()
-              + "is not allowed to change settings for given topic " + topic);
+          return true;
         }
-        return false;
       }
-      if (controlPermission.getChangeSettings().equals(Boolean.TRUE))
-      {
-        return true;
-      }
+
     }
     catch (Exception e)
     {
@@ -490,29 +472,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       {
         return true;
       }
-      TopicControlPermission controlPermission = permissionManager
-          .getTopicControlPermissionForRole(topic, getCurrentUserRole(),
-              typeManager.getDiscussionForumType());
-
-      if (controlPermission == null
-          || controlPermission.getPostToGradebook() == null
-          || controlPermission.getPostToGradebook().equals(Boolean.FALSE))
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
       {
-        if (LOG.isDebugEnabled())
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getPostToGradebook().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
         {
-          LOG.debug("Role :" + getCurrentUserRole()
-              + "is not allowed to post to gradebook for given topic " + topic);
+          return true;
         }
-        return false;
       }
-      if (controlPermission.getPostToGradebook().equals(Boolean.TRUE)
-          && forum.getDraft().equals(Boolean.FALSE)
-          && forum.getLocked().equals(Boolean.FALSE)
-          && topic.getDraft().equals(Boolean.FALSE)
-          && topic.getLocked().equals(Boolean.FALSE))
-      {
-        return true;
-      }
+
     }
     catch (Exception e)
     {
@@ -535,39 +508,32 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       LOG.debug("isRead(DiscussionTopic " + topic + ", DiscussionForum" + forum
           + ")");
     }
-    if (checkBaseConditions(topic, forum))
+    try
     {
-      return true;
-    }
-    if (isContributor(topic) != null && isContributor(topic).booleanValue())
-    {      
-      return true;
-    }
-    if (isReadAccess(topic) != null)
-    {
-      return isReadAccess(topic).booleanValue();
-    }
-    MessagePermissions messagePermission = permissionManager
-        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
-            typeManager.getDiscussionForumType());
-
-    if (messagePermission == null || messagePermission.getRead() == null
-        || messagePermission.getRead().equals(Boolean.FALSE))
-    {
-      if (LOG.isDebugEnabled())
+      if (checkBaseConditions(topic, forum))
       {
-        LOG.debug("Role :" + getCurrentUserRole()
-            + "is not allowed to read messages for given topic " + topic);
+        return true;
       }
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getRead().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
+        {
+          return true;
+        }
+      }
+
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
       return false;
     }
-    if (messagePermission.getRead().equals(Boolean.TRUE)
-        && forum.getDraft().equals(Boolean.FALSE)
-        && topic.getDraft().equals(Boolean.FALSE))
-    {
-      return true;
-    }
-
     return false;
   }
 
@@ -584,25 +550,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
       LOG.debug("isReviseAny(DiscussionTopic " + topic + ", DiscussionForum"
           + forum + ")");
     }
-    if (checkBaseConditions(topic, forum))
+    try
     {
-      return true;
-    }
-    MessagePermissions messagePermission = permissionManager
-        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
-            typeManager.getDiscussionForumType());
-
-    if (messagePermission == null || messagePermission.getReviseAny() == null
-        || messagePermission.getReviseAny().equals(Boolean.FALSE))
-    {
-      if (LOG.isDebugEnabled())
+      if (checkBaseConditions(topic, forum))
       {
-        LOG.debug("Role :" + getCurrentUserRole()
-            + "is not allowed to revise any messages for given topic " + topic);
+        return true;
       }
-      return false;
-    }
-    if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
+       if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is locked " + topic);
       return false;
@@ -611,13 +565,25 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-    if (messagePermission.getReviseAny().equals(Boolean.TRUE)
-        && forum.getDraft().equals(Boolean.FALSE)
-        && forum.getLocked().equals(Boolean.FALSE)
-        && topic.getDraft().equals(Boolean.FALSE)
-        && topic.getLocked().equals(Boolean.FALSE))
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getReviseAny().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
+        {
+          return true;
+        }
+      }
+
+    }
+    catch (Exception e)
     {
-      return true;
+      LOG.error(e.getMessage(), e);
+      return false;
     }
     return false;
   }
@@ -639,21 +605,14 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       return true;
     }
-    MessagePermissions messagePermission = permissionManager
-        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
-            typeManager.getDiscussionForumType());
-
-    if (messagePermission == null || messagePermission.getReviseOwn() == null
-        || messagePermission.getReviseOwn().equals(Boolean.FALSE))
+    try
     {
-      if (LOG.isDebugEnabled())
+      if (checkBaseConditions(topic, forum))
       {
-        LOG.debug("Role :" + getCurrentUserRole()
-            + "is not allowed to revise own messages for given topic " + topic);
+        return true;
       }
-      return false;
-    }
-    if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
+      
+       if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is locked " + topic);
       return false;
@@ -662,13 +621,25 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-    if (messagePermission.getReviseOwn().equals(Boolean.TRUE)
-        && forum.getDraft().equals(Boolean.FALSE)
-        && forum.getLocked().equals(Boolean.FALSE)
-        && topic.getDraft().equals(Boolean.FALSE)
-        && topic.getLocked().equals(Boolean.FALSE))
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getReviseOwn().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
+        {
+          return true;
+        }
+      }
+
+    }
+    catch (Exception e)
     {
-      return true;
+      LOG.error(e.getMessage(), e);
+      return false;
     }
     return false;
   }
@@ -690,21 +661,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       return true;
     }
-    MessagePermissions messagePermission = permissionManager
-        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
-            typeManager.getDiscussionForumType());
-
-    if (messagePermission == null || messagePermission.getDeleteAny() == null
-        || messagePermission.getDeleteAny().equals(Boolean.FALSE))
+    try
     {
-      if (LOG.isDebugEnabled())
+      if (checkBaseConditions(topic, forum))
       {
-        LOG.debug("Role :" + getCurrentUserRole()
-            + "is not allowed to delete any messages for given topic " + topic);
+        return true;
       }
-      return false;
-    }
-    if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
+        if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is locked " + topic);
       return false;
@@ -713,13 +676,25 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-    if (messagePermission.getDeleteAny().equals(Boolean.TRUE)
-        && forum.getDraft().equals(Boolean.FALSE)
-        && forum.getLocked().equals(Boolean.FALSE)
-        && topic.getDraft().equals(Boolean.FALSE)
-        && topic.getLocked().equals(Boolean.FALSE))
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getDeleteAny().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
+        {
+          return true;
+        }
+      }
+
+    }
+    catch (Exception e)
     {
-      return true;
+      LOG.error(e.getMessage(), e);
+      return false;
     }
     return false;
   }
@@ -741,23 +716,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       return true;
     }
-    MessagePermissions messagePermission = permissionManager
-        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
-            typeManager.getDiscussionForumType());
-
-    if (messagePermission == null || messagePermission.getDeleteOwn() == null
-        || messagePermission.getDeleteOwn().equals(Boolean.FALSE))
+    try
     {
-      if (LOG.isDebugEnabled())
+      if (checkBaseConditions(topic, forum))
       {
-        LOG
-            .debug("Role :" + getCurrentUserRole()
-                + "is not allowed to delete own  messages for given topic "
-                + topic);
+        return true;
       }
-      return false;
-    }
-    if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
+        if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is locked " + topic);
       return false;
@@ -766,13 +731,25 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-    if (messagePermission.getDeleteOwn().equals(Boolean.TRUE)
-        && forum.getDraft().equals(Boolean.FALSE)
-        && forum.getLocked().equals(Boolean.FALSE)
-        && topic.getDraft().equals(Boolean.FALSE)
-        && topic.getLocked().equals(Boolean.FALSE))
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getDeleteOwn().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
+        {
+          return true;
+        }
+      }
+
+    }
+    catch (Exception e)
     {
-      return true;
+      LOG.error(e.getMessage(), e);
+      return false;
     }
     return false;
   }
@@ -794,21 +771,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       return true;
     }
-    MessagePermissions messagePermission = permissionManager
-        .getTopicMessagePermissionForRole(topic, getCurrentUserRole(),
-            typeManager.getDiscussionForumType());
 
-    if (messagePermission == null || messagePermission.getMarkAsRead() == null
-        || messagePermission.getMarkAsRead().equals(Boolean.FALSE))
-    {
-      if (LOG.isDebugEnabled())
-      {
-        LOG.debug("Role :" + getCurrentUserRole()
-            + "is not allowed to mark messages as read for given topic "
-            + topic);
-      }
-      return false;
-    }
     if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
     {
       LOG.debug("This topic is locked " + topic);
@@ -818,15 +781,43 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-    if (messagePermission.getMarkAsRead().equals(Boolean.TRUE)
-        && forum.getDraft().equals(Boolean.FALSE)
-        && forum.getLocked().equals(Boolean.FALSE)
-        && topic.getDraft().equals(Boolean.FALSE)
-        && topic.getLocked().equals(Boolean.FALSE))
+    try
     {
-      return true;
+      if (checkBaseConditions(topic, forum))
+      {
+        return true;
+      }
+        if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
+    {
+      LOG.debug("This topic is locked " + topic);
+      return false;
+    }
+    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
+    {
+      LOG.debug("This topic is at draft stage " + topic);
+    }
+      Iterator iter = getTopicItemByCurrentUser(topic);
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getRead().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
+        {
+          return true;
+        }
+      }
+
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+      return false;
     }
     return false;
+
   }
 
   /**
@@ -911,15 +902,15 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     return securityService.isSuperUser();
   }
 
-  /**
-   * @return
-   */
-  private AreaControlPermission getAreaControlPermissions()
-  {
-    LOG.debug("getAreaControlPermissions()");
-    return permissionManager.getAreaControlPermissionForRole(
-        getCurrentUserRole(), typeManager.getDiscussionForumType());
-  }
+  // /**
+  // * @return
+  // */
+  // private AreaControlPermission getAreaControlPermissions()
+  // {
+  // LOG.debug("getAreaControlPermissions()");
+  // return permissionManager.getAreaControlPermissionForRole(
+  // getCurrentUserRole(), typeManager.getDiscussionForumType());
+  // }
 
   /**
    * @param topic
@@ -938,135 +929,135 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     {
       return true;
     }
-    if (forum.getLocked() == null || forum.getLocked().equals(Boolean.FALSE))
-    {
-      LOG.debug("This Forum is Locked");
-      return false;
-    }
-    if (forum.getDraft() == null || forum.getDraft().equals(Boolean.FALSE))
-    {
-      LOG.debug("This forum is a draft");
-      return false;
-    }
-    if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
-    {
-      LOG.debug("This topic is locked " + topic);
-      return false;
-    }
-    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
-    {
-      LOG.debug("This topic is at draft stage " + topic);
-      return false;
-    }
+    // if (forum.getLocked() == null || forum.getLocked().equals(Boolean.FALSE))
+    // {
+    // LOG.debug("This Forum is Locked");
+    // return false;
+    // }
+    // if (forum.getDraft() == null || forum.getDraft().equals(Boolean.FALSE))
+    // {
+    // LOG.debug("This forum is a draft");
+    // return false;
+    // }
+    // if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
+    // {
+    // LOG.debug("This topic is locked " + topic);
+    // return false;
+    // }
+    // if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
+    // {
+    // LOG.debug("This topic is at draft stage " + topic);
+    // return false;
+    // }
     return false;
   }
 
-  /**
-   * @param userId
-   * @param topic
-   * @return
-   */
-  private Boolean isContributor(DiscussionTopic topic)
-  {
-    if (LOG.isDebugEnabled())
-    {
-      LOG.debug("isContributor(DiscussionTopic " + topic + ")");
-    }
-    if (topic == null)
-    {
-      return null;
-    }
-    if (topic.getActorPermissions() == null
-        || topic.getActorPermissions().getContributors() == null
-        || topic.getActorPermissions().getContributors().size() < 1)
-    {
-      return null;
-    }
-    Iterator iter = topic.getActorPermissions().getContributors().iterator();
-    while (iter.hasNext())
-    {
-      MessageForumsUser user = (MessageForumsUser) iter.next();
-      if (user != null && user.getUuid() != null
-          && user.getUuid().trim().length() > 0 && user.getTypeUuid() != null)
-      {
-        if (user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
-        {
-          return null;
-        }
-        if (user.getTypeUuid().equals(typeManager.getAllParticipantType()))
-        {
-          return Boolean.TRUE;
-        }
-        if (user.getTypeUuid().equals(typeManager.getGroupType())
-            && isGroupMember(user.getUserId()))
-        {
-          return Boolean.TRUE;
-        }
-        if (user.getTypeUuid().equals(typeManager.getRoleType())
-            && isRoleMember(user.getUserId()))
-        {
-          return Boolean.TRUE;
-        }
-        if (user.getTypeUuid().equals(typeManager.getUserType())
-            && user.getUserId().equals(getCurrentUserId()))
-        {
-          return Boolean.TRUE;
-        }
-      }
-    }
-    return Boolean.FALSE;
-  }
+  // /**
+  // * @param userId
+  // * @param topic
+  // * @return
+  // */
+  // private Boolean isContributor(DiscussionTopic topic)
+  // {
+  // if (LOG.isDebugEnabled())
+  // {
+  // LOG.debug("isContributor(DiscussionTopic " + topic + ")");
+  // }
+  // if (topic == null)
+  // {
+  // return null;
+  // }
+  // if (topic.getActorPermissions() == null
+  // || topic.getActorPermissions().getContributors() == null
+  // || topic.getActorPermissions().getContributors().size() < 1)
+  // {
+  // return null;
+  // }
+  // Iterator iter = topic.getActorPermissions().getContributors().iterator();
+  // while (iter.hasNext())
+  // {
+  // MessageForumsUser user = (MessageForumsUser) iter.next();
+  // if (user != null && user.getUuid() != null
+  // && user.getUuid().trim().length() > 0 && user.getTypeUuid() != null)
+  // {
+  // if (user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
+  // {
+  // return null;
+  // }
+  // if (user.getTypeUuid().equals(typeManager.getAllParticipantType()))
+  // {
+  // return Boolean.TRUE;
+  // }
+  // if (user.getTypeUuid().equals(typeManager.getGroupType())
+  // && isGroupMember(user.getUserId()))
+  // {
+  // return Boolean.TRUE;
+  // }
+  // if (user.getTypeUuid().equals(typeManager.getRoleType())
+  // && isRoleMember(user.getUserId()))
+  // {
+  // return Boolean.TRUE;
+  // }
+  // if (user.getTypeUuid().equals(typeManager.getUserType())
+  // && user.getUserId().equals(getCurrentUserId()))
+  // {
+  // return Boolean.TRUE;
+  // }
+  // }
+  // }
+  // return Boolean.FALSE;
+  // }
 
-  private Boolean isReadAccess(DiscussionTopic topic)
-  {
-    if (LOG.isDebugEnabled())
-    {
-      LOG.debug(" isReadAccess(DiscussionTopic  " + topic + ")");
-    }
-    if (topic == null)
-    {
-      return null;
-    }
-    if (topic.getActorPermissions() == null
-        || topic.getActorPermissions().getAccessors() == null
-        || topic.getActorPermissions().getAccessors().size() < 1)
-    {
-      return null;
-    }
-    Iterator iter = topic.getActorPermissions().getAccessors().iterator();
-    while (iter.hasNext())
-    {
-      MessageForumsUser user = (MessageForumsUser) iter.next();
-      if (user != null && user.getUuid() != null
-          && user.getUuid().trim().length() > 0 && user.getTypeUuid() != null)
-      {
-        if (user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
-        {
-          return null;
-        }
-        if (user.getTypeUuid().equals(typeManager.getAllParticipantType()))
-        {
-          return Boolean.TRUE;
-        }
-        if (user.getTypeUuid().equals(typeManager.getGroupType())
-            && isGroupMember(user.getUserId()))
-        {
-          return Boolean.TRUE;
-        }
-        if (user.getTypeUuid().equals(typeManager.getRoleType())
-            && isRoleMember(user.getUserId()))
-        {
-          return Boolean.TRUE;
-        }
-        if (user.getTypeUuid().equals(typeManager.getUserType())
-            && user.getUserId().equals(getCurrentUserId()))
-        {
-          return Boolean.TRUE;
-        }
-      }
-    }
-    return Boolean.FALSE;
-  }
+  // private Boolean isReadAccess(DiscussionTopic topic)
+  // {
+  // if (LOG.isDebugEnabled())
+  // {
+  // LOG.debug(" isReadAccess(DiscussionTopic " + topic + ")");
+  // }
+  // if (topic == null)
+  // {
+  // return null;
+  // }
+  // if (topic.getActorPermissions() == null
+  // || topic.getActorPermissions().getAccessors() == null
+  // || topic.getActorPermissions().getAccessors().size() < 1)
+  // {
+  // return null;
+  // }
+  // Iterator iter = topic.getActorPermissions().getAccessors().iterator();
+  // while (iter.hasNext())
+  // {
+  // MessageForumsUser user = (MessageForumsUser) iter.next();
+  // if (user != null && user.getUuid() != null
+  // && user.getUuid().trim().length() > 0 && user.getTypeUuid() != null)
+  // {
+  // if (user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
+  // {
+  // return null;
+  // }
+  // if (user.getTypeUuid().equals(typeManager.getAllParticipantType()))
+  // {
+  // return Boolean.TRUE;
+  // }
+  // if (user.getTypeUuid().equals(typeManager.getGroupType())
+  // && isGroupMember(user.getUserId()))
+  // {
+  // return Boolean.TRUE;
+  // }
+  // if (user.getTypeUuid().equals(typeManager.getRoleType())
+  // && isRoleMember(user.getUserId()))
+  // {
+  // return Boolean.TRUE;
+  // }
+  // if (user.getTypeUuid().equals(typeManager.getUserType())
+  // && user.getUserId().equals(getCurrentUserId()))
+  // {
+  // return Boolean.TRUE;
+  // }
+  // }
+  // }
+  // return Boolean.FALSE;
+  // }
 
   private boolean isRoleMember(String roleId)
   {
@@ -1098,10 +1089,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
         if (currentGroup.getId().equals(groupId))
         {
           Member member = currentGroup.getMember(getCurrentUserId());
-          if (member!=null && member.getUserId().equals(getCurrentUserId()))
-          {          
+          if (member != null && member.getUserId().equals(getCurrentUserId()))
+          {
             return true;
-           
+
           }
         }
       }
@@ -1113,6 +1104,89 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     }
 
     return false;
+  }
+
+  private Iterator getGroupsByCurrentUser()
+  {
+    List memberof = new ArrayList();
+    try
+    {
+      Collection groups = SiteService.getSite(PortalService.getCurrentSiteId())
+          .getGroups();
+      for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+      {
+        Group currentGroup = (Group) groupIterator.next();
+
+        Member member = currentGroup.getMember(getCurrentUserId());
+        if (member != null && member.getUserId().equals(getCurrentUserId()))
+        {
+          memberof.add(currentGroup.getId());
+        }
+      }
+    }
+    catch (IdUnusedException e)
+    {
+      LOG.debug("Group not found");
+    }
+    return memberof.iterator();
+  }
+
+  private DBMembershipItem getAreaItemByUserRole()
+  {
+    Set membershipItems = forumManager.getDiscussionForumArea()
+        .getMembershipItemSet();
+    return forumManager.getAreaDBMember(membershipItems, getCurrentUserRole(),
+        DBMembershipItem.TYPE_ROLE);
+  }
+
+  private Iterator getForumItemByCurrentUser(DiscussionForum forum)
+  {
+    List forumItems = new ArrayList();
+    Set membershipItems = forum.getMembershipItemSet();
+    forumManager.getDBMember(membershipItems, getCurrentUserRole(),
+        DBMembershipItem.TYPE_ROLE);
+
+    Iterator iter = membershipItems.iterator();
+    while (iter.hasNext())
+    {
+      DBMembershipItem membershipItem = (DBMembershipItem) iter.next();
+      if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)
+          && membershipItem.getName().equals(getCurrentUserRole()))
+      {
+        forumItems.add(membershipItem);
+      }
+      if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)
+          && isGroupMember(membershipItem.getName()))
+      {
+        forumItems.add(membershipItem);
+      }
+    }
+    return forumItems.iterator();
+  }
+
+  private Iterator getTopicItemByCurrentUser(DiscussionTopic topic)
+  {
+    List topicItems = new ArrayList();
+    Set membershipItems = topic.getMembershipItemSet();
+    forumManager.getDBMember(membershipItems, getCurrentUserRole(),
+        DBMembershipItem.TYPE_ROLE);
+
+    Iterator iter = membershipItems.iterator();
+    while (iter.hasNext())
+    {
+      DBMembershipItem membershipItem = (DBMembershipItem) iter.next();
+      if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)
+          && membershipItem.getName().equals(getCurrentUserRole()))
+      {
+        topicItems.add(membershipItem);
+      }
+      if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)
+          && isGroupMember(membershipItem.getName()))
+      {
+        topicItems.add(membershipItem);
+      }
+    }
+    return topicItems.iterator();
   }
 
   /*
@@ -1153,8 +1227,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager
     return ("/site/" + toolManager.getCurrentPlacement().getContext());
   }
 
-	public void setPermissionLevelManager(
-			PermissionLevelManager permissionLevelManager) {
-		this.permissionLevelManager = permissionLevelManager;
-	}
+  public void setPermissionLevelManager(
+      PermissionLevelManager permissionLevelManager)
+  {
+    this.permissionLevelManager = permissionLevelManager;
+  }
 }
