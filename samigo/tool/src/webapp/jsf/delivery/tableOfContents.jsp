@@ -164,7 +164,7 @@ function clickSubmitForGrade(){
             <h:graphicImage alt="#{msg.q_marked}"
                url="/images/tree/marked.gif"  rendered="#{question.review}"/>
               <h:commandLink immediate="true" action="takeAssessment"> 
-                <h:outputText value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{msg.pt})">
+                <h:outputText escape="false" value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{msg.pt})">
 <f:convertNumber maxFractionDigits="2"/>
         </h:outputText>
                 <f:param name="partnumber" value="#{part.number}" />
