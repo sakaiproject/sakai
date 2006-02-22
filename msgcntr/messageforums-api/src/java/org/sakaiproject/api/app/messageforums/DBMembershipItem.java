@@ -44,6 +44,10 @@ public interface DBMembershipItem extends MutableEntity {
   
   public void setType(Integer type);;
   
+  public String getPermissionLevelName();
+  
+  public void setPermissionLevelName(String permissionLevelName);
+  
   public PermissionLevel getPermissionLevel();
 
   public void setPermissionLevel(PermissionLevel permissionLevel);

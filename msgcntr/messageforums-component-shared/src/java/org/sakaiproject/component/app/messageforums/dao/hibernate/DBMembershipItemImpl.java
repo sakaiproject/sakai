@@ -36,6 +36,7 @@ import org.sakaiproject.api.app.messageforums.PermissionLevel;
                
    private String name;   
    private Integer type;
+   private String permissionLevelName;
    private PermissionLevel permissionLevel;
         
   public DBMembershipItemImpl(){
@@ -62,6 +63,14 @@ import org.sakaiproject.api.app.messageforums.PermissionLevel;
   {
     this.type = type;
   }
+  
+  public String getPermissionLevelName() {
+		return permissionLevelName;
+	}
+
+	public void setPermissionLevelName(String permissionLevelName) {
+		this.permissionLevelName = permissionLevelName;
+	}	
   
   public PermissionLevel getPermissionLevel() {
 		return permissionLevel;
@@ -112,7 +121,7 @@ import org.sakaiproject.api.app.messageforums.PermissionLevel;
   public int hashCode()
   {    
     return id.hashCode();
-  }	
-    
+  }
+	   
 }
  

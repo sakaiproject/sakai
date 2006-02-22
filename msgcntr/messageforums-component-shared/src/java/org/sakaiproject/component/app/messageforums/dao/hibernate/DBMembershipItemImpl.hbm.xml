@@ -31,6 +31,8 @@
     <property name="name" column="NAME" length="255" not-null="true"/>
     <property name="type" column="TYPE" not-null="true"/>        
     
+    <property name="permissionLevelName" column="PERMISSION_LEVEL_NAME" length="255" not-null="true" />
+    
     <many-to-one name="permissionLevel" column="PERMISSION_LEVEL"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl"
         not-null="false" cascade="save-update" unique="true"/>
