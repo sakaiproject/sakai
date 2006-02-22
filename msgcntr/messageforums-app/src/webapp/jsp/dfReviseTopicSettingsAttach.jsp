@@ -165,7 +165,7 @@
 			<%--<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></f:facet>
 				<h:selectBooleanCheckbox value="#{cntrl_settings.postToGradebook}"/>
-			</h:column>		--%>
+			</h:column>--%>
 		</h:dataTable>
       </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_message_permissions}" id="msg_perm" hideByDefault="true">

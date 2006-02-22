@@ -33,22 +33,13 @@ import org.sakaiproject.api.app.messageforums.PermissionLevel;
  public class DBMembershipItemImpl extends MutableEntityImpl 
                                    implements DBMembershipItem, Comparable
  {
-      
-   public static final Integer TYPE_NOT_SPECIFIED = new Integer(0); 
-   public static final Integer TYPE_ALL_PARTICIPANTS = new Integer(1);
-   public static final Integer TYPE_ROLE = new Integer(2);
-   public static final Integer TYPE_GROUP = new Integer(3);
-   public static final Integer TYPE_USER = new Integer(4);   
-   
-   
-   public static final String ALL_PARTICIPANTS_DESC = "All Participants";
-   public static final String NOT_SPECIFIED_DESC = "Not Specified";
-         
+               
    private String name;   
    private Integer type;
    private PermissionLevel permissionLevel;
-         
+        
   public DBMembershipItemImpl(){
+     
   }
     
    
@@ -76,7 +67,7 @@ import org.sakaiproject.api.app.messageforums.PermissionLevel;
 		return permissionLevel;
 	}
 
-	public void setPermissionLevel(PermissionLevel permissionLevel) {
+  public void setPermissionLevel(PermissionLevel permissionLevel) {
 		this.permissionLevel = permissionLevel;
 	} 
 

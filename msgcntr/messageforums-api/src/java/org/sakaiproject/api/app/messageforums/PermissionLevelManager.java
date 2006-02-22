@@ -23,10 +23,18 @@
 
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.List;
+
 import org.sakaiproject.api.common.authorization.PermissionsMask;
 
 public interface PermissionLevelManager {
-
+    public static final String PERMISSION_LEVEL_NAME_OWNER = "Owner";
+    public static final String PERMISSION_LEVEL_NAME_AUTHOR = "Author";
+    public static final String PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR = "Nonediting Author";
+    public static final String PERMISSION_LEVEL_NAME_CONTRIBUTOR = "Contributor";
+    public static final String PERMISSION_LEVEL_NAME_REVIEWER = "Reviewer"; 
+    public static final String PERMISSION_LEVEL_NAME_NONE = "None";
+    public static final String PERMISSION_LEVEL_NAME_CUSTOM = "Custom";
 	public PermissionLevel getPermissionLevelByName(String name);
 	public String getPermissionLevelType(PermissionLevel level);  
 	public PermissionLevel createPermissionLevel(String name, String typeUuid, PermissionsMask mask);
@@ -36,6 +44,10 @@ public interface PermissionLevelManager {
 	public PermissionLevel getDefaultReviewerPermissionLevel();
 	public PermissionLevel getDefaultContributorPermissionLevel();
 	public PermissionLevel getDefaultNonePermissionLevel();
+    public DBMembershipItem createDBMembershipItem(String name, Integer type);
+    public void saveDBMembershipItem(DBMembershipItem item);
+    public  List getOrderedPermissionLevelNames(); 
 	public PermissionLevel getDefaultCustomPermissionLevel();
 	
+ 
 }

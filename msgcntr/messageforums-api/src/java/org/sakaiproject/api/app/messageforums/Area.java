@@ -82,7 +82,7 @@ public interface Area extends MutableEntity {
     
     public Set getMembershipItemSet();
 			
-		public void setMembershipItemSet(Set membershipItemSet);
+	public void setMembershipItemSet(Set membershipItemSet);
     
     public void addMembershipItem(DBMembershipItem item);      
 

@@ -177,8 +177,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 	public void setReviseOwn(Boolean reviseOwn) {
 		this.reviseOwn = reviseOwn;
 	}
-	
-			
+ 
 	public int compareTo(Object obj) {
 		
 		PermissionLevelImpl pli = (PermissionLevelImpl) obj;				

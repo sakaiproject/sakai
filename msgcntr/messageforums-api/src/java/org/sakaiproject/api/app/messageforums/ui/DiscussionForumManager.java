@@ -3,14 +3,18 @@ package org.sakaiproject.api.app.messageforums.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.common.authorization.PermissionsMask;
+import org.sakaiproject.service.legacy.authzGroup.Role;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -308,4 +312,9 @@ public interface DiscussionForumManager
    * 
    */
   public void setCourseMemberMapToNull();
+
+  public DBMembershipItem getAreaDBMember(Set originalSet, String name, Integer type);
+
+  public DBMembershipItem getDBMember(Set originalSet, String name,
+      Integer type);
 }

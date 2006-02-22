@@ -272,16 +272,22 @@
             <property-name>uiPermissionsManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"]}</value>
         </managed-property>
+        <managed-property>
+            <description>PermissionLevel Manager</description>
+            <property-name>permissionLevelManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.PermissionLevelManager"]}</value>
+        </managed-property> 
          <managed-property>
             <description>Membership Manager</description>
             <property-name>membershipManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.MembershipManager"]}</value>
         </managed-property> 
+ 
         <managed-property>
-            <description>Permission Level Manager</description>
-            <property-name>permissionLevelManager</property-name>
-            <value>#{Components["org.sakaiproject.api.app.messageforums.PermissionLevelManager"]}</value>
-        </managed-property>
+            <description>Area Manager</description>
+            <property-name>areaManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AreaManager"]}</value>
+        </managed-property>  
     </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>

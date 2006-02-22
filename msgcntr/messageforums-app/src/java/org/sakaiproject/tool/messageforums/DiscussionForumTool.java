@@ -1,8 +1,9 @@
 package org.sakaiproject.tool.messageforums;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,10 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
@@ -28,6 +32,7 @@ import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
+import org.sakaiproject.api.common.authorization.PermissionsMask;
 import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
@@ -39,9 +44,13 @@ import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.service.legacy.entity.Reference;
 import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
 import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.sakaiproject.service.legacy.site.Group;
+import org.sakaiproject.service.legacy.site.Site;
+import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
+import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -74,12 +83,16 @@ public class DiscussionForumTool
   private List totalComposeToList;
   private List totalComposeToListRecipients;
   private Map courseMemberMap;
-  private List templateControlPermissions; // control settings
-  private List templateMessagePermissions;
+  private List templatePermissions;
+//  private List templateControlPermissions; // control settings
+//  private List templateMessagePermissions;
   private List forumControlPermissions; // control settings
   private List forumMessagePermissions;
   private List topicControlPermissions; // control settings
   private List topicMessagePermissions;   
+  private List levels;
+  private AreaManager areaManager;
+  
   private static final String TOPIC_ID = "topicId";
   private static final String FORUM_ID = "forumId";
   private static final String MESSAGE_ID = "messageId";
@@ -108,6 +121,9 @@ public class DiscussionForumTool
   private boolean threaded = false;
   private String expanded = "true";
   private boolean isDisplaySearchedMessages;
+  private List siteMembers = new ArrayList();
+  private String selectedRole;
+
   /**
    * Dependency Injected
    */
@@ -274,43 +290,44 @@ public class DiscussionForumTool
   /**
    * @return
    */
-  public List getTemplateControlPermissions()
+  public List getTemplatePermissions()
   {
-    if (templateControlPermissions == null)
+    if (templatePermissions == null)
     {
-      templateControlPermissions = forumManager.getAreaControlPermissions();
+      siteMembers=null;
+      getSiteRoles();
     }
-    return templateControlPermissions;
+    return templatePermissions;
   }
 
   /**
    * @return
    */
-  public void setTemplateControlPermissions(List templateSettings)
+  public void setTemplatePermissions(List templatePermissions)
   {
-    this.templateControlPermissions = templateSettings;
+    this.templatePermissions = templatePermissions;
   }
 
-  /**
-   * @return Returns the templateMessagePermissions.
-   */
-  public List getTemplateMessagePermissions()
-  {
-    if (templateMessagePermissions == null)
-    {
-      templateMessagePermissions = forumManager.getAreaMessagePermissions();
-    }
-    return templateMessagePermissions;
-  }
-
-  /**
-   * @param templateMessagePermissions
-   *          The templateMessagePermissions to set.
-   */
-  public void setTemplateMessagePermissions(List templateMessagePermissions)
-  {
-    this.templateMessagePermissions = templateMessagePermissions;
-  }
+//  /**
+//   * @return Returns the templateMessagePermissions.
+//   */
+//  public List getTemplateMessagePermissions()
+//  {
+//    if (templateMessagePermissions == null)
+//    {
+//      templateMessagePermissions = forumManager.getAreaMessagePermissions();
+//    }
+//    return templateMessagePermissions;
+//  }
+//
+//  /**
+//   * @param templateMessagePermissions
+//   *          The templateMessagePermissions to set.
+//   */
+//  public void setTemplateMessagePermissions(List templateMessagePermissions)
+//  {
+//    this.templateMessagePermissions = templateMessagePermissions;
+//  }
 
   /**
    * @return
@@ -323,8 +340,49 @@ public class DiscussionForumTool
       setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
       return MAIN;
     }
-    forumManager.saveAreaControlPermissions(templateControlPermissions);
-    forumManager.saveAreaMessagePermissions(templateMessagePermissions);
+    Set membershipitems= new HashSet();
+    if(templatePermissions!=null ){
+      Iterator iter = templatePermissions.iterator();
+      while (iter.hasNext())
+      {
+        PermissionBean permBean = (PermissionBean) iter.next();
+        DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), DBMembershipItem.TYPE_ROLE);          
+        PermissionsMask mask = new PermissionsMask();
+        
+        mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
+        mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
+        mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
+        mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
+        mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
+        mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
+        mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
+        mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
+        mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
+        mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
+        mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
+        mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
+        mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
+        mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+        PermissionLevel level=null;
+        if(permBean.getSelectedLevel().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM))
+        {
+           level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);  
+           membershipItem.setPermissionLevel(level);
+        }
+        else
+        {
+          level = permissionLevelManager.getPermissionLevelByName(permBean.getSelectedLevel());
+          membershipItem.setPermissionLevel(level);
+        }
+        
+        //  // save DBMembershiptItem here to get an id so we can add to the set
+        permissionLevelManager.saveDBMembershipItem(membershipItem);
+        membershipitems.add(membershipItem);
+      }
+      Area area = areaManager.getDiscusionArea();
+      area.setMembershipItemSet(membershipitems);
+      areaManager.saveArea(area); 
+    }
     return MAIN;
   }
 
@@ -339,9 +397,12 @@ public class DiscussionForumTool
       setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
       return MAIN;
     }
-    templateControlPermissions = forumManager.getDefaultControlPermissions();
-    templateMessagePermissions = forumManager.getDefaultMessagePermissions();
+    
+
+
     return TEMPLATE_SETTING;
+    
+    
   }
 
   /**
@@ -1499,9 +1560,11 @@ public class DiscussionForumTool
     this.selectedForum = null;
     this.selectedTopic = null;
     this.selectedMessage = null;
-    this.templateControlPermissions = null;
-    this.templateMessagePermissions = null;
+//    this.templateControlPermissions = null;
+//    this.templateMessagePermissions = null;
+    this.templatePermissions=null;
     this.errorSynch = false;
+    this.siteMembers=null;   
     attachments.clear();
     prepareRemoveAttach.clear();
   
@@ -2849,33 +2912,78 @@ public class DiscussionForumTool
     this.searchText = searchText;
   }
 
-  public List getRoles()
+  public List getSiteMembers()
   {
-    LOG.debug("getRoles()");
-    List roleList = new ArrayList();
-    AuthzGroup realm;
-    try
+    return getSiteMembers(true);
+  }
+  public List getSiteRoles()
+  {
+    return getSiteMembers(false);
+  }
+
+  public List getSiteMembers(boolean includeGroup)
+  {
+    LOG.debug("getSiteMembers()");
+        
+    if(siteMembers!=null && siteMembers.size()>0)
     {
+      return siteMembers;
+    }
+    
+    templatePermissions=new ArrayList();
+    Set membershipItems=forumManager.getDiscussionForumArea().getMembershipItemSet();
+    siteMembers=new ArrayList(); 
+    // get Roles     
+    AuthzGroup realm;
+    Site currentSite = null;
+    int i=0;
+    try
+    {      
       realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
-      Set roles = realm.getRoles();
-      if (roles != null && roles.size() > 0)
+      Set roles1 = realm.getRoles();
+      if (roles1 != null && roles1.size() > 0)
       {
-        Iterator roleIter = roles.iterator();
+        Iterator roleIter = roles1.iterator();
         while (roleIter.hasNext())
         {
           Role role = (Role) roleIter.next();
-          if (role != null) roleList.add(role.getId());
+          if (role != null) 
+          {
+            if(i==0)
+            {
+              selectedRole = role.getId();
+              i=1;
+            }
+            DBMembershipItem item = forumManager.getAreaDBMember(membershipItems,role.getId(), DBMembershipItem.TYPE_ROLE);
+            siteMembers.add(new SelectItem(role.getId(), role.getId() + "("+item.getPermissionLevel().getName()+")"));
+            templatePermissions.add(new PermissionBean(item, permissionLevelManager));
+          }
         }
+      }  
+        
+      if(includeGroup)
+      {
+     currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());   
+      
+     Collection groups = currentSite.getGroups();    
+      for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+      {
+        Group currentGroup = (Group) groupIterator.next();  
+        DBMembershipItem item = forumManager.getAreaDBMember(membershipItems,currentGroup.getTitle(), DBMembershipItem.TYPE_GROUP);
+        siteMembers.add(new SelectItem(currentGroup.getTitle(), currentGroup.getTitle() + " ("+item.getPermissionLevel().getName()+")"));
+        templatePermissions.add(new PermissionBean(item, permissionLevelManager));
+      }
       }
     }
     catch (IdUnusedException e)
     {
       LOG.error(e.getMessage(), e);
-    }
-    Collections.sort(roleList);
-    return roleList;
+    }   
+
+    return siteMembers;
   }
 
+  
   /**
    * @return siteId
    */
@@ -3014,9 +3122,109 @@ public class DiscussionForumTool
   	return sBuffer.toString();
   }
 
+ 
+//  /**
+//   * @return Returns the selectedRoleGroupOrUserForPermission.
+//   */
+//  public String getSelectedRoleGroupOrUserForPermission()
+//  {
+//     
+//    if(selectedRoleGroupOrUserForPermission==null &&( getRoles()==null || getRoles().size()<1))
+//    {
+//      return null;
+//    }
+//    if(selectedRoleGroupOrUserForPermission !=null)
+//    {
+//      return selectedRoleGroupOrUserForPermission;
+//    }    
+//    return (String)((SelectItem) getRoles().get(0)).getValue();
+//  }
+
+//  /**
+//   * @param selectedRoleGroupOrUserForPermission The selectedRoleGroupOrUserForPermission to set.
+//   */
+//  private void setSelectedRoleGroupOrUserForPermission(String selectedRole)
+//  {
+//    this.selectedRoleGroupOrUserForPermission = selectedRole;
+//  }
+
+//  public void processValueChangeForPermission(ValueChangeEvent vce)
+//  {
+//   setSelectedRoleGroupOrUserForPermission((String)vce.getNewValue()); 
+//  }
+  
+ 
 	public void setPermissionLevelManager(
 			PermissionLevelManager permissionLevelManager) {
 		this.permissionLevelManager = permissionLevelManager;
 	}
-   
+    
+     public List getPostingOptions()
+      {
+        List postingOptions = new ArrayList();
+        postingOptions.add(new SelectItem(PermissionBean.NONE,PermissionBean.NONE));
+        postingOptions.add(new SelectItem(PermissionBean.OWN,PermissionBean.OWN));
+        postingOptions.add(new SelectItem(PermissionBean.ALL,PermissionBean.ALL));    
+        
+        return postingOptions;
+      }
+     
+     /**
+      * @return Returns the levels.
+      */
+     public List getLevels()
+     {
+       boolean hasCustom = false;
+       if (levels == null || levels.size() == 0)
+       {
+         levels = new ArrayList();
+         List origLevels = permissionLevelManager.getOrderedPermissionLevelNames();
+         if (origLevels != null)
+         {
+           Iterator iter = origLevels.iterator();
+
+           while (iter.hasNext())
+           {
+             String level = (String) iter.next();
+             levels.add(new SelectItem(level));
+             if(level.equals("Custom"))
+                 {
+                   hasCustom =true;
+                 }
+           }
+         }
+         if(!hasCustom)
+         {
+           levels.add(new SelectItem("Custom"));
+         }
+       }       
+       return levels;
+     }
+
+    /**
+     * @param areaManager The areaManager to set.
+     */
+    public void setAreaManager(AreaManager areaManager)
+    {
+      this.areaManager = areaManager;
+    }
+
+    /**
+     * @return Returns the selectedRole.
+     */
+    public String getSelectedRole()
+    {
+      return selectedRole;
+    }
+
+    /**
+     * @param selectedRole The selectedRole to set.
+     */
+    public void setSelectedRole(String selectedRole)
+    {
+      this.selectedRole = selectedRole;
+    }
+     
+    
+     
 }

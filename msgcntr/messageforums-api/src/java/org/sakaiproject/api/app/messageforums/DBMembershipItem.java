@@ -25,8 +25,18 @@ package org.sakaiproject.api.app.messageforums;
 
 
 public interface DBMembershipItem extends MutableEntity {
-
-	public String getName();
+  
+  public static final Integer TYPE_NOT_SPECIFIED = new Integer(0); 
+  public static final Integer TYPE_ALL_PARTICIPANTS = new Integer(1);
+  public static final Integer TYPE_ROLE = new Integer(2);
+  public static final Integer TYPE_GROUP = new Integer(3);
+  public static final Integer TYPE_USER = new Integer(4);   
+   
+  public static final String ALL_PARTICIPANTS_DESC = "All Participants";
+  
+  public static final String NOT_SPECIFIED_DESC = "Not Specified";
+  
+  public String getName();
   
   public void setName(String name);
     
@@ -36,6 +46,6 @@ public interface DBMembershipItem extends MutableEntity {
   
   public PermissionLevel getPermissionLevel();
 
-	public void setPermissionLevel(PermissionLevel permissionLevel);
+  public void setPermissionLevel(PermissionLevel permissionLevel);
   
 }

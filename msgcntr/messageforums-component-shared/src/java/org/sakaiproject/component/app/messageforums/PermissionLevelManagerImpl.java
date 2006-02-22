@@ -64,13 +64,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private static final String QUERY_BY_TYPE_UUID = "findPermissionLevelByTypeUuid";
 	private static final String QUERY_ORDERED_LEVEL_NAMES = "findOrderedPermissionLevelNames";
 	
-	public static final String PERMISSION_LEVEL_NAME_OWNER = "Owner";
-	public static final String PERMISSION_LEVEL_NAME_AUTHOR = "Author";
-	public static final String PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR = "Nonediting Author";
-	public static final String PERMISSION_LEVEL_NAME_CONTRIBUTOR = "Contributor";
-	public static final String PERMISSION_LEVEL_NAME_REVIEWER = "Reviewer";	
-	public static final String PERMISSION_LEVEL_NAME_NONE = "None";
-	public static final String PERMISSION_LEVEL_NAME_CUSTOM = "Custom";
+	
 	
 			
 	public void init(){
