@@ -31,7 +31,7 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
-         <h:panelGroup rendered="#{answer.text !=null}">
+         <h:panelGroup rendered="#{answer.text !=null && answer.text!=''}">
           <h:graphicImage id="image1" rendered="#{answer.isCorrect}" alt="#{msg.correct}" url="/images/radiochecked.gif"/>
          
           <h:graphicImage id="image2" rendered="#{!answer.isCorrect}" alt="#{msg.not_correct}" url="/images/radiounchecked.gif"/>
@@ -40,7 +40,7 @@ should be included in file importing DeliveryMessages
 </h:panelGroup>
 </h:column><h:column>
  
-          <h:panelGroup rendered="#{answer.text!=null && answer.generalAnswerFbIsNotEmpty}">
+          <h:panelGroup rendered="#{answer.text ne null && answer.text ne '' && assessmentSettings.feedbackAuthoring ne '1' && answer.generalAnswerFbIsNotEmpty}">
           <h:outputLabel value="          #{msg.feedback}:  "/>
         
           <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" />
@@ -56,12 +56,12 @@ should be included in file importing DeliveryMessages
   <h:outputText escape="false" value="#{question.itemData.answerKey}" />
   <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty}">
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
   <h:outputLabel value="#{msg.correctItemFeedback}: "/>
   <h:outputText  value="#{question.itemData.correctItemFeedback}" escape="false" />
  <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty}">
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
   <h:outputLabel value="#{msg.incorrectItemFeedback}: "/>
   <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
 </h:panelGroup>

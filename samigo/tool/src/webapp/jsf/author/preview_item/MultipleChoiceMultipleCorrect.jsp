@@ -29,16 +29,19 @@ should be included in file importing DeliveryMessages
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
-        <h:column>
+        <h:column> 
+         <h:panelGroup rendered="#{answer.text != null && answer.text ne ''}">
           <h:graphicImage id="image1" rendered="#{answer.isCorrect}"
-             alt="#{msg.correct}" url="/images/checked.gif" >
-          </h:graphicImage>
+             alt="#{msg.correct}" url="/images/checked.gif" />         
           <h:graphicImage id="image2" rendered="#{!answer.isCorrect}"
-             alt="#{msg.not_correct}" url="/images/unchecked.gif" >
-          </h:graphicImage>
-          <h:outputText escape="false" value="#{answer.label}. #{answer.text}" /> </h:column><h:column>
-        <h:panelGroup rendered="#{answer.generalAnswerFbIsNotEmpty}">
-         <h:outputLabel value="#{          msg.feedback}: " />
+             alt="#{msg.not_correct}" url="/images/unchecked.gif"/>      
+          <h:outputText escape="false" value="#{answer.label}. #{answer.text}" /> 
+
+        </h:panelGroup>
+        </h:column><h:column>
+        <h:panelGroup rendered="#{answer.text ne null && answer.text ne '' && assessmentSettings.feedbackAuthoring ne '1' && answer.generalAnswerFbIsNotEmpty}">
+        
+         <h:outputLabel value=" #{msg.feedback}: " />
 
          <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" />
 </h:panelGroup>
@@ -54,12 +57,12 @@ should be included in file importing DeliveryMessages
   <h:outputText escape="false" value="#{question.itemData.answerKey}" />
   <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty}">
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
   <h:outputLabel value="#{msg.correctItemFeedback}: "/>
   <h:outputText  value="#{question.itemData.correctItemFeedback}" escape="false" />
  <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty}">
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
   <h:outputLabel value="#{msg.incorrectItemFeedback}: "/>
   <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
 </h:panelGroup>
