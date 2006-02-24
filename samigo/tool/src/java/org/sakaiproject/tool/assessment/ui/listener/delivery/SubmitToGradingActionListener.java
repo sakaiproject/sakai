@@ -209,11 +209,13 @@ public class SubmitToGradingActionListener implements ActionListener
       SectionContentsBean part = (SectionContentsBean) iter.next();
       log.debug("****1c. inside submitToGradingService, part "+part);
       Iterator iter2 = part.getItemContents().iterator();
+      log.debug("****. part.getItemContents().size = "+part.getItemContents().size());
       while (iter2.hasNext())
       {
         ItemContentsBean item = (ItemContentsBean) iter2.next();
         log.debug("****1d. inside submitToGradingService, item= "+item);
         ArrayList grading = item.getItemGradingDataArray();
+      log.info("****. item.getItemGradingDataArray().size = "+ grading.size());
         if (grading.isEmpty())
         {
           log.info("No item grading data.");
@@ -228,14 +230,18 @@ public class SubmitToGradingActionListener implements ActionListener
             ItemGradingData data = (ItemGradingData) iter3.next();
             // for FIB and MC/TF/Matching question, don't add the data if no item is selected
             log.debug("****1e. inside submitToGradingService, olddata= "+data);
-            if (data.getPublishedAnswer() != null ||
-                data.getAnswerText() != null)
-            itemData.add(data);
+//            if ((data.getPublishedAnswer() != null ||
+//                data.getAnswerText() != null))
+//            {
+//            log.info("****publsihedanswer !=null || getanswertext !=null" );
+              itemData.add(data);
+//            }
           }
         }
       }
     }
 
+            log.info("****valid answers itemdata.size() = " + itemData.size() );
     AssessmentGradingData adata = null;
     if (delivery.getAssessmentGrading() != null)
       adata = delivery.getAssessmentGrading();
@@ -244,6 +250,7 @@ public class SubmitToGradingActionListener implements ActionListener
     GradingService service = new GradingService();
     if (adata == null)
     {
+      log.info("****** lydiatest ..... adata==null" );
       adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemData);
       delivery.setAssessmentGrading(adata);
       log.debug("****** 1g. submitToGradingService, itemData.size()= "+itemData.size());
@@ -258,7 +265,13 @@ public class SubmitToGradingActionListener implements ActionListener
 
       // Add and remove separately so we don't get concurrent modification
       if (adata.getItemGradingSet()!=null){
+System.out.println("removeall and then addall ");
+      log.debug("****** removes.size = "+removes.size());
+      log.info("****** removes.size = "+removes.size());
+      log.debug("****** adds.size = "+adds.size());
+      log.info("****** adds.size = "+adds.size());
         adata.getItemGradingSet().removeAll(removes);
+      log.info("****** after removing, still has: "+adata.getItemGradingSet().size());
         adata.getItemGradingSet().addAll(adds);
       }
       adata.setForGrade(new Boolean(delivery.getForGrade()));
@@ -306,6 +319,10 @@ public class SubmitToGradingActionListener implements ActionListener
                                          AssessmentGradingData adata,
                                          ArrayList adds, ArrayList removes)
   {
+        log.info("****** begin integrateItemGradingDatas");
+        log.debug("****** DEBUG begin integrateItemGradingDatas");
+        log.info("****** delivery.getAssessemntGrading(), adata.getItemGradingSet.size  = " + adata.getItemGradingSet().size());
+        log.info("****** itemData.size = " + itemData.size());
     // daisyf's question: why not just persist the currently submitted answer by 
     // updating the existing one?
     // why do you need to "replace" it by deleting and adding it again?
@@ -313,21 +330,26 @@ public class SubmitToGradingActionListener implements ActionListener
     while (i1.hasNext())
     {
       ItemGradingData data = (ItemGradingData) i1.next();
+          log.info("****** itemData's data.itemgradingid = " + data.getItemGradingId());
       if (!adata.getItemGradingSet().contains(data)) // wouldn't this always true? wouldn't they always have diff address even if the two objects contains the same properties value?
       {
         log.debug("****** cc. data is new");
+        log.info("****** now loop through iter2, whichis what's in DB");
         Iterator iter2 = adata.getItemGradingSet().iterator();
         boolean added = false;
         if (data.getItemGradingId() != null)
         {
           log.debug("****** ccc. data not saved to DB yet");
+          log.info("****** now compare to each olddata ");
           while (iter2.hasNext())
           {
             ItemGradingData olddata = (ItemGradingData) iter2.next();
+          log.info("****** in DB olddata.itemgradingid = " + olddata.getItemGradingId());
+          log.info("****** data.itemgradingid = " + data.getItemGradingId());
             if (data.getItemGradingId().equals(olddata.getItemGradingId()))
             {
-              log.debug("****** d. integrate"+data.getAssessmentGrading()+":"+data.getItemGradingId()+":"+data.getAnswerText());
-              log.debug("****** e. integrate"+olddata.getAssessmentGrading()+":"+olddata.getItemGradingId()+":"+olddata.getAnswerText());
+              log.info("****** d. integrate"+data.getAssessmentGrading()+":"+data.getItemGradingId()+":"+data.getAnswerText());
+              log.info("****** e. integrate"+olddata.getAssessmentGrading()+":"+olddata.getItemGradingId()+":"+olddata.getAnswerText());
               data.setAssessmentGrading(adata);
               removes.add(olddata);
               adds.add(data);
