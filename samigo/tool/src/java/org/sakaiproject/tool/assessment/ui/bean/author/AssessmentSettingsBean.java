@@ -149,8 +149,8 @@ public class AssessmentSettingsBean
   private String bgColor;
   private String bgImage;
   private HashMap values = new HashMap(); // contains only "can edit" element
-    private String bgColorSelect="0";
- private String bgImageSelect="0";
+  private String bgColorSelect;
+ private String bgImageSelect;
 
   // extra properties
   private boolean noTemplate;
@@ -177,6 +177,7 @@ public class AssessmentSettingsBean
     return assessment;
   }
 
+ 
   public void setAssessment(AssessmentFacade assessment) {
     try {
       //1.  set the template info
@@ -211,9 +212,19 @@ public class AssessmentSettingsBean
           RUBRICS);
       this.bgColor = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGCOLOR);
-
       this.bgImage = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGIMAGE);
+      if((assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
+						    BGIMAGE)!=null )&&(!assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
+																										BGIMAGE).equals(""))){
+	    this.bgImageSelect="1";
+            this.bgColorSelect=null;
+	}
+	else{
+            this.bgImageSelect=null;
+	    this.bgColorSelect="1";
+	}
+			
 
       // these are properties in AssessmentAccessControl
       AssessmentAccessControlIfc accessControl = null;
