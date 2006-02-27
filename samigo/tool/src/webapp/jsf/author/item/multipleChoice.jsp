@@ -140,11 +140,11 @@
    </samigo:wysiwyg>
  
  
-          <h:outputText value="#{msg.feedback_optional}" rendered="#{assessmentSettings.feedbackAuthoring ne '1'}" />
+          <h:outputText value="#{msg.feedback_optional}" rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}" />
     
         <!-- WYSIWYG -->
 
-<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '1'}">
+<h:panelGroup rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}">
          <samigo:wysiwyg rows="140" value="#{answer.feedback}">
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
@@ -218,7 +218,7 @@
 
 
  <!-- 8 FEEDBACK -->
-<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+<h:panelGroup rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '2'}">
  <h:outputText value="<span id=\"num8\" class=\"number\"></span>" escape="false"/>
  <f:verbatim> <div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
