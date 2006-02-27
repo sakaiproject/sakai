@@ -478,7 +478,18 @@ public class QuestionScoreListener
 
           if (!answerList.get(0).equals(gdata))
           { // We already have an agentResults for this one
-            results.setAnswer(results.getAnswer() + "<br/>" + answerText);
+            if (!("N/A".equals(answerText)))
+            // only append responses if the answerText is not N/A
+            {
+              if (!("N/A".equals(results.getAnswer())))
+              {
+                results.setAnswer(results.getAnswer() + "<br/>" + answerText);
+              }
+	      else {
+              // if the first agentResult has N/A, do not prepend 
+                results.setAnswer(answerText);
+              }
+            }
             results.setTotalAutoScore(new Float
               ((new Float(results.getTotalAutoScore())).floatValue() +
                gdata.getAutoScore().floatValue()).toString());
