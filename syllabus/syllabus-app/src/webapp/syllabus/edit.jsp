@@ -7,7 +7,7 @@
 <f:loadBundle basename="org.sakaiproject.tool.syllabus.bundle.Messages" var="msgs"/>
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
-			<h:form onsubmit="return false;">
+			<h:form onsubmit="return true;">
 		  	<sakai:tool_bar_message value="#{msgs.add_sylla}" /> 
 			<sakai:doc_section>
 				<h:outputText value="#{msgs.newSyllabusForm1}"/>
