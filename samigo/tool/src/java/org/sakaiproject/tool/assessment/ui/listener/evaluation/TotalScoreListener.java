@@ -214,9 +214,13 @@ public class TotalScoreListener
       ArrayList scores = new ArrayList();  
       ArrayList students_not_submitted= new ArrayList();  
       Map useridMap= bean.getUserIdMap(); 
+      ArrayList agents = new ArrayList();
       prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);
       if (scores.size()==0) // no submission, return
+      {
+        bean.setAgents(agents);
         return true;
+      }
 
       // pass #1, proceed forward to prepare properties that set the link "Statistics"
       //#2 - the following methods are used to determine if the link "Statistics"
@@ -242,7 +246,6 @@ public class TotalScoreListener
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
 
       //#4 - prepare agentResult list
-      ArrayList agents = new ArrayList();
       prepareAgentResult(p, scores.iterator(), agents, userRoles);
       prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
       bean.setAgents(agents);
