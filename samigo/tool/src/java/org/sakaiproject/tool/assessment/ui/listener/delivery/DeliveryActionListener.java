@@ -157,9 +157,9 @@ public class DeliveryActionListener
                   itemGradingHash = service.getSubmitData(id, agent);
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
                 delivery.setAssessmentGrading(ag);
-                setDisplayByAssessment(delivery);
-                setGraderComment(delivery);
 	      }
+              setDisplayByAssessment(delivery);
+              setGraderComment(delivery);
               break;
  
       case 4: // Grade assessment
