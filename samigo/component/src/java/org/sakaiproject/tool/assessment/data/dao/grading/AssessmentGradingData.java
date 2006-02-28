@@ -139,30 +139,6 @@ public class AssessmentGradingData
     this.forGrade = forGrade;
   }
   public Float getTotalAutoScore() {
-      /*
-    if (getItemGradingSet()!=null){
-      this.totalAutoScore = new Float("0");
-      float autoScore = 0;
-      Iterator iter = getItemGradingSet().iterator();
-      while (iter.hasNext()){
-        ItemGradingData i = (ItemGradingData)iter.next();
-        if (i.getAutoScore()!=null)
-          autoScore += i.getAutoScore().floatValue();
-      }
-      this.totalAutoScore = new Float(autoScore);
-    }
-      */
-
-/*
-    // remove rounding , SAK-2848 
-    // Round to the nearest 1/10th.
-    if (this.totalAutoScore != null){
-      float alignment = this.totalAutoScore.floatValue();
-      int tmp = Math.round(alignment * 10.0f);
-      alignment = (float)tmp / 10.0f;
-      this.totalAutoScore = new Float(alignment);
-    }
-*/
     return this.totalAutoScore;
   }
   public void setTotalAutoScore(Float totalAutoScore) {
@@ -170,30 +146,6 @@ public class AssessmentGradingData
   }
 
   public Float getTotalOverrideScore() {
-      /* bug fix for sam-485. totaloverridescore should get from the frontend, not from the itemGradingData.
-    if (getItemGradingSet()!=null){
-      this.totalOverrideScore = new Float("0");
-      float overrideScore = 0;
-      Iterator iter = getItemGradingSet().iterator();
-      while (iter.hasNext()){
-        ItemGradingData i = (ItemGradingData)iter.next();
-        if (i.getOverrideScore() != null)
-          overrideScore += i.getOverrideScore().floatValue();
-      }
-    this.totalOverrideScore = new Float(overrideScore);
-    }
-      */
-
-/*
-    // remove rounding , SAK-2848 
-    // Round to the nearest 1/10th.
-    if (this.totalOverrideScore !=null){
-      float alignment = this.totalOverrideScore.floatValue();
-      int tmp = Math.round(alignment * 10.0f);
-      alignment = (float)tmp / 10.0f;
-      this.totalOverrideScore = new Float(alignment);
-    }
-*/
     return this.totalOverrideScore;
   }
 
@@ -201,6 +153,7 @@ public class AssessmentGradingData
     this.totalOverrideScore = totalOverrideScore;
   }
   public Float getFinalScore() {
+      /*
     if (this.totalAutoScore != null && this.totalOverrideScore != null ){
       float total = 0;
       if (this.totalAutoScore != null)
@@ -210,7 +163,6 @@ public class AssessmentGradingData
       this.finalScore = new Float(total);
     }
 
-/*
     // remove rounding , SAK-2848 
     // Round to the nearest 1/10th.
     if (this.finalScore !=null ){

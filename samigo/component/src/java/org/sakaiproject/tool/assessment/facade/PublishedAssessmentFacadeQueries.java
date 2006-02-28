@@ -1262,4 +1262,19 @@ public class PublishedAssessmentFacadeQueries
          new net.sf.hibernate.type.Type[] { Hibernate.LONG });
   }
 
+  public Integer getItemType(Long publishedItemId){
+    String query = "select p.typeId "+
+                   " from PublishedItemData p "+
+	" where p.publishedItemId=?";
+
+    List list = getHibernateTemplate().find(query,
+					    new Object[] { publishedItemId },
+					    new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+    if (list.size()>0)
+	return (Integer)list.get(0);
+    else
+	return null;
+    }
+
+
 }

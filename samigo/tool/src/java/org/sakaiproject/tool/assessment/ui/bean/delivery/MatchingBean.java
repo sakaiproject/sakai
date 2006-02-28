@@ -86,8 +86,8 @@ public class MatchingBean
     if (data == null)
     {
       data = new ItemGradingData();
-      data.setPublishedItem(parent.getItemData());
-      data.setPublishedItemText(itemText);
+      data.setPublishedItemId(parent.getItemData().getItemId());
+      data.setPublishedItemTextId(itemText.getId());
       ArrayList items = parent.getItemGradingDataArray();
       items.add(data);
       parent.setItemGradingDataArray(items);

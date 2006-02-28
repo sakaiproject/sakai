@@ -28,15 +28,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 import net.sf.hibernate.Criteria;
 import net.sf.hibernate.Hibernate;
@@ -195,7 +193,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         else {
 
           /** create logical and between the pubCriterion and the disjunction criterion */
-          Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
+          //Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
+          Criterion pubCriterion = Expression.eq("publishedItemId", itemId);
           criteria.add(Expression.and(pubCriterion, disjunction));
         }
           criteria.addOrder(Order.asc("agentId"));
@@ -212,11 +211,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       {
         ItemGradingData data = (ItemGradingData) iter2.next();
         ArrayList thisone = (ArrayList)
-          map.get(data.getPublishedItem().getItemId());
+          map.get(data.getPublishedItemId());
         if (thisone == null)
           thisone = new ArrayList();
         thisone.add(data);
-        map.put(data.getPublishedItem().getItemId(), thisone);
+        map.put(data.getPublishedItemId(), thisone);
       }
       return map;
     } catch (Exception e) {
@@ -228,6 +227,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   /**
    * This returns a hashmap of all the latest item entries, keyed by
    * item id for easy retrieval.
+   * return (Long publishedItemId, ArrayList itemGradingData)
    */
   public HashMap getLastItemGradingData(Long publishedId, String agentId)
   {
@@ -251,12 +251,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       while (iter.hasNext())
       {
         ItemGradingData data = (ItemGradingData) iter.next();
-        ArrayList thisone = (ArrayList)
-          map.get(data.getPublishedItem().getItemId());
+        ArrayList thisone = (ArrayList) map.get(data.getPublishedItemId());
         if (thisone == null)
           thisone = new ArrayList();
         thisone.add(data);
-        map.put(data.getPublishedItem().getItemId(), thisone);
+        map.put(data.getPublishedItemId(), thisone);
       }
       return map;
     } catch (Exception e) {
@@ -284,11 +283,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       {
         ItemGradingData data = (ItemGradingData) iter.next();
         ArrayList thisone = (ArrayList)
-          map.get(data.getPublishedItem().getItemId());
+          map.get(data.getPublishedItemId());
         if (thisone == null)
           thisone = new ArrayList();
         thisone.add(data);
-        map.put(data.getPublishedItem().getItemId(), thisone);
+        map.put(data.getPublishedItemId(), thisone);
       }
       return map;
     } catch (Exception e) {
@@ -319,11 +318,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       {
         ItemGradingData data = (ItemGradingData) iter.next();
         ArrayList thisone = (ArrayList)
-          map.get(data.getPublishedItem().getItemId());
+          map.get(data.getPublishedItemId());
         if (thisone == null)
           thisone = new ArrayList();
         thisone.add(data);
-        map.put(data.getPublishedItem().getItemId(), thisone);
+        map.put(data.getPublishedItemId(), thisone);
       }
       return map;
     } catch (Exception e) {
@@ -395,302 +394,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return l;
   }
 
-  public void saveItemScores(ArrayList data, HashMap assessmentGradingHash) {
-    try {
-      Iterator iter = data.iterator();
-      while (iter.hasNext())
-      {
-        ItemGradingData gdata = (ItemGradingData) iter.next();
-        if (gdata.getItemGradingId() == null)
-          gdata.setItemGradingId(new Long(0));
-        if (gdata.getPublishedItemText() == null)
-        {
-          //log.debug("Didn't save -- error in item.");
-        }
-        else
-        {  
-          AssessmentGradingData a = (AssessmentGradingData) assessmentGradingHash.get(gdata.getItemGradingId());
-          a.setItemGradingSet(getItemGradingSet(a.getAssessmentGradingId()));
-          gdata.setAssessmentGrading(a);
-
-          Iterator iter2 = a.getItemGradingSet().iterator();
-          while (iter2.hasNext())
-          {
-            ItemGradingData idata = (ItemGradingData) iter2.next();
-            if (idata.getItemGradingId().equals(gdata.getItemGradingId()))
-            {
-              gdata.getAssessmentGrading().getItemGradingSet().remove(idata);
-              gdata.getAssessmentGrading().getItemGradingSet().add(gdata);
-              break;
-            }
-          }
-
-          // Now we can move on.
-          getHibernateTemplate().saveOrUpdate(gdata);
-          storeGrades(gdata.getAssessmentGrading(), true);
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * Assume this is a new item.
-   */
-  public void storeGrades(AssessmentGradingIfc data)
-  {
-    storeGrades(data, false);
-  }
-
-  /**
-   * This is the big, complicated mess where we take all the items in
-   * an assessment, store the grading data, auto-grade it, and update
-   * everything.
-   *
-   * If regrade is true, we just recalculate the graded score.  If it's
-   * false, we do everything from scratch.
-   */
-  public void storeGrades(AssessmentGradingIfc data, boolean regrade) {
-    try {
-      String agent = data.getAgentId();
-      if (!regrade)
-      {
-        //data.setAssessmentGradingId(new Long(0)); // Always create a new one
-        setIsLate(data);
-      }
-      Set itemgrading = data.getItemGradingSet();
-      if (itemgrading == null)
-        itemgrading = getItemGradingSet(data.getAssessmentGradingId());
-      log.debug("*******itemGrading size="+itemgrading.size());
-      Iterator iter = itemgrading.iterator();
-      float totalAutoScore = 0;
-
-      //fibAnswersMap contains a map of HashSet of answers for a FIB item, key =itemid , value= HashSet of answers for each item.  
-      // This is used to keep track of answers we have already used for mutually exclusive multiple answer type of FIB, such as 
-      //  The flag of the US is {red|white|blue},{red|white|blue}, and {red|white|blue}.
-      // so if the first blank has an answer 'red', the 'red' answer should not be included in the answers for the other mutually exclusive blanks. 
-      HashMap fibAnswersMap= new HashMap();
-
-      //change algorithm based on each question (SAK-1930 & IM271559) -cwen
-      HashMap totalItems = new HashMap();
-      while(iter.hasNext())
-      {
-        ItemGradingIfc itemdata = (ItemGradingIfc) iter.next();
-        ItemDataIfc item = (ItemDataIfc) itemdata.getPublishedItem();
-        Long itemId = item.getItemId();
-        float autoScore = (float) 0;
-
-        if (!regrade)
-        {
-          itemdata.setAssessmentGrading(data);
-          itemdata.setSubmittedDate(new Date());
-          itemdata.setAgentId(agent);
-          itemdata.setOverrideScore(new Float(0));
-
-          if (item.getTypeId().intValue() == 1 || // MCSS
-              item.getTypeId().intValue() == 3 || // MCSS
-              item.getTypeId().intValue() == 4) // True/False
-          {
-            autoScore = getAnswerScore(itemdata);
-
-            //overridescore
-            if (itemdata.getOverrideScore() != null)
-            {
-              autoScore += itemdata.getOverrideScore().floatValue();
-            }
-
-            totalItems.put(itemId, new Float(autoScore));
-          }
-          else if (item.getTypeId().intValue() == 2) // MCMS
-          {
-            ArrayList answerArray = itemdata.getPublishedItemText().getAnswerArray();
-            int correctAnswers = 0;
-            if (answerArray != null)
-            {
-              for (int i =0; i<answerArray.size(); i++)
-              {
-                PublishedAnswer a = (PublishedAnswer) answerArray.get(i);
-                if (a.getIsCorrect().booleanValue())
-                {
-                  correctAnswers++;
-                }
-              }
-            }
-            float initScore = getAnswerScore(itemdata);
-            if(initScore > 0)
-            {
-              autoScore = initScore / correctAnswers;
-            }
-            else
-            {
-              autoScore = (getTotalCorrectScore(itemdata) / correctAnswers) * ((float) -1);
-            }
-
-            //overridescore?
-            if (itemdata.getOverrideScore() != null)
-            {
-              autoScore += itemdata.getOverrideScore().floatValue();
-            }
-
-            if(!totalItems.containsKey(itemId))
-            {
-              totalItems.put(itemId, new Float(autoScore));
-            }
-            else
-            {
-              float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
-              accumelateScore += autoScore;
-              totalItems.put(itemId, new Float(accumelateScore));
-            }
-          }
-          else if (item.getTypeId().intValue() == 9) // Matching
-          {
-            float initScore = getAnswerScore(itemdata);
-            if(initScore > 0)
-            {
-              autoScore = initScore / ((float) item.getItemTextSet().size());
-            }
-/*
-            // SAK-2798. remove negative points for matching
-            else
-            {
-              autoScore = (getTotalCorrectScore(itemdata) / ((float) item.getItemTextSet().size())) * ((float) -1);
-            }
-
-*/
-            //overridescore?
-            if (itemdata.getOverrideScore() != null)
-            {
-              autoScore += itemdata.getOverrideScore().floatValue();
-            }
-
-            if(!totalItems.containsKey(itemId))
-            {
-              totalItems.put(itemId, new Float(autoScore));
-            }
-            else
-            {
-              float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
-              accumelateScore += autoScore;
-              totalItems.put(itemId, new Float(accumelateScore));
-            }
-            //Skip 5/6/7, since they can't be autoscored
-          }
-          else if (item.getTypeId().intValue() == 8) // FIB
-          {
-            autoScore = getFIBScore(itemdata, fibAnswersMap) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
-
-            //overridescore - cwen
-            if (itemdata.getOverrideScore() != null)
-            {
-              autoScore += itemdata.getOverrideScore().floatValue();
-            }
-
-            if(!totalItems.containsKey(itemId))
-            {
-              totalItems.put(itemId, new Float(autoScore));
-            }
-            else
-            {
-              float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
-              accumelateScore += autoScore;
-              totalItems.put(itemId, new Float(accumelateScore));
-            }
-          }
-          else
-          {
-             //overridescore - cwen
-            if (itemdata.getOverrideScore() != null)
-            {
-              autoScore += itemdata.getOverrideScore().floatValue();
-            }
-            if(!totalItems.containsKey(itemId))
-            {
-              totalItems.put(itemId, new Float(autoScore));
-            }
-            else
-            {
-              float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
-              accumelateScore += autoScore;
-              totalItems.put(itemId, new Float(accumelateScore));
-            }
-          }
-        }
-        else
-        {
-          autoScore = itemdata.getAutoScore().floatValue();
-
-          //overridescore - cwen
-          if (itemdata.getOverrideScore() != null)
-          {
-            autoScore += itemdata.getOverrideScore().floatValue();
-          }
-
-          if(!totalItems.containsKey(itemId))
-          {
-            totalItems.put(itemId, new Float(autoScore));
-          }
-          else
-          {
-            float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
-            accumelateScore += autoScore;
-            totalItems.put(itemId, new Float(accumelateScore));
-          }
-        }
-        itemdata.setAutoScore(new Float(autoScore));
-      }
-
-      Set keySet = totalItems.keySet();
-      Iterator keyIter = keySet.iterator();
-      while(keyIter.hasNext())
-      {
-        float eachItemScore = ((Float) totalItems.get((Long)keyIter.next())).floatValue();
-        if(eachItemScore > 0)
-        {
-          totalAutoScore += eachItemScore;
-        }
-      }
-
-      iter = itemgrading.iterator();
-      while(iter.hasNext())
-      {
-        ItemGradingIfc itemdata = (ItemGradingIfc) iter.next();
-        ItemDataIfc item = (ItemDataIfc) itemdata.getPublishedItem();
-        Long itemId = item.getItemId();
-        float autoScore = (float) 0;
-
-        float eachItemScore = ((Float) totalItems.get(itemId)).floatValue();
-        if(eachItemScore < 0)
-        {
-          itemdata.setAutoScore(new Float(0));
-        }
-      }
-
-      data.setTotalAutoScore(new Float(totalAutoScore));
-      data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    getHibernateTemplate().saveOrUpdate(data);
-
-    notifyGradebookByScoringType(data);
-  }
-
-  private void notifyGradebookByScoringType(AssessmentGradingIfc data){
-    Integer scoringType = getScoringType(data);
-    if (updateGradebook(data)){
-  AssessmentGradingIfc d = data; // data is the last submission
-      // need to decide what to tell gradebook
-      if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE))
-        d = getHighestAssessmentGrading(
-            data.getPublishedAssessment().getPublishedAssessmentId(),
-            data.getAgentId());
-      notifyGradebook(d);
-    }
-  }
-
   private Integer getScoringType(AssessmentGradingIfc data){
     Integer scoringType = null;
     EvaluationModelIfc e = data.getPublishedAssessment().getEvaluationModel();
@@ -754,165 +457,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
-  /**
-   * This grades multiple choice and true false questions.  Since
-   * multiple choice/multiple select has a separate ItemGradingIfc for
-   * each choice, they're graded the same way the single choice are.
-   * Choices should be given negative score values if one wants them
-   * to lose points for the wrong choice.
-   */
-  public float getAnswerScore(ItemGradingIfc data)
-  {
-    AnswerIfc answer = (AnswerIfc) data.getPublishedAnswer();
-    if (answer == null || answer.getScore() == null)
-      return (float) 0;
-    if (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())
-      return (float) 0;
-    return answer.getScore().floatValue();
-  }
-
- /**
-   * This grades Fill In Blank questions.  (see SAK-1685) 
-
-   * There will be two valid cases for scoring when there are multiple fill 
-   * in blanks in a question:
-
-   * Case 1- There are different sets of answers (a set can contain one or more 
-   * item) for each blank (e.g. The {dog|coyote|wolf} howls and the {lion|cougar} 
-   * roars.) In this case each blank is tested for correctness independently. 
-
-   * Case 2-There is the same set of answers for each blank: e.g.  The flag of the US 
-   * is {red|white|blue},{red|white|blue}, and {red|white|blue}. 
-
-   * These are the only two valid types of questions. When authoring, it is an 
-   * ERROR to include: 
-
-   * (1) a mixture of independent answer and common answer blanks 
-   * (e.g. The {dog|coyote|wolf} howls at the {red|white|blue}, {red|white|blue}, 
-   * and {red|white|blue} flag.)
-
-   * (2) more than one set of blanks with a common answer ((e.g. The US flag 
-   * is {red|white|blue}, {red|white|blue}, and {red|white|blue} and the Italian 
-   * flag is {red|white|greem}, {red|white|greem}, and {red|white|greem}.)
-
-   * These two invalid questions specifications should be authored as two 
-   * separate questions.
-
-Here are the definition and 12 cases I came up with (lydia, 01/2006):
-
- single answers : roses are {red} and vilets are {blue}
- multiple answers : {dogs|cats} have 4 legs 
- multiple answers , mutually exclusive, all answers must be identical, can be in diff. orders : US flag has {red|blue|white} and {red |white|blue} and {blue|red|white} colors
- multiple answers , mutually non-exclusive : {dogs|cats} have 4 legs and {dogs|cats} can be pets. 
- wildcard uses *  to mean one of more characters 
-
-
--. wildcard single answer, case sensitive
--. wildcard single answer, case insensitive
--. single answer, no wildcard , case sensitive
--. single answer, no wildcard , case insensitive
--. multiple answer, mutually non-exclusive, no wildcard , case sensitive
--. multiple answer, mutually non-exclusive, no wildcard , case in sensitive
--. multiple answer, mutually non-exclusive, wildcard , case sensitive
--. multiple answer, mutually non-exclusive, wildcard , case insensitive
--. multiple answer, mutually exclusive, no wildcard , case sensitive
--. multiple answer, mutually exclusive, no wildcard , case in sensitive
--. multiple answer, mutually exclusive, wildcard , case sensitive
--. multiple answer, mutually exclusive, wildcard , case insensitive
-
-  */
-  private float getFIBScore(ItemGradingIfc data, HashMap fibmap)
-  {
-    String studentanswer = "";
-    String REGEX;
-    Pattern p;
-    Matcher m;
-    boolean matchresult = false;
-
-    String answertext = data.getPublishedAnswer().getText();
-    ItemDataIfc itemdata = data.getPublishedItem();
-    
-    Long itemId = itemdata.getItemId();
-
-    String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
-    String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
-    Set answerSet = new HashSet();
-
-    float totalScore = (float) 0;
-
-
-      if (answertext != null)
-      {
-
-     StringTokenizer st = new StringTokenizer(answertext, "|");
-     while (st.hasMoreTokens())
-     {
-      String answer = st.nextToken().trim();
-
-      if ("true".equalsIgnoreCase(casesensitive)) {
-        if (data.getAnswerText() != null){
-    	  studentanswer= data.getAnswerText().trim();
-    	  REGEX = answer.replaceAll("\\*", ".*");
-          p = Pattern.compile(REGEX);   // by default it's case sensitive
-          m = p.matcher(studentanswer);
-          matchresult = m.matches();
-        }
-      }  // if case sensitive 
-      else {
-      // case insensitive , if casesensitive is false, or null, or "".
-        if (data.getAnswerText() != null){
-    	  studentanswer= data.getAnswerText().trim();
-          REGEX = answer.replaceAll("\\*", ".*");
-	  p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
-          m = p.matcher(studentanswer);
-          matchresult= m.matches();
-        }
-
-      }  // else , case insensitive
- 
-          if (matchresult){
-
-            boolean alreadyused=false;
-// add check for mutual exclusive
-            if ("true".equalsIgnoreCase(mutuallyexclusive))
-            {
-              // check if answers are already used.
-              Set answer_used_sofar = (HashSet) fibmap.get(itemId);
-              if ((answer_used_sofar!=null) && ( answer_used_sofar.contains(studentanswer.toLowerCase()))){
-                // already used, so it's a wrong answer for mutually exclusive questions
-                alreadyused=true;
-              }
-              else {
-                // not used, it's a good answer, now add this to the already_used list.
-                // we only store lowercase strings in the fibmap.
-                if (answer_used_sofar==null) {
-                  answer_used_sofar = new HashSet();
-                }
-
-                answer_used_sofar.add(studentanswer.toLowerCase());
-                fibmap.put(itemId, answer_used_sofar);
-              }
-            }
-
-            if (!alreadyused) {
-              totalScore += data.getPublishedAnswer().getScore().floatValue();
-            }
-
-            // SAK-3005: quit if answer is correct, e.g. if you answered A for {a|A}, you already scored
-            break;
-          }
-      
-     }
-     }
-    return totalScore;
-  }
-
+    /*
   public static void main(String[] args) throws DataFacadeException {
     AssessmentGradingFacadeQueriesAPI instance = new AssessmentGradingFacadeQueries ();
     if (args[0].equals("submit")) {
       PublishedAssessmentFacadeQueriesAPI pafQ = new PublishedAssessmentFacadeQueries ();
       PublishedAssessmentData p = pafQ.loadPublishedAssessment(new Long(args[1]));
-      print(p);
       Boolean forGrade = new Boolean("true");
       AssessmentGradingData r = instance.prepareRealizedAssessment(p, forGrade);
       Long rAssessmentId = instance.add(r);
@@ -920,7 +470,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     System.exit(0);
   }
 
-  public AssessmentGradingData prepareRealizedAssessment(PublishedAssessmentData p, Boolean forGrade){
+   public AssessmentGradingData prepareRealizedAssessment(PublishedAssessmentData p, Boolean forGrade){
     Float totalAutoScore = new Float("0");
     AssessmentGradingData a = new AssessmentGradingData();
     Set itemSet = getAllItems(p.getSectionSet());
@@ -987,29 +537,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return d;
   }
 
+*/
+
   public Long add(AssessmentGradingData a) {
     getHibernateTemplate().save(a);
     return a.getAssessmentGradingId();
-  }
-
-  public static void print(AssessmentBaseIfc a) {
-    //log.debug("**assessmentId #" + a.getAssessmentBaseId());
-    //log.debug("**assessment is template? " + a.getIsTemplate());
-    if (a.getIsTemplate().equals(Boolean.FALSE)){
-      //log.debug("**assessmentTemplateId #" + ((AssessmentData)a).getAssessmentTemplateId());
-      //log.debug("**section: " +
-      //               ((AssessmentData)a).getSectionSet());
-    }
-    /**
-    log.debug("**assessment due date: " +
-                     a.getAssessmentAccessControl().getDueDate());
-    log.debug("**assessment control #" +
-                       a.getAssessmentAccessControl());
-    log.debug("**assessment metadata" +
-                       a.getAssessmentMetaDataSet());
-    log.debug("**Objective not lazy = " +
-                   a.getAssessmentMetaDataByLabel("ASSESSMENT_OBJECTIVE"));
-    */
   }
 
   public int getSubmissionSizeOfPublishedAssessment(Long publishedAssessmentId){
@@ -1088,7 +620,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       Long publishedItemId, String agentId)
   {
     List itemGradings = getHibernateTemplate().find(
-        "from ItemGradingData i where i.publishedItem.itemId=? and i.agentId=?",
+        "from ItemGradingData i where i.publishedItemId=? and i.agentId=?",
         new Object[] { publishedItemId, agentId },
         new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
     if (itemGradings.size() == 0)
@@ -1102,7 +634,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     log.debug("****assessmentGradingId="+assessmentGradingId);
     log.debug("****publishedItemId="+publishedItemId);
     List itemGradings = getHibernateTemplate().find(
-        "from ItemGradingData i where i.assessmentGrading.assessmentGradingId = ? and i.publishedItem.itemId=?",
+        "from ItemGradingData i where i.assessmentGrading.assessmentGradingId = ? and i.publishedItemId=?",
         new Object[] { assessmentGradingId, publishedItemId },
         new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.LONG });
     if (itemGradings.size() == 0)
@@ -1147,23 +679,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     } catch (Exception e) {
       e.printStackTrace();
     }
-  }
-
-  public void setIsLate(AssessmentGradingIfc data){
-    data.setSubmittedDate(new Date());
-    if (data.getPublishedAssessment().getAssessmentAccessControl() != null
-      && data.getPublishedAssessment().getAssessmentAccessControl()
-          .getDueDate() != null &&
-          data.getPublishedAssessment().getAssessmentAccessControl()
-          .getDueDate().before(new Date()))
-          data.setIsLate(new Boolean(true));
-    else
-      data.setIsLate(new Boolean(false));
-    if (data.getForGrade().booleanValue())
-      data.setStatus(new Integer(1));
-    else
-      data.setStatus(new Integer(0));
-    data.setTotalOverrideScore(new Float(0));
   }
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment) {
@@ -1217,18 +732,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return b;
   }
 
-  public float getTotalCorrectScore(ItemGradingIfc data)
-  {
-    AnswerIfc answer = (AnswerIfc) data.getPublishedAnswer();
-    if (answer == null || answer.getScore() == null)
-      return (float) 0;
-    return answer.getScore().floatValue();
-  }
-
   public List getAssessmentGradingIds(Long publishedItemId){
     return getHibernateTemplate().find(
          "select g.assessmentGrading.assessmentGradingId from "+
-         " ItemGradingData g where g.publishedItem.itemId=?",
+         " ItemGradingData g where g.publishedItemId=?",
          new Object[] { publishedItemId },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG });
   }
@@ -1296,7 +803,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
                    " a.agentId, a.finalScore, a.submittedDate) "+
                    " from ItemGradingData i, AssessmentGradingData a,"+
                    " PublishedItemData p where "+
-                   " i.assessmentGrading = a and i.publishedItem = p and "+
+                   " i.assessmentGrading = a and i.publishedItemId = p.itemId and "+
                    " a.publishedAssessment.publishedAssessmentId=? " +
                    " order by a.agentId asc, a.submittedDate desc";
     List assessmentGradings = getHibernateTemplate().find(query,
@@ -1343,7 +850,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
                    " a.agentId, a.finalScore, a.submittedDate) "+
                    " from ItemGradingData i, AssessmentGradingData a, "+
                    " PublishedItemData p where "+
-                   " i.assessmentGrading = a and i.publishedItem = p and "+
+                   " i.assessmentGrading = a and i.publishedItemId = p.itemId and "+
                    " a.publishedAssessment.publishedAssessmentId=? " +
                    " order by a.agentId asc, a.finalScore desc";
     List assessmentGradings = getHibernateTemplate().find(query,
@@ -1416,5 +923,30 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return h;
   }
 
-  
+    public void setIsLate(AssessmentGradingIfc data){
+	data.setSubmittedDate(new Date());
+	if (data.getPublishedAssessment().getAssessmentAccessControl() != null
+	    && data.getPublishedAssessment().getAssessmentAccessControl()
+	    .getDueDate() != null &&
+	    data.getPublishedAssessment().getAssessmentAccessControl()
+	    .getDueDate().before(new Date()))
+	    data.setIsLate(new Boolean(true));
+	else
+	    data.setIsLate(new Boolean(false));
+	if (data.getForGrade().booleanValue())
+	    data.setStatus(new Integer(1));
+	else
+	    data.setStatus(new Integer(0));
+
+        // I don't know why we need to set OverrideScore to 0 here,
+        // but at least we shouldn't set it to 0 if there is an existing value
+        // so I added to check null before setting - daisyf for v2.1.2
+        if (data.getTotalOverrideScore()==null)
+          data.setTotalOverrideScore(new Float(0));
+    }  
+
+  public void deleteAll(Collection c){
+    getHibernateTemplate().deleteAll(c);
+  }
+
 }

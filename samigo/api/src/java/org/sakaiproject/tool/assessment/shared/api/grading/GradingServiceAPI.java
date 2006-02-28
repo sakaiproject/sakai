@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
@@ -59,7 +60,7 @@ public interface GradingServiceAPI
    * Save the item scores.
    * @param data List of itemGradingDataIfcs
    */
-  public void saveItemScores(List data, HashMap map);
+  public void saveItemScores(List data, HashMap map, PublishedAssessmentIfc pub);
 
   /**
    * Get the score information for each item from the assessment score.
@@ -90,7 +91,7 @@ public interface GradingServiceAPI
    * Store the grading data.
    * @param data
    */
-  public void storeGrades(AssessmentGradingIfc data);
+  //public void storeGrades(AssessmentGradingIfc data);
 
   /**
    * Get the count of published assessments.

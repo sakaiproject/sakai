@@ -86,8 +86,8 @@ public class FibBean
     if (data == null)
     {
       data = new ItemGradingData();
-      data.setPublishedItem(parent.getItemData());
-      data.setPublishedItemText(answer.getItemText());
+      data.setPublishedItemId(parent.getItemData().getItemId());
+      data.setPublishedItemTextId(answer.getItemText().getId());
       data.setPublishedAnswer(answer);
       ArrayList items = parent.getItemGradingDataArray();
       items.add(data);

@@ -33,6 +33,10 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -338,6 +342,44 @@ public class PublishedAssessmentService {
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
       getPublishedItemIds(new Long(publishedAssessmentId));
 
+  }
+
+  public Integer getItemType(String publishedItemId){
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+      getItemType(new Long(publishedItemId));
+  }
+
+  public HashMap preparePublishedItemTextHash(PublishedAssessmentIfc publishedAssessment){
+    HashMap map = new HashMap();
+    ArrayList sectionArray = publishedAssessment.getSectionArray();
+    for (int i=0;i<sectionArray.size(); i++){
+      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
+      ArrayList itemArray = section.getItemArray();
+      for (int j=0;j<itemArray.size(); j++){
+        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+        ArrayList itemTextArray = item.getItemTextArray();
+        for (int k=0;k<itemTextArray.size(); k++){
+          ItemTextIfc itemText = (ItemTextIfc)itemTextArray.get(k);
+          map.put(itemText.getId(), itemText);
+        }
+      }
+    }
+    return map;
+  }
+
+
+  public HashMap preparePublishedItemHash(PublishedAssessmentIfc publishedAssessment){
+    HashMap map = new HashMap();
+    ArrayList sectionArray = publishedAssessment.getSectionArray();
+    for (int i=0;i<sectionArray.size(); i++){
+      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
+      ArrayList itemArray = section.getItemArray();
+      for (int j=0;j<itemArray.size(); j++){
+        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+        map.put(item.getItemId(), item);
+      }
+    }
+    return map;
   }
 
 }

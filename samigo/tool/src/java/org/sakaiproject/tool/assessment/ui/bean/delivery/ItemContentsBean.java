@@ -193,11 +193,11 @@ public class ItemContentsBean
     if (getItemGradingDataArray().isEmpty())
     {
       ItemGradingData data = new ItemGradingData();
-      data.setPublishedItem(itemData);
+      data.setPublishedItemId(itemData.getItemId());
       if (itemData.getItemTextSet().size() > 0)
       {
-        data.setPublishedItemText( (ItemTextIfc)
-                                  itemData.getItemTextSet().toArray()[0]);
+        ItemTextIfc itemText = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
+        data.setPublishedItemTextId(itemText.getId());
       }
       ArrayList items = new ArrayList();
       items.add(data);
@@ -476,9 +476,9 @@ public class ItemContentsBean
       else
       {
         data = new ItemGradingData();
-        data.setPublishedItem(itemData);
-        data.setPublishedItemText( (ItemTextIfc)
-                                  itemData.getItemTextSet().toArray()[0]);
+        data.setPublishedItemId(itemData.getItemId());
+        ItemTextIfc itemText = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
+        data.setPublishedItemTextId(itemText.getId());
         ArrayList items = new ArrayList();
         items.add(data);
         setItemGradingDataArray(items);
@@ -573,11 +573,10 @@ public class ItemContentsBean
         if (data == null)
         {
           data = new ItemGradingData();
-          data.setPublishedItem(itemData);
-          ItemTextIfc text = (ItemTextIfc) itemData.getItemTextSet().toArray()[
-            0];
-          data.setPublishedItemText(text);
-          Iterator iter2 = text.getAnswerSet().iterator();
+          data.setPublishedItemId(itemData.getItemId());
+          ItemTextIfc itemText = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
+          data.setPublishedItemTextId(itemText.getId());
+          Iterator iter2 = itemText.getAnswerSet().iterator();
           while (iter2.hasNext())
           {
             AnswerIfc answer = (AnswerIfc) iter2.next();
@@ -635,9 +634,9 @@ public class ItemContentsBean
       else
       {
         data = new ItemGradingData();
-        data.setPublishedItem(itemData);
-        data.setPublishedItemText( (ItemTextIfc)
-                                  itemData.getItemTextSet().toArray()[0]);
+        data.setPublishedItemId(itemData.getItemId());
+        ItemTextIfc itemText = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
+        data.setPublishedItemTextId(itemText.getId());
         ArrayList items = new ArrayList();
         items.add(data);
         setItemGradingDataArray(items);

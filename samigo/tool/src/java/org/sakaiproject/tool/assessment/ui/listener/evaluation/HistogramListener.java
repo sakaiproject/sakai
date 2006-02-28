@@ -47,8 +47,10 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramBarBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramQuestionScoresBean;
@@ -245,7 +247,7 @@ public class HistogramListener
             qbean.setQuestionType(item.getTypeId().toString());
             //totalpossible = totalpossible + item.getScore().doubleValue();
             ArrayList responses = null;
-            determineResults(qbean, (ArrayList) itemscores.get
+            determineResults(data.getPublishedAssessment(), qbean, (ArrayList) itemscores.get
               (item.getItemId()));
             qbean.setTotalScore(item.getScore().toString());
             info.add(qbean);
@@ -339,7 +341,7 @@ public class HistogramListener
 
   }
 
-  public void determineResults(HistogramQuestionScoresBean qbean,
+  public void determineResults(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,
     ArrayList itemScores)
   {
     if (itemScores == null)
@@ -350,7 +352,7 @@ public class HistogramListener
         qbean.getQuestionType().equals("4") || // tf
         qbean.getQuestionType().equals("9") || // matching
         qbean.getQuestionType().equals("8")) // Fill in the blank
-      doAnswerStatistics(qbean, itemScores);
+      doAnswerStatistics(pub, qbean, itemScores);
     if (qbean.getQuestionType().equals("5") || // essay
         qbean.getQuestionType().equals("6") || // file upload
         qbean.getQuestionType().equals("7")) // audio recording
@@ -358,7 +360,7 @@ public class HistogramListener
 
   }
 
-  public void doAnswerStatistics(HistogramQuestionScoresBean qbean,
+  public void doAnswerStatistics(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,
     ArrayList scores)
   {
     if (scores.isEmpty())
@@ -369,33 +371,37 @@ public class HistogramListener
       return;
     }
 
+    PublishedAssessmentService pubService  =  new PublishedAssessmentService();
+    //build a hashMap (publishedItemId, publishedItem)
+    HashMap publishedItemHash = pubService.preparePublishedItemHash(pub);
+    HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pub);
+
     int numAnswers = 0;
-    ItemDataIfc item = ((ItemGradingData) scores.toArray()[0])
-      .getPublishedItem();
+    ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(((ItemGradingData) scores.toArray()[0]).getPublishedItemId());
     ArrayList text = item.getItemTextArraySorted();
     ArrayList answers = null;
     if (!qbean.getQuestionType().equals("9"))
     {
-      ItemTextIfc firstText = (ItemTextIfc) text.toArray()[0];
+      ItemTextIfc firstText = (ItemTextIfc) publishedItemTextHash.get(((ItemTextIfc) text.toArray()[0]).getId());
       answers = firstText.getAnswerArraySorted();
     }
    
     if (qbean.getQuestionType().equals("1")) 
       getTFMCScores(scores, qbean, answers);
     else if (qbean.getQuestionType().equals("2"))
-      getFIBMCMCScores(scores, qbean, answers);
+      getFIBMCMCScores(publishedItemHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("3"))
       getTFMCScores(scores, qbean, answers);
     else if (qbean.getQuestionType().equals("4"))
       getTFMCScores(scores, qbean, answers);
     else if (qbean.getQuestionType().equals("8"))
-      getFIBMCMCScores(scores, qbean, answers);
+      getFIBMCMCScores(publishedItemHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("9"))
-      getMatchingScores(scores, qbean, text);
+      getMatchingScores(publishedItemTextHash, scores, qbean, text);
   }
 
 
-  public void getFIBMCMCScores(ArrayList scores,
+  public void getFIBMCMCScores(HashMap publishedItemHash, ArrayList scores,
     HistogramQuestionScoresBean qbean, ArrayList answers)
   {
     HashMap texts = new HashMap();
@@ -515,7 +521,7 @@ public class HistogramListener
 	  // it would count as a correct response
 
           try {
-	    ArrayList itemTextArray = item.getPublishedItem().getItemTextArraySorted();
+	    ArrayList itemTextArray = ((ItemDataIfc)publishedItemHash.get(item.getPublishedItemId())).getItemTextArraySorted();
     	    ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted();
 
             int corranswers = 0;
@@ -652,7 +658,7 @@ public class HistogramListener
 
 
 
-  public void getMatchingScores(ArrayList scores,
+  public void getMatchingScores(HashMap publishedItemTextHash, ArrayList scores,
     HistogramQuestionScoresBean qbean, ArrayList labels)
   {
     HashMap texts = new HashMap();
@@ -670,7 +676,7 @@ public class HistogramListener
     while (iter.hasNext())
     {
       ItemGradingData data = (ItemGradingData) iter.next();
-      ItemTextIfc text = data.getPublishedItemText();
+      ItemTextIfc text = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
       AnswerIfc answer = data.getPublishedAnswer();
 //    if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
 if (answer != null)

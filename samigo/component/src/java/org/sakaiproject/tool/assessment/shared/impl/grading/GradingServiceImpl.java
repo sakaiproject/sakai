@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
@@ -106,13 +107,13 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param data List of itemGradingDataIfcs
    */
 
-  public void saveItemScores(List data, HashMap map)
+  public void saveItemScores(List data, HashMap map, PublishedAssessmentIfc pub)
   {
     try
     {
       GradingService service = new GradingService();
       ArrayList list = new ArrayList(data);
-      service.saveItemScores(list, map);
+      service.saveItemScores(list, map, pub);
     }
     catch (Exception ex)
     {
@@ -207,6 +208,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * Store the grading data.
    * @param data
    */
+    /*
   public void storeGrades(AssessmentGradingIfc data)
   {
     try
@@ -219,7 +221,7 @@ public class GradingServiceImpl implements GradingServiceAPI
       throw new GradingServiceException(ex);
     }
   }
-
+    */
   /**
    * Get the count of published assessments.
    * @param publishedAssessmentId

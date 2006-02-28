@@ -1626,8 +1626,8 @@ public class DeliveryBean
       newItemGradingData = true;
       itemGradingData = new ItemGradingData();
       itemGradingData.setAssessmentGrading(adata);
-      itemGradingData.setPublishedItem(item);
-      itemGradingData.setPublishedItemText(itemText);
+      itemGradingData.setPublishedItemId(item.getItemId());
+      itemGradingData.setPublishedItemTextId(itemText.getId());
       itemGradingData.setSubmittedDate(new Date());
       itemGradingData.setAgentId(agent);
       itemGradingData.setOverrideScore(new Float(0));
@@ -1675,9 +1675,6 @@ public class DeliveryBean
     MediaData mediaData = null;
     log.debug("***6a. addMediaToItemGrading, itemGradinDataId=" +
               itemGradingData.getItemGradingId());
-    log.debug("***6b. addMediaToItemGrading, publishedItemId=" +
-              ( (PublishedItemData) itemGradingData.getPublishedItem()).
-              getItemId());
 
     if (SAVETODB)
     { // put the byte[] in
@@ -1866,19 +1863,6 @@ public class DeliveryBean
     return outcome;
   }
 
-  /*
-    public ItemGradingData getItemGradingData(String publishedItemId){
-      ItemGradingData itemGradingData = new ItemGradingData();
-      if (adata != null){
-        GradingService service = new GradingService();
-        itemGradingData = service.getItemGradingData(adata.getAssessmentGradingId().toString(), publishedItemId);
-        if (itemGradingData == null)
-          itemGradingData = new ItemGradingData();
-      }
-      return itemGradingData;
-    }
-   */
-
   public boolean getAnonymousLogin()
   {
     return anonymousLogin;
@@ -1901,7 +1885,7 @@ public class DeliveryBean
         while (iter.hasNext())
         {
           ItemGradingData itemGradingData = (ItemGradingData) iter.next();
-          String itemPublishedId = itemGradingData.getPublishedItem().getItemId().
+          String itemPublishedId = itemGradingData.getPublishedItemId().
             toString();
           if ( (publishedItemId).equals(itemPublishedId))
           {
@@ -1919,7 +1903,7 @@ public class DeliveryBean
         {
           log.debug(
             "*** addMediaToItemGrading, itemGradingData.publishedItemId =" +
-            selected.getPublishedItem().getItemId().toString());
+            selected.getPublishedItemId().toString());
         }
       }
     }

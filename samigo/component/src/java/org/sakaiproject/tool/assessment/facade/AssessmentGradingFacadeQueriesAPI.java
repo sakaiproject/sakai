@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -60,12 +61,12 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public void saveTotalScores(ArrayList data);
 
-  public void saveItemScores(ArrayList data, HashMap map);
+    //public void saveItemScores(ArrayList data, HashMap map);
 
   /**
    * Assume this is a new item.
    */
-  public void storeGrades(AssessmentGradingIfc data);
+  //public void storeGrades(AssessmentGradingIfc data);
 
   /**
    * This is the big, complicated mess where we take all the items in
@@ -75,7 +76,7 @@ public interface AssessmentGradingFacadeQueriesAPI
    * If regrade is true, we just recalculate the graded score.  If it's
    * false, we do everything from scratch.
    */
-  public void storeGrades(AssessmentGradingIfc data, boolean regrade);
+  //public void storeGrades(AssessmentGradingIfc data, boolean regrade);
 
   /**
    * This grades multiple choice and true false questions.  Since
@@ -84,20 +85,7 @@ public interface AssessmentGradingFacadeQueriesAPI
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public float getAnswerScore(ItemGradingIfc data);
-
-  //public float getFIBScore(ItemGradingIfc data);
-
-  public AssessmentGradingData prepareRealizedAssessment(
-      PublishedAssessmentData p, Boolean forGrade);
-
-  public Set getAllItems(Set sectionSet);
-
-  public Set createItemGradingSet(AssessmentGradingData a, Set itemSet,
-      Float totalAutoScore);
-
-  public ItemGradingData createItemGrading(AssessmentGradingData a,
-      PublishedItemData p, Set itemTextSet, Float totalAutoScore);
+  //public float getAnswerScore(ItemGradingIfc data);
 
   public Long add(AssessmentGradingData a);
 
@@ -149,5 +137,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   public Set getItemGradingSet(Long assessmentGradingId);
 
   public HashMap getAssessmentGradingByItemGradingId(Long publishedAssessmentId);
+
+  public void deleteAll(Collection c);
 
 }

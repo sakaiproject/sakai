@@ -282,4 +282,6 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public List getPublishedItemIds(Long publishedAssessmentId);
 
+  public Integer getItemType(Long publishedItemId);
+
 }

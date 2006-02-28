@@ -52,12 +52,14 @@ should be included in file importing DeliveryMessages
       </h:graphicImage>
     </h:column>
     <h:column>
+
      <h:selectOneRadio onfocus="if (this.defaultChecked) { uncheckRadioButtons#{question.itemData.itemId}(this) };" onclick="uncheckRadioButtons#{question.itemData.itemId}(this);" required="false" 
         disabled="#{delivery.actionString=='reviewAssessment'
                  || delivery.actionString=='gradeAssessment'}" 
        value="#{question.responseId}" layout="pageLayout">
        <f:selectItem itemValue="#{selection.answerId}" />
      </h:selectOneRadio>
+
     </h:column>
     <h:column>
      <h:outputText value=" #{selection.answer.label}" escape="false" />

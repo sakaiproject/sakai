@@ -153,7 +153,7 @@ public class StudentScoreUpdateListener
         data.setAssessmentGrading(adata);
       }
       GradingService delegate = new GradingService();
-      delegate.saveItemScores(list, tbean.getAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId()));
+      delegate.saveItemScores(list, tbean.getAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId()), tbean.getPublishedAssessment());
 
       log.info("Saved student scores.");
     }

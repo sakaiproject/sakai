@@ -34,6 +34,14 @@ public interface ItemGradingIfc
 
   void setItemGradingId(Long itemGradingId);
 
+  Long getPublishedItemId();
+
+  void setPublishedItemId(Long publishedItemId);
+
+  Long getPublishedItemTextId();
+
+  void setPublishedItemTextId(Long publishedItemTextId);
+
   AssessmentGradingIfc getAssessmentGrading();
 
   void setAssessmentGrading(AssessmentGradingIfc assessmentGrading);

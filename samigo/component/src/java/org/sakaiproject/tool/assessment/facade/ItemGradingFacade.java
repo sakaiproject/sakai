@@ -38,6 +38,8 @@ public class ItemGradingFacade
 {
   private Long itemGradingId;
   private AssessmentGradingIfc assessmentGrading;
+  private Long publishedItemId;
+  private Long publishedItemTextId;
   private ItemDataIfc publishedItem;
   private ItemTextIfc publishedItemText;
   private String agentId;
@@ -66,6 +68,21 @@ public class ItemGradingFacade
   public void setAssessmentGrading(AssessmentGradingIfc assessmentGrading) {
     this.assessmentGrading = assessmentGrading;
   }
+
+  public Long getPublishedItemId() {
+    return publishedItemId;
+  }
+  public void setPublishedItemId(Long publishedItemId) {
+    this.publishedItemId = publishedItemId;
+  }
+
+  public Long getPublishedItemTextId() {
+    return publishedItemTextId;
+  }
+  public void setPublishedItemTextId(Long publishedItemTextId) {
+    this.publishedItemTextId = publishedItemTextId;
+  }
+
   public ItemDataIfc getPublishedItem() {
     return publishedItem;
   }

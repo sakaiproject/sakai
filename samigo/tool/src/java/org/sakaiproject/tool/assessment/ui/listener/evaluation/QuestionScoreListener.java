@@ -44,9 +44,12 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.PartData;
@@ -123,11 +126,6 @@ public class QuestionScoreListener
       }
     }
 
-
-
-
-
-
     log.info("Calling questionScores.");
     if (!questionScores(publishedId, bean, true))
     {
@@ -150,6 +148,14 @@ public class QuestionScoreListener
     log.debug("questionScores()");
     try
     {
+      // get the PublishedAssessment based on publishedId
+      PublishedAssessmentService pubService  =	new PublishedAssessmentService();
+      PublishedAssessmentIfc publishedAssessment = pubService.getPublishedAssessment(publishedId);
+      //build a hashMap (publishedItemId, publishedItem)
+      HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
+      //build a hashMap (publishedItemTextId, publishedItemText)
+      HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
+
       GradingService delegate =	new GradingService();
 
       TotalScoresBean totalBean =
@@ -162,15 +168,6 @@ public class QuestionScoreListener
       if (cu.lookupParam("newItemId") != null &&
           !cu.lookupParam("newItemId").trim().equals(""))
         itemId = cu.lookupParam("newItemId");
-
-/*
-      String which = cu.lookupParam("allSubmissions");
-      //log.info("Rachel: publishedId = " + publishedId + ", itemId = " + itemId + ", allSubmissions = " + which);
-      if (which == null)
-        which = "false";
-      bean.setAllSubmissions(which);
-
-*/
 
       String which = bean.getAllSubmissions();
       if (which == null && totalBean.getAllSubmissions() != null)
@@ -241,9 +238,10 @@ public class QuestionScoreListener
       while (iter.hasNext())
       {
         ItemGradingData idata = (ItemGradingData) iter.next();
+        ItemTextIfc pubItemText = (ItemTextIfc) publishedItemTextHash.get(idata.getPublishedItemTextId());
         ArrayList temp = (ArrayList) scoresByItem.get
           (idata.getAssessmentGrading().getAssessmentGradingId() + ":" +
-            idata.getPublishedItem().getItemId());
+            idata.getPublishedItemId());
         if (temp == null)
           temp = new ArrayList();
 
@@ -254,15 +252,16 @@ public class QuestionScoreListener
         while (iter2.hasNext())
         {
           ItemGradingData tmpData = (ItemGradingData) iter2.next();
+          ItemTextIfc tmpPublishedText = (ItemTextIfc) publishedItemTextHash.get(tmpData.getPublishedItemTextId()); 
           if (idata.getPublishedAnswer() != null &&
               tmpData.getPublishedAnswer() != null &&
               !added &&
-              (idata.getPublishedItemText().getSequence().intValue() <
-               tmpData.getPublishedItemText().getSequence().intValue() ||
-               (idata.getPublishedItemText().getSequence().intValue() ==
-                tmpData.getPublishedItemText().getSequence().intValue() &&
+              (pubItemText.getSequence().intValue() <
+               tmpPublishedText.getSequence().intValue() ||
+               (pubItemText.getSequence().intValue() ==
+                tmpPublishedText.getSequence().intValue() &&
                 idata.getPublishedAnswer().getSequence().intValue() <
-                tmpData.getPublishedAnswer().getSequence().intValue())))
+                tmpPublishedText.getSequence().intValue())))
           {
             newList.add(idata);
             added = true;
@@ -272,7 +271,7 @@ public class QuestionScoreListener
         if (!added)
           newList.add(idata);
         scoresByItem.put(idata.getAssessmentGrading().getAssessmentGradingId()
-         + ":" + idata.getPublishedItem().getItemId(), newList);
+         + ":" + idata.getPublishedItemId(), newList);
       }
       bean.setScoresByItem(scoresByItem);
 
@@ -288,60 +287,47 @@ public class QuestionScoreListener
       // displaying.  We get the graded assessment.
       ItemGradingData data = (ItemGradingData) next;
 
-      if (data.getAssessmentGrading().getPublishedAssessment() != null)
-      {
-	  //bean.setAssessmentName(data.getAssessmentGrading().getPublishedAssessment().getAssessment().getTitle());
-	bean.setAssessmentName(totalBean.getAssessmentName()); // get name from totalScoreBean, instead of from the backend.(the name should be same). bug fix for sam-255.
-        bean.setAssessmentId(data.getAssessmentGrading().getPublishedAssessment().getAssessmentId().toString());
-
-        // if section set is null, initialize it - daisyf , 01/31/05
-        PublishedAssessmentData pub = (PublishedAssessmentData)data.getAssessmentGrading().getPublishedAssessment();
-        HashSet sectionSet = PersistenceService.getInstance().
-            getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(pub);
-        data.getAssessmentGrading().getPublishedAssessment().setSectionSet(sectionSet);
-
-        try {
-          bean.setAnonymous((data.getAssessmentGrading().getPublishedAssessment().getEvaluationModel(). getAnonymousGrading().equals(EvaluationModel.ANONYMOUS_GRADING)?"true":"false"));
-        } catch (Exception e) {
-          //log.info("No evaluation model.");
-          bean.setAnonymous("false");
-        }
-        try {
-          bean.setLateHandling(data.getAssessmentGrading().getPublishedAssessment().getAssessmentAccessControl().getLateHandling().toString());
-        } catch (Exception e) {
-          //log.info("No access control model.");
-          bean.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION.toString());
-        }
-        try {
-          bean.setDueDate(data.getAssessmentGrading().getPublishedAssessment().getAssessmentAccessControl().getDueDate().toString());
-          dueDate = data.getAssessmentGrading().getPublishedAssessment().getAssessmentAccessControl().getDueDate();
-        } catch (Exception e) {
-          //log.info("No due date.");
-          bean.setDueDate(new Date().toString());
-        }
-        try {
-          bean.setMaxScore(data.getAssessmentGrading().getPublishedAssessment().getEvaluationModel().getFixedTotalScore().toString());
-        } catch (Exception e) {
-          float score = (float) 0.0;
-          Iterator iter2 = data.getAssessmentGrading().getPublishedAssessment().getSectionArraySorted().iterator();
-          while (iter2.hasNext())
+      try {
+        bean.setAnonymous(publishedAssessment.getEvaluationModel(). getAnonymousGrading().equals(EvaluationModel.ANONYMOUS_GRADING)?"true":"false");
+      } catch (Exception e) {
+        //log.info("No evaluation model.");
+        bean.setAnonymous("false");
+      }
+      try {
+        bean.setLateHandling(publishedAssessment.getAssessmentAccessControl().getLateHandling().toString());
+      } catch (Exception e) {
+        //log.info("No access control model.");
+        bean.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION.toString());
+      }
+      try {
+        bean.setDueDate(publishedAssessment.getAssessmentAccessControl().getDueDate().toString());
+        dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
+      } catch (Exception e) {
+        //log.info("No due date.");
+        bean.setDueDate(new Date().toString());
+      }
+      try {
+        bean.setMaxScore(publishedAssessment.getEvaluationModel().getFixedTotalScore().toString());
+      } 
+      catch (Exception e) {
+        float score = (float) 0.0;
+        Iterator iter2 = publishedAssessment.getSectionArraySorted().iterator();
+        while (iter2.hasNext())
+        {
+          SectionDataIfc sdata = (SectionDataIfc) iter2.next();
+          Iterator iter3 = sdata.getItemArraySortedForGrading().iterator();
+          while (iter3.hasNext())
           {
-            SectionDataIfc sdata = (SectionDataIfc) iter2.next();
-            Iterator iter3 = sdata.getItemArraySortedForGrading().iterator();
-            while (iter3.hasNext())
-            {
-              ItemDataIfc idata = (ItemDataIfc) iter3.next();
-              if (idata.getItemId().equals(new Long(itemId)))
-                score = idata.getScore().floatValue();
-            }
+            ItemDataIfc idata = (ItemDataIfc) iter3.next();
+            if (idata.getItemId().equals(new Long(itemId)))
+              score = idata.getScore().floatValue();
           }
-          bean.setMaxScore(new Float(score).toString());
         }
+        bean.setMaxScore(new Float(score).toString());
       }
 
       ArrayList sections = new ArrayList();
-      iter = data.getAssessmentGrading().getPublishedAssessment()
-        .getSectionArraySorted().iterator();
+      iter = publishedAssessment.getSectionArraySorted().iterator();
       int i=1;
       while (iter.hasNext())
       {
@@ -372,7 +358,7 @@ public class QuestionScoreListener
       }
       bean.setSections(sections);
 
-      ItemDataIfc item = data.getPublishedItem();
+      ItemDataIfc item = (ItemDataIfc)publishedItemHash.get(data.getPublishedItemId());
       bean.setTypeId(item.getTypeId().toString());
       bean.setItemId(item.getItemId().toString());
       bean.setItemName("Section " + item.getSection().getSequence().toString()
@@ -434,7 +420,7 @@ public class QuestionScoreListener
         while (iter2.hasNext())
         {
           ItemGradingData gdata = (ItemGradingData) iter2.next();
-
+          ItemTextIfc gdataPubItemText = (ItemTextIfc) publishedItemTextHash.get(gdata.getPublishedItemTextId());          
           // This all just gets the text of the answer to display
           String answerText = "N/A";
           String rationale = "";
@@ -451,7 +437,7 @@ public class QuestionScoreListener
           }
 
           if (bean.getTypeId().equals("9"))
-            answerText = gdata.getPublishedItemText().getSequence() + ":" +
+            answerText = gdataPubItemText.getSequence() + ":" +
               answerText;
 
           if (bean.getTypeId().equals("8"))

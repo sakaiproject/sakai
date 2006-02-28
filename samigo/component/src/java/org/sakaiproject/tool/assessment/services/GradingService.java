@@ -24,20 +24,39 @@
 package org.sakaiproject.tool.assessment.services;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
+import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 
 /**
  * The GradingService calls the back end to get grading information from
@@ -86,16 +105,6 @@ public class GradingService
     try {
       PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries().saveTotalScores(data);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void saveItemScores(ArrayList data, HashMap map)
-  {
-    try {
-      PersistenceService.getInstance().
-        getAssessmentGradingFacadeQueries().saveItemScores(data, map);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -167,16 +176,6 @@ public class GradingService
       PersistenceService.getInstance().getTypeFacadeQueries();
     TypeFacade type = typeFacadeQueries.getTypeFacadeById(typeId);
     return (type.getKeyword());
-  }
-
-  public void storeGrades(AssessmentGradingIfc data)
-  {
-    try {
-      PersistenceService.getInstance().
-        getAssessmentGradingFacadeQueries().storeGrades(data);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 
   public int getSubmissionSizeOfPublishedAssessment(String publishedAssessmentId)
@@ -336,6 +335,567 @@ public class GradingService
     }
     catch(Exception e){
       log.error(e); throw new Error(e);
+    }
+  }
+
+  public void saveItemScores(ArrayList data, HashMap assessmentGradingHash, PublishedAssessmentIfc pub) {
+    try {
+      Iterator iter = data.iterator();
+      while (iter.hasNext())
+      {
+        ItemGradingData gdata = (ItemGradingData) iter.next();
+        if (gdata.getItemGradingId() == null)
+          gdata.setItemGradingId(new Long(0));
+        if (gdata.getPublishedItemText() == null)
+        {
+          //log.debug("Didn't save -- error in item.");
+        }
+        else
+        {  
+          AssessmentGradingData a = (AssessmentGradingData) assessmentGradingHash.get(gdata.getItemGradingId());
+          a.setItemGradingSet(getItemGradingSet(a.getAssessmentGradingId().toString()));
+
+          Iterator iter2 = a.getItemGradingSet().iterator();
+          while (iter2.hasNext())
+          {
+            ItemGradingData idata = (ItemGradingData) iter2.next();
+            if (idata.getItemGradingId().equals(gdata.getItemGradingId()))
+            {
+              a.getItemGradingSet().remove(idata);
+              a.getItemGradingSet().add(gdata);
+              break;
+            }
+          }
+
+          // Now we can move on.
+          saveItemGrading(gdata);
+          storeGrades(gdata.getAssessmentGrading(), true, pub);
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void updateItemScore(ItemGradingData gdata, float scoreDifference){
+    try {
+      AssessmentGradingData adata = load(gdata.getAssessmentGradingId().toString());
+      adata.setItemGradingSet(getItemGradingSet(adata.getAssessmentGradingId().toString()));
+
+      Set itemGradingSet = adata.getItemGradingSet();
+      Iterator iter = itemGradingSet.iterator();
+      float totalAutoScore = 0;
+      float totalOverrideScore = adata.getTotalOverrideScore().floatValue();
+      while (iter.hasNext()){
+        ItemGradingIfc i = (ItemGradingIfc)iter.next();
+        if (i.getItemGradingId().equals(gdata.getItemGradingId())){
+	  i.setAutoScore(gdata.getAutoScore());
+          i.setComments(gdata.getComments());
+	}
+        if (i.getAutoScore()!=null)
+          totalAutoScore += i.getAutoScore().floatValue();
+      }
+
+      adata.setTotalAutoScore(new Float(totalAutoScore));
+      adata.setFinalScore(new Float(totalAutoScore+totalOverrideScore));
+      saveOrUpdateAssessmentGrading(adata);
+      if (scoreDifference != 0){
+        notifyGradebookByScoringType(adata, adata.getPublishedAssessment());
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Assume this is a new item.
+   */
+  public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub)
+  {
+    storeGrades(data, false, pub);
+  }
+
+  /**
+   * This is the big, complicated mess where we take all the items in
+   * an assessment, store the grading data, auto-grade it, and update
+   * everything.
+   *
+   * If regrade is true, we just recalculate the graded score.  If it's
+   * false, we do everything from scratch.
+   */
+  public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub) {
+    //#0 - let's build a HashMap with (publishedItemId, publishedItem)
+    HashMap publishedItemHash = getPublishedItemHash(pub); 
+    HashMap publishedItemTextHash = getPublishedItemTextHash(pub); 
+    try {
+      String agent = data.getAgentId();
+      if (!regrade)
+      {
+        setIsLate(data, pub);
+      }
+      Set itemgrading = data.getItemGradingSet();
+      if (itemgrading == null)
+        itemgrading = getItemGradingSet(data.getAssessmentGradingId().toString());
+      log.debug("*******itemGrading size="+itemgrading.size());
+      Iterator iter = itemgrading.iterator();
+      float totalAutoScore = 0;
+
+      // fibAnswersMap contains a map of HashSet of answers for a FIB item,
+      // key =itemid, value= HashSet of answers for each item.  
+      // This is used to keep track of answers we have already used for 
+      // mutually exclusive multiple answer type of FIB, such as 
+      // The flag of the US is {red|white|blue},{red|white|blue}, and {red|white|blue}.
+      // so if the first blank has an answer 'red', the 'red' answer should 
+      // not be included in the answers for the other mutually exclusive blanks. 
+      HashMap fibAnswersMap= new HashMap();
+
+      //change algorithm based on each question (SAK-1930 & IM271559) -cwen
+      HashMap totalItems = new HashMap();
+      while(iter.hasNext())
+      {
+        ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
+        Long itemId = itemGrading.getPublishedItemId();
+        ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
+        Long itemType = item.getTypeId();
+        float autoScore = (float) 0;
+        if (!regrade)
+        {
+          itemGrading.setAssessmentGrading(data);
+          itemGrading.setSubmittedDate(new Date());
+          itemGrading.setAgentId(agent);
+          itemGrading.setOverrideScore(new Float(0));
+          // note that totalItems & fibAnswersMap would be modified by the following method
+          autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
+                                 totalItems, fibAnswersMap);
+	}
+        else
+        {
+          autoScore = itemGrading.getAutoScore().floatValue();
+          //overridescore - cwen
+          if (itemGrading.getOverrideScore() != null)
+          {
+            autoScore += itemGrading.getOverrideScore().floatValue();
+          }
+
+          if(!totalItems.containsKey(itemId))
+          {
+            totalItems.put(itemId, new Float(autoScore));
+          }
+          else
+          {
+            float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+            accumelateScore += autoScore;
+            totalItems.put(itemId, new Float(accumelateScore));
+          }
+        }
+        itemGrading.setAutoScore(new Float(autoScore));
+      }
+
+      Set keySet = totalItems.keySet();
+      Iterator keyIter = keySet.iterator();
+      while(keyIter.hasNext())
+      {
+        float eachItemScore = ((Float) totalItems.get((Long)keyIter.next())).floatValue();
+        if(eachItemScore > 0)
+        {
+          totalAutoScore += eachItemScore;
+        }
+      }
+
+      iter = itemgrading.iterator();
+      while(iter.hasNext())
+      {
+        ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
+        Long itemId = itemGrading.getPublishedItemId();
+        float autoScore = (float) 0;
+
+        float eachItemScore = ((Float) totalItems.get(itemId)).floatValue();
+        if(eachItemScore < 0)
+        {
+          itemGrading.setAutoScore(new Float(0));
+        }
+      }
+
+      data.setTotalAutoScore(new Float(totalAutoScore));
+      data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    System.out.println("**** GradingService #1 ****");
+    saveOrUpdateAssessmentGrading(data);
+    System.out.println("**** GradingService #2 ****");
+
+    notifyGradebookByScoringType(data, pub);
+    System.out.println("**** GradingService #3 ****");
+  }
+
+  private void notifyGradebookByScoringType(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
+    Integer scoringType = pub.getEvaluationModel().getScoringType();
+    if (updateGradebook(data, pub)){
+      AssessmentGradingIfc d = data; // data is the last submission
+      // need to decide what to tell gradebook
+      if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE))
+        d = getHighestAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
+      notifyGradebook(d, pub);
+    }
+  }
+
+  public HashMap getPublishedItemHash(PublishedAssessmentIfc pub){
+    HashMap h = new HashMap();
+    Set sectionSet = pub.getSectionSet();
+    Iterator iter = sectionSet.iterator();
+    while (iter.hasNext()){
+      SectionDataIfc section = (SectionDataIfc)iter.next();
+      Set itemSet = section.getItemSet();
+      Iterator itemIter = itemSet.iterator();
+      while (itemIter.hasNext()){
+        ItemDataIfc item = (ItemDataIfc)itemIter.next();
+        h.put(item.getItemId(), item);
+      } 
+    } 
+    return h;
+  }
+
+  public HashMap getPublishedItemTextHash(PublishedAssessmentIfc pub){
+    HashMap h = new HashMap();
+    Set sectionSet = pub.getSectionSet();
+    Iterator iter = sectionSet.iterator();
+    while (iter.hasNext()){
+      SectionDataIfc section = (SectionDataIfc)iter.next();
+      Set itemSet = section.getItemSet();
+      Iterator itemIter = itemSet.iterator();
+      while (itemIter.hasNext()){
+        ItemDataIfc item = (ItemDataIfc)itemIter.next();
+        Set itemTextSet = item.getItemTextSet();
+        Iterator itemTextIter = itemTextSet.iterator();
+        while (itemTextIter.hasNext()){ 
+          ItemTextIfc itemText = (ItemTextIfc)itemTextIter.next();
+          h.put(itemText.getId(), itemText);
+	}
+      } 
+    } 
+    return h;
+  }
+
+  private float getScoreByQuestionType(ItemGradingIfc itemGrading, ItemDataIfc item,
+                                       Long itemType, HashMap publishedItemTextHash, 
+                                       HashMap totalItems, HashMap fibAnswersMap){
+    float score = (float) 0;
+    float initScore = (float) 0;
+    float autoScore = (float) 0;
+    float accumelateScore = (float) 0;
+    Long itemId = item.getItemId();
+    int type = itemType.intValue();
+    switch (type){ 
+      case 1: // MC Single Correct
+      case 3: // MC Survey
+      case 4: // True/False 
+              autoScore = getAnswerScore(itemGrading);
+              //overridescore
+              if (itemGrading.getOverrideScore() != null)
+                autoScore += itemGrading.getOverrideScore().floatValue();
+	      totalItems.put(itemId, new Float(autoScore));
+              break;
+
+      case 2: // MC Multiple Correct
+              ItemTextIfc itemText = (ItemTextIfc) publishedItemTextHash.get(itemGrading.getPublishedItemTextId());
+              ArrayList answerArray = itemText.getAnswerArray();
+              int correctAnswers = 0;
+              if (answerArray != null){
+                for (int i =0; i<answerArray.size(); i++){
+                  AnswerIfc a = (AnswerIfc) answerArray.get(i);
+                  if (a.getIsCorrect().booleanValue())
+                    correctAnswers++;
+                }
+              }
+              initScore = getAnswerScore(itemGrading);
+              if (initScore > 0)
+                autoScore = initScore / correctAnswers;
+              else
+                autoScore = (getTotalCorrectScore(itemGrading) / correctAnswers) * ((float) -1);
+
+              //overridescore?
+              if (itemGrading.getOverrideScore() != null)
+                autoScore += itemGrading.getOverrideScore().floatValue();
+              if (!totalItems.containsKey(itemId))
+                totalItems.put(itemId, new Float(autoScore));
+              else{
+                accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+                accumelateScore += autoScore;
+                totalItems.put(itemId, new Float(accumelateScore));
+              }
+              break;
+
+      case 9: // Matching     
+              initScore = getAnswerScore(itemGrading);
+              if (initScore > 0)
+                autoScore = initScore / ((float) item.getItemTextSet().size());
+              //overridescore?
+              if (itemGrading.getOverrideScore() != null)
+                autoScore += itemGrading.getOverrideScore().floatValue();
+
+              if (!totalItems.containsKey(itemId))
+                totalItems.put(itemId, new Float(autoScore));
+              else {
+                accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+                accumelateScore += autoScore;
+                totalItems.put(itemId, new Float(accumelateScore));
+              }
+              break;
+
+      case 8: // FIB
+              autoScore = getFIBScore(itemGrading, fibAnswersMap, item) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+              //overridescore - cwen
+              if (itemGrading.getOverrideScore() != null)
+                autoScore += itemGrading.getOverrideScore().floatValue();
+
+              if (!totalItems.containsKey(itemId))
+                totalItems.put(itemId, new Float(autoScore));
+              else {
+                accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+                accumelateScore += autoScore;
+                totalItems.put(itemId, new Float(accumelateScore));
+              }
+              break;
+
+      case 5: // SAQ
+      case 6: // file upload
+      case 7: // audio recording
+              //overridescore - cwen
+              if (itemGrading.getOverrideScore() != null)
+                autoScore += itemGrading.getOverrideScore().floatValue();
+              if (!totalItems.containsKey(itemId))
+                totalItems.put(itemId, new Float(autoScore));
+              else {
+                accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+                accumelateScore += autoScore;
+                totalItems.put(itemId, new Float(accumelateScore));
+              }
+              break;
+    }
+    return autoScore;
+  }
+
+  /**
+   * This grades multiple choice and true false questions.  Since
+   * multiple choice/multiple select has a separate ItemGradingIfc for
+   * each choice, they're graded the same way the single choice are.
+   * Choices should be given negative score values if one wants them
+   * to lose points for the wrong choice.
+   */
+  public float getAnswerScore(ItemGradingIfc data)
+  {
+    AnswerIfc answer = (AnswerIfc) data.getPublishedAnswer();
+    if (answer == null || answer.getScore() == null)
+      return (float) 0;
+    if (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())
+      return (float) 0;
+    return answer.getScore().floatValue();
+  }
+
+  private boolean updateGradebook(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
+    // no need to notify gradebook if this submission is not for grade
+    boolean forGrade = (Boolean.TRUE).equals(data.getForGrade());
+
+    boolean toGradebook = false;
+    EvaluationModelIfc e = pub.getEvaluationModel();
+    if ( e!=null ){
+      String toGradebookString = e.getToGradeBook();
+      toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+    }
+    return (forGrade && toGradebook);
+  }
+
+  public void notifyGradebook(AssessmentGradingIfc data, PublishedAssessmentIfc pub) {
+    // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
+    String toGradebook = pub.getEvaluationModel().getToGradeBook();
+
+    GradebookService g = null;
+    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+    if (integrated)
+    {
+      g = (GradebookService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.service.gradebook.GradebookService");
+    }
+
+    GradebookServiceHelper gbsHelper =
+      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+
+    if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)
+        && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+        if(log.isDebugEnabled()) log.debug("Attempting to update a score in the gradebook");
+        try {
+            gbsHelper.updateExternalAssessmentScore(data, g);
+        } catch (Exception e) {
+            // TODO Handle this exception in the UI rather than swallowing it!
+            e.printStackTrace();
+        }
+    } else {
+       if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
+    }
+  }
+
+ /**
+   * This grades Fill In Blank questions.  (see SAK-1685) 
+
+   * There will be two valid cases for scoring when there are multiple fill 
+   * in blanks in a question:
+
+   * Case 1- There are different sets of answers (a set can contain one or more 
+   * item) for each blank (e.g. The {dog|coyote|wolf} howls and the {lion|cougar} 
+   * roars.) In this case each blank is tested for correctness independently. 
+
+   * Case 2-There is the same set of answers for each blank: e.g.  The flag of the US 
+   * is {red|white|blue},{red|white|blue}, and {red|white|blue}. 
+
+   * These are the only two valid types of questions. When authoring, it is an 
+   * ERROR to include: 
+
+   * (1) a mixture of independent answer and common answer blanks 
+   * (e.g. The {dog|coyote|wolf} howls at the {red|white|blue}, {red|white|blue}, 
+   * and {red|white|blue} flag.)
+
+   * (2) more than one set of blanks with a common answer ((e.g. The US flag 
+   * is {red|white|blue}, {red|white|blue}, and {red|white|blue} and the Italian 
+   * flag is {red|white|greem}, {red|white|greem}, and {red|white|greem}.)
+
+   * These two invalid questions specifications should be authored as two 
+   * separate questions.
+
+Here are the definition and 12 cases I came up with (lydia, 01/2006):
+
+ single answers : roses are {red} and vilets are {blue}
+ multiple answers : {dogs|cats} have 4 legs 
+ multiple answers , mutually exclusive, all answers must be identical, can be in diff. orders : US flag has {red|blue|white} and {red |white|blue} and {blue|red|white} colors
+ multiple answers , mutually non-exclusive : {dogs|cats} have 4 legs and {dogs|cats} can be pets. 
+ wildcard uses *  to mean one of more characters 
+
+
+-. wildcard single answer, case sensitive
+-. wildcard single answer, case insensitive
+-. single answer, no wildcard , case sensitive
+-. single answer, no wildcard , case insensitive
+-. multiple answer, mutually non-exclusive, no wildcard , case sensitive
+-. multiple answer, mutually non-exclusive, no wildcard , case in sensitive
+-. multiple answer, mutually non-exclusive, wildcard , case sensitive
+-. multiple answer, mutually non-exclusive, wildcard , case insensitive
+-. multiple answer, mutually exclusive, no wildcard , case sensitive
+-. multiple answer, mutually exclusive, no wildcard , case in sensitive
+-. multiple answer, mutually exclusive, wildcard , case sensitive
+-. multiple answer, mutually exclusive, wildcard , case insensitive
+
+  */
+  private float getFIBScore(ItemGradingIfc data, HashMap fibmap, ItemDataIfc itemdata)
+  {
+    String studentanswer = "";
+    String REGEX;
+    Pattern p;
+    Matcher m;
+    boolean matchresult = false;
+
+    String answertext = data.getPublishedAnswer().getText();
+    Long itemId = itemdata.getItemId();
+
+    String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
+    String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
+    Set answerSet = new HashSet();
+
+    float totalScore = (float) 0;
+
+    if (answertext != null)
+    {
+      StringTokenizer st = new StringTokenizer(answertext, "|");
+      while (st.hasMoreTokens())
+      {
+        String answer = st.nextToken().trim();
+        if ("true".equalsIgnoreCase(casesensitive)) {
+          if (data.getAnswerText() != null){
+            studentanswer= data.getAnswerText().trim();
+    	    REGEX = answer.replaceAll("\\*", ".*");
+            p = Pattern.compile(REGEX);   // by default it's case sensitive
+            m = p.matcher(studentanswer);
+            matchresult = m.matches();
+          }
+        }  // if case sensitive 
+        else {
+        // case insensitive , if casesensitive is false, or null, or "".
+          if (data.getAnswerText() != null){
+    	    studentanswer= data.getAnswerText().trim();
+            REGEX = answer.replaceAll("\\*", ".*");
+	    p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
+            m = p.matcher(studentanswer);
+            matchresult= m.matches();
+          }
+        }  // else , case insensitive
+ 
+        if (matchresult){
+
+            boolean alreadyused=false;
+// add check for mutual exclusive
+            if ("true".equalsIgnoreCase(mutuallyexclusive))
+            {
+              // check if answers are already used.
+              Set answer_used_sofar = (HashSet) fibmap.get(itemId);
+              if ((answer_used_sofar!=null) && ( answer_used_sofar.contains(studentanswer.toLowerCase()))){
+                // already used, so it's a wrong answer for mutually exclusive questions
+                alreadyused=true;
+              }
+              else {
+                // not used, it's a good answer, now add this to the already_used list.
+                // we only store lowercase strings in the fibmap.
+                if (answer_used_sofar==null) {
+                  answer_used_sofar = new HashSet();
+                }
+
+                answer_used_sofar.add(studentanswer.toLowerCase());
+                fibmap.put(itemId, answer_used_sofar);
+              }
+            }
+
+            if (!alreadyused) {
+              totalScore += data.getPublishedAnswer().getScore().floatValue();
+            }
+
+            // SAK-3005: quit if answer is correct, e.g. if you answered A for {a|A}, you already scored
+            break;
+          }
+      
+     }
+    }
+    return totalScore;
+  }
+
+  public float getTotalCorrectScore(ItemGradingIfc data)
+  {
+    AnswerIfc answer = (AnswerIfc) data.getPublishedAnswer();
+    if (answer == null || answer.getScore() == null)
+      return (float) 0;
+    return answer.getScore().floatValue();
+  }
+
+  public void setIsLate(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
+    data.setSubmittedDate(new Date());
+    if (pub.getAssessmentAccessControl() != null
+      && pub.getAssessmentAccessControl().getDueDate() != null &&
+          pub.getAssessmentAccessControl().getDueDate().before(new Date()))
+          data.setIsLate(new Boolean(true));
+    else
+      data.setIsLate(new Boolean(false));
+    if (data.getForGrade().booleanValue())
+      data.setStatus(new Integer(1));
+    else
+      data.setStatus(new Integer(0));
+    data.setTotalOverrideScore(new Float(0));
+  }
+
+  public void deleteAll(Collection c)
+  {
+    try {
+      PersistenceService.getInstance().
+        getAssessmentGradingFacadeQueries().deleteAll(c);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 

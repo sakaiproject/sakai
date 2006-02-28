@@ -174,7 +174,7 @@ public class SubmissionStatusListener
           while (i3.hasNext())
           {
             ItemGradingData igd = (ItemGradingData) i3.next();
-            answeredItems.put(igd.getPublishedItem().getItemId(), "true");
+            answeredItems.put(igd.getPublishedItemId(), "true");
           }
         }
         bean.setAnsweredItems(answeredItems); // Save for QuestionScores

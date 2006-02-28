@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -197,86 +198,69 @@ public class SubmitToGradingActionListener implements ActionListener
   {
     log.debug("****1a. inside submitToGradingService ");
     String submissionId = "";
-    HashSet itemData = new HashSet();
+    HashSet itemGradingHash = new HashSet();
     // daisyf decoding: get page contents contains SectionContentsBean, a wrapper for SectionDataIfc
     Iterator iter = delivery.getPageContents().getPartsContents().iterator();
     log.debug("****1b. inside submitToGradingService, iter= "+iter);
-    while (iter.hasNext())
-    {
-      // daisyf decoding:
-      // looks like it is going through questions in each part.
-      // for each question, it look up all the answer ever saved
+    HashSet adds = new HashSet();
+    HashSet removes = new HashSet();
+    while (iter.hasNext()){
+      // we go through all the answer collected from JSF form per each publsihedItem and
+      // work out which answer is an new addition and in cases like MC/MCMR/Survey, we will
+      // discard any existing one and just save teh new one. For other question type, we
+      // simply modify the publishedText or publishedAnswer of teh existing ones.
       SectionContentsBean part = (SectionContentsBean) iter.next();
       log.debug("****1c. inside submitToGradingService, part "+part);
       Iterator iter2 = part.getItemContents().iterator();
-      log.debug("****. part.getItemContents().size = "+part.getItemContents().size());
-      while (iter2.hasNext())
+      while (iter2.hasNext()) // go through each item from form
       {
         ItemContentsBean item = (ItemContentsBean) iter2.next();
-        log.debug("****1d. inside submitToGradingService, item= "+item);
-        ArrayList grading = item.getItemGradingDataArray();
-        if (grading.isEmpty())
-        {
-          log.info("No item grading data.");
-        }
-        else
-        { // found at least one valid existing answer, i.e. itemGradingData
-          // then it loops through them and gather up the one that has valid
-          // answers, i.e. not null
-          Iterator iter3 = grading.iterator();
-          while (iter3.hasNext())
-          {
-            ItemGradingData data = (ItemGradingData) iter3.next();
-            // for FIB and MC/TF/Matching question, don't add the data if no item is selected
-            log.debug("****1e. inside submitToGradingService, olddata= "+data);
-//            if (data.getPublishedAnswer() != null ||
-//                data.getAnswerText() != null)
-//            {
-              itemData.add(data);
-//            }
-          }
-        }
+        prepareItemGradingPerItem(item, adds, removes);
+
       }
     }
+    AssessmentGradingData adata = persistAssessmentGrading(delivery, itemGradingHash, 
+                                  publishedAssessment, adds, removes);
+    delivery.setSubmissionId(submissionId);
+    delivery.setSubmissionTicket(submissionId);// is this the same thing? hmmmm
+    delivery.setSubmissionDate(new Date());
+    delivery.setSubmitted(true);
+    return adata;
+  }
 
+  private AssessmentGradingData persistAssessmentGrading(DeliveryBean delivery, HashSet itemGradingHash,
+                                                         PublishedAssessmentFacade publishedAssessment,
+                                                         HashSet adds, HashSet removes){
     AssessmentGradingData adata = null;
     if (delivery.getAssessmentGrading() != null)
       adata = delivery.getAssessmentGrading();
     log.debug("****** 1f. submitToGradingService, adata= "+adata);
 
     GradingService service = new GradingService();
-    if (adata == null)
-    {
-      adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemData);
+    if (adata == null) {
+      adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemGradingHash);
       delivery.setAssessmentGrading(adata);
-      log.debug("****** 1g. submitToGradingService, itemData.size()= "+itemData.size());
+      log.info("****** 1g. submitToGradingService, itemGradingHash.size()= "+itemGradingHash.size());
     }
-    else
-    {
-      log.debug("****** 1h. submitToGradingService, old adata= "+adata);
-      ArrayList adds = new ArrayList();
-      ArrayList removes = new ArrayList();
-      // itemData contains all valid saved answers, itemGradingData
-      integrateItemGradingDatas(itemData, adata, adds, removes);
+    else {
+      // 1. add all the new itemgrading for MC/Survey and discard any
+      // itemgrading for MC/Survey
+      // 2. add any modified SAQ/TF/FIB/Matching/MCMR
+      log.info("****** 1h. add and remove");
+      // itemGradingHash is ItemGradingData contains all valid saved answers from JSF form
 
-      // Add and remove separately so we don't get concurrent modification
       if (adata.getItemGradingSet()!=null){
-      log.debug("****** removes.size = "+removes.size());
-      log.debug("****** adds.size = "+adds.size());
-      adata.getItemGradingSet().removeAll(removes);
-      //adata.getItemGradingSet().removeAll();
-        adata.getItemGradingSet().addAll(adds);
+        adata.getItemGradingSet().removeAll(removes);
+        service.deleteAll(removes);
+        Iterator iter = adds.iterator();
+        while (iter.hasNext()){
+          ((ItemGradingIfc)iter.next()).setAssessmentGrading(adata);
+	}
+        adata.setItemGradingSet(adds);
       }
-      adata.setForGrade(new Boolean(delivery.getForGrade()));
     }
-
-    service.storeGrades(adata);
-
-    delivery.setSubmissionId(submissionId);
-    delivery.setSubmissionTicket(submissionId);// is this the same thing? hmmmm
-    delivery.setSubmissionDate(new Date());
-    delivery.setSubmitted(true);
-
+    adata.setForGrade(new Boolean(delivery.getForGrade()));
+    service.storeGrades(adata, publishedAssessment);
     return adata;
   }
 
@@ -284,68 +268,103 @@ public class SubmitToGradingActionListener implements ActionListener
    * Make a new AssessmentGradingData object for delivery
    * @param publishedAssessment the PublishedAssessmentFacade
    * @param delivery the DeliveryBean
-   * @param itemData the item data
+   * @param itemGradingHash the item data
    * @return
    */
   private AssessmentGradingData makeNewAssessmentGrading(
     PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery,
-    HashSet itemData)
+    HashSet itemGradingHash)
   {
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");            
     AssessmentGradingData adata = new AssessmentGradingData();
     adata.setAgentId(person.getId());
     adata.setForGrade(new Boolean(delivery.getForGrade()));
-    adata.setItemGradingSet(itemData);
+    adata.setItemGradingSet(itemGradingHash);
     adata.setPublishedAssessment(publishedAssessment.getData());
     return adata;
   }
 
   /**
    * figure out what new item grading data needs to be added, removed
-   * @param itemData
+   * @param itemGradingHash
    * @param adata
    * @param adds the data that needs to be added
    * @param removes the data that needs to be removed
    */
-
-  private void integrateItemGradingDatas(HashSet itemData,
+    /*
+  private void integrateItemGradingDatas(HashSet itemGradingHash,
                                          AssessmentGradingData adata,
-                                         ArrayList adds, ArrayList removes)
-  {
+                                         HashSet adds, HashSet removes){
     // daisyf's question: why not just persist the currently submitted answer by 
     // updating the existing one?
     // why do you need to "replace" it by deleting and adding it again?
-    Iterator i1 = itemData.iterator();
+    Iterator i1 = itemGradingHash.iterator();
     while (i1.hasNext())
     {
-      ItemGradingData data = (ItemGradingData) i1.next();
-      if (!adata.getItemGradingSet().contains(data)) // wouldn't this always true? wouldn't they always have diff address even if the two objects contains the same properties value?
-      {
-        log.debug("****** cc. data is new");
-        log.info("****** now loop through iter2, whichis what's in DB");
-        Iterator iter2 = adata.getItemGradingSet().iterator();
-        boolean added = false;
-        if (data.getItemGradingId() != null)
-        {
-          log.debug("****** ccc. data not saved to DB yet");
-          while (iter2.hasNext())
-          {
-            ItemGradingData olddata = (ItemGradingData) iter2.next();
-            if (data.getItemGradingId().equals(olddata.getItemGradingId()))
-            //if (data.getPublishedItem().getId().equals(olddata.getPublishedItem().getId()))
-            {
-              log.info("****** d. integrate"+data.getAssessmentGrading()+":"+data.getItemGradingId()+":"+data.getAnswerText());
-              log.info("****** e. integrate"+olddata.getAssessmentGrading()+":"+olddata.getItemGradingId()+":"+olddata.getAnswerText());
-              data.setAssessmentGrading(adata);
-              removes.add(olddata);
-              adds.add(data);
-              added = true;
-            }  
-          }  
-        } //end if  (data.getItemGradingId() != null)
-        if (!added) // add last one?
-          adds.add(data);
-      } //end if (!adata.getItemGradingSet().contains(data))
+      ItemGradingData grading = (ItemGradingData) i1.next();
+      log.info("****** answer from form, itemGradingId="+grading.getItemGradingId());
+      if (grading.getItemGradingId() != null && (new Long("-1")).equals(grading.getItemGradingId())){
+        grading.setAssessmentGrading(adata);
+        removes.add(grading);
+      }
+      else{
+        // add important info to new answer
+        log.info("****** dd. add new answer, grading.getAssessmentGrading()="+grading.getAssessmentGrading());
+        grading.setAssessmentGrading(adata);
+        grading.setAgentId(adata.getAgentId());
+        grading.setSubmittedDate(new Date());
+        // the rest of the info is collected by ItemContentsBean via JSF form 
+        adds.add(grading);
+      }
+    }
+  }
+    */
+
+  public void prepareItemGradingPerItem(ItemContentsBean item, HashSet adds, HashSet removes){
+    ArrayList grading = item.getItemGradingDataArray();
+    int typeId = item.getItemData().getTypeId().intValue();
+
+    // 1. add all the new itemgrading for MC/Survey and discard any
+    // itemgrading for MC/Survey
+    // 2. add any modified SAQ/TF/FIB/Matching/MCMR
+    switch (typeId){
+    case 1: // MC
+    case 3: // Survey
+            boolean answerModified = false;
+            for (int m=0;m<grading.size();m++){
+              ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
+              if (itemgrading.getItemGradingId()==null 
+                  || itemgrading.getItemGradingId().intValue()<=0){
+                answerModified = true;
+                break;
+              }
+            }
+            if (answerModified){
+              for (int m=0;m<grading.size();m++){
+                ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
+                if (itemgrading.getItemGradingId()!=null && itemgrading.getItemGradingId().intValue()>0){
+                  removes.add(itemgrading);
+                }
+                else{
+                  // add new answer
+                  log.info("****** dd. add new answer, grading.getAssessmentGrading()="+itemgrading.getAssessmentGrading());
+                  itemgrading.setAgentId(AgentFacade.getAgentString());
+                  itemgrading.setSubmittedDate(new Date());
+                  // the rest of the info is collected by ItemContentsBean via JSF form 
+                  adds.add(itemgrading);
+                }
+              }
+	    }
+            break;
+    case 2: // MCMR
+    case 4: // T/F
+    case 5: // SAQ
+    case 6: // File Upload
+    case 7: // Audio
+    case 8: // FIB
+    case 9: // Matching
+            adds.addAll(grading);
+            break;   
     }
   }
 

@@ -90,6 +90,7 @@ public class QuestionScoreUpdateListener
   {
     try
     {
+      GradingService delegate = new GradingService();
       String publishedId = cu.lookupParam("publishedId");
       String itemId = cu.lookupParam("itemId");
       String which = cu.lookupParam("allSubmissions");
@@ -100,29 +101,32 @@ public class QuestionScoreUpdateListener
       Iterator iter = agents.iterator();
       while (iter.hasNext())
       {
+        // each agent has a list of modified itemGrading
         AgentResults ar = (AgentResults) iter.next();
-
+	System.out.println("****QuestionScoreUpadte, agent="+ar);
+	System.out.println("****QuestionScoreUpadte, itemId="+itemId);
         // Get the itemgradingdata list for this result
         ArrayList datas = (ArrayList) bean.getScoresByItem().get
           (ar.getAssessmentGradingId() + ":" + itemId);
         if (datas == null)
           datas = new ArrayList();
         Iterator iter2 = datas.iterator();
-        while (iter2.hasNext())
-        {
+        while (iter2.hasNext()){
           Object obj = iter2.next();
           log.info("Data = " + obj);
           ItemGradingData data = (ItemGradingData) obj;
-          data.setAutoScore(new Float
-           (new Float(ar.getTotalAutoScore()).floatValue() /
-            (float) datas.size()));
-          data.setComments(ar.getComments());
-          items.add(data);
+
+          // check if there is differnce in score, if so, update. Otherwise, do nothing
+          float newAutoScore = (new Float(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
+          float oldAutoScore = data.getAutoScore().floatValue();
+          String newComments = ar.getComments().trim();
+          if (newAutoScore != oldAutoScore || !newComments.equals(data.getComments().trim())){
+	    data.setAutoScore(new Float(newAutoScore));
+            data.setComments(ar.getComments());
+            delegate.updateItemScore(data, newAutoScore-oldAutoScore);
+	  }
         }
       }
-
-      GradingService delegate = new GradingService();
-      delegate.saveItemScores(items, tbean.getAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId()));
 
       log.info("Saved question scores.");
     }
