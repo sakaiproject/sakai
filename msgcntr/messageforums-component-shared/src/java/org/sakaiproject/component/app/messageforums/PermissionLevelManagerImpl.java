@@ -125,13 +125,13 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 		
 		if (PERMISSION_LEVEL_NAME_OWNER.equals(name)){
-			return null;
+			return getDefaultOwnerPermissionLevel();
 		}
 		else if (PERMISSION_LEVEL_NAME_AUTHOR.equals(name)){
 			return getDefaultAuthorPermissionLevel();
 		}
 		else if (PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR.equals(name)){
-			return null;
+			return getDefaultNoneditingAuthorPermissionLevel();
 		}
 		else if (PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(name)){
 			return getDefaultContributorPermissionLevel();
@@ -245,7 +245,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		return newPermissionLevel;		
 	}
 	
-  public DBMembershipItem createDBMembershipItem(String name, Integer type){
+  public DBMembershipItem createDBMembershipItem(String name, String permissionLevelName, Integer type){
 		
 		if (LOG.isDebugEnabled()){
 			LOG.debug("createDBMembershipItem executing(" + name + "," + type + ")");
@@ -259,6 +259,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		Date now = new Date();
 		String currentUser = getCurrentUser();
 		newDBMembershipItem.setName(name);
+		newDBMembershipItem.setPermissionLevelName(permissionLevelName);
 		newDBMembershipItem.setUuid(idManager.createUuid());
 		newDBMembershipItem.setCreated(now);
 		newDBMembershipItem.setCreatedBy(currentUser);

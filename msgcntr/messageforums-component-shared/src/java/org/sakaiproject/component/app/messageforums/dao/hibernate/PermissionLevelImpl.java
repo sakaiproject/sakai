@@ -189,21 +189,38 @@ public class PermissionLevelImpl extends MutableEntityImpl
 	 */
 	public String toString() {		
 		StringBuffer buffer = new StringBuffer("[");
-		try{
-      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
-      for (int i = 0; i < propDescriptors.length; i++){
-    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
-          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());          
-          buffer.append((bThis.booleanValue()) ? "true" : "false");
-          buffer.append(",");
-    	  }
-      }
-    }
-    catch(Exception e){
-    	throw new Error(e);
-    }
-    // replace comma with right brace
-    buffer.replace(buffer.length() - 1, buffer.length(), "]");   
+		buffer.append(changeSettings);		
+		buffer.append("," + deleteAny);
+		buffer.append("," + deleteOwn);
+		buffer.append("," + markAsRead);
+		buffer.append("," + movePosting);
+		buffer.append("," + newForum);
+		buffer.append("," + newResponse);
+		buffer.append("," + newResponseToResponse);
+		buffer.append("," + newTopic);
+		buffer.append("," + postToGradebook);
+		buffer.append("," + read);
+		buffer.append("," + reviseAny);
+		buffer.append("," + reviseOwn);
+		buffer.append("," + moderatePostings);
+		buffer.append("]");
+		
+				
+//		try{
+//      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
+//      for (int i = 0; i < propDescriptors.length; i++){
+//    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
+//          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());          
+//          buffer.append((bThis.booleanValue()) ? "true" : "false");
+//          buffer.append(",");
+//    	  }
+//      }
+//    }
+//    catch(Exception e){
+//    	throw new Error(e);
+//    }
+//    // replace comma with right brace
+//    buffer.replace(buffer.length() - 1, buffer.length(), "]");   
     return buffer.toString();
 	}
 

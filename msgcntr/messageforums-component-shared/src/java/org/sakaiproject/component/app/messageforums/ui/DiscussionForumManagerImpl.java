@@ -1733,19 +1733,41 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       Integer type)
   {
     DBMembershipItem newItem = getDBMember(originalSet, name, type);
+
+    // if the user has a custom level, the permission level will be initialized 
     if (newItem != null && newItem.getPermissionLevel() != null)
     {
       return newItem;
     }
+        
     PermissionLevel level = null;
-
+            
+    // if the user has redefined the level for this role, fetch it
+    if (newItem != null && newItem.getPermissionLevelName() != null){
+    	    	    	
+    	level = permissionLevelManager.getPermissionLevelByName(newItem.getPermissionLevelName());
+    	
+    	if (level == null){ 
+    		newItem.setPermissionLevel(permissionLevelManager.getDefaultNonePermissionLevel());
+    		newItem.setPermissionLevelName("None");
+    	}
+    	else{
+    		newItem.setPermissionLevel(level);
+    		newItem.setPermissionLevelName(level.getName());
+    	}
+    	
+    	return newItem;
+    }
+    
+    
     if (newItem == null)
     {
       if (type.equals(DBMembershipItem.TYPE_ROLE))
-      {
-        String levelName = ServerConfigurationService.getString(MC_DEFAULT
+      {      	   
+      	
+      	String levelName = ServerConfigurationService.getString(MC_DEFAULT
             + name);
-
+      	
         if (levelName != null && levelName.trim().length() > 0)
         {
           level = permissionLevelManager.getPermissionLevelByName(levelName);
@@ -1753,6 +1775,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       }
       newItem = new DBMembershipItemImpl();
       newItem.setName(name);
+      newItem.setPermissionLevelName((level != null) ? level.getName() : "");
       newItem.setType(type);
       if (level == null)
       {

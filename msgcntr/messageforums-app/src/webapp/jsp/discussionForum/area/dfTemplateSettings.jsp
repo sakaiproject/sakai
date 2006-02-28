@@ -9,95 +9,17 @@
 <f:view>
    <sakai:view>
 
+    <%  
+      /** initialize javascript from db **/
+    FacesContext context = FacesContext.getCurrentInstance();
+    Application app = context.getApplication();
+    ValueBinding binding = app.createValueBinding("#{ForumTool}");
+    DiscussionForumTool dft = (DiscussionForumTool) binding.getValue(context);
+    out.print(dft.generatePermissionScript());
+    %>
+   
+   
    <SCRIPT type="text/javascript">
-
-var ownerLevelArray = [true,true,true,true,true,true,true,true,true,true,true,true,true,true];
-var authorLevelArray = [true,false,true,true,false,true,true,true,true,true,true,true,false,true];
-var noneditingAuthorLevelArray = [true,false,false,true,false,false,true,true,true,true,true,true,false,true];
-var reviewerLevelArray = [false,false,false,false,false,false,false,false,false,false,false,true,false,false];
-var noneLevelArray = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
-var contributorLevelArray = [false,false,false,true,false,false,false,true,true,false,false,true,false,false];
-
-	var owner='Owner';
-	var author='Author';
-	var nonEditingAuthor='Nonediting Author';
-	var reviewer = 'Reviewer';
-	var none = 'None';
-	var contributor='Contributor';
-    var custom='Custom';
-    var all='All';
-    var own='Own';
-    var none='None';
-
-  function checkLevel(selectedLevel)
-	{
-
-	var ownerVal = true;
-	var authorVal = true;
-	var noneditingAuthorVal = true;
-	var reviewerVal = true;
-	var noneVal = true;
-	var contributorVal = true;
-
-	for (var i = 0; i < ownerLevelArray.length; i++)
-	{
-		if(selectedLevel[i]!= ownerLevelArray[i])
-		{
-			ownerVal = false;
-		}
-	}
-	for (var i = 0; i < authorLevelArray.length; i++)
-		{
-			if(selectedLevel[i]!= authorLevelArray[i])
-			{
-				authorVal = false;
-			}
-	}
-	for (var i = 0; i < noneditingAuthorLevelArray.length; i++)
-		{
-			if(selectedLevel[i]!= noneditingAuthorLevelArray[i])
-			{
-				noneditingAuthorVal = false;
-			}
-	}
-	for (var i = 0; i < reviewerLevelArray.length; i++)
-		{
-			if(selectedLevel[i]!= reviewerLevelArray[i])
-			{
-				reviewerVal = false;
-			}
-	}
-	for (var i = 0; i < noneLevelArray.length; i++)
-		{
-			if(selectedLevel[i]!= noneLevelArray[i])
-			{
-				noneVal = false;
-			}
-	}
-	for (var i = 0; i < contributorLevelArray.length; i++)
-		{
-			if(selectedLevel[i]!= contributorLevelArray[i])
-			{
-				contributorVal = false;
-			}
-	}
-
-	 if (ownerVal)
-	    return owner;
-	  else if (authorVal)
-	    return author;
-	  else if (noneditingAuthorVal)
-	    return nonEditingAuthor;
-	  else if (reviewerVal)
-	    return reviewer;
-	  else if (noneVal)
-	    return none;
-	  else if (contributorVal)
-	    return contributor;
-  else return custom;
-
-}
-//alert(checkLevel(authorLevelArray));
 
     function setCorrespondingLevel(checkBox)
     {
@@ -153,7 +75,7 @@ var contributorLevelArray = [false,false,false,true,false,false,false,true,true,
     }
 
     function setIndexWithTextValue(element, textValue)
-    {
+    {            
 		for (i=0;i<element.length;i++)
 				{
 					if (element.options[i].value==textValue)
@@ -288,7 +210,7 @@ var contributorLevelArray = [false,false,false,true,false,false,false,true,true,
 				    }
 
 				else 	if(selectLevel.options[selectLevel.selectedIndex].value==author)
-					{
+					{					    
 					 	setCheckBoxes(changeSettings, deletePostings, markAsRead ,movePosting, newForum, newResponse,  r2R, newTopic, postGrades, read,revisePostings, moderatePostings,  authorLevelArray);
 				    }
 				else 	if(selectLevel.options[selectLevel.selectedIndex].value==nonEditingAuthor)
@@ -319,7 +241,7 @@ var contributorLevelArray = [false,false,false,true,false,false,false,true,true,
     }
 
 function	setCheckBoxes(changeSettings, deletePostings, markAsRead ,movePosting, newForum, newResponse,  r2R, newTopic, postGrades, read,revisePostings, moderatePostings,  arrayLevel)
-	{
+	{	
 		changeSettings.checked= arrayLevel[0];
 		//deletePostings
 		if(arrayLevel[1]==true)

@@ -340,49 +340,50 @@ public class DiscussionForumTool
       setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
       return MAIN;
     }
-    Set membershipitems= new HashSet();
+           
+    /** get membership item set */
+    Area area = areaManager.getDiscusionArea();
+    Set membershipItemSet = area.getMembershipItemSet();
+    membershipItemSet.clear();
+        
     if(templatePermissions!=null ){
       Iterator iter = templatePermissions.iterator();
       while (iter.hasNext())
       {
         PermissionBean permBean = (PermissionBean) iter.next();
-        DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), DBMembershipItem.TYPE_ROLE);          
-        PermissionsMask mask = new PermissionsMask();
+        DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
         
-        mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
-        mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
-        mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
-        mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
-        mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
-        mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
-        mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
-        mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
-        mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
-        mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
-        mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
-        mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
-        mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
-        mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
-        PermissionLevel level=null;
-        if(permBean.getSelectedLevel().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM))
-        {
-           level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);  
-           membershipItem.setPermissionLevel(level);
-        }
-        else
-        {
-          level = permissionLevelManager.getPermissionLevelByName(permBean.getSelectedLevel());
-           membershipItem.setPermissionLevelName(permBean.getSelectedLevel());
-        }
         
-        //  // save DBMembershiptItem here to get an id so we can add to the set
+        if (membershipItem.getType().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)){
+          PermissionsMask mask = new PermissionsMask();                
+          mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
+          mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
+          mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
+          mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
+          mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
+          mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
+          mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
+          mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
+          mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
+          mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
+          mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
+          mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
+          mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
+          mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+          
+          PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
+          membershipItem.setPermissionLevel(level);
+        }
+                
+        // save DBMembershiptItem here to get an id so we can add to the set
         permissionLevelManager.saveDBMembershipItem(membershipItem);
-        membershipitems.add(membershipItem);
+        membershipItemSet.add(membershipItem);
       }
-      Area area = areaManager.getDiscusionArea();
-      area.setMembershipItemSet(membershipitems);
+      
+      area.setMembershipItemSet(membershipItemSet);
       areaManager.saveArea(area); 
     }
+    siteMembers = null;
     return MAIN;
   }
 
@@ -2955,7 +2956,7 @@ public class DiscussionForumTool
               i=1;
             }
             DBMembershipItem item = forumManager.getAreaDBMember(membershipItems,role.getId(), DBMembershipItem.TYPE_ROLE);
-            siteMembers.add(new SelectItem(role.getId(), role.getId() + "("+item.getPermissionLevel().getName()+")"));
+            siteMembers.add(new SelectItem(role.getId(), role.getId() + "("+item.getPermissionLevelName()+")"));
             templatePermissions.add(new PermissionBean(item, permissionLevelManager));
           }
         }
@@ -3079,27 +3080,36 @@ public class DiscussionForumTool
   	sBuffer.append("var noneditingAuthorLevelArray = " + noneditingAuthorLevel + ";\n");
   	sBuffer.append("var reviewerLevelArray = " + reviewerLevel + ";\n");
   	sBuffer.append("var noneLevelArray = " + noneLevel + ";\n");
-  	sBuffer.append("var contributorLevelArray = " + contributorLevel + ";\n");  	
-  	sBuffer.append("function findLevelForPermissions(parent1){\n" +  			           
-  			           "  var checkboxes = parent1.getElementsByTagName('input');\n" +
+  	sBuffer.append("var contributorLevelArray = " + contributorLevel + ";\n");
+  	sBuffer.append("var owner = 'Owner';\n");
+  	sBuffer.append("var author = 'Author';\n");
+  	sBuffer.append("var nonEditingAuthor = 'Nonediting Author';\n");
+  	sBuffer.append("var reviewer = 'reviewer';\n");
+  	sBuffer.append("var none = 'None';\n");
+  	sBuffer.append("var contributor = 'Contributor';\n");  	
+  	sBuffer.append("var custom = 'Custom';\n");
+  	sBuffer.append("var all = 'All';\n");
+  	sBuffer.append("var own = 'Own';\n");  	  	
+  	
+  	sBuffer.append("function checkLevel(selectedLevel){\n" +  			           
   			           "  var ownerVal = true;\n" +
   			           "  var authorVal = true;\n" +
   			           "  var noneditingAuthorVal = true;\n" +
   			           "  var reviewerVal = true;\n" +
   			           "  var noneVal = true;\n" +
   			           "  var contributorVal = true;\n\n" +  			
-  			           "  for (var i = 0; i < checkboxes.length; i++){\n" +
-  			           "    if (ownerVal && ownerLevelArray[i] != checkboxes[i].checked)\n" +
+  			           "  for (var i = 0; i < selectedLevel.length; i++){\n" +
+  			           "    if (ownerVal && ownerLevelArray[i] != selectedLevel[i])\n" +
   	               "      ownerVal = false;\n" +
-  			           "    if (authorVal && authorLevelArray[i] != checkboxes[i].checked)\n" +
+  			           "    if (authorVal && authorLevelArray[i] != selectedLevel[i])\n" +
   	               "      authorVal = false;\n" +
-  	               "    if (noneditingAuthorVal && noneditingAuthorLevelArray[i] != checkboxes[i].checked)\n" +
+  	               "    if (noneditingAuthorVal && noneditingAuthorLevelArray[i] != selectedLevel[i])\n" +
   	               "      noneditingAuthorVal = false;\n" +
-  	               "    if (reviewerVal && reviewerLevelArray[i] != checkboxes[i].checked)\n" +
+  	               "    if (reviewerVal && reviewerLevelArray[i] != selectedLevel[i])\n" +
   	               "      reviewerVal = false;\n" +
-  	               "    if (noneVal && noneLevelArray[i] != checkboxes[i].checked)\n" +
+  	               "    if (noneVal && noneLevelArray[i] != selectedLevel[i])\n" +
   	               "      noneVal = false;\n" +
-  	               "    if (contributorVal && contributorLevelArray[i] != checkboxes[i].checked)\n" +
+  	               "    if (contributorVal && contributorLevelArray[i] != selectedLevel[i])\n" +
   	               "      contributorVal = false;\n" +
   	               "  }\n\n" +  	  	    
   	               "  if (ownerVal)\n" +  	               
@@ -3114,7 +3124,7 @@ public class DiscussionForumTool
   	               "    return 'None';\n" +
   	               "  else if (contributorVal)\n" +
   	               "    return 'Contributor';\n" +
-  	               "  else return null;\n" +
+  	               "  else return 'Custom';\n" +
   	               "}\n"
   	);
   			              	
