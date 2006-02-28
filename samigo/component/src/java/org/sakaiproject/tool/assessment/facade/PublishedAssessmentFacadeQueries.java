@@ -1250,7 +1250,10 @@ public class PublishedAssessmentFacadeQueries
     List l = getHibernateTemplate().find(query,
       new Object[]{ publishedAssessmentId, new Integer("1"), new Integer("1")},
       new net.sf.hibernate.type.Type[] {Hibernate.LONG, Hibernate.INTEGER, Hibernate.INTEGER});
-    return (PublishedItemData)l.get(0);
+    if(l.size()>0)
+    	return (PublishedItemData)l.get(0);
+    else
+    	return null;
   }
 
   public List getPublishedItemIds(Long publishedAssessmentId){
