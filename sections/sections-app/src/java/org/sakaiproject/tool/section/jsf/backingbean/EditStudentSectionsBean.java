@@ -118,6 +118,12 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 			// Ensure that each used category has at least an entry in the sectionEnrollment map
 			sectionEnrollment.put(cat, UNASSIGNED);
 		}
+		
+		// Sort each of the select items within all of the categories
+		for(Iterator iter = sectionItems.keySet().iterator(); iter.hasNext();) {
+			List list = (List)sectionItems.get(iter.next());
+			Collections.sort(list, JsfUtil.getSelectItemComparator());
+		}
 
 		// Build the map of categories to the section uuids for the student's current enrollments
 		Set studentEnrollments = getSectionManager().getSectionEnrollments(studentUid, course.getUuid());
@@ -127,7 +133,7 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 			sectionEnrollment.put(section.getCategory(), section.getUuid());
 		}
 	}
-
+	
 	/**
 	 * Builds the section description for the UI.
 	 * 

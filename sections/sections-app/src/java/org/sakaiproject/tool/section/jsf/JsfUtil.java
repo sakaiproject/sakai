@@ -28,12 +28,14 @@ import java.sql.Time;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -327,6 +329,16 @@ public class JsfUtil {
 			}
 		}
 		return false;
+	}
+
+	public static final  Comparator getSelectItemComparator() {
+		return new Comparator() {
+			public int compare(Object o1, Object o2) {
+				SelectItem item1 = (SelectItem)o1;
+				SelectItem item2 = (SelectItem)o2;
+				return item1.getLabel().toString().compareTo(item2.getLabel().toString());
+			}
+		};
 	}
 
 }
