@@ -550,7 +550,6 @@ public class QuestionScoreListener
    */
   private HashMap getItemScores(Long publishedId, Long itemId, String which){
     GradingService delegate = new GradingService();
-    /*
     QuestionScoresBean questionScoresBean =
       (QuestionScoresBean) cu.lookupBean("questionScores");
     HashMap itemScoresMap = questionScoresBean.getItemScoresMap();
@@ -558,15 +557,12 @@ public class QuestionScoreListener
       itemScoresMap = new HashMap();
       questionScoresBean.setItemScoresMap(itemScoresMap);
     }
-    HashMap map = (HashMap) itemScoresMap.get(publishedId);
+    HashMap map = (HashMap) itemScoresMap.get(itemId);
     if (map == null){
       map = delegate.getItemScores(publishedId, itemId, which);
-      itemScoresMap.put(publishedId, map);
-      System.out.println("**** need to gotoDB");
+      itemScoresMap.put(itemId, map);
     }
     return map;
-    */
-    return delegate.getItemScores(publishedId, itemId, which);
   }
 
 }
