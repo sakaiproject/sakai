@@ -333,8 +333,10 @@ public class SubmitToGradingActionListener implements ActionListener
               ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
               if (itemgrading.getItemGradingId()==null 
                   || itemgrading.getItemGradingId().intValue()<=0){
-                answerModified = true;
-                break;
+                if (itemgrading.getPublishedAnswerId()!=null){ //null=> skipping this question
+                  answerModified = true;
+                  break;
+                }
               }
             }
             if (answerModified){
@@ -346,11 +348,14 @@ public class SubmitToGradingActionListener implements ActionListener
                 }
                 else{
                   // add new answer
-                  log.info("****** dd. add itemGrading, grading.getAssessmentGrading()="+itemgrading.getAssessmentGrading());
-                  itemgrading.setAgentId(AgentFacade.getAgentString());
-                  itemgrading.setSubmittedDate(new Date());
-                  // the rest of the info is collected by ItemContentsBean via JSF form 
-                  adds.add(itemgrading);
+                  if (itemgrading.getPublishedAnswerId()!=null || itemgrading.getAnswerText()!=null){ 
+                    //null=> skipping this question
+                    log.info("****** dd. add itemGrading, grading.getAssessmentGrading()="+itemgrading.getAssessmentGrading());
+                    itemgrading.setAgentId(AgentFacade.getAgentString());
+                    itemgrading.setSubmittedDate(new Date());
+                    // the rest of the info is collected by ItemContentsBean via JSF form 
+                    adds.add(itemgrading);
+		  }
                 }
               }
 	    }
@@ -362,9 +367,18 @@ public class SubmitToGradingActionListener implements ActionListener
     case 7: // Audio
     case 8: // FIB
     case 9: // Matching
-            log.info("****** dd. typeId, size="+typeId);
-            log.info("****** dd. add all grading, size="+grading.size());
-            adds.addAll(grading);
+	    for (int m=0;m<grading.size();m++){
+              ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
+              if (itemgrading.getItemGradingId()!=null && itemgrading.getItemGradingId().intValue()>0){
+                adds.addAll(grading);
+                break;
+	      }
+              else if (itemgrading.getPublishedAnswerId()!=null || itemgrading.getAnswerText()!=null){ 
+                //null=> skipping this question
+                adds.addAll(grading);
+                break;
+	      }
+	    }
             break;   
     }
   }
