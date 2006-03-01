@@ -179,16 +179,12 @@ public class QuestionScoreListener
         bean.setAllSubmissions(which);
       }
 
-
       totalBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());   // set section pulldown
       bean.setPublishedId(publishedId);
       Date dueDate = null;
 
-
+      HashMap map = getItemScores(new Long(publishedId), new Long(itemId), which);
       ArrayList allscores = new ArrayList();
-      HashMap map = delegate.getItemScores(new Long(publishedId),
-        new Long(itemId), which);
-
       Iterator keyiter = map.keySet().iterator();
       while (keyiter.hasNext())
       {
@@ -537,6 +533,31 @@ public class QuestionScoreListener
     }
 
     return true;
+  }
+
+  /* getting a list of itemGrading for a publishedItemId is a lot of work,
+     read the code in GradingService.getItemScores()
+     after we get the list, we are saving it in QuestionScoreBean.itemScoresMap
+     itemScoresMap = (publishedItemId, HashMap) 
+                   = (Long publishedItemId, (Long publishedItemId, Array itemGradings))
+     itemScoresMap will be refreshed when the next QuestionScore link is click
+  */
+  private HashMap getItemScores(Long publishedId, Long itemId, String which){
+    GradingService delegate = new GradingService();
+    QuestionScoresBean questionScoresBean =
+      (QuestionScoresBean) cu.lookupBean("questionScores");
+    HashMap itemScoresMap = questionScoresBean.getItemScoresMap();
+    if (itemScoresMap == null){
+      itemScoresMap = new HashMap();
+      questionScoresBean.setItemScoresMap(itemScoresMap);
+    }
+    HashMap map = (HashMap) itemScoresMap.get(publishedId);
+    if (map == null){
+      map = delegate.getItemScores(publishedId, itemId, which);
+      itemScoresMap.put(publishedId, map);
+      System.out.println("**** need to gotoDB");
+    }
+    return map;
   }
 
 }

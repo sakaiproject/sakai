@@ -613,4 +613,14 @@ public class QuestionScoresBean
       this.selectedSectionFilterValue = param;
   }
 
+  // itemScoresMap = (publishedItemId, HashMap)
+  //               = (Long publishedItemId, (Long publishedItemId, Array itemGradings))
+  private HashMap itemScoresMap; 
+  public void setItemScoresMap(HashMap itemScoresMap){
+    this.itemScoresMap = itemScoresMap;
+  }
+  public HashMap getItemScoresMap(){
+    return itemScoresMap;
+  }
+
 }

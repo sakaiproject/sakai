@@ -73,6 +73,8 @@
       <h:outputText value="#{msg.q_view}" />
       <f:param name="allSubmissions" value="3"/>
       <f:actionListener
+        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
+      <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
     <h:outputText value=" | " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
