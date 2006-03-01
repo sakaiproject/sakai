@@ -375,6 +375,7 @@ public class HistogramListener
     //build a hashMap (publishedItemId, publishedItem)
     HashMap publishedItemHash = pubService.preparePublishedItemHash(pub);
     HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pub);
+    HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pub);
 
     int numAnswers = 0;
     ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(((ItemGradingData) scores.toArray()[0]).getPublishedItemId());
@@ -387,22 +388,22 @@ public class HistogramListener
     }
    
     if (qbean.getQuestionType().equals("1")) 
-      getTFMCScores(scores, qbean, answers);
+      getTFMCScores(publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("2"))
-      getFIBMCMCScores(publishedItemHash, scores, qbean, answers);
+      getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("3"))
-      getTFMCScores(scores, qbean, answers);
+      getTFMCScores(publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("4"))
-      getTFMCScores(scores, qbean, answers);
+      getTFMCScores(publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("8"))
-      getFIBMCMCScores(publishedItemHash, scores, qbean, answers);
+      getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("9"))
-      getMatchingScores(publishedItemTextHash, scores, qbean, text);
+      getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
   }
 
 
-  public void getFIBMCMCScores(HashMap publishedItemHash, ArrayList scores,
-    HistogramQuestionScoresBean qbean, ArrayList answers)
+  public void getFIBMCMCScores(HashMap publishedItemHash, HashMap publishedAnswerHash, 
+    ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList answers)
   {
     HashMap texts = new HashMap();
     Iterator iter = answers.iterator();
@@ -418,7 +419,7 @@ public class HistogramListener
     while (iter.hasNext())
     {
       ItemGradingData data = (ItemGradingData) iter.next();
-      AnswerIfc answer = data.getPublishedAnswer();
+      AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
       if (answer != null)
       {
         //log.info("Rachel: looking for " + answer.getId());
@@ -544,7 +545,7 @@ public class HistogramListener
 
           // now check each answer in MCMC 
 
-	  AnswerIfc answer = item.getPublishedAnswer();
+          AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
 	  if (answer.getIsCorrect() == null || (!answer.getIsCorrect().booleanValue()))
   	  {
             hasIncorrect = true;
@@ -569,7 +570,7 @@ public class HistogramListener
   }
 
 
-  public void getTFMCScores(ArrayList scores,
+  public void getTFMCScores(HashMap publishedAnswerHash, ArrayList scores,
     HistogramQuestionScoresBean qbean, ArrayList answers)
   {
     HashMap texts = new HashMap();
@@ -585,7 +586,7 @@ public class HistogramListener
     while (iter.hasNext())
     {
       ItemGradingData data = (ItemGradingData) iter.next();
-      AnswerIfc answer = data.getPublishedAnswer();
+      AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
 
       if (answer != null)
       {
@@ -658,8 +659,8 @@ public class HistogramListener
 
 
 
-  public void getMatchingScores(HashMap publishedItemTextHash, ArrayList scores,
-    HistogramQuestionScoresBean qbean, ArrayList labels)
+  public void getMatchingScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash, 
+    ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList labels)
   {
     HashMap texts = new HashMap();
     Iterator iter = labels.iterator();
@@ -677,7 +678,7 @@ public class HistogramListener
     {
       ItemGradingData data = (ItemGradingData) iter.next();
       ItemTextIfc text = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
-      AnswerIfc answer = data.getPublishedAnswer();
+      AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
 //    if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
 if (answer != null)
       {
@@ -755,7 +756,7 @@ if (answer != null)
           break;
         }
           // now check each answer in Matching 
-          AnswerIfc answer = item.getPublishedAnswer();
+          AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
           if (answer.getIsCorrect() == null || (!answer.getIsCorrect().booleanValue()))
           {
             hasIncorrect = true;

@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -377,6 +378,28 @@ public class PublishedAssessmentService {
       for (int j=0;j<itemArray.size(); j++){
         ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
         map.put(item.getItemId(), item);
+      }
+    }
+    return map;
+  }
+
+  public HashMap preparePublishedAnswerHash(PublishedAssessmentIfc publishedAssessment){
+    HashMap map = new HashMap();
+    ArrayList sectionArray = publishedAssessment.getSectionArray();
+    for (int i=0;i<sectionArray.size(); i++){
+      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
+      ArrayList itemArray = section.getItemArray();
+      for (int j=0;j<itemArray.size(); j++){
+        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+        ArrayList itemTextArray = item.getItemTextArray();
+        for (int k=0;k<itemTextArray.size(); k++){
+          ItemTextIfc itemText = (ItemTextIfc)itemTextArray.get(k);
+          ArrayList answerArray = itemText.getAnswerArraySorted();
+          for (int m=0;m<answerArray.size(); m++){
+            AnswerIfc answer = (AnswerIfc)answerArray.get(m);
+            map.put(answer.getId(), answer);
+	  }  
+        }
       }
     }
     return map;

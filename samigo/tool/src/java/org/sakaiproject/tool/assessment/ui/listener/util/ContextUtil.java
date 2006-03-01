@@ -309,7 +309,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
       char ch = charArray[i];
       s += toUnicode(ch);
     }
-    log.info("***unicode="+s);
+    log.debug("***unicode="+s);
     return s;
   }
 

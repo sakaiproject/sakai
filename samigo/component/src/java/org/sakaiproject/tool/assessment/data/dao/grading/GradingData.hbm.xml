@@ -12,12 +12,6 @@
     </id>
     <many-to-one name="assessmentGrading" class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"
        column="ASSESSMENTGRADINGID" not-null="true"/>
-<!--
-    <many-to-one name="publishedItem" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-       column="PUBLISHEDITEMID" not-null="true"/>
-    <many-to-one name="publishedItemText" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText"
-       column="PUBLISHEDITEMTEXTID" not-null="true"/>
--->
     <property name="publishedItemId">
       <column name="PUBLISHEDITEMID" not-null="true" sql-type="integer" />
     </property>
@@ -30,8 +24,13 @@
     <property name="submittedDate" type="timestamp">
       <column name="SUBMITTEDDATE" not-null="true" />
     </property>
+<!--
     <many-to-one name="publishedAnswer" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"
        column="PUBLISHEDANSWERID" not-null="false"/>
+-->
+    <property name="publishedAnswerId">
+      <column name="PUBLISHEDANSWERID" not-null="false" sql-type="integer" />
+    </property>
     <property name="rationale">
       <column name="RATIONALE" not-null="false" sql-type="varchar(4000)" />
     </property>

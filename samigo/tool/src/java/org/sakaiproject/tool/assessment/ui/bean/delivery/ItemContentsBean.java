@@ -234,7 +234,7 @@ public class ItemContentsBean
       }
       else
       {
-        if (data.getPublishedAnswer() != null || data.getAnswerText() != null)
+        if (data.getPublishedAnswerId() != null || data.getAnswerText() != null)
         {
           return false;
         }
@@ -417,9 +417,9 @@ public class ItemContentsBean
       if (iter.hasNext())
       {
         ItemGradingData data = (ItemGradingData) iter.next();
-        if (data.getPublishedAnswer() != null)
+        if (data.getPublishedAnswerId() != null)
         {
-          response = data.getPublishedAnswer().getId().toString();
+          response = data.getPublishedAnswerId().toString();
         }
       }
       return response;
@@ -490,7 +490,7 @@ public class ItemContentsBean
         AnswerIfc answer = (AnswerIfc) iter.next();
         if (answer.getId().toString().equals(responseId))
         {
-          data.setPublishedAnswer(answer);
+          data.setPublishedAnswerId(answer.getId());
           break;
         }
       }
@@ -514,9 +514,9 @@ public class ItemContentsBean
         while (iter.hasNext())
         {
           ItemGradingData data = (ItemGradingData) iter.next();
-          if (data.getPublishedAnswer() != null && data.getPublishedAnswer().getId().toString().equals(text.getAnswerArraySorted().toArray()[i]))
+          if (data.getPublishedAnswerId() != null && data.getPublishedAnswerId().toString().equals(text.getAnswerArraySorted().toArray()[i]))
           {
-            response[i] = data.getPublishedAnswer().getId().toString();
+            response[i] = data.getPublishedAnswerId().toString();
           }
         }
            } */
@@ -527,9 +527,9 @@ public class ItemContentsBean
       while (iter.hasNext())
       {
         ItemGradingData data = (ItemGradingData) iter.next();
-        if (data.getPublishedAnswer() != null)
+        if (data.getPublishedAnswerId() != null)
         {
-          response[i++] = data.getPublishedAnswer().getId().toString();
+          response[i++] = data.getPublishedAnswerId().toString();
         }
         else
         {
@@ -563,8 +563,8 @@ public class ItemContentsBean
         while (iter.hasNext())
         {
           ItemGradingData temp = (ItemGradingData) iter.next();
-          if (temp.getPublishedAnswer() != null &&
-              temp.getPublishedAnswer().getId().toString().equals(presponseIds[
+          if (temp.getPublishedAnswerId() != null &&
+              temp.getPublishedAnswerId().toString().equals(presponseIds[
             i]))
           {
             data = temp;
@@ -582,7 +582,7 @@ public class ItemContentsBean
             AnswerIfc answer = (AnswerIfc) iter2.next();
             if (answer.getId().toString().equals(presponseIds[i]))
             {
-              data.setPublishedAnswer(answer);
+              data.setPublishedAnswerId(answer.getId());
             }
           }
         }

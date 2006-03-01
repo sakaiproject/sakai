@@ -79,7 +79,7 @@ public class ReviewActionListener implements ActionListener
       // get assessment
       PublishedAssessmentFacade publishedAssessment =
         publishedAssessmentService.getPublishedAssessment(reviewAssessmentId);
-
+      HashMap publishedAnswerHash = publishedAssessmentService.preparePublishedAnswerHash(publishedAssessment);
 
       GradingService service = new GradingService();
       HashMap itemData = service.getLastItemGradingData
@@ -89,7 +89,8 @@ public class ReviewActionListener implements ActionListener
       if (delivery.getPageContents() == null)
       {
         DeliveryActionListener listener = new DeliveryActionListener();
-        delivery.setPageContents(listener.getPageContents(publishedAssessment, delivery, itemData));
+        delivery.setPageContents(listener.getPageContents(publishedAssessment, delivery, 
+        itemData, publishedAnswerHash));
       }
 
       Iterator iter = delivery.getPageContents().getPartsContents().iterator();

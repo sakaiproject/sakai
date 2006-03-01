@@ -84,10 +84,10 @@ public class SelectionBean
         items.add(data);
         parent.setItemGradingDataArray(items);
       }
-      data.setPublishedAnswer(answer);
+      data.setPublishedAnswerId(answer.getId());
     }
     else if (data != null)
-      data.setPublishedAnswer(null);
+      data.setPublishedAnswerId(null);
   }
 
   public AnswerIfc getAnswer()

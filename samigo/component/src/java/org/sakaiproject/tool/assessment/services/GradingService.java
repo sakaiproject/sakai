@@ -57,6 +57,7 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
  * The GradingService calls the back end to get grading information from
@@ -346,7 +347,7 @@ public class GradingService
         ItemGradingData gdata = (ItemGradingData) iter.next();
         if (gdata.getItemGradingId() == null)
           gdata.setItemGradingId(new Long(0));
-        if (gdata.getPublishedItemText() == null)
+        if (gdata.getPublishedItemTextId().longValue() <=0)
         {
           //log.debug("Didn't save -- error in item.");
         }
@@ -425,20 +426,22 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub) {
     //#0 - let's build a HashMap with (publishedItemId, publishedItem)
-    HashMap publishedItemHash = getPublishedItemHash(pub); 
-    HashMap publishedItemTextHash = getPublishedItemTextHash(pub); 
+    PublishedAssessmentService pubService = new PublishedAssessmentService();
+    HashMap publishedItemHash = pubService.preparePublishedItemHash(pub); 
+    HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pub); 
+    HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pub); 
     try {
       String agent = data.getAgentId();
       if (!regrade)
       {
         setIsLate(data, pub);
       }
-      Set itemgrading = data.getItemGradingSet();
-      if (itemgrading == null)
-        itemgrading = getItemGradingSet(data.getAssessmentGradingId().toString());
-      log.debug("*******itemGrading size="+itemgrading.size());
-      Iterator iter = itemgrading.iterator();
-      float totalAutoScore = 0;
+      Set itemGradingSet = data.getItemGradingSet();
+      if (itemGradingSet == null)
+        itemGradingSet = getItemGradingSet(data.getAssessmentGradingId().toString());
+      log.debug("*******itemGrading size="+itemGradingSet.size());
+      Iterator iter = itemGradingSet.iterator();
+      //float totalAutoScore = 0;
 
       // fibAnswersMap contains a map of HashSet of answers for a FIB item,
       // key =itemid, value= HashSet of answers for each item.  
@@ -466,23 +469,21 @@ public class GradingService
           itemGrading.setOverrideScore(new Float(0));
           // note that totalItems & fibAnswersMap would be modified by the following method
           autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                                 totalItems, fibAnswersMap);
+                                 totalItems, fibAnswersMap, publishedAnswerHash);
+          System.out.println("**!regrade, autoScore="+autoScore);
+          totalItems.put(itemId, new Float(autoScore));
 	}
-        else
-        {
+        else{
           autoScore = itemGrading.getAutoScore().floatValue();
           //overridescore - cwen
-          if (itemGrading.getOverrideScore() != null)
-          {
+          if (itemGrading.getOverrideScore() != null){
             autoScore += itemGrading.getOverrideScore().floatValue();
           }
 
-          if(!totalItems.containsKey(itemId))
-          {
+          if(!totalItems.containsKey(itemId)){
             totalItems.put(itemId, new Float(autoScore));
           }
-          else
-          {
+          else{
             float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
             accumelateScore += autoScore;
             totalItems.put(itemId, new Float(accumelateScore));
@@ -491,6 +492,7 @@ public class GradingService
         itemGrading.setAutoScore(new Float(autoScore));
       }
 
+      /*
       Set keySet = totalItems.keySet();
       Iterator keyIter = keySet.iterator();
       while(keyIter.hasNext())
@@ -501,8 +503,10 @@ public class GradingService
           totalAutoScore += eachItemScore;
         }
       }
+      */
 
-      iter = itemgrading.iterator();
+      // what does the following address? daisyf
+      iter = itemGradingSet.iterator();
       while(iter.hasNext())
       {
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
@@ -515,19 +519,30 @@ public class GradingService
           itemGrading.setAutoScore(new Float(0));
         }
       }
-
+      float totalAutoScore = getTotalAutoScore(itemGradingSet);
       data.setTotalAutoScore(new Float(totalAutoScore));
+      System.out.println("**#1 total AutoScore"+totalAutoScore);
       data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
 
     } catch (Exception e) {
       e.printStackTrace();
     }
-    System.out.println("**** GradingService #1 ****");
     saveOrUpdateAssessmentGrading(data);
-    System.out.println("**** GradingService #2 ****");
-
     notifyGradebookByScoringType(data, pub);
-    System.out.println("**** GradingService #3 ****");
+    System.out.println("**#2 total AutoScore"+data.getTotalAutoScore());
+  }
+
+  private float getTotalAutoScore(Set itemGradingSet){
+      System.out.println("*** no. of itemGrading="+itemGradingSet.size());
+    float totalAutoScore =0;
+    Iterator iter = itemGradingSet.iterator();
+    while (iter.hasNext()){
+      ItemGradingIfc i = (ItemGradingIfc)iter.next();
+      System.out.println(i.getItemGradingId()+"->"+i.getAutoScore());
+      if (i.getAutoScore()!=null)
+	totalAutoScore += i.getAutoScore().floatValue();
+    }
+    return totalAutoScore;
   }
 
   private void notifyGradebookByScoringType(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
@@ -541,46 +556,10 @@ public class GradingService
     }
   }
 
-  public HashMap getPublishedItemHash(PublishedAssessmentIfc pub){
-    HashMap h = new HashMap();
-    Set sectionSet = pub.getSectionSet();
-    Iterator iter = sectionSet.iterator();
-    while (iter.hasNext()){
-      SectionDataIfc section = (SectionDataIfc)iter.next();
-      Set itemSet = section.getItemSet();
-      Iterator itemIter = itemSet.iterator();
-      while (itemIter.hasNext()){
-        ItemDataIfc item = (ItemDataIfc)itemIter.next();
-        h.put(item.getItemId(), item);
-      } 
-    } 
-    return h;
-  }
-
-  public HashMap getPublishedItemTextHash(PublishedAssessmentIfc pub){
-    HashMap h = new HashMap();
-    Set sectionSet = pub.getSectionSet();
-    Iterator iter = sectionSet.iterator();
-    while (iter.hasNext()){
-      SectionDataIfc section = (SectionDataIfc)iter.next();
-      Set itemSet = section.getItemSet();
-      Iterator itemIter = itemSet.iterator();
-      while (itemIter.hasNext()){
-        ItemDataIfc item = (ItemDataIfc)itemIter.next();
-        Set itemTextSet = item.getItemTextSet();
-        Iterator itemTextIter = itemTextSet.iterator();
-        while (itemTextIter.hasNext()){ 
-          ItemTextIfc itemText = (ItemTextIfc)itemTextIter.next();
-          h.put(itemText.getId(), itemText);
-	}
-      } 
-    } 
-    return h;
-  }
-
   private float getScoreByQuestionType(ItemGradingIfc itemGrading, ItemDataIfc item,
                                        Long itemType, HashMap publishedItemTextHash, 
-                                       HashMap totalItems, HashMap fibAnswersMap){
+                                       HashMap totalItems, HashMap fibAnswersMap,
+                                       HashMap publishedAnswerHash){
     float score = (float) 0;
     float initScore = (float) 0;
     float autoScore = (float) 0;
@@ -591,7 +570,7 @@ public class GradingService
       case 1: // MC Single Correct
       case 3: // MC Survey
       case 4: // True/False 
-              autoScore = getAnswerScore(itemGrading);
+              autoScore = getAnswerScore(itemGrading, publishedAnswerHash);
               //overridescore
               if (itemGrading.getOverrideScore() != null)
                 autoScore += itemGrading.getOverrideScore().floatValue();
@@ -609,11 +588,11 @@ public class GradingService
                     correctAnswers++;
                 }
               }
-              initScore = getAnswerScore(itemGrading);
+              initScore = getAnswerScore(itemGrading, publishedAnswerHash);
               if (initScore > 0)
                 autoScore = initScore / correctAnswers;
               else
-                autoScore = (getTotalCorrectScore(itemGrading) / correctAnswers) * ((float) -1);
+                autoScore = (getTotalCorrectScore(itemGrading, publishedAnswerHash) / correctAnswers) * ((float) -1);
 
               //overridescore?
               if (itemGrading.getOverrideScore() != null)
@@ -628,7 +607,7 @@ public class GradingService
               break;
 
       case 9: // Matching     
-              initScore = getAnswerScore(itemGrading);
+              initScore = getAnswerScore(itemGrading, publishedAnswerHash);
               if (initScore > 0)
                 autoScore = initScore / ((float) item.getItemTextSet().size());
               //overridescore?
@@ -645,7 +624,7 @@ public class GradingService
               break;
 
       case 8: // FIB
-              autoScore = getFIBScore(itemGrading, fibAnswersMap, item) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+              autoScore = getFIBScore(itemGrading, fibAnswersMap, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
               //overridescore - cwen
               if (itemGrading.getOverrideScore() != null)
                 autoScore += itemGrading.getOverrideScore().floatValue();
@@ -684,9 +663,9 @@ public class GradingService
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public float getAnswerScore(ItemGradingIfc data)
+  public float getAnswerScore(ItemGradingIfc data, HashMap publishedAnswerHash)
   {
-    AnswerIfc answer = (AnswerIfc) data.getPublishedAnswer();
+    AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     if (answer == null || answer.getScore() == null)
       return (float) 0;
     if (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())
@@ -786,7 +765,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 -. multiple answer, mutually exclusive, wildcard , case insensitive
 
   */
-  private float getFIBScore(ItemGradingIfc data, HashMap fibmap, ItemDataIfc itemdata)
+  private float getFIBScore(ItemGradingIfc data, HashMap fibmap, ItemDataIfc itemdata, HashMap publishedAnswerHash)
   {
     String studentanswer = "";
     String REGEX;
@@ -794,7 +773,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     Matcher m;
     boolean matchresult = false;
 
-    String answertext = data.getPublishedAnswer().getText();
+    String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
     Long itemId = itemdata.getItemId();
 
     String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
@@ -854,7 +833,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
             }
 
             if (!alreadyused) {
-              totalScore += data.getPublishedAnswer().getScore().floatValue();
+              totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
             }
 
             // SAK-3005: quit if answer is correct, e.g. if you answered A for {a|A}, you already scored
@@ -866,9 +845,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return totalScore;
   }
 
-  public float getTotalCorrectScore(ItemGradingIfc data)
+  public float getTotalCorrectScore(ItemGradingIfc data, HashMap publishedAnswerHash)
   {
-    AnswerIfc answer = (AnswerIfc) data.getPublishedAnswer();
+    AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     if (answer == null || answer.getScore() == null)
       return (float) 0;
     return answer.getScore().floatValue();

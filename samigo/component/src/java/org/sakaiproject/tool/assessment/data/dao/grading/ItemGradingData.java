@@ -48,9 +48,10 @@ public class ItemGradingData
   private AssessmentGradingIfc assessmentGrading;
   private Long publishedItemId;
   private Long publishedItemTextId;
-  private ItemDataIfc publishedItem;
-  private ItemTextIfc publishedItemText;
+    // private ItemDataIfc publishedItem;
+    //private ItemTextIfc publishedItemText;
   private String agentId;
+  private Long publishedAnswerId;
   private AnswerIfc publishedAnswer;
   private String rationale;
   private String answerText;
@@ -106,6 +107,7 @@ public class ItemGradingData
     setAssessmentGradingId(assessmentGrading.getAssessmentGradingId());
   }
 
+    /*
   public ItemDataIfc getPublishedItem() {
     return publishedItem;
   }
@@ -118,11 +120,19 @@ public class ItemGradingData
   public void setPublishedItemText(ItemTextIfc publishedItemText) {
     this.publishedItemText = publishedItemText;
   }
+    */
+
   public String getAgentId() {
     return agentId;
   }
   public void setAgentId(String agentId) {
     this.agentId = agentId;
+  }
+  public Long getPublishedAnswerId() {
+    return publishedAnswerId;
+  }
+  public void setPublishedAnswerId(Long publishedAnswerId) {
+    this.publishedAnswerId = publishedAnswerId;
   }
   public AnswerIfc getPublishedAnswer() {
     return publishedAnswer;

@@ -46,6 +46,7 @@ public interface ItemGradingIfc
 
   void setAssessmentGrading(AssessmentGradingIfc assessmentGrading);
 
+    /*
   ItemDataIfc getPublishedItem();
 
   void setPublishedItem(ItemDataIfc publishedItem);
@@ -53,6 +54,7 @@ public interface ItemGradingIfc
   ItemTextIfc getPublishedItemText();
 
   void setPublishedItemText(ItemTextIfc publishedItemText);
+    */
 
   String getAgentId();
 
@@ -61,6 +63,10 @@ public interface ItemGradingIfc
   // answer stores the answer selected by students for
   // multiple choice, multiple select and multiple response question
   // when autograding is possible
+  void setPublishedAnswerId(Long publishedAnswerId);
+
+  Long getPublishedAnswerId();
+
   AnswerIfc getPublishedAnswer();
 
   void setPublishedAnswer(AnswerIfc PublishedAnswer);

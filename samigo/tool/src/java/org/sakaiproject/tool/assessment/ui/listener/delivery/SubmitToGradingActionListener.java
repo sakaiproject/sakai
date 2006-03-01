@@ -25,8 +25,10 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -204,19 +206,18 @@ public class SubmitToGradingActionListener implements ActionListener
     log.debug("****1b. inside submitToGradingService, iter= "+iter);
     HashSet adds = new HashSet();
     HashSet removes = new HashSet();
+
+    // we go through all the answer collected from JSF form per each publsihedItem and
+    // work out which answer is an new addition and in cases like MC/MCMR/Survey, we will
+    // discard any existing one and just save teh new one. For other question type, we
+    // simply modify the publishedText or publishedAnswer of teh existing ones.
     while (iter.hasNext()){
-      // we go through all the answer collected from JSF form per each publsihedItem and
-      // work out which answer is an new addition and in cases like MC/MCMR/Survey, we will
-      // discard any existing one and just save teh new one. For other question type, we
-      // simply modify the publishedText or publishedAnswer of teh existing ones.
       SectionContentsBean part = (SectionContentsBean) iter.next();
       log.debug("****1c. inside submitToGradingService, part "+part);
       Iterator iter2 = part.getItemContents().iterator();
-      while (iter2.hasNext()) // go through each item from form
-      {
+      while (iter2.hasNext()){ // go through each item from form
         ItemContentsBean item = (ItemContentsBean) iter2.next();
         prepareItemGradingPerItem(item, adds, removes);
-
       }
     }
     AssessmentGradingData adata = persistAssessmentGrading(delivery, itemGradingHash, 
@@ -232,36 +233,62 @@ public class SubmitToGradingActionListener implements ActionListener
                                                          PublishedAssessmentFacade publishedAssessment,
                                                          HashSet adds, HashSet removes){
     AssessmentGradingData adata = null;
-    if (delivery.getAssessmentGrading() != null)
+    if (delivery.getAssessmentGrading() != null){
       adata = delivery.getAssessmentGrading();
-    log.debug("****** 1f. submitToGradingService, adata= "+adata);
+  
+      if (delivery.getAssessmentGrading().getItemGradingSet() != null)
+        System.out.println("SubmitToGradingActionListener before = "+adata.getItemGradingSet().size());
+    }
 
     GradingService service = new GradingService();
     if (adata == null) {
       adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemGradingHash);
       delivery.setAssessmentGrading(adata);
-      log.info("****** 1g. submitToGradingService, itemGradingHash.size()= "+itemGradingHash.size());
     }
     else {
       // 1. add all the new itemgrading for MC/Survey and discard any
       // itemgrading for MC/Survey
       // 2. add any modified SAQ/TF/FIB/Matching/MCMR
-      log.info("****** 1h. add and remove");
-      // itemGradingHash is ItemGradingData contains all valid saved answers from JSF form
 
-      if (adata.getItemGradingSet()!=null){
-        adata.getItemGradingSet().removeAll(removes);
+      Set itemGradingSet = adata.getItemGradingSet();
+      if (itemGradingSet!=null){
+        itemGradingSet.removeAll(removes);
         service.deleteAll(removes);
         Iterator iter = adds.iterator();
         while (iter.hasNext()){
           ((ItemGradingIfc)iter.next()).setAssessmentGrading(adata);
 	}
-        adata.setItemGradingSet(adds);
+        adata.setItemGradingSet(updateItemGradingSet(itemGradingSet, adds));
       }
     }
+    System.out.println("SubmitToGradingActionListener after = "+adata.getItemGradingSet().size());
     adata.setForGrade(new Boolean(delivery.getForGrade()));
     service.storeGrades(adata, publishedAssessment);
     return adata;
+  }
+
+  private Set updateItemGradingSet(Set oldItemGradingSet, Set newItemGradingSet){
+    HashSet h = new HashSet();
+    Iterator iter = oldItemGradingSet.iterator();
+    HashMap map = new HashMap();
+    while (iter.hasNext()){
+      ItemGradingIfc item = (ItemGradingIfc) iter.next();
+      map.put(item.getItemGradingId(), item);
+    }
+
+    Iterator iter1 = newItemGradingSet.iterator();
+    while (iter1.hasNext()){
+      ItemGradingIfc newItem = (ItemGradingIfc) iter1.next();
+      ItemGradingIfc oldItem = (ItemGradingIfc)map.get(newItem.getItemGradingId());
+      if (oldItem != null){ // itemGrading exist, replace with new in this case
+        oldItemGradingSet.remove(oldItem);
+        oldItemGradingSet.add(newItem);
+      }
+      else {  // itemGrading from new set doesn't exist, add to set in this case
+        oldItemGradingSet.add(newItem);
+      }
+    }
+    return oldItemGradingSet;
   }
 
   /**
@@ -283,42 +310,6 @@ public class SubmitToGradingActionListener implements ActionListener
     adata.setPublishedAssessment(publishedAssessment.getData());
     return adata;
   }
-
-  /**
-   * figure out what new item grading data needs to be added, removed
-   * @param itemGradingHash
-   * @param adata
-   * @param adds the data that needs to be added
-   * @param removes the data that needs to be removed
-   */
-    /*
-  private void integrateItemGradingDatas(HashSet itemGradingHash,
-                                         AssessmentGradingData adata,
-                                         HashSet adds, HashSet removes){
-    // daisyf's question: why not just persist the currently submitted answer by 
-    // updating the existing one?
-    // why do you need to "replace" it by deleting and adding it again?
-    Iterator i1 = itemGradingHash.iterator();
-    while (i1.hasNext())
-    {
-      ItemGradingData grading = (ItemGradingData) i1.next();
-      log.info("****** answer from form, itemGradingId="+grading.getItemGradingId());
-      if (grading.getItemGradingId() != null && (new Long("-1")).equals(grading.getItemGradingId())){
-        grading.setAssessmentGrading(adata);
-        removes.add(grading);
-      }
-      else{
-        // add important info to new answer
-        log.info("****** dd. add new answer, grading.getAssessmentGrading()="+grading.getAssessmentGrading());
-        grading.setAssessmentGrading(adata);
-        grading.setAgentId(adata.getAgentId());
-        grading.setSubmittedDate(new Date());
-        // the rest of the info is collected by ItemContentsBean via JSF form 
-        adds.add(grading);
-      }
-    }
-  }
-    */
 
   public void prepareItemGradingPerItem(ItemContentsBean item, HashSet adds, HashSet removes){
     ArrayList grading = item.getItemGradingDataArray();
@@ -343,11 +334,12 @@ public class SubmitToGradingActionListener implements ActionListener
               for (int m=0;m<grading.size();m++){
                 ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
                 if (itemgrading.getItemGradingId()!=null && itemgrading.getItemGradingId().intValue()>0){
+                  log.info("****** dd. remove itemGrading="+itemgrading.getItemGradingId());
                   removes.add(itemgrading);
                 }
                 else{
                   // add new answer
-                  log.info("****** dd. add new answer, grading.getAssessmentGrading()="+itemgrading.getAssessmentGrading());
+                  log.info("****** dd. add itemGrading, grading.getAssessmentGrading()="+itemgrading.getAssessmentGrading());
                   itemgrading.setAgentId(AgentFacade.getAgentString());
                   itemgrading.setSubmittedDate(new Date());
                   // the rest of the info is collected by ItemContentsBean via JSF form 
@@ -363,6 +355,8 @@ public class SubmitToGradingActionListener implements ActionListener
     case 7: // Audio
     case 8: // FIB
     case 9: // Matching
+            log.info("****** dd. typeId, size="+typeId);
+            log.info("****** dd. add all grading, size="+grading.size());
             adds.addAll(grading);
             break;   
     }

@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -155,6 +156,7 @@ public class QuestionScoreListener
       HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
       //build a hashMap (publishedItemTextId, publishedItemText)
       HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
+      HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
 
       GradingService delegate =	new GradingService();
 
@@ -239,6 +241,8 @@ public class QuestionScoreListener
       {
         ItemGradingData idata = (ItemGradingData) iter.next();
         ItemTextIfc pubItemText = (ItemTextIfc) publishedItemTextHash.get(idata.getPublishedItemTextId());
+        AnswerIfc pubAnswer = (AnswerIfc) publishedAnswerHash.get(idata.getPublishedAnswerId());
+
         ArrayList temp = (ArrayList) scoresByItem.get
           (idata.getAssessmentGrading().getAssessmentGradingId() + ":" +
             idata.getPublishedItemId());
@@ -252,15 +256,15 @@ public class QuestionScoreListener
         while (iter2.hasNext())
         {
           ItemGradingData tmpData = (ItemGradingData) iter2.next();
-          ItemTextIfc tmpPublishedText = (ItemTextIfc) publishedItemTextHash.get(tmpData.getPublishedItemTextId()); 
-          if (idata.getPublishedAnswer() != null &&
-              tmpData.getPublishedAnswer() != null &&
-              !added &&
+          ItemTextIfc tmpPublishedText = (ItemTextIfc) publishedItemTextHash.get(tmpData.getPublishedItemTextId());
+ 	  AnswerIfc tmpAnswer = (AnswerIfc) publishedAnswerHash.get(tmpData.getPublishedAnswerId());
+
+          if (pubAnswer != null && tmpAnswer != null && !added &&
               (pubItemText.getSequence().intValue() <
                tmpPublishedText.getSequence().intValue() ||
                (pubItemText.getSequence().intValue() ==
                 tmpPublishedText.getSequence().intValue() &&
-                idata.getPublishedAnswer().getSequence().intValue() <
+                pubAnswer.getSequence().intValue() <
                 tmpPublishedText.getSequence().intValue())))
           {
             newList.add(idata);
@@ -421,6 +425,8 @@ public class QuestionScoreListener
         {
           ItemGradingData gdata = (ItemGradingData) iter2.next();
           ItemTextIfc gdataPubItemText = (ItemTextIfc) publishedItemTextHash.get(gdata.getPublishedItemTextId());          
+	  AnswerIfc gdataAnswer = (AnswerIfc) publishedAnswerHash.get(gdata.getPublishedAnswerId());
+
           // This all just gets the text of the answer to display
           String answerText = "N/A";
           String rationale = "";
@@ -428,8 +434,8 @@ public class QuestionScoreListener
               bean.getTypeId().equals("3") || bean.getTypeId().equals("4") ||
               bean.getTypeId().equals("9"))
           {
-            if (gdata.getPublishedAnswer() != null)
-              answerText = gdata.getPublishedAnswer().getText();
+            if (gdataAnswer != null)
+              answerText = gdataAnswer.getText();
           }
           else
           {
@@ -441,7 +447,7 @@ public class QuestionScoreListener
               answerText;
 
           if (bean.getTypeId().equals("8"))
-            answerText = gdata.getPublishedAnswer().getSequence() + ":" +
+            answerText = gdataAnswer.getSequence() + ":" +
               answerText;
 
           if (answerText == null)

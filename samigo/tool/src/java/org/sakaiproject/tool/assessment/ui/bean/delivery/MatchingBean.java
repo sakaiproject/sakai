@@ -44,6 +44,8 @@ public class MatchingBean
   private ArrayList choices;
   private String text;
   private String feedback;
+  private AnswerIfc answer;
+  private boolean isCorrect;
 
   public ItemContentsBean getItemContentsBean()
   {
@@ -98,7 +100,7 @@ public class MatchingBean
       AnswerIfc answer = (AnswerIfc) iter.next();
       if (answer.getId().toString().equals(newresp))
       {
-        data.setPublishedAnswer(answer);
+        data.setPublishedAnswerId(answer.getId());
         break;
       }
     }
@@ -134,12 +136,28 @@ public class MatchingBean
     feedback = newfb;
   }
 
+
+  public void setAnswer(AnswerIfc answer){
+    this.answer = answer;
+  }
+
+  public AnswerIfc getAnswer(){
+    return answer;
+  }
+
+  public void setIsCorrect(boolean isCorrect){
+    this.isCorrect = isCorrect;
+  }
   public boolean getIsCorrect()
   {
-    if (data != null && data.getPublishedAnswer() != null &&
-        data.getPublishedAnswer().getIsCorrect() != null &&
-        data.getPublishedAnswer().getIsCorrect().booleanValue())
+      /*
+    if (data != null && data.getPublishedAnswerId() != null &&
+        answer.getIsCorrect() != null &&
+        answer.getIsCorrect().booleanValue())
       return true;
     return false;
+      */
+    return isCorrect;
   }
+
 }
