@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 
 /**
  * <p>Description: class form for evaluating question scores</p>
@@ -623,4 +624,11 @@ public class QuestionScoresBean
     return itemScoresMap;
   }
 
+  private PublishedAssessmentIfc publishedAssessment;
+  public void setPublishedAssessment(PublishedAssessmentIfc publishedAssessment){
+    this.publishedAssessment = publishedAssessment; 
+  }
+  public PublishedAssessmentIfc getPublishedAssessment(){
+    return publishedAssessment;
+  }
 }

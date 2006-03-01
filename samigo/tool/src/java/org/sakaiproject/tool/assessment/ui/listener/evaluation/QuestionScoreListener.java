@@ -149,9 +149,15 @@ public class QuestionScoreListener
     log.debug("questionScores()");
     try
     {
+      PublishedAssessmentService pubService  = new PublishedAssessmentService();
       // get the PublishedAssessment based on publishedId
-      PublishedAssessmentService pubService  =	new PublishedAssessmentService();
-      PublishedAssessmentIfc publishedAssessment = pubService.getPublishedAssessment(publishedId);
+      QuestionScoresBean questionBean = (QuestionScoresBean) cu.lookupBean("questionScores");
+      PublishedAssessmentIfc publishedAssessment = questionBean.getPublishedAssessment();
+      if (publishedAssessment == null){
+        publishedAssessment = pubService.getPublishedAssessment(publishedId);
+        questionBean.setPublishedAssessment(publishedAssessment);
+        System.out.println("**** goto DB ot get publishedAssessment");
+      }
       //build a hashMap (publishedItemId, publishedItem)
       HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
       //build a hashMap (publishedItemTextId, publishedItemText)
@@ -535,15 +541,16 @@ public class QuestionScoreListener
     return true;
   }
 
-  /* getting a list of itemGrading for a publishedItemId is a lot of work,
-     read the code in GradingService.getItemScores()
-     after we get the list, we are saving it in QuestionScoreBean.itemScoresMap
-     itemScoresMap = (publishedItemId, HashMap) 
+  /** getting a list of itemGrading for a publishedItemId is a lot of work,
+   * read the code in GradingService.getItemScores()
+   * after we get the list, we are saving it in QuestionScoreBean.itemScoresMap
+   * itemScoresMap = (publishedItemId, HashMap) 
                    = (Long publishedItemId, (Long publishedItemId, Array itemGradings))
-     itemScoresMap will be refreshed when the next QuestionScore link is click
-  */
+   * itemScoresMap will be refreshed when the next QuestionScore link is click
+   */
   private HashMap getItemScores(Long publishedId, Long itemId, String which){
     GradingService delegate = new GradingService();
+    /*
     QuestionScoresBean questionScoresBean =
       (QuestionScoresBean) cu.lookupBean("questionScores");
     HashMap itemScoresMap = questionScoresBean.getItemScoresMap();
@@ -558,6 +565,8 @@ public class QuestionScoreListener
       System.out.println("**** need to gotoDB");
     }
     return map;
+    */
+    return delegate.getItemScores(publishedId, itemId, which);
   }
 
 }

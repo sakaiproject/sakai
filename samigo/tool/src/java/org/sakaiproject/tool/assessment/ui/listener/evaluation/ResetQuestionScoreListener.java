@@ -61,6 +61,7 @@ public class ResetQuestionScoreListener implements ActionListener
   {
     QuestionScoresBean bean = (QuestionScoresBean) cu.lookupBean("questionScores");
     bean.setItemScoresMap(new HashMap());
+    bean.setPublishedAssessment(null);
     System.out.println("****reset itemScoresMap");
   }
 }
