@@ -338,6 +338,7 @@ sorting actions for table:
 
 
 <%-- GRADE --%>
+<%--
     <h:column>
       <f:facet name="header">
         <h:panelGroup>
@@ -372,6 +373,7 @@ sorting actions for table:
         <h:outputText value="#{msg.not_applicable}" rendered="#{!reviewable.graded}"/>
       </h:panelGroup>
     </h:column>
+--%>
 
 <%-- SCORE --%>
     <h:column>
