@@ -119,7 +119,7 @@
   <body-content>JSP</body-content>
   <attribute>
     <name>id</name>
-    <required>true</required>
+    <required>false</required>
     <rtexprvalue>false</rtexprvalue>
   </attribute>
   <attribute>

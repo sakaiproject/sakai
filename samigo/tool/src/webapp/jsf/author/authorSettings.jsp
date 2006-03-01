@@ -99,6 +99,7 @@ function disableAllFeedbackCheck(feedbackType)
   }
 }
 
+var autoSubmitId;
 function checkTimeSelect(){
   var inputList= document.getElementsByTagName("INPUT");
   for (i = 0; i <inputList.length; i++) {
@@ -109,11 +110,22 @@ function checkTimeSelect(){
         autoSubmitId=inputList[i].id;
     }
   }
-  if(!document.getElementById(timedAssessmentId).checked)
-    document.getElementById(autoSubmitId).disabled=true;
-  else
-    document.getElementById(autoSubmitId).disabled=false;
 
+  if(document.getElementById(timedAssessmentId) != null)
+  {
+    if(!document.getElementById(timedAssessmentId).checked && document.getElementById(autoSubmitId) != null)
+    {
+      document.getElementById(autoSubmitId).disabled=true;
+    }
+    else if((document.getElementById(autoSubmitId) != null) && (document.getElementById(autoSubmitId).disabled != null))
+    {
+      document.getElementById(autoSubmitId).disabled=false;
+    }
+  }
+  else if((document.getElementById(autoSubmitId) != null) && (document.getElementById(autoSubmitId).disabled != null))
+  {
+    document.getElementById(autoSubmitId).disabled=false;
+  }
 }
 function uncheckOther(field){
  var fieldname = field.getAttribute("name");
@@ -162,7 +174,7 @@ function uncheckOther(field){
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 
 <h:panelGroup rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate}" >
-  <samigo:hideDivision id="div0" title="#{msg.heading_template_information}" >
+  <samigo:hideDivision title="#{msg.heading_template_information}" >
 <f:verbatim> <div class="indnt2"></f:verbatim>
  <h:panelGrid columns="2" columnClasses="shorttext">
         <h:outputLabel value="#{msg.template_title}"/>
@@ -179,7 +191,7 @@ function uncheckOther(field){
   <!-- *** ASSESSMENT INTRODUCTION *** -->
 <f:subview id="intro">
 
-  <samigo:hideDivision id="div1" title="#{msg.heading_assessment_introduction}" > <div class="indnt2">
+  <samigo:hideDivision title="#{msg.heading_assessment_introduction}" > <div class="indnt2">
     <h:panelGrid columns="2" columnClasses="shorttext" id="first"
       summary="#{summary_msg.enter_template_info_section}">
 
@@ -213,7 +225,7 @@ function uncheckOther(field){
 </f:subview>
 
   <!-- *** DELIVERY DATES *** -->
-  <samigo:hideDivision id="div2" title="#{msg.heading_assessment_delivery_dates}"> <div class="indnt2">
+  <samigo:hideDivision title="#{msg.heading_assessment_delivery_dates}"> <div class="indnt2">
     <h:panelGrid columns="2" columnClasses="shorttext"
       summary="#{summary_msg.delivery_dates_sec}">
     <h:outputLabel  value="#{msg.assessment_available_date}"/>
@@ -236,7 +248,7 @@ function uncheckOther(field){
 
   <!-- *** RELEASED TO *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.anonymousRelease_isInstructorEditable==true or assessmentSettings.valueMap.authenticatedRelease_isInstructorEditable==true}" >
-  <samigo:hideDivision title="#{msg.heading_released_to}" id="div3">
+  <samigo:hideDivision title="#{msg.heading_released_to}">
     <f:verbatim><div class="indnt2"></f:verbatim>
     <h:panelGrid summary="#{summary_msg.released_to_info_sec}">
       <h:selectOneRadio layout="pagedirection" value="#{assessmentSettings.firstTargetSelected}"
@@ -250,7 +262,7 @@ function uncheckOther(field){
 
   <!-- *** HIGH SECURITY *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}" >
-  <samigo:hideDivision title="#{msg.heading_high_security}" id="div4">
+  <samigo:hideDivision title="#{msg.heading_high_security}">
     <f:verbatim><div class="indnt2"></f:verbatim>
     <h:panelGrid border="0" columns="3"
         summary="#{summary_msg.high_security_sec}">
@@ -281,7 +293,7 @@ function uncheckOther(field){
 
   <!-- *** TIMED *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true or assessmentSettings.valueMap.timedAssessmentAutoSubmit_isInstructorEditable==true}" >
-  <samigo:hideDivision id="div5" title="#{msg.heading_timed_assessment}">
+  <samigo:hideDivision title="#{msg.heading_timed_assessment}">
     <f:verbatim><div class="indnt2"></f:verbatim>
 <%--DEBUGGING:
      Time Limit= <h:outputText value="#{assessmentSettings.timeLimit}" /> ;
@@ -292,14 +304,14 @@ function uncheckOther(field){
     <h:panelGrid
         summary="#{summary_msg.timed_assmt_sec}">
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}">
-        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkTimeSelect();"
+        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkTimeSelect();document.forms[0].onsubmit();document.forms[0].submit();"
          value="#{assessmentSettings.valueMap.hasTimeAssessment}"/>
         <h:outputText value="#{msg.timed_assessment} " />
-        <h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}">
+				<h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}" disabled="#{!assessmentSettings.valueMap.hasTimeAssessment}" >
           <f:selectItems value="#{assessmentSettings.hours}" />
         </h:selectOneMenu>
         <h:outputText value="#{msg.timed_hours}. " />
-        <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}">
+        <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}" disabled="#{!assessmentSettings.valueMap.hasTimeAssessment}">
           <f:selectItems value="#{assessmentSettings.mins}" />
         </h:selectOneMenu>
         <h:outputText value="#{msg.timed_minutes}. " />
@@ -324,7 +336,7 @@ function uncheckOther(field){
 
   <!-- *** ASSESSMENT ORGANIZATION *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true or assessmentSettings.valueMap.displayChucking_isInstructorEditable==true or assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true }" >
-  <samigo:hideDivision id="div6" title="#{msg.heading_assessment_organization}" >
+  <samigo:hideDivision title="#{msg.heading_assessment_organization}" >
   <f:verbatim> <div class="indnt2"></f:verbatim>
     <!-- NAVIGATION -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true}">
@@ -369,7 +381,7 @@ function uncheckOther(field){
 
   <!-- *** SUBMISSIONS *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true or assessmentSettings.valueMap.lateHandling_isInstructorEditable==true or assessmentSettings.valueMap.autoSave_isInstructorEditable==true}" >
-  <samigo:hideDivision id="div7" title="#{msg.heading_submissions}" >
+  <samigo:hideDivision title="#{msg.heading_submissions}" >
  <f:verbatim><div class="indnt2"></f:verbatim>
 
     <!-- NUMBER OF SUBMISSIONS -->
@@ -419,7 +431,7 @@ function uncheckOther(field){
 
   <!-- *** SUBMISSION MESSAGE *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true or assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
-  <samigo:hideDivision id="div8" title="#{msg.heading_submission_message}" >
+  <samigo:hideDivision title="#{msg.heading_submission_message}" >
    <f:verbatim><div class="indnt2"></f:verbatim>
     <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
     <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.submission_message}" /> <f:verbatim><br/></f:verbatim>
@@ -444,7 +456,7 @@ function uncheckOther(field){
   <!-- *** FEEDBACK *** -->
  
 <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
- <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
+ <samigo:hideDivision title="#{msg.heading_feedback}" >
   <f:verbatim> <div class="indnt2"></f:verbatim>
   <!-- FEEDBACK AUTHORING -->
  <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
@@ -541,7 +553,7 @@ function uncheckOther(field){
 
   <!-- *** GRADING *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true or assessmentSettings.valueMap.toGradebook_isInstructorEditable==true or assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}" >
-  <samigo:hideDivision id="div10" title="#{msg.heading_grading}" >
+  <samigo:hideDivision title="#{msg.heading_grading}" >
  <f:verbatim><div class="indnt2"></f:verbatim>
 <%--     DEBUGGING:
      AnonymousGrading= <h:outputText value="#{assessmentSettings.anonymousGrading}" /> ;
@@ -588,7 +600,7 @@ function uncheckOther(field){
 
   <!-- *** COLORS AND GRAPHICS	*** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
-  <samigo:hideDivision id="div11" title="#{msg.heading_graphics}" >
+  <samigo:hideDivision title="#{msg.heading_graphics}" >
     <f:verbatim><div class="indnt2"></f:verbatim>
  
         <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">
@@ -608,7 +620,7 @@ function uncheckOther(field){
 
   <!-- *** META *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.metadataAssess_isInstructorEditable==true}">
-  <samigo:hideDivision title="#{msg.heading_metadata}" id="div13">
+  <samigo:hideDivision title="#{msg.heading_metadata}">
     <f:verbatim><div class="indnt2"></f:verbatim>
    <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.assessment_metadata}" /> <f:verbatim></div><div class="indnt3"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="shorttext">
