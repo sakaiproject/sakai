@@ -141,10 +141,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 		else if (PERMISSION_LEVEL_NAME_NONE.equals(name)){
 			return getDefaultNonePermissionLevel();
-		}
-		else if (PERMISSION_LEVEL_NAME_CUSTOM.equals(name)){
-			return getDefaultCustomPermissionLevel();
-		}
+		}		
 		else{
 			return null;
 		}
@@ -357,22 +354,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}		
 		return getDefaultPermissionLevel(typeUuid);				
 	}
-  
-  public PermissionLevel getDefaultCustomPermissionLevel(){
-		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getDefaultCustomPermissionLevel executing");
-		}
-						
-		String typeUuid = typeManager.getCustomLevelType();
-		
-		if (typeUuid == null) {      
-      throw new IllegalStateException("type cannot be null");
-		}		
-		return getDefaultPermissionLevel(typeUuid);				
-	}
-	
-	
+  	
 	private PermissionLevel getDefaultPermissionLevel(final String typeUuid){
 		
 		if (typeUuid == null) {      

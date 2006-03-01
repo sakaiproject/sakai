@@ -420,7 +420,7 @@
   <tag>
     <name>forum_bar_link</name>
     <tag-class>org.sakaiproject.tool.messageforums.jsf.BarLinkTag</tag-class>
-    <body-content>empty</body-content>
+    <body-content>JSP</body-content>
     <description>
       Renders a Sakai style toolbar item (or button).  Parent should be a tool_bar tag.
     </description>

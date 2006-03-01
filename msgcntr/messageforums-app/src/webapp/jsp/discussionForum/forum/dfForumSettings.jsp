@@ -79,6 +79,7 @@
 		</h:panelGrid>
 	  </p>
 	   </mf:forumHideDivision>
+      <%--
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm" hideByDefault="true">
           <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.forumControlPermissions}" var="cntrl_settings">
    			<h:column>
@@ -97,18 +98,18 @@
 				<f:facet name="header"><h:outputText value="#{msgs.perm_response_to_response}" /></f:facet>
 				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.responseToResponse}"/>
 			</h:column>
-		<%--	<h:column>
+			<h:column>
 				<f:facet name="header">	<h:outputText value="#{msgs.perm_move_postings}" /></f:facet>
 				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.movePostings}"/>
-			</h:column>--%>
+			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_change_settings}" /></f:facet>
 				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.changeSettings}"/>
 			</h:column>
-			<%--<h:column>
+			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></f:facet>
 				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.postToGradebook}"/>
-			</h:column>	--%>				
+			</h:column>
 		</h:dataTable>
       </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_message_permissions}" id="msg_perm" hideByDefault="true">
@@ -143,6 +144,7 @@
 			</h:column>			 		
 		</h:dataTable>		 	
       </mf:forumHideDivision>
+      --%>
       
        <p class="act">
           <h:commandButton id ="revise" rendered="#{!ForumTool.selectedForum.markForDeletion}" immediate="true"  action="#{ForumTool.processActionReviseForumSettings}" value="#{msgs.cdfm_button_bar_revise}"> 

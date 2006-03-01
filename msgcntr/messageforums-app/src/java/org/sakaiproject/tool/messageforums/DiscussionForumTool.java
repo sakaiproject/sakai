@@ -123,6 +123,8 @@ public class DiscussionForumTool
   private boolean isDisplaySearchedMessages;
   private List siteMembers = new ArrayList();
   private String selectedRole;
+  
+  private boolean editMode;
 
   /**
    * Dependency Injected
@@ -279,6 +281,14 @@ public class DiscussionForumTool
   public String processActionTemplateSettings()
   {
     LOG.debug("processActionTemplateSettings()");
+    
+    if ("off".equals(getExternalParameterByKey("editMode"))){
+    	setEditMode(false);
+    }
+    else{
+    	setEditMode(true);
+    }        	
+
     if(!isInstructor())
     {
       setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
@@ -292,6 +302,7 @@ public class DiscussionForumTool
    */
   public List getTemplatePermissions()
   {
+  	  	  	
     if (templatePermissions == null)
     {
       siteMembers=null;
@@ -328,6 +339,25 @@ public class DiscussionForumTool
 //  {
 //    this.templateMessagePermissions = templateMessagePermissions;
 //  }
+  
+  /**
+   * @return
+   */
+  public String processActionReviseTemplateSettings()
+  {
+  	if (LOG.isDebugEnabled()){
+      LOG.debug("processActionReviseTemplateSettings()");
+  	}
+    
+    if ("off".equals(getExternalParameterByKey("editMode"))){
+    	setEditMode(false);
+    }
+    else{
+    	setEditMode(true);
+    }
+    
+    return TEMPLATE_SETTING;
+  }
 
   /**
    * @return
@@ -354,7 +384,7 @@ public class DiscussionForumTool
         DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
         
         
-        if (membershipItem.getType().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)){
+        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
           PermissionsMask mask = new PermissionsMask();                
           mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
           mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
@@ -3234,7 +3264,12 @@ public class DiscussionForumTool
     {
       this.selectedRole = selectedRole;
     }
-     
-    
-     
+
+		public boolean getEditMode() {
+			return editMode;
+		}
+
+		public void setEditMode(boolean editMode) {
+			this.editMode = editMode;
+		}              
 }
