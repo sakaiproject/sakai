@@ -254,6 +254,9 @@ public class SubmitToGradingActionListener implements ActionListener
       if (itemGradingSet!=null){
         itemGradingSet.removeAll(removes);
         service.deleteAll(removes);
+        // refresh itemGradingSet after removal 
+        itemGradingSet = service.getItemGradingSet(adata.getAssessmentGradingId().toString());
+
         Iterator iter = adds.iterator();
         while (iter.hasNext()){
           ((ItemGradingIfc)iter.next()).setAssessmentGrading(adata);
@@ -281,8 +284,12 @@ public class SubmitToGradingActionListener implements ActionListener
       ItemGradingIfc newItem = (ItemGradingIfc) iter1.next();
       ItemGradingIfc oldItem = (ItemGradingIfc)map.get(newItem.getItemGradingId());
       if (oldItem != null){ // itemGrading exist, replace with new in this case
-        oldItemGradingSet.remove(oldItem);
-        oldItemGradingSet.add(newItem);
+        oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
+        oldItem.setRationale(newItem.getRationale());
+        oldItem.setAnswerText(newItem.getAnswerText());
+        oldItem.setSubmittedDate(new Date());
+        oldItem.setAutoScore(newItem.getAutoScore());
+        oldItem.setOverrideScore(newItem.getOverrideScore());
       }
       else {  // itemGrading from new set doesn't exist, add to set in this case
         oldItemGradingSet.add(newItem);
