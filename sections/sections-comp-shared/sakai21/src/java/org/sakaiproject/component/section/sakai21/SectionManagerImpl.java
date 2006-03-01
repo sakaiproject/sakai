@@ -385,7 +385,7 @@ public class SectionManagerImpl implements SectionManager {
     	String role = getSectionStudentRole(group);
 		try {
 			authzGroupService.joinGroup(sectionUuid, role);
-			postEvent("User joined section", sectionUuid);
+			postEvent("section.join", sectionUuid);
 		} catch (PermissionException e) {
 			log.error("access denied while attempting to join authz group: ", e);
 			return null;
@@ -454,7 +454,7 @@ public class SectionManagerImpl implements SectionManager {
     	joinSection(newSectionUuid);
     	
     	// Post the event
-		postEvent("User switched to another section", newSectionUuid);
+		postEvent("section.student.switch", newSectionUuid);
 
     }
 
@@ -484,7 +484,7 @@ public class SectionManagerImpl implements SectionManager {
 		
 		try {
 			siteService.saveGroupMembership(group.getContainingSite());
-			postEvent("Added " + userUid + " as a TA in section", sectionUuid);
+			postEvent("section.ta.add", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
 			return null;
@@ -516,7 +516,7 @@ public class SectionManagerImpl implements SectionManager {
 
 		try {
 			siteService.saveGroupMembership(group.getContainingSite());
-			postEvent("Added " + userUid + " as a student in section", sectionUuid);
+			postEvent("section.add.student", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
 			return null;
@@ -566,8 +566,7 @@ public class SectionManagerImpl implements SectionManager {
 
 		try {
 			siteService.saveGroupMembership(group.getContainingSite());
-			postEvent("Redefined section memberships to include " + userUids.size() +
-					" users in role " + role.getDescription(), sectionUuid);
+			postEvent("section.members.reset", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
 		} catch (PermissionException e) {
@@ -585,7 +584,7 @@ public class SectionManagerImpl implements SectionManager {
 		group.removeMember(userUid);
 		try {
 			siteService.saveGroupMembership(group.getContainingSite());
-			postEvent("Removed " + userUid + " from section", sectionUuid);
+			postEvent("section.student.drop", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
 		} catch (PermissionException e) {
@@ -617,7 +616,7 @@ public class SectionManagerImpl implements SectionManager {
 		}
 		try {
 			siteService.saveGroupMembership(site);
-			postEvent("Removed " + studentUid + " from any sections of category " + category, site.getReference());
+			postEvent("section.student.drop.category", site.getReference());
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
 			return;
@@ -682,7 +681,7 @@ public class SectionManagerImpl implements SectionManager {
     	// Save the site, along with the new section
     	try {
         	siteService.save(site);
-			postEvent("Added new section", group.getReference());
+			postEvent("section.add", group.getReference());
     	} catch (IdUnusedException ide) {
     		log.error("Error saving site... could not find site for section " + group, ide);
     	} catch (PermissionException pe) {
@@ -716,7 +715,7 @@ public class SectionManagerImpl implements SectionManager {
     	// Save the site with its new section
     	try {
         	siteService.save(group.getContainingSite());
-			postEvent("Updated section", sectionUuid);
+			postEvent("section.update", sectionUuid);
     	} catch (IdUnusedException ide) {
     		log.error("Error saving site... could not find site for section " + group, ide);
     	} catch (PermissionException pe) {
@@ -735,7 +734,7 @@ public class SectionManagerImpl implements SectionManager {
         site.removeGroup(group);
         try {
 			siteService.save(site);
-			postEvent("Removed section", sectionUuid);
+			postEvent("section.disband", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("Cound not disband section (can't find section): ",e);
 		} catch (PermissionException e) {
@@ -775,7 +774,7 @@ public class SectionManagerImpl implements SectionManager {
 		props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, new Boolean(allowed).toString());
     	try {
         	siteService.save(site);
-			postEvent("Updating site: allow student registration in sections = " + allowed, site.getReference());
+			postEvent("section.student.reg=" + allowed, site.getReference());
     	} catch (IdUnusedException ide) {
     		log.error("Error saving site... could not find site " + site, ide);
     	} catch (PermissionException pe) {
@@ -816,7 +815,7 @@ public class SectionManagerImpl implements SectionManager {
 		
     	try {
         	siteService.save(site);
-			postEvent("Updating site: allow student switching between sections = " + allowed, site.getReference());
+			postEvent("section.student.switch=" + allowed, site.getReference());
     	} catch (IdUnusedException ide) {
     		log.error("Error saving site... could not find site " + site, ide);
     	} catch (PermissionException pe) {
