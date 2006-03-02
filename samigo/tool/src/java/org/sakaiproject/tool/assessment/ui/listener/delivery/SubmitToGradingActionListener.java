@@ -244,9 +244,6 @@ public class SubmitToGradingActionListener implements ActionListener
     AssessmentGradingData adata = null;
     if (delivery.getAssessmentGrading() != null){
       adata = delivery.getAssessmentGrading();
-  
-      if (delivery.getAssessmentGrading().getItemGradingSet() != null)
-        System.out.println("SubmitToGradingActionListener before = "+adata.getItemGradingSet().size());
     }
 
     GradingService service = new GradingService();
@@ -273,7 +270,6 @@ public class SubmitToGradingActionListener implements ActionListener
         adata.setItemGradingSet(updateItemGradingSet(itemGradingSet, adds));
       }
     }
-    System.out.println("SubmitToGradingActionListener after = "+adata.getItemGradingSet().size());
     adata.setForGrade(new Boolean(delivery.getForGrade()));
     service.storeGrades(adata, publishedAssessment);
     return adata;
@@ -327,7 +323,14 @@ public class SubmitToGradingActionListener implements ActionListener
     return adata;
   }
 
-  public void prepareItemGradingPerItem(ItemContentsBean item, HashSet adds, HashSet removes){
+  /* This is specific to JSF - question for each type is layout differently in JSF and the
+   * answers submitted are being collected differently too.
+   * e.g. for each MC/Survey/MCMR, an itemgrading is associated with each choice.
+   *      whereas there is only one itemgrading per each question for SAQ/TF, and one for
+   *      ecah blank in FIB.
+   * To understand the logic in this method, it is best to study jsf/delivery/item/deliver*.jsp
+   */
+  private void prepareItemGradingPerItem(ItemContentsBean item, HashSet adds, HashSet removes){
     ArrayList grading = item.getItemGradingDataArray();
     int typeId = item.getItemData().getTypeId().intValue();
 
@@ -341,7 +344,7 @@ public class SubmitToGradingActionListener implements ActionListener
             for (int m=0;m<grading.size();m++){
               ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
               if (itemgrading.getItemGradingId()==null 
-                  || itemgrading.getItemGradingId().intValue()<=0){
+                  || itemgrading.getItemGradingId().intValue()<=0){ // => new answer
                 if (itemgrading.getPublishedAnswerId()!=null){ //null=> skipping this question
                   answerModified = true;
                   break;
@@ -352,14 +355,13 @@ public class SubmitToGradingActionListener implements ActionListener
               for (int m=0;m<grading.size();m++){
                 ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
                 if (itemgrading.getItemGradingId()!=null && itemgrading.getItemGradingId().intValue()>0){
-                  log.info("****** dd. remove itemGrading="+itemgrading.getItemGradingId());
+                  // remove all old answer for MC & Surevy
                   removes.add(itemgrading);
                 }
                 else{
                   // add new answer
                   if (itemgrading.getPublishedAnswerId()!=null || itemgrading.getAnswerText()!=null){ 
                     //null=> skipping this question
-                    log.info("****** dd. add itemGrading, grading.getAssessmentGrading()="+itemgrading.getAssessmentGrading());
                     itemgrading.setAgentId(AgentFacade.getAgentString());
                     itemgrading.setSubmittedDate(new Date());
                     // the rest of the info is collected by ItemContentsBean via JSF form 
@@ -369,7 +371,6 @@ public class SubmitToGradingActionListener implements ActionListener
               }
 	    }
             break;
-    case 2: // MCMR
     case 4: // T/F
     case 5: // SAQ
     case 6: // File Upload
@@ -386,6 +387,24 @@ public class SubmitToGradingActionListener implements ActionListener
                 //null=> skipping this question
                 adds.addAll(grading);
                 break;
+	      }
+	    }
+            break;   
+    case 2: // MCMR
+	    for (int m=0;m<grading.size();m++){
+              ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
+              if (itemgrading.getItemGradingId()!=null && itemgrading.getItemGradingId().intValue()>0){
+                // old answer, check which one to keep, not keeping null answer 
+                if (itemgrading.getPublishedAnswerId()!=null){
+                  adds.add(itemgrading);
+		}
+		else{
+                  removes.add(itemgrading);
+		}
+	      }
+              else if (itemgrading.getPublishedAnswerId()!=null){ // new addition
+                // not accepting any new answer with null for MCMR
+                adds.add(itemgrading);
 	      }
 	    }
             break;   
