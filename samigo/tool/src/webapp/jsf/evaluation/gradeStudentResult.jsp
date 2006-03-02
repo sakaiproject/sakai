@@ -108,6 +108,7 @@ $Id$
 <div class="tier2">
   <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
   <h:column>
+    <h:panelGroup>
     <samigo:hideDivision id="hidePartDiv" title = "#{dmsg.p} #{part.number} - #{part.text}  -
        #{part.questions-part.unansweredQuestions}/#{part.questions} #{dmsg.ans_q}, #{part.points}/#{part.maxPoints} #{dmsg.pt}" >
 
@@ -124,7 +125,8 @@ $Id$
         <f:verbatim></h4></f:verbatim>
        </h:column>
       </h:dataTable>
-    </samigo:hideDivision>
+     </samigo:hideDivision>
+     </h:panelGroup>
    </h:column>
   </h:dataTable>
 </div>
