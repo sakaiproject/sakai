@@ -730,6 +730,14 @@ public class SectionManagerImpl implements SectionManager {
         if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
 
         Group group = siteService.findGroup(sectionUuid);
+        
+        // TODO Add token in UI to intercept double clicks in action buttons
+        // SAK-3553 (Clicking remove button twice during section remove operation results in blank iframe.)
+        if(group == null) {
+        	log.warn("Unable to find group with uuid " + sectionUuid);
+        	return;
+        }
+
         Site site = group.getContainingSite();
         site.removeGroup(group);
         try {

@@ -24,10 +24,16 @@
 
 package org.sakaiproject.tool.section.jsf.backingbean;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * A session-scoped bean to handle jsf messages across redirects.
@@ -45,14 +51,99 @@ public class MessagingBean {
         return messages.size() > 0;
     }
 
+    /**
+     * Returns the current list of FacesMessages, then removes them from the local list.
+     * @return
+     */
     public List getMessagesAndClear() {
-        List list = new ArrayList(messages);
+        List list = new ArrayList();
+        for(Iterator iter = messages.iterator(); iter.hasNext();) {
+        	list.add(((MessageDecorator)iter.next()).getMessage());
+        }
         messages.clear();
         return list;
     }
-
+    
+    /**
+     * Adds a unique message.
+     * 
+     * @param message
+     */
     public void addMessage(FacesMessage message) {
-        messages.add(message);
+    	// Don't add the message twice (in case of double-clicks).  Somewhat related to SAK-3553
+    	MessageDecorator decoratedMessage = new MessageDecorator(message);
+    	if(!messages.contains(decoratedMessage)) {
+            messages.add(decoratedMessage);
+    	}
+    }
+    
+    /**
+     * Used in place of standard FacesMessage.  Overrides equals so we can add
+     * unique messages and avoid duplicates.
+     * 
+     * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+     *
+     */
+    class MessageDecorator implements Serializable {
+		private static final long serialVersionUID = 1L;
+
+		FacesMessage message;
+
+    	public MessageDecorator(FacesMessage message) {
+    		this.message = message;
+    	}
+
+    	public FacesMessage getMessage() {
+    		return message;
+    	}
+    	
+		public boolean equals(Object o) {
+			MessageDecorator other = (MessageDecorator)o;
+			return new EqualsBuilder()
+				.append(getSeverity(), other.getSeverity())
+				.append(getDetail(), other.getDetail())
+				.append(getSummary(), other.getSummary())
+				.isEquals();
+		}
+
+		public int hashCode() {
+			return new HashCodeBuilder(17, 37)
+				.append(getSeverity())
+				.append(getDetail())
+				.append(getSummary())
+				.toHashCode();
+		}
+
+		public String getDetail() {
+			return message.getDetail();
+		}
+
+		public Severity getSeverity() {
+			return message.getSeverity();
+		}
+
+		public String getSummary() {
+			return message.getSummary();
+		}
+
+		public void setDetail(String arg0) {
+			message.setDetail(arg0);
+		}
+
+		public void setSeverity(Severity arg0) {
+			message.setSeverity(arg0);
+		}
+
+		public void setSummary(String arg0) {
+			message.setSummary(arg0);
+		}
+
+		public String toString() {
+			return message.toString();
+		}
+    	
+    	
     }
 }
+
 
