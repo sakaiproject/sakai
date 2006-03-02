@@ -1843,7 +1843,8 @@ HTMLArea.prototype.getHTML = function() {
 	switch (this._editMode) {
 	    case "wysiwyg"  :
 		if (!this.config.fullPage) {
-			return HTMLArea.getHTML(this._doc.body, false, this);
+            if(this._doc !=null )
+	   		  return HTMLArea.getHTML(this._doc.body, false, this);
 		} else
 			return this.doctype + "\n" + HTMLArea.getHTML(this._doc.documentElement, true, this);
 	    case "textmode" : return this._textArea.value;
