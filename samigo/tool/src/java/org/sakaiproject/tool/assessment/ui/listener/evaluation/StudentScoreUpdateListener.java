@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.faces.event.AbortProcessingException;
@@ -75,7 +76,7 @@ public class StudentScoreUpdateListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-      //log.info("Student Score Update LISTENER.");
+    log.info("Student Score Update LISTENER.");
     StudentScoresBean bean = (StudentScoresBean) cu.lookupBean("studentScores");
     TotalScoresBean tbean = (TotalScoresBean) cu.lookupBean("totalScores");
     tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
@@ -103,7 +104,7 @@ public class StudentScoreUpdateListener
     public boolean saveStudentScores(StudentScoresBean bean, TotalScoresBean tbean,
                                    DeliveryBean delivery)
   {
-    ArrayList list = new ArrayList();
+    HashSet itemGradingSet = new HashSet();
     AssessmentGradingData adata = null;
     try
     {
@@ -117,20 +118,26 @@ public class StudentScoreUpdateListener
         {
           ItemContentsBean question = (ItemContentsBean) iter2.next();
           ArrayList gradingarray = question.getItemGradingDataArray();
-          //log.info("Gradingarray length = " + gradingarray.size());
+          log.info("****1. pub questionId = " + question.getItemData().getItemId());
+          log.info("****2. Gradingarray length = " + gradingarray.size());
           // Create a new one if we need it.
           if (gradingarray.isEmpty() && (question.getPoints() > 0  ||
               (question.getGradingComment() != null &&
                !question.getGradingComment().trim().equals("")) ))
           {
+            // this is another mystery, no idea why review is involved here - daiyf
             question.setReview(false); // This creates an itemgradingdata
             gradingarray = question.getItemGradingDataArray();
           }
-          //log.info("Gradingarray length2 = " + gradingarray.size());
+          log.info("****3a Gradingarray length2 = " + gradingarray.size());
+          log.info("****3b set points = " + question.getPoints() + ", comments to " + question.getGradingComment());
           Iterator iter3 = gradingarray.iterator();
           while (iter3.hasNext())
           {
             ItemGradingData data = (ItemGradingData) iter3.next();
+            if (adata == null){
+              adata = (AssessmentGradingData) data.getAssessmentGrading();
+	    }
             if (data.getAgentId() == null)
             { // it's a new data, fill it in
               data.setSubmittedDate(new Date());
@@ -140,13 +147,12 @@ public class StudentScoreUpdateListener
               (new Float(question.getPoints()).floatValue()
                / (float) gradingarray.size()));
             data.setComments(question.getGradingComment());
-            //log.info("set points = " + question.getPoints() + ", comments to " + question.getGradingComment());
-            list.add(data);
-
-            if (adata == null)
-              adata = (AssessmentGradingData) data.getAssessmentGrading();
+            log.info("****4 itemGradingId="+data.getItemGradingId());
+            log.info("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
+            itemGradingSet.add(data);
           }
         }
+        adata.setItemGradingSet(itemGradingSet);
       }
 
       if (adata == null)
@@ -156,14 +162,16 @@ public class StudentScoreUpdateListener
       //log.info("Got total comments: " + adata.getComments());
 
       // Some of the itemgradingdatas may be new.
-      iter = list.iterator();
+      iter = itemGradingSet.iterator();
       while (iter.hasNext())
       {
         ItemGradingData data = (ItemGradingData) iter.next();
         data.setAssessmentGrading(adata);
       }
+
       GradingService delegate = new GradingService();
-      delegate.saveItemScores(list, tbean.getAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId()), tbean.getPublishedAssessment());
+      //delegate.saveItemScores(list, tbean.getAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId()), tbean.getPublishedAssessment());
+      delegate.updateAssessmentGradingScore(adata);
 
       log.info("Saved student scores.");
 

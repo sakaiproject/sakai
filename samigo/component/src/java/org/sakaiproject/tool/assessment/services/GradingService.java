@@ -1020,6 +1020,37 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       e.printStackTrace();
     }
   }
+
+  /* Note:
+   * assessmentGrading contains set of itemGrading that are not saved in the DB yet
+   */
+  public void updateAssessmentGradingScore(AssessmentGradingData adata){
+    try {
+      Set itemGradingSet = adata.getItemGradingSet();
+      Iterator iter = itemGradingSet.iterator();
+      float totalAutoScore = 0;
+      float totalOverrideScore = adata.getTotalOverrideScore().floatValue();
+      while (iter.hasNext()){
+        ItemGradingIfc i = (ItemGradingIfc)iter.next();
+        if (i.getAutoScore()!=null)
+          totalAutoScore += i.getAutoScore().floatValue();
+        }
+        float oldAutoScore = adata.getTotalAutoScore().floatValue();
+        float scoreDifference = totalAutoScore - oldAutoScore;
+        adata.setTotalAutoScore(new Float(totalAutoScore));
+        adata.setFinalScore(new Float(totalAutoScore+totalOverrideScore));
+        saveOrUpdateAssessmentGrading(adata);
+        if (scoreDifference != 0){
+          notifyGradebookByScoringType(adata, adata.getPublishedAssessment());
+        }
+     } catch (GradebookServiceException ge) {
+       ge.printStackTrace();
+       throw ge;
+     } catch (Exception e) {
+       e.printStackTrace();
+       throw new Error(e);
+     }
+  }
 }
 
 
