@@ -8,7 +8,7 @@
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
     
-    <h2><h:outputText value="#{msgs.overview_page_header}"/></h2>
+    <h3><h:outputText value="#{msgs.overview_page_header}"/></h3>
 
     <x:div styleClass="alertMessage">
         <h:outputText value="#{msgs.overview_delete_section_confirmation_pre}"/>

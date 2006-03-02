@@ -8,11 +8,11 @@
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
 
-        <h2>
+        <h3>
             <h:outputFormat value="#{msgs.edit_student_sections_page_header}">
                 <f:param value="#{editStudentSectionsBean.studentName}"/>
             </h:outputFormat>
-        </h2>
+        </h3>
         
         <%@include file="/inc/globalMessages.jspf"%>
     

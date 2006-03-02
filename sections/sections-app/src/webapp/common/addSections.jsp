@@ -8,7 +8,7 @@
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
 
-        <h2><h:outputText value="#{msgs.nav_add_sections}"/></h2>
+        <h3><h:outputText value="#{msgs.nav_add_sections}"/></h3>
 
         <x:div styleClass="instructions">
             <h:outputText value="#{msgs.add_section_instructions}"/>
