@@ -369,6 +369,36 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		})).booleanValue();
     }
 
+	/**
+	 * TODO Implement.
+	 */
+	public boolean isUserAbleToGradeStudent(String gradebookUid, String studentUid) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * TODO Implement.
+	 */
+	public List getAssignments(String gradebookUid) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * TODO Implement.
+	 */
+	public Double getAssignmentScore(String gradebookUid, String assignmentName, String studentUid, Double score)
+		throws GradebookNotFoundException, AssessmentNotFoundException {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * TODO Implement.
+	 */
+	public void setAssignmentScore(String gradebookUid, String assignmentName, String studentUid, Double score, String clientServiceDescription)
+		throws GradebookNotFoundException, AssessmentNotFoundException {
+		throw new UnsupportedOperationException();
+	}
+
 	public GradebookManager getGradebookManager() {
 		return gradebookManager;
 	}

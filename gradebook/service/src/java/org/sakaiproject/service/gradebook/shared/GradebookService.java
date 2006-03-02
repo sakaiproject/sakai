@@ -4,14 +4,14 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+* Copyright (c) 2005, 2006 The Regents of the University of California, The MIT Corporation
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
 * understand, and will comply with the terms and conditions of the Educational Community License.
 * You may obtain a copy of the License at:
 *
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*      http://www.opensource.org/licenses/ecl1.php
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
@@ -22,7 +22,7 @@
 **********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
-import java.util.Date;
+import java.util.*;
 
 /**
  * This is the externally exposed API of the gradebook application.
@@ -152,6 +152,47 @@ public interface GradebookService {
 	 */
 	public boolean isAssignmentDefined(String gradebookUid, String assignmentTitle)
         throws GradebookNotFoundException;
+
+	/**
+	 * Check to see if the current user is allowed to grade the given student
+	 * in the given gradebook. This will give clients a chance to avoid a
+	 * security exception.
+	 */
+	public boolean isUserAbleToGradeStudent(String gradebookUid, String studentUid);
+
+	/**
+	 * @return Returns a list of Assignment objects describing the assignments
+	 *         that are currently defined in the given gradebook.
+	 */
+	public List getAssignments(String gradebookUid);
+
+	/**
+	 * Besides the declared exceptions, possible runtime exceptions include:
+	 * <ul>
+	 *   <li> SecurityException - If the current user is not authorized to grade
+	 *        the student
+	 * </ul>
+	 * @return Returns the current score for the student, or null if no score
+	 *         has been assigned yet.
+	 */
+	public Double getAssignmentScore(String gradebookUid, String assignmentName, String studentUid, Double score)
+		throws GradebookNotFoundException, AssessmentNotFoundException;
+
+	/**
+	 * Besides the declared exceptions, possible runtime exceptions include:
+	 * <ul>
+	 *   <li> SecurityException - If the current user is not authorized to grade
+	 *        the student, or if the assignment is externally maintained.
+	 *   <li> StaleObjectModificationException - If the student's scores have been
+	 *        edited by someone else during this transaction.
+	 * </ul>
+	 *
+	 * @param clientServiceDescription
+	 *            What to display as the programmatic source of the score (e.g., "Message Center").
+	 */
+	public void setAssignmentScore(String gradebookUid, String assignmentName, String studentUid, Double score, String clientServiceDescription)
+		throws GradebookNotFoundException, AssessmentNotFoundException;
+
 }
 
 
