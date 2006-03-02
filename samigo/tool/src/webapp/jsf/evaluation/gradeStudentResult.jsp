@@ -108,7 +108,7 @@ $Id$
 <div class="tier2">
   <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
   <h:column>
-    <samigo:hideDivision title = "#{dmsg.p} #{part.number} - #{part.text}  -
+    <samigo:hideDivision id="hidePartDiv" title = "#{dmsg.p} #{part.number} - #{part.text}  -
        #{part.questions-part.unansweredQuestions}/#{part.questions} #{dmsg.ans_q}, #{part.points}/#{part.maxPoints} #{dmsg.pt}" >
 
       <h:dataTable value="#{part.itemContents}" var="question">
