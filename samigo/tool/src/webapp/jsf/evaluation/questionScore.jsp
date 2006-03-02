@@ -453,8 +453,14 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6'}" />
      <f:verbatim><br/></f:verbatim>
      <h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');" >
-    <h:outputText  value="Click to see student response" />
+    <h:outputText  value="(#{msg.click_shortAnswer})" />
     </h:outputLink>
+    <h:outputLink 
+      rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}" 
+      value="#" onclick="javascript:window.alert('#{description.rationale}');" >
+    <h:outputText  value="(#{msg.click_rationale})"/>
+    </h:outputLink>
+
       <h:panelGroup rendered="#{questionScores.typeId == '6'}">
         <f:subview id="displayFileUpload2">
           <%@ include file="/jsf/evaluation/item/displayFileUploadAnswer.jsp" %>

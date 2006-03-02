@@ -465,8 +465,11 @@ public class QuestionScoreListener
           String fullAnswerText = answerText;  // this is the non-abbreviated answers for essay questions
           if (answerText.length() > 35)
             answerText = answerText.substring(0, 35) + "...";
+/*
+	  // no need to shorten it 
           if (rationale.length() > 35)
             rationale = rationale.substring(0, 35) + "...";
+*/
 
           //  -- Got the answer text --
 
@@ -486,6 +489,7 @@ public class QuestionScoreListener
             results.setComments(gdata.getComments());
             results.setAnswer(answerText);
             results.setFullAnswer(fullAnswerText);
+            results.setRationale(rationale);
             results.setSubmittedDate(gdata.getSubmittedDate());
 
             if (dueDate == null || gdata.getSubmittedDate().before(dueDate))

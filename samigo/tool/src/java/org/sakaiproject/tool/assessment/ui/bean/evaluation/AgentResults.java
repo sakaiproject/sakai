@@ -65,6 +65,7 @@ public class AgentResults
   private Date gradedDate;
   private Set itemGradingSet;
   private ArrayList itemGradingArrayList;
+  private String rationale="";
 
   public AgentResults() {
   }
@@ -271,10 +272,18 @@ public class AgentResults
 
   public String getFullAnswer() {
     String unicodeFullAnswer = ContextUtil.getStringInUnicode(fullAnswer);
-    return Validator.check(unicodeFullAnswer, "N/A");
+    return Validator.check(unicodeFullAnswer, "");
   }
   public void setFullAnswer(String answer) {
     this.fullAnswer = answer;
+  }
+
+  public String getRationale() {
+    String unicodeRationale= ContextUtil.getStringInUnicode(rationale);
+    return Validator.check(unicodeRationale, "");
+  }
+  public void setRationale(String param) {
+    this.rationale= param;
   }
 
 }
