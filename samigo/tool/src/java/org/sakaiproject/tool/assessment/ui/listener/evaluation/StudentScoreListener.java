@@ -74,7 +74,7 @@ public class StudentScoreListener
     log.info("Calling studentScores.");
     if (!studentScores(publishedId, bean, false))
     {
-      //throw new RuntimeException("failed to call studentScores.");
+      throw new RuntimeException("failed to call studentScores.");
     }
 
   }

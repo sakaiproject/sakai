@@ -59,7 +59,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public HashMap getSubmitData(Long publishedId, String agentId);
 
-  public void saveTotalScores(ArrayList data);
+  // public void saveTotalScores(ArrayList data);
 
     //public void saveItemScores(ArrayList data, HashMap map);
 
@@ -119,6 +119,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(
       Long publishedAssessmentId, String agentIdString);
 
+  public List getLastAssessmentGradingList(Long publishedAssessmentId);
+
   public void saveItemGrading(ItemGradingIfc item);
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment);
@@ -133,6 +135,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public HashMap getLastAssessmentGradingByPublishedItem(Long publishedAssessmentId);
 
   public HashMap getHighestAssessmentGradingByPublishedItem(Long publishedAssessmentId);
+
+  public List getHighestAssessmentGradingList(Long publishedAssessmentId);
 
   public Set getItemGradingSet(Long assessmentGradingId);
 

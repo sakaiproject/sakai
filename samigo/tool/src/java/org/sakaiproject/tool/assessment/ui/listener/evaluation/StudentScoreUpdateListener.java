@@ -30,12 +30,15 @@ import java.util.Iterator;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -78,9 +81,16 @@ public class StudentScoreUpdateListener
     tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     log.info("Calling saveStudentScores.");
-    if (!saveStudentScores(bean, tbean, delivery))
-    {
-      throw new RuntimeException("failed to call saveStudentScores.");
+    try {
+      if (!saveStudentScores(bean, tbean, delivery))
+      {
+        throw new RuntimeException("failed to call saveStudentScores.");
+      }
+    } catch (GradebookServiceException ge) {
+       FacesContext context = FacesContext.getCurrentInstance();
+       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       context.addMessage(null, new FacesMessage(err));
+
     }
 
   }
@@ -156,6 +166,12 @@ public class StudentScoreUpdateListener
       delegate.saveItemScores(list, tbean.getAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId()), tbean.getPublishedAssessment());
 
       log.info("Saved student scores.");
+
+    } catch (GradebookServiceException ge) {
+       FacesContext context = FacesContext.getCurrentInstance();
+       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       context.addMessage(null, new FacesMessage(err));
+
     }
     catch (Exception e)
     {

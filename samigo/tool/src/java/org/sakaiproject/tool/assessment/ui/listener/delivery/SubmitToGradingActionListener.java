@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
@@ -109,8 +110,16 @@ public class SubmitToGradingActionListener implements ActionListener
             delivery.getSubmissionsRemaining() - 1);
       }
 
+    } catch (GradebookServiceException ge) {
+       ge.printStackTrace();
+       FacesContext context = FacesContext.getCurrentInstance();
+       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       context.addMessage(null, new FacesMessage(err));
+       return;
+
     } catch (Exception e) {
       e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 

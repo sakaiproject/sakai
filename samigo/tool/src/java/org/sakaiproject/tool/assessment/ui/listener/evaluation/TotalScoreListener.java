@@ -137,7 +137,7 @@ public class TotalScoreListener
     log.info("Calling totalScores.");
     if (!totalScores(pubAssessment, bean, false))
     {
-      //throw new RuntimeException("failed to call totalScores.");
+      throw new RuntimeException("failed to call totalScores.");
     }
 
   }
@@ -178,7 +178,7 @@ public class TotalScoreListener
     log.info("Calling totalScores.");
     if (!totalScores(pubAssessment, bean, true))
     {
-      //throw new RuntimeException("failed to call totalScores.");
+      throw new RuntimeException("failed to call totalScores.");
     }
   }
 

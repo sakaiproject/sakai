@@ -98,7 +98,7 @@ public class QuestionScoreListener
     log.info("Calling questionScores.");
     if (!questionScores(publishedId, bean, false))
     {
-      //throw new RuntimeException("failed to call questionScores.");
+      throw new RuntimeException("failed to call questionScores.");
     }
 
   }
@@ -130,7 +130,7 @@ public class QuestionScoreListener
     log.info("Calling questionScores.");
     if (!questionScores(publishedId, bean, true))
     {
-      //throw new RuntimeException("failed to call questionScores.");
+      throw new RuntimeException("failed to call questionScores.");
     }
   }
 

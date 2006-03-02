@@ -331,6 +331,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
+/*
   public void saveTotalScores(ArrayList gdataList) {
     try {
       AssessmentGradingData gdata = null;
@@ -422,12 +423,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
-
+*/
   /**
    * Notifies the gradebook that scores have been changed
    *
    * @param data The AssesmentGradingIfc representing the new score
    */
+
+/**
   private void notifyGradebook(AssessmentGradingIfc data) {
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = data.getPublishedAssessment().getEvaluationModel().getToGradeBook();
@@ -456,6 +459,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
     }
   }
+*/
 
     /*
   public static void main(String[] args) throws DataFacadeException {
@@ -757,7 +761,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return ag;
   }
 
-  public ArrayList getLastAssessmentGradingList(Long publishedAssessmentId){
+  public List getLastAssessmentGradingList(Long publishedAssessmentId){
     String query = "from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? order by agentId asc, a.submittedDate desc";
     List assessmentGradings = getHibernateTemplate().find(query,
          new Object[] { publishedAssessmentId },
@@ -775,7 +779,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return l;
   }
 
-  public ArrayList getHighestAssessmentGradingList(Long publishedAssessmentId){
+  public List getHighestAssessmentGradingList(Long publishedAssessmentId){
     String query = "from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? order by agentId asc, a.finalScore desc";
     List assessmentGradings = getHibernateTemplate().find(query,
          new Object[] { publishedAssessmentId },

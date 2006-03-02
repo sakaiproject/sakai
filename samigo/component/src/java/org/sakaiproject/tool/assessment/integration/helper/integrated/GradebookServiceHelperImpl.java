@@ -174,6 +174,7 @@ public void removeExternalAssessment(String gradebookUId,
    GradebookService g) throws
     Exception
   {
+    boolean testErrorHandling=false;
     log.info("GradebookService instance=" + g);
     PublishedAssessmentService publishedAssessmentService = new
       PublishedAssessmentService();
@@ -187,6 +188,9 @@ public void removeExternalAssessment(String gradebookUId,
     g.updateExternalAssessmentScore(gradebookUId,
       ag.getPublishedAssessment().getPublishedAssessmentId().toString(),
       ag.getAgentId(), new Double(ag.getFinalScore().doubleValue()));
+    if (testErrorHandling){
+      throw new Exception("Encountered an error in update ExternalAssessmentScore.");
+    }
   }
 
 }

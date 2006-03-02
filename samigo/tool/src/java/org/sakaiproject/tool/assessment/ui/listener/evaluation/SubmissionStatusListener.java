@@ -101,7 +101,7 @@ public class SubmissionStatusListener
     log.info("Calling totalScores.");
     if (!totalScores(publishedId, bean, false))
     {
-      //throw new RuntimeException("failed to call totalScores.");
+      throw new RuntimeException("failed to call totalScores.");
     }
   }
 

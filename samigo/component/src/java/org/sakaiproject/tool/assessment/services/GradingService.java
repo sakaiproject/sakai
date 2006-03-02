@@ -101,15 +101,143 @@ public class GradingService
     return results;
   }
 
-  public void saveTotalScores(ArrayList data)
+  private ArrayList getHighestAssessmentGradingList(Long publishedId)
   {
+    ArrayList results = null;
     try {
-      PersistenceService.getInstance().
-        getAssessmentGradingFacadeQueries().saveTotalScores(data);
+      results =
+        (ArrayList) PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getHighestAssessmentGradingList(publishedId);
     } catch (Exception e) {
       e.printStackTrace();
     }
+    return results;
   }
+
+  private ArrayList getLastAssessmentGradingList(Long publishedId)
+  {
+    ArrayList results = null;
+    try {
+      results =
+        (ArrayList) PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getLastAssessmentGradingList(publishedId);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
+
+
+  public void saveTotalScores(ArrayList gdataList)
+  {
+    try {
+     AssessmentGradingData gdata = null;
+System.out.println("lydiatest savetotalscore. gdatalist size  = " + gdataList.size());
+      if (gdataList.size()>0)
+        gdata = (AssessmentGradingData) gdataList.get(0);
+      else return;
+
+      Integer scoringType = getScoringType(gdata);
+      ArrayList oldList = getAssessmentGradingsByScoringType(
+          scoringType, gdata.getPublishedAssessment().getPublishedAssessmentId());
+System.out.println("lydiatest savetotalscore. oldlist size  = " + oldList.size());
+      for (int i=0; i<gdataList.size(); i++){
+        AssessmentGradingData ag = (AssessmentGradingData)gdataList.get(i);
+        saveOrUpdateAssessmentGrading(ag);
+      }
+
+      // no need to notify gradebook if this submission is not for grade
+      //if (updateGradebook(gdata)){
+        // we only want to notify GB when there are changes
+        ArrayList newList = getAssessmentGradingsByScoringType(
+          scoringType, gdata.getPublishedAssessment().getPublishedAssessmentId());
+System.out.println("lydiatest savetotalscore. newlist size  = " + newList.size());
+        ArrayList l = getListForGradebookNotification(newList, oldList);
+System.out.println("lydiatest savetotalscore. l size  = " + l.size());
+        PublishedAssessmentIfc pub = gdata.getPublishedAssessment();
+        notifyGradebook(l, pub);
+      //}
+    } catch (GradebookServiceException ge) {
+      ge.printStackTrace();
+      throw ge;
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new Error(e);
+    }
+
+
+  }
+
+
+  private ArrayList getListForGradebookNotification(
+       ArrayList newList, ArrayList oldList){
+    ArrayList l = new ArrayList();
+    HashMap h = new HashMap();
+    for (int i=0; i<oldList.size(); i++){
+      AssessmentGradingData ag = (AssessmentGradingData)oldList.get(i);
+      h.put(ag.getAssessmentGradingId(), ag);
+    }
+
+    for (int i=0; i<newList.size(); i++){
+      AssessmentGradingData a = (AssessmentGradingData) newList.get(i);
+      Object o = h.get(a.getAssessmentGradingId());
+      if (o == null){ // this does not exist in old list, so include it for update
+        l.add(a);
+      }
+      else{ // if new is different from old, include it for update
+        AssessmentGradingData b = (AssessmentGradingData) o;
+        if (!a.getFinalScore().equals(b.getFinalScore()))
+          l.add(a);
+      }
+    }
+    return l;
+  }
+
+
+  private ArrayList getAssessmentGradingsByScoringType(
+       Integer scoringType, Long publishedAssessmentId){
+    ArrayList l = new ArrayList();
+    // get the list of highest score
+    if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
+      l = getHighestAssessmentGradingList(publishedAssessmentId);
+    }
+    // get the list of last score
+    else {
+      l = getLastAssessmentGradingList(publishedAssessmentId);
+    }
+    return l;
+  }
+
+  private Integer getScoringType(AssessmentGradingIfc data){
+    Integer scoringType = null;
+    EvaluationModelIfc e = data.getPublishedAssessment().getEvaluationModel();
+    if ( e!=null ){
+      scoringType = e.getScoringType();
+    }
+    return scoringType;
+  }
+
+  private boolean updateGradebook(AssessmentGradingIfc data){
+    // no need to notify gradebook if this submission is not for grade
+    boolean forGrade = (Boolean.TRUE).equals(data.getForGrade());
+
+    boolean toGradebook = false;
+    EvaluationModelIfc e = data.getPublishedAssessment().getEvaluationModel();
+    if ( e!=null ){
+      String toGradebookString = e.getToGradeBook();
+      toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+    }
+    return (forGrade && toGradebook);
+  }
+
+  private void notifyGradebook(ArrayList l, PublishedAssessmentIfc pub){
+    for (int i=0; i<l.size(); i++){
+System.out.println("lydiatest i = " + i ); 
+      notifyGradebook((AssessmentGradingData)l.get(i), pub);
+System.out.println("lydiatest updated in gradebook");
+    }
+  }
+
 
   /**
    * Get the score information for each item from the assessment score.
@@ -373,7 +501,12 @@ public class GradingService
           storeGrades(gdata.getAssessmentGrading(), true, pub);
         }
       }
-    } catch (Exception e) {
+    } 
+    catch (GradebookServiceException ge) {
+      ge.printStackTrace();
+      throw ge;
+    } 
+    catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -403,8 +536,12 @@ public class GradingService
       if (scoreDifference != 0){
         notifyGradebookByScoringType(adata, adata.getPublishedAssessment());
       }
+    } catch (GradebookServiceException ge) {
+      ge.printStackTrace();
+      throw ge;
     } catch (Exception e) {
       e.printStackTrace();
+      throw new Error(e);
     }
   }
 
@@ -424,7 +561,7 @@ public class GradingService
    * If regrade is true, we just recalculate the graded score.  If it's
    * false, we do everything from scratch.
    */
-  public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub) {
+  public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub) throws GradebookServiceException {
     //#0 - let's build a HashMap with (publishedItemId, publishedItem)
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     HashMap publishedItemHash = pubService.preparePublishedItemHash(pub); 
@@ -524,8 +661,12 @@ public class GradingService
       System.out.println("**#1 total AutoScore"+totalAutoScore);
       data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
 
+    } catch (GradebookServiceException ge) {
+      ge.printStackTrace();
+      throw ge;
     } catch (Exception e) {
       e.printStackTrace();
+      throw new Error(e);
     }
     saveOrUpdateAssessmentGrading(data);
     notifyGradebookByScoringType(data, pub);
@@ -686,7 +827,7 @@ public class GradingService
     return (forGrade && toGradebook);
   }
 
-  public void notifyGradebook(AssessmentGradingIfc data, PublishedAssessmentIfc pub) {
+  public void notifyGradebook(AssessmentGradingIfc data, PublishedAssessmentIfc pub) throws GradebookServiceException {
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
@@ -707,8 +848,10 @@ public class GradingService
         try {
             gbsHelper.updateExternalAssessmentScore(data, g);
         } catch (Exception e) {
-            // TODO Handle this exception in the UI rather than swallowing it!
+            // Got GradebookException from gradebook tool 
             e.printStackTrace();
+            throw new GradebookServiceException(e);
+
         }
     } else {
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
@@ -877,5 +1020,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       e.printStackTrace();
     }
   }
-
 }
+
+

@@ -33,12 +33,15 @@ import java.util.HashSet;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
@@ -79,8 +82,9 @@ public class TotalScoreUpdateListener
     log.info("Calling saveTotalScores.");
     if (!saveTotalScores(bean))
     {
-      throw new RuntimeException("failed to call saveTotalScores.");
+        throw new RuntimeException("failed to call saveTotalScores.");
     }
+ 
 
   }
 
@@ -165,9 +169,18 @@ public class TotalScoreUpdateListener
       }
 
       GradingService delegate = new GradingService();
+
       delegate.saveTotalScores(grading);
       log.info("Saved total scores.");
-    }
+      } catch (GradebookServiceException ge) {
+       FacesContext context = FacesContext.getCurrentInstance();
+       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       context.addMessage(null, new FacesMessage(err));
+       // scores are saved in Samigo, still return true, but display error to user.
+       return true;
+      }
+
+
     catch (Exception e)
     {
       e.printStackTrace();

@@ -30,11 +30,15 @@ import java.util.Iterator;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
@@ -74,9 +78,16 @@ public class QuestionScoreUpdateListener
     TotalScoresBean tbean = (TotalScoresBean) cu.lookupBean("totalScores");
     log.info("Calling saveQuestionScores.");
     tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
-    if (!saveQuestionScores(bean, tbean))
-    {
-      throw new RuntimeException("failed to call saveQuestionScores.");
+    try{
+      if (!saveQuestionScores(bean, tbean))
+      {
+        throw new RuntimeException("failed to call saveQuestionScores.");
+      }
+    } catch (GradebookServiceException ge) {
+       FacesContext context = FacesContext.getCurrentInstance();
+       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       context.addMessage(null, new FacesMessage(err));
+
     }
 
   }
@@ -134,6 +145,11 @@ public class QuestionScoreUpdateListener
       }
 
       log.info("Saved question scores.");
+    } catch (GradebookServiceException ge) {
+       FacesContext context = FacesContext.getCurrentInstance();
+       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       context.addMessage(null, new FacesMessage(err));
+
     }
     catch (Exception e)
     {
