@@ -109,7 +109,7 @@ $Id$
   <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
   <h:column>
     <h:panelGroup>
-    <samigo:hideDivision id="hidePartDiv" title = "#{dmsg.p} #{part.number} - #{part.text}  -
+    <samigo:hideDivision title = "#{dmsg.p} #{part.number} - #{part.text}  -
        #{part.questions-part.unansweredQuestions}/#{part.questions} #{dmsg.ans_q}, #{part.points}/#{part.maxPoints} #{dmsg.pt}" >
 
       <h:dataTable value="#{part.itemContents}" var="question">
@@ -218,7 +218,7 @@ $Id$
 </div>
 
 <p class="act">
-   <h:commandButton styleClass="active" value="#{msg.save_cont}" action="totalScores" type="submit" >
+   <h:commandButton styleClass="active" value="#{msg.save_cont}" action="totalScores" type="submit">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
       <f:actionListener
