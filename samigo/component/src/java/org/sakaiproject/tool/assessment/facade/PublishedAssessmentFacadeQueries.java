@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1241,19 +1243,61 @@ public class PublishedAssessmentFacadeQueries
     return hasRandomPart;
   }
 
-  public PublishedItemData getFirstPublishedItem(Long publishedAssessmentId){
-    String query =
-        "select i from PublishedAssessmentData p, PublishedSectionData s, "+
-        " PublishedItemData i where p.publishedAssessmentId=? and"+
-        " p.publishedAssessmentId=s.assessment.publishedAssessmentId and " +
-        " s=i.section and s.sequence=? and i.sequence=?";
-    List l = getHibernateTemplate().find(query,
-      new Object[]{ publishedAssessmentId, new Integer("1"), new Integer("1")},
-      new net.sf.hibernate.type.Type[] {Hibernate.LONG, Hibernate.INTEGER, Hibernate.INTEGER});
-    if(l.size()>0)
-    	return (PublishedItemData)l.get(0);
-    else
-    	return null;
+  public PublishedItemData getFirstPublishedItem(Long publishedAssessmentId)
+  {
+  	/*    String query =
+  	 "select i from PublishedAssessmentData p, PublishedSectionData s, "+
+  	 " PublishedItemData i where p.publishedAssessmentId=? and"+
+  	 " p.publishedAssessmentId=s.assessment.publishedAssessmentId and " +
+  	 " s=i.section and s.sequence=? and i.sequence=?";
+  	 List l = getHibernateTemplate().find(query,
+  	 new Object[]{ publishedAssessmentId, new Integer("1"), new Integer("1")},
+  	 new net.sf.hibernate.type.Type[] {Hibernate.LONG, Hibernate.INTEGER, Hibernate.INTEGER});
+  	 if(l.size()>0)
+  	 return (PublishedItemData)l.get(0);
+  	 else
+  	 return null;
+  	 */
+  	String query =
+  		"select i from PublishedAssessmentData p, PublishedSectionData s, "+
+			" PublishedItemData i where p.publishedAssessmentId=? and"+
+			" p.publishedAssessmentId=s.assessment.publishedAssessmentId and " +
+			" s=i.section";
+  	List l = getHibernateTemplate().find(query,
+  			new Object[]{ publishedAssessmentId},
+				new net.sf.hibernate.type.Type[] {Hibernate.LONG});
+  	query =
+  		"select s from PublishedAssessmentData p, PublishedSectionData s, "+
+			" where p.publishedAssessmentId=? and"+
+			" p.publishedAssessmentId=s.assessment.publishedAssessmentId ";
+  	List sec = getHibernateTemplate().find(query,
+  			new Object[]{ publishedAssessmentId },
+				new net.sf.hibernate.type.Type[] {Hibernate.LONG});
+  	PublishedItemData returnItem = null;
+  	if(sec.size() > 0 && l.size() >0)
+  	{
+  		Collections.sort(sec, new SecComparator());
+  		for(int i=0; i<sec.size(); i++)
+  		{
+  			PublishedSectionData thisSec = (PublishedSectionData)sec.get(i);
+  			ArrayList itemList = new ArrayList();
+  			for(int j=0; j<l.size(); j++)
+  			{
+  				PublishedItemData compItem = (PublishedItemData) l.get(j);
+  				if(compItem.getSection().getSectionId().equals(thisSec.getSectionId()))
+  				{
+  					itemList.add(compItem);
+  				}
+  			}
+  			if(itemList.size() > 0)
+  			{
+  				Collections.sort(itemList, new ItemComparator());
+  				returnItem = (PublishedItemData)itemList.get(0);
+  				break;
+  			}
+  		}
+  	}
+  	return returnItem;
   }
 
   public List getPublishedItemIds(Long publishedAssessmentId){
@@ -1279,5 +1323,19 @@ public class PublishedAssessmentFacadeQueries
 	return null;
     }
 
+  class SecComparator implements Comparator
+	{
+  	public int compare(Object arg0, Object arg1) 
+  	{
+  		return ((PublishedSectionData)arg0).getSequence().compareTo(((PublishedSectionData)arg1).getSequence());
+  	}
+	}
 
+  class ItemComparator implements Comparator
+	{
+  	public int compare(Object arg0, Object arg1) 
+  	{
+  		return ((PublishedItemData)arg0).getSequence().compareTo(((PublishedItemData)arg1).getSequence());
+  	}
+	}
 }
