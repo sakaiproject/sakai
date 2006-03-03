@@ -47,14 +47,14 @@ public class Assignment extends GradableObject {
     public static Comparator pointsComparator;
     public static Comparator meanComparator;
 
-    protected Double pointsPossible;
-    protected Date dueDate;
-    protected boolean notCounted;
-    protected boolean externallyMaintained;
-    protected String externalStudentLink;
-    protected String externalInstructorLink;
-    protected String externalId;
-    protected String externalAppName;
+    private Double pointsPossible;
+    private Date dueDate;
+    private boolean notCounted;
+    private boolean externallyMaintained;
+    private String externalStudentLink;
+    private String externalInstructorLink;
+    private String externalId;
+    private String externalAppName;
 
     static {
         dateComparator = new Comparator() {

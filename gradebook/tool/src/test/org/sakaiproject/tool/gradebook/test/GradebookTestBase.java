@@ -39,6 +39,8 @@ import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
+import org.sakaiproject.tool.gradebook.facades.test.AuthnTestImpl;
+
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 /**
@@ -119,4 +121,13 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
 	public void setUserManager(UserManager userManager) {
 		this.userManager = userManager;
 	}
+
+	protected void setAuthnId(String newUserUid) {
+		if (authn instanceof AuthnTestImpl) {
+			((AuthnTestImpl)authn).setAuthnContext(newUserUid);
+		} else {
+			throw new UnsupportedOperationException();
+		}
+	}
+
 }

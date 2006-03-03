@@ -36,6 +36,12 @@ public interface Authz {
 	public boolean isUserAbleToViewOwnGrades(String gradebookUid);
 
 	/**
+	 * This method is used by the external gradebook service but not
+	 * by the gradebook application itself.
+	 */
+	public boolean isUserAbleToGradeStudent(String gradebookUid, String studentUid);
+
+	/**
 	 * @return
 	 *	an EnrollmentRecord list for each student that the current user
 	 *  is allowed to grade.

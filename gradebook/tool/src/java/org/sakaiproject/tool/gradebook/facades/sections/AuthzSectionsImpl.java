@@ -72,6 +72,26 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 	}
 
 	/**
+	 * Note that this is not a particularly efficient implementation.
+	 * If the method becomes more heavily used, it should be optimized.
+	 */
+	public boolean isUserAbleToGradeStudent(String gradebookUid, String studentUid) {
+		if (isUserAbleToGradeAll(gradebookUid)) {
+			return true;
+		}
+
+		List sections = getAvailableSections(gradebookUid);
+		for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
+			CourseSection section = (CourseSection)iter.next();
+			if (getSectionAwareness().isSectionMemberInRole(section.getUuid(), studentUid, Role.STUDENT)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 */
 	public List getAvailableEnrollments(String gradebookUid) {
 		String userUid = authn.getUserUid();
