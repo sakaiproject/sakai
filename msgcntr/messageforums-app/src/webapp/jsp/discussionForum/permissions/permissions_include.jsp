@@ -15,9 +15,9 @@
     <f:selectItems value="#{ForumTool.siteRoles}"/>
   </h:selectOneListbox>
 
-  <h:dataTable styleClass="listHier" id="perm" value="#{ForumTool.permissions}" var="permission">
+  <h:dataTable style="border-collapse:collapse ; border-width: 0px none; border:0px; margin: 0px; padding: 0px; border-spacing:0px" id="perm" value="#{ForumTool.permissions}" var="permission">
     <h:column>
-      <h:panelGroup id="permissionSet" >
+      <h:panelGroup id="permissionSet" style="display:inline; margin:0; padding:0; border:0 none">
         <f:verbatim>	<table><tr><td colspan="2"></f:verbatim>
         <h:outputText value="#{msgs.perm_level}" style="font-weight:bold"/>
         <h:selectOneMenu id="level" value="#{permission.selectedLevel}" onchange="javascript:setCorrespondingCheckboxes(this.id);"  disabled="#{not ForumTool.editMode}">
