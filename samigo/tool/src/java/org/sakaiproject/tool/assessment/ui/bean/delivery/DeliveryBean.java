@@ -2153,18 +2153,24 @@ public class DeliveryBean
 
 
   public void syncTimeElapsedWithServer(){
-    TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-    TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
-    if (timedAG != null){
-      int timeElapsed  = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000); //in sec
-      // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
-      // later time, we need to account for the time taht he used before
-      int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
-      System.out.println("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
-      adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
-      GradingService gradingService = new GradingService();
-      gradingService.saveOrUpdateAssessmentGrading(adata);
-      setTimeElapse(adata.getTimeElapsed().toString());
+    if (("takeAssessment").equals(actionString) || ("takeAssessmentViaUrl").equals(actionString)){
+      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
+      if (timedAG != null){
+        int timeElapsed  = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000); //in sec
+        // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
+        // later time, we need to account for the time taht he used before
+        int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
+        System.out.println("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
+        adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
+        GradingService gradingService = new GradingService();
+        gradingService.saveOrUpdateAssessmentGrading(adata);
+        setTimeElapse(adata.getTimeElapsed().toString());
+      }
+    }
+    else{ 
+      // if we are in other mode, timer need not be accurate
+      // Anyway, we don't have adata, so we haven't been using the TimerTask to keep track of it.
     }
   } 
 
