@@ -216,7 +216,8 @@ public class TotalScoreListener
       Map useridMap= bean.getUserIdMap(); 
       ArrayList agents = new ArrayList();
       prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);
-      if (scores.size()==0) // no submission, return
+      if ((scores.size()==0) && (students_not_submitted.size()==0)) 
+      // no submission and no not_submitted students, return
       {
         bean.setAgents(agents);
         return true;
