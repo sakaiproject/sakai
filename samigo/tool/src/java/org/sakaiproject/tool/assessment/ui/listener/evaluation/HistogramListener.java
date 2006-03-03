@@ -471,10 +471,11 @@ public class HistogramListener
       int num = ((Integer) results.get(answerId)).intValue();
       numarray[i] = num;
       bars[i] = new HistogramBarBean();
-      bars[i].setLabel(answer.getText());
+      if(answer != null)
+      	bars[i].setLabel(answer.getText());
 
       // this doens't not apply to fib , do not show checkmarks for FIB
-	if (!qbean.getQuestionType().equals("8"))
+    	if (!qbean.getQuestionType().equals("8") && answer != null)
       	{
 	  bars[i].setIsCorrect(answer.getIsCorrect());
         }
@@ -546,7 +547,7 @@ public class HistogramListener
           // now check each answer in MCMC 
 
           AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
-	  if (answer.getIsCorrect() == null || (!answer.getIsCorrect().booleanValue()))
+      	  if ( answer != null && (answer.getIsCorrect() == null || (!answer.getIsCorrect().booleanValue())))
   	  {
             hasIncorrect = true;
             break;
