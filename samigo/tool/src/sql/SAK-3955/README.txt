@@ -5,10 +5,10 @@ After expanding the tar file, check that
 2. add the appropriate JDBC driver in lib/
    e.g. ojdbc14.jar for oracle 9i
 
-3. This is a java application for correcting the assessment score of each published assessment
-   See SAK-3955 for details.
+3. This is a java application for correcting the assessment score of each published assessment corrupted by
+   SAK-3955. See SAK-3955 for details.
 
-   a. to fix all itemGrading and assessmentGrading records of the given publsihed assessment
+   a. to fix all itemGrading record of MC & Surevy and assessmentGrading records of the given published assessment
    table affected: SAM_ITEMGRADING_T, SAM_ASSESSMENTGRADING_T and GB_GRADE_RECORD_T
 
    java -classpath .:lib/ojdbc14.jar FixAssessmentScore fixAssessmentScore <publishedAssessmentId>
