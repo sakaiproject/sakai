@@ -35,7 +35,6 @@ import org.sakaiproject.api.kernel.session.ToolSession;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.kernel.tool.ActiveTool;
 import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.api.kernel.tool.ToolException;
 import org.sakaiproject.api.kernel.tool.cover.ActiveToolManager;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.util.web.Web;
@@ -159,7 +158,7 @@ public class MessageForumsFilePickerServlet extends JsfTool {
         req.removeAttribute(URL_EXT);
     }
 
-    protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res, String target) throws ToolException {
+    protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res, String target) {
         String path = req.getPathInfo();
         if (path == null)
             path = "/";
