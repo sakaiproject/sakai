@@ -17,9 +17,7 @@
 		</div>
 		 <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
         <p class="act">
-          <h:commandButton action="#{ForumTool.processActionReviseTemplateSettings}" onclick="form.submit;" value="#{msgs.cdfm_button_bar_revise}" rendered="#{not ForumTool.editMode}">
-            <f:param name="editMode" value="on"/>
-          </h:commandButton>
+          <h:commandButton action="#{ForumTool.processActionReviseTemplateSettings}" value="#{msgs.cdfm_button_bar_revise}" rendered="#{not ForumTool.editMode}"/>            
           <h:commandButton action="#{ForumTool.processActionSaveTemplateSettings}" onclick="form.submit;" value="#{msgs.cdfm_button_bar_save_setting}" rendered="#{ForumTool.editMode}"/>
           <h:commandButton action="#{ForumTool.processActionRestoreDefaultTemplate}" value="Restore Defaults" rendered="#{ForumTool.editMode}"/>
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />

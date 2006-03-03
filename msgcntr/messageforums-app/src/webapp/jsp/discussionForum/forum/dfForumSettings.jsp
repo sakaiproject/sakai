@@ -1,3 +1,5 @@
+<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
+                 javax.faces.el.*, org.sakaiproject.tool.messageforums.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -6,7 +8,7 @@
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 <f:view>
    <sakai:view>
-      <h:form id="forum_settings">
+      <h:form id="revise">
       <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
          <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}"/>	
@@ -60,6 +62,8 @@
 				</h:panelGroup>
 			</h:panelGrid>
 		</p>
+		
+     <%--
 	 <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm" hideByDefault="true">
       <p class="shorttext">
 		<h:panelGrid columns="2" width="50%">
@@ -79,7 +83,8 @@
 		</h:panelGrid>
 	  </p>
 	   </mf:forumHideDivision>
-      <%--
+	   	  	   	   	   
+      
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm" hideByDefault="true">
           <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.forumControlPermissions}" var="cntrl_settings">
    			<h:column>
@@ -145,10 +150,11 @@
 		</h:dataTable>		 	
       </mf:forumHideDivision>
       --%>
+      <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
       
        <p class="act">
           <h:commandButton id ="revise" rendered="#{!ForumTool.selectedForum.markForDeletion}" immediate="true"  action="#{ForumTool.processActionReviseForumSettings}" value="#{msgs.cdfm_button_bar_revise}"> 
-    	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
+    	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>    	 	  	
           </h:commandButton>
           
           <h:commandButton id="delete_confirm" action="#{ForumTool.processActionDeleteForumConfirm}" value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedForum.markForDeletion}">

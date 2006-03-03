@@ -75,6 +75,10 @@ public class DiscussionForumTool
   private static final String ALL_MESSAGES = "dfAllMessages";
   private static final String THREADED_VIEW = "dfThreadedView";
   private static final String UNREAD_VIEW = "dfUnreadView";
+  
+  private static final String PERMISSION_MODE_TEMPLATE = "template";
+  private static final String PERMISSION_MODE_FORUM = "forum";
+  private static final String PERMISSION_MODE_TOPIC = "topic";
 
   private DiscussionForumBean selectedForum;
   private DiscussionTopicBean selectedTopic;
@@ -83,7 +87,7 @@ public class DiscussionForumTool
   private List totalComposeToList;
   private List totalComposeToListRecipients;
   private Map courseMemberMap;
-  private List templatePermissions;
+  private List permissions;
 //  private List templateControlPermissions; // control settings
 //  private List templateMessagePermissions;
   private List forumControlPermissions; // control settings
@@ -124,7 +128,8 @@ public class DiscussionForumTool
   private List siteMembers = new ArrayList();
   private String selectedRole;
   
-  private boolean editMode;
+  private boolean editMode = false;
+  private String permissionMode;
 
   /**
    * Dependency Injected
@@ -282,13 +287,9 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionTemplateSettings()");
     
-    if ("off".equals(getExternalParameterByKey("editMode"))){
-    	setEditMode(false);
-    }
-    else{
-    	setEditMode(true);
-    }        	
-
+    setEditMode(false);
+    setPermissionMode(PERMISSION_MODE_TEMPLATE);
+    	       	
     if(!isInstructor())
     {
       setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
@@ -300,23 +301,23 @@ public class DiscussionForumTool
   /**
    * @return
    */
-  public List getTemplatePermissions()
+  public List getPermissions()
   {
   	  	  	
-    if (templatePermissions == null)
+    if (permissions == null)
     {
       siteMembers=null;
       getSiteRoles();
     }
-    return templatePermissions;
+    return permissions;
   }
 
   /**
    * @return
    */
-  public void setTemplatePermissions(List templatePermissions)
+  public void setPermissions(List permissions)
   {
-    this.templatePermissions = templatePermissions;
+    this.permissions = permissions;
   }
 
 //  /**
@@ -349,13 +350,8 @@ public class DiscussionForumTool
       LOG.debug("processActionReviseTemplateSettings()");
   	}
     
-    if ("off".equals(getExternalParameterByKey("editMode"))){
-    	setEditMode(false);
-    }
-    else{
-    	setEditMode(true);
-    }
-    
+  	setEditMode(true); 
+  	setPermissionMode(PERMISSION_MODE_TEMPLATE);
     return TEMPLATE_SETTING;
   }
 
@@ -364,56 +360,16 @@ public class DiscussionForumTool
    */
   public String processActionSaveTemplateSettings()
   {
-    LOG.debug("processActionSaveForumSettings()");
+    LOG.debug("processActionSaveTemplateSettings()");
     if(!isInstructor())
     {
       setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
       return MAIN;
-    }
-           
-    /** get membership item set */
+    }    
+    
     Area area = areaManager.getDiscusionArea();
-    Set membershipItemSet = area.getMembershipItemSet();
-    membershipItemSet.clear();
-        
-    if(templatePermissions!=null ){
-      Iterator iter = templatePermissions.iterator();
-      while (iter.hasNext())
-      {
-        PermissionBean permBean = (PermissionBean) iter.next();
-        DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
-        
-        
-        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
-          PermissionsMask mask = new PermissionsMask();                
-          mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
-          mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
-          mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
-          mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
-          mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
-          mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
-          mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
-          mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
-          mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
-          mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
-          mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
-          mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
-          mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
-          mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
-          
-          PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
-          membershipItem.setPermissionLevel(level);
-        }
-                
-        // save DBMembershiptItem here to get an id so we can add to the set
-        permissionLevelManager.saveDBMembershipItem(membershipItem);
-        membershipItemSet.add(membershipItem);
-      }
-      
-      area.setMembershipItemSet(membershipItemSet);
-      areaManager.saveArea(area); 
-    }
-    siteMembers = null;
+    setObjectPermissions(area);
+    areaManager.saveArea(area);
     return MAIN;
   }
 
@@ -429,11 +385,17 @@ public class DiscussionForumTool
       return MAIN;
     }
     
-
-
-    return TEMPLATE_SETTING;
+    Area area = null;
+    if ((area = areaManager.getDiscusionArea()) != null){
+    	area.setMembershipItemSet(new HashSet());
+    	areaManager.saveArea(area);
+    	permissions = null;
+    }
+    else{
+    	throw new IllegalStateException("Could not obtain area for site: " + getContextSiteId());
+    }
     
-    
+    return TEMPLATE_SETTING;      
   }
 
   /**
@@ -556,6 +518,10 @@ public class DiscussionForumTool
   public String processActionNewForum()
   {
     LOG.debug("processActionNewForum()");
+    
+    setEditMode(true);
+    setPermissionMode(PERMISSION_MODE_FORUM);
+    
     totalComposeToList=null;
     if (getNewForum())
     {
@@ -577,7 +543,9 @@ public class DiscussionForumTool
   public String processActionForumSettings()
   {
     LOG.debug("processForumSettings()");
-
+    setEditMode(false);
+    setPermissionMode(PERMISSION_MODE_FORUM);
+    
     String forumId = getExternalParameterByKey(FORUM_ID);
     if ((forumId) == null)
     {
@@ -601,7 +569,9 @@ public class DiscussionForumTool
   public String processActionReviseForumSettings()
   {
     LOG.debug("processActionReviseForumSettings()");
-    totalComposeToList=null; 
+    totalComposeToList=null;
+    setEditMode(true);
+    setPermissionMode(PERMISSION_MODE_FORUM);
     if ((selectedForum) == null)
     {
       setErrorMessage("Forum not found");
@@ -641,8 +611,9 @@ public class DiscussionForumTool
     {
       setErrorMessage("Insufficient privileges to change forum settings");
       return MAIN;
-    }
-    DiscussionForum forum = saveForumSettings(false);
+    }   
+    
+    DiscussionForum forum = saveForumSettings(false);    
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
     {
       setErrorMessage("Insufficient privileges to create new topic");
@@ -678,8 +649,9 @@ public class DiscussionForumTool
     {
       setErrorMessage("Please enter a valid forum title");
       return FORUM_SETTING_REVISE;
-    }
+    }    
     saveForumSettings(false);
+    
     reset();
     return MAIN;
   }
@@ -701,8 +673,9 @@ public class DiscussionForumTool
     {
       setErrorMessage("Please enter a valid forum title");
       return FORUM_SETTING_REVISE;
-    }
+    }    
     saveForumSettings(true);
+    
     reset();
     return MAIN;
   }
@@ -725,18 +698,19 @@ public class DiscussionForumTool
     }
     
     saveForumAttach(forum);  
+    setObjectPermissions(forum);
     if (draft)
       forumManager.saveForumAsDraft(forum);
     else
       forumManager.saveForum(forum);
-    forumManager.saveForumControlPermissions(forum, forumControlPermissions);
-    forumManager.saveForumMessagePermissions(forum, forumMessagePermissions);
+    //forumManager.saveForumControlPermissions(forum, forumControlPermissions);
+    //forumManager.saveForumMessagePermissions(forum, forumMessagePermissions);
     if (forum.getId() == null)
     {
       String forumUuid = forum.getUuid();
       forum = null;
       forum = forumManager.getForumByUuid(forumUuid);
-    }
+    }    
     return forum;
   }
 
@@ -810,6 +784,10 @@ public class DiscussionForumTool
   public String processActionNewTopic()
   {   
     LOG.debug("processActionNewTopic()");
+    
+    setEditMode(true);
+    setPermissionMode(PERMISSION_MODE_TOPIC);
+    
     totalComposeToList=null; 
     selectedTopic = createTopic();
     if (selectedTopic == null)
@@ -835,6 +813,10 @@ public class DiscussionForumTool
   public String processActionReviseTopicSettings()
   {
     LOG.debug("processActionReviseTopicSettings()");
+    
+    setPermissionMode(PERMISSION_MODE_TOPIC);
+    setEditMode(true);
+    
     totalComposeToList=null;
     DiscussionTopic topic = selectedTopic.getTopic();
 
@@ -875,6 +857,8 @@ public class DiscussionForumTool
   public String processActionSaveTopicAndAddTopic()
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
+    
+    setPermissionMode(PERMISSION_MODE_TOPIC);
     if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
         (selectedTopic.getTopic().getTitle()==null 
           ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
@@ -882,7 +866,7 @@ public class DiscussionForumTool
       setErrorMessage("Please enter a valid topic title");
       return TOPIC_SETTING_REVISE;
     }
-    saveTopicSettings(false);
+    saveTopicSettings(false);    
     Long forumId = selectedForum.getForum().getId();
     if (forumId == null)
     {
@@ -910,6 +894,8 @@ public class DiscussionForumTool
   public String processActionSaveTopicSettings()
   {
     LOG.debug("processActionSaveTopicSettings()");
+    
+    setPermissionMode(PERMISSION_MODE_TOPIC);
     if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
         (selectedTopic.getTopic().getTitle()==null 
           ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
@@ -917,7 +903,7 @@ public class DiscussionForumTool
       setErrorMessage("Please enter a valid topic title");
       return TOPIC_SETTING_REVISE;
     }
-    saveTopicSettings(false);
+    saveTopicSettings(false);    
     reset();
     return MAIN;
   }
@@ -928,6 +914,8 @@ public class DiscussionForumTool
   public String processActionSaveTopicAsDraft()
   {
     LOG.debug("processActionSaveTopicAsDraft()");
+    
+    setPermissionMode(PERMISSION_MODE_TOPIC);
     if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
         (selectedTopic.getTopic().getTitle()==null 
           ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
@@ -940,13 +928,15 @@ public class DiscussionForumTool
       setErrorMessage("Insufficient privileges to change topic settings");
       return MAIN;
     }
-    saveTopicSettings(true);
+    saveTopicSettings(true);    
     reset();
     return MAIN;
   }
 
   private String saveTopicSettings(boolean draft)
   {
+  	LOG.debug("saveTopicSettings(" + draft + ")");
+  	setPermissionMode(PERMISSION_MODE_TOPIC);
     if (selectedTopic != null)
     {
       DiscussionTopic topic = selectedTopic.getTopic();
@@ -954,18 +944,19 @@ public class DiscussionForumTool
       {
         topic.setBaseForum(selectedForum.getForum());
         saveTopicAttach(topic);
+        setObjectPermissions(topic);
         if (draft)
-        {
-          forumManager.saveTopicAsDraft(topic);
+        {        	
+          forumManager.saveTopicAsDraft(topic);          
         }
         else
-        {
+        {        	
           forumManager.saveTopic(topic);
-        }
-        forumManager
-            .saveTopicControlPermissions(topic, topicControlPermissions);
-        forumManager
-            .saveTopicMessagePermissions(topic, topicMessagePermissions);
+        }        
+        //forumManager
+        //    .saveTopicControlPermissions(topic, topicControlPermissions);
+        //forumManager
+        //    .saveTopicMessagePermissions(topic, topicMessagePermissions);
       }
     }
     return MAIN;
@@ -1018,6 +1009,8 @@ public class DiscussionForumTool
   public String processActionTopicSettings()
   {
     LOG.debug("processActionTopicSettings()");
+    
+    setPermissionMode(PERMISSION_MODE_TOPIC);
     DiscussionTopic topic = (DiscussionTopic) forumManager
         .getTopicByIdWithAttachments(new Long(
             getExternalParameterByKey(TOPIC_ID)));
@@ -1282,28 +1275,16 @@ public class DiscussionForumTool
   
   // **************************************** helper methods**********************************
 
-  /**
-   * @return
-   */
   private String getExternalParameterByKey(String parameterId)
-  {
-    String parameterValue = null;
+  {    
     ExternalContext context = FacesContext.getCurrentInstance()
         .getExternalContext();
     Map paramMap = context.getRequestParameterMap();
-    Iterator itr = paramMap.keySet().iterator();
-    while (itr.hasNext())
-    {
-      String key = (String) itr.next();
-      if (key != null && key.equals(parameterId))
-      {
-        parameterValue = (String) paramMap.get(key);
-        break;
-      }
-    }
-    return parameterValue;
+    
+    return (String) paramMap.get(parameterId);    
   }
-
+    
+    
   /**
    * @param forum
    * @return
@@ -1593,7 +1574,7 @@ public class DiscussionForumTool
     this.selectedMessage = null;
 //    this.templateControlPermissions = null;
 //    this.templateMessagePermissions = null;
-    this.templatePermissions=null;
+    this.permissions=null;
     this.errorSynch = false;
     this.siteMembers=null;   
     attachments.clear();
@@ -2961,8 +2942,28 @@ public class DiscussionForumTool
       return siteMembers;
     }
     
-    templatePermissions=new ArrayList();
-    Set membershipItems=forumManager.getDiscussionForumArea().getMembershipItemSet();
+    permissions=new ArrayList();
+    
+    Set membershipItems = null;
+    
+    if (PERMISSION_MODE_TEMPLATE.equals(getPermissionMode())){
+    	membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    }
+    else if (PERMISSION_MODE_FORUM.equals(getPermissionMode())){    	
+    	membershipItems = selectedForum.getForum().getMembershipItemSet();
+    	
+    	if (membershipItems == null || membershipItems.size() == 0){
+    		membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    	}
+    }
+    else if (PERMISSION_MODE_TOPIC.equals(getPermissionMode())){    	
+    	membershipItems = selectedTopic.getTopic().getMembershipItemSet();
+    	
+    	if (membershipItems == null || membershipItems.size() == 0){
+    		membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    	}
+    } 
+    	            
     siteMembers=new ArrayList(); 
     // get Roles     
     AuthzGroup realm;
@@ -2985,9 +2986,9 @@ public class DiscussionForumTool
               selectedRole = role.getId();
               i=1;
             }
-            DBMembershipItem item = forumManager.getAreaDBMember(membershipItems,role.getId(), DBMembershipItem.TYPE_ROLE);
+            DBMembershipItem item = forumManager.getAreaDBMember(membershipItems, role.getId(), DBMembershipItem.TYPE_ROLE);
             siteMembers.add(new SelectItem(role.getId(), role.getId() + "("+item.getPermissionLevelName()+")"));
-            templatePermissions.add(new PermissionBean(item, permissionLevelManager));
+            permissions.add(new PermissionBean(item, permissionLevelManager));
           }
         }
       }  
@@ -3002,7 +3003,7 @@ public class DiscussionForumTool
         Group currentGroup = (Group) groupIterator.next();  
         DBMembershipItem item = forumManager.getAreaDBMember(membershipItems,currentGroup.getTitle(), DBMembershipItem.TYPE_GROUP);
         siteMembers.add(new SelectItem(currentGroup.getTitle(), currentGroup.getTitle() + " ("+item.getPermissionLevel().getName()+")"));
-        templatePermissions.add(new PermissionBean(item, permissionLevelManager));
+        permissions.add(new PermissionBean(item, permissionLevelManager));
       }
       }
     }
@@ -3114,7 +3115,7 @@ public class DiscussionForumTool
   	sBuffer.append("var owner = 'Owner';\n");
   	sBuffer.append("var author = 'Author';\n");
   	sBuffer.append("var nonEditingAuthor = 'Nonediting Author';\n");
-  	sBuffer.append("var reviewer = 'reviewer';\n");
+  	sBuffer.append("var reviewer = 'Reviewer';\n");
   	sBuffer.append("var none = 'None';\n");
   	sBuffer.append("var contributor = 'Contributor';\n");  	
   	sBuffer.append("var custom = 'Custom';\n");
@@ -3160,6 +3161,84 @@ public class DiscussionForumTool
   			              	
   	sBuffer.append("</script>");  	
   	return sBuffer.toString();
+  }
+  
+  public void setObjectPermissions(Object target){
+  	Set membershipItemSet = null;
+    
+  	DiscussionForum forum = null;
+  	Area area = null;
+  	Topic topic = null;
+  	
+    /** get membership item set */    
+    if (target instanceof DiscussionForum){
+    	forum = ((DiscussionForum) target);
+    	membershipItemSet = forum.getMembershipItemSet();
+    }
+    else if (target instanceof Area){
+    	area = ((Area) target);
+    	membershipItemSet = area.getMembershipItemSet();
+    }
+    else if (target instanceof Topic){
+    	topic = ((Topic) target);
+    	membershipItemSet = topic.getMembershipItemSet();
+    }
+     
+    if (membershipItemSet != null){
+      membershipItemSet.clear();
+    }
+    else{
+    	membershipItemSet = new HashSet();
+    }
+        
+    if(permissions!=null ){
+      Iterator iter = permissions.iterator();
+      while (iter.hasNext())
+      {
+        PermissionBean permBean = (PermissionBean) iter.next();
+        DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
+        
+        
+        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
+          PermissionsMask mask = new PermissionsMask();                
+          mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
+          mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
+          mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
+          mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
+          mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
+          mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
+          mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
+          mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
+          mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
+          mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
+          mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
+          mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
+          mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
+          mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+          
+          PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
+          membershipItem.setPermissionLevel(level);
+        }
+                
+        // save DBMembershiptItem here to get an id so we can add to the set
+        permissionLevelManager.saveDBMembershipItem(membershipItem);
+        membershipItemSet.add(membershipItem);
+      }
+      
+      if (target instanceof DiscussionForum){
+      	forum.setMembershipItemSet(membershipItemSet);
+      	//forumManager.saveForum(forum);
+      }
+      else if (area != null){
+      	area.setMembershipItemSet(membershipItemSet);
+      	//areaManager.saveArea(area);
+      }
+      else if (topic != null){
+      	topic.setMembershipItemSet(membershipItemSet);
+      	//forumManager.saveTopic((DiscussionTopic) topic);
+      }
+    }
+    siteMembers = null;
   }
 
  
@@ -3271,5 +3350,13 @@ public class DiscussionForumTool
 
 		public void setEditMode(boolean editMode) {
 			this.editMode = editMode;
+		}
+
+		public String getPermissionMode() {
+			return permissionMode;
+		}
+
+		public void setPermissionMode(String permissionMode) {
+			this.permissionMode = permissionMode;
 		}              
 }

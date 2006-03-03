@@ -53,7 +53,7 @@
         <key column="of_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
     </set>
-    <set name="membershipItemSet" lazy="false" cascade="save-update">
+    <set name="membershipItemSet" lazy="false" cascade="all-delete-orphan">
         <key column="of_surrogateKey"/>
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"/>
     </set>

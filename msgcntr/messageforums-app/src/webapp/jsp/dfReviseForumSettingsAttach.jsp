@@ -1,3 +1,5 @@
+<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
+                 javax.faces.el.*, org.sakaiproject.tool.messageforums.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -6,7 +8,7 @@
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 <f:view>
    <sakai:view>
-      <h:form id="forum_revise_settings">
+      <h:form id="revise">
       <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
  			 <div class="instruction">
@@ -99,6 +101,8 @@
 				</h:panelGroup>
 			</h:panelGrid>
 		</p>
+	 
+	 <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 	 
 	 <%--
 	 <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm" hideByDefault="true">

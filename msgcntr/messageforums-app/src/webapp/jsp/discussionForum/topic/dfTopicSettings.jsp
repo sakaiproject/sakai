@@ -1,3 +1,5 @@
+<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
+                 javax.faces.el.*, org.sakaiproject.tool.messageforums.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -6,7 +8,7 @@
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 <f:view>
    <sakai:view>
-      <h:form id="topic_settings">
+      <h:form id="revise">
       <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_topic_settings}" />
         <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}"/>
@@ -96,6 +98,11 @@
 				</h:panelGrid>
 			</p>
 		  --%>
+		  
+		  
+	  <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+	    
+	  <%--
       <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm" hideByDefault="true">
 	  	<p class="shorttext">
 			<h:panelGrid columns="2" width="50%">
@@ -129,18 +136,18 @@
 				<f:facet name="header"><h:outputText value="#{msgs.perm_response_to_response}" /></f:facet>
 				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.responseToResponse}"/>
 			</h:column>
-		<%--<h:column>
+		    <h:column>
 				<f:facet name="header">	<h:outputText value="#{msgs.perm_move_postings}" /></f:facet>
 				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.movePostings}"/>
-			</h:column> --%>
+			</h:column>
 			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_change_settings}" /></f:facet>
 				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.changeSettings}"/>
 			</h:column>
-		<%--	<h:column>
+			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></f:facet>
 				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.postToGradebook}"/>
-			</h:column>	--%>				
+			</h:column>
 		</h:dataTable>
       </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_message_permissions}" id="msg_perm" hideByDefault="true">
@@ -175,6 +182,7 @@
 			</h:column>			 		
 		</h:dataTable>	 	
       </mf:forumHideDivision>
+      --%>
       
        <p class="act">
           <h:commandButton action="#{ForumTool.processActionReviseTopicSettings}" id="revise"  value="#{msgs.cdfm_button_bar_revise}" rendered="#{!ForumTool.selectedTopic.markForDeletion}"> 

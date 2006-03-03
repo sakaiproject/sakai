@@ -778,44 +778,46 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     boolean saveArea = forum.getId() == null;
     forum.setDraft(new Boolean(draft));
-    ActorPermissions originalForumActorPermissions = null;
-    if (saveArea)
-    {
-      originalForumActorPermissions = new ActorPermissionsImpl();
-    }
-    else
-    {
-      originalForumActorPermissions = forum.getActorPermissions();
-    }
-    // setcontributors
-    List holdContributors = new ArrayList();
-    holdContributors = Arrays.asList(forum.getActorPermissions()
-        .getContributors().toArray());
-    originalForumActorPermissions.setContributors(new UniqueArrayList());// clearing list at this
-    // point.
-    if (holdContributors != null && holdContributors.size() > 0)
-    {
-      Iterator iter = holdContributors.iterator();
-      while (iter.hasNext())
-      {
-        MessageForumsUser user = (MessageForumsUser) iter.next();
-        forum.getActorPermissions().addContributor(user);
-      }
-    }
-    // setAccessors
-    List holdAccessors = new ArrayList();
-    holdAccessors = Arrays.asList(forum.getActorPermissions().getAccessors()
-        .toArray());
-    originalForumActorPermissions.setAccessors(new UniqueArrayList());// clearing list at this point.
-    if (holdAccessors != null && holdAccessors.size() > 0)
-    {
-      Iterator iter = holdAccessors.iterator();
-      while (iter.hasNext())
-      {
-        MessageForumsUser user = (MessageForumsUser) iter.next();
-        forum.getActorPermissions().addAccesssor(user);
-      }
-    }
+//    ActorPermissions originalForumActorPermissions = null;
+//    if (saveArea)
+//    {
+//      originalForumActorPermissions = new ActorPermissionsImpl();
+//    }
+//    else
+//    {
+//      originalForumActorPermissions = forum.getActorPermissions();
+//    }
+//    // setcontributors
+//    List holdContributors = new ArrayList();
+//    holdContributors = Arrays.asList(forum.getActorPermissions()
+//        .getContributors().toArray());
+//    originalForumActorPermissions.setContributors(new UniqueArrayList());// clearing list at this
+//    // point.
+//    if (holdContributors != null && holdContributors.size() > 0)
+//    {
+//      Iterator iter = holdContributors.iterator();
+//      while (iter.hasNext())
+//      {
+//        MessageForumsUser user = (MessageForumsUser) iter.next();
+//        forum.getActorPermissions().addContributor(user);
+//      }
+//    }
+//    // setAccessors
+//    List holdAccessors = new ArrayList();
+//    holdAccessors = Arrays.asList(forum.getActorPermissions().getAccessors()
+//        .toArray());
+//    originalForumActorPermissions.setAccessors(new UniqueArrayList());// clearing list at this point.
+//    if (holdAccessors != null && holdAccessors.size() > 0)
+//    {
+//      Iterator iter = holdAccessors.iterator();
+//      while (iter.hasNext())
+//      {
+//        MessageForumsUser user = (MessageForumsUser) iter.next();
+//        forum.getActorPermissions().addAccesssor(user);
+//      }
+//    }
+    
+    
     forumManager.saveDiscussionForum(forum, draft);
 
     if (saveArea)

@@ -150,7 +150,6 @@ function setCorrespondingCheckboxes(checkBox){
   moderatePostings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":moderatePostings");
 
   role=getTheElement(var2[0]+":role");
-  //alert(selectLevel.options[selectLevel.selectedIndex].value);
   if(selectLevel){
     if(!(changeSettings && markAsRead &&  movePosting && newForum && newResponse && r2R && newTopic && postGrades && read &&moderatePostings && deletePostings && revisePostings)){
       setCheckBoxes(changeSettings, deletePostings, markAsRead ,movePosting, newForum, newResponse,  r2R, newTopic, postGrades, read,revisePostings, moderatePostings,  noneLevelArray);

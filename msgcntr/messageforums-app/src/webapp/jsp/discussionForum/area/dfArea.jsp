@@ -1,12 +1,12 @@
 <mf:forumHideDivision title="#{msgs.cdfm_discussion_forums}" id="_test_div">
-  <mf:forum_bar_link id="create_forum" title="#{msgs.cdfm_new_forum}" value=" #{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/> &nbsp;
+  <mf:forum_bar_link id="create_forum" title="#{msgs.cdfm_new_forum}" value=" #{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/>    
+   &nbsp;
 <%--  <mf:forum_bar_link id="organize_forum" title="#{msgs.cdfm_organize}" value=" #{msgs.cdfm_organize} " action="#{ForumTool.processActionOrganize}"/> &nbsp;
   <mf:forum_bar_link id="forum_stats" title="#{msgs.cdfm_statistic}" value=" #{msgs.cdfm_statistic} " action="#{ForumTool.processActionStatistics}"/> &nbsp;--%>
   <h:outputText id="draft_space2" value="   " />
-  <mf:forum_bar_link id="template_setting" title="#{msgs.cdfm_template_setting}" value="#{msgs.cdfm_template_setting} " action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}">
-    <f:param name="editMode" value="off"/>
+  <mf:forum_bar_link id="template_setting" title="#{msgs.cdfm_template_setting}" value="#{msgs.cdfm_template_setting} " action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}"/>    
      &nbsp;
-  </mf:forum_bar_link>
+
 
   <h:dataTable id="forums" width="100%" value="#{ForumTool.forums}" var="forum">
     <h:column >
@@ -28,7 +28,7 @@
 			</h:commandLink>
 			<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
 			<h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}" rendered="#{forum.changeSettings}">
-				<f:param value="#{forum.forum.id}" name="forumId"/>
+				<f:param value="#{forum.forum.id}" name="forumId"/>				
 			</h:commandLink>
 
 			<f:verbatim></div></f:verbatim>
