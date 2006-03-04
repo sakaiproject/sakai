@@ -51,7 +51,7 @@ public class GradebookBean {
 	}
 
 	public void search(ActionEvent event) {
-		uidFound = getGradebookService().gradebookExists(uid);
+		uidFound = getGradebookService().isGradebookDefined(uid);
 		log.info("search uid=" + uid + ", uidFound=" + uidFound);
 	}
 

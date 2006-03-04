@@ -87,7 +87,7 @@ public class GradebookServiceTest extends GradebookTestBase {
      * @throws Exception
      */
     public void testCreateExternalAssessment() throws Exception {
-        Assert.assertTrue(gradebookService.gradebookExists(GRADEBOOK_UID));
+        Assert.assertTrue(gradebookService.isGradebookDefined(GRADEBOOK_UID));
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
 
         // Make sure that internal name conflicts are detected
@@ -137,7 +137,7 @@ public class GradebookServiceTest extends GradebookTestBase {
     }
 
     public void testModifyExternalAssessment() throws Exception {
-        Assert.assertTrue(gradebookService.gradebookExists(GRADEBOOK_UID));
+        Assert.assertTrue(gradebookService.isGradebookDefined(GRADEBOOK_UID));
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
         gradebookService.updateExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 20, null);
 
@@ -205,7 +205,7 @@ public class GradebookServiceTest extends GradebookTestBase {
 
     public void testDeleteGradebook() throws Exception {
     	gradebookService.deleteGradebook(GRADEBOOK_UID);
-    	Assert.assertFalse(gradebookService.gradebookExists(GRADEBOOK_UID));
+    	Assert.assertFalse(gradebookService.isGradebookDefined(GRADEBOOK_UID));
 	}
 
 	public void testIsAssignmentDefined() throws Exception {

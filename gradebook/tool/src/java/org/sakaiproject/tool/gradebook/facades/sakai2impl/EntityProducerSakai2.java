@@ -58,21 +58,21 @@ public class EntityProducerSakai2 implements EntityProducer {
 
 	public void syncWithSiteChange(Site site, ChangeType change) {
 		String gradebookUid = site.getId();
-		boolean gradebookExists = gradebookService.gradebookExists(gradebookUid);
+		boolean isGradebookDefined = gradebookService.isGradebookDefined(gradebookUid);
 
 		if ((change == EntityProducer.ChangeType.ADD) || (change == EntityProducer.ChangeType.UPDATE)) {
 			// See if this tool is now in the site.
 			String[] toolsToSearchFor = {getToolId()};
 			Collection matchingTools = site.getTools(toolsToSearchFor);
-			if (matchingTools.isEmpty() && gradebookExists) {
+			if (matchingTools.isEmpty() && isGradebookDefined) {
 				// We've been directed to leave Gradebook data in place when
 				// the tool is removed from a site.
 				if (log.isInfoEnabled()) log.info("Gradebook being removed from site " + gradebookUid + " but associated data will remain until site deletion");
-			} else if (!matchingTools.isEmpty() && !gradebookExists) {
+			} else if (!matchingTools.isEmpty() && !isGradebookDefined) {
 				if (log.isInfoEnabled()) log.info("Gradebook being added to site " + gradebookUid);
 				gradebookService.addGradebook(gradebookUid, gradebookUid);
 			}
-		} else if ((change == EntityProducer.ChangeType.REMOVE) && gradebookExists) {
+		} else if ((change == EntityProducer.ChangeType.REMOVE) && isGradebookDefined) {
 			try {
 				gradebookService.deleteGradebook(gradebookUid);
 			} catch (GradebookNotFoundException e) {

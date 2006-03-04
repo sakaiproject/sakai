@@ -97,7 +97,7 @@ public class TestArchive extends GradebookTestBase {
         archiveService.createGradebookFromArchive(GRADEBOOK_COPY, doc);
 
         // Make sure the gradebook was created
-        Assert.assertTrue(gradebookService.gradebookExists(GRADEBOOK_COPY));
+        Assert.assertTrue(gradebookService.isGradebookDefined(GRADEBOOK_COPY));
 
         // Make sure its properties were carried over
         Gradebook gradebook = gradebookManager.getGradebook(GRADEBOOK_COPY);

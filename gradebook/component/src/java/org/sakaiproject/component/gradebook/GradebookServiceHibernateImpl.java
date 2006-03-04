@@ -69,7 +69,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     private Authz authz;
 
 	public void addGradebook(final String uid, final String name) {
-        if(gradebookExists(uid)) {
+        if(isGradebookDefined(uid)) {
             log.warn("You can not add a gradebook with uid=" + uid + ".  That gradebook already exists.");
             throw new GradebookExistsException("You can not add a gradebook with uid=" + uid + ".  That gradebook already exists.");
         }
@@ -142,11 +142,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
     /**
+     * @see org.sakaiproject.service.gradebook.shared.GradebookService#isGradebookDefined(java.lang.String)
+     */
+    public boolean isGradebookDefined(String gradebookUid) {
+        String hql = "from Gradebook as gb where gb.uid=?";
+        return getHibernateTemplate().find(hql, gradebookUid, Hibernate.STRING).size() == 1;
+    }
+
+    /**
      * @see org.sakaiproject.service.gradebook.shared.GradebookService#gradebookExists(java.lang.String)
      */
     public boolean gradebookExists(String gradebookUid) {
-        String hql = "from Gradebook as gb where gb.uid=?";
-        return getHibernateTemplate().find(hql, gradebookUid, Hibernate.STRING).size() == 1;
+        return isGradebookDefined(gradebookUid);
     }
 
     /**

@@ -54,7 +54,7 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
         String gradebookUid = contextManagementService.getGradebookUid(null);
 
 		// If the Gradebook doesn't exist, give up.
-		if(!gradebookService.gradebookExists(gradebookUid)) {
+		if(!gradebookService.isGradebookDefined(gradebookUid)) {
 			throw new RuntimeException("Gradebook " + gradebookUid + " doesn't exist");
 		}
 

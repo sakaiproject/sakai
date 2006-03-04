@@ -79,8 +79,12 @@ public interface GradebookService {
      * @param gradebookUid The gradebook UID to check
      * @return Whether the gradebook exists
      */
-    public boolean gradebookExists(String gradebookUid);
+    public boolean isGradebookDefined(String gradebookUid);
 
+    /**
+     * @deprecated	Replaced by {@link #isGradebookDefined(String)}
+     */
+    public boolean gradebookExists(String gradebookUid);
 
     // Assessment management hooks.
 
