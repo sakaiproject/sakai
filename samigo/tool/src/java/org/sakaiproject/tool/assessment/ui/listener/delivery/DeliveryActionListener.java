@@ -144,9 +144,6 @@ public class DeliveryActionListener
       switch (action){
       case 2: // preview assessment, show feedback is clicked
               setFeedbackMode(delivery);
-              if (("true").equals(delivery.getFeedback())){
-                setDisplayByAssessment(delivery);
-	      }
               break;
 
       case 3: // Review assessment
@@ -174,15 +171,15 @@ public class DeliveryActionListener
 
       case 1: // Take assessment
       case 5: // Take assessment via url
-              System.out.println("**** DeliveryActionListener #0");
+              log.debug("**** DeliveryActionListener #0");
               // this returns a HashMap with (publishedItemId, itemGrading)
               itemGradingHash = service.getLastItemGradingData(id, agent); //
-               System.out.println("**** DeliveryActionListener #1");
+              log.debug("**** DeliveryActionListener #1");
 
 	      if (itemGradingHash!=null && itemGradingHash.size()>0){
-                System.out.println("**** DeliveryActionListener #1a");
+                log.debug("**** DeliveryActionListener #1a");
 	        ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
-                System.out.println("**** DeliveryActionListener #1b");
+                log.debug("**** DeliveryActionListener #1b");
                 delivery.setAssessmentGrading(ag);
               }
               else{
@@ -191,7 +188,7 @@ public class DeliveryActionListener
                  ag = createAssessmentGrading(publishedAssessment);
                  delivery.setAssessmentGrading(ag);
               }
-              System.out.println("**** DeliveryAction, itemgrading size="+ag.getItemGradingSet().size());
+              log.debug("**** DeliveryAction, itemgrading size="+ag.getItemGradingSet().size());
               // ag can't be null beyond this point and must have persisted to DB
               // version 2.1.1 requirement
               setFeedbackMode(delivery);
@@ -199,8 +196,8 @@ public class DeliveryActionListener
 
               // extend session time out
               SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
-              log.info("****Set begin time " + delivery.getBeginTime());
-              log.info("****Set elapsed time " + delivery.getTimeElapse());
+              log.debug("****Set begin time " + delivery.getBeginTime());
+              log.debug("****Set elapsed time " + delivery.getTimeElapse());
               break;
 
       default: break;
