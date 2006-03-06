@@ -142,12 +142,12 @@ public class DeliveryActionListener
       AssessmentGradingData ag = null;
 
       switch (action){
-      case 2: // preview assessment, show feedback is clicked
+      case 2: // preview assessment
               setFeedbackMode(delivery);
               break;
 
       case 3: // Review assessment
-              setFeedbackMode(delivery);
+              setFeedbackMode(delivery); //this determine if we should gather the itemGrading
               if (("true").equals(delivery.getFeedback())){
                 itemGradingHash = new HashMap();
                 if (delivery.getFeedbackComponent().getShowResponse())
@@ -164,7 +164,7 @@ public class DeliveryActionListener
               ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
               delivery.setAssessmentGrading(ag);
               setDisplayByAssessment(delivery);
-              //delivery.setFeedback("true");
+              setFeedbackMode(delivery);
               setDeliveryFeedbackOnforEvaluation(delivery);
               setGraderComment(delivery);
               break;
@@ -1360,14 +1360,13 @@ public class DeliveryActionListener
     delivery.setNoFeedback("false");
     switch (action){
     case 1: // take assessment
+    case 2: // preview assessment
     case 5: // take assessment via url
             if (showfeedbacknow != null && showfeedbacknow.equals("true")) {
               delivery.setFeedback("true");
             }
             break;
-    case 2: // preview assessment
     case 3: // review assessment
-    case 4: // grade assessment
             if (delivery.getFeedbackComponent()!=null 
                 && (delivery.getFeedbackComponent().getShowImmediate() 
                     || (delivery.getFeedbackComponent().getShowDateFeedback())
@@ -1377,7 +1376,9 @@ public class DeliveryActionListener
               delivery.setFeedback("true");
             }
             break;
-
+    case 4: // grade assessment
+            delivery.setFeedback("true");
+            break; 
     default:break;
     }
 
