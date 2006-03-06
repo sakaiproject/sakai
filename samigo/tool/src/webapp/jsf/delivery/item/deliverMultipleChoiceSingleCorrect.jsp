@@ -71,7 +71,7 @@ should be included in file importing DeliveryMessages
        delivery.feedbackComponent.showSelectionLevel && question.itemData.typeId != 3}" >
        <f:verbatim><br /></f:verbatim>
        <h:outputText value="#{msg.feedback}: " />
-       <h:outputText value="#{selection.feedback}" escape="false" />
+       <h:outputText value="#{selection.answer.generalAnswerFeedback}" escape="false" />
       </h:panelGroup>
     </h:column>
   </h:dataTable>
