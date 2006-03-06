@@ -55,16 +55,12 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-// end testing
+import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+
 
 /**
- * <p>
- * This handles the selection of  page.
- *  </p>
- * <p>Description: Action Listener for Evaluation Question Score front door</p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Organization: Sakai Project</p>
- * @author Qingru Zhang
+ * <p>Description: Action Listener for displaying Submission Status for anonymnous grading</p>
  * @version $Id$
  */
 
@@ -93,13 +89,14 @@ public class SubmissionStatusListener
 
     log.info("Submission Status LISTENER.");
     SubmissionStatusBean bean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
+    TotalScoresBean totalScoresBean = (TotalScoresBean) cu.lookupBean("totalScores");
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
     log.info("Got publishedId " + publishedId);
 
     log.info("Calling totalScores.");
-    if (!totalScores(publishedId, bean, false))
+    if (!submissionStatus(publishedId, bean, totalScoresBean, false))
     {
       throw new RuntimeException("failed to call totalScores.");
     }
@@ -115,32 +112,48 @@ public class SubmissionStatusListener
    * @param bean SubmissionStatusBean
    * @return boolean
    */
-  public boolean totalScores(
-    String publishedId, SubmissionStatusBean bean, boolean isValueChange)
+  public boolean submissionStatus(
+    String publishedId, SubmissionStatusBean bean, TotalScoresBean totalScoresBean, boolean isValueChange)
   {
     log.debug("submissionStatus()");
     try
     {
+      TotalScoreListener totalScorelistener = new TotalScoreListener();
+
       GradingService delegate =	new GradingService();
 
       if (cu.lookupParam("sortBy") != null &&
           !cu.lookupParam("sortBy").trim().equals(""))
         bean.setSortType(cu.lookupParam("sortBy"));
 
+/*
       String which = cu.lookupParam("allSubmissions");
       log.info("Rachel: allSubmissions = " + which);
       if (which == null)
         which = "false";
       bean.setAllSubmissions(which);
+*/
 
       bean.setPublishedId(publishedId);
-      ArrayList scores = delegate.getAllSubmissions(publishedId);
+      // we are only interested in showing last submissions
+
+      ArrayList scores = delegate.getLastAssessmentGradingList(new Long(publishedId));
       Iterator iter = scores.iterator();
       log.info("Has this many agents: " + scores.size());
       if (!iter.hasNext())
         return false;
       Object next = iter.next();
       Date dueDate = null;
+
+      // - Collect a list of all the users in the scores list
+      Map useridMap= totalScoresBean.getUserIdMap();
+System.out.println("lydiatest useridmap size = " + useridMap.keySet().size());
+      ArrayList agentUserIds = totalScorelistener.getAgentIds(useridMap);
+System.out.println("lydiatest agentUserid size = " + agentUserIds.size());
+      AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
+      Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
+System.out.println("lydiatest userroles size = " + userRoles.keySet().size());
+
 
       // Okay, here we get the first result set, which has a summary of
       // information and a pointer to the graded assessment we should be
@@ -150,81 +163,6 @@ public class SubmissionStatusListener
       if (data.getPublishedAssessment() != null)
       {
         bean.setAssessmentName(data.getPublishedAssessment().getTitle());
-
-        // if section set is null, initialize it - daisyf , 01/31/05
-        PublishedAssessmentData pub = (PublishedAssessmentData)data.getPublishedAssessment();
-        HashSet sectionSet = PersistenceService.getInstance().
-            getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(pub);
-        data.getPublishedAssessment().setSectionSet(sectionSet);
-
-        // Set first item for question scores.  This can be complicated.
-        // It's important because it simplifies Question Scores to do this
-        // once and keep track of it -- the data is available here, and
-        // not there.  If firstItem is "", there are no items with
-        // answers, and the QuestionScores and Histograms pages don't
-        // show.  This is a very weird case, but has to be handled.
-        String firstitem = "";
-        HashMap answeredItems = new HashMap();
-        Iterator i2 = scores.iterator();
-        while (i2.hasNext())
-        {
-          AssessmentGradingData agd = (AssessmentGradingData) i2.next();
-          agd.setItemGradingSet(delegate.getItemGradingSet(agd.getAssessmentGradingId().toString()));
-          Iterator i3 = agd.getItemGradingSet().iterator();
-          while (i3.hasNext())
-          {
-            ItemGradingData igd = (ItemGradingData) i3.next();
-            answeredItems.put(igd.getPublishedItemId(), "true");
-          }
-        }
-        bean.setAnsweredItems(answeredItems); // Save for QuestionScores
-
-        boolean foundid = false;
-        i2 = data.getPublishedAssessment().getSectionArraySorted().iterator();
-        while (i2.hasNext() && !foundid)
-        {
-          SectionDataIfc sdata = (SectionDataIfc) i2.next();
-          Iterator i3 = sdata.getItemArraySortedForGrading().iterator();
-          while (i3.hasNext() && !foundid)
-          {
-            ItemDataIfc idata = (ItemDataIfc) i3.next();
-            if (answeredItems.get(idata.getItemId()) != null)
-            {
-              bean.setFirstItem(idata.getItemId().toString());
-              foundid = true;
-            }
-          }
-        }
-
-        log.info("Rachel: Setting first item to " +
-          bean.getFirstItem());
-
-        try {
-          bean.setAnonymous((data.getPublishedAssessment().getEvaluationModel().getAnonymousGrading().equals(EvaluationModel.ANONYMOUS_GRADING)?"true":"false"));
-          log.info("Set anonymous = " + bean.getAnonymous());
-        } catch (Exception e) {
-          log.info("No evaluation model");
-          bean.setAnonymous("false");
-        }
-        try {
-          bean.setLateHandling(data.getPublishedAssessment().getAssessmentAccessControl().getLateHandling().toString());
-        } catch (Exception e) {
-          log.info("No access control model.");
-          bean.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION.toString());
-        }
-        try {
-          bean.setDueDate(data.getPublishedAssessment().getAssessmentAccessControl().getDueDate().toString());
-          dueDate = data.getPublishedAssessment().getAssessmentAccessControl().getDueDate();
-        } catch (Exception e) {
-          log.info("No due date.");
-          bean.setDueDate("");
-          dueDate = null;
-        }
-        try {
-          bean.setMaxScore(data.getPublishedAssessment().getEvaluationModel().getFixedTotalScore().toString());
-        } catch (Exception e) {
-	  bean.setMaxScore(data.getPublishedAssessment().getTotalScore().toString());
-        }
       }
 
       if (cu.lookupParam("roleSelection") != null)
@@ -234,56 +172,24 @@ public class SubmissionStatusListener
 
       if (bean.getSortType() == null)
       {
-        if (bean.getAnonymous().equals("true"))
-        {
-          bean.setSortType("totalAutoScore");
-        }
-        else
-        {
-          bean.setSortType("lastName");
-        }
+          bean.setSortType("idString");
       }
 
-      // recordingData encapsulates the inbeanation needed for recording.
-      // set recording agent, agent assessmentId,
-      // set course_assignment_context value
-      // set max tries (0=unlimited), and 30 seconds max length
-      String courseContext = bean.getAssessmentName() + " total ";
-// Note this is HTTP-centric right now, we can't use in Faces
-//      AuthoringHelper authoringHelper = new AuthoringHelper();
-//      authoringHelper.getRemoteUserID() needs servlet stuff
-//      authoringHelper.getRemoteUserName() needs servlet stuff
-
-      String userId = "";
-      String userName = "";
-      RecordingData recordingData =
-        new RecordingData( userId, userName,
-        courseContext, "0", "30");
-      // set this value in the requestMap for sound recorder
-      bean.setRecordingData(recordingData);
 
       /* Dump the grading and agent information into AgentResults */
       ArrayList agents = new ArrayList();
+      ArrayList students_submitted= new ArrayList();
       iter = scores.iterator();
       while (iter.hasNext())
       {
         AgentResults results = new AgentResults();
         AssessmentGradingData gdata = (AssessmentGradingData) iter.next();
+        gdata.setItemGradingSet(new HashSet());
         BeanUtils.copyProperties(results, gdata);
 
         results.setAssessmentGradingId(gdata.getAssessmentGradingId());
-        results.setTotalAutoScore(gdata.getTotalAutoScore().toString());
-        results.setTotalOverrideScore(gdata.getTotalOverrideScore().toString());
-        results.setFinalScore(gdata.getFinalScore().toString());
-        results.setComments(gdata.getComments());
-
-        if (dueDate == null || gdata.getSubmittedDate().before(dueDate))
-          results.setIsLate(new Boolean(false));
-        else
-          results.setIsLate(new Boolean(true));
-
-        AgentFacade agent = new AgentFacade(gdata.getAgentId());
-        log.info("Rachel: agentid = " + gdata.getAgentId());
+        String agentid =  gdata.getAgentId();
+        AgentFacade agent = new AgentFacade(agentid);
         results.setLastName(agent.getLastName());
         results.setFirstName(agent.getFirstName());
         if (results.getLastName() != null &&
@@ -295,17 +201,26 @@ public class SubmissionStatusListener
         else
           results.setLastInitial("A");
         results.setIdString(agent.getIdString());
-        results.setRole(agent.getRole());
+        results.setRole((String)userRoles.get(agentid));
         agents.add(results);
+        students_submitted.add(agentid);
       }
 
+System.out.println("lydiatest agents size = " + agents.size());
+      ArrayList students_not_submitted= new ArrayList();
+      Iterator useridIterator = useridMap.keySet().iterator();
+      while (useridIterator.hasNext()) {
+        String userid = (String) useridIterator.next();
+        if (!students_submitted.contains(userid)) {
+          students_not_submitted.add(userid);
+        }
+      }
+      prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
+System.out.println("lydiatest agents size = " + agents.size());
       log.info("Sort type is " + bean.getSortType() + ".");
       bs = new BeanSort(agents, bean.getSortType());
       if (
-        (bean.getSortType()).equals("assessmentGradingId") ||
-        (bean.getSortType()).equals("totalAutoScore") ||
-        (bean.getSortType()).equals("totalOverrideScore") ||
-        (bean.getSortType()).equals("finalScore"))
+        (bean.getSortType()).equals("assessmentGradingId") )
       {
         bs.toNumericSort();
       } else {
@@ -329,4 +244,34 @@ public class SubmissionStatusListener
   }
 
 
+
+  //add those students that have not submitted scores, need to display them
+  // in the UI 
+  public void prepareNotSubmittedAgentResult(Iterator notsubmitted_iter,
+                                             ArrayList agents, Map userRoles){
+    while (notsubmitted_iter.hasNext()){
+      String studentid = (String) notsubmitted_iter.next();
+      AgentResults results = new AgentResults();
+      AgentFacade agent = new AgentFacade(studentid);
+      results.setLastName(agent.getLastName());
+      results.setFirstName(agent.getFirstName());
+      if (results.getLastName() != null &&
+        results.getLastName().length() > 0)
+      {
+        results.setLastInitial(results.getLastName().substring(0,1));
+      }
+      else if (results.getFirstName() != null &&
+               results.getFirstName().length() > 0)
+      {
+        results.setLastInitial(results.getFirstName().substring(0,1));
+      }
+      else
+      {
+        results.setLastInitial("Anonymous");
+      }
+      results.setIdString(agent.getIdString());
+      results.setRole((String)userRoles.get(studentid));
+      agents.add(results);
+    }
+  }
 }

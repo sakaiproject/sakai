@@ -114,7 +114,7 @@ public class GradingService
     return results;
   }
 
-  private ArrayList getLastAssessmentGradingList(Long publishedId)
+  public ArrayList getLastAssessmentGradingList(Long publishedId)
   {
     ArrayList results = null;
     try {
