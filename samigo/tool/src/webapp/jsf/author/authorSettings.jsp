@@ -653,11 +653,13 @@ function uncheckOther(field){
  </h:panelGroup>
 </div>
  <p class="act">
-  <h:commandButton  value="#{msg.button_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
+  <h:commandButton  value="#{msg.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
       action="#{assessmentSettings.getOutcomePublish}" disabled="#{not assessmentSettings.hasQuestions}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
+      <f:actionListener
+        type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
   </h:commandButton>
-<h:commandButton  value="#{msg.button_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
+<h:commandButton  value="#{msg.button_unique_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
       action="#{assessmentSettings.getOutcomePublish}" disabled="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
   </h:commandButton>
