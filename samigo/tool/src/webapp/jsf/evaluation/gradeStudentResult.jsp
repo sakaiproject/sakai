@@ -96,16 +96,12 @@ $Id$
 <h:panelGrid columns="2">
    <h:outputText value="Comments:"/>
    <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30"/>
-   <%--
-     <samigo:wysiwyg rows="140" value="#{studentScores.comments}" >
-       <f:validateLength maximum="4000"/>
-     </samigo:wysiwyg>
-    --%>
    </h:panelGrid>
 </div>
 <f:verbatim><h4></f:verbatim>
 <h:outputText value="#{dmsg.table_of_contents}" />
 <f:verbatim></h4></f:verbatim>
+
 <div class="tier2">
   <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
   <h:column>
@@ -132,10 +128,10 @@ $Id$
   </h:dataTable>
 </div>
 
+
 <div class="tier2">
   <h:dataTable value="#{delivery.pageContents.partsContents}" var="part">
     <h:column>
-     <!-- f:subview id="parts" -->
       <f:verbatim><h4 class="tier1"></f:verbatim>
       <h:outputText value="#{dmsg.p} #{part.number} #{dmsg.of} #{part.numParts}" />
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
@@ -151,69 +147,75 @@ $Id$
           <h:outputText value="#{part.number}_#{question.number}\"></a>"
             escape="false" />
           <f:verbatim><h4 class="tier2"></f:verbatim>
-          <h:outputText value="#{dmsg.q} #{question.number} #{dmsg.of} " />
-          <h:outputText value="#{part.questions} :  " />
-          <h:inputText value="#{question.points}" >
-	    <f:convertNumber maxFractionDigits="2"/>
-          </h:inputText>
-          <h:outputText value=" / #{question.maxPoints} " />
-          <h:outputText value="#{dmsg.pt}"/>
-          <f:verbatim></h4><div class="indnt3"></f:verbatim>
-          <h:outputText value="#{question.itemData.description}" escape="false"/>
-          <h:panelGroup rendered="#{question.itemData.typeId == 7}">
-           <f:subview id="deliverAudioRecording">
-           <%@ include file="/jsf/delivery/item/deliverAudioRecording.jsp" %>
-           </f:subview>
-          </h:panelGroup>
-          <h:panelGroup rendered="#{question.itemData.typeId == 6}">
-           <f:subview id="deliverFileUpload">
-           <%@ include file="/jsf/evaluation/item/displayFileUpload.jsp" %>
-           </f:subview>
-          </h:panelGroup>
-          <h:panelGroup rendered="#{question.itemData.typeId == 8}">
-           <f:subview id="deliverFillInTheBlank">
-           <%@ include file="/jsf/delivery/item/deliverFillInTheBlank.jsp" %>
-           </f:subview>
-          </h:panelGroup>
-          <h:panelGroup rendered="#{question.itemData.typeId == 9}">
-           <f:subview id="deliverMatching">
-            <%@ include file="/jsf/delivery/item/deliverMatching.jsp" %>
-           </f:subview>
-          </h:panelGroup>
-          <h:panelGroup
-            rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 3}">
-           <f:subview id="deliverMultipleChoiceSingleCorrect">
-           <%@ include file="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.jsp" %>
-           </f:subview>
-          </h:panelGroup>
-          <h:panelGroup rendered="#{question.itemData.typeId == 2}">
-           <f:subview id="deliverMultipleChoiceMultipleCorrect">
-           <%@ include file="/jsf/delivery/item/deliverMultipleChoiceMultipleCorrect.jsp" %>
-           </f:subview>
-          </h:panelGroup>
-          <h:panelGroup rendered="#{question.itemData.typeId == 5}">
-           <f:subview id="deliverShortAnswer">
-           <%@ include file="/jsf/delivery/item/deliverShortAnswer.jsp" %>
-           </f:subview>
-          </h:panelGroup>
-          <h:panelGroup rendered="#{question.itemData.typeId == 4}">
-           <f:subview id="deliverTrueFalse">
-           <%@ include file="/jsf/delivery/item/deliverTrueFalse.jsp" %>
-           </f:subview>
-           <f:verbatim></div></f:verbatim>
-          </h:panelGroup>
+            <h:outputText value="#{dmsg.q} #{question.number} #{dmsg.of} " />
+            <h:outputText value="#{part.questions} :  " />
+            <h:inputText value="#{question.points}" >
+<%--SAK-3776    <f:convertNumber maxFractionDigits="2"/> --%>
+            </h:inputText>
+            <h:outputText value=" / #{question.maxPoints} " />
+            <h:outputText value="#{dmsg.pt}"/>
+          <f:verbatim></h4></f:verbatim>
+
+          <f:verbatim><div class="indnt3"></f:verbatim>
+            <h:outputText value="#{question.itemData.description}" escape="false"/>
+
+            <h:panelGroup rendered="#{question.itemData.typeId == 7}">
+              <f:subview id="deliverAudioRecording">
+                <%@ include file="/jsf/delivery/item/deliverAudioRecording.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.itemData.typeId == 6}">
+              <f:subview id="deliverFileUpload">
+                <%@ include file="/jsf/evaluation/item/displayFileUpload.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.itemData.typeId == 8}">
+              <f:subview id="deliverFillInTheBlank">
+                <%@ include file="/jsf/delivery/item/deliverFillInTheBlank.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.itemData.typeId == 9}">
+              <f:subview id="deliverMatching">
+                <%@ include file="/jsf/delivery/item/deliverMatching.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+
+            <h:panelGroup
+              rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 3}">
+              <f:subview id="deliverMultipleChoiceSingleCorrect">
+                <%@ include file="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.itemData.typeId == 2}">
+              <f:subview id="deliverMultipleChoiceMultipleCorrect">
+                <%@ include file="/jsf/delivery/item/deliverMultipleChoiceMultipleCorrect.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.itemData.typeId == 5}">
+              <f:subview id="deliverShortAnswer">
+                <%@ include file="/jsf/delivery/item/deliverShortAnswer.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.itemData.typeId == 4}">
+              <f:subview id="deliverTrueFalse">
+                <%@ include file="/jsf/delivery/item/deliverTrueFalse.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+          <f:verbatim></div></f:verbatim>
+
           <h:panelGrid columns="2">
             <h:outputText value="Comments:"/>
             <h:inputTextarea value="#{question.gradingComment}" rows="3" cols="30"/>
-            <%--
-            <samigo:wysiwyg rows="140" value="#{question.gradingComment}">
-              <f:validateLength maximum="4000"/>
-            </samigo:wysiwyg>
-            --%>
           </h:panelGrid>
+
         </h:column>
       </h:dataTable>
-     <!-- /f:subview -->
     </h:column>
   </h:dataTable>
 </div>
