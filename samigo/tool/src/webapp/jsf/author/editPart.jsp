@@ -33,6 +33,9 @@
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
+ <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
+     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.create_modify_p}" /></title>
@@ -45,7 +48,7 @@
 <!-- TODO need to add validation-->
 
 <h3>
-     <h:outputText value="#{msg.create_modify_p} - #{sectionBean.assessmentTitle}" /></h3>
+     <h:outputText value="#{msg.create_modify_p} #{msg.dash} #{sectionBean.assessmentTitle}" /></h3>
 <h:form id="modifyPartForm">
 <h:messages styleClass="validation"/>
   <h:inputHidden id="assessmentId" value="#{sectionBean.assessmentId}"/>

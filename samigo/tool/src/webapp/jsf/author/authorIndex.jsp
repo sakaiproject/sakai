@@ -55,9 +55,9 @@
     <h:outputText value="#{msg.assessments}"/>
   </h3>
 <p>
-<f:verbatim><font color="red"></f:verbatim>
+
   <h:messages styleClass="validation"/>
-<f:verbatim></font></f:verbatim>
+
 
 </p>
 
@@ -159,7 +159,7 @@
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
       </h:commandLink>
-        <h:outputText value=" | " 
+        <h:outputText value=" #{msg.separator} " 
           rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}"/>
 
       <!-- action=confirmRemoveAssessment if pass authz -->
@@ -170,7 +170,7 @@
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemoveAssessmentListener" />
       </h:commandLink>
-        <h:outputText value=" | " 
+        <h:outputText value=" #{msg.separator} " 
           rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}" />
 
     <h:outputLink value="#"
@@ -266,14 +266,14 @@
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
       </h:commandLink>
 <%-- This is a convenient link for Daisy, hide it for now
-       <h:outputText value=" | " />
+       <h:outputText value=" #{msg.separator} " />
       <h:commandLink id="removeAssessment" immediate="true" action="removeAssessment">
         <h:outputText id="linkRemove" value="#{msg.link_remove}"/>
         <f:param name="publishedAssessmentId" value="#{publishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
       </h:commandLink>
 --%>
-      <h:outputText value=" | " 
+      <h:outputText value=" #{msg.separator} " 
          rendered="#{publishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"/>
       <h:commandLink action="#{author.getOutcome}" immediate="true" 
          rendered="#{publishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
@@ -420,14 +420,14 @@
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
       </h:commandLink>
 <%-- This is a convenient link for Daisy, hide it for now
-       <h:outputText value=" | " />
+       <h:outputText value=" #{msg.separator} " />
       <h:commandLink id="removeAssessment" immediate="true" action="removeAssessment">
         <h:outputText id="linkRemove" value="#{msg.link_remove}"/>
         <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
       </h:commandLink>
 --%>
-      <h:outputText value=" | "
+      <h:outputText value=" #{msg.separator} "
           rendered="#{inactivePublishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"
       />
       <h:commandLink action="#{author.getOutcome}" immediate="true" 

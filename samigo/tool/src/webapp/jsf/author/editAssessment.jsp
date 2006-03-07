@@ -35,6 +35,9 @@
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
+     <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
+     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.create_modify_a}" /></title>
@@ -92,13 +95,10 @@ document.links[newindex].onclick();
 
   <div align="left">
     <h3>
-       <h:outputText value="#{msg.qs}" />
-       <h:outputText value=": " />
-       <h:outputText value="#{assessmentBean.title}" />
+       <h:outputText value="#{msg.qs}#{msg.column} #{assessmentBean.title}" />
     </h3>
   </div><div align="right">
-    <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs}" />
-    <h:outputText value=" | " />
+    <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs} #{msg.dash} " />
     <h:outputText value="#{assessmentBean.totalScore}">
   <f:convertNumber maxFractionDigits="2"/>
     </h:outputText>
@@ -110,13 +110,13 @@ document.links[newindex].onclick();
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorPartListener" />
     </h:commandLink>
-    <h:outputText value=" | " />
+    <h:outputText value=" #{msg.separator} " />
     <h:commandLink id="editAssessmentSettings" action="editAssessmentSettings" immediate="true">
       <h:outputText value="#{msg.subnav_settings}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
     </h:commandLink>
-    <h:outputText value=" | " />
+    <h:outputText value=" #{msg.separator} " />
       <h:commandLink  action="beginAssessment">
         <h:outputText value="#{msg.subnav_preview}"/>
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
@@ -153,7 +153,7 @@ document.links[newindex].onclick();
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderPartsListener" />
         </h:selectOneMenu>
 
-        <h:outputText rendered="#{partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1'}" value="#{partBean.title} - #{partBean.questions} #{msg.question_s_lower_case}" />
+        <h:outputText rendered="#{partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1'}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.question_s_lower_case}" />
         <h:outputText rendered="#{partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{msg.question_s_lower_case}" />
       </h:panelGroup>
       <h:panelGroup>
@@ -165,7 +165,7 @@ document.links[newindex].onclick();
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemovePartListener" />
         </h:commandLink>
-          <h:outputText value=" | " rendered="#{partBean.number ne 1}"/>
+          <h:outputText value=" #{msg.separator} " rendered="#{partBean.number ne 1}"/>
 
         <h:commandLink id="editPart" immediate="true" action="editPart">
           <h:outputText value="#{msg.button_modify}" />
@@ -213,7 +213,7 @@ document.links[newindex].onclick();
               <f:selectItems value="#{partBean.questionNumbers}" />
               <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderQuestionsListener" />
             </h:selectOneMenu>
-            <h:outputText value=" #{question.itemData.type.keyword} -  #{question.itemData.score} #{msg.points_lower_case}" />
+            <h:outputText value=" #{question.itemData.type.keyword} #{msg.dash} #{question.itemData.score} #{msg.points_lower_case}" />
           </h:panelGroup>
 
           <h:panelGroup>
@@ -221,7 +221,7 @@ document.links[newindex].onclick();
               <h:outputText value="#{msg.button_remove}" />
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
             </h:commandLink>
-            <h:outputText value=" | " />
+            <h:outputText value=" #{msg.separator} " />
             <h:commandLink id="modify" action="#{itemauthor.doit}" immediate="true">
               <h:outputText value="#{msg.button_modify}" />
               <f:actionListener

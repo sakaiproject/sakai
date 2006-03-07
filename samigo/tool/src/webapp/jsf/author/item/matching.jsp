@@ -34,6 +34,9 @@
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
+   <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
+     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
@@ -146,7 +149,7 @@
 </h:commandLink>
 
           <h:outputText value="#{msg.matching_currently_editing}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence== pair.sequence}"/>
-          <h:outputText value=" | " rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}"/>
+          <h:outputText value=" #{msg.separator} " rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}"/>
 
 <h:commandLink id="removelink" immediate="true" action="#{itemauthor.currentItem.removeMatchPair}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}">
   <h:outputText id="removetext" value="#{msg.button_remove}"/>

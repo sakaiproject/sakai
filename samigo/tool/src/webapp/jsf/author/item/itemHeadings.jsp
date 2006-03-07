@@ -62,12 +62,12 @@ document.links[newindex].onclick();
     <h:commandLink action="author" immediate="true">
       <h:outputText value="#{msg.global_nav_assessmt}" />
     </h:commandLink>
-    <h:outputText value=" | " />
+    <h:outputText value="#{genMsg.separator} " />
     <h:commandLink action="template" immediate="true">
       <h:outputText value="#{msg.global_nav_template}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
-    <h:outputText value=" | " />
+    <h:outputText value="#{genMsg.separator} " />
     <h:commandLink action="poolList" immediate="true">
       <h:outputText value="#{msg.global_nav_pools}" />
     </h:commandLink>
@@ -78,11 +78,11 @@ document.links[newindex].onclick();
     <h:commandLink rendered="#{itemauthor.target == 'assessment'}" action="author" immediate="true">
       <h:outputText value="#{msg.global_nav_assessmt}" />
     </h:commandLink>
-    <h:outputText rendered="#{itemauthor.target == 'assessment'}" value=" > " />
+    <h:outputText rendered="#{itemauthor.target == 'assessment'}" value=" #{msg.greater} " />
     <h:commandLink action="editAssessment" immediate="true" rendered="#{itemauthor.target == 'assessment'}">
-      <h:outputText value="#{msg.qs}: #{assessmentBean.title}" />
+      <h:outputText value="#{msg.qs}#{msg.column} #{assessmentBean.title}" />
     </h:commandLink>
-    <h:outputText value=" > " rendered="#{itemauthor.target == 'assessment'}" />
+    <h:outputText value=" #{msg.greater} " rendered="#{itemauthor.target == 'assessment'}" />
     <h:outputText value="#{msg.q} #{itemauthor.itemNo}" rendered="#{itemauthor.target == 'assessment'}"/>
 
 </div>
@@ -98,7 +98,7 @@ document.links[newindex].onclick();
     </h:commandLink>
   </h:column>
 </samigo:dataLine>
-<h:outputText rendered="#{questionpool.currentPool.showParentPools && itemauthor.target == 'questionpool'}" value=" > " />
+<h:outputText rendered="#{questionpool.currentPool.showParentPools && itemauthor.target == 'questionpool'}" value=" #{msg.greater} " />
 <h:commandLink rendered="#{itemauthor.target == 'questionpool'}" action="#{questionpool.editPool}"  immediate="true">
   <h:outputText value="#{questionpool.currentPool.displayName}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
@@ -106,7 +106,7 @@ document.links[newindex].onclick();
 </div>
 
 <h3>
-   <h:outputText value="#{msg.modify_q}:"/>
+   <h:outputText value="#{msg.modify_q}#{msg.column} "/>
    <h:outputText value="#{assessmentBean.title}" rendered="#{itemauthor.target == 'assessment'}"/>
 </h3>
 <!-- CHANGE TYPE -->
@@ -147,7 +147,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
    <b>
      <h:outputText value="#{msg.q}"/>
      <h:outputText rendered="#{itemauthor.target == 'assessment'}" value="#{itemauthor.itemNo}"/>
-     <h:outputText value=" - "/>
+     <h:outputText value=" #{msg.dash} "/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType == 1}" value="#{msg.multiple_choice_type}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 2}" value="#{msg.multiple_choice_type}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 3}" value="#{msg.multiple_choice_surv}"/>
@@ -171,7 +171,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
   </h:commandLink>
 
 
-  <h:outputText rendered="#{itemauthor.currentItem.itemId != null}" value=" | " />
+  <h:outputText rendered="#{itemauthor.currentItem.itemId != null}" value=" #{msg.separator} " />
 --%>
   <h:commandLink rendered="#{itemauthor.currentItem.itemId != null}" styleClass="alignRight" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
                 <h:outputText value="#{msg.button_remove}" />

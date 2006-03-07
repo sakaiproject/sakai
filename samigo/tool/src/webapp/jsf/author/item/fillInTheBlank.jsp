@@ -33,6 +33,9 @@
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
+     <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
+     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.item_display_author}"/></title>
@@ -70,6 +73,10 @@
   <h:outputText value="#{msg.note_insert_pipe}" />
   <br/>
   <h:outputText value="#{msg.for_example_pipe}" />
+  <br/>
+  <h:outputText value="#{msg.wildcard_char}" />
+<br/>
+  <h:outputText value="#{msg.wildcard_example}" />
 <br/>
   <h:panelGrid>
    <samigo:wysiwyg
@@ -89,6 +96,8 @@
 <h:outputText value="#{msg.mutually_exclusive}" />
 <h:panelGrid columns="1">
 <h:outputText value="#{msg.mutually_exclusive_note}" />
+<br/>
+<h:outputText value="#{msg.mutually_exclusive_example}" />
 </h:panelGrid>
 </div>
 

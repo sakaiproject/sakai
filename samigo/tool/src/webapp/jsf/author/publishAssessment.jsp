@@ -127,7 +127,7 @@
 </h:panelGrid>
 
 <f:verbatim><p></p></f:verbatim>
-     <h:outputText value="* #{msg.open_new_browser_for_publishedUrl}" />
+     <h:outputText value="#{msg.open_new_browser_for_publishedUrl}" />
 
      <p class="act">
        <h:commandButton value="#{msg.button_save_and_publish}" type="submit"

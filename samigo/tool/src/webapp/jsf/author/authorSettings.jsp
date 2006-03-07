@@ -35,12 +35,15 @@
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages"
      var="msg"/>
+     <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
+     var="genMsg"/>
   <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.TemplateMessages"
      var="summary_msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.sakai_assessment_manager} - #{msg.settings}" /></title>
+      <title><h:outputText value="#{msg.sakai_assessment_manager} #{msg.dash} #{msg.settings}" /></title>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
@@ -159,15 +162,10 @@ function uncheckOther(field){
   <%@ include file="/jsf/author/allHeadings.jsp" %>
 
     <h3>
-     <h:outputText value="#{msg.settings}" />
-     <h:outputText value=" - " />
-     <h:outputText value="#{assessmentSettings.title}" />
+     <h:outputText value="#{msg.settings} #{msg.dash} #{assessmentSettings.title}" />
     </h3>
 <p>
-<f:verbatim><font color="red"></f:verbatim>
   <h:messages styleClass="validation"/>
-<f:verbatim></font></f:verbatim>
-
 </p>
 
 <div class="indnt1">
