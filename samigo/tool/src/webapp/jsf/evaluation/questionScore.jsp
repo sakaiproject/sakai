@@ -441,14 +441,19 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- ANSWER -->
     <h:column rendered="#{questionScores.sortType!='answer'}">
       <f:facet name="header">
-        <h:commandLink id="answer" action="questionScores">
-          <h:outputText value="#{msg.stud_resp}" />
-      <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
-          <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-        <f:param name="sortBy" value="answer" />
-        </h:commandLink>
+        <h:panelGroup>
+          <h:outputText value="#{msg.stud_resp}" 
+             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
+          <h:commandLink id="answer" action="questionScores" >
+            <h:outputText value="#{msg.stud_resp}" 
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' }"/>
+            <f:actionListener
+               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+            <f:actionListener
+               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+            <f:param name="sortBy" value="answer" />
+          </h:commandLink>
+        </h:panelGroup>
       </f:facet>
       <!-- display of answer to file upload question is diffenent from other types - daisyf -->
       <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6'}" />
