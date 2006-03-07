@@ -1094,8 +1094,11 @@ public class ExtractionHelper
     }
 
     String correctItemFeedback = (String) itemMap.get("correctItemFeedback");
+      System.out.println("lydiatest : correctItemFeedback =  " + correctItemFeedback);
     String incorrectItemFeedback = (String) itemMap.get("incorrectItemFeedback");
+      System.out.println("lydiatest : incorrectItemFeedback =  " + incorrectItemFeedback);
     String generalItemFeedback = (String) itemMap.get("generalItemFeedback");
+      System.out.println("lydiatest : generalItemFeedback =  " + generalItemFeedback);
     if (generalItemFeedback==null) generalItemFeedback = "";
 
     // NOTE:
@@ -1433,8 +1436,8 @@ public class ExtractionHelper
       incorrectMatchFeedbackList ==
       null ? new ArrayList() : incorrectMatchFeedbackList;
 
-    log.debug("*** original order");
-    for (int i = 0; i < correctMatchFeedbackList.size(); i++) {
+    log.debug("*** original incorrect order");
+    for (int i = 0; i < incorrectMatchFeedbackList.size(); i++) {
       log.debug("incorrectMatchFeedbackList.get(" + i + ")="+
                          incorrectMatchFeedbackList.get(i));
     }
@@ -1449,7 +1452,7 @@ public class ExtractionHelper
     }
 
     log.debug("*** NEW order");
-    for (int i = 0; i < correctMatchFeedbackList.size(); i++) {
+    for (int i = 0; i < incorrectMatchFeedbackList.size(); i++) {
       log.debug("incorrectMatchFeedbackList.get(" + i + ")="+
                          incorrectMatchFeedbackList.get(i));
 
