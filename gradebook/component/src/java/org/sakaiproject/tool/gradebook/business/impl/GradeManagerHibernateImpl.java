@@ -547,17 +547,6 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
     }
 
     /**
-     * We standardly use the HibernateCallback doInHibernate method to communicate with the DB.
-     * Since we can't add declared exceptions to that method's interface, we need to use
-     * a runtime exception and translate it outside of the call.
-     */
-    private static class RuntimeConflictingAssignmentNameException extends RuntimeException {
-        public RuntimeConflictingAssignmentNameException(String message) {
-            super(message);
-        }
-    }
-
-    /**
      */
     public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted)
         throws ConflictingAssignmentNameException, StaleObjectModificationException {
@@ -574,7 +563,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 ).next()).intValue();
 
                 if(numNameConflicts > 0) {
-                    throw new RuntimeConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+                    throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
                 }
 
                 Assignment asn = new Assignment();
@@ -596,13 +585,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
             }
         };
 
-        Long newAssignmentId;
-        try {
-            newAssignmentId = (Long)getHibernateTemplate().execute(hc);
-        } catch (RuntimeConflictingAssignmentNameException e) {
-            throw new ConflictingAssignmentNameException(e.getMessage());
-        }
-        return newAssignmentId;
+        return (Long)getHibernateTemplate().execute(hc);
     }
 
     /**
@@ -626,7 +609,7 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
                 ).next()).intValue();
 
                 if(numNameConflicts > 0) {
-                    throw new RuntimeConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+                    throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
                 }
 
                 if (!asnFromDb.getPointsPossible().equals(assignment.getPointsPossible()) ||
@@ -646,8 +629,6 @@ public class GradeManagerHibernateImpl extends BaseHibernateManager implements G
         };
         try {
             getHibernateTemplate().execute(hc);
-        } catch (RuntimeConflictingAssignmentNameException e) {
-            throw new ConflictingAssignmentNameException(e.getMessage());
         } catch (HibernateOptimisticLockingFailureException holfe) {
             if(logger.isInfoEnabled()) logger.info("An optimistic locking failure occurred while attempting to update an assignment");
             throw new StaleObjectModificationException(holfe);

@@ -139,14 +139,14 @@ public interface GradebookService {
 	 *	The Uid of the gradebook
 	 * @param externalId
 	 *	The external ID of the assignment/assessment
-	 * @param studentId
+	 * @param studentUid
 	 *	The unique id of the student
 	 * @param points
 	 *	The number of points earned on this assessment, or null if a score
 	 *	should be removed
 	 */
     public void updateExternalAssessmentScore(String gradebookUid, String externalId,
-			String studentId, Double points)
+			String studentUid, Double points)
             throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**

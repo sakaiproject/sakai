@@ -175,43 +175,39 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             throw new RuntimeException("Points must be >= 0");
         }
 
-        // This issue of not being able to throw checked exceptions inside doInHibernate
-        // is getting really annoying.  Perhaps we should change to runtime exceptions?
-
-        // Ensure that the externalId is unique within this gradebook
-        HibernateCallback idConflictsCallback = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                String hql = "select count(asn) from Assignment as asn where asn.externalId=? and asn.gradebook.uid=?";
-                return (Integer)session.iterate(hql, new Object[] {externalId, gradebookUid}, new Type[] {Hibernate.STRING, Hibernate.STRING}).next();
-            }
-        };
-        Integer externalIdConflicts = (Integer)getHibernateTemplate().execute(idConflictsCallback);
-        if(externalIdConflicts.intValue() > 0) {
-            throw new ConflictingExternalIdException("An external assessment with that ID already exists in gradebook uid=" + gradebookUid);
-        }
-
         // Ensure that the assessment name is unique within this gradebook
 		if (isAssignmentDefined(gradebookUid, title)) {
             throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
 
-        // Get the gradebook
-        final Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				// Ensure that the externalId is unique within this gradebook
+				Integer externalIdConflicts = (Integer)session.iterate(
+					"select count(asn) from Assignment as asn where asn.externalId=? and asn.gradebook.uid=?",
+					new Object[] {externalId, gradebookUid},
+					new Type[] {Hibernate.STRING, Hibernate.STRING}
+				).next();
+				if (externalIdConflicts.intValue() > 0) {
+					throw new ConflictingExternalIdException("An external assessment with that ID already exists in gradebook uid=" + gradebookUid);
+				}
 
-        // Create the external assignment
-        final Assignment asn = new Assignment(gradebook, title, new Double(points), dueDate);
-        asn.setExternallyMaintained(true);
-        asn.setExternalId(externalId);
-        asn.setExternalInstructorLink(externalUrl);
-        asn.setExternalStudentLink(externalUrl);
-        asn.setExternalAppName(externalServiceDescription);
+				// Get the gradebook
+				Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
 
-        getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                session.save(asn);
-                recalculateCourseGradeRecords(gradebook, session);
-                return null;
-            }});
+				// Create the external assignment
+				Assignment asn = new Assignment(gradebook, title, new Double(points), dueDate);
+				asn.setExternallyMaintained(true);
+				asn.setExternalId(externalId);
+				asn.setExternalInstructorLink(externalUrl);
+				asn.setExternalStudentLink(externalUrl);
+				asn.setExternalAppName(externalServiceDescription);
+
+				session.save(asn);
+				recalculateCourseGradeRecords(gradebook, session);
+				return null;
+			}
+		});
         if (log.isInfoEnabled()) log.info("External assessment added to gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + " from externalApp=" + externalServiceDescription);
 	}
 
@@ -316,7 +312,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#updateExternalAssessmentScore(java.lang.String, java.lang.String, java.lang.String, Double)
 	 */
 	public void updateExternalAssessmentScore(final String gradebookUid, final String externalId,
-			final String studentId, final Double points) throws GradebookNotFoundException, AssessmentNotFoundException {
+			final String studentUid, final Double points) throws GradebookNotFoundException, AssessmentNotFoundException {
 
         final Assignment asn = getExternalAssignment(gradebookUid, externalId);
 
@@ -327,24 +323,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Date now = new Date();
-                String grHql = "from AssignmentGradeRecord as agr where agr.gradableObject=? and agr.studentId=?";
-                List list = session.find(grHql, new Object[] {asn, studentId},
-                        new Type[] {Hibernate.entity(GradableObject.class), Hibernate.STRING});
-                if(list.size() == 0) {
-                    AssignmentGradeRecord agr = new AssignmentGradeRecord(asn, studentId, points);
-                    agr.setDateRecorded(now);
-                    agr.setGraderId(getUserUid());
-                    session.save(agr);
+                AssignmentGradeRecord agr = getAssignmentGradeRecord(asn, studentUid, session);
+                if (agr == null) {
+                	agr = new AssignmentGradeRecord(asn, studentUid, points);
                 } else {
-                    AssignmentGradeRecord agr = (AssignmentGradeRecord)list.get(0);
-                    agr.setDateRecorded(now);
-                    agr.setGraderId(getUserUid());
-                    agr.setPointsEarned(points);
-                    session.update(agr);
+                	agr.setPointsEarned(points);
                 }
+				agr.setDateRecorded(now);
+				agr.setGraderId(getUserUid());
+                session.saveOrUpdate(agr);
+
                 Gradebook gradebook = asn.getGradebook();
                 Set set = new HashSet();
-                set.add(studentId);
+                set.add(studentUid);
+
+				// Need to sync database before recalculating.
+				session.flush();
+				session.clear();
                 try {
                     recalculateCourseGradeRecords(gradebook, set, session);
                 } catch (StaleObjectStateException e) {
@@ -358,9 +353,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
 	}
 
-	public boolean isAssignmentDefined(String gradebookUid, String assignmentName)
+	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
-        return (getAssignmentWithoutStats(gradebookUid, assignmentName) != null);
+        Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
+			}
+		});
+        return (assignment != null);
     }
 
 	public boolean isUserAbleToGradeStudent(String gradebookUid, String studentUid) {
@@ -386,36 +386,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
 
-		return (Double)getHibernateTemplate().execute(new HibernateCallback() {
+		Double assignmentScore = assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-				List scores = session.find("from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.removed=false and agr.gradableObject.gradebook.uid=? and agr.gradableObject.name=?",
-					new Object[] {studentUid, gradebookUid, assignmentName},
-					new Type[] {Hibernate.STRING, Hibernate.STRING, Hibernate.STRING});
-				if (scores.size() < 1) {
+				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentName, session);
+				if (assignment == null) {
+					throw new AssessmentNotFoundException("There is no assignment named " + assignmentName + " in gradebook " + gradebookUid);
+				}
+				AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
+				if (log.isDebugEnabled()) log.debug("gradeRecord=" + gradeRecord);
+				if (gradeRecord == null) {
 					return null;
 				} else {
-					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)scores.get(0);
 					return gradeRecord.getPointsEarned();
 				}
 			}
 		});
-	}
-
-	private Assignment getAssignmentWithoutStats(final String gradebookUid, final String assignmentName) {
-		return (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				List asns = session.find(
-					"from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false",
-					new Object[] {assignmentName, gradebookUid},
-					new Type[] {Hibernate.STRING, Hibernate.STRING}
-				);
-				if (asns.size() < 1) {
-					return null;
-				} else {
-					return (Assignment)asns.get(0);
-				}
-			}
-		});
+		if (log.isDebugEnabled()) log.debug("returning " + assignmentScore);
+		return assignmentScore;
 	}
 
 	public void setAssignmentScore(final String gradebookUid, final String assignmentName, final String studentUid, final Double score, final String clientServiceDescription)
@@ -424,17 +411,46 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to grade student " + studentUid + " from " + clientServiceDescription);
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
-		Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentName);
-		if (assignment == null) {
-            throw new AssessmentNotFoundException("There is no assignment named " + assignmentName + " in gradebook " + gradebookUid);
-        }
-        if (assignment.isExternallyMaintained()) {
-			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to grade externally maintained assignment " + assignmentName + " from " + clientServiceDescription);
-			throw new SecurityException("You do not have permission to perform this operation");
-		}
-		GradeRecordSet scores = new GradeRecordSet(assignment);
-		scores.addGradeRecord(new AssignmentGradeRecord(assignment, studentUid, score));
-		gradeManager.updateAssignmentGradeRecords(scores);
+
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentName, session);
+				if (assignment == null) {
+					throw new AssessmentNotFoundException("There is no assignment named " + assignmentName + " in gradebook " + gradebookUid);
+				}
+				if (assignment.isExternallyMaintained()) {
+					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to grade externally maintained assignment " + assignmentName + " from " + clientServiceDescription);
+					throw new SecurityException("You do not have permission to perform this operation");
+				}
+
+				Date now = new Date();
+				String graderId = getAuthn().getUserUid();
+				AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
+				if (gradeRecord == null) {
+					// Creating a new grade record.
+					gradeRecord = new AssignmentGradeRecord(assignment, studentUid, score);
+				} else {
+					gradeRecord.setPointsEarned(score);
+				}
+				gradeRecord.setGraderId(graderId);
+				gradeRecord.setDateRecorded(now);
+				session.saveOrUpdate(gradeRecord);
+				// Need to sync database before recalculating.
+				session.flush();
+				session.clear();
+
+				Set set = new HashSet();
+				set.add(studentUid);
+				try {
+					recalculateCourseGradeRecords(assignment.getGradebook(), set, session);
+				} catch (StaleObjectStateException e) {
+					if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while user " + graderId + " was attempting to update score for assignment " + assignment.getName() + " and student " + studentUid + " from client " + clientServiceDescription);
+					throw new StaleObjectModificationException(e);
+				}
+				return null;
+			}
+		});
+
 		if (log.isInfoEnabled()) log.info("Score updated in gradebookUid=" + gradebookUid + ", assignmentName=" + assignmentName + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
 	}
 
@@ -456,5 +472,29 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     public void setAuthz(Authz authz) {
         this.authz = authz;
     }
+
+	private Assignment getAssignmentWithoutStats(String gradebookUid, String assignmentName, Session session) throws HibernateException {
+		List asns = session.find(
+			"from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false",
+			new Object[] {assignmentName, gradebookUid},
+			new Type[] {Hibernate.STRING, Hibernate.STRING}
+		);
+		if (asns.size() < 1) {
+			return null;
+		} else {
+			return (Assignment)asns.get(0);
+		}
+	}
+
+	private AssignmentGradeRecord getAssignmentGradeRecord(Assignment assignment, String studentUid, Session session) throws HibernateException {
+		List scores = session.find("from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.id=?",
+			new Object[] {studentUid, assignment.getId()},
+			new Type[] {Hibernate.STRING, Hibernate.LONG});
+		if (scores.size() < 1) {
+			return null;
+		} else {
+			return (AssignmentGradeRecord)scores.get(0);
+		}
+	}
 }
 

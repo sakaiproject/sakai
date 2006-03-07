@@ -32,6 +32,9 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -43,6 +46,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 /**
  */
 public class GradableObjectManagerTest extends GradebookTestBase {
+    private static final Log log = LogFactory.getLog(GradableObjectManagerTest.class);
     protected static final String ASN1_NAME = "Assignment #1";
     protected static final String ASN2_NAME = "Assignment #2";
     protected static final String ASN3_NAME = "Assignment #3";

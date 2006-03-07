@@ -133,6 +133,11 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 				gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(39), "Service Test");
 				score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
 				Assert.assertTrue(score.doubleValue() == 39.0);
+
+				// Also test the case where there's a score already there.
+				gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(37), "Different Service Test");
+				score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+				Assert.assertTrue(score.doubleValue() == 37.0);
 			}
 		}
 	}
